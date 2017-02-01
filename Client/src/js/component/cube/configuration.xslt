@@ -140,7 +140,7 @@
           </xsl:if>
         </xp:ColDims>
 
-        <!-- Virtual dimension members -->
+        <!-- Virtual dimension members, this is a feature or EnterpriseEdition only -->
         <xp:VirtDimMembers paramSetId="colDims" outerTotalLevelBRef="{/*/cube:Layout/cube:Dimensions/cube:Columns/dm:LevelRef[1]/@bRef}">
           <xsl:for-each select="cube:Layout/cube:Dimensions/cube:Columns/dm:LevelRef/cube:VDM">
             <xp:VirtDimMember bRef="{../@bRef}" caption="{@caption}">
