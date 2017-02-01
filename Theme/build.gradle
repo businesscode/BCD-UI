@@ -30,6 +30,7 @@ task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CompileCss"
 
   inputs.dir  file(themeFullLocation)
+  inputs.dir  file('src/generic')
   outputs.dir file(taskDestDirName)
 
   script = file("$nodeModulesDir/node-sass/bin/node-sass")
