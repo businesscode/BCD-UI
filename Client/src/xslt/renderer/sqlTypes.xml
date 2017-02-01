@@ -1,0 +1,42 @@
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<rnd:SQLTypes  xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0">
+  <rnd:Numeric>
+    <rnd:Type name="BIGINT">-5</rnd:Type>
+    <rnd:Type name="BIT">-7</rnd:Type>
+    <rnd:Type name="DECIMAL">3</rnd:Type>
+    <rnd:Type name="DOUBLE">8</rnd:Type>
+    <rnd:Type name="FLOAT">6</rnd:Type>
+    <rnd:Type name="INTEGER">4</rnd:Type>
+    <rnd:Type name="NUMERIC">2</rnd:Type>
+    <rnd:Type name="REAL">7</rnd:Type>
+    <rnd:Type name="SMALLINT">5</rnd:Type>
+    <rnd:Type name="TINYINT">-6</rnd:Type>
+  </rnd:Numeric>
+  <rnd:DateTime>
+    <rnd:Type name="DATE">91</rnd:Type>
+    <rnd:Type name="TIME">92</rnd:Type>
+    <rnd:Type name="TIMESTAMP">93</rnd:Type>
+  </rnd:DateTime>
+  <rnd:XML>
+    <rnd:Type name="SQLXML">2009</rnd:Type>
+  </rnd:XML>
+  <rnd:Character>
+    <rnd:Type name="VARCHAR">12</rnd:Type>
+    <rnd:Type name="CHAR">1</rnd:Type>
+    <rnd:Type name="CLOB">2005</rnd:Type>
+  </rnd:Character>
+</rnd:SQLTypes>

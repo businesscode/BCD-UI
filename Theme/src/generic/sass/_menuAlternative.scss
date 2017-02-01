@@ -1,0 +1,73 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+#bcdMenuBarArea {
+  border-bottom: 1px solid $border-color-dark;
+  border-top:    1px solid $border-color;
+  border-left:   none;
+  border-right:  none;
+
+  .bcdMenu {
+    border-radius: $border-radius-default;
+    font-size: 13px;
+    ul li a { padding: 0px; }
+    ul.bcdLevel1 {
+      background: none;
+      > li {
+        cursor: pointer;
+        border-right: 2px ridge #FFFFFF;
+        padding: 8px 19px 9px 19px;
+        height: auto;
+        > a { color: $corporate-color; }
+      }
+      > li:hover {
+        border-left: 1px solid $corporate-color;
+        border-right: 1px solid $corporate-color;
+        @include topDownGradient($flyover-color, $corporate-color);
+        > a { color: #FFFFFF; }    
+      }
+      > li:hover:first-child {
+        border-radius: $border-radius-default 0px 0px $border-radius-default;
+      }
+    }
+    
+    ul.bcdLevel2, ul.bcdLevel3 {
+      @include shadow();
+      background: none;
+      background-color: #FFFFFF;
+      border: 1px solid $border-color-bright;
+      width: 300px;
+      height: auto;
+      border-radius: 0px 0px $border-radius-default $border-radius-default;
+      padding: 10px;
+      > li {
+        height: 30px;
+        border: none;
+        width: 80px;
+        display: inline-block;
+        padding: 0px 12px;
+        vertical-align: bottom;
+        > a { color: $corporate-color; font-size: $font-size-default; font-weight: normal; }
+      }
+      > li:hover {
+        border: none;
+        > a { color: $corporate-color; font-size: $font-size-default; font-weight: normal; text-decoration: underline; }
+      }
+    }
+    ul.bcdLevel3 {
+      border-radius: $border-radius-default;
+    }
+  }
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  id="bcd_log_error" table="bcd_log_error"  allowSelectAllColumns="true">
+
+  <C id="logTime"     caption="Log time"     type-name="TIMESTAMP"><Column>log_time</Column></C>
+  <C id="sessionId"   caption="Session Id"   type-name="VARCHAR">  <Column>session_id</Column></C>
+  <C id="pageHash"    caption="Page Hash"    type-name="VARCHAR">  <Column>page_hash</Column></C>
+  <C id="requestHash" caption="Request Hash" type-name="VARCHAR">  <Column>request_hash</Column></C>
+  <C id="logLevel"    caption="Level"        type-name="VARCHAR">  <Column>log_level</Column></C>
+  <C id="requestUrl"  caption="Request URL"  type-name="VARCHAR">  <Column>request_url</Column></C>
+  <C id="message"     caption="Message"      type-name="VARCHAR">  <Column>message</Column></C>
+  <C id="stackTrace"  caption="Stack trace"  type-name="VARCHAR">  <Column>stack_trace</Column></C>
+  <C id="revision"    caption="Revision"     type-name="VARCHAR">  <Column>revision</Column></C>
+
+</BindingSet>

@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified" attributeFormDefault="unqualified"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+  <xs:annotation>
+    <xs:documentation>
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
+
+  <xs:element name="WrsRequest" type="tns:TypeWrsRequest">
+    <xs:annotation><xs:documentation>A request to the WrsServlet for a wrs:Wrs document</xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="TypeWrsRequest">
+    <xs:sequence>
+      <xs:element name="Header" type="tns:TypeHeader" minOccurs="0">
+      </xs:element>
+      <xs:element name="Select" type="tns:TypeSelect">
+        <xs:annotation><xs:documentation>Definition of the returned content.</xs:documentation></xs:annotation>
+        <xs:key name="selectedbRefs">
+          <xs:selector xpath="tns:Columns/tns:C" />
+          <xs:field xpath="@bRef" />
+        </xs:key>
+        <xs:keyref name="selectedbRefsInGrouping" refer="tns:selectedbRefs">
+          <xs:annotation><xs:documentation>All @bRef in grouping must also be part of select clause.</xs:documentation></xs:annotation>
+          <xs:selector xpath="tns:Grouping/tns:C" />
+          <xs:field xpath="@bRef" />
+        </xs:keyref>
+      </xs:element>
+    </xs:sequence>
+    <xs:anyAttribute namespace="##other" processContents="lax" />
+  </xs:complexType>
+
+  <xs:complexType name="TypeHeader">
+    <xs:sequence>
+      <xs:choice minOccurs="0">
+        <xs:element name="CsvExport" type="tns:TypeExportCsv">
+          <xs:annotation><xs:documentation>Extra information about the cvs format. Make sure to send the request the cvs export servlet</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="SylkExport" type="tns:TypeExport">
+          <xs:annotation><xs:documentation>Make sure to send the request the sylk export servlet</xs:documentation></xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="Columns" type="tns:TypeSelectColumns">
+    <xs:annotation><xs:documentation>List of requested wrs:Wrs columns.</xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="TypeSelect">
+    <xs:sequence>
+      <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
+        <xs:annotation><xs:documentation>Allow top-n restriction in terms of dimensions and a measure</xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element ref="tns:Columns" minOccurs="0">
+        <xs:annotation><xs:documentation>
+            List of requested wrs:Wrs columns. If empty all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element name="From" type="tns:TypeFrom">
+        <xs:annotation><xs:documentation>Source of the data.</xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element ref="f:Filter" minOccurs="0">
+        <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
+      <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID"/>
+    <xs:attribute name="rowStart" type="xs:int" use="optional">
+      <xs:annotation>
+        <xs:documentation>If not set and rowEnd is set > 0 , rowEnd is used as max rows </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="rowEnd" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with filled a header will be returned, no SQL will be performed.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="TopNDimMembers">
+    <xs:sequence>
+      <xs:element name="TopNDimMember" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          A top-n restriction, for example show only those results, where ctr,center: sum(weight) is above the top 10.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="LevelRef" maxOccurs="unbounded">
+              <xs:annotation><xs:documentation>Dimension regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="bRef"/>
+                <xs:attribute name="caption"/>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="Measure">
+              <xs:annotation><xs:documentation>Measure regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Calc" type="tns:TypeCalc">
+                    <xs:annotation><xs:documentation>
+                      Definition of a server-calc. A server-calc is executed on the server and returned as a single value
+                    </xs:documentation></xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+                <xs:attribute name="id"/>
+                <xs:attribute name="caption"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="n" type="xs:nonNegativeInteger">
+            <xs:annotation><xs:documentation>The 'n' of the top-n restriction.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="tb">
+            <xs:annotation><xs:documentation>Whether top or bottom.</xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="top"/>
+                <xs:enumeration value="bottom"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeSelectColumns">
+    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="C" type="tns:TypeSelectColumn">
+        <xs:annotation><xs:documentation>A plain or virtual BindingItem.</xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="TypeColumn">
+    <xs:attribute name="bRef" type="xs:NCName" use="required"/>
+    <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="TypeColumnAttribute">
+    <xs:sequence>
+      <xs:element name="Calc" type="tns:TypeCalc" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="bRef" type="xs:NCName" use="required"/>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+    <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
+      <xs:annotation><xs:documentation>
+        If not given, BindingSet/BindingItem/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
+        All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="TypeSelectColumn">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeColumn">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="Calc" type="tns:TypeCalc" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              This is a server-calculation if wrq:Calc is given. @bRef is then not referring to a BindingItem within a BindingSet,
+              but the id of the new VirtualBindingItem created here based on the calc.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
+          <xs:annotation><xs:documentation>
+            If not given, BindingSet/BindingItem/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
+            All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="escapeXml" type="xs:boolean" default="true" use="optional">
+          <xs:annotation><xs:documentation>
+            If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e. it will be part of the returning Wrs/Data/R/C instead of
+            being returned as an escaped string. True, is default.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="caption" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="TypeSQLAggregations">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sum"></xs:enumeration>
+      <xs:enumeration value="min"></xs:enumeration>
+      <xs:enumeration value="max"></xs:enumeration>
+      <xs:enumeration value="avg"></xs:enumeration>
+      <xs:enumeration value="count"></xs:enumeration>
+      <xs:enumeration value="none"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TypeFrom">
+    <xs:sequence>
+      <xs:element ref="tns:BindingSet"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="BindingSet" type="tns:TypeBindingSet"/>
+
+  <xs:complexType name="TypeBindingSet">
+    <xs:simpleContent>
+      <xs:extension base="xs:NCName">
+        <xs:attribute name="url" type="xs:string" use="optional">
+          <xs:annotation>
+            <xs:documentation>Custom WrsServlet path relatively to contextPath</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="TypeGrouping">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          BindingItem to be used for grouping. If used on combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element name="GroupingSets" type="tns:TypeGroupingSets" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Allows creation of aggregations on different levels. if multiple wrq:GroupingSets are present, each combination of their sets is created.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeGroupingSets">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Set">
+        <xs:annotation><xs:documentation>Each set defines a different set of grouping-BIs</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
+              <xs:annotation><xs:documentation>BindingItem to be used for grouping in this set.</xs:documentation></xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeOrdering">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="C" type="tns:TypeColumn"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="TypeOrderingAttr">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="desc"/>
+      <xs:enumeration value="asc"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TypeExportCsv">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeExport">
+        <xs:attribute name="separator" type="xs:string" default=";" />
+        <xs:attribute name="quoteCharacter" type="xs:string" default="" />
+        <xs:attribute name="header" default="none">
+          <xs:annotation><xs:documentation>Define how the optional header line should look like.</xs:documentation></xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="none" /><!-- no header -->
+              <xs:enumeration value="id" /><!-- bindingItem id -->
+              <xs:enumeration value="caption" /><!-- bindingItem caption -->
+              <xs:enumeration value="raw" /><!-- DB column names -->
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TypeExport">
+    <xs:sequence minOccurs="0" maxOccurs="1">
+      <xs:element name="AddHeaderInfo" type="xs:string">
+        <xs:annotation><xs:documentation>Additional information which is listed above the actual exported column headers</xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--
+    Definition of server-side calculations
+    -->
+  <xs:complexType name="TypeCalc">
+    <xs:choice>
+      <xs:element ref="tns:CalculatedValue"/>
+      <xs:element ref="tns:AnalyticFct"/>
+    </xs:choice>
+    <xs:attribute name="type-name"    type="bnd:ColumnTypeName" />
+    <xs:attribute name="scale"        type="xs:integer"/>
+    <xs:attribute name="signed"       type="xs:boolean" />
+    <xs:attribute name="unit"         type="xs:string" />
+  </xs:complexType>
+
+  <!--
+    Analytical functions
+    -->
+  <xs:element name="AnalyticFct" type="tns:TypeAnalyticFct" abstract="true"/>
+  <xs:element name="SumOver"    type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="CountOver"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="LeadOver"   type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+
+  <xs:complexType name="TypeAnalyticFct">
+    <xs:sequence>
+      <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="3"/>
+      <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0"/>
+      <xs:element name="OrderBy" minOccurs="0">
+        <xs:complexType>
+          <xs:complexContent>
+            <xs:extension base="tns:MultiOperatorType">
+              <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
+              <xs:attribute name="nullsOrder" use="optional">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="nullsFirst"/>
+                    <xs:enumeration value="nullsLast"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:extension>
+          </xs:complexContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--
+    Values or values derived from a calculation
+   -->
+  <xs:element name="CalculatedValue" type="tns:CalculatedValueType" abstract="true"/>
+  <xs:complexType name="CalculatedValueType"/>
+
+  <xs:element name="Value" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>A user given constant value</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent mixed="true">
+        <xs:extension base="tns:CalculatedValueType"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ValueRef" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>References a BindingItem from a BindingSet.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:attribute name="idRef" type="xs:NCName" use="required">
+            <xs:annotation><xs:documentation>Id of the referenced BindingItem.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
+            <xs:annotation><xs:documentation>
+              It is preferred to use wrq: aggregators surrounding the ValueRef instead of usign this attribute. If given, the wrq: aggregator is used and this ignored.
+              If non is given, SUM() is used in all cases, note: that default fails for non-numeric values.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Operator types, providing as a result themsevles a value
+   -->
+  <xs:complexType name="MultiOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BinaryOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue"/>
+          <xs:element ref="tns:CalculatedValue"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UnaryOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- 1..n arguments -->
+  <xs:element name="Add" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Mul" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Sub" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Concat" substitutionGroup="tns:CalculatedValue">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:MultiOperatorType">
+          <xs:attribute name="separator" type="xs:string">
+            <xs:annotation><xs:documentation>If given, this string separates to elements. Conside using &amp;#xE0F0;.</xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 2 arguments -->
+  <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Max" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+  <!-- One argument -->
+  <xs:element name="Sum" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Avg" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Count" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Distinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="CountDistinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+</xs:schema>

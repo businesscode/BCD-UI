@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+  xmlns:chain="http://www.businesscode.de/schema/bcdui/chain-1.0.0"
+  xmlns:b="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+
+
+  <xs:import namespace="http://www.w3.org/1999/XSL/Transform"/>
+  <xs:import namespace="http://www.w3.org/2001/XInclude"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/chain-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      This XSD defines a scorecard configuration.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ****
+    Overall Scorecard refdata container
+    -->
+  <xs:element name="ScorecardConfiguration">
+    <xs:annotation>
+      <xs:documentation>Container for all reference data needed for the scorecard. Consider including re-used parts with xs:include.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+
+        <xs:choice maxOccurs="unbounded">
+
+          <!-- Current scorecard -->
+          <xs:element ref="tns:Layout">
+            <xs:annotation><xs:documentation>
+              Definition for the current scorecard.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+          <!-- Available Kpi definitions -->
+          <xs:element ref="tns:Kpis" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+              All KPIs used on the scorecard must be defined here. Consider using xi:include for this.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+          <!-- Category definitions -->
+          <xs:element ref="tns:CategoryTypes" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+                Definition of KPI categories. Categories group KPIs, they form a dimenion above the KPI level.
+                Each KPI can be assigned zero, one or many categories via the scc:Kpi/scc:Categories element.
+                A scorecard can show one or multiple categories using the scc:Layout/CategoryTypeRefs element
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+          <!-- Available aspect definitions -->
+          <xs:element ref="tns:Aspects" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+              All aspects used on the scorecard must be defined here. Consider using xi:include for this
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+          <!-- Available aggregator definitions -->
+          <xs:element ref="tns:Aggregators" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+              All aggregators used in KPIs of the scorecard must be defined here. Consider using xi:include for this
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+          <xs:element ref="xi:include" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+              All elements are allowed to be included from external files or reuse.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+
+        </xs:choice>
+
+      </xs:sequence>
+      <xs:attribute name="validAt" type="xs:integer">
+        <xs:annotation><xs:documentation>
+          This is compared to @validFrom (including), @validUpTo (including) at /*/scc:Layout/scc:KpiRefs/scc:KpiRef and /*/scc:Kpis/scc:Kpi
+          for time-dependent scorecard definitions. You can choose to set a year or something like 201407, values are compared as numbers.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- *****
+    Sub elements of ScorecardConfiguration
+    Available as global elements so that they can easily be kept in a seperate xi:included file
+   -->
+  <!-- Current scorecard -->
+  <xs:element name="Layout" type="tns:LayoutType">
+    <xs:annotation>
+      <xs:documentation>A scorecard definition to be used inside scc:ScorecardConfiguration.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Available Kpi definitions -->
+  <xs:element name="Kpis">
+    <xs:annotation><xs:documentation>
+      Definitions of Kpis to be used inside scc:ScorecardConfiguration
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="xi:include" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              All elements are allowed to be included from external files or reuse.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="Kpi" type="tns:KpiType" minOccurs="0"/>
+        </xs:choice>
+      <xs:element ref="dm:DetailDataDefaults" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="aspectKpiCaption">
+        <xs:annotation><xs:documentation>
+          Name of the column/row showing the actual values of the Kpis, seen as an "aspect" of the KPI.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+    <xs:unique name="id">
+      <xs:selector xpath="tns:Kpi" />
+      <xs:field xpath="@id" />
+    </xs:unique>
+  </xs:element>
+
+  <!-- Available aggregator definitions -->
+  <xs:element name="Aggregators">
+    <xs:annotation><xs:documentation>
+      Definition of scorecard aggregators to be used inside scc:ScorecardConfiguration.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Aggregator" type="tns:AggregatorType" minOccurs="1"  maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            Representing an Aggregator definition.
+            An aggregator tells the system from where and how to derive KPI data associated with it.
+            An aggregator knows about the BindingSet where to find the measure and may
+            know that data is always to be read on a certain aggregation level for example and which aggregation to use (sum/max etc).
+            You reference an aggregator at scc:Kpi/@aggr or calc:Calc//calc:ValueRef/@aggr.
+            You can define your own aggregator or use a BCD-UI build-in one.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Available aspect definitions -->
+  <xs:element name="Aspects">
+    <xs:annotation><xs:documentation>
+      Definition of scorecard aspects  to be used inside scc:ScorecardConfiguration.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Aspect" type="tns:AspectType" minOccurs="0"  maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            An aspect is additional data about a Kpi. Can be the target or the YTD number of a Kpi.
+            An Aspect is calculated for each individual KPI.
+            In calc:Calc of an aspect, you can reference values via &lt;calc:KpiRef/> and &lt;calc:AspectRef idRef="asp_[asiId]_$.[propertyId]"/>
+            There are three different types of aspects, each can have calc:* childs. 
+            1) Those with a scc:WrqBuilder child trigger a new request to different data, for example targets of KPIs.
+            2) Those with a scc:WrqModifer child apply this on each aggregator Wrq, and read new KPI data with the modified request, for example YTD or previous period data.
+            3) Those having only calc:* childs do not read data but new values are derived from already read ones, for example calculating the trend based on actual and previous period data.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <!-- ****
+    The Scorecard definition itself
+    -->
+  <xs:complexType name="LayoutType">
+    <xs:annotation>
+      <xs:documentation>Representing a scorecard definition</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="KpiRefs">
+        <xs:annotation>
+          <xs:documentation>List and order of Kpis to appear, referencing Kpi definitions.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="KpiRef" minOccurs="0"  maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:attribute name="idRef" use="required">
+                  <xs:annotation>
+                    <xs:documentation>Id of the referenced object</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="validFrom" type="xs:integer">
+                  <xs:annotation><xs:documentation>
+                    See scc:ScorecardConfiguration/@validAt.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="validUpTo" type="xs:integer">
+                  <xs:annotation><xs:documentation>
+                    See scc:ScorecardConfiguration/@validAt.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="parentKpiType">
+            <xs:annotation><xs:documentation>
+              Reference to one of the parentKpiTypes defined in the KPIs definition Kpis/Kpi/ParentKpi@typeName="parentKpiId".
+              The value becomes the wrs:R/wrs:C/@parentId attribute at the cell holding the kpi's id.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="AspectRefs" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>List and order of Aspects to appear, samples are YTD and target, referencing Aspect definitions.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:AspectAbstractBase" minOccurs="1"  maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="AspectKpiUnique">
+          <xs:selector xpath=".//tns:AspectKpi"/>
+          <xs:field xpath="@uniquenessNote"/>
+        </xs:unique>
+      </xs:element>
+
+      <xs:element name="Dimensions" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Dimensions i.e. break-down level of the scorecard.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Rows" type="tns:LevelListType" minOccurs="0">
+              <xs:annotation><xs:documentation>Row break down</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="Columns" type="tns:LevelListType" minOccurs="0">
+              <xs:annotation><xs:documentation>Column break down</xs:documentation></xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="LevelRefUnique">
+          <xs:selector xpath=".//tns:LevelRef"/>
+          <xs:field xpath="@bRef"/>
+        </xs:unique>
+        <xs:unique name="LevelKpiUnique">
+          <xs:selector xpath=".//tns:LevelKpi"/>
+          <xs:field xpath="@uniquenessNote"/>
+        </xs:unique>
+        <xs:unique name="LevelPeriodUnique">
+          <xs:selector xpath=".//tns:LevelPeriod"/>
+          <xs:field xpath="@uniquenessNote"/>
+        </xs:unique>
+      </xs:element>
+
+      <xs:element name="CategoryTypeRefs" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>List and order of Categories into which to group the Kpis, referencing Category definitions.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="CategoryTypeRef" type="tns:RefType" minOccurs="1"  maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="Extensions" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element allows any project specific extension, attributes or elements</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+          </xs:sequence>
+          <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:sequence>
+
+    <xs:attribute name="removeEmptyCells">
+      <xs:annotation><xs:documentation>
+        If 'rowCol' all rows and columns without any measure number are removed
+      </xs:documentation></xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="rowCol" />
+          <xs:enumeration value="false" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <!-- The following LevelXX constructs allow Rows and Columns (LevelListType)
+       to contain max one LevelKpi element and many LevelRef elements in any order,
+       Especially true for @uniquenessNote -->
+  <xs:complexType name="LevelListType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="tns:LevelAbstractBase"/>
+      <xs:element ref="dm:LevelRef"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <!-- Level Base type, LevelKpi and LevelRef -->
+  <xs:complexType name="LevelAbstractBaseType" abstract="true">
+    <xs:attribute name="uniquenessNote" default="LevelKpi and LevelPeriod must each appear max once." use="optional">
+      <xs:annotation><xs:documentation>
+        Do not use @uniquenessNote attribute, it is only there to enable a uniqueness constraints
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="total" type="dm:TypeTotalAttr">
+      <xs:annotation><xs:documentation>
+        Whether and where to show (sub-)totals 'leading'/'trailing'. 'true' means they are sorted according to their value.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sort" type="dm:TypeSortAttr">
+      <xs:annotation><xs:documentation>
+        Whether and how (ascending/descending) to sort, default is no sorting.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:element name="LevelAbstractBase" type="tns:LevelAbstractBaseType" abstract="true"/>
+
+  <xs:element name="LevelKpi" substitutionGroup="tns:LevelAbstractBase">
+    <xs:annotation><xs:documentation>This is the 'Kpi' dimension.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:LevelAbstractBaseType">
+          <xs:attribute name="uniquenessNote" use="prohibited"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LevelPeriod" substitutionGroup="tns:LevelAbstractBase">
+    <xs:annotation><xs:documentation>This will derive the period levels (yr, cwyr, qr, mo, cw, dy) from the statusModel. Default sort is descending.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:LevelAbstractBaseType">
+          <xs:attribute name="uniquenessNote" use="prohibited"/>
+          <xs:attribute name="addYr" use="optional" default="false">
+            <xs:annotation><xs:documentation>If true, it will add yr or cwyr. Needed for cross-yr break downs.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="captionFor" use="optional">
+            <xs:annotation><xs:documentation>Space separated list for periods which have a caption binding item. Example: 'mo cw' will use 'mo_caption'.</xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Types for AspectRef and AspectKpi -->
+  <xs:complexType name="AspectAbstractBaseType">
+    <xs:sequence>
+      <xs:element name="AspectRef" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="idRef" type="xs:string" use="required">
+          <xs:annotation><xs:documentation>
+            Id of the referenced scc:Aspect definition, can be a custom scc:Aspect or a BCD-UI build-in one.
+            These are predefined: bcdTarget, bcdTargeBounds, bcdYtd, bcdAchievement, bcdTrend, bcdPrevousPeriod, bcdSlope and bcdNormSlope.
+          </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="caption" type="xs:string" use="optional">
+            <xs:annotation><xs:documentation>To overwrite for this scorecard the caption of Aspect's definition, default is give in aspect's definition.</xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="uniquenessNote" default="AspectKpi must only appear once" use="optional">
+      <xs:annotation><xs:documentation>
+        Do not use @uniquenessNote attribute, it is only there to enable a uniqueness constraint on scc:AspectKpi
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:element name="AspectAbstractBase" type="tns:AspectAbstractBaseType" abstract="true"/>
+
+  <xs:element name="AspectKpi" substitutionGroup="tns:AspectAbstractBase">
+    <xs:annotation><xs:documentation>This is the 'Kpi' dimension.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:AspectAbstractBaseType">
+          <xs:attribute name="uniquenessNote" use="prohibited"/>
+          <xs:attribute name="caption" type="xs:string" use="optional">
+            <xs:annotation><xs:documentation>To overwrite for this scorecard the caption of Kpi aspect, default is given in Kpi definition.</xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="AspectRef" substitutionGroup="tns:AspectAbstractBase">
+    <xs:annotation><xs:documentation>
+      Reference to a custom scc:Aspect or  a built-in aspect.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:AspectAbstractBaseType">
+          <xs:attribute name="idRef" type="xs:string" use="required">
+            <xs:annotation><xs:documentation>
+              Id of the referenced scc:Aspect definition, can be a custom scc:Aspect or a BCD-UI build-in one.
+              These are predefined: bcdTarget, bcdTargeBounds, bcdYtd, bcdAchievement, bcdTrend, bcdPrevousPeriod, bcdSlope and bcdNormSlope.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="caption" type="xs:string" use="optional">
+            <xs:annotation><xs:documentation>To overwrite caption of Aspect's definition.</xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="RefType">
+    <xs:attribute name="idRef" use="required">
+      <xs:annotation>
+        <xs:documentation>Id of the referenced object</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="asKpiAttribute" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          If true, this category is written as an attribute to the cell holding the kpi-id. 
+          Otherwise categories become leading columns in the order given here.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:element name="chooseCalc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="whenExtension" maxOccurs="unbounded"  minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="calc:Calc"/>
+            </xs:sequence>
+            <xs:attribute name="name">
+              <xs:annotation><xs:documentation>Name of the extension value to be evaluated</xs:documentation></xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="value">
+              <xs:annotation><xs:documentation>Value the extension has to evaluate to</xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="whenKpiAttr" maxOccurs="unbounded"  minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="calc:Calc"/>
+            </xs:sequence>
+            <xs:attribute name="name">
+              <xs:annotation><xs:documentation>Name of the Kpi attribute value to be evaluated</xs:documentation></xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="value">
+              <xs:annotation><xs:documentation>Value the Kpi attribute has to evaluate to</xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="otherwise" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="calc:Calc"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="b:DataType">
+        <xs:annotation>
+          <xs:documentation>Scale of the calculated number, i.e. the number of relevant decimal digits</xs:documentation>
+        </xs:annotation>
+      </xs:attributeGroup>
+      <xs:attribute name="id"/>
+      <xs:attribute name="caption"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ****
+    Definitions of individual of a individual Kpi, Aspect and Aggregator
+   -->
+  <!--
+    A single Kpi definition
+    -->
+  <xs:complexType name="KpiType">
+    <xs:annotation>
+      <xs:documentation>Representing a Kpi definition, can be referenced in a scorecard definition.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="calc:Calc">
+        <xs:annotation>
+          <xs:documentation>Calculation rule for this Kpi, using constants and measures.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Categories" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Assignes this KPI to one or more business category types.
+            You can have any number of categorie types, for example one international/national/city
+            and another independently financial/producivity/quality.
+            To assign a kpi to a category, create a variable with the name of the category type and the respective value.
+            For example &lt;scc:Categories intnat="city" and cat="quality"/>
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ParentKpis" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Support for hierarchical structure of KPIs. A kpi can have any number of parent kpis, one per defined parentKpiType.
+            The attribute's name is the name of the parentKpiType and the value the id of the parent kpi in regards of this type.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Extensions" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element allows any project specific extension, attributes or elements</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+          </xs:sequence>
+          <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element ref="dm:DetailData" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique Kpi's id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Caption or lookup key for the caption for i18n used in Scorecard</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="positive" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>Whether the KPI value becomes better in business sense with an increasing value (true) or worse (false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validFrom" type="xs:integer">
+      <xs:annotation><xs:documentation>
+        See scc:ScorecardConfiguration/@validAt
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validTo" type="xs:integer">
+      <xs:annotation><xs:documentation>
+        See scc:ScorecardConfiguration/@validAt
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <!--
+    A single Aggregator definition
+    -->
+  <xs:complexType name="AggregatorType">
+    <xs:sequence>
+
+      <xs:choice>
+        <xs:element name="BcdAggregator" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Configuration for BCD-UI's standard aggregator. 
+            The standard aggregator takes $statusModel/*/f:Filter and aggregates all measures from @bindingSet.
+            You can overwrite the aggregation for each property (default sum).
+            Each aggregator will read all properties being used in any scc:Kpi/calc:Calc//calc:ValueRef/@idRef, the format of @idRef is [myMeasureId].[myMeasurePropertyId].
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Property" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="bRef" use="required"/>
+                  <xs:attribute name="aggr" default="bcdSum">
+                    <xs:annotation><xs:documentation>Id of a scc:Aggregator used for this scc:Property</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="bindingSet" default="bcd_sc_kpi">
+              <xs:annotation><xs:documentation>Default is bcd_sc_kpi</xs:documentation></xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="aggr" default="bcdSum">
+              <xs:annotation><xs:documentation>Default scc:Aggregator for all scc:Property children</xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+  
+        <xs:element name="WrqBuilder" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            This XSLT stylesheet is applied provide the aggregator's WrsRequest document.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="xsl:stylesheet" minOccurs="0"/>
+              <xs:element ref="chain:Chain" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+
+      <xs:element name="PreCalc" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          This XSLT stylesheet is applied on the loaded data before the Kpi calculations are run.
+          For example you may want to set default values for measures read in this request before going ahead with the scorecard calculations.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xsl:stylesheet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:sequence>
+
+    <xs:attribute name="id" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" use="optional">
+      <xs:annotation>
+        <xs:documentation>Caption or lookup key for the caption for i18n</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!--
+    A single Aspect definition
+    -->
+  <xs:complexType name="AspectType">
+    <xs:annotation>
+      <xs:documentation>Representing an Aspect definition. An aspect is data shown together with the Kpi's value like last year's value or target.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="calc:Calc">
+          <xs:annotation>
+            <xs:documentation>Calculation based on other aspects or kpi performance.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="tns:chooseCalc">
+          <xs:annotation>
+            <xs:documentation>Calculation based on other aspects or kpi performance.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:choice>
+        <xs:element name="WrqBuilder" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            This XSLT stylesheet provides WrsRequest document from input.
+            For example this transformation provide a request to get the targets of each kpi.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="xsl:stylesheet"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="BcdAspectWrqBuilder" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Use BCD-UI's convenience default WrqBuilder, its attributes and scc:Property childs configure it.
+            In addition, if scc:Layout//scc:AspectRef[@id=$thisId]/@repeatOnPeriods is true, in a scorecard with period breakdown, an aspect not having time in its dimension, is repeated for each period.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Property" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>
+                  Properties to be read for this aspect. Dimensions are not listed here.
+                </xs:documentation></xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="bRef" use="required">
+                    <xs:annotation><xs:documentation>bRef to read</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="caption"   use="optional"/>
+                  <xs:attribute name="type-name" use="optional" type="b:ColumnTypeName"/>
+                  <xs:attribute name="scale"     use="optional" default="0"/>
+                  <xs:attribute name="unit"      use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="bindingSet" use="required">
+              <xs:annotation><xs:documentation>BindingSet to read from</xs:documentation></xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="dimensions" use="optional">
+              <xs:annotation><xs:documentation>
+                Space separated list of dimension bRefs the data is stored in. 
+                Each bRef that is also a dimension in scc:Layout/scc:Dimensions will be used as a dimension here (group by).
+                We rely on a setup where all others are part of $statusModel/*/f:Filter or should be equal null.
+              </xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="WrqModifier" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            This XSLT stylesheet is applied to derive a WrsRequest from the aggregator's WrsRequest document.
+            This transformation is applied to all aggregator WrsRequests to derive a second set of data.
+            For example this transformation may remove the mo restriction to get year-to-date performance.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="xsl:stylesheet"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="JsProcFct" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            An aspect implemented as a js transformator.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="aggrNeeded" default="false">
+                  <xs:annotation><xs:documentation>
+                    Set to true if custom calculation needs access to aggregator values and not just the KPIs in other aspects. Keep in mind this makes the documents larger.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="Stylesheet" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            An aspect implemented as a free stylesheet.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="href"/>
+            <xs:attribute name="aggrNeeded" default="false">
+              <xs:annotation><xs:documentation>
+                Set to true if custom calculation needs access to aggregator values and not just the KPIs in other aspects. Keep in mind this makes the documents larger.
+              </xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="PreCalc" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          This XSLT stylesheet is applied on the loaded data before the Aspect calculations are run.
+          For example you may want to set default values for measures read in this request before going ahead with the scorecard calculations.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="xsl:stylesheet"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="id" use="required">
+      <xs:annotation>
+        <xs:documentation>Unique id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption">
+      <xs:annotation>
+        <xs:documentation>Caption or lookup key for the caption for i18n</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!--
+    Category definitions
+   -->
+  <xs:element name="CategoryTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Definition of KPI categories. Categories group KPIs, they form a dimension above the KPI level.
+        Each KPI can be assigned to zero, one or many categories via the scc:Kpi/scc:Categories element.
+        Each attribute of this names a category type and its value, which category of the type it belongs to.
+        A scorecard can show one or multiple categories using the scc:Layout/CategoryTypeRefs element.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="CategoryType" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Category" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="id"/>
+                  <xs:attribute name="caption"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id"/>
+            <xs:attribute name="caption"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

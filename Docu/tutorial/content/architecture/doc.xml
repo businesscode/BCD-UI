@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Architecture" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+
+  <Chapter title="Architecture Overview" type="overview">
+    <Body>
+      BCD-UI is part of <a href="../overview/doc.xml">BCD Excellence Suite</a> and mainly a J2EE application enhanced by BCD-UI pre-built capabilities for easier setup of typical OPM applications.
+      BCD-UI is a library for creating web based applications for data reporting and manipulation.
+      It consists of client and server side parts communicating via web services exchanging XML messages and data.
+      On server side services respond to web service requests and assure typical lifecycle tasks like logging, security, caching.
+      On client side BCD-UI follows model view control MVC architecture.
+      In BCD-UI models are implemented as XML documents, the view is XSLT based and Javascript takes over the controller part.
+    </Body>
+
+    <SubChapter title="Architectural principles">
+      <Body>
+        BCD-UI does make use the following architectural patterns
+        <dl>
+          <dt>Web application</dt>
+          <dd>This is the most obvious as BCD-UI applications are web applications.
+              The user interface is the browser, no installation is needed on the client side.
+              All artifacts are delivered in todays web standard technologies.
+              On client side any web application can be merged with BCD-UI.</dd>
+          <dt>J2EE</dt>
+          <dd>On server side, BCD-UI applications are J2EE applications. Many artifacts are delivered as J2EE artifacts.</dd>
+          <dt>WebServices</dt>
+          <dd>Data exchange between client and server is web service based, i.e. data is exchanged as XML and the request is send as XML.
+              In most cases the server side is state-less, keeping all states in database for optimal scaling.</dd>
+          <dt>Model View Control</dt>
+          <dd>This pattern's implementation is done in the form that all data is kept as XML, user interactions are handled by JavaScript and the view part is realised by XSLT.</dd>
+          <dt>X-Forms</dt>
+          <dd>X-Forms introduces a clear separation between data and the layout as required by the model view control pattern.
+              Visual elements do not keep their data inside but rather are bound to a model, which in turn keeps all data.
+              BCD-UI is not a X-Forms implementation though.</dd>
+          <dt>Multi-channel XSLT</dt>
+          <dd>XSLT is used to display data in different ways and on different level of granularity to the user.
+              This views can be switched on the client without the need of server access, making different views easier and faster.</dd>
+        </dl>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Usage model">
+      <Body>
+        In general, a carrier J2EE jsp page will request data as XML on the server,
+        keep that on the client as XML and transform the data to visible artifacts - like reports - with XSLT on the client.
+        To support this, both, ready-to-use server and client side elements are part of BCD-UI.
+        Many applications can be built with just these high-level elements. Extended use case can add more and more custom J2EE parts to it.
+        To apply BCD-UI you will typically just need to
+        <ol>
+          <li>Create a standard J2EE application</li>
+          <li>Add BCD-UI library support in form of some jar files and entries to web.xml</li>
+          <li>Define your logical data model in BCD-UI's binding XML</li>
+          <li>Create a standard jsp page as carrier</li>
+          <li>Add widgets, like report filters, in the form of BCD-UI jsp tags to your page</li>
+          <li>Add a report, provided for convenience as a jsp tag to your page</li>
+        </ol>
+        .. and you are done. A step-by-step example is given <a href="../howTo/minimalCube/doc.xml">here.</a>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Layers">
+      <Body>
+        Several levels of abstractions are provided by BCD-UI.
+        <dl>
+          <dt>Modules</dt>
+          <dd>A BCD-UI module is composed of components and can support such complex tasks as providing a ScoreCard or data upload.
+              Modules are provided as a set of JSP tags cooperating in a work-flow or provided several dependent elements on a page.</dd>
+          <dt>Components</dt>
+          <dd>Components are ready-to-use elements and cover standard reports, charts or grid data editors among others.
+              Components are provided as JSP tags and JavaScript elements to be used on the client, accessing server side functionality.</dd>
+          <dt>Widgets</dt>
+          <dd>Widgets are small ready-to-use elements to display or gather input or to support navigation.
+              Samples are input fields, navigation menu or message boxes.</dd>
+          <dt>Infrastructure layer</dt>
+          <dd>Many aspects of typical applications like logging, caching, object live cycle of data historization are covered by the generic infrastructure layer.
+              As the elements above are built on top of each other, they share most of the server side infrastructure.
+              Server side infrastructure is mostly independent of the exact client element.</dd>
+        </dl>
+      </Body>
+    </SubChapter>
+
+  </Chapter>
+
+</Doc>
+

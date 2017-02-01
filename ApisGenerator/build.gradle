@@ -1,0 +1,199 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//--------------------------------------------------
+// Generates additional APIS in form of HTML Custom Elements, XSLT, XML and JSP Taglib and parameter-validation for JS classes
+// HTML Custom Elements, XSLT, XML and JSP Taglib are Apis that can be used alternative to plain JS
+
+// Provide xmltask.jar for ant task below
+configurations { antlibs }
+dependencies {
+  repositories {
+    maven { url "http://repository.pentaho.org/artifactory/repo" }
+  }
+  antlibs 'oopsconsultancy:xmltask:1.16'
+}
+import groovy.text.SimpleTemplateEngine
+import groovy.json.JsonSlurper
+apply plugin: "com.moowork.node"
+
+def genSrcOutputDir = "$buildDir/gensrc"
+
+//************************************
+// Generate JSP tags, XSLT-api and XAPI (part of generated XSLTs)
+// Based on BCD-UI's the API information api
+// $genSrcOutputDir/js:          XSLT-api, XAPI and js argument validators _schema_xx_args
+// $genSrcOutputDir/taglib/tags: JSP Tag files
+task bcduiGensrcJsXsltXapiJspTagApis {
+  def taskTempDirName = "$buildDir/tmp/$name"
+
+  // For up-to-date check
+  inputs.dir  "./docu/api"
+  inputs.dir  "./gradle/generators"
+  outputs.dir genSrcOutputDir
+
+  // Generate jsp, xslt and xapi API for each of the 4 api groups
+  doLast() {
+
+    // We know we are not up-to-date here. Since this task owns the output folder, it is save to delete it now
+    delete taskTempDirName
+
+    // For each api group, generate XSLT, XAPI, tld, validate and tags
+    // Extract file group name from api definition file per convention bcdui<ApiName>>Api.xml
+    fileTree(dir: './api', include: '*.xml').each { f ->
+
+      def apiGroup =  ((f.name =~ /bcdui(.+)\.xml/)[0][1])
+
+      // This generates per each of the 4 api groups one temporary xml file with XSLT, XAPI and tld in it
+      ant.xslt(
+              in:       file("./api/bcdui${apiGroup}.xml"),
+              style:    file("$sharedBuildFilesRoot/ApisGenerator/generators/generate${apiGroup}.xslt"),
+              out:      file("$taskTempDirName/${apiGroup}s.xml")
+      )
+
+      ant.taskdef(name: 'xmltask', classname: 'com.oopsconsultancy.xmltask.ant.XmlTask', classpath: configurations.antlibs.asPath )
+      ant.xmltask(source: "$taskTempDirName/${apiGroup}s.xml") {
+
+        // Here we separate the api group file into individual files like core.xslt and coreValidate.js
+        ant.call(path: "/*//File[not(@outputFormat='xml')]") {
+          ant.param( name: 'name', path: '@name')
+          ant.param( name: 'content', path: 'text()')
+          ant.actions {
+            ant.echo(file: "$buildDir/"+'@{name}', message: '@{content}' )
+          }
+        }
+
+        // Here we separate the api group file into individual tag files, like activity/apply.tag
+        ant.call(path: "/*//File[@outputFormat='xml']/*", buffer: "content") {
+          ant.param( name: 'name', path: '../@name')
+          ant.actions {
+            ant.xmltask( sourcebuffer: "content", dest: "$buildDir/"+'@{name}', encoding: "UTF-8" )
+          }
+        }
+      }
+    }
+  }
+}
+
+//************************************
+// Generate HTML Custom Elements for Renderer and Widget(Ng)s
+// It does so by applying a BCD-UI JSDoc template on the JS Sources
+// For these, we generate HTML Ccustom elements, further filtering is done in publish.js
+task bcduiGensrcCustomElements ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  dependsOn bcduiGensrcJsXsltXapiJspTagApis
+  def generatorPath = "./gradle/jsdoc-toolkit/templates/bcduiCustomElements"
+  onlyIf { file(generatorPath).exists() }
+
+  def inputFiles = project.hasProperty('bcdui.genCustomElementsInputFiles') ? project.getProperty('bcdui.genCustomElementsInputFiles').split(', *|,| ') : []
+  inputs.files  inputFiles
+  outputs.dir   genSrcOutputDir
+
+  doFirst {
+    script = file("$nodeModulesDir/jsdoc/jsdoc.js")
+    args   = inputFiles.collect { it } +
+            [ "--template", file("gradle/jsdoc-toolkit/templates/bcduiCustomElements"),
+              "--destination", file(genSrcOutputDir) ]
+  }
+}
+
+//--------------------------
+// Generates tlds listing the jsp tags into $buildDir/gensrc/taglib based on tags found in src/taglib/WEB-INF and gensrc/taglib/WEB-INF
+// $genSrcOutputDir/taglib/META-INF:     tlds for usage in a bcdui.jar
+// $genSrcOutputDir/taglib/WEB-INF:      tlds for usage when BCD-UI "exploded" into a project
+task bcduiGensrcTld {
+
+  // We need the tags as input
+  dependsOn bcduiGensrcJsXsltXapiJspTagApis
+
+  def tagFilesGenSrcFolder = "$genSrcOutputDir/taglib/tags"
+  def tagFilesSrcFolder    = "./src/taglib/WEB-INF/tags"
+
+  // For up-to-date check
+  inputs.dir  tagFilesGenSrcFolder
+  inputs.dir  tagFilesSrcFolder
+  outputs.dir "$genSrcOutputDir/taglib"
+
+  // We enforce creation if the target folder is not there, otherwise we let the standard mechanism decide
+  // It is not clear, why often after deleting all generated folders, bcduiGensrcTld thinks there is nothing to do
+  if( ! file("$genSrcOutputDir/taglib/META-INF/tld").exists() )
+    outputs.upToDateWhen{ false }
+
+  doLast {
+    // Template string of a tld file
+    def templateString = '''\
+        <?xml version="1.0" encoding="UTF-8"?>
+        <taglib xmlns="http://java.sun.com/xml/ns/javaee" version="2.1"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
+          <description>$tldDescription</description>
+          <display-name>$tldDisplayName</display-name>
+          <tlib-version>1.0</tlib-version>
+          <short-name>$tldShortName</short-name>
+          <uri>http://de.businesscode.web/jsp/taglib/bcdui/$tldDisplayName</uri>
+        $tagList
+        </taglib>
+      '''.stripIndent()
+    def tldTemplate = new SimpleTemplateEngine().createTemplate(templateString)
+
+    // Settings for the api groups
+    def tldValues = [
+            activity:  [ tldDescription: 'Tags for activities',   tldDisplayName: 'activity',  tldShortName: 'a' ],
+            bcdui:     [ tldDescription: 'Tags for core objects', tldDisplayName: 'bcdui',     tldShortName: 'b' ],
+            component: [ tldDescription: 'Tags for components',   tldDisplayName: 'component', tldShortName: 'comp' ],
+            wigdet:    [ tldDescription: 'Tags for widgets',      tldDisplayName: 'widget',    tldShortName: 'w' ],
+            wigdetNg:  [ tldDescription: 'Tags for widgets',      tldDisplayName: 'widgetNg',  tldShortName: 'wng' ]
+    ]
+
+    // For META-INF and WEB-INF package type, loop over the packages list per package each tag in the generated tld
+    ["META-INF", "WEB-INF"].each { packageType ->
+      tldValues.each { key, value ->
+        // Loop over the tags of the current group and create an entry for each as a map entry "tagList" for the template
+        String tagList = ""+newLine
+        def tagFiles = fileTree(tagFilesSrcFolder+"/"+value.tldDisplayName) + fileTree(tagFilesGenSrcFolder+"/"+value.tldDisplayName)
+        if( tagFiles.size() == 0 )
+          return true;
+
+        // Create the output file
+        def subFolders = packageType == 'WEB-INF' ? 'tags/bcdui/tld' : ''
+        def tldFile = file(new File("$genSrcOutputDir/taglib/$packageType/$subFolders/"+value.tldDisplayName+".tld"))
+        tldFile.parentFile.mkdirs()
+        tldFile.createNewFile()
+
+        tagFiles.matching({ include "*.tag"}).each{ tagFile ->
+          tagList += "  <tag-file><name>${tagFile.name.split("\\.")[0]}</name><path>/$packageType/tags/bcdui/${value.tldDisplayName}/${tagFile.name}</path></tag-file>"+newLine
+        }
+        value["tagList"] = tagList
+
+        // Write all values
+        tldFile.text = tldTemplate.make(value).toString()
+      }
+    }
+  }
+}
+
+
+//************************************
+// Clean artifacts, we follow java plugin conventions
+task clean( type: Delete ) {
+  group "bcd-ui"
+  delete buildDir
+}
+
+//************************************
+// Do all for what gradle 'ApisGenerator' project is responsible for, we follow java plugin conventions
+task build {
+  outputs.dir "$genSrcOutputDir"
+  dependsOn bcduiGensrcJsXsltXapiJspTagApis, bcduiGensrcCustomElements, bcduiGensrcTld
+}

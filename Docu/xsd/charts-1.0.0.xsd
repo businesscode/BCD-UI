@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.0"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/charts-1.0.0" xmlns:tns="http://www.businesscode.de/schema/bcdui/charts-1.0.0" >
+  <xs:annotation>
+    <xs:documentation>
+      This XSD defines the elements needed to draw a bcd graph.
+      The Colors of series may be defined either as @rgb,
+      see xs:complexType name="Series", in this case all series should have color
+      or by using xs:complexType name="SeriesColors". If both exist - prefers the 1.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ===================================================================== -->
+  <xs:element name="Chart" type="tns:Chart">
+    <xs:annotation>
+      <xs:documentation>Root Element of Graphs definition document</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="Chart">
+    <xs:sequence>
+      <xs:annotation><xs:documentation>content of Chart Node</xs:documentation></xs:annotation>
+      <xs:element name="XAxis" type="tns:XAxis"></xs:element>
+      <xs:element name="YAxis1" type="tns:YAxis1"></xs:element>
+      <xs:element name="YAxis2" type="tns:YAxis2" minOccurs="0" maxOccurs="1"></xs:element>
+
+      <xs:element name="Series" maxOccurs="1" minOccurs="1">
+        <xs:annotation><xs:documentation>root Series(plural) node with children</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation></xs:documentation>
+            </xs:annotation>
+            <xs:element name="Series" type="tns:Series">
+              <xs:annotation><xs:documentation>children Series(singular) with values to draw</xs:documentation></xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DrawSeriesLegend" type="tns:DrawSeriesLegend" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="Stacked" type="tns:Stacked" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      <xs:element name="SeriesColors" type="tns:SeriesColors" maxOccurs="1" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Colors node to define colors of all series</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PlotArea" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>This element is used to modify the standard margins of the chart.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="marginLeft" type="xs:integer" default="30"/>
+          <xs:attribute name="marginRight" type="xs:integer" default="10"/>
+          <xs:attribute name="marginBottom" type="xs:integer" default="20"/>
+          <xs:attribute name="marginTop" type="xs:integer" default="20"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Computed" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>we allow to save/create information here to share with other renderers/controllers.
+          The ColorProvider saves here its computed colors for series to draw legend.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Title shown at the top of the chart</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="isSvg" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>If true, SVG is enforced, otherwise the browser's default is used'</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="showAxes" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>If false, no axes are shown</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="showAxesCaptions" default="true" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>if the captions for the axes at the bottom should be displayed</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="height" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>explicit height of a canvas, if omitted, should be at least set on the HTML container</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="width" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>explicit width of a canvas, if omitted, should be at least set on the HTML container</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="effect" use="optional" default="linearPlate">
+      <xs:annotation>
+        <xs:documentation>Gradient effects, cross-platform.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="linearGradient"/>
+          <xs:enumeration value="radialPlate"/>
+          <xs:enumeration value="linearRound"/>
+          <xs:enumeration value="linearPlate"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:attributeGroup name="AxisAttrs">
+    <xs:attribute name="caption" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Caption of the axis</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit">
+      <xs:annotation>
+        <xs:documentation>May be any literal or empty. If equal '%', values will be multiplied with 100. With '% ' you can show the percentage sign and avoid the multiplication.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="scale">
+      <xs:annotation>
+        <xs:documentation>Number of decimal digits.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="minValue" use="optional" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation>User set axis min value. Only used when below lowest actual value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maxValue" use="optional" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation>User set axis max value. Only used when above highest actual value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="layoutFlow" use="optional">
+      <xs:annotation>
+        <xs:documentation>How to show axis values</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="suppress"></xs:enumeration>
+          <xs:enumeration value="vertical-ideographic"></xs:enumeration>
+          <xs:enumeration value="horizontal"></xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="defaultMaximum" type="xs:float">
+      <xs:annotation>
+        <xs:documentation>in case there's no global maximum defined (i.e. the values are 0s) the axis maximum is set to this value, default is 1.0</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="XAxis">
+    <xs:annotation><xs:documentation>Element defines the x-axis</xs:documentation></xs:annotation>
+    <xs:choice>
+      <xs:element name="Categories" type="tns:Categories"></xs:element>
+      <xs:element name="XValues" type="tns:XValues"></xs:element>
+    </xs:choice>
+    <xs:attributeGroup ref="tns:AxisAttrs"></xs:attributeGroup>
+    <xs:attribute name="showGrid" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>If false, no horizontal grid is shown but only small lines next to the y-axis values</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="YAxis1">
+    <xs:annotation>
+      <xs:documentation>defines the left Y-axis</xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="tns:AxisAttrs"></xs:attributeGroup>
+    <xs:attribute name="showGrid" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>If false, no horizontal grid is shown but only small lines next to the y-axis values</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <!-- ===================================================================== -->
+  <xs:complexType name="YAxis2">
+    <xs:annotation>
+      <xs:documentation>The element describes the second y-axis. 2. YAxis means
+      an additional y-axis at the right site of graph.</xs:documentation>
+    </xs:annotation>
+    <xs:attributeGroup ref="tns:AxisAttrs"></xs:attributeGroup>
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="chartType">
+    <xs:annotation>
+      <xs:documentation>well-known chart types</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LINECHART"/>
+      <xs:enumeration value="AREACHART"/>
+      <xs:enumeration value="BARCHART"/>
+      <xs:enumeration value="PIECHART"/>
+      <xs:enumeration value="SCATTEREDCHART"/>
+      <xs:enumeration value="POINTCHART"/>
+      <xs:enumeration value="MARIMEKKOCHART"/>
+      <xs:enumeration value="GAUGECHART"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="yAxis1Or2">
+    <xs:annotation>
+      <xs:documentation>1. yAxis or 2.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:int">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Series">
+    <xs:annotation>
+      <xs:documentation>
+        Series defines a single Series for a chart
+        Chart element may contain only one root Series node,
+        under root Series either Series with YData or direct YData nodes.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="YData" type="tns:YData"></xs:element>
+      <xs:element name="Colors" type="tns:Colors" minOccurs="0"></xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>Id of the series, unique for one chart.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="chartType" use="optional" type="tns:chartType" default="LINECHART">
+      <xs:annotation>
+        <xs:documentation>One of the well-known chart types, if not set - LINECHART</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="dashstyle" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Dashstyle value (e.g. "8 2 1 2" for Long dash dot)/</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="caption">
+      <xs:annotation>
+        <xs:documentation>Caption of series in fly-over</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="baseColors" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+        If given, for pie and scattered charts each element has an equally
+        distributed color of space separated list of base colors
+        currently allowed any subset of: red green yellow blue purple till gray
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="rgb" use="optional">
+      <xs:annotation>
+        <xs:documentation>set the RGB code for this series, expecting RGB expression
+        can be given in one of the two formats; rgb(255,0,0) or #FF0000 for bright red.
+        Does not make sense for pie and scattered charts, use baseColors instead.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="rgb\([0-9]+,[0-9]+,[0-9]+\)|#[A-Fa-f0-9]{6}"></xs:pattern>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="showPoints" type="xs:boolean" use="optional">
+      <xs:annotation><xs:documentation>If false, for line charts no points are shown</xs:documentation></xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="width" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation>Set the stroke width, default 1px or for a point series the width of a point as a fraction of the category width or if @alignWithBarSeries is given, as a fraction of the bar size.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="yAxis1Or2" type="tns:yAxis1Or2" default="1">
+      <xs:annotation>
+        <xs:documentation>if the YData belongs to 1. or 2. y-axis, 1 or 2</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="onClick">
+      <xs:annotation>
+        <xs:documentation>onClick action for this series</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[a-zA-Z_0-9]+"></xs:pattern>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+
+    <xs:attribute name="alignWithBarSeries" type="xs:IDREF">
+      <xs:annotation>
+        <xs:documentation>Does allow to x-align a point series with a specific un-stacked bar series, set this attribute to the bar series' id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>description of this series, can be drawn only in legend</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+
+  <!-- ===================================================================== -->
+  <xs:attributeGroup name="CategoriesAttrs">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="sourceDocJS" use="optional">
+      <xs:annotation>
+        <xs:documentation>An JS expression returing the source data doc</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nodes" use="optional">
+      <xs:annotation>
+        <xs:documentation>An XPath expression applied to the source data returning the values</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="modelId" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          A model which contain the source data doc. in this case we don´t need
+          to provide a JS Expression like sourceDocJS="myModel.dataDoc". However
+          modelId="myModel" should be sufficient
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="Categories">
+    <xs:annotation>
+      <xs:documentation>
+        Categories defines the x-axis values.
+        unlikely for xsd 1.0 this Element may contain either list of Value tags, containing any text,
+        of attributes defined in attributeGroup 'CategoriesAttrs', that provided Values.
+        If given as opposed to XValues, the steps on the x-axis are of equal size.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence maxOccurs="unbounded" >
+      <xs:element name="Value" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+
+    <xs:attributeGroup ref="tns:CategoriesAttrs"></xs:attributeGroup>
+
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:attributeGroup name="XValuesAttrs">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+
+    <xs:attribute name="sourceDocJS" use="optional">
+      <xs:annotation>
+        <xs:documentation>An JS expression returing the source data doc</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="modelId" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          A model which contain the source data doc. in this case we don´t need
+          to provide a JS Expression like sourceDocJS="myModel.dataDoc". However
+          modelId="myModel" is sufficient
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="nodes" use="optional">
+      <xs:annotation>
+        <xs:documentation>An XPath expression applied to the source data returning the values</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="XValues">
+    <xs:annotation>
+      <xs:documentation>
+      XValues is an optional child of XAxis and defines the x-axis values.
+      Contains a list of Value tags, containing any text.
+      If given as opposed to Categories, the steps on the x-axis are of size defined by the values.
+      The element may contain either attributes or Value nodes
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+      <xs:element name="Value"></xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="YData">
+    <xs:annotation>
+      <xs:documentation>The actual Y-data of the series.
+      unlikely for xsd 1.0 this Element may contain either list of Value tags, containing any text,
+      of attributes defined in attributeGroup 'XValuesAttrs', that provided Values.</xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence>
+      <xs:element name="Value" type="xs:double" minOccurs="0" maxOccurs="unbounded"></xs:element>
+    </xs:sequence>
+
+    <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="Colors">
+    <xs:annotation>
+      <xs:documentation>Providing color values for each x value.</xs:documentation>
+    </xs:annotation>
+
+    <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
+  </xs:complexType>
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="DrawSeriesLegendSimple">
+    <xs:annotation>
+      <xs:documentation>means, draw series legend or not, is boolean</xs:documentation>
+    </xs:annotation>
+
+    <xs:restriction base="xs:boolean"></xs:restriction>
+  </xs:simpleType>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="DrawSeriesLegend" >
+    <xs:annotation>
+      <xs:documentation>extends the simple type by onClick attribute</xs:documentation>
+    </xs:annotation>
+
+    <xs:simpleContent>
+      <xs:extension base="tns:DrawSeriesLegendSimple">
+        <xs:attribute name="onClick" use="optional">
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>on click action for all legend items</xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="^[a-zA-Z]+$"></xs:pattern>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+
+        <xs:attribute name="onMouseOver" use="optional">
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>onMouseOver action for this series</xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="^[a-zA-Z]+$"></xs:pattern>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+
+        <xs:attribute name="onMouseOut" use="optional">
+          <xs:annotation>
+            <xs:documentation>onMouseOut action for this series</xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="^[a-zA-Z]+$"></xs:pattern>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="StackedSimple">
+    <xs:annotation>
+      <xs:documentation>Stacked simple type, means whether the Series is to draw as stacked</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:boolean"></xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="Stacked">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+
+    <xs:attribute name="chartType" type="tns:chartType" default="LINECHART">
+      <xs:annotation>
+        <xs:documentation>means, the Stacked refers to all Series of this chartType, if not set - LINECHART</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="axis" type="tns:yAxis1Or2" default="1">
+      <xs:annotation>
+        <xs:documentation>to wish y-axis refers the stacked</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="asPercent" default="false">
+      <xs:annotation>
+        <xs:documentation>whether the Stacked of Series is to draw as percent value</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:boolean"></xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="colorValue">
+    <xs:annotation>
+      <xs:documentation>define value of Color node, it's a hexadecimal format</xs:documentation>
+    </xs:annotation>
+
+    <xs:restriction base="xs:string">
+      <xs:pattern value="#[a-fA-F0-9]{6}"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- ===================================================================== -->
+  <xs:simpleType name="wellKnownColorValue">
+    <xs:annotation>
+      <xs:documentation>well-known predefined colors, that JS colorProvider understands</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="red"></xs:enumeration>
+      <xs:enumeration value="green"></xs:enumeration>
+      <xs:enumeration value="yellow"></xs:enumeration>
+      <xs:enumeration value="blue"></xs:enumeration>
+      <xs:enumeration value="purple"></xs:enumeration>
+      <xs:enumeration value="teal"></xs:enumeration>
+      <xs:enumeration value="gray"></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="SeriesColors">
+    <xs:annotation>
+      <xs:documentation>colors definition of all series</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+
+      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Color" type="tns:colorValue">
+          <xs:annotation>
+            <xs:documentation>color as hexadecimal value</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+
+      <xs:element name="ProviderType" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>javascript type of color provider,
+            must extends standard TypeColorProvider implement/overwrite or not
+            functions getColorAsRGB(index) and getColor(index)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="ExternalDoc">
+        <xs:annotation>
+          <xs:documentation>External document, that returns Color nodes</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="sourceDocJS" use="required">
+            <xs:annotation>
+              <xs:documentation>An JS expression returning the source data doc</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="nodes" use="required">
+            <xs:annotation>
+              <xs:documentation>An XPath expression applied to the source data
+              returning the Color nodes with values</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="AutoBaseColors">
+        <xs:annotation>
+          <xs:documentation>colors based on well-known rgb colors</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+            <xs:element name="Color" type="tns:wellKnownColorValue"></xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

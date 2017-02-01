@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Client infrastructure" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+  <Chapter title="Page live-cycle">
+    <Body>
+      In the BCDUI library client pages are normal HTML pages which are usually generated with
+      JSP. The HTML page - the <i>carrier page</i> - loads the JavaScript file containing
+      the BCDUI's' js and css code. Then the execution of the client-side code starts.<br/>
+      The typical live-cycle of a BCD-UI page is as follows:
+
+      <dl>
+        <dt>Page loading phase:</dt>
+        <dd>
+          <ol>
+            <li>The carrier html page is loaded by the browser</li>
+            <li>BCD-UI live-cycle components on the client for logging, loading and so on are constructed.</li>
+            <li>The well-known guiStatus model holding information of the user's selection like chooser settings is initialized
+                from the guiStatus parameter of the pages's URL</li>
+            <li>Renderer on the page responsible for building the visible parts like widgets, edit grids and reports execute.</li>
+            <li>The renderer ask their input and parameter <i>data provider</i> to execute, i.e. to get ready.</li>
+            <li>Models, storing DOM data, are the most frequent data providers, potentially depending on other data providers as input.
+                Thus, the <b>data providers form dependency trees</b> which execute recursively.
+                I.e. on execute(), each data provider first checks whether the providers it depends on are ready and otherwise <i>execute</i> them.
+                Only once all needed input and parameter data providers have become ready, a model proceeds the execution and becomes ready itself.
+                See <a href="#Data providers">data providers</a> chapter below for more details.</li>
+            <li>Some models send on execute an http GET or POST request to the server.
+                This can be any URL for a static file for example or a <a href="../xmlData/doc.xml">request document</a> to WrsServlet.
+                When constructing the request document, the guiStatus can be accessed this is the place where choosers settings stored on giuStatus become request filters.</li>
+            <li>On server side for each request, the web services evaluate the request documents and consult the binding definitions for the appropriate places in connected databases.
+                The <a href="../binding/doc.xml">binding sets</a> translate the requested logical data ids into physical databases, views, tables and columns.</li>
+            <li>On server side for each request, once the web services have retrieved the data it is sent back to the client models</li>
+            <li>The renderer calculate their associated views and display them on the page to the user.</li>
+          </ol>
+        </dd>
+
+        <dt>Page interaction phase:</dt>
+        <dd>
+          <ul>
+            <li>The user can use widgets and views to provide input and settings.</li>
+            <li>Each activity of the user results in some change of a model.
+                Usually, changes to business data are stored in the assigned data model.
+                Changes to the UI, like chooser settings or sorting lead to changes in the guiStatus model.</li>
+            <li>Please note, no change of model data triggers any change of the view per se.
+                Instead the models will inform their listeners, if any, about the change and a renderer refresh can be triggered by the listener.</li>
+            <li>A save event will cause a model to send its data to the associated web-service, usually WrsServlet which then stores the data into the database.
+                Other activities like in-place drill down will lead to additional data being loaded.</li>
+          </ul>
+        </dd>
+
+        <dt>Page leaving phase:</dt>
+        <dd>
+          <ul>
+            <li>Pressing apply, menu navigation and drill-over events will cause the browser to leave the page.</li>
+            <li>The apply action will in addition append the current guiStatus as a parameter to the called URL, thus the new page will initialize its settings according to the chooser of the calling page.</li>
+          </ul>
+        </dd>
+      </dl>
+    </Body>
+  </Chapter>
+
+  <Chapter title="The guiStatus singelton">
+    <Body>
+      BCD-UI instantiates a well-known <code>guiStatus</code> data provider in each page loading phase.
+      The guiStatus is a standard simpleModel but is object of the following extra-handling:
+      <ul>
+        <li>It has a fixed name, which is always <i>guiStatus</i></li>
+        <li>It is initialized by BCD-UI during page load with the guiStatus URL parameter of the page and executed.
+        It is guaranteed to be <i>ready</i> when executing code in <code>bcdui.core.ready()</code>.
+        Access it as all data providers via <code>bcdui.factory.objectRegistry.getObject("guiStatus")</code></li>
+        <li>It is the default target model for widgets</li>
+        <li>It is an implicit parameter to all transformation XSLT, where it can be access with <code>&lt;xsl:param name="guiStatus"/></code></li>
+        <li>The <i>apply</i> action appends its content to the url of the called page</li>
+        <li>Base64 encoding is used to make it URL friendly and it is compressed to prevent it from exceeding IE's URL length restriction</li>
+        <li>On server side it is decompressed and decoded by a filter and provided via <code>getHttpRequest().getAttribute("guiStatusDoc");</code></li>
+      </ul>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Data providers">
+    <Body>
+      One main concept on client side of the BCDUI library are <i>data providers</i>.
+      All these objects offer a getData() method returning their data (XML, String etc.), which can be used by other objects.
+      In case of a Renderer, the resulting HTML is written into the DOM tree element.
+      Data providers are implemented as JavaScript objects and can be easily created with the help of the bcdui.factory package or with tags.
+      See more details of the live cycle, states and execution of data providers below.
+    </Body>
+
+    <SubChapter title="Available data providers">
+      <Body>
+        This is the list of available data providers and their action on <code>execute()</code> to become <i>ready</i>.
+        <dl>
+          <dt>Model</dt>
+          <dd>A DOM model receiving a URL to load the XML data from the server. Can be provided a <a href="../xmlData/doc.xml">request document</a> to contact the WrsServlet.
+              Please note that due to lack of DOM events in browsers you need to fire the event explicitly if you modify a model's xml with DOM methods.
+              If it is in autoRefresh mode, it will reload whenever the request document changes. Auto-refresh mode is use-full for small models.</dd>
+          <dt>StaticModel</dt>
+          <dd>A DOM model receiving a static XML either as DOM or serialized as content</dd>
+          <dt>ModelUpdater</dt>
+          <dd>Applies an XSLT on a input model and replaces the target model's content with the transformation result.</dd>
+          <dt>Renderer</dt>
+          <dd>Executes an XSLT on a input model and inserts the result as HTML into the page at the targetHtmlElement.
+              The input model is not changed.
+              The transformation XSLTs can be given as a url to a single xslt, as a Chain of XSLTs or as a Model.
+              In js you can also provide an array of XSLT URLs, which is then internally converted into a chain.</dd>
+          <dt>ModelWrapper</dt>
+          <dd>Is a sibling of Renderer with the difference of providing the result as an XML model. For the rest see Renderer.</dd>
+          <dt>ConstantDataProvider</dt>
+          <dd>Holds a simple data type String|Number|Boolean</dd>
+          <dt>PromptDataProvider</dt>
+          <dd>Prompts the user for a string input.</dd>
+          <dt>DataProviderWithXPath</dt>
+          <dd>Gets a source data provider and an xPath and provides the evaluated xPath.</dd>
+        </dl>
+        Calling <code>execute(true)</code> on a data provider will enforce the data provider to re-execute even in it is already in ready-state.
+        DataProviders inform their listeners about change events so that they can update.
+      </Body>
+
+      <SubChapter title="Internals" type="internal">
+        <Body>
+          Internally data providers run through a list of status, where each status transition is implemented via a method.
+          Each status change is fired to all status listeners.
+          Because a data provider is its own listener, in can trigger the necessary next status change in a central dispatcher.
+          Once the ready-status, which is common to all data providers is reached, no further transitions is happening.
+          One can call execute(true) or set another state on an object with setStatus() to re-trigger the status chain and its transitions.
+          getStatus().toString() will show the data providers' current status.
+        </Body>
+      </SubChapter>
+    </SubChapter>
+
+    <SubChapter title="States, execution and asynchronicity">
+      <Body>
+        <p>
+          All data providers are based on states. When they are constructed they start in
+          an initial state. Then the user can call the <code>execute()</code> method to
+          start the process associated with the object and to move it to the <i>ready</i> state.
+          Calling <code>execute()</code> is necessary for a dataProvider to perform and get ready.
+          In other words, models don't provide data until they are explicitly executed.
+          When calling <code>execute()</code> on a data provider, it also executes all data providers it depends on and so on and waits for them to finish executing.
+          During the execution there can be any number of state transitions which end up
+          in the final <i>ready</i> state. Then the process (e.g. loading an
+          XML document) is finished and the data offered by the data provider is available.
+        </p>
+        <p>
+          The <code>execute()</code> method is asynchronous,
+          you need to register a call-back to continue with js code using the execution result.
+          To get informed about state changes all data providers offer methods to add and
+          remove status listeners. These listeners are called each time the state of the
+          respective object changes.
+        </p>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Object Registry">
+      <Body>
+        To support parallel and independent creation of objects, an <i>object registry</i> singleton is available at <code>bcdui.factory.objectRegistry.objectRegistry</code>.
+        It allows to <code>$register()</code> created objects and
+        to register call-backs with bcdui.factory.objectRegistry.withObjects and bcdui.factory.objectRegistry.withReadyObjects, waiting for objects being created or even being ready.
+        A call bcdui.factory.objectRegistry.withReadyObjects will <code>execute()</code> all data providers as soon as they become available, i.e. registered.
+        <br/>
+        For users of the library it is recommended to use <code>createXXX()</code> methods of the bcdui.factory package.
+        These methods handle the register process for you and also wait for all input dataProviders to be come available and ready.
+        <pre>
+          function() {
+            bcdui.factory.createSimpleModel({ id: "myModel", url: "data.xml" });
+            bcdui.factory.createModelWrapper({ id: "myWrapper", url: "createRequest.xslt", input: "myModel"});
+          }
+        </pre>
+        The BCD-UI tag library is also using these factory methods.
+      </Body>
+
+      <SubChapter title="Explicit register">
+        <Body>
+          Use the factory methods whenever possible.
+          In case you are not using the recommended factory level for object creation,
+          you need to handle register and waiting for objects explicitly.
+          No matter whether the model is loaded faster or the xslt chain of the renderer, the renderer waits for its input to become ready.
+          Note that on js level library objects assume the existence of all parameter objects is assumed.
+          You need to use <code>bcdui.factory.objectRegistry.withObjects()</code> before using an object as an argument.
+          But objects of the library still will call <code>execute()</code> on the objects they depend on an wait for them to become ready.
+          <pre>
+            function() {
+              bcdui.factory.objectRegistry.registerObject(new bcdui.core.SimpleModel({ id: "myModel", url: "data.xml" });
+              bcdui.factory.objectRegistry.withObjects({
+                ids: [ "myModel" ],
+                fn: function() {
+                      bcdui.factory.objectRegistry.registerObject(new bcdui.core.TransformationChain({
+                        id: "myRenderer",
+                        chain: chainModel,
+                        dataProviders: [ "myModel" ],
+                        targetHTMLElementId: "contentDiv"
+                      });
+                    }
+              }); // withObjects
+            }
+          </pre>
+        </Body>
+      </SubChapter>
+    </SubChapter>
+  </Chapter>
+
+</Doc>

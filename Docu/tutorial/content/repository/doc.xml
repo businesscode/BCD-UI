@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Repository" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0" state="draft">
+  <!--
+    <ul>
+      <li>well-known time hierarchy and operations</li>
+      <li>well known attributes like id, caption, oderNumber</li>
+    </ul>
+  -->
+  <Chapter title="Repository Overview" type="overview" >
+    <Body>
+      BCD-UI Repository holds all structural information about the available data like available dimensions, Measures and database bindings.
+      The repository holds information about:
+      <dl>
+        <dt>Dimensions</dt>
+        <dd>The <i>dimension tree</i> of the repository contains a description of the available dimensions and their <i>hierarchies</i>.</dd>
+        <dt>Measures</dt>
+        <dd>Measures are beside dimensions the key data items in the data warehouse.
+            A Measures represents a measurable fact about a business object. Its semantic is described in the repository.</dd>
+        <dt>Attributes</dt>
+        <dd>An attribute represents a fact about a business object, which may not be measured or aggregated, like an address or name.</dd>
+        <dt>Database bindings</dt>
+        <dd>Database bindings provide a logical model of the views and tables in access of the solution and link the dimensions, measures and attributes to the database.
+        </dd>
+      </dl>
+      On top of this information, reports, ScoreCards or editors are build
+      <img src="repositoryLevels.png" style="display:block;text-align:center"/>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Dimensions" type="overview">
+    <Body>
+      <img src="timeDim.png" style="float:right;"/>
+      Dimensions, like Geo, group their members, i.e. their actual values like 'Munich', in levels of a hierarchy tree.
+      Each member has exactly one parent in the parent level of the hierarchy and all members of the same distance to the root are at the same level.
+      Member can appear in multiple hierarchies.<div/>
+      <dl>
+        <dt>Dimension</dt>
+        <dd>Geo, Time and Customer are all dimensions. Each dimension can have one or more hierarchies.</dd>
+        <dt>Hierarchy</dt>
+        <dd>A hierarchy forms a tree with different levels, Calendar Week and Month are two hierarchies of the dimension time.</dd>
+        <dt>Level</dt>
+        <dd>A level is one level in the hierarchy tree, for example Year, Quarter, Month and Day are levels of hierarchy month.
+            A level can occur in multiple hierarchies but only in one dimension.</dd>
+        <dt>Member</dt>
+        <dd>A member is an actual value, a dimension can have, for example 2011 is a member of level year in hierarchy month in dimension time.
+            A member can be in only one level.</dd>
+        <dt>Properties</dt>
+        <dd>A property is an attribute of a dimension member.
+            A property can be a long name, a caption or the sorting order of the member within the siblings, being children of the same parent member.</dd>
+      </dl>
+      The aggregation level of data within a specific view of table is known to the system via <i>database bindings</i>, which link <i>hierarchies</i> to databse columns.
+    </Body>
+
+    <SubChapter title="Definition document">
+      <Body>
+        <dl>
+          <dt>Dimension definition element</dt>
+          <dd>The Dimension element only has an id and contains one or more hierarchies.</dd>
+          <dt>Level definition element</dt>
+          <dd>A level definition defines a level of a dimensions.
+              Its member will often occur in multiple places in the data warehouse, the link between level and bindings is the bindingId.
+              All bindings with the bindingId identical to the bindingIdRef of the level indicate that the corresponding column holds members of the level.
+              As levels cover the common parts of these elements, they can have all attributes, which are common to the corresponding Bindings, like <i>jdbc.column.type</i> and so on.
+              The id of a level is unique within the dimension.
+          </dd>
+          <dt>Member-Property</dt>
+          <dd>
+            A dimension can declare properties for its members. These attributes can be for example long names or oder information for the members.
+            Such properties can be uniquely identified from the value of the member, the opposite is not necessarily true.
+            A property element declares the common part of its occurrences and its bindingIdRef links it to the Bindings.
+            In a query asking for a hierarchical output form for a hierarchy, the properties are returned to attributes of the elements representing the level.
+            The id of a property is unique within the dimension.
+            Each level has to define the bindingIdRef for its member properties. If no definition is given, the member value itself is used.
+          </dd>
+          <dt>Hierarchy definition element</dt>
+          <dd>The Hierarchy element has an id unique within the dimension and contains one or more LevelRef elements. Each LevelRef refers to a level definition of the dimension.
+              This allows two hierarchies of one dimension to refer both to the same Level element and thus allows navigating between hierarchies.</dd>
+        </dl>
+        <xml>
+          <Dimensions>
+
+            <Dimension id="Geo">
+              <Property id="caption" column-type-name="VARCHAR"/>
+              <Levels>
+                <Level id="Region"              bindingIdRef="reg_code"  column-type-name="VARCHAR">
+                  <Property idRef="caption" bindingIdRef="reg_name"/>
+                </Level>
+                <Level id="Country"     bindingIdRef="ctr_code">
+                  <Property idRef="caption" bindingIdRef="ctr_name"/>
+                </Level>
+                <Level id="City"        bindingIdRef="cty_code"/>
+                <Level id="Center"      bindingIdRef="cen_code"/>
+                <Level id="SalesRegion" bindingIdRef="sale_reg"/>
+              </Levels>
+              <Hierarchies>
+                <Hierarchy id="Geo" bindingSet="tb_md_geo">
+                  <LevelRef ref="Region"/>
+                  <LevelRef ref="Country"/>
+                  <LevelRef ref="City"/>
+                  <LevelRef ref="Center"/>
+                </Hierarchy>
+                <Hierarchy id="GeoSales"  bindingSet="tb_md_geosales">
+                  <LevelRef ref="Region"/>
+                  <LevelRef ref="SalesRegion"/>
+                  <LevelRef ref="Center"/>
+                </Hierarchy>
+              </Hierarchies>
+            </Dimension>
+            <Dimension id="Time">
+              <Levels/>...
+              <Hierarchies>
+                <Hierarchy id="MO"/>
+                ...
+                <Hierarchy id="CW"/>
+              </Hierarchies>
+            </Dimension>
+
+          </Dimensions>
+        </xml>
+        Each <i>hierarchy</i> is assigned a chooser, which can allow selecting one or many members of one or multiple levels of a hierarchy.
+        Different hierarchies of a dimension will often have the same chooser appearance, the selection of a member may implicitly select a hierarchy.
+        For example the period chooser allows selecting month or calendar week, implicitly switching the hierarchy of the dimension time.
+      </Body>
+
+    </SubChapter>
+    <SubChapter title="Time">
+      <Body>
+        Time is a specific dimension and well-known to the system.
+        It's chooser does not need a reference data table with the values and the implementation provides built-in functions to work with time.
+        These are
+        <dl>
+          <dt>YTD - year to date</dt>
+          <dd></dd>
+          <dt>PY - previous year</dt>
+          <dd></dd>
+          <dt>PP - previous period</dt>
+          <dd></dd>
+        </dl>
+
+      </Body>
+    </SubChapter>
+
+  </Chapter>
+
+  <Chapter title="Measures" type="overview">
+    <Body>
+      Measures represent the measurable facts contained in the data warehouse being known about the dimension members and derived information.
+      A Measure can be of two types:
+      <dl>
+        <dt>Plain Measure</dt>
+        <dd>A plain Measure is an value, which can be rolled up, like a weight or the number of packaged items</dd>
+        <dt>Indicator Measure</dt>
+        <dd>An indicator Measure is a calculated boolean indicating whether a business object succeeded in regards of a business rule.
+            For example an indicator Measures will say whether an order has been processed properly in terms of time or process.
+            The calculator rule behind the indicator can be simple as <i>order is closed</i>, or as complex as, <i>was the order processed according to the business process rules?</i>
+            Complex indicator Measures can be defined with the <a href="../levelOfComponents/doc.xml">BusinessMirror</a> and run in the warehouse, especially if process logic is to be taken into account.
+            Because indicator Measures can be rolled up, they can of course also be sums of indicator Measures.
+        </dd>
+      </dl>
+      Each Measure is assigned to exactly one business object, the id of the Measure is globally unique within a business object.
+      They are linked to actual database values via their bindindIdRef.
+      All Bindings with the same bindingId represent the same Measure.
+    </Body>
+
+    <SubChapter title="Definition document">
+      <Body>
+      <xml>
+        <Measures>
+
+          <BusinessObject id="order" caption="Order">
+            <Measure id="orderVolume" bRef="order_vol" column-type-name="INTEGER" description="In local currency"/>
+            <Measure id="orderCompleted" bRef="order_completed" column-type-name="INTEGER" rollup="childAvg">
+              <HtmlDescription><![CDATA[
+                Orders are <i>completed</i> when the invoice was payed or customer service agreed to drop the claim
+                or the order was cancelled by customer or customer service.
+              ]]></HtmlDescription>
+              <Indicator rcBRef="order_completed_rc" rcTree="order_completed_rctree"
+                         iBRef="order_completed_i" tBRef="order_completed_t"/>
+              <MeasureDetailExport bRefs="order_completed_rc"/>
+            </Measure>
+            ...
+            <DetailExport bindingId="tb_order_details" bRefs="order_id order_date order_volume"/>
+          </BusinessObject>
+
+          <BusinessObject>
+            ...
+          </BusinessObject>
+
+        </Measures>
+      </xml>
+      The definition of a BusinessObject and its Measures composes out of the following elements:
+      <dl>
+        <dt>BusinessObject</dt>
+        <dd>The business object provides information about itself and information common for all Measures, like detail export columns</dd>
+        <dt>DetailExport</dt>
+        <dd>Provides bindingIds to be exported along with Measures of the Business Object</dd>
+      </dl>
+
+      <dl>
+        <dt>Measure</dt>
+        <dd>A Measure is a measured element of a business object. Which kind of Measure it is is derived from its child elements.
+          <ul>
+            <li>rollup: defines standard aggregation, can be sum, min, max, distinct, childAvg, count, none. Default is sum</li>
+            <li>column-type-name: defines the data type properties, overwrites values given in Bindings</li>
+          </ul>
+        </dd>
+        <dt>HtmlDescription</dt>
+        <dd>The optional HtmlDescription is an HTML enabled free text shown in fly-overs</dd>
+        <dt>Indicator</dt>
+        <dd>The optional Indicator element declares that the Measure is an <i>Indicator Measure</i> and provides additional information
+          <ul>
+            <li>iBRef: Indicator</li>
+            <li>tBRef: Total</li>
+            <li>rcBRef: Optional id of bindingItems of Bindings holding the root cause value</li>
+            <li>rcTree: Optional id of the root cause tree</li>
+          </ul>
+        </dd>
+        <dt>MeasureDetailExport</dt>
+        <dd>Provides bindingIds to be exported along with the Measure in addition to what is already declared for the Business Object
+          <ul>
+            <li>bRefs: Space separated list of binding items to be exported in addition to the bindingItems given for the BusinessObject</li>
+          </ul>
+        </dd>
+      </dl>
+      </Body>
+    </SubChapter>
+  </Chapter>
+
+  <Chapter title="Drilling" type="overview">
+    <Body>
+      <dl>
+        <dt>Drilling up/down</dt>
+        <dd>The knowledge about the hierarchies allows the system to offer the user to drill-up and within a hierarchy</dd>
+        <dt>Drilling through</dt>
+        <dd></dd>
+        <dt>Drilling across hierarchies</dt>
+        <dd>Since levels are shared between hierarchies, it is possible to drill over from one hierarchy in to another within a dimension.
+            This is supported when the system knows the target hierarchy.
+            When drilling over, it switches to the lowest common level shared between the source and the target level, this can be the very same level currently selected for the source hierarchy.</dd>
+      </dl>
+    </Body>
+  </Chapter>
+</Doc>

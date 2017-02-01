@@ -1,0 +1,123 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//**************************************
+// Handle compilation of BCD-UI's Java server and generation of Java classes from xsd
+
+apply plugin: "java"
+
+// Add jaxb gensrc to default source set
+sourceSets {
+  main {
+    java {
+      srcDirs = [ "src/main/java", "$buildDir/gensrc/main/java" ]
+    }
+  }
+}
+
+
+// 3rdParty jars
+configurations { provided }
+dependencies {
+  repositories {
+    mavenCentral()
+  }
+  compile 'commons-beanutils:commons-beanutils:1.8.3'
+  compile 'commons-codec:commons-codec:1.9'
+  compile 'commons-collections:commons-collections:3.2.1'
+  compile 'commons-dbutils:commons-dbutils:1.5'
+  compile 'commons-fileupload:commons-fileupload:1.2.2'
+  compile 'commons-io:commons-io:2.0'
+  compile 'commons-lang:commons-lang:2.4'
+  compile 'commons-logging:commons-logging:1.1.1'
+  compile 'commons-vfs:commons-vfs:1.0'
+  compile 'jstl:jstl:1.1.0'
+  compile 'log4j:log4j:1.2.17'
+  compile 'net.sf.ehcache:ehcache-core:2.3.1'
+  compile 'net.sf.opencsv:opencsv:2.3'
+  compile 'oro:oro:2.0.8'
+  compile 'org.apache.shiro:shiro-all:1.1.0'
+  compile 'org.apache.velocity:velocity:1.7'
+  compile 'org.apache.poi:poi:3.14'
+  compile 'org.apache.poi:poi-ooxml:3.14'
+  compile 'org.apache.poi:poi-ooxml-schemas:3.14'
+  compile 'org.slf4j:slf4j-api:1.6.1'
+  compile 'org.slf4j:slf4j-log4j12:1.6.1'
+  compile 'taglibs:standard:1.1.0'
+
+  compileOnly 'javax.el:javax.el-api:2.2.5'
+  compileOnly 'javax.servlet.jsp:jsp-api:2.2'
+  compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
+
+  provided 'com.sun.xml.bind:jaxb-impl:2.2.6'
+  provided 'com.sun.xml.bind:jaxb-xjc:2.2.6'
+}
+
+//********************************
+// Generate java sources based on XSDs into gensrc/java
+// Currently 'subjectsettings' and 'menu'
+task bcduiGensrcJaxb {
+
+  // List of JAXB types for be generated from xsd
+  def genJaxbTypes = project.hasProperty('bcdui.genJaxbTypes') ? project.getProperty('bcdui.genJaxbTypes').split(", |,| ") : []
+
+  onlyIf { genJaxbTypes.size() > 0 }
+
+  def taskDestDirName = "$buildDir/gensrc/main/java"
+
+  // For up-to-date check
+  genJaxbTypes.each { xsdName ->
+    inputs.file "$bcdXsdDir/$xsdName-1.0.0.xsd"
+    outputs.dir "$taskDestDirName/de/businesscode/bcdui/$xsdName"
+  }
+
+  doLast {
+    System.setProperty('javax.xml.accessExternalSchema', 'file')
+    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.provided.asPath)
+
+    file(taskDestDirName).mkdirs()
+
+    genJaxbTypes.each { xsdName ->
+      delete taskDestDirName+'de/businesscode/$xsdName/config'
+      ant.xjc( destdir: taskDestDirName ) {
+        ant.schema file: "$bcdXsdDir/$xsdName-1.0.0.xsd"
+      }
+    }
+  }
+}
+
+//*********************************
+// Java Plugin default task configuration
+// Compile java, making sure we have generated sources before
+compileJava {
+  dependsOn bcduiGensrcJaxb
+}
+
+//*********************************
+// Java Plugin default task configuration
+jar {
+  baseName = "$artifactsBaseName-server"
+  version  = bcduiVersion
+  manifest {
+    attributes( bcduiManifestAttributes() )
+  }
+  metaInf {
+    from bcduiMetaInf
+  }
+}
+
+//********************************
+// Java Plugin default task
+clean.group = 'bcd-ui'

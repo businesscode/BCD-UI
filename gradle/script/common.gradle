@@ -1,0 +1,77 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+import java.text.SimpleDateFormat
+
+
+// Global constants and constants shared among projects
+ext {
+  newLine = System.properties['line.separator']
+  fileSep = System.properties['file.separator']
+  ServerRoot    = file("$rootProject.projectDir/Server")
+  clientRoot    = file("$rootProject.projectDir/Client")
+  docuRoot      = file("$rootProject.projectDir/Docu")
+  themeRoot     = file("$rootProject.projectDir/Theme")
+  jspTaglibRoot = file("$rootProject.projectDir/JspTaglib")
+  apisGeneratorRoot   = file("$rootProject.projectDir/ApisGenerator")
+
+  // Content provided by one project for another
+  bcdXsdDir        = "$docuRoot/xsd"
+  generatedApisDir = "$apisGeneratorRoot/build/gensrc"
+  clientFileGroupsDist  = "$clientRoot/build/tmp/bcduiJsFileGroups/dist"
+  clientFileGroupsDebug = "$clientRoot/build/tmp/bcduiJsFileGroups/debug"
+}
+
+
+// Helper providing information about git status and possible un-committed changes going into the current dist
+task bcduiMetaInf {
+  outputs.files("$buildDir/META-INF")
+  outputs.upToDateWhen { false }
+
+  doLast {
+    def gitInfoFolder = new File("$buildDir/META-INF/gitInformation")
+    gitInfoFolder.delete()
+
+    if( ! project.hasProperty('bcdui.includeGitInformation') || project.getProperty('bcdui.includeGitInformation') != true )
+      return
+
+    gitInfoFolder.mkdirs()
+
+    //--------
+    // Create gitInformation
+    def gitInformationFile = new File("$gitInfoFolder/${project.name}.txt")
+    gitInformationFile.delete()
+    gitInformationFile.createNewFile()
+    gitInformationFile.text = "Git status during distribution build" + newLine
+    gitInformationFile << "at " + new SimpleDateFormat("yyyy-MM-dd HHmm").format(new Date()) + newLine
+    gitInformationFile << "git describe --tags".execute(null, projectDir).text + newLine
+    gitInformationFile << "git status --short".execute(null, projectDir).text + newLine
+    gitInformationFile << "git diff --stat".execute(null, projectDir).text + newLine
+    gitInformationFile << "git diff --stat ..@{u}".execute(null, projectDir).text
+  }
+}
+
+//--------------------------
+// Helper providing manifest attributes
+ext.bcduiManifestAttributes = {
+  return [
+          "Manifest-Version"      : '1.0',
+          "Created-By"            : System.properties["java.version"] + " (" + System.properties["java.vendor"] + ")",
+          "Built-By"              : System.properties["user.name"],
+          "Implementation-Title"  : 'BusinessCode BCD-UI',
+          "Implementation-Version": project.properties['bcdui.version'],
+          "Implementation-Vendor" : 'BusinessCode GmbH, Bonn, Germany'
+  ]
+}

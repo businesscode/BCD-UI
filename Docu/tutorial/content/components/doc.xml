@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="BCD-UI components" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0" state="draft">
+  <Chapter title="Ready-to-use components" type="overview">
+    <Body>
+      BCD-Suite contains the following ready-to-use components
+      <dl>
+        <dt><a href="../components/cube/doc.xml">Cube</a></dt>
+        <dd>Cubes provide an easy way for slicing and dicing data according to dimensions into a report table
+            <img src="cube/cube.png" style="height:100px;vertical-align:middle;" onmouseover="this.style.setAttribute('height','');" onmouseout="this.style.setAttribute('height','100px');"/>
+        </dd>
+
+        <dt><a href="../components/scorecard/doc.xml">ScoreCard</a></dt>
+        <dd>A ScoreCard combines KPIs of several aspects into a cross-division or cross-aspect view giving a comprehensive overview for a manager.
+          <img src="../components/scorecard/scoreCard.png" style="height:100px;vertical-align:middle;" onmouseover="this.style.setAttribute('height','');" onmouseout="this.style.setAttribute('height','100px');"/>
+        </dd>
+
+        <dt><a href="../components/treeReport/doc.xml">Tree report</a></dt>
+        <dd>A tree report suites the requirement of showing aggregated data with the option to drill in-place into a more detailed view.
+          An important option is to defer loading of lower levels to the moment a user actually drills into details.
+          <img src="treeReport/treeReport.png" style="height:100px;vertical-align:middle;" onmouseover="this.style.setAttribute('height','');" onmouseout="this.style.setAttribute('height','100px');"/>
+        </dd>
+
+        <dt><a href="../components/charts/doc.xml">Charts</a></dt>
+        <dd>Charts allow for an easy visualization of data in various common ways.
+          <img src="charts/pieCharts_ColorPlusBw.png" style="height:100px;vertical-align:middle;" onmouseover="this.style.setAttribute('height','');" onmouseout="this.style.setAttribute('height','100px');"/>
+        </dd>
+      </dl>
+    </Body>
+  </Chapter>
+</Doc>
+

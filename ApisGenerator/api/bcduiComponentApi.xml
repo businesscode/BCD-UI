@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Root title="Component">
+
+  <WorkingDraft>
+    <BcdAPI>
+
+      <Api name="childSemantic">
+        <Doc>
+          Marks the given data provider as having a specific semantic.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:dataProvider" doc="Marks the given data provider as having a specific semantic." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="hasTargetHtml">
+        <Param name="targetHTMLElementId" type="string" deprecated="4.6">
+          <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
+        </Param>
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="executable">
+        <Doc>
+          Can be executed and has a status ready/nonready.
+        </Doc>
+        <Param name="id" type="string">
+          <Doc>
+            Id of the data provider, unique on the page. If omitted the id is automatically generated.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc="A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="dataProvider" extends="executable">
+        <Doc>
+          A data provider is an abstract class on top of the AbstractExecutable extending it by data-related functions (like getName, getData, data events).
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model" />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="hasInputModel">
+        <Doc>
+          Works on a main input model.
+        </Doc>
+        <Param name="inputModel" type="dataProvider" isJSPChild="paramBag.inputModel">
+          <Doc>
+            Works on a main input model.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="transformationChain" extends="hasInputModel">
+        <Doc>
+          Applies a chain of transformations on a model.
+        </Doc>
+        <Param name="chain" type="dataProvider" isJSPChild="paramBag.chain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="stylesheetUrl" type="url" jsName="url">
+          <Doc>
+            This parameter can be set when you only want to apply one single XSLT style sheet. It
+            contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be
+            provided.
+          </Doc>
+        </Param>
+        <ParamList name="param">
+          <Doc>
+            List of named parameters.
+          </Doc>
+        </ParamList>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="chain" type="param"></Child>
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="chart" extends="hasTargetHtml">
+        <Doc>
+          Creates a chart. Requires width/height to explicitely assigned to the target html element either thru inline styling or CSS or defined by meta data model.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the chart configuration data." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="id" type="string">
+          <Doc>The chart's id.</Doc>
+        </Param>
+        <Param name="metaDataModel" type="dataProvider" isJSPChild="paramBag.metaDataModel" deprecated="4.6">
+          <Doc>
+            The model containing the chart meta data (see chart-1.0.0.xsd, Root Element 'Chart').
+          </Doc>
+        </Param>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the chart configuration data (see chart-1.0.0.xsd, Root Element 'Chart').
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="chartLegend" extends="hasInputModel hasTargetHtml">
+        <Doc>
+          Creates a chart legend.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:inputModel" doc="The DataProvider instance that becomes the input of the chartLegend." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:chartLegend
+            id='breakEvenChartLegend' chartRendererId='breakEvenChart'
+            />
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="chartRendererId" type="string" required="true">
+          <Doc>The chart's renderer id.</Doc>
+        </Param>
+        <Param name="id" type="string">
+          <Doc>The chart's legend id.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="cubeModel" extends="transformationChain dataProvider config statusModel">
+        <Doc>
+          Creates a cube model, provides data with calculations and col dimensions applied.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:cubeModel>
+            &lt;component:config>
+            &lt;b:model url='cubeConfiguration.xml'/>
+            &lt;/component:config>
+            &lt;/component:cubeModel>
+          </Example>
+          <Example type="js">
+            bcdui.component.createCubeModel({
+            id: "myCube",
+            , config: bcdui.factory.createModel({ url: "cubeConfiguration.xml" })
+            , targetHTMLElementId: "cubeContentDiv"
+            });
+          </Example>
+        </Examples>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the cube configuration data (see cube-2.0.0.xsd, Root Element 'CubeConfiguration').
+            If it is not present a SimpleModel with the url  './cubeConfiguration.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="metaDataModel" type="dataProvider" isJSPChild="paramBag.metaDataModel" deprecated="4.6">
+          <Doc>
+            The model containing the cube meta data (see cube-2.0.0.xsd, Root Element 'CubeConfiguration').
+            If it is not present a SimpleModel with the url  './cubeConfiguration.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="statusModel" type="dataProvider" isJSPChild="paramBag.statusModel">
+          <Doc>
+            The model containing the current cube layout together with the filters. This is the guiStatus model by default.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="cube" extends="cubeModel hasTargetHtml">
+        <Doc>
+          Creates a cube front end based on given data or a configuration.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the cube configuration data." />
+              <Child name="cmp:statusModel" doc="The model containing the current cube layout together with the filters." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:cube>
+              &lt;component:config>
+                &lt;b:model url='cubeConfiguration.xml'/>
+              &lt;/component:config>
+            &lt;/component:cube>
+          </Example>
+          <Example type="js">
+            bcdui.component.createCube({
+            id: "myCube",
+            , config: bcdui.factory.createModel({ url: "cubeConfiguration.xml" })
+            , targetHTMLElementId: "cubeContentDiv"
+            });
+          </Example>
+        </Examples>
+      </Api>
+
+      <Api name="cubeConfigurator" extends="hasTargetHtml">
+        <Doc>
+          Creates a cube configurator, providing the cube:Layout section of the cube configuration, able of
+          1) Showing the drag and drop area for the dimensions and measures
+          2) Providing templates to the user
+          3) Allowing the user to save templates for him/herself
+          4) Allowing the user to create new measues with the formular editor
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the cube configurator configuration data." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:cubeConfigurator>
+              &lt;b:model url='cubeConfiguratorOptions.xml'/>
+            &lt;/component:cubeConfigurator>
+          </Example>
+          <Example type="js">
+            bcdui.component.createCubeConfigurator({
+             id:                    "cubeConfigurator",
+             , config:              bcdui.factory.createModel({ url: "dimensionsAndMeasures.xml" })
+             , targetHTMLElementId: "cubeConfiguratorDiv"
+             , targetModelId        "guiStatus2"
+             , isRanking            true
+             , rankingTargetHtmlElementId: "rankingDiv"
+          </Example>
+        </Examples>
+        <Param name="cubeId" type="string">
+          <Doc>
+            Id of the cube the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:cube.
+          </Doc>
+        </Param>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the cube configuration data (see cube-2.0.0.xsd, Root Element 'CubeConfiguration').
+            If it is not present a SimpleModel with the url  './dimensionsAndMeasures.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="metaDataModelId" type="dataProvider" isJSPChild="paramBag.metaDataModel" deprecated="4.6">
+          <Doc>
+            The model containing the cube meta data (see cube-2.0.0.xsd, Root Element 'CubeConfiguration').
+            If it is not present a SimpleModel with the url  './dimensionsAndMeasures.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="cubeRenderer" type="dataProvider" isJSPParent="true">
+          <Doc>
+            Id of the cubeRenderer the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:cube.
+          </Doc>
+        </Param>
+        <Param name="targetModelId" type="string">
+          <Doc>
+            Per default the configuration is written to $guiStatus/*/cube:Layout[cubeId='cubeId'].
+            Change this for example if you want to have multiple cubes and multiple cubeConfigurators.
+          </Doc>
+        </Param>
+        <Param name="isRanking" type="boolean">
+          <Doc>
+            Enable the ranking feature. This is an Enterprise Edition only feature.
+          </Doc>
+        </Param>
+        <Param name="rankingTargetHtmlElementId" type="string">
+          <Doc>
+         If isRanking is true then this attribute can be used to control the div where the ranking editor is placed.
+         </Doc>
+        </Param>
+        <Param name="isTemplate" type="boolean">
+          <Doc>
+            Enable the template feature. This is an Enterprise Edition only feature.
+          </Doc>
+        </Param>
+        <Param name="templateTargetHtmlElementId" type="string">
+          <Doc>
+            If isRanking is true then this attribute can be used to control the div where the template editor is placed.
+          </Doc>
+        </Param>
+        <Param name="showSummary" type="boolean">
+          <Doc>
+            Enable the summary feature.
+          </Doc>
+        </Param>
+        <Param name="summaryTargetHtmlElementId" type="string">
+          <Doc>
+            If isRanking is true then this attribute can be used to control the div where the summary is placed.
+          </Doc>
+        </Param>
+        <Param name="reportName" type="string">
+          <Doc>
+            Name of the report is used to access the persistent layouts.
+          </Doc>
+        </Param>
+        <Param name="hasUserEditRole" type="boolean">
+          <Doc>
+            Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
+          </Doc>
+        </Param>
+        <Param name="contextMenu" type="string">
+          <Doc>
+            'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="isDefaultHtmlLayout" type="boolean">
+          <Doc>
+            Boolean. If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then.
+          </Doc>
+        </Param>
+        <Param name="applyFunction" type="string">
+          <Doc>
+            Function name which is used for the apply button in isDefaultHtmlLayout=true mode. Default is bcdui.core.lifecycle.applyAction
+          </Doc>
+        </Param>
+      </Api>
+
+      
+
+      <Api name="scorecardModel" extends="transformationChain dataProvider">
+        <Doc>
+          A scorecard model. Can be used as a DataProvider for renderers.
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            Required. The model providing the scorecard's configuration data.
+          </Doc>
+        </Param>
+        <Param name="metaDataModel" type="dataProvider" isJSPChild="paramBag.metaDataModel" deprecated="4.6">
+          <Doc>
+            Required. The model providing the scorecard's configuration data.
+          </Doc>
+        </Param>
+        <Param name="customParameterModelId" type="dataProvider" isJSPChild="true">
+          <Doc>
+            Custom parameter for usage in the custom aggregator and aspect transformations.
+          </Doc>
+         <Impl>
+           <Jsp><![CDATA[ <webpage:paramBag.extractJSParams/>.customParameterModel]]></Jsp>
+           <Xslt><![CDATA[parameters.customParameterModel]]></Xslt>
+         </Impl>
+        </Param>
+      </Api>
+
+      <Api name="scorecard" extends="scorecardModel hasTargetHtml">
+        <Doc>
+          This tag creates a scorecard component.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;cmp:scorecard id='scorecardOne'>
+              &lt;cmp:config>
+                &lt;b:model url='scorecardConfiguration.xml'/>
+              &lt;/cmp:config>
+            &lt;/cmp:scorecard>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+
+        <Param name="tooltipUrl" type="url">
+          <Doc>
+            To overwrite default renderer xslt of the tooltip.
+            An empty string will disable tooltips. Default is BCD-UI's default tooltip.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="config" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          This tag is a DataProvider-Role tag exposing the nested DataProvider as a
+          configuration model. It is typically used in more complex components or widgets
+          to give additional configuration data to the rendering.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:config>
+              &lt;b:ref idRef='myConfigData'/>
+            &lt;/component:config>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+      </Api>
+
+      <Api name="metaData" type="dataProviderAlias" extends="childSemantic" alias="metaDataModel" deprecated="4.6">
+        <Doc>
+          This tag is a DataProvider-Role tag exposing the nested DataProvider as a
+          metaData model. It is typically used in more complex components or widgets
+          to give additional configuration data to the rendering.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:metaData>
+              &lt;b:ref idRef='myMetaData'/>
+            &lt;/component:metaData>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+      </Api>
+
+      <Api name="statusModel" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          The statusModel tag is a DataProvider-Role tag passing the nested DataProvider
+          to the enclosing Object as a status model. Normally the guiStatus model
+          represents the standard status model on the client, but in some situations it
+          is useful to provide an alternative status model to a component or widget.
+          Then this tag can be used.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:statusModel>
+              &lt;b:model url='preDefinedStatusDoc.xml'/>
+            &lt;/component:statusModel>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+      </Api>
+
+    </BcdAPI>
+
+    <BcdObjects>
+      <BcdObject name="chart" implements="chart" implementationPackage="bcdui.component.chart." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="chartLegend" implements="chartLegend" implementationPackage="bcdui.component.chart." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="cubeModel" implements="cubeModel" implementationPackage="bcdui.component." tagFolder="component"/>
+      <BcdObject name="cube" implements="cube" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="cubeConfigurator" implements="cubeConfigurator" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="scorecardModel" implements="scorecardModel" implementationPackage="bcdui.component."  tagFolder="component"/>
+      <BcdObject name="scorecard" implements="scorecard" implementationPackage="bcdui.component." tagFolder="component"/>
+      <BcdObject name="metaData" implements="metaData" implementationFunction="" tagFolder="component"/>
+      <BcdObject name="config" implements="config" implementationFunction="" tagFolder="component"/>
+      <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="component"/>
+    </BcdObjects>
+  </WorkingDraft>
+
+
+</Root>

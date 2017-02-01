@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+  xmlns:b="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0">
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      This XSD defines the calculations.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="Calc" type="tns:CalcType">
+    <xs:annotation>
+      <xs:documentation>Container for all reference data needed for the scorecard. Consider including re-used parts with xs:include.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CalcType">
+    <xs:sequence>
+      <xs:element ref="tns:CalculatedValue" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id" use="optional">
+      <xs:annotation>
+        <xs:documentation>Id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" use="optional">
+      <xs:annotation>
+        <xs:documentation>Caption or lookup key for the caption for i18n</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="zeroIfNullOp" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          All atomic operands (like calc:ValuRef) are treated as 0 when the evaluate to NaN.
+          If all atomic operands are NaN, then the overall result will still be NaN.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attributeGroup ref="b:DataType">
+      <xs:annotation>
+        <xs:documentation>Scale of the calculated number, i.e. the number of relevant decimal digits</xs:documentation>
+      </xs:annotation>
+    </xs:attributeGroup>
+
+  </xs:complexType>
+
+  <xs:complexType name="CalculatedValueType"/>
+
+  <xs:element name="CalculatedValue" type="tns:CalculatedValueType" abstract="true"/>
+
+  <xs:element name="Value" substitutionGroup="tns:CalculatedValue">
+    <xs:complexType>
+      <xs:complexContent mixed="true">
+        <xs:extension base="tns:CalculatedValueType">
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ValueRef" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      References a data item.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:attribute name="idRef" type="xs:NCName" use="required">
+            <xs:annotation><xs:documentation>
+              Id of the referenced data item.
+              In scc:Kpi/calc:Calc the format is [myMeasureId].[myMeasurePropertyId].
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="aggr">
+            <xs:annotation><xs:documentation>
+              Aggregation of the measure.
+              Outside of scorecard, (sum|avg|max|min|count|none) are allowed.
+              For scc:Kpi/calc:Calc and scc:Aspect/calc:Calc of scorecards, it needs to refer the @id of a scc:Aggregator definition.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="dmRef" type="xs:string">
+            <xs:annotation><xs:documentation>
+              Only used in cube:VDM/calc:Calc// virtual dimension members, for naming dimension member's value, kind of replaces @id in that case.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="MultiOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue" minOccurs="2" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BinaryOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue"/>
+          <xs:element ref="tns:CalculatedValue"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UnaryOperatorType">
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element ref="tns:CalculatedValue"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Add" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Mul" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Sub" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+  <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Max" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Coa" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Coalesce( child1, child2 )</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="Igt" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>1 if (child1 > child2), 0 otherwise. You can use -1 div 0 for child2, to get 1 if child1 is a valid number, 0 otherwise</xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:element name="Abs" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Sgn" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Niz" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Zin" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+  <xs:element name="KpiRef" type="tns:CalculatedValueType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Only allowed in scc:Aspect/scc:Calc or scc:Kpi/calc:Calc for scorecards.
+      This represents the performance value of the current Kpi, i.e. the applied Kpi calculation.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:element name="ExtensionRef" type="tns:CalculatedValueType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Only allowed in scc:Aspect/scc:Calc or scc:Kpi/calc:Calc for scorecards.
+      This references a fix value in scc:Extensions.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:element name="AspectRef" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Only allowed in scc:Aspect/scc:Calc for scorecards.
+      This allows referencing other aspects' calculation result, for example referencing the previous-period aspect's value in a trend aspect calculation.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:attribute name="idRef">
+            <xs:annotation><xs:documentation>
+              The form is asp_[idOfMyAspect]_$.[idOfMyProperty].
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AggregatorRef" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Only allowed in scc:Aspect/scc:Calc for scorecards.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:attribute name="idRef">
+            <xs:annotation><xs:documentation>
+              The form is aggr_[idOfMyAggregator]_$.[idOfMyProperty].
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

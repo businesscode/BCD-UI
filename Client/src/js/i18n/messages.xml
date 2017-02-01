@@ -1,0 +1,136 @@
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Wrs xmlns="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
+  <!--
+    Default messages of the library.
+    Can be overwritten by webContent/bcdui/conf/messages.xml or via full i18n.
+    -->
+  <RequestDocument>
+    <WrsRequest xmlns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+      xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+    <Select>
+      <Columns></Columns>
+      <From>
+      <BindingSet>bcd_i18n</BindingSet></From>
+    </Select>
+    </WrsRequest>
+  </RequestDocument>
+  <Header>
+    <BindingSet>bcd_i18n</BindingSet>
+    <Columns>
+      <C pos="1" id="key" caption="Key"/>
+      <C pos="2" id="value" caption="value"/>
+      <C pos="3" id="lang" caption="lang"/>
+    </Columns>
+  </Header>
+    <Data>
+      <R id="R0"><C>bcd_EmptyString</C><C></C><C>en</C></R>
+      <R id="R1"><C>bcd_RootCauseAnalysis</C><C>Root Cause Analysis</C><C>en</C></R>
+      <R id="R2"><C>bcd_GridPage</C><C>Grid page</C><C>en</C></R>
+
+      <!-- Input field -->
+      <R id="R112"><C>bcd_autoCompletionBox_emptyValue</C><C>All</C><C>en</C></R>
+      <R id="R113"><C>bcd_autoCompletionBox_clearOption</C><C>Clear</C><C>en</C></R>
+      <R id="R114"><C>bcd_autoCompletionBox_loading</C><C>Loading...</C><C>en</C></R>
+      <R id="R115"><C>bcd_uploadMapping_please_select</C><C>Skip</C><C>en</C></R>
+
+      <!-- widgetNg messages -->
+      <R id="R130"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
+
+      <!-- Wrs data validation messages -->
+      <R id="R120"><C>bcd_ValidUniq</C><C>Value must be unique.</C><C>en</C></R>
+      <R id="R121"><C>bcd_ValidNullable</C><C>Value must not be null.</C><C>en</C></R>
+      <R id="R122"><C>bcd_ValidTypeName_DATE</C><C>Value must be a date.</C><C>en</C></R>
+      <R id="R123"><C>bcd_ValidTypeName_INTEGER</C><C>Value must be an integer number.</C><C>en</C></R>
+      <R id="R124"><C>bcd_ValidTypeName_NUMERIC</C><C>Value must be a number.</C><C>en</C></R>
+      <R id="R125"><C>bcd_ValidDisplaySize</C><C>Value is too long.</C><C>en</C></R>
+      <R id="R126"><C>bcd_ValidReferences</C><C>Value is not in list of allowed values.</C><C>en</C></R>
+      <R id="R127"><C>bcd_ValidTypeName_TIMESTAMP</C><C>Value must be a timestamp.</C><C>en</C></R>
+      <R id="R128"><C>bcd_ValidPattern</C><C>Value must match a pattern.</C><C>en</C></R>
+      <R id="R129"><C>bcd_ValidEmail</C><C>Value must be an email.</C><C>en</C></R>
+
+      <!-- Dimensions and measures in reports -->
+      <R id="R11"><C>bcd_PleaseSelectFirst</C><C>Please make your selection and hit apply.</C><C>en</C></R>
+      <R id="R12"><C>bcd_EmptyReport</C><C>Please note, no data is found for the current settings.</C><C>en</C></R>
+      <R id="R13"><C>bcd_Total</C><C>(total)</C><C>en</C></R>
+      <R id="R14"><C>bcd_OtherDimmember</C><C>[Other]</C><C>en</C></R>
+      <R id="R15"><C>bcd_EmptyDimmember</C><C>[Empty]</C><C>en</C></R>
+      <R id="R16"><C>bcd_SubTotal</C><C>(subTotal)</C><C>en</C></R>
+
+      <R id="R17"><C>bcd_MaxMeasures</C><C>You've reached the maximum number of measures for this report:</C><C>en</C></R>
+      <R id="R18"><C>bcd_MaxDimensions</C><C>You've reached the maximum number of dimensions for this report:</C><C>en</C></R>
+      <R id="R19"><C>bcd_MaxReduce</C><C>Your selection will be reduced to match this limit.</C><C>en</C></R>
+
+      <R id="R20"><C>bcd_DecimalFormat</C><C>enDecimalFormat</C><C>en</C></R>
+
+      <R id="R30"><C>bcd_ApplyDenyTitle</C><C>Invalid choosers</C><C>en</C></R>
+      <R id="R31"><C>bcd_ApplyDenyMessage</C><C>Please fill out all required chooser</C><C>en</C></R>
+      <R id="R32"><C>bcd_PressApplyFirst</C><C>Please press apply to continue</C><C>en</C></R>
+
+      <R id="R33"><C>bcd_ErrorEmailContactCcSubject</C><C>Your local technical support::An error occurred</C><C>en</C></R>
+
+      <R id="R34"><C>bcd_Dimensions</C><C>Dimensions</C><C>en</C></R>
+      <R id="R35"><C>bcd_Measures</C><C>Measures</C><C>en</C></R>
+      <R id="R36"><C>bcd_RowDimensions</C><C>Row Dimensions</C><C>en</C></R>
+      <R id="R37"><C>bcd_RowMeasures</C><C>Row Measures</C><C>en</C></R>
+      <R id="R38"><C>bcd_ColDimensions</C><C>Column Dimensions</C><C>en</C></R>
+      <R id="R39"><C>bcd_ColMeasures</C><C>Column Measures</C><C>en</C></R>
+
+      <!-- Editor context menu -->
+      <R id="R40"><C>bcd_ctxEdit_Copy</C><C>Copy content</C><C>en</C></R>
+
+      <R id="R50"><C>bcd_EmptyChart</C><C>Please note, no data is found for the current settings.</C><C>en</C></R>
+
+      <!-- i18n editor -->
+      <R id="R60"><C>bcd_I18nTm_pageTitle</C><C>Translation Management</C><C>en</C></R>
+      <R id="R61"><C>bcd_I18nTm_languagesTabCaption</C><C>Languages</C><C>en</C></R>
+      <R id="R62"><C>bcd_I18nTm_languagesToCountryTabCaption</C><C>Language to Country Assignment</C><C>en</C></R>
+      <R id="R63"><C>bcd_I18nTm_translationsTabCaption</C><C>Translations</C><C>en</C></R>
+      <R id="R64"><C>bcd_I18nTm_btnAddCaption</C><C>Add</C><C>en</C></R>
+      <R id="R65"><C>bcd_I18nTm_btnSaveCaption</C><C>Save</C><C>en</C></R>
+      <R id="R66"><C>bcd_I18nTm_btnRestoreCaption</C><C>Restore</C><C>en</C></R>
+      <R id="R67"><C>bcd_I18nTm_dlgSavedTitle</C><C>Saved</C><C>en</C></R>
+      <R id="R68"><C>bcd_I18nTm_dlgSavedMessage</C><C>Data successfully saved</C><C>en</C></R>
+      <R id="R69"><C>bcd_I18nTm_dlgNotSavedTitle</C><C>Not saved</C><C>en</C></R>
+      <R id="R82"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
+      <R id="R83"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
+      <R id="R84"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
+
+      <!-- Scorecard -->
+      <R id="R85"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
+      <R id="R86"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
+
+      <!-- System messages -->
+      <R id="R100"><C>bcd_GuiStatusTooLong</C><C>Please reduce the number of filters, browser limit exceeded.</C><C>en</C></R>
+      <R id="R101"><C>bcd_ExpiredURLTitle</C><C>Expired URL</C><C>en</C></R>
+      <R id="R102"><C>bcd_ExpiredURL</C><C>Your URL settings have expired and are not available anymore. Page will be reinitialized and reloaded now.</C><C>en</C></R>
+      <R id="R103"><C>bcd_Wait</C><C>Please, be patient...</C><C>en</C></R>
+      <R id="R104"><C>bcd_SessionTimeout</C><C>Session Timeout</C><C>en</C></R>
+      <R id="R105"><C>bcd_SessionTimeoutMessage</C><C>Your session has timed out. You will be redirected.</C><C>en</C></R>
+      
+      <!-- Grid messages -->
+      <R id="R70"><C>bcd_Grid_expCloseOpen</C><C>Please close expanded area before opening new one.</C><C>en</C></R>
+      <R id="R71"><C>bcd_Grid_expFill</C><C>Please fill all mandatory input fields.</C><C>en</C></R>
+      <R id="R72"><C>bcd_Grid_expCloseSave</C><C>Before saving please close the expanded area.</C><C>en</C></R>
+      <R id="R73"><C>bcd_Grid_expLeave</C><C>All non-saved changes will be lost! Proceed?</C><C>en</C></R>
+
+      <!-- Reports general -->
+      <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
+      <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional cell filters and user restrictions were applied.</C><C>en</C></R>
+      <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
+
+    </Data>
+</Wrs>

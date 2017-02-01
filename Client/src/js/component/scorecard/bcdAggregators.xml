@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Default WrsRequest builder template for metric aggregators
+ -->
+
+
+<scc:Aggregators xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0">
+
+  <scc:Aggregator id="bcdSum">
+    <scc:BcdAggregator bindingSet="bcd_sc_kpi" aggr="sum"/>
+  </scc:Aggregator>
+  <scc:Aggregator id="bcdAvg">
+    <scc:BcdAggregator bindingSet="bcd_sc_kpi" aggr="avg"/>
+  </scc:Aggregator>
+  <scc:Aggregator id="bcdMax">
+    <scc:BcdAggregator bindingSet="bcd_sc_kpi" aggr="max"/>
+  </scc:Aggregator>
+  <scc:Aggregator id="bcdMin">
+    <scc:BcdAggregator bindingSet="bcd_sc_kpi" aggr="min"/>
+  </scc:Aggregator>
+  <scc:Aggregator id="bcdCount">
+    <scc:BcdAggregator bindingSet="bcd_sc_kpi" aggr="count"/>
+  </scc:Aggregator>
+
+  <scc:Aggregator id="bcdDefaultAggregator">
+    <scc:WrqBuilder>
+  
+      <xsl:stylesheet version="1.0"
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+        xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
+        xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+        xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+      
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" />
+      
+        <xsl:param name="aggrDef"/>
+        <xsl:param name="statusModel" select="/*[1=0]"/>
+      
+        <xsl:variable name="id" select="$aggrDef/@id" />
+        <xsl:variable name="aggrConfig" select="$aggrDef/scc:BcdAggregator" />
+        <xsl:variable name="refDistMeasCol" select="/*/scc:Aggr[@id = $id]"/>
+      
+        <xsl:template match="/*">
+      
+          <wrq:WrsRequest aggrId="{$id}">
+            <wrq:Select>
+              <wrq:Columns>
+                <xsl:for-each select="/*/scc:Dimensions/*/dm:LevelRef">
+                  <wrq:C bRef="{@bRef}">
+                    <xsl:if test="@sortBy">
+                      <wrq:A bRef="{@sortBy}" name="order" aggr="max"/>
+                    </xsl:if>
+                    <xsl:if test="@captionBRef">
+                      <!-- 
+                        aggr = sum for numeric and max for char, unless defined at the binding item.
+                        Define it at the binding item as aggr="none", to allow inline caption definitions via a partitioned CASE statement, example:
+                        <b:C id="mo_caption" caption="Month Caption" aggr="none">
+                          <b:Column>max(CASE WHEN MO=1 THEN 'Jan' ... WHEN MO=12 THEN 'Dez' END) OVER (PARTITION BY mo)</b:Column>
+                        </b:C>
+                        -->
+                      <wrq:A bRef="{@captionBRef}" name="caption"/>
+                    </xsl:if>
+                  </wrq:C>
+                </xsl:for-each>
+                <wrq:C bRef="bcd_measure_id" /> <!-- Always last dim -->
+      
+                <!-- 
+                  Measures for this aggr type, they come from refDistMeasCol, which are the actually used ones
+                  Their aggregation is from scc:BcdAggregator/scc:Property/@aggr, scc:BcdAggregator/@aggr, refDistMeasCol, 'sum' with that priority
+                  -->
+                <xsl:for-each select="$refDistMeasCol/wrq:Columns/wrq:C">
+                  <xsl:copy>
+                    <xsl:copy-of select="@*"/>
+                    <xsl:attribute name="aggr">
+                      <xsl:choose>
+                        <xsl:when test="$aggrConfig/scc:Property[@bRef=current()/@bRef]/@aggr"><xsl:value-of select="$aggrConfig/scc:Property[@bRef=current()/@bRef]/@aggr"/></xsl:when>
+                        <xsl:when test="$aggrConfig/@aggr"><xsl:value-of select="$aggrConfig/@aggr"/></xsl:when>
+                        <xsl:otherwise>sum</xsl:otherwise>
+                      </xsl:choose>
+                    </xsl:attribute>
+                  </xsl:copy>
+                </xsl:for-each>
+
+              </wrq:Columns>
+
+              <wrq:From>
+                <wrq:BindingSet>
+                  <xsl:value-of select="concat( substring('bcd_sc_kpi', 0, 1 div string-length($aggrConfig/@bindingSet) ), $aggrConfig/@bindingSet )"/>
+                </wrq:BindingSet>
+              </wrq:From>
+      
+              <f:Filter>
+                <f:Expression bRef="bcd_measure_id" op="in">
+                    <xsl:attribute name="value"><xsl:value-of select="$refDistMeasCol/scc:MeasuresAsList" /></xsl:attribute>
+                </f:Expression>
+      
+                <xsl:copy-of select="$aggrConfig/scc:AdditionalFilter/*"/>
+                <xsl:copy-of select="$statusModel/*/f:Filter/*"/>
+              </f:Filter>
+      
+              <wrq:Grouping>
+                <!-- It does never make sense to aggregate different measures up, only others are rolled up -->
+                <wrq:C bRef="bcd_measure_id"/>
+      
+                <!-- Distinct for row and column dimensions -->
+                <xsl:for-each select="/*/scc:Dimensions/*[self::scc:Rows or self::scc:Columns]">
+                  <wrq:GroupingSets>
+      
+                    <!-- Lowest level is always there -->
+                    <wrq:Set>
+                      <xsl:for-each select="dm:LevelRef">
+                        <wrq:C bRef="{@bRef}"/>
+                      </xsl:for-each>
+                    </wrq:Set>
+      
+                    <!-- For each aggregate above lowest level (not allowed above different measure) -->
+                    <xsl:for-each select="*[(self::dm:LevelRef or self::scc:LevelKpi) and (@total and @total!='false') and not(following-sibling::scc:LevelKpi)]">
+                      <wrq:Set>
+                        <xsl:for-each select="preceding-sibling::dm:LevelRef">
+                          <wrq:C bRef="{@bRef}"/>
+                        </xsl:for-each>
+                      </wrq:Set>
+                    </xsl:for-each>
+                  </wrq:GroupingSets>
+                </xsl:for-each>
+              </wrq:Grouping>
+      
+              <wrq:Ordering>
+                <wrq:C bRef="bcd_measure_id" order="asc"/>
+                <xsl:for-each select="/*/scc:Dimensions/*/dm:LevelRef[@sortBy]">
+                  <xsl:choose>
+                    <xsl:when test="@sortBy and @sort='desc'">
+                      <wrq:C bRef="{@sortBy}" order="desc"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <wrq:C bRef="{@sortBy}" order="asc"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:for-each>
+              </wrq:Ordering>
+      
+            </wrq:Select>
+          </wrq:WrsRequest>
+      
+        </xsl:template>
+      
+      </xsl:stylesheet>
+    </scc:WrqBuilder>
+  
+  </scc:Aggregator>
+</scc:Aggregators>

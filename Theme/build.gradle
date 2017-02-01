@@ -1,0 +1,131 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Generates the theme with sass into gensrc/themes
+ */
+apply plugin: "com.moowork.node"
+
+def themeName         = project.properties['bcdui.theme.name']
+def themeFullLocation = project.properties['bcdui.theme.location'] + '/' + themeName
+
+
+//*********************************************
+// Compile Scss into css
+task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CompileCss"
+
+  inputs.dir  file(themeFullLocation)
+  outputs.dir file(taskDestDirName)
+
+  script = file("$nodeModulesDir/node-sass/bin/node-sass")
+  args   = [ '-quiet', '--output-style=compressed', "--output=$taskDestDirName/css", "$themeFullLocation/css/${themeName}.scss" ]
+}
+
+//*********************************************
+// Minify css provided in allStyles.css
+task bcduiCleanCss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  dependsOn bcduiThemeCompileScss
+
+  // We keep the original level of nesting to let any relative urls in @import outside survive
+  def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CleanCss"
+  inputs.file   bcduiThemeCompileScss
+  outputs.files "$taskDestDirName/css/allStyles-min.css"
+
+  // Take all user-provided css, those being generated from scss are already there from bcduiThemeCompileScss
+  doFirst{
+    copy {
+      from themeFullLocation
+      into taskDestDirName
+      include "**/*.css"
+      includeEmptyDirs = false
+    }
+    copy {
+      from bcduiThemeCompileScss
+      into taskDestDirName
+      includeEmptyDirs = false
+    }
+  }
+
+  script = file("$nodeModulesDir/clean-css-cli/bin/cleancss")
+  args   = [ "$taskDestDirName/css/allStyles.css", "--output", "$taskDestDirName/css/allStyles-min.css"]
+}
+
+
+//******************************
+// Collect files for theme into build/distributions/<themeName>
+task bcduiThemeDistCollect ( type: Copy ) {
+  description 'Fill ./build/themes/<themeName>/WebContent'
+
+  dependsOn bcduiCleanCss
+
+  // This needs to point to WebContent root folder, because outputs is used from other tasks
+  def taskTargetDir = "./build/themes/$themeName/WebContent"
+  into taskTargetDir
+
+  doFirst {
+    new File(taskTargetDir).mkdirs()
+    delete outputs
+  }
+
+  includeEmptyDirs = false
+
+  include '**/*'
+  exclude '**/*.scssc'
+  exclude '**/*.scss'
+
+  // First generic part, then the specific part. Then add the css generated from sass
+  duplicatesStrategy = 'include'
+  from( "./src/generic" ) {
+    into 'bcdui/theme'
+    exclude '**/*.css'
+  }
+  from( themeFullLocation ) {
+    into 'bcdui/theme'
+    exclude '**/*.css'
+  }
+  from( bcduiCleanCss ) {
+    into 'bcdui/theme/css'
+    rename { "allStyles.css" }
+  }
+}
+
+
+//******************************
+// Do all for what gradle 'Theme' project is responsible for
+task bcduiDist( type: Jar ) {
+  baseName = "$artifactsBaseName-theme-$themeName"
+  version  = bcduiVersion
+  destinationDir = file("$buildDir/libs")
+  includeEmptyDirs = false
+  from bcduiThemeDistCollect
+}
+
+
+//******************************
+// Clean artifacts
+task clean( type: Delete ) {
+  group "bcd-ui"
+  delete buildDir
+}
+
+
+//************************************
+task build {
+  dependsOn bcduiDist
+}

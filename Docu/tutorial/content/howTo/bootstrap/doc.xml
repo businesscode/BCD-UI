@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Bootstrap" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+  <Chapter title="Overview" type="overview">
+    <Body>
+    </Body>
+
+    <SubChapter title="Get the tools">
+      <Body>
+        To start development with BCD-UI first get the tools
+        <ul>
+          <li>Make sure you have at jdk 1.6 update 6 or higher.</li>
+          <li>Install the appropriate Eclipse WTP version, best with BCD plugins</li>
+          <li>Install Tomcat 6.13 or higher</li>
+          <li>Add Tomcat as a server to Eclipse (Run->Run configurations...->Apache)</li>
+          <li>Make sure you have IE>=6 or FireFox, Chrome and Safari are also supported</li>
+        </ul>
+        It is possible to develop BCD-UI with other IDE as Eclipse as well, but BCD-UI development plugins are only available for Eclipse.
+        Also any other J2EE application server like Weblogic, Websphere or Oracle AS can be used.
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="XML catalog">
+      <Body>
+        Adding the XML schema catalog of BCD-UI to your workspace will support you in creation xml configuration files for BCD-UI
+        using <pre>http://intraweb.rz-net.business-code.de/BCD-Suite/schema/bcduiCatalog.xml</pre>
+        <img src="xmlCatalog.png"/>
+        <p>will bring you:</p>
+        <img src="xmlSupport.png"/>
+      </Body>
+    </SubChapter>
+    <SubChapter title="Taglib Eclipse bugfix">
+      <Body>
+        Using the improved Eclipse with a BCD bugfix for tag support. This allows you to see the taglib documentation from within an editor
+          <img src="tagSupport.png"/>
+      </Body>
+    </SubChapter>
+  </Chapter>
+</Doc>

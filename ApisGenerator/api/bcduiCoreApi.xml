@@ -1,0 +1,1585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Root title="Core">
+
+  <!-- param type stringList, url tag ParamList -->
+
+  <!-- AbstractExecutable (status) | | | renderer, chart DataProvider (dataModifi)
+    | | AbstractUpdatableModel (modelUpdt, exeXslt) const, prompt, alias, withXPath,
+    withXPathNodes, requestDocument, HtmlAttribute, string, js | transformationChain
+    (modelWrapper) | | | scorecardModel, cubeModel | simpleModel(=model), staticModel
+    (=inlineModel), automodel -->
+
+  <!-- -->
+  <WorkingDraft>
+    <BcdAPI>
+
+      <Api name="childSemantic">
+        <Doc>
+          Marks the given data provider as having a specific semantic.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:dataProvider" doc="Marks the given data provider as having a specific semantic." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="hasTargetHtml">
+        <Param name="targetHTMLElementId" type="string" deprecated="4.6">
+          <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
+        </Param>
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="statusModel" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          The statusModel tag is a DataProvider-Role tag passing the nested DataProvider
+          to the enclosing Object as a status model. Normally the guiStatus model
+          represents the standard status model on the client, but in some situations it
+          is useful to provide an alternative status model to a component or widget.
+          Then this tag can be used.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;bcdui:statusModel>
+              &lt;b:model url='preDefinedStatusDoc.xml'/>
+            &lt;/bcdui:statusModel>
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc=" A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="metaDataModel" type="dataProviderAlias" extends="childSemantic" deprecated="4.6">
+        <Doc>
+          This tag is a DataProvider-Role tag exposing the nested DataProvider as a
+          metaData model. It is typically used in more complex components or widgets
+          to give additional configuration data to the rendering.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;bcdui:metaDataModel>
+              &lt;b:ref idRef='myMetaData'/>
+            &lt;/bcdui:metaDataModel>
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc=" A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="requestDocument" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          The requestDocument tag is a DataProvider-Role tag used to declare the nested
+          DataProvider as a request document for its parent model. The request document
+          is an XML document containing all information the server needs to get some specific
+          data for the client. Therefore it is normally used within model tags. As all other
+          DataProvider-Role tags it typically contains one of the following tags:
+            [b:model]
+              A model loaded from a URL.
+            [b:inlineModel]
+              A model which is created from the XML data inside its body.
+            [b:modelWrapper]
+              A generated model computed by applying an XSLT transformation chain to a set
+              of models (XML documents).
+            [b:ref]
+              A reference to a DataProvider declared elsewhere.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:requestDocument>
+            &lt;b:modelWrapper stylesheetUrl='requestDocument.xslt'>
+            &lt;b:inputModel>&lt;b:ref idRef='guiStatus'/>&lt;/b:inputModel>
+            &lt;/b:modelWrapper>
+            &lt;/b:requestDocument>
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc=" A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="inputModel" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          This is a DataProvider-Role tag encapsulating a DataProvider and offering it to its
+          parent tag as inputModel. The meaning of 'inputModel' is dependent on the context,
+          i.e. the parent tag. Usually the parent tag is a renderer or a modelWrapper tag, but
+          it can also be used in other contexts, e.g. cube tag. This tag requires a DataProvider
+          tag inside its body such as one of the following:
+            [b:model]
+              A model loaded from a URL.
+            [b:inlineModel]
+              A model which is created from the XML data inside its body.
+            [b:modelWrapper]
+              A generated model computed by applying an XSLT transformation chain to a set
+              of models (XML documents).
+            [b:ref]
+              A reference to a DataProvider declared elsewhere.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:inputModel>
+            &lt;b:model id='myModel' url='data.xml'/>
+            &lt;/b:inputModel>
+          </Example>
+        </Examples>
+      </Api>
+
+      <Api name="executable">
+        <Doc>
+          Can be executed and has a status ready/nonready.
+        </Doc>
+        <Param name="id" type="string">
+          <Doc>
+            Id of the data provider, unique on the page. If omitted the id is automatically generated.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc="A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="dataProvider" extends="executable">
+        <Doc>
+          A data provider is an abstract class on top of the AbstractExecutable extending it by data-related functions (like getName, getData, data events).
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model" />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="hasInputModel">
+        <Doc>
+          Works on a main input model.
+        </Doc>
+        <Param name="inputModel" type="dataProvider" isJSPChild="paramBag.inputModel">
+          <Doc>
+            Works on a main input model.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="transformationChain" extends="hasInputModel">
+        <Doc>
+          Applies a chain of transformations on a model.
+        </Doc>
+        <Param name="chain" type="dataProvider" isJSPChild="paramBag.chain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="stylesheetUrl" type="url" jsName="url">
+          <Doc>
+            This parameter can be set when you only want to apply one single XSLT style sheet. It
+            contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be
+            provided.
+          </Doc>
+        </Param>
+        <ParamList name="param">
+          <Doc>
+            List of named parameters.
+          </Doc>
+        </ParamList>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="chain" type="param"></Child>
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="model" extends="dataProvider">
+        <Doc>
+          Creates a SimpleModel instance from its parameters. This model is NOT executed by default
+          so it does not start loading (unless it is referenced by a renderer) To achieve this an
+          'execute' tag needs to be nested inside id. The following tags are allowed inside the body
+          of this tag:
+            [bcdui:requestDocument]
+              The request document used for the data request.
+            [activity:dataListener]
+              Add a listener monitoring changes in the XML content of the model.
+            [activity:statusListener]
+              Add a listener for status changes of this model.
+            [activity:executeXSLT]
+              Executes the specified transformations and replaces the model's content with the
+              transformation result.
+            [activity:onReady]
+              Runs the nested code as soon as the model has finished loading.
+            [activity:execute]
+              Execute the model loading immediately even when it is not referenced by a renderer.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:model id='myDocument' url='myServlet'/>
+            &lt;b:requestDocument>
+            &lt;b:model id='myReqDoc' url='requestDoc.xml'/>
+            &lt;/b:requestDocument>
+            &lt;/b:model>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createModel({
+            id: "myModel",
+            , url: "../../models/myModel"
+            , requestDocument: bcdui.factory.createModel({ url:
+            "requestDoc.xml" })
+            });
+          </Example>
+        </Examples>
+        <Param name="url" type="url">
+          <Doc>
+            The URL the model is loaded from. This URL can be extended with a compressed request document
+            if a requestDocument parameter is provided. If omitted the WrsServlet is taken as default.
+          </Doc>
+        </Param>
+        <Param name="isAutoRefresh" type="boolean">
+          <Doc>
+            If set to true, the model listens to updates on its requestModel and reloads once it changes.
+          </Doc>
+        </Param>
+        <Param name="requestDocument" type="string" isJSPChild="paramBag.requestDocument">
+          <Doc>
+            This parameter specifies the request document for the model. It can either be the request
+            document itself (which is an XML data provider), a SymLink to it or the ID of it.
+          </Doc>
+        </Param>
+        <Param name="mimeType" type="string">
+          <Doc>
+            Mimetype of the expected data. If 'auto' or none is given it is derived from the url.
+            The data if not text/plain, is parsed. I.e.
+           .json, 'application/json' are turned into a js object
+           .js, 'application/javascript' are loaded and executed
+           .xml, .xsl, .xslt, 'application/xml', 'application/xslt+xml' are parsed into DOM
+           All other are just loaded as text.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:requestDocument" doc="The request document used for the data request." />
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this model." />
+              <Child name="a:executeXSLT" doc="Executes the specified transformations and replaces the model's content with the transformation result." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the model has finished loading." />
+              <Child name="a:execute" doc="Execute the model loading immediately even when it is not referenced by a renderer." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="inlineModel" extends="dataProvider">
+        <Doc>
+          A model which is created from the XML data inside its body.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:inlineModel id='myModel'>
+            &lt;EmptyContent/>
+            &lt;/b:inlineModel>
+          </Example>
+        </Examples>
+        <Param name="data" type="string" isJSPChild="true">
+          <Doc>
+            Document data, at least an empty root element. If not provided, an empty root element is generated.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AddCode><![CDATA[<jsp:doBody var="data"/>]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="chain" type="dataProviderAlias" extends="childSemantic">
+        <Doc>
+          The chain tag is a DataProvider-Role tag exposing its nested DataProvider as a chain model.
+          A chain model must satisfy the XML schema: http://www.businesscode.de/schema/bcdui/chain-1.0.0
+          It contains an ordered list of style sheets to be processed by the containing object
+          (usually a renderer or modelWrapper). This tag requires a DataProvider tag inside its
+          body such as one of the following:
+            [b:model]
+              A model loaded from a URL.
+            [b:inlineModel]
+              A model which is created from the XML data inside its body.
+            [b:modelWrapper]
+              A generated model computed by applying an XSLT transformation chain to a set
+              of models (XML documents).
+            [b:ref]
+              A reference to a DataProvider declared elsewhere.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:chain>
+              &lt;b:model url='chain.xml'/>
+            &lt;/b:chain>
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc="A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="autoModel" extends="dataProvider">
+        <Doc>
+          Creates a AutoModel instance from its parameters. This model creates a model request from given parameters
+          and loads the data. If the optional filter parameter is given a listener for guiStatus changes is created
+          and implements reloading.
+          [activity:dataListener]
+            Add a listener monitoring changes in the XML content of the model.
+          [activity:statusListener]
+            Add a listener for status changes of this model.
+          [activity:executeXSLT]
+            Executes the specified transformations and replaces the model's content with the
+            transformation result.
+          [activity:onReady]
+            Runs the nested code as soon as the model has finished loading.
+          [activity:execute]
+            Execute the model loading immediately even when it is not referenced by a renderer.
+      </Doc>
+        <Examples>
+          <Example type="jsp">
+            Use case 1: Create easily model that reads reference data (country, station , center) from given binding
+            set md_geo end. The resulting model is grouped by country, station, center and ordered by country, station,
+            center. The data is loaded when the button is pressed.
+            &lt;b:autoModel
+            id='myGeoData'
+            bindingSetId='md_geo'
+            bindingItemRefs='country station center'
+            isDistinct='true' >
+            &lt;/b:autoModel>
+            &lt;wng:button caption='apply'>
+            &lt;a:execute='myGeoData'/>
+            &lt;/wng:button>
+
+            Use case 2: Create a automodel that reads reference data (country, station) from given binding set md_geo end.
+            The resulting This time the data is loaded automatically, when the country filter in guiStatus has changed.
+            &lt;b:autoModel
+            id='myGeoData'
+            bindingSetId='md_geo'
+            bindingItemRefs='country station'
+            filterBRefs='country'
+            isAutoRefresh='true'>
+            &lt;/b:autoModel>
+
+            Use case 3: Create an automodel that automatically reads detail data for a selected kpi. The filterBRefs is the
+            country filter taken from guiStatus AND additionalFilter taken from clientSettings, where the selected kpi is kept
+            in filter format. The data is loaded automatically, when either of these changed. Please note that the
+            additionalFiltersXPath expects one node and adds all children of this node to the filter section of the wrs.
+            Therefor the children of additionalFiltersXPath should be f:Epression, f:Or or f:And elements.
+            &lt;b:autoModel
+            id='myDetailData'
+            bindingSetId='tb_details'
+            bindingItemRefs='kpi value1 value2'
+            filterBRefs='country'
+            additionalFiltersXPath='$guiStatus/*/guiStatus:ClientSettings/selectedKPI'
+            isAutoRefresh='true'>
+            &lt;/b:autoModel>
+            &lt;guiStatus>
+            &lt;guiStatus:clientSettings>
+            &lt;selectedKPI>
+            &lt;/f:Expression[@bRef = 'kpi' operator='=' value='KPI_1']/>
+            &lt;/selectedKPI>
+            &lt;/guiStatus:clientSettings>
+            &lt;/guiStatus>
+
+            Uses case 4: Create model with custom xslt to create request document
+            &lt;b:autoModel
+            id='myDetailData'
+            bindingSetId='tb_details'
+            bindingItemRefs='kpi value1 value2'
+            filterBRefs='country'
+            additionalFiltersXPath='$guiStatus/*/guiStatus:ClientSettings/selectedKPI'
+            isAutoRefresh='true'>
+            &lt;/b:autoModel>
+          </Example>
+          <Example type="js">
+            var myModel = bcdui.factory.createAutoModel({
+            id: 'myModelId',
+            bindingSetId: 'myBindingSet',
+            bRefs: 'column1 column2',
+            filterBRefs: 'column1 column2 column3',
+            mandatoryfilterBRefsSubset: 'column1 column2',
+            additionalFilterXPath: "$guiStatus//guiStatus:ClientSettings/selectedItems/f:Expression[
+            @bRef='item' and @operate='=' and @value='abc']",
+            isDistinct: true,
+            isAutoRefresh: false,
+            });
+            myModel.execute();
+          </Example>
+        </Examples>
+        <Param name="url" type="url">
+          <Doc>
+            The URL the model is loaded from. This URL can be extended with a compressed request
+            document if a requestDocument parameter is provided. If omitted the WrsServlet is taken.
+          </Doc>
+        </Param>
+        <Param name="bindingSetId" type="string" required="true">
+          <Doc>
+            The binding set where the model reads its data.
+          </Doc>
+        </Param>
+        <Param name="bindingItemRefs" type="stringList" jsName="bRefs">
+          <Doc>
+            The space separated list of binding Refs from the given bindingSetId.
+          </Doc>
+        </Param>
+        <Param name="filterBRefs" type="stringList">
+          <Doc>
+            The space separated list of binding Refs that will be used in filter
+            clause of request document.
+          </Doc>
+        </Param>
+        <Param name="orderByBRefs" type="stringList">
+          <Doc>
+            Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct.
+          </Doc>
+        </Param>
+        <Param name="mandatoryfilterBRefsSubset" type="stringList">
+          <Doc>
+            The space separated list of binding Refs that are mandatory. The bRefs need to be
+            in filterBRefs or additionFilterXpath.
+          </Doc>
+        </Param>
+        <Param name="additionalFilterXPath" type="writableXPathWithDollar">
+          <Doc>
+            Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes.
+            The given xPath needs to point to the filter expression itself, not to a parent.
+          </Doc>
+        </Param>
+        <Param name="initialFilterBRefs" type="stringList">
+          <Doc>
+            Space separated list of bRefs in $guiStatus f:Filter to be used as filters FOR
+            initial, very first request only. Unlike filterBRefs, these filter values are not
+            monitored for changes.
+          </Doc>
+        </Param>
+        <Param name="additionalPassiveFilterXPath" type="writableXPathWithDollar">
+          <Doc>
+            Optional, allows using additional filters not part of $guiStatus f:Filter, unlike
+            'additionalFilterXPath', this xPath is not monitored for changes.
+          </Doc>
+        </Param>
+        <Param name="isDistinct" type="booleanWithDefault" default="false">
+          <Doc>
+            Create group and order by statement in request document. The default is false.
+          </Doc>
+        </Param>
+        <Param name="isAutoRefresh" type="boolean">
+          <Doc>
+            This flag enables/disables the automatic execution of the model if the request
+            document has changed. The default value is false.
+          </Doc>
+        </Param>
+        <Param name="useCaptions" type="boolean">
+          <Doc>
+            If true, the automodel will receive captions as wrs attributes for the given
+            bref columns. By convention the bref of the captions column is 'bRef'_caption.
+            By default no captions are created.
+          </Doc>
+        </Param>
+        <Param name="maxRows" type="integer">
+          <Doc>
+            Limits the request to n rows. Use @distinct if you need a certain order.
+          </Doc>
+        </Param>
+        <Param name="reqDocStyleSheetUrl" type="url">
+          <Doc>
+            Url to custom xslt to generate the request document for automodel
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this model." />
+              <Child name="a:executeXSLT" doc="Executes the specified transformations and replaces the model's content with the transformation result." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the model has finished loading." />
+              <Child name="a:execute" doc="Execute the model loading immediately even when it is not referenced by a renderer." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="modelWrapper" extends="dataProvider transformationChain">
+        <Doc>
+        Creates a modelWrapper. This is a TransformationChain instance where the last style sheet
+        produces XML. Therefore it can be used synonymously to a model so that XML data format can
+        be adjusted easily. Logically it inherits most behaviors from a renderer, because it
+        applies a transformation chain to compute the XML document. For this reason it is also
+        automatically executed. This tag supports the same nested tags as the renderer tag:
+
+          [bcdui:chain]
+            A DataProvider which contains the list of style sheets that make up the
+            transformation chain of this renderer. This DataProvider must
+            contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
+            The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive.
+
+          [bcdui:inputModel]
+            The DataProvider instance that becomes the input of the transformation chain.
+            If omitted a bcdui:model tag (or a derived) must be present instead.
+
+          [bcdui:param]
+            A parameter passing either a fixed string or a data provider to the chain style
+            sheets.
+
+          [activity:statusListener]
+            Add a listener for status changes of this modelWrapper.
+
+          [activity:onReady]
+            Runs the nested code as soon as the modelWrapper has finished loading.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:modelWrapper id='myRequestDoc' stylesheetUrl='generateRequestDoc.xslt'>
+            &lt;b:inputModel>
+            &lt;b:ref idRef='guiStatus'/>
+            &lt;/b:inputModel>
+            &lt;/b:modelWrapper>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createModelWrapper({
+            id: "myModelWrapper",
+            , url: "init.xslt",
+            , inputModel: guiStatus
+            });
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:chain" doc="A DataProvider which contains the list of style sheets that make up the transformation chain of this renderer. This DataProvider must contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'. The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive." />
+              <Child name="b:inputModel" doc="The DataProvider instance that becomes the input of the transformation chain. If omitted a bcdui:model tag (or a derived) must be present instead." />
+              <Child name="b:param" doc="A parameter passing either a fixed string or a data provider to the chain style sheets." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this modelWrapper." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the modelWrapper has finished loading." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="modelUpdater" extends="dataProvider transformationChain">
+        <Doc>
+          A ModelUpdater is a part of a SimpleModel which irreversibly transforms
+          the data of the SimpleModel after it has been loaded. A ModelUpdater is similar to a
+          ModelWrapper, but it has a fixed InputModel, namely the SimpleModel it is attached to.
+          Additionally its output always replaces the data document of the SimpleModel.
+          Some of the tags that can be nested inside the ModelUpdater tag are as follows:
+            [bcdui:chain]
+              A DataProvider which contains the list of style sheets that make up the
+              transformation chain of this renderer. This DataProvider must
+              contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
+              The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive.
+            [bcdui:param]
+              A parameter passing either a fixed string or a data provider to the chain style
+              sheets.
+            [activity:dataListener]
+              Add a data listener for status changes of this ModelUpdater.
+            [activity:statusListener]
+              Add a status listener for status changes of this ModelUpdater.
+            [activity:onReady]
+              Runs the nested code as soon as the ModelUpdater has finished loading.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:model id='myModel' url='myData.xml'>
+            &lt;b:modelUpdater id='dateUpdater' stylesheetUrl='init.xslt'>
+            &lt;/b:modelUpdater>
+            &lt;/b:model>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createModelUpdater({
+            id: "setDefaults"
+            , targetModel: "guiStatus"
+            , url: "setDefaults.xslt"
+            , autoUpdate: false
+            , dataProviders: ["countryModel"]
+            });
+          </Example>
+        </Examples>
+        <Param name="targetModelId" type="string" isJSPParent="true" jsName="targetModel">
+          <Doc>
+            The id of the model to be updated. If not provided the modelUpdater must be inside
+            a model tag which is then taken as target model.
+          </Doc>
+        </Param>
+        <Param name="autoUpdate" type="booleanWithDefault" default="true">
+          <Doc>
+            A boolean value indicating if the ModelUpdater should run on every change in the
+            TargetModel (default is 'true').
+            If 'false' and the ModelUpdater is attached to a targetModel which was already 'ready' before, the ModelUpdater is never executed.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AllowedChildren>
+              <Child name="b:chain" doc="A DataProvider which contains the list of style sheets that make up the transformation chain of this renderer. This DataProvider must contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'. The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive." />
+              <Child name="b:inputModel" doc="The DataProvider instance that becomes the input of the transformation chain. If omitted a bcdui:model tag (or a derived) must be present instead." />
+              <Child name="b:param" doc="A parameter passing either a fixed string or a data provider to the chain style sheets." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this modelWrapper." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the modelWrapper has finished loading." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="jsDataProvider" extends="dataProvider">
+        <Doc>
+          Creates a data provider retrieving its data from a user callback. You may use use
+          bind() or curry() to attach a context or arguments.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:jsDataProvider id='myModel'>myFunc.bind(someThing)&lt;b:/jsDataProvider>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createJsDataProvider({
+            id: "testDp1",
+            , callback: function(){return new Date().toISOString() }
+            });
+            bcdui.factory.createJsDataProvider({
+            id: "testDp2",
+            , callback: function(){return this.value}.bind(objWithValue)
+            });
+          </Example>
+        </Examples>
+        <Param name="callback" type="function" required="true" isJSPChild="true">
+          <Doc>
+            Function providing the data;
+          </Doc>
+          <Impl>
+            <Jsp><![CDATA[<c:out value="${body}" escapeXml="false"></c:out>]]></Jsp>
+          </Impl>
+        </Param>
+        <Param name="doAllwaysRefresh" type="boolean">
+          <Doc>
+            If true, the callback is called for each getData(), otherwise only
+            once or on execute(true).
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AddCode>
+              <![CDATA[
+<%@tag import="java.io.StringWriter"%>
+<%
+  StringWriter sw = new StringWriter();
+  getJspBody().invoke(sw);
+  String body = sw.toString();
+  if( body.trim().startsWith("function()") )
+    jspContext.setAttribute("body", body);
+  else
+    jspContext.setAttribute("body", "function(){ " + body + " }");
+%>
+              ]]>
+            </AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="logPage">
+        <Doc>
+          Send a log message with the duration since start of page load, once a certain dataProvider
+          is ready to the server page-log table Provide the dataprovider id to wait for or place the
+          tag inside a data provider. Read more on idRef parameter. Well-known bindingSet bcd_log_pageperformance
+          must be available for using this.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:logPage idRef='rendererToWaitFor' addInfo='${pageContext.session.id}'/>
+          </Example>
+        </Examples>
+        <Param name="idRef" type="dataProvider" isJSPParent="true">
+          <Doc>
+            Data provider / renderer to wait for. Supports space delimited multiple IDs. If this
+            parameter is not provided and this tag is *not* placed within a data provider
+            tag, the log will issue a record once all *renderers*, which are detected at the point
+            of execution of this log record, are ready; this feature is used as a general
+            page-performance log.
+          </Doc>
+        </Param>
+        <Param name="logName" type="string">
+          <Doc>
+            If provided, this is the name for which the log is written. If not given, idRef is used.
+          </Doc>
+        </Param>
+        <Param name="addInfo" type="string">
+          <Doc>
+            Optionally any text that should be also logged.
+            Could be session-id or any comment
+          </Doc>
+        </Param>
+        <Param name="jsCallback" type="function" functionAttribute="args">
+          <Doc>
+            optional JS callback function name which is executed once the log-record has been captured.
+            Parameter object to this callback function contains: duration: [integer] the duration of this log-record
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="param">
+        <Doc>
+          This tag is a DataProvider-Role tag which represents a single parameter which is passed to its
+          enclosing tag. This tag is typically either a renderer or a modelWrapper. The parameter can have
+          three different forms:
+
+          1) A name and a value attribute is provided. In this case it is a simple string parameter.
+          2) Only a name attribute is provided and a DataProvider (such as a model) is nested inside.
+          Then the specified DataProvider is passed to the enclosing tag with the given name.
+          3) No attribute is provided and a DataProvider is nested inside. In this case the DataProvider
+          is passed with its default name (usually its id).
+
+          Please note that it is not valid to provide a value and body content. The tags that are allowed
+          as body content are the same as in all other
+          DataProvider-Role tags:
+
+          [b:model]
+            A model loaded from a URL.
+          [b:inlineModel]
+            A model which is created from the XML data inside its body.
+          [b:modelWrapper]
+            A generated model computed by applying an XSLT transformation chain to a set
+            of models (XML documents).
+          [b:ref]
+            A reference to a DataProvider declared elsewhere.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:param name='metaData'>
+            &lt;b:ref idRef='metaDataModel'/>
+            &lt;/b:param>
+          </Example>
+        </Examples>
+        <Param name="name" type="string">
+          <Doc>
+            The name of the parameter. This attribute must be set when the 'value' attribute is
+            used. Otherwise it may be omitted. In this case the name is taken from the name of
+            the nested DataProvider.
+          </Doc>
+        </Param>
+        <Param name="value" type="string">
+          <Doc>
+            A string value passed to the enclosing tag. If a 'value' attribute is set it is also
+            necessary to set a 'name' attribute and it is not allowed to have any body content
+            inside this 'param' tag. If 'value' is not set there must be a DataProvider tag
+            nested within.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc="A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc=" A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+            <AddCode>
+              <![CDATA[
+<c:choose>
+  <c:when test="${empty name}">
+    <jsp:doBody/>
+  </c:when>
+  <c:when test="${empty value}">
+    <webpage:paramBag forwarding="dataProviders=>param_${name}">
+      <jsp:doBody/>
+    </webpage:paramBag>
+  </c:when>
+  <c:otherwise>
+    <webpage:paramBag.add key="parameters" value="${name}:${value}"/>
+  </c:otherwise>
+</c:choose>
+              ]]>
+            </AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="renderer" extends="dataProvider transformationChain hasTargetHtml">
+        <Doc>
+          Creates a renderer which is basically a TransformationChain instance where the last
+          style sheet produces HTML. This HTML content is inserted in the provided HTML element.
+          Please note that this function automatically executes the renderer it creates so that
+          the loading immediately starts. The following tags are allowed inside the body
+          of this tag:
+            [bcdui:chain]
+              A DataProvider which contains the list of style sheets that make up the
+              transformation chain of this renderer. This DataProvider must
+              contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
+              The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive.
+            [bcdui:inputModel]
+              The DataProvider instance that becomes the input of the transformation chain.
+              If omitted a bcdui:model tag (or a derived) must be present instead.
+            [bcdui:param]
+              A parameter passing either a fixed string or a data provider to the chain style
+              sheets.
+            [activity:statusListener]
+              Add a listener for status changes of this renderer.
+            [activity:onReady]
+              Runs the nested code as soon as the renderer has finished loading.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:renderer id='visualizer' stylesheetUrl='rendering.xslt'>
+            &lt;b:inputModel>
+            &lt;b:model id='dataModel' url='myData.xml'/>
+            &lt;/b:inputModel>
+            &lt;/b:renderer>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createRenderer({
+            id: "myRenderer",
+            targetHTMLElementId: "targetDivId"
+            , chain: bcdui.factory.createModel({ url: "chain.xml" })
+            , inputModel: dataModel
+            , parameters: {
+            param1: "item",
+            param2: "p2",
+            masterData: bcdui.factory.createModel({ url: "masterData.xml" })
+            }
+            });
+          </Example>
+        </Examples>
+        <Param name="suppressInitialRendering" type="boolean">
+          <Doc>
+            In case targetHTMLElementId is provided, the created renderer is initially and
+            immediately executed, this can be suppressed by setting this flag to 'true'. You will
+            have to trigger the rendering manually by calling .execute()
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:chain" doc="A DataProvider which contains the list of style sheets that make up the transformation chain of this renderer. This DataProvider must contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'. The 'stylesheetUrl' attribute and 'chain' tag are mutually exclusive." />
+              <Child name="b:inputModel" doc="The DataProvider instance that becomes the input of the transformation chain. If omitted a bcdui:model tag (or a derived) must be present instead." />
+              <Child name="bi:param" doc=" A parameter passing either a fixed string or a data provider to the chain style sheets." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this renderer." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the renderer has finished loading." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="init" extends="">
+        <Doc>
+          Loads all JavaScript files for BCDUI and creates the standard configuration.
+          This tag should be called on every HTML page to enable the usage of BCDUI
+          objects. Usually it can be placed inside the HEAD section of the HTML page,
+          but it also works when placed inside the BODY. However it must be placed
+          before any JavaScript call to BCDUI objects occur.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:init/>
+          </Example>
+        </Examples>
+        <Impl>
+          <Jsp>
+            <AddCode><![CDATA[<script type="text/javascript" src="${pageContext.request.contextPath}/bcdui/bcdui.js"></script>]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="ref" extends="">
+        <Doc>
+          The ref tag can be inserted at any point where a BUI Object (Model, Renderer, ModelWrapper
+          etc.) is allowed. This way it is possible to re-use the same BUI Object in many different contexts.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:ref idRef='guiStatus'/>
+          </Example>
+        </Examples>
+        <Param name="idRef" type="dataProvider" required="true">
+          <Doc>
+            The ID of the object to be referenced. This ID is then resolved from the ObjectRegistry.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AddCode><![CDATA[<webpage:paramBag.add key="dataProviders" value="${idRef}"/>]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="apply" extends="">
+        <Doc>
+          Executes the 'apply' action of the BCDUI page cycle. Usually this makes a request to the
+          same page with updated request parameters. This action can be placed inside the 'button'
+          tag to form an apply button.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:button caption='apply'>
+            &lt;a:apply/>
+            &lt;/a:button>
+          </Example>
+          <Example type="js">
+            bcdui.core.lifecycle.applyAction({});
+          </Example>
+        </Examples>
+
+        <Param name="cleanXPath" type="string">
+          <Doc>
+            Optional additional XPath to be cleaned from the guiStatus.
+          </Doc>
+        </Param>
+        <Param name="validateFilters" type="boolean">
+          <Doc>
+            Optional parameter. True or false whether or not to check IsValid flags of
+            guiStatus filters.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="bookmark" extends="">
+        <Doc>
+          Stores the current URL as a browser bookmark. Optionally you can decide which parts
+          of the guiStatus information should be removed. This action can be placed inside the
+          'button' tag to form an apply button.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:button caption='bookmark'>
+            &lt;a:bookmark/>
+            &lt;/a:button>
+          </Example>
+          <Example type="js">
+            bcdui.core.lifecycle.bookmarkAction({
+            proposedName: "my bookmark name"
+            , cleanClientSettings: true
+            });
+          </Example>
+        </Examples>
+
+        <Param name="proposedName" type="string">
+          <Doc>
+            name of the bookmark
+          </Doc>
+        </Param>
+        <Param name="cleanClientSettings" type="boolean">
+          <Doc>
+            true or false whether or not to clean /guiStatus:Status/guiStatus:ClientSettings
+            from the $guiStatus.
+          </Doc>
+        </Param>
+        <Param name="cleanXPath" type="string">
+          <Doc>
+            Optional additional XPath to be cleaned from the guiStatus.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="dataListener" extends="">
+        <Doc>
+          Adds a data listener to a DataProvider which can be triggered when the data (XML
+          document) is changed. The listener offers two options: It can either be fired on
+          any change or on a change in a specific XPath result.
+          The body of this tag contains the JavaScript code to be executed. There are some
+          pre-defined action tags which can be put inside this tag to perform some common
+          operations:
+
+            [activity:execute]
+              Calls the 'execute' operation on a certain target object. This can be used
+              for example to re-display a renderer.
+
+            [activity:executeXSLT]
+              Executes a transformation chain on a specific model and replaces its content
+              with the result.
+
+            [activity:apply]
+              Executes the 'apply' operation of the BCDUI page life cycle. This operation
+              compresses the status document and (re)loads the page with the updated status.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:dataListener
+            idRef='guiStatus'
+            trackingXPath='/*/f:filters/f:filter[@name = 'myFilter']'>
+            &lt;a:execute idRef='myRenderer'/>
+            &lt;/a:dataListener>
+          </Example>
+          <Example type="js">
+            bcdui.factory.addDataListener({
+            idRef: guiStatus
+            , trackingXPath: "/guiStatus:Status/f:Filter/f:Expression[@bRef =
+            'ctr']"
+            , listener: function() {
+            alert("myFilter has changed");
+            }
+            });
+          </Example>
+        </Examples>
+
+        <Param name="idRef" type="dataProvider" isJSPParent="true">
+          <Doc>
+            The DataProvider the listener is added to. If omitted the tag must be a child element
+            of a DataProvider. The listener is then added to this data provider.
+          </Doc>
+        </Param>
+
+        <Param name="listenerId" type="string" jsName="id">
+          <Doc>A listener id which can be used to explicitly remove the listener again.</Doc>
+        </Param>
+
+        <Param name="onlyOnce" type="boolean">
+          <Doc>
+            A boolean variable indicating that the listener should be automatically removed after
+            it has been executed. The default value is 'false'.
+          </Doc>
+        </Param>
+
+        <Param name="trackingXPath" type="string">
+          <Doc>
+            An XPath filter that is applied on the data document before checking if the data has
+            actually changed. If the document has changed, but the result of the XPath has not, the
+            listener is not called.
+          </Doc>
+        </Param>
+
+        <Param name="side" type="string" deprecated="4.6">
+          <Doc>
+            Decides when the listener code is called. It can be 'before', 'after' or 'both' meaning
+            before the data modification, after it or before and after it. The default value is 'after'.
+          </Doc>
+        </Param>
+
+        <Param name="listener" type="function" isJSPChild="true"></Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
+              <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="execute" extends="">
+        <Doc>
+          Executes the process of the specified object. For example the process of a SimpleModel consists
+          of loading the XML document whereas the process of a TransformationChain also contains the
+          application of the XSLT style sheets. Most processes offer a forced refresh for example to re-load
+          already loaded data.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:execute idRef='myRenderer'/>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+        <Param name="idRef" type="dataProvider">
+          <Doc>
+            The object to be executed. If omitted the object to be executed is the object that the execute
+            tag is child of. For example if an execute tag is put inside a model tag this model is executed.
+          </Doc>
+        </Param>
+        <Param name="shouldRefresh" type="boolean">
+          <Doc>
+            Set this flag to true to enforce a refresh type execute. What refresh means is dependent on the
+            specific object. For example a refresh on a model means re-loading the XML document.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AddCode>
+              <![CDATA[
+<c:set var="objectIds" value="${webpage:coalesceStringToJsArray(idRef, paramBag.parentDataProvider)}"/>
+<webpage:script>
+  bcdui.factory.objectRegistry.withObjects({
+    ids: ${objectIds},
+    fn: function() {
+          ${objectIds}.forEach(function(e){bcdui.factory.objectRegistry.getObject(e).execute( ${webpage:jsBoolean(shouldRefresh)} )});
+        }
+  });
+</webpage:script>
+              ]]>
+            </AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="executeXSLT" extends="modelWrapper">
+        <Doc>
+          Executes a transformation chain producing an XML document. Then it replaces the XML document of the
+          specified target model with the generated XML document. This is useful when the target model should
+          be initialized with some client-side computed values. The behavior of the function is similar to the
+          modelWrapper tag and therefore it inherits all nested tags from it.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:executeXSLT
+            targetModelId='myModel'
+            stylesheetUrl='init.xslt'/>
+          </Example>
+          <Example type="js">
+            bcdui.factory.executeXSLT({
+            targetModel : myModel,
+            url : "../../insertValues.xslt",
+            parameters : { rowCount: 5 },
+            alert("inserted 5 new rows in " + model.id);
+            }
+            });
+          </Example>
+        </Examples>
+
+	    <Param name="targetModelId" type="string" required="true" jsName="targetModel">
+          <Doc>
+            The ID of the Model whose content is supposed to be transformed.
+          </Doc>
+        </Param>
+
+      </Api>
+
+      <Api name="onCoreReady" extends="">
+        <Doc>
+          Runs the code inside the tag body as soon as the page is loaded and BCD-UI is initialized.
+          You can have as many onCoreReady callbacks as you want, all will be called in the order they registered.
+          As with the statusListener tag there are some pre-defined action tags which can
+          be put inside this tag to perform some common operations:
+            [activity:execute]
+              Calls the 'execute' operation on a certain target object. This can be used
+              for example to re-display a renderer.
+            [activity:executeXSLT]
+              Executes a transformation chain on a specific model and replaces its content
+              with the result.
+            [activity:apply]
+              Executes the 'apply' operation of the BCDUI page life cycle. This operation
+              compresses the status document and (re)loads the page with the updated status.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:onCoreReady>
+            alert('Page is loaded and BCD-UI is ready.');
+            &lt;/a:onCoreReady>
+          </Example>
+          <Example type="js">
+            bcdui.core.ready(
+            function()
+            {
+            alert('Page is loaded and BCD-UI is ready.');
+            }
+            );
+          </Example>
+        </Examples>
+
+        <Param name="fn" type="function" isJSPChild="true">
+          <Doc>
+            The function executed as soon as the browser has finished loading
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
+              <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+            </AllowedChildren>
+            <AddCode><![CDATA[
+<webpage:script>
+  bcdui.core.ready(function() { <jsp:doBody/> } );
+</webpage:script>
+            ]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="onReady" extends="">
+        <Doc>
+          Runs the code inside the tag body as soon as the specified DataProvider reaches
+          its ready state. Please note that an DataProvider (such as a renderer) can reach
+          the ready state more than once (e.g. each time it is re-displayed). In such cases
+          it might be useful to set the 'onlyOnce' flag to 'true',
+          Note that it will not execute the DataProvider, i.e. it waits patiently for the model.
+          As with the statusListener tag there are some pre-defined action tags which can
+          be put inside this tag to perform some common operations:
+            [activity:execute]
+              Calls the 'execute' operation on a certain target object. This can be used
+              for example to re-display a renderer.
+            [activity:executeXSLT]
+              Executes a transformation chain on a specific model and replaces its content
+              with the result.
+            [activity:apply]
+              Executes the 'apply' operation of the BCDUI page life cycle. This operation
+              compresses the status document and (re)loads the page with the updated status.
+        </Doc>
+
+        <Examples>
+          <Example type="jsp">
+            &lt;a:onReady idRef='myModel' onlyOnce='true'>
+            alert('The model has loaded');
+            &lt;/a:onReady>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+
+        <Param name="idRef" type="dataProvider">
+          <Doc>
+            The DataProvider the listener is added to. If omitted the tag must be a child element of a
+            DataProvider. The listener is then added to this data provider.
+          </Doc>
+        </Param>
+
+        <Param name="onlyOnce" type="boolean">
+          <Doc>
+            A boolean variable indicating that the listener should be automatically removed after it has
+            been executed. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
+              <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+            </AllowedChildren>
+            <AddCode><![CDATA[
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/activity" prefix="a"%>
+<a:statusListener status=".getReadyStatus()" idRef="${idRef}" onlyOnce="${onlyOnce}">
+  <jsp:doBody/>
+</a:statusListener>
+            ]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="withReadyObjects" extends="">
+        <Doc>
+          Runs the code inside the tag body as soon as the specified DataProvider reaches its ready state.
+          Please note that an DataProvider (such as a renderer) can reach the ready state more than once
+          (e.g. each time it is re-displayed). In such cases it might be useful to set the 'onlyOnce' flag
+          to 'true', Note that it will not execute the DataProvider, i.e. it waits patiently for the model.
+        </Doc>
+
+        <Examples>
+          <Example type="jsp">
+            &lt;a:withReadyObjects idRefs='model1 model2'>
+            alert('Both models are ready now!');
+            &lt;/a:withReadyObjects>
+          </Example>
+          <Example type="js">
+            bcdui.factory.objectRegistry.withReadyObjects({
+            ids: "model1 model2",
+            fn: function() {
+            alert('Both models are ready now!');
+            }
+            });
+          </Example>
+        </Examples>
+
+        <Param name="idRefs" type="array" required="true" jsName="ids">
+          <Doc>
+            A whitespace-separated list of DataProvider ids that should be waited for.
+          </Doc>
+        </Param>
+
+        <Param name="fn" type="function" isJSPChild="true">
+          <Doc>
+            The function executed as soon as the browser has finished loading
+          </Doc>
+        </Param>
+        <Impl><Jsp allowsChildren="true"/></Impl>
+      </Api>
+
+      <Api name="statusListener" extends="">
+        <Doc>
+          Adds a status listener to an existing DataProvider. A status listener is triggered either
+          when a specific state is reached or on any state change. Each BCDUI object has a specific
+          set of states and transitions between them. They are documented in the respective component
+          (such as the TransformationChain class).
+        </Doc>
+
+        <Examples>
+          <Example type="jsp">
+            &lt;a:statusListener idRef='myModel' status='.getReadyStatus()'>
+            &lt;a:executeXSLT targetModelId='myModel' stylesheetUrl='init.xslt'/>
+            &lt;/a:statusListener>
+
+            &lt;a:statusListener idRef='myModel' status='bcdui.core.status.SavedStatus'>
+            &lt;a:execute idRef='myModel' shouldRefresh='true'/>
+            &lt;/a:statusListener>
+          </Example>
+          <Example type="js">
+            bcdui.factory.addStatusListener({
+            idRef: myModel
+            , status: myModel.getReadyStatus()
+            , listener: function() {
+            alert("The model has loaded!");
+            }
+            , onlyOnce: true
+            });
+          </Example>
+        </Examples>
+
+        <Param name="idRef" type="dataProvider" isJSPParent="true">
+          <Doc>
+            The DataProvider the listener is added to. If omitted the tag must be a child element
+            of a DataProvider. The listener is then added to this data provider.
+          </Doc>
+        </Param>
+
+        <Param name="listener" type="function" isJSPChild="true">
+          <Doc>
+            A function or StatusListener object representing the listener action.
+          </Doc>
+        </Param>
+
+        <Param name="status" type="string">
+          <Doc>
+            The status object which identifies the status that needs to be reached for the listener
+            to be executed. If this parameter is missing the listener is called on every status transition.
+            If the status is described with a String it can be the JavaScript variable name of the
+            status object. If it starts with a dot (.) the status is taken from a property of the
+            DataProvider. This is useful because most DataProviders (like TransformationChain) offer
+            their possible status objects as properties so that the user can access them. (i.e.
+            '.getReadyStatus()' as string)
+          </Doc>
+        </Param>
+
+        <Param name="onlyOnce" type="boolean">
+          <Doc>
+            A boolean variable indicating that the listener should be automatically removed after it
+            has been executed. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Impl><Jsp allowsChildren="true"/></Impl>
+      </Api>
+
+      <Api name="save" extends="">
+        <Doc>Sends the data of the specified model to the server.</Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;a:button caption='save'>
+            &lt;a:save idRef='myModel'/>
+            &lt;/a:button>
+          </Example>
+          <Example type="js">
+          </Example>
+        </Examples>
+        <Param name="idRef" type="dataProvider" required="true">
+          <Doc>
+            The id of the model to be saved.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AddCode><![CDATA[
+<c:set var="objectId" value="${webpage:jsString(idRef)}"/>
+<webpage:script>
+  bcdui.factory.objectRegistry.withObjects({
+    ids: [ ${objectId} ],
+    fn: function() { bcdui.factory.objectRegistry.getObject(${objectId}).sendData() }
+  });
+</webpage:script>
+            ]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="visualizeModel" extends="hasTargetHtml">
+        <Doc>
+          Display a model user readable on the page for example for debugging purposes as
+          in b:visualizeModel idRef='guiStatus'
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:visualizeModel idRef='guiStatus'/>
+          </Example>
+        </Examples>
+        <Param name="inputModel" type="dataProvider" required="false">
+          <Doc>
+            Model to be shown, provide this or the refId
+          </Doc>
+        </Param>
+        <Param name="idRef" type="dataProvider" required="false">
+          <Doc>
+            Id of the model to be shown, or provide inputModel parameter
+          </Doc>
+        </Param>
+        <Param name="title" type="string">
+          <Doc>
+            Header shown on top of the model
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="pdfExport">
+        <Doc>
+          This is an action making a PDF, JPG, PNG, GIF or BMP export of the specified HTML
+          element. It uses the HTML2PDF servlet which is mapped under /bcdui/servlets/Html2PdfServlet
+          to generate the result. It can be placed inside a button, listener etc. to achieve this.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;wng:button caption='PDF Export'>
+            &lt;a:pdfExport rootElement='myDivToBeExported'
+            css='../../bcdui/theme/css/allStyles.css pdfOverwrite.css'/>
+            &lt;/wng:button>
+          </Example>
+        </Examples>
+        <Param name="rootElement" type="string" required="true">
+          <Doc>
+            The HTML element to be exported either given as the element itself or its HTML ID.
+            In the latter case the element does not need to exist before the execute() method
+            is called. OR a space separated list of ids OR an array with ids or elements or a
+            mixture, which are then included in the export in the given order.
+          </Doc>
+        </Param>
+        <Param name="css" type="array">
+          <Doc>
+            An array of URLs containing CSS files to be loaded by the server.
+          </Doc>
+        </Param>
+        <Param name="orientationLandscape" type="boolean">
+          <Doc>
+            Set this flag to true to make the PDF appear in landscape page orientation. The
+            default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="dimension" type="string">
+          <Doc>
+            Output size, like LETTER or A5. The default value is 'A4'.
+          </Doc>
+        </Param>
+        <Param name="format" type="string">
+          <Doc>
+            This can be 'pdf', 'jpg', 'png', 'gif', 'bmp' to determine the output type.
+            The default value is 'pdf'.
+          </Doc>
+        </Param>
+        <Param name="title" type="string">
+          <Doc>
+            The title of the HTML fragment sent to the server. This is for future use.
+          </Doc>
+        </Param>
+        <Param name="htmlWidth" type="integer">
+          <Doc>
+            Determines the scaling. That width in px is scaled to fill the full width
+            of the selected dimension. For example if the widh of the div you export
+            is with is 500px and dimension is A5, then in the output the content of
+            that width is scaled to the width of A5. Default is the width of the
+            (first) args.rootElement.
+          </Doc>
+        </Param>
+        <Param name="fileName" type="string">
+          <Doc>
+            Name of the file send by the server as the response.
+          </Doc>
+        </Param>
+        <Param name="assureSvgChartIEHandler" type="function">
+          <Doc>
+            In case of IE we have to temporary re-draw the chart in SVG format to be exportable to PDF
+            export, this function is called for every chart found (recognized by graph vml element from HTML DOM) and
+            can take any modifications to the chart prior to be drawn
+          </Doc>
+        </Param>
+        <Param name="jsParams" type="jsattr">
+          <Doc>
+            Optional jsParams which are passed over to the bcdui.component.exports.PDFExport constructor
+          </Doc>
+        </Param>
+      </Api>
+
+      <!-- Latest changes which can cause backward compatibility issues:
+        * modelwrapper: renamed stylesheet to url * autoModel: renamed bindingItemRefs
+        to brefs * modelupdater: renamed stylesheet to url * renderer: renamed stylesheet
+        to url * executeXSLT: renamed stylesheet to url, targetModelId to targetModel -->
+
+    </BcdAPI>
+
+    <BcdObjects>
+      <BcdObject name="requestDocument" implements="requestDocument" implementationFunction="" tagFolder="bcdui"/>
+      <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="bcdui"/>
+      <BcdObject name="metaDataModel" implements="metaDataModel" implementationFunction="" tagFolder="bcdui"/>
+      <BcdObject name="inputModel" implements="inputModel" implementationFunction="" tagFolder="bcdui"/>
+      <BcdObject name="chain" implements="chain" implementationFunction="" tagFolder="bcdui"/>
+      <BcdObject name="model" implements="model" implementationFunction="bcdui.factory.createModel" tagFolder="bcdui"/>
+      <BcdObject name="inlineModel" implements="inlineModel" implementationFunction="bcdui.factory.createStaticModel" tagFolder="bcdui" generateXSLT="false"/>
+      <BcdObject name="autoModel" implements="autoModel" implementationFunction="bcdui.factory.createAutoModel" tagFolder="bcdui"/>
+      <BcdObject name="modelWrapper" implements="modelWrapper" implementationFunction="bcdui.factory.createModelWrapper" tagFolder="bcdui"/>
+      <BcdObject name="modelUpdater" implements="modelUpdater" implementationFunction="bcdui.factory.createModelUpdater" tagFolder="bcdui" skipParams="|inputModel|"/>
+      <BcdObject name="jsDataProvider" implements="jsDataProvider" implementationFunction="bcdui.factory.createJsDataProvider" tagFolder="bcdui"/>
+      <BcdObject name="renderer" implements="renderer" implementationFunction="bcdui.factory.createRenderer" tagFolder="bcdui" isBlockContainer="true"/>
+      <BcdObject name="param" implements="param" implementationFunction="" tagFolder="bcdui" generateXSLT="false"/>
+      <BcdObject name="init" implements="init" implementationFunction="" tagFolder="bcdui" generateXSLT="false"/>
+      <BcdObject name="ref" implements="ref" implementationFunction="" tagFolder="bcdui" generateXSLT="false"/>
+      <BcdObject name="visualizeModel" implements="visualizeModel" implementationFunction="bcdui.widget.visualizeXml.visualizeModel" tagFolder="bcdui"/>
+      <BcdObject name="logPage" implements="logPage" implementationFunction="bcdui.logging.logPage" tagFolder="bcdui"/>
+
+      <BcdObject name="apply" implements="apply" implementationFunction="bcdui.core.lifecycle.applyAction" tagFolder="activity"/>
+      <BcdObject name="bookmark" implements="bookmark" implementationFunction="bcdui.core.lifecycle.bookmarkAction" tagFolder="activity"/>
+      <BcdObject name="dataListener" implements="dataListener" implementationFunction="bcdui.factory.addDataListener" tagFolder="activity"/>
+      <BcdObject name="execute" implements="execute" implementationFunction="" tagFolder="activity"/>
+      <BcdObject name="executeXSLT" implements="executeXSLT" implementationFunction="bcdui.factory.executeXSLT" tagFolder="activity"/>
+      <BcdObject name="onCoreReady" implements="onCoreReady" implementationFunction="" tagFolder="activity"/>
+      <BcdObject name="onReady" implements="onReady" implementationFunction="" tagFolder="activity" generateXSLT="false"/>
+      <BcdObject name="withReadyObjects" implements="withReadyObjects" implementationFunction="bcdui.factory.objectRegistry.withReadyObjects" tagFolder="activity"/>
+      <BcdObject name="statusListener" implements="statusListener" implementationFunction="bcdui.factory.addStatusListener" tagFolder="activity"/>
+      <BcdObject name="save" implements="save" implementationFunction="" tagFolder="activity"/>
+      <BcdObject name="pdfExport" implements="pdfExport" implementationFunction="new bcdui.component.exports.PDFExport" implementationFunctionPost=".execute()" tagFolder="activity"/>
+    </BcdObjects>
+
+  </WorkingDraft>
+</Root>

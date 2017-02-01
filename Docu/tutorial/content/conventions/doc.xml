@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Conventions" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+  <Chapter title="Naming conventions" type="overview">
+    <Body>
+      Within BCD UI 4 please follow the following naming conventions
+      <ul>
+        <li>Namespaces format: http://www.businesscode.de/schema/bcdui/doc-1.1.0</li>
+        <li>Package naming convention: de.businesscode.bcdui</li>
+        <li>In js and jsp, xxRef is the string value of an id of the referenced object, for example modelRef is the id string of an referenced model</li>
+        <li>Camel case for Java, XML etc is consequently only uppercase for the first letter of the word, even for abbreviations , HTMLElemet becomes HtmlElement</li>
+        <li>BindingSet and BindingItem names are hard coded in th library, configuration of table names via bindings</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Java" type="overview">
+    <Body>
+      <ul>
+        <li>Class inheritance is only from same or higher-level packages, i.e. derived classes always sit in sub-packages</li>
+        <li>All classes accessing the database sit in a package xx.xx.db or below</li>
+        <li>Sun <a href="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">standard Java conventions</a> apply</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+  <Chapter title="DB" type="overview">
+    <Body>
+      DB tables and views of BCD-UI follow the following conventions, unless a customer requires different conventions
+      <ul>
+        <li>Tables and views are not prefixed with V_ or T_ to be able to replace tables easily by views</li>
+        <li>The name of the table follows the stored type in singular, if one row stores a single element, for example a table user will hold one user per row</li>
+        <li>Tables storing customer's reference data have a prefix ref_ like ref_center</li>
+        <li>Tables storing front end control information, like access logging, get a prefix fe_</li>
+        <li>Tables storing history information from the reference data management get a _hist postfix, like ref_center_hist</li>
+        <li>All classes accessing the database sit in a package xx.xx.db or below</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+  <Chapter title="JavaScript" type="overview">
+    <Body>
+      <ul>
+        <li>ids are camelCase starting with a lower case letter (myHtmlElement)</li>
+        <li>Reference attributes to ids have the name of the referenced type plus ..Ref as a prefix as in bindingSetRef="someBindingSetId"</li>
+        <li>Use map-style parameters for javascript calls</li>
+        <li>Within the library all objects being passed are assumed to be existing. Only in the factory bcdui.package a withObjects() is necessary.</li>
+        <li>Class name are in camel case starting with a capital letter (like InlineModel).</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Tags" type="overview">
+    <Body>
+      <ul>
+        <li>Tags are thin wrapper around js only</li>
+        <li>Only logic in tags beside parameter pass-through is creating a targetHtmlElement at the place of the tag</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+
+  <!--
+
+      TODO: Dimension, Category, Measure, Drill-in, Drill-over, Breakdown, KPI,
+            Filter, GUIStatus, Request Document, Model, Renderer, Component, Widget, Module
+
+   -->
+
+  <Chapter title="Terminology" type="overview">
+    <Body>
+      <dl>
+        <dt>Business Indicators</dt>
+        <dd>Boolean indicating the result of a calculation</dd>
+      </dl>
+    </Body>
+  </Chapter>
+
+  <Chapter title="CEP terminology" type="overview">
+    <Body>
+      The following is the generic terminology for CEP samples
+      <ul>
+        <li>Center (was Terminal/Facility)</li>
+        <li>Center functions: Origin/Destination Distribution Center (for pickup/delivery), hub (for domestic), Outbound/Inbound/Transit Hub (for international)</li>
+        <li>Shipment</li>
+        <li>Track event</li>
+        <li>Track event code</li>
+        <li>RCA root cause analysis</li>
+        <li>Route (for lane, end-to-end)</li>
+        <li>Route segment (for segment between centers)</li>
+        <li>Route RCA report (was PAT)</li>
+        <li>Local RCA report (was PTC)</li>
+        <li>ScoreCard</li>
+        <li>Avis (for shipment manifest)</li>
+      </ul>
+    </Body>
+  </Chapter>
+
+</Doc>

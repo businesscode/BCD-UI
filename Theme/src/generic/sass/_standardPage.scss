@@ -1,0 +1,1389 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+/* ******************************************************************* */
+/* get default values for variables
+/* ******************************************************************* */
+
+@import '_constants.scss';
+
+/* ******************************************************************* */
+/* general css */
+/* ******************************************************************* */
+
+// 960 / 24 grid container as basics but we don't want it centered and it should expand
+// at least for the grid_24 and grid_10 class (header, footer, body)
+
+@import '_reset.scss';
+@import '_960_24_col.scss';
+
+.container_24 {
+  margin: 0px;
+  width: auto;
+  @extend .noselect;  /* don't allow copy/paste/text selection on container at all */
+}
+.container_24 .grid_24 {
+  width: 100%;
+  margin: 0px;
+}
+
+// functions, mixins and base classes
+
+@function text-contrast($color) {
+  @return if(lightness($color) < 50, $text-color-bright, $text-color-dark);
+}
+
+%clearfix {
+  &:after {
+    @extend .clear;
+  }
+}
+
+@mixin inputPlaceholder() {
+  ::-webkit-input-placeholder {@content}
+  ::-moz-placeholder          {@content}
+  ::-moz-placeholder          {@content}
+  :-ms-input-placeholder      {@content}  
+}
+
+@mixin con_color($c) {
+  background-color: $c;
+  color: text-contrast($c);
+}
+
+@mixin con_color_important($c) {
+  background-color: $c !important;
+  color: text-contrast($c) !important;
+}
+
+@mixin topDownGradient($from, $to) {
+  background-image: -ms-linear-gradient(top, $from 0%, $to 100%);
+  background-image: -webkit-linear-gradient(top, $from, $to);
+  background-image: -moz-linear-gradient(top,$from 0%, $to 100%);
+  background-color: $to;
+  filter: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#{ie-hex-str($from)}',EndColorStr='#{ie-hex-str($to)}');
+}
+
+@mixin alpha($value) {
+  opacity: $value;
+  -moz-opacity: $value;
+  filter: alpha(opacity=$value * 100);
+}
+
+@mixin shadow() {
+  -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+  -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=3, OffY=3, Color='#30000000', Positive='true')";
+  filter: progid:DXImageTransform.Microsoft.Shadow(Direction=135, Strength=5, Color='#555555');
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+}
+
+@mixin no_shadow() {
+  -moz-box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -ms-filter: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* actually only needed for IE8 to mix a filter attribute */
+@mixin topDownGradientWithShadow($from, $to) {
+  background-image: -ms-linear-gradient(top, $from 0%, $to 100%);
+  background-image: -webkit-linear-gradient(top, $from, $to);
+  background-image: -moz-linear-gradient(top,$from 0%, $to 100%);
+  background-color: $to;
+  -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+  -ms-filter: "progid:DXImageTransform.Microsoft.dropshadow(OffX=3, OffY=3, Color='#30000000', Positive='true')";
+  filter: progid:DXImageTransform.Microsoft.Shadow(Direction=135, Strength=5, Color='#555555')
+  progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#{ie-hex-str($from)}',EndColorStr='#{ie-hex-str($to)}');
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ******************************************************************* */
+/* well known tiny BCD classes user at various places */
+/* ******************************************************************* */
+
+.bcdReadOnly  {
+  color: $text-disabled-color;
+}
+.bcdDeleted {
+  text-decoration: line-through;
+  color: $grid-action-color;
+}
+.bcdInserted, .bcdModified {
+  text-decoration: underline;
+  color: $grid-action-color;
+}
+
+.bcdSelected {
+  @include con_color($select-color);
+}
+
+.bcdInvalid {
+  background-color: $invalid-color !important;
+  color: text-contrast($invalid-color) !important;
+}
+
+.bcdValid {
+  background-color: $valid-color !important;
+  color: text-contrast($valid-color) !important;
+}
+.bcdWarning {
+  background-color: $warning-color !important;
+  color: text-contrast($warning-color) !important;
+}
+
+.bcdHidden,
+.bcdClosed {
+  display: none;
+}
+
+.bcdInfoBox {
+  padding: 5px;
+  span {
+    white-space: nowrap;
+    display: inline-block;
+    @include con_color(#FFFFFF);
+  }
+}
+
+.bcdNoScroll {
+  overflow: hidden !important;
+}
+
+.bcdDisabled {
+  color: $text-disabled-color !important;
+  cursor: default !important;
+}
+
+.statusNotReady,
+.bcdLoading {
+  background: url("../images/loading.gif") top left no-repeat;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+/* indicating a component is busy and not ready to receive a user input */
+.bcdIsBusy {
+  cursor: wait;
+}
+
+/* ******************************************************************* */
+/* some custom general classes */
+/* ******************************************************************* */
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.select {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.bcdBasicControl {
+  font:           $font-size-default $font-family-default;
+  padding:        3px 4px 3px 4px;
+  margin:         0px;
+  vertical-align: middle;
+  text-align:     left;
+  text-overflow: ellipsis;
+}
+
+
+/* ******************************************************************* */
+/* general input/select/textarea settings and system settings */
+/* ******************************************************************* */
+
+input, select, textarea {
+  outline: none;
+  border: 1px solid $border-color;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  color: $text-color-dark;
+}
+
+option { color: $text-color-dark; }
+
+@include inputPlaceholder {
+  color: lighten($text-color-dark, 50%) !important;
+}
+
+.bcdPlaceholder,
+.bcdClearOption,
+.bcdInputEmptyValue {
+  color: lighten($text-color-dark, 50%) !important;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  border: none !important;
+}
+
+a {
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+}
+
+:invalid { box-shadow: none; }
+:-moz-submit-invalid { box-shadow: none; }
+:-moz-ui-invalid { box-shadow:none; }
+::-ms-clear { display: none; }
+*[disabled] { color: $text-disabled-color !important; }
+
+/* ******************************************************************* */
+/* Widgets */
+/* ******************************************************************* */
+
+
+/* inputfield dropdown */
+
+.bcdComboInputField input {
+  padding-right: 16px !important;
+}
+
+.bcdComboInputField span {
+  display: inline-block;
+  cursor: pointer;
+  padding: 3px 3px 3px 3px;
+  border: none;
+  margin: 0px 0px 0px ((-1 * $font-size-default) - 3 - 3 - 1); /* move box over input (1 char) - padding left - padding right - (pseudo) border right */
+  vertical-align: middle !important;
+  color: $text-color-dark;
+}
+.bcdComboInputField span:after {
+  content: "▼";
+  position: relative;
+}
+
+/* button */
+
+.defaultButton {
+  @include con_color($button-color);
+  padding: 4px 5px;
+  font: $font-size-default $font-family-default;
+  border-radius: $border-radius-small;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.bcdButton {
+  display: inline-block;
+  a { @extend .defaultButton; }
+  a:hover { text-decoration: underline; }
+}
+
+/* dim chooser */
+
+.bcdDimensionChooser {
+  table { width: 100%;
+    form { padding-bottom: 3px; }
+  }
+  div.bcdChooserCaption, div.bcdChooserCaptionFixed { display: none; }
+  span.bcdButton { margin: 5px 0px; }
+  span.bcdAdd { padding-right: 3px; }
+  span.bcdExclude { padding-right: 8px; }
+
+  select { min-width: 100px; }
+  .bcdChooserCaption {
+    span, input { margin-top: 3px !important; }
+  }
+}
+
+.bcdSuggestMatchPart {
+  font-weight: 800;
+}
+
+/* multi and single select */
+
+.bcdMultiSelect,
+.bcdSingleSelect {
+   form span span { vertical-align: middle; padding: 0px 8px 0px 3px; }
+}
+
+.bcdMultiSelect {
+  form > span { display: block; margin-bottom: 3px; padding: 0px 0px 3px 0px;}
+}
+
+#bcdSideBarContainer .bcdMultiSelect select option,
+#bcdBodyContainer .bcdMultiSelect select option { padding: 0px 4px; }
+
+
+/* connectable */
+
+.bcdConnectable {
+  overflow: auto;
+  list-style-type: none;
+  height: 100%;
+  width: 100%;
+  li { position: relative; cursor: default;}
+  .bcdItem { cursor: pointer; }
+  .ui-selected { @include con_color($select-color); }
+  .bcdConnectableHover, .ui-selecting { @include con_color($border-color); }
+  .ui-sortable-helper {
+    width: auto !important;
+    height: auto !important;
+    border: 1px dashed $border-color-dark;
+    @include con_color($border-color);
+    cursor: move;
+  }
+}
+.ui-selectable-helper {
+  @include alpha(0.25);
+  background-color: lighten($select-color, 10%);
+  border: 1px dotted $select-color;
+  border-radius: $border-radius-default;
+}
+.bcdNoTop { border-top: none !important; }
+.bcdNoLeft { border-left: none !important; }
+.bcdNoBottom { border-bottom: none !important; }
+.bcdNoRight { border-right: none !important; }
+
+/* side by side chooser */
+
+.bcdSideBySideChooser {
+   @extend .noselect;
+
+   position: relative;
+
+  .bcdSbscTargetItemsHeader,
+  .bcdSbscSourceItemsHeader {
+    font-weight: bold;
+  }
+  .bcdSbscList {
+    @extend .bcdBasicControl;
+    @include con_color(#ffffff);
+    border: 1px solid $border-color;
+    height: 100px;
+    width: 230px;
+    overflow: auto;
+    list-style-type: none;
+
+    div:hover {
+      @include con_color($border-color);
+    }
+
+    li { padding: 1px 0px; position: relative; cursor: default;}
+    .bcdItem { cursor: pointer; }
+    .ui-selected { @include con_color($select-color); }
+    .bcdSbscHover, .ui-selecting { @include con_color($border-color); }
+  }
+
+  .bcd-sbs-controls {
+    .bcdToSource a:after { content: "<<<"; }
+    .bcdToMainTarget a:after { content: ">>>"; }
+    a { display: block; font-size: $font-size-small; }
+   }
+
+  .bcdCol2 {
+    vertical-align: middle;
+    .bcdButton {
+      display: block;
+      margin: 3px;
+    }
+  }
+  .ui-sortable-helper {
+    width: auto !important;
+    height: auto !important;
+    border: 1px dashed $border-color-dark !important;
+    background-color: $border-color !important;
+    color: text-contrast($border-color) !important;
+    cursor: move !important;
+  }
+}
+
+/* auto completion and suggest input  */
+
+#bcd_widget_suggestInput_dataList,
+#bcdAutoCompletionBox {
+  font: $font-size-default $font-family-default;
+  @include con_color( #ffffff);
+  border: 1px solid $border-color;
+  min-width: 126px !important;
+  height: 150px;
+  overflow-y: auto;
+  z-index: 1005;
+  div { padding: 3px; white-space: nowrap; }
+  div div.bcdOptionIsHovered,
+  .bcdOptionIsSelected,
+  .bcdSelected {
+    @include con_color( $select-color );
+  }
+}
+
+/* period chooser  */
+
+#bcdCalendar {
+
+   img {
+     display: none;
+   }
+   span.calCloseImage { font-width: bold; }
+   
+   span.changeLeft:after {
+     content: "◄";
+   }
+   span.changeRight:after {
+     content: "►";
+   }
+   span.calCloseImage:after {
+     content: "x";
+   }
+   span.changeYear:after,
+   span.changeMonth:after {
+     content: "▼";
+   }
+
+   @extend .noselect;
+
+   table.popupBaseColor {
+    border-collapse: separate;
+    border-spacing: 2px;
+    @include shadow();
+   }
+
+  .popupBaseColor {
+
+    @include con_color($calendar-color);
+    border-top: 1px solid $border-color-bright;
+    border-left: 1px solid $border-color-bright;
+    border-bottom: 1px solid $border-color-dark;
+    border-right: 1px solid $border-color-dark;
+    border-radius: $border-radius-default;
+
+    a {
+      color: text-contrast($calendar-color);
+      text-decoration: underline;
+    }
+
+    .popupStyle, .popupStyleOver {
+    @include con_color($calendar-color);
+      cursor: pointer;
+      border: 1px solid text-contrast($calendar-color);
+    }
+    .calCloseImage {
+    @include con_color($calendar-color);
+      cursor: pointer;
+      border: none;
+    }
+  }
+
+  .weekListSelectionHover,
+  .weekListSelectionHover a,
+  .popupSelectBoxHover {
+    color: text-contrast($select-color) !important;
+    background-color: $select-color !important;
+  }
+
+  #selectMonth, #selectYear {
+    @include con_color(#FFFFFF);
+    border: 1px solid text-contrast(#FFFFFF);
+    cursor: pointer;
+
+    .popupContraColor {
+      color: #CC0000 !important;
+    }
+  }
+
+  #selectYear table td {
+    text-align: center;
+  }
+
+  .popupContentTable {
+    a {
+      color: text-contrast(#FFFFFF);
+      text-decoration: underline;
+    }
+    td.weekListSelection, td.weekListSelectionHover {
+      border-right: 1px solid $border-color;
+      a { color: $select-color; }
+    }
+    td {
+      text-align: right;
+      padding: 0px;
+      color: text-contrast(#FFFFFF);
+    }
+    a.popupSunday {
+      color: lighten(text-contrast(#FFFFFF), 50%) !important;
+    }
+    a.popupToday {
+      color: #CC0000 !important;
+      font-weight: bold !important;
+    }
+    a.popupDay {
+      color: text-contrast(#FFFFFF);
+      text-decoration: none;
+    }
+  }
+}
+
+.bcdPeriodChooser {
+  text-align: left;
+  display: inline-block;
+  span {
+    display: inline-block;
+    a {
+      width: 4.2em;
+      text-align: center;
+      font-size: $font-size-small;
+    }
+  }
+  .bcdPostfix {
+    display: block;
+    input {
+      padding: 3px 4px 3px 4px;
+      margin: 0px 0px 3px 0px;
+    }
+  }
+
+  input { background: #FFFFFF; padding: 3px 0px 3px 0px; }
+  span.bcdHint { display: none; }
+  div.bcdHr hr { display: none; }
+  input.bcdHour { width: 1.5em; border-right-style: none; text-align: center; padding-left: 3px;}
+  input.bcdTimeMiddle { border-right-style: none; }
+  input.bcdMinute, input.bcdSecond { width: 1.5em; border-left-style: none; text-align: center; padding-right: 3px;}
+  input.bcdYear  { width: 2.8em; border-right-style: none; padding-left: 3px; text-align: center;}
+  input.bcdMonth { width: 1.5em; border-right-style: none; border-left-style: none; text-align: center;}
+  input.bcdDay   { width: 1.5em;  border-left-style: none; padding-right: 3px; text-align: center;}
+  input.bcdDateTimeDelimiter  { width: 0.5em; border-style: none; text-align: center;}
+  input.bcdDateDelimiter { width: 0.5em;  border-right-style: none;  border-left-style: none; text-align: center;}
+  span.bcdButton { margin-right: 3px; min-height: 20px;}
+  span.bcdInvalid {
+    background-color: inherit !important;
+    input { background-color: $invalid-color !important; color: text-contrast($invalid-color) !important;}
+  }
+  .bcdValue { vertical-align: middle; }
+
+  .bcdPeriodChooserModLeft:after {content: "◄";}
+  .bcdPeriodChooserModRight:after {content: "►";}
+}
+
+/* tool tip  */
+
+#bcdChartToolTip,
+#bcdTooltipDiv {
+  @include con_color($flyover-color);
+  border: 1px solid $border-color;
+  z-index: 14999;
+  top: 0px;
+  left: 0px;
+  position: absolute;
+  font: 12px $font-family-default;
+  padding: 5px !important;
+  @include alpha(0.95);
+  @include shadow();
+}
+
+.bcdTooltip {
+  th, td { padding: 3px 5px; white-space: nowrap; }
+  th { font-weight: bold; text-align: left; }
+  td { text-align: right; }
+  .bcdFooter { text-align: left; border-top: 1px solid $border-color; }
+  thead { border-bottom: 1px solid $border-color; font-size: 14px; }
+}
+
+/* blind up down */
+
+.bcdBlindUpDown {
+
+  span.bcdBlindUpDownClose { text-align: right; vertical-align: middle; position: absolute; right: 3px;}
+  
+  .bcdHeadClosed > span.bcdBlindUpDownClose:after {
+    content: "▼";
+  }
+
+  .bcdHeadOpened > span.bcdBlindUpDownClose:after {
+    content: "▲";
+  }
+
+  ul.bcdBlindUpDown {
+    margin: 0px 0px 5px 0px;
+    padding: 0;
+    list-style: none;
+    border: $border-color;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: $border-radius-small;
+    @extend .noselect;
+
+    li.bcdBlindUpDownBody {
+      margin: 5px;
+    }
+    li.bcdBlindUpDownHead {
+      cursor: pointer;
+      font: $font-size-default $font-family-default;
+      margin: 0px 0px 5px 0px;
+      padding: 3px;
+      @include con_color($control-color);
+      border-bottom: $border-color;
+      border-width: 1px;
+      border-style: none none solid none;
+      border-radius: $border-radius-small $border-radius-small 0px 0px;
+      position: relative;
+    }
+  }
+}
+
+/* tabs */
+
+.bcdTab {
+   font: $font-size-default $font-family-default;
+   li {
+     display: inline-block;
+     margin-right: 3px;
+     padding: 4px 0px 4px 0px;
+     a {
+       border: 1px solid $border-color;
+       border-radius: $border-radius-small $border-radius-small 0 0;
+       padding: 4px 5px 4px 5px;
+       border-bottom-style: none !important;
+       @include con_color($control-color);
+     }
+     a:hover {
+       @include con_color($border-color);
+     }
+     a.bcdActive {
+       @include con_color(#FFFFFF);
+       font-weight: bold;
+       padding: 4px 5px 5px 5px;
+     }
+   }
+}
+.bcdTabDefinition {
+  border: 1px solid $border-color;
+  border-radius: 0 $border-radius-small 0 0;
+  @include con_color(#FFFFFF);
+  padding: 10px;
+}
+
+/* login form */
+
+form[name="loginform"] {
+  font: $font-size-default $font-family-default;
+  height: 100px;
+  table {
+    @include con_color($control-color);
+    border-collapse: separate;
+    border-spacing: 3px;
+    table-layout: fixed;
+    border: 1px solid $border-color;
+    td {
+      text-align: right;
+      vertical-align: middle;
+    }
+  }
+}
+
+/* user messages */
+
+div.bcdUserMessages {
+  margin-bottom: 10px;
+  font:          $font-size-default $font-family-default;
+  border:        solid 1px $border-color;
+  border-radius: $border-radius-default;
+  position:      relative;
+  top:           0px;
+  left:          0px;
+  width:         500px;
+  z-index:       1;
+  @include shadow();
+
+  table {
+    font: $font-size-default $font-family-default;
+    @include con_color(#FFFFFF);
+    width: auto;
+    td {
+      padding: 3px;
+      vertical-align: middle;
+    }
+    td.bcdUserMessagesMessage {
+      width: 100%;
+    }
+  }
+
+  .bcdUserMessagesHeader {
+     @include con_color($corporate_color);
+     font-weight: bold;
+     padding: 3px;
+  }
+  .bcdUserMessagesCloseButton {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+  }
+  .bcdUserMessagesSeverity {
+  }
+  .bcdUserMessagesLastModified {
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  .bcdUserMessagesSeverity_1 {
+    background-image: url("../images/cancel.png");
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+  }
+  .bcdUserMessagesSeverity_2 {
+    background-image: url("../images/error.png");
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+  }
+  .bcdUserMessagesSeverity_3 {
+    background-image: url("../images/lightbulb.png");
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+  }
+}
+
+/* ******************************************************************* */
+/* Areas */
+/* ******************************************************************* */
+
+#bcdMainContainer{
+  @extend .container_24;
+  @extend %clearfix;
+}
+#bcdHeaderArea, #bcdMenuBarArea, #bcdSpacerArea, #bcdFooterArea, #bcdContentContainer {
+  @extend .grid_24;
+  @extend %clearfix;
+}
+#bcdBodyContainer {
+  @extend .grid_20;
+  @extend .alpha;
+  @extend %clearfix;
+  min-width: 790px;
+  min-height: 440px;
+}
+#bcdSideBarContainer {
+  @extend .grid_4;
+  @extend .alpha;
+  @extend %clearfix;
+}
+#bcdBodyArea {
+  @extend .grid_20;
+  @extend .alpha;
+  @extend %clearfix;
+  min-width: 790px;
+  min-height: 440px;
+  width: auto !important;
+}
+
+body {
+  @include con_color(#FFFFFF);
+  font: $font-size-default $font-family-default;
+  background: $body-background;
+}
+
+#bcdHeaderArea {
+  @include con_color($headerArea-color);
+  position:       relative;
+  height:         $headerArea-height;
+  text-align:     right;
+  vertical-align: bottom;
+  span {
+    position: absolute;
+    bottom:   3px;
+    right:    3px;
+    a {
+      color: text-contrast($headerArea-color);
+    }
+    a:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+#bcdLogoImageArea {
+  background: $logoImageArea-background;
+  position:   relative;
+  top:        $logoImageArea-top;
+  left:       $logoImageArea-left;
+  height:     $logoImageArea-height;
+  width:      $logoImageArea-width;
+
+  a {
+    display: inline-block;
+    height:  100%;
+    width:   100%;
+  }
+}
+
+.bcdWidgetCaption {
+  font-weight: bold;
+  font-style: normal;
+  padding: 0px 0px 0px 5px;
+}
+
+#bcdNavPath {
+  position: absolute;
+  left: 15px;
+  max-width: 75%;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+#bcdUserName {
+  position: absolute;
+  right: 20px;
+  font-style: italic;
+}
+
+#bcdUserName:before {
+  content: "\1F464";
+  font-style: normal;
+  padding-right: 3px;
+}
+
+#bcdFooterArea {
+  position:    relative;
+  font:        $font-size-small $font-family-default;
+  background:  $footerArea-background;
+  height:      $footerArea-height;
+  color:       text-contrast($footerArea-color);
+  margin-top:  20px !important;
+  text-align:  right;
+  span {
+    position: absolute;
+    top:      10px;
+    right:    20px;
+    a {
+      color: text-contrast($footerArea-color);
+    }
+    a:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+#bcdBodyContainer > .bcdCaption {
+  font: $font-size-big $font-family-default;
+  margin-bottom: 15px;
+}
+
+#bcdSideBarEffect {
+  display: none;
+  min-width: $sideBar-width-min;
+  max-width: $sideBar-width-max;
+  width:     $sideBar-width;
+}
+
+/* .container_24 in front is needed to allow overwriting of extended class without using !important
+   which would be problematic when using sidebar grip effects which wants to set the width again
+*/
+.container_24 #bcdSideBarContainer {
+  overflow: visible;
+  width: $sideBar-width;
+  position: relative;
+}
+
+#bcdSideBarContainer {
+
+  margin-top: 10px;
+
+  .bcdPeriodChooser {
+    @extend .bcdPeriodChooser;
+    width: 100%;
+  }
+
+  input {
+    @extend .bcdBasicControl;
+    width: 100%;
+  }
+  select {
+    @extend .bcdBasicControl;
+    padding:  3px 0px;
+    width: 100%;
+  }
+
+  input[type='radio'],
+  input[type='checkbox'] {
+    @extend .bcdBasicControl;
+    width:     auto;
+    border:    none;
+    background-color: transparent;
+  }
+
+  textarea {
+    @extend .bcdBasicControl;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .bcdSection {
+    border-radius: $border-radius-default;
+    border-top:    1px solid $border-color-bright;
+    border-left:   1px solid $border-color-bright;
+    border-bottom: 1px solid $border-color-dark;
+    border-right:  1px solid $border-color-dark;
+    margin-bottom: 10px;
+    @include con_color($control-color);
+    @include shadow();
+    width: 100%;
+
+    > .bcdSectionCaption {
+      padding: 3px 10px 3px;
+      min-height: 14px;
+      display: block;
+      border-radius: $border-radius-default $border-radius-default 0px 0px;
+      @include con_color($corporate-color-alt);
+      background-image: none;
+      border: 1px solid $corporate-color-alt;
+      font-weight: bold;
+    }
+  }
+  
+  .bcdItem {
+    padding: 3px 10px 3px;
+    margin: 0px 0px 8px 0px;
+  }
+  .bcdCaption {
+    padding: 3px 0px 3px 0px;
+    display: block;
+    margin: 8px 0px 0px 0px;
+  }
+}
+
+#bcdSideBarArea {
+
+  overflow: visible !important;
+
+  .bcdSideBarGrip {
+    font: $font-size-default $font-family-default;
+    cursor: pointer;
+    display: none;
+
+    @if $sideBar-width != $sideBar-width-min { width: $sideBar-width-min; }
+    @else { width: 20px; }
+
+    height: 70px;
+    position: absolute;
+    z-index: 1;
+
+    @if $sideBar-width != $sideBar-width-min { right: -1 * $sideBar-width-min; }
+    @else { right: -20px; }
+
+    @include con_color($control-color);
+    border-radius: 0px $border-radius-default $border-radius-default 0px;
+    border-right: 1px solid $border-color-dark;
+    border-top: 1px solid $border-color-dark;
+    border-bottom: 1px solid $border-color-dark;
+    top: 22px;
+    text-align: center;
+    @include shadow();
+    .bcdGripPin > .bcdGripPinChar {display: inline-block; right: 3px; color: $border-color; position: absolute;}
+    .bcdGripActive > .bcdGripPinChar { color: $corporate-color;}
+    .bcdGripPinChar:after {
+      content: "📌";
+    }
+  }
+
+  width: $sideBar-width;
+  @if $sideBar-width != $sideBar-width-min {
+    left: -1 * $sideBar-width;
+  }
+  z-index: 1;
+  overflow: visible;
+  position: relative;
+
+}
+
+#bcdBodyContainer {
+  margin-top: 10px;
+  margin-left: 20px;
+
+  textarea, input, select { @extend .bcdBasicControl; }
+  select {
+    padding:  3px 0px;
+  }
+  input[type='checkbox'] {
+    @extend .bcdBasicControl;
+    width:     auto;
+    border:    none;
+    background-color: transparent;
+  }
+  .bcdPeriodChooser { @extend .bcdPeriodChooser; }
+}
+
+#bcdSpacerArea {
+  background:   $spacerArea-background;
+  height:       $spacerArea-height;
+  position:     relative;
+}
+
+#bcdMenuBarArea {
+  font:          $font-size-medium $font-family-default;
+  background:    $menuBarArea-background;
+  height:        $menuBarArea-height;
+  border-top:    1px solid $border-color-bright;
+  border-left:   1px solid $border-color-bright;
+  border-bottom: 1px solid $border-color-dark;
+  border-right:  1px solid $border-color-dark;
+  border-radius: $border-radius-default;
+
+  .bcdMenu {
+    position: relative;
+    ul {
+      background: $menuBarArea-background;
+      margin:     0px;
+      z-index:    90;
+      list-style: none;
+
+      .bcdActivePath,
+      .bcdActive {
+        font-style: italic;
+      }
+
+      li {
+        display: inline-block;
+        height:  $menuBarArea-height;
+        a {
+          display: inline-block;
+          padding: 10px;
+          text-decoration: none;
+          color: #000000;
+          font-weight: bold;
+          width: 100%;
+        }
+      }
+    }
+    ul.bcdLevel2, ul.bcdLevel3 {
+      width: 170px;
+      border: 1px solid $border-color;
+      li { width: 170px; }
+    }
+  }
+}
+
+.bcdVisualizeXml {
+  background-color:#EEF;
+  padding: 5px;
+  border: 1px solid $border-color;
+  @extend .select;
+}
+
+/* ******************************************************************* */
+/* debug panel */
+/* ******************************************************************* */
+
+div.debugContainer {
+  position: absolute;
+  z-index: 1999999;
+  background-color: #eee;
+  border: #aaa;
+  text-shadow: none;
+}
+
+div.objContainer {
+  padding-top: 5px;
+  padding-left: 10px;
+  border-left: 1px solid #aaa;
+}
+
+/* header in the object container */
+.headerClassifier {
+  padding: 0px 5px 0px 5px;
+}
+.objStateReady {
+  background-color: #00ff00;
+}
+.objStateNotReady {
+  background-color: #ff0000;
+}
+.headerLabel {
+  padding: 0px 5px 0px 5px;
+}
+
+.expControl {
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 0px 5px 0px 5px;
+}
+
+.controlExpanded:after {
+  content: "-";
+}
+
+.controlCollapsed:after {
+  content: "+";
+}
+
+.recentlyUpdated {
+  background-color: yellow;
+}
+
+div.detailsContent {
+  padding-left: 10px;
+}
+
+span.button {
+  background-color: #ccc;
+  border: 1px solid #000;
+  color: white;
+  cursor: pointer;
+}
+
+
+
+/* ******************************************************************* */
+/* notificator */
+/* ******************************************************************* */
+
+.bcd-widget-notificator-container {
+  position: fixed;
+  width: 970px;
+  height: 60px;
+  bottom: 0;
+  left: 20px;
+  overflow-y: auto;
+  z-index: 999;
+  @include alpha(0.90);
+  @include con_color($flyover-color);
+  border: 1px solid $corporate-color;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.bcd-widget-notificator-container-closer {
+  display: inline-block;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  right: 5px;
+  cursor: pointer;
+  background-image: url("../images/calclose.gif");
+  background-repeat: no-repeat;
+}
+
+div.bcd-notification-container ul {
+  padding: 5px 0px 5px 0px;
+}
+
+span.bcd-notification-msg-time {
+  padding: 0px 10px 0px 15px;
+}
+span.bcd-notification-info {
+  background-image: url("../images/lightbulb.png");
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 16px;
+}
+span.bcd-notification-warn {
+  background-image: url("../images/error.png");
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 16px;
+  color: red;
+}
+
+
+/* ******************************************************************* */
+/* modal box */
+/* ******************************************************************* */
+
+#bcdModalBoxDiv {
+  @extend .noselect;
+  border: 1px solid $corporate-color;
+  @include shadow();
+  @include con_color($control-color);
+  font: $font-size-default $font-family-default;
+  text-align: center;
+  a {
+    outline: none;
+    text-decoration: none;
+    display: inline-block;
+    margin: 5px;
+  }
+
+  textarea, select, input {
+    @extend .bcdBasicControl;
+    @extend .select;
+  }
+
+  textarea {
+    resize: none;
+    width: 98%;
+    text-align: left;
+    overflow: scroll;
+  }
+
+  .bcdSysErrorBody {
+    position:absolute;
+    top: 70px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    p {
+      color: #CC0000;
+      font-weight: bold;
+      font-size: $font-size-medium;
+    }
+  }
+  .bcdSysError a {
+    font-size: $font-size-medium;
+  }
+}
+.bcdModalBoxTitleBar {
+  font: $font-size-default $font-family-default;
+  font-weight: bold;
+  @include con_color($corporate-color);
+  border: none;
+  a {
+    outline: none;
+    text-decoration: none;
+    padding: 0px !important;
+    @include con_color($corporate-color);
+  }
+  span.ui-icon {
+    text-indent: 0;
+  }
+}
+.bcdModalBoxOverlay {
+  background-color: #000000;
+  @include alpha(0.75);
+}
+
+/* ******************************************************************* */
+/* uploader */
+/* ******************************************************************* */
+
+.bcdCsvUploader {
+  border: 1px solid $border-color;
+  padding: 5px;
+  margin-bottom: 10px;
+  
+  br  { display: none; }
+  
+  .bcdCsvUploaderTable {
+    margin: 10px 0px;
+  }
+
+  .bcdCsvUploaderInfo,
+  .bcdCsvUploaderTable {
+
+    th {
+      @include con_color($cube-color-cell);
+      border-right: #FFFFFF 1px solid;
+      border-bottom: #000000 1px solid;
+      font-weight: bold;
+      text-align: center;
+      padding: 1px 5px 1px 5px;
+      vertical-align: middle;
+    }
+    td {
+      border-right: 1px solid #FFFFFF;
+      border-top: none;
+      border-left: none;
+      border-bottom: none;
+  
+      white-space: nowrap;
+      padding: 1px 5px 1px 5px;
+      vertical-align: middle;
+  
+      text-align: left
+    }
+  }
+  .bcdCsvUploaderInfo {
+    form {
+      display: block;
+      .bcdRadioItem {
+        display: block;
+      }
+    } 
+  }
+}
+
+.bcdCsvUploaderError {
+  margin: 10px;
+  font-weight: bold;
+  @extend .bcdInvalid;
+  
+  li {
+    padding-left: 10px;
+    list-style-type: disc;
+    list-style-position: inside;
+  }
+}
+#commit_area_pre .bcdCsvUploaderCommit{
+  margin: 10px;
+  font-weight: bold;
+  @extend .bcdWarning;
+}
+#commit_area_post .bcdCsvUploaderCommit{
+  margin: 10px;
+  font-weight: bold;
+  @extend .bcdValid;
+}
+
+#failedRowsDiv,
+#uploadCommit {
+  .bcdButton {
+    margin-right: 5px;
+  }
+}
+
+
+/* ******************************************************************* */
+/* charts */
+/* ******************************************************************* */
+
+.bcdChartLegend {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+/* ******************************************************************* */
+/* imports */
+/* ******************************************************************* */
+
+@import '_cube.scss';
+@import '_grid.scss';
+
+/* ******************************************************************* */
+/* IE specific
+   IE got a different padding than other browsers in select boxes, so
+   we set an adjusted one for IE here to match input boxes etc
+   @media screen identifies IE10 and higher and the \9 construct is for
+   IE < 10. Non-Antialiased fonts lead to a different padding again
+   Native IE8 does not show the utf pin character, so we use a gfx there
+   Multiselect also needs a different padding in IE8 (you cannot use
+   padding on select option there..so we use padding on select only.
+/* ******************************************************************* */
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .bcd-detailview-dialog select, #bcdBodyContainer select, #bcdSideBarContainer select { padding: 3px 2px;}
+}
+.bcd-detailview-dialog select, #bcdBodyContainer select, #bcdSideBarContainer select { padding: 3px 1px\9;}
+#bcdSideBarArea .bcdSideBarGrip { 
+  .bcdGripPin { background: url("../images/pin.gif") no-repeat 3px 3px\9; display: inline-block\9; width: 16px\9; height: 16px\9;}
+  .bcdGripActive { background-image: url("../images/pin_active.gif")\9; }
+  .bcdGripPin > .bcdGripPinChar {display: none\9;}
+}
+#bcdSideBarContainer .bcdMultiSelect select,
+#bcdBodyContainer .bcdMultiSelect select { padding: 0px 2px\9; }
+.bcdGridSelection { height: 0px\9 !important; overflow: visible\9; }

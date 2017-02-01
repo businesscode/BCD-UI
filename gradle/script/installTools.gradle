@@ -1,0 +1,131 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//------------------------------
+// Responsible for one-time setup of tools needed for build
+// Installs JSDoc, node.js, jaguarjs
+// Don't run these tasks directly, run them from root build.gradle as paths need to be relative to root project
+
+
+//------------------------------
+// Tools settings
+ext {
+  nodeJsDir             = "${rootProject.rootDir}/.gradle/nodejs"
+  nodeModulesDir        = "$nodeJsDir/node_modules"
+}
+
+
+//------------------------------------------
+// Configure node.js exec and modules local installation process
+node {
+
+  version = "4.6.0"
+
+  // If false, it will try to use globally installed node.
+  // TODO find a way to dynamically use existing node, if it exists
+  download = true
+
+  // Set the work directory for unpacking node itself
+  workDir = file(nodeJsDir)
+}
+
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+//------------------------------------------
+// Workaround: Currently, com.moowork.node plugin does not locate a root project's node installation correctly in subprojects
+// Here we let all NodeType tasks point to the right executable, path being calculated relative to the root project
+afterEvaluate {
+  ext.nodePath = [NODE_ROOT: node.variant.nodeBinDir]
+  allprojects {
+    tasks.withType( NodeTask ).all{
+      it.execOverrides {
+        it.executable = "${nodePath.NODE_ROOT}/node"
+      }
+    }
+  }
+}
+
+
+//**********************************
+// Workaround: This should be part of Client/gradle.build, but there is an issue with NpmTask being used from sub projects
+ext.clientNodeModulesDir  = "$clientRoot/build/node_modules"
+task bcduiClient3rdPartyNpmHelper( type: NpmTask ) {
+
+  outputs.upToDateWhen { file(clientNodeModulesDir).exists() &&  file(clientNodeModulesDir).list().length > 0 }
+
+  // Not everybody importing this script, needs this
+  onlyIf { file("$clientRoot/gradle/script/package.json").exists() }
+
+  doFirst {
+    // Create a package.json fror npm in buildDir based on out template
+    new File(clientNodeModulesDir).mkdirs()
+    def packageJson = new JsonSlurper().parseText( file("$clientRoot/gradle/script/package.json").text )
+    def iterator = packageJson.dependencies.iterator()
+    // Replace @version of the 3rdParty libs by the values provided by the user.
+    // Remove unwanted 3rdParty libs entries
+    while( iterator.hasNext() ) {
+      def entry = iterator.next()
+      if( !project.hasProperty('bcdui.3rdPartyJs.'+entry.key) ) {
+        iterator.remove()
+        continue
+      }
+      entry.value = entry.value.replace( '@version', project.getProperty('bcdui.3rdPartyJs.'+entry.key ) )
+    }
+    def packageJsonFile = new File("$clientRoot/build/package.json")
+    packageJsonFile.text = JsonOutput.prettyPrint( JsonOutput.toJson( packageJson ) )
+  }
+
+  // We want local node_modules to be below build folder
+  execOverrides {
+    it.workingDir = file("$clientRoot/build")
+  }
+
+  args = ['install']
+}
+
+
+//******************************************************
+// Install for nodeJs: JSDoc, clean-css, jaguarjs theme for jsdoc, sass compiler and clean-css
+task bcduiNodeJsTools( type: NpmTask ) {
+
+  outputs.upToDateWhen { file(nodeModulesDir).exists() }
+
+  // We want local node_modules to be below nodejs folder
+  execOverrides {
+    it.workingDir = file(nodeJsDir)
+  }
+  doFirst {
+    // create a local node_modules folder as we want to keep stuff local
+    new File(nodeModulesDir).mkdirs()
+  }
+  args = ['install', 'jsdoc', 'jaguarjs-jsdoc', 'node-sass', 'clean-css-cli']
+}
+
+
+//--------------------------------------------
+// Cleanup installed tools
+task clean3rdParty( type: Delete ) {
+  group 'bcd-ui'
+  delete nodeJsDir
+}
+
+
+//--------------------------------------------
+// Main entry, setting up all build tools
+task bcduiToolsOnetimeInit {
+  dependsOn bcduiNodeJsTools
+}
+

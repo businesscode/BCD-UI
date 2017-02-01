@@ -1,0 +1,100 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//--------------------------
+// Main BCD-UI build script, responsible for  global project settings and providing main bcduiAll entry task
+
+// We cannot use the new plugin system as it won't support importing via 'apply from:' this script from other build files (gradle 2.13)
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.moowork.gradle:gradle-node-plugin:0.13"
+  }
+}
+apply plugin: 'com.moowork.node'
+
+// Project wide settings
+logging.captureStandardOutput LogLevel.INFO
+
+// We may be imported elsewhere, these values may be overwritten for that purpose
+ext.artifactsBaseName    = hasProperty('artifactsBaseName')    ? getProperty('artifactsBaseName')    : 'bcd-ui'
+ext.sharedBuildFilesRoot = hasProperty('sharedBuildFilesRoot') ? getProperty('sharedBuildFilesRoot') : rootProject.rootDir.path
+ext.jsBcduiLoader        = hasProperty('jsBcduiLoader')        ? getProperty('jsBcduiLoader')        : 'bcduiLoader.js'
+ext.bcduiVersion         = getProperty('bcdui.version')
+
+// Derived
+ext.jsBcduiLoaderPath = "$rootProject.rootDir/Client/src/js/$jsBcduiLoader"
+
+//------------------------------------------
+// Two more specific gradle files help us
+allprojects {
+  apply from: "$sharedBuildFilesRoot/gradle/script/common.gradle"
+}
+apply from: "$sharedBuildFilesRoot/gradle/script/installTools.gradle"
+
+
+//--------------------------
+// Collects 3 binaries: bcd-ui-core with client + server, theme and jsp-taglib
+task bcduiFullDist( type: Jar ) {
+
+  dependsOn subprojects.collect { subproject ->
+    subproject.tasks.matching { it.name == 'build' }
+  }
+
+  dependsOn bcduiMetaInf
+  destinationDir = file("$buildDir/libs")
+  includeEmptyDirs = false
+
+  baseName = "$artifactsBaseName-core"
+  version  = bcduiVersion
+
+  // Just merge the content of the individual projects Server, Client, Theme, JspTaglib
+  [':Server:jar', ':Client:bcduiDist'].each { subJar ->
+    if( tasks.findByPath(subJar) == null )
+      return
+    from zipTree( tasks.getByPath(subJar).archivePath )
+    exclude '**/MANIFEST.MF'
+  }
+
+  manifest {
+    attributes( bcduiManifestAttributes() )
+  }
+  metaInf {
+    from bcduiMetaInf
+  }
+}
+
+//************************************
+// Clean artifacts
+task clean( type: Delete ) {
+  group "bcd-ui"
+  delete buildDir
+}
+
+//************************************
+// Do a full build and collect jars in build/jar
+task build {
+  group "bcd-ui"
+  dependsOn bcduiFullDist
+  doLast {
+    [':JspTaglib:jar', ':Theme:bcduiDist'].each { subJar ->
+      copy { from tasks.findByPath(subJar) into "$buildDir/libs" }
+    }
+  }
+}

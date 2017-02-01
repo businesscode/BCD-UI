@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<Doc title="Logging Subsystem" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0" state="draft">
+  <Chapter title="BCD-UI Usage logging Overview" type="overview">
+    <Body>
+      The usage logging provides information about the usage of the application and its performance.
+      The logging happens asynchronously to prevent any performance impact.
+      The loggers towards database are asynchronous and are backed by queue to allow batch record processing,
+      new log-events are discarded if the queue reached its maximum limit, the queueSleepMs is the time
+      between the receiving log-event, gathering possible more log records into batch and and pushing it to database.
+      Each individual logger allows specific configuration of those parameters.
+    </Body>
+    <SubChapter title="Session">
+      <Body>
+        When using Shiro session management and well-known BindingSet bcd_log_session is available, the following information is logged per session:
+        <ul>
+          <li>Timestamp of login</li>
+          <li>Login name</li>
+          <li>SessionId</li>
+          <li>Browser user agent</li>
+          <li>Login Result Flag, one of: [OK, FAILED, EXCESSIVE_ATTEMPTS, ACC_DISABLED, CREDS_WRONG, ACC_UNKNOWN]; while [OK,FAILED] are implemented the others
+          may depend on specific implementation of the realm and are optionally available to the log.</li>
+        </ul>
+
+        The configuration parameters (with defaults) are:
+        <xml>
+          <Environment name="bcdui/loggers/db/session/queueSize"    type="java.lang.Integer" value="100"/>
+          <Environment name="bcdui/loggers/db/session/queueSleepMs" type="java.lang.Long"    value="10000"/>
+        </xml>
+      </Body>
+    </SubChapter>
+    <SubChapter title="Page request">
+      <Body>
+        When using logPage for example as a tag, the following information is logged per page request in bcd_log_pageperformance:
+        <ul>
+          <li>Timestamp</li>
+          <li>SessionId</li>
+          <li>GuiStatus (un-zipped XML to allow XPath in views on-top for easier evaluation)</li>
+          <li>request url</li>
+          <li>http remote host</li>
+          <li>PageHash</li>
+          <li>Duration</li>
+          <li>Name (defined as a param of logPage)</li>
+          <li>AddInfo (defined as a param of logPage)</li>
+        </ul>
+        BCD-UI's logPerformance facility will write the duration a page took on the client from entering the carrier page to
+        having completed all or a selected renderer to the database. It has the following options:
+        <dl>
+          <dt>idRef</dt>
+          <dd>may contain a reference to none, one or more IDs. If IDs are supplied the log-record is only initiated once
+          all given data providers get ready. If idRef was not supplied, the log-record is only initiated once ALL *renderers*
+          become ready.
+
+          <dt>name</dt><dd>If given, and additional user defined string for categorization.</dd>
+          <dt>addInfo</dt><dd>If given, and additional user defined string.</dd>
+          <dt>jsCallback</dt><dd>If given this call back is executed once log-record is constructed, parameter map contains: duration [integer]</dd>
+
+          <dt>probability</dt>
+          <dd>TODO: if given in range [0..1) . If given, not each access will be logged but only a sample.
+          In conjunction with a server-defined value, this also allows to switch the logging on and of in a live system (??? TODO).</dd>
+          If provided, it will measure the time until this provider becomes ready the first time.
+          Otherwise it will wait for all renderers registered at the time the carrier page finished loading (on document.onReady event)</dd>
+        </dl>
+      </Body>
+    </SubChapter>
+    <SubChapter title="WRS Access">
+      <Body>
+        When well-known binding set bcd_log_sql is available, the following information is logged per SQL. For connections obtained
+        from de.businesscode.bcdui.toolbox.Configuration (which is the default case for BCDUI projects).
+        <ul>
+          <li>Timestamp of execution</li>
+          <li>SQL</li>
+          <li>Rows affected (in case of DDL statements)</li>
+          <li>Duration(ms)</li>
+          <li>SessionId</li>
+          <li>Page/Request hash (i.e.: 1012341.1231)</li>
+        </ul>
+
+        The configuration parameters (with defaults) are:
+        <xml>
+          <Environment name="bcdui/loggers/db/sql/queueSize"    type="java.lang.Integer" value="1000"/>
+          <Environment name="bcdui/loggers/db/sql/queueSleepMs" type="java.lang.Long"    value="10000"/>
+        </xml>
+      </Body>
+    </SubChapter>
+  </Chapter>
+
+  <h2 style="color:red">
+  add DB based configuration (server/client scope, hashmap)
+  </h2>
+
+
+  <Chapter title="BCD-UI Error Logging System - Overview" type="overview">
+    <Body>
+      <center>BCD UI Error Logging System</center>
+  <pre>
+Is required by developers and support during the application runtime. We have two
+different and separated places where logging can occur - backend / serverside and
+on the client machine (web browser). Both logging subsystems are interconnected that is,
+frontend events are pushed (via XHR) to the server to be propagated there into backend
+logging system and vice versa.
+
+Logging system should be used by Error Handling to transport/log the errors.
+
+To keep the loglevel compatible and not to confuse developers with different APIs we
+decided to use the log4javascript logging library for the frontend, which is log4 "compliant".
+Please consider an architectual design of logging subsystems.
+  </pre>
+    <img src="logging.png" border="0"/><br/>
+
+  Please refer to <a href="http://logging.apache.org/log4j/1.2/manual.html">http://logging.apache.org/log4j/1.2/manual.html</a>
+  to read on how log4j works.
+
+  <h2>Backend</h2>
+  Logging is configured through appropriate log4j configuration API. The default
+  initialization routine as described by <a href="http://logging.apache.org/log4j/1.2/manual.html#defaultInit">http://logging.apache.org/log4j/1.2/manual.html#defaultInit</a>
+  is not overridden. So you can provide another log4j.properties locator to load
+  the configuration from other place. There is implicit / hardwired configuration
+  on a hidden, special logger, so called 'clientQueueLogger' deployed if one
+  of requests enabled the debug mode.
+<pre>
+<b>#set ROOT logger to receive any log events</b>
+log4j.rootLogger=ALL, ConsoleAppender
+
+<b>#default output to console</b>
+log4j.appender.ConsoleAppender=org.apache.log4j.ConsoleAppender
+log4j.appender.ConsoleAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.ConsoleAppender.layout.ConversionPattern=%d{ISO8601} %X{RLCF} %-5p %c: %m%n
+</pre>
+
+  Following Loggers are considered "special":
+  <dl>
+    <dt>de.businesscode.bcdui.web.clientLogging.FrontendLogRecordPublisher</dt>
+    <dd>
+      This logger receives log events from de.businesscode.bcdui.web.clientLogging.FrontendLogTransceiver class,
+      any log events propagated by this logger into the logging system are ignored by de.businesscode.bcdui.web.clientLogging.FrontendQueueAppender
+      appender to avoid bouncing the log event to the client.
+    </dd>
+    <dt>de.businesscode.bcdui.web.filters.RequestLifeCycleFilter</dt>
+    <dd>
+      is responisible to monitor a HTTP request processed by application. Also
+      handles exceptions on request level and logs them away with information gathered
+      from session.
+    </dd>
+    <dt>de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility</dt>
+    <dd>
+      Provides the special logger, which gets a QueueAppender in order to enqeuee
+      LogEvents for current client (mapped by the session id). Those events are then
+      returned to the client, to get information about whats going on on the server.
+      This logger is deployed whenever a requests triggers DEBUG mode. There is only
+      one such logger in the system. All logevents are queued by session map.
+    </dd>
+  </dl>
+
+  The logging policy for classes is to obtain a new logger using the de.businesscode.util.LoggerFactory, see API section. Each class owns logger
+  mapped by the classname and described by logger inheritance hierarchy. All loggers are "additive" in sense of log4j.
+
+  The only default handlers are attached to the root logger providing persistency to database, fileio, console and FrontendPush as well.
+
+  <h2>Frontend</h2>
+  Logging subsystem is initialized by bcdui.js file and provided through the
+  <i>bcdui.log</i> interface. There is no declarable API to configuration, so
+  the system is coniguration programmatically.
+
+  Unlike handled on backend, for frontend there is no logger factory, but rather
+  there is single / root logger which a type should speak to in order to issue a log.
+
+  Following loggers are considered "special":
+  <dl>
+    <dt>bcdui</dt>
+    <dd>
+      Parent logger provided by bcdui.log and all other loggers are propagating to. It
+      gets a ConsoleAppender (log4javascript) with threhsold set to Level.ALL.
+
+      an AjaxAppender (log4javascript) is also attached to this logger to publish events
+      to backend log system, threshold of this one is set to Level.WARN, the events are sent to FrontendLogTransceiver
+      expecting to be processed by de.businesscode.bcdui.web.clientLogging.FrontendLogTransceiver
+    </dd>
+    <dt>bcdui.backendEventLogger</dt>
+    <dd>
+      This logger receives log events from server and propagates them locally on the client. This one is enabled in DEBUG mode by setting
+      bcdui.isDebug to true or by adding the debug=true url parameter. This setting is stored in the session means after switching debug you
+      have explicitely to set debug=false via URL parameter to disable it (just omitting the parameter will not have any effect).
+    </dd>
+  </dl>
+
+  The default case is that the server logging system is configured separately by configuration file. The frontend usually does not speak
+  to backend logging, except for warn or fatal log events. For debug purposes, i.e. one would like to see generated output produced by backend
+  classes while serving the request, there is a URL parameter "debug", which forces bcdui framework (frontend part) to run in debug mode. In this mode,
+  RequestFilter enters MDC (mapped diagnostic context, see log4j) which will additionally tag logevents with this appropriate token (the token is generated from HTTP SESSION ID)
+  , now the de.businesscode.bcdui.web.clientLogging.FrontendLogRecordPublisher will collect such log events in order to push them to the frontend, so they can be seen
+  on frontend error console.
+
+  This approach allows anytime to debug productive applications w/o having backend access.
+    </Body>
+  </Chapter>
+
+  <Chapter title="Features" type="featureList">
+    <Body>
+      currently, following feats are supported
+      <pre>
+        Client-To-Backend Push (async)
+        Client-Backend Poll (async)
+        Asynchronous Appenders on the backend
+        Backend / Frontend Configuration
+        Session Scoped Tracing on the frontend
+      </pre>
+    </Body>
+  </Chapter>
+
+  <Chapter title="API" type="api">
+    <Body>
+      Log4j API at a glance:<br/>
+      <img src="fig1.jpg"/><br/>
+      <img src="fig2.jpg"/><br/>
+
+      According to Log4J API we have following loglevels:
+
+      <ul>
+        <li>TRACE</li>
+        <li>DEBUG</li>
+        <li>INFO</li>
+        <li>WARN</li>
+        <li>ERROR</li>
+        <li>FATAL</li>
+      </ul>
+
+      across front- end backend logging system. Special logger can be obtained
+      from de.businesscode.util.LoggerFactory class. <b>* TRACE level is encouraged
+      to be used but should in any case be pre-checked by logger.isTraceEnabled(),
+      i.e.
+      </b>
+      <pre>
+        if(logger.isTraceEnabled()){
+          logger.trace("now i am doing some verbose output");
+        }
+      </pre>
+
+      another possibility could be the lazy object concatenations combined
+      with async processing model
+
+      i.e.
+      <pre>
+//instead of writing
+log.info("my object value is " + object.value)
+//one could write
+log.info("my object value is ", object.value)
+      </pre>
+
+      <h2>Backend</h2>
+      In order to log from Java world, you can obtain a logger instance from
+      the de.businesscode.util.LoggerFactory class, by following methods:
+      <pre>
+/**
+ * creates a logger for this type of object
+ * same as {@link #getLogger(object.getClass())}
+ *
+ * @param object
+ * @return Logger
+ */
+public static Logger <b>getLogger</b>(Object o);
+
+/**
+ * creates a named logger
+ *
+ * @param logger name
+ * @return Logger
+ */
+public static Logger <b>getLogger</b>(String s);
+
+/**
+ * creates a logger for given class
+ *
+ * @param clazz
+ * @return Logger
+ */
+public static Logger <b>getLogger</b>(Class&lt;?> clazz);
+      </pre>
+
+      <h2>Frontend</h2>
+      On the frontend the logging is available by bcdui package:
+      <pre>
+        bcdui.log.info("hello world");
+      </pre>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Example" type="example">
+    <Body>
+      <h2>Frontend</h2>
+<pre>
+<b>Calculator.js</b>
+function Calculator() {}
+Calculator.prototype.sum = function(a,b){
+  bcdui.log.debug("summing " + a + " and " + b);
+  return a+b;
+}
+</pre>
+      <h2>Server</h2>
+      <pre>
+<b>Calculator.java</b>
+include org.apache.log4j.*;
+include de.businesscode.util.LoggerFactory;
+
+class Calculator {
+  Logger log = LoggerFactory.getLogger(this);
+
+  int sum(int a, int b) {
+    log.debug(String.format("summing %d and %d",a,b));
+    return a+b;
+  }
+}
+      </pre>
+    </Body>
+  </Chapter>
+
+  <Chapter title="HowItWorks" type="howItWorks">
+    <Body>
+      <h2>Backend</h2>
+      Logging is configured with very first call to the de.businesscode.util.LoggerFactory
+      class to obtain a Logger instance. The configuration is (as per default)
+      loaded from log4.properties found in CLASSPATH. The default configuration
+      enables the root logger and adds a ConsoleAppender (log4j).
+
+      <p>
+      In DEBUG mode,the RequestLifeCycleFilter invokes deployLogger() method of the FrontendLoggingFacility
+      class which registeres the ClientLogEventQueue, containing logevents to be sent out
+      to appropriate client (which is distinguished by the session id). Also the RequestLifeCycleFilter
+      sets Log4J's MDC session value.
+      </p>
+      <p>
+      From this point on, the ClientQueueLogger handles any LogEvent in the system,
+      if such an event is tagged by MDC session value - it is enqueued in appropriate queue.
+      The queue is read and emptied by FrontendLogTransceiver servlet, which is being
+      queried by the client by predefined interval. This way, all backend log events
+      are pushed to the client.
+      </p>
+
+      <h2>Frontend</h2>
+      The logging subsystem is initialized by bcdui.js, the bcdui.log instance allows logs.
+      In debug mode - the backend logevens poller
+      is deployed, which asynchronously polls backends queue for logs tagged for current HTTP SESSION,
+      when found, they are propagated to the frontend logger and can be seen on the console.
+
+      <p>
+      There is also an BackendAppender (BCD) publishing any logevents with Level higher than Level.INFO
+      to the backend. Both, backend event poller and backendAppender handle their requests asynchronously.
+      </p>
+
+      <p>
+      In DEBUG mode the ClientLogEvent poller is deployed, which queries the FrontendLogTransceiver,
+      in order to get queued backend log events for given client. In case some are avaialble, they
+      are printed out to the console, using the group()ing log4avascript functionality. So, they
+      are visually distinguishable from those messages generared on the client.
+      </p>
+    </Body>
+  </Chapter>
+
+  <Chapter title="Extension" type="extension">
+    <Body>
+      No extension planned. However, you can extend the sublogging by
+      adding customized appenders, define them in the log4j.properties configuration
+      file found in WEB-INF/classes
+    </Body>
+  </Chapter>
+</Doc>

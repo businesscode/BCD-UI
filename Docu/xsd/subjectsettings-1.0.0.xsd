@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0"
+        xmlns:tns="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0" elementFormDefault="qualified"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0"
+        >
+  <annotation>
+    <documentation></documentation>
+    <appinfo>
+      <jaxb:schemaBindings><jaxb:package name="de.businesscode.bcdui.subjectsettings.config"/></jaxb:schemaBindings>
+    </appinfo>
+  </annotation>
+
+  <!-- root element -->
+  <element name="SubjectSettingsConfig" type="tns:SubjectSettingsConfig"></element>
+
+  <complexType name="Security">
+    <annotation>
+    <documentation>
+      this type contains security settings applicable to the context
+    </documentation>
+    </annotation>
+    <sequence>
+      <element name="Operation" minOccurs="1" maxOccurs="unbounded">
+        <annotation>
+          <documentation>
+            the operation defining the permission (shiros context) to the named operation supported by implementation.
+          </documentation>
+        </annotation>
+        <complexType>
+          <attribute name="name" use="required" type="string">
+            <annotation>
+              <documentation>
+                the name of operation to execute under security restrictions. This depends on the implementation of this security context.
+              </documentation>
+            </annotation>
+          </attribute>
+          <attribute name="permission" type="string" use="required">
+            <annotation>
+              <documentation>
+                List of permissions required for this operation, these are checked against permission list configured by shiro implementation.
+                The ACL is inclusive, means that all defined permissions are required to execute this operation. The list may be empty, effectively
+                disengaging security policy.
+                Example: userAdmin admin:write admin:create
+              </documentation>
+            </annotation>
+          </attribute>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+  <complexType name="SubjectSettingsConfig">
+    <sequence>
+      <element name="SubjectFilterTypes" minOccurs="0">
+        <complexType>
+          <sequence>
+            <element name="SubjectFilterType" type="tns:SubjectFilterType" minOccurs="0" maxOccurs="unbounded">
+              <annotation>
+                <documentation>
+                  Each SubjectFilterType defines the BindingItem on which to apply the restriction and a BindingSet with the user's rights
+                </documentation>
+              </annotation>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="Authentication" type="tns:AuthenticationType"/>
+      <element name="SubjectSettings" minOccurs="0" type="tns:SubjectSettingsType"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="SubjectFilterType">
+    <sequence>
+      <element name="Caption" minOccurs="0" maxOccurs="1"/>
+      <element name="BindingSet" minOccurs="0">
+        <annotation><documentation>
+          Optional source for the permission values. Defaults to bcd_sec_user_settings.
+          A BindingSet referenced here has to have "bcd_user_id" and "bcd_right_value" as BindingItems and can have "bcd_right_type".
+          If "bcd_right_type" is not present, all rights are expected to be of the right type.
+        </documentation></annotation>
+        <simpleType><restriction base="NCName"><minLength value="1"></minLength></restriction></simpleType>
+      </element>
+      <element name="BindingItems">
+        <complexType>
+          <sequence>
+            <element name="C">
+              <annotation>
+                <documentation>
+                  The BindingItem to apply the check on. Must be present in each BindingSet using this SubjectFilterType.
+                </documentation>
+              </annotation>
+              <complexType>
+                <attribute name="bRef"/>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+      <element name="AssignableValues" minOccurs="0">
+        <annotation><documentation>Configuration of the user-rights editor</documentation></annotation>
+        <complexType>
+          <sequence>
+            <element name="BindingSet">
+              <annotation><documentation>Where to find the allowed values.</documentation></annotation>
+            </element>
+          </sequence>
+          <attribute name="isMulti" type="boolean">
+            <annotation><documentation>If true, multiple values can be assigned to the user.</documentation></annotation>
+          </attribute>
+          <attribute name="addAllOption" type="boolean">
+            <annotation><documentation>If true,  a wild-card can be assigned, allowing all, also including future, values.</documentation></annotation>
+          </attribute>
+        </complexType>
+      </element>
+    </sequence>
+    <attribute name="op" type="tns:TypeSQLOperators" default="=">
+      <annotation><documentation>Comparison operator, defaults to '='.</documentation></annotation>
+    </attribute>
+    <attribute name="name" use="required" type="string">
+      <annotation><documentation>
+        Name of this FiltreType definition.
+        Will be referenced in the SubjectFilter/@type attribute in a BindingSet and will be the name of the permission,
+        for example given in bcd_sec_user_settings in right_type.
+      </documentation></annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="AuthenticationType">
+    <sequence>
+      <element name="Ldap" minOccurs="0" maxOccurs="0"/>
+      <element name="SubjectSettings" minOccurs="0">
+        <complexType/>
+      </element>
+    </sequence>
+  </complexType>
+
+  <complexType name="SubjectSettingsType">
+    <sequence>
+      <element name="Jdbc">
+        <complexType>
+          <choice>
+            <element name="DataSource">
+              <complexType>
+                <attribute name="name"/>
+              </complexType>
+            </element>
+            <element name="DefaultDataSource">
+              <complexType/>
+            </element>
+          </choice>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+ <simpleType name="TypeSQLOperators">
+    <restriction base="string">
+      <enumeration value="="/>
+      <enumeration value=">"/>
+      <enumeration value=">="/>
+      <enumeration value="&lt;"/>
+      <enumeration value="&lt;="/>
+      <enumeration value="&lt;>"/>
+      <enumeration value="like"/>
+      <enumeration value="in"/>
+      <enumeration value="bitand"/>
+    </restriction>
+  </simpleType>
+</schema>

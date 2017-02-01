@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  xmlns:sec="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0"
+  id="bcd_i18n" table="bcd_i18n" allowSelectAllColumns="true">
+
+  <C id="key" nullable="0" isKey="true"><Column>I18N_KEY</Column></C>
+  <C id="value"><Column>I18N_VALUE</Column></C>
+  <C id="lang" nullable="0" isKey="true" ><Column>I18N_LANG</Column></C>
+
+</BindingSet>

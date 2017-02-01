@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Root title="Widget Ng">
+  <!--
+    widgets API definition document
+   -->
+  <WorkingDraft>
+    <!-- schema validation sample: widgedPackage.js / _schema_createInputField_args -->
+    <BcdAPI>
+      <ApiTypes>
+        <Type name="boolean">
+          <Doc>a boolean value (true|false)</Doc>
+        </Type>
+        <Type name="string">
+          <Doc>an arbitrary string</Doc>
+        </Type>
+        <Type name="xpath">
+          <Doc>an arbitrary xpath allowing $ references i.e. $guiStatus</Doc>
+        </Type>
+        <Type name="int">
+          <Doc>an integer number</Doc>
+        </Type>
+        <Type name="i18nToken">
+          <Doc>a string value which is either taken as-is or an i18n key-marker as proposed by
+          "Unicode Language Tags", although "deprecated" in its role it would suit here best. See http://www.unicode.org/faq/languagetagging.html and
+          http://www.utf8-chartable.de/unicode-utf8-table.pl, we use xE0FF marker for it, i.e.:
+          @caption="data" - means, the widget should treat caption value 'data' literal
+          @caption="\uE0FFdata" - means, the widget should treat caption value 'data' as i18n-key
+          In JS this marker is available via bcdui.i18n.TAG
+          </Doc>
+        </Type>
+      </ApiTypes>
+
+
+      <!--
+        abstracted configuration API, each widget implementation shall implement. A specific Widget must not provide its own API,
+        instead implement one listed here, APIs here are allowed to be extended or new to be created.
+      -->
+      <Api name="widget">
+        <ApiChange since="4.3.3">@targetModelId deprecated</ApiChange>
+        <Param name="id" type="string">
+          <Doc>
+            ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable.
+            If not given, an auto-id is generated.
+          </Doc>
+        </Param>
+        <Param name="tabindex" type="int">
+          <Doc>the HTML compliant tabIndex</Doc>
+        </Param>
+        <Param name="hint" type="i18nToken">
+          <Doc>
+            A general feature is the hint indicator on the widget so user can hover it with a mouse to reveal information about it.
+            image aus theme intern handled by tooltip.
+          </Doc>
+          <ImplDoc>
+            BCD-UI fly-over
+          </ImplDoc>
+        </Param>
+        <Param name="displayBalloon" type="boolean" default="false">
+          <Doc>
+            hints and validation messages are displayed in a fly-over if user moves the mouse over the widget. Additionally,
+            they are also displayed in a balloon in bottom-left corner of a browser window in a balloon, which is static and
+            appears as long as the widget has focus.
+          </Doc>
+        </Param>
+        <Param name="autofocus" type="boolean">
+          <Doc>requests the widget to set the focus once it is rendered or enabled for the first time. Only one widget can have a focus, so
+          in case the focus is requested by many widgets it is undefined which one will win.</Doc>
+          <Impl>
+            <Doc>
+              Custom in case of non-HTML5
+            </Doc>
+          </Impl>
+        </Param>
+        <Param name="targetHtmlElementId" type="string" deprecated="4.6">
+          <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
+        </Param>
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+        <Param name="disabled" type="boolean" default="false">
+          <Doc>All input widgets can be set to be disabled. If disabled, a widget cannot receive a focus, also a style cannot
+          be changed in many browsers. There is no read-only. Also consult read-only vs disabled: http://www.w3.org/TR/html4/interact/forms.html#h-17.12</Doc>
+        </Param>
+        <Param name="widgetCaption" type="string">
+          <Doc>A caption which is used as prefix for navPath generation for this widget.</Doc>
+        </Param>
+      </Api>
+
+
+      <Api name="button" extends="widget">
+        <ApiChange since="4.3.3">
+          @onClickAction renamed to @onclick
+          @caption renamed to @text but still provided due to backwards compatibility, @caption overrides the @text
+          removed attributes:
+          @status, @name and @contextPath
+        </ApiChange>
+        <Doc>A BCD-UI button (not HTML native) conforming to the theme</Doc>
+        <Param name="text" type="i18nToken" required="false">
+          String with the caption or an i18n-key-identifier.
+        </Param>
+        <Param name="caption" type="i18nToken" required="false">
+          String with the caption or an i18n-key-identifier. Overrides 'text' attribute
+        </Param>
+        <Param name="onClickAction" type="string" required="false">
+          <Doc>JS to execute</Doc>
+          <Impl>
+            <Jsp>${webpage:jsString(actionId)} + "()"</Jsp>
+          </Impl>
+        </Param>
+        <Param name="stayPressed" type="boolean" required="false">
+          <Doc>button stays pressed and is disabled until page reload.</Doc>
+        </Param>
+        <Param name="href" type="url" required="false">
+          <Doc>HTML href</Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AddCode><![CDATA[
+<c:set var="actionId" value="${id}_action"/><webpage:script> function ${actionId}() { <jsp:doBody/> } </webpage:script>
+              ]]>
+            </AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+
+      <Api name="baseInput" extends="widget">
+        <ApiChange since="4.3.3">
+          @mandatory renamed to @required
+          @readonly is deprecated
+        </ApiChange>
+        <Doc>
+          accepts a value and writes to given targetModelXPath. The implementation may or may not provide additional input validation.
+          Additionally, the implementation ALWAYS checks the @bcdIsValid attribute at the target data node - as referenced by targetModelXPath.
+          In case @bcdIsValid is set, the implementation HAS to display and invalid input to the user (which is the content of the @bcdIsValid attribute, and may be i18nToken)
+          and accept a valid input and thus clearing that @bcdIsValid attribute on the target node.
+        </Doc>
+        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="keepEmptyValueExpression" type="boolean" default="false">
+          <Doc>A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
+            TODO: better spec
+          </Doc>
+        </Param>
+        <Param name="required" type="boolean" default="false">
+          <Doc>An empty string or not set value is not allowed if required is true. Disabled fields are not evaluated.</Doc>
+        </Param>
+        <Param name="disableResetControl" type="boolean" default="true">
+          <Doc>set this parameter to 'false' to enable built-in reset-control, which empties content once clicked.</Doc>
+          <Impl>
+            <Doc>Background image for Input, can be button in more complex cases. Need to resolve conflict for IE 10</Doc>
+          </Impl>
+        </Param>
+      </Api>
+
+
+      <Api name="dateInput" extends="baseInput">
+        <Doc>
+          date picker for temporal types supports native html5 widget and fallsback to custom implementation in case browser
+          does not support it.
+        </Doc>
+        <Param name="type" type="enum" value="date|yrMonth" default="date">
+          <Doc>
+            Select a calendar year and a month or a date.
+            Uses HTML5 native if available. For other cases two or three single selects next to each other.
+            Writes XML format 2013-12[-01]. (gYearMonth or date)
+          </Doc>
+        </Param>
+      </Api>
+
+
+      <Api name="periodChooser" extends="baseInput">
+        <Doc>
+          allow to enter a date/time into special input fields or pick it from a calendar,
+          this widget also allows to select ranges of same types (i.e. Date, Time or DateTime)
+          TODO describe output format
+        </Doc>
+        <ApiChange since="4.3.3">
+        removed attributes:
+        @outputPeriodType
+        @textInput
+        @validate
+        </ApiChange>
+        <Param name="buttonCaption" type="i18nToken" default="Date">
+          <Doc>
+            default 'Date', it will be used as i18n key to translate the caption
+            if isFreeRangeSelectable set to true, then caption may contain two terms for 'From' and 'To' captions. Divider: ';' Example: caption = 'i18.md.From;i18.md.To'
+          </Doc>
+        </Param>
+        <Param name="isSecondSelectable" type="boolean"/>
+        <Param name="isMinuteSelectable" type="boolean"/>
+        <Param name="isHourSelectable" type="boolean"/>
+        <Param name="isDaySelectable" type="boolean"/>
+        <Param name="isWeekSelectable" type="boolean"/>
+        <Param name="isMonthSelectable" type="boolean"/>
+        <Param name="isQuarterSelectable" type="boolean"/>
+        <Param name="isYearSelectable" type="boolean"/>
+        <Param name="firstSelectableDay" type="string">
+          <Doc>The first day that can be selected. A week or month can only be selected if all days are selectable.</Doc>
+        </Param>
+        <Param name="lastSelectableDay" type="string" required="false">
+          <Doc>The last day that can be selected. A week or month can only be selected if all days are selectable.</Doc>
+        </Param>
+        <Param name="showPrevNextButtons" type="boolean" required="false"/>
+        <Param name="isFreeRangeSelectable" type="boolean" required="false"/>
+      </Api>
+
+
+      <Api name="textInput" extends="baseInput">
+        <Param name="maxlength" type="int">
+          <Doc>if defined, limits the input to the given length.</Doc>
+        </Param>
+        <Param name="setCursorPositionAtEnd" type="boolean" default="false">
+          <Doc>if set the cursor position will always be at the end of the input once the input field gets a focus</Doc>
+        </Param>
+        <Param name="isTextSelectedOnFocus" type="boolean" default="false">
+          <Doc>if set, the text will be selected once the field gets a focus, so that further user input will replace the content.
+          In case 'setCursorPositionAtEnd' is also set to true - this option has precedence.
+          </Doc>
+        </Param>
+        <Param name="placeholder" type="i18nToken">
+          <Doc>A default text displayed if no content was entered, this is i18n key or true for default. May be empty to display nothing.</Doc>
+          <Impl><Doc>Native where exists, otherwise custom</Doc></Impl>
+        </Param>
+        <Param name="doTrimInput" type="boolean" default="false">
+          <Doc>If enabled, the input is trimms leading/trailing spaces before writing to data model</Doc>
+        </Param>
+      </Api>
+
+      <Api name="hasValidator">
+        <Doc>
+          This API provides general RegExp validation and provides support to attach custom validator
+        </Doc>
+        <Param name="pattern" type="regex">
+          <Doc>regular expression pattern to validate the input</Doc>
+        </Param>
+        <Param name="validationFunction" type="string">
+          <Doc>
+            Name of a widget validator function which will be attached additionally to implicit validators.
+            the API of given function is:
+
+            validatorFunction(htmlElementId) : returns either NULL or object containing validationMessage (String or array of Strings) property, i.e. { validationMessage : String } or { validationMessage[] : String[] },
+            the validationMessage carries the message to be displayed to the user. The String may start with bcdui.i18n.TAG character
+            to classify an i18n-key of the message, rather than a message itself.
+
+            the args parameter is the htmlElementId of the widget to validate. Please use:
+            bcdui.widgetNg.validation.validators.widget.getValue(htmlElementId) to properly retrieve widgets value.
+
+            There is only one validator function allowed. In order to use or re-use or combine existing validations please do so in your validationFunction
+            (that is delegate to other validators) and simply aggregate validation results into array of validationMessage[]
+
+            This validator MUST ignore NULL or empty value.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="input" extends="textInput hasValidator hasHtmlEvents">
+        <ApiChange since="4.3.3">
+          @emptyValue renemaed to @placeholder
+          removed:
+          @bcdAutofit
+          @onFocus
+          @onBlur
+          @onEscKey
+          @onTabKey
+          @onEnterKey
+        </ApiChange>
+        <Doc>
+          a simple text field input allowing user to enter arbitrary text. Specific input type can be preset via 'type' attribute.
+          The input can be generally validated using 'pattern' paramter (html5 compliant) containing the JS regular expression, in such
+          a case a built-in validation for WRS binding is overridden by provided validator and effectively disabled.
+        </Doc>
+        <Param name="min" type="numeric">
+          <Doc>
+            Sets the minimum value for an integer or numeric type input field (HTML5 only).
+          </Doc>
+        </Param>
+        <Param name="max" type="numeric">
+          <Doc>
+            Sets the maximum value for an integer or numeric type input field (HTML5 only).
+          </Doc>
+        </Param>
+        <Param name="type" type="enum" value="text|email|password|int|numeric" default="text">
+          <Doc>
+            a type of this input field. Following types are supported for validation:
+            text: a simple text input
+            email: a simple text input with email validation, uses email input where available
+            password: a password input
+            int: an integer value (uses to html5 type=number with step=1 where available)
+            numeric: a decimal value (corresponds to html5 type=number with step=any and uses where available)
+          </Doc>
+          <Impl>
+            <Doc>
+              Ignores the column type given in Wrs/Header.
+            </Doc>
+          </Impl>
+        </Param>
+      </Api>
+
+
+      <Api name="textArea" extends="textInput hasValidator">
+        <Doc>Free Text input, standard HTML textarea</Doc>
+        <Param name="cols" type="int" required="true">
+          <Doc>HTML Parameter on the textarea to set number of columns</Doc>
+        </Param>
+        <Param name="rows" type="int">
+          <Doc>HTML Parameter on the textarea to set number of rows</Doc>
+        </Param>
+        <Impl>
+          <Doc>Define whether or not to write escaped or CDATA values</Doc>
+        </Impl>
+      </Api>
+
+
+      <Api name="rtfTextArea" extends="textArea">
+        <Doc>Free WYSIWYG text input, allowing rich text input /  editor. Writes CDATA with plain HTML in it. Make sure to write into a XML binding item.</Doc>
+      </Api>
+
+
+      <Api name="hasOptions">
+        <ApiChange since="4.3.3">@optionsModelId deprecated; @isSortOptions renamed to @doSortOptions</ApiChange>
+        <Param name="optionsModelXPath" required="true" type="xpath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted alphabetically. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+        <Param name="clearOption" type="boolean|i18nToken" default="false">
+          <Doc>
+            if enabled, there will be an option to clear the selection. This attribute may be true|false or a string, in latter case
+            the option is considered enabled and a string follows the i18nToken type definition.
+          </Doc>
+        </Param>
+        <Param name="doRetainInputSchema" type="boolean" default="false">
+          <Doc>
+            This option is 'false' per default, what means that the internal options model generates following schema: /Values/Value[@caption]+ per
+            matched item. The Value element itself holds the ID with optional @caption attribute holding either ID or mapped caption in case
+            optionsModelRelativeValueXPath is provided. In some cases you might want to work with internal options model and elements of the
+            input document. Then you can enable this flag, which effictively disables any semantics, such as 'caption' or 'id' - as the internal options
+            document will contain only matched elements from the input document, pay attention if you select an attribute in your xpath.
+          </Doc>
+        </Param>
+      </Api>
+
+
+      <Api name="hasOptionsFilter">
+        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="contains">
+          <Doc>
+            The wildcards apply to filtering within the drop down list and for server side filters.
+            This option applies only if bound to a f:Expression element and is ignored otherwise.
+            For a f:Filter with @op='like', this controls the prefilling with wildcards ('*') when the value is yet empty and the field gets the focus.
+            Can be 'contains', 'startswith' or 'endswith'. The user can overwrite this by adding/removing wildcards when editing the field.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="hasHtmlEvents">
+        <Doc>
+          Widgets are tied to models hence if one would like to be updated on data change he listens to updates on the model,
+          this is the encouraged way to listen to updates. However, sometimes one also would like to bind to html events, such as
+          onchange, onclick etc. This API provides them. But, this events behave like html events, so they are not triggered on
+          model updates etc, they are really bound to html and the hanlding is passed over to the browser.
+        </Doc>
+        <Param name="onchange" required="false" type="string">
+          <Doc>
+            the HTML onchange event
+          </Doc>
+        </Param>
+        <Param name="onclick" required="false" type="string">
+          <Doc>
+            the HTML onclick event
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="hasHtml5Support">
+        <Doc>
+          some of the widgets provide HTML5 native support hence providing some more API to finegrain control them
+        </Doc>
+        <Param name="disableNativeSupport" type="boolean" default="false">
+          <Doc>
+            This parameter disables native HTML5 support for this widget. Please read more on side-effects in widget
+            documentation.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="suggestInput" extends="hasOptionsFilter hasOptions textInput hasHtml5Support hasValidator">
+        <Doc>
+          allowing to either depict certain value from a list or accepting new value not in list.
+          This input type always offers an input prompt which either acts as pre-filter for the list or also
+          allows to enter new items. This widget can handle big number of options at good performance as well as supports complex options layout
+          in non-native mode. Furthermore it provides you with ability to access remote data.
+
+          [No ID/Caption mapping is available here.]
+        </Doc>
+        <!-- put this parameter here (although provided through hasCaptions API, the suggestInput does not support the hasCaptions-API fully yet -->
+        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values
+          </Doc>
+        </Param>
+        <Param name="optionsRendererId" type="string">
+          <Doc>
+            * only applies to non-native implementation of this widget - to use this option you have to flag disableNativeSupport *
+
+            The renderer provided here *must* exist prior binding to widget, that is it has to be known to ObjectRegistry at this time. At is
+            recommended to construct your renderer with suppressInitialRendering=true, so that it does not run at the construction time and also
+            provide targetHTMLElementId pointing to invisible container, since the renderer would reset containers CSS class having visual effects
+            at construction time.
+
+            Default options rendering stylesheet is located at /bcdui/widgetNg/suggestInput/optionsRenderer.xslt but you can provide your own here;
+            the transformation has to output HTML with root element DIV containing block elements each representing an inidivual value. The children
+            elements provides the value via bcdValue attribute. The rendered list is displayed in a dialog so user can pick-up an item. After that,
+            the value is written to model which is found at bcdValue attribute. This way you can render complex HTML content.
+
+            Recommended format is:
+            div[div[@bcdValue]*]
+
+            You can also respect current widget value i.e. to implement prefiltering, the values are provided as parameters to the stylesheet. Please
+            refer to original stylesheet documentation for more information and parameters which are provided during transformation.
+
+            the targetHTMLElementId of the renderer is automatically bound to internal options list box,
+            the input document to this renderer is the options-model of the widget.
+          </Doc>
+        </Param>
+        <Param name="suggestItemCount" type="int" default="10">
+          <Doc>
+            Number of items to suggest during typing, this applies to non-native implementation only.
+          </Doc>
+        </Param>
+        <Param name="filterFunction" type="string">
+          <Doc>
+            function name of filtering function receiving keystrokes
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="hasCaptions" extends="hasOptions">
+        <Doc>
+          If targetModelXpth has a @caption attribute, id/caption mode is entered.
+        </Doc>
+        <Param name="ignoreCaption" required="false" type="boolean">
+          <Doc>
+            Do not use @caption, use id for caption as well. The caption mode is disabled.
+          </Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+      </Api>
+
+
+      <Api name="comboSelect" extends="hasCaptions hasOptionsFilter textInput">
+        <Doc>
+          Only allowing to either depict certain value from a list.
+          This input type always offers an input prompt which either acts as pre-filter for the list.
+          Does support id/caption, only items from list can be depicted.
+        </Doc>
+      </Api>
+
+      <Api name="checkbox" extends="baseInput hasHtmlEvents">
+        <Doc>
+          Basic checkbox which implements a 1/0 switch.
+        </Doc>
+      </Api>
+
+      <Api name="singleSelect" extends="hasCaptions baseInput">
+        <Doc>
+          Renders a browser does natively for select or radio.
+        </Doc>
+        <Param name="skin" type="enum" value="combo|radio" default="combo">
+          <Doc>a skin providing either combo-box style or a radio group</Doc>
+        </Param>
+        <Param name="doAutoSelectSolelyOption" type="boolean" default="false">
+          <Doc>If enabled, and there is only one option available, the widget will switch to that value.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="sideBySideChooser" extends="widget">
+        <Doc>
+          Offers a SideBySiderChooser where you can select items on a source side and move them to a target side
+        </Doc>
+        <Param name="optionsModelXPath" required="true" type="xpath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xpath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values
+          </Doc>
+        </Param>
+        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="defaultSourceCaption" required="false" type="string">
+          <Doc>
+            Caption(header) for source block items
+          </Doc>       
+        </Param>
+        <Param name="sourceCaptionKey" required="false" type="string">
+          <Doc>
+            Translation key for caption(header) for source block items
+          </Doc>       
+        </Param>
+        <Param name="defaultTargetCaption" required="false" type="string">
+          <Doc>
+            Caption(header) for target block items
+          </Doc>       
+        </Param>
+        <Param name="targetCaptionKey" required="false" type="string">
+          <Doc>
+            Translation key Caption(header) for target block items
+          </Doc>       
+        </Param>
+        <Param name="disableDrag" required="false" type="boolean">
+          <Doc>
+            Disables drag and drop functionality to move items. Default is false.
+          </Doc>       
+        </Param>
+        <Param name="onBeforeChange" required="false" type="string">
+          <Doc>
+            Handler function NAME triggered before change, if false is returned, the change is rejected
+            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.sideBySideChooser.CHANGE_DIRECTION.*
+  	     </Doc>       
+        </Param>
+        <Param name="onChange" required="false" type="string">
+          <Doc>
+            Handler function NAME triggered after change
+          </Doc>       
+        </Param>
+        <Param name="wrsInlineValueDelim" required="false" type="string">
+          <Doc>
+            Delimiter used for WRS read and write. Default is a slash.
+          </Doc>       
+        </Param>
+        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' which can be used to filter options model items
+	      </Doc>       
+        </Param>
+      </Api>
+      
+      <Api name="connectable" extends="widget">
+        <Doc> Offers a simple container with multi select, drag'n drop functionalities </Doc>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted alphabetically. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+        <Param name="scope" type="string" required="true">
+          <Doc>Defines the scope of the box. Source.</Doc>
+        </Param>
+        <Param name="optionsModelXPath" required="false" type="writableXPathWithDollar">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]. If you specify an optionsmodelxpath, the box automatically acts as source.</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xpath">
+          <Doc>xPath expression relative to 'optionsModelXPath' providing values</Doc>
+        </Param>
+        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
+          <Doc>xPath expression relative to 'optionsModelXPath' which can be used to filter options model items</Doc>       
+        </Param>
+        <Param name="targetModelXPath" required="false" type="writableXPathWithDollar">
+          <Doc>The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target</Doc>
+        </Param>
+        <Param name="onBeforeChange" required="false" type="string">
+          <Doc>Handler function NAME triggered before change of this box only, if false is returned, the change is rejected
+            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*</Doc>       
+        </Param>
+        <Param name="onChange" required="false" type="string">
+          <Doc> Handler function NAME triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc>       
+        </Param>
+        <Param name="wrsInlineValueDelim" required="false" type="string">
+          <Doc>Delimiter used for WRS read and write. Default is a slash.</Doc>       
+        </Param>
+        <Param name="isDoubleClickTarget" required="false" type="boolean">
+          <Doc>If true (and box is target) then double click moves items from source to this target, otherwise first found target. Default is false.</Doc>       
+        </Param>
+        <Param name="className" required="false" type="string">
+          <Doc>Optional additional classname which is added to the container.</Doc>       
+        </Param>
+	    <Param name="unselectAfterMove" required="false" type="boolean">
+          <Doc>If true, the items get unselected after being moved. Default is false.</Doc>       
+        </Param>
+        <Param name="generateItemHtml" required="false" type="string">
+          <Doc>Handler function NAME to generate the html for one container item. Gets value, caption and position in options model as input.</Doc>       
+        </Param>
+        <Param name="showLasso" required="false" type="boolean" default="true">
+          <Doc>If true, you get a selection lasso. Default is true.</Doc>       
+        </Param>
+      </Api>
+
+      <Api name="listSelect" extends="hasCaptions">
+        <Doc>
+          Offers a user simple list of options able of multi-selection, it does not offer any input prompt. Additionally, this
+          input provides number of skins (see skin attribute)
+        </Doc>
+        <Param name="skin" type="enum" value="list|checkbox|sideBySide" default="list">
+          <Doc>
+          - list
+            a simple HTML SELECT where user can select multiple entries
+
+          - checkbox
+            the entries are rendered as checkboxes allowing multiple selection by checking/unchecking
+
+          - sideBySide
+            offers two ListSelect boxes side by side where items from a list of available items can be moved to a list of selected items.
+          </Doc>
+        </Param>
+      </Api>
+
+
+      <Api name="multiSelect" extends="hasCaptions">
+        <ApiChange since="4.3.3">
+          remove @visitableSize attribute (number of visible elements in list)
+        </ApiChange>
+        <Doc>Is a mash-up of comboSelect or suggestSelect where the user can pick individual items from the selection (or new items entered)
+        and add them into the options list via "Add" button or ENTER hit. Additional remove button removes selected entry from the list. The @allowNewItem attribute
+        switches between both input types, if 'true' it effectively disables caption mapping.</Doc>
+        <Param name="allowNewItem" type="boolean">
+          <Doc>if TRUE, new items are also allowed as input (not only those from list). This option effectively turns off caption mapping, so that
+          options are displayed by their values even though caption might exist.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="dimensionChooser" state="NOT_APPROVED">
+        <Doc>
+        *** This specification is not approved yet! ***
+
+This widget offers hiararchical selection box with n-SingleSelect inputs (per dimension level) and Add/Remove controls,
+it displays a field where the user can enter a value or select it from a list of
+pre-defined values. These values are copied to a target model under a specified
+target XPath. When there is a list of allowed values the inputField can also
+apply a caption-value translation so that the displayed values can differ from
+the data that is actually placed in XML.
+        </Doc>
+        <Param name="optionsModelXPath">
+          <Doc>xpath of the dimension model</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath">
+          <Doc>xpath of the dimension model</Doc>
+        </Param>
+        <Param name="dimensionName">
+          <Doc>xpath of the dimension model.</Doc>
+        </Param>
+        <Param name="multiSelect">
+          <Doc>Make a multi selected dimension chooser. Can be true|false|check, false is default.</Doc>
+        </Param>
+        <Param name="allowMixedSelect">
+          <Doc>allow heterogene selection in multi select chooser</Doc>
+        </Param>
+        <Param name="checkBoxCaption" type="i18nToken">
+          <Doc>caption (i18n) key. of checkbox to turn on and of the multiselect</Doc>
+        </Param>
+        <Param name="configurationModelId">
+        <Doc>modelId of chooser configuration xml file</Doc>
+        </Param>
+        <Param name="useCaptions" type="boolean">
+          <Doc>If true, the chooser will receive captions and codes. By convention the bref of the captions column is 'bRef'_caption. By default no captions are created.</Doc>
+        </Param>
+        <Param name="url" type="url">
+          <Doc>The URL the model is loaded from. This URL can be extended with a compressed request document if a requestDocument Parameter is provided. If omitted the WrsServlet is taken.</Doc>
+        </Param>
+        <Param name="clearOption" type="boolean|i18nToken" default="false">
+          <Doc>
+            if enabled, there will be an option to clear the selection. This attribute may be true|false or a string, in latter case
+            the option is considered enabled and a string expected to be is a i18n key for the token.
+          </Doc>
+        </Param>
+      </Api>
+    </BcdAPI>
+
+    <BcdObjects>
+      <Doc>widgets each with meta-data about implementation of specific API, implementation class, etc</Doc>
+      <BcdObject name="checkbox" implements="checkbox" implementationPackage="bcdui.widgetNg.checkbox"/>
+      <BcdObject name="button" implements="button" implementationPackage="bcdui.widgetNg.button"/>
+      <BcdObject name="input" implements="input" implementationPackage="bcdui.widgetNg.input"/>
+      <BcdObject name="dateInput" implements="dateInput" implementationPackage="bcdui.widgetNg.dateInput"/>
+      <BcdObject name="singleSelect" implements="singleSelect" implementationPackage="bcdui.widgetNg.singleSelect"/>
+      <BcdObject name="suggestInput" implements="suggestInput" implementationPackage="bcdui.widgetNg.suggestInput"/>
+      <BcdObject name="textArea" implements="textArea" implementationPackage="bcdui.widgetNg.textArea"/>
+      <BcdObject name="sideBySideChooser" implements="sideBySideChooser" implementationPackage="bcdui.widgetNg.sideBySideChooser"/>
+      <BcdObject name="connectable" implements="connectable" implementationPackage="bcdui.widgetNg.connectable"/>
+    </BcdObjects>
+
+    <!-- priority queue for widgets implementations for phase one -->
+    <WidgetsPhase1>
+      <BcdObject name="listSelect" implements="listSelect" implementationPackage="bcdui.widgets.xxx"/>
+      <BcdObject name="multiSelect" implements="multiSelect" implementationPackage="bcdui.widgets.xxx"/>
+      <BcdObject name="comboSelect" implements="comboSelect" implementationPackage="bcdui.widgetNg.xxx"/>
+    </WidgetsPhase1>
+
+    <!-- phase 2 widget implementation queue -->
+    <WidgetsPhase2>
+      <BcdObject name="rtfTextArea" implements="rtfTextArea" implementationPackage="bcdui.widgets.xxx"/>
+      <BcdObject name="periodChooser" implements="periodChooser" implementationPackage="bcdui.widgets.xxx"/>
+      <BcdObject name="dimensionChooser" implements="dimensionChooser" implementationPackage="bcdui.widgets.xxx"/>
+    </WidgetsPhase2>
+
+    <OldAPI>
+      <!-- currently defined API which will be likely replaced/standardized by new API -->
+      <InputFieldWidget>
+        <param name="targetModelId"/>
+        <param name="id"/>
+        <param name="targetModelXPath"/>
+        <param name="keepEmptyValueExpression"/>
+        <param name="optionsModelId"/>
+        <param name="optionsModelXPath"/>
+        <param name="optionsModelRelativeValueXPath"/>
+        <param name="optionsModelIsSuggestionOnly"/>
+        <param name="additionalFilterXPath"/>
+        <param name="clearOption"/>
+        <param name="emptyValue"/>
+        <param name="mandatory"/>
+        <param name="bcdAutofit"/>
+        <param name="setFocus"/>
+        <param name="onFocus"/>
+        <param name="onBlur"/>
+        <param name="onEscKey"/>
+        <param name="onTabKey"/>
+        <param name="onEnterKey"/>
+        <param name="tabIndex"/>
+        <param name="setCursorPositionAtEnd"/>
+        <param name="maxlength"/>
+        <param name="isPassword" select="false()"/>
+        <param name="isSortOptions"/>
+        <param name="wildcard"/>
+      </InputFieldWidget>
+      <SingleSelect>
+        <param name="targetModelId"/>
+        <param name="targetModelXPath"/>
+        <param name="keepEmptyValueExpression"/>
+        <param name="optionsModelId"/>
+        <param name="optionsModelXPath"/>
+        <param name="optionsModelRelativeValueXPath"/>
+      </SingleSelect>
+      <MultiSelect>
+        <param name="targetModelId"/>
+        <param name="targetModelXPath"/>
+        <param name="keepEmptyValueExpression"/>
+        <param name="optionsModelId"/>
+        <param name="optionsModelXPath"/>
+        <param name="optionsModelRelativeValueXPath"/>
+        <param name="isCheckBox"/>
+        <param name="visibleSize"/>
+      </MultiSelect>
+      <PeriodChooser>
+        <param name="id"/>
+        <param name="targetModelId"/>
+        <param name="caption"/>
+        <param name="targetModelXPath"/>
+        <param name="isSecondSelectable"/>
+        <param name="isMinuteSelectable"/>
+        <param name="isHourSelectable"/>
+        <param name="isDaySelectable"/>
+        <param name="isWeekSelectable"/>
+        <param name="isMonthSelectable"/>
+        <param name="isQuarterSelectable"/>
+        <param name="isYearSelectable"/>
+        <param name="firstSelectableDay"/>
+        <param name="lastSelectableDay"/>
+        <param name="showPrevNextButtons"/>
+        <param name="isFreeRangeSelectable"/>
+        <param name="outputPeriodType"/>
+        <param name="textInput"/>
+        <param name="validate"/>
+        <param name="mandatory"/>
+      </PeriodChooser>
+      <SideBySideChooser>
+        <param name="id"/>
+        <param name="targetModelXPath"/>
+        <param name="optionsModelXPath"/>
+        <param name="optionsModelRelativeValueXPath"/>
+        <param name="defaultSourceCaption"/>
+        <param name="sourceCaptionKey"/>
+        <param name="defaultTargetCaption"/>
+        <param name="targetCaptionKey"/>
+        <param name="isDisabled"/>
+        <param name="onBeforeChange"/>
+        <param name="onchange"/>
+        <param name="wrsInlineValueDelim"/>
+        <param name="optionsModelRelativeFilterPredicate"/>
+        <param name="targetHTMLElementId"/>
+      </SideBySideChooser>
+      <TextArea>
+        <param name="targetModelId"/>
+        <param name="id"/>
+        <param name="targetModelXPath"/>
+        <param name="cols"/>
+        <param name="rows"/>
+        <param name="tabIndex"/>
+        <param name="mandatory"/>
+      </TextArea>
+      <DimensionChooser>
+        <param name="id"/>
+        <param name="targetModelId"/>
+        <param name="targetModelXPath"/>
+        <param name="keepEmptyValueExpression"/>
+        <param name="optionsModelId"/>
+        <param name="optionsModelXPath"/>
+        <param name="optionsModelRelativeValueXPath"/>
+        <param name="dimensionName"/>
+        <param name="multiSelect"/>
+        <param name="allowMixedSelect"/>
+        <param name="checkBoxCaption"/>
+        <param name="configurationModelId"/>
+        <param name="useCaptions"/>
+        <param name="url"/>
+        <param name="clearOption"/>
+        <param name="emptyValue"/>
+      </DimensionChooser>
+      <Button>
+        <param name="id"/>
+        <param name="caption"/>
+        <param name="tooltip"/>
+        <param name="onClickAction"/>
+        <param name="stayPressed"/>
+        <param name="tabindex"/>
+        <param name="status"/>
+        <param name="href"/>
+        <param name="name"/>
+        <param name="contextPath"/>
+      </Button>
+    </OldAPI>
+  </WorkingDraft>
+</Root>

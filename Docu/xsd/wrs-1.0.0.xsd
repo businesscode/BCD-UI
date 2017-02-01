@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+  xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:b="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+  <xs:annotation>
+    <xs:documentation>
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"/>
+
+  <xs:element name="Wrs" type="tns:WrsType" />
+  
+  <xs:element name="WrsContainer" type="tns:TypeWrsContainer"/>
+  
+  <xs:complexType name="TypeWrsContainer">
+    <xs:annotation><xs:documentation>
+      This is a container for multi-Wrs document, which is used by various BCD-UI components,
+      as such it may contain any attributes depending in which component it is used.
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element ref="rnd:Wrs2Excel" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          For ExcelExportServlet, if there is only one Wrs to be, you may define the sheet's name and cell pos here.
+          For multiple Wrs, use wrs:Wrs/wrs:Header/rnd:Wrs2Excel instead.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element name="Wrs" type="tns:WrsType" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="excelTemplateName">
+      <xs:annotation><xs:documentation>
+        For ExcelExportServlet, if provided, the name of a template at /WEB-INF/bcdui/excelTemplates to be filled.
+        If not provided, a new, blank Excel file is created and filled.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:anyAttribute/>
+  </xs:complexType>
+
+  <xs:element name="References" type="tns:TypeReferences"/>
+  <xs:complexType name="TypeReferences">
+    <xs:annotation><xs:documentation>
+      Used by the client to restrict the possible values of this column to a enumeration.
+      The wrs:References noted here become a child of wrs:Columns/wrs:C when reading this BindingItem.
+      wrs:References/wrs:Wrs contains one row per allowed value and one or two columns (first: @id="id", second: @id="caption").
+    </xs:documentation></xs:annotation>
+    <xs:choice>
+      <xs:element ref="tns:Wrs"/>
+      <xs:element name="ClientInclude" type="tns:ClientIncludeType">
+        <xs:annotation><xs:documentation>
+          Not implemented!
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="ClientIncludeType">
+    <xs:annotation><xs:documentation>
+      A standard Wrq for reference values, executed by the client to get the allowed values.
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:any processContents="lax" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="xpointer" type="xs:string" />
+    <xs:attribute name="url" type="xs:anyURI" />
+  </xs:complexType>
+
+  <xs:complexType name="WrsType">
+    <xs:sequence>
+      <xs:element name="RequestDocument" type="tns:RequestDocumentType" minOccurs="0" />
+      <xs:element name="Header" type="tns:HeaderType" />
+      <xs:element name="Data" type="tns:DataType" minOccurs="0">
+        <xs:unique name="rowIdUniqueness">
+          <xs:selector xpath="tns:*" />
+          <xs:field xpath="@id" />
+        </xs:unique>
+      </xs:element>
+      <xs:element name="Footer" type="tns:FooterType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:anyAttribute namespace="##other" processContents="lax" />
+  </xs:complexType>
+
+  <xs:complexType name="RequestDocumentType">
+    <xs:sequence>
+      <xs:element ref="wrq:WrsRequest" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HeaderType">
+    <xs:sequence>
+      <xs:element name="BindingSet" type="xs:string" minOccurs="0" />
+      <xs:element name="KeySet" type="tns:KeySetType" minOccurs="0" />
+      <xs:element ref="tns:Columns"/>
+      <xs:element name="ValidationResult" type="tns:ValidationResultType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="TransactionsNumber" type="xs:integer" minOccurs="0" >
+        <xs:annotation><xs:documentation>
+          Current transactions number of WRS document
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="Columns" type="tns:MetaDataColumnsType">
+    <xs:unique name="columnPosUniqueness">
+      <xs:selector xpath="tns:C" />
+      <xs:field xpath="@pos" />
+    </xs:unique>
+  </xs:element>
+
+  <xs:complexType name="ValidationResultWrsType">
+    <xs:annotation><xs:documentation>
+    type extending tns:Wrs providing semantics of Wrs inside ValidationResult
+    </xs:documentation></xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="tns:WrsType">
+        <xs:attribute name="bcdValidationId" type="xs:string">
+        <xs:annotation><xs:documentation>
+          the ID of validation which uniquelly identifies it
+        </xs:documentation></xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ValidationResultType">
+    <xs:sequence>
+      <xs:element name="Wrs" type="tns:ValidationResultWrsType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MetaDataColumnsType">
+    <xs:sequence>
+      <xs:element name="C" type="tns:MetaDataColumnType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="colDimLevelIds">
+      <xs:annotation><xs:documentation>
+        If given, indicates a pipe | separated list of column dimensions.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="MetaDataColumnType">
+    <xs:complexContent>
+      <xs:extension base="b:TypeBindingItemBase">
+        <xs:sequence>
+          <xs:element name="A" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            Definition for a Data/R/C/@aName attribute in the data for the parent column.
+          </xs:documentation></xs:annotation>
+            <xs:complexType>
+              <xs:complexContent>
+                <xs:extension base="b:TypeBindingItemBase">
+                  <xs:attribute name="name" type="xs:NMTOKEN" use="required">
+                    <xs:annotation><xs:documentation>
+                      Name of this attribute as found in the actual data Data/R/C/@aName.
+                    </xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:extension>
+              </xs:complexContent>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="pos" type="xs:int" use="required" />
+        <xs:attribute name="dimId" type="xs:string">
+          <xs:annotation><xs:documentation>
+            If given, this column represents the given id. Especially useful to recognize dimension columns.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="valueId" type="xs:string">
+          <xs:annotation><xs:documentation>
+            If given, this column represents the given value. Especially useful if the value is repeated due to column dimensions.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="DataType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="R" type="tns:RowType" />
+      <xs:element name="M" type="tns:ModifyRowType" />
+      <xs:element name="I" type="tns:RowType" />
+      <xs:element name="D" type="tns:RowType" />
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="RowType">
+    <xs:sequence>
+      <xs:element name="C" type="tns:ColumnValueType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="ModifyRowType">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="C" type="tns:ColumnValueType" />
+      <xs:element name="O" type="tns:ColumnValueType" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="ColumnValueType" mixed="true">
+    <xs:sequence minOccurs="0">
+      <xs:element name="null" />
+    </xs:sequence>
+    <xs:anyAttribute namespace="##local" processContents="skip"/>
+  </xs:complexType>
+
+  <xs:complexType name="KeySetType">
+    <xs:annotation>
+      <xs:documentation>set of key binding items/columns</xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Key" type="tns:KeyType"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="KeyType">
+    <xs:annotation>
+      <xs:documentation>key binding item, contains reference to binding item id</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="bRef" />
+  </xs:complexType>
+
+  <xs:complexType name="FooterType">
+    <xs:annotation><xs:documentation>
+      Additional information about the Wrs
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element name="MaxRowsExceeded" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          Not all rows included due to restriction either by a server side setting of via the wrq:WrsRequest
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:boolean">
+              <xs:attribute name="maxRows" type="xs:integer"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+</xs:schema>

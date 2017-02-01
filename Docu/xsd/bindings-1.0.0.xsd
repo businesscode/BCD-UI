@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema
+    targetNamespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:tns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+    xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+    xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+
+  <xs:annotation>
+    <xs:documentation>
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+  <xs:import namespace="http://www.w3.org/2001/XInclude"/>
+
+  <xs:element name="BindingSet" type="tns:TypeBindingSet">
+    <!--    <xs:key name="bindingIds">-->
+    <!--      <xs:selector xpath="tns:C" />-->
+    <!--      <xs:field xpath="@id" />-->
+    <!--    </xs:key>-->
+    <!--    <xs:keyref name="keyColumns" refer="tns:bindingIds">-->
+    <!--      <xs:selector xpath="tns:KeySet/tns:Key" />-->
+    <!--      <xs:field xpath="@bRef" />-->
+    <!--    </xs:keyref>-->
+    <xs:unique name="bindingIds">
+      <xs:selector xpath="tns:C" />
+      <xs:field xpath="@id" />
+    </xs:unique>
+  </xs:element>
+
+  <xs:element name="BindingInclude" type="tns:TypeBindingInclude">
+    <xs:annotation><xs:documentation>
+      This allows to list re-used BindingItems, which are only there to be included in (multiple) BindingSets via xi:include.
+      They do not establish a BindingSet themselves. For example re-occurring dimensions can be maintained this way.
+    </xs:documentation></xs:annotation>
+    <xs:unique name="bindingIncludeIds">
+      <xs:selector xpath="tns:C" />
+      <xs:field xpath="@id" />
+    </xs:unique>
+  </xs:element>
+
+  <xs:element name="BindingSetGroup" type="tns:TypeBindingSetGroup">
+    <xs:annotation><xs:documentation>
+      A BCD-UI EnterpriseEdition extension, supporting a best-match approach for similar data depending on the actual request.
+      This is used to support different levels of aggregation in a transparent way.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:complexType  name="TypeBindingSetGroup">
+    <xs:sequence>
+      <xs:element name="BindingSetRef" type="tns:TypeBindingSetRef" maxOccurs="unbounded"/>
+      <xs:element name="WrqModifiers" type="tns:TypeWrqModifiers" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:ID" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="TypeBindingSetRef">
+    <xs:attribute name="idRef" type="xs:ID" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="TypeBindingSet">
+    <xs:annotation><xs:documentation>
+      A mapping of logical BindingItems to the physical data layer.
+      Prevents random access to the database via Wrs and provides a level of naming abstraction independent of physical names.
+    </xs:documentation></xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="tns:TypeBindingInclude">
+        <xs:sequence>
+          <xs:element name="DerivedTableExpression" type="xs:string" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              You can place complex derived table expressions here instead of providing a table attribute.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID" use="required" />
+        <xs:attribute name="dbSourceName" type="xs:string" />
+        <xs:attribute name="table" type="xs:NCName" use="optional">
+          <xs:annotation><xs:documentation>
+            Provide a simple table/view name here or provide bnd:DerivedTableExpression.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="allowSelectAllColumns" type="xs:boolean" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="TypeBindingInclude">
+    <xs:annotation><xs:documentation>
+      A subset of BindingSet, only used to be included in a BindignSet via xi:include.
+      In some aspects similar to an abstract base class.
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element name="C" type="tns:TypeBindingItem" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            Standard mapping of a logical name to a column expression.
+            Attributes (like type) defined here overwrite the values derived in the database. In not set, the default to the database values.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element ref="xi:include" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            xi:include is useful to re-use parts of BindingSets, like common re-occurring dimensions, defined in a BindingInclude.
+            Sample: &lt;xi:include href="include/common_geo_dims.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+          </xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="Relation" type="tns:TypeRelation" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:element name="SubjectSettings" type="tns:TypeSubjectSettings" minOccurs="0" maxOccurs="1" />
+      <xs:element name="WrqModifiers" type="tns:TypeWrqModifiers" minOccurs="0" />
+      <xs:element name="WriteProcessing" type="tns:TypeWriteProcessing" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeBindingItemBase">
+    <xs:sequence>
+      <xs:element ref="wrs:References" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          Used by the client to restrict the possible values of this column to a enumeration, see definition of wrs:References for details.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:NCName" use="required">
+      <xs:annotation><xs:documentation>
+        BindingItem-id, unique within this BindingSet. Make sure that all semantically equal a database columns
+        have the same id across all BindingSets. For example all occurrences of pick-up locations in all tables, this allows for easier building filter, drill etc.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="columnQuoting" type="xs:boolean" default="false">
+      <xs:annotation><xs:documentation>
+        If true, the whole text content of the Column element is set into double quotes when generating SQL and used as a column name.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string" />
+    <xs:attribute name="isKey" type="xs:boolean" default="false" />
+    <xs:attributeGroup ref="tns:DataType"/>
+    <xs:attribute name="isReadOnly" type="xs:boolean">
+      <xs:annotation><xs:documentation>
+        This is only evaluated by the client, server does not check this.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="escapeXML" type="xs:boolean" default="true">
+      <xs:annotation><xs:documentation>
+        If set to false, the content is written as XML type, otherwise (incl. default), the content is escaped and written as String.
+        When reading, @escapeXML='true' means that you get one wrs:C node with escaped XML content, otherwise wrs:C will contain a XML subtree with the content.
+        Consider creating two BindingItems for the same database column if you need to access it in two different ways.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="aggr" type="wrq:TypeSQLAggregations">
+      <xs:annotation><xs:documentation>
+        Used as default aggregation, if not defined in wrq:Wrq. If both are not given, MAX() is used for VARCHAR and DATE, SUM() is used for all others.
+        Note that 'none' is also allowed: When reading the BindingItem in an aggregation, the aggregation function must be hard-coded in b:BindingItem/b:Column.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:anyAttribute namespace="http://www.businesscode.de/schema/bcdui/customization-1.0.0" processContents="skip">
+      <xs:annotation><xs:documentation>
+        this namespace, with well-known prefix 'cust' may be used to define custom attributes to access them on the client
+      </xs:documentation></xs:annotation>
+    </xs:anyAttribute>
+  </xs:complexType>
+
+  <xs:attributeGroup name="DataType">
+    <xs:attribute name="type-name"    type="tns:ColumnTypeName" />
+    <xs:attribute name="display-size" type="xs:nonNegativeInteger" />
+    <xs:attribute name="scale"        type="xs:integer">
+      <xs:annotation>
+        <xs:documentation>
+          A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
+          B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
+          C) Samples (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="signed"       type="xs:boolean" />
+    <xs:attribute name="nullable"     type="tns:Bit" />
+    <xs:attribute name="unit"         type="xs:string" />
+  </xs:attributeGroup>
+
+  <xs:complexType name="TypeBindingItem">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeBindingItemBase">
+        <xs:sequence>
+          <xs:element name="Column" type="xs:string">
+            <xs:annotation><xs:documentation>
+                A valid column or column expression to be used when reading this BindingItem.
+              </xs:documentation></xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  <xs:complexType name="TypeSubjectSettings">
+    <xs:sequence>
+      <xs:element name="Security" type="tns:TypeSecurity" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            defines security context for this binding, operation supported is "write" and protects any modifications (C-UD) against this binding.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SubjectFilters" type="tns:TypeSubjectFilters" minOccurs="0" maxOccurs="1">
+        <xs:annotation><xs:documentation>This feature enables row-level security and is implemented in enterprise edition</xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="TypeSubjectFilters">
+    <xs:annotation><xs:documentation>This feature enables row-level security and requires enterprise edition</xs:documentation></xs:annotation>
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="SubjectFilter" type="tns:TypeSubjectFilter"></xs:element>
+      <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
+      <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="TypeSubjectFilterConnective">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="SubjectFilter" type="tns:TypeSubjectFilter"></xs:element>
+      <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
+      <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="TypeSubjectFilter">
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="TypeSecurity">
+    <xs:sequence>
+      <xs:element name="Operation" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            the operation defining the permission (shiros context) to the named operation supported by implementation.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="name" use="required" type="xs:string" fixed="write">
+            <xs:annotation><xs:documentation>only -write- operation is currently supported</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="permission" type="xs:string" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                List of permissions required for this operation, these are checked against permission list configured by shiro implementation.
+                The ACL is inclusive, means that all defined permissions are required to execute this operation. The list may be empty, effectively
+                disengaging security policy.
+                Example: userAdmin admin:write admin:create
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="Bit">
+    <xs:restriction base="xs:byte">
+      <xs:minInclusive value="0" />
+      <xs:maxInclusive value="1" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ColumnTypeName">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ARRAY" />
+      <xs:enumeration value="BIGINT" />
+      <xs:enumeration value="BINARY" />
+      <xs:enumeration value="BIT" />
+      <xs:enumeration value="BLOB" />
+      <xs:enumeration value="BOOLEAN" />
+      <xs:enumeration value="CHAR" />
+      <xs:enumeration value="CLOB" />
+      <xs:enumeration value="DATALINK" />
+      <xs:enumeration value="DATE" />
+      <xs:enumeration value="DECIMAL" />
+      <xs:enumeration value="DISTINCT" />
+      <xs:enumeration value="DOUBLE" />
+      <xs:enumeration value="FLOAT" />
+      <xs:enumeration value="INTEGER" />
+      <xs:enumeration value="JAVA_OBJECT" />
+      <xs:enumeration value="LONGNVARCHAR" />
+      <xs:enumeration value="LONGVARBINARY" />
+      <xs:enumeration value="LONGVARCHAR" />
+      <xs:enumeration value="NCHAR" />
+      <xs:enumeration value="NCLOB" />
+      <xs:enumeration value="NULL" />
+      <xs:enumeration value="NUMERIC" />
+      <xs:enumeration value="NVARCHAR" />
+      <xs:enumeration value="OTHER" />
+      <xs:enumeration value="REAL" />
+      <xs:enumeration value="REF" />
+      <xs:enumeration value="ROWID" />
+      <xs:enumeration value="SMALLINT" />
+      <xs:enumeration value="SQLXML" />
+      <xs:enumeration value="STRUCT" />
+      <xs:enumeration value="TIME" />
+      <xs:enumeration value="TIMESTAMP" />
+      <xs:enumeration value="TINYINT" />
+      <xs:enumeration value="VARBINARY" />
+      <xs:enumeration value="VARCHAR" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TypeWriteProcessing">
+    <xs:sequence>
+      <xs:element name="Callbacks" type="tns:TypeCallbacks" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeWrqModifiers">
+    <xs:sequence>
+      <xs:element name="WrqModifier" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          A WrqModifier implements de.businesscode.bcdui.wrs.load.modifier.Modifier and can modify the incoming wrsRequest (currently only the f:Filter part) just before SQL is generated.
+          This is useful for example for server-side optimizations, like if you need to translate certain filters to optimize for table partitioning, without the need for the client to know about this.
+          This is completely transparent to the client.
+          There are predefined Modifiers, for example Filter2DyModifer for translation from period of all types as written by the period chooser to a dy range.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="className" type="xs:string"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+
+  <xs:attributeGroup name="constantParamAttributes">
+    <xs:attribute name="constant" type="xs:string" />
+  </xs:attributeGroup>
+
+
+  <xs:attributeGroup name="serverParamAttributes">
+    <xs:attribute name="serverValueName" type="xs:NCName" />
+    <xs:attribute name="serverValueParam1" type="xs:string" />
+    <xs:attribute name="serverValueParam2" type="xs:string" />
+    <xs:attribute name="serverValueParam3" type="xs:string" />
+    <xs:attribute name="serverValueParam4" type="xs:string" />
+    <xs:attribute name="serverValueParam5" type="xs:string" />
+    <xs:attribute name="serverValueParam6" type="xs:string" />
+    <xs:attribute name="serverValueParam7" type="xs:string" />
+    <xs:attribute name="serverValueParam8" type="xs:string" />
+    <xs:attribute name="serverValueParam9" type="xs:string" />
+  </xs:attributeGroup>
+
+
+  <xs:complexType name="TypeCallbacks">
+    <xs:sequence>
+      <xs:element name="Callback" type="tns:TypeCallback" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="TypeCallback">
+    <xs:sequence>
+      <xs:element name="Param" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Allowed attributes depend on the callback implementation. The order of Param elements may be meaningful, depending on callBack implementation.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:anyAttribute processContents="skip"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="class" type="xs:string" use="required">
+    <xs:annotation><xs:documentation>
+      implementation inheriting from the de.businesscode.bcdui.binding.write.WriteProcessingCallback class
+    </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+
+
+
+  <xs:complexType name="TypeRelation">
+      <xs:sequence>
+        <xs:element name="DefaultImports" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              This element causes all BindingItems of the sourceBindingSet to be
+              imported. This is also the default behavior when there are no
+              [Default]Imports elements at all, but this element allows the user
+              to set an import prefix.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="prefix" type="xs:NCName">
+              <xs:annotation>
+                <xs:documentation>
+                  The prefix for the imported columns (e.g. "orig_"). This is
+                  useful when the same table is joined multiple times, for example
+                  to resolve origin and destination location.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Imports" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The list of imported BindingItems from the sourceBindingSet. In
+              contrast to the DefaultImports element this element is used to
+              import single items and individually set the names of them.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="ImportItem">
+                <xs:annotation>
+                  <xs:documentation>
+                    Represents a single imported BindingItem taken from the
+                    sourceBindingSet.
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:choice>
+                    <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                    <xs:element name="Coalesce">
+                      <xs:annotation>
+                        <xs:documentation>
+                          This element contains an ordered list of BindingItemRefs
+                          or constant values which are sequentially evaluated. The
+                          first non-null element becomes the value of the new
+                          ImportItem.
+                        </xs:documentation>
+                      </xs:annotation>
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                          <xs:choice maxOccurs="unbounded">
+                            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                            <xs:element name="Value" type="xs:string">
+                              <xs:annotation>
+                                <xs:documentation>A constant value.</xs:documentation>
+                              </xs:annotation>
+                            </xs:element>
+                          </xs:choice>
+                        </xs:sequence>
+                      </xs:complexType>
+                      <xs:unique name="CoalesceBindingItemRefUniqueness">
+                        <xs:selector xpath="BindingItemRef"/>
+                        <xs:field xpath="@name"/>
+                      </xs:unique>
+                    </xs:element>
+                  </xs:choice>
+                  <xs:attribute name="name" type="xs:ID" use="required">
+                    <xs:annotation>
+                      <xs:documentation>
+                        The name the BindingItem is published as.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="caption" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Optional attribute to overwrite the caption of the referenced binding item or coalesce item</xs:documentation>
+                    </xs:annotation></xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Condition" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Defines how the binding sets are joined together. Please note that
+              BindingSets must have a 1:[0..1] relationship.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:group ref="tns:booleanExpression"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="rightBindingSet" type="xs:NCName" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            The binding set that is joined with this one.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="type" default="leftOuter">
+        <xs:annotation>
+          <xs:documentation>
+            The type of relationship between this an the sourceBindingSet.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="leftOuter">
+              <xs:annotation>
+                <xs:documentation>A 1:[0..1] relationship.</xs:documentation>
+              </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="inner">
+              <xs:annotation>
+                <xs:documentation>
+                  A 1:1 relationship. Non-matching rows are deleted from the result.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:enumeration>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="toCaseExpression" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>
+            The binding set that is joined with this one.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+
+  </xs:complexType>
+
+  <xs:complexType name="TypeBindingItemRef">
+   <xs:attribute name="name" type="xs:NCName" use="required">
+     <xs:annotation>
+       <xs:documentation>
+         The name of the binding item inside the referenced binding set.
+       </xs:documentation>
+     </xs:annotation>
+   </xs:attribute>
+   <xs:attribute name="side" default="right">
+     <xs:annotation>
+       <xs:documentation>
+         The binding set that is being referenced. If omitted, the first item defaults to the
+         left side, the second one to the right side.
+       </xs:documentation>
+     </xs:annotation>
+     <xs:simpleType>
+       <xs:restriction base="xs:string">
+         <xs:enumeration value="left">
+           <xs:annotation>
+             <xs:documentation>reference to the left BindingSet of the Relation</xs:documentation>
+           </xs:annotation>
+         </xs:enumeration>
+         <xs:enumeration value="right">
+           <xs:annotation>
+             <xs:documentation>reference to the right BindingSet of the Relation.</xs:documentation>
+           </xs:annotation>
+         </xs:enumeration>
+       </xs:restriction>
+     </xs:simpleType>
+   </xs:attribute>
+  </xs:complexType>
+
+
+  <xs:group name="booleanExpression">
+    <xs:annotation>
+      <xs:documentation>
+        This group represents a boolean test returning true or false. It does not
+        need to be atomic, but can consist of sub-expressions as well.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="And" type="tns:binaryConnective"/>
+      <xs:element name="Or" type="tns:binaryConnective"/>
+      <xs:element name="IsEqual">
+        <xs:annotation>
+          <xs:documentation>
+            Tests if the values of the two BindingItems are equal. The corresponding
+            join condition looks like "A=B".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LT">
+        <xs:annotation>
+          <xs:documentation>
+            Tests if the values of the left BindingItemRef less than the right BindingItemRef. The corresponding
+            join condition looks like "A&lt;B".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="LE">
+        <xs:annotation>
+          <xs:documentation>
+            Tests if the values of the left BindingItemRef less or equal than the right BindingItemRef. The corresponding
+            join condition looks like "A&lt;=B".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GT">
+        <xs:annotation>
+          <xs:documentation>
+             Tests if the values of the left BindingItemRef greater than the right BindingItemRef. The corresponding
+             join condition looks like "A&gt;B".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GE">
+        <xs:annotation>
+          <xs:documentation>
+            Tests if the values of the left BindingItemRef greater or equal than the right BindingItemRef. The corresponding
+            join condition looks like "A&gt;=B".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="IsNull">
+        <xs:annotation>
+          <xs:documentation>
+            Tests if the nested BindingItem is NULL. The corresponding
+            join condition looks like "A IS NULL".
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+          </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="binaryConnective">
+    <xs:annotation>
+      <xs:documentation>
+        This type represent a binary connective such as the and operator. It expects
+        two or more sub-expressions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:group ref="tns:booleanExpression"/>
+      <xs:group ref="tns:booleanExpression" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="negate" default="false" type="xs:boolean" />
+  </xs:complexType>
+
+
+</xs:schema>

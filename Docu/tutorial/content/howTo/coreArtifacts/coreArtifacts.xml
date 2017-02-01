@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Core " xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+
+  <Chapter title="Using BCD-UI" type="overview">
+    <Body>
+    </Body>
+
+    <SubChapter title="Page core components">
+      <Body>
+        The following components are core on the client side of BCD-UI:
+        <dl>
+          <dt>Model</dt>
+          <dd>Models contain the data of the client like reporting data, reference data and data reflecting user selections.
+              On the client, all BCD-UI models store their data as XML documents, on server side data is stored in a relational database.
+              Models provide options for loading data, changing data, informing listener about changes, saving data back to the server
+              and loading additional data which is to be loaded deferred only on first access.
+              There is usually no need to provide project code for models but rather just configuration XMLs.</dd>
+          <dt>View</dt>
+          <dd>Views provide the visual parts of the application like reports, edit grids, charts or widgets.
+              Views are implemented in XSLT, taking the model's XML as input for rendering HTML which is placed inside the page.
+              Views can be as simple as radio buttons and as complex as a ScoreCard.
+              New project specific views in the form of XSLT can be easily added within a project.</dd>
+          <dt>Controller</dt>
+          <dd>The controller reacts on user interaction, like a button click or a drag and drop activity.
+              Controllers are small chunks of code implemented in js.
+              This code can be provided by BCD-UI library but can also be project provided code.
+              Next to user input, events thrown by model loading and changing activities can be used to trigger activities.</dd>
+          <dt>Widgets</dt>
+          <dd>Widgets are small views for user information and interaction as input fields, the menu and fly-overs.
+              Widgets store they status per default in a page-wide <i>guiStatus</i> to make it and its changes available for all parts of the page.</dd>
+          <dt>Components</dt>
+          <dd>Components are more complex views like cubes or the charts, usually requiring a configuration XML.
+              Components themselves often consist of multiple views and widgets working together.</dd>
+          <dt>Page infrastructure</dt>
+          <dd>Page infrastructure comprises the guiStatus, mechanisms for logging, object life-cycle etc.
+              The guiStatus is the default model for all widgets and client-side status
+              and thus usually contains all selections done by the user in regards of data filter or selected tabs and so on.
+              Model requests use the guiStatus to decide data for which month is selected and view use it to decide which parts to display and which to collapse.
+              This infrastructure also covers generic tasks like client side exports or fly-overs.</dd>
+          <dt>Page layout structure</dt>
+          <dd>Page layout structure is a set of HTML elements and css classes making up the over-all look and feel of the page frame in corporate a theme.</dd>
+        </dl>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Server core componets">
+      <Body>
+        Core server components are:
+        <dl>
+          <dt>WebServices</dt>
+          <dd>WebServices exchange XML messages and data with the client model. <a href="../../xmlData/doc.xml">WrsServlet</a> is the default service for data model requests.</dd>
+          <dt>Bindings</dt>
+          <dd>Bindings translate between the logical data model of a BCD-UI application and the the physical databases.
+              WebServices use <a href="../../binding/doc.xml">bindings</a> to create the appropriate SQL for data reading and writing.</dd>
+          <dt>Servlets</dt>
+          <dd>Several servlets provide all kinds of services to BCD-UI clients.
+              BCD-UI servlets are usually not addressed from users of BCD-UI directly.
+              Servlets are listed <a href="../../filter/doc.xml">here.</a></dd>
+          <dt>Filter</dt>
+          <dd>Filter control the traffic from and to the server under different aspects as security, logging and caching.
+              Filters are listed <a href="../../filter/doc.xml">here.</a></dd>
+        </dl>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Delivered sources">
+      <Body>
+        Because BCD-UI applications are J2EE applications, most artifacts are typical J2EE elements.
+        BCD-UI is delivered in the form of
+        <dl>
+          <dt>J2EE Server components</dt>
+          <dd>Like Servlets and ServletFilters fulfilling server side tasks, for example access right evaluation or file upload.</dd>
+          <dt>WebServices</dt>
+          <dd>WebServices server for XML exchange with the client mainly for database access.</dd>
+          <dt>JavaScript library</dt>
+          <dd>JavaScript code forms the base for the client-side controller of the standard Model/View/Control pattern.</dd>
+          <dt>JSP tag library</dt>
+          <dd>JSP tags are wrappers of the JavaScript functionality to ease their use on JSP pages.</dd>
+          <dt>XSLT library</dt>
+          <dd>XSLT forms the base of vies of the standard Model/View/Control pattern.</dd>
+          <dt>Configuration files</dt>
+          <dd>Configuration XML files allow to modify the behaviour of BCD-UI's components.</dd>
+        </dl>
+        Each artifact can be extended or replaced by custom-written J2EE components implementing the appropriate interfaces.
+      </Body>
+    </SubChapter>
+
+  </Chapter>
+</Doc>

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<doc:Doc title="Minimal cube setup" xmlns:doc="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+
+  <doc:Chapter title="Overview" type="overview">
+    <doc:Body>
+      Starting BCD-UI development requires only a few steps shown below. At the end of the page you will be able to run your new cube report.
+      <div/>The following steps are necessary in general:
+      <dl>
+        <dt>1. Development environment setup</dt>
+        <dd>Get Java, Eclipse and Tomcat to set up your development environment.</dd>
+        <dt>2. Set up an application</dt>
+        <dd>A standard J2EE application is to be set up and BCD-UI capability is to be added to the application.</dd>
+        <dt>3. Define the logical data model</dt>
+        <dd>To access the database, you define Bindings as the application's logical view to the database.</dd>
+        <dt>4. Set up a page</dt>
+        <dd>Each report or edit page has a carrier HTML or JSP, which hosts choosers, menu, report etc. This carrier page will also load BCD-UI libraries.</dd>
+        <dt>5. Add a filter on the page</dt>
+        <dd>This allows you to define which data is taken into account for the report.</dd>
+        <dt>6. Add a cube report on the page</dt>
+        <dd>This allows you to choose the dimensions and measures you want to see.</dd>
+        <dt>7. Use the report</dt>
+        <dd>You are done, use the report to analyze the data.</dd>
+      </dl>
+      Each step is described in the following sub chapters.
+    </doc:Body>
+  </doc:Chapter>
+
+  <doc:Chapter title="Step by step">
+    <doc:SubChapter title="Development environment setup">
+      <doc:Body>
+        This step is required only once when starting to work with BCD-UI, subsequent projects can re-use the same environment.
+        To start working with BCD-UI you need some tools installed, mainly Java, Eclipse and Tomcat.
+        Follow the <a href="../../howTo/bootstrap/doc.xml">bootstrap</a> description.
+      </doc:Body>
+    </doc:SubChapter>
+
+    <doc:SubChapter title="Application setup">
+      <doc:Body>
+        This step is only required once when starting a new BCD-UI application, subsequent pages or reports will re-use the same environment.
+        To add BCD-UI to your app, just add
+        <ul>
+          <li>bcdui.jar, bcdui_theme.jar to WEB-INF/lib</li>
+          <li>entries to web.xml</li>
+          <li>entries to context.xml</li>
+        </ul>
+        That's all, see more details in these <a href="../appsetup/doc.xml">instructions</a>.
+      </doc:Body>
+    </doc:SubChapter>
+
+    <doc:SubChapter title="Definition of the logical data model">
+      <doc:Body>
+        BCD-UI uses BindingSets to access the underlying database.
+        A BindingSet defines the logical names and constraints, which apply when using BCD-UI to access the data.
+        To define a binding for the table/view holding the data to be shown in a cube, create a file WEB-INF/bcdui/bindings/auto_test_wrs_oracle.xml
+        with the following content:
+        <doc:xml>
+          <BindingSet id="auto_test_wrs_oracle" table="mb_test_demo_shipment"  xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+            <C isKey="true" id="transport_id" caption="Transport Id"   type-name="VARCHAR">       <Column>ITEM_ID</Column></C>
+            <C id="orig_country" caption="Origin Country" type-name="VARCHAR">       <Column>ORIG_CTR</Column></C>
+            <C id="orig_area"    caption="Origin Area"    type-name="VARCHAR">       <Column>ORIG_GEO_1</Column></C>
+            <C id="orig_center"  caption="Origin Center"  type-name="VARCHAR">       <Column>ORIG_GEO_2</Column></C>
+            <C id="dest_country" caption="Destination Country" type-name="VARCHAR">  <Column>DEST_CTR</Column></C>
+            <C id="dest_area"    caption="Destination Area"    type-name="VARCHAR">  <Column>DEST_GEO_1</Column></C>
+            <C id="dest_center"  caption="Destination Center"  type-name="VARCHAR">  <Column>DEST_GEO_2</Column></C>
+            <C id="product_code" caption="Product code"   type-name="VARCHAR">       <Column>PRODUCT</Column></C>
+            <C id="dy" type-name="DATE">                        <Column>DY</Column></C>
+            <C id="cwyr">                                       <Column>CWYR</Column></C>
+            <C id="cw">                                         <Column>CW</Column></C>
+            <C id="yr">                                         <Column>YR</Column></C>
+            <C id="mo">                                         <Column>MO</Column></C>
+            <C id="m01_i" caption="Rev. Win">    <Column>CASE WHEN F_K01 IS NULL THEN 0 ELSE F_K01 END</Column></C>
+            <C id="m01_t" caption="Rev. Total">  <Column>CASE WHEN F_K01 IS NULL THEN 0 ELSE 1 END</Column></C>
+            <C id="m02_i" caption="Prod. Win">    <Column>CASE WHEN F_K02 IS NULL THEN 0 ELSE F_K02 END</Column></C>
+            <C id="m02_t" caption="Prod. Total">  <Column>CASE WHEN F_K02 IS NULL THEN 0 ELSE 1 END</Column></C>
+          </BindingSet>
+        </doc:xml>
+        For this example we assume you got a table named mb_test_demo_shipment in your default database which holds the columns listed inside the Column elements.
+        In addition to the data itself, we also create a logical model for the country reference data, which we will use in a report filter.
+        Do this by creating a file WEB-INF/bcdui/bindings/auto_test_md_geo_oracle.xml with the following content:
+        <doc:xml>
+          <BindingSet id="auto_test_md_geo_oracle" table="mb_test_md_geo" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+            <C id="country" isKey="true"><Column>country</Column></C>
+          </BindingSet>
+        </doc:xml>
+        Again, for our example, we're using a table mb_test_md_geo with the column country.
+        You can find more information on this step at <a href="../../binding/doc.xml">Bindings</a>.
+      </doc:Body>
+    </doc:SubChapter>
+
+
+    <doc:SubChapter title="Page setup">
+      <doc:Body>
+        BCD-UI can be used in any regular J2EE web application.
+        To create a HTML carrier page, add WebContent/index.html to your application.
+        To add BCD-UI capability for JavaScript to your page, start with the following code.
+        It basically holds the BCD-UI theme layout containers and includes the library.
+        <pre><![CDATA[<!DOCTYPE HTML>]]></pre>
+        <doc:xml>
+          <html>
+            <head>
+              <meta charset="UTF-8"></meta>
+              <title>Example Cube</title>
+              <script type="text/javascript" src="../../bcdui/bcdui.js"></script>
+            </head>
+            <body>
+              <div id="bcdContextMenuDiv" style="display: none"></div>
+              <div id="bcdTooltipDiv" style="display: none"></div>
+              <div id="bcdModalBoxDiv" style="display: none"></div>
+              <div id="bcdMainContainer">
+                <div id="bcdHeaderArea"><div id="bcdLogoImageArea"></div></div>
+                <div id="bcdMenuBarArea"></div>
+                <div id="bcdSpacerArea"></div>
+                <div class="bcdContentContainer">
+                  <div id="bcdSideBarContainer"><!-- add sidebar content here --></div>
+                  <div id="bcdBodyContainer">
+                    <span id="bcdCaption">Example Cube</span>
+                    <!-- add main content here -->
+                  </div>
+                </div>
+                <div id="bcdFooterArea"></div>
+              </div>
+          
+              <script type="text/javascript">
+                <!-- add your routines here -->
+              </script>
+          
+            </body>
+          </html>
+        </doc:xml>
+      </doc:Body>
+    </doc:SubChapter>
+
+    <doc:SubChapter title="Define a report filter">
+      <doc:Body>
+        Report filters are widgets allowing the user to restrict data to be shown in a report.
+        Many filters show values to choose from based on reference data.
+        <div/>
+        The filter in this example uses a list of countries. This list is first loaded into a model.
+        A BCD-UI model holds data in the from of XML for further use.
+        To add a model with the available data, add the following code to your script block:
+        <pre><![CDATA[var autoModel = new bcdui.core.AutoModel({bindingSetId: "auto_test_wrs_oracle", bRefs: "country", isDistinct: true});]]></pre>
+        The AutoModel used in this example takes distinct country information from the binding set auto_test_wrs_oracle.
+        First we need a container where the widget should appear. A header line telling what the widget is all about would be nice, too.
+        So update your bcdSideBarContainer container with:
+        <doc:xml>
+          <div id="bcdSideBarContainer">
+            <div class="bcdSection">
+              <span class="bcdCaption">Origin Country</span>
+              <div class="bcdItem"><div id="myChooser"></div></div>
+            </div>
+          </div>
+        </doc:xml>
+        And add the following to your script block after creating the AutoModel:
+        <pre><![CDATA[bcdui.widgetNg.createSingleSelect({
+  targetHtml: "myChooser"
+, targetModelXPath: "/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
+, optionsModelXPath: "$" + autoModel.id + "//wrs:Data/wrs:R/wrs:C[1]"
+})]]></pre>
+        <img src="chooser.png"/><div></div>
+        This creates a single select drop down box which appears at the given target html.
+
+        The chosen item will be stored in the guiStatus (default) target model using the targetXPath position. In this case we
+        write a "orig_country" filter (so you filter the cube's orig_country dimension). OptionsModelXPath tells the widget where it gets its values from.
+
+        You can find more about widgets <a href="../../widgets/doc.xml">here</a>.
+
+      </doc:Body>
+    </doc:SubChapter>
+
+    <doc:SubChapter title="Define the cube">
+      <doc:Body>
+        Let's define where the cube should appear. Change the bcdBodyContainer div to:
+        <doc:xml>
+          <div id="bcdBodyContainer">
+            <div id="myCube"></div>
+          </div>
+        </doc:xml>
+        And change the script block to:
+	    <pre><![CDATA[var cubeRendererLink = bcdui.component.createCube({targetHtml: "myCube"});]]></pre>
+        By default, the cube looks for a file called cubeConfiguration.xml in the same folder as your HTML page.
+        This configuration file holds the information about which binding set is responsible for the cube data and holds the measure
+        and dimension definitions.
+        <doc:xml>
+          <cube:CubeConfiguration
+            xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+            xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+            xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+            xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+
+            <wrq:BindingSet>auto_test_wrs_oracle</wrq:BindingSet>
+
+            <dm:Measures>
+              <dm:Measure id="mRevenue" caption="Revenue">
+                <calc:Calc type-name="NUMERIC" scale="1" unit="%">
+                  <calc:Div>
+                    <calc:ValueRef idRef="m01_i" aggr="sum"/>
+                    <calc:ValueRef idRef="m01_t" aggr="sum" />
+                  </calc:Div>
+                </calc:Calc>
+              </dm:Measure>
+          
+              <dm:Measure id="mProductivity" caption="Productivity">
+                <calc:Calc type-name="NUMERIC" scale="2" unit="%">
+                  <calc:Div>
+                    <calc:ValueRef idRef="m02_i" aggr="sum" />
+                    <calc:ValueRef idRef="m02_t" aggr="sum" />
+                  </calc:Div>
+                </calc:Calc>
+              </dm:Measure>
+          
+              <dm:Measure id="mProductivity_i" caption="Productivity I">
+                <calc:Calc type-name="NUMERIC" scale="1">
+                  <calc:ValueRef idRef="m02_i" aggr="sum" />
+                </calc:Calc>
+              </dm:Measure>
+          
+              <dm:Measure id="mProductivity_t" caption="Productivity T">
+                <calc:Calc type-name="NUMERIC" scale="1">
+                  <calc:ValueRef idRef="m02_t" aggr="sum" />
+                </calc:Calc>
+              </dm:Measure>
+            </dm:Measures>
+          
+          </cube:CubeConfiguration>
+        </doc:xml>
+
+        These settings declare a cube with the declared dimensions and metrics. Basically some indicator divided by total values as percentage values.
+        Further options available for cubes are described <a href="../../components/cube/doc.xml">here</a>.
+
+        To have an user interface to select dimensions and measures, BCD-UI offers you a drag'n drop cube configurator.
+        We add a container to hold the drag'n drop area. Update your bcdBodyContainer to:
+        <doc:xml>
+          <div id="bcdBodyContainer">
+            <div id="myDNDArea"></div>
+            <div id="myCube"></div>
+          </div>
+        </doc:xml>
+        And update your script area with: 
+        <pre><![CDATA[bcdui.component.createCubeConfigurator({targetHtml: "myDNDArea"
+, cubeRenderer: cubeRendererLink
+, contextMenu: true, isDefaultHtmlLayout: true});]]></pre>
+        The cube configurator needs also a configuration file which tells him which measures and dimensions can be used
+        in its drag'n drop area. This file is called dimensionsAndMeasures.xml. 
+        The configurator also offers options to enable template loading/saving, ranking and other features.
+        In the example we only use 2 for default context menu and default HTML layout. The cubeRenderer attribute links the defined cube to the configurator.
+        The dndOptionsModel.xml looks like this:
+        <doc:xml>
+          <DndOptions xmlns="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+            xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+            >
+            <cube:Dimensions>
+              <LevelRef bRef="orig_country" total="trailing" caption="Orig Country" />
+              <LevelRef bRef="orig_area"    total="trailing" caption="Orig Area" />
+              <LevelRef bRef="product_code" total="trailing" caption="Product Code" />
+              <LevelRef bRef="orig_center"  total="trailing" caption="Origin Center" />
+              <LevelRef bRef="dest_country" total="trailing" caption="Destination Country" />
+              <LevelRef bRef="dest_area"    total="trailing" caption="Destination Area" />
+              <LevelRef bRef="dest_center"  total="trailing" caption="Destination Center" />
+              <LevelRef bRef="dy"           total="trailing" caption="Day" />
+              <LevelRef bRef="cwyr"         total="trailing" caption="Week Year" />
+              <LevelRef bRef="cw"           total="trailing" caption="Calendar Week" />
+              <LevelRef bRef="yr"           total="trailing" caption="Year" />
+              <LevelRef bRef="mo"           total="trailing" caption="Month" />
+            </cube:Dimensions>
+            <cube:Measures>
+              <MeasureRef idRef="mRevenue"        caption="Revenue %"/>
+              <MeasureRef idRef="mProductivity"   caption="Productivity %"/>
+              <MeasureRef idRef="mProductivity_i" caption="Productivity I"/>
+              <MeasureRef idRef="mProductivity_t" caption="Productivity T"/>
+            </cube:Measures>
+          </DndOptions>
+        </doc:xml>
+      </doc:Body>
+    </doc:SubChapter>
+
+    <doc:SubChapter title="Use the report">
+      <doc:Body>
+        Congratulations. These were all steps required to setup a reporting cube.
+        You can now go to http://localhost:8080/demoApp/index.html to use the report.
+        <img src="cube.png"/>
+      </doc:Body>
+    </doc:SubChapter>
+
+  </doc:Chapter>
+
+</doc:Doc>

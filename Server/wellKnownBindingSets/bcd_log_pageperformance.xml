@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+  id="bcd_log_pageperformance" table="bcd_log_pageperformance" allowSelectAllColumns="true">
+
+  <C id="logTime"     type-name="TIMESTAMP"><Column>log_time</Column></C>
+  <C id="sessionId"   type-name="VARCHAR"><Column>session_id</Column></C>
+  <C id="pageHash"    type-name="VARCHAR"><Column>page_hash</Column></C>
+  <C id="requestHash" type-name="VARCHAR"><Column>request_hash</Column></C>
+  <C id="requestUrl"  type-name="VARCHAR"><Column>request_url</Column></C>
+  <C id="logName"     type-name="VARCHAR"><Column>log_name</Column></C>
+  <C id="duration"    type-name="INTEGER"><Column>duration</Column></C>
+  <C id="guiStatus"   type-name="VARCHAR"><Column>gui_status</Column></C>
+  <C id="addInfo"     type-name="VARCHAR"><Column>add_info</Column></C>
+
+  <SubjectSettings>
+    <Security>
+      <Operation permission="" name="write"/>
+    </Security>
+  </SubjectSettings>
+
+  <!-- following binding-items are augmented with values on the server -->
+  <WriteProcessing>
+    <Callbacks>
+      <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
+        <Param bindingItemId="sessionId"   expression="${bcdBean.sessionId}"           isCoalesce="false"/>
+        <Param bindingItemId="requestUrl"  expression="${bcdBean.refererUrl}"          isCoalesce="false"/>
+        <Param bindingItemId="pageHash"    expression="${bcdBean.pageHash}"            isCoalesce="false"/>
+        <Param bindingItemId="requestHash" expression="${bcdBean.requestHash}"         isCoalesce="false"/>
+        <Param bindingItemId="guiStatus"   expression="${bcdBean.refererGuiStatusDoc}" isCoalesce="false"/>
+      </Callback>
+    </Callbacks>
+  </WriteProcessing>
+
+</BindingSet>

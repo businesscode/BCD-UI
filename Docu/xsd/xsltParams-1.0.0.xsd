@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <annotation>
+    <documentation></documentation>
+  </annotation>
+
+  <import namespace="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"/>
+  <import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+
+  <!--
+    Root element, parameter container
+  -->
+  <element name="XSLTParameters" type="tns:XSLTParametersType">
+    <unique name="nameUniqueness">
+      <selector xpath="tns:Param"/>
+      <field xpath="@name"/>
+    </unique>
+  </element>
+
+  <complexType name="XSLTParametersType">
+    <choice minOccurs="0" maxOccurs="unbounded">
+      <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Deprecated, only to be used within Cube.</documentation></annotation>
+      </element>
+
+      <!-- We are listing them here instead of just tns:BaseParam because current Eclipse (less than 3.7) will validate but nut auto-suggest elements then -->
+      <element name="OrderCols" type="tns:OrderColsParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for column reordering</documentation></annotation>
+      </element>
+      <element name="DeleteRows" type="tns:DeleteRowsParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for removing rows</documentation></annotation>
+      </element>
+      <element name="Restore" type="tns:RestoreParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>For restore.xslt to restore a block of cells mark as modified or deleted within a WRS.</documentation></annotation>
+      </element>
+      <element name="InsertEmptyRows" type="tns:InsertEmptyRowsParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for inserting empty rows</documentation></annotation>
+      </element>
+      <element name="TransposeGrouping" type="tns:TransposeGroupingParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>
+          Convert one row dimension into a column dimension. I.e. the values of this input row become the headers of the resulting WRS.
+          The column itself is removed, the other dimensions column remain untouched and all non-dimension cells are adjusted accordingly.
+        </documentation></annotation>
+      </element>
+      <element name="Join" type="tns:JoinParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for joining two WRS</documentation></annotation>
+      </element>
+      <element name="Copy" type="tns:CopyParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for coping rows from WRS</documentation></annotation>
+      </element>
+      <element name="Paste" type="tns:PasteParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for pasting rows into WRS</documentation></annotation>
+      </element>
+      <element name="Paginate" type="tns:PaginateParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Pagination of WRS</documentation></annotation>
+      </element>
+      <element name="Merge" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>
+          Parameters for merging a WRS into another WRS.
+          No parameters here but a param - cDoc - is needed with the content to be merged into the input document.
+          Merging is done on row-id level. Row-ids found in input document but not in cDoc are left untouched.
+          Delete, insert and modify operations on cDoc will be reflected in the output doc.
+        </documentation></annotation>
+        <complexType></complexType>
+      </element>
+      <element name="AutoFilter" type="tns:AutoFilterParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>AutoFilter inputField of WRS</documentation></annotation>
+      </element>
+      <element name="FilterXPath" type="tns:FilterXPathParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Filter XPath</documentation></annotation>
+      </element>
+      <element name="OrderRowsAndCols" type="tns:OrderRowsAndCols" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Ordering of rows and columns</documentation>
+        </annotation>
+      </element>
+      <element name="ColDims" type="tns:ColDims" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Creating a Wrs with col dimensions from a standard Wrs</documentation>
+        </annotation>
+      </element>
+      <element name="RemoveEmptyCells" type="tns:RemoveEmptyCellsParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Parameters for removeEmptyCells. If enabled, rows and cols holding no measures are removed from Wrs. This is aware of column dimensions.</documentation>
+        </annotation>
+      </element>
+      <element name="HtmlBuilder" type="tns:HtmlBuilderParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Parameters for HTML Builder style sheet</documentation>
+        </annotation>
+      </element>
+    </choice>
+  </complexType>
+
+  <!--
+    Deprecated, for internal Cube use only
+  -->
+  <element name="Param" type="tns:ParamType">
+    <annotation><documentation>Deprecated, only to be used within Cube.</documentation></annotation>
+  </element>
+  <complexType name="ParamType">
+    <simpleContent>
+      <extension base="string">
+        <attribute name="name" type="string" use="required"/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <!--
+    Reused standard parameters
+    Common base for all concrete params
+    -->
+  <element name="BaseParam" type="tns:BaseParamType" abstract="true">
+    <annotation><documentation>
+      This is an abstract type and not to be used directly.
+    </documentation></annotation>
+  </element>
+  <complexType name="BaseParamType">
+    <attribute name="paramSetId" type="string" use="optional">
+      <annotation><documentation>
+        Optional. Per default the stylesheet finds its parameter in the paramModel by element name.
+        For example [orderCols.xslt] will use the [OrderCols] element.
+        Use this attribute if multiple [OrderCols] steps share the same paramModel, which then contains multiple [OrderCols] elements.
+        If [OrderCols] has an attribute paramSetId, it must match the optional paramSetId parameter of the stylesheet.
+      </documentation></annotation>
+    </attribute>
+  </complexType>
+  <element name="ColStartPos" type="integer"/>
+  <element name="ColEndPos" type="integer"/>
+  <element name="RowStartPos" type="integer"/>
+  <element name="RowEndPos" type="integer"/>
+  <element name="ColStartId" type="string"/>
+  <element name="ColEndId" type="string"/>
+  <element name="RowStartId"  type="string"/>
+  <element name="RowEndId"    type="string"/>
+
+  <!--  Defines a range of rows starting at 1 via pos or id -->
+  <group name="RowRange">
+    <sequence>
+      <choice>
+        <element ref="tns:RowStartPos">
+          <annotation><documentation>
+            Pos of first row number to be deleted (starting at 1). Default is 1.
+            If neither start pos nor start id is given, document start is used.
+          </documentation></annotation>
+        </element>
+        <element ref="tns:RowStartId">
+          <annotation><documentation>
+            Id of first row number to be deleted.
+            If neither start pos nor start id is given, document start is used.
+          </documentation></annotation>
+        </element>
+      </choice>
+      <choice>
+        <element ref="tns:RowEndPos" minOccurs="0">
+          <annotation><documentation>
+            Pos of last row number to be deleted (starting at 1). Defaults is last.
+            If neither end pos nor end id is given, document is used.
+          </documentation></annotation>
+        </element>
+        <element ref="tns:RowEndId" minOccurs="0">
+          <annotation><documentation>
+            Id of last row number to be deleted
+            If neither end pos nor end id is given, document is used.
+          </documentation></annotation>
+        </element>
+      </choice>
+    </sequence>
+  </group>
+
+  <!--  Defines a range of columns starting at 1 via pos or id -->
+  <group name="ColRange">
+    <sequence>
+      <choice>
+        <element ref="tns:ColStartPos">
+          <annotation>
+            <documentation>Position of start column</documentation>
+          </annotation>
+        </element>
+        <element ref="tns:ColStartId">
+          <annotation>
+            <documentation>ID of start column</documentation>
+          </annotation>
+        </element>
+      </choice>
+      <choice>
+        <element ref="tns:ColEndPos">
+          <annotation>
+            <documentation>Position of end column</documentation>
+          </annotation>
+        </element>
+        <element ref="tns:ColEndId">
+          <annotation>
+            <documentation>ID of end column</documentation>
+          </annotation>
+        </element>
+      </choice>
+    </sequence>
+  </group>
+
+
+  <!--
+    OrderCols
+  -->
+  <element name="OrderCols" type="tns:OrderColsParamType" substitutionGroup="tns:BaseParam">
+    <annotation><documentation>Parameters for column reordering</documentation></annotation>
+  </element>
+  <complexType name="OrderColsParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element ref="wrs:Columns" minOccurs="0" maxOccurs="1">
+            <annotation><documentation>
+              wrs:Columns element, listing the surviving columns in new order. If not given, input document is not touched.
+            </documentation></annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    DeleteRows
+  -->
+  <complexType name="DeleteRowsParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <group ref="tns:RowRange"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    Paginate
+  -->
+  <complexType name="PaginateParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="PageSize" default="25" type="integer" minOccurs="0">
+            <annotation><documentation>
+              Row page size to be used for pagination. Default is 25.
+            </documentation></annotation>
+          </element>
+          <element name="PageNumber" default="1" type="integer" minOccurs="0">
+            <annotation><documentation>
+              Number of page to cut out. Stating with 1. Default is 1.
+            </documentation></annotation>
+          </element>
+          <element name="ShowAllOption" default="false" type="string" minOccurs="0">
+            <annotation><documentation>
+              Is need to show "show all items" on pager instead of page view
+            </documentation></annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    AutoFilter
+  -->
+  <complexType name="AutoFilterParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence minOccurs="1" maxOccurs="unbounded">
+          <element ref="wrs:Columns" minOccurs="0" maxOccurs="1">
+            <annotation><documentation>
+              Column that gets autoFilter as inputFilter
+            </documentation></annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    FilterXPathParamType
+  -->
+  <complexType name="FilterXPathParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="Value" type="string"></element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    Restore
+  -->
+  <complexType name="RestoreParamType">
+    <annotation><documentation>
+      For restore.xslt to restore a block of cells mark as modified or deleted within a WRS.
+    </documentation></annotation>
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <group ref="tns:RowRange"/>
+          <group ref="tns:ColRange"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
+    InsertEmptyRows
+  -->
+  <complexType name="InsertEmptyRowsParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <group ref="tns:RowRange"/>
+        <attribute name="duplicate" type="string" default="false" use="optional">
+          <annotation><documentation>
+            Optional. If true, the addressed rows are duplicated, otherwise empty rows are inserted. Defaults to false.
+          </documentation></annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+
+  <!--
+    TransposeGrouping
+  -->
+  <complexType name="TransposeGroupingParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="GroupingColumnCount" type="integer">
+            <annotation><documentation>
+              Number of columns making up the dimensions. These columns need to be the leading columns of the Wrs.
+            </documentation></annotation>
+          </element>
+          <element name="TransposedColumnNo" type="integer">
+            <annotation><documentation>
+              Position of column which is to be transposed into a new row (dimension). TransposedColumnNo &lt;= GroupingColumnCount.
+            </documentation></annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+
+  <!--
+    Join
+  -->
+  <complexType name="JoinSideSpecType">
+    <sequence>
+      <element ref="wrs:Columns" minOccurs="0" maxOccurs="1"/>
+    </sequence>
+    <attribute name="idPrefix">
+      <annotation><documentation>
+        Prefix for all ids taken over from this side.
+      </documentation></annotation>
+    </attribute>
+    <attribute name="captionPrefix">
+      <annotation><documentation>
+        Prefix for all captions taken over from this side.
+      </documentation></annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="JoinParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <choice>
+        <sequence>
+           <element name="Left" type="tns:JoinSideSpecType" minOccurs="0">
+              <annotation><documentation>
+                Specifications for elements of the left side.
+              </documentation></annotation>
+            </element>
+           <element name="Right" type="tns:JoinSideSpecType" minOccurs="0">
+            <annotation><documentation>
+                Specifications for elements of the right side.
+            </documentation></annotation>
+                </element>
+              </sequence>
+          <element name="Dimensions">
+            <complexType>
+            <annotation><documentation>
+                Specification of dimension columns.
+                All columns being a dimension and being available (with same id) on both sides serve as join columns.
+            </documentation></annotation>
+              <sequence>
+                <element ref="wrs:Columns" minOccurs="0" maxOccurs="1"/>
+              </sequence>
+            </complexType>
+          </element>
+        </choice>
+        <attribute name="makeLeftOuterJoin" type="boolean" default="false">
+            <annotation><documentation>
+              If true, performs left outer join, otherwise inner join. Defaults to false = inner join.
+            </documentation></annotation>
+        </attribute>
+        <attribute name="joinColumnIdPrefix">
+          <annotation><documentation>
+            Prefix for ids of join columns taken over.
+          </documentation></annotation>
+        </attribute>
+        <attribute name="joinColumnCaptionPrefix">
+          <annotation><documentation>
+            Prefix for captions of join columns taken over.
+          </documentation></annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!-- Copy -->
+  <complexType name="CopyParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+
+          <group ref="tns:RowRange"/>
+
+          <group ref="tns:ColRange"/>
+
+          <element name="ColumnSeparator" type="string" minOccurs="0">
+            <annotation>
+              <documentation>The character separating each column (usually TAB for CSV).</documentation>
+            </annotation>
+          </element>
+
+          <element name="RowSeparator" type="string" minOccurs="0">
+            <annotation><documentation>
+            The character delimiting each row (usually ENTER for CSV).
+            </documentation></annotation>
+          </element>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+
+  <!-- Paste parameter type -->
+  <complexType name="PasteParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+
+        <sequence>
+          <group ref="tns:RowRange"/>
+
+          <element ref="tns:ColStartPos" minOccurs="0">
+            <annotation><documentation>
+            The start column no (starting from 1) of the data to be extracted.
+            </documentation></annotation>
+          </element>
+
+          <element ref="tns:ColEndPos" minOccurs="0">
+            <annotation><documentation>
+            The end column no (starting from 1) of the data to be extracted. This
+            value must be greater or equal to x1.
+            </documentation></annotation>
+          </element>
+
+          <element ref="tns:ColStartId" minOccurs="0">
+            <annotation>
+              <documentation>
+              The start col ID of the data to be extracted.
+              </documentation>
+            </annotation>
+          </element>
+
+          <element ref="tns:ColEndId" minOccurs="0">
+            <annotation>
+              <documentation>
+              The end col ID of the data to be extracted.
+              </documentation>
+            </annotation>
+          </element>
+
+        </sequence>
+
+      </extension>
+    </complexContent>
+
+  </complexType>
+
+  <!-- Order rows and columns -->
+  <complexType name="OrderRowsAndCols">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+
+        <sequence>
+
+          <element name="RowsOrder" minOccurs="0">
+            <annotation><documentation>
+              Definition of the row's ordering
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <element name="Columns" minOccurs="0">
+                  <annotation><documentation>
+                    Order by the following columns with prio in their order
+                  </documentation></annotation>
+                  <complexType>
+                    <sequence>
+                      <element name="C" minOccurs="0" maxOccurs="unbounded">
+                        <annotation><documentation>
+                          Order according to the attributes
+                        </documentation></annotation>
+                        <complexType>
+                          <attribute name="id" type="NCName" use="required"/>
+                          <attribute name="sort" default="ascending">
+                            <annotation><documentation>
+                              Sort order
+                            </documentation></annotation>
+                            <simpleType>
+                              <restriction base="string">
+                               <enumeration value="ascending"/>
+                               <enumeration value="descending"/>
+                              </restriction>
+                            </simpleType>
+                          </attribute>
+                          <attribute name="total" default="trailing">
+                            <annotation><documentation>
+                              Whether to move totals to the end or top. Wins over other sortings.
+                              'true' means the position of the totals follows their value
+                            </documentation></annotation>
+                            <simpleType>
+                              <restriction base="string">
+                               <enumeration value="leading"/>
+                               <enumeration value="trailing"/>
+                              </restriction>
+                            </simpleType>
+                          </attribute>
+                          <attribute name="sortBy" type="NCName">
+                            <annotation><documentation>
+                              A value-id according to which to sort the column.
+                              For example you can sort the countries according their population instead of their name
+                            </documentation></annotation>
+                          </attribute>
+                        </complexType>
+                      </element>
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+
+        </sequence>
+
+      </extension>
+    </complexContent>
+
+  </complexType>
+
+
+  <!-- xp:ColDims -->
+  <complexType name="ColDims">
+    <annotation><documentation>Parameters creating column row- and dimensions from a standard Wrs document</documentation></annotation>
+    <sequence>
+      <element name="Measures">
+        <complexType>
+          <sequence>
+            <element name="AllDims" minOccurs="0">
+              <annotation><documentation>List of measures broken down by all dimensions</documentation></annotation>
+              <complexType>
+                <sequence>
+                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+              </complexType>
+            </element>
+            <element name="RowDims" minOccurs="0">
+              <annotation><documentation>List of measures broken down only by row dimensions</documentation></annotation>
+              <complexType>
+                <sequence>
+                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+
+      <element name="Dimensions" minOccurs="0">
+        <annotation><documentation>Defining which row and column dimensions to apply</documentation></annotation>
+        <complexType>
+          <sequence>
+            <element name="Rows" minOccurs="0">
+              <complexType>
+                <sequence>
+                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+              </complexType>
+            </element>
+            <element name="Columns" minOccurs="0">
+              <complexType>
+                <sequence>
+                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                </sequence>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+
+    </sequence>
+  </complexType>
+
+  <!-- RemoveEmptyCells param Type -->
+  <complexType name="RemoveEmptyCellsParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <attribute name="apply">
+          <annotation><documentation>
+            Currently only 'rowCol' is allowed, all other values will disable this functionality.
+          </documentation></annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!-- HtmlBuilder param Type -->
+  <complexType name="HtmlBuilderParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="HeaderColsCount"     type="integer" minOccurs="0"/>
+          <element name="HeaderColsAreUnique" type="boolean" minOccurs="0"/>
+          <element name="TotalColumnText"     type="string" minOccurs="0"/>
+          <element name="SortTotalsFirst"     type="boolean" minOccurs="0"/>
+          <element name="SortCols"            type="boolean" minOccurs="0"/>
+          <element name="MakeEvenOddColoring" type="boolean" minOccurs="0"/>
+          <element name="MakeRowSpan"         type="boolean" minOccurs="0"/>
+          <element name="MakeColSpan"         type="boolean" minOccurs="0"/>
+          <element name="EmptyMessage"        type="string" minOccurs="0">
+            <annotation><documentation>
+              i18n key which is shown when report query did not return any data, default is bcd_EmptyReport 
+            </documentation></annotation>
+          </element>
+          <element name="OnlyMeasureForTotal" type="boolean" minOccurs="0">
+            <annotation><documentation>
+              If true, the 'total' cell in the table header above the measure names will be replaced by larger cells with the measure names (still with the style of total)
+            </documentation></annotation>
+          </element>
+          <element name="MaxCells" type="integer" minOccurs="0">
+            <annotation><documentation>Limit the output to approximately this number of cells, default is 25000</documentation></annotation>
+          </element>
+          <element name="AdditionalTemplates" minOccurs="0">
+            <annotation><documentation>
+              Contains well formed xslt template(s), keys or variables like.
+              They are appended to the generated htmlBuilderTemplate.xslt and allow overwriting cell renderer.
+              Two keys 'columnDefinitionLookupById' and 'columnDefinitionLookup' (by pos) are predefined. Sample:
+              <![CDATA[
+                <xsl:template match="wrs:Data/wrs:*/wrs:C[position()=key('columnDefinitionLookupById', 'asp_trend.')/@pos]"
+                  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
+                  <xsl:variable name="originalColumnIndex" select="substring-before(substring-after($columnOrderingList, concat('|', position() + $headerOffsetValue, ':')), '|')"/>
+                  <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', $originalColumnIndex)"/>
+                  <td style="text-align:center">
+                    <span>
+                      <xsl:choose>
+                        <xsl:when test=". > 1 ">
+                            <xsl:attribute name="class">icon-greenArrowUp</xsl:attribute>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:attribute name="class">icon-redArrowDown</xsl:attribute>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </span>
+                  </td>
+                </xsl:template>
+              ]]>
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <any namespace="##any" maxOccurs="unbounded"/>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+      </extension>
+
+    </complexContent>
+  </complexType>
+
+</schema>

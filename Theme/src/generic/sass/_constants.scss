@@ -1,0 +1,135 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+$corporate-color:               #002867 !default;
+$corporate-color-alt:           #f79642 !default;
+
+$sideBar-width:                 150px !default;
+$sideBar-width-min:             150px !default;
+$sideBar-width-max:             150px !default;
+
+$flyover-color:                 lighten($corporate-color, 50%) !default;
+$button-color:                  $corporate-color !default;
+
+$font-family-default:           Arial !default;
+$font-size-default:             11px !default;
+
+$border-radius-default:         8px !default;
+
+$headerArea-color:              #FFFFFF !default;
+$headerArea-height:             120px !default;
+
+$logoImageArea-background:      #FFFFFF !default;
+$logoImageArea-width:           0px !default;
+$logoImageArea-height:          0px !default;
+$logoImageArea-top:             0px !default;
+$logoImageArea-left:            0px !default;
+
+$menuBarArea-color:             $corporate-color-alt !default;
+$menuBarArea-background:        #FFFFFF !default;
+$menuBarArea-height:            32px !default;
+
+$spacerArea-background:         none !default;
+$spacerArea-height:             8px !default;
+
+$footerArea-color:              $corporate-color !default;
+$footerArea-background:         $corporate-color !default;
+$footerArea-height:             55px !default;
+
+$cubeLeftRight:                 false !default;
+
+$cube-color-cell:               #D9D9D9 !default;
+$cube-color-cell-total:         $corporate-color-alt !default;
+
+$control-color:                 #F8F8F8 !default;
+$text-disabled-color:           #888888 !default;
+
+$border-color:                  #C7CACE !default;
+$border-color-dark:             darken($border-color, 10%) !default;
+$border-color-bright:           lighten($border-color, 10%) !default;
+
+$border-radius-small:           $border-radius-default / 2 !default;
+
+$body-background:               #FFFFFF !default;
+
+$font-size-small:               $font-size-default - 1px !default;
+$font-size-medium:              $font-size-default + 1px !default;
+$font-size-big:                 2 * $font-size-default - 2 !default;
+
+$invalid-color:                 #F0A0A0 !default;
+$warning-color:                 #F0F0A0 !default;
+$valid-color:                   #A0F0A0 !default;
+$select-color:                  #007DFA !default;
+$select-color-text:             text-contrast($select-color) !default;
+$calendar-color:                $corporate-color !default;
+
+$text-color-dark:               #000000 !default;
+$text-color-bright:             #FFFFFF !default;
+
+// some cube constants
+
+$cube-sections-color-head:      $corporate-color !default;
+
+$cube-hover-color-body:         $cube-sections-color-head !default;
+$cube-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
+
+$cube-color-cell-border:        darken($cube-color-cell, 25%) !default;
+$cube-color-cell-even:          lighten($cube-color-cell, 8%) !default;
+$cube-color-cell-odd:           lighten($cube-color-cell, 15%) !default;
+$cube-color-cell-total-border:  darken($cube-color-cell-total, 25%) !default;
+$cube-color-measure:            lighten($cube-color-cell-total, 35%) !default;
+$cube-color-dimension:          $cube-color-cell !default;
+
+$report-color-ok:               #008000 !default;
+$report-color-warn:             #00FF00 !default;
+$report-color-fail:             #FF0000 !default;
+
+$dimHeight:                     232px !default;
+$dimWidth:                      213px !default;
+$rowDimWidth:                   110px !default;
+$rowDimPos:                     0px !default;
+$dimLeftPos:                    $rowDimPos + 3 * ($rowDimWidth + 2 + 3) !default;
+
+@if $cubeLeftRight == true {
+  $dimLeftPos:                  0px;
+  $rowDimPos:                   $dimLeftPos + 2 * ($dimWidth + 2 + 3);
+}
+
+$headWidth:                     $dimWidth - 6 !default;
+$mesLeftPos:                    $dimLeftPos + $dimWidth + 2 + 3 !default;
+$colMesPos:                     $rowDimPos + $rowDimWidth + 2 + 3 !default;
+$colDimPos:                     $colMesPos + $rowDimWidth + 2 + 3 !default;
+
+$cubeDNDWidth:                  2 * ($dimWidth + 2 + 3) + 3 * ($rowDimWidth + 2 + 3) + 2 * 5 !default;
+
+// some tree constants
+
+$tree-color-cell:               $cube-color-cell-total !default;
+$tree-color-cell-leaf:          $cube-color-cell-odd !default;
+$tree-color-cell_l1:            lighten($tree-color-cell, 25%) !default;
+$tree-color-cell_l2:            lighten($tree-color-cell, 35%) !default;
+$tree-color-cell_l3:            lighten($tree-color-cell, 45%) !default;
+$tree-color-cell-border:        darken($tree-color-cell, 25%) !default;
+
+// some grid constants
+
+$grid-color-cell:               #d8d8d8 !default;
+$grid-hover-color-body:         $corporate-color !default;
+$grid-action-color:             $corporate-color-alt !default;
+
+$grid-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
+$grid-color-cell-even:          lighten($grid-color-cell, 8%) !default;
+$grid-color-cell-odd:           lighten($grid-color-cell, 15%) !default;
+

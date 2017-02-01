@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"
+  >
+  <xs:annotation>
+    <xs:documentation>
+    </xs:documentation>
+  </xs:annotation>
+
+ <xs:element name="Configuration" type="tns:DimChooserType"/>
+
+
+ <xs:complexType name="DimChooserType">
+    <xs:annotation>
+      <xs:documentation>DimChooserType describes the type of a dimension chooser configuration model</xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1">
+      <xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence minOccurs="0" maxOccurs="1">
+            <xs:element name="FilterCondition">
+              <xs:annotation><xs:documentation>xPath expression which is added with an AND operation to the level's optionsModel xpath.</xs:documentation></xs:annotation>
+              <xs:simpleType><xs:restriction base="xs:string"/></xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute type="xs:string" use="required" name="id">
+            <xs:annotation><xs:documentation>id representing the level</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" name="bRefs">
+            <xs:annotation><xs:documentation>space separated list of binding items which are additionally loaded to the current level request</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="wildcard">
+            <xs:annotation><xs:documentation>The wildcards apply to filtering within the top down list and for server side filters. See bcdui.widget.InputField for details.</xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="contains"/>
+                <xs:enumeration value="startswith"/>
+                <xs:enumeration value="endswith"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute type="xs:string" name="filterBRefs">
+            <xs:annotation><xs:documentation>The space separated list of binding Refs that will be used in filter clause of request document. See bcdui.core.Automodel for details.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" name="mandatoryfilterBRefsSubset">
+            <xs:annotation><xs:documentation>The space separated list of binding Refs that are mandatory. See bcdui.core.Automodel for details.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:string" name="additionalFilterXPath">
+            <xs:annotation><xs:documentation>Allows using additional filters not part of $guiStatus f:Filter. See bcdui.core.Automodel for details.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:boolean" default="false" name="serverSideOptionsModelFilter">
+            <xs:annotation><xs:documentation>Turns on server sided mode. Data is retrieved while typing.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute type="xs:boolean" default="false" name="optionsModelIsSuggestionOnly">
+            <xs:annotation><xs:documentation>If true, values different from the options model can are allowed. See bcdui.widget.InputField for details.</xs:documentation></xs:annotation>
+          </xs:attribute>
+                    <xs:attribute type="xs:boolean" default="true" name="visible">
+            <xs:annotation><xs:documentation>If false, level does not appear in the drop down list but can be used as a dependency for a different level.</xs:documentation></xs:annotation>
+          </xs:attribute>
+                </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+ </xs:complexType>
+
+
+
+
+ <xs:element name="SQLTypes" type="tns:SQLTypesType"/>
+
+
+ <xs:complexType name="SQLTypesType">
+   <xs:annotation>
+      <xs:documentation>SQLType describes the type of a field in terms of JDBC</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Numeric" type="tns:NumericType" />
+      <xs:element name="DateTime" type="tns:DateTimeType" />
+      <xs:element name="XML" type="tns:XMLType" />
+      <xs:element name="Character" type="tns:Character" />
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="NumericType">
+    <xs:sequence minOccurs="1" maxOccurs="10" >
+      <xs:element name="Type" type="tns:TypeType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DateTimeType">
+    <xs:sequence minOccurs="1" maxOccurs="3" >
+      <xs:element name="Type" type="tns:TypeType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="XMLType">
+    <xs:sequence minOccurs="1" maxOccurs="1" >
+      <xs:element name="Type" type="tns:TypeType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Character">
+    <xs:sequence minOccurs="1" maxOccurs="unbounded" >
+      <xs:element name="Type" type="tns:TypeType" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TypeType">
+    <xs:simpleContent>
+      <xs:extension base="tns:TypeValueType">
+        <xs:attribute name="name">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="BIGINT"/>
+              <xs:enumeration value="BIT"/>
+              <xs:enumeration value="DECIMAL"/>
+              <xs:enumeration value="DOUBLE"/>
+              <xs:enumeration value="FLOAT"/>
+              <xs:enumeration value="INTEGER"/>
+              <xs:enumeration value="NUMERIC"/>
+              <xs:enumeration value="REAL"/>
+              <xs:enumeration value="SMALLINT"/>
+              <xs:enumeration value="TINYINT"/>
+              <xs:enumeration value="DATE"/>
+              <xs:enumeration value="TIME"/>
+              <xs:enumeration value="TIMESTAMP"/>
+              <xs:enumeration value="SQLXML"/>
+              <xs:enumeration value="VARCHAR"/>
+              <xs:enumeration value="CHAR"/>
+              <xs:enumeration value="CLOB"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+
+  <xs:simpleType name="TypeValueType">
+    <xs:restriction base="xs:int">
+      <xs:enumeration value="-5"/>
+      <xs:enumeration value="-7"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="8"/>
+      <xs:enumeration value="6"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="7"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="-6"/>
+      <xs:enumeration value="91"/>
+      <xs:enumeration value="92"/>
+      <xs:enumeration value="93"/>
+      <xs:enumeration value="2009"/>
+      <xs:enumeration value="12"/>
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2005"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="Wrs2Excel" type="tns:TypeWrs2Excel"/>
+  <xs:complexType name="TypeWrs2Excel">
+    <xs:annotation><xs:documentation>
+      Describes where and how to export the data
+    </xs:documentation></xs:annotation>
+    <xs:attribute name="sheetName" use="optional" default="Sheet1" type="xs:string">
+      <xs:annotation><xs:documentation>The target sheet name to export data to</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="startRowIdx" use="optional" type="xs:int">
+      <xs:annotation><xs:documentation>Target row offset (indexed by 0)</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="startColIdx" use="optional" type="xs:int">
+      <xs:annotation><xs:documentation>Target column offset (indexed by 0)</xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+</xs:schema>

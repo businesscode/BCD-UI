@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../_generator/all.xslt" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<Docs>
+  <Block title="BCD-UI Overview">
+    <DocUrl>../content/architecture/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/minimalCube/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/coreArtifacts/coreArtifacts.xml</DocUrl>
+  </Block>
+
+  <Block title="Components">
+    <DocUrl>../content/components/doc.xml</DocUrl>
+    <DocUrl>../content/components/cube/doc.xml</DocUrl>
+    <DocUrl>../content/components/scorecard/doc.xml</DocUrl>
+    <DocUrl>../content/components/treeReport/doc.xml</DocUrl>
+    <DocUrl>../content/components/charts/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Widgets">
+    <DocUrl>../content/widgets/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Page Infrastructure">
+    <DocUrl>../content/pageStructure/doc.xml</DocUrl>
+    <DocUrl>../content/themes/doc.xml</DocUrl>
+    <DocUrl>../content/i18n/doc.xml</DocUrl>
+    <DocUrl>../content/exports/detail/doc.xml</DocUrl>
+    <DocUrl>../content/exports/wysiwyg/doc.xml</DocUrl>
+    <DocUrl>../content/xsltLibrary/doc.xml</DocUrl>
+    <DocUrl>../content/calculations/doc.xml</DocUrl>
+    <DocUrl>../content/api/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Server Infrastructure">
+    <DocUrl>../content/security/doc.xml</DocUrl>
+    <DocUrl>../content/caching/doc.xml</DocUrl>
+    <DocUrl>../content/binding/doc.xml</DocUrl>
+    <DocUrl>../content/context/doc.xml</DocUrl>
+    <DocUrl>../content/xmlData/doc.xml</DocUrl>
+    <DocUrl>../content/logging/doc.xml</DocUrl>
+    <DocUrl>../content/filter/doc.xml</DocUrl>
+    <DocUrl>../content/filter/accessLogging/doc.xml</DocUrl>
+    <DocUrl>../content/vfs/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Development support">
+    <DocUrl>../content/debug/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/appsetup/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/bootstrap/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/writingJSDoc/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Other">
+    <DocUrl>../content/database/doc.xml</DocUrl>
+    <DocUrl>../content/generalFeatures/doc.xml</DocUrl>
+    <DocUrl>../content/utils/doc.xml</DocUrl>
+  </Block>
+
+  <Block title="Backup">
+    <DocUrl>../content/levelOfComponents/doc.xml</DocUrl>
+    <DocUrl>../content/releaseNotes/doc.xml</DocUrl>
+    <DocUrl>../content/_designRationale/doc.xml</DocUrl>
+    <DocUrl>../content/conventions/doc.xml</DocUrl>
+    <DocUrl>../content/compatibility/doc.xml</DocUrl>
+  </Block>
+</Docs>

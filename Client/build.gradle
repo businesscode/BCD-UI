@@ -1,0 +1,395 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//--------------------------------------------------
+// Deals with js and xslt sources, mainly: file-group-packaging for js and minifying
+
+// We cannot use the new plugin system as it won't support apply from: this from other build files (gradle 2.13)
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath group: 'com.eriwen', name: 'gradle-js-plugin',  version: '1.12.+'
+  }
+}
+import com.eriwen.gradle.js.JsPlugin
+apply plugin: JsPlugin
+
+//------------------------------------------
+// Configure node.js exec and modules local installation process
+apply plugin: "com.moowork.node"
+node {
+  version = "4.6.0"
+  // Set the work directory for unpacking node itself
+  workDir = file(nodeJsDir)
+}
+
+import com.eriwen.gradle.js.tasks.*
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+def bcdCopyRightText = file("$rootProject.rootDir.path/gradle/LICENSE_header.txt").text
+def newLine = System.properties['line.separator']
+
+
+//**********************************
+// Load 3rdParty js libraries to build/node_modules with the help of package.json, which we copy to build and execute npm install there
+task bcduiClient3rdPartyNpm {
+  // Workaround: Due to an issue with using NpmTask from subprojects in combination with a local node installation,
+  // we put the implementation to installTools.gradle
+  dependsOn ":bcduiClient3rdPartyNpmHelper"
+}
+
+//**********************************
+// Create a custom build of modernizr.js based on settings in gradle.properties
+task bcduiClientCollect3rdPartyModernizr( type: NodeTask ) {
+  dependsOn bcduiClient3rdPartyNpm
+
+  def taskDestDir = "$buildDir/src/js/3rdParty"
+
+  onlyIf { project.hasProperty('bcdui.3rdPartyJs.modernizr') && project.hasProperty('bcdui.3rdPartyJs.modernizr.feature-detects') }
+
+  inputs.file rootProject.rootDir.path + "/gradle.properties"
+  outputs.dir taskDestDir
+
+  doFirst {
+    file(taskDestDir).mkdirs()
+
+    // Create a custom build file for modernizr based on gradle.properties
+    def modernizsBuildTemplate = new File("$clientRoot/gradle/script/buildModernizr.js")
+    def modernizsBuild = new File("$buildDir/buildModernizr.js")
+    modernizsBuild.text = modernizsBuildTemplate.text
+    modernizsBuild.text = modernizsBuild.text.replaceAll( /.*@bcdui.3rdPartyJs.modernizr.feature-detects.*/, project.properties['bcdui.3rdPartyJs.modernizr.feature-detects'] )
+  }
+
+  // Create modernizr.js
+  script = file("$buildDir/buildModernizr.js")
+  args   = [ "$taskDestDir/modernizr.js" ]
+
+}
+
+
+
+//**********************************
+// Copy the 3rdParty js libs from their node_modules to build/src/3rdParty
+task bcduiClientCollect3rdParty {
+
+  dependsOn bcduiClient3rdPartyNpm, bcduiClientCollect3rdPartyModernizr
+
+  def taskDestDir = "$buildDir/src/js/3rdParty"
+
+  inputs.file rootProject.rootDir.path + "/gradle.properties"
+  outputs.dir taskDestDir
+
+  // Copy files that can be used 1:1 to target folder
+  doLast {
+    // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
+    def fileList = [ "jquery":         [ fn: "jquery.js",             ofn: "jquery/jquery.js"],
+                     "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
+                     "dot":            [ fn: "doT.js",                ofn: "dot/doT.js"],
+                     "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js"],
+                     "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"]
+    ]
+    // Becomes only part of the assembly, if listed in gradle.properties
+    fileList = fileList.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
+    fileList.each { key, value ->
+      copy {
+        into taskDestDir
+        from "$clientNodeModulesDir/${value.ofn}"
+        rename { value.fn }
+      }
+    }
+
+    // Optionally jquery-ui
+    if( project.hasProperty('bcdui.3rdPartyJs.jquery-ui') ) {
+      // Create custom jquery-ui file and copy it to target folder
+      def jqeryuiVersion = project.getProperty('bcdui.3rdPartyJs.jquery-ui')
+      def jqueryUiJs = new File("$taskDestDir/jquery-ui.js")
+      jqueryUiJs.text = "" // clean start
+      def featureListJs = project.properties['bcdui.3rdPartyJs.jquery-ui.js'].split(", |,| ")
+      featureListJs.each {
+        jqueryUiJs.text += file("$buildDir/node_modules/jquery-ui/ui/$it").text.replaceAll("@VERSION", jqeryuiVersion)
+      }
+      jqueryUiJs.text = jqueryUiJs.text.replace("*/", " * contains: " + featureListJs + newLine + " */")
+
+      def jqueryUiCss = new File("$taskDestDir/jquery-ui.css")
+      jqueryUiCss.text = "" // clean start
+      def featureListCss = project.properties['bcdui.3rdPartyJs.jquery-ui.css'].split(", |,| ")
+      featureListCss.each {
+        jqueryUiCss.text += file("$buildDir/node_modules/jquery-ui/themes/base/$it").text.replaceAll("@VERSION", jqeryuiVersion)
+      }
+    }
+
+    // Prepend @license to all 3rdParty js files' first comment to preserve license text it during minify
+    def commentPattern = ["/**!", "/*!", "/**", "/*", "//"]
+    fileTree(dir: taskDestDir, include: ['**/*.js']).each { jsFile ->
+      def text = jsFile.text
+      if (text.contains("@license"))
+        return
+      for (pattern in commentPattern) {
+        if (text.startsWith(pattern)) {
+          jsFile.text = pattern + " @license" + text.substring(pattern.length())
+          break
+        }
+      }
+    }
+  }
+}
+
+
+//**********************************
+// Merge js file units into combined files following the packaged "core, "chart", "cube" and so on
+// and adjust bcduiFiles.json accordingly. This task is distribution agnostic, i.e. it includes all source packages, 'chart'...
+// Input
+//   the individual src/js and $generatedApisDir/js files and bcduiLoader.js
+// Output per package ("core, "chart", ..)
+//   a) combined but uncompressed: debug/<name>-debug.js
+//   b) minified: distribution/<name>.js
+//   c) source code map: docs/ <name>.sourcemap.json
+task bcduiClientJsFileGroups {
+  dependsOn ':ApisGenerator:build', bcduiClientCollect3rdParty
+
+  def taskDestDirName = "$buildDir/tmp/${name}"
+
+  // bcduiFiles.json knows which files go into which bundle
+  def origBcduiLoaderJsonSplit = file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")
+  def bcduiFiles = new JsonSlurper().parseText(origBcduiLoaderJsonSplit[1])
+
+  // For each api package "core, "chart", "cube" etc (see bcduiLoader.js), we create a "combineJS_chart" and a "minify_chart" etc task
+  // and add them to the dependency chain in our configuration. If we are later executed, we just run them.
+  bcduiFiles.groups.each { fileSet ->
+
+    doFirst {
+      // Check for missing files. We do not do this within the combine-task definition below, because the creation is happening during the run phase, which is later
+      files( fileSet.files.collect {
+        if( file("./src/$it").exists() )
+          return "./src/$it"
+        else if( it.contains('/3rdParty/') )
+          return "$buildDir/src/$it"
+        else if( file("$generatedApisDir/$it").exists() )
+          return "$generatedApisDir/$it"
+        else
+          throw new GradleException("Javascript source $it mentioned in 'bcduiLoader.js' not found, neither in ./src nor in $generatedApisDir nor in $buildDir/src")
+      })
+    }
+
+    def fileGroupName = fileSet.id
+
+    // This is used by JSDoc to generate api stubs and api HTML docu
+    task( "bcduiTmpCombineJs_$fileGroupName", type: CombineJsTask ) {
+      source = files( fileSet.files.findAll{ !it.contains("3rdParty") }.collect {
+        if( file("./src/$it").exists() )
+          return "./src/$it"
+        else // May not be there during configuration phase, but here we promise, it will be there when executing
+          return "$generatedApisDir/$it"
+      })
+      inputs.files file("./src/js/$jsBcduiLoader")
+      dest = file("$clientFileGroupsDebug/${fileGroupName}-debug.js")
+      doLast {
+        dest.text = "/* $bcdCopyRightText */" + newLine + dest.text
+      }
+    }
+    dependsOn += "bcduiTmpCombineJs_$fileGroupName"
+
+    // fgMap maps fgNames names to an array of files
+    // Each 3rdParty source in this fileGroup becomes a separate minified file
+    // All non 3rdParty sources are minified into a single source per group
+    def fgMap = [:]
+    fileSet.files.findAll{ it.contains("3rdParty") }.each { fName ->
+      def f = file(fName)
+      def name = f.name.lastIndexOf('.').with {it != -1 ? f.name[0..<it] : f.name}
+      fgMap.put( name, [ fName ] )
+    }
+    if( fileSet.files.any{ ! it.contains("3rdParty") } )
+      fgMap.put( fileSet.id, fileSet.files.findAll{ ! it.contains("3rdParty") } )
+
+    // This will be placed in BCD-UI's binary jar (minified js) and in dev.jar (source maps)
+    fgMap.each { fgName, fileList ->
+
+      // Workaround: Currently CompilerOptions.LanguageMode is a global setting and we cannot control it per source, so we need to skip webcomponents here
+      // We do not switch globally to CompilerOptions.LanguageMode.ECMASCRIPT5 because ECMASCRIPT3 helps us detecting issues
+      // Create a task so that we can delay the copy until we really run, same as for those which get a real bcduiTmpMinifyJs_
+      if( ["webcomponents-lite"].any{ it.equals(fgName)} ) {
+        task bcduiTmpMinifyJs_Webcomponents( type: Copy ) {
+          from file("$buildDir/src/"+fileList[0])
+          into file("$clientFileGroupsDist/3rdParty")
+        }
+        dependsOn += bcduiTmpMinifyJs_Webcomponents
+        return
+      }
+      // All others go through minify
+      task( "bcduiTmpMinifyJs_$fgName", type: MinifyJsTask ) {
+        source = files( fileList.collect {
+          if( file("./src/$it").exists() )
+            return "./src/$it"
+          else if( it.contains('/3rdParty/') )
+            return "$buildDir/src/$it"
+          else // May not be there during configuration phase, but here we promise, it will be there when executing
+            return "$generatedApisDir/$it"
+        })
+        dest      = fileList[0].contains("3rdParty") ? file("$clientFileGroupsDist/${fileList[0].substring(3)}") : file("$clientFileGroupsDist/${fgName}.js")
+        sourceMap = file("$clientFileGroupsDebug/${fgName}.sourcemap.json")
+        closure {
+          warningLevel = 'QUIET'
+        }
+        doLast {
+          // Make location indicated in source map for expanded js files relative to minified onces
+          def absPath = file("src/js/").path.replaceAll("\\\\","/")
+          sourceMap.text = sourceMap.text.replaceAll("\\\\\\\\","/").replaceAll(absPath, ".")
+          absPath = file("gensrc/js/").path.replaceAll("\\\\","/")
+          sourceMap.text = sourceMap.text.replaceAll("\\\\\\\\","/").replaceAll(absPath, ".")
+
+          // Prepend (c)
+          if( ! fileList[0].contains("3rdParty") )
+            dest.text = "/* $bcdCopyRightText */" + newLine + dest.text
+        }
+      }
+      // We (jsFileGroups) depend on all these minifyJs tasks, which in turn each depend on one corresponding combineJs task
+      dependsOn += "bcduiTmpMinifyJs_$fgName"
+    }
+  }
+
+  doLast {
+    //--------
+    // Now we write a new version of bcduiLoader.js, where each group is represented by just the one combined file the the group's name
+    bcduiFiles.groups.each {
+      // Keep 3rdParty files separate and replace - if any - all non 3rdParty by the group's name
+      it.files = it.files.findAll{ it.contains("3rdParty") } + ( it.files.any{ ! it.contains("3rdParty") } ? ['/js/' + it.id + '.js'] : [] )
+      it.remove('buildFolders')
+    }
+    def newBcduiLoader = new File("$clientFileGroupsDist/$jsBcduiLoader")
+    newBcduiLoader.createNewFile()
+    newBcduiLoader.text = origBcduiLoaderJsonSplit[0]
+    newBcduiLoader << JsonOutput.toJson( bcduiFiles )
+    newBcduiLoader << origBcduiLoaderJsonSplit[2]
+  }
+
+}
+
+
+//**********************************
+// Shrink XSLTs and other non-js for production use and put them to build/bcduiClientPrepareNonJs
+task bcduiClientPrepareNonJs( type: Sync ) {
+
+  into "$buildDir/tmp/${name}"
+  includeEmptyDirs = false
+
+  // Non-js from js folders
+  from( 'src/js' ) {
+    into( "bcdui/js" )
+    exclude '**/*.js'
+  }
+  // Generated non-js from js folders
+  from( "$generatedApisDir/js" ) {
+    into( "bcdui/js" )
+    exclude '**/*.js'
+  }
+  // Client XSLT lib
+  from( 'src/xslt' ) {
+    into "/bcdui/xslt"
+  }
+
+  doLast {
+    //--------
+    // Remove comments and empty lines from xml, xslt, add copyright
+    fileTree(dir: destinationDir, exclude: "**/xslt/3rdParty/**", include: ['**/*.xml','**/*.xslt']).each { xmlSource ->
+      def fileContent = xmlSource.text
+      fileContent = fileContent.replaceAll(/(?s)\s*<!--.*?-->/,"");
+      fileContent = fileContent.replaceAll(/\r\n( *\r\n)+/,newLine);
+      fileContent = fileContent.replaceFirst(">\r\n",">"+newLine+"<!-- $bcdCopyRightText -->"+newLine)
+      xmlSource.text = fileContent
+    }
+  }
+
+}
+
+//**********************************
+// A complete Client distribution at build/WebContent 1:1 as a an exploded file tree, input for jar
+task bcduiClientDistCollect( type: Sync ) {
+  dependsOn bcduiClientJsFileGroups
+
+  // This needs to point to WebContent root folder, because outputs is used from other tasks
+  into "$buildDir/WebContent"
+  includeEmptyDirs = false
+
+  // Javascript minified
+  from( clientFileGroupsDist ) {
+    into 'bcdui/js'
+  }
+
+  // Non-js from js folders and xslt lib
+  from( bcduiClientPrepareNonJs ) {
+    exclude '**/*.js'
+  }
+
+  // 3rdParty css
+  from( "$buildDir/src/js/3rdParty" ) {
+    into 'bcdui/js/3rdParty'
+    include '**/*.css'
+  }
+}
+
+//*********************************
+// Create a jar containing BCD Client sources
+// When being deployed, it relies in StaticResourceServlet in BCD-UI-Server.jar to be found in jar
+task bcduiDist(type: Jar) {
+
+  baseName = "$artifactsBaseName-client"
+  version  = bcduiVersion
+
+  destinationDir = file("$buildDir/libs")
+
+  from bcduiClientDistCollect
+
+  manifest {
+    attributes( bcduiManifestAttributes() )
+  }
+  metaInf {
+    from bcduiMetaInf
+  }
+}
+
+
+//************************************
+// Clean artifacts excluding node_modules
+task clean {
+  group "bcd-ui"
+  doFirst {
+    if( !file(buildDir).exists() )
+      return;
+    buildDir.eachDir {
+      if( it.name == 'node_modules' )
+        return
+      it.deleteDir()
+    }
+    buildDir.eachFile {
+      it.delete()
+    }
+  }
+}
+
+//************************************
+// Clean 3rdParty artifacts
+task clean3rdParty( type: Delete ) {
+  group "bcd-ui"
+  delete buildDir
+}
+
+//************************************
+// Do all for what gradle 'Client' project is responsible for
+task build {
+  dependsOn bcduiDist
+}

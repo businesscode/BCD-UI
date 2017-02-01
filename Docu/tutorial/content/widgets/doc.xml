@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<doc:Doc title="Widgets Overview" xmlns:doc="http://www.businesscode.de/schema/bcdui/doc-1.1.0" state="">
+
+  <doc:Chapter title="Widgets Overview" type="overview">
+
+    <doc:Body>
+      Widgets are small visual objects for user interaction.
+      Commonly they store their state, the user's selection in a target model (by default guiStatus).
+      The targetModelXPath points to the exact place where data is stored. Widgets usually work in 2 ways. If the user
+      clicks/selects/does an action on it, the target value changes. On the other hand, when you change the value (e.g. via javascript),
+      the widget should update itself visually to be in sync with the value.
+    </doc:Body>
+    <doc:Body>
+      Some widgets have an options model reference as data source (e.g. the entries which are shown in a drop down box). The option model
+      is referenced via (required)optionsModelXPath and (optional)optionsModelRelativeValueXPath. They point to value and caption information used
+      for the widget.
+    </doc:Body>
+    <doc:Body>
+      Two widget apis are available. Widget and (prefered)WidgetNg. Below a list of widgets is shown plus hyperlinks to the single apis.
+    </doc:Body>
+
+    <doc:SubChapter title="Widgets creation">
+      <doc:Body>
+        As widgets support their API in different languages, widgets can be created in different ways.
+        All are expecting the same set of parameters, but when using js, providing <code>targetHTMLElement</code> is mandatory.
+        Note: the creation itself, the result and behavior of the created widget is exactly the same.
+        <dl>
+          <dt>JS</dt>
+          <dd>A js factory is available following the naming convention:
+              <code>bcdui.widget.createSingleSelect( {id:"myId" ...} )</code>
+          </dd>
+          <dt>JSP</dt>
+          <dd>On a JSP page you can use the tags:
+              <code>&lt;w:singleSelect id="myId" ... /></code>
+          </dd>
+          <dt>XSLT</dt>
+          <dd>When a widget is to be created from within XSLT, you can do:
+              <code>&lt;xsl:call-template name="singleSelect">&lt;xsl:with-param name="id" select="'myId'"/>...</code></dd>
+          <dt>XAPI</dt>
+          <dd>XAPI allows you saying:
+              <code>&lt;xapi:SingleSelect" id="myId" .../></code></dd>
+        </dl>
+      </doc:Body>
+    </doc:SubChapter>
+  </doc:Chapter>
+
+  <doc:Chapter title="Widget Ng Overview">
+    <doc:SubChapter title="Button">
+      <doc:Body>
+        <img src="./images/ng_button.png"/>
+        <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Button:</a> A button widget for a clickable action
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Checkbox">
+      <doc:Body>
+      <img src="./images/ng_checkbox.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Checkbox:</a> A checkbox widget which allows a on/off (true/false, 1/0) switch
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Connectable">
+      <doc:Body>
+      <img src="./images/ng_connectable.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Connectable:</a> Connectables, can be used in various ways
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Date Input">
+      <doc:Body>
+      <img src="./images/ng_dateInput.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Date Input:</a> A HTML5 dateinput control
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Input">
+      <doc:Body>
+      <img src="./images/ng_input.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Input:</a> A basic input control
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="SideBySide Chooser">
+      <doc:Body>
+      <img src="./images/ng_sideBySideChooser.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">SideBySide Chooser:</a> A side-by-side chooser allowing selection and ordering of items
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Single Select">
+      <doc:Body>
+      <img src="./images/ng_singleSelect.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Single Select:</a> A drop down selector
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Suggest Input">
+      <doc:Body>
+      <img src="./images/ng_suggestInput.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Suggest Input:</a> A drop down selector with autocompletion functionality and custom rendering
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Text Area">
+      <doc:Body>
+      <img src="./images/ng_textArea.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Text Area:</a> A (resizable) text area field, which allows multiline input
+      </doc:Body>
+    </doc:SubChapter>
+  </doc:Chapter>
+
+  <doc:Chapter title="Widget Overview">
+    <doc:SubChapter title="Blind UpDown">
+      <doc:Body>
+      <img src="./images/w_blindUpDown.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Blind UpDown:</a> A collapsable/expandable area
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Contex Menu">
+      <doc:Body>
+      <img src="./images/w_contextMenu.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Context Menu:</a> A context menu which can be linked to a cell
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Dimension Chooser">
+      <doc:Body>
+      <img src="./images/w_dimensionChooser.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Dimension Chooser:</a> A multi level selector
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Formula Editor">
+      <doc:Body>
+      <img src="./images/w_formulaEditor.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Formula Editor:</a> A formula Editor for building custom calculations
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Input Field">
+      <doc:Body>
+      <img src="./images/w_inputField.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Input Field:</a> An autocompletion input widget
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Login Form">
+      <doc:Body>
+      <img src="./images/w_loginForm.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Login Form:</a> A simple login form widget for username and password
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Menu">
+      <doc:Body>
+      <img src="./images/w_menu.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Menu:</a> A top menu bar widget
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Multi Select">
+      <doc:Body>
+      <img src="./images/w_multiSelect.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Multi Select:</a> A multiple selection widget (select list or checkbox list)
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Period Chooser">
+      <doc:Body>
+      <img src="./images/w_periodChooser.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Period Chooser:</a> A date/date range popup calendar
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Single Select">
+      <doc:Body>
+      <img src="./images/w_singleSelect.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Single Select:</a> A radio button widget offering single selection
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Tab">
+      <doc:Body>
+      <img src="./images/w_tab.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Tab:</a> Tabs allow to switch different views of the same data or between different data within a page
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Tooltip">
+      <doc:Body>
+      <img src="./images/w_tooltip.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Tooltip:</a> Flyover, Tooltips connected to cells
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="User Messages Editor">
+      <doc:Body>
+      <img src="./images/w_userMessagesEditor.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">User Message Editor:</a> A grid like editor to administrate user messages
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="User Messages Viewer">
+      <doc:Body>
+      <img src="./images/w_userMessagesViewer.png"/>
+      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">User Message Viewer:</a> A window like viewer for the setup user messages
+      </doc:Body>
+    </doc:SubChapter>
+  </doc:Chapter>
+</doc:Doc>
+

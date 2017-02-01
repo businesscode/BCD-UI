@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Doc title="Writing JSDoc" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+  <Chapter title="Overview" type="overview">
+    <Body>
+      This chapter contains information on how to use JSDoc with BCD-UI.
+    </Body>
+
+    <SubChapter title="Declaring a namespace">
+      <Body>
+        A namespace can be declared with the <code>bcdui.util.namespace</code> utility function.
+        The name of the namespace is the first argument and its additional content
+        is the second (will be merged if the namespace already exists). To
+        make it visible to JSDoc add the following tags in front of the
+        bcdui.util.namespace declaration:
+        <pre>
+          /**
+           * @namespace   ... namespace description ...
+           * @name org.mynamespace
+           */
+          bcdui.util.namespace("org.mynamespace", {
+            /**
+             * ... function description ...
+             * @memberOf org.mynamespace
+             */
+            myFunction: function(args) {
+              ... function body ...
+            }
+
+            ... more functions and variables ...
+          }); // namespace
+        </pre>
+        The text <code>org.mynamespace</code> stands for the name of the namespace to be
+        declared. The nested functions and variables inside the namespace get the
+        <code>@memberOf</code> tag together with the namespace name so that they are
+        considered members of the namespace. Please note that it is not
+        recommended to put class definitions directly inside namespace definition
+        blocks. Instead they should be declared behind the namespace declaration.
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Class documentation for prototype.js style classes">
+      <Body>
+        Usually a class is created with the prototype.js function
+        <code>Class.create</code>. The JSDoc comments required to mark it as
+        a class are as follows:
+        <pre>
+          org.mynamespace.MyClass = Class.create(org.mynamespace.BaseClass,
+            /**
+             * @lends org.mynamespace.MyClass#
+             */
+            {
+              /**
+               *   ... constructor description ...
+               * @constructs
+               * @class
+               *   ... class description ...
+               * @extends org.mynamespace.BaseClass
+               * @member org.mynamespace.MyClass
+               */
+              initialize: function(args)
+                {
+                   ... constructor code ...
+                }
+            }
+          ); // class
+        </pre>
+        There some imporant things to keep in mind:
+        <ul>
+          <li>The <code>@lends</code> tag comes directly before the anonymous class member
+              definition block. It signals JSDoc that the properties of this block
+              belong to the given class.</li>
+          <li>The class name in the <code>@lends</code> tag must end with a hash (#).
+              Otherwise it is not correctly recognized by JSDoc.</li>
+          <li>There must be a constructor function (initialize in prototype.js) inside
+              the block. Otherwise it is not recognized as a class.</li>
+          <li>The constructor function must be marked with the <code>@constructs</code>
+              tag.</li>
+          <li>The only function of the <code>@class</code> tag is to add class
+              documentation. It does not define a class for JSDoc. Instead the
+              <code>@constructs</code> tag handles this.</li>
+          <li>The <code>@member</code> tag is required for the Eclipse IDE so that it
+              recognizes the class. It must only occur at the constructor function,
+              because otherwise it is interpreted by JSDoc and it marks the
+              function it is placed at as static.</li>
+          <li>The <code>@memberOf</code> tag is not used for classes, because it also
+              makes JSDoc treat the function as static. It is only useful for
+              declaring functions in namespaces.</li>
+        </ul>
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Function documentation">
+      <Body>
+        The function documentation of JSDoc looks as follows:
+        <pre>
+          /**
+           * ... function documentation ...
+           * @param {Object} param1   ... param description ...
+           * @param {Function?} param2  ... param description ...
+           * @return {Object} Return value
+           */
+          function(param1, params) {
+            ... function body ...
+            return ...
+          }
+        </pre>
+        The parameters can be specified with the <b>@param</b> tag which takes the
+        DataType as first argument, the parameter name as second and then the
+        description. The data type can be suffixed with "?" to denote an optional
+        parameter. It is also possible to specify multiple types in a pipe-separated
+        list, for example <code>{Object|String}</code>. Please note that argument
+        maps should be explained in the description text rather than describing
+        them as pseudo-parameters.
+      </Body>
+    </SubChapter>
+
+    <SubChapter title="Documenting shortcut functions">
+      <Body>
+        In some cases it is required to define shortcut functions for more complicated
+        functions on global scope. Since these functions are copies of other functions
+        there is some extra JSDoc code necessary:
+        <pre>
+          /**
+           * ... function docu ...
+           * @function
+           * @param ... parameter docu ...
+           * @return ... return value ...
+           */
+          $shortcut = org.mynamespace.fn;
+        </pre>
+        The function needs to be marked with the <code>@function</code> tag so that
+        JSDoc does not recognize it as variable. Additionally the description and the
+        parameters and return value need to be copied from the original function
+        documentation.
+      </Body>
+    </SubChapter>
+  </Chapter>
+
+</Doc>

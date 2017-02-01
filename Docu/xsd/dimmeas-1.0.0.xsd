@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema version="1.0" elementFormDefault="qualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+  xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+
+  <xs:annotation><xs:documentation>
+
+      This XSD defines the structure of dimensions and measures of BCD-UI.
+
+  </xs:documentation></xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/cube-2.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+
+  <xs:element name="DimensionsAndMeasures">
+    <xs:annotation><xs:documentation>
+      List overall dimensions and measures shared by multiple cubes.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Dimensions">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="tns:LevelRef" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element ref="tns:Measures"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ===================================================================== -->
+  <xs:element name="Measures">
+    <xs:annotation><xs:documentation>
+      List of definition of measures.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tns:Measure" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:key name="measureUnique"><xs:selector xpath="tns:Measure"/><xs:field xpath="@id"/></xs:key>
+  </xs:element>
+
+  <!-- ===================================================================== -->
+  <xs:element name="Measure">
+    <xs:annotation><xs:documentation>
+      Definition of a single measure.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="calc:Calc"/>
+        <xs:element ref="tns:DetailData" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:NCName" use="required">
+        <xs:annotation><xs:documentation>
+          id if the measure. not shown to users, unique within the document.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="caption" type="xs:string">
+        <xs:annotation><xs:documentation>
+          Caption of the measure, shown to users.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="userDefined" type="xs:boolean">
+        <xs:annotation><xs:documentation>
+          If true, this measure was created from on-the-fly user input.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="userInput" type="xs:string">
+        <xs:annotation><xs:documentation>
+          Readable formula string entered by the user if this is a userDefined measure.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+    <xs:attributeGroup ref="tns:measureLayoutInformtion"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ===================================================================== -->
+  <xs:element name="LevelRef" type="tns:TypeLevelRef">
+    <xs:annotation><xs:documentation>
+      Reference to a dimension level.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:complexType name="TypeLevelRef">
+    <xs:sequence>
+      <xs:element ref="cube:VDM" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          A virtual dimension member is an artificial dimension value like "'BeNeLux' = 'NL'+'LU'+'BE'" with a calc applied to all measures.
+          Important note: Better do not provide @scale or @unit for the calc:Calc of the VDM, then each measure's setting is used.
+          Also use calc:ValueRefs/@dmRef and not @idRef for VDM.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="bRef" type="xs:NCName" use="required">
+      <xs:annotation><xs:documentation>
+        Binding item to be used for this dimension level
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sort" type="tns:TypeSortAttr" default="ascending">
+      <xs:annotation><xs:documentation>
+        Whether and how (ascending/descending) to sort dimension member values. Also see @sortBy.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sortBy" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        If given, the sort of this level is not based on the dimension's value but on the given bRef. Can be the value itself, an extra sort bRef of a measure.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="total" type="tns:TypeTotalAttr">
+      <xs:annotation><xs:documentation>
+        Whether and where to show (sub-)totals 'leading'/'trailing'. 'true' means they are sorted according to their value.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string">
+      <xs:annotation><xs:documentation>
+        Optional for overwriting caption.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="captionBRef" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        Additional bRef with the caption information, currently only auto-evaluated by the cube.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="orderBRef" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        If given, the dimension values are listed in ascending value order given by this bRef.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:attributeGroup name="measureLayoutInformtion">
+    <xs:attribute name="sort" type="tns:TypeSortAttr" default="ascending">
+      <xs:annotation><xs:documentation>
+        Whether and how (ascending/descending) to sort the values.
+        A dimension level @sort will win over this, you can only levels sort within that sorting.
+        Add @sortColDims, if column dimensions are present.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cumulateCol" type="tns:cumulateType">
+      <xs:annotation><xs:documentation>
+        If given, the measure is cumulated col-wise in the cube.
+        'cumulate': plain cumulate. 'cumulate%' give percentage of cumulated value. '%': give percentage of sub-total.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cumulateRow" type="tns:cumulateType">
+      <xs:annotation><xs:documentation>
+        If given, the measure is cumulated row-wise in the cube.
+        'cumulate': plain cumulate. 'cumulate%' give percentage of cumulated value. '%': give percentage of sub-total.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sortColDims" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        If column dimensions are there, this clarifies which occurance (column) of this measure is used for sorting.
+        For each column level, list one dimension member, separated by '|'.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cumulateColDim" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        If given, the measure's cumulation is only done for this dimension member, all other occurances of the measure are plain.
+        For each column level, list one dimension member, separated by '|'.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- ===================================================================== -->
+  <xs:element name="MeasureRef" type="tns:TypeMeasureRef" substitutionGroup="calc:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Reference to a measure.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="TypeMeasureRef">
+    <xs:complexContent>
+      <xs:extension base="calc:CalculatedValueType">
+        <xs:attribute name="idRef" type="xs:NCName">
+          <xs:annotation><xs:documentation>
+            Id of the referenced dm:Measure, use this or @bRef
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="bRef" type="xs:NCName">
+          <xs:annotation><xs:documentation>
+            bRef reference to a binding item. Use this or @idRef for referencing a measure.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="caption" type="xs:string">
+          <xs:annotation><xs:documentation>
+            Auto-evaluated by the cube
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attributeGroup ref="tns:measureLayoutInformtion"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="cumulateType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="cumulate"/>
+      <xs:enumeration value="cumulate%"/>
+      <xs:enumeration value="%"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ===================================================================== -->
+  <xs:element name="Translations" type="tns:TypeTranslations">
+    <xs:annotation><xs:documentation>
+      This allows to take the detail data from a different source and possibly translate dimensions.
+    </xs:documentation></xs:annotation>
+  </xs:element>
+
+  <!-- ===================================================================== -->
+  <xs:complexType name="TypeTranslations">
+    <xs:sequence>
+      <xs:element name="DimensionTranslation" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Use this to translate LevelRef/@bRef values for a whole dimension into another dimension.
+          See documentation of the cube for the allowed target dimensions.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="from" use="required">
+            <xs:annotation><xs:documentation>
+              Id of the dimension to be translated.
+            </xs:documentation></xs:annotation>
+            <xs:simpleType><xs:restriction base="xs:string"><xs:minLength value="1"></xs:minLength></xs:restriction></xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="to" type="xs:string">
+            <xs:annotation><xs:documentation>
+              Id of the target dimension. If to is not given, @bRef in from-dimension are dropped.
+              Use this if the target does not have a matching dimension.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FilterTranslation" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Use this to translate individual binding items
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="from" type="xs:string"/>
+          <xs:attribute name="to" type="xs:string"/>
+          <xs:attribute name="toRangeWhen" type="xs:string"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="bindingSet" use="optional">
+      <xs:annotation><xs:documentation>
+        Date needs to be taken from a different BindingSet than the one used for the report.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="analysisUrl" use="optional">
+      <xs:annotation><xs:documentation>
+        Another report supports analysis in more detail, sets the filter accordingly. Also see @cubeId.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cubeId" use="optional">
+      <xs:annotation><xs:documentation>
+        If given, @analysisUrl refers to a page with a BCD-UI cube and this is the cube's id for which we prepare a cube:Layout.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+
+  <!-- Defaults for detail exports and analysis, identified by name -->
+  <xs:element name="DetailDataDefaults">
+    <xs:annotation><xs:documentation>
+      Specific default export settings.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="DetailData" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="tns:Translations" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  Take data from a different source.
+                </xs:documentation></xs:annotation>
+              </xs:element>
+              <xs:element ref="f:Filter" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  Filters that come in addition to the filters derived from the statusModel and the cell's position in the report.
+                </xs:documentation></xs:annotation>
+              </xs:element>
+              <xs:element name="PrependColumns" type="wrq:TypeSelectColumns" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  Export columns, prepended to any specific columns from DetailData.
+                </xs:documentation></xs:annotation>
+              </xs:element>
+              <xs:element name="AppendColumns" type="wrq:TypeSelectColumns" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  Export columns, appended to any specific columns from DetailData.
+                </xs:documentation></xs:annotation>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string" use="optional">
+              <xs:annotation><xs:documentation>
+                Name under which this may be referred by DetailData/@defaults.
+                If empty it is used for all dm:DetailData where @default is also empty.
+              </xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Detail export definition, may reference a DetailExportDefault -->
+  <xs:element name="DetailData">
+    <xs:annotation><xs:documentation>
+      Definition(s) of available detail data for an item.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tns:Translations" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Take data from a different source.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element ref="f:Filter" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Filters that come in addition to the filters derived from the statusModel and the cell's position in the report.
+            Overwrite dm:DetailExportDefault settings.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="Columns" type="wrq:TypeSelectColumns" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Export columns. First entry is prepended, second is appended to specific columns.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="defaults" type="xs:string" use="optional">
+        <xs:annotation><xs:documentation>
+          Refers to a DetailDataDefault element, which combined with this .
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="scope" type="xs:string" use="optional">
+        <xs:annotation><xs:documentation>
+          Use this to provide more than one export configuration, for example to show two different types of export in the context menu for an item.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:simpleType name="TypeTotalAttr">
+    <xs:annotation><xs:documentation>
+      Whether and where to show (sub-)totals. 'true' means they are sorted according to their value.
+    </xs:documentation></xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="leading"/>
+      <xs:enumeration value="trailing"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TypeSortAttr">
+    <xs:annotation><xs:documentation>
+      Whether and how to sort dimension member values
+    </xs:documentation></xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ascending"/>
+      <xs:enumeration value="descending"/>
+    </xs:restriction>
+   </xs:simpleType>
+
+  <xs:simpleType name="TypeAggrAttr">
+    <xs:annotation><xs:documentation>
+      Possible aggregations of a measure
+    </xs:documentation></xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sum"/>
+      <xs:enumeration value="avg"/>
+      <xs:enumeration value="min"/>
+      <xs:enumeration value="max"/>
+      <xs:enumeration value="count"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+   </xs:simpleType>
+
+  <!-- Definition of bcdui/conf/dimensions.xml with project-wide definitions of dimensions, hierarchies and levels -->
+  <xs:element name="Dimensions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Dimension" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Hierarchy" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="id">
+                          <xs:annotation><xs:documentation>Id, unique within the parent hierarchy</xs:documentation></xs:annotation>
+                        </xs:attribute>
+                        <xs:attribute name="bRef">
+                          <xs:annotation><xs:documentation>Where to find the data</xs:documentation></xs:annotation>
+                        </xs:attribute>
+                        <xs:attribute name="type">
+                          <xs:annotation><xs:documentation>
+                            This is to match levels of different hierarchies and dimensions.
+                            For example origin-country and destination-country levels in origin and destination dimension will have the same type country.
+                          </xs:documentation></xs:annotation>
+                        </xs:attribute>
+                        <xs:attribute name="unique" type="xs:boolean" default="true">
+                          <xs:annotation><xs:documentation>
+                            If false, the a value for a level is only unique within a value of a parent level.
+                            For example mo is only unique within yr, but yr is in fact unique.
+                          </xs:documentation></xs:annotation>
+                        </xs:attribute>
+                        <xs:attribute name="caption"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="id">
+                    <xs:annotation><xs:documentation>Id, unique within the parent dimension</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="bindingSet">
+                    <xs:annotation><xs:documentation>Where to get the actual values for this hierarchy's levels</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          <xs:attribute name="id">
+            <xs:annotation><xs:documentation>Unique id of the dimension.</xs:documentation></xs:annotation>
+          </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

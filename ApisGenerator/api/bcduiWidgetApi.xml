@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Root title="Widget">
+
+  <WorkingDraft>
+
+    <BcdAPI>
+
+      <Api name="childSemantic">
+        <Doc>
+          Marks the given data provider as having a specific semantic.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:dataProvider" doc="Marks the given data provider as having a specific semantic." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="executable">
+        <Doc>
+          Can be executed and has a status ready/nonready.
+        </Doc>
+        <Param name="id" type="string">
+          <Doc>
+            Id of the data provider, unique on the page. If omitted the id is automatically generated.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:model" doc="A model loaded from a URL." />
+              <Child name="b:inlineModel" doc="A model which is created from the XML data inside its body." />
+              <Child name="b:modelWrapper" doc="A generated model computed by applying an XSLT transformation chain to a set of models (XML documents)." />
+              <Child name="b:ref" doc="A reference to a DataProvider declared elsewhere." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="dataProvider" extends="executable">
+        <Doc>
+          A data provider is an abstract class on top of the AbstractExecutable extending it by data-related functions (like getName, getData, data events).
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model" />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="hasInputModel">
+        <Doc>
+          Works on a main input model.
+        </Doc>
+        <Param name="inputModel" type="dataProvider" isJSPChild="paramBag.inputModel">
+          <Doc>
+            Works on a main input model.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="transformationChain" extends="hasInputModel">
+        <Doc>
+          Applies a chain of transformations on a model.
+        </Doc>
+        <Param name="chain" type="dataProvider" isJSPChild="paramBag.chain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="stylesheetUrl" type="url" jsName="url">
+          <Doc>
+            This parameter can be set when you only want to apply one single XSLT style sheet. It
+            contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be
+            provided.
+          </Doc>
+        </Param>
+        <ParamList name="param">
+          <Doc>
+            List of named parameters.
+          </Doc>
+        </ParamList>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="chain" type="param"></Child>
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+      
+      <Api name="widget">
+        <Param name="id" type="string">
+          <Doc>
+            ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable.
+            If not given, an auto-id is generated.
+          </Doc>
+        </Param>
+        <Param name="targetHTMLElementId" type="string" deprecated="4.6">
+          <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
+        </Param>
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+        <Param name="widgetCaption" type="string">
+          <Doc>A caption which is used as prefix for navPath generation for this widget.</Doc>
+        </Param>
+      </Api>
+      
+      <Api name="hasOptions">
+        <Param name="optionsModelXPath" required="true" type="xpath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+      </Api>
+      <Api name="hasOptionsNotRequired">
+        <Param name="optionsModelXPath" required="false" type="xpath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+      </Api>
+      
+      <Api name="hasCaptions" extends="hasOptions">
+        <Param name="optionsModelRelativeValueXPath" type="xpath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+      </Api>
+      <Api name="hasCaptionsNotRequired" extends="hasOptionsNotRequired">
+        <Param name="optionsModelRelativeValueXPath" type="xpath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+      </Api>
+      
+      <Api name="hasTarget">
+        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+          <Doc>The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+            If you specify a targetmodelxpath, the box automatically acts as target</Doc>
+        </Param>
+      </Api>
+
+      <Api name="blindUpDown" extends="widget">
+        <Doc>
+          Creates a BlindUpDown Area
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="targetModelXPath" type="writableXPathWithDollar">
+          <Doc>The xPath pointing to the root-node this input widget will place entered selected items into.
+          The xPath pointing to the root-node this input widget will place entered selected items into. By default this points to guiStatus:ClientSettings/BlindUpDown with the body id as id attribute.</Doc>
+        </Param>
+        <Param name="caption" type="string">
+          <Doc>
+            Caption shown in the blindUpDown Header.
+          </Doc>
+        </Param>
+        <Param name="defaultState" type="string">
+          <Doc>
+            'closed' or empty String for opened, default is closed.
+          </Doc>
+        </Param>
+        <Param name="duration" type="number">
+          <Doc>
+            The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
+          </Doc>
+        </Param>
+        <Param name="noEffect" type="boolean">
+          <Doc>
+            True for a simple show/hide without blind effect (blind can influence charts gradients on IE.
+          </Doc>
+        </Param>
+        <Param name="bodyIdOrElement" type="string" required="true" isJSPChild="true">
+          <Doc>
+            HTML element or ID that contains body of the blindArea.
+          </Doc>
+          <Impl>
+           <Jsp><![CDATA[ "${targetHTMLElementId}_bodyArea"]]></Jsp>
+         </Impl>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AddCode><![CDATA[<span id="${targetHTMLElementId}_bodyArea" style="display:none">
+  <jsp:doBody/>
+</span>]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="contextMenu" extends="transformationChain">
+        <Doc>
+          Create an instance of dynamic contex menu
+          The following tags are allowed inside the body of this tag:
+            [bcdui:model (or wrapper or ref)]&#13;
+          A mandatory model containing the context menu definition, see http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;w:contextMenu tableMode='true' targetRendererId='mytargetrRenderer'>
+              &lt;b:inputModel>&lt;b:model id='ctxModel' url='contextMenu.xml'/>&lt;/b:inputModel>
+            &lt;/w:contextMenu>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="id" type="string">
+          <Doc>
+            ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable.
+            If not given, an auto-id is generated.
+          </Doc>
+        </Param>
+        <Param name="targetRendererId" type="string" isJSPParent="true">
+          <Doc>
+            The renderer the tooltip is attached to. The HTML listeners are placed on the
+            targetHTMLElement of this renderer. If 'tableMode' is set to 'true' the renderer
+            is expected to render an HTML table with the appropriate 'bcdColIdent' and
+            'bcdRowIdent' attributes. If omitted the tag must be nested inside the respective
+            renderer.
+          </Doc>
+        </Param>
+        <Param name="targetHtmlElement" type="htmlElement">
+          <Doc>
+            The HTML listeners are placed on this Element instead of the targetHTMLElement of the given targetRendererId.
+          </Doc>
+        </Param>
+        <Param name="tableMode" type="boolean">
+          <Doc>
+            This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be
+            extracted from the HTML and added as parameters on the context menu renderer.
+          </Doc>
+        </Param>
+        <Param name="refreshMenuModel" type="boolean">
+          <Doc>
+            This flag can be set to 'true' if the menu model needs to be executed always. I.e. if the menu depends
+            on bcdColIdent and bcdRowIdent
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true"><AddCode><![CDATA[<webpage:paramBag.add key="parentDataProvider" value="${id}"/>]]></AddCode></Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="dimensionChooser" extends="widget hasTarget">
+        <Doc>
+          This tag creates an dimension chooser in the given target HTML element.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+          &lt;w:dimensionChooser id = 'dimensionChooser'
+            dimension            = 'standardGeo'
+            targetModelXPath     = '$guiStatus/*/Dimensions/countryInput/@value'
+            targetHTMLElementId  = 'dimChooserBox'
+            multiSelect          = 'false'
+            allowMixedSelect     = 'true'
+          />
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="dimension" type="xpath" required="true">
+          <Doc>
+            Unique name to select a dimension from the dimension model (located at '/bcdui/conf/dimensions.xml'.
+          </Doc>
+        </Param>
+        <Param name="configurationModelId" type="string">
+          <Doc>
+            ModelId of chooser configuration xml file. This model can hold a per-level configuration which allows additional filtering. 
+          </Doc>
+        </Param>
+        <Param name="multiSelect" type="string">
+          <Doc>
+            Make a multi selected dimension chooser. Can be 'true'|'false'|'check', 'false' is default.
+          </Doc>
+        </Param>
+        <Param name="allowMixedSelect" type="boolean">
+          <Doc>
+          Allow heterogene selection in multi select chooser.
+          </Doc>
+        </Param>
+        <Param name="checkBoxCaption" type="string">
+          <Doc>
+            Caption of checkbox to turn on and of the multiselect.
+          </Doc>
+        </Param>
+        <Param name="useCaptions" type="boolean">
+          <Doc>
+            If true, the chooser will receive captions and codes. By convention
+            the bref of the captions column is 'bRef'_caption. By default no captions are created.
+          </Doc>
+        </Param>
+        <Param name="url" type="string">
+          <Doc>
+            The URL the model is loaded from. This URL can be extended with a compressed request document
+            if a requestDocument parameter is provided. If omitted the WrsServlet is taken.
+          </Doc>
+        </Param>
+        <Param name="clearOption" type="string">
+          <Doc>
+            If != 'false', an additional option to clear the level selection is shown in the drop-down box.
+            If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
+          </Doc>
+        </Param>
+        <Param name="emptyValue" type="string">
+          <Doc>
+            If != 'false', a text is displayed if no level is selected.
+            If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
+          </Doc>
+        </Param>
+        <Param name="emptyValueLevel" type="string">
+          <Doc>
+            See emptyValue. This value is for the level selector input box only. If not specified, emptyValue is used.
+          </Doc>
+        </Param>
+        <Param name="clearOptionLevel" type="string">
+          <Doc>
+            See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
+          </Doc>
+        </Param>
+        <Param name="mandatory" type="boolean">
+          <Doc>
+            Set this to false if you don't want mandatory input fields.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="formulaEditor" extends="widget hasCaptionsNotRequired hasTarget">
+        <Doc>
+          Displays a field where the user can enter a formula
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+          &lt;w:formulaEditor id='myFormulaEditor'
+            targetModelXPath='/*/Formula/'
+            optionsModel='variablesModel'
+            optionsModelXPath='/*/*/@caption'
+            optionsModelRelativeValueXPath='../@id'/>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="caption" type="boolean">
+          <Doc>
+            default '', it will be used as i18n key to translate the caption.
+          </Doc>
+        </Param>
+        <Param name="validate" type="boolean">
+          <Doc>
+            Turn on-off the validation of the formula.
+          </Doc>
+        </Param>
+        <Param name="mandatory" type="boolean">
+          <Doc>
+            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+          </Doc>
+        </Param>
+        
+        <Param name="skipValidationCaption" type="string">
+          <Doc>
+            Caption to be shown for skipping validation. Default is 'Skip check of values'.
+          </Doc>
+        </Param>
+        <Param name="skipServerSidedFunctions" type="boolean">
+          <Doc>
+            Set to true to disable usage of server sided functions like CntDist. Default is false.
+          </Doc>
+        </Param>
+        <Param name="validateVariableNamesCheckbox" type="boolean">
+          <Doc>
+            Show or hide checkbox for validate variables option.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="inputField" extends="widget hasCaptionsNotRequired hasTarget">
+        <Doc>
+          Displays a field where the user can enter a value or select it from a list of
+          pre-defined values. These values are copied to a target model under a specified
+          target XPath. When there is a list of allowed values the inputField can also
+          apply a caption-value translation so that the displayed values can differ from
+          the data that is actually placed in XML.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+          &lt;w:inputField id='origCountryRenderer'
+            targetModelXPath='/*/f:Filter/f:Expression[@bRef = 'Orig_C']/@value'
+            optionsModel='countryModel'
+            optionsModelXPath='/*/*/@caption'
+            optionsModelRelativeValueXPath='../@code'/>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="keepEmptyValueExpression" type="boolean">
+          <Doc>
+           A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
+          </Doc>
+        </Param>
+        <Param name="isSortOptions" type="boolean">
+          <Doc>
+           A flag that can be set to 'true' if the options shown in popup should be sorted alphabetically.
+          </Doc>
+        </Param>
+        <Param name="optionsModelIsSuggestionOnly" type="boolean">
+          <Doc>
+            If true, values different from the options model can are allowed. Default is that, if an optionsModel is given, only values from that model are allowed.
+          </Doc>
+        </Param>
+        <Param name="additionalFilterXPath" type="xpath">
+          <Doc>
+            An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
+          </Doc>
+        </Param>
+        <Param name="clearOption" type="string">
+          <Doc>
+            If != 'false', an additional option to clear the selection is shown in the drop-down box.
+            If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
+          </Doc>
+        </Param>
+        <Param name="emptyValue" type="string">
+          <Doc>
+            If != 'false', a text is displayed if nothing is selected / entered.
+            If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
+          </Doc>
+        </Param>
+        <Param name="isPassword" type="boolean" default="'false'">
+          <Doc>
+            If true, input element type will be 'password'.
+          </Doc>
+        </Param>
+        <Param name="wildcard" type="string">
+          <Doc>
+            For a f:Filter with @op='like', this controls the prefilling with wildcards ('*') when the value is yet empty and the field gets the focus.
+            Can be 'contains', 'startswith' or 'endswith'. The user can overwrite this by adding/removing wildcards when editing the field.
+            The wildcards apply to filtering within the top down list and for server side filters, both plain and for retrieving drop-down values dynamically from the server.
+          </Doc>
+        </Param>
+        <Param name="mandatory" type="boolean">
+          <Doc>
+            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+          </Doc>
+        </Param>
+        <Param name="maxlength" type="integer">
+          <Doc>
+            Maximum number of characters for the input field.
+          </Doc>
+        </Param>
+        <Param name="onEnterKey" type="string">
+          <Doc>
+            Handler function NAME triggered on ENTER key.
+          </Doc>
+        </Param>
+        <Param name="onTabKey" type="string">
+          <Doc>
+            Handler function NAME triggered on TAB key.
+          </Doc>
+        </Param>
+        <Param name="onEscKey" type="string">
+          <Doc>
+            Handler function NAME triggered on ESC key.
+          </Doc>
+        </Param>
+        <Param name="setFocus" type="boolean">
+          <Doc>
+            If true, let this input field get focus after creation.
+          </Doc>
+        </Param>
+        <Param name="onFocus" type="string">
+          <Doc>
+            Handler function NAME triggered on focus event.
+          </Doc>
+        </Param>
+        <Param name="onBlur" type="string">
+          <Doc>
+            Handler function NAME triggered on blur event.
+          </Doc>
+        </Param>
+        <Param name="tabIndex" type="string">
+          <Doc>
+            Tab index of html element.
+          </Doc>
+        </Param>
+        <Param name="autofit" type="boolean">
+          <Doc>
+            If true, drop down resizes depending on available options.
+          </Doc>
+        </Param>
+        <Param name="setCursorPositionAtEnd" type="boolean">
+          <Doc>
+            If true, the cursor is automatically positioned at the end of the input box. 
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="loginForm" extends="">
+        <Doc>
+          Displays a username and a password input field together with a login button
+          Login requests are sent to BCD-UI loing servlet
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="pureHtml" type="boolean">
+          <Doc>
+            If true, a standard HTML button is used, per default the BCD-UI button widget is used.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp>
+            <AddCode><![CDATA[
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/widgetNg" prefix="wng"%>
+<form name="loginform" action="bcdui/servlets/login" method="post">
+  <table align="left" border="0" cellspacing="0" cellpadding="3">
+    <tr>
+      <td>Username:</td>
+      <td><input type="text" name="username" maxlength="30"></td>
+    </tr>
+    <tr>
+      <td>Password:</td>
+      <td><input type="password" name="password" maxlength="30"></td>
+    </tr>
+    <tr style="display:none">
+      <td colspan="2" align="left"><input type="checkbox" name="rememberMe"><font size="2">Remember Me</font></td>
+    </tr>
+    <tr>
+      <td colspan="2" align="right" style="padding-top:10px;">
+        <c:choose>
+          <c:when test="${pureHtml=='true'}"><button type="submit">Login</button></c:when>
+          <c:otherwise><wng:button caption="Login">document.forms['loginform'].submit();</wng:button></c:otherwise>
+        </c:choose>
+      </td>
+    </tr>
+  </table>
+</form>
+<webpage:script>jQuery("form[name='loginform'] input[name='username']").focus();</webpage:script>
+            ]]></AddCode>
+          </Jsp>
+        </Impl>
+      </Api>
+
+      <Api name="menu" extends="widget">
+        <Doc>
+          Creates menu with default renderer an default menu js handler.
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="modelId" type="string">
+          <Doc>
+            xml model id, can be used for menues defined in folder '/WEB-INF/bcdui/menu/'.
+          </Doc>
+        </Param>
+        <Param name="modelUrl" type="url">
+          <Doc>
+            URL where model get data from, allows reading a random xml file from the server.
+          </Doc>
+        </Param>
+        <Param name="rendererUrl" type="url">
+          <Doc>
+            URL to XSLT stylesheet that renders the model.
+          </Doc>
+        </Param>
+        <Param name="menuRootElementId" type="string">
+          <Doc>
+            Root menu HTML element (UL) id
+          </Doc>
+        </Param>
+        <Param name="menuHandlerClassName" type="string">
+          <Doc>
+            Javascript menu handler class name, could extend bcdui.widget.menu.Menu.
+          </Doc>
+        </Param>
+        <Param name="parameters" type="object">
+          <Doc>
+            Own action handler.
+          </Doc>
+          <Impl>
+             <Jsp><![CDATA[ <webpage:paramBag.extractJSParams/> ]]></Jsp>
+           </Impl>
+        </Param>
+        <Impl><Jsp allowsChildren="true"/></Impl>
+      </Api>
+
+      <Api name="multiSelect" extends="widget hasTarget hasCaptions">
+        <Doc>
+          Creates a multi selection box where multiple values can be selected and stored to the target model.
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="keepEmptyValueExpression" type="boolean">
+          <Doc>
+            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
+          </Doc>
+        </Param>
+        <Param name="isCheckBox" type="boolean">
+          <Doc>
+            Use checkbox html element instead of multiselect.
+          </Doc>
+        </Param>
+        <Param name="visibleSize" type="integer">
+          <Doc>
+            Number of visible elements in list.
+          </Doc>
+        </Param>
+        <Param name="delimiter" type="string">
+          <Doc>
+            If defined, will switch to delimiter-based storing, i.e. multiple values will be written into one DOM node and separated by given delimiter.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="periodChooser" extends="widget hasTarget hasCaptionsNotRequired">
+        <Doc>
+          Shows a period chooser consisting of a button to change the period and a
+          label showing the currently selected period. It writes the selected period
+          to a specific XML element by putting two f:Expression elements inside it.
+          These elements form a date interval by setting the smaller or equal start and a
+          less or equal end date expression. These elements comply to the XML schema:
+          http://www.businesscode.de/schema/bcdui/filter-1.0.0
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;w:periodChooser
+              targetModelXPath='/*/f:Filter/f:And[@id='period']'
+              id='periodRenderer'/>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="firstSelectableDay" type="string">
+          <Doc>
+            The first day that can be selected. A week or month can only be selected if all days are selectable.          
+          </Doc>
+        </Param>
+        <Param name="lastSelectableDay" type="string">
+          <Doc>
+            The last day that can be selected. A week or month can only be selected if all days are selectable.
+          </Doc>
+        </Param>
+        <Param name="caption" type="string">
+          <Doc>
+            Default 'Date', it will be used as i18n key to translate the caption if isFreeRangeSelectable set
+            to true, then caption may contain two terms for 'From' and 'To' captions. Divider: ';'
+            Example: caption = 'i18.md.From;i18.md.To'
+          </Doc>
+        </Param>
+        <Param name="postfix" type="string">
+          <Doc>
+            An optional postfix which is added to the filter bRefs. If optionsModel is used, this value should be one of the available ones.
+          </Doc>
+        </Param>
+        <Param name="isSecondSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a second anymore. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="isMinuteSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a minute anymore. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="isHourSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a hour anymore. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="isDaySelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a single day anymore. The default value is 'true'.
+          </Doc>
+        </Param>
+        <Param name="isWeekSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a single week anymore. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="isMonthSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a single month anymore. The default value is 'true'.
+          </Doc>
+        </Param>
+        <Param name="isQuarterSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a quarter (3 months). The default value is 'true'.
+          </Doc>
+        </Param>
+        <Param name="isYearSelectable" type="boolean">
+          <Doc>
+            If this is set to 'false' the user cannot select a whole year. The default value is 'true'.
+          </Doc>
+        </Param>
+        <Param name="showPrevNextButtons" type="boolean">
+          <Doc>
+            If this is set to 'true' the buttons Previous Period and Next Period are showed. The default value is 'false'.
+          </Doc>
+        </Param>
+        <Param name="isFreeRangeSelectable" type="boolean">
+          <Doc>
+            Add the free range feature.
+          </Doc>
+        </Param>
+        <Param name="textInput" type="boolean">
+          <Doc>
+            Add the free range feature.
+          </Doc>
+        </Param>
+        <Param name="outputPeriodType" type="boolean">
+          <Doc>
+            Produces selected dates as one of known date periods.
+          </Doc>
+        </Param>
+        <Param name="validate" type="boolean">
+          <Doc>
+            Turn on-off the validation of the keyboard entered date values.
+          </Doc>
+        </Param>
+        <Param name="mandatory" type="boolean">
+          <Doc>
+            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+          </Doc>
+        </Param>
+        <Param name="suppressCaptions" type="boolean">
+          <Doc>
+            Set this to true if the buttons should not have any caption text. Default is false.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="singleSelect" extends="widget hasTarget hasCaptions">
+        <Doc>
+          Creates a single selection radio button group where a value can be selected and stored to the target model.
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="keepEmptyValueExpression" type="boolean">
+          <Doc>
+           A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="tab" extends="widget">
+        <Doc>
+          This tag creates tab menu widget.
+        </Doc>
+        <Examples>
+          <Example type="jsp"></Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="defElementId" type="string" required="true">
+          <Doc>
+            Html element id where tabs are defined.
+          </Doc>
+        </Param>
+        <Param name="rendererUrl" type="url">
+          <Doc>
+            URL to own renderer
+          </Doc>
+        </Param>
+        <Param name="handlerJsClassName" type="string">
+          <Doc>
+            own JS class name to handler click action on tab
+          </Doc>
+        </Param>
+      </Api>
+
+      <Api name="tooltip" extends="transformationChain">
+        <Doc>
+          This tag genenerates a tooltip for another renderer. It behaves exactly like the
+          b:renderer tag except that the targetHTMLElementId is fixed to 'bcdTooltipDiv'. All
+          other renderer-specific features can be used such as a nested b:chain element.
+          Additionally it registers a listener to the specified target renderer which
+          updates the position and content of the the tooltip by refreshing its renderer.
+          The following tags are allowed inside the body of this tag:
+            [bcdui:inputModel]
+              The data. If not given, but a parent renderer exisis, the parent renderer's primary model is used
+            [bcdui:param]
+              Additional named parameters for the tooltip's renderer.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;w:tooltip id='tooltipRenderer' targetRendererId='treeView' stylesheetUrl='tooltip.xslt' tableMode='true' filter='td'>
+              &lt;b:inputModel>&lt;b:ref idRef='treeView'/>&lt;/b:inputModel>
+            &lt;/w:tooltip>
+          </Example>
+          <Example type="js"></Example>
+        </Examples>
+        <Param name="id" type="string">
+          <Doc>
+            ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable.
+            If not given, an auto-id is generated.
+          </Doc>
+        </Param>
+        <Param name="targetRendererId" type="string" isJSPParent="true">
+          <Doc>
+            The renderer the tooltip is attached to. The HTML listeners are placed on the
+            targetHTMLElement of this renderer. If 'tableMode' is set to 'true' the renderer
+            is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+            If omitted the tag must be placed within the respective renderer.
+          </Doc>
+        </Param>
+        <Param name="targetHtmlElement" type="htmlElement">
+          <Doc>
+            The HTML listeners are placed on this Element instead of the targetHTMLElement of the given targetRendererId.
+          </Doc>
+        </Param>
+        <Param name="filter" type="string">
+          <Doc>
+            An optional filter on the tag name where the tooltip should appear. In 'tableMode' it is recommended to set it on 'td' or 'th|td'.
+          </Doc>
+        </Param>
+        <Param name="identsWithin" type="string">
+          <Doc>
+            Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the
+            event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
+          </Doc>
+        </Param>
+        <Param name="tableMode" type="boolean">
+          <Doc>
+            This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be
+            extracted from the HTML and added as parameters on the tooltipRenderer.
+            They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
+          </Doc>
+        </Param>
+        <Param name="delay" type="integer">
+          <Doc>
+            The delay in Miliseconds that the tooltip should wait before it appears.
+          </Doc>
+        </Param>
+        <Param name="tooltipTargetHtmlId" type="string">
+          <Doc>
+            Existing HTML Element Id which is used for the tooltip. By default this is 'bcdTooltipDiv'.
+          </Doc>
+        </Param>
+        
+        <Impl>
+          <Jsp allowsChildren="true"><AddCode><![CDATA[<webpage:paramBag.add key="parentDataProvider" value="${id}"/>]]></AddCode></Jsp>
+        </Impl>
+      </Api>
+
+      
+
+      
+
+    </BcdAPI>
+
+    <BcdObjects>
+      <BcdObject name="blindUpDown" implements="blindUpDown" implementationFunction="bcdui.widget.createBlindUpDownArea" implementationPackage="bcdui.widget." tagFolder="widget" generateXSLT="false"/>
+      <BcdObject name="contextMenu" implements="contextMenu" implementationPackage="bcdui.widget." tagFolder="widget" generateXSLT="false"/>
+      <BcdObject name="dimensionChooser" implements="dimensionChooser" implementationPackage="bcdui.widget." tagFolder="widget" isBlockContainer="true"/>
+      <BcdObject name="formulaEditor" implements="formulaEditor" implementationPackage="bcdui.widget." tagFolder="widget"/>
+      <BcdObject name="inputField" implements="inputField" implementationPackage="bcdui.widget." tagFolder="widget"/>
+      <BcdObject name="loginForm" implements="loginForm" implementationPackage="" tagFolder="widget" generateXSLT="false"/>
+      <BcdObject name="menu" implements="menu" implementationPackage="bcdui.widget." tagFolder="widget" isBlockContainer="true" generateXSLT="false"/>
+      <BcdObject name="multiSelect" implements="multiSelect" implementationPackage="bcdui.widget." tagFolder="widget"/>
+      <BcdObject name="periodChooser" implements="periodChooser" implementationPackage="bcdui.widget." tagFolder="widget"/>
+      <BcdObject name="singleSelect" implements="singleSelect" implementationPackage="bcdui.widget." tagFolder="widget"/>
+      <BcdObject name="tab" implements="tab" implementationFunction="bcdui.widget.createTabMenu" implementationPackage="bcdui.widget." tagFolder="widget"  isBlockContainer="true" generateXSLT="false"/>
+      <BcdObject name="tooltip" implements="tooltip" implementationPackage="bcdui.widget." tagFolder="widget" generateXSLT="false"/>
+    </BcdObjects>
+
+  </WorkingDraft>
+</Root>

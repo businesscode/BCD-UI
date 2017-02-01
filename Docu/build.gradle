@@ -1,0 +1,192 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+//--------------------------------------------------
+// Handles generation of HTML documentation from manual doc.xml and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
+
+apply plugin: 'java'
+apply plugin: "com.moowork.node"
+import groovy.json.JsonSlurper
+
+
+//*********************************************
+// Generate classic HTML-JSDoc
+// We use Node.js since Rhino is not longer supported since JSDoc 3.4.0.
+// (eriwen gradle-js-plugin even supports only a much older JSDoc version, which even frequently with wired errors without source information on simple things like empty comments, we can't use it here)
+task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  dependsOn ":Client:build"
+
+  def targetDir = "$buildDir/htmldocs/jsdoc"
+
+  script = file("$nodeModulesDir/jsdoc/jsdoc.js")
+  args   = [ clientFileGroupsDebug, '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
+  outputs.dir targetDir
+
+  doLast {
+    // We do not like the generated index.html (listing source files with abs path), content of bcdui.html makes much more sense to us as an entry page
+    if( file(targetDir).exists() ) {
+      def idx = file("$targetDir/index.html")
+      def bcd = file("$targetDir/bcdui.html")
+      idx.text = bcd.text
+    }
+    // Overwrite with our custom styles
+    copy {
+      from "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/jaguarjs/static"
+      into targetDir
+    }
+    // Add bgimage
+    copy {
+      from "./tutorial/content/headerBack.png"
+      into targetDir
+    }
+  }
+}
+
+
+
+//*********************************************
+// For each filegroup, created in Client, we also generate API stubs, suited for Eclipse (version Mars) to support auto-suggest
+task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  dependsOn ":Client:build"
+
+  def taskDestDirName = "$buildDir/jsApiStubs"
+  def inputsDir       = clientFileGroupsDebug
+
+  inputs.dir  inputsDir
+  outputs.dir taskDestDirName
+
+  doFirst {
+
+    // Which files are part of this distribution? We only want this to happen in execution phase
+    def jsonSlurper = new JsonSlurper()
+    def bcduiFiles = jsonSlurper.parseText(file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")[1])
+    def fileGroups = (bcduiFiles.groups.inject(""){ result, i -> i.files.any{ ! it.contains("3rdParty") } ? (result.length() ? result+","+i.id : i.id ) : '' })
+
+    script = file("$nodeModulesDir/jsdoc/jsdoc.js")
+    args   = [ inputsDir,
+               "--template", file("$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs"),
+               "--destination", file(taskDestDirName),
+               "--query", "bcdFileGroups="+fileGroups ]
+  }
+}
+
+
+
+//*********************************************
+// Generate HTML from manual doc.xml documentation
+task bcduiDocuXml2Html (type: Copy) {
+
+  def taskDestDirName = "$buildDir/htmldocs/tutorial"
+
+  // xml content is converted to HTML in case it has a processing instruction
+  doFirst {
+    // We know we are not up-to-date here. Since this task owns the output folder, it is save to delete it now
+    delete taskDestDirName
+
+    // Loop over all xml files
+    def docFiles = fileTree('./tutorial/content').include('**/*.xml')
+    docFiles.each { docFile ->
+
+      // Read xslt processing instruction (targeting towards browsers, when viewing the xml directly) to apply the right style in ant.xslt
+      def procInstr = docFile.text.find(/.*xml-stylesheet.*?href=.([^\'"]*).*/) { fullMatch, procInstr -> return procInstr }
+
+      // Get the path to our xml, remove the filename
+      def upperDirs = relativePath(docFile).replaceAll(/tutorial.(.*)[\/\\][a-zA-Z0-9_]+\.xml/,'$1')
+
+      // If there is no xslt to be applied, just copy out xml 1:1
+      if( ! procInstr ) {
+        copy{ from docFile; into taskDestDirName+"/$upperDirs" }
+        return false
+      }
+
+      // Otherwise apply the found xslt as style
+      def fileName  = docFile.name.replaceAll(/(.*)\.[^\.]+/,'$1')
+      def outFile = file("$taskDestDirName/$upperDirs/${fileName}.html")
+      ant.xslt(
+              in:       docFile,
+              style:    file(docFile.getParentFile().path + fileSep + procInstr),
+              out:      outFile
+      )
+
+      // Also replace all relative links to xml files to point to html files
+      outFile.text = outFile.text.replaceAll('(href=.\\.\\./[a-zA-Z0-9_\\-\\./]+).xml(\\W)', '$1.html$2')
+    }
+
+    // The docu/index.html also needs to be copied and have the links to *.xml replaced by *.html
+    copy { from "./tutorial/index.html"; into taskDestDirName }
+    ["indexNavigationPage", "overviewPage"].each { page ->
+      file("$taskDestDirName/index.html").text = file("$taskDestDirName/index.html").text.replaceAll( "${page}.xml", "${page}.html" )
+    }
+  }
+
+  // Non-xml files are just copied 1:1
+  into taskDestDirName
+  from( "./tutorial/content" ) {
+    includeEmptyDirs false
+    into "content"
+    exclude "index.html"
+    exclude "**/*.xml"
+  }
+}
+
+
+//******************************
+// Java doc. We skip JAXB generated, as JAXB does produce invalid output in terms of javadoc (xml-parts in its docu)
+task bcduiJavadoc(type: Javadoc) {
+  destinationDir = file("$buildDir/htmldocs/javadoc")
+  source      = findProject(":Server").sourceSets.main.java
+  classpath   = findProject(":Server").sourceSets.main.compileClasspath
+  verbose     = false
+  title       = 'BCD-UI Api'
+  options.windowTitle = 'BCD-UI Api'
+  options.header      = "<b style=\"font-size: 20pt; color: #fff\">BCD-UI</b>"
+  options.addStringOption('Xdoclint:none',  'quiet')
+  options.addStringOption('stylesheetfile', 'gradle/static/javadoc/stylesheet.css')
+  options.addStringOption('notimestamp', 'true')
+  options.noTimestamp = true
+  doLast {
+    copy{ from "gradle/static/javadoc" into destinationDir }
+  }
+}
+
+
+//******************************
+// Creates /docs folder
+// Also used from Github Pages
+task bcduiHtmlDocs( type: Copy ) {
+
+  dependsOn bcduiDocuXml2Html, bcduiDocuJsHtml, bcduiJavadoc
+
+  from "gradle/static"
+  into "$buildDir/htmldocs"
+}
+
+
+//******************************
+// Clean artifacts
+task clean( type: Delete ) {
+  group "bcd-ui"
+  delete buildDir
+}
+
+//******************************
+// Do all for what gradle 'Docu' project is responsible for
+
+task build {
+  group "bcd-ui"
+  dependsOn bcduiHtmlDocs, bcduiDocuJsApiStubs
+}

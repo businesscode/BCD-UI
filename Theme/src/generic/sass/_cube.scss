@@ -1,0 +1,766 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+/* ******************************************************************* */
+/* Cube, formular editor and context menu */
+/* ******************************************************************* */
+
+.bcdCubeDNDBlind {
+  width: $cubeDNDWidth;
+}
+
+.bcdUpDown
+,.bcdUpDown_Template
+,.bcdUpDown_Ranking
+,.bcdUpDown_Summary {
+  min-width: inherit !important;
+}
+
+.bcdCubeDndMatrix,
+.bcdReportTemplateList,
+.bcdReportTemplates,
+.bcdDnDSummary {
+  font: $font-size-default $font-family-default;
+  @include con_color(#FFFFFF);
+  @extend .noselect;
+}
+
+.bcdReport {
+  font: $font-size-default $font-family-default;
+  @include con_color(#FFFFFF);
+  @extend .select;
+}
+
+/* Ranking */
+
+.bcdCubeRanking {
+  font: $font-size-default $font-family-default;
+  font-weight: normal;
+  padding: 0px;
+  border-collapse: separate;
+  border-spacing: 2px;
+  table-layout: fixed;
+  th {
+    @include con_color($cube-sections-color-head);
+    font-weight: bold;
+    padding: 3px;
+  }
+  td {
+    vertical-align: top;
+  }
+  .bcdCubeRankStatus {
+    background-color: transparent;
+    width: 12px;
+  }
+  .bcdCubeRankBad {
+    width: 12px;
+    background: url(../images/cube/warning.png) center center no-repeat;
+  }
+  .bcdCubeRankGood {
+    width: 12px;
+  }
+  
+  span.bcdCubeAddRank:after {
+    content: "+";
+  }
+  span.bcdCubeRemoveRank:after {
+    content: "-";
+  }
+
+  .bcdCubeAddRank, .bcdCubeRemoveRank {
+    color: text-contrast($cube-sections-color-head);
+    width: 12px;
+    cursor: pointer;
+    font-weight: bolder;
+  }
+  
+  .bcdCubeRankShow, .bcdCubeRankRows {width: 80px;}
+  .bcdCubeRankDimension, .bcdCubeRankMeasure {min-width: 200px;}
+
+  .bcdCubeAddRank,
+  .bcdCubeRemoveRank {
+    @include con_color($cube-sections-color-head);
+    text-align: center;
+    vertical-align: middle;
+    span {font-weight: bold;}
+  }
+  select , input {
+    height: 22px;
+    width: 100%;
+  }
+}
+
+/* Summary */
+
+.bcdDnDSummary {
+  ul {
+    list-style: initial;
+    border: none;
+    li {
+      padding-left: 5px;
+      list-style-position: inside;
+      list-style-type: disc;
+      li {
+        list-style-type: circle;
+      }
+    }
+  }
+}
+
+/* Templates */
+
+.bcdReportTemplateList {
+  margin-bottom: 5px;
+}
+
+.bcdReportTemplates {
+
+  max-width: 777px;
+
+  a {
+    font: $font-size-default $font-family-default;
+    @include con_color(#FFFFFF);
+    border: 1px solid #FFFFFF;
+    padding: 2px 5px 2px 5px;
+    text-decoration: none;
+    cursor: pointer;
+    width: 45%;
+    display: inline-block;
+    position: relative;
+  }
+
+  .bcdReportTemplateButtons {
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 5px;
+  }
+  
+  .bcdReportTemplatesItemsReadOnly,
+  .bcdReportTemplatesItems {
+    padding-top: 5px;
+  }
+  
+  .bcdReportTemplatesItemsReadOnly {
+    .bcdTemplateItem { color: $text-disabled-color !important; }
+  }
+  
+  .bcdTemplateButton:hover,
+  a:hover {
+    text-decoration: none;
+    @include con_color($cube-hover-color-body);
+    border: 1px solid $cube-hover-color-border;
+  }
+  
+  .bcdReportTemplatesSaveArea {
+    border-bottom: 1px solid $border-color;
+    padding: 5px;
+    
+    input, textarea {
+      width: 400px;
+    }
+    
+    .bcdTemplateButton {
+      display: inline-block;
+      padding: 3px;
+      cursor: pointer;
+      border: 1px solid $border-color;
+      margin-right: 5px;
+    }
+    table {
+      border-collapse: separate;
+      border-spacing: 2px;
+      margin: 5px;
+    }
+  }
+
+  .bcdTemplateRemove {
+    font-weight: bold;
+    position: absolute;
+    right: 3px;
+    top: 1px;
+  }
+  
+  span.bcdTemplateRemove:after {
+    content: "x";
+  }
+
+  span.bcdTemplateIcon:after {
+    content: "►";
+  }
+
+  .bcdTemplateItem {
+    padding-right: 3px;
+  }
+}
+
+/* Drag and Drop */
+
+.ui-sortable-placeholder {
+ visibility: visible !important;
+ border: 1px dotted $border-color !important;
+}
+
+
+.bcdCubeDndMatrix {
+  background-color: inherit;
+  height: $dimHeight + 2;
+  width: $cubeDNDWidth - 2 * 5 - 3;
+  position: relative;
+  margin-bottom: 5px;
+  font: $font-size-default $font-family-default;
+
+  .bcdConnectable {
+    .bcdItem {
+      display: inline-block;
+      width: 100%;
+    }
+  }
+
+  .ui-selected {
+    background-color: $select-color !important;
+    color: text-contrast($select-color) !important;
+    border: 1px solid $select-color !important;
+  }
+  .bcdConnectableHover,
+  .ui-sortable-helper,
+  .ui-selecting {
+    border: 1px dashed $cube-hover-color-border !important;
+    background-color: $cube-hover-color-body !important;
+    color: text-contrast($cube-hover-color-body) !important;
+    height: auto !important;
+    overflow: visible;
+    min-height: 11px;
+  }
+  .ui-sortable-helper li {
+    cursor: move !important;
+    width: 106px;
+    text-align: center;
+  }
+
+  ul {
+    list-style: none none;
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    border:none;
+    overflow: auto;
+    @include con_color(#FFFFFF);
+  }
+
+  li {
+    margin: 2px;
+    text-align: left;
+    border: 1px solid #FFFFFF;
+  }
+  
+  .bcdCurrentColMeasureList ul:after,
+  .bcdCurrentMeasureList ul:after,
+  .bcdCurrentRowDimensionList ul:after,
+  .bcdCurrentColDimensionList ul:after {
+    font-size: 14px;
+    font-family: $font-family-default;
+    font-weight: bold;
+    bottom: 0px;
+    right: 20px;
+    padding-left: 3px;
+    position: absolute;
+    @include alpha(0.75);
+    color: $border-color;
+    z-index: 0;
+  }
+
+  /* cubeConfiguratorDND inserts content for the upper pseudo classes, for drag'n drop we have to remove the content from the helper */
+  .ui-sortable-helper:after { content: ""; }
+
+  .bcdCurrentColDimensionList, .bcdCurrentRowDimensionList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-dimension; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
+
+    ul.bcdDropTarget {
+      @include topDownGradient($cube-color-dimension, #FFFFFF);
+    }
+  }
+  .bcdCurrentColMeasureList, .bcdCurrentMeasureList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-measure; border: 1px solid $border-color; text-align: center; font-size: $font-size-small;  padding: 2px; }
+
+    ul.bcdDropTarget {
+      @include topDownGradient($cube-color-measure, #FFFFFF);
+    }
+  }
+  div {
+    overflow: visible;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: $rowDimWidth;
+    border: 1px solid $border-color;
+    height: $dimHeight;
+
+    .bcdDimensionList,
+    .bcdMeasureList {
+      width: $dimWidth;
+      height: 212px;
+      top: 20px;
+      .ui-selectee {
+        width: 90%;
+        border: 1px dotted $border-color;
+        .bcdItem { padding: 2px; }
+      }
+    }
+    
+    .bcdDimensionList { left: $dimLeftPos; }
+    .bcdMeasureList { left: $mesLeftPos; }
+  }
+  
+  .bcdMeasureListWithHeaders,
+  .bcdDimensionListWithHeaders { border: none; width: auto; height: auto; }
+
+  .bcdDimensionListWithHeaders .bcdHeader { left: $dimLeftPos; }
+  .bcdMeasureListWithHeaders .bcdHeader { left: $mesLeftPos; }
+
+  .bcdCurrentRowDimensionList {
+    left: $rowDimPos;
+  }
+  .bcdCurrentColMeasureList {
+    left: $colMesPos;
+  }
+  .bcdCurrentColDimensionList {
+    left: $colDimPos;
+    height: 114px;
+  }
+  .bcdCurrentMeasureList {
+    top: 118px;
+    left: $colDimPos;
+    height: 114px;
+  }
+  .bcdHeader {
+    width: $headWidth;
+    height: 14px;
+    padding: 3px;
+    @include con_color($cube-sections-color-head);
+    border: 1px solid $border-color;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  /* icons for cube drag and drop area, disabled for now */
+
+/*  
+  .bcdVdm, .bcdVmeas, .bcdRowCumulate, .bcdColCumulate, .bcdRowColCumulate, .bcdSortAsc, .bcdSortDesc {
+    padding-left: 16px !important;
+    height: 16px;
+    background-position: left center;
+    background-repeat: no-repeat;
+  }
+  .bcdVdm, .bcdVmeas { background-image: url(../images/cube/calc.gif); }
+  .bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
+  .bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
+  .bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
+  .bcdSortAsc { background-image: url(../images/cube/sortUp.gif); }
+  .bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
+*/
+}
+
+/* table */
+
+.bcdReportEven { @include con_color($cube-color-cell-even); }
+.bcdReportOdd { @include con_color($cube-color-cell-odd); }
+
+/* treeview specific*/
+
+.bcdReport.bcdTreeReportPi {
+  .bcdPlusSpan {
+    margin-right: 13px;
+  }
+  .bcdExpandCollapseButton {
+    padding: 0px  !important;
+    width: 14px !important;
+    display: inline-block;
+  }
+  .bcdIndent1 { padding-left: 24px !important; }
+  .bcdIndent2 { padding-left: 43px !important; }
+  .bcdIndent3 { padding-left: 62px !important; }
+  .bcdIndent4 { padding-left: 81px !important; }
+  .bcdIndent5 { padding-left: 100px !important; }
+  .bcdIndent6 { padding-left: 119px !important; }
+  .bcdIndent7 { padding-left: 138px !important; }
+  .bcdIndent8 { padding-left: 157px !important; }
+  .bcdIndent9 { padding-left: 176px !important; }
+  .bcdIndent10 { padding-left: 195px !important; }
+  .bcdIndent11 { padding-left: 214px !important; }
+}
+
+.bcdReport.bcdTreeReportPi,
+.bcdReport.bcdTreeReport {
+  
+  border-spacing: 0px 6px;
+  border-collapse: separate;
+  border: none;
+  min-width: 600px;
+
+  thead th {
+    background-color: inherit;
+    color: inherit;
+  }
+  
+  tr {
+    height: 25px;
+    vertical-align: middle;
+  }
+  
+  .bcdCaption {
+    text-align: left;
+  }
+
+  .bcdExpandCollapseButton {
+    width: 6px;
+    padding: 2px 0px 2px 5px;
+  }
+
+  .bcdButton {
+    a {
+      text-decoration: none;
+      padding: 0px 4px 2px 4px;
+      text-align: center;
+      vertical-align: middle;
+      margin: 0px;
+      width: 6px;
+      background-color: $tree-color-cell-border;
+    }
+  }
+  
+  .bcdLeaf.bcdReportParentOdd td,
+  .bcdLeaf.bcdReportParentEven td {
+    @include con_color($tree-color-cell-leaf);
+    border-color: $tree-color-cell-leaf;
+    border-top: 1px solid $tree-color-cell-border;
+    border-bottom: 1px solid $tree-color-cell-border;
+    border-right-style: none;
+    border-left-style: none;
+  }
+  
+  .bcdNoLeaf.bcdReportParentOdd td,
+  .bcdNoLeaf.bcdReportParentOdd td,
+  .bcdNoLeaf.bcdReportParentEven td,
+  .bcdNoLeaf.bcdReportParentEven td {
+    border-top: 1px solid $tree-color-cell-border;
+    border-bottom: 1px solid $tree-color-cell-border;
+    border-right-style: none;
+    border-left-style: none;
+  }
+  .bcdLevel0.bcdNoLeaf td {
+    @include con_color($tree-color-cell);
+   }
+  .bcdLevel1.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l1);
+   }
+  .bcdLevel2.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l2);
+   }
+  .bcdLevel3.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l3);
+  }
+
+  .bcdExpand .bcdButton a:after { content: "+"; }
+  .bcdCollapse .bcdButton a:after { content: "-";}
+}
+
+.bcdReport,
+{
+
+  border-collapse: collapse;
+  border: $border-color 1px solid;
+
+  /* excel export specific */
+  tr.bcdTL1, tr {
+    background-color: inherit !important;
+    border: none !important;
+  }
+
+  tr {
+    border-right: #FFFFFF 1px solid;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    text-align: left;
+    min-height: 16px;
+  }
+
+  th {
+    @include con_color($cube-color-cell);
+    border-right: #FFFFFF 1px solid;
+    border-bottom: #000000 1px solid;
+    font-weight: bold;
+    text-align: center;
+    padding: 1px 5px 1px 5px;
+    vertical-align: middle;
+  }
+
+  tbody th {
+    white-space: nowrap;
+  }
+
+  td {
+    border-right: 1px solid #FFFFFF;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+
+    white-space: nowrap;
+    padding: 1px 5px 1px 5px;
+    vertical-align: middle;
+
+    text-align: right
+  }
+
+  thead .bcdTotal {
+    @include con_color_important(lighten($cube-color-cell-total, 20%));
+  }
+
+  tbody {
+
+    .bcdIE8Even, .bcdIE8Even td {@include con_color($cube-color-cell-even); }
+    .bcdIE8Odd, .bcdIE8Odd td {@include con_color($cube-color-cell-odd); }
+
+    tr:nth-child(2n+0) td {@include con_color($cube-color-cell-even); }
+    tr:nth-child(2n+1) td {@include con_color($cube-color-cell-odd); }
+
+    .bcdTL1, .bcdTL1 td { @include con_color_important($cube-color-cell-total); }
+    .bcdTL2, .bcdTL2 td { @include con_color_important(lighten($cube-color-cell-total, 10%)); }
+    .bcdTL3, .bcdTL3 td { @include con_color_important(lighten($cube-color-cell-total, 20%)); }
+    .bcdTLGe4, .bcdTLGe4 td { @include con_color_important(lighten($cube-color-cell-total, 30%)); }
+
+    .bcdTotal td {
+      border-top: 1px solid $cube-color-cell-total-border;
+      border-bottom: 1px solid $cube-color-cell-total-border;
+    }
+    .bcdTotal {
+      @include con_color_important(lighten($cube-color-cell-total, 30%));
+      border-top: 1px dotted $cube-color-cell-total-border;
+      border-bottom: 1px dotted $cube-color-cell-total-border;
+    }
+  }
+
+  .bcdNoNumber { text-align: left }
+
+  th.bcdVdm, th.bcdVmeas, th.bcdRowCumulate, th.bcdColCumulate, th.bcdRowColCumulate, th.bcdSortAsc, th.bcdSortDesc {
+    padding-left: 18px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th.bcdVdm,  th.bcdVmeas { background-image: url(../images/cube/calc.gif); }
+  th.bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
+  th.bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
+  th.bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
+  th.bcdSortAsc { background-image: url(../images/cube/sortUp.gif); }
+  th.bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
+
+  .bcdTrendUp, .bcdTrendDown {
+    font: 16px Monospace;
+    color: #ffffff !important;
+    text-align: center;
+  }
+  .bcdTrendUp:before       { background-color: $report-color-ok; content: "↑" }
+  .bcdTrendDown:before     { background-color: $report-color-fail; content: "↓" }
+  .bcdTrendUpBad:before    { background-color: $report-color-fail; content: "↑" }
+  .bcdTrendDownGood:before { background-color: $report-color-ok; content: "↓" }
+
+}
+
+.bcdCubeHide {
+  background-color: $text-disabled-color;
+  @include alpha(0.75);
+}
+
+/* user calc editor */
+
+.bcdUserCalcEditor {
+
+  br, .bcdUserCalcEditorCaption { display: none; }
+
+  div {
+    margin-bottom: 3px;
+    text-align: left;
+  }
+
+  .bcdUserCalcEditorParameters,
+  .bcdUserCalcEditorFormula,
+  .bcdUserCalcEditorName {
+    label {
+      width: 15%;
+      display: inline-block;
+    }
+    input {
+      width: 80%;
+    }
+    input[type='checkbox'] {
+      width: auto;
+    }
+  }
+  .bcdFormulaSkipValidationDiv {
+    margin-top: 3px;
+    margin-left: 15%;
+    label {
+      text-align: left;
+      width: 80%;
+      padding-left: 3px;
+    }
+  }
+  .bcdCalcEditorFormatComponents {
+    label {
+      width: auto;
+      padding-left: 3px;
+    }
+    input {
+      width: 20px;
+      margin-right: 3px;
+    }
+    input[type='checkbox'] {
+      width: auto;
+    }
+  }
+  .bcdUserCalcEditorLabelDiv div {
+    padding: 0px !important;
+    margin-left: 15%;
+    margin-bottom: 5px;
+  }
+
+
+}
+
+
+/* -----------------------
+ * Styles for context menu
+ */
+
+#bcdContextMenuDiv {
+  @extend .noselect;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+  border: 1px solid $border-color;
+  @include con_color(#FFFFFF);
+  cursor: default;
+  font-size: 11px;
+  font-family: $font-family-default;
+  font-style: normal;
+  padding: 3px;
+  @include alpha(0.95);
+  @include shadow();
+  width: 280px;
+  z-index: 15000;
+}
+
+.bcdMenuitems {
+  @include con_color(#FFFFFF);
+  position: relative; /* IE8 */
+  padding: 2px 15px;
+  white-space: nowrap;
+  display: block;
+  text-decoration: none;
+}
+
+.bcdMenuitemsDisabled {
+  position: relative; /* IE8 */
+  padding: 2px 15px;
+  white-space: nowrap;
+  display: block;
+  text-decoration: none;
+  color: $text-disabled-color;
+}
+
+.bcdMenuitems:hover {
+  position: relative; /* IE8 */
+  @include con_color($cube-hover-color-body);
+}
+
+div.bcdContextMenu .bcdContextMenuTitle {
+  @include con_color($cube-sections-color-head);
+  font-weight: bold;
+  border: 1px solid $border-color;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.bcdContextMenu .bcdContextGroupHeader {
+  background-color: $control-color;
+  border: 1px solid $border-color;
+  font-weight: bold;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding-left: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.bcdContextMenu .bcdContextSubHeader {
+  @include con_color(#FFFFFF);
+  position: relative; /* IE8 */
+  padding: 0px 0px 0px 10px;
+  white-space: nowrap;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.bcdContextMenu hr { border-style: solid; border-width: 1; color: #000000; height: 1px; }
+
+
+div.bcdContextMenu a.bcdMenuitems {
+  white-space: normal;
+}
+
+.bcdTrendEqualPic {
+  background-image: url('../images/trendPositiveEqual.gif');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bcdTrendUpPic {
+  background-image: url('../images/trendPositivePlus.gif');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.bcdTrendDownPic {
+  background-image: url('../images/trendPositiveMinus.gif');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.bcdTrendEqualPicExport {
+  color: green;  
+  display: none;
+}
+
+.bcdTrendUpPicExport {
+  color: green;  
+  display: none;
+}
+.bcdTrendDownPicExport {
+  color: red;
+  display: none;
+}
+
+.bcdFixedTableHeaderNoPad {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+}

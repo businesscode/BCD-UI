@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Default context xml for tomcat
+-->
+<Context reloadable="false" antiJARLocking="true" antiResourceLocking="true">
+  <!-- Disable cache means, configuration files keep being read every time  -->
+  <Environment name="bcdui/isDebug"      type="java.lang.Boolean" value="false"/>
+  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="false"/>
+
+  <!-- If no connection name is given in a binding set, this one is used -->
+  <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
+
+  <!-- Some sample DB connections. Replace all values with XX in their name -->
+
+  <!-- Sample for Oracle
+  <Resource name="jdbc/connectionXX"
+    auth="Container"
+    type="javax.sql.DataSource"
+    username="XX"
+    password="XX"
+    maxActive="200"
+    maxIdle ="-1"
+    maxWait="200"
+    logAbandoned="true"
+    removeAbandoned="true"
+    validationQuery="select sysdate from dual"
+    testOnBorrow="true"
+    driverClassName="oracle.jdbc.OracleDriver"
+    connectionProperties="defaultRowPrefetch=100;"
+    initConnectionSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
+    url="jdbc:oracle:thin:@serverXX:1521:dbInstanceXX" />
+
+  -->
+  <!-- Sample for teradata
+   <Resource name="jdbc/connectionXX"
+    auth="Container"
+    type="javax.sql.DataSource"
+    username="XX"
+    password="XX"
+    maxActive="100"
+    maxIdle ="-1"
+    maxWait="200"
+    logAbandoned="true"
+    removeAbandoned="true"
+    validationQuery="select current_time"
+    testOnBorrow="true"
+    driverClassName="com.teradata.jdbc.TeraDriver"
+    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8"/>
+
+    * use the following for V2R6.1 and earlier
+    driverClassName="com.ncr.teradata.TeraDriver"
+    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8,COMPAT_DBS=false,COMPAT_ISSIGNED=true"/>
+ -->
+
+<!-- Sample for MSSqlServer
+  <Resource name="jdbc/connectionXX"
+    auth="Container"
+    type="javax.sql.DataSource"
+    username="XX_"
+    password="XX"
+    maxActive="10"
+    maxIdle ="5"
+    maxWait="15000"
+    logAbandoned="true"
+    removeAbandoned="true"
+    validationQuery="select 1"
+    testOnBorrow="true"
+    driverClassName="net.sourceforge.jtds.jdbc.Driver"
+    url="jdbc:jtds:sqlserver://serverXX:1433/dbnameXX" />
+  -->
+
+  <!-- Sample for MySql (not fully supported, for example no col-totals in cube due to missing grouping sets)
+    <Resource name="jdbc/connectionXX"
+      auth="Container"
+      type="javax.sql.DataSource"
+      username="XX"
+      password="XX"
+      maxActive="10"
+      maxIdle ="5"
+      maxWait="15000"
+      driverClassName="com.mysql.jdbc.Driver"
+      url="jdbc:mysql://serverXX:3306/dbnameXX" />
+    -->
+
+  <WatchedResource>WEB-INF/web.xml</WatchedResource>
+</Context>

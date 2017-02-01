@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../_generator/doc.xslt" media="screen" ?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<doc:Doc title="WYSIWYG exports" xmlns:doc="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+  <doc:Chapter title="WYSIWYG exports" type="overview">
+    <doc:Body>
+      The BCD-UI contains two kinds of WYSIWYG (what-you-see-is-what-you-get) exports:
+        <dl>
+          <dt>Spread sheet</dt>
+        <dd>Spread sheet WYSIWYG exports are useful when the exported numbers are to be used in further calculations and when beyond the core WYSIWGY
+          additional numbers are requested. For example one sheet may contain the percentages shown, a second one shows the absolute values behind
+          the percentages. In the web front-end these values are often shown in the tool tip.
+        </dd>
+        <dt>PDF</dt>
+        <dd>PDF WYSIWYG exports are useful when the formatting of the report including coloring is the core requirement.</dd>
+        </dl>
+    </doc:Body>
+    <doc:SubChapter title="Spread sheet" >
+      <doc:Body>
+        You can export a HTML Element and its context to a spreadsheet by specifying the HTML source and calling:
+        <pre><![CDATA[bcdui.component.exports.excel.exportHTMLElement({sourceElementOrId: "myDiv"});]]></pre>
+        The following picture shows a cube on the left and on the right you see this cube exported to Excel.
+        <img src="wysiwyg.png"/>
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="PDF" >
+      <doc:Body>
+        The PDF Export not only allows exporting to a PDF file but also to a image file like e.g jpg. So you can for example export whole report
+        pages as pdf files or charts as images. It also allows specifying an own css file which is used only during export which allows pdf specific
+        tuning of the layout and style. For more details, please consult the <a href="../../../../gendocu/api/bcduiCoreApiDoc.xml#pdfExport">pdfExport API</a>.
+      </doc:Body>
+    </doc:SubChapter>
+  </doc:Chapter>
+</doc:Doc>
+

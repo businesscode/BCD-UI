@@ -1,0 +1,672 @@
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Well known standard aspects
+
+  bcdAspectDefaultWrqBuilder:
+    param
+    from scc:Aspects/scc:Aspect/scc:BcdAspectWrqBuilder
+      see xsd http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
+    from scc/Layout/scc:ApectRefs/scc:ApectRefs
+      @allPeriods (default false) If the aspect data has the period in its dimensions, we we read it grouped by, 
+        otherwise we _repeat_ the value of the period end for all periods
+
+  bcdYtd:
+    Assumes yr/mo or cwyr/cw or dy as periods
+    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+  
+  bcdPreviousPeriod:
+    Previous period's kpi value
+    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+
+  bcdTrend:
+    Current / previous kpi value
+    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+
+  bcdRawValues:
+    Adds the raw indicator and total values (% KPIs with a basic div x/y only)
+ -->
+<scc:Aspects xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
+  xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+  xmlns:date="http://exslt.org/dates-and-times">
+
+  <!-- Built-in targets -->
+  <scc:Aspect id="bcdTarget" caption="Target">
+    <scc:BcdAspectWrqBuilder bindingSet="bcd_sc_target">
+      <scc:Property bRef="target" caption="Target" type-name="NUMERIC" scale="1"/>
+    </scc:BcdAspectWrqBuilder>
+  </scc:Aspect>
+
+  <!-- Built-in targets with lower and upper bounds -->
+  <scc:Aspect id="bcdTargetBounds" caption="Target bounds">
+    <scc:BcdAspectWrqBuilder bindingSet="bcd_sc_target">
+      <scc:Property bRef="lb" caption="Lower bound" type-name="NUMERIC" scale="1"/>
+      <scc:Property bRef="ub" caption="Upper bound" type-name="NUMERIC" scale="1"/>
+    </scc:BcdAspectWrqBuilder>
+  </scc:Aspect>
+
+  <!-- 
+    Default WrqBuilder. For an usage see aspect bcdTargetBounds as an example 
+    
+    -->
+  <scc:Aspect id="bcdAspectDefaultWrqBuilder">
+    <scc:WrqBuilder>
+      <xsl:stylesheet version="1.0"
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+        xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+        xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+        xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"        
+        xmlns:exslt="http://exslt.org/common"
+        xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+        <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
+
+        <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
+
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" />
+
+        <!-- Config node from scc:Aspects/scc:Aspect[scc:BcdWrqModifier] -->
+        <xsl:param name="aspectDef" />
+        <xsl:param name="statusModel" />
+
+        <xsl:variable name="doc" select="/"/>
+        <xsl:variable name="filter" select="$statusModel/*/f:Filter"/>
+
+        <!-- Config node scc:Layout/scc:AspectRefs/scc:AspectRef -->
+        <xsl:variable name="configLayout" select="/*/scc:Layout/scc:AspectRefs//scc:AspectRef[@idRef=$aspectDef/@id]"/>
+
+        <!-- All dimensions from configBcdAspect are either for grouping and joining (if in sc breakdown), or for filtering (otherwise) -->
+        <xsl:variable name="dimensionsString">
+          <xsl:call-template name="tokenize">
+            <xsl:with-param name="string" select="$aspectDef/scc:BcdAspectWrqBuilder/@dimensions"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <!-- This are our dimensions, as declared in aspect definition -->
+        <xsl:variable name="dimensionsBRef" select="exslt:node-set($dimensionsString)/*/wrs:Data/wrs:R/wrs:C"/>
+        <!-- We join over all our dim columns, which appear id sc breakdown, we rely on a setup where all others are part of the filter or should be null -->
+        <xsl:variable name="joinBRefs"   select="/*/scc:Layout/scc:Dimensions//dm:LevelRef[@bRef=$dimensionsBRef]/@bRef"/>
+        <xsl:variable name="onlyOnePeriod" select="string($configLayout/@allPeriods)!='true'"/>
+
+        <xsl:template match="/*">
+          <wrq:WrsRequest>
+            <wrq:Select>
+              <wrq:Columns>
+
+                <!-- Join columns: We exclude period if onlyOnePeriod to repeat the value for each period -->
+                <xsl:for-each select="$joinBRefs[$onlyOnePeriod=false() or (.!='yr' and .!='qr' and .!='mo' and .!='cwyr' and .!='cw' and .!='dy')]">
+                  <wrq:C bRef="{.}" dimId="{.}"/>
+                </xsl:for-each>
+
+                <!-- Period dimension, we nail yr etc to the upper end of the period or just the selected value. Making sure yr/cwyr are always first, i.e. before mo etc -->
+                <xsl:if test="$onlyOnePeriod">
+                  <xsl:for-each select="$filter//f:Expression[(@bRef='yr' or @bRef='cwyr') and (@op='&lt;=' or (@op='=' and ../f:Expression[@op='&lt;=']))]">
+                    <xsl:if test="@bRef = $doc/*/scc:Layout/scc:Dimensions//dm:LevelRef/@bRef">
+                      <wrq:C bRef="{@bRef}" dimId="{@bRef}">
+                        <wrq:Calc>
+                          <wrq:Value>
+                            <xsl:value-of select="number(@value)"/>
+                          </wrq:Value>
+                        </wrq:Calc>
+                      </wrq:C>
+                    </xsl:if>
+                  </xsl:for-each>
+                  <xsl:for-each select="$filter//f:Expression[(@bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') and (@op='&lt;=' or @op='=')]">
+                    <xsl:if test="@bRef = $doc/*/scc:Layout/scc:Dimensions//dm:LevelRef/@bRef">
+                      <wrq:C bRef="{@bRef}" dimId="{@bRef}">
+                        <wrq:Calc>
+                          <wrq:Value>
+                            <xsl:choose>
+                              <xsl:when test="@bRef='dy'"><xsl:value-of select="@value"/></xsl:when>
+                              <xsl:otherwise><xsl:value-of select="number(@value)"/></xsl:otherwise> <!-- Remove leading 0 to allow joining with db values -->
+                            </xsl:choose>
+                          </wrq:Value>
+                        </wrq:Calc>
+                      </wrq:C>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
+
+                <wrq:C bRef="bcd_kpi_id" dimId="bcd_kpi_id"/>
+                <xsl:for-each select="$aspectDef/scc:BcdAspectWrqBuilder/scc:Property">
+                  <wrq:C bRef="{@bRef}"/>
+                </xsl:for-each>
+              </wrq:Columns>
+              <wrq:From>
+                <wrq:BindingSet>
+                  <xsl:value-of select="$aspectDef/scc:BcdAspectWrqBuilder/@bindingSet"/>
+                </wrq:BindingSet>
+              </wrq:From>
+              <f:Filter>
+                <xsl:variable name="kpiInClause">
+                  <xsl:for-each select="//*[local-name()='Kpi']">
+                    <xsl:value-of select="@id" />
+                    <xsl:if test="not(position()=last())">,</xsl:if>
+                  </xsl:for-each>
+                </xsl:variable>
+                
+                <!-- Every dim column can be part of the filter.  -->
+                <xsl:for-each select="$dimensionsBRef">
+                  <xsl:choose>
+
+                    <!-- 1) We nail period to the end of the period, unless we want a break down (currently only yr and mo are supported) -->
+                    <xsl:when test=".='yr' and ($onlyOnePeriod or not(.=$joinBRefs))">
+                      <f:Expression bRef="yr" op="=" value="{substring($statusModel//f:Expression[(@bRef='yr' or @bRef='cwyr' or @bRef='dy') and (@op='&lt;=' or @op='=')]/@value,1,4)}" />
+                    </xsl:when>
+                    <xsl:when test=".='mo' and $statusModel//f:Expression[@bRef='mo' and @op='='] and($onlyOnePeriod or not(.=$joinBRefs))"> <!-- For monthly targets, we rely on f:And/@dateTo -->
+                      <f:Expression bRef="mo" op="=" value="{$statusModel//f:Expression[@bRef='mo' and @op='=']/@value}" />
+                    </xsl:when>
+                    <xsl:when test=".='mo' and ($onlyOnePeriod or not(.=$joinBRefs))"> <!-- For monthly targets, we rely on f:And/@dateTo -->
+                      <f:Expression bRef="mo" op="=" value="{substring($statusModel//*[@dateTo and .//f:Expression[@bRef='yr' or @bRef='cwyr' or @bRef='dy']]/@dateTo,6,2)}" />
+                    </xsl:when>
+
+                    <!-- 2) We want a period breakdown or we are not period related-->
+                    <xsl:when test=".='mo' or .='qr' or .='cwyr'">
+                      <!-- In these cases we rely having copied the period filter already for yr/cwyr -->
+                    </xsl:when>
+                    <!-- Copy the original filter, if they are part of break-down, otherwise we need the 'global' one in respect of this dimension 
+                         (later we can support an aggregation as an alternative) -->
+                    <xsl:when test="$statusModel/*/f:Filter/*[.//@bRef=string(current()) and .//@bRef=$doc/*/scc:Layout/scc:Dimensions//dm:LevelRef/@bRef]">
+                      <xsl:copy-of select="$statusModel/*/f:Filter/*[.//@bRef=string(current())]"/>
+                    </xsl:when>
+                    <!-- in this case we have nailed down a dimension of the aspect (for example country) to a single value (for example FR) -->
+                    <xsl:when test="count($statusModel/*/f:Filter//*[(@op='=' or (@op='in' and not(contains(@value,',')))) and @bRef=string(current())])=1">
+                      <xsl:copy-of select="$statusModel/*/f:Filter//*[(@op='=' or (@op='in' and not(contains(@value,',')))) and @bRef=string(current())]"/>
+                    </xsl:when>
+                    <!-- no filter but breakdown, we skip the dimension value -->
+                    <xsl:when test="$doc/*/scc:Layout/scc:Dimensions//dm:LevelRef/@bRef = string(current()) and not($statusModel/*/f:Filter/*[.//@bRef=string(current())])"></xsl:when>
+                    <!-- We have no filter nor a break-down, we compare the dim value to null, interpreted as 'global' value -->
+                    <xsl:otherwise>
+                      <f:Expression bRef="{.}" op="" value=""/>
+                    </xsl:otherwise>
+
+                  </xsl:choose>
+                </xsl:for-each>
+                <f:Expression bRef="bcd_kpi_id" op="in" value="{$kpiInClause}" />
+              </f:Filter>
+              <wrq:Grouping>
+                <wrq:C bRef="bcd_kpi_id" />
+                <xsl:for-each select="$joinBRefs">
+                  <wrq:C bRef="{.}"/>
+                </xsl:for-each>
+              </wrq:Grouping>
+            </wrq:Select>
+          </wrq:WrsRequest>
+        </xsl:template>
+      </xsl:stylesheet>
+    </scc:WrqBuilder>
+  </scc:Aspect>
+
+
+
+  <!-- 
+    YTD = performance for year to mo/cw/dy
+    -->
+  <scc:Aspect id="bcdYtd" caption="YTD">
+    <scc:WrqModifier>
+      <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+       xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+       xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+
+        <!-- Default is copy everything 1:1 -->
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+          </xsl:copy>
+        </xsl:template>
+  
+       <!-- Removing all time references from where clause, select list and grouping list, we build new ones below -->
+        <xsl:template match="*[ (self::wrq:C or self::f:Expression) and ( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+        </xsl:template>
+
+       <!-- For period columns, select the end of the range (max value), this is to join it later to the right (last) period -->
+        <xsl:template match="wrq:Columns/wrq:C[( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+          <xsl:copy>
+            <xsl:attribute name="bRef"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="dimId"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="aggr">max</xsl:attribute>
+            <!-- No need for any wrq:A attributes. They may even fail if they have column expressions that rely on a different grouping -->
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- All none-period filters stay 1:1. But we build new period filters here. -->
+        <xsl:template match="f:Filter">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+
+            <!-- 
+              Let's find the end of the time range or the point in time, depending on what period is given
+              We then nail yr/cwyr = to the latest/only yr (may be cross-year) and make mo, cw, dy <= the latest/only value
+              -->
+            <f:And>
+              <xsl:for-each select=".//f:Expression[ (@bRef='yr' or @bRef='cwyr') and (@op='&lt;=' or @op='=') ]">
+                <xsl:if test="../f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+                  <f:Expression bRef="{@bRef}" op="=" value="{@value}"/>
+                </xsl:if>
+              </xsl:for-each>
+              <xsl:for-each select=".//f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+                <f:Expression bRef="{@bRef}" op="&lt;=" value="{@value}"/>
+              </xsl:for-each>
+              <xsl:for-each select=".//f:Expression[ @bRef='dy' and (@op='&lt;=' or @op='=') ]">
+                <f:Expression bRef="yr" op="=" value="{substring(@value,1,4)}"/> <!-- Only current year -->
+                <f:Expression bRef="dy" op="&lt;=" value="{@value}"/>
+              </xsl:for-each>
+            </f:And>
+          </xsl:copy>
+        </xsl:template>
+
+      </xsl:stylesheet>
+    </scc:WrqModifier>
+
+  </scc:Aspect>
+  
+  <!-- 
+    MTD = performance for period's last month till end of period
+    Can only be combined with cw and dy periods, we need mo as dimension and we rely on @dateTo
+    -->
+  <scc:Aspect id="bcdMtd" caption="MTD">
+    <scc:WrqModifier>
+      <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+       xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+       xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+  
+       <!-- Removing all time references from where clause, select list and grouping list, we build new ones below -->
+        <xsl:template match="*[ (self::wrq:C or self::f:Expression) and ( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+        </xsl:template>
+
+       <!-- For period columns, select the end of the range (max value), this is to join it later to the right (last) period -->
+        <xsl:template match="wrq:Columns/wrq:C[( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+          <xsl:copy>
+            <xsl:attribute name="bRef"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="dimId"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="aggr">max</xsl:attribute>
+            <!-- No need for any wrq:A attributes. They may even fail if they have column expressions that rely on a different grouping -->
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- All none-period filters stay 1:1. But we build new period filters here. -->
+        <xsl:template match="f:Filter">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+
+            <!-- 
+              Let's find the end of the time range or the point in time, depending on what period is given
+              We then nail yr/cwyr = to the latest/only yr (may be cross-year) and make mo, cw, dy <= the latest/only value
+              -->
+            <xsl:for-each select=".//f:Expression[ (@bRef='yr' or @bRef='cwyr') and (@op='&lt;=' or @op='=') ]">
+              <xsl:if test="../f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+                <f:Expression bRef="{@bRef}" op="=" value="{@value}"/>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:for-each select=".//f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+              <f:Expression bRef="{@bRef}" op="&lt;=" value="{@value}"/>
+            </xsl:for-each>
+            <xsl:for-each select=".//f:Expression[ @bRef='dy' and (@op='&lt;=' or @op='=') ]">
+              <f:Expression bRef="yr" op="=" value="{substring(@value,1,4)}"/> <!-- Only current year -->
+              <f:Expression bRef="dy" op="&lt;=" value="{@value}"/>
+            </xsl:for-each>
+
+            <!-- We define the upper range end above, here we fix mo as the lower end, we rely on @dateTo here -->
+            <f:Expression bRef="mo" op="=" value="{substring(.//@dateTo,6,2)}"/>
+
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- Default is copy everything 1:1 -->
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+          </xsl:copy>
+        </xsl:template>
+
+      </xsl:stylesheet>
+    </scc:WrqModifier>
+
+  </scc:Aspect>
+  
+
+  <!-- 
+    WTD = Performance for period's last week till end of period
+    Can only be combined with dy periods, we need cw
+    -->
+  <scc:Aspect id="bcdWtd" caption="WTD">
+    <scc:WrqModifier>
+      <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+       xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+       xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+  
+       <!-- Removing all time references from where clause, select list and grouping list, we build new ones below -->
+        <xsl:template match="*[ (self::wrq:C or self::f:Expression) and ( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+        </xsl:template>
+
+       <!-- For period columns, select the end of the range (max value), this is to join it later to the right (last) period -->
+        <xsl:template match="wrq:Columns/wrq:C[( @bRef='yr' or @bRef='cwyr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy') ]">
+          <xsl:copy>
+            <xsl:attribute name="bRef"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="dimId"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="aggr">max</xsl:attribute>
+            <!-- No need for any wrq:A attributes. They may even fail if they have column expressions that rely on a different grouping -->
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- All none-period filters stay 1:1. But we build new period filters here. -->
+        <xsl:template match="f:Filter">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+
+            <!-- 
+              Let's find the end of the time range or the point in time, depending on what period is given
+              We then nail yr/cwyr = to the latest/only yr (may be cross-year) and make mo, cw, dy <= the latest/only value
+              -->
+            <xsl:for-each select=".//f:Expression[ (@bRef='yr' or @bRef='cwyr') and (@op='&lt;=' or @op='=') ]">
+              <xsl:if test="../f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+                <f:Expression bRef="{@bRef}" op="=" value="{@value}"/>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:for-each select=".//f:Expression[ (@bRef='qr' or @bRef='mo' or @bRef='cw') and (@op='&lt;=' or @op='=') ]">
+              <f:Expression bRef="{@bRef}" op="&lt;=" value="{@value}"/>
+            </xsl:for-each>
+            <xsl:for-each select=".//f:Expression[ @bRef='dy' and (@op='&lt;=' or @op='=') ]">
+              <f:Expression bRef="yr" op="=" value="{substring(@value,1,4)}"/> <!-- Only current year -->
+              <f:Expression bRef="dy" op="&lt;=" value="{@value}"/>
+            </xsl:for-each>
+
+            <!-- We define the upper range end above, here we fix mo as the lower end, we rely on @dateTo here -->
+            <!-- This is derived from http://www.exslt.org -->
+            <!-- TODO: This fails if cwyr != yr -->
+            <xsl:variable name="lastDate" select=".//@dateTo"/>
+            <xsl:variable name="year" select="substring($lastDate, 1,4)"/>
+            <xsl:variable name="month" select="substring($lastDate, 6,2)"/>
+            <xsl:variable name="day" select="substring($lastDate, 9,2)"/>
+            <xsl:variable name="varA" select="floor(( 14 - $month) div 12)"/>
+            <xsl:variable name="varY" select="$year + 4800 - $varA"/>
+            <xsl:variable name="varM" select="$month + (12 * $varA) - 3"/>
+            <xsl:variable name="varJ" select="$day + floor((153 * $varM + 2) div 5) + (365 * $varY) + floor($varY div 4) - floor($varY div 100) + floor($varY div 400) - 32045"/>
+            <xsl:variable name="varD4" select="($varJ + 31741 - ($varJ mod 7)) mod 146097 mod 36524 mod 1461"/>
+            <xsl:variable name="varL" select="floor($varD4 div 1460)"/>
+            <xsl:variable name="varD1" select="(($varD4 - $varL) mod 365) + $varL"/>
+            <xsl:variable name="isoWeek" select="floor($varD1 div 7) + 1"/>
+            <f:Expression bRef="cw" op="=" value="{$isoWeek}"/>
+
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- Default is copy everything 1:1 -->
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*"/>
+          </xsl:copy>
+        </xsl:template>
+
+      </xsl:stylesheet>
+    </scc:WrqModifier>
+
+  </scc:Aspect>
+  
+
+  <!-- Achievement = performance div target -->
+  <scc:Aspect id="bcdAchievement" caption="Achievem.">
+    <scc:chooseCalc type-name="NUMERIC" scale="2" id="value" caption="Value" unit="%">
+      <scc:whenKpiAttr name="positive" value="false">
+        <calc:Calc>
+          <calc:Add>
+            <calc:Value>1</calc:Value>
+            <calc:Div>
+              <calc:Sub>
+                <calc:AspectRef idRef="asp_bcdTarget_$.target"/>
+                <calc:KpiRef/>
+              </calc:Sub>
+              <calc:Abs>
+                <calc:AspectRef idRef="asp_bcdTarget_$.target"/>
+              </calc:Abs>
+            </calc:Div>
+          </calc:Add>
+        </calc:Calc>
+      </scc:whenKpiAttr>
+      <scc:otherwise>
+        <calc:Calc>
+          <calc:Div>
+            <calc:KpiRef/>
+            <calc:AspectRef idRef="asp_bcdTarget_$.target"/>
+          </calc:Div>
+        </calc:Calc>
+      </scc:otherwise>
+    </scc:chooseCalc>
+    <!-- the target for achievement calculation to be shown in the tooltips -->
+    <calc:Calc id="target" caption="Target" type-name="NUMERIC" scale="2">
+      <calc:Div>
+        <calc:AspectRef idRef="asp_bcdTarget_$.target"/>
+        <calc:Value>100</calc:Value>
+      </calc:Div>
+    </calc:Calc>
+  </scc:Aspect>
+
+
+  <!-- 
+    Get trend data relative to previous period, can be mo, cw, dy, looking from the end of the reporting range resp the reporting periods
+   -->
+  <scc:Aspect id="bcdTrend" caption="Trend">
+    <calc:Calc type-name="NUMERIC" scale="2">
+      <calc:Div>
+        <calc:KpiRef />
+        <calc:AspectRef idRef="asp_bcdPreviousPeriod_kpi_$" />
+      </calc:Div>
+    </calc:Calc>
+  </scc:Aspect>
+
+  <!-- 
+    Get trend data relative to previous period, can be mo, cw, dy, looking from the end of the reporting range resp the reporting periods
+   -->
+  <scc:Aspect id="bcdNormSlope" caption="Trend">
+    <calc:Calc id="normSlope" caption="Minimum" type-name="NUMERIC" scale="4"></calc:Calc>
+    <scc:JsProcFct>bcdui.component.scorecard.aspects.bcdNormSlope</scc:JsProcFct>
+  </scc:Aspect>
+
+  <scc:Aspect id="bcdSlope" caption="Trend">
+    <calc:Calc id="const" caption="Const" type-name="NUMERIC" scale="4">
+      <calc:AspectRef idRef="asp_bcdSlope_kpi_$.c"/>
+    </calc:Calc>
+    <calc:Calc id="slope" caption="Slope" type-name="NUMERIC" scale="4">
+      <calc:AspectRef idRef="asp_bcdSlope_kpi_$.slope"/>
+    </calc:Calc>
+    <scc:JsProcFct>bcdui.component.scorecard.aspects.bcdSlope</scc:JsProcFct>
+  </scc:Aspect>
+
+
+  <!-- 
+    Get data of previous period, can be mo, cw, dy, looking from the end of the reporting range resp the reporting periods
+   -->
+  <scc:Aspect id="bcdPreviousPeriod" caption="Prev period">
+    <scc:WrqModifier>
+      <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+        xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+        xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0">
+
+        <xsl:import href="bcduicp://bcdui/xslt/3rdParty/exslt/date.day-in-week.template.xslt"/>
+        <xsl:import href="bcduicp://bcdui/xslt/3rdParty/exslt/date.add.template.xslt"/>
+
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
+
+        <xsl:template match="wrq:Columns/wrq:C">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
+            <xsl:if test="@bRef='dy'">
+              <xsl:attribute name="bcdPreviousPeriodAspectOrigValue">
+                <xsl:value-of select="/*/wrq:Select/f:Filter//f:Expression[@bRef=current()/@bRef and (@op='=' or @op='&lt;=')]/@value"></xsl:value-of>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@bRef='yr' or  @bRef='cwyr'">
+              <xsl:attribute name="bcdPreviousPeriodAspectOrigValue">
+                <!-- Remove leading 0 to allow joining with db values -->
+                <!-- for yr/cw selection we take the one belonging to the upper cw/mo/qr limit -->
+                <xsl:value-of select="number(/*/wrq:Select/f:Filter//
+                  f:Expression[
+                    @bRef=current()/@bRef and (@op='=' or @op='&lt;=')
+                    and (
+                      not(../f:Expression[@op='&gt;='])
+                      or (../f:Expression[@op='&gt;='] and ../f:Expression[@op='&lt;='])
+                    )
+                  ]/@value)"/>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@bRef='qr' or @bRef='mo' or @bRef='cw'">
+              <xsl:attribute name="bcdPreviousPeriodAspectOrigValue">
+                <!-- Remove leading 0 to allow joining with db values -->
+                <xsl:value-of select="number(/*/wrq:Select/f:Filter//f:Expression[@bRef=current()/@bRef and (@op='=' or @op='&lt;=')]/@value)"></xsl:value-of>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:copy-of select="node()"/>
+          </xsl:copy>
+        </xsl:template>
+
+        <!-- Remove single lower bound time filter if given for any bRef -->
+        <xsl:template match="f:Expression[ @op='&gt;=' and (@bRef='yr' or @bRef='qr' or @bRef='mo' or @bRef='cwyr' or @bRef='cw' or @bRef='dy') ]">
+        </xsl:template>
+
+        <!-- Remove belonging yr/cwyr filter to a lower bound time filter
+          you can have filter nodes which contain out of 1 "cw <="and 1 "cwyr=" but you can also have a "cw <=, cw >=" and 1 "cwyr=" combination
+          so only keep cwyr/yr when there is a = or >= op for the other bRefs, too
+         -->
+        <xsl:template match="f:*[f:Expression[@op='=' and (@bRef='yr' or @bRef='cwyr')
+          and     ../f:Expression[@op='&gt;=' and (@bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy')]
+          and not(../f:Expression[@op='&lt;=' and (@bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy')])
+          and not(../f:Expression[@op='='     and (@bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='dy')])
+          ]]">
+        </xsl:template>
+
+        <!-- Look at the upper bound of a range resp. the single period -->
+        <xsl:template match="f:Expression[(@bRef='yr' or @bRef='qr' or @bRef='mo' or @bRef='cwyr'or @bRef='cw' or @bRef='dy') and (@op='&lt;=' or @op='=')]">
+
+          <f:Expression>
+            <xsl:attribute name="bRef"><xsl:value-of select="@bRef"/></xsl:attribute>
+            <xsl:attribute name="op">=</xsl:attribute>
+            <xsl:attribute name="value">
+              <xsl:choose>
+              
+                <!-- yr, cwyr, year bounds may be crossed -->
+                <xsl:when test="@bRef='yr' or @bRef='cwyr'">
+                  <xsl:variable name="qmcValue" select="../f:Expression[@bRef='qr' or @bRef='mo' or @bRef='cw']/@value"/>
+                  <xsl:choose>
+                    <xsl:when test="$qmcValue > 1">
+                      <xsl:value-of select="@value"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:value-of select="@value -1" />
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:when>
+                
+                <!-- qr, mo, cw ,year bounds may be crossed  -->
+                <xsl:when test="(@bRef='qr' or @bRef='mo' or @bRef='cw') and @value > 1">
+                  <xsl:value-of select="@value -1" />
+                </xsl:when>
+                <xsl:when test="@bRef='qr' and @value = 1">
+                  <xsl:value-of select="'4'" />
+                </xsl:when>
+                <xsl:when test="@bRef='mo' and @value = 1">
+                  <xsl:value-of select="'12'" />
+                </xsl:when>
+                <xsl:when test="@bRef='cw' and @value = 1">
+                  <!-- Last year may end with CW 52 or 53, depending on whether thursday is still in prev year -->
+                  <xsl:variable name="cwYrValue" select="../f:Expression[@bRef='cwyr' and (@op='&lt;=' or @op='=')]/@value"/>
+                  <xsl:variable name="lastDyInPrevYearDayInWeek">
+                    <xsl:call-template name="date:day-in-week">
+                      <xsl:with-param name="date-time" select="concat(($cwYrValue -1),'-12-31')"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                    <xsl:when test="$lastDyInPrevYearDayInWeek >= 5">
+                      <xsl:value-of select="'53'" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:value-of select="'52'" />
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:when>
+
+                <!-- dy, requires more calculation -->                
+                <xsl:otherwise>
+                  <xsl:call-template name="date:add">
+                    <xsl:with-param name="date-time" select="@value"/>
+                    <xsl:with-param name="duration"  select="'-P1D'"/>
+                  </xsl:call-template>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:attribute>
+          </f:Expression>
+        </xsl:template>
+
+        <!-- We mostly leave the request unchanged -->
+        <xsl:template match="node()|@*">
+          <xsl:copy>
+            <xsl:apply-templates select="node()|@*" />
+          </xsl:copy>
+        </xsl:template>
+
+      </xsl:stylesheet>
+    </scc:WrqModifier>
+
+    <!-- 
+      In the resulting Wrs, reset time values to original values (from previous values), as we want to belong to the main period (and are not a break-down)
+     -->
+    <scc:PreCalc>
+      <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
+        <xsl:output method="xml" version="1.0" encoding="UTF-8" />
+        <xsl:key name="colHeadByPosOrigValue" match="/*/wrs:Header/wrs:Columns/wrs:C[@bcdPreviousPeriodAspectOrigValue]" use="@pos" />
+
+        <!-- To prevent repeating of namespaces -->
+        <xsl:template match="/wrs:Wrs">
+          <wrs:Wrs>
+            <xsl:apply-templates select="@*|node()" />
+          </wrs:Wrs>
+        </xsl:template>
+
+        <!-- This makes sure position() of wrs:C in the next template is not polluted by any preceding text nodes -->
+        <xsl:template match="wrs:R">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
+              <xsl:apply-templates select="wrs:C" />
+          </xsl:copy>
+        </xsl:template>
+
+        <xsl:template match="wrs:R/wrs:C[key('colHeadByPosOrigValue',position())]">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
+            <xsl:value-of select="key('colHeadByPosOrigValue',position())/@bcdPreviousPeriodAspectOrigValue"/>
+          </xsl:copy>
+        </xsl:template>
+
+        <xsl:template match="@*|node()">
+          <xsl:copy>
+            <xsl:apply-templates select="@*|node()" />
+          </xsl:copy>
+        </xsl:template>
+
+      </xsl:stylesheet>
+    </scc:PreCalc>
+  </scc:Aspect>
+
+  <scc:Aspect id="bcdRawValues" caption="Raw Values">
+    <calc:Calc id="i" caption="Indicator" scale="0"/>
+    <calc:Calc id="t" caption="Total"     scale="0"/>
+    <scc:Stylesheet aggrNeeded="true" href="bcduicp://bcdui/js/component/scorecard/addAspectRawValues.xslt"/>
+  </scc:Aspect>
+
+</scc:Aspects>

@@ -1,0 +1,181 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+.bcdPagingPanel {
+  font: $font-size-default $font-family-default;
+  table {
+    border: 1px solid $border-color;
+    margin-bottom: 10px;
+    tbody td {
+      vertical-align: middle;
+      text-align: right;
+      padding: 0px 3px;
+      height: 14px;
+      @include con_color(#FFFFFF);
+      select { border: none; }
+    }
+
+    td.bcdPagingButtonActive,
+    td.bcdPagingCoutOfElements,
+    td.bcdPagingButton {
+      border: 1px solid $border-color;
+    }
+    td.bcdPagingButtonActive,
+    td.bcdPagingButton {
+      cursor: pointer;
+    }
+    td.bcdPagingButtonActive {
+      @include con_color($grid-hover-color-body);
+    }
+    td.bcdPagingSelectAction select { width: auto !important; }
+  }
+}
+
+.bcdGrid {
+  font: $font-size-default $font-family-default;
+  color: $text-color-dark;
+  background-color: inherit;
+  @extend .noselect;
+
+  .bcdGridTable {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    background-color: $border-color;
+    margin-bottom: 10px;
+
+    .bcdGridHeader {
+      .bcdSorted_ascending div:first-child:before {
+        content:"▲";
+      }
+      .bcdSorted_descending div:first-child:before {
+        content:"▼";
+      }
+      .bcdHover {
+        color: inherit !important;
+        background-color: inherit !important;
+        border: inherit !important;
+      }
+      th {
+        @include con_color($grid-color-cell);
+        padding: 5px 7px 5px 7px;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid $border-color;
+      }
+      .bcdReadOnly  {
+        color: $text-disabled-color;
+      }
+    }
+
+    .bcdGridBody {
+      th, td {
+        margin:         0px;
+        vertical-align: middle;
+        text-align:     left;
+        white-space:    nowrap;
+        overflow:       hidden;
+        max-width:      400px;
+        border:         1px solid $border-color;
+        padding:        3px;
+
+        div {
+          overflow:      hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .bcdEven {
+        @include con_color($grid-color-cell-even);
+      }
+      .bcdOdd {
+        @include con_color($grid-color-cell-odd);
+      }
+
+      .bcdSelected {
+        background-color: inherit;
+        color: inherit;
+      }
+      .bcdReadOnly  {
+        color: $text-disabled-color;
+      }
+      .bcdDeleted {
+        text-decoration: line-through;
+        color: $grid-action-color;
+      }
+      .bcdInserted, .bcdModified {
+        text-decoration: underline;
+        color: $grid-action-color;
+      }
+    }
+  }
+}
+
+span.bcdInputFieldGrid {
+  margin:         0px;
+  padding:        0px;
+  vertical-align: top;
+  text-align:     left;
+  white-space:    nowrap;
+  overflow:       hidden;
+  border:         none;
+}
+span.bcdEven {
+  @include con_color($grid-color-cell-even);
+}
+span.bcdOdd {
+  @include con_color($grid-color-cell-odd);
+}
+
+input.bcdInputFieldGrid {
+  font: $font-size-default $font-family-default;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0px !important;
+  vertical-align: top !important;
+  background-color: #FFF1AD;
+}
+
+.bcdGridSelection {
+  font: $font-size-default $font-family-default;
+  position: absolute;
+  display: inline-block;
+  cursor: default;
+  border: 1px dashed $grid-action-color;
+  width: 0px;
+  height: 0px;
+  @include alpha(0.25);
+  background-color: lighten($select-color, 10%);
+  pointer-events: none;
+}
+.bcdDragging {
+  border-style: dotted;
+  cursor: crosshair;
+}
+.bcdWorking {
+  border-style: dashed;
+  border: 2px solid $grid-hover-color-border;
+  @include con_color($grid-hover-color-body);
+  @include alpha(0.5);
+}
+
+.bcdHover {
+  color: text-contrast($flyover-color) !important;
+  background-color: $flyover-color !important;
+  border: 1px solid $grid-hover-color-border !important;
+}
