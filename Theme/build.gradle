@@ -120,13 +120,13 @@ task bcduiDist( type: Jar ) {
 
 //******************************
 // Clean artifacts
-task clean( type: Delete ) {
+task bcduiClean( type: Delete ) {
   group "bcd-ui"
   delete buildDir
 }
 
 
 //************************************
-task build {
+task bcduiBuild {
   dependsOn bcduiDist
 }

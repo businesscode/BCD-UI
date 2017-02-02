@@ -117,7 +117,7 @@ task bcduiNodeJsTools( type: NpmTask ) {
 
 //--------------------------------------------
 // Cleanup installed tools
-task clean3rdParty( type: Delete ) {
+task bcduiClean3rdParty( type: Delete ) {
   group 'bcd-ui'
   delete nodeJsDir
 }

@@ -160,7 +160,7 @@ task bcduiClientCollect3rdParty {
 //   b) minified: distribution/<name>.js
 //   c) source code map: docs/ <name>.sourcemap.json
 task bcduiClientJsFileGroups {
-  dependsOn ':ApisGenerator:build', bcduiClientCollect3rdParty
+  dependsOn ':ApisGenerator:bcduiBuild', bcduiClientCollect3rdParty
 
   def taskDestDirName = "$buildDir/tmp/${name}"
 
@@ -365,7 +365,7 @@ task bcduiDist(type: Jar) {
 
 //************************************
 // Clean artifacts excluding node_modules
-task clean {
+task bcduiClean {
   group "bcd-ui"
   doFirst {
     if( !file(buildDir).exists() )
@@ -383,13 +383,13 @@ task clean {
 
 //************************************
 // Clean 3rdParty artifacts
-task clean3rdParty( type: Delete ) {
+task bcduiClean3rdParty( type: Delete ) {
   group "bcd-ui"
   delete buildDir
 }
 
 //************************************
 // Do all for what gradle 'Client' project is responsible for
-task build {
+task bcduiBuild {
   dependsOn bcduiDist
 }

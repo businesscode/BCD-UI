@@ -186,14 +186,14 @@ task bcduiGensrcTld {
 
 //************************************
 // Clean artifacts, we follow java plugin conventions
-task clean( type: Delete ) {
+task bcduiClean( type: Delete ) {
   group "bcd-ui"
   delete buildDir
 }
 
 //************************************
 // Do all for what gradle 'ApisGenerator' project is responsible for, we follow java plugin conventions
-task build {
+task bcduiBuild {
   outputs.dir "$genSrcOutputDir"
   dependsOn bcduiGensrcJsXsltXapiJspTagApis, bcduiGensrcCustomElements, bcduiGensrcTld
 }

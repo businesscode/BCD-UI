@@ -27,7 +27,7 @@ import groovy.json.JsonSlurper
 // (eriwen gradle-js-plugin even supports only a much older JSDoc version, which even frequently with wired errors without source information on simple things like empty comments, we can't use it here)
 task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
-  dependsOn ":Client:build"
+  dependsOn ":Client:bcduiBuild"
 
   def targetDir = "$buildDir/htmldocs/jsdoc"
 
@@ -61,7 +61,7 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 // For each filegroup, created in Client, we also generate API stubs, suited for Eclipse (version Mars) to support auto-suggest
 task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
-  dependsOn ":Client:build"
+  dependsOn ":Client:bcduiBuild"
 
   def taskDestDirName = "$buildDir/jsApiStubs"
   def inputsDir       = clientFileGroupsDebug
@@ -178,7 +178,7 @@ task bcduiHtmlDocs( type: Copy ) {
 
 //******************************
 // Clean artifacts
-task clean( type: Delete ) {
+task bcduiClean( type: Delete ) {
   group "bcd-ui"
   delete buildDir
 }
@@ -186,7 +186,7 @@ task clean( type: Delete ) {
 //******************************
 // Do all for what gradle 'Docu' project is responsible for
 
-task build {
+task bcduiBuild {
   group "bcd-ui"
   dependsOn bcduiHtmlDocs, bcduiDocuJsApiStubs
 }

@@ -31,7 +31,7 @@ dependencies {
 // Java Plugin default task configuration
 jar {
 
-  dependsOn ':ApisGenerator:build'
+  dependsOn ':ApisGenerator:bcduiBuild'
 
   baseName = "$artifactsBaseName-jsptaglib"
   version  = bcduiVersion
@@ -65,5 +65,8 @@ jar {
 
 
 //********************************
-// Java Plugin default task
-clean.group = 'bcd-ui'
+// Refers to Java Plugin default task
+task bcduiClean {
+  group = 'bcd-ui'
+  dependsOn clean
+}

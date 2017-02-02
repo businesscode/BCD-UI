@@ -51,11 +51,9 @@ apply from: "$sharedBuildFilesRoot/gradle/script/installTools.gradle"
 
 //--------------------------
 // Collects 3 binaries: bcd-ui-core with client + server, theme and jsp-taglib
-task bcduiFullDist( type: Jar ) {
+task bcduiCoreDist( type: Jar ) {
 
-  dependsOn subprojects.collect { subproject ->
-    subproject.tasks.matching { it.name == 'build' }
-  }
+  dependsOn    ':Server:jar', ':Client:bcduiDist'
 
   dependsOn bcduiMetaInf
   destinationDir = file("$buildDir/libs")
@@ -82,16 +80,21 @@ task bcduiFullDist( type: Jar ) {
 
 //************************************
 // Clean artifacts
-task clean( type: Delete ) {
+task bcduiClean( type: Delete ) {
   group "bcd-ui"
   delete buildDir
 }
 
 //************************************
 // Do a full build and collect jars in build/jar
-task build {
+task bcduiBuild {
   group "bcd-ui"
-  dependsOn bcduiFullDist
+  dependsOn bcduiCoreDist
+
+  dependsOn subprojects.collect { subproject ->
+    subproject.tasks.matching { it.name == 'bcduiBuild' }
+  }
+
   doLast {
     [':JspTaglib:jar', ':Theme:bcduiDist'].each { subJar ->
       copy { from tasks.findByPath(subJar) into "$buildDir/libs" }

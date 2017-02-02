@@ -119,5 +119,9 @@ jar {
 }
 
 //********************************
-// Java Plugin default task
-clean.group = 'bcd-ui'
+// Refers to Java Plugin default task
+task bcduiClean {
+  group = 'bcd-ui'
+  dependsOn clean
+}
+
