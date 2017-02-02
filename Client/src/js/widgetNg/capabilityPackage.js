@@ -14,16 +14,17 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI browser capability and availability package.
+ * A namespace for the BCD-UI browser capability and availability package.
  *
  * the API is chosen the same as Modernizr which is also used as subordinate availability provider.
  * the _hasFeature() API allows to query properties-by-dot-notation and if there is no known result we delegate
- * to Modernizr. Some special APIs provided by this package are explicitely documentated.
+ * to Modernizr. Some special APIs provided by this package are explicitly documented.
  *
- * the property: bcdui.browerCapability._hasFeature("input.text") for instance, checks if we have internally some
+ * the property: bcdui.browserCompatibility._hasFeature("input.text") for instance, checks if we have internally some
  * availability flag for it, if not we delegate to Modernizr.input.text.
  * 
  * @namespace bcdui.browserCompatibility
+ * @private
  */
 bcdui.util.namespace("bcdui.browserCompatibility", {
   /**
@@ -44,6 +45,7 @@ bcdui.util.namespace("bcdui.browserCompatibility", {
 
         /**
          * A namespace for the BCUDI browser capability and availability package
+         * @private
          * @namespace bcdui.browserCapability._intern.input
          */
         bcdui.util.namespace("bcdui.browserCapability._intern.input",{
