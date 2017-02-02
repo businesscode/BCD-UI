@@ -40,7 +40,7 @@ import javax.sql.DataSource;
  * {@code
  *  <servlet>
  *    <servlet-name>SldToUrl</servlet-name>
- *    <servlet-class>com.businesscode.dhl.maptool.TextToUrl</servlet-class>
+ *    <servlet-class>de.businesscode.bcdui.toolbox.TextToUrl</servlet-class>
  *    <init-param><param-name>SCOPE</param-name>         <param-value>sld</param-value></init-param>
  *    <init-param><param-name>NAME_TEMPLATE</param-name> <param-value>sld%d.xml</param-value></init-param>
  *    <init-param><param-name>DATA_SOURCE</param-name>   <param-value>jdbc/datasourceName</param-value></init-param>

@@ -2375,9 +2375,10 @@ bcdui.util.namespace("bcdui.widget",
      
      /**
       * Helper function for navpath operations. Takes a given list as is or, if not provided it
-      * takes all ids from the bcdNavPath model but orders them according to their placement on the screen  
+      * takes all ids from the bcdNavPath model but orders them according to their placement on the screen
       * @param {string}        [values]         A space separated string which lists the ordered targetIds of the widgets which should be queried (or empty for all)
-      * @return Array containing the values (sorted by appearance if no values specified or original order) 
+      * @return Array containing the values (sorted by appearance if no values specified or original order)
+      * @private
       */
      _getSortedNavPathItems: function(values) {
        // in case we don't specify any values, we use the full list (sorted by appearance)
