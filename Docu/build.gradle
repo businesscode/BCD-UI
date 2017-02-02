@@ -29,6 +29,7 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
   dependsOn ":Client:bcduiBuild"
 
+  inputs.dir clientFileGroupsDebug
   def targetDir = "$buildDir/htmldocs/jsdoc"
 
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
