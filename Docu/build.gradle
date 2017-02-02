@@ -91,6 +91,8 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 task bcduiDocuXml2Html (type: Copy) {
 
   def taskDestDirName = "$buildDir/htmldocs/tutorial"
+  def taskSource = './tutorial/content'
+  inputs.dir file(taskSource)
 
   // xml content is converted to HTML in case it has a processing instruction
   doFirst {
@@ -98,7 +100,7 @@ task bcduiDocuXml2Html (type: Copy) {
     delete taskDestDirName
 
     // Loop over all xml files
-    def docFiles = fileTree('./tutorial/content').include('**/*.xml')
+    def docFiles = fileTree(taskSource).include('**/*.xml')
     docFiles.each { docFile ->
 
       // Read xslt processing instruction (targeting towards browsers, when viewing the xml directly) to apply the right style in ant.xslt
@@ -165,8 +167,7 @@ task bcduiJavadoc(type: Javadoc) {
 
 
 //******************************
-// Creates /docs folder
-// Also used from Github Pages
+// Creates /build/htmldocs folder with all content meant to be human readable
 task bcduiHtmlDocs( type: Copy ) {
 
   dependsOn bcduiDocuXml2Html, bcduiDocuJsHtml, bcduiJavadoc
