@@ -19,8 +19,7 @@
 
   <Chapter title="Architecture Overview" type="overview">
     <Body>
-      BCD-UI is part of <a href="../overview/doc.xml">BCD Excellence Suite</a> and mainly a J2EE application enhanced by BCD-UI pre-built capabilities for easier setup of typical OPM applications.
-      BCD-UI is a library for creating web based applications for data reporting and manipulation.
+      BCD-UI is a library for creating web applications such as ranging from simple data reporting and manipulation to complex OPM scenarios.
       It consists of client and server side parts communicating via web services exchanging XML messages and data.
       On server side services respond to web service requests and assure typical lifecycle tasks like logging, security, caching.
       On client side BCD-UI follows model view control MVC architecture.
