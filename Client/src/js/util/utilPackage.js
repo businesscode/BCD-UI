@@ -221,5 +221,73 @@ bcdui.util =
       return previousValue[currentValue];
     }, window );
     return jQuery.extend( ns, extensions || {} );
+  },
+
+  /**
+   * Vertically scrolls the container to the given element. This function scrolls the container only in case
+   * the target element is not visible, if the target is not fully visible (i.e. partly covered) it will snap
+   * the container on the element according to given options.
+   * 
+   * This function is considered private as a subject to change to support full scrolling features:
+   * -  vertical / horizontal scrolling
+   * -  autoscrolling ancestor viewports, consider api: scrollTo(target), as such autodetect wrapping viewports and scroll them accordingly
+   *    to make the target visible on the screen
+   * 
+   * @param {Object|Element|string}   container                         The scrollable container containing a level-1 child 'scrollTo'.
+   * @param {Object|Element|string}   scrollTo                          Level-1 child of the container.
+   * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
+   * @param {string}                  [options.snapTo = 'beginning']    snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   *  'nearest': snap the element to the nearest edge of the container.
+   * 
+   * @return {boolean} - true if the container has been scrolled
+   * 
+   * @private
+   */
+  _scrollTo : function(container, scrollTo, options){
+    options = jQuery.extend({
+      // DEFAULTS
+      snapTo : "beginning"
+    }, options);
+    container = jQuery(container);
+    scrollTo = jQuery(scrollTo);
+    if( !container.length || !scrollTo.length ){
+      return;
+    }
+    // TODO: currently supporting level-1 children only but we can extend to support descendants too or even autoscroll with bottom-up viewport recognition
+    if( scrollTo.parent().get(0) !== container.get(0) ){
+      throw "cant scroll, since scrollTo element is not a level-1 child of given container";
+    }
+    // viewport size
+    var viewPortOffset = container.offset();
+    var viewPortHeight = container.height();
+    var viewportStart = container.scrollTop();
+    var viewportEnd = viewPortHeight + viewportStart;
+    // scrollTo point within viewport
+    var refPointTop = scrollTo.offset().top - viewPortOffset.top + viewportStart;
+    var refPointBottom = refPointTop + scrollTo.outerHeight(true);
+
+    // check visibility
+    var isRefTopVisible = viewportStart <= refPointTop && refPointTop <= viewportEnd;
+    var isRefBottomVisible = viewportStart <= refPointBottom && refPointBottom <= viewportEnd;
+    var isRefVisible = isRefTopVisible && isRefBottomVisible;
+
+    // define only if we have an option for it: if not 'beginning', assume 'nearest'
+    var isRefPointTopInUpperHalf = options.snapTo == 'beginning' ? undefined : (refPointTop <= viewportStart + viewPortHeight / 2);
+
+    // we only want to scroll to refPointTop if isRefPointTopInUpperHalf is true and this point is in upper half of container
+    if( !isRefVisible && isRefPointTopInUpperHalf === undefined
+        ||
+        !isRefTopVisible && isRefPointTopInUpperHalf
+      ){
+      container.scrollTop(refPointTop);
+      return true;
+    }
+
+    if( !isRefBottomVisible ){
+      container.scrollTop( viewportStart + (refPointBottom - viewportEnd ) );
+      return true;
+    }
+
+    return false;
   }
 }

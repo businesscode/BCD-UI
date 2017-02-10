@@ -21,5 +21,23 @@
  * - all function start with a 'bcd' prefix
  */
 (function( $ ) {
-
+  /**
+   * Scrolls the container to the target, this function must be called on a scrollable
+   * container. Implementation is provided by bcdui.util._scrollTo()
+   *
+   * @param {Object|Element|string}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object,
+   *  an Element or jQuery compatible selector.
+   *
+   * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
+   * @param {string}                  [options.snapTo = 'beginning']    snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   *                                                                    'nearest': snap the element to the nearest edge of the container.
+   *
+   * @returns {Object} jQuery object
+   */
+  $.fn.bcdScrollTo = function( target, options ) {
+    return this.each(function(){
+      var el=$(this);
+      bcdui.util._scrollTo( el, typeof target == "string" ? el.children(target) : $(target), options );
+    });
+  };
 }( jQuery ));
