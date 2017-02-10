@@ -39,13 +39,15 @@
       var template = "<div class='bcdSideBySideChooser'>" +
         "<table>" +
           "<thead>" +
-            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceKey}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetKey}}'>{{=it.targetCaption}}</th></tr>" +
+            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceKey}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetKey}}'>{{=it.targetCaption}}</th><th></th></tr>" +
           "</thead>" +
         "<tbody>" +
           "<tr>" +
             "<td class='bcdCol' id='{{=it.id}}sbsLeft'></td>" +
             "<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdToSource'><a href='javascript:void(0)'></a></span></span></td>" +
-            "<td class='bcdCol3' id='{{=it.id}}sbsRight'></td></tr>" +
+            "<td class='bcdCol3' id='{{=it.id}}sbsRight'></td>" +
+            "<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdMoveDown'><a href='javascript:void(0)'></a></span></span></td>" +
+           "</tr>" +
           "</tbody>" +
         "</table>" +
       "</div>";
@@ -134,6 +136,15 @@
             }
           }
         };
+      });
+
+      // up/down controls applicatable on 'to' area
+      jQuery("#" + this.options.id + " .bcd-sbs-controls").on("click", ".bcdMoveUp, .bcdMoveDown", function(event){
+        var el = jQuery(this);
+        var isDirUp = el.hasClass("bcdMoveUp");
+        var widgetEl = el.closest(".bcdSideBySideChooser").find(".bcdTarget").closest("[bcdWidgetFullName]");
+        widgetEl = widgetEl.data(widgetEl.attr("bcdWidgetFullName"));
+        widgetEl._moveSelectedItemsUpDown( isDirUp ? -1 : 1 );
       });
 
       bcdui.widgetNg.input.getNavPath(this.element.attr("bcdTargetHtmlElementId"), function(id, value) {

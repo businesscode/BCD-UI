@@ -1078,8 +1078,71 @@
           }
         }
       }
-    }
+    },
 
+    /**
+     * change sorting / move items up or down
+     * 
+     * @private
+     * @param {integer} moveDir=1     Direction to move, -1=up, +1=down
+     */
+    _moveSelectedItemsUpDown : function(dir){
+      dir = dir||-1;
+      var container = this.element.find(".bcdConnectable");
+      var selectedItems = container.children('.ui-selected');
+      var allItems = container.children('.ui-selectee');
+
+      // skip in case...
+      if(
+          // either none or all are selected...
+          selectedItems.length == 0 || allItems.length == selectedItems.length
+          // or edging selection
+          || ( dir < 0 && selectedItems[0]        === allItems[0]         )
+          || ( dir > 0 && selectedItems.last()[0] === allItems.last()[0]  )
+        ){
+        return;
+      }
+
+      /*
+       * approach:
+       * we have to support heterogene selection, i.e. selection with many non connected blocks.
+       * to yield minimal DOM write operations we dont move the selection, instead we move
+       * the left/right (upper/lower) neighbour, resulting in 1 DOM op in best case
+       * and selection-n in worst case.
+       */
+      var src = [];
+      var dst = [];
+
+      selectedItems.each(function(i,e){
+        e = jQuery(e);
+        var ref = dir < 0 ? e.prev() : e.next(); // left/right neighbour for reference detection
+        var end = dir > 0 ? e.prev() : e.next(); // right/left neighbour for selection detection
+        // determine reference neihghbour to move
+        if(!ref.hasClass("ui-selected")){
+          src.push(ref);
+        }
+        // determine beginning/end of selection
+        if(!end.hasClass("ui-selected")){
+          dst.push(e);
+        }
+      });
+
+      // relocate
+      for(var i=0;i<src.length;i++){
+        if(dir < 0){
+          src[i].insertAfter(dst[i]);
+        } else {
+          src[i].insertBefore(dst[i]);
+        }
+      }
+
+      // scroll to first/last visible reference element
+      container.bcdScrollTo(
+          dir < 0 ? container.children(".ui-selected").first() : container.children(".ui-selected").last(), { snapTo : 'nearest' }
+      );
+
+      this._doWriteXML(container, this.config.target);
+    }
   });
 }());
 

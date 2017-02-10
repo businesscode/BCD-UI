@@ -396,10 +396,13 @@ a {
   .bcd-sbs-controls {
     .bcdToSource a:after { content: "<<<"; }
     .bcdToMainTarget a:after { content: ">>>"; }
+    .bcdMoveUp a:after { content: "\21e7"; font-size: 1.5em; }
+    .bcdMoveDown a:after { content: "\21e9"; font-size: 1.5em; }
     a { display: block; font-size: $font-size-small; }
    }
 
-  .bcdCol2 {
+  .bcdCol2,
+  .bcdCol4 {
     vertical-align: middle;
     .bcdButton {
       display: block;
