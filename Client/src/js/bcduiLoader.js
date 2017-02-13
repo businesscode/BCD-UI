@@ -42,6 +42,7 @@ bcdui.bcduiCeFiles =
         , "/js/util/clipboardPackage.js"
         , "/js/util/urlPackage.js"
         , "/js/util/xmlPackage.js"
+        , "/js/util/bcdJQueryPlugins.js"
       ]
     },
     {
