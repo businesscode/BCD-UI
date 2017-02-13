@@ -60,146 +60,134 @@
     </doc:SubChapter>
   </doc:Chapter>
 
-  <doc:Chapter title="Widget Ng Overview">
+  <doc:Chapter title="Widget Ng Overview" type="howItWorks">
     <doc:SubChapter title="Button">
       <doc:Body>
         <img src="./images/ng_button.png"/>
-        <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Button:</a> A button widget for a clickable action
+        <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createButton" target="_blank">Button:</a> A button widget for a clickable action
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Checkbox">
       <doc:Body>
       <img src="./images/ng_checkbox.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Checkbox:</a> A checkbox widget which allows a on/off (true/false, 1/0) switch
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createCheckbox" target="_blank">Checkbox:</a> A checkbox widget which allows a on/off (true/false, 1/0) switch
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Connectable">
       <doc:Body>
       <img src="./images/ng_connectable.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Connectable:</a> Connectables, can be used in various ways
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createConnectable" target="_blank">Connectable:</a> Connectables, can be used in various ways
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Date Input">
       <doc:Body>
       <img src="./images/ng_dateInput.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Date Input:</a> A HTML5 dateinput control
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createDateInput" target="_blank">Date Input:</a> A HTML5 dateinput control
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Input">
       <doc:Body>
       <img src="./images/ng_input.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Input:</a> A basic input control
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createInput" target="_blank">Input:</a> A basic input control
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="SideBySide Chooser">
       <doc:Body>
       <img src="./images/ng_sideBySideChooser.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">SideBySide Chooser:</a> A side-by-side chooser allowing selection and ordering of items
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createSideBySideChooser" target="_blank">SideBySide Chooser:</a> A side-by-side chooser allowing selection and ordering of items
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Single Select">
       <doc:Body>
       <img src="./images/ng_singleSelect.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Single Select:</a> A drop down selector
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createSingleSelect" target="_blank">Single Select:</a> A drop down selector
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Suggest Input">
       <doc:Body>
       <img src="./images/ng_suggestInput.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Suggest Input:</a> A drop down selector with autocompletion functionality and custom rendering
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createSuggestInput" target="_blank">Suggest Input:</a> A drop down selector with autocompletion functionality and custom rendering
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Text Area">
       <doc:Body>
       <img src="./images/ng_textArea.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widgetNg.html">Text Area:</a> A (resizable) text area field, which allows multiline input
+      <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createTextArea" target="_blank">Text Area:</a> A (resizable) text area field, which allows multiline input
       </doc:Body>
     </doc:SubChapter>
   </doc:Chapter>
 
-  <doc:Chapter title="Widget Overview">
+  <doc:Chapter title="Widget Overview" type="howItWorks">
     <doc:SubChapter title="Blind UpDown">
       <doc:Body>
       <img src="./images/w_blindUpDown.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Blind UpDown:</a> A collapsable/expandable area
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createBlindUpDownArea" target="_blank">Blind UpDown:</a> A collapsable/expandable area
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Contex Menu">
       <doc:Body>
       <img src="./images/w_contextMenu.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Context Menu:</a> A context menu which can be linked to a cell
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createContextMenu" target="_blank">Context Menu:</a> A context menu which can be linked to a cell
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Dimension Chooser">
       <doc:Body>
       <img src="./images/w_dimensionChooser.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Dimension Chooser:</a> A multi level selector
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createDimensionChooser" target="_blank">Dimension Chooser:</a> A multi level selector
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Formula Editor">
       <doc:Body>
       <img src="./images/w_formulaEditor.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Formula Editor:</a> A formula Editor for building custom calculations
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createFormulaEditor" target="_blank">Formula Editor:</a> A formula Editor for building custom calculations
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Input Field">
       <doc:Body>
       <img src="./images/w_inputField.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Input Field:</a> An autocompletion input widget
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createInputField" target="_blank">Input Field:</a> An autocompletion input widget
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Login Form">
       <doc:Body>
       <img src="./images/w_loginForm.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Login Form:</a> A simple login form widget for username and password
+      <div></div><a href="../../../jsdoc/bcdui.widget.html" target="_blank">Login Form:</a> A simple login form widget for username and password
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Menu">
       <doc:Body>
       <img src="./images/w_menu.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Menu:</a> A top menu bar widget
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createMenu" target="_blank">Menu:</a> A top menu bar widget
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Multi Select">
       <doc:Body>
       <img src="./images/w_multiSelect.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Multi Select:</a> A multiple selection widget (select list or checkbox list)
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createMultiSelect" target="_blank">Multi Select:</a> A multiple selection widget (select list or checkbox list)
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Period Chooser">
       <doc:Body>
       <img src="./images/w_periodChooser.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Period Chooser:</a> A date/date range popup calendar
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createPeriodChooser" target="_blank">Period Chooser:</a> A date/date range popup calendar
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Single Select">
       <doc:Body>
       <img src="./images/w_singleSelect.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Single Select:</a> A radio button widget offering single selection
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createSingleSelect" target="_blank">Single Select:</a> A radio button widget offering single selection
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Tab">
       <doc:Body>
       <img src="./images/w_tab.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Tab:</a> Tabs allow to switch different views of the same data or between different data within a page
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createTabMenu" target="_blank">Tab:</a> Tabs allow to switch different views of the same data or between different data within a page
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Tooltip">
       <doc:Body>
       <img src="./images/w_tooltip.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">Tooltip:</a> Flyover, Tooltips connected to cells
-      </doc:Body>
-    </doc:SubChapter>
-    <doc:SubChapter title="User Messages Editor">
-      <doc:Body>
-      <img src="./images/w_userMessagesEditor.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">User Message Editor:</a> A grid like editor to administrate user messages
-      </doc:Body>
-    </doc:SubChapter>
-    <doc:SubChapter title="User Messages Viewer">
-      <doc:Body>
-      <img src="./images/w_userMessagesViewer.png"/>
-      <div></div><a href="../../../jsApiHtml/bcdui.widget.html">User Message Viewer:</a> A window like viewer for the setup user messages
+      <div></div><a href="../../../jsdoc/bcdui.widget.html#.createTooltip" target="_blank">Tooltip:</a> Flyover, Tooltips connected to cells
       </doc:Body>
     </doc:SubChapter>
   </doc:Chapter>
