@@ -43,41 +43,11 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
     bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId);
 
-    // render boxes
-    var template = "" +
-      "<div class='bcdCubeDndMatrix' id='{{=it.cubeId}}_dnd' bcdCubeId='{{=it.cubeId}}'>" +
-      "  <div class='bcdDimensionListWithHeaders'>" +
-      "    <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Dimensions"}) + "</div>" +
-      "    <div class='bcdDimensionList' id='{{=it.cubeId}}_bcd_dnd_dimensions'></div>" +
-      "  </div>" +
-      "  <div class='bcdMeasureListWithHeaders'>" +
-      "    <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Measures"}) + "</div>" +
-      "    <div class='bcdMeasureList' id='{{=it.cubeId}}_bcd_dnd_measures'></div>" +
-      "  </div>" +
-      "  <div class='bcdCurrentColDimensionList' id='{{=it.cubeId}}_bcd_dnd_colDimensions'></div>" +
-      "  <div class='bcdCurrentRowDimensionList' id='{{=it.cubeId}}_bcd_dnd_rowDimensions'></div>" +
-      "  <div class='bcdCurrentColMeasureList' id='{{=it.cubeId}}_bcd_dnd_colMeasures'></div>" +
-      "  <div class='bcdCurrentMeasureList' id='{{=it.cubeId}}_bcd_dnd_rowMeasure'></div>" +
-      "</div>";
-
-    // insert pseudo classes for translated dnd background texts
-    jQuery('<style>' +
-      '.bcdCurrentColDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColDimensions"}) + '"; }' +
-      '.bcdCurrentRowDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowDimensions"}) + '"; }' +
-      '.bcdCurrentColMeasureList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColMeasures"}) + '"; }' +
-      '.bcdCurrentMeasureList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowMeasures"}) + '"; }' +
-    '</style>').appendTo('head'); 
-
-    // add DND
-    jQuery("#" + args.targetHTMLElementId).append(
-      doT.template(template)({
-        cubeId: args.cubeId
-      })
-    );
-
     // remember bucket and targetModelId for refresh function
-    jQuery("#" + args.cubeId + "_dnd").data("targetModelId", args.targetModelId);
-    jQuery("#" + args.cubeId + "_dnd").data("cubeBucketModelId", cubeBucketModelId);
+    jQuery("#" + args.targetHtml).addClass("bcd_"+ args.cubeId + "_dnd");
+    jQuery("#" + args.targetHtml).attr("bcdCubeId", args.cubeId);
+    jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId", args.targetModelId);
+    jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId", cubeBucketModelId);
 
     // initially transform cube layout into in-between-model for connectables
     bcdui.component.cube.configuratorDND._cubeLayoutToControlModel(args.cubeId);
@@ -89,13 +59,13 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     var inputArgs = {
       optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Dimensions/dm:LevelRef/@caption"
     , optionsModelRelativeValueXPath: "../@bRef"
-    , targetHtmlElementId: args.cubeId + "_bcd_dnd_dimensions"
+    , targetHtml: "#" + args.targetHtml + " .bcdDimensionList"
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
-      targetHtmlElementId: args.cubeId + "_bcd_dnd_colDimensions"
+      targetHtml: "#" + args.targetHtml + " .bcdCurrentColDimensionList"
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColDim/@id"
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
@@ -103,7 +73,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
-      targetHtmlElementId: args.cubeId + "_bcd_dnd_rowDimensions"
+      targetHtml: "#" + args.targetHtml + " .bcdCurrentRowDimensionList"
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowDim/@id"
     , scope: args.cubeId + "_dims"
     , isDoubleClickTarget: true
@@ -114,13 +84,13 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     var inputArgs = {
       optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Measures/dm:MeasureRef/@caption"
     , optionsModelRelativeValueXPath: "../@idRef"
-    , targetHtmlElementId: args.cubeId + "_bcd_dnd_measures"
+    , targetHtml: "#" + args.targetHtml + " .bcdMeasureList"
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
-      targetHtmlElementId: args.cubeId + "_bcd_dnd_colMeasures"
+      targetHtml: "#" + args.targetHtml + " .bcdCurrentColMeasureList"
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColMes/@id"
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
@@ -128,7 +98,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
-      targetHtmlElementId: args.cubeId + "_bcd_dnd_rowMeasure"
+      targetHtml: "#" + args.targetHtml + " .bcdCurrentMeasureList"
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowMes/@id"
     , scope: args.cubeId + "_meas"
     , isDoubleClickTarget: true
@@ -145,10 +115,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
         // check if target model really changed
 
-        var cubeBucketModelId = jQuery("#" + args.cubeId + "_dnd").data("cubeBucketModelId");
+        var cubeBucketModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId");
         var cubeTargetId = cubeBucketModelId;
         var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
-        var targetModelId = jQuery("#" + args.cubeId + "_dnd").data("targetModelId");
+        var targetModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId");
         var cubeLayoutRoot = "/cube:Layout[@cubeId='" + args.cubeId + "']";
         var colDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef");
         var rowDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef/@bRef");
@@ -213,12 +183,12 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    */
   _controlModelToCubeLayout : function(cubeId) {
 
-    var cubeBucketModelId = jQuery("#" + cubeId + "_dnd").data("cubeBucketModelId");
+    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId");
     var cubeTargetId = cubeBucketModelId;
     var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
     var tempModel = cubeBucketModelId;
     var tempModelXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootLayout;
-    var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
 
     // clean temporary layout first
@@ -316,7 +286,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       var promptMsr = false;
       var promptDim = false;
 
-      var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+      var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
       var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
       var targetModelDoc = bcdui.factory.objectRegistry.getObject(targetModelId).getData();
 
@@ -373,10 +343,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    */
   _cubeLayoutToControlModel : function(cubeId) {
 
-    var cubeBucketModelId = jQuery("#" + cubeId + "_dnd").data("cubeBucketModelId");
+    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId");
     var cubeTargetId = cubeBucketModelId;
     var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
-    var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
 
     // transform target model data to in-between model
@@ -477,7 +447,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
     // force other targetId Listeners to run on a redisplay of data
     // this is e.g. needed to rerender the cube when cumulate attributes were set via context menu
-    var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
 
     var destination = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("/*" + cubeLayoutRoot);
@@ -498,9 +468,9 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    * @private
    */
   _itemRenderer: function(args) {
-    var cubeId = jQuery("#" + args.id).closest(".bcdCubeDndMatrix").attr("bcdCubeId");
-    var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
-    var cubeBucketModelId = jQuery("#" + cubeId + "_dnd").data("cubeBucketModelId");
+    var cubeId = jQuery("#" + args.id).closest("*[bcdCubeId]").attr("bcdCubeId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
+    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId");
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
     var customClass = "";
     var dim = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("/*" + cubeLayoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + args.value + "']");
@@ -527,7 +497,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    */
   _cleanUp : function (cubeId) {
 
-    var targetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
     var gotColDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef").length > 0;
     var gotRowDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef").length > 0;
@@ -609,6 +579,47 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         doRedisplay = true;
 
     return doRedisplay;
-  }
+  },
+  
+  /**
+   * Generates a default layout for the cube drag'n drop area
+   * @private
+   */
+  _generateDefaultLayout : function() {
+    // 960 grid based layout with possible horizontal flip
+    var dndDirectionTargetLeft = bcdui.config.settings.bcdui.component.dnd.targetLeft || true;
+    var targetArea = "" +
+      "<div class='grid_3 omega bcdCurrentRowDimensionList" + (dndDirectionTargetLeft ? " alpha" : "") + "'></div>" +
+      "<div class='grid_3 omega bcdCurrentColMeasureList'></div>" +
+      "<div class='grid_3 omega'>" +
+      "  <div class='bcdCurrentColDimensionList'></div>" +
+      "  <div class='bcdCurrentMeasureList'></div>" +
+      "</div>";
+    var sourceArea = ""+
+      "<div class='grid_5 omega" + (dndDirectionTargetLeft ? "" : " alpha") + "' >" +
+      "  <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Dimensions"}) + "</div>" +
+      "  <div class='bcdDimensionList'></div>" +
+      "</div>" +
+      "<div class='grid_5 omega'>" +
+      "  <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Measures"}) + "</div>" +
+      "  <div class='bcdMeasureList'></div>" +
+      "</div>";
+    var template = "" +
+      " <div class='container_24 bcdCubeDndMatrix'>" +
+      "   <div class='grid_24'>" +
+          (dndDirectionTargetLeft ? targetArea : sourceArea) +
+          (dndDirectionTargetLeft ? sourceArea : targetArea) +
+      "   </div>" +
+      " </div>";
+  
+    // insert pseudo classes for translated dnd background texts
+    jQuery('<style>' +
+      '.bcdCurrentColDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColDimensions"}) + '"; }' +
+      '.bcdCurrentRowDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowDimensions"}) + '"; }' +
+      '.bcdCurrentColMeasureList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColMeasures"}) + '"; }' +
+      '.bcdCurrentMeasureList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowMeasures"}) + '"; }' +
+    '</style>').appendTo('head');
 
+    return template;
+  }
 });

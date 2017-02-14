@@ -348,7 +348,7 @@
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
           </Doc>
         </Param>
-        <Param name="isDefaultHtmlLayout" type="boolean">
+        <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
             Boolean. If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then.
           </Doc>
@@ -360,7 +360,70 @@
         </Param>
       </Api>
 
-      
+      <Api name="scorecardConfigurator" extends="hasTargetHtml">
+        <Doc>
+          Creates a scorecard configurator, providing the scc:Layout section of the scorecard configuration, able of
+          1) Showing the drag and drop area for the dimensions and kpis and aspects
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the scorecard configurator configuration data." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:scorecardConfigurator>
+              &lt;b:model url='scorecardConfiguratorOptions.xml'/>
+            &lt;/component:scorecardConfigurator>
+          </Example>
+          <Example type="js">
+            bcdui.component.createScorecardConfigurator({
+             id:                    "scorecardConfigurator",
+             , config:              bcdui.factory.createModel({ url: "dimensionsAndKpis.xml" })
+             , targetHTMLElementId: "scorecardConfiguratorDiv"
+             , targetModelId        "guiStatus2"
+          </Example>
+        </Examples>
+        <Param name="scorecardId" type="string">
+          <Doc>
+            Id of the scorecard the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:scorecard.
+          </Doc>
+        </Param>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the scorecard configuration data (see scorecard-1.0.0.xsd, Root Element 'ScorecardConfiguration').
+            If it is not present a SimpleModel with the url  './dimensionsAndKpis.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="scorecardRenderer" type="dataProvider" isJSPParent="true">
+          <Doc>
+            Id of the scorecardRenderer the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:scorecard.
+          </Doc>
+        </Param>
+        <Param name="targetModelId" type="string">
+          <Doc>
+            Per default the configuration is written to $guiStatus/*/scc:Layout[scorecardId='scorecardId'].
+            Change this for example if you want to have multiple scorecards and multiple scorecardConfigurators.
+          </Doc>
+        </Param>
+        <Param name="isDefaultHtmlLayout" type="boolean" default="false">
+          <Doc>
+            Boolean. If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then.
+          </Doc>
+        </Param>
+        <Param name="includeDefaultAspects" type="boolean" default="false">
+          <Doc>
+            Boolean. If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then.
+          </Doc>
+        </Param>
+        <Param name="applyFunction" type="string">
+          <Doc>
+            Function name which is used for the apply button in isDefaultHtmlLayout=true mode. Default is bcdui.core.lifecycle.applyAction
+          </Doc>
+        </Param>
+      </Api>      
 
       <Api name="scorecardModel" extends="transformationChain dataProvider">
         <Doc>
@@ -477,6 +540,7 @@
       <BcdObject name="cubeConfigurator" implements="cubeConfigurator" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="scorecardModel" implements="scorecardModel" implementationPackage="bcdui.component."  tagFolder="component"/>
       <BcdObject name="scorecard" implements="scorecard" implementationPackage="bcdui.component." tagFolder="component"/>
+      <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="metaData" implements="metaData" implementationFunction="" tagFolder="component"/>
       <BcdObject name="config" implements="config" implementationFunction="" tagFolder="component"/>
       <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="component"/>

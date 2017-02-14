@@ -164,6 +164,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/component/scorecard/scorecardModel.js"
         , "/js/component/scorecard/scorecardCreate.js"
+        , "/js/component/scorecard/scorecardConfiguratorDND.js"
         , "/js/component/scorecard/bcdAspects.js"
       ],
       "buildFolders": [

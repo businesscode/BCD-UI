@@ -88,6 +88,9 @@
       <R id="R37"><C>bcd_RowMeasures</C><C>Row Measures</C><C>en</C></R>
       <R id="R38"><C>bcd_ColDimensions</C><C>Column Dimensions</C><C>en</C></R>
       <R id="R39"><C>bcd_ColMeasures</C><C>Column Measures</C><C>en</C></R>
+      <R id="R41"><C>bcd_Kpis</C><C>KPIs</C><C>en</C></R>
+      <R id="R42"><C>bcd_Aspects</C><C>Aspects</C><C>en</C></R>
+      <R id="R43"><C>bcd_Categories</C><C>Categories</C><C>en</C></R>
 
       <!-- Editor context menu -->
       <R id="R40"><C>bcd_ctxEdit_Copy</C><C>Copy content</C><C>en</C></R>

@@ -20,6 +20,9 @@
 .bcdCubeDNDBlind {
   width: $cubeDNDWidth;
 }
+.bcdScorecardDNDBlind {
+  width: $scDNDWidth;
+}
 
 .bcdUpDown
 ,.bcdUpDown_Template
@@ -28,7 +31,6 @@
   min-width: inherit !important;
 }
 
-.bcdCubeDndMatrix,
 .bcdReportTemplateList,
 .bcdReportTemplates,
 .bcdDnDSummary {
@@ -211,27 +213,19 @@
  border: 1px dotted $border-color !important;
 }
 
-
-.bcdCubeDndMatrix {
+.bcdCubeDndMatrix,
+.bcdScorecardDndMatrix {
+  font: $font-size-default $font-family-default;
+  color: #000000;
   background-color: inherit;
-  height: $dimHeight + 2;
-  width: $cubeDNDWidth - 2 * 5 - 3;
+  @extend .noselect;
   position: relative;
   margin-bottom: 5px;
-  font: $font-size-default $font-family-default;
 
   .bcdConnectable {
-    .bcdItem {
-      display: inline-block;
-      width: 100%;
-    }
+    .bcdItem { display: inline-block; width: 100%; }
   }
 
-  .ui-selected {
-    background-color: $select-color !important;
-    color: text-contrast($select-color) !important;
-    border: 1px solid $select-color !important;
-  }
   .bcdConnectableHover,
   .ui-sortable-helper,
   .ui-selecting {
@@ -242,133 +236,67 @@
     overflow: visible;
     min-height: 11px;
   }
+
   .ui-sortable-helper li {
     cursor: move !important;
     width: 106px;
     text-align: center;
   }
 
+  .ui-selectee {
+    width: 90%;
+    border: 1px dotted $border-color;
+    .bcdItem { padding: 2px; }
+  }
+
+  .ui-sortable-helper:after { content: ""; }
+
+  .ui-selected {
+    background-color: $select-color !important;
+    color: text-contrast($select-color) !important;
+    border: 1px solid $select-color !important;
+  }
+
+  div { position: relative; }
+
   ul {
     list-style: none none;
     margin: 0px;
     padding: 0px;
     height: 100%;
-    border:none;
+    border: 1px solid $border-color;
     overflow: auto;
     @include con_color(#FFFFFF);
   }
 
-  li {
-    margin: 2px;
-    text-align: left;
-    border: 1px solid #FFFFFF;
-  }
-  
-  .bcdCurrentColMeasureList ul:after,
-  .bcdCurrentMeasureList ul:after,
-  .bcdCurrentRowDimensionList ul:after,
-  .bcdCurrentColDimensionList ul:after {
+  ul:after {
     font-size: 14px;
     font-family: $font-family-default;
     font-weight: bold;
     bottom: 0px;
-    right: 20px;
+    left: 0px;
     padding-left: 3px;
     position: absolute;
     @include alpha(0.75);
     color: $border-color;
     z-index: 0;
   }
-
-  /* cubeConfiguratorDND inserts content for the upper pseudo classes, for drag'n drop we have to remove the content from the helper */
-  .ui-sortable-helper:after { content: ""; }
-
-  .bcdCurrentColDimensionList, .bcdCurrentRowDimensionList {
-    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-dimension; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
-
-    ul.bcdDropTarget {
-      @include topDownGradient($cube-color-dimension, #FFFFFF);
-    }
+  li {
+    margin: 2px;
+    text-align: left;
+    border: 1px solid #FFFFFF;
   }
-  .bcdCurrentColMeasureList, .bcdCurrentMeasureList {
-    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-measure; border: 1px solid $border-color; text-align: center; font-size: $font-size-small;  padding: 2px; }
 
-    ul.bcdDropTarget {
-      @include topDownGradient($cube-color-measure, #FFFFFF);
-    }
-  }
-  div {
-    overflow: visible;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: $rowDimWidth;
-    border: 1px solid $border-color;
-    height: $dimHeight;
-
-    .bcdDimensionList,
-    .bcdMeasureList {
-      width: $dimWidth;
-      height: 212px;
-      top: 20px;
-      .ui-selectee {
-        width: 90%;
-        border: 1px dotted $border-color;
-        .bcdItem { padding: 2px; }
-      }
-    }
-    
-    .bcdDimensionList { left: $dimLeftPos; }
-    .bcdMeasureList { left: $mesLeftPos; }
-  }
-  
-  .bcdMeasureListWithHeaders,
-  .bcdDimensionListWithHeaders { border: none; width: auto; height: auto; }
-
-  .bcdDimensionListWithHeaders .bcdHeader { left: $dimLeftPos; }
-  .bcdMeasureListWithHeaders .bcdHeader { left: $mesLeftPos; }
-
-  .bcdCurrentRowDimensionList {
-    left: $rowDimPos;
-  }
-  .bcdCurrentColMeasureList {
-    left: $colMesPos;
-  }
-  .bcdCurrentColDimensionList {
-    left: $colDimPos;
-    height: 114px;
-  }
-  .bcdCurrentMeasureList {
-    top: 118px;
-    left: $colDimPos;
-    height: 114px;
-  }
   .bcdHeader {
-    width: $headWidth;
+    width: 100%;
+    padding: 3px 0px;
     height: 14px;
-    padding: 3px;
+    padding: 3px 0px;
     @include con_color($cube-sections-color-head);
     border: 1px solid $border-color;
     font-weight: bold;
     text-align: center;
   }
-
-  /* icons for cube drag and drop area, disabled for now */
-
-/*  
-  .bcdVdm, .bcdVmeas, .bcdRowCumulate, .bcdColCumulate, .bcdRowColCumulate, .bcdSortAsc, .bcdSortDesc {
-    padding-left: 16px !important;
-    height: 16px;
-    background-position: left center;
-    background-repeat: no-repeat;
-  }
-  .bcdVdm, .bcdVmeas { background-image: url(../images/cube/calc.gif); }
-  .bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
-  .bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
-  .bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
-  .bcdSortAsc { background-image: url(../images/cube/sortUp.gif); }
-  .bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
-*/
 }
 
 /* table */
@@ -580,6 +508,7 @@
 
 }
 
+.bcdScorecardHide,
 .bcdCubeHide {
   background-color: $text-disabled-color;
   @include alpha(0.75);
@@ -763,4 +692,61 @@ div.bcdContextMenu a.bcdMenuitems {
   padding-right: 0px !important;
   margin-left: 0px !important;
   margin-right: 0px !important;
+}
+
+.bcdScorecardDndMatrix {
+  .bcdCurrentScRowDimensionList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-dimension; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
+    ul.bcdDropTarget { @include topDownGradient($sc-color-dimension, #FFFFFF); }
+  }
+  .bcdCurrentKpiList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-kpi; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
+    ul.bcdDropTarget { @include topDownGradient($sc-color-kpi, #FFFFFF); }
+  }
+  .bcdCurrentAspectList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-aspect; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
+    ul.bcdDropTarget { @include topDownGradient($sc-color-aspect, #FFFFFF); }
+  }
+  .bcdKpi {/* background-color: $scorecard-color-kpi !important; */ }
+
+  .bcdCurrentKpiList { height: 233px;}
+  .bcdCurrentScRowDimensionList, .bcdCurrentAspectList { height: 114px; margin-bottom: 5px;}
+  .bcdKpiList { height: 211px; }
+  .bcdScDimensionList, .bcdAspectList { height: 92px;  margin-bottom: 5px;}
+
+  .bcdDNDCategory {
+    margin-bottom: 5px !important;
+    span {display: inline-block; vertical-align: middle; padding-left: 3px;}
+  }
+}
+
+.bcdCubeDndMatrix {
+  .bcdCurrentColDimensionList, .bcdCurrentRowDimensionList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-dimension; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
+    ul.bcdDropTarget { @include topDownGradient($cube-color-dimension, #FFFFFF); }
+  }
+  .bcdCurrentColMeasureList, .bcdCurrentMeasureList {
+    .ui-selectee {z-index: 1; width: 80%; background-color: $cube-color-measure; border: 1px solid $border-color; text-align: center; font-size: $font-size-small;  padding: 2px; }
+    ul.bcdDropTarget { @include topDownGradient($cube-color-measure, #FFFFFF); }
+  }
+
+  .bcdCurrentColMeasureList, .bcdCurrentRowDimensionList { height: 233px;}
+  .bcdCurrentColDimensionList, .bcdCurrentMeasureList { height: 114px; margin-bottom: 5px;}
+  .bcdDimensionList, .bcdMeasureList { height: 211px; }
+
+  /* icons for cube drag and drop area, disabled for now
+    
+  .bcdVdm, .bcdVmeas, .bcdRowCumulate, .bcdColCumulate, .bcdRowColCumulate, .bcdSortAsc, .bcdSortDesc {
+    padding-left: 16px !important;
+    height: 16px;
+    background-position: left center;
+    background-repeat: no-repeat;
+  }
+  .bcdVdm, .bcdVmeas { background-image: url(../images/cube/calc.gif); }
+  .bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
+  .bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
+  .bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
+  .bcdSortAsc { background-image: url(../images/cube/sortUp.gif); }
+  .bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
+  */
 }

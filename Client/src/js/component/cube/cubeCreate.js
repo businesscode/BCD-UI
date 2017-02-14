@@ -90,7 +90,7 @@ bcdui.component.cube._renderTemplateArea = function(args) {
  * @private
  */
 bcdui.component.cube._renderDndArea = function(args) {
-  return "<div id='bcdDndMatrixDiv_{{=it.id}}'></div>";
+  return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
 };
 /**
  * @private
@@ -353,6 +353,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - Create the default layout in HTML
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
+   * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    *
    * @return null.
    *

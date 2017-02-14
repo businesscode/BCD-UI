@@ -28,7 +28,64 @@
       Some changes are incompatible to previous versions and may require code change in the project. They are listed here as well.
     </Body>
 
-    <SubChapter title="Release 4_6_2 in progress ...">
+    <SubChapter title="Release 5_0_1 in progress ...">
+      <Body>
+        Major new features:
+        <ol>
+          <li>Overall
+            <ul>
+              <li></li>
+            </ul>
+          </li>
+          <li>Components: Scorecard, Cube, Grid, Charts, Export
+            <ul>
+              <li>added Scorecard configurator with a drag'n drop area similar to the cube one</li>
+              <li>switched scorecard and cube dnd to 960 grid for defaultHtml Layout</li>
+            </ul>
+          </li>
+          <li>Widgets
+            <ul>
+              <li>added dropDown Button functionality</li>
+              <li>periodChooser got quick-pick options for LastDay/Week/Month (depending on the allowed options)</li>
+            </ul>
+          </li>
+          <li>Core
+            <ul>
+              <li></li>
+            </ul>
+          </li>
+          <li>Themes
+            <ul>
+              <li></li>
+            </ul>
+          </li>
+          <li>Security / Bindings / WebRowSet
+            <ul>
+              <li></li>
+            </ul>
+          </li>
+          <li>Build / dev
+            <ul>
+              <li></li>
+            </ul>
+          </li>
+        </ol>
+        Major bug fixes:
+        <ol>
+          <li></li>
+        </ol>
+        Deprecated:
+        <ol>
+          <li></li>
+        </ol>
+        Incompatibilities:
+        <ol>
+          <li></li>
+        </ol>
+      </Body>
+    </SubChapter>
+    
+    <SubChapter title="Release 5_0_0">
       <Body>
         Major new features:
         <ol>

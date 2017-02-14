@@ -27,6 +27,9 @@ bcdui.config.settings = jQuery.extend( true,
             maxDimensions: 9
           , maxMeasures: -1
         }
+        , dnd: {
+          targetLeft: true
+        }
       }
     }
   },

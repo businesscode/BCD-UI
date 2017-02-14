@@ -560,7 +560,8 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
                   var aspOnlyId = aspId.split("_agg_")[0];
                   var aggrOnlyId = aspId.split("_agg_")[1];
                   var idPrefix = "asp_"+aspOnlyId+"_";
-                  var captionPrefix = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspOnlyId+"']/@caption").nodeValue+"|";
+                  var captionNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspOnlyId+"']/@caption"); 
+                  var captionPrefix = (captionNode != null ? captionNode.text : "") + "|";
                   if( aggrOnlyId!=null ) {
                     var aggrNodeForCaption = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aggregators/scc:Aggregator[@id='"+aggrOnlyId+"']");
                     captionPrefix += aggrNodeForCaption.getAttribute("caption") || aggrNodeForCaption.getAttribute("id");

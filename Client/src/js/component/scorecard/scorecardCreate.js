@@ -78,35 +78,48 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
   {
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.scorecard.Scorecard" ): "") != "";
 
-    // Argument defaults
-    args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-    this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
-
-    // As long as ScorecardModel internaly relies on the registry to find its sub- or helper models, we have to enforce an id here
+    // As long as ScorecardModel internally relies on the registry to find its sub- or helper models, we have to enforce an id here
     // also context menu needs it
     this.id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_");
 
-    //--------------------
-    // Determine the scorecard model
-    // We may be given the model directly or config to construct it ourselves.
-    if( !!args.config ) {
-      this.inputModel = new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.config, statusModel: this.statusModel, customParameter: args.customParameter });
-    } else if( !!args.inputModel ) {
-      this.inputModel = args.inputModel;
-    } else {
+    // Argument defaults
+    args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+    this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    this.metaDataModel = args.config;
+    this.targetHtml = args.targetHtml;
+    args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
+
+    args.enhancedConfiguration = args.enhancedConfiguration;
+    if (! args.enhancedConfiguration && args.config)
+      args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
+    if (! args.enhancedConfiguration && args.inputModel)
+      args.enhancedConfiguration = args.inputModel;
+    if (! args.enhancedConfiguration) {
       bcdui.log.error("Scorecard "+this.id+" has neither an inputModel nor a config parameter");
       return;
     }
+
+    this.inputModel = new bcdui.core.DataProviderHolder();
+    bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
+      var rqModel = null;
+      // don't run when we don't have at least one KpiRef
+      if( ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/scc:Layout/scc:KpiRefs/scc:KpiRef") )
+        rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
+      else if( !!args.config )
+        rqModel = new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter });
+      else if( !!args.inputModel )
+        rqModel = args.inputModel;
+      this.inputModel.setSource(rqModel);
+    }.bind(this));
 
     bcdui.core.Renderer.call( this, {
       id: this.id,
       inputModel: this.inputModel,
       targetHtml: args.targetHtml, 
       chain: args.chain,
-      parameters: jQuery.extend({ sortRows: false, sortCols: false, makeRowSpan: true, scConfig: args.config, customParameter: args.customParameter}, args.parameters )
+      parameters: jQuery.extend({ sortRows: false, sortCols: false, makeRowSpan: true, scConfig: args.enhancedConfiguration, customParameter: args.customParameter}, args.parameters )
     });
-
+  
     //------------------
     // We also create some convenience objects: tooltip, detail export and WYSIWYG export infrastructure
     // Being lazy
@@ -218,8 +231,22 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     // Now we finished our constructor, we can check whether we need to register ourselves
     if (isLeaf)
       this._checkAutoRegister();
+  },
+
+  /**
+   * @returns {bcdui.core.DataProvider} configuration model of the scorecard
+   */
+  getConfigModel: function() {
+    return this.metaDataModel;
+  },
+  /**
+   * Only for backward compatibility. If needed in future, should be part of Renderer
+   * @private
+   * @returns {targetHtmlref} Target element in HTML of the scorecard
+   */
+  getTargetHTMLElement: function() { 
+    return jQuery("#"+this.targetHtml).get(0);
   }
-  
 });
 
   /**
@@ -329,3 +356,196 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     return { refId: args.id, symbolicLink: true };
   };
 
+  /**
+   * Creates a scorecard configurator, providing the scc:Layout section of the scorecard configuration, able of
+   * 1) Showing the drag and drop area for the dimensions and kpis and aspects
+   *
+   * @param {Object} args - The parameter map contains the following properties:
+   * @param {string}                  args.id                                                     - Id of the created object
+   * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix. This parameter must be set unless hasDnDMatrix is false
+   * @param {xpath}                   [args.targetModelXPath=$guiStatus/guiStatus:Status/scc:Layout]  - Where to write the result
+   * @param {string}                  [args.config=./dimensionsAndKpis.xml]                       - Model containing the configuration for the scorecard configurator
+   * @param {string}                  args.scorecardRenderer                                      - Id of the scorecard we belong to
+   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - Create the default layout in HTML
+   * @param {boolean}                 [args.includeDefaultAspects=false]                          - If true, the standard bcdAspects are included.
+   * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
+   *
+   * @return null.
+   *
+   * @example
+   *   new bcdui.core.SimpleModel({
+   *    id:  "myDndOptions", // define ID explicitely
+   *    url: "dndOptionsModel.xml"
+   *   );
+   *   bcdui.component.createScorecardConfigurator({
+   *       id:                  "scorecardConfigurator",
+   *     , config:              "myDndOptions"
+   *     , targetHtml:          "scorecardConfiguratorDiv"
+   *     , targetModelId        "guiStatus"
+   *     , scorecardRenderer:   "sc"
+   *   });
+   *
+   */
+  bcdui.component.createScorecardConfigurator = function(/* Object */ args){
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating DndMatrix");
+    args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createScorecardConfigurator_args );
+    args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "scorecardConfigurator_");
+    if(args.config){
+      if(args.config.id){ // reference -> ensure is known to registry
+        if(!bcdui.factory.objectRegistry.getObject(args.config.id)){
+          throw "Please, assign explicit 'id' to DataProvider referenced as .config";
+        }
+        args.metaDataModelId = args.config.id;
+      }else if(args.config.refId){ // SymLink
+        args.metaDataModelId = args.config.refId;
+      } else { // String assumed
+        args.metaDataModelId = args.config;
+      }
+    }
+    bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createScorecardConfigurator_args);
+    var actualIdPrefix = bcdui.factory.objectRegistry.generateTemporaryIdInScope(typeof args.idPrefix == "undefined" ? "dndMatrix" : args.idPrefix);
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("DnDMatrix idPrefix = " + actualIdPrefix);
+
+    var targetModelId = args.targetModelId || "guiStatus";
+
+    var metaDataModel = null;
+    var targetModel = bcdui.wkModels.guiStatus;
+
+    // derive scorecardId from scorecardRenderer
+    args.scorecardId = (typeof args.scorecardRenderer == "string") ? args.scorecardRenderer : args.scorecardRenderer.refId;
+
+    if (args.targetModelId && bcdui.util.isString(args.targetModelId) && args.targetModelId != ""){
+      targetModel = bcdui.factory._generateSymbolicLink(args.targetModelId);
+    }
+    if (args.metaDataModelId && bcdui.util.isString(args.metaDataModelId) && args.metaDataModelId != ""){
+      metaDataModel = bcdui.factory._generateSymbolicLink(args.metaDataModelId);
+    } else {
+      metaDataModel = bcdui.factory.createModel({
+        id: args.scorecardId+"_dndOptionsModel",
+        url: "dimensionsAndKpis.xml"
+      });
+      args.metaDataModelId = args.scorecardId+"_dndOptionsModel";
+    }
+
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("Scorecard targetModel: " + targetModel);
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("DndMatrix metaDataModel: " + metaDataModel);
+
+    // update targetModelId (args.targetModelId might be undefined) in arguments from current constructed targetModelId (scorecardConfiguratorDND.init uses args only)
+    args.targetModelId = targetModelId;
+    
+    var defaultAspects = null;
+    if (args.includeDefaultAspects) {
+      defaultAspects = new bcdui.core.SimpleModel({id: "bcdDefAspects_" + args.scorecardId, url: bcdui.contextPath+"/bcdui/js/component/scorecard/bcdAspects.xml" });
+    }
+
+    var action = function() {
+
+      if( !args.targetHTMLElementId ) {
+        var ccTarget = document.createElement("div");
+        ccTarget.setAttribute("id",args.id+"Configurator");
+        bcdui._migPjs._$(args.scorecardRenderer.targetHTMLElementId).get(0).parentNode.insertBefore(ccTarget,bcdui._migPjs._$(args.scorecardRenderer.targetHTMLElementId).get(0));
+        args.targetHTMLElementId = args.id+"Configurator";
+      }
+
+      if (args.isDefaultHtmlLayout) {
+
+        var template = "<div class='bcdScorecardDNDBlind'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
+        [bcdui.component.scorecard._renderDndArea, bcdui.component.scorecard._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
+        template += "</div></div>";
+
+        var defTemplate = jQuery(doT.template(template)({id:args.scorecardId}));
+        jQuery("#" + args.targetHTMLElementId).append(defTemplate);
+
+        args.targetHTMLElementId = "bcdDndMatrixDiv_" + args.scorecardId;
+        
+        args.applyFunction = args.applyFunction || "bcdui.core.lifecycle.applyAction";
+
+        var scorecard = bcdui.factory.objectRegistry.getObject(args.scorecardId);
+        var layoutModelId = (typeof scorecard != "undefined") ? scorecard.getConfigModel().getData().selectSingleNode("//scc:Layout[@scorecardId ='"+ args.scorecardId +"']/@layoutModel") : null;
+        layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
+
+        bcdui.widget.createBlindUpDownArea({
+          id: "bcdBlindUpDown_" + args.scorecardId
+          ,targetHTMLElementId: "bcdUpDown_" + args.scorecardId
+          ,bodyIdOrElement:"bcdUpDownBody_" + args.scorecardId
+          ,caption: "Report Definition"
+          ,defaultState: bcdui.factory.objectRegistry.getObject(layoutModelId).getData().selectSingleNode("/*/scc:Layout") == null ? "open": "closed"
+        });
+
+        bcdui.widgetNg.createButton({
+          caption: "Apply",
+          onClickAction: "" + args.applyFunction + "();",
+          targetHtmlElementId: "bcdDNDApplyButton_" + args.scorecardId
+        });
+      }
+
+      var bucketModelId = bcdui.component.scorecard.configuratorDND.init(args);
+      
+      // scorecard redisplay listener, greys out scorecard or triggers enhanced config
+      // if client sided refresh is possible (determined by disableClientRefresh flag)
+      // either listens to scorecard configurator targetmodel or given layoutModel
+      var scorecard = bcdui.factory.objectRegistry.getObject(args.scorecardId);
+
+      if (typeof scorecard != "undefined") {
+
+        var layoutModelId = scorecard.getConfigModel().getData().selectSingleNode("//scc:Layout[@scorecardId ='"+ args.scorecardId +"']/@layoutModel");
+        layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
+
+        bcdui.factory.addDataListener({
+          idRef: layoutModelId,
+          trackingXPath: "//scc:Layout[@scorecardId ='"+ args.scorecardId +"']",
+          side: "after",
+          onlyOnce: false,
+          listener: function() {
+            // enhancedConfig's input model is the scorecard metadata model, we need to ensure
+            // that both are ready, otherwise you get a refresh which is one step out of sync
+            var targetHtmlElement = bcdui.factory.objectRegistry.getObject(args.scorecardId).getTargetHTMLElement();
+            if (targetHtmlElement.firstChild && ! bcdui._migPjs._$("bcdScorecardHide" + args.scorecardId).length > 0) {
+              // Indicate that the scorecard is currently working and disable context menu as it would work on vanishing HTML elements (producing errors)
+              var div = document.createElement("div");
+              div.setAttribute("id", "bcdScorecardHide" + args.scorecardId);
+              div.setAttribute("class", "bcdScorecardHide");
+              div.setAttribute("title", bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_PressApplyFirst"}));
+              var child = targetHtmlElement.children.length > 0 ? targetHtmlElement.children[0] : targetHtmlElement.firstChild;
+              bcdui._migPjs._$(div).css({position: "absolute", width: child.offsetWidth + "px", height: child.offsetHeight + "px"});
+              div.oncontextmenu = function(event) {event = event || window.event; event.stopPropagation(); return false;};
+              targetHtmlElement.insertBefore(div, targetHtmlElement.firstChild);
+            }
+
+            var clientSettingsDisableNode = bcdui.wkModels.guiStatus.getData().selectSingleNode("/*/guiStatus:ClientSettings//scc:ClientLayout[@scorecardId ='" + args.scorecardId + "']");
+            var doDisable = (clientSettingsDisableNode != null && clientSettingsDisableNode.getAttribute("disableClientRefresh") == "true");
+            // only run renderer if clientlayout node is set to false i.e. a direct rerender is actually allowed and possible
+            if(! doDisable) {
+              // scorecard.getEnhancedConfiguration().execute();
+            }
+           }
+        });
+      }
+    };
+    
+    var waitModels = [args.metaDataModelId];
+    if (defaultAspects != null)
+      waitModels.push(defaultAspects);
+    if (typeof args.scorecardRenderer == "string" || args.scorecardRenderer.refId)
+      waitModels.push(args.scorecardRenderer);
+    bcdui.factory.objectRegistry.withReadyObjects(waitModels, function() {
+      if( typeof args.scorecardRenderer == "string" || args.scorecardRenderer.refId)
+        args.scorecardRenderer = bcdui.factory.objectRegistry.getObject(args.scorecardRenderer);
+      action();
+    });
+
+    return null; //scorecardDnDMatrixRenderer;
+  };
+
+  /**
+   * @private
+   */
+  bcdui.component.scorecard._renderDndArea = function(args) {
+    return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecard.configuratorDND._generateDefaultLayout() + "</div>";
+  };
+  /**
+   * @private
+   */
+  bcdui.component.scorecard._renderApplyArea = function(args) {
+    return "<div><span id='bcdDNDApplyButton_{{=it.id}}'></span></div>";
+  };
