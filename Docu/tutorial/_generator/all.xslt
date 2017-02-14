@@ -39,7 +39,7 @@
       a.plain:hover {color: orange; text-decoration: underline; }
     </style>
     <body style="text-align:center;margin:0px; font-family: 'jaf-bernino-sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Geneva, Verdana, sans-serif">
-      <a name="topOfDoc"></a>
+      <a id="topOfDoc"></a>
       <h1 class="hiddenPDFHeader">BCD-UI Index</h1>
       <xsl:call-template name="header">
         <xsl:with-param name="anchor" select="topOfDoc"/>

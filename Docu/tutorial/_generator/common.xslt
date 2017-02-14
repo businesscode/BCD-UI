@@ -149,7 +149,7 @@
     <h3 class="hiddenPDFHeader">1. <xsl:value-of select="$chapterOneTitle"/></h3>
     <a href="http://www.business-code.de" generated="true" style="position:absolute;border-style:none;margin:15px 0 0 5px;width:90px; height:90px"/>
     <div style="margin:0 0 10px 0;background-image:url('{$contentPath}/headerBack.png'); height: 87px">
-      <a name="{$anchor}" generated="true"></a>
+      <a id="{$anchor}" generated="true"></a>
       <a href="{$targetForBcdUiLink}" generated="true">
         <div style="font-size:18pt;font-weight:bold;margin-left:700px;color: #ffffff;margin-bottom:0px;padding-right:22px;padding-top:10px;text-align:right;text-decoration:none">BCD-UI</div>
       </a>

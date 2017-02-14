@@ -73,7 +73,7 @@
   <xsl:template match="bd:Chapter">
     <xsl:param name="docUrl"/>
     <xsl:variable name="position" select="position()"/>
-    <a name="{@title}" generated="true"></a>
+    <a id="{@title}" generated="true"></a>
     <!-- We want the first chapter to have its header above the page header because we want pdf to jump there -->
     <xsl:choose>
       <xsl:when test="preceding-sibling::bd:Chapter">
@@ -96,7 +96,7 @@
   <xsl:param name="docUrl"/>
   <xsl:param name="chapterPosition"/>
     <xsl:variable name="position" select="concat($chapterPosition,'.',position())"/>
-    <a name="{@title}" generated="true"><h4 style="color: #ff7f00;"><xsl:value-of select="concat($position,'. ',@title)"/></h4></a>
+    <a id="{@title}" generated="true"><h4 style="color: #ff7f00;"><xsl:value-of select="concat($position,'. ',@title)"/></h4></a>
     <xsl:apply-templates select="bd:Body"><xsl:with-param name="docUrl" select="$docUrl"/></xsl:apply-templates>
     <xsl:apply-templates select="bd:SubChapter">
       <xsl:with-param name="chapterPosition" select="$position"/>
