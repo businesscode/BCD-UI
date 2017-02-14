@@ -39,11 +39,13 @@ var showToday = 1;    // 0 - don't show; 1 - show
 
 //only define imgDir if it was not defined before
 if(typeof(imgDir)=="undefined"){
-  if (typeof bcdui.config.contextPath == "undefined") {
-    var imgDir = "../bcdui/theme/images/calendar/";  // directory for images ... e.g. var imgDir="/img/"
-  } else {
-    var imgDir = bcdui.config.contextPath + "/bcdui/theme/images/calendar/";
-  }
+
+  if (typeof bcdui.widget.periodChooser.bcdPopCalendarLegacy != "undefined") {
+    var imgDir = bcdui.config.contextPath + "/bcdui/legacyTheme/images/calendar/";
+  } else if (typeof bcdui.config.contextPath == "undefined") {
+      var imgDir = "../bcdui/theme/images/calendar/";  // directory for images ... e.g. var imgDir="/img/"
+  } else
+      var imgDir = bcdui.config.contextPath + "/bcdui/theme/images/calendar/";
 }
 
 var gotoString = "Go To Current Month";
@@ -263,8 +265,10 @@ function _initPopupCalendar()  {
    */
   if (dom && document.getElementById("bcdCalendar") == null) {
     var calDiv = "<div id='bcdCalendar' style='z-index:+9999;position:absolute;visibility:hidden;'><iframe id='menu4iframe' marginwidth='0' marginheight='0' align='bottom' scrolling='no' frameborder='0' style='height:100%; position:absolute; left:0; top:0px; width: 100%;display:block; z-index:-1;' src='javascript:false'></iframe><table class='popupBaseColor' style='width:auto;font-family:arial;font-size:11px;border-width:1px;border-style:solid;font-family:arial; font-size:11px}' ><tr class='popupBaseColor'><td><table width='"+((showWeekNumber==1)?248:218)+"'><tr><td style='padding:2px;font-family:arial; font-size:11px;'><font color='#ffffff'><B><span id='popCalCaption'></span></B></font></td><td class='calCloseImage'>" + (showPopCalendarImages ? "<IMG id='calCloseImage' WIDTH='15' HEIGHT='13' BORDER='0'></IMG>" : "") + "<SPAN " + utf8CharStyle + " class='calCloseImage'></SPAN></td></tr></table></td></tr><tr><td style='padding:5px' bgcolor=#ffffff><span id='popCalContent'></span></td></tr>";
-    if (showToday==1)
-      calDiv += "<tr class='popupBaseColor'><td style='padding:5px' align=center><span id='lblToday'></span></td></tr>";
+    calDiv += "<tr class='popupBaseColor'><td id='lblPick' style='padding: 0px 0px 5px 0px; position:relative;'></td></tr>";
+      if (showToday==1) {
+      calDiv += "<tr class='popupBaseColor'><td style='padding: 0px 0px 5px 5px;'><span id='lblToday'></span></td></tr>";
+    }
     calDiv += "</table></div>";
     jQuery("head").append(calDiv); // will be moved to body during bcdLoadPost.js
     jQuery("#bcdCalendar").off();
@@ -443,7 +447,7 @@ bcdui.widget.periodChooser._closeCalendar = function(args) {
     yesterday.setDate(yesterday.getDate() - 1); 
     ctlToPlaceValue.value = constructDateUserFormat(yesterday.getDate() ,yesterday.getMonth(),yesterday.getFullYear(),dateFormatStartRange)+" - "+constructDateUserFormat(yesterday.getDate(),yesterday.getMonth(),yesterday.getFullYear(),dateFormatEndRange);
     if( ctlToPlaceValue2 != null )
-      ctlToPlaceValue2.value = constructDateUserFormat(yesterday.getDate() ,yesterday.getMonth(),yesterday.getFullYear(),dateFormatStartRange)+";"+constructDateUserFormat(yesterday.getDate(),yesterday.getMonth(),yesterday.getFullYear(),dateFormatEndRange);
+      ctlToPlaceValue2.value = constructDateUserFormat(yesterday.getDate() ,yesterday.getMonth(),yesterday.getFullYear(),dateFormatStartRange)+";"+constructDateUserFormat(yesterday.getDate(),yesterday.getMonth(),yesterday.getFullYear(),dateFormatEndRange) + ";XX";
   } else if (args.prevWeek) {
     var lastWeekStart = new Date()
     var dayOfWeek = lastWeekStart.getDay();
@@ -834,10 +838,18 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
   }else{
     selectCurrentMonth = monthName[monthSelected].substring(0,3) + "&nbsp;" + yearSelection + "&nbsp;" + quarterSelection + "&nbsp;"
   }
+  var prevString = (isDaySelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevDay:true});'>Day</a>" : "")
+  + (isWeekSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevWeek:true});'>Week</a>" : "")
+  + (isMonthSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevMonth:true});'>Month</a>": "");
+
+  prevString = prevString != "" ? "<span style='position: absolute; right: 5px;'>Last:" + prevString + "</span>" : "";
+  selectCurrentMonth = selectCurrentMonth != "" ? "<span style='position: absolute; left: 5px;'>" + selectCurrentMonth + "</span>" : "";
+
+  document.getElementById("lblPick").innerHTML = selectCurrentMonth + "&nbsp;" + prevString;
 
   if (showToday==1)
   {
-    document.getElementById("lblToday").innerHTML =selectCurrentMonth+todayString + " <a onmousemove='window.status=\""+gotoString+"\"' onmouseout='window.status=\"\"' title='"+gotoString+ /*"' style='"+styleAnchor+*/"' href='javascript:bcdui.widget.periodChooser._constructCalendar({monthSelected : " + monthNow + ", yearSelected : " + yearNow+ "});'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
+    document.getElementById("lblToday").innerHTML = todayString + " <a onmousemove='window.status=\""+gotoString+"\"' onmouseout='window.status=\"\"' title='"+gotoString+ /*"' style='"+styleAnchor+*/"' href='javascript:bcdui.widget.periodChooser._constructCalendar({monthSelected : " + monthNow + ", yearSelected : " + yearNow+ "});'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
   }
 
 

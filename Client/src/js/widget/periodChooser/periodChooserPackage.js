@@ -567,8 +567,10 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         var hasCounterPartValue = hiddenInputField.getOtherValue ? hiddenInputField.getOtherValue()!=";" : false;
         // checks if the input was provided by a calendar (and not by other input methods, that is we get 3 fields [from];[to];PC)
         var isCalendarRollerInput = dates.length==3&&dates[2]=="PC";
+        var isLastDaySelect = dates.length==3&&dates[2]=="XX";
         if (
             !dateEquals(dates[0], dates[1])
+            || isLastDaySelect
             || containerHtmlElement.getAttribute("bcdIsFreeRangeSelectable") === "false"
             || (isCalendarRollerInput && !hasCounterPartValue)
             || (hiddenInputField.isFrom && isCalendarRollerInput && hiddenInputField.getOtherValue && hiddenInputField.getOtherValue()!=";" && hiddenInputField.getOtherValue()+";PC" < hiddenInputField.value)
