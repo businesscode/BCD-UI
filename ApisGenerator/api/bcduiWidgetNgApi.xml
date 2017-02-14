@@ -104,12 +104,11 @@
 
       <Api name="button" extends="widget">
         <ApiChange since="4.3.3">
-          @onClickAction renamed to @onclick
           @caption renamed to @text but still provided due to backwards compatibility, @caption overrides the @text
           removed attributes:
           @status, @name and @contextPath
         </ApiChange>
-        <Doc>A BCD-UI button (not HTML native) conforming to the theme</Doc>
+        <Doc>A BCD-UI button (not HTML native) conforming to the theme. If an optionsModelXPath is given, it will be rendered as a dropDown button.</Doc>
         <Param name="text" type="i18nToken" required="false">
           String with the caption or an i18n-key-identifier.
         </Param>
@@ -128,10 +127,20 @@
         <Param name="href" type="url" required="false">
           <Doc>HTML href</Doc>
         </Param>
+        <Param name="optionsModelXPath" type="xpath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
         <Impl>
           <Jsp allowsChildren="true">
             <AddCode><![CDATA[
-<c:set var="actionId" value="${id}_action"/><webpage:script> function ${actionId}() { <jsp:doBody/> } </webpage:script>
+<c:set var="actionId" value="${id}_action"/><webpage:script> function ${actionId}(args) { <jsp:doBody/> } </webpage:script>
               ]]>
             </AddCode>
           </Jsp>

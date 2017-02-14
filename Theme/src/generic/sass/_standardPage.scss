@@ -297,6 +297,12 @@ a {
   a:hover { text-decoration: underline; }
 }
 
+#bcdDropDownButton {  position: absolute; z-index: 15000; }
+#bcdDropDownButton span.bcdButton { margin-top: 1px; }
+#bcdDropDownButton span.bcdButton a { text-align: left; }
+.bcdDropDownButton a.opened:after { content: "▲"; padding-left: 3px; }
+.bcdDropDownButton a.closed:after { content: "▼"; padding-left: 3px; }
+
 /* dim chooser */
 
 .bcdDimensionChooser {
