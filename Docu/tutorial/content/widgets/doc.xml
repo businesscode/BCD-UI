@@ -111,7 +111,7 @@
     </doc:SubChapter>
     <doc:SubChapter title="Text Area">
       <doc:Body>
-      <img src="./images/ng_textArea.png"/>
+      <img src="./images/ng_textarea.png"/>
       <div></div><a href="../../../jsdoc/bcdui.widgetNg.html#.createTextArea" target="_blank">Text Area:</a> A (resizable) text area field, which allows multiline input
       </doc:Body>
     </doc:SubChapter>

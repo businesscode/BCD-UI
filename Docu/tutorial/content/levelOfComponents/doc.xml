@@ -142,7 +142,7 @@
       They cover all aspects from cross browser capability, Ajax to event handling and SQL generation for database access.
       They consist of a set of server side Java classes, a set of client side JavaScript types and an XSLT library.
       Users are not exposed to the core components, developers will usually only get in contact with it when there is the need for high customization.
-      For more information see BCD-UI <a href="../index.html">Core Components</a> documentation.
+      For more information see BCD-UI Core Components documentation.
     </Body>
   </Chapter>
 
@@ -154,7 +154,7 @@
       Developers will need to understand the UI Core Components to place them on a page and to connect them to the right data.
       Charts are rendered on the client, so changes to selections or data will be immediately reflected.
       <p><img src="uiCoreComponents.png" style="height:300px;"/></p>
-      For more information see BCD-UI <a href="../index.html">UI Core Components</a> documentation.
+      For more information see BCD-UI Core Components documentation.
     </Body>
   </Chapter>
 

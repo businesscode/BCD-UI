@@ -41,7 +41,7 @@
       <doc:Body>
         The PDF Export not only allows exporting to a PDF file but also to a image file like e.g jpg. So you can for example export whole report
         pages as pdf files or charts as images. It also allows specifying an own css file which is used only during export which allows pdf specific
-        tuning of the layout and style. For more details, please consult the <a href="../../../../gendocu/api/bcduiCoreApiDoc.xml#pdfExport">pdfExport API</a>.
+        tuning of the layout and style. For more details, please consult the <a target="_blank" href="../../../../jsdoc/bcdui.component.exports.html#.exportWysiwygAsPdf">pdfExport API</a>.
       </doc:Body>
     </doc:SubChapter>
   </doc:Chapter>
