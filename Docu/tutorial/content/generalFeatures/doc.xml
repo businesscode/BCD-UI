@@ -32,7 +32,7 @@
     </Body>
   </Chapter>
 
-  <Chapter title="Transactions, SQL logging, and connection pooling" type="overview">
+  <Chapter title="Transactions and connection pooling" type="overview">
     <Body>
       Per default each request is associated with a transaction.
       Each server activity retrieves its connection from the request object, providing the data source name.
@@ -41,9 +41,7 @@
       a ServletException is uncatched or a SOAPFault is returned, in this case a roll-back is executed.
       Still, each step may itself decide to commit or rollback its work.
       <p/>
-      The Connection, PreparedStatement, Statement, ResultSetobjects objects are wrapped by BCD-UI to allow SQL logging.
-      In addition when a connection is closed (returned to underlying connection buffer), a warning is logged in case any of these objects was not closed.
-      In case the client wants multiple writes to become part of one transaction, it will a multi-WRS document.
+      In case the client wants multiple writes to become part of one database transaction, it will a multi-WRS document.
     </Body>
   </Chapter>
 

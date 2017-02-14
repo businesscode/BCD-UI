@@ -52,9 +52,7 @@
     <DocUrl>../content/binding/doc.xml</DocUrl>
     <DocUrl>../content/context/doc.xml</DocUrl>
     <DocUrl>../content/xmlData/doc.xml</DocUrl>
-    <DocUrl>../content/logging/doc.xml</DocUrl>
     <DocUrl>../content/filter/doc.xml</DocUrl>
-    <DocUrl>../content/filter/accessLogging/doc.xml</DocUrl>
     <DocUrl>../content/vfs/doc.xml</DocUrl>
   </Block>
 

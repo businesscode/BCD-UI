@@ -21,7 +21,7 @@
     <Body>
       BCD-UI is a library for creating web applications such as ranging from simple data reporting and manipulation to complex OPM scenarios.
       It consists of client and server side parts communicating via web services exchanging XML messages and data.
-      On server side services respond to web service requests and assure typical lifecycle tasks like logging, security, caching.
+      On server side services respond to web service requests and assure typical lifecycle tasks like security and caching.
       On client side BCD-UI follows model view control MVC architecture.
       In BCD-UI models are implemented as XML documents, the view is XSLT based and Javascript takes over the controller part.
     </Body>
@@ -86,7 +86,7 @@
           <dd>Widgets are small ready-to-use elements to display or gather input or to support navigation.
               Samples are input fields, navigation menu or message boxes.</dd>
           <dt>Infrastructure layer</dt>
-          <dd>Many aspects of typical applications like logging, caching, object live cycle of data historization are covered by the generic infrastructure layer.
+          <dd>Many aspects of typical applications like caching or object live cycle of data historization are covered by the generic infrastructure layer.
               As the elements above are built on top of each other, they share most of the server side infrastructure.
               Server side infrastructure is mostly independent of the exact client element.</dd>
         </dl>

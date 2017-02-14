@@ -35,7 +35,6 @@
             <li>Selection options shown in report filters to a user, for example a list of countries to run the report for</li>
           </ol>
         </li>
-        <li>If bcd_log_session is present, each login attempt, successful or failed, is logged, see <a href="../logging/doc.xml">logging</a> for details.</li>
       </ul>
     </doc:Body>
 
@@ -73,7 +72,7 @@
           <li>The system is supporting deep links. I.e. when a user tries to reach a specific page is is redirected there after login.
               Note, the system use the first unsuccessful access for that.
               Make sure all resources addressed from the public login page are public, otherwise the user is forwarded to that
-              resource (could be a css) after logging on when the target was the login page.</li>
+              resource (could be a css) after the successful login attempt in, when the target was the login page.</li>
         </ul>
       </doc:Body>
     </doc:SubChapter>

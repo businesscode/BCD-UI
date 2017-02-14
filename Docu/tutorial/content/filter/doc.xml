@@ -29,12 +29,12 @@
         These the only servlets which the user of BCD-UI uses or configures directly under normal circumstances.
         <dl>
           <dt>WrsServlet</dt>
-          <dd>Serves data in the form of a <a href="../../xmlData/doc.xml">Wrs web row set</a> as reponse to a webrow set request.
+          <dd>Serves data in the form of a <a href="../xmlData/doc.xml">Wrs web row set</a> as reponse to a webrow set request.
               It is mapped twice to allow parts to be client side cached and other not to be cached.
               This is the only servlet used directly by non-BCD-UI library code.
               Maps to bcdui/servlets/wrsServlet and bcdui/servletsCached/WrsServlet.</dd>
           <dt>ClientCachingFilter</dt>
-          <dd>Allows to control <a href="../../caching/doc.xml">client-side caching</a>.
+          <dd>Allows to control <a href="../caching/doc.xml">client-side caching</a>.
             Can be instantiated multiple times to allow different caching starategies for different parts.
             It is recommended to map to all static resources and to slow changing reference data served for example at bcdui/servletsCached/wrsServlet.
             Maps to parts to be cached as per project need.</dd>
@@ -57,17 +57,7 @@
             <dt>ZipLet</dt>
             <dd>Allows the library a more efficient data exchange between client and server and prevents URLs becoming too long.
                 Maps to bcdui/servlets/ZipLet.</dd>
-            <dt>FrontendLogTransceiver</dt>
-            <dd>Serves the <a href="../../logging/doc.xml">logging system</a> for exchanging information between client and server.
-                Maps to bcdui/servlets/FrontendLogTransceiver.</dd>
           </dl>
-        </Body>
-      </SubChapter>
-      <SubChapter title="Module specific servlets">
-        <Body>
-          The following servlets are parts of the <a href="../../modules/manualUpload/manualUpload.xml">upload module</a> only:
-          <p/>
-          FileUploadServlet, FileToStageServlet, MappingServlet. ServerValidation, CommitServlet
         </Body>
       </SubChapter>
     </SubChapter>

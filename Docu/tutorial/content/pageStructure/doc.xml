@@ -28,7 +28,7 @@
         <dd>
           <ol>
             <li>The carrier html page is loaded by the browser</li>
-            <li>BCD-UI live-cycle components on the client for logging, loading and so on are constructed.</li>
+            <li>BCD-UI live-cycle components on the client are constructed.</li>
             <li>The well-known guiStatus model holding information of the user's selection like chooser settings is initialized
                 from the guiStatus parameter of the pages's URL</li>
             <li>Renderer on the page responsible for building the visible parts like widgets, edit grids and reports execute.</li>

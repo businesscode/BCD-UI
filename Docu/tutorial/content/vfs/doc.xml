@@ -158,24 +158,7 @@ CREATE TABLE tb_virtualFileSystem
       <dl>
         <dt>refreshVFS</dt>
         <dd>clears the VFS cache</dd>
-        <dt>refreshVFSBindings</dt>
-        <dd>clears the VFS cache and reloads vfs stored bindings</dd>
-        <dt>regenerateBindings</dt>
-        <dd>regenerates bindings</dd>
-        <dt>refreshAll</dt>
-        <dd>clears the VFS cache, regenerates bindings and reloads vfs stored bindings</dd>
       </dl>
-      
-      The refresh / regenerate Bindings options are needed if you use binding files which are stored
-      on VFS level. To use VFS stored bindings, you need to use a path root folder "/WEB-INF/bcdui/bindings/virtual".
-      So if you create a VFS entry with path "/WEB-INF/bcdui/bindings/virtual/test.xml" and resourceClob data:
-  <pre><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<BindingSet id="I18N_TM_EXPORT" table="TB_I18N" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
-  <C id="key" caption="Key" type-name="VARCHAR" isKey="true"><Column>KEY</Column></C>
-</BindingSet>
-]]></pre>
-     This virtual one would be used over a (possibly) existing static binding set "I18N_TM_EXPORT".
-     Read more on bindings <a href="../binding/doc.xml">here</a>.
     </doc:Body>
   </doc:SubChapter>
 

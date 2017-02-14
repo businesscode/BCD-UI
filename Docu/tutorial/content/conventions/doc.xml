@@ -46,7 +46,7 @@
         <li>Tables and views are not prefixed with V_ or T_ to be able to replace tables easily by views</li>
         <li>The name of the table follows the stored type in singular, if one row stores a single element, for example a table user will hold one user per row</li>
         <li>Tables storing customer's reference data have a prefix ref_ like ref_center</li>
-        <li>Tables storing front end control information, like access logging, get a prefix fe_</li>
+        <li>Tables storing front end control information get a prefix fe_</li>
         <li>Tables storing history information from the reference data management get a _hist postfix, like ref_center_hist</li>
         <li>All classes accessing the database sit in a package xx.xx.db or below</li>
       </ul>

@@ -48,7 +48,7 @@
           <dd>Components are more complex views like cubes or the charts, usually requiring a configuration XML.
               Components themselves often consist of multiple views and widgets working together.</dd>
           <dt>Page infrastructure</dt>
-          <dd>Page infrastructure comprises the guiStatus, mechanisms for logging, object life-cycle etc.
+          <dd>Page infrastructure comprises the guiStatus, mechanisms for object life-cycle etc.
               The guiStatus is the default model for all widgets and client-side status
               and thus usually contains all selections done by the user in regards of data filter or selected tabs and so on.
               Model requests use the guiStatus to decide data for which month is selected and view use it to decide which parts to display and which to collapse.
@@ -73,7 +73,7 @@
               BCD-UI servlets are usually not addressed from users of BCD-UI directly.
               Servlets are listed <a href="../../filter/doc.xml">here.</a></dd>
           <dt>Filter</dt>
-          <dd>Filter control the traffic from and to the server under different aspects as security, logging and caching.
+          <dd>Filter control the traffic from and to the server under different aspects as security and caching.
               Filters are listed <a href="../../filter/doc.xml">here.</a></dd>
         </dl>
       </Body>
