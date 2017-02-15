@@ -70,3 +70,7 @@ task bcduiClean {
   group = 'bcd-ui'
   dependsOn clean
 }
+
+task bcduiBuildJspTaglib {
+  dependsOn jar
+}

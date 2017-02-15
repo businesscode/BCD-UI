@@ -51,8 +51,7 @@ apply from: "$sharedBuildFilesRoot/gradle/script/installTools.gradle"
 
 //--------------------------
 // Collects 3 binaries: bcd-ui-core with client + server, theme and jsp-taglib
-task bcduiCoreDist( type: Jar ) {
-
+task bcduiBuildCore( type: Jar ) {
   dependsOn    ':Server:jar', ':Client:bcduiDist'
 
   dependsOn bcduiMetaInf
@@ -82,21 +81,29 @@ task bcduiCoreDist( type: Jar ) {
 // Clean artifacts
 task bcduiClean( type: Delete ) {
   group "bcd-ui"
+  description "Clean binary and docu generated artifacts, leaves 3rdParty tools"
   delete buildDir
 }
 
 //************************************
 // Do a full build and collect jars in build/jar
-task bcduiBuild {
+// Docu's output is found in Docu/build
+task bcduiBuildBin {
   group "bcd-ui"
-  dependsOn bcduiCoreDist
+  description "Build all binary artifacts: Core (Server+Client), Theme and JspTaglib"
 
-  dependsOn subprojects.collect { subproject ->
-    subproject.tasks.matching { it.name == 'bcduiBuild' }
+  // Triggers ApisGenerator, Client and Server an puts core.jar to build/libs
+  // Triggers JspTaglib, Theme
+  dependsOn allprojects.collect { subproject ->
+    subproject.tasks.matching {
+      it.name != "bcduiBuildBin" &&           // Skip us (would be circular)
+      subproject.name != "Docu"  &&           // Skip Docu, gets an extra build task for performance reasons
+      it.name.startsWith( 'bcduiBuild' ) }
   }
 
+  // Put jsp.jar, theme.jat next to core.jar into build/libs
   doLast {
-    [':JspTaglib:jar', ':Theme:bcduiDist'].each { subJar ->
+    [':JspTaglib:jar', ':Theme:bcduiThemeDist'].each { subJar ->
       copy { from tasks.findByPath(subJar) into "$buildDir/libs" }
     }
   }

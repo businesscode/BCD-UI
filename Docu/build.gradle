@@ -188,7 +188,8 @@ task bcduiClean( type: Delete ) {
 //******************************
 // Do all for what gradle 'Docu' project is responsible for
 
-task bcduiBuild {
+task bcduiBuildDocu {
   group "bcd-ui"
+  description "Build docu, see Docu/build, including jsdoc, javadoc and tutorial."
   dependsOn bcduiHtmlDocs, bcduiDocuJsApiStubs
 }
