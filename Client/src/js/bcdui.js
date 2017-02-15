@@ -145,7 +145,7 @@ jQuery.extend( bcdui,
      * @private
      */
     _loadingErrorHandler : function(e){
-      bcdui.log.error("Error occured while executing callback",e);
+      bcdui.log.error("Error occurred while executing callback",e);
     },
 
     /**
@@ -239,7 +239,7 @@ jQuery.extend( bcdui,
           function BCDAppender(args) {
             this.isEmailCreated=false;
             this.bufferedMessage="";
-            this.errorMessageCaption = (args && args.errorMessageCaption) ? args.errorMessageCaption : "An error occured";
+            this.errorMessageCaption = (args && args.errorMessageCaption) ? args.errorMessageCaption : "An error occurred";
             this.emailContact        = (args && args.emailContact)        ? args.emailContact        : "Your local technical support";
             this.emailContactCC      = (args && args.emailContactCC)      ? args.emailContactCC      : "";
             this.subject             = (args && args.emailSubject)        ? args.emailSubject        : "An error occurred";

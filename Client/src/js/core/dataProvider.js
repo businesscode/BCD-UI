@@ -414,7 +414,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       try{
         listener.listenerFunction(target);
       }catch(e){
-        (window["console"]?console:bcdui.log).warn("error occured while executing listener-function:" + e.message, e);
+        (window["console"]?console:bcdui.log).warn("error occurred while executing listener-function:" + e.message, e);
       }
     }
   },

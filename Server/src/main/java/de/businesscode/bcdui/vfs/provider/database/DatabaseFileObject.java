@@ -76,7 +76,7 @@ public class DatabaseFileObject extends AbstractFileObject {
       cfgBuilder = (DatabaseFileSystemConfigBuilder)this.fileSystem.getFileSystemManager().getFileSystemConfigBuilder("sql");
     }
     catch (FileSystemException e) {
-      log.error("FileSystemException occured by getting DatabaseFileSystemConfigBuilder", e);
+      log.error("FileSystemException occurred by getting DatabaseFileSystemConfigBuilder", e);
     }
   }
 

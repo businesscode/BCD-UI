@@ -58,7 +58,7 @@ public class DbProperties {
     void reloaded();
 
     /**
-     * exception occured during reload
+     * exception occurred during reload
      */
     void handleLoadException(Throwable t);
 

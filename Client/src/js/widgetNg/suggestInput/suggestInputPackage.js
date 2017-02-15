@@ -950,7 +950,7 @@ bcdui.util.namespace("bcdui.widgetNg.suggestInput",
             try{
               cbAfterRedisplay();
             }catch(e){
-              bcdui.log.warn("error occured in cbAfterRedisplay callback", e);
+              bcdui.log.warn("error occurred in cbAfterRedisplay callback", e);
             }
           }
         }

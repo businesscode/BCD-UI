@@ -1005,7 +1005,7 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         try{
           this.callback({setData : this.setData.bind(this)});
         }catch(e){
-          bcdui.log.warn("error occured while executing JS callback", e);
+          bcdui.log.warn("error occurred while executing JS callback", e);
         }
       },
     /**

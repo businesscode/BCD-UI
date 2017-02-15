@@ -75,7 +75,7 @@ public class AvailabilityFilter implements Filter {
       }
     } catch (Throwable t) {
       logger.fatal("Availability filter failed", t);
-      throw new ServletException("Unrecoverable server error occured. Please contact support.");
+      throw new ServletException("Unrecoverable server error occurred. Please contact support.");
     }
   }
 

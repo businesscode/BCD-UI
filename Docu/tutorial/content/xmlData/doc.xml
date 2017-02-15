@@ -174,7 +174,7 @@
                 <Value>sqlsoapfaultcode:InvalidXml</Value>
               </Subcode>
               <Reason>
-                <Text xml:lang="en-US">An error occured, DB down</Text>
+                <Text xml:lang="en-US">An error occurred, DB down</Text>
               </Reason>
               <Body>
                 <bcd:WrsRequest>...</bcd:WrsRequest>

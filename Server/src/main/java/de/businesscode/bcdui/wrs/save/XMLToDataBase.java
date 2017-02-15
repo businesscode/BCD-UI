@@ -248,7 +248,7 @@ public class XMLToDataBase implements XMLEventConsumer {
         // As we are in a rollback situation, we do not need to track possible further exceptions
       }
       // Re-throw to trigger rollback
-      throw new XMLStreamExceptionImpl("Exception occured when writing a WRS document to database.", new LocationImpl(event.getLocation()), ex);
+      throw new XMLStreamExceptionImpl("Exception occurred when writing a WRS document to database.", new LocationImpl(event.getLocation()), ex);
     }
   }
 
