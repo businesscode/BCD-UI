@@ -21,7 +21,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI formulaParser widget.
+ * A namespace for the BCD-UI formulaParser widget.
  * @namespace bcdui.widget.formulaEditor.Parser
  */
 bcdui.util.namespace("bcdui.widget.formulaEditor.Parser",

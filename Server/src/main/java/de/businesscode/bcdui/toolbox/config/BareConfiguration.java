@@ -113,8 +113,8 @@ public class BareConfiguration extends JNDIProvider {
     if(!RequestLifeCycleFilter.isThreadBoundToHttpRequest())
       throw new Exception("A managed connection may only be obtained within HttpServletRequest lifecycle. It " +
           "seems like this method was called not called in scope of a HttpServletRequest or the request is not" +
-          " managed by BCDUI RequestLifeCycleFilter. Please check your web.xml and ensure that all URLs are mapped " +
-          "to that filter or consult BCDUI development team.");
+          " managed by BCD-UI RequestLifeCycleFilter. Please check your web.xml and ensure that all URLs are mapped " +
+          "to that filter or consult BCD-UI development team.");
 
     Map<String, Connection> map = connectionCache.get();
     String dbSourceNameWithDefault = dbSourceName == null ? "(default connection)" : dbSourceName;

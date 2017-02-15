@@ -13,9 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
--- Default tables for BCD-UI 4.0 tiny url support
+-- Default tables for BCD-UI tiny url support
 -- Feel free to adjust table and column names
--- Only BindingSet BindingItem ids are fix for BCD-UI 4.0
+-- Only BindingSet BindingItem ids are fix for BCD-UI
 
 -- TERADATA
 DROP TABLE bcd_tinyurl_control;

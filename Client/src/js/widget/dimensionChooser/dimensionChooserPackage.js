@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI dimensionChooser widget.
+ * A namespace for the BCD-UI dimensionChooser widget.
  * @namespace bcdui.widget.dimensionChooser
  * @private
  */
@@ -249,7 +249,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
       // Special case: When there is only one level, we hide the level chooser and set its value (if empty)
       if( availLevels.length === 0 ) {
-        bcdui.log.warn("BCDUI: DimensionChooser "+this.id+" could not find any levels.")
+        bcdui.log.warn("BCD-UI: DimensionChooser "+this.id+" could not find any levels.")
       } else if( availLevels.length == 1 ) {
         jQuery("#" + e.id+ "_level").closest("TR").hide();
         var levelNode = bcdui.core.createElementWithPrototype(targetModel.getData(),config.targetModelXPath);

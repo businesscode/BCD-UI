@@ -32,7 +32,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI balloon widget.
+ * A namespace for the BCD-UI balloon widget.
  * @namespace bcdui.widgetNg.commons.balloon
  */
 bcdui.util.namespace("bcdui.widgetNg.commons.balloon",
@@ -340,7 +340,7 @@ bcdui.widgetNg.commons.balloon.messagesToXML = function(messagesArray, tooltipSt
 };
 
 /**
- * A namespace for the BCUDI GUI widget different comparators.
+ * A namespace for the BCD-UI widget different comparators.
  * @namespace bcdui.widgetNg.utils.sorting
  * @private
  */

@@ -259,5 +259,5 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
   }
   // and finally signal that all scripts are loaded 
   // IE8 loads the upper created scripts later so that the following bui loaded flagging only works for IE >8, therefore we check the object availability
-  document.write("<script type='text/javascript'>bcdui && bcdui.log && bcdui.log.isDebugEnabled() && bcdui.log.debug('BCDUI lib is fully loaded');<\/script>");
+  document.write("<script type='text/javascript'>bcdui && bcdui.log && bcdui.log.isDebugEnabled() && bcdui.log.debug('BCD-UI lib is fully loaded');<\/script>");
 })();

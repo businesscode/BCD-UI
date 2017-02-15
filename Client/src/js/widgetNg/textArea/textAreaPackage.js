@@ -100,7 +100,7 @@
  * it to jQuery Widget init style
  */
 /**
- * A namespace for the BCUDI GUI textArea widget.
+ * A namespace for the BCD-UI textArea widget.
  * @namespace bcdui.widgetNg.textArea
  * @private
  */

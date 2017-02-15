@@ -18,7 +18,7 @@
 <Doc title="WebRowSet" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
   <Chapter title="WebRowSet Wrs Overview" type="overview">
     <Body>
-      BCD UI delivers and receives data in the following XML format.
+      BCD-UI delivers and receives data in the following XML format.
       <p/>BCD-UI WebRowSet Wrs is a unique, easy to use document format, called Wrs, which is preserved during processing on the client.
       This allows to reuse, replace, remove or reorder stylesheets in a transformation chain since all stylesheets work on the same input and output format.
     </Body>

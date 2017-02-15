@@ -29,7 +29,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI widget validation (general).
+ * A namespace for the BCD-UI widget validation (general).
  * @namespace bcdui.widgetNg.validation.validators.general
  */
 bcdui.util.namespace("bcdui.widgetNg.validation.validators.general",
@@ -44,7 +44,7 @@ bcdui.util.namespace("bcdui.widgetNg.validation.validators.general",
  * expects the referenced element to provide settings  of widget configuration API via PrototypeJS Element.retrieve('_args_')
  */
 /**
- * A namespace for the BCUDI GUI widget validation (specific).
+ * A namespace for the BCD-UI widget validation (specific).
  * @namespace bcdui.widgetNg.validation.validators.widget
  */
 bcdui.util.namespace("bcdui.widgetNg.validation.validators.widget",

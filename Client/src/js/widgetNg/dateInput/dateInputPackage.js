@@ -90,7 +90,7 @@
 
 
 /**
- * A namespace for the BCUDI GUI dateInput widget.
+ * A namespace for the BCD-UI dateInput widget.
  * @namespace bcdui.widgetNg.dateInput
  * @private
  */

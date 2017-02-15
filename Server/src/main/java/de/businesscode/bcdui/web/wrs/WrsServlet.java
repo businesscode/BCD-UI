@@ -124,7 +124,7 @@ public class WrsServlet extends HttpServlet {
         try {
           services.put(serviceDefs[s], Class.forName(serviceDefs[s+1]).asSubclass(ISqlGenerator.class) );
         } catch (Exception e) {
-          log.error("BCDUI: Wrong defintion of Wrs Service '"+serviceDefs[s]+"' for "+this.getClass().getName());
+          log.error("BCD-UI: Wrong defintion of Wrs Service '"+serviceDefs[s]+"' for "+this.getClass().getName());
         }
       }
     }

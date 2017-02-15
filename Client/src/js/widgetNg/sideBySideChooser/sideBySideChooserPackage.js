@@ -171,7 +171,7 @@
 }());
 
 /**
- * A namespace for the BCUDI GUI sideBySideChooser widget.
+ * A namespace for the BCD-UI sideBySideChooser widget.
  * @namespace bcdui.widgetNg.sideBySideChooser
  */
 bcdui.util.namespace("bcdui.widgetNg.sideBySideChooser",

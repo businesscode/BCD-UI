@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI contextMenu widget.
+ * A namespace for the BCD-UI contextMenu widget.
  * @namespace bcdui.widget.contextMenu
  * @private
  */

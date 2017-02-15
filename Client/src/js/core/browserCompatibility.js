@@ -31,7 +31,7 @@
  *                                                                             </p></dd><dt>
  *   Namespace handling                                                        </dt><dd><p>
  *         Align the handling of XML namespaces and prefixes so that
- *         the well-known BCDUI prefixes as well as user prefixes can
+ *         the well-known BCD-UI prefixes as well as user prefixes can
  *         be used in the JavaScript API.
  *                                                                             </p></dd></dl></p><p>
  * </p>

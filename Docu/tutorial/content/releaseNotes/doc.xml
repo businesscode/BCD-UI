@@ -24,7 +24,7 @@
   -->
   <Chapter type="overview" title="Release Notes">
     <Body>
-      The following release notes allow to follow BCDUI's updates and to judge whether migrating to a newer version is worth it.
+      The following release notes allow to follow BCD-UI's updates and to judge whether migrating to a newer version is worth it.
       Some changes are incompatible to previous versions and may require code change in the project. They are listed here as well.
     </Body>
 
@@ -1330,7 +1330,7 @@
           <li>DataProviderWithXPath from now on returns a single node instead of a nodelist. Firefox isn't able to deal with nodelists as input parameter for xstl processing.</li>
           <li>The urlProvider listens now permanently to changes on its input model. Previously it was only executed once. And in case of changes it fires data modification events.</li>
           <li>The simple model has an additional parameter isAutoRefresh, that turns on that a model reloads automatically in case of a changing request model.</li>
-          <li>Introduced $bcduiObjectMap shortcut for objects known by BCDUI. Allows easier listing of all objects and avoids naming conflicts as objects are not longer created as global variables (was an issue in IE)
+          <li>Introduced $bcduiObjectMap shortcut for objects known by BCD-UI. Allows easier listing of all objects and avoids naming conflicts as objects are not longer created as global variables (was an issue in IE)
               This is for debugging only and not a replacement of $getObject("myId")</li>
           <li>Attribute maxRows of Wrs request was merged into rowStart, rowEnd attributes.</li>
           <li>bcdxml:include can be non-required now, by setting isRequired=false. Then in case the resource is not found no error is generated.</li>
@@ -1382,7 +1382,7 @@
       <Body>
         Major new features:
         <ol>
-          <li>BCUDI 3 integration functions for putting BCDUI 4 elements on a BCDUI 3 page.</li>
+          <li>BCD-UI 3 integration functions for putting BCD-UI 4 elements on a BCD-UI 3 page.</li>
           <li>Added Binding Relations feature</li>
           <li>Chart showAxesCaption feature.</li>
           <li>New bcd:contextmenu event to trigger context menu programmatically.</li>
@@ -1581,7 +1581,7 @@
 
   <Chapter type="overview" title="Release Notes BCD-UI">
     <Body>
-      BCD UI 4 brings the following major improvements:
+      BCD-UI 4 brings the following major improvements:
     </Body>
 
     <SubChapter title="Modules and Components">

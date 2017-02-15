@@ -19,7 +19,7 @@
   <Chapter title="Compatibility" type="overview">
     <Body>
       <p>
-        As of 2013 BCD UI 4 works without modifications within the following environments
+        As of 2013 BCD-UI works without modifications within the following environments
         <ul>
           <li>JDK 1.6 update 6 and up</li>
           <li>Application Server: Tomcat 6.13 and up</li>

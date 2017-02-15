@@ -234,7 +234,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI button widget.
+ * A namespace for the BCD-UI button widget.
  * @namespace bcdui.widgetNg.button
  * @private
  */

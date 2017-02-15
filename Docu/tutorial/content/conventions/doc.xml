@@ -18,7 +18,7 @@
 <Doc title="Conventions" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
   <Chapter title="Naming conventions" type="overview">
     <Body>
-      Within BCD UI 4 please follow the following naming conventions
+      Within BCD-UI please follow the following naming conventions
       <ul>
         <li>Namespaces format: http://www.businesscode.de/schema/bcdui/doc-1.1.0</li>
         <li>Package naming convention: de.businesscode.bcdui</li>

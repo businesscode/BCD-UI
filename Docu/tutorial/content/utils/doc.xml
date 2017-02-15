@@ -18,7 +18,7 @@
 <Doc title="Utils" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0" state="draft">
   <Chapter title="Overview" type="overview">
     <Body>
-      BCD UI 4 provides a set of utils
+      BCD-UI provides a set of utils
     </Body>
     <SubChapter title="DB wrapper">
       <Body>

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI page effects.
+ * A namespace for the BCD-UI page effects.
  * @namespace bcdui.widget.pageEffects
  * @private
  */

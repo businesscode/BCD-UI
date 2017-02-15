@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI multiSelect widget.
+ * A namespace for the BCD-UI multiSelect widget.
  * @namespace  bcdui.widget.multiSelect
  * @private
  */

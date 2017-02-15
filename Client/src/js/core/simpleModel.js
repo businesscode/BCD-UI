@@ -241,7 +241,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
           this.setStatus(this.savedStatus);
         }.bind(this),
         onFailure: function(msg) {
-          bcdui.log.error("BCDUI: Failed saving model: '"+this.id+"', '"+msg+"'");
+          bcdui.log.error("BCD-UI: Failed saving model: '"+this.id+"', '"+msg+"'");
           this.setStatus(this.saveFailedStatus);
         }.bind(this),
         onWrsValidationFailure: function(rwsValidationResult) {
@@ -309,7 +309,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
               this.setStatus(this.loadedStatus);
             }.bind(this),
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
-              bcdui.log.error("BCDUI: Failed loading model: '"+this.id+"', '"+msg+"'");
+              bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'");
               this.dataDoc = null;
               this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
               this.setStatus(this.loadFailedStatus);
@@ -325,7 +325,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
               this.setStatus(this.loadedStatus);
             }.bind(this),
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
-              bcdui.log.error("BCDUI: Failed loading model: '"+this.id+"', '"+msg+"'");
+              bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'");
               this.dataDoc = null;
               this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
               this.setStatus(this.loadFailedStatus);
@@ -358,7 +358,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
               return;
             }
 
-            bcdui.log.error("BCDUI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'");
+            bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'");
             this.dataDoc = null;
             this.setStatus(this.loadFailedStatus);
           }.bind(this)

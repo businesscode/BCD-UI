@@ -39,7 +39,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI inputField widget.
+ * A namespace for the BCD-UI inputField widget.
  * @namespace bcdui.widget.inputField
  * @private
  */

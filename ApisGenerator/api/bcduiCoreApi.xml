@@ -1109,7 +1109,7 @@
             <AllowedChildren>
               <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
               <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
-              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCD-UI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
             </AllowedChildren>
           </Jsp>
         </Impl>
@@ -1205,7 +1205,7 @@
               Executes a transformation chain on a specific model and replaces its content
               with the result.
             [activity:apply]
-              Executes the 'apply' operation of the BCDUI page life cycle. This operation
+              Executes the 'apply' operation of the BCD-UI page life cycle. This operation
               compresses the status document and (re)loads the page with the updated status.
         </Doc>
         <Examples>
@@ -1234,7 +1234,7 @@
             <AllowedChildren>
               <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
               <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
-              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCD-UI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
             </AllowedChildren>
             <AddCode><![CDATA[
 <webpage:script>
@@ -1261,7 +1261,7 @@
               Executes a transformation chain on a specific model and replaces its content
               with the result.
             [activity:apply]
-              Executes the 'apply' operation of the BCDUI page life cycle. This operation
+              Executes the 'apply' operation of the BCD-UI page life cycle. This operation
               compresses the status document and (re)loads the page with the updated status.
         </Doc>
 
@@ -1293,7 +1293,7 @@
             <AllowedChildren>
               <Child name="a:execute" doc="Calls the 'execute' operation on a certain target object. This can be used for example to re-display a renderer." />
               <Child name="a:executeXSLT" doc="Executes a transformation chain on a specific model and replaces its content with the result." />
-              <Child name="a:apply" doc="Executes the 'apply' operation of the BCDUI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
+              <Child name="a:apply" doc="Executes the 'apply' operation of the BCD-UI page life cycle. This operation compresses the status document and (re)loads the page with the updated status." />
             </AllowedChildren>
             <AddCode><![CDATA[
 <%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/activity" prefix="a"%>
@@ -1346,7 +1346,7 @@
       <Api name="statusListener" extends="">
         <Doc>
           Adds a status listener to an existing DataProvider. A status listener is triggered either
-          when a specific state is reached or on any state change. Each BCDUI object has a specific
+          when a specific state is reached or on any state change. Each BCD-UI object has a specific
           set of states and transitions between them. They are documented in the respective component
           (such as the TransformationChain class).
         </Doc>

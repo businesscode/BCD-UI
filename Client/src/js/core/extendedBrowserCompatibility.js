@@ -179,7 +179,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
                   proc.xslt = doc; // used for debugging and for determining parameters and for webkit to merge params in
                   proc.outputFormat = bcdui.core.browserCompatibility.extractMetaDataFromStylesheetDoc( doc );
                 } catch(e) {
-                  bcdui.log.error("BCDUI: Internal stylesheet error ("+e+"). "+new XMLSerializer().serializeToString(doc));
+                  bcdui.log.error("BCD-UI: Internal stylesheet error ("+e+"). "+new XMLSerializer().serializeToString(doc));
                 }
                 fn(proc);
               }.bind(this) );
@@ -503,7 +503,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
       // Every time: Clean variable content and put new.
       while( variable.childNodes.length )
         variable.removeChild(variable.firstChild);
-      variable.appendChild(this.xslt.createComment(" BCDUI Replacement for parameter "+name+" "));
+      variable.appendChild(this.xslt.createComment(" BCD-UI Replacement for parameter "+name+" "));
       var startNode = value.documentElement || value;
       if( null==startNode.selectSingleNode("//*[namespace-uri()='"+bcdui.core.xmlConstants.namespaces.xsl+"']") ) {
         // non-xsl doc

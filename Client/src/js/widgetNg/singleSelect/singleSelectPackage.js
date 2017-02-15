@@ -32,7 +32,7 @@
 /* generic widget utils. TODO: make all widgets use this utitilies (extracted from inputPackage with no logical changes) */
 (function(){
   /**
-   * A namespace for the BCUDI GUI widget utils.
+   * A namespace for the BCD-UI widget utils.
    * @namespace bcdui.widgetNg.utils
    * @private
    */
@@ -841,7 +841,7 @@
 }());
 
 /**
- * A namespace for the BCUDI GUI singleSelect widget.
+ * A namespace for the BCD-UI singleSelect widget.
  * @namespace bcdui.widgetNg.singleSelect
  * @private
  */

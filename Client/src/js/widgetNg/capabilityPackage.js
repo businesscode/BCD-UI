@@ -44,7 +44,7 @@ bcdui.util.namespace("bcdui.browserCompatibility", {
       if(bcdui.browserCompatibility.isWebKit) {
 
         /**
-         * A namespace for the BCUDI browser capability and availability package
+         * A namespace for the BCD-UI browser capability and availability package
          * @private
          * @namespace bcdui.browserCapability._intern.input
          */

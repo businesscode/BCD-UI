@@ -117,7 +117,7 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
  *
  */
 /**
- * A namespace for the BCUDI GUI tab widget.
+ * A namespace for the BCD-UI tab widget.
  * @namespace bcdui.widget.tab
  */
 bcdui.util.namespace("bcdui.widget.tab",

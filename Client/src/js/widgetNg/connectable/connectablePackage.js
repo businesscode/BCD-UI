@@ -1155,7 +1155,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI connectable widget.
+ * A namespace for the BCD-UI connectable widget.
  * @namespace bcdui.widgetNg.connectable
  */
 bcdui.util.namespace("bcdui.widgetNg.connectable",

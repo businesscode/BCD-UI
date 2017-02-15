@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI periodChooser widget.
+ * A namespace for the BCD-UI periodChooser widget.
  * @namespace bcdui.widget.periodChooser
  */
 bcdui.util.namespace("bcdui.widget.periodChooser",

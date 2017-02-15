@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI notifications widget.
+ * A namespace for the BCD-UI notifications widget.
  * @namespace bcdui.widget.notifications
  */
 bcdui.util.namespace("bcdui.widget.notifications",

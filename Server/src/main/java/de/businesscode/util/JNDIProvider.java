@@ -38,7 +38,7 @@ import de.businesscode.bcdui.toolbox.config.ConfigurationProvider;
  */
 public class JNDIProvider implements ConfigurationProvider {
   /**
-   * @deprecated will be removed after BCDUI4.5
+   * @deprecated will be removed after BCD-UI 4.5
    */
   private static JNDIProvider instance = null;
 
@@ -49,7 +49,7 @@ public class JNDIProvider implements ConfigurationProvider {
   /**
    *
    * @return
-   * @deprecated will be removed after BCDUI4.5
+   * @deprecated will be removed after BCD-UI 4.5
    */
   public synchronized static JNDIProvider getInstance() {
     if (instance == null)
@@ -61,7 +61,7 @@ public class JNDIProvider implements ConfigurationProvider {
    *
    * @param propsFile
    * @return
-   * @deprecated will be removed after BCDUI4.5
+   * @deprecated will be removed after BCD-UI 4.5
    */
   public static JNDIProvider getLocalInstance(String propsFile)
   {

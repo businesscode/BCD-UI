@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI formulaEditor widget.
+ * A namespace for the BCD-UI formulaEditor widget.
  * @namespace bcdui.widget.formulaEditor
  */
 bcdui.util.namespace("bcdui.widget.formulaEditor",

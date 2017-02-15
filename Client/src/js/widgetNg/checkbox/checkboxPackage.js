@@ -389,7 +389,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI checkbox widget.
+ * A namespace for the BCD-UI checkbox widget.
  * @namespace bcdui.widgetNg.checkbox
  * @private
  */

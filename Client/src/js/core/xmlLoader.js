@@ -259,8 +259,8 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
                 if( args.onFailure )
                   args.onFailure("xinclude, '" + xincludeUrl + "' could not be resolved.");
                 else {
-                  bcdui.log.error("BCDUI: xinclude, '" + xincludeUrl + "' could not be resolved.");
-                  throw Error("BCDUI: xinclude, '" + xincludeUrl + "' could not be resolved.");
+                  bcdui.log.error("BCD-UI: xinclude, '" + xincludeUrl + "' could not be resolved.");
+                  throw Error("BCD-UI: xinclude, '" + xincludeUrl + "' could not be resolved.");
                 }
               }
             }.bind(this)
@@ -385,7 +385,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
                   this._setXMLBase(dataDoc, bcdui.util.url.translateRelativeURL(location.href, args.url));
                   this._processAllIncludes( {doc: dataDoc, onSuccess: args.onSuccess, onFailure: args.onFailure} );
                 } else if (bcdui.util.isFunction(args.onFailure)) {
-                  args.onFailure("BCDUI: loading '"+args.url+"' failed.");
+                  args.onFailure("BCD-UI: loading '"+args.url+"' failed.");
                 }
               }.bind(this, response, jqXHR);
               setTimeout(deferred);
@@ -405,7 +405,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
               if (bcdui.util.isFunction(args.onFailure)) {
                 // Use the low-level responseXML, see comment above
                 jqXHR.responseXML = xhr.responseXML;
-                args.onFailure("BCDUI: loading '"+args.url+"' failed.", jqXHR, textStatus, errorThrown);
+                args.onFailure("BCD-UI: loading '"+args.url+"' failed.", jqXHR, textStatus, errorThrown);
               }
             },
             complete: function( jQXhr, textStatus ) {

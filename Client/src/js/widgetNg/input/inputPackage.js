@@ -718,7 +718,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI input widget.
+ * A namespace for the BCD-UI input widget.
  * @namespace bcdui.widgetNg.input
  * @private
  */

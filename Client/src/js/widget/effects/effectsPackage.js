@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI widget effects.
+ * A namespace for the BCD-UI widget effects.
  * @namespace bcdui.widget.effects
  */
 bcdui.util.namespace("bcdui.widget.effects",

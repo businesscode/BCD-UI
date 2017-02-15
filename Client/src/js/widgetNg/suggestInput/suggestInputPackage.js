@@ -65,7 +65,7 @@
  */
 
 /**
- * A namespace for the BCUDI GUI suggestInput widget.
+ * A namespace for the BCD-UI suggestInput widget.
  * @namespace bcdui.widgetNg.suggestInput
  * @private
  */

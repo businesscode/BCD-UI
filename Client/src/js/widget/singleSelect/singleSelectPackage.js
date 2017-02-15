@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI singleSelect widget.
+ * A namespace for the BCD-UI singleSelect widget.
  * @namespace bcdui.widget.singleSelect
  * @private
  */

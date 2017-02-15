@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCUDI GUI detailView widget.
+ * A namespace for the BCD-UI detailView widget.
  * @namespace bcdui.widget.detailView
  */
 bcdui.util.namespace("bcdui.widget.detailView",

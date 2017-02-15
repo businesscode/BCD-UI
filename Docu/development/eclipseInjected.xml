@@ -183,7 +183,7 @@
     <!-- 6. Cleanup:
         a) Sometimes, Eclipse will add 3 entries to .settings\org.eclipse.wst.common.component, remove this one:
            <wb-resource deploy-path="/WEB-INF/classes" source-path="/bcdui_tld"/>
-        b) Sometimes, for unknown reason bcdiu_tld will initially contain everything from dist, refresh it and only tdls will stay
+        b) Sometimes, for unknown reason bcdui_tld will initially contain everything from dist, refresh it and only tdls will stay
       -->
 
     <!-- 7. Debug source path
