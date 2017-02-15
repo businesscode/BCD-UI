@@ -159,7 +159,7 @@
           In case @bcdIsValid is set, the implementation HAS to display and invalid input to the user (which is the content of the @bcdIsValid attribute, and may be i18nToken)
           and accept a valid input and thus clearing that @bcdIsValid attribute on the target node.
         </Doc>
-        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
           <Doc>
             The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
             format of data written is implemented by individual widget.
@@ -348,7 +348,7 @@
 
       <Api name="hasOptions">
         <ApiChange since="4.3.3">@optionsModelId deprecated; @isSortOptions renamed to @doSortOptions</ApiChange>
-        <Param name="optionsModelXPath" required="true" type="xpath">
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
@@ -514,7 +514,7 @@
         <Doc>
           Offers a SideBySiderChooser where you can select items on a source side and move them to a target side
         </Doc>
-        <Param name="optionsModelXPath" required="true" type="xpath">
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
@@ -523,7 +523,7 @@
             xPath expression relative to 'optionsModelXPath' providing values
           </Doc>
         </Param>
-        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
           <Doc>
             The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
             format of data written is implemented by individual widget.
@@ -586,7 +586,7 @@
         <Param name="scope" type="string" required="true">
           <Doc>Defines the scope of the box. Source.</Doc>
         </Param>
-        <Param name="optionsModelXPath" required="false" type="writableXPathWithDollar">
+        <Param name="optionsModelXPath" required="false" type="writableModelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]. If you specify an optionsmodelxpath, the box automatically acts as source.</Doc>
         </Param>
@@ -596,7 +596,7 @@
         <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
           <Doc>xPath expression relative to 'optionsModelXPath' which can be used to filter options model items</Doc>       
         </Param>
-        <Param name="targetModelXPath" required="false" type="writableXPathWithDollar">
+        <Param name="targetModelXPath" required="false" type="writableModelXPath">
           <Doc>The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target</Doc>

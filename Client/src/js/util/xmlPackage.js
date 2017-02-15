@@ -149,7 +149,7 @@ bcdui.util.xml =
      * with an XPath.
      * @param {document} doc - The document the XPath specified in the "path"
      * argument is evaluated on.
-     * @param {xpath} path - The XPath pointing to the nodes to be removed.
+     * @param {writableModelXPath} path - The XPath pointing to the nodes to be removed.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:D instead of removing it).
      * It is "true" by default.
@@ -191,7 +191,7 @@ bcdui.util.xml =
      * and the "or" conjunction cannot be used.
      * </p>
      * @param {Element} baseElement - The DOM document or the XML element the path is evaluated on.
-     * @param {xpath} path - The XPath identifying the element to be retrieved or
+     * @param {modelXPath} path - The XPath identifying the element to be retrieved or
      * created.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I

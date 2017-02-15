@@ -89,7 +89,7 @@
               <xsl:when test=".='relativeXPath'">&quot;string&quot;</xsl:when>
               <xsl:when test=".='absoluteXPathWithDollar'">&quot;string&quot;</xsl:when>
               <xsl:when test=".='xpath'">&quot;string&quot;</xsl:when>
-              <xsl:when test=".='writableXPathWithDollar'">&quot;string&quot;</xsl:when>
+              <xsl:when test=".='writableModelXPath'">&quot;string&quot;</xsl:when>
               <xsl:when test=".='booleanWithDefault'">&quot;boolean&quot;</xsl:when>
               <xsl:when test=".='number'">&quot;number&quot;</xsl:when>
               <xsl:when test=".='integer'">&quot;integer&quot;</xsl:when>

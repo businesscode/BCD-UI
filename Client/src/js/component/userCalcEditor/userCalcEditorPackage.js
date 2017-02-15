@@ -29,7 +29,7 @@ bcdui.util.namespace("bcdui.component.userCalcEditor",
       properties: {
         id:                             { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.dataProviderId },
         dialogCaption :                 { type: "string",  required: false },
-        targetModelXPath:               { type: "string",  required: true,  pattern: bcdui.factory.validate.jsvalidation._patterns.writableXPathWithDollar },
+        targetModelXPath:               { type: "string",  required: true,  pattern: bcdui.factory.validate.jsvalidation._patterns.writableModelXPath },
         optionsModelXPath:              { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.absoluteXPathWithDollar },
         optionsModelRelativeValueXPath: { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.relativeXPath },
         uniqueOptionsModelXpath:        { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.absoluteXPath },
@@ -53,10 +53,10 @@ bcdui.util.namespace("bcdui.component.userCalcEditor",
   /**
    * Brings up a user calc editor, i.e. an inout field with autocomplete for entering formulas that can be used in calculation.xslt
    * @param {Object} args The argument map:
-   * @param {xpath}    args.targetModelXPath                      - The XPath to write to.
+   * @param {writableModelXPath}   args.targetModelXPath          - The XPath to write to.
    * @param {string}   [args.id]                                  - The base id of the field. If nothing is specified the id is generated.
-   * @param {xpath}    [args.optionsModelXPath]                   - An XPath returning a node-set holding the allowed
-   * @param {xpath}    [args.uniqueOptionsModelXPath]             - 
+   * @param {modelXPath} [args.optionsModelXPath]                 - An XPath returning a node-set holding the allowed
+   * @param {modelXPath} [args.uniqueOptionsModelXPath]           -
    * variables for the formula editor. The parameter "optionsModelRelativeValueXPath" can optionally
    * be set to define non-visible values belonging to the visible options denoted by this XPath.
    * @param {xpath}    [args.optionsModelRelativeValueXPath]      - If specified this XPath is applied to each node returned by the "optionsModelXPath" to get a non-visible value to

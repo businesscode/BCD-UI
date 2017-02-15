@@ -42,13 +42,13 @@ bcdui.util.namespace("bcdui.widget",
    * the given target HTML element. This input field can be a text box or a combo box, dependent on the parameters.
    * 
    * @param {Object}        args                                  The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
+   * @param {writableModelXPath}  args.targetModelXPath           The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
-   * @param {string}        [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
-   * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+   * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {xpath}         [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.optionsModelIsSuggestionOnly]   If true, values different from the options model can are allowed. Default is that, if an optionsModel is given, only values from that model are allowed.
-   * @param {string}        [args.additionalFilterXPath]          An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
+   * @param {writableModelXPath} [args.additionalFilterXPath]     An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.clearOption='false']            If != 'false', an additional option to clear the selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
    * @param {string}        [args.emptyValue='false']             If != 'false', a text is displayed if nothing is selected / entered. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
@@ -121,7 +121,7 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * This function creates an dimension chooser in the given target HTML element.
    * @param {Object}        args                                  The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
+   * @param {writableModelXPath} args.targetModelXPath            The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        args.dimension                        Unique name to select a dimension from the dimension model (located at '/bcdui/conf/dimensions.xml'.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
@@ -236,9 +236,9 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Creates a single selection radio button group where a value can be selected and stored to the target model.
    * @param {Object}        args                                  The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
+   * @param {writableModelXPath}  args.targetModelXPath           The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
-   * @param {string}        args.optionsModelXPath                xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {modelXPath}    args.optionsModelXPath                xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
@@ -282,9 +282,9 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Creates a multi selection box where multiple values can be selected and stored to the target model.
    * @param {Object}        args                                  The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
+   * @param {writableModelXPath}  args.targetModelXPath           The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
-   * @param {string}        args.optionsModelXPath                xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {modelXPath}    args.optionsModelXPath                xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {string}        [args.delimiter]                      If defined, will switch to delimiter-based storing, i.e. multiple values will be written into one DOM node and separated by given delimiter.
@@ -337,7 +337,7 @@ bcdui.util.namespace("bcdui.widget",
    *  These elements form a date interval by setting the smaller or equal start and a
    *  less or equal end date expression.
    * @param {Object}        args                                The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath               The xPath pointing to the root-node where to place the selected value. Point to an f:And element, like "/guiStatus:Status/f:Filter/f:And[@id='myPeriod']" for example
+   * @param {writableModelXPath}        args.targetModelXPath   The xPath pointing to the root-node where to place the selected value. Point to an f:And element, like "/guiStatus:Status/f:Filter/f:And[@id='myPeriod']" for example
    * @param {targetHtmlRef} args.targetHtml                     An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                           ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.caption]                      Default 'Date', it will be used as i18n key to translate the caption if isFreeRangeSelectable set to true, then caption may contain two terms for 'From' and 'To' captions. Divider: ';' Example: caption = 'i18.md.From;i18.md.To'
@@ -358,7 +358,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.suppressCaptions=false]       Set this to true if the buttons should not have any caption text. Default is false.
    * @param {boolean}       [args.textInput=false]              Add the free range feature.
    * @param {boolean}       [args.validate=true]                Turn on-off the validation of the keyboard entered date values.
-   * @param {string}        [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {string}        [args.postfix]                      An optional postfix which is added to the filter bRefs. If optionsModel is used, this value should be one of the available ones.
    * @param {string}        [args.widgetCaption]                A caption which is used as prefix for navPath generation for this widget.
@@ -418,12 +418,12 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Displays a field where the user can enter a formula
    * @param {Object}        args                                  The parameter map contains the following properties.
-   * @param {string}        args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
+   * @param {writableModelXPath}  args.targetModelXPath           The xPath pointing to the root-node this widget will place entered selected items into. The underlying XML  format of data written is implemented by individual widget. If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target.
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.caption='']                     Default '', it will be used as i18n key to translate the caption.
    * @param {boolean}       [args.mandatory=false]                The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
-   * @param {string}        [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.validate=true]                  Turn on-off the validation of the formula.
    * @param {boolean}       [args.validateVariableNamesCheckbox=false] Show or hide checkbox for validate variables option.
@@ -1217,7 +1217,7 @@ bcdui.util.namespace("bcdui.widget",
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
     * @param {string}        [args.defaultState='closed'] 'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
-    * @param {string}        [args.targetModelXPath=$guiStatus/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
+    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
     */
    createBlindUpDownArea:function(args){
@@ -2550,7 +2550,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
     properties: {
       id:                         { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.dataProviderId },
       targetModelId:              { type: "string",  required: true, pattern: bcdui.factory.validate.jsvalidation._patterns.dataProviderId },
-      targetModelXPath:           { type: "string",  required: true,  pattern: bcdui.factory.validate.jsvalidation._patterns.writableXPathWithDollar },
+      targetModelXPath:           { type: "string",  required: true,  pattern: bcdui.factory.validate.jsvalidation._patterns.writableModelXPath },
       containerHtmlElement:       { type: "htmlElement",  required: true},
       validateWrapperUrl:         { type: "string",  required: false },
       validateWrapperParameters:  { type: "object",  required: false }

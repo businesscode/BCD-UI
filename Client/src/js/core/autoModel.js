@@ -31,8 +31,8 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {string}                  [args.mandatoryfilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the automodel gets data. Until available, no request will be run.
    * @param {boolean}                 [args.isDistinct=false]             - If true, a group by is generated across all columns by default wrq-stylesheet.
    * @param {boolean}                 [args.useCaptions=false]            - If true, caption = bRef+'_caption will be used.
-   * @param {Xpath}                   [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
-   * @param {Xpath}                   [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
+   * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
+   * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
    * @param {number}                  [args.maxRows]                      - Optional, Limits the request to n rows. Use distinct if you need a certain order.
    *
    * @param {string}  [args.id]                   - A globally unique id for use in declarative contexts

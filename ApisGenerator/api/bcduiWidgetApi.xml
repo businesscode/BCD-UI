@@ -129,13 +129,13 @@
       </Api>
       
       <Api name="hasOptions">
-        <Param name="optionsModelXPath" required="true" type="xpath">
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
       </Api>
       <Api name="hasOptionsNotRequired">
-        <Param name="optionsModelXPath" required="false" type="xpath">
+        <Param name="optionsModelXPath" required="false" type="modelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
@@ -159,7 +159,7 @@
       </Api>
       
       <Api name="hasTarget">
-        <Param name="targetModelXPath" required="true" type="writableXPathWithDollar">
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
           <Doc>The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
@@ -175,7 +175,7 @@
           <Example type="jsp"></Example>
           <Example type="js"></Example>
         </Examples>
-        <Param name="targetModelXPath" type="writableXPathWithDollar">
+        <Param name="targetModelXPath" type="writableModelXPath">
           <Doc>The xPath pointing to the root-node this input widget will place entered selected items into.
           The xPath pointing to the root-node this input widget will place entered selected items into. By default this points to guiStatus:ClientSettings/BlindUpDown with the body id as id attribute.</Doc>
         </Param>
@@ -430,7 +430,7 @@
             If true, values different from the options model can are allowed. Default is that, if an optionsModel is given, only values from that model are allowed.
           </Doc>
         </Param>
-        <Param name="additionalFilterXPath" type="xpath">
+        <Param name="additionalFilterXPath" type="writableModelXPath">
           <Doc>
             An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
           </Doc>

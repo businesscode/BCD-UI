@@ -75,7 +75,7 @@ bcdui.factory.validate.jsvalidation = {
        *    <pre>  //wrs:C[2]  </pre>
        * @constant
        */
-      writableXPathWithDollar: "^((\\$\\w+)?(/(\\w+:|@)?([a-zA-Z]\\w*|\\*)(\\[(\\d+|(\\s*((\\w+:)?[a-zA-Z]\\w*\\s*(\\[\\d+\\]\\s*)?|@[a-zA-Z]\\w*\\s*)=\\s*('[^']*'|\"[^\"]*\"))(\\s+and\\s+(\\s*((\\w+:)?[a-zA-Z]\\w*\\s*(\\[\\d+\\]\\s*)?|@[a-zA-Z]\\w*\\s*)=\\s*('[^']*'|\"[^\"]*\")))*\\s*)\\])*)+)?$",
+      writableModelXPath: "^((\\$\\w+)?(/(\\w+:|@)?([a-zA-Z]\\w*|\\*)(\\[(\\d+|(\\s*((\\w+:)?[a-zA-Z]\\w*\\s*(\\[\\d+\\]\\s*)?|@[a-zA-Z]\\w*\\s*)=\\s*('[^']*'|\"[^\"]*\"))(\\s+and\\s+(\\s*((\\w+:)?[a-zA-Z]\\w*\\s*(\\[\\d+\\]\\s*)?|@[a-zA-Z]\\w*\\s*)=\\s*('[^']*'|\"[^\"]*\")))*\\s*)\\])*)+)?$",
 
       /**
        * A string which can be used as HTML element id. For example

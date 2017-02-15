@@ -373,8 +373,8 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
    * 
    * @constructs
    * @param {object}  args
-   * @param {string}  args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-   * @param {string=} args.name  - Logical name of this DataProvider when used as a parameter in a transformation
+   * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
+   * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
    */
   initialize: function(/* object */ args)
     {
@@ -451,8 +451,8 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
        *
        * @constructs
        * @param {object}  args
-       * @param {string}  args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-       * @param {string=} args.name  - Logical name of this DataProvider when used as a parameter in a transformation
+       * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
+       * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
        */
       initialize: function(/* object */ args)
         {

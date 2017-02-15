@@ -501,7 +501,7 @@
             in filterBRefs or additionFilterXpath.
           </Doc>
         </Param>
-        <Param name="additionalFilterXPath" type="writableXPathWithDollar">
+        <Param name="additionalFilterXPath" type="writableModelXPath">
           <Doc>
             Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes.
             The given xPath needs to point to the filter expression itself, not to a parent.
@@ -514,7 +514,7 @@
             monitored for changes.
           </Doc>
         </Param>
-        <Param name="additionalPassiveFilterXPath" type="writableXPathWithDollar">
+        <Param name="additionalPassiveFilterXPath" type="writableModelXPath">
           <Doc>
             Optional, allows using additional filters not part of $guiStatus f:Filter, unlike
             'additionalFilterXPath', this xPath is not monitored for changes.

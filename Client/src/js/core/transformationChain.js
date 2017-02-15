@@ -934,7 +934,7 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    * 
    * @constructs
    * @param {Object} args - An argument object with the following properties:
-   * @param {(url|function|Array.<(url|function)>|bcdui.core.DataProvider)} args.chain - The definition of the transformation chain
+   * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
    *   <li>a single string with the URL of the transformation XSLT or doTjs template</li>
    *   <li>or a JS transformator function</li>
@@ -1028,7 +1028,7 @@ bcdui.core.ModelWrapper = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
   * 
   * @constructs
   * @param {Object} args - An argument object with the following properties:
-  * @param {(url|function|Array.<(url|function)>|bcdui.core.DataProvider)} args.chain - The definition of the transformation chain
+  * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
   *   <li>a single string with the URL of the transformation XSLT or doTjs template</li>
   *   <li>or a JS transformator function</li>
@@ -1063,7 +1063,7 @@ bcdui.core.ModelUpdater = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
    * 
    * @constructs
    * @param {Object} args - An argument object with the following properties:
-   * @param {(url|function|Array.<(url|function)>|bcdui.core.DataProvider)} args.chain - The definition of the transformation chain
+   * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
    *   <li>a single string with the URL of the transformation XSLT or doTjs template</li>
    *   <li>or a JS transformator function</li>

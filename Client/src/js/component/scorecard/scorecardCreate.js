@@ -66,7 +66,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
    * @param {bcdui.core.DataProvider} [args.config]                           - The data of the scorecard configuration model according to XSD http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
    *    If given, an internal ScorecardModel based on the configuration data will be created. args.config it will be provided as 'scConfig' to the renderer chain. Provide args.config or args.inputModel
    * @param {string}                  [args.id]                               - The id of the new object. If omitted the id is automatically generated.
-   * @param {(url|function|Array.<(url|function)>|bcdui.core.DataProvider)} args.chain - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
+   * @param {chainDef}                 args.chain                             - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
    * @param {string}                  [args.tooltipUrl]                       - To overwrite default renderer xslt of the tooltip. An empty string will disable tooltips. 
    *    Default is BCD-UI's default sc tooltip, which shows all attributes of a cell. To give a KPI an attribute, nest an scc:AspectRef into scc:AspectKpi in the scorecard definition.
    * @param {bcdui.core.DataProvider} [args.statusModel=guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter 
