@@ -427,7 +427,9 @@
 }());
 
 (function(){
-  jQuery.widget("bcdui.bcduiSingleSelectNg",{
+  jQuery.widget("bcdui.bcduiSingleSelectNg",
+  /** @lends bcdui.bcduiSingleSelectNg.prototype */
+  {
     /**
      * @private
      */
@@ -843,7 +845,9 @@
  * @namespace bcdui.widgetNg.singleSelect
  * @private
  */
-bcdui.util.namespace("bcdui.widgetNg.singleSelect", {
+bcdui.util.namespace("bcdui.widgetNg.singleSelect",
+  /** @lends bcdui.widgetNg.singleSelect */
+  {
   /**
    * initializes the widget according to the API
    *

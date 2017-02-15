@@ -47,7 +47,9 @@
       }
   });
 
-  jQuery.widget("bcdui.bcduiCheckboxNg",{
+  jQuery.widget("bcdui.bcduiCheckboxNg",
+  /** @lends bcdui.bcduiCheckboxNg.prototype */
+  {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the checkbox element

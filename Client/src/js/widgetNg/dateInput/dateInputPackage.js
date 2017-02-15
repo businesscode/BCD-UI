@@ -29,7 +29,9 @@
  */
 
 (function(){
-  jQuery.widget("bcdui.bcduiDateInputNg", jQuery.bcdui.bcduiInputNg, {
+  jQuery.widget("bcdui.bcduiDateInputNg", jQuery.bcdui.bcduiInputNg,
+  /** @lends bcdui.bcduiDateInputNg.prototype */
+  {
 
     /**
      * @private

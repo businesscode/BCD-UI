@@ -17,8 +17,9 @@
  * Button Widget Implementation as jQuery Widget
  */
 (function(){
-  jQuery.widget("bcdui.bcduiButtonNg",{
-
+  jQuery.widget("bcdui.bcduiButtonNg",
+  /** @lends bcdui.bcduiButtonNg.prototype */
+  {
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.button(this.element[0]);
     },

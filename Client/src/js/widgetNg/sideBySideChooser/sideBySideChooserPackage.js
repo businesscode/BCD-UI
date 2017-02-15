@@ -14,7 +14,9 @@
   limitations under the License.
 */
 (function(){
-  jQuery.widget("bcdui.bcduiSideBySideChooserNg",{
+  jQuery.widget("bcdui.bcduiSideBySideChooserNg",
+  /** @lends bcdui.bcduiSideBySideChooserNg.prototype */
+  {
     EVENT: {
       SYNC_WRITE : "bcd:widget.sideBySideChooser.sync_write",
       SYNC_READ : "bcd:widget.sideBySideChooser.sync_read"

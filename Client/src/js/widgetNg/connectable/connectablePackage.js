@@ -49,7 +49,9 @@
       }
   });
 
-  jQuery.widget("bcdui.bcdConnectable",{
+  jQuery.widget("bcdui.bcdConnectable",
+  /** @lends bcdui.bcdConnectable.prototype */
+  {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the connectable element

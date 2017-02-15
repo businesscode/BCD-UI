@@ -48,7 +48,9 @@
       }
   });
 
-  jQuery.widget("bcdui.bcduiInputNg",{
+  jQuery.widget("bcdui.bcduiInputNg",
+  /** @lends bcdui.bcduiInputNg.prototype */
+  {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the input element

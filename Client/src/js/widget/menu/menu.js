@@ -220,7 +220,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCr
 
 });
 
-/**
+/*
  * Menu
  */
 bcdui.util.namespace("bcdui.widget.menu").MenuItem = bcdui._migPjs._classCreate( bcdui.widget.menu.MenuContainer,

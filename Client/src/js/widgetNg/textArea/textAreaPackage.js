@@ -19,7 +19,9 @@
  */
 
 (function(){
-  jQuery.widget("bcdui.bcduiTextAreaNg", jQuery.bcdui.bcduiInputNg, {
+  jQuery.widget("bcdui.bcduiTextAreaNg", jQuery.bcdui.bcduiInputNg,
+  /** @lends bcdui.bcduiTextAreaNg.prototype */
+  {
 
     /**
      * @private
