@@ -41,7 +41,7 @@ bcdui.util.namespace("bcdui.widget.effects",
    * blinds the content Up/Down
    * @param {Object}     args                  The parameter map contains the following properties.
    * @param {Object}     args.idOrElement      HTML element or ID that contains element(s) to blind Up/Down
-   * @param {string}     [args.blindBodyClassName='bcdBlindUpDownBody'] CSS className of HTML element to blind Up/Down
+   * @param {string}     [args.blindBodyClassName=bcdBlindUpDownBody] CSS className of HTML element to blind Up/Down
    * @param {integer}    [args.duration=2]     duration in seconds used for blind animation
    * @param {boolean}    [args.noEffect=false] True for a simple show/hide without blind effect (blind can influence charts gradients on IE
    */

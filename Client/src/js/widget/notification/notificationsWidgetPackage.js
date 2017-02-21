@@ -69,7 +69,7 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
    * adds a message to notificator and displays notificator if appropriate
    *
    * @param {string} message       The message you want to display
-   * @param {string} [type='INFO'] The type of the message, use WARN or INFO
+   * @param {string} [type=INFO]   The type of the message, use WARN or INFO
    * @param {string} [anchorId]    If given the message will contain a link to that anchor)
    */
   addMessage : function(message, type, anchorId) {

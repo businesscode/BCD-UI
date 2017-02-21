@@ -36,7 +36,7 @@ bcdui.util.namespace("bcdui.component.exports",
    * Produces a WYSIWYG pdf export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
    * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
-   * @param {string}                [args.fileName='report.pdf']      - The name of the returned pdf
+   * @param {string}                [args.fileName=report.pdf]         - The name of the returned pdf
    * @param {string[]}              [args.css]                        - An array with a list of URLs containing CSS files to be used, relative the the current page.
    * Absolute paths starting with '/' are relative to the context path. Use more specific rule precedence. (css precedence based on later declaration is not supported).
    * @param {boolean}               [args.orientationLandscape=false] - Set this flag to true to make the PDF appear in landscape page orientation
@@ -78,7 +78,7 @@ bcdui.util.namespace("bcdui.component.exports",
    * Produces a WYSIWYG pdf export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
    * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
-   * @param {string}                [args.fileName='export(_timestamp).xsl'] - The name of the returned Excel document
+   * @param {string}                [args.fileName=export(_timestamp).xsl] - The name of the returned Excel document
    * @param {string[]}              [args.css]                        - An array with a list of URLs containing CSS files to be used, relative the the current page.
    * Absolute paths starting with '/' are relative to the context path. Use more specific rule precedence. (css precedence based on later declaration is not supported).
    */
@@ -121,7 +121,7 @@ bcdui.util.namespace("bcdui.component.exports",
    * Produces a WYSIWYG pdf export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
    * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
-   * @param {string}                [args.fileName='report.format']   - The name of the returned image
+   * @param {string}                [args.fileName=report.format]     - The name of the returned image
    * @param {string}                [format=png]                      - Image format, supported are 'jpg', 'png', 'bmp' or 'gif'
    * @param {string[]}              [args.css]                        - An array with a list of URLs containing CSS files to be used, relative the the current page.
    * Absolute paths starting with '/' are relative to the context path. Use more specific rule precedence. (css precedence based on later declaration is not supported).

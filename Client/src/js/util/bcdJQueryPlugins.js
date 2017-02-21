@@ -29,7 +29,7 @@
    *  an Element or jQuery compatible selector.
    *
    * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
-   * @param {string}                  [options.snapTo = 'beginning']    snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   * @param {string}                  [options.snapTo=beginning]         snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
    *                                                                    'nearest': snap the element to the nearest edge of the container.
    *
    * @returns {Object} jQuery object

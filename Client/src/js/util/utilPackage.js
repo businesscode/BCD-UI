@@ -236,7 +236,7 @@ bcdui.util =
    * @param {Object|Element|string}   container                         The scrollable container containing a level-1 child 'scrollTo'.
    * @param {Object|Element|string}   scrollTo                          Level-1 child of the container.
    * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
-   * @param {string}                  [options.snapTo = 'beginning']    snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   * @param {string}                  [options.snapTo=beginning]        snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
    *  'nearest': snap the element to the nearest edge of the container.
    * 
    * @return {boolean} - true if the container has been scrolled

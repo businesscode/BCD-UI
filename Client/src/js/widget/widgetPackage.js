@@ -50,8 +50,8 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.optionsModelIsSuggestionOnly]   If true, values different from the options model can are allowed. Default is that, if an optionsModel is given, only values from that model are allowed.
    * @param {writableModelXPath} [args.additionalFilterXPath]     An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
-   * @param {string}        [args.clearOption='false']            If != 'false', an additional option to clear the selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
-   * @param {string}        [args.emptyValue='false']             If != 'false', a text is displayed if nothing is selected / entered. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
+   * @param {string}        [args.clearOption=false]              If != 'false', an additional option to clear the selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
+   * @param {string}        [args.emptyValue=false]               If != 'false', a text is displayed if nothing is selected / entered. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
    * @param {boolean}       [args.mandatory=false]                The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
    * @param {string}        [args.wildcard]                       For a f:Filter with @op='like', this controls the prefilling with wildcards ('*') when the value is yet empty and the field gets the focus. Can be 'contains', 'startswith' or 'endswith'. The user can overwrite this by adding/removing wildcards when editing the field. The wildcards apply to filtering within the top down list and for server side filters, both plain and for retrieving drop-down values dynamically from the server.
    * @param {boolean}       [args.bcdAutofit=false]               If true, drop down resizes depending on available options.
@@ -126,13 +126,13 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        args.dimension                        Unique name to select a dimension from the dimension model (located at '/bcdui/conf/dimensions.xml'.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.url]                            The URL the model is loaded from. This URL can be extended with a compressed request document if a requestDocument parameter is provided. If omitted the WrsServlet is taken.
-   * @param {string}        [args.multiSelect='false']            Make a multi selected dimension chooser. Can be 'true'|'false'|'check', 'false' is default.
+   * @param {string}        [args.multiSelect=false]              Make a multi selected dimension chooser. Can be 'true'|'false'|'check', 'false' is default.
    * @param {boolean}       [args.allowMixedSelect=false]         Allow heterogene selection in multi select chooser.
-   * @param {string}        [args.checkBoxCaption='MultiSelect']  Caption of checkbox to turn on and of the multiselect.
-   * @param {string}        [args.clearOption='false']            If != 'false', an additional option to clear the level selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
-   * @param {string}        [args.clearOptionLevel='false']       See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
-   * @param {string}        [args.emptyValue='false']             If != 'false', a text is displayed if no level is selected. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
-   * @param {string}        [args.emptyValueLevel='false']        See emptyValue. This value is for the level selector input box only. If not specified, emptyValue is used.
+   * @param {string}        [args.checkBoxCaption=MultiSelect]    Caption of checkbox to turn on and of the multiselect.
+   * @param {string}        [args.clearOption=false]              If != 'false', an additional option to clear the level selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
+   * @param {string}        [args.clearOptionLevel=false]         See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
+   * @param {string}        [args.emptyValue=false]               If != 'false', a text is displayed if no level is selected. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
+   * @param {string}        [args.emptyValueLevel=false]          See emptyValue. This value is for the level selector input box only. If not specified, emptyValue is used.
    * @param {boolean}       [args.mandatory=false]                Set this to false if you don't want mandatory input fields.
    * @param {boolean}       [args.useCaptions=false]              If true, the chooser will receive captions and codes. By convention the bref of the captions column is 'bRef'_caption. By default no captions are created.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
@@ -427,7 +427,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.validate=true]                  Turn on-off the validation of the formula.
    * @param {boolean}       [args.validateVariableNamesCheckbox=false] Show or hide checkbox for validate variables option.
-   * @param {string }       [args.skipValidationCaption='Skip check of values'] Caption to be shown for skipping validation. Default is 'Skip check of values'.
+   * @param {string }       [args.skipValidationCaption=Skip check of values] Caption to be shown for skipping validation. Default is 'Skip check of values'.
    * @param {boolean}       [args.skipServerSidedFunctions=false] Set to true to disable usage of server sided functions like CntDist. Default is false.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    */
@@ -1215,7 +1215,7 @@ bcdui.util.namespace("bcdui.widget",
     * @param {targetHtmlRef} args.targetHtml              An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
     * @param {string}        [args.id]                    ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
-    * @param {string}        [args.defaultState='closed'] 'closed' or empty String for opened, default is closed.
+    * @param {string}        [args.defaultState=closed]   'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
     * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
@@ -2409,7 +2409,7 @@ bcdui.util.namespace("bcdui.widget",
       * General (formatted) navpath widget information printer function  
       * @param {string}        [values]            A space separated string which lists the ordered targetIds of the widgets which should be queried (or empty for all)
       * @param {string}        [separator=" "]     A string used for delimiter between single widget navpath values
-      * @param {boolean}       [doFormat='false'] true if you want a span with className around the widgetCaption
+      * @param {boolean}       [doFormat=false]    true if you want a span with className around the widgetCaption
       * @return string containing the current navPath for your selected values
       * @private 
       */

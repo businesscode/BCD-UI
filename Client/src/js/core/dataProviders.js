@@ -546,7 +546,7 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
    *                                                                          If used as a urlProvider from a {@link bcdui.core.SimpleModel SimpleModel}, it inherits its isAutoRefresh
    * @param {boolean}                        [args.attachSessionHash=false] - Logical name of this DataProvider when used as a parameter in a transformation
    * @param {string}                         [args.name]                    - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
-   * @param {string}                         [args.method='GET']            - Request method for SimpleModel, either "POST" or "GET"
+   * @param {string}                         [args.method=GET]              - Request method for SimpleModel, either "POST" or "GET"
    * @example
    * // Load a SimpleModel from a static Wrs request
    * var requestString = 
