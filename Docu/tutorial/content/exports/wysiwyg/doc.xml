@@ -32,7 +32,7 @@
     <doc:SubChapter title="Spread sheet" >
       <doc:Body>
         You can export a HTML Element and its context to a spreadsheet by specifying the HTML source and calling:
-        <pre><![CDATA[bcdui.component.exports.excel.exportHTMLElement({sourceElementOrId: "myDiv"});]]></pre>
+        <pre><![CDATA[bcdui.component.exports.exportWysiwygAsExcel({rootElement: "myDiv"});]]></pre>
         The following picture shows a cube on the left and on the right you see this cube exported to Excel.
         <img src="wysiwyg.png"/>
       </doc:Body>

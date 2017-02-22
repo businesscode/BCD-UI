@@ -45,6 +45,12 @@
           <dd>A js factory is available following the naming convention:
               <code>bcdui.widget.createSingleSelect( {id:"myId" ...} )</code>
           </dd>
+          <dt>Custom Elements</dt>
+          <dd>HTML5 allows use of costum elements within html:
+            <code> &lt;bcd-singleselectng
+                targetModelXPath = "/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value" ... &gt;&lt;/bcd-singleselectng&gt;</code>
+          
+          </dd>
           <dt>JSP</dt>
           <dd>On a JSP page you can use the tags:
               <code>&lt;w:singleSelect id="myId" ... /></code>

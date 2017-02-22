@@ -49,12 +49,14 @@
         Secondly your report configuration needs to list what columns should be exported. This is done in the cubeConfiguration.xml file's
         Detail Export section:
         <doc:xml>
-          <cube:DetailExport xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
-            <wrq:Columns>
-              <wrq:C bRef="m01_i" caption="Bkg Ref" />
-              <wrq:C bRef="m01_t" caption="Bkg Type" />
-            </wrq:Columns>
-          </cube:DetailExport>
+         <dm:DetailDataDefaults xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0">
+           <dm:DetailData>
+              <dm:AppendColumns>
+                <wrq:C bRef="m02_i" caption="Bkg Ref" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+                <wrq:C bRef="m02_t" caption="Bkg Type" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0" />
+              </dm:AppendColumns>
+           </dm:DetailData>  
+         </dm:DetailDataDefaults>
         </doc:xml>
         In this case two columns are exported when you export a cell's value.
         <p/>
@@ -70,7 +72,11 @@
             <calc:Calc type-name="NUMERIC">
               <calc:ValueRef idRef="m01_i" aggr="sum" caption="Bkg Ref"/>
             </calc:Calc>
-            <dm:DetailExport><f:Filter><f:Expression op="=" value="1" bRef="m01_i"/></f:Filter></dm:DetailExport>
+            <dm:DetailData>
+              <f:Filter xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+                <f:Expression op="=" value="1" bRef="m01_i"/>
+              </f:Filter>
+            </dm:DetailData>
           </dm:Measure> 
         </doc:xml>
         <p/>
@@ -80,48 +86,53 @@
             <calc:Calc type-name="NUMERIC">
               <calc:ValueRef idRef="m01_i" aggr="sum" caption="Bkg Ref"/>
             </calc:Calc>
-            <dm:DetailExport>
-              <wrq:Columns xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+            <dm:DetailData>
+              <dm:Columns xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
                 <wrq:C bRef="m01_i_sub_a"/>
                 <wrq:C bRef="m01_i_sub_b"/>
-              </wrq:Columns>
-            </dm:DetailExport>
+              </dm:Columns>
+            </dm:DetailData>
           </dm:Measure>
         </doc:xml>
         <p/>
         Put static colums at the start or end of a detailExport list is also possible:
         <doc:xml>        
-          <cube:DetailExport isPrepend="true" xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
-            <wrq:Columns>
-              <wrq:C bRef="yr" caption="Year"/>
-              <wrq:C bRef="mo" caption="Month"/>
-            </wrq:Columns>
-          </cube:DetailExport>
-          <cube:DetailExport isPostpend="true" xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
-            <wrq:Columns>
-              <wrq:C bRef="updated_by" caption="changed by"/>
-              <wrq:C bRef="updated_when" caption="changed on"/>
-            </wrq:Columns>
-          </cube:DetailExport>
+          <dm:DetailDataDefaults xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+            <dm:DetailData>
+              <dm:PrependColumns>
+                <wrq:C bRef="yr" caption="Year"/>
+                <wrq:C bRef="mo" caption="Month"/>
+              </dm:PrependColumns>
+              <dm:AppendColumns>
+                <wrq:C bRef="orig_country" caption="Origin Country"/>
+                <wrq:C bRef="dest_country" caption="Dest Country"/>
+              </dm:AppendColumns>
+            </dm:DetailData>  
+          </dm:DetailDataDefaults>
         </doc:xml>
         Exporting data as Excel Hyperlink cells is also possible. You only need to specify how the url behind the cell value is created.
         You can do this by adding a wrq:A attribute named "bcdSylkUrl" to the cell and it its body we concatenate a static url with the cell's value.
         If the url starts with a /, the current application path is used as a prefix.
         <doc:xml>
-          <cube:DetailExport xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
-            <wrq:Columns>
-              <wrq:C bRef="m01_i" caption="Bkg Ref"  >
-                <wrq:A name="bcdSylkUrl" bRef="bcdSylkUrl">
-                  <wrq:Calc type-name="VARCHAR">
-                    <wrq:Concat>
-                      <wrq:Value>/myPage/myPageController.jsp?ref=</wrq:Value>
-                      <wrq:ValueRef idRef="m01_t"/>
-                    </wrq:Concat>
-                  </wrq:Calc>
-                </wrq:A>
-              </wrq:C>   
-            </wrq:Columns>
-          </cube:DetailExport>
+          <dm:Measure id="mProductivity_t" caption="Productivity T" xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0">
+            <calc:Calc type-name="NUMERIC" scale="1" xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0">
+              <calc:ValueRef idRef="m02_t" aggr="sum"/>
+            </calc:Calc>
+            <dm:DetailData>
+              <dm:Columns>
+                <wrq:C bRef="m02_t" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+                  <wrq:A name="bcdSylkUrl" bRef="bcdSylkUrl">
+                    <wrq:Calc type-name="VARCHAR">
+                      <wrq:Concat>
+                        <wrq:Value>/myPage/myPageController.jsp?ref=</wrq:Value>
+                        <wrq:ValueRef idRef="m01_t"/>
+                      </wrq:Concat>
+                    </wrq:Calc>
+                  </wrq:A>
+                </wrq:C>    
+              </dm:Columns>
+            </dm:DetailData>
+          </dm:Measure>
         </doc:xml>
       </doc:Body>
     </doc:SubChapter>

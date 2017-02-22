@@ -346,7 +346,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.PdfServlet</servlet-name>
-    <url-pattern>/bcdui/servlets/Html2PdfServlet</url-pattern>
+    <url-pattern>/bcdui/servlets/Html2PdfServlet/*</url-pattern>
   </servlet-mapping>
   -->
   <!-- WYSIWYG Excel export Servlet -->

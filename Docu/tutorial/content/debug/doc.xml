@@ -24,7 +24,7 @@
     <Body>
       <dl>
         <dt>Unzip gui status</dt>
-        <dd>To see the guiStatus used in requests in their uncompressed form, send it as <code>data</code> parameter to zipLet, for example <code>http://localhost:8080/webApp/utils/ZipLet?data=z2e-f7xPr3FQumlE...</code></dd>
+        <dd>To see the guiStatus used in requests in their uncompressed form, send it as <code>data</code> parameter to zipLet, for example <code>http://localhost:8080/webApp/bcdui/servlets/ZipLet?data=z2e-f7xPr3FQumlE...</code></dd>
         <dt>Monitor network traffic</dt>
         <dd>Eclipse "TCP/IP Monitor" view as well as <a href="http://www.fiddler2.com/fiddler2">Fiddler</a> can server as proxies to monitor network traffic exchanged between browser and server.</dd>
         <dt>Server side logging</dt>
@@ -35,6 +35,10 @@
         <dd>de.businesscode.bcdui.binding.Bindings.getInstance().get("b4_bsg_tte", java.util.Arrays.asList("cage_dy"))</dd>
         <dt>And to read information about a specific one</dt>
         <dd>de.businesscode.bcdui.binding.Bindings.getInstance().get("b4_bsg_tte", java.util.Arrays.asList("cage_dy")).get("cage_dy").getJDBCDataTypeName()</dd>
+        <dt>Use the browser developer console to examine client issues</dt>
+        <dd>Most modern browser have a console, where you can execute issue javascript commands to examine object status</dd>
+        <dt>Use request parameter debug=true</dt>
+        <dd>The debug request parameter makes the application more picky about javascript parameters and turns on client logging that might help.</dd>
       </dl>
     </Body>
   </Chapter>

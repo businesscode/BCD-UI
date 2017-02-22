@@ -22,32 +22,53 @@
 
     <SubChapter title="Get the tools">
       <Body>
-        To start development with BCD-UI first get the tools
+        To start development with BCD-UI, first get the tools:
         <ul>
-          <li>Make sure you have at jdk 1.6 update 6 or higher.</li>
-          <li>Install the appropriate Eclipse WTP version, best with BCD plugins</li>
-          <li>Install Tomcat 6.13 or higher</li>
-          <li>Add Tomcat as a server to Eclipse (Run->Run configurations...->Apache)</li>
-          <li>Make sure you have IE>=6 or FireFox, Chrome and Safari are also supported</li>
+          <li>Make sure you have jdk 8 or higher.</li>
+          <li>Install an appropriate version of Eclipse.</li>
+          <li>Install Tomcat 6.13 or higher.</li>
+          <li>Add Tomcat as a server to Eclipse (New->Server->Apache->Tomcat)</li>
+          <li>Make sure you have IE 11 or FireFox. (Chrome and Safari are also supported.)</li>
         </ul>
-        It is possible to develop BCD-UI with other IDE as Eclipse as well, but BCD-UI development plugins are only available for Eclipse.
-        Also any other J2EE application server like Weblogic, Websphere or Oracle AS can be used.
+        It is possible to develop BCD-UI with other IDEs as Eclipse as well, but BCD-UI development plugins are only available for Eclipse.
+        Also any other J2EE application server like Weblogic, Websphere or Oracle AS, can be used instead of tomcat.
+        At the time of writing this document, the Eclipse Neon is not recommenend, because JavaScript support is not working properly.
+        The Edge or older IE browser versions are only partly compatible; please contact us for details. 
+        If you want to use tomcat in production, you should consider setting up the server properly.
+        For performance reason you should allow compression for static resources in server.xml, 
+        see <a href="https://github.com/businesscode/BCD-UI/blob/master/Server/configFiles/tomcat/server.xml">BCD-UI/Server/configFiles/tomcat/server.xml</a>
+        There the compression is turned on for a list of mime/types.
       </Body>
     </SubChapter>
-
     <SubChapter title="XML catalog">
       <Body>
-        Adding the XML schema catalog of BCD-UI to your workspace will support you in creation xml configuration files for BCD-UI
-        using <pre>http://intraweb.rz-net.business-code.de/BCD-Suite/schema/bcduiCatalog.xml</pre>
+        Adding the XML schema catalog of BCD-UI to your workspace will support you in creating xml configuration files for BCD-UI
+        using <pre>https://businesscode.github.io/BCD-UI-Docu/xsd/bcduiCatalog.xml</pre>
         <img src="xmlCatalog.png"/>
         <p>will bring you:</p>
         <img src="xmlSupport.png"/>
       </Body>
     </SubChapter>
-    <SubChapter title="Taglib Eclipse bugfix">
+    <SubChapter title="JS Libray">
       <Body>
-        Using the improved Eclipse with a BCD bugfix for tag support. This allows you to see the taglib documentation from within an editor
-          <img src="tagSupport.png"/>
+        <p>Adding the BCD-UI Javascript Api Stubs to your workspace will support you writing JavaScript code. 
+        The Javascript files can be obtained here: "ADD_LOCATION".
+        In Eclipse the js stubs can be setup in Preferences/JavaScript/Include Path/User Libray. First a new library can be added. I.e. BCD-UI and afterwards
+        the folder containing all stubs can be added. (Add Folder...)
+        </p>
+        <img src="addJsCodeCompletion.png"/>
+        <p>will bring you, code completion and help tooltips while hovering with your mouse:</p>
+        <img src="jsCompletion.png"/>
+      </Body>
+    </SubChapter>
+    <SubChapter title="Custom Element">
+      <Body>
+        <p>The Eclipse IDE has a feature to allow code templates to be inserted for html files. It is possible to add the custom elements registered by BCD-UI as
+        templates so that there is a kind of code completion.</p>
+         <p> So first import the bcdui-templates.xml file in Preferences/Web/HTML Files/Editor/Templates. Then the elements should in the template list.</p>
+         <img src="htmlTemplates.png"/>
+         <p>While editing html files the templates popup can be opened with strg-space and the list of BCD-UI elements should be found as shown here:</p>
+         <img src="htmlTemplates_usage.png"/>
       </Body>
     </SubChapter>
   </Chapter>

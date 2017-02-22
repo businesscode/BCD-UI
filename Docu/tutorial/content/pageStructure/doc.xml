@@ -18,8 +18,8 @@
 <Doc title="Client infrastructure" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
   <Chapter title="Page live-cycle">
     <Body>
-      In the BCDUI library client pages are normal HTML pages which are usually generated with
-      JSP. The HTML page - the <i>carrier page</i> - loads the JavaScript file containing
+      In the BCDUI library client pages are normal HTML pages. 
+      The HTML page - the <i>carrier page</i> - loads the JavaScript file containing
       the BCDUI's' js and css code. Then the execution of the client-side code starts.<br/>
       The typical live-cycle of a BCD-UI page is as follows:
 
@@ -81,7 +81,7 @@
         <li>It has a fixed name, which is always <i>guiStatus</i></li>
         <li>It is initialized by BCD-UI during page load with the guiStatus URL parameter of the page and executed.
         It is guaranteed to be <i>ready</i> when executing code in <code>bcdui.core.ready()</code>.
-        Access it as all data providers via <code>bcdui.factory.objectRegistry.getObject("guiStatus")</code></li>
+        Access it as all data providers via <code>bcdui.wkModels.guiStatus</code></li>
         <li>It is the default target model for widgets</li>
         <li>It is an implicit parameter to all transformation XSLT, where it can be access with <code>&lt;xsl:param name="guiStatus"/></code></li>
         <li>The <i>apply</i> action appends its content to the url of the called page</li>

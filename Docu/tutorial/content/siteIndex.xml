@@ -19,6 +19,7 @@
 <Docs>
   <Block title="BCD-UI Overview">
     <DocUrl>../content/architecture/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/GettingStarted/doc.xml</DocUrl>
     <DocUrl>../content/howTo/minimalCube/doc.xml</DocUrl>
     <DocUrl>../content/howTo/coreArtifacts/coreArtifacts.xml</DocUrl>
   </Block>
@@ -61,6 +62,7 @@
     <DocUrl>../content/howTo/appsetup/doc.xml</DocUrl>
     <DocUrl>../content/howTo/bootstrap/doc.xml</DocUrl>
     <DocUrl>../content/howTo/writingJSDoc/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/gradle/doc.xml</DocUrl>
   </Block>
 
   <Block title="Other">

@@ -157,7 +157,7 @@
   <C id="right_value" isKey="true"><Column>right_value</Column></C>
 </BindingSet>
 </doc:xml>
-  The urls section within the shiroFilter settings define which pages require login, users not logged in will be sent to /login.jsp
+  The urls section within the shiroFilter settings define which pages require login, users not logged in will be sent to /login.html
 <pre><![CDATA[
   [urls]
   # format: /reports/budget/** = authc, perms["pages:budget"]

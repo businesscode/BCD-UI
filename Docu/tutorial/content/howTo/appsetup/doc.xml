@@ -32,20 +32,22 @@
     <SubChapter title="Mandatory steps to add BCD-UI to your application">
     <Body>
       <dl>
-        <dt>Add BCD-UI jars</dt>
-        <dd>BCD-UI comes packed an jars, which need to be made available in WEB-INF/lib to the application.
-          Two jars are needed, one is bcdui.jar and bcdui_theme_bcd.jar. The latter is theme dependent.
+        <dt>Option: Use depencies to get all jars</dt>
+        <dd>Instead of manually copying the jars it is also possible to use a build tool with dependencies. This document
+        describes the procedere with <a href="../gradle/doc.xml">gradle</a>.</dd>
+        <dt>Option: Add BCD-UI jars</dt>
+        <dd>BCD-UI comes packed as jars, which need to be made available in WEB-INF/lib to the application.
+          Two jars are needed, one is bcdui.jar and bcdui_theme_bcd.jar. The latter is theme-dependent.
           Your jars may have a version number in their name or the theme jar may have a different theme name than bcd,
           you are free to keep the name or choose any name you like.
         </dd>
-        <dt>Add BCD-UI entries to web.xml</dt>
-        <dd>To register BCD-UI servlets and filters, add the entries from BCD-UI/resources/web.xml to you web.xml.</dd>
-        <dt>Create an empty WEB-INF/bcdui</dt>
-        <dd>All configuration files for BCD-UI are located at WEB-INF/bcdui. Create this empty folder, later you will for example add <a href="../../binding/doc.xml">Bindings</a> to this folder.</dd>
         <dt>Add 3rd party</dt>
-        <dd>You'll find libraries required by BCD-UI (about 10) at the BCD-UI portal or at BCD-UI/resources/WEB-INF/lib, copy them into your project's WEB-INF/lib folder</dd>
+        <dd>In case the gradle dependencies were not used, you'll find libraries required by BCD-UI (about 28) at the <a target="_blank" href="https://github.com/businesscode/BCD-UI/blob/master/Docu/development/dependencies.gradle">BCD-UI/blob/master/Docu/development/dependencies.gradle</a> , copy them into your project's WEB-INF/lib folder</dd>
         <dt>Specifics</dt>
-        <dd>For tomcat it is recommended for performance to allow compression for static resources in server.xml, see BCD-UI/resources/tomcat_server.xml</dd>
+        <dt>Create a file web.xml to your project and add BCD-UI entries</dt>
+        <dd>To register BCD-UI servlets and filters, add the entries from <a target="_blank" href="https://github.com/businesscode/BCD-UI/blob/master/Server/configFiles/web.xml">BCD-UI/Server/configFiles/web.xml</a> to your web.xml.</dd>
+        <dt>Create an empty WEB-INF/bcdui/bindings</dt>
+        <dd>All configuration files for BCD-UI are located at WEB-INF/bcdui. Create this empty folder, later you will for example add <a href="../../binding/doc.xml">Bindings</a> to this folder.</dd>
       </dl>
       This is all that is required to use BCD-UI in your application.
     </Body>
@@ -53,24 +55,30 @@
 
     <SubChapter title="Add your project's application to the application server">
       <Body>
-        You will need to make your application server aware of the new project, this step is not directly related to BCD-UI.
+        You will need to make your application server aware of the new project. (This step is not directly related to BCD-UI.)
         For tomcat either add a context file to your tomcat's config folder, having docBase pointing to your project.
-        Or add the project to the tomcat started with eclipse via WTP methods, by double-clicking the server in the server window and add the module.
-        Start your server and add a hello-world WebContent/index.jsp and the page should show up in your browser.
+        Or add the project to the tomcat started with eclipse via WTP methods, by double-clicking the server in the server window and adding the module.
+        Start your server and add a hello-world WebContent/index.html, start the server, and the page should show up in your browser.
       </Body>
     </SubChapter>
 
     <SubChapter title="Optional steps">
       <Body>
         <dl>
-          <dt>Add loggint configuration</dt>
-          <dd>Copy log4j.properties from BCD-UI/ressources/WEB-INF/ to your project's src folder, this sets logging to a reasonable level</dd>
+          <dt>Add logging configuration</dt>
+          <dd>Copy log4j.properties from  <a target="_blank" href="https://github.com/businesscode/BCD-UI/blob/master/Server/configFiles/log4j.properties">BCD-UI/Server/configFiles/log4j.properties</a>
+               to your project's src folder, this sets logging to a reasonable level. Please ensure that the 'src' folder is configured as source folder in Eclipse project settings. This ensures that the log4j.properties
+               are copied to the tomcat deployment directories and are available.</dd>
         </dl>
         <dl>
           <dt>Add BCD-UI java sources</dt>
-          <dd>If available, for easier debugging you can add the java sources to your workspace.
-            Add bcdui_source.jar to you project into /resources and add it to your build path as source.
+          <dd>
+            Please note this is not possible if the BCD-UI library is fetched via grade dependencies.
+            For debugging of server components it might be helpful to add the java sources of BCD-UI to the eclipse workspace. The easiest way is to
+            download or clone the BCD-UI project from github and copy it to a folder resources in your eclipse project. Then configure the source location in Build Path, by selecting bcdui-core-5.0.0.jar and assign the 
+            location of .resources/BCD-UI-master/Server/src/main/java as source attachement. 
             <img style="display:block;text-align:center" src="addSources.png"/><p/>
+            
           </dd>
         </dl>
       </Body>
@@ -88,10 +96,10 @@
     </SubChapter>
     <SubChapter title="Application server's view">
       <Body>
-        From the application servers' point of view several resources like js files and servlets are mapped to <i>bcdui</i> as if they where physically located there.
-        The StaticRessourceServlet of BCD-UI maps static resources to /bcdui and J2EE standard mechanisms are mapping the tags and servlets.
-        The gray parts show where the parts of the library are placed in the J2EE application,
-        physically they reside in bcd.jar and are during runtime mapped to that place by the StaticRessourceServlet, part of BCD-UI.
+        From the application server's point of view, several resources like js files and servlets are mapped to <i>bcdui</i> as if they where physically located there.
+        The StaticResourceServlet of BCD-UI maps static resources to /bcdui and J2EE standard mechanisms are mapping the tags and servlets.
+        The gray parts show where the parts of the library are placed in the J2EE application;
+        physically they reside in bcd.jar and are during runtime mapped to that place by the StaticResourceServlet, part of BCD-UI.
         <p/>
         <table cellpadding="0">
           <col/><col style="padding-left:50px"/>
@@ -106,18 +114,17 @@
           <tr><td style="padding-left:150px">bindings/</td><td>Project's bcd-ui database bindings are put here</td></tr>
           <tr><td style="padding-left:120px">lib/</td><td></td></tr>
           <tr><td style="padding-left:150px">..</td><td>3rd party and project libs</td></tr>
-          <tr><td style="padding-left:150px">bcdui.jar</td><td>BCD-UI library, java classes, tag files and static sources (js,xslt) mapped to /bcdui via StaticRessourceServlet</td></tr>
-          <tr><td style="padding-left:150px">bcdui_template.jar</td><td>BCD-UI library, sources related to themes, mapped to /bcdui/theme via StaticRessourceServlet at runtime</td></tr>
+          <tr><td style="padding-left:150px">bcd-ui-core-x.x.x.jar</td><td>BCD-UI library, java classes, tag files and static sources (js,xslt) mapped to /bcdui via StaticResourceServlet</td></tr>
+          <tr><td style="padding-left:150px">bcd-ui-theme-bcd-x.x.x.jar</td><td>BCD-UI library, sources related to themes, mapped to /bcdui/theme via StaticResourceServlet at runtime</td></tr>
           <tr><td style="padding-left:120px">tags/</td><td></td></tr>
           <tr><td style="color:gray;padding-left:150px">bcdui/</td><td>BCD-UI's tag subtree, part of bcdui.jar</td></tr>
           <tr><td style="padding-left:120px">web.xml</td><td>Contains some bcd-ui library related entries</td></tr>
-          <tr><td style="color:gray;padding-left:90px">bcdui/</td><td>BCD-UI's client sources subtree. Not physically here but part of bcdui.jar, mapped to /bcdui via StaticRessourceServlet at runtime</td></tr>
+          <tr><td style="color:gray;padding-left:90px">bcdui/</td><td>BCD-UI's client sources subtree. Not physically here but part of bcdui.jar, mapped to /bcdui via StaticResourceServlet at runtime</td></tr>
           <tr><td style="color:gray;padding-left:120px">js/</td><td>JS library</td></tr>
           <tr><td style="color:gray;padding-left:120px">xslt/</td><td>XSLT library</td></tr>
           <tr><td style="color:gray;padding-left:120px">theme/</td><td>Themes library</td></tr>
           <tr><td style="color:gray;padding-left:120px">servlets/</td><td>BCD-UI's standard servlets are mapped here</td></tr>
           <tr><td style="padding-left:60px">resources/</td><td>Project's additional resources</td></tr>
-          <tr><td style="padding-left:90px">bcduiSource.jar</td><td>BCD-UI java source repository for debugging, if available. Added to build path as source.</td></tr>
         </table>
       </Body>
     </SubChapter>
@@ -127,9 +134,9 @@
         <dl>
           <dt>Java resources</dt>
           <dd>Just add a java class with the same package and class name as found in BCD-UI to your local project.
-              The application servers' class loader will take care to give your source precedence.</dd>
+              The application server's class loader will take care to give your source precedence.</dd>
           <dt>Static resources</dt>
-          <dd>Static ressources like js, images or xslt are overwritten with the help of StaticRessourceServlet.
+          <dd>Static resources like js, images or xslt are overwritten with the help of StaticResourceServlet.
               To do so add a folder <i>bcduiOverwrite</i> to the root of your project.
               Below this, just put the overwriting source with the same name and folder location as the overwritten file.</dd>
         </dl>
