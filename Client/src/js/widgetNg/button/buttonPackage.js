@@ -81,7 +81,7 @@
             }
             else {
               // execute JS onClickAction code settings context to control element
-							this.options.onClickAction.apply(el.get(0));
+              window.setTimeout(this.options.onClickAction.bind(el.get(0)),0);
             }
           }
         }
