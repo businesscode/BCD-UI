@@ -44,12 +44,14 @@
       <!-- JS factory methods, mainly setting params as html attributes to the container -->
       <File name="gensrc/js/widgetNg/widgetPackage.js">
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg");</xsl:text>
+        <xsl:text>bcdui.util.namespace("bcdui.component.scorecard");</xsl:text>
         <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactory"/>
       </File>
 
       <!-- JS stubs for init() for getting params from html -->
       <File name="gensrc/js/widgetNg/widgetImpl.js">
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg.impl.readParams");</xsl:text>
+        <xsl:text>bcdui.util.namespace("bcdui.component.scorecard.impl.readParams");</xsl:text>
         <xsl:text>
 /* allowedValues: pipe separated string with allowed values */
 bcdui.widgetNg.impl.readParams._validateEnumValues = function(paramBag, paramName, allowedValues){

@@ -697,6 +697,60 @@ the data that is actually placed in XML.
           </Doc>
         </Param>
       </Api>
+
+      <Api name="scorecardConfigurator" extends="widget">
+        <Doc>
+          Creates a scorecard configurator, providing the scc:Layout section of the scorecard configuration, able of
+          1) Showing the drag and drop area for the dimensions and kpis and aspects
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the scorecard configurator configuration data." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:scorecardConfigurator isDefaultHtmlLayout='true'>
+              &lt;b:model url='scorecardConfiguratorOptions.xml'/>
+            &lt;/component:scorecardConfigurator>
+          </Example>
+          <Example type="js">
+            bcdui.component.createScorecardConfigurator({
+               targetHtml:          "scorecardConfiguratorDiv"
+             , scorecard:           sc
+             , isDefaultHtmlLayout: true
+            });
+          </Example>
+        </Examples>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            Model containing the configuration for the scorecard configurator. By default this is taken from dimensionsAndKpis.xml.
+          </Doc>
+        </Param>
+        <Param name="scorecard" type="dataProvider" isJSPParent="true">
+          <Doc>
+            Id of the scorecardRenderer the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:scorecard.
+          </Doc>
+        </Param>
+        <Param name="targetModel" type="dataProvider" isJSPChild="paramBag.targetModel">
+          <Doc>
+            The configuration is written to $guiStatus/guiStatus:Status/scc:Layout[scorecardId='scorecardId'] by default. While the xpath /RootNode/scc:Layout[scorecardId='scorecardId'] is fixed, you can specify an own targetModel if needed.
+          </Doc>
+        </Param>
+        <Param name="isDefaultHtmlLayout" type="boolean" default="false">
+          <Doc>
+            Create the default layout in HTML.
+          </Doc>
+        </Param>
+        <Param name="applyFunction" type="string">
+          <Doc>
+            Function name which is used for the apply button in isDefaultHtmlLayout=true mode. Default is bcdui.core.lifecycle.applyAction.
+          </Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -710,6 +764,7 @@ the data that is actually placed in XML.
       <BcdObject name="textArea" implements="textArea" implementationPackage="bcdui.widgetNg.textArea"/>
       <BcdObject name="sideBySideChooser" implements="sideBySideChooser" implementationPackage="bcdui.widgetNg.sideBySideChooser"/>
       <BcdObject name="connectable" implements="connectable" implementationPackage="bcdui.widgetNg.connectable"/>
+      <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component.scorecard.scorecardConfigurator"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

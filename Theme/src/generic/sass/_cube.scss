@@ -20,8 +20,8 @@
 .bcdCubeDNDBlind {
   width: $cubeDNDWidth;
 }
-.bcdScorecardDNDBlind {
-  width: $scDNDWidth;
+.bcdScorecardDndBlind {
+  width: $scDndWidth;
 }
 
 .bcdUpDown
@@ -714,7 +714,7 @@ div.bcdContextMenu a.bcdMenuitems {
   .bcdKpiList { height: 211px; }
   .bcdScDimensionList, .bcdAspectList { height: 92px;  margin-bottom: 5px;}
 
-  .bcdDNDCategory {
+  .bcdDndCategory {
     margin-bottom: 5px !important;
     span {display: inline-block; vertical-align: middle; padding-left: 3px;}
   }
