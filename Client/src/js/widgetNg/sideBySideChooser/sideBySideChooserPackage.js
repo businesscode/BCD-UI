@@ -14,9 +14,7 @@
   limitations under the License.
 */
 (function(){
-  jQuery.widget("bcdui.bcduiSideBySideChooserNg",
-  /** @lends bcdui.bcduiSideBySideChooserNg.prototype */
-  {
+  jQuery.widget("bcdui.bcduiSideBySideChooserNg", jQuery.bcdui.bcduiWidget, {
     EVENT: {
       SYNC_WRITE : "bcd:widget.sideBySideChooser.sync_write",
       SYNC_READ : "bcd:widget.sideBySideChooser.sync_read"
@@ -33,10 +31,7 @@
      * @private
      */
     _create : function() {
-
-      if(!this.options.id)
-        this.options.id = "sideBySideChooser_"+bcdui.factory.objectRegistry.generateTemporaryId();
-      this.element.attr("id", this.options.id);
+      this._super();
 
       var template = "<div class='bcdSideBySideChooser'>" +
         "<table>" +
@@ -119,10 +114,9 @@
 
           if (jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length > 0) {
 
-            var widgetEl = jQuery(to).closest("[bcdWidgetFullName]");
-            widgetEl = widgetEl.data(widgetEl.attr("bcdWidgetFullName"));
+            var widgetInstance = jQuery(to)._bcduiWidget(); // bcduiConnectable
 
-            if (widgetEl.onBeforeChange({element:jQuery("#" + widgetEl.config.elementId).get(0), dir: widgetEl._getMoveType(from, to), itemCount: jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length})) {
+            if (widgetInstance.onBeforeChange({element:jQuery("#" + widgetInstance.config.elementId).get(0), dir: widgetInstance._getMoveType(from, to), itemCount: jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length})) {
               // on a move, clear selected items in the target first, so only the new added ones remain active
               jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
@@ -131,10 +125,10 @@
 
               // resort source side since source side should use original ordering
               if (jQuery(to).hasClass("bcdSource"))
-                widgetEl._sort(jQuery(to));
+                widgetInstance._sort(jQuery(to));
 
               // and update XML
-              widgetEl._writeDataToXML(from, to);
+              widgetInstance._writeDataToXML(from, to);
             }
           }
         };
@@ -144,12 +138,10 @@
       jQuery("#" + this.options.id + " .bcd-sbs-controls").on("click", ".bcdMoveUp, .bcdMoveDown", function(event){
         var el = jQuery(this);
         var isDirUp = el.hasClass("bcdMoveUp");
-        var widgetEl = el.closest(".bcdSideBySideChooser").find(".bcdTarget").closest("[bcdWidgetFullName]");
-        widgetEl = widgetEl.data(widgetEl.attr("bcdWidgetFullName"));
-        widgetEl._moveSelectedItemsUpDown( isDirUp ? -1 : 1 );
+        el.closest(".bcdSideBySideChooser").find(".bcdTarget")._bcduiWidget()._moveSelectedItemsUpDown( isDirUp ? -1 : 1 );
       });
 
-      bcdui.widgetNg.input.getNavPath(this.element.attr("bcdTargetHtmlElementId"), function(id, value) {
+      bcdui.widgetNg.sideBySideChooser.getNavPath(this.element.id, function(id, value) {
         bcdui.widget._linkNavPath(id, value);
       }.bind(this));
     },
@@ -158,6 +150,8 @@
      * @private
      */
     _destroy: function() {
+      this._super();
+
       var htmlElementId = this.options.id;
       var el = jQuery(htmlElementId);
 
@@ -197,14 +191,12 @@ bcdui.util.namespace("bcdui.widgetNg.sideBySideChooser",
    * @param {callback} function function to be called with generated caption
    */
   getNavPath: function(id, callback) {
-    if (id && id != "") {
-      var e = jQuery("*[bcdTargetHtmlElementId='" + id + "']").first().get(0);
-      if (e) {
-        bcdui.widget._getCaptionFromWidgetElement(e, function(value) {
-          callback(id, value);
-        });
-        return;
-      }
+    var e = jQuery.bcdFindById(id).get(0);
+    if (e) {
+      bcdui.widget._getCaptionFromWidgetElement(e, function(value) {
+        callback(id, value);
+      });
+      return;
     }
     callback(id, "");
   }

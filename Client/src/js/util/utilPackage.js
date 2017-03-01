@@ -224,6 +224,94 @@ bcdui.util =
   },
 
   /**
+   * Parses function literal.
+   *
+   * @param {string|function}   jsFuncStr   JS function literal or JS function
+   *
+   * @return {function} a function or null if jsFuncStr is empty/null
+   * @throws Error in case jsFuncStr is set to other type
+   *
+   * @private
+   */
+  _toJsFunction : function(jsFuncStr){
+    if(jsFuncStr === undefined || jsFuncStr === null){
+      return jsFuncStr;
+    }
+    var type = typeof jsFuncStr;
+
+    if(type === "function"){
+      return jsFuncStr;
+    }
+
+    if(type == "string"){
+      jsFuncStr = jsFuncStr.trim();
+      if(!jsFuncStr){
+        return null;
+      }
+      return eval( "(function(){" + jsFuncStr + "})" );
+    }
+
+    throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";
+  },
+
+  /**
+   * Executes a JS code by reference or by eval(), used to support JS+HTML function parameters,
+   * returns functions result. If jsRef is a String and does not contain paranthesis, then it is
+   * assumed to be a function reference (coming thru HTML API)
+   *
+   * @param {string|function}   jsRef               Function to execute
+   * @param {object}            context             The context to apply on the function, is null or undefined, then context is set to window
+   * @param {boolean}           isDeferred          If the execution should happen deferred; return value is undefined in this case.
+   * @param {...*}              [args]              Optional args to pass over to the executed function, i.e. arguments from caller. You can also
+   *                                                pass over variable arguments from calling function without slicing by providing (.., arguments, &lt;integer>)
+   *
+   * @return {object} result of the provided function; returns undefined in case isDeferred===true or jsRef is null or empty
+   * @private
+   */
+  _execJs : function(jsRef, context, isDeferred){
+    if (typeof jsRef === "string"){
+      jsRef = jsRef.trim();
+    }
+    if(!jsRef)return undefined;
+    context = context||window;
+    isDeferred = isDeferred||false;
+    var wrap = function(){
+      if (typeof jsRef === "string"){
+        // assume a simple function reference, i.e. 'myfunc'
+        if(jsRef.indexOf("(") < 0 && jsRef.indexOf(" ") < 0){
+          jsRef = eval(jsRef);
+          if(typeof jsRef === "function"){
+            return jsRef.apply(this, arguments);
+          }
+          // a non function reference
+          return jsRef;
+        }
+        jsRef = eval("(function(){" + jsRef + "})");
+      }
+
+      if (typeof jsRef === "function"){
+        return jsRef.apply(this, arguments);
+      } else {
+        return jsRef;
+      }
+    };
+
+    // varargs
+    var args = Array.prototype.slice.call(arguments, bcdui.util._execJs.length);
+    // unpack arguments in case we've got raw arguments passed
+    if(args.length == 2 && ("callee" in args[0]) && !isNaN(args[1])){ 
+      args = Array.prototype.slice.call(args[0], args[1]);
+    }
+
+    if(isDeferred){
+      window.setTimeout( function(){ wrap.apply(context,args); }.bind(context), 0 );
+      return undefined;
+    }else{
+      return wrap.apply(context,args);
+    }
+  },
+
+  /**
    * Vertically scrolls the container to the given element. This function scrolls the container only in case
    * the target element is not visible, if the target is not fully visible (i.e. partly covered) it will snap
    * the container on the element according to given options.

@@ -30,10 +30,12 @@
        */
       updateValue: function(){
         var identical = (this.listenerType == "target");
-        var widgetEl = jQuery("#" + this.htmlElementId).closest("[bcdWidgetFullName]");
+        var widgetEl = jQuery("#" + this.htmlElementId);
+        var widgetInstance = widgetEl._bcduiWidget();
         if (this.listenerType == "target") {
           var xPathValuesFromBox = jQuery("#" + this.htmlElementId).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get();
-          var nodes = bcdui.factory.objectRegistry.getObject(widgetEl.data(widgetEl.attr("bcdWidgetFullName")).config.target.modelId).getData().selectNodes(widgetEl.data(widgetEl.attr("bcdWidgetFullName")).config.target.xPath);
+          var target = widgetInstance.config.target;
+          var nodes = bcdui.factory.objectRegistry.getObject(target.modelId).getData().selectNodes(target.xPath);
           if (nodes.length == xPathValuesFromBox.length) {
             var x = 0;
             while (identical && x < nodes.length) {
@@ -45,13 +47,11 @@
             identical = false;
         }
         if (! identical)
-          widgetEl.data(widgetEl.attr("bcdWidgetFullName"))._readDataFromXML(this.listenerType);
+          widgetInstance._readDataFromXML(this.listenerType);
       }
   });
 
-  jQuery.widget("bcdui.bcdConnectable",
-  /** @lends bcdui.bcdConnectable.prototype */
-  {
+  jQuery.widget("bcdui.bcdConnectable", jQuery.bcdui.bcduiWidget, {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the connectable element
@@ -101,19 +101,12 @@
      * @private
      */
     _create : function() {
+      this._super();
 
       // we need one global object for the scope
       // bcdui.widgetNg.connectable._bcdConnectableScope[current scope].activeBox is needed to rememeber the current box during a drag'n drop operation (to scroll the correct box)
       if (typeof bcdui.widgetNg.connectable._bcdConnectableScope == "undefined") bcdui.widgetNg.connectable._bcdConnectableScope = {};
       if (typeof bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope] == "undefined") bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope] = {};
-
-      // create id if not given by argumenbts
-      if(!this.options.id)
-        this.options.id = "connectable_"+bcdui.factory.objectRegistry.generateTemporaryId();
-      this.element.attr("id", this.options.id);
-
-      // currently required for XMLListener
-      this.element.attr("bcdWidgetFullName", this.widgetFullName);
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("creating connectable widget with config ");
       var rootContainer = this.element;
@@ -188,14 +181,14 @@
 
       // rerender connected boxes to ensure integrity of items
       if (this.config.target) {
-        var source = jQuery("[bcdScope='" + this.options.scope + "'] .bcdSource").closest("[bcdWidgetFullName]");
+        var source = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
         if (source.length > 0)
-          source.data(source.attr("bcdWidgetFullName"))._renderItems(true);
+          source._bcduiWidget()._renderItems(true);
       }
       if (this.config.source) {
-        var targets = jQuery("[bcdScope='" + this.options.scope + "'] .bcdTarget").closest("[bcdtargetmodelxpath]");
+        var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
         for (var t = 0; t < targets.length; t++)
-          targets[t].data(source.attr("bcdWidgetFullName"))._renderItems(true);
+          jQuery(targets[t])._bcduiWidget()._renderItems(true);
       }
 
       // register listeners, one for targetmodel changes, one for optionsmodel changes
@@ -223,6 +216,9 @@
       }
 
       // attach balloon
+      if (this.options.hint) {
+        jQuery("#" + this.config.elementId).attr("bcdHint", this.options.hint);
+      }
       bcdui.widgetNg.commons.balloon.attach(this.config.elementId, {noTooltip: this.config.extendedConfig.noTooltip});
 
       // display constructed container
@@ -244,16 +240,16 @@
 
       // we rerendered the target box due to a target event, now we also need to redraw the belonging source box
       if (this.config.target && ! reEntry) {
-        var source = jQuery("[bcdScope='" + this.options.scope + "'] .bcdSource").closest("[bcdWidgetFullName]");
+        var source = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
         if (source.length > 0)
-          source.data(source.attr("bcdWidgetFullName"))._readDataFromXML(listenerType, true);
+          source._bcduiWidget()._readDataFromXML(listenerType, true);
       }
 
       // we rerendered the source box due to a source event, now we also need to redraw each belonging target box
       if (this.config.source && ! reEntry) {
-        var target = jQuery("[bcdScope='" + this.options.scope + "'] .bcdTarget").closest("[bcdWidgetFullName]");
+        var target = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
         for (var t = 0; t < target.length; t++)
-          jQuery(target[t]).data(jQuery(target[t]).attr("bcdWidgetFullName"))._readDataFromXML(listenerType, true);
+          jQuery(target[t])._bcduiWidget()._readDataFromXML(listenerType, true);
       }
     },
 
@@ -293,21 +289,19 @@
 
       // when the target is a target box, we need to write data to its targetxpath
       if (jQuery(target).hasClass("bcdTarget")) {
-        var t = jQuery(target).closest("[bcdtargetmodelxpath]").attr("bcdtargetmodelxpath");
-        var realTarget = bcdui.factory._extractXPathAndModelId(t);
+        var t = jQuery(target).parent()._bcduiWidget();
+        var realTarget = bcdui.factory._extractXPathAndModelId( t.options.targetModelXPath );
         this._doWriteXML(target, realTarget);
-        t = jQuery(target).closest("[bcdWidgetFullName]");
-        if (t.length > 0) t.data(t.attr("bcdWidgetFullName")).onChange();
+        t.onChange();
       }
 
       // when the source is also a target box, we of course need to write data to its targetxpath, too
       // we skip an obsolete additional write if we moved an item within the same target box
       if (jQuery(source).attr("id") != jQuery(target).attr("id") && jQuery(source).hasClass("bcdTarget")) {
-        var t = jQuery(source).closest("[bcdtargetmodelxpath]").attr("bcdtargetmodelxpath");
-        var realTarget = bcdui.factory._extractXPathAndModelId(t);
+        var t = jQuery(source).parent()._bcduiWidget();
+        var realTarget = bcdui.factory._extractXPathAndModelId( t.options.targetModelXPath );
         this._doWriteXML(source, realTarget);
-        t = jQuery(source).closest("[bcdWidgetFullName]");
-        if (t.length > 0) t.data(t.attr("bcdWidgetFullName")).onChange();
+        t.onChange();
       }
     },
 
@@ -315,6 +309,7 @@
      * @private
      */
     _destroy: function() {
+      this._super();
       var htmlElementId = this.options.id;
       var el = bcdui._migPjs._$(htmlElementId);
 
@@ -348,12 +343,13 @@
         // and remember source options
         var models = new Array();
         models[models.length] = this.config.target.modelId;
-        var sources = jQuery("[bcdScope='" + this.options.scope + "'] .bcdSource").closest("[bcdoptionsmodelxpath]");
+        var sources = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
         var sourceConfig = {};
         if (sources.length > 0) {
-          sourceConfig = bcdui.factory._extractXPathAndModelId(jQuery(sources[0]).attr("bcdoptionsmodelxpath"));
+          var sourceOptions = sources._bcduiWidget().options;
+          sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
           models[models.length] = sourceConfig.modelId;
-          sourceConfig.optionsModelRelativeValueXPath = jQuery(sources[0]).attr("bcdoptionsmodelrelativevaluexpath");
+          sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
         }
 
         bcdui.factory.objectRegistry.withReadyObjects(models, function(){
@@ -411,7 +407,7 @@
             this._doWriteXML(jQuery("#" + this.config.elementId), this.config.target);
 
           if (isInitalCall) {
-            bcdui.widgetNg.connectable.getNavPath(jQuery("#" + this.config.elementId).parent().attr("bcdTargetHtmlElementId"), function(id, value) {
+            bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
               bcdui.widget._linkNavPath(id, value);
             }.bind(this));
           }
@@ -426,16 +422,16 @@
         var models = new Array();
         models.push(this.config.source.modelId);
 
-        var targets = jQuery("[bcdScope='" + this.options.scope + "'] .bcdTarget").closest("[bcdtargetmodelxpath]");
+        var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
         for (var t = 0; t < targets.length; t++)
-          models.push(bcdui.factory._extractXPathAndModelId(jQuery(targets[t]).attr("bcdtargetmodelxpath")).modelId);
+          models.push(bcdui.factory._extractXPathAndModelId( jQuery(targets[t])._bcduiWidget().options.targetModelXPath ).modelId);
 
         bcdui.factory.objectRegistry.withReadyObjects(models, function(){
           // we need to ensure to always use the *current* target information for filtering out source items here
-          var targets = jQuery("[bcdScope='" + this.options.scope + "'] .bcdTarget").closest("[bcdtargetmodelxpath]");
+          var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
           var targetConfig = new Array();
           for (var t = 0; t < targets.length; t++)
-            targetConfig.push(bcdui.factory._extractXPathAndModelId(jQuery(targets[t]).attr("bcdtargetmodelxpath")));
+            targetConfig.push(bcdui.factory._extractXPathAndModelId( jQuery(targets[t])._bcduiWidget().options.targetModelXPath ));
 
           jQuery("#" + this.config.elementId).empty();
 
@@ -495,7 +491,7 @@
           jQuery("#" + this.config.elementId).append(html);
 
           if (isInitalCall) {
-            bcdui.widgetNg.connectable.getNavPath(jQuery("#" + this.config.elementId).parent().attr("bcdTargetHtmlElementId"), function(id, value) {
+            bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
               bcdui.widget._linkNavPath(id, value);
             }.bind(this));
           }
@@ -530,8 +526,7 @@
       theItems = jQuery(theContainer).children(".ui-selectee");
       for (var i = 0; i < theItems.length; i++) {
         var value = jQuery(theItems[i]).attr("bcdValue");
-        var filteredItems = theContainer.closest("[bcdWidgetFullName]");
-        filteredItems = filteredItems.data(filteredItems.attr("bcdWidgetFullName")).filteredItems;
+        var filteredItems = theContainer.parent()._bcduiWidget().filteredItems;
         if (filteredItems && filteredItems[value] != value)
           jQuery(theItems[i]).addClass("bcdRemove");
       }
@@ -620,33 +615,13 @@
     _createConnectableControl: function(args, rootContainer){
 
       var self = this;
+      var instance = jQuery(rootContainer)._bcduiWidget();
+      var nop = function(args){ return true; };
 
       // setup our function handlers
-      this.onBeforeChange = function(args){ return true; };
-      if(jQuery(rootContainer).attr("bcdOnBeforeChange")){
-        this.onBeforeChange = (function(){
-          var func = eval(jQuery(rootContainer).attr("bcdOnBeforeChange"));
-          if(!func){ throw "bcdOnBeforeChange handler provided but not found (is null): " + jQuery(rootContainer).attr("bcdOnBeforeChange"); }
-          return func;
-        })();
-      }
-      this.onChange = function(args){ return true; };
-      if(jQuery(rootContainer).attr("bcdOnChange")){
-        this.onChange = (function(){
-          var func = eval(jQuery(rootContainer).attr("bcdOnChange"));
-          if(!func){ throw "bcdOnChange handler provided but not found (is null): " + jQuery(rootContainer).attr("bcdOnChange"); }
-          return func;
-        })();
-      }
-
-      this.generateItemHtml = function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
-      if(jQuery(rootContainer).attr("bcdGenerateItemHtml")){
-        this.generateItemHtml = (function(){
-          var func = eval(jQuery(rootContainer).attr("bcdGenerateItemHtml"));
-          if(!func){ throw "bcdGenerateItemHtml handler provided but not found (is null): " + jQuery(rootContainer).attr("bcdGenerateItemHtml"); }
-          return func;
-        })();
-      }
+      this.onBeforeChange = instance.options.onBeforeChange || nop;
+      this.onChange = instance.options.onChange || nop;
+      this.generateItemHtml = instance.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
 
       // let's handle ctrl-a, del, return via keydown
       jQuery("#" + this.config.elementId).keydown(function(event) {
@@ -658,15 +633,15 @@
         }
         // in case of DEL key (and being a target), move all seletect items to source
         if (event.keyCode == "46" && self.config.target) {
-          self._moveSelectedItems(jQuery(this), jQuery("[bcdScope='" + self.options.scope + "'] .bcdSource").first());
+          self._moveSelectedItems(jQuery(this), jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first());
           event.preventDefault();
           return false;
         }
         // in case of RETURN key move all selected items to first target or bcdDblClkTargetor or to source
         if (event.keyCode == "13") {
-          var target = jQuery("[bcdScope='" + self.options.scope + "'] .bcdDblClkTarget");
-          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'] .bcdTarget");
-          var to = (jQuery(this).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'] .bcdSource").first();
+          var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
+          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'].bcdTarget");
+          var to = (jQuery(this).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first();
           self._moveSelectedItems(jQuery(this), to);
           event.preventDefault();
           return false;
@@ -1009,8 +984,8 @@
             ui.item.after(items).remove();
 
           // check if we need to unselect our selection after the move
-          var widgetEl = box.closest("[bcdWidgetFullName]");
-          if (widgetEl.data(widgetEl.attr("bcdWidgetFullName")).options.unselectAfterMove)
+          var widgetEl = box.parent();
+          if (widgetEl._bcduiWidget().options.unselectAfterMove)
             box.children('.ui-selected').removeClass("ui-selected");
 
           // resort source side since source side should use original ordering
@@ -1035,10 +1010,10 @@
 
         // add a double click handler to directly move item from source to main target or vice versa
         jQuery("#" + this.config.elementId).on("dblclick", ".ui-selectee", function (event) {
-          var target = jQuery("[bcdScope='" + self.options.scope + "'] .bcdDblClkTarget");
-          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'] .bcdTarget");
+          var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
+          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'].bcdTarget");
           var from = jQuery("#" + self.config.elementId); // we filter on li in this function, so use the outer box as 'from'
-          var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'] .bcdSource").first();
+          var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first();
           self._moveSelectedItems(from, to);
         });
       }
@@ -1067,8 +1042,8 @@
             jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").appendTo(to);
 
             // check if we need to unselect our selection after the move
-            var widgetEl = jQuery(to).closest("[bcdWidgetFullName]");
-            if (widgetEl.data(widgetEl.attr("bcdWidgetFullName")).options.unselectAfterMove)
+            var widgetEl = jQuery(to).parent();
+            if (widgetEl._bcduiWidget().options.unselectAfterMove)
               jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
             // resort source side since source side should use original ordering

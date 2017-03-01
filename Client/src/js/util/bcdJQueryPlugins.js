@@ -25,14 +25,14 @@
    * Scrolls the container to the target, this function must be called on a scrollable
    * container. Implementation is provided by bcdui.util._scrollTo()
    *
-   * @param {Object|Element|string}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object,
+   * @param {object|element|string}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object,
    *  an Element or jQuery compatible selector.
    *
-   * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
-   * @param {string}                  [options.snapTo=beginning]         snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   * @param {object}                  [options]                         Options to apply, all the options are optional, valid options:
+   * @param {string}                  [options.snapTo=beginning]        snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
    *                                                                    'nearest': snap the element to the nearest edge of the container.
    *
-   * @returns {Object} jQuery object
+   * @returns {object} jQuery object
    */
   $.fn.bcdScrollTo = function( target, options ) {
     return this.each(function(){
@@ -40,4 +40,19 @@
       bcdui.util._scrollTo( el, typeof target == "string" ? el.children(target) : $(target), options );
     });
   };
+
+  /**
+   * Locates and wraps an element by its id
+   *
+   * @param {element|string}  idOrElement Either an element to wrap to jQuery object or an id (without '#')
+   * @returns {object} jQuery object
+   *
+   * @static
+   */
+  $.bcdFindById = function( idOrElement ) {
+    if( !idOrElement ){
+      return jQuery();
+    }
+    return jQuery(typeof idOrElement === "string" ? (idOrElement[0] === "#" ? idOrElement : ("#" + idOrElement) ) : idOrElement);
+  }
 }( jQuery ));

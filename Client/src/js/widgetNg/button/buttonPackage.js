@@ -17,27 +17,24 @@
  * Button Widget Implementation as jQuery Widget
  */
 (function(){
-  jQuery.widget("bcdui.bcduiButtonNg",
-  /** @lends bcdui.bcduiButtonNg.prototype */
-  {
+  jQuery.widget("bcdui.bcduiButtonNg", jQuery.bcdui.bcduiWidget, {
+
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.button(this.element[0]);
     },
 
     _create : function(){
-      if(!this.options.id){
-        this.options.id = bcdui.factory.objectRegistry.generateTemporaryId();
-      }
+      this._super();
+
       // @caption overrides @text for backwards compatibility
       if(this.options.caption){
         this.options.text=this.options.caption;
       }
-      this.element.attr("id", this.options.id);
       bcdui.log.isDebugEnabled() && bcdui.log.debug("creating a button, title " + this.options.hint);
 
       var buttonControl = this._createButtonControl();
       var args = this.options;
-      
+
       if (this.options.optionsModelXPath) {
         var info = bcdui.factory._extractXPathAndModelId(this.options.optionsModelXPath);
         this.element.attr("bcdOptionsModelId", info.modelId);
@@ -66,25 +63,25 @@
         "mouseout" : function(){
           jQuery(buttonControl.control).removeClass("bcdClicked");
         },
-        "click" : function(event){
+        "click" : function(){
           var el = jQuery(buttonControl.control);
           if(args.stayPressed){
             el.addClass("bcdClicked");
-            jQuery(this.element).unbind(); // unbind all
+            this.element.unbind(); // unbind all
             el.attr({
               href:null,
               onclick:null
             });
           }
-          if(args.onClickAction){
+          if(this.options.onClickAction){
             if (this.options.optionsModelXPath) {
-              this._renderDropDownButtonControl(el, args.onClickAction, this);
+              this._renderDropDownButtonControl(el, this.options.onClickAction);
               event.stopPropagation();
               event.preventDefault();
             }
             else {
               // execute JS onClickAction code settings context to control element
-              (function(){return eval(args.onClickAction)}).apply(this);
+							this.options.onClickAction.apply(el.get(0));
             }
           }
         }
@@ -105,7 +102,7 @@
       // trigger translation
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
 
-      bcdui.widgetNg.button.getNavPath(this.element.attr("bcdTargetHtmlElementId"), function(id, value) {
+      bcdui.widgetNg.button.getNavPath(this.element.id, function(id, value) {
         bcdui.widget._linkNavPath(id, value);
       }.bind(this));
     },
@@ -124,7 +121,7 @@
         el.attr("bcdTranslate", this.options.text);
       }
       el.attr("title", this.options.hint);
-      el.attr("tabindex", this.options.tabindex || "0");
+      el.attr("tabindex", this.options.tabindex);
       el.attr("autofocus", this.options.autofocus);
 
       var elWrap = jQuery("<span></span>").addClass("bcdButton");
@@ -143,7 +140,10 @@
       }
     },
 
-    _renderDropDownButtonControl: function(el, onClickAction, self){
+    /**
+     * @private
+     */
+    _renderDropDownButtonControl: function(el, onClickAction){
 
       var isExpanded = el.hasClass("opened");
 
@@ -198,7 +198,7 @@
         jQuery("#bcdDropDownButton").on("mouseenter", function() {jQuery("#bcdDropDownButton").addClass("bcdInside");});
         jQuery("#bcdDropDownButton").on("mouseleave", function() {jQuery("#bcdDropDownButton").removeClass("bcdInside");});
 
-        // add listener on the li items 
+        // add listener on the li items
         jQuery("#bcdDropDownButton").on("click", "li", function(event) {
           event.stopPropagation();
           event.preventDefault();
@@ -208,7 +208,7 @@
 
           bcdui.widgetNg.button._cleanup(el);
 
-          (function(){return eval(onClickAction.replace(/\(.*\)/g, "") + "('" + value + "')")}).apply(this);
+          onClickAction.bind(this)(value);
         });
 
         // blur listener to get outer clicks (close drop down)
@@ -226,12 +226,6 @@
     }
   });
 }());
-
-/*
- * TODO convenience init adapter since generateWidgetApi.xslt currrently generates
- * bootstrap code like bcdui.widgetNg.button.init(targetHtmlElement), we have to change
- * it to jQuery Widget init style
- */
 
 /**
  * A namespace for the BCD-UI button widget.
@@ -253,8 +247,8 @@ bcdui.util.namespace("bcdui.widgetNg.button",
   getNavPath: function(id, callback) {
     return callback(id, "");
   },
-  
-  /**
+
+  /** 
    * @private
   */
   _cleanup: function(el) {

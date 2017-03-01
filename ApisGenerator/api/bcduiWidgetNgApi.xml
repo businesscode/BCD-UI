@@ -31,7 +31,7 @@
         <Type name="xpath">
           <Doc>an arbitrary xpath allowing $ references i.e. $guiStatus</Doc>
         </Type>
-        <Type name="int">
+        <Type name="integer">
           <Doc>an integer number</Doc>
         </Type>
         <Type name="i18nToken">
@@ -41,6 +41,11 @@
           @caption="data" - means, the widget should treat caption value 'data' literal
           @caption="\uE0FFdata" - means, the widget should treat caption value 'data' as i18n-key
           In JS this marker is available via bcdui.i18n.TAG
+          </Doc>
+        </Type>
+        <Type name="function">
+          <Doc>
+            JS function reference i.e: function(){console.info(5)}
           </Doc>
         </Type>
       </ApiTypes>
@@ -58,7 +63,7 @@
             If not given, an auto-id is generated.
           </Doc>
         </Param>
-        <Param name="tabindex" type="int">
+        <Param name="tabindex" type="integer">
           <Doc>the HTML compliant tabIndex</Doc>
         </Param>
         <Param name="hint" type="i18nToken">
@@ -115,11 +120,8 @@
         <Param name="caption" type="i18nToken" required="false">
           String with the caption or an i18n-key-identifier. Overrides 'text' attribute
         </Param>
-        <Param name="onClickAction" type="string" required="false">
-          <Doc>JS to execute</Doc>
-          <Impl>
-            <Jsp>${webpage:jsString(actionId)} + "()"</Jsp>
-          </Impl>
+        <Param name="onClickAction" type="function" required="false" isJSPChild="true">
+          <Doc>Function to execute on click. The context of the function is set to the element this widget it attached to.</Doc>
         </Param>
         <Param name="stayPressed" type="boolean" required="false">
           <Doc>button stays pressed and is disabled until page reload.</Doc>
@@ -137,14 +139,6 @@
             values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
           </Doc>
         </Param>
-        <Impl>
-          <Jsp allowsChildren="true">
-            <AddCode><![CDATA[
-<c:set var="actionId" value="${id}_action"/><webpage:script> function ${actionId}(args) { <jsp:doBody/> } </webpage:script>
-              ]]>
-            </AddCode>
-          </Jsp>
-        </Impl>
       </Api>
 
 
@@ -236,7 +230,7 @@
 
 
       <Api name="textInput" extends="baseInput">
-        <Param name="maxlength" type="int">
+        <Param name="maxlength" type="integer">
           <Doc>if defined, limits the input to the given length.</Doc>
         </Param>
         <Param name="setCursorPositionAtEnd" type="boolean" default="false">
@@ -260,7 +254,7 @@
         <Doc>
           This API provides general RegExp validation and provides support to attach custom validator
         </Doc>
-        <Param name="pattern" type="regex">
+        <Param name="pattern" type="string">
           <Doc>regular expression pattern to validate the input</Doc>
         </Param>
         <Param name="validationFunction" type="string">
@@ -329,10 +323,10 @@
 
       <Api name="textArea" extends="textInput hasValidator">
         <Doc>Free Text input, standard HTML textarea</Doc>
-        <Param name="cols" type="int" required="true">
+        <Param name="cols" type="integer" required="true" default="5">
           <Doc>HTML Parameter on the textarea to set number of columns</Doc>
         </Param>
-        <Param name="rows" type="int">
+        <Param name="rows" type="integer">
           <Doc>HTML Parameter on the textarea to set number of rows</Doc>
         </Param>
         <Impl>
@@ -391,12 +385,12 @@
           onchange, onclick etc. This API provides them. But, this events behave like html events, so they are not triggered on
           model updates etc, they are really bound to html and the hanlding is passed over to the browser.
         </Doc>
-        <Param name="onchange" required="false" type="string">
+        <Param name="onchange" required="false" type="function">
           <Doc>
             the HTML onchange event
           </Doc>
         </Param>
-        <Param name="onclick" required="false" type="string">
+        <Param name="onclick" required="false" type="function">
           <Doc>
             the HTML onclick event
           </Doc>
@@ -454,7 +448,7 @@
             the input document to this renderer is the options-model of the widget.
           </Doc>
         </Param>
-        <Param name="suggestItemCount" type="int" default="10">
+        <Param name="suggestItemCount" type="integer" default="10">
           <Doc>
             Number of items to suggest during typing, this applies to non-native implementation only.
           </Doc>
@@ -502,8 +496,8 @@
         <Doc>
           Renders a browser does natively for select or radio.
         </Doc>
-        <Param name="skin" type="enum" value="combo|radio" default="combo">
-          <Doc>a skin providing either combo-box style or a radio group</Doc>
+        <Param name="skin" type="enum" value="combo" default="combo">
+          <Doc>Currently supporting combo style only</Doc>
         </Param>
         <Param name="doAutoSelectSolelyOption" type="boolean" default="false">
           <Doc>If enabled, and there is only one option available, the widget will switch to that value.</Doc>
@@ -550,20 +544,15 @@
             Translation key Caption(header) for target block items
           </Doc>       
         </Param>
-        <Param name="disableDrag" required="false" type="boolean">
+        <Param name="onBeforeChange" required="false" type="function">
           <Doc>
-            Disables drag and drop functionality to move items. Default is false.
-          </Doc>       
-        </Param>
-        <Param name="onBeforeChange" required="false" type="string">
-          <Doc>
-            Handler function NAME triggered before change, if false is returned, the change is rejected
+            Handler function triggered before change, if false is returned, the change is rejected
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.sideBySideChooser.CHANGE_DIRECTION.*
   	     </Doc>       
         </Param>
-        <Param name="onChange" required="false" type="string">
+        <Param name="onChange" required="false" type="function">
           <Doc>
-            Handler function NAME triggered after change
+            Handler function triggered after change
           </Doc>       
         </Param>
         <Param name="wrsInlineValueDelim" required="false" type="string">
@@ -601,12 +590,12 @@
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target</Doc>
         </Param>
-        <Param name="onBeforeChange" required="false" type="string">
-          <Doc>Handler function NAME triggered before change of this box only, if false is returned, the change is rejected
+        <Param name="onBeforeChange" required="false" type="function">
+          <Doc>Handler function triggered before change of this box only, if false is returned, the change is rejected
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*</Doc>       
         </Param>
-        <Param name="onChange" required="false" type="string">
-          <Doc> Handler function NAME triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc>       
+        <Param name="onChange" required="false" type="function">
+          <Doc>Handler function triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc>       
         </Param>
         <Param name="wrsInlineValueDelim" required="false" type="string">
           <Doc>Delimiter used for WRS read and write. Default is a slash.</Doc>       
@@ -617,11 +606,13 @@
         <Param name="className" required="false" type="string">
           <Doc>Optional additional classname which is added to the container.</Doc>       
         </Param>
-	    <Param name="unselectAfterMove" required="false" type="boolean">
+	      <Param name="unselectAfterMove" required="false" type="boolean">
           <Doc>If true, the items get unselected after being moved. Default is false.</Doc>       
         </Param>
-        <Param name="generateItemHtml" required="false" type="string">
-          <Doc>Handler function NAME to generate the html for one container item. Gets value, caption and position in options model as input.</Doc>       
+        <Param name="generateItemHtml" required="false" type="function">
+          <Doc>
+            Handler function (or its name in declarative scope) to generate the html for one container item. Gets value, caption and position in options model as input args.
+          </Doc>       
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       

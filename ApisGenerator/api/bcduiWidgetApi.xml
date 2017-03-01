@@ -184,7 +184,7 @@
             Caption shown in the blindUpDown Header.
           </Doc>
         </Param>
-        <Param name="defaultState" type="string">
+        <Param name="defaultState" type="string" default="closed">
           <Doc>
             'closed' or empty String for opened, default is closed.
           </Doc>
@@ -447,7 +447,7 @@
             If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
           </Doc>
         </Param>
-        <Param name="isPassword" type="boolean" default="'false'">
+        <Param name="isPassword" type="boolean" default="false">
           <Doc>
             If true, input element type will be 'password'.
           </Doc>

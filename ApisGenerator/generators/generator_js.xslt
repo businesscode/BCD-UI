@@ -21,6 +21,8 @@
   <xsl:import href="generator_misc.xslt"/>
 
   <xsl:variable name="qq">"</xsl:variable>
+  <!-- used to store/retrieve the costruction params on element via jQuery(el).prop(..) -->
+  <xsl:variable name="ELEMENT_PROPERTY_PARAMS">bcduiWidgetParams</xsl:variable>
 
   <xsl:template match="BcdObject" mode="jsFactory">
    <xsl:variable name="createName">
@@ -54,9 +56,8 @@
   var htmlE = jQuery("#" + args.targetHtmlElementId);
   if( ! htmlE.length > 0 )
      return;
-  args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("<xsl:value-of select="@name"/>_");
-
-    <xsl:apply-templates select="Api/Param" mode="jsFactory"/>
+  args.id = args.targetHtmlElementId;
+  htmlE.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>", jQuery.extend(true, {}, args));
 
     <xsl:value-of select="concat('&#10;&#10;  ', $package, '.', @name,'.init(htmlE.get(0));')"/>
 };<xsl:text/>
@@ -70,24 +71,6 @@
       <xsl:value-of select="concat('&#10;  * @param {', @type, '}  ', $required1, 'args.', @name, $default, $required2, '  ', normalize-space(Doc))"/>
     </xsl:if>
   </xsl:template>
-
-  <!--
-    Helper for JSFactory: Sets one param in HTML
-    Each param's name gets bcd prepended
-    -->
-  <xsl:template match="Api/Param" mode="jsFactory">
-    <xsl:variable name="bcdName">
-      <xsl:call-template name="addPrefix">
-        <xsl:with-param name="name" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="contains(@type, 'boolean')"><xsl:value-of select="concat('&#10;  if(args.',@name,' != undefined)')"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="concat('&#10;  if(args.',@name,')')"/></xsl:otherwise>
-    </xsl:choose>
-    <xsl:value-of select="concat(' htmlE.attr(',$qq,$bcdName,$qq,', args.',@name,');')"/>
-  </xsl:template>
-
 
   <!-- *****************
     JsInitReadParams, used in widget's init() function to read params from html
@@ -108,14 +91,39 @@
     </xsl:variable>
   
 <xsl:value-of select="concat('&#10;', $package, '.')"/>impl.readParams.<xsl:value-of select="@name"/>= function( htmlElement ) {
-  var params = {
+  var params;
+
+  var jqEl = jQuery( htmlElement );
+
+  if( params = jqEl.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>") ){ // params from JS API
+    jqEl.removeProp("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>");
+    <xsl:apply-templates select="Api/Param[@default]" mode="jsInitDefaultsInParams"/>
+  } else { // params from HTML API
+    params = {
     <xsl:apply-templates select="Api/Param" mode="jsInitReadParams"/>
+    }
   }
 
   <xsl:apply-templates select="Api/Param[contains(@type, 'enum')]" mode="jsValidateEnumParamBag"/>
+  <xsl:apply-templates select="Api/Param[@required = 'true']" mode="jsValidateRequired"/>
 
   return params;
 };
+  </xsl:template>
+
+  <xsl:template match="Api/Param" mode="jsInitDefaultsInParams">
+    <xsl:variable name="defaultValue">
+      <xsl:choose>
+        <xsl:when test="contains(@type,'number') or contains(@type,'boolean')"><xsl:value-of select="@default"/></xsl:when>
+        <xsl:otherwise>"<xsl:value-of select="@default"/>"</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+<xsl:value-of select="concat('&#10;    params.', @name, ' = params.', @name, ' || ', normalize-space($defaultValue), ';')"/>
+  </xsl:template>
+
+  <!-- Helper to validate required -->
+  <xsl:template match="Api/Param" mode="jsValidateRequired">
+  if (params.<xsl:value-of select="@name"/> === undefined || params.<xsl:value-of select="@name"/> === null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");
   </xsl:template>
 
   <!--
@@ -175,6 +183,10 @@
       </xsl:when>
       <xsl:when test="contains(@type, 'boolean')">
         <xsl:value-of select="concat(@name,': htmlElement.getAttribute(',$qq,$bcdName,$qq,') == ',$qq,'true',$qq,' ? true : false')"/>
+      </xsl:when>
+      <xsl:when test="contains(@type, 'function')">
+        <xsl:value-of select="concat(@name,': bcdui.util._toJsFunction( htmlElement.getAttribute(',$qq,$bcdName,$qq,') )')"/>
+        <xsl:text> || undefined</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat(@name,': htmlElement.getAttribute(',$qq,$bcdName,$qq,')')"/>

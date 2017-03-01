@@ -180,4 +180,10 @@ public class Functions {
     return ", " + paramName + ":  parseFloat(" + obj.toString() +")";
   }
 
+  public static String optionalJsFunctionParam(String paramName, Object obj) {
+	  if( obj==null )
+		  return "";
+	  return ", " + paramName + ": function(){" + obj.toString() +"}";
+  }
+
 }

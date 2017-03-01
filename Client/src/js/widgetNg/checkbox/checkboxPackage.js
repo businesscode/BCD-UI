@@ -17,39 +17,7 @@
  * Checkbox Widget implementation as jQuery Widget
  */
 (function(){
-  /**
-   * Listens to updates on the target model and syncs the value back to the widget
-   *
-   * @private
-   */
-  var XMLListener = bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
-    /**
-     * @lends bcdui.widget.inputField.XMLListener.prototype
-     */
-    {
-      /**
-       * @member bcdui.widget.inputField.XMLListener
-       */
-      updateValue: function(){
-        // only sync data when data really changed
-        var el = document.getElementById(this.htmlElementId);
-        try{
-          if(!el._writingData){
-            // use widget API to sync TODO: isnt it better to use events rather direct API calls? then not need to stick to widgetFullName
-            var widgetEl = jQuery("#" + this.htmlElementId).closest("[bcdWidgetFullName]");
-            widgetEl.data(widgetEl.attr("bcdWidgetFullName"))._syncValue(this.htmlElementId);
-          }else{
-            bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.XMLListener: ignore self-writing update on el#"+this.htmlElementId);
-          }
-        }finally{
-          el._writingData = false;
-        }
-      }
-  });
-
-  jQuery.widget("bcdui.bcduiCheckboxNg",
-  /** @lends bcdui.bcduiCheckboxNg.prototype */
-  {
+  jQuery.widget("bcdui.bcduiCheckboxNg", jQuery.bcdui.bcduiWidget, {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the checkbox element
@@ -98,65 +66,63 @@
      * @private
      */
     _create : function() {
-      if(!this.options.id){
-        this.options.id = "chkbox_"+bcdui.factory.objectRegistry.generateTemporaryId();
-      }
-      this.element.attr("id", this.options.id);
-      // currently required for XMLListener
-      this.element.attr("bcdWidgetFullName", this.widgetFullName);
+      this._super();
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("creating checkbox widget with config ");
-      var rootContainer = this.element;
-
-      var args = this.options;
 
       // init internal config
-      // TODO remove / rewrite / communicate via widget-extensions (inheritance) and events
       var extendedConfig=null;
       var config = {
-          target: bcdui.factory._extractXPathAndModelId(args.targetModelXPath),
-          inputElementId: "input_" + args.id,
+          target: bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath),
           extendedConfig: this.options.extendedConfig||{}
       };
 
       // avoid rendering while attaching children
-      rootContainer.hide();
+      this.element.hide();
 
-      var uiControl = this._createInputControl(args, config);
+      var checkboxEl = this._createInputControl();
 
-      // store args on element
-      jQuery(uiControl.control).data("_args_", args);
-      jQuery(uiControl.control).data("_config_", config);
+      this.element.data("_config_", config);
 
       // sync the bound model value once
       bcdui.factory.objectRegistry.withReadyObjects(config.target.modelId, function(){
-        this._syncValue(config.inputElementId);
+        this._syncValue();
       }.bind(this),false);
 
-      // register data update listener, once target model available
-      var syncValueListener = new XMLListener({
-        idRef: config.target.modelId,
-        trackingXPath: config.target.xPath,
-        htmlElementId: config.inputElementId
-      });
-      bcdui.factory.addDataListener(syncValueListener);
-      this.syncValueListener = syncValueListener;
+      this._setOnTargetModelChange(function(){
+        try{
+          if(!this._writingData){
+            this._syncValue();
+          }
+        } finally {
+          this._writingData = false;
+        }
+      }.bind(this));
 
       // attach to DOM
-      rootContainer.append(jQuery(uiControl.widget));
+      this.element.append(checkboxEl);
 
       // add listeners
-      if(!args.readonly){
+      if(!this.options.readonly){
         bcdui.log.isTraceEnabled() && bcdui.log.trace("checkbox NOT read-only, set up handlers.");
         this._on({
-          change : this.updateValue.bind(this,config.inputElementId)
+          change : this.updateValue.bind(this)
         });
       }else{
         bcdui.log.isTraceEnabled() && bcdui.log.trace("checkbox IS read-only, dont attach modification listeners.");
       }
 
-      // attach balloon
-      bcdui.widgetNg.commons.balloon.attach(config.inputElementId, {noTooltip: config.extendedConfig.noTooltip});
+      if(this.options.hint){
+        // attach balloon or use @title
+        if(this.options.displayBalloon){
+          // balloon API
+          checkboxEl.attr("bcdHint", this.options.hint);
+          checkboxEl.attr("id", "input" + this.options.id);
+          bcdui.widgetNg.commons.balloon.attach(checkboxEl, {noTooltip: config.extendedConfig.noTooltip});
+        } else {
+          checkboxEl.attr("title", this.options.hint);
+        }
+      }
 
       // apply disabled state
       if(this.options.disabled){
@@ -164,41 +130,21 @@
       }
 
       // display constructed container
-      rootContainer.show();
+      this.element.show();
 
       // set autofocus after display
-      if(args.autofocus){
-        jQuery(uiControl.control).focus();
+      if(this.options.autofocus){
+        checkboxEl.focus();
       }
 
-      bcdui.widgetNg.checkbox.getNavPath(this.element.attr("bcdTargetHtmlElementId"), function(id, value) {
+      bcdui.widgetNg.checkbox.getNavPath(this.element.id, function(id, value) {
         bcdui.widget._linkNavPath(id, value);
       }.bind(this));
 
     },
 
-    /** handle disabled option
-     * @private
-     */
-    _setOption : function(k,v){
-      this._superApply(arguments);
-      if("disabled" == k){
-        v = (v+"")=="true";
-        var el = jQuery(this.element).children("input");
-        el.prop("disabled", v);
-        if(v){
-          el.addClass("bcdDisabled");
-        }else{
-          el.removeClass("bcdDisabled");
-        }
-      }
-    },
-
     /**
-     * updates the widget with data from bound model., args:
-     *
-     * - targetModel
-     * - targetXPath
+     * updates the widget with data from bound model.
      *
      * here we also implement SYNC_WRITE to the data model for
      * invalid- to valid transition, that is once widget becomes valid
@@ -206,11 +152,10 @@
      *
      * @private
      */
-    _syncValue: function(inputElementId){
-      var value = this._readDataFromXML(inputElementId).value||"";
-      var el = bcdui._migPjs._$(inputElementId);
-      el.get(0).checked = (value != null && ! !value.trim() && value != "0");
-      el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : false});
+    _syncValue: function(){
+      var value = this._readDataFromXML().value||"";
+      this.element.children("input").prop("checked", (value != null && ! !value.trim() && value != "0"))
+      this.element.trigger(this.EVENT.SYNC_READ, {isValueEmpty : false});
     },
 
     /**
@@ -220,32 +165,27 @@
      *
      * @private
      */
-    _createInputControl: function(args, config){
+    _createInputControl: function(){
 
       var el = jQuery("<input/>");
 
-      el.attr("id", config.inputElementId);
-      // the hints are handled by balloons
-      el.attr("bcdHint", args.hint);
-      el.attr("tabindex", args.tabindex);
-      el.attr("autofocus", args.autofocus);
-      el.attr("readonly", args.readonly);
+      var opts = this.options;
+      el.attr("tabindex", opts.tabindex);
+      el.attr("autofocus", opts.autofocus);
+      el.attr("readonly", opts.readonly);
       el.attr("type", "checkbox");
 
       // bind native html events, if defined
       ["onchange","onclick"].forEach(function(v){
-        args[v]&&el.attr(v, args[v]);
+        opts[v]&&el.attr(v, opts[v]);
       });
 
-      if(args.disabled){
+      if(opts.disabled){
         el.attr("disabled","disabled");
         el.addClass("bcdDisabled");
       }
 
-      return {
-        widget: el.get(0),
-        control: el.get(0)
-      }
+      return el;
     },
 
     /**
@@ -258,9 +198,9 @@
      *  value: the raw value from model
      * @private
      */
-    _readDataFromXML: function(inputElementId){
+    _readDataFromXML: function(){
       bcdui.log.isTraceEnabled() && bcdui.log.trace("_readDataFromXML");
-      var config = bcdui._migPjs._$(inputElementId).data("_config_");
+      var config = this.element.data("_config_");
       return {
         value: bcdui.widget._getDataFromXML(bcdui.factory.objectRegistry.getObject(config.target.modelId),config.target.xPath)
       }
@@ -270,16 +210,14 @@
      * this function shall be called in order to accept value from GUI control into the model
      *
      */
-    updateValue: function(inputElementId){
+    updateValue: function(){
       bcdui.log.isTraceEnabled() && bcdui.log.trace("updateValue(gui to data)");
-      var inputEl = bcdui._migPjs._$(inputElementId);
-      var args = inputEl.data("_args_");
-      var config = inputEl.data("_config_");
+      var config = this.element.data("_config_");
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: update via xpath : " + config.target.xPath + ", modelId: " + config.target.modelId);
 
-      var guiValue = inputEl.get(0).checked ? "1" : "0";
-      var modelValue = this._readDataFromXML(inputElementId).value||"";
+      var guiValue = this.element.children("input").prop("checked") ? "1" : "0";
+      var modelValue = this._readDataFromXML().value||"";
       // tells if current widget value differs from data value
       var hasValueChanged = guiValue != modelValue;
 
@@ -288,16 +226,15 @@
       var hasWritten = false;
       if(hasValueChanged){
         this._writeDataToXML({
-          inputElementId: inputElementId,
           value : guiValue
         });
         hasWritten = true;
-        inputEl.trigger(bcdui.widget.events.writeValueToModel);
+        this.element.trigger(bcdui.widget.events.writeValueToModel);
       }else{
         bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: skip update due to unchanged value");
       }
 
-      inputEl.trigger(this.EVENT.SYNC_WRITE,{
+      this.element.trigger(this.EVENT.SYNC_WRITE,{
         isValueEmpty : guiValue == "",
         value : guiValue,
         hasWritten: hasWritten
@@ -322,7 +259,6 @@
     /**
      * writes newValue into bound model, DOES NOT VALIDATE! params:
      *
-     * - inputElementId
      * - value
      *
      * @return {boolean} true in case the target document was changed
@@ -331,20 +267,18 @@
      */
     _writeDataToXML: function(params){
       bcdui.log.isTraceEnabled() && bcdui.log.trace("_writeDataToXML");
-      var el = bcdui._migPjs._$(params.inputElementId);
-      var args = el.data("_args_");
-      var config = el.data("_config_");
+      var config = this.element.data("_config_");
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.bcduiCheckboxNg._writeDataToXML: writing data...");
       // tag that we're writing data ourself so that XMLUpdateListener
       // ignores and does not propagate this update.
       // the listener resets this flag on its own once it is run
-      el._writingData=true;
+      this._writingData=true;
       var ret = bcdui.widget._copyDataFromHTMLElementToTargetModel(
           bcdui.factory.objectRegistry.getObject(config.target.modelId),
           config.target.xPath,
           params.value,
-          args.keepEmptyValueExpression,
+          this.options.keepEmptyValueExpression,
           false,
           function(modelId, xPath){
             this._invalidModelNodeReset(modelId, xPath)
@@ -365,19 +299,8 @@
      * @private
      */
     _destroy: function() {
-      var htmlElementId = this.options.id;
-      var el = bcdui._migPjs._$(htmlElementId);
-
-      // ## move on with prototypeJS tidy up ##
-      if(el.length > 0){
-        el.off();
-        el.data("_args_",   null);
-        el.data("_config_", null);
-      }
-
-      // ## now detach listeners
-      this.syncValueListener.unregister();
-      this.syncValueListener = null;
+      this._super();
+      this.element.off().data("_config_", null);
     }
   });
 }());
@@ -408,21 +331,19 @@ bcdui.util.namespace("bcdui.widgetNg.checkbox",
    */
 
   getNavPath: function(id, callback) {
-    if (id && id != "") {
-      var e = jQuery("*[bcdTargetHtmlElementId='" + id + "']").first().get(0);
-      if (e) {
-        var t = bcdui.factory._extractXPathAndModelId(e.getAttribute("bcdTargetModelXPath"));
-        var targetModel = t.modelId;
-        var targetXPath = t.xPath;
+    var e = jQuery.bcdFindById(id)._bcduiWidget();
+    if (e) {
+      var t = bcdui.factory._extractXPathAndModelId(e.options.targetModelXPath);
+      var targetModel = t.modelId;
+      var targetXPath = t.xPath;
 
-        if (targetModel != null && targetXPath != null) {
-          bcdui.factory.objectRegistry.withReadyObjects(targetModel, function() {
-            var targetNode = bcdui.factory.objectRegistry.getObject(targetModel).getData().selectSingleNode(targetXPath);
-            var value = (targetNode == null ? "0" : targetNode.text);
-            callback(id, (value == "1" ? "X" : "-"));
-          });
-          return;
-        }
+      if (targetModel != null && targetXPath != null) {
+        bcdui.factory.objectRegistry.withReadyObjects(targetModel, function() {
+          var targetNode = bcdui.factory.objectRegistry.getObject(targetModel).getData().selectSingleNode(targetXPath);
+          var value = (targetNode == null ? "0" : targetNode.text);
+          callback(id, (value == "1" ? "X" : "-"));
+        });
+        return;
       }
     }
     callback(id, "");

@@ -87,6 +87,8 @@ bcdui.bcduiCeFiles =
         , "/js/widget/detachedEvent.js"
         , "/js/widget/mouseTracker.js"
         , "/js/widget/xmlDataUpdateListener.js"
+        , "/js/widgetNg/widgetUtils.js"
+        , "/js/widgetNg/bcduiWidget.js"
         , "/js/widget/inputField/inputFieldPackage.js"
         , "/js/widget/singleSelect/singleSelectPackage.js"
         , "/js/widget/multiSelect/multiSelectPackage.js"

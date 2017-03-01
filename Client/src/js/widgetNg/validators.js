@@ -191,6 +191,39 @@ bcdui.widgetNg.validation.validators.widget.invalidModelDataValidator = function
 }
 
 /**
+ * validates that current value is within available options (works with wrapped option model)
+ *
+ * @private
+ */
+bcdui.widgetNg.validation.validators.widget.existingValueValidator = function(htmlElementId){
+  var ctx = bcdui.widgetNg.utils._getContext(htmlElementId);
+  if(!ctx)return;
+  var currentValue = bcdui.widgetNg.validation.validators.widget.getValue(ctx.el);
+  bcdui.log.isTraceEnabled() && bcdui.log.trace("VALIDATOR on source: " + ctx.config.source.modelId);
+  var dataDoc = bcdui.factory.objectRegistry.getObject(ctx.config.source.modelId).getData();
+
+  bcdui.log.isTraceEnabled() && bcdui.log.trace("validate value: '"+currentValue+"'");
+
+  if(dataDoc == null || !currentValue.trim()){
+    /*
+     * no validation if the model has no data or we have an empty widget value
+     */
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("skip validation due to NULL dataDoc or empty value");
+    return null;
+  }
+
+  var testXPath = ctx.config.source.xPath + (ctx.config.source.optionsModelRelativeValueXPath ? "/" + ctx.config.source.optionsModelRelativeValueXPath : "");
+  if (jQuery.makeArray(dataDoc.selectNodes(testXPath)).map(function(node){return node.text;}).indexOf(currentValue) == -1){
+    // TODO replace by default i18n-token
+    return {
+      validationMessage: "value not allowed"
+    }
+  }else{
+    return null;
+  }
+};
+
+/**
  * type validator adapters
  */
 bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS = {

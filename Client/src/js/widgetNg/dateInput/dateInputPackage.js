@@ -65,13 +65,10 @@
         // disable reset control, since native implementation provides it
         this.options.disableResetControl = true;
         // make compatible with input type API
-        this.options.type = "text";
-        this.element.attr("bcdType","text");
 
         this.options.extendedConfig = { noTooltip: true, type : inputType };
 
         // construct the bcduiInput widget
-        //this.element.bcduiInput(this.options);
         this._superApply(this.options);
       }else{
         // custom implementation TODO

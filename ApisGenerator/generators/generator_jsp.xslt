@@ -53,7 +53,7 @@
     <xsl:if test="$extendsDataProvider">
       <xsl:text>&lt;%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b" %>&#10;</xsl:text>
     </xsl:if>
-    <xsl:if test="not(Api/Impl/Jsp/@allowsChildren='true')">&lt;%@ tag body-content="empty" %>&#10;</xsl:if>
+    <xsl:if test="not(Api/Impl/Jsp/@allowsChildren='true') and not($noDoBody)">&lt;%@ tag body-content="empty" %>&#10;</xsl:if>
 
     <!-- generate tag description -->
 
@@ -97,7 +97,6 @@
             <xsl:when test="contains(@type, 'number')">Number</xsl:when>
             <xsl:when test="contains(@type, 'numeric')">Number</xsl:when>
             <xsl:when test="contains(@type, 'integer')">Integer</xsl:when>
-            <xsl:when test="contains(@type, 'int')">Integer</xsl:when>
             <xsl:when test="contains(@type, 'string') or contains(@type, 'i18nToken')">String</xsl:when>
             <xsl:when test="contains(@type, 'boolean') or contains(@type, 'booleanWithDefault')">Boolean</xsl:when>
             <!-- Types like jsattr or array (e.g. in pdfexport) are also handled as a string -->
@@ -127,6 +126,16 @@
         <xsl:text> %>&#10;</xsl:text>
       </xsl:if>
     </xsl:for-each>
+
+    <!-- generate defaults on non-boolean types -->
+    <xsl:variable name="paramsWithDefaults" select="Api/Param[@default and not(@type='boolean')]"/>
+    <xsl:if test="$paramsWithDefaults">
+      <xsl:text>&lt;%-- set defaults for non booleans --%></xsl:text>
+      <xsl:for-each select="Api/Param[@default and not(@type='boolean')]">
+        <xsl:text>&#10;&lt;c:if test="${empty </xsl:text><xsl:value-of select="@name"/><xsl:text>}">&lt;c:set var="</xsl:text><xsl:value-of select="@name"/><xsl:text>"></xsl:text><xsl:value-of select="@default"/><xsl:text>&lt;/c:set>&lt;/c:if></xsl:text>
+      </xsl:for-each>
+      <xsl:text>&#10;</xsl:text>
+    </xsl:if>
 
     <!-- set parent data provider variable in case we need them (currently only modelupdater) -->
 
@@ -302,10 +311,7 @@
           <xsl:when test="contains(@type, 'jsattr')">
             <xsl:text>    &lt;c:if test="${ not empty </xsl:text><xsl:value-of select="@name"/><xsl:text> }">, ${</xsl:text><xsl:value-of select="@name"/><xsl:text>}&lt;/c:if></xsl:text>
           </xsl:when>
-          <xsl:when test="contains(@type, 'integer')">
-            <xsl:text>    ${webpage:optionalJsNumberParam("</xsl:text><xsl:value-of select="$name"/>", <xsl:value-of select="@name"/><xsl:text>)}</xsl:text>
-          </xsl:when>
-          <xsl:when test="contains(@type, 'number')">
+          <xsl:when test="contains(@type, 'integer') or contains(@type, 'number')">
             <xsl:text>    ${webpage:optionalJsNumberParam("</xsl:text><xsl:value-of select="$name"/>", <xsl:value-of select="@name"/><xsl:text>)}</xsl:text>
           </xsl:when>
           <xsl:when test="contains(@type, 'array')">
@@ -324,7 +330,7 @@
             <xsl:value-of select="concat('    , ',$name,': function(',@functionAttribute,'){${',@name,'}(',@functionAttribute,');}')"/>
           </xsl:when>
           <xsl:when test="contains(@type, 'function') and not(@isJSPChild)">
-            <xsl:value-of select="concat('    , ',$name,': function(){${',@name,'}}')"/>
+            <xsl:text>    ${webpage:optionalJsFunctionParam("</xsl:text><xsl:value-of select="$name"/>", <xsl:value-of select="@name"/><xsl:text>)}</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>    ${webpage:optionalJsStringParam("</xsl:text><xsl:value-of select="$name"/>", <xsl:value-of select="@name"/><xsl:text>)}</xsl:text>

@@ -119,19 +119,52 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "          var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
-  var allowedParamTypes = ["string", "boolean", "xpath", "modelXPath", "i18nToken", "writableModelXPath", "bcdui.core.DataProvider"];
-  var attributes = params.filter( function( param ) {
+  var allowedParamTypes = ["string", "boolean", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer"];
+  // for default values we have to distinguish between literals and string values
+  var stringParamTypes = ["string", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "enum"];
+  params.filter( function( param ) {
     // id attribute refers to the html tag, not the object. Use objectId for that
     if( param.name.indexOf(".") === -1 || param.name === "args.id" )
       return false;
     return param.type && param.type.names.filter( function( typeName ) {
       return allowedParamTypes.indexOf( typeName ) !== -1
     }).length != 0;
-  });
-  attributes.forEach( function(attrib) {
-    var attribName = attrib.name.substring( attrib.name.indexOf(".") + 1 );
-    result += "          if( this.hasAttribute('"+attribName+"') )" + newLine;
-    result += "            args." + attribName + " = this.getAttribute('"+attribName+"');" + newLine;
+  })
+  .forEach( function(param) {
+    var attribName = param.name.substring( param.name.indexOf(".") + 1 );
+    var hasDefaultValue = ("defaultvalue" in param);
+    var isStringType = !!param.type.names.filter(e => stringParamTypes.indexOf(e) > -1).length;
+    var padding = "";
+    if( !hasDefaultValue ){
+      result += "          if( this.hasAttribute('"+attribName+"') )" + newLine + "  ";
+    }
+    if( param.type.names.indexOf("function") >= 0 ){
+      result += "          args." + attribName + " = bcdui.util._toJsFunction( this.getAttribute('"+attribName+"') );" + newLine;
+    } else if ( param.type.names.indexOf("boolean") >= 0 ) {
+      var isDefaultTrue = param.defaultvalue === true;
+      result += "          args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
+    } else if ( param.type.names.indexOf("number") >= 0 || param.type.names.indexOf("integer") >= 0 ) {
+      var defaultValue = param.defaultvalue;
+      if(defaultValue !== undefined){
+        defaultValue = " || " + defaultValue;
+      } else {
+        defaultValue = "";
+      }
+      var parser = param.type.names.indexOf("integer") >= 0 ? "parseInt" : "parseFloat";
+      result += "          args." + attribName + " = " + parser + "( this.getAttribute('"+attribName+"') , 10)" + defaultValue + ";" + newLine;
+    } else {
+      var defaultValue = param.defaultvalue;
+      if(defaultValue !== undefined){
+        if(isStringType){
+          defaultValue = " || " + JSON.stringify(defaultValue);
+        } else {
+          defaultValue = " || " + defaultValue;
+        }
+      } else {
+        defaultValue = "";
+      }
+      result += "          args." + attribName + " = this.getAttribute('"+attribName+"')" + defaultValue + ";" + newLine;
+    }
   });
   result += "          if( this.hasAttribute('objectId') )" + newLine;
   result += "            args.id = this.getAttribute('objectId');" + newLine;

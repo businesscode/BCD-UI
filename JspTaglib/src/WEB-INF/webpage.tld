@@ -247,6 +247,19 @@
       </function-signature>
    </function>
   <function>
+      <description>Generates a JS argument map parameter like
+        , myFunction: function(){ value } 
+        (starting with a comma!) if the value is not empty.
+      </description>
+      <name>optionalJsFunctionParam</name>
+      <function-class>
+         de.businesscode.bcdui.web.taglib.webpage.Functions
+      </function-class>
+      <function-signature>
+         java.lang.String optionalJsBooleanParam(java.lang.String, java.lang.Object)
+      </function-signature>
+   </function>
+  <function>
      <description>Generates an ID.</description>
      <name>newId</name>
      <function-class>

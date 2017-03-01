@@ -27,8 +27,8 @@
  * DOM element providing the data to display (tooltip + validation messages).
  *
  * prior to re-display a special data provider discovers the target element via 'contextId' reference
- * and reads the hint from 'bcdHint' attribute and retrieves the validationMessages via '_validationMessages_'
- * element map key (PrototypeJS). This information is displayed to the user.
+ * and reads the hint from 'bcdHint' attribute (or 'hint' option) and retrieves the validationMessages
+ * via '_validationMessages_' element data. This information is displayed to the user.
  */
 
 /**
@@ -66,7 +66,7 @@ bcdui.widgetNg.commons.balloon.MAPKEY_CONFIG = "_bcdui.widget.balloon_";
  * the singleton data provider which is data provider to the tooltip renderer,
  * it fetches the ID of element from 'bcdRowIdent' data provider, locates that
  * element, fetches the tooltip message and validation messages from the 'bcdHint'
- * attribute and '_validationMessages_' map value respectively, parses them into a DOM
+ * attribute (or 'hint' option) and '_validationMessages_' map value respectively, parses them into a DOM
  * document which is returned to the renderer to be rendered.
  */
 bcdui.widgetNg.commons.balloon.DATA_PROVIDER = bcdui.factory.createJsDataProvider({
@@ -140,14 +140,13 @@ bcdui.widgetNg.commons.balloon._init = function(){
  * attaches the balloon to given, focusable element,
  * this function does nothing in case a balloon is already attached
  * on this element.
- * args:
- * @param noTooltip Boolean: if balloon is attach a tooltip (mouseover) is attached as well,you can disable
- *        it here.
- *        noBalloon Boolean: if set to TRUE the static balloon is not displayed
  *
- *        if both noTooltip and noBalloon parameters are set, this function returns FALSE and has no effect.
+ * @param {element|string} htmlElementId  The target to attach ballon to.
+ * @param {object}  [args]                Object literal containing following properties
+ * @param {boolean} [args.noTooltip]      If balloon is attach a tooltip (mouseover) is attached as well,you can disable it here.
+ * @param {boolean} [args.noBalloon]      If set to TRUE the static balloon is not displayed
  *
- * @return true if attached, false if not
+ * @return true if attached, false if not; if both noTooltip and noBalloon parameters are set, this function returns FALSE and has no effect.
  */
 bcdui.widgetNg.commons.balloon.attach = function(htmlElementId,args){
   if(!args){

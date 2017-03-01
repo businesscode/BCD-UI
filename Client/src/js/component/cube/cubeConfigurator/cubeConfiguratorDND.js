@@ -69,7 +69,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColDim/@id"
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
-    , generateItemHtml: "bcdui.component.cube.configuratorDND._itemRenderer"
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -78,7 +78,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_dims"
     , isDoubleClickTarget: true
     , unselectAfterMove: true
-    , generateItemHtml: "bcdui.component.cube.configuratorDND._itemRenderer"
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -94,7 +94,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColMes/@id"
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
-    , generateItemHtml: "bcdui.component.cube.configuratorDND._itemRenderer"
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -103,7 +103,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_meas"
     , isDoubleClickTarget: true
     , unselectAfterMove: true
-    , generateItemHtml: "bcdui.component.cube.configuratorDND._itemRenderer"
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     };
     bcdui.widgetNg.createConnectable(inputArgs);
 

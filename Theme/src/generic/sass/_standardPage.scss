@@ -607,6 +607,17 @@ a {
   @include shadow();
 }
 
+#bcdWidgetBalloon {
+  @include con_color($flyover-color);
+  border: 1px solid $border-color;
+  z-index: 14999;
+  position: fixed;
+  font: 12px $font-family-default;
+  padding: 5px;
+  @include alpha(0.95);
+  @include shadow();
+}
+
 .bcdTooltip {
   th, td { padding: 3px 5px; white-space: nowrap; }
   th { font-weight: bold; text-align: left; }

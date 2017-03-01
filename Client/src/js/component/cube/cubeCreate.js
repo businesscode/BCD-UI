@@ -163,9 +163,9 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
    * @constructs
    * @param args The parameter map contains the following properties:
    * @param {targetHtmlRef}           args.targetHtml                                 - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config=cubeConfiguration.xml]             - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
-   * @param {bcdui.core.DataProvider} [args.statusModel=guiStatusEstablished]         - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
-   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel=args.statusModel] - Use this to overwrite filters found in args.statusModel
+   * @param {bcdui.core.DataProvider} [args.config]                                   - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
+   * @param {bcdui.core.DataProvider} [args.statusModel]                              - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
+   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel] 									- Use this to overwrite filters found in args.statusModel, default set to args.statusModel
    * @param {string}                  [args.id]                                       - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
    */
   initialize: function(args) {
@@ -313,9 +313,9 @@ bcdui.util.namespace("bcdui.component",
   /**
    * Helper for jsp and XAPI. First waits for all dependencies to be available
    * @param {targetHtmlRef}           args.targetHtml                                 - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config=cubeConfiguration.xml]             - The model containing the cube' configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
-   * @param {bcdui.core.DataProvider} [args.statusModel=guiStatusEstablished]         - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
-   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel=args.statusModel] - Use this to overwrite filters found in args.statusModel
+   * @param {bcdui.core.DataProvider} [args.config]                                   - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
+   * @param {bcdui.core.DataProvider} [args.statusModel]                              - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
+   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel]                  - Use this to overwrite filters found in args.statusModel
    * @param {string}                  [args.id]                                       - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
    * @private
    */
@@ -456,7 +456,7 @@ bcdui.util.namespace("bcdui.component",
         args.templateTargetHtmlElementId = "bcdDndTemplateDiv_" + args.cubeId;
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
         
-        args.applyFunction = args.applyFunction || "bcdui.core.lifecycle.applyAction";
+        args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
 
         var cube = bcdui.factory.objectRegistry.getObject(args.cubeId);
         var layoutModelId = (typeof cube != "undefined") ? cube.getConfigModel().getData().selectSingleNode("//cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel") : null;
@@ -472,7 +472,7 @@ bcdui.util.namespace("bcdui.component",
 
         bcdui.widgetNg.createButton({
           caption: "Apply",
-          onClickAction: "" + args.applyFunction + "();",
+          onClickAction: args.applyFunction,
           targetHtmlElementId: "bcdDNDApplyButton_" + args.cubeId
         });
       }

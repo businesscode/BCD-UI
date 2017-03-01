@@ -17,40 +17,7 @@
  * Input Widget implementation as jQuery Widget
  */
 (function(){
-  /**
-   * Listens to updates on the target model and syncs the value back to the widget
-   *
-   * @class
-   * @extends bcdui.widget.XMLDataUpdateListener
-   * @private
-   */
-  var XMLListener = bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
-    /**
-     * @lends XMLListener.prototype
-     */
-    {
-      /**
-       * @member bcdui.widget.inputField.XMLListener
-       */
-      updateValue: function(){
-        var el = document.getElementById(this.htmlElementId);
-        try{
-          if(!el._writingData){
-            // use widget API to sync TODO: isnt it better to use events rather direct API calls? then not need to stick to widgetFullName
-            var widgetEl = jQuery("#" + this.htmlElementId).closest("[bcdWidgetFullName]");
-            widgetEl.data(widgetEl.attr("bcdWidgetFullName"))._syncValue(this.htmlElementId);
-          }else{
-            bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.input.XMLListener: ignore self-writing update on el#"+this.htmlElementId);
-          }
-        }finally{
-          el._writingData = false;
-        }
-      }
-  });
-
-  jQuery.widget("bcdui.bcduiInputNg",
-  /** @lends bcdui.bcduiInputNg.prototype */
-  {
+  jQuery.widget("bcdui.bcduiInputNg", jQuery.bcdui.bcduiWidget, {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the input element
@@ -108,12 +75,7 @@
      * @private
      */
     _create : function() {
-      if(!this.options.id){
-        this.options.id = bcdui.factory.objectRegistry.generateTemporaryId()
-      }
-      this.element.attr("id", this.options.id);
-      // currently required for XMLListener
-      this.element.attr("bcdWidgetFullName", this.widgetFullName);
+      this._super();
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("creating input widget with config ");
       var rootContainer = this.element;
@@ -153,14 +115,16 @@
         this._syncValue(config.inputElementId);
       }.bind(this));
 
-      // register data update listener, once target model available
-      var syncValueListener = new XMLListener({
-        idRef: config.target.modelId,
-        trackingXPath: config.target.xPath,
-        htmlElementId: config.inputElementId
-      });
-      bcdui.factory.addDataListener(syncValueListener);
-      this.syncValueListener = syncValueListener;
+      // listen to updates on model
+      this._setOnTargetModelChange(function(){
+        try{
+          if(!this._writingData){
+            this._syncValue(config.inputElementId);
+          }
+        } finally {
+          this._writingData = false;
+        }
+      }.bind(this));
 
       // attach to DOM
       rootContainer.append(uiControl.widget);
@@ -252,27 +216,9 @@
         jQuery(uiControl.control).focus();
       }
 
-      bcdui.widgetNg.input.getNavPath(rootContainer.attr("bcdTargetHtmlElementId"), function(id, value) {
+      bcdui.widgetNg.input.getNavPath(this.options.id, function(id, value) {
         bcdui.widget._linkNavPath(id, value);
       }.bind(this));
-    },
-
-    /**
-     * handle disabled option
-     * @private
-     */
-    _setOption : function(k,v){
-      this._superApply(arguments);
-      if("disabled" == k){
-        v = (v+"")=="true";
-        var el = jQuery(this.element).children("input");
-        el.prop("disabled", v);
-        if(v){
-          el.addClass("bcdDisabled");
-        }else{
-          el.removeClass("bcdDisabled");
-        }
-      }
     },
 
     /**
@@ -350,8 +296,11 @@
       var resetControl=null;
 
       if(args.disabled){
-        el.attr("disabled","disabled");
-        el.addClass("bcdDisabled");
+        el
+        .prop("disabled","disabled")
+        .attr("disabled","disabled")
+        .addClass("bcdDisabled")
+        ;
       }
 
       return {
@@ -692,6 +641,7 @@
      * @private
      */
     _destroy: function() {
+      this._super();
       // actually confusing but listeners check this status to stop
       this.isDestroyed = true;
       var htmlElementId = this.options.id;
@@ -702,11 +652,8 @@
         el.off();
         el.data("_args_",   null);
         el.data("_config_", null);
+        this.element.data("_config_", null);
       }
-
-      // ## now detach listeners
-      this.syncValueListener.unregister();
-      this.syncValueListener = null;
     }
   });
 }());
@@ -736,14 +683,12 @@ bcdui.util.namespace("bcdui.widgetNg.input",
    * @param {callback} function function to be called with generated caption
    */
   getNavPath: function(id, callback) {
-    if (id && id != "") {
-      var e = jQuery("*[bcdTargetHtmlElementId='" + id + "']").first().get(0);
-      if (e) {
-        bcdui.widget._getCaptionFromWidgetElement(e, function(value) {
-          callback(id, value);
-        });
-        return;
-      }
+    var e = jQuery.bcdFindById(id).get(0);
+    if (e) {
+      bcdui.widget._getCaptionFromWidgetElement(e, function(value) {
+        callback(id, value);
+      });
+      return;
     }
     callback(id, "");
   }

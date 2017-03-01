@@ -427,7 +427,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.validate=true]                  Turn on-off the validation of the formula.
    * @param {boolean}       [args.validateVariableNamesCheckbox=false] Show or hide checkbox for validate variables option.
-   * @param {string }       [args.skipValidationCaption=Skip check of values] Caption to be shown for skipping validation. Default is 'Skip check of values'.
+   * @param {string}        [args.skipValidationCaption=Skip check of values] Caption to be shown for skipping validation. Default is 'Skip check of values'.
    * @param {boolean}       [args.skipServerSidedFunctions=false] Set to true to disable usage of server sided functions like CntDist. Default is false.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    */
@@ -1217,7 +1217,7 @@ bcdui.util.namespace("bcdui.widget",
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
     * @param {string}        [args.defaultState=closed]   'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
-    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
+    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:Status/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
     */
    createBlindUpDownArea:function(args){
@@ -2228,12 +2228,16 @@ bcdui.util.namespace("bcdui.widget",
 
      /**
       * Get widgetCaption information from the given target
-      * @param {string} id An existing HTML element id representing a widget targetHtml
+      * @param {element|string} elOrId An existing HTML element or its id representing a widget targetHtml
       * @return string of found widgetCaption or empty string 
       */
-     getWidgetCaption : function(id) {
-       var caption = (jQuery("#" + id + " *[bcdWidgetCaption]").attr("bcdWidgetCaption") || "");
-       if (caption.indexOf(bcdui.i18n.TAG) == 0)
+     getWidgetCaption : function( elOrId ) {
+       var el = jQuery.bcdFindById( elOrId );
+       var caption = el.attr("bcdWidgetCaption") || ""; // Widget API
+       if(!caption && el.is(jQuery.bcdui.bcduiWidget.SELECTOR)){
+         caption = el._bcduiWidget().options.widgetCaption || caption; // WidgetNg API
+       }
+       if (caption.length > 1 && caption[0] === bcdui.i18n.TAG)
          caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)});
        return caption;
      },
@@ -2241,10 +2245,10 @@ bcdui.util.namespace("bcdui.widget",
      /**
       * Writes navpath widget information to the given target and updates this information changes
       * @param {Object}        [args]                The parameter map contains the following properties.
-      * @param {targetHtmlRef} [args.targetHtml="bcdNavPath"] An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
-      * @param {string}        [args.title="Report"] A title string which is used during filename generation for exports 
-      * @param {string}        [args.values=""]      A space separated string which lists the ordered targetIds of the widgets which should be queried 
-      * @param {string}        [args.separator=" "]   A string used for delimiter between single widget navpath values
+      * @param {targetHtmlRef} [args.targetHtml=bcdNavPath] An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
+      * @param {string}        [args.title=Report]   A title string which is used during filename generation for exports 
+      * @param {string}        [args.values]         A space separated string which lists the ordered targetIds of the widgets which should be queried 
+      * @param {string}        [args.separator]      A string used for delimiter between single widget navpath values, default is ' ' (space)
       */
      createNavPath : function(args) {
        args = args || {};
@@ -2299,13 +2303,13 @@ bcdui.util.namespace("bcdui.widget",
          if (jQuery("#" + id + " > .bcdMultiSelect").length > 0)       getFunction = bcdui.widget.multiSelect.getNavPath;
          if (jQuery("#" + id + " > .bcdPeriodChooser").length > 0)     getFunction = bcdui.widget.periodChooser.getNavPath;
          if (jQuery("#" + id + " > .bcdSingleSelect").length > 0)      getFunction = bcdui.widget.singleSelect.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] button").length > 0)                 getFunction = bcdui.widgetNg.button.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] input[type='checkbox']").length > 0) getFunction = bcdui.widgetNg.checkbox.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] input[type='date']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] input[type='text']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] .bcdSideBySideChooser").length > 0)  getFunction = bcdui.widgetNg.sideBySideChooser.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] select").length > 0)                 getFunction = bcdui.widgetNg.singleSelect.getNavPath;
-         if (jQuery("*[bcdTargetHtmlElementId='" + id + "'] textarea").length > 0)               getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " button").length > 0)                 getFunction = bcdui.widgetNg.button.getNavPath;
+         if (jQuery("#" + id + " input[type='checkbox']").length > 0) getFunction = bcdui.widgetNg.checkbox.getNavPath;
+         if (jQuery("#" + id + " input[type='date']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " input[type='text']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " .bcdSideBySideChooser").length > 0)  getFunction = bcdui.widgetNg.sideBySideChooser.getNavPath;
+         if (jQuery("#" + id + " select").length > 0)                 getFunction = bcdui.widgetNg.singleSelect.getNavPath;
+         if (jQuery("#" + id + " textarea").length > 0)               getFunction = bcdui.widgetNg.input.getNavPath;
          // connectable widget excluded (returns "" anyway), suggestInput handled via input
 
          if (getFunction != null) {
@@ -2445,11 +2449,23 @@ bcdui.util.namespace("bcdui.widget",
          return;
        }
 
-       var targetModelId = e.getAttribute("bcdTargetModelId") || "guiStatus";
-       var targetXPath = e.getAttribute("bcdTargetModelXPath");
-       var optionsModelId = e.getAttribute("bcdOptionsModelId");
-       var optionsModelXPath = e.getAttribute("bcdOptionsModelXpath");
-       var optionsModelRelativeValueXPath = e.getAttribute("bcdOptionsModelRelativeValueXPath");
+       e = jQuery(e);
+       if(e.is(jQuery.bcdui.bcduiWidget.SELECTOR)){ // WidgetNg API
+         var eOptions = e._bcduiWidget().options;
+         var targetModelId = eOptions.targetModelId || "guiStatus";
+         var targetXPath = eOptions.targetModelXPath;
+         var optionsModelId = eOptions.optionsModelId;
+         var optionsModelXPath = eOptions.optionsModelXpath;
+         var optionsModelRelativeValueXPath = eOptions.optionsModelRelativeValueXPath;
+       } else { // Widget
+         e = e.get(0);
+         var targetModelId = e.getAttribute("bcdTargetModelId") || "guiStatus";
+         var targetXPath = e.getAttribute("bcdTargetModelXPath");
+         var optionsModelId = e.getAttribute("bcdOptionsModelId");
+         var optionsModelXPath = e.getAttribute("bcdOptionsModelXpath");
+         var optionsModelRelativeValueXPath = e.getAttribute("bcdOptionsModelRelativeValueXPath");
+       }
+
 
        if (targetXPath && targetXPath.indexOf("$") != -1) {
          var t = bcdui.factory._extractXPathAndModelId(targetXPath);

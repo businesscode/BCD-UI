@@ -49,56 +49,22 @@
       el.attr("cols", args.cols);
       el.attr("rows", args.rows);
 
-      if(args.type){
-        if(args.type=="int"){
-          el.attr("type", "number");
-        }else if(args.type=="numeric"){
-          el.attr("type", "number");
-          el.attr("step", "any");
-        }else{
-          el.attr("type", args.type);
-        }
-      }else{
-        el.attr("type", "text");
-      }
-
-      var resetControl=null;
-
       if(args.disabled){
-        el.attr("disabled","disabled");
-        el.addClass("bcdDisabled");
+        el
+        .prop("disabled","disabled")
+        .attr("disabled","disabled")
+        .addClass("bcdDisabled")
+        ;
       }
 
       return {
         widget: el.get(0),
         control: el.get(0)
       }
-    },
-
-    /**
-     * @private
-     */
-    _setOption : function(k,v){
-      this._superApply(arguments);
-      if("disabled" == k){
-        v = (v+"")=="true";
-        var el = jQuery(this.element).children("textarea");
-        el.prop("disabled", v);
-        if(v){
-          el.addClass("bcdDisabled");
-        }else{
-          el.removeClass("bcdDisabled");
-        }
-      }
     }
-
   })
 }());
-/*
- * TODO convenience init adapter since generateWidgetApi.xslt currrently generates
- * bootstrap code like bcdui.widgetNg.button.init(targetHtmlElement), we have to change
- * it to jQuery Widget init style
- */
+
 /**
  * A namespace for the BCD-UI textArea widget.
  * @namespace bcdui.widgetNg.textArea
