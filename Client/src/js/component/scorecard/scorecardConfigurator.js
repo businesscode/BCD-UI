@@ -23,6 +23,13 @@
       return bcdui.component.scorecard.impl.readParams.scorecardConfigurator(this.element[0]);
     },
 
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.component.scorecard.impl.validateParams.scorecardConfigurator(this.options);
+    },
+
     _create : function(){
       this._super();
 

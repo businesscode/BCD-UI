@@ -24,6 +24,9 @@
    * and explicitely call this._super() in its _create(). Please read more on _create() method
    * of this widget.
    *
+   * Usually, when creating typical widget implementing a declared widget API, you override the 
+   * _getCreateOptions() and _validateOptions() methods.
+   *
    * This widget also provides default interface to listen for model updates via ( bcdui.widget.XMLDataUpdateListener ),
    * read more on that on _setOnTargetModelChange() method.
    *
@@ -32,6 +35,27 @@
    * @private
    */
   $.widget("bcdui.bcduiWidget",{
+
+    /**
+     * Override this method and call the generated read params function,
+     * i.e. return bcdui.widgetNg.impl.readParams.button(this.element[0]);
+     *
+     * @private
+     */
+    _getCreateOptions : function(){
+      return null;
+    },
+
+    /**
+     * Override this method and call the generated validate params function,
+     * i.e. bcdui.widgetNg.impl.validateParams.button(this.options);
+     *
+     * @private
+     */
+    _validateOptions : function(){
+      
+    },
+
     /**
      * stores the widget name to allow retrieval via jQuery._bcdWidget(),
      * assures that this.options.id property is always set and assigned to id
@@ -39,6 +63,7 @@
      */
     _create : function(){
       this._super();
+      this._validateOptions();
 
       if(this.element.prop($.bcdui.bcduiWidget.KEY_WIDGET_NAME)){
         var err = "Widget construction error: element is already occupied by another widget!";

@@ -89,6 +89,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.connectable(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.connectable(this.options);
+    },
 
     /**
      * initializes the widget according to the API

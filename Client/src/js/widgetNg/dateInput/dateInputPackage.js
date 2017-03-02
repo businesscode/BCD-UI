@@ -39,6 +39,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.dateInput(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.dateInput(this.options);
+    },
 
     /**
      * @private

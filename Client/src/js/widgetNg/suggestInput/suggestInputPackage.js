@@ -85,6 +85,12 @@
     _getCreateOptions : function(){
       return jQuery.extend(true, {}, this.options, bcdui.widgetNg.impl.readParams.suggestInput(this.element[0]));
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.suggestInput(this.options);
+    },
 
     /**
      * destroys given widget and frees resources

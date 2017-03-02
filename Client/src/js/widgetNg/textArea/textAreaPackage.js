@@ -29,6 +29,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.textArea(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.textArea(this.options);
+    },
 
     /**
      * @private

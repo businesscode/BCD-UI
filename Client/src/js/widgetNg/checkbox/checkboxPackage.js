@@ -54,6 +54,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.checkbox(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.checkbox(this.options);
+    },
 
     /**
      * initializes the widget according to the API

@@ -56,6 +56,12 @@
     _getCreateOptions : function(){
       return jQuery.extend(true, {}, this.options, bcdui.widgetNg.impl.readParams.input(this.element[0]));
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.input(this.options);
+    },
 
     /**
      * initializes the widget according to the API

@@ -36,6 +36,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.singleSelect(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.singleSelect(this.options);
+    },
 
     /**
      * implement destroy, here we tidy up listeners and other stuff also related to PrototypeJS

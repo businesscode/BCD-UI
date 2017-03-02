@@ -26,6 +26,12 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.sideBySideChooser(this.element[0]);
     },
+    /**
+     * @private
+     */
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.sideBySideChooser(this.options);
+    },
 
     /**
      * @private

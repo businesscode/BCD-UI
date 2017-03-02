@@ -23,6 +23,10 @@
       return bcdui.widgetNg.impl.readParams.button(this.element[0]);
     },
 
+    _validateOptions : function(){
+      bcdui.widgetNg.impl.validateParams.button(this.options);
+    },
+
     _create : function(){
       this._super();
 
