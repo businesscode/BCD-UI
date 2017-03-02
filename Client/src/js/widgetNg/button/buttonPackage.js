@@ -128,6 +128,8 @@
       if (this.options.optionsModelXPath) {
         elWrap.addClass("bcdDropDownButton");
         el.addClass("closed");
+        if (! el.attr("tabindex"))
+          el.attr("tabindex", "0") // anchor requires a tabindex since we want to listen on blur events
       }
 
       el.attr("href", this.options.href);
