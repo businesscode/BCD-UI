@@ -13,57 +13,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-/**
- * @fileoverview
- * bcdui bootstrap code with all 3rd party essentials.
- *
- */
 
 /**
- * @global
- * @namespace
+ * @file Manages set up of client logging and provides essentials API
  */
-var bcdui = bcdui || new Object();
-
-// Allowing precise performance measurement
-bcdui.logging = bcdui.logging || new Object();
-bcdui.logging.console = "Start "+new Date()+"\n";
-bcdui.logging.pageStartTs = new Date().getTime();
-
-// Workaround for IE <= 9
-if( typeof location.origin == "undefined" ) {
-  location.origin = location.protocol+"//"+location.hostname+(location.port?":"+location.port:"");
-}
-
-//~~~~~~~~~~~~~~~~~~ bcdui bootstrap ~~~~~~~~~~~~~~~~~~~~~
-
-// Original form PrototypeJs plus our extensions
-jQuery.extend( bcdui, {
-  browserCompatibility: (function(){
-    var ua = navigator.userAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
-    var isInternetExplorer = (!!window.attachEvent && !isOpera) || ua.indexOf('Trident') != -1;
-    var tridentVersion = null;
-    var msIEversion = null;
-    var tridentArray = navigator.userAgent.match(/Trident\/[0-9.]+/g);
-    var msIEArray = navigator.userAgent.match(/MSIE [0-9.]+/g);
-    if (tridentArray != null && tridentArray.length > 0)
-      tridentVersion = 4 + parseFloat(tridentArray[0].replace(/Trident\//g, ""));
-    if (msIEArray != null && msIEArray.length > 0)
-       msIEversion = parseFloat(msIEArray[0].replace(/MSIE/g, ""));
-
-    return {
-      isIE:             isInternetExplorer,
-      isMsEdge:         ua.indexOf(' Edge/') !== -1,
-      isOpera:          isOpera,
-      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1,
-      isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,
-      isMobileSafari:   /Apple.*Mobile/.test(ua),
-      isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf("MSIE")+5))== 8,
-      ieVersion:        msIEversion != null && msIEversion < tridentVersion ? msIEversion : tridentVersion // IE (emulated) version
-    }
-  })()
-});
 
 jQuery.extend( bcdui, 
 /** @lends bcdui */

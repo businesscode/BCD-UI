@@ -13,6 +13,27 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+
+/**
+ * @file BCD-UI bootstrapping
+ */
+
+/**
+ * @global
+ * @namespace
+ */
+var bcdui = bcdui || new Object();
+
+//Workaround for IE <= 9
+if( typeof location.origin == "undefined" ) {
+  location.origin = location.protocol+"//"+location.hostname+(location.port?":"+location.port:"");
+}
+
+//Allowing precise performance measurement
+bcdui.logging = bcdui.logging || new Object();
+bcdui.logging.console = "Start "+new Date()+"\n";
+bcdui.logging.pageStartTs = new Date().getTime();
+
 /**
  * Which js files are to be loaded for BCD-UI
  */
@@ -21,6 +42,16 @@ bcdui.bcduiCeFiles =
 {
   "groups": [
     {
+     "id": "_ecma6Polyfills",
+     "required": "mandatory",
+     "browserCompatibility" : {
+       "isIE" : true
+     },
+     "files": [
+          "/js/3rdParty/ecma6Polyfills.js"
+     ]
+    },
+    {
       "id": "3rdParty",
       "required": "mandatory",
       "files": [
@@ -28,7 +59,6 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/log4javascript.js"
         , "/js/3rdParty/jquery.js"
         , "/js/3rdParty/jquery-ui.js"
-        , "/js/3rdParty/ecma6Polyfills.js"
         , "/js/3rdParty/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
       ]
@@ -194,11 +224,25 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
-      "id": "bcduiCustomElement",
-      "required": "optional",
+      "id": "_webComponentsLitePolyfill",
+      "required": "mandatory",
+      "browserCompatibility" : {
+        "isOpera":  false,
+        "isWebKit": false,
+        "isIE8":    false
+      },
       "files": [
         "/js/3rdParty/webcomponents-lite.js" 
-        , "/js/core/customElements.js"
+      ]
+    },
+    {
+      "id": "bcduiCustomElement",
+      "required": "mandatory",
+      "browserCompatibility" : {
+        "isIE8":    false
+      },
+      "files": [
+          "/js/core/customElements.js"
         , "/js/widget/customElements.js"
         , "/js/widgetNg/customElements.js"
         , "/js/component/chart/customElements.js"
@@ -209,6 +253,33 @@ bcdui.bcduiCeFiles =
   ]
 }
 // JSON-PART-FOR-BUILD
+
+// build browser compatibility matrix
+bcdui.browserCompatibility = (function(){
+    var ua = navigator.userAgent;
+    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
+    var isInternetExplorer = (!!window.attachEvent && !isOpera) || ua.indexOf('Trident') != -1;
+    var tridentVersion = null;
+    var msIEversion = null;
+    var tridentArray = navigator.userAgent.match(/Trident\/[0-9.]+/g);
+    var msIEArray = navigator.userAgent.match(/MSIE [0-9.]+/g);
+    if (tridentArray != null && tridentArray.length > 0)
+      tridentVersion = 4 + parseFloat(tridentArray[0].replace(/Trident\//g, ""));
+    if (msIEArray != null && msIEArray.length > 0)
+       msIEversion = parseFloat(msIEArray[0].replace(/MSIE/g, ""));
+
+    return {
+      isIE:             isInternetExplorer,
+      isMsEdge:         ua.indexOf(' Edge/') !== -1,
+      isOpera:          isOpera,
+      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1,
+      isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,
+      isMobileSafari:   /Apple.*Mobile/.test(ua),
+      isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf("MSIE")+5))== 8,
+      ieVersion:        msIEversion != null && msIEversion < tridentVersion ? msIEversion : tridentVersion // IE (emulated) version
+    }
+})();
+
 //Prepend to any already existing group definition, which may extend us
 bcdui.bcduiFiles = bcdui.bcduiFiles || {};
 if( typeof bcdui.bcduiFiles.groups != 'undefined' )
@@ -242,6 +313,23 @@ document.write("<link rel='stylesheet' type='text/css' href='" + bcdui.config.co
 // If bcdui.config.loadFiles is set: All mandatory plus listed ones 
 bcdui.config.loadFiles = bcdui.config.loadFiles || [];
 (function(){
+  // apply trivalent compatibility matrix ( true, false, ignore )
+  var isBrowserCompatible = function(group){
+    // consider compatible if no matrix defined
+    if (!group.browserCompatibility) {
+      return true;
+    }
+
+    // consider compatible if all defined flags match
+    for(var key in group.browserCompatibility){
+      if (!bcdui.browserCompatibility[key] === group.browserCompatibility[key]){
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   for (var g = 0; g < bcdui.bcduiFiles.groups.length; g++) {
     var group = bcdui.bcduiFiles.groups[g];
 
@@ -252,9 +340,10 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
       }
     }
 
-    if( group.required === "mandatory"
+    if( (group.required === "mandatory"
         || indexOf !== -1
-        || ( bcdui.config.loadFiles.length === 0 && group.required === "default" ) ) {
+        || ( bcdui.config.loadFiles.length === 0 && group.required === "default" )
+        ) && isBrowserCompatible(group) ) {
       for (var f = 0; f < group.files.length; f++)
         document.write("<script type='text/javascript' src='" + bcdui.config.contextPath + "/bcdui" + group.files[f] + "'><\/script>");
     }
