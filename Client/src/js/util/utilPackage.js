@@ -377,5 +377,64 @@ bcdui.util =
     }
 
     return false;
+  },
+
+  /**
+   * Find a single element in HTML, sets an id if not there and returns the id.
+   * Also understands deprecated args.targetHTMLElementId and args.targetHtmlElementId instead instead of args.targetHtml and ids without leading '#' for backward compatibility
+   * @param {Object} args Parameter Object
+   * @param {string|HTMLElement|jQuery} args.targetHtml A CSS selector, or a plain HTMLElement or a jQuery element list. If there are multiple matching elements, the id of the first is used.
+   * @returns The id of the targetHtml
+   * @private
+   */
+  _getTargetHtml: function(args, scope) {
+    // either take deprecated provided Ids
+    var id = args.targetHTMLElementId || args.targetHtmlElementId;
+    if (!id) {
+      
+      // For a plain word, we assume, always means an id not all matching tags. Even if no leading '#' is set.
+      if (typeof args.targetHtml == "string" && args.targetHtml.match(/^#?[\w:-_]+$/)) {
+        if (jQuery(args.targetHtml.startsWith("#") ? args.targetHtml : "#" + args.targetHtml).length > 0)
+          return args.targetHtml.startsWith("#") ? args.targetHtml.substring(1) : args.targetHtml;
+      }
+
+      //  is dom or jquery element or jquery selector?
+      if (jQuery(args.targetHtml).length > 0) {
+        // take its id
+        if (jQuery(args.targetHtml).first().attr("id")) {
+          id = jQuery(args.targetHtml).first().attr("id")
+        }
+        // or generate one by using its id
+        else if (args.id) {
+          id = args.id + "_tE";
+          jQuery(args.targetHtml).first().attr("id", id)
+        }
+        // or a totally new one from scope
+        else {
+          id = bcdui.factory.objectRegistry.generateTemporaryIdInScope(scope||"") + "_tE";
+          jQuery(args.targetHtml).first().attr("id", id)
+        }
+      }
+      else
+        throw Error("targetHtml missing for '" + (args.id || scope) + "'" );
+    }
+    return id;
   }
+}
+
+//Dummy implementation in case validation is not loaded
+//This is overwritten with real functionality if apiValidate package is loaded
+if( typeof bcdui.factory === "undefined" || typeof bcdui.factory.validate === "undefined"  || typeof bcdui.factory.validate.jsvalidation === "undefined"  ) {
+  bcdui.factory = bcdui.factory || new Object();
+  bcdui.factory.validate = bcdui.factory.validate || new Object();
+  bcdui.factory.validate.jsvalidation = bcdui.factory.validate.jsvalidation || new Object();
+  bcdui.factory.validate.component = bcdui.factory.validate.component || new Object();
+  bcdui.factory.validate.core = bcdui.factory.validate.core || new Object();
+  bcdui.factory.validate.widget = bcdui.factory.validate.widget || new Object();
+  
+  /**
+  * This is overwritten with real functionality if apiValidate package is loaded
+  * @private
+  */
+  bcdui.factory.validate.jsvalidation._validateArgs = function() { return; };
 }
