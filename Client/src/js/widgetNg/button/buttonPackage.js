@@ -54,16 +54,16 @@
 
       // bind actions
       this._on({
-        "mousedown" : function(el){
+        "mousedown" : function(){
           jQuery(buttonControl.control).toggleClass("bcdClicked");
         },
-        "mouseup" : function(el){
+        "mouseup" : function(){
           jQuery(buttonControl.control).toggleClass("bcdClicked");
         },
         "mouseout" : function(){
           jQuery(buttonControl.control).removeClass("bcdClicked");
         },
-        "click" : function(){
+        "click" : function(event){
           var el = jQuery(buttonControl.control);
           if(args.stayPressed){
             el.addClass("bcdClicked");
