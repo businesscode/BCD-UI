@@ -166,6 +166,9 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
    */
   _mouseMoveHandler: function(/* Event */ event)
     {
+      if(event.target === document){
+        return;
+      }
       if (this._currentHtmlElement != event.target) {
         this._currentHtmlElement = event.target;
         var newFilteredElement = this._getFilteredElement();
