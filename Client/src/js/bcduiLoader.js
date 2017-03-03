@@ -18,12 +18,6 @@
  * @file BCD-UI bootstrapping
  */
 
-/**
- * @global
- * @namespace
- */
-var bcdui = bcdui || new Object();
-
 //Workaround for IE <= 9
 if( typeof location.origin == "undefined" ) {
   location.origin = location.protocol+"//"+location.hostname+(location.port?":"+location.port:"");

@@ -18,6 +18,12 @@
  * @file Manages set up of client logging and provides essentials API into window.bcdui context
  */
 
+/**
+ * @global
+ * @namespace
+ */
+var bcdui = bcdui || new Object();
+
 jQuery.extend( bcdui, 
 /** @lends bcdui */
 {
