@@ -442,7 +442,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   _addMeasure: function( cubeId, targetModelId, targetModelXPath, dialogCaption, isEditMode){
     // preparing variablesModel
 
-    var cubeBucketModelId = jQuery("#" + cubeId + "_dnd").data("cubeBucketModelId");
+    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId");
 
     var tempOptionsModel = bcdui.factory.objectRegistry.getObject(bcdui.factory.createStaticModel( {
       id: "temp_opt_model_" + (new Date()).valueOf(),
