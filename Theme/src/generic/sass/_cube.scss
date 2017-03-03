@@ -750,3 +750,7 @@ div.bcdContextMenu a.bcdMenuitems {
   .bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
   */
 }
+
+.bcdLocked :after{
+  content: "  🔒";
+}

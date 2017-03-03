@@ -962,6 +962,7 @@
         // handle multi-select, add items in container data and remove them from source
         jQuery("#" + this.config.elementId).on("sortstart", function(event, ui) {
 
+          ui.item.data("sameBox", true);
           this.valuesBefore = jQuery(this).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get().join();
 
           // take all .ui-selected items, not the sortable placeholder but the item itself
@@ -969,6 +970,13 @@
           var selectedItems = jQuery("#" + self.config.elementId).children('.ui-selected').not(".ui-sortable-placeholder").add(ui.item);
           var items = jQuery(selectedItems).clone();
 
+          // store pos of selected ones in items
+          for (var i = 0; i < selectedItems.length; i++)
+            jQuery(items[i]).data("pos", jQuery(selectedItems[i]).index());
+          
+          // rememeber all origial positions
+          jQuery("#" + self.config.elementId).children('.ui-selectee').not(".ui-sortable-placeholder").each(function(i,e){jQuery(e).data("pos", jQuery(e).index())})
+          
           // remove some obsolete jquery styling
           jQuery(items).removeAttr("style").removeClass("bcdConnectableHover");
 
@@ -980,14 +988,38 @@
         // handle multi-select, add items from container data in destination
         jQuery("#" + this.config.elementId).on("sortstop", function(event, ui) {
 
-          var items = ui.item.data('itemContainer');
+          var items = (ui.item.data("sameBox")) ? ui.item.data('itemContainer') : ui.item.data('itemContainer').not(".bcdLocked");
+          var itemsLocked = ui.item.data('itemContainer').filter(".bcdLocked");
+
           var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']");
 
           // on a move, clear selected items in the target first, so only the new added ones remain active
           box.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
+          // insert items after current dragpos
           if (items != null && items.length > 0)
-            ui.item.after(items).remove();
+            ui.item.after(items);
+
+          // in case of a not sameBox move, move back locked items to their original position
+          if (! ui.item.data("sameBox")) {
+            var sourceItems = jQuery(event.target).children('.ui-selectee').not(".ui-sortable-placeholder");
+            itemsLocked.each(function(i, e){
+              var pos = jQuery(e).data("pos");
+              var added = false;
+              for (var s = 0; s < sourceItems.length; s++) {
+                if (jQuery(sourceItems[s]).data("pos") > pos) {
+                  jQuery(e).insertBefore(sourceItems[s]);
+                  added = true;
+                  break;
+                }
+              }
+              if (! added)
+                jQuery(event.target).append(jQuery(e));
+            });
+          }
+
+          // remove current item, since it's either locked or part of the item list
+          ui.item.remove();
 
           // check if we need to unselect our selection after the move
           var widgetEl = box.parent();
@@ -1006,6 +1038,7 @@
         // cancel sort depending on result of onBeforeChange function call
         // this is only called when you change the box, not when you reorder items within a box...
         jQuery("#" + this.config.elementId).on("sortreceive", function(event, ui) {
+          ui.item.data("sameBox", false);
           var from = to = event.target;
           if (typeof ui.sender != "undefined")
             from = ui.sender;
@@ -1037,7 +1070,7 @@
      */
     _moveSelectedItems : function(from, to) {
       if (from.length > 0 && to.length > 0) {
-        var itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length;
+        var itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").length;
         if (itemCount > 0) {
           if (this.onBeforeChange({element:jQuery("#" + this.config.elementId).get(0), dir: this._getMoveType(from, to), itemCount: itemCount})) {
 
@@ -1045,7 +1078,7 @@
             jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
             // the actual move...
-            jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").appendTo(to);
+            jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").appendTo(to);
 
             // check if we need to unselect our selection after the move
             var widgetEl = jQuery(to).parent();
