@@ -51,7 +51,9 @@
       <!-- JS stubs for init() for getting params from html -->
       <File name="gensrc/js/widgetNg/widgetImpl.js">
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg.impl.readParams");</xsl:text>
+        <xsl:text>bcdui.util.namespace("bcdui.widgetNg.impl.validateParams");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.component.scorecard.impl.readParams");</xsl:text>
+        <xsl:text>bcdui.util.namespace("bcdui.component.scorecard.impl.validateParams");</xsl:text>
         <xsl:text>
 /* allowedValues: pipe separated string with allowed values */
 bcdui.widgetNg.impl.readParams._validateEnumValues = function(paramBag, paramName, allowedValues){
@@ -64,6 +66,7 @@ bcdui.widgetNg.impl.readParams._validateEnumValues = function(paramBag, paramNam
 }
         </xsl:text>
         <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsInitReadParams"/>
+        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsInitValidateParams"/>
       </File>
 
       <!-- JSP Api, one file per widget -->

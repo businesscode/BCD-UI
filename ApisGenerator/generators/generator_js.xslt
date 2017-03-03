@@ -104,10 +104,31 @@
     }
   }
 
+  return params;
+};
+  </xsl:template>
+
+  <!-- *****************
+    jsInitValidateParams, used in widget's _create() function to validate params
+     -->
+  <xsl:template match="BcdObject" mode="jsInitValidateParams">
+    <xsl:variable name="package">
+      <xsl:variable name="x">
+        <xsl:if test="@implementationPackage!=''">
+          <xsl:call-template name="lastIndexOf">
+            <xsl:with-param name="s" select="@implementationPackage"/>
+            <xsl:with-param name="c" select="'.'"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:variable>
+      <xsl:if test="number($x) &gt; 1">
+        <xsl:value-of select="substring(@implementationPackage, 1, number($x - 1))"/>
+      </xsl:if>
+    </xsl:variable>
+  
+<xsl:value-of select="concat('&#10;', $package, '.')"/>impl.validateParams.<xsl:value-of select="@name"/>= function( params ) {
   <xsl:apply-templates select="Api/Param[contains(@type, 'enum')]" mode="jsValidateEnumParamBag"/>
   <xsl:apply-templates select="Api/Param[@required = 'true']" mode="jsValidateRequired"/>
-
-  return params;
 };
   </xsl:template>
 
