@@ -69,7 +69,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
    * @param {chainDef}                 args.chain                             - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
    * @param {string}                  [args.tooltipUrl]                       - To overwrite default renderer xslt of the tooltip. An empty string will disable tooltips. 
    *    Default is BCD-UI's default sc tooltip, which shows all attributes of a cell. To give a KPI an attribute, nest an scc:AspectRef into scc:AspectKpi in the scorecard definition.
-   * @param {bcdui.core.DataProvider} [args.statusModel]                      - StatusModel, containing the filters at /SomeRoot/f:Filter, default is 'guiStatusEstablished'
+   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter, default is 'guiStatusEstablished'
    * @param {bcdui.core.DataProvider} [args.customParameter]                  - Custom parameters for usage in custom aggregators, aspects and renderer as 'customParameter' parameter.</li>
    * @param {Object}                  [args.parameters]                       - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    * @param {(boolean|string)}        [args.contextMenu=false]                - If true, scorecard's default context menu is used, otherwise provide the url to your context menu xslt here.
@@ -89,7 +89,6 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     this.targetHtml = args.targetHtml;
     args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
 
-    args.enhancedConfiguration = args.enhancedConfiguration;
     if (! args.enhancedConfiguration && args.config)
       args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
     if (! args.enhancedConfiguration && args.inputModel)
@@ -130,7 +129,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       if( args.tooltipUrl && args.tooltipUrl!="false" && args.tooltipUrl != "" ) {
         bcdui.widget.createTooltip({ tableMode: true, filter:"td|th",
           inputModel: this.inputModel, url: args.tooltipUrl,
-          targetRendererId: this.id, parameters: args.parameters });
+          targetRendererId: this.id, parameters: jQuery.extend( {}, args.parameters, { sccDefinition: args.enhancedConfiguration } ) } );
       }
 
       //--------------------
@@ -139,7 +138,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         var contextMenuUrl = args.contextMenu === true || args.contextMenu === 'true' ? bcdui.config.jsLibPath+"component/scorecard/contextMenu.xslt" : args.contextMenu;
         var bcdPageAccess = " " + (bcdui.config.clientRights.bcdPageAccess || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
         this.contextMenu = new bcdui.core.ModelWrapper({ chain: contextMenuUrl, inputModel: this.statusModel,
-          parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, sccDefinition: this.inputModel.refSccDefinition, bcdPageAccess: bcdPageAccess } });
+          parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, sccDefinition: args.enhancedConfiguration, bcdPageAccess: bcdPageAccess } });
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
       }
 
@@ -155,14 +154,14 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           var parameters = {
             // we are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
             bcdRowIdent: memo.bcdRowIdent, bcdColIdent: memo.bcdColIdent,
-            sccDefinition: this.inputModel.refSccDefinition,
+            sccDefinition: args.enhancedConfiguration,
             dimensionModel: bcdui.wkModels.bcdDimensions,
             statusModel: this.statusModel, filterModel: this.statusModel
           };
 
           // Custom xslt plus custom parameters
           jQuery.extend(parameters, memo.chainParameters);
-          var chain = memo.chain || bcdui.contextPath+"/bcdui/js/component/scorecard/detailExportWrq.xslt";
+          var chain = memo.chain || [ bcdui.contextPath+"/bcdui/js/component/scorecard/detailExportWrq.xslt", bcdui.component.scorecard._toRangeWhen ];
 
           // Create the export Wrq and execute each time, we become ready
           this.actionDetailExportWrq = new bcdui.core.ModelWrapper({ inputModel: this.inputModel, chain: chain, parameters: parameters });
@@ -191,7 +190,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           var parameters = {
             // We are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
             bcdRowIdent: memo.bcdRowIdent, bcdColIdent: memo.bcdColIdent,
-            sccDefinition: bcdui.factory.objectRegistry.getObject(this.inputModel.id+"_bcdImpl_refSccDefinition"),
+            sccDefinition: args.enhancedConfiguration,
             dimensionModel: bcdui.wkModels.bcdDimensions,
             statusModel: this.statusModel, filterModel: this.statusModel
           };

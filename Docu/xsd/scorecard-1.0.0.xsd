@@ -289,6 +289,22 @@
         </xs:complexType>
       </xs:element>
 
+      <xs:element name="Description" minOccurs="0" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Non-formal text to describe the KPI. Shown by default tooltip.
+            Element's text content becomes a header line, like a 'main' description.
+            All attributes are shown as a table with the attribute's name as caption (case-sensitive) and the value as content.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+          </xs:sequence>
+          <xs:anyAttribute processContents="lax"/>
+        </xs:complexType>
+      </xs:element>
+
       <xs:element name="Extensions" minOccurs="0">
         <xs:annotation>
           <xs:documentation>This element allows any project specific extension, attributes or elements</xs:documentation>

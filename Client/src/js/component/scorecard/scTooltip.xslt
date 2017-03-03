@@ -21,6 +21,7 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
+  xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
 <xsl:import href="../../../xslt/renderer/numberFormatting.xslt"/>
@@ -31,6 +32,7 @@
 <xsl:key name="columnDefinitionLookupById" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
 
 <xsl:param name="bcdRowIdent"/>
+<xsl:param name="sccDefinition"/>
 <xsl:param name="bcdColIdent"/>
 <xsl:variable name="sqlTypes" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
 
@@ -54,16 +56,20 @@
  -->
 <xsl:template name="showAttrs">
   <xsl:param name="cell" select="/*/wrs:Data/wrs:R[@id=$bcdRowIdent]/wrs:C[number(key('columnDefinitionLookupById',$bcdColIdent)/@pos)]"/>
-  <xsl:param name="attr" select="$cell/@*[local-name()=/*/wrs:Header/wrs:Columns/wrs:C[@id=$bcdColIdent]/wrs:A/@id]"/>
-  <xsl:variable name="kpi" select="/*/wrs:Data/wrs:R[@id=$bcdRowIdent]/wrs:C[number(key('columnDefinitionLookupById','bcd_kpi_id')/@pos)]"/>
+  <xsl:param name="attrs" select="$cell/@*[local-name()=/*/wrs:Header/wrs:Columns/wrs:C[@id=$bcdColIdent]/wrs:A/@id]"/>
   <xsl:variable name="cellCaption" select="/*/wrs:Header/wrs:Columns/wrs:C[number(key('columnDefinitionLookupById',$bcdColIdent)/@pos)]/@caption"/>
+  <xsl:variable name="kpiId" select="/*/wrs:Data/wrs:R[@id=$bcdRowIdent]/wrs:C[number(key('columnDefinitionLookupById','bcd_kpi_id')/@pos)]"/>
+  <xsl:variable name="kpi" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]"/>
+  <xsl:variable name="kpiDescription" select="$kpi/scc:Description"/>
 
-  <xsl:if test="$attr[string(.)]">
+  <xsl:if test="$attrs[string(.)] or ($bcdColIdent='bcd_kpi_id' and $kpiDescription)">
     <table class="bcdTooltip">
-      <xsl:if test="count($attr) &gt; 0 and $kpi/@caption != ''">
-        <thead><tr><th><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
-      </xsl:if>
-      <xsl:for-each select="$attr">
+
+      <!-- Print KPI caption -->
+      <thead><tr><th><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
+
+      <!-- Print each attribute -->
+      <xsl:for-each select="$attrs">
         <xsl:variable name="def" select="/*/wrs:Header/wrs:Columns/wrs:C[@id=$bcdColIdent]/wrs:A[@id=local-name(current())]"/>
         <tr>
           <th>
@@ -84,7 +90,9 @@
           </td>
         </tr>
       </xsl:for-each>
-      <xsl:if test="$cellCaption != ''">
+
+      <!-- Caption of data cell -->
+      <xsl:if test="not($bcdColIdent='bcd_kpi_id') and $cellCaption != ''">
         <xsl:variable name="caption">
           <xsl:call-template name="replaceString">
             <xsl:with-param name="str" select="$cellCaption"/>
@@ -93,6 +101,29 @@
           </xsl:call-template>
         </xsl:variable>
         <tr><td colspan="2" class="bcdFooter"><xsl:value-of select="$caption"/></td></tr>
+      </xsl:if>
+
+      <!-- scc:Description, when on KPI dimension cell -->
+      <xsl:if test="$bcdColIdent='bcd_kpi_id'">
+        <!-- scc:Description main text -->
+        <xsl:if test="string-length($kpiDescription)">
+          <tr>
+            <th colspan="2">
+              <xsl:value-of select="$kpiDescription"/>
+            </th>
+          </tr>
+        </xsl:if>
+        <!-- scc:Description attributes -->
+        <xsl:for-each select="$kpiDescription/@*">
+          <tr>
+            <th>
+              <xsl:value-of select="local-name()"/>:
+            </th>
+            <th>
+              <xsl:value-of select="."/>
+            </th>
+          </tr>
+        </xsl:for-each>
       </xsl:if>
     </table>
   </xsl:if>
