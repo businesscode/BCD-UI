@@ -201,7 +201,7 @@
         <xs:extension base="tns:CalculatedValueType">
           <xs:attribute name="idRef">
             <xs:annotation><xs:documentation>
-              The form is aggr_[idOfMyAggregator]_$.[idOfMyProperty].
+              The form is agg_[idOfMyAggregator]_$.[idOfMyProperty].
             </xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>

@@ -30,10 +30,10 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
    *
    * @constructs
    * @param {Object} args The parameter map contains the following properties:
-   * @param {bcdui.core.DataProvider} [args.config=cubeConfiguration.xml] - The model containing the cube meta data (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
-   * @param {string}                  [args.cubeId]                       - When settings are to be derived from status model, this is the id in <cube:Layout cubeId="myCube">
-   * @param {string}                  [args.id]                           - The object's id, needed only when later accessing via id. If given the CubeModel registers itself at {@link bcdui.factory.objectRegistry}
-   * @param {bcdui.core.DataProvider} [args.statusModel=guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
+   * @param {bcdui.core.DataProvider} [args.config] - The model containing the cube meta data (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
+   * @param {string}                  [args.cubeId] - When settings are to be derived from status model, this is the id in <cube:Layout cubeId="myCube">
+   * @param {string}                  [args.id]     - The object's id, needed only when later accessing via id. If given the CubeModel registers itself at {@link bcdui.factory.objectRegistry}
+   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
    */
   initialize: function(args) {
     
@@ -162,11 +162,11 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
    *
    * @constructs
    * @param args The parameter map contains the following properties:
-   * @param {targetHtmlRef}           args.targetHtml                                 - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config]                                   - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
-   * @param {bcdui.core.DataProvider} [args.statusModel]                              - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
-   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel] 									- Use this to overwrite filters found in args.statusModel, default set to args.statusModel
-   * @param {string}                  [args.id]                                       - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
+   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
+   * @param {bcdui.core.DataProvider} [args.config]                                          - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
+   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
+   * @param {bcdui.core.DataProvider} [args.detailExportFilterModel] 									       - Use this to overwrite filters found in args.statusModel, default set to args.statusModel
+   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
    */
   initialize: function(args) {
 

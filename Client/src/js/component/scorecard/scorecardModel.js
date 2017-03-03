@@ -88,7 +88,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
    * @param {bcdui.core.DataProvider} args.config                  - The scorecard definition
    * @param {string}                  [args.id]                    - The id of the new object. If omitted the id is automatically generated
    * @param {bcdui.core.DataProvider} [args.customParameter]       - Custom parameters for usage in the custom aggregator and aspect transformations.</li>
-   * @param {bcdui.core.DataProvider} [args.statusModel=guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
+   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
    */
   initialize: function(/* object */ args )
   {
