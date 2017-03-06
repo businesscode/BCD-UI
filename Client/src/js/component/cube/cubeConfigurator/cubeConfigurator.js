@@ -247,6 +247,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         expressionNode.setAttribute("bRef", args.levelId);
         expressionNode.setAttribute("op", '<>');
         expressionNode.setAttribute("type", "bcdCubeExclude_"+cubeId);
+        expressionNode.setAttribute("exclBRef", args.levelId);
       }
       // To exclude a value, we say "<> the value" but do explicitly allow null, otherwise they disappear as well
       else {
