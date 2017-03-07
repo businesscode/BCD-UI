@@ -981,8 +981,11 @@
           jQuery(items).removeAttr("style").removeClass("bcdConnectableHover");
 
           // store the container as data and remove them
-          if (items != null && items.length > 0)
+          if (items != null && items.length > 0){
             ui.item.data('itemContainer', items).siblings('.ui-selected').remove();
+            // store our origin container in case we get detached from DOM
+            ui.item.data("bcdSortStartOriginContainer", jQuery(this));
+          }
         });
 
         // handle multi-select, add items from container data in destination
@@ -991,7 +994,16 @@
           var items = (ui.item.data("sameBox")) ? ui.item.data('itemContainer') : ui.item.data('itemContainer').not(".bcdLocked");
           var itemsLocked = ui.item.data('itemContainer').filter(".bcdLocked");
 
-          var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']");
+          var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']"); // is empty if ui.item is detached
+
+          // item got detached from DOM, this happens during a 'cancel' on jQuery sortable plugin
+          // when all items got selected, here we reinsert them back to origin and stop
+          if(!box.length){
+            if (items != null){
+              ui.item.data("bcdSortStartOriginContainer").append(items);
+            }
+            return;
+          }
 
           // on a move, clear selected items in the target first, so only the new added ones remain active
           box.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
@@ -1022,8 +1034,7 @@
           ui.item.remove();
 
           // check if we need to unselect our selection after the move
-          var widgetEl = box.parent();
-          if (widgetEl._bcduiWidget().options.unselectAfterMove)
+          if (box.parent()._bcduiWidget().options.unselectAfterMove)
             box.children('.ui-selected').removeClass("ui-selected");
 
           // resort source side since source side should use original ordering
