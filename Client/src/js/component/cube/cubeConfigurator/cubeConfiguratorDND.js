@@ -276,8 +276,8 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
   _limitDimsAndMeasures : function(cubeId) {
 
     var doRedisplay = false;
-    var maxDimensions = bcdui.config.settings.bcdui.component.cube.maxDimensions || 9;
-    var maxMeasures = bcdui.config.settings.bcdui.component.cube.maxMeasures || -1;
+    var maxDimensions = 9; // More is not supported by Chrome
+    var maxMeasures  = -1;
 
     // limit measures/dimensions if required
     if (maxDimensions || maxMeasures) {

@@ -13,21 +13,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-// Global configuration settings of BCD-UI
-// This is merged with bcdui/conf/settings.json optionally provided per project
+/**
+ * Global configuration settings of BCD-UI
+ * You may overwrite these defaults in a file bcdui/conf/settings.json
+ */
 bcdui.config.settings = jQuery.extend( true,
   {
     bcdui: {
       component: {
-          exports: {
-            // Allowed: "slk" | "csv" | "xlsx"
-            detailExportDefaultFormat: "slk"
-          }
-        , cube: {
-            maxDimensions: 9
-          , maxMeasures: -1
-        }
-        , dnd: {
+        exports: {
+          // Allowed: "slk" | "csv" | "xlsx"
+          detailExportDefaultFormat: "slk"
+        },
+        dnd: {
+          // Layout of scorecard and cube configurators drag and drop area.
           targetLeft: true
         }
       }
