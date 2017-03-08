@@ -524,24 +524,14 @@
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
           </Doc>
         </Param>
-        <Param name="defaultSourceCaption" required="false" type="string">
+        <Param name="sourceCaption" required="false" type="string" default="Source">
           <Doc>
-            Caption(header) for source block items
+            Caption(header) for source block items. Can be an i18n key (with leading i18n token).
           </Doc>       
         </Param>
-        <Param name="sourceCaptionKey" required="false" type="string">
+        <Param name="targetCaption" required="false" type="string" default="Target">
           <Doc>
-            Translation key for caption(header) for source block items
-          </Doc>       
-        </Param>
-        <Param name="defaultTargetCaption" required="false" type="string">
-          <Doc>
-            Caption(header) for target block items
-          </Doc>       
-        </Param>
-        <Param name="targetCaptionKey" required="false" type="string">
-          <Doc>
-            Translation key Caption(header) for target block items
+            Caption(header) for target block items. Can be an i18n key (with leading i18n token).
           </Doc>       
         </Param>
         <Param name="onBeforeChange" required="false" type="function">

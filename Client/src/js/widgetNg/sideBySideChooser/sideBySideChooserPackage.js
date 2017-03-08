@@ -42,7 +42,7 @@
       var template = "<div class='bcdSideBySideChooser'>" +
         "<table>" +
           "<thead>" +
-            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceKey}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetKey}}'>{{=it.targetCaption}}</th><th></th></tr>" +
+            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceCaption}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetCaption}}'>{{=it.targetCaption}}</th><th></th></tr>" +
           "</thead>" +
         "<tbody>" +
           "<tr>" +
@@ -57,13 +57,14 @@
 
       jQuery(this.element).append(
         doT.template(template)({
-          sourceKey: this.options.sourceCaptionKey
-        , targetKey: this.options.targetCaptionKey
-        , sourceCaption: (this.options.defaultSourceCaption || "Source")
-        , targetCaption: (this.options.defaultTargetCaption || "Target")
+          sourceCaption: (this.options.sourceCaption || "Source")
+        , targetCaption: (this.options.targetCaption || "Target")
         , id: this.options.id
         })
       );
+
+      // trigger translation
+      bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
 
       // let's map attributes
       var args = {

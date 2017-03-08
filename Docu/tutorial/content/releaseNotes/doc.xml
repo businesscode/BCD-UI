@@ -80,7 +80,7 @@
         </ol>
         Incompatibilities:
         <ol>
-          <li></li>
+          <li>removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
         </ol>
       </Body>
     </SubChapter>
