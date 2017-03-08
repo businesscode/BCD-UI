@@ -46,7 +46,7 @@
     </xsl:variable>
 
 /**
-  * Creates widget: <xsl:value-of select="@name"/>
+  * <xsl:value-of select="normalize-space(Api/Doc[position()=last()])"/>
   * @param {Object}  args  The parameter map contains the following properties.<xsl:for-each select="Api/Param">
       <xsl:sort select="concat(translate(substring(concat(@required,substring('false',0,1 div string-length(@required))), 1, 1), 'tf', '01'), @name)" order="ascending"/>
       <xsl:apply-templates select="." mode="jsDoc"/>

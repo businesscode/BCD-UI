@@ -148,7 +148,7 @@
           @readonly is deprecated
         </ApiChange>
         <Doc>
-          accepts a value and writes to given targetModelXPath. The implementation may or may not provide additional input validation.
+          Accepts a value and writes to given targetModelXPath. The implementation may or may not provide additional input validation.
           Additionally, the implementation ALWAYS checks the @bcdIsValid attribute at the target data node - as referenced by targetModelXPath.
           In case @bcdIsValid is set, the implementation HAS to display and invalid input to the user (which is the content of the @bcdIsValid attribute, and may be i18nToken)
           and accept a valid input and thus clearing that @bcdIsValid attribute on the target node.
@@ -179,7 +179,7 @@
 
       <Api name="dateInput" extends="baseInput">
         <Doc>
-          date picker for temporal types supports native html5 widget and fallsback to custom implementation in case browser
+          Date picker for temporal types supports native html5 widget and fallsback to custom implementation in case browser
           does not support it.
         </Doc>
         <Param name="type" type="enum" value="date|yrMonth" default="date">
@@ -194,7 +194,7 @@
 
       <Api name="periodChooser" extends="baseInput">
         <Doc>
-          allow to enter a date/time into special input fields or pick it from a calendar,
+          Allow to enter a date/time into special input fields or pick it from a calendar,
           this widget also allows to select ranges of same types (i.e. Date, Time or DateTime)
           TODO describe output format
         </Doc>
@@ -289,7 +289,7 @@
           @onEnterKey
         </ApiChange>
         <Doc>
-          a simple text field input allowing user to enter arbitrary text. Specific input type can be preset via 'type' attribute.
+          A simple text field input allowing user to enter arbitrary text. Specific input type can be preset via 'type' attribute.
           The input can be generally validated using 'pattern' paramter (html5 compliant) containing the JS regular expression, in such
           a case a built-in validation for WRS binding is overridden by provided validator and effectively disabled.
         </Doc>
@@ -399,7 +399,7 @@
 
       <Api name="hasHtml5Support">
         <Doc>
-          some of the widgets provide HTML5 native support hence providing some more API to finegrain control them
+          Some of the widgets provide HTML5 native support hence providing some more API to finegrain control them
         </Doc>
         <Param name="disableNativeSupport" type="boolean" default="false">
           <Doc>
@@ -411,7 +411,7 @@
 
       <Api name="suggestInput" extends="hasOptionsFilter hasOptions textInput hasHtml5Support hasValidator">
         <Doc>
-          allowing to either depict certain value from a list or accepting new value not in list.
+          Allowing to either depict certain value from a list or accepting new value not in list.
           This input type always offers an input prompt which either acts as pre-filter for the list or also
           allows to enter new items. This widget can handle big number of options at good performance as well as supports complex options layout
           in non-native mode. Furthermore it provides you with ability to access remote data.
@@ -691,7 +691,7 @@ the data that is actually placed in XML.
       <Api name="scorecardConfigurator" extends="widget">
         <Doc>
           Creates a scorecard configurator, providing the scc:Layout section of the scorecard configuration, able of
-          1) Showing the drag and drop area for the dimensions and kpis and aspects
+          showing the drag and drop area for the dimensions and kpis and aspects.
         </Doc>
         <Impl>
           <Jsp allowsChildren="true">
