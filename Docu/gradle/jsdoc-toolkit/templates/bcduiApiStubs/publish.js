@@ -34,14 +34,14 @@ exports.publish = function(taffyData, opts, tutorials)
   // Debug helper
   //console.log( JSON.stringify( taffyData({longname: "bcdui.component.chart"}).get() ) );
 
-  printNamespaces( taffyData, opts );
+  // Namespaces and static functions
+  var result = printNamespaces( taffyData, opts );
 
   var allClasses = find( taffyData, { kind: "class", access: { "!is": "private" }, virtual: { "!is": true } } );
   var bcdFileGroups = opts.query.bcdFileGroups.split(",");
 
-  bcdFileGroups.forEach( function(group) 
+  bcdFileGroups.forEach( function(group)
   {
-    var result = "";
 
     var groupClasses = allClasses.filter( function(clazz) { 
       return clazz.meta.filename.indexOf(group) !== -1;
@@ -53,14 +53,13 @@ exports.publish = function(taffyData, opts, tutorials)
 
     }); // class
     
-    if( result ) {
-      // Hiding local symbols
-      result = "(function(){" + newLine+newLine + result + "})();"+newLine;
-
-      fs.mkPath(opts.destination);
-      fs.writeFileSync(opts.destination+"/"+group+"ApiStub.js", result, 'utf8')
-    }
   });
+
+  // Hiding local symbols
+  result = "// This file BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine + result + newLine;
+
+  fs.mkPath(opts.destination);
+  fs.writeFileSync(opts.destination+"/bcduiApiStubs.js", result, 'utf8')
 
 }
 
@@ -333,11 +332,14 @@ function printCommentExamplesMandatories( method, clazz )
 }
 
 /**
- * Loop over namespaces and create a common output file
+ * Loop over namespaces and static functions
  */
 function printNamespaces( taffyData, opts )
 {
   var allNamespaces = find( taffyData, { kind: "namespace", access: { "!is": "private" }  } );
+  // Make sure namespaces are defined buttom up
+  allNamespaces = allNamespaces.sort( function(a,b){ return a.longname.localeCompare(b.longname) } )
+
   var result = "";
   allNamespaces.forEach( function( namespace ) {
 
@@ -371,8 +373,7 @@ function printNamespaces( taffyData, opts )
 
   });
 
-  fs.mkPath(opts.destination);
-  fs.writeFileSync(opts.destination+"/bcduiNamespacesApiStub.js", result, 'utf8')
+  return result;
 }
 
 

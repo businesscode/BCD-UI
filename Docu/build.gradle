@@ -75,7 +75,7 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
     // Which files are part of this distribution? We only want this to happen in execution phase
     def jsonSlurper = new JsonSlurper()
     def bcduiFiles = jsonSlurper.parseText(file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")[1])
-    def fileGroups = (bcduiFiles.groups.inject(""){ result, i -> i.files.any{ ! it.contains("3rdParty") } ? (result.length() ? result+","+i.id : i.id ) : '' })
+    def fileGroups = (bcduiFiles.groups.inject(""){ result, i -> i.files.any{ ! it.contains("3rdParty") } ? (result.length() ? result+","+i.id: i.id ) : result })
 
     script = file("$nodeModulesDir/jsdoc/jsdoc.js")
     args   = [ inputsDir,
