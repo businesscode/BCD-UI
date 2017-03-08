@@ -119,6 +119,7 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
 /**
  * A namespace for the BCD-UI tab widget.
  * @namespace bcdui.widget.tab
+ * @private
  */
 bcdui.util.namespace("bcdui.widget.tab",
 /** @lends bcdui.widget.tab */
@@ -131,6 +132,7 @@ bcdui.util.namespace("bcdui.widget.tab",
      * @param {Object} args.handlerJsClassName   - Tab menu handler variable name, default bcdui.widget.tab
      * @param {Object} args.targetHTMLElementId  - target where HTML content to paste to
      * @param {Object} args.idOrElement          - id of/or HTML element where tabs are defined
+     * @private
      *
      */
     init:function(args)

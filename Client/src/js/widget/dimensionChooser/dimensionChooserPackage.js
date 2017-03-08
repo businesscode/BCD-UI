@@ -14,9 +14,8 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCD-UI dimensionChooser widget.
+ * A namespace for the BCD-UI dimensionChooser widget. For creation @see {@link bcdui.widgetNg.createDimensionChooser}
  * @namespace bcdui.widget.dimensionChooser
- * @private
  */
 bcdui.util.namespace("bcdui.widget.dimensionChooser",
 /** @lends bcdui.widget.dimensionChooser */
@@ -24,6 +23,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
   /**
    * init creates a model wrapper dimensionSelection and a listener that creates inputFields and automodels depending
    * on the selected level.
+   * @private
    */
   init: function( htmlElement ){
 
@@ -1032,11 +1032,10 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
   },
 
   /**
-   * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
-   * @param {callback} function function to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
-
   getNavPath: function(id, callback) {
     if (id && id != "") {
       var e = jQuery("#" + id + " div[bcdTargetModelXPath]").first().get(0);

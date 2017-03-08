@@ -14,9 +14,8 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCD-UI multiSelect widget.
+ * A namespace for the BCD-UI multiSelect widget. For creation @see {@link bcdui.widget.createMultiSelect}
  * @namespace  bcdui.widget.multiSelect
- * @private
  */
 bcdui.util.namespace("bcdui.widget.multiSelect",
 /** @lends bcdui.widget.multiSelect */
@@ -26,6 +25,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
    * @function
    * @param {HTMLElement} htmlElement The element the multiSelect is based on.
    * @method
+   * @private
    */
   init: function(e)
     {
@@ -329,9 +329,9 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
     },
 
     /**
-     * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-     * @param {string} id targetHtmlElementId of widget
-     * @param {callback} function function to be called with generated caption
+     * @param {string} id targetHtml of widget
+     * @param {function} callback to be called with generated caption
+     * @return {string} NavPath information via callback for widget
      */
     getNavPath: function(id, callback) {
       if (id && id != "") {

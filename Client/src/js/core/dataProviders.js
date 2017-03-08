@@ -550,14 +550,14 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
    * @example
    * // Load a SimpleModel from a static Wrs request
    * var requestString = 
-   *   "<WrsRequest xmlns=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\" xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\">" +
-   *   "  <Select>"+
-   *   "    <Columns> <C bRef='region'/> </Columns>"+
-   *   "    <From> <BindingSet>md_geo</BindingSet> </From>"+
-   *   "    <f:Filter> <f:Expression bRef='country' op='=' value='US'/> </f:Filter>"+
-   *   "    <Grouping> <C bRef='region'/> </Grouping>"+
-   *   "  </Select>"+
-   *   "</WrsRequest>";
+   *   "&lt;WrsRequest xmlns=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\" xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\">" +
+   *   "  &lt;Select>"+
+   *   "    &lt;Columns> &lt;C bRef='region'/> &lt;/Columns>"+
+   *   "    &lt;From> &lt;BindingSet>md_geo</BindingSet> &lt;/From>"+
+   *   "    &lt;f:Filter> &lt;f:Expression bRef='country' op='=' value='US'/> &lt;/f:Filter>"+
+   *   "    &lt;Grouping> &lt;C bRef='region'/> &lt;/Grouping>"+
+   *   "  &lt;/Select>"+
+   *   "&lt;/WrsRequest>";
    * var myRequestModel = new bcdui.core.StaticModel( requestString );
    * var myUrlProvider  = new bcdui.core.RequestDocumentDataProvider({ requestModel: myRequestModel });
    * var geoModel       = new bcdui.core.SimpleModel({ url: myUrlProvider, isAutoRefresh: true});
@@ -741,11 +741,11 @@ bcdui.core.DataProviderHtmlAttribute = bcdui._migPjs._classCreate(bcdui.core.Dat
    * @param {string} args.htmlElementId
    * @param {string} args.attributeName
    * @example
-   * <div id="myDiv" attr="123"></div>
-   * <script type="text/javascript">
+   * &lt;div id="myDiv" attr="123">&lt;/div>
+   * &lt;script type="text/javascript">
    *   var dp = new bcdui.core.DataProviderHtmlAttribute({ htmlElementId: 'myDiv', attributeName: 'attr'});
    *   console.log(dp.getData());
-   * </script>
+   * &lt;/script>
    */
   initialize: function(/* object */ args)
   {

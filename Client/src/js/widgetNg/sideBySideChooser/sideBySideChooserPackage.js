@@ -172,7 +172,7 @@
 }());
 
 /**
- * A namespace for the BCD-UI sideBySideChooser widget.
+ * A namespace for the BCD-UI sideBySideChooser widget. For creation @see {@link bcdui.widgetNg.createSideBySideChooser}
  * @namespace bcdui.widgetNg.sideBySideChooser
  */
 bcdui.util.namespace("bcdui.widgetNg.sideBySideChooser",
@@ -193,9 +193,9 @@ bcdui.util.namespace("bcdui.widgetNg.sideBySideChooser",
   },
 
   /**
-   * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
-   * @param {callback} function function to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     var e = jQuery.bcdFindById(id).get(0);

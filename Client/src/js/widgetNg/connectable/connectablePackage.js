@@ -1180,7 +1180,7 @@
  */
 
 /**
- * A namespace for the BCD-UI connectable widget.
+ * A namespace for the BCD-UI connectable widget. For creation @see {@link bcdui.widgetNg.createConnectable}
  * @namespace bcdui.widgetNg.connectable
  */
 bcdui.util.namespace("bcdui.widgetNg.connectable",
@@ -1199,14 +1199,18 @@ bcdui.util.namespace("bcdui.widgetNg.connectable",
    */
   CHANGE_DIRECTION : { SRC_TO_TARGET : "src2dst", TARGET_TO_SRC : "dst2src", TARGET_TO_TARGET : "dst2dst" },
 
+  /**
+   * @private
+   */
   init: function(htmlElement){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui connectable widget adapter init");
     jQuery(htmlElement).bcdConnectable();
   },
 
   /**
-   * returns NavPath information for widget via callback which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     return callback(id, "");

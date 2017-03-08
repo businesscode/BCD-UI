@@ -21,8 +21,9 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
 /** @lends bcdui.widget.formulaEditor */
 {
   /**
-   * Initialization of the whole widget.
+   * Initialization of the whole widget. For creation @see {@link bcdui.widget.createFormulaEditor}
    * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @private
    */
   init: function(containerHtmlElement) {
 
@@ -248,6 +249,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
    * Return formula tree if formula successfully parsed, and input string if formula not parsed
    * @param targetModel {DataProvider} The target model.
    * @param targetModelXPath {String} The XPath in whole XML model data.
+   * @private
    */
   readFormula: function(targetModel, targetModelXPath)
     {
@@ -806,8 +808,9 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
     /**
-     * returns NavPath information for widget via callback which is addressed by its targetHtmlId
-     * @param {string} id targetHtmlElementId of widget
+     * @param {string} id targetHtml of widget
+     * @param {function} callback to be called with generated caption
+     * @return {string} NavPath information via callback for widget
      */
     getNavPath: function(id, callback) {
       callback(id, "");

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCD-UI periodChooser widget.
+ * A namespace for the BCD-UI periodChooser widget. For creation @see {@link bcdui.widget.createPeriodChooser}
  * @namespace bcdui.widget.periodChooser
  */
 bcdui.util.namespace("bcdui.widget.periodChooser",
@@ -164,6 +164,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   /**
    * Initialization of the whole widget.
    * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @private
    */
   init: function(containerHtmlElement) {
 
@@ -2027,9 +2028,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     },
 
     /**
-     * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-     * @param {string} id targetHtmlElementId of widget
-     * @returns string holding the generated navPath caption
+     * @param {string} id targetHtml of widget
+     * @param {function} callback to be called with generated caption
+     * @return {string} NavPath information via callback for widget
      */
     getNavPath: function(id, callback) {
       if (id && id != "") {

@@ -39,9 +39,8 @@
  */
 
 /**
- * A namespace for the BCD-UI inputField widget.
+ * A namespace for the BCD-UI inputField widget. For creation @see {@link bcdui.widget.createInputField}
  * @namespace bcdui.widget.inputField
- * @private
  */
 bcdui.util.namespace("bcdui.widget.inputField",
 /** @lends bcdui.widget.inputField */
@@ -61,6 +60,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
    * For parameters, see widgetPackage.js
    * @function
    * @param {HTMLElement} htmlElement The element the input field is based on.
+   * @private
    */
   init: function(e)
   {
@@ -1405,9 +1405,9 @@ bcdui.util.namespace("bcdui.widget.inputField",
     },
 
     /**
-     * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-     * @param {string} id targetHtmlElementId of widget
-     * @param {callback} function function to be called with generated caption
+     * @param {string} id targetHtml of widget
+     * @param {function} callback to be called with generated caption
+     * @return {string} NavPath information via callback for widget
      */
     getNavPath: function(id, callback) {
       if (id && id != "") {

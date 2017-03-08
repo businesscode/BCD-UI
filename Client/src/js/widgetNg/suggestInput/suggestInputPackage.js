@@ -1027,9 +1027,8 @@
 })();
 
 /**
- * A namespace for the BCUDI GUI suggestInput widget.
+ * A namespace for the BCUDI GUI suggestInput widget. For creation @see {@link bcdui.widgetNg.createSuggestInput}
  * @namespace bcdui.widgetNg.suggestInput
- * @private
  */
 bcdui.util.namespace("bcdui.widgetNg.suggestInput",
 /** @lends bcdui.widgetNg.suggestInput */
@@ -1038,6 +1037,7 @@ bcdui.util.namespace("bcdui.widgetNg.suggestInput",
    * initializes the widget according to the API
    *
    * @param element {Element} to initialize from
+   * @private
    */
   init : function(htmlElement){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui suggest input widget adapter init");
@@ -1045,9 +1045,9 @@ bcdui.util.namespace("bcdui.widgetNg.suggestInput",
   },
 
   /**
-   * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
-   * @param {callback} function function to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     var e = jQuery.bcdFindById(id).get(0);

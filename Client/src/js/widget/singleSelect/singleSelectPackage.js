@@ -14,15 +14,15 @@
   limitations under the License.
 */
 /**
- * A namespace for the BCD-UI singleSelect widget.
+ * A namespace for the BCD-UI singleSelect widget. For creation @see {@link bcdui.widget.createSingleSelect}
  * @namespace bcdui.widget.singleSelect
- * @private
  */
 bcdui.util.namespace("bcdui.widget.singleSelect",
 /**  @lends bcdui.widget.singleSelect */
 {
   /**
    * Creates a new SingleSelect based on the parameters given via the htmlElement
+   * @private
    */
   init: function(htmlElement){
 
@@ -104,7 +104,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
   },
 
    /**
-     * @private
+    * @private
     */
   _readDataFromXML: function(htmlElementId, evtSrc){
     var htmlElement = document.getElementById(htmlElementId);
@@ -131,9 +131,9 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
     }
   },
 
-     /**
-      * @private
-      */
+  /**
+   * @private
+   */
   _updateOptions: function(htmlElementId){
 
     var htmlElement =  document.getElementById(htmlElementId);
@@ -161,9 +161,9 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
   },
 
   /**
-   * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
-   * @param {callback} function function to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     if (id && id != "") {
@@ -177,9 +177,10 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
     }
     callback(id, "");
   },
-       /**
-        * @private
-        */
+
+   /**
+    * @private
+    */
   _createOptionsElement: function(args, nodes){
     var radioForm = document.createElement("form");
     radioForm.setAttribute("name", args.formName);

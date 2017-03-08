@@ -234,21 +234,25 @@
 }());
 
 /**
- * A namespace for the BCD-UI button widget.
+ * A namespace for the BCD-UI button widget. For creation @see {@link bcdui.widgetNg.createButton}
  * @namespace bcdui.widgetNg.button
- * @private
  */
 bcdui.util.namespace("bcdui.widgetNg.button",
 /** @lends bcdui.widgetNg.button */
 {
+  /**
+   * @param htmlElement
+   * @private
+   */
   init: function(htmlElement){
     bcdui.log.isDebugEnabled() && bcdui.log.debug("bcdui widget adapter init");
     jQuery(htmlElement).bcduiButtonNg();
   },
 
   /**
-   * returns NavPath information for widget via callback which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     return callback(id, "");

@@ -671,22 +671,24 @@
  */
 
 /**
- * A namespace for the BCD-UI input widget.
+ * A namespace for the BCD-UI input widget. For creation @see {@link bcdui.widgetNg.createInput}
  * @namespace bcdui.widgetNg.input
- * @private
  */
 bcdui.util.namespace("bcdui.widgetNg.input",
 /** @lends bcdui.widgetNg.input */
 {
+  /**
+   * @private
+   */
   init: function(htmlElement){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui input widget adapter init");
     jQuery(htmlElement).bcduiInputNg();
   },
 
   /**
-   * returns NavPath information via callback for widget which is addressed by its targetHtmlId
-   * @param {string} id targetHtmlElementId of widget
-   * @param {callback} function function to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
+   * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
     var e = jQuery.bcdFindById(id).get(0);
