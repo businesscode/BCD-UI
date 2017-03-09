@@ -147,6 +147,58 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Special handling for building combined cell/sidebar filter for period-style filter blocks when you got a complex range over
+    multiple years f:And/f:Or/ with 2 or more embedded f:And
+    In this case we completely rebuild the period filter with the following steps:
+    - check if the cell filter values belongs to the >= or <= filter group
+    - copy cell filter non-year brefs, then check if cell filter year brefs are available (take them)
+    - or otherwise use the year brefs from >= (or <=) filter group
+  -->
+  <xsl:template match="f:*[count(*/*/f:Expression[@bRef='cwyr' or @bRef='yr']) &gt; 1]" mode="merge">
+    <xsl:choose>
+      <xsl:when test="$cellFilter/f:Filter//*[@bRef='mo' or @bRef='cw' or @bRef='qr']">
+      <xsl:variable name="expGreater" select=".//*[@op='&gt;=' and @bRef=$cellFilter/f:Filter//*/@bRef]"/>
+      <xsl:variable name="expSmaller" select=".//*[@op='&lt;=' and @bRef=$cellFilter/f:Filter//*/@bRef]"/>
+        <xsl:choose>
+          <xsl:when test="$cellFilter/f:Filter//*[@bRef = $expGreater//@bRef]/@value &gt;= $expGreater/@value">
+            <xsl:copy>
+              <xsl:copy-of select="@*"/>
+              <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef='qr' or @bRef='cw' or @bRef='mo']"/>
+              <xsl:choose>
+                <xsl:when test="$cellFilter/f:Filter//*[@bRef='cwyr' or @bRef='yr']">
+                  <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef='cwyr' or @bRef='yr']"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:copy-of select="$expGreater/../f:Expression[@bRef='cwyr' or @bRef='yr']"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:copy>
+          </xsl:when>
+          <xsl:when test="$cellFilter/f:Filter//*[@bRef = $expSmaller//@bRef]/@value &lt;= $expSmaller/@value">
+            <xsl:copy>
+              <xsl:copy-of select="@*"/>
+              <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef='qr' or @bRef='cw' or @bRef='mo']"/>
+              <xsl:choose>
+                <xsl:when test="$cellFilter/f:Filter//*[@bRef='cwyr' or @bRef='yr']">
+                  <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef='cwyr' or @bRef='yr']"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:copy-of select="$expSmaller/../f:Expression[@bRef='cwyr' or @bRef='yr']"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:copy>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/></xsl:copy>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/></xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <!-- Each filter in the original filter is replaced by a filter for the same bRef coming from the cell position -->
   <xsl:template match="f:Expression" mode="merge">
     <xsl:choose>
