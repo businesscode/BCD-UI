@@ -74,10 +74,8 @@
       // write data- attr to make widgets selectable via DOM
       this.element.attr("data-" + $.bcdui.bcduiWidget.KEY_WIDGET_NAME, this.widgetFullName);
 
-      // assure id
-      if(!this.options.id){
-        this.options.id = bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName );
-      }
+      // assure id with following priority: element.id, options.id, generatedId
+      this.options.id = this.element.attr("id") || this.options.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName );
       this.element.attr("id", this.id = this.element.id = this.options.id);
     },
 
