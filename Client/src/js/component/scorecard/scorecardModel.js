@@ -734,6 +734,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           // 22) Optionally remove empty rows and cols
           if ( bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Layout/@removeEmptyCells") ) {
             urls.push(bcdui.contextPath+"/bcdui/js/component/cube/removeEmptyCells.xslt");
+            parameters.paramModel = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition");
           }
           bcdui.factory.createModelWrapper( {
             url:        urls,
