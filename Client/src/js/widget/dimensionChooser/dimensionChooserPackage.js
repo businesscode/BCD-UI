@@ -135,7 +135,8 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       url: htmlElement.getAttribute("bcdURL"),
       multiExpandXpath: multiExpandXpath,
       multiSelectTargetXpath: multiSelectTargetXpath,
-      multiSelectTargetXpathExclude: multiSelectTargetXpathExclude
+      multiSelectTargetXpathExclude: multiSelectTargetXpathExclude,
+      limitLevels: htmlElement.getAttribute("bcdLimitLevels") || ""
     };
 
     // remember config on main element
@@ -211,20 +212,18 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
     bcdui.factory.objectRegistry.withReadyObjects(models, function(){
 
-      // update level input field with possible visible=false flags to hide levels
-      if (config.configurationModelId) {
-        var notVisibleLevels = jQuery.makeArray(bcdui.factory.objectRegistry.getObject(config.configurationModelId).getData().selectNodes("rnd:Configuration/rnd:Level[@visible='false']/@id")).map(function(e) { return e.nodeValue || e.text; });
-        var optionsModelLevel = bcdui.factory.objectRegistry.getObject(distinctWrapper.id);
-        if (optionsModelLevel && notVisibleLevels.length > 0) {
-          var levelNodes = optionsModelLevel.getData().selectNodes("/*/dm:Level");
-          for (var i = 0; i < levelNodes.length; i++) {
-            var id = levelNodes[i].getAttribute("id");
-            if (notVisibleLevels.indexOf(id) != -1)
-              levelNodes[i].setAttribute("visible", "false");
-          }
-          optionsModelLevel.fire();
-        }
+      // update level input field with possible visible=false flags to hide levels (also take limitLevels into account)
+      var optionsModelLevel = bcdui.factory.objectRegistry.getObject(distinctWrapper.id);
+      var notVisibleLevels = config.configurationModelId ? jQuery.makeArray(bcdui.factory.objectRegistry.getObject(config.configurationModelId).getData().selectNodes("rnd:Configuration/rnd:Level[@visible='false']/@id")).map(function(e) { return e.nodeValue || e.text; }) : [];
+      var levelNodes = optionsModelLevel.getData().selectNodes("/*/dm:Level");
+      var limitLevels = config.limitLevels.split(" ");
+      limitLevels = limitLevels.filter(function(e){return e.trim() != "";});
+      for (var i = 0; i < levelNodes.length; i++) {
+        var id = levelNodes[i].getAttribute("id");
+        if ((notVisibleLevels.length > 0 && notVisibleLevels.indexOf(id) != -1) || (limitLevels.length > 0 && limitLevels.indexOf(id) == -1))
+          levelNodes[i].setAttribute("visible", "false");
       }
+      optionsModelLevel.fire();
       var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
       var xPath = "/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level/@id";
 
@@ -245,15 +244,20 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       multiSelect.attr("bcdMixedOptionsModelId" , bcdui.wkModels.bcdDimensions.id );
       multiSelect.attr("bcdMixedDimensionName" , config.dimensionName );
       multiSelect.attr("ondblclick","bcdui.widget.dimensionChooser._removeMultiSelect('"+  e.id  +"_multiSelectBox'"+ ");");
-      bcdui.widget.dimensionChooser._initMultiSelect(e.id, targetModel, config.dimensionName);
+      bcdui.widget.dimensionChooser._initMultiSelect(e.id, targetModel, config.dimensionName, config);
 
-      // Special case: When there is only one level, we hide the level chooser and set its value (if empty)
-      if( availLevels.length === 0 ) {
+      var visibleLevels = jQuery.makeArray(availLevels).map(function(e){return e.text});
+      var hidden = jQuery.makeArray(optionsModelLevel.getData().selectNodes("/*/dm:Level[@visible='false']/@id")).map(function(e){return e.text;});
+      visibleLevels = visibleLevels.filter(function(e){ return hidden.indexOf(e) == -1; }) // filter hidden ones
+      visibleLevels = visibleLevels.filter(function(e, idx){return visibleLevels.indexOf(e) == idx}); // make unique
+
+      // Special case: When there is only one visible level, we hide the level chooser and set its value (if empty)
+      if( visibleLevels.length === 0 ) {
         bcdui.log.warn("BCD-UI: DimensionChooser "+this.id+" could not find any levels.")
-      } else if( availLevels.length == 1 ) {
+      } else if( visibleLevels.length == 1 ) {
         jQuery("#" + e.id+ "_level").closest("TR").hide();
         var levelNode = bcdui.core.createElementWithPrototype(targetModel.getData(),config.targetModelXPath);
-        levelNode.nodeValue = availLevels.item(0).nodeValue;
+        levelNode.nodeValue = visibleLevels[0];
       }
 
       // (re)generate choosers functionality
@@ -293,11 +297,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           }
           else {
             level = level.text;
-            // in case we got an incomplete selection and an apply event we want to reset the level chooser (but only in non-one-level mode)
-            if (! oneLevelMode && targetModel.getData().selectNodes(multiSelectTargetXpath + "/f:And[1]/f:Expression").length == 0) {
-              bcdui.core.createElementWithPrototype(targetModel.getData(), config.targetModelXPath).text = "";
-              level = null;
-            }
           }
         }
         else if (level != null)
@@ -426,7 +425,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
    * 
    * @private
    */
-  _initMultiSelect: function( dimChooserId, targetModel, dimension){
+  _initMultiSelect: function( dimChooserId, targetModel, dimension, config){
     var htmlElement = jQuery("#" + dimChooserId +'_multiSelectBox');
     var multiSelectTargetXpath = "/*/f:Filter/f:Or[@bcdDimension='" + dimension + "']";
     var multiSelectEditXpath = "/*/guiStatus:ClientSettings/guiStatus:MultiSelect[@bcdDimension='" + dimension + "']/f:Filter";
@@ -443,6 +442,11 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
     var levelStorage = jQuery("#" + dimChooserId).data("levelStorage");
     var level =  bcdui.widget.dimensionChooser._guessLevel(targetModel, multiSelectTargetXpath, levelStorage);
+
+    // if guessing failed, we might have a preset level to takeover
+    if (level == "")
+      level = targetModel.read(config.targetModelXPath, "");
+
     var Levels = level != "" && levelStorage[level] ? levelStorage[level] : new Array();
     for (var l = 0; l < Levels.length; l++) {
       if (l > 0)
@@ -835,7 +839,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
         if (wildcard != ""){ inputArgs.wildcard = wildcard;}
 
-        inputArgs.targetModelXPath = targetModelXpath;
+        inputArgs.targetModelXPath = "$" + config.targetModelId + targetModelXpath;
 
         if(  levelConfiguration && levelConfiguration.getAttribute("optionsModelIsSuggestionOnly")=="true" ) {
           inputArgs.optionsModelIsSuggestionOnly = "true";

@@ -47,6 +47,7 @@
             <ul>
               <li>added dropDown Button functionality</li>
               <li>periodChooser got quick-pick options for LastDay/Week/Month (depending on the allowed options)</li>
+              <li>dimensionChooser gets new attribute to limit number of shown levels</li>
             </ul>
           </li>
           <li>Core
@@ -81,6 +82,7 @@
         Incompatibilities:
         <ol>
           <li>removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
+          <li>dimchooser auto hides level selector if number of visible levels is 1 (before it only hides it when only 1 level is available in dimensions model)</li>
         </ol>
       </Body>
     </SubChapter>

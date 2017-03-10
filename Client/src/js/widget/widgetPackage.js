@@ -137,6 +137,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.useCaptions=false]              If true, the chooser will receive captions and codes. By convention the bref of the captions column is 'bRef'_caption. By default no captions are created.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {string}        [args.configurationModelId]           ModelId of chooser configuration xml file. This model can hold a per-level configuration which allows additional filtering.
+   * @param {string}        [args.limitLevels]                    Space separated list of levelIds. The available levels from the dimensions model get limited to this subset.
    * 
    * @example <Caption>Configuration Model</Caption>
    * 
@@ -224,7 +225,8 @@ bcdui.util.namespace("bcdui.widget",
           emptyValue: args.emptyValue,
           emptyValueLevel: args.emptyValueLevel,
           mandatory: args.mandatory,
-          widgetCaption: args.widgetCaption
+          widgetCaption: args.widgetCaption,
+          limitLevels: args.limitLevels
       };
 
       jQuery("#" + args.targetHTMLElementId).empty().append("<div></div>");

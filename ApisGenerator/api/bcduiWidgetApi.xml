@@ -348,6 +348,11 @@
             Set this to false if you don't want mandatory input fields.
           </Doc>
         </Param>
+        <Param name="limitLevels" type="string">
+          <Doc>
+            Space separated list of levelIds. The available levels from the dimensions model get limited to this subset.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="formulaEditor" extends="widget hasCaptionsNotRequired hasTarget">
