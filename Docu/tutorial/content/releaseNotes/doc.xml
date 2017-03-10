@@ -37,17 +37,17 @@
               <li></li>
             </ul>
           </li>
-          <li>Components: Scorecard, Cube, Grid, Charts, Export
+          <li>Components: Scorecard, Cube, Charts, Export
             <ul>
-              <li>added Scorecard configurator with a drag'n drop area similar to the cube one</li>
-              <li>switched scorecard and cube dnd to 960 grid for defaultHtml Layout</li>
+              <li>Added Scorecard configurator with a drag'n drop area similar to the cube one</li>
+              <li>Scorecard new scc:Description element in configuration, picked up by tooltip</li>
             </ul>
           </li>
           <li>Widgets
             <ul>
-              <li>added dropDown Button functionality</li>
-              <li>periodChooser got quick-pick options for LastDay/Week/Month (depending on the allowed options)</li>
-              <li>dimensionChooser gets new attribute to limit number of shown levels</li>
+              <li>New widget: Added dropDown Button functionality</li>
+              <li>PeriodChooser has quick-pick options for LastDay/Week/Month (depending on the allowed options)</li>
+              <li>DimensionChooser has new parameter to limit number of shown levels</li>
             </ul>
           </li>
           <li>Core
@@ -65,9 +65,10 @@
               <li></li>
             </ul>
           </li>
-          <li>Build / dev
+          <li>Build / Dev / Docu
             <ul>
-              <li></li>
+              <li>Eclipse ApiStubs for IDE autosuggest is now one file only</li>
+              <li>JSDoc Introduced new well-known types for modelXPath, WritableModelXPath, chainDef, i18nToken, targetHtmlRef</li>
             </ul>
           </li>
         </ol>
@@ -81,8 +82,8 @@
         </ol>
         Incompatibilities:
         <ol>
-          <li>removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
-          <li>dimchooser auto hides level selector if number of visible levels is 1 (before it only hides it when only 1 level is available in dimensions model)</li>
+          <li>Removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
+          <li>DimensionChooser auto hides level selector if number of visible levels is 1, this now also applies i fonly one is left via visible=false</li>
         </ol>
       </Body>
     </SubChapter>
@@ -93,54 +94,20 @@
         <ol>
           <li>Overall
             <ul>
-              <li></li>
+              <li>Made BCD-UI Community Edition available on github</li>
             </ul>
           </li>
-          <li>Components: Scorecard, Cube, Grid, Charts, Export
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-          <li>Widgets
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-          <li>Core
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-          <li>Themes
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-          <li>Security / Bindings / WebRowSet
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-          <li>Build / dev
-            <ul>
-              <li></li>
-            </ul>
-          </li>
-        </ol>
-        Major bug fixes:
-        <ol>
-          <li></li>
-        </ol>
-        Deprecated:
-        <ol>
-          <li></li>
         </ol>
         Incompatibilities:
         <ol>
-          <li>removed widgets: button, textArea and sideBySideChooser. Use widgetNg variants instead.</li>
+          <li>Removed widgets: button, textArea and sideBySideChooser. Use widgetNg variants instead.</li>
           <li>web.xml: remap servlet-class for bcdui4.CacheManager to de.businesscode.bcdui.web.servlets.CacheManagerEnterprise</li>
           <li>Static Resources: change API call from StaticResourceServlet.Resource.fetchResource(..) to StaticResourceServlet.StaticResourceProvider.getInstance().getResource(..)</li>
-          <li>mapping of client artifacts has changed from '/bcdui/js/...' to '/bcdui/js/...' and for xslt accordingly.</li>
+          <li>Mapping of client artifacts has changed from '/bcdui/js/...' to '/bcdui/js/...' and for xslt accordingly.</li>
+        </ol>
+        Internal:
+        <ol>
+          <li>Switched scorecard and cube dnd to 960 grid for defaultHtml Layout</li>
         </ol>
       </Body>
     </SubChapter>
