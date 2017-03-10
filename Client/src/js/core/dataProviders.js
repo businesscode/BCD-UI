@@ -230,6 +230,80 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
       if (this.source)
         this.source.fire();
     },
+    
+  /**
+   * Reads value from a given xPath (or optionally return default value)
+   * @param {string} xPath - xPath pointing to value 
+   * @param {string} [defaultValue] - default value in case xPath value does not exist
+   * @return text value stored at xPath (or null if nothing found and no defaultValue supplied)
+   */
+  read: function(xPath, defaultValue)
+    {
+      if (this.source)
+        return this.source.read(xPath, defaultValue);
+      else
+        return (defaultValue === undefined ? null : defaultValue);
+    },
+    
+  /**
+   * Set a value to on a certain xPath and create the xPath where necessary. 
+   * This combines Element.evaluate() for a single node with creating the path where necessary. 
+   * It will prefer extending an existing start-part over creating a second one.
+   * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.
+   * 
+   * @param {string}  xPath        - xPath pointing to the node which is set to the value value or plain xPath to be created if not there. 
+   *    It tries to reuse all matching parts that are already there. If you provide for example "/n:Root/n:MyElem/@attr1" and there is already "/n:Root/n:MyElem@attr1", then ""/n:Root/n:MyElem" will be "re-used" and get a second attribute attr1.
+   *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
+   *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
+   * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content. 
+   *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
+   * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
+   * @return The xPath's node (can be null)
+   */
+  write: function(xPath, value, fire)
+    {
+      if (this.source)
+        return this.source.write(xPath, value, fire);
+      else
+        return null;
+    },
+
+  /**
+   * removes given xPath
+   * @param {string} xPath - xPath pointing to value 
+   * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
+   */
+  remove: function(xPath, fire)
+    {
+      if (this.source)
+        this.source.remove(xPath, fire);
+    },
+
+  /**
+   * Reads a single node from a given xPath
+   * @param {string} xPath - xPath to query 
+   * @return single node or null if query fails
+   */
+  query: function(xPath)
+    {
+      if (this.source)
+        return this.source.query(xPath);
+      else
+        return null;
+    },
+
+  /**
+   * Get node list from a given xPath
+   * @param {string} xPath - xPath to query 
+   * @return node list or empty list if query fails
+   */
+  queryNodes: function(xPath)
+    {
+      if (this.source)
+        return this.source.queryNodes(xPath);
+      else
+        return [];
+    },
 
   /**
    * Executes the source DataProvider if it is not ready yet.
@@ -238,7 +312,8 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
   _executeImpl: function()
     {
       if( !this.source ) {
-        this.pendingExecute = true;        return;
+        this.pendingExecute = true;
+        return;
       }
 
       if (this.source.isReady()) {
@@ -259,7 +334,8 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    */
   getData: function()
     {
-      return this.source.getData();
+    // in case of a not yet set source we simulate a not-ready source by returning null. Use case: add listener on holder, set source later.
+    return this.source ? this.source.getData() : null;
     },
   /**
    * @return {string} Human readable summary of this class.
