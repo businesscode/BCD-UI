@@ -142,6 +142,10 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
       }
 
+      var _getKpiId = function( inputModel, bcdRowIdent) {
+        return inputModel.getData().selectSingleNode("/*/wrs:Data/wrs:R[@id='"+bcdRowIdent+"']/wrs:C[position()=/*/wrs:Header/wrs:Columns/wrs:C[@id='bcd_kpi_id']/@pos]/text()").nodeValue;
+      }
+
       //-----------------------------------------------------------
       // Standard action handlers
       // Fires a detail export request based on current bcdRow/ColIdents of context menu
@@ -152,8 +156,6 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         {
           // Standard parameters
           var parameters = {
-            // we are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
-            bcdRowIdent: memo.bcdRowIdent, bcdColIdent: memo.bcdColIdent,
             sccDefinition: args.enhancedConfiguration,
             dimensionModel: bcdui.wkModels.bcdDimensions,
             statusModel: this.statusModel, filterModel: this.statusModel
@@ -166,14 +168,15 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           // Create the export Wrq and execute each time, we become ready
           this.actionDetailExportWrq = new bcdui.core.ModelWrapper({ inputModel: this.inputModel, chain: chain, parameters: parameters });
           var fileType = memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
-        } else { // On nth>1 call, just refresh parameters
-          this.actionDetailExportWrq.dataProviders.find(function(e){return e.name=="bcdColIdent"}).value = memo.bcdColIdent;
-          this.actionDetailExportWrq.dataProviders.find(function(e){return e.name=="bcdRowIdent"}).value = memo.bcdRowIdent;
-          for( var cP in memo.chainParameters)
-            this.actionDetailExportWrq.push(new bcdui.core.ConstantDataProvider({name: cP, value: memo.chainParameters[cP]}));
         }
+        // Enforce updating of context sensitive parameters, especially bcdRow/ColIdent
+        // we are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
+        this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'bcdColIdent', value: memo.bcdColIdent }));
+        this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'bcdRowIdent', value: memo.bcdRowIdent }));
+        this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent)}));
+        for( var cP in memo.chainParameters)
+          this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: cP, value: memo.chainParameters[cP]}));
 
-        // Enforce updating of parameters, especially bcdRow/ColIdent
         this.actionDetailExportWrq.execute(true);
         bcdui.component.exports.detailExport( { wrq: this.actionDetailExportWrq, type: fileType } );
 
@@ -188,8 +191,6 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         {
           // Standard parameters
           var parameters = {
-            // We are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
-            bcdRowIdent: memo.bcdRowIdent, bcdColIdent: memo.bcdColIdent,
             sccDefinition: args.enhancedConfiguration,
             dimensionModel: bcdui.wkModels.bcdDimensions,
             statusModel: this.statusModel, filterModel: this.statusModel
@@ -201,12 +202,15 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
           // Create the target url and open page each time, we become ready
           this.actionDrillToAnalysisGuiStatus = new bcdui.core.ModelWrapper({ chain: chain, inputModel: this.inputModel, parameters: parameters });
-        } else { // On nth>1 call, just refresh parameters
-          this.actionDrillToAnalysisGuiStatus.dataProviders.find(function(e){return e.name=="bcdColIdent"}).value = memo.bcdColIdent;
-          this.actionDrillToAnalysisGuiStatus.dataProviders.find(function(e){return e.name=="bcdRowIdent"}).value = memo.bcdRowIdent;
-          for( var cP in memo.chainParameters)
-            this.actionDrillToAnalysisGuiStatus.push(new bcdui.core.ConstantDataProvider({name: cP, value: memo.chainParameters[cP]}));
         }
+
+        // Enforce updating of parameters, especially bcdRow/ColIdent
+        // We are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
+        this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: "bcdColIdent", value: memo.bcdColIdent}));
+        this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: "bcdRowIdent", value: memo.bcdRowIdent}));
+        this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent)}));
+        for( var cP in memo.chainParameters)
+          this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: cP, value: memo.chainParameters[cP]}));
 
         this.actionDrillToAnalysisGuiStatus.onceReady( function() {
           bcdui.core.compression.compressDOMDocument( this.actionDrillToAnalysisGuiStatus.getData(), function(compressedDoc) {
@@ -214,7 +218,6 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           });
         }.bind(this));
 
-        // Enforce updating of parameters, especially bcdRow/ColIdent
         this.actionDrillToAnalysisGuiStatus.execute(true);
 
       }.bind( this, args.id ) );
@@ -259,20 +262,16 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
   bcdui.component.scorecard._toRangeWhen = function(doc, param) {
 
     if (param && param.sccDefinition) {
-      var node = param.sccDefinition.selectSingleNode("//dm:Translations/dm:FilterTranslation/@toRangeWhen");
-      if (node) {
+      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:FilterTranslation[@toRangeWhen]");
+      if (nodeFtTrw) {
 
         // generate correct dateFrom/dateTo
         bcdui.widget.periodChooser.rebuildDateFromDateToFromFilter(doc);
-
-        var bRefs = node.text.split(" ");
+        var bRefs = nodeFtTrw.getAttribute("toRangeWhen").split(" ");
 
         // find belonging outer period nodes 
         var targetModelNodes = [];
         for (var x=0; x < bRefs.length; x++) {
-
-          //remove to-be-replaced bRefs from cube layout
-          bcdui.core.removeXPath(doc, "/*/cube:Layout/cube:Dimensions/*/dm:LevelRef[@bRef='" + bRefs[x] + "']")
 
           var nodes = doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and starts-with(@bRef, '" + bRefs[x] + "')]");
           for (var n = 0; n < nodes.length; n++) {
@@ -306,6 +305,10 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           postfix = postfix != null ? postfix : "";
           if (postfix == "bcdEmpty") postfix = "";
           var b = (postfix != "" ? "dy_" + postfix : "dy");
+
+          // Maybe we also have an explicit translation given in FilterTranslation
+          if( nodeFtTrw.getAttribute("to") )
+            b = nodeFtTrw.getAttribute("to");
 
           // clear and rebuild filter
           bcdui.core.removeXPath(targetNode, "./*");
