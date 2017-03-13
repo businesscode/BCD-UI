@@ -85,6 +85,7 @@
           , unselectAfterMove: false
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
+          , allowUnknownTargetValue: this.options.allowUnknownTargetValue
       }
       var sourceArgs = {
           optionsModelRelativeFilterPredicate: this.options.optionsModelRelativeFilterPredicate

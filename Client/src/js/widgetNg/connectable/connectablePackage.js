@@ -403,9 +403,11 @@
             var idValue = (this.config.target.xPath.indexOf("wrs:") > -1) ? nodes[i] : nodes[i].text;
             idValue = bcdui.util.escapeHtml(idValue);
 
-            // only render items which are available in the options model and get original position and caption information
+            // only render items which are available in the options model and get original position and caption information (unless you allow them)
             if (typeof bcdPosMap[idValue] != "undefined")
               html += this.generateItemHtml({value: idValue, caption: captionMap[idValue], position: bcdPosMap[idValue], id: this.config.elementId});
+            else if (this.options.allowUnknownTargetValue && idValue != "")
+              html += this.generateItemHtml({value: idValue, caption: idValue, position: -1, id: this.config.elementId});
           }
           jQuery("#" + this.config.elementId).append(html);
 

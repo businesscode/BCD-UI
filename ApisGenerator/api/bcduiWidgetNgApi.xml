@@ -553,7 +553,10 @@
         <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' which can be used to filter options model items
-	      </Doc>       
+	        </Doc>
+        </Param>
+        <Param name="allowUnknownTargetValue" required="false" type="boolean">
+          <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
         </Param>
       </Api>
       
@@ -606,6 +609,9 @@
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       
+        </Param>
+        <Param name="allowUnknownTargetValue" required="false" type="boolean">
+          <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
         </Param>
       </Api>
 
