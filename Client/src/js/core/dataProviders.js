@@ -235,7 +235,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * Reads value from a given xPath (or optionally return default value)
    * @param {string} xPath - xPath pointing to value 
    * @param {string} [defaultValue] - default value in case xPath value does not exist
-   * @return text value stored at xPath (or null if nothing found and no defaultValue supplied)
+   * @return text value stored at xPath (or null if nothing found and no defaultValue supplied or when source isn't set yet)
    */
   read: function(xPath, defaultValue)
     {
@@ -258,7 +258,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content. 
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
-   * @return The xPath's node (can be null)
+   * @return The xPath's node (can be null if source isn't set yet or dataProvider isn't ready)
    */
   write: function(xPath, value, fire)
     {
@@ -282,7 +282,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
   /**
    * Reads a single node from a given xPath
    * @param {string} xPath - xPath to query 
-   * @return single node or null if query fails
+   * @return single node or null if query fails or source isn't set yet
    */
   query: function(xPath)
     {
@@ -295,7 +295,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
   /**
    * Get node list from a given xPath
    * @param {string} xPath - xPath to query 
-   * @return node list or empty list if query fails
+   * @return node list or empty list if query fails or source isn't set yet
    */
   queryNodes: function(xPath)
     {

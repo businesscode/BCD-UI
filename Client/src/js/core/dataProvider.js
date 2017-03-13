@@ -241,11 +241,11 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content. 
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
-   * @return The xPath's node
+   * @return The xPath's node or null if dataProvider isn't ready
    */
   write: function(xPath, value, fire) {
     if (this.getData() == null)
-      return;
+      return null;
     
     this._uncommitedWrites = true;
     
