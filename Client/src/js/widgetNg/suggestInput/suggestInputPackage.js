@@ -64,7 +64,9 @@
  *   this event is fired once user logically leaves the widget, here we handle the possible placeholder justifying
  */
 (function(){
-  jQuery.widget("bcdui.bcduiSuggestInputNg", jQuery.bcdui.bcduiInputNg, {
+  jQuery.widget("bcdui.bcduiSuggestInputNg", jQuery.bcdui.bcduiInputNg,
+    /** @lends bcdui.bcduiSuggestInputNg */
+    {
     /**
      * events defined in this package
      *
@@ -136,7 +138,7 @@
      *   this will be the only options data provider we use and sync to.
      * - attach listener on the options model wrapper to either validate the widget once options change or delete the value (see API)
      * - delegate to native or custom implementation subprocedure to attach handles for re-rendering the options list, etc.
-     *
+     * @private
      */
     _create : function(){
       var rootContainer = this.element;

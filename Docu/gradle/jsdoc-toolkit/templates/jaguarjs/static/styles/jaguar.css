@@ -296,7 +296,6 @@ li {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 .main .nameContainer h4 .type-signature.type a {
-  color: #fff;
 }
 .main pre {
   font-size: 11px;
@@ -317,7 +316,7 @@ li {
 }
 .main table .type {
   width: 60px;
-  color: #aaa;
+  color: #888;
   font-size: 11px;
 }
 .main table .attributes {
@@ -338,9 +337,9 @@ li {
   float: left;
   border-radius: 3px;
   font-size: 0.7em;
-  padding: 2px 4px;
   margin-right: 5px;
-  color: #444;
+  color: #888;
+  font-style: italic;
 }
 .main .readme p {
   margin-top: 15px;
@@ -371,6 +370,7 @@ li {
 .main article ul > li {
   margin-bottom: 5px;
   list-style-type: disc;
+  overflow: visible;
 }
 footer {
   margin: 15px 0;

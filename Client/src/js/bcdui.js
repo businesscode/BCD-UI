@@ -466,7 +466,7 @@ if(typeof bcdui.config != "undefined") {
 bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading");
 
 /**
- * @typedef {(url|function|Array.<(url|function)>|bcdui.core.DataProvider)} chainDef
+ * @typedef {url|js-function|Array.<(url|js-function)>|bcdui.core.DataProvider} chainDef
  * @description
  * Defines the transformation steps of a transformation chain, like {@link bcdui.core.ModelWrapper} or {@link bcdui.core.Renderer}.
  * <br/>Can be: url | function | Array<(url|function)> | bcdui.core.DataProvider
@@ -481,9 +481,9 @@ bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading")
  * </ul>
  * @example <caption>These are all valid values for a chainDef:</caption>
  * "myStylesheet.xslt"                         // An <b>url</b> pointing to an *.xslt or a *.dott file
- * ["myTrans.dott", jsTrans]                   // An <b>array</b> of transformators, can be urls (dot or xslt) and js functions
+ * ["myTrans.dott", jsTrans]                   // An <b>array</b> of transformators, can be urls (doT.js or xslt) and js functions
  * new bcdui.core.StaticModel(...)             // A <b>DataProvider subclass</b>, providing an xml chain definition according to chain-1.0.0.xsd
- * function jsTrans(doc , params) {            // A <b>js function</b>, expecting a data object (DOM or JSON)
+ * function jsTrans(doc, params) {             // A <b>js function</b>, expecting a data object (DOM or JSON)
  *   var n = doc.getElementById('someId');
  *   n.setAttribute('someAttr', params.newValue);
  * }
@@ -521,7 +521,7 @@ bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading")
  * Provide an XPath, which can be used to use nodes from, can point to an attribute or a full subtree.
  * Start the XPath with $someModelId, make sure that you create this {@link bcdui.core.DataProvider} with an explicit id.
  * Default for this is $guiStatus, which is always auto-registered.
- * <br/>You can also build complex XPaths and refer to a further models via '$modelId' in predicates.
+ * <br/>Note: You can also build quite complex XPaths and refer to further registered models via '$myModelId' in predicates, see second example.
  * @example
  * $guiStatus/guiStatus:Status/guiStatus:MyNode                                     // A string with a simple XPath
  * $modelId/f:Filter/f:Filters[$guiStatus/guiStatus:Status/guiStatus:MyNodes/@attr] // A string with a more complex XPath, using multiple models

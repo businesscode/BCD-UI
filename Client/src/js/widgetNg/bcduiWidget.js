@@ -60,6 +60,7 @@
      * stores the widget name to allow retrieval via jQuery._bcdWidget(),
      * assures that this.options.id property is always set and assigned to id
      * of the element, such as: this.id === this.options.id === this.element.id === this.element.attr("id") === this.element.get(0).id === this.element.get(0).getAttribute("id")
+     * @private
      */
     _create : function(){
       this._super();
@@ -85,6 +86,7 @@
      * was originated from widget itself.
      *
      * @param {function} callback The callback to executon upon model change
+     * @private
      */
     _setOnTargetModelChange : function( callback ){
       // ## detach listener in case we have one
@@ -108,6 +110,7 @@
 
     /**
      * frees resources this widget has allocated
+     * @private
      */
     _destroy: function() {
       this._super();
@@ -152,6 +155,7 @@
      * @param {string}  optionId  The id of the option to execute
      * 
      * @return {object} return value of the function.
+     * @private
      */
     execJsOption : function(optionId){
       return bcdui.util._execJs( this.options[optionId], this.element.get(0), false, arguments, 1 );

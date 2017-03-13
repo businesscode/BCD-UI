@@ -17,7 +17,9 @@
  * Input Widget implementation as jQuery Widget
  */
 (function(){
-  jQuery.widget("bcdui.bcduiInputNg", jQuery.bcdui.bcduiWidget, {
+  jQuery.widget("bcdui.bcduiInputNg", jQuery.bcdui.bcduiWidget,
+    /** @lends bcdui.bcduiInputNg */
+    {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the input element

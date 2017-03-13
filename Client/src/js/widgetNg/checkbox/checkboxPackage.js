@@ -17,7 +17,9 @@
  * Checkbox Widget implementation as jQuery Widget
  */
 (function(){
-  jQuery.widget("bcdui.bcduiCheckboxNg", jQuery.bcdui.bcduiWidget, {
+  jQuery.widget("bcdui.bcduiCheckboxNg", jQuery.bcdui.bcduiWidget,
+    /** @lends bcdui.bcduiCheckboxNg */
+    {
     /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the checkbox element

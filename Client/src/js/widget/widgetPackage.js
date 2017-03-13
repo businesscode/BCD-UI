@@ -333,36 +333,37 @@ bcdui.util.namespace("bcdui.widget",
     },
 
   /**
-   *  Shows a period chooser consisting of a button to change the period and a label
-   *  showing the currently selected period. It writes the selected period
-   *  to a specific XML element by putting two f:Expression elements inside it.
-   *  These elements form a date interval by setting the smaller or equal start and a
-   *  less or equal end date expression.
+   * Creates a period chooser. The period chooser supports a number of options and formats, see parameters.
+   * You can control what kind of periods a user may select and in which format it is written.
+   * Note that the bRef written are <b>always</b> <code>yr, qr, mo, cwyr, cw or dy</code> with an optional postfix of there are different types of dates.<br/>
+   * The period chooser outputs to args.targetModelXPath, which may point to any model but needs to end with <code>f:And[@id='myPeriod']</code>, where @id is the period chooser's id.
    * @param {Object}        args                                The parameter map contains the following properties.
-   * @param {writableModelXPath}        args.targetModelXPath   The xPath pointing to the root-node where to place the selected value. Point to an f:And element, like "/guiStatus:Status/f:Filter/f:And[@id='myPeriod']" for example
+   * @param {writableModelXPath} args.targetModelXPath          The xPath pointing to the root-node where to place the selected value. Point to an f:And element, like "/guiStatus:Status/f:Filter/f:And[@id='myPeriod']" for example
    * @param {targetHtmlRef} args.targetHtml                     An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                           ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.caption]                      Default 'Date', it will be used as i18n key to translate the caption if isFreeRangeSelectable set to true, then caption may contain two terms for 'From' and 'To' captions. Divider: ';' Example: caption = 'i18.md.From;i18.md.To'
    * @param {string}        [args.firstSelectableDay]           The first day that can be selected. A week or month can only be selected if all days are selectable.
    * @param {boolean}       [args.lastSelectableDay]            The last day that can be selected. A week or month can only be selected if all days are selectable.
-   * @param {boolean}       [args.isFreeRangeSelectable=false]  Add the free range feature.
-   * @param {boolean}       [args.isSecondSelectable=false]     If this is set to 'false' the user cannot select a second anymore. The default value is 'false'.
-   * @param {boolean}       [args.isMinuteSelectable=false]     If this is set to 'false' the user cannot select a minute anymore. The default value is 'false'.
-   * @param {boolean}       [args.isHourSelectable=false]       If this is set to 'false' the user cannot select a hour anymore. The default value is 'false'.
-   * @param {boolean}       [args.isDaySelectable=true]         If this is set to 'false' the user cannot select a single day anymore. The default value is 'true'.
-   * @param {boolean}       [args.isWeekSelectable=false]       If this is set to 'false' the user cannot select a single week anymore. The default value is 'true'.
-   * @param {boolean}       [args.isMonthSelectable=true]       If this is set to 'false' the user cannot select a single month anymore. The default value is 'true'.
-   * @param {boolean}       [args.isQuarterSelectable=true]     If this is set to 'false' the user cannot select a quarter (3 months). The default value is 'true'.
-   * @param {boolean}       [args.isYearSelectable=true]        If this is set to 'false' the user cannot select a whole year. The default value is 'true'.
+   * @param {boolean}       [args.isFreeRangeSelectable=false]  Allows date free range selection.
+   * @param {boolean}       [args.isSecondSelectable=false]     Allows second selection.
+   * @param {boolean}       [args.isMinuteSelectable=false]     Allows minute selection.
+   * @param {boolean}       [args.isHourSelectable=false]       Allows hour selection.
+   * @param {boolean}       [args.isDaySelectable=true]         Allows day selstion.
+   * @param {boolean}       [args.isWeekSelectable=false]       Allows week selection.
+   * @param {boolean}       [args.isMonthSelectable=true]       Allows month selection.
+   * @param {boolean}       [args.isQuarterSelectable=true]     Allows quarter selection
+   * @param {boolean}       [args.isYearSelectable=true]        Allows year selection.
    * @param {boolean}       [args.mandatory=false]              The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
-   * @param {boolean}       [args.outputPeriodType=false]       Produces selected dates as one of known date periods.
+   * @param {boolean}       [args.outputPeriodType=false]       Produces selected dates as one of known date periods. For example if this contains mo and the user selects a data range, which fits a month, mo with be written.
+   *                                                            This is usefull if you allow free range but you also have a month aggregation for performance optimization.
+   *                                                            On the other hand, if this is not set and the user selects a month in the widget, then the month is written in terms of dy.
    * @param {boolean}       [args.showPrevNextButtons=false]    If this is set to 'true' the buttons Previous Period and Next Period are showed. The default value is 'false'.
    * @param {boolean}       [args.suppressCaptions=false]       Set this to true if the buttons should not have any caption text. Default is false.
    * @param {boolean}       [args.textInput=false]              Add the free range feature.
    * @param {boolean}       [args.validate=true]                Turn on-off the validation of the keyboard entered date values.
-   * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
+   * @param {modelXPath}    [args.optionsModelXPath]              Allows to use a single period chooser widget for different logical types of dates (see args.postfix), which then can be selected from a drop-down. The node set found at this xPath lists the postfixes.
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
-   * @param {string}        [args.postfix]                      An optional postfix which is added to the filter bRefs. If optionsModel is used, this value should be one of the available ones.
+   * @param {string}        [args.postfix]                      An optional postfix which is added to the filter bRefs (dy/mo.., see above). Use this if you deal with different types of dates. If optionsModel is given, this value should be one of the available ones.
    * @param {string}        [args.widgetCaption]                A caption which is used as prefix for navPath generation for this widget.
    */
   createPeriodChooser: function(args)
