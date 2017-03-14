@@ -404,7 +404,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         dimensionParent.appendChild(levelRefList[l].cloneNode(true));
 
       // take either all measureRefs from cubeConfig or all measures from dimensionsAndMeasures
-      var measureRefList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("/*/cube:Measures/dm:MeasureRef");
+      var measureRefList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("/*/cube:MeasuresRefs/dm:MeasureRef");
       if (measureRefList.length != 0) {
         for (var m = 0; m < measureRefList.length; m++)
           measureParent.appendChild(measureRefList[m].cloneNode(true));
