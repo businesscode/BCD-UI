@@ -1283,6 +1283,10 @@ span.bcd-notification-warn {
     text-indent: 0;
   }
 }
+
+.blockOverlay {
+  z-index: 2000 !important;
+}
 .bcdModalBoxOverlay {
   background-color: #000000;
   @include alpha(0.75);

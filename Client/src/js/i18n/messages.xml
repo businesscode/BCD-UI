@@ -135,5 +135,20 @@
       <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional cell filters and user restrictions were applied.</C><C>en</C></R>
       <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
 
+      <!-- Typical control headers and captions -->
+      <R id="R140"><C>bcd_Ctrl_Ok</C><C>Ok</C><C>en</C></R>
+      <R id="R141"><C>bcd_Ctrl_Cancel</C><C>Cancel</C><C>en</C></R>
+      <R id="R142"><C>bcd_Ctrl_Add</C><C>Add</C><C>en</C></R>
+      <R id="R143"><C>bcd_Ctrl_Remove</C><C>Remove</C><C>en</C></R>
+      <R id="R144"><C>bcd_Ctrl_Selected</C><C>Selected</C><C>en</C></R>
+      <R id="R145"><C>bcd_Ctrl_Available</C><C>Available</C><C>en</C></R>
+      <R id="R146"><C>bcd_Ctrl_Name</C><C>Name</C><C>en</C></R>
+      <R id="R147"><C>bcd_Ctrl_Apply</C><C>Apply</C><C>en</C></R>
+
+      <!-- Grouping Editor -->
+      <R id="R150"><C>bcd_GroupingEditor</C><C>Grouping Editor</C><C>en</C></R>
+      <R id="R151"><C>bcd_GroupingEditorGroups</C><C>Groupings</C><C>en</C></R>
+      <R id="R152"><C>bcd_GroupingEditorGroupName</C><C>Grouping Name</C><C>en</C></R>
+
     </Data>
 </Wrs>

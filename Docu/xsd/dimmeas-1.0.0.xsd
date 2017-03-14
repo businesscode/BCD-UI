@@ -150,6 +150,11 @@
         If given, the dimension values are listed in ascending value order given by this bRef.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="refDimension" type="xs:NCName">
+      <xs:annotation><xs:documentation>
+        References the id of a dimension in the global dimensions model. Can be used for e.g. binding set lookup for a given LevelRef.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:attributeGroup name="measureLayoutInformtion">

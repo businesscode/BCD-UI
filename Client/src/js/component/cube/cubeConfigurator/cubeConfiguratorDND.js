@@ -45,7 +45,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
     // remember bucket and targetModelId for refresh function
     jQuery("#" + args.targetHtml).addClass("bcd_"+ args.cubeId + "_dnd");
-    jQuery("#" + args.targetHtml).attr("bcdCubeId", args.cubeId);
+    jQuery("#" + args.targetHtml).attr("bcdCubeId", args.cubeId).attr("contextId", "cubeDnd");
     jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId", args.targetModelId);
     jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId", cubeBucketModelId);
 
@@ -106,6 +106,12 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     };
     bcdui.widgetNg.createConnectable(inputArgs);
+
+    // initally mark the innermost dimensions for GroupManager
+    setTimeout(function(){bcdui.component.cube.configuratorDND._markLastDimensions(args.cubeId);});
+    
+    // add contextMenu handling for GroupManager
+    bcdui.component.cube.configuratorDND._addGroupManagerContextMenu(args.targetHtml, args.cubeId);
 
     // and our listener to generate the layout on any control layout change
     bcdui.factory.addDataListener({
@@ -578,6 +584,9 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
         doRedisplay = true;
 
+    // after cleanup, also update the marks for the innermost dimensions for GroupManager
+    bcdui.component.cube.configuratorDND._markLastDimensions(cubeId);
+
     return doRedisplay;
   },
   
@@ -622,4 +631,16 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
     return template;
   }
+
+  // Extension Points
+  /**
+   * @private
+   */
+  , _addGroupManagerContextMenu : function(){}
+
+  /**
+   * @private
+   */
+  , _markLastDimensions : function(){}
+
 });
