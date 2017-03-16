@@ -2236,7 +2236,7 @@ bcdui.util.namespace("bcdui.widget",
       */
      getWidgetCaption : function( elOrId ) {
        var el = jQuery.bcdFindById( elOrId );
-       var caption = el.attr("bcdWidgetCaption") || ""; // Widget API
+       var caption = el.attr("bcdWidgetCaption") || el.attr("widgetCaption") || ""; // Widget API
        if(!caption && el.is(jQuery.bcdui.bcduiWidget.SELECTOR)){
          caption = el._bcduiWidget().options.widgetCaption || caption; // WidgetNg API
        }
