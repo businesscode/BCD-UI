@@ -172,9 +172,9 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * @private
    */
   _DND_OBJECTS: [
-      { parent: "scc:Dimensions/scc:Rows", configParent: "scc:Dimensions", fullBucketItem: "scc:Dimensions/dm:LevelRef", bucketParent: "scc:Dimensions", bucketItem:"dm:LevelRef", bucketId:"bRef", configId:"bRef", generator: "dm:Dimensions/dm:LevelRef", generatorClone: true, dndObject: "RowDimensions", kpiObject: "scc:LevelKpi", kpiObjectMustExist: true}
+      { parent: "scc:Dimensions/scc:Rows", configParent: "scc:Dimensions", fullBucketItem: "scc:Dimensions/dm:LevelRef", bucketParent: "scc:Dimensions", bucketItem:"dm:LevelRef", bucketId:"bRef", configId:"bRef", generator: "dm:Dimensions/dm:LevelRef", generatorOption: "clone", dndObject: "RowDimensions", kpiObject: "scc:LevelKpi", kpiObjectMustExist: true}
     , { parent: "scc:KpiRefs", configParent: "scc:KpiRefs", fullBucketItem: "scc:KpiRefs/scc:KpiRef", bucketParent: "scc:KpiRefs", bucketItem: "scc:KpiRef", bucketId: "idRef", configId: "id", dndObject: "Kpis", generator: "scc:Kpis/scc:Kpi", kpiObject: undefined}
-    , { parent: "scc:AspectRefs", configParent: "scc:AspectRefs", fullBucketItem: "scc:AspectRefs/scc:AspectRef", bucketParent: "scc:AspectRefs", bucketItem: "scc:AspectRef", bucketId: "idRef", configId: "id", dndObject: "Aspects", generator: undefined, kpiObject: "scc:AspectKpi"}
+    , { parent: "scc:AspectRefs", configParent: "scc:AspectRefs", fullBucketItem: "scc:AspectRefs/scc:AspectRef", bucketParent: "scc:AspectRefs", bucketItem: "scc:AspectRef", bucketId: "idRef", configId: "id", dndObject: "Aspects", generator: "scc:Aspects/scc:Aspect", kpiObject: "scc:AspectKpi", generatorOption: "skip"}
     , { parent: "scc:CategoryTypeRefs", configParent: "scc:CategoryTypeRefs", fullBucketItem: "scc:CategoryTypeRefs/scc:CategoryTypeRef", bucketParent: "scc:CategoryTypeRefs", bucketItem: "scc:CategoryTypeRef", bucketId: "idRef", configId: "id", dndObject: "Categories", generator: "scc:CategoryTypes/scc:CategoryType", kpiObject: undefined}
   ],
 
@@ -460,7 +460,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         }
 
         // no items found, so we generate references
-        else if (o.generator) {
+        else if (o.generator && o.generatorOption != "skip") {
 
           // in case we have a special item (e.g. LevelKpi), we add it as pseudo item
           if (o.kpiObject)
@@ -468,7 +468,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
 
           var datList = jQuery.makeArray(configModel.queryNodes("//" + o.generator));
           // either clone or generate refs out of data
-          if (o.generatorClone) {
+          if (o.generatorOption == "clone") {
             var parent = scBucket.write("/*/" + o.bucketParent);
             datList.forEach(function(r) { parent.appendChild(r.cloneNode(true)); });
           }
