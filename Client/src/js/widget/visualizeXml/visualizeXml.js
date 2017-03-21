@@ -167,7 +167,7 @@ bcdui.widget.visualizeXml = {
     var rendererId = args.idRef + "_visualizeModelRenderer";
     var preId = args.idRef +"_visualizeModelTargetElementId";
 
-    args.title = args.title || args.idRef;
+    args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
 
     jQuery("#" + args.targetHTMLElementId).append('<pre id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
