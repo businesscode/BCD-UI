@@ -508,12 +508,20 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
   /**
    * Adds a new data provider to the transformation chain. If there is already a data provider
    * with the given name it is replaced.
+   * @param {Object} newDataProvider the new dataprovider which should be added
+   * @param {string} [newName] an optional new name for the provider. if given an alias will be created
    * @return {bcdui.core.DataProvider} The old data provider registered under the name or
    * null if there has not been any.
    */
-  addDataProvider: function(/* DataProvider */ newDataProvider)
+  addDataProvider: function(/* DataProvider */ newDataProvider, newName)
     {
       var name = bcdui.util.isFunction(newDataProvider.getName) ? newDataProvider.getName() : newDataProvider.id;
+
+      if(newName && newName != name) {
+        name = newName;
+        newDataProvider = new bcdui.core.DataProviderAlias({name: newName, source: newDataProvider})
+      }
+
       for (var i = 0; i < this.dataProviders.length; ++i) {
         var dataProvider = this.dataProviders[i];
         if (bcdui.util.isFunction(dataProvider.getName) && dataProvider.getName() == name ||
