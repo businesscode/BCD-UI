@@ -76,7 +76,7 @@
       this.element.attr("data-" + $.bcdui.bcduiWidget.KEY_WIDGET_NAME, this.widgetFullName);
 
       // assure id with following priority: element.id, options.id, generatedId
-      this.options.id = this.element.attr("id") || this.options.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName );
+      this.options.id = this.element.attr("id") || this.options.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName.replace(/-/g,"_") );
       this.element.attr("id", this.id = this.element.id = this.options.id);
     },
 
