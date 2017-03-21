@@ -13,22 +13,24 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-/**
- * JS handling expand/collapse for visualizeXml
- * Because it is also used "stand-alone", we workaround js namespace mechanism here
- */
+
 if( typeof bcdui=="undefined" )
     bcdui = {};
-bcdui.widget.visualizeXml = {
+
+/**
+ * Utility package for raw data visualization used for debugging purposes.
+ * @namespace bcdui.widget.visualizeXml
+ */
+bcdui.widget.visualizeXml =
+/** @lends bcdui.widget.visualizeXml */ 
+{
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _visualizeXml_CollapsSign : '',
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _getClassName: function( elem ) {
@@ -41,7 +43,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _setClassName: function( elem, classname ) {
@@ -52,7 +53,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _f: function(e){
@@ -65,7 +65,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _fix: function(e,cl){
@@ -79,7 +78,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _ch: function(e) {
@@ -103,7 +101,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _ch2: function(e) {
@@ -129,7 +126,6 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
    * @private
    */
   _handleClick: function(evt) {
@@ -150,13 +146,13 @@ bcdui.widget.visualizeXml = {
   },
 
   /**
-   * @member bcdui.widget.visualizeXml
-   * @param {Object} args The argument map containing the following elements:
-   *   <ul>
-   *     <li>targetHtmlElementId: {String?} Id of the html element where to show the output.</li>
-   *     <li>idRef: {String} Id of the model to be visualized
-   *     <li>inputModel: {Object} Instead of an id, the model can be provided directly
-   *   </ul>
+   * Visualiazes data of a model / data provider
+   *
+   * @param {object}                  args                The argument map containing the following elements:
+   * @param {targetHtmlRef}           args.targetHtml     Id of the html element where to show the output.
+   * @param {string}                  [args.title]        Title of the content box; if not provided, the title is set to the ID of the visualized model.
+   * @param {string}                  [args.idRef]        Id of the model to be visualized
+   * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
    */
   visualizeModel: function(args) 
   {
