@@ -238,8 +238,13 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
           var wrq =  bcdui.factory.objectRegistry.getObject(modelName);
           wrq.dataProviders.push(new bcdui.core.ConstantDataProvider({name: "bcdColIdent", value: memo.bcdColIdent}));
           wrq.dataProviders.push(new bcdui.core.ConstantDataProvider({name: "bcdRowIdent", value: memo.bcdRowIdent}));
-          for( var cP in memo.chainParameters)
-            wrq.dataProviders.push(new bcdui.core.ConstantDataProvider({name: cP, value: memo.chainParameters[cP]}));
+          for (var cP in memo.chainParameters) {
+            this.actionDrillToAnalysisGuiStatus.addDataProvider(
+              memo.chainParameters[cP] instanceof bcdui.core.DataProvider
+                ? memo.chainParameters[cP]
+                : new bcdui.core.ConstantDataProvider({name: cP, value:  memo.chainParameters[cP]})
+            , cP);
+          }
           wrq.execute(true); // Enforce updating of parameters
         }
 
