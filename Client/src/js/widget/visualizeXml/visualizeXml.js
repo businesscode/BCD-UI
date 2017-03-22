@@ -160,24 +160,30 @@ bcdui.widget.visualizeXml =
     args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "visualizeModel_");
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_visualizeModel_args);
 
-    var rendererId = args.idRef + "_visualizeModelRenderer";
-    var preId = args.idRef +"_visualizeModelTargetElementId";
+    var preId = (args.idRef||args.inputModel.id) +"_visualizeModelTargetElementId";
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
 
     jQuery("#" + args.targetHTMLElementId).append('<pre id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
 
+    var rendererId = preId + "_renderer";
     bcdui.factory.createRenderer({
-        id: rendererId
-      , targetHTMLElementId: args.idRef +"_visualizeModelTargetElementId"
-      , chain: ""
+      id : rendererId
+      , targetHtml: preId
       , url: bcdui.contextPath + "/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt"
       , inputModel: args.idRef ? {refId: args.idRef} : args.inputModel
     });
-    bcdui.factory.addDataListener({
-      idRef: args.idRef ? {refId: args.idRef} : args.inputModel.id
-    , listener: function() { bcdui.factory.objectRegistry.getObject(rendererId).execute(true); }
-    });
+    // update renderer on model updates
+    if(args.inputModel){
+      args.inputModel.onChange(function(){
+        bcdui.factory.objectRegistry.getObject(rendererId).execute();
+      });
+    }else{
+      bcdui.factory.addDataListener({
+        idRef: args.idRef
+        , listener: function() { bcdui.factory.objectRegistry.getObject(rendererId).execute(); }
+      });
+    }
   }
 }
