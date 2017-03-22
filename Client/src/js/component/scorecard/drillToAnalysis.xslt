@@ -34,8 +34,14 @@
 
   <xsl:template match="/">
     <guiStatus:Status xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0">
+
       <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/@*"/>
-      <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/*"/>
+      <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/*[not(name()='f:Filter')]"/>
+
+      <f:Filter>
+        <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/f:Filter/*"/>
+        <xsl:copy-of select="$detailDataDefaults/f:Filter[not($detailData/f:Filter)]/* | $detailData/f:Filter/*"/>
+      </f:Filter>
 
       <!-- If dm:Translations has a @cubeId attribute, we even prepare a cube layout in addition to filters -->
       <xsl:if test="$translations/@cubeId">
