@@ -350,7 +350,7 @@
         </Param>
         <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
-            Boolean. If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then.
+            If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container.
           </Doc>
         </Param>
         <Param name="applyFunction" type="string">

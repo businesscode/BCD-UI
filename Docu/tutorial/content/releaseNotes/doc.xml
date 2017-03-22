@@ -104,6 +104,7 @@
           <li>web.xml: remap servlet-class for bcdui4.CacheManager to de.businesscode.bcdui.web.servlets.CacheManagerEnterprise</li>
           <li>Static Resources: change API call from StaticResourceServlet.Resource.fetchResource(..) to StaticResourceServlet.StaticResourceProvider.getInstance().getResource(..)</li>
           <li>Mapping of client artifacts has changed from '/bcdui/js/...' to '/bcdui/js/...' and for xslt accordingly.</li>
+          <li>if you used cubeConfigurator's isDefaultHtmlLayout='false' before, you need to provide bcdCubeDndMatrix container yourself</li>
         </ol>
         Internal:
         <ol>

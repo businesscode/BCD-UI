@@ -360,7 +360,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.isTemplate=false]                                     - Show template Editor true/false. This is an Enterprise Edition only feature.
    * @param {boolean}                 [args.showSummary=false]                                    - Show summary of cube settings
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
-   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - Create the default layout in HTML
+   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    *
@@ -380,6 +380,25 @@ bcdui.util.namespace("bcdui.component",
    *     , cubeRenderer:        "cube"
    *     , rankingTargetHtmlElementId: "rankingDiv"
    *   });
+   * @example
+   *  &lt;div class='container_24 bcdCubeDndMatrix'>
+   *    &lt;div class='grid_24'>
+   *      &lt;div class='grid_3 omega bcdCurrentRowDimensionList alpha'>&lt;/div>
+   *      &lt;div class='grid_3 omega bcdCurrentColMeasureList'>&lt;/div>
+   *      &lt;div class='grid_3 omega'>
+   *        &lt;div class='bcdCurrentColDimensionList'>&lt;/div>
+   *        &lt;div class='bcdCurrentMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Dimensions&lt;/div>
+   *        &lt;div class='bcdDimensionList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Measures&lt;/div>
+   *        &lt;div class='bcdMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *    &lt;/div>
+   *  &lt;/div> 
    *
    */
   createCubeConfigurator: function(/* Object */ args){
