@@ -237,6 +237,8 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       }
       jQuery("#" + e.id).data("levelStorage", levelStorage);
 
+      bcdui.widget.dimensionChooser._cleanFilters(config);
+
       // initialize multi select area
       var multiSelect = jQuery("#" + e.id).find('span.bcdMultiSelect select').first();
       multiSelect.attr("bcdSelectedMultiPath" , selectedMulti);
@@ -1115,6 +1117,93 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       return true;
     }
     return false;
+  },
+  
+  /**
+   * looks for not complete filter bRefs for dimension and tries to build up a valid filter area when filters are found
+   * @param {object} targetModel the dimchooser target model
+   * @param {object} config the dimchooser config object
+   * @private
+   */
+  _cleanFilters: function(config) {
+
+    // collect unique list of existing bRefs for current dimension
+    var possibleBrefs = jQuery.makeArray(bcdui.wkModels.bcdDimensions.queryNodes("/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level/@bRef")).map(function(e){return e.text;});
+    possibleBrefs = possibleBrefs.filter(function(e, i) {return i == possibleBrefs.indexOf(e)});
+
+    // enrich information with unique and required level information
+    possibleBrefs = possibleBrefs.map(
+      function(e){
+        var level = bcdui.wkModels.bcdDimensions.query("/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level[@bRef='" + e + "']");
+        var isUnique = level.getAttribute("unique");
+        isUnique = isUnique == null || isUnique.text == "true"; 
+        var Levels = new Array();
+        if (! isUnique) {
+          var selectedLevel = level.selectSingleNode("preceding-sibling::*[1]");
+          Levels.push(selectedLevel.getAttribute("bRef"));
+          var requiredLevel = selectedLevel.getAttribute("unique") == "false" ? selectedLevel.selectSingleNode("preceding-sibling::*[1]") : null;
+          while (requiredLevel != null) {
+            selectedLevel = requiredLevel;
+            Levels.push(selectedLevel.getAttribute("bRef"));
+            requiredLevel = selectedLevel.getAttribute("unique") == "false" ? selectedLevel.selectSingleNode("preceding-sibling::*[1]") : null;
+          }
+          Levels.reverse();
+        }
+        return {unique: isUnique, bRef: e, requires: Levels};
+      }
+    );
+
+    var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
+
+    possibleBrefs.forEach(function(e) {
+
+      jQuery.makeArray(targetModel.queryNodes("/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']")).forEach(function(n) {
+
+        // remove filter which are not unique and the required levels are missing
+        if (!e.unique) {
+          var count = 0;
+          e.requires.forEach(function(r){ count += (targetModel.query("/*/f:Filter//f:Expression[@bRef='" + r + "']") != null) ? 1 : 0; });
+          if (count < e.requires.length)
+            bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']");
+        }
+
+        // check what to do with free floating filters
+        var doAddNode = true;
+        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null) {
+          // we don't have a dimchooser outer node, so create it and add the free float
+          var root = targetModel.query("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And");
+          if (root == null)
+            root = bcdui.core.createElementWithPrototype(targetModel.getData(), "/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And");
+          // multiselect dimchooser? Then we can't really decide where to put it, so skip it
+          else if (targetModel.queryNodes("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And").length > 1)
+            doAddNode = false;
+          // node already exists within a dimchooser outer node? Then overwrite value there with the floating one
+          else if (targetModel.query("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And/f:Expression[@bRef='" + e.bRef + "']") != null) {
+            var found = targetModel.query("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And/f:Expression[@bRef='" + e.bRef + "']");
+            if (n.getAttribute("value") != null) found.setAttribute("value", n.getAttribute("value")); else found.removeAttribute("value");
+            if (n.getAttribute("caption") != null) found.setAttribute("caption", n.getAttribute("caption")); else found.removeAttribute("caption");
+            if (n.getAttribute("op") != null) found.setAttribute("op", n.getAttribute("op")); else found.removeAttribute("op");
+            doAddNode = false;
+          }
+          // we want to add it an existing node, so remove all filters in there which don't belong to the current bRef+required levels
+          else {
+            jQuery.makeArray(targetModel.queryNodes("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And/f:Expression")).forEach(function(f) {
+              var foundBRef = f.getAttribute("bRef") || "";
+              if (foundBRef != e.bRef && e.requires.indexOf(foundBRef) == -1)
+                f.setAttribute("bcdFloat", "true"); // mark it, so it gets removed
+            });
+          }
+          if (doAddNode)
+            root.appendChild(n.cloneNode(true));
+
+          // mark free floating filter
+          n.setAttribute("bcdFloat", "true");
+        }
+      });        
+    });
+
+    // remove all free floating filters
+    bcdui.core.removeXPath(targetModel.getData(), "//f:Expression[@bcdFloat='true']");
   }
 }); // namespace
 
