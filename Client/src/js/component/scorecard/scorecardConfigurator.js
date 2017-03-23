@@ -208,7 +208,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     // setup connectable source/target for dimensions
     var sourceArgs = {
       optionsModelXPath: "$" + scBucket.id + "/*/scc:Dimensions/dm:LevelRef/@caption"
-    , optionsModelRelativeValueXPath: "../@bRef"
+    , optionsModelRelativeValueXPath: "../@bcdId"
     , targetHtml: "#" + args.targetHtml + " .bcdScDimensionList"
     , scope: args.scorecardId + "_dims"
     , unselectAfterMove: true
@@ -228,7 +228,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     // setup connectable source/target for kpis
     var sourceArgs = {
       optionsModelXPath: "$" + scBucket.id + "/*/scc:KpiRefs/scc:KpiRef/@caption"
-    , optionsModelRelativeValueXPath: "../@idRef"
+    , optionsModelRelativeValueXPath: "../@bcdId"
     , targetHtml: "#" + args.targetHtml + " .bcdKpiList"
     , scope: args.scorecardId + "_kpi"
     , unselectAfterMove: true
@@ -246,7 +246,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     // setup connectable source/target for aspects
     var sourceArgs = {
       optionsModelXPath: "$" + scBucket.id + "/*/scc:AspectRefs/scc:AspectRef/@caption"
-    , optionsModelRelativeValueXPath: "../@idRef"
+    , optionsModelRelativeValueXPath: "../@bcdId"
     , targetHtml: "#" + args.targetHtml + " .bcdAspectList"
     , scope: args.scorecardId + "_asp"
     , unselectAfterMove: true
@@ -285,10 +285,10 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         // target layout item with parent, bucket item with parent, item identifier, connectable item
          bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
            jQuery.makeArray(args.targetModel.queryNodes("/*" + scLayoutRoot + "/" + o.parent + "/*")).forEach(function(i) {
-            var id = i.getAttribute(o.bucketId);
+            var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
             if (i.nodeName == o.kpiObject)
-              idArray.push("bcdKpi");
-            else if (scBucket.query("/*/" + o.fullBucketItem + "[@" + o.bucketId + "='" + id + "']") != null)
+              idArray.push("bcdKpi|KPI");
+            else if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
               idArray.push(id);
           });
           jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i){
@@ -343,8 +343,9 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     // now insert kpiRefs, aspectRefs, etc into temp layout based on ordering from collectable targets
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
      jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
-       var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.parent + "/" + o.bucketItem + "[@" + o.bucketId + "='" + i.text + "']");
-       item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@" + o.bucketId + "='" + i.text + "']");
+       var split = i.text.split("|");
+       var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.parent + "/" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
+       item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
        if (item != null) {
          var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
          // if destination does not yet exist, create it
@@ -356,8 +357,11 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
            destination.appendChild(item.selectSingleNode("./*").cloneNode(true));
          }
          // all other nodes can simply be copied
-         else
-           destination.appendChild(item.cloneNode(true));
+         else {
+           var clone = item.cloneNode(true);
+           clone.removeAttribute("bcdId");
+           destination.appendChild(clone);
+         }
        }
      });
    });
@@ -397,13 +401,13 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
 
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
       jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/" + o.parent + "/*")).forEach(function(i){
-        var id = i.getAttribute(o.bucketId);
+        var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
         // generate entry as long as it is part of the bucket
-        if (scBucket.query("/*/" + o.fullBucketItem + "[@" + o.bucketId + "='" + id + "']") != null)
+        if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
           scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='" + id + "']");
         // special translation for kpi related notes
         if (i.nodeName == o.kpiObject)
-          scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='bcdKpi']");
+          scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='bcdKpi|KPI']");
       });
     });
     
@@ -494,6 +498,12 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
           }
           caption = (caption == "" ? "N/A" : caption);
           b.setAttribute("caption", caption);
+        });
+
+        jQuery.makeArray(scBucket.queryNodes("/*/" + o.bucketParent + "/*")).forEach(function(b) {
+          var code = b.getAttribute(o.bucketId) || "";
+          var caption = b.getAttribute("caption") || "";
+          b.setAttribute("bcdId", (code == "bcdKpi") ? "bcdKpi|KPI" : code + "|" + caption);
         });
       });
 
