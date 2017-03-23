@@ -479,22 +479,26 @@
             });
           }
 
+          // build list with items from all targets
+          var targetValues = [];
+          for (var t = 0; t < targetConfig.length; t++) {
+            if (targetConfig[t].xPath.indexOf("wrs:") > -1) {
+              targetValues = bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).getData().selectSingleNode(targetConfig[t].xPath);
+              targetValues = targetValues == null ? [] : targetValues.text.split(this.wrsInlineValueDelim);
+            }
+            else
+              targetValues = jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).queryNodes(targetConfig[t].xPath)).map(function(e){return e.text;});
+            targetValues = targetValues.map(function(e){return bcdui.util.escapeHtml(e);})
+          }
+
           var html = "";
           for (var i = 0; i < sortedOptions.length; i++) {
 
             // remember original positions and captions for value
             var idValue = sortedOptions[i].value;
 
-            // render item only if it's part of the filtered values
-            var doShow = (this.filteredItems[idValue] == idValue);
-
-            for (var t = 0; t < targetConfig.length; t++) {
-              var targetItems = bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).getData().selectSingleNode(targetConfig[t].xPath);
-              targetItems = targetItems == null ? [] : targetItems.text.split(this.wrsInlineValueDelim);
-              doShow &= (targetConfig[t].xPath.indexOf("wrs:") > -1)
-              ? (targetItems.indexOf(idValue) == -1)
-              : (bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).getData().selectSingleNode(targetConfig[t].xPath + "[.='" + idValue + "']") == null);
-            }
+            // render item only if it's part of the filtered values and not in one target
+            var doShow = (this.filteredItems[idValue] == idValue) && targetValues.indexOf(idValue) == -1;
             if (doShow)
               html += this.generateItemHtml({value: idValue, caption: sortedOptions[i].caption, position: i, id: this.config.elementId});
           }
