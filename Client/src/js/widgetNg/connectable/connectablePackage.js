@@ -535,7 +535,7 @@
       // so after the resort we can simply kick them out
       theItems = jQuery(theContainer).children(".ui-selectee");
       for (var i = 0; i < theItems.length; i++) {
-        var value = jQuery(theItems[i]).attr("bcdValue");
+        var value = bcdui.util.escapeHtml(jQuery(theItems[i]).attr("bcdValue"));
         var filteredItems = theContainer.parent()._bcduiWidget().filteredItems;
         if (filteredItems && filteredItems[value] != value)
           jQuery(theItems[i]).addClass("bcdRemove");
