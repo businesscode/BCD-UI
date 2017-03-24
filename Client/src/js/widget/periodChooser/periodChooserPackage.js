@@ -2071,8 +2071,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
       // try to find periodChooser outer f:And nodes where dateFrom/dateTo should be added
       var targetModelNodes = [];
+      var determinedPostfix = null;
       for (var x in bcdui.widget.periodChooser._dateRangeBindingItemNames) {
-        var nodes = targetModelDoc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and starts-with(@bRef, '" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "')]");
+        var nodes = targetModelDoc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and (@bRef='" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "' or starts-with(@bRef, '" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "'))]");
         for (var n = 0; n < nodes.length; n++) {
           var outerAnd = null
           var node = nodes[n];
@@ -2084,6 +2085,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
               outerAnd = node.parentNode.parentNode.parentNode;
             if (outerAnd.getAttribute("bcdMarker") == null) {
               outerAnd.setAttribute("bcdMarker", "true");
+              var bRef = node.getAttribute("bRef");
+              determinedPostfix = bRef.indexOf("_") == -1 ? "" : bRef.substring(bRef.indexOf("_") + 1);
               targetModelNodes.push(outerAnd);
             }
           }
@@ -2099,10 +2102,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
       for (var t = 0; t < targetModelNodes.length; t++) {
         var targetNode = targetModelNodes[t];
 
-        // get currently used periodtype
+        // get currently used periodtype (either set one or determined one)
         var postfix = "";
         if (targetNode) {
           postfix = targetNode.getAttribute("bcdPostfix");
+          if (postfix == null && determinedPostfix != null)
+            postfix = determinedPostfix;
           postfix = postfix != null ? postfix : "";
         }
         if (postfix == "bcdEmpty")

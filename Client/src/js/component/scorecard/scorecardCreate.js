@@ -163,7 +163,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
           // Custom xslt plus custom parameters
           jQuery.extend(parameters, memo.chainParameters);
-          var chain = memo.chain || [ bcdui.contextPath+"/bcdui/js/component/scorecard/detailExportWrq.xslt", bcdui.component.scorecard._toRangeWhen ];
+          var chain = memo.chain || [ bcdui.contextPath+"/bcdui/js/component/scorecard/detailExportWrq.xslt", bcdui.component.scorecard._periodTranslator ];
 
           // Create the export Wrq and execute each time, we become ready
           this.actionDetailExportWrq = new bcdui.core.ModelWrapper({ inputModel: this.inputModel, chain: chain, parameters: parameters });
@@ -203,7 +203,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
           // Custom xslt plus custom parameters
           jQuery.extend(parameters, memo.chainParameters);
-          var chain = memo.chain || [bcdui.contextPath+"/bcdui/js/component/scorecard/drillToAnalysis.xslt", bcdui.component.scorecard._toRangeWhen ];
+          var chain = memo.chain || [bcdui.contextPath+"/bcdui/js/component/scorecard/drillToAnalysis.xslt", bcdui.component.scorecard._periodTranslator ];
 
           // Create the target url and open page each time, we become ready
           this.actionDrillToAnalysisGuiStatus = new bcdui.core.ModelWrapper({ chain: chain, inputModel: this.inputModel, parameters: parameters });
@@ -262,17 +262,18 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 });
 
   /**
-   * toRangeWhen filterTranslation handling
+   * Period filterTranslation handling
    * replaces filter which contain the given bRefs with a pure period range filter
    * the bRefs are removed from the cube layout since you can't know if they are available as dimension in the target report
+   * Additionally you can change the postfix
    * @param {Object} doc - chain input document
    * @param {Object} param - chain parameter bag
    * @private
    */
-  bcdui.component.scorecard._toRangeWhen = function(doc, param) {
+  bcdui.component.scorecard._periodTranslator = function(doc, param) {
 
     if (param && param.sccDefinition) {
-      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:FilterTranslation[@toRangeWhen]");
+      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PeriodTranslation[@toRangeWhen]");
       if (nodeFtTrw) {
 
         // generate correct dateFrom/dateTo
@@ -281,9 +282,10 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
         // find belonging outer period nodes 
         var targetModelNodes = [];
+        var determinedPostfix = null;
         for (var x=0; x < bRefs.length; x++) {
 
-          var nodes = doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and starts-with(@bRef, '" + bRefs[x] + "')]");
+          var nodes = doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and (@bRef='" + bRefs[x] + "' or starts-with(@bRef, '" + bRefs[x] + "_'))]");
           for (var n = 0; n < nodes.length; n++) {
             var outerAnd = null
             var node = nodes[n];
@@ -295,6 +297,8 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
                 outerAnd = node.parentNode.parentNode.parentNode;
               if (outerAnd.getAttribute("bcdMarker") == null && outerAnd.getAttribute("dateFrom") && outerAnd.getAttribute("dateTo")) {
                 outerAnd.setAttribute("bcdMarker", "true");
+                var bRef = node.getAttribute("bRef");
+                determinedPostfix = bRef.indexOf("_") == -1 ? "" : bRef.substring(bRef.indexOf("_") + 1);
                 targetModelNodes.push(outerAnd);
               }
             }
@@ -310,21 +314,34 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           var targetNode = targetModelNodes[t];
 
           // do we have a postfix?
-          // later improvement: determine the bRef(+ postfix) from the target page
           var postfix = targetNode.getAttribute("bcdPostfix");
+          if (postfix == null && determinedPostfix != null)
+            postfix = determinedPostfix;
           postfix = postfix != null ? postfix : "";
           if (postfix == "bcdEmpty") postfix = "";
           var b = (postfix != "" ? "dy_" + postfix : "dy");
-
-          // Maybe we also have an explicit translation given in FilterTranslation
-          if( nodeFtTrw.getAttribute("to") )
-            b = nodeFtTrw.getAttribute("to");
 
           // clear and rebuild filter
           bcdui.core.removeXPath(targetNode, "./*");
           bcdui.core.createElementWithPrototype(targetNode, "./f:Expression[@op='>=' and @bRef='" + b + "' and @value='" + targetNode.getAttribute("dateFrom") + "']");
           bcdui.core.createElementWithPrototype(targetNode, "./f:Expression[@op='<=' and @bRef='" + b + "' and @value='" + targetNode.getAttribute("dateTo") +  "']");
         }
+      }
+
+      // replace all bRefs postfixes
+      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PeriodTranslation[@postfix]");
+      if (nodeFtTrw) {
+        var postfix = nodeFtTrw.getAttribute("postfix") || "";
+        for (var x in bcdui.widget.periodChooser._dateRangeBindingItemNames) {
+          jQuery.makeArray(doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and (@bRef='" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "' or starts-with(@bRef, '" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "_'))]")).forEach(function(e) {
+            var purebRef = e.getAttribute("bRef");
+            purebRef = purebRef == null ? "" : (purebRef.indexOf("_") != -1 ? purebRef.substring(0, purebRef.indexOf("_")) : purebRef);
+            e.setAttribute("bRef", purebRef + (postfix != "" ? "_" + postfix : ""));
+          });
+        }
+        jQuery.makeArray(doc.selectNodes("//f:*[@bcdPostfix]")).forEach(function(e) {
+          e.setAttribute("bcdPostfix", postfix == "" ? "bcdEmpty" : postfix);
+        });
       }
 
       return doc;

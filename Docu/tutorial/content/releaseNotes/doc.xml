@@ -84,6 +84,7 @@
         <ol>
           <li>Removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
           <li>DimensionChooser auto hides level selector if number of visible levels is 1, this now also applies i fonly one is left via visible=false</li>
+          <li>dm:FilterTranslation toRangeWhen attribute was moved to dm:PeriodTranslation</li>
         </ol>
       </Body>
     </SubChapter>
