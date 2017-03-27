@@ -28,6 +28,11 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @classdesc
    * The abstract executable class is a base class for asynchronous operating status-based classes in BCD-UI library. It offers a basic set of
    * methods that these classes share. Most methods deal with status handling, transitions, listeners and synchronization.
+   *
+   * <br/>Most common implementations are:
+   * {@link bcdui.core.StaticModel} &bull;
+   * {@link bcdui.core.SimpleModel} &bull;
+
    * @abstract
    *
    * @constructs
@@ -526,9 +531,9 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
     },
     
     /**
-     * Add callback to abstractExecutable which is triggered exactly once when ready state is reached
+     * Add callback to AbstractExecutable which is triggered exactly once when ready state is reached
+     * or immediately (but still async) when the AbstractExecutable is already ready
      * 
-     * Please note: the callback routines are always called asynchronously (even if ready state is already given)
      * @param {(function|Object)} listenerObject - Either a function to be called on ready status (i.e. onSuccess)<p/>or a parameter map with the following properties:
      * @param {function} listenerObject.onSuccess - callback function which is called when {@link bcdui.core.AbstractExecutable} is or gets ready
      * @param {function} [listenerObject.onFailure] - callback function which is called when {@link bcdui.core.AbstractExecutable} gets into failed status
@@ -553,7 +558,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
      },
     
   /**
-   * Add callback to abstractExecutable which is triggered when ready state is reached
+   * Add callback for AbstractExecutables, which is triggered when ready state is reached
    * 
    * Please note: the callback routines are always called asynchronously (even if ready state is already given)
    * @param {(function|Object)} listenerObject - Either a function to be called on ready status (i.e. onSuccess)<p/>or a parameter map with the following properties:

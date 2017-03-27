@@ -19,8 +19,9 @@
   - On a data cell
     - Export failure details
     - Drill to analysis report
-  You may overwrite this file via parameter 'args.contextMenu' when creating the scorecard to trigger a custom chain for producing the export Wrq or target url
-  To do this, send 'chain' with your transformation chain and 'chainParams' with your custom parameters along with bcdRowIdent
+  You may overwrite this file via parameter args.contextMenu when creating the scorecard to trigger a custom chain for producing the export Wrq or target url
+  args.contextMenu represents the chain parameter of the scorecard-created context menu.
+  Of course you may also set args.contextMenu to false and create your own context menu from scratch with full control.
   -->
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
