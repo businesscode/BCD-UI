@@ -97,6 +97,11 @@
 
   if( params = jqEl.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>") ){ // params from JS API
     jqEl.removeProp("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>");
+
+    // autofix boolean
+    <xsl:apply-templates select="Api/Param[contains(@type, 'boolean')]" mode="jsInitBooleanAutofix"/>
+
+    // set defaults
     <xsl:apply-templates select="Api/Param[@default]" mode="jsInitDefaultsInParams"/>
   } else { // params from HTML API
     params = {
@@ -130,6 +135,14 @@
   <xsl:apply-templates select="Api/Param[contains(@type, 'enum')]" mode="jsValidateEnumParamBag"/>
   <xsl:apply-templates select="Api/Param[@required = 'true']" mode="jsValidateRequired"/>
 };
+  </xsl:template>
+
+  <!-- 
+    sets property to real boolean if content equals 'true' or 'false'
+   -->
+  <xsl:template match="Api/Param[contains(@type, 'boolean')]" mode="jsInitBooleanAutofix">
+  <xsl:variable name="param" select="concat('params.', @name)"/>
+<xsl:value-of select="concat('&#10;    if( ', $param, ' === &quot;true&quot; || &quot;false&quot; === ', $param, ' ) ', $param, ' = ', $param, ' === &quot;true&quot; ;')"/>
   </xsl:template>
 
   <xsl:template match="Api/Param" mode="jsInitDefaultsInParams">
