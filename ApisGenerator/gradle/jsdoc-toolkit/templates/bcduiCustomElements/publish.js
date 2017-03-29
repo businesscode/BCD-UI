@@ -142,7 +142,12 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
       result += "          args." + attribName + " = bcdui.util._toJsFunction( this.getAttribute('"+attribName+"') );" + newLine;
     } else if ( param.type.names.indexOf("boolean") >= 0 ) {
       var isDefaultTrue = param.defaultvalue === true;
-      result += "          args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
+      if(isStringType){
+        // if we have multitype which can also be string, consider default as boolean only if it is true,false, otherwise pass as string literal
+        result += "          args." + attribName + " = this.getAttribute('"+attribName+"') || " + JSON.stringify(param.defaultvalue) + " ;" + newLine;
+      }else{
+        result += "          args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
+      }
     } else if ( param.type.names.indexOf("number") >= 0 || param.type.names.indexOf("integer") >= 0 ) {
       var defaultValue = param.defaultvalue;
       if(defaultValue !== undefined){

@@ -145,19 +145,35 @@
 <xsl:value-of select="concat('&#10;    if( ', $param, ' === &quot;true&quot; || &quot;false&quot; === ', $param, ' ) ', $param, ' = ', $param, ' === &quot;true&quot; ;')"/>
   </xsl:template>
 
-  <xsl:template match="Api/Param" mode="jsInitDefaultsInParams">
+  <!-- defaults for boolean -->
+  <xsl:template match="Api/Param[contains(@type, 'boolean')]" mode="jsInitDefaultsInParams">
+  <!-- may be i.e. string, so we dont force boolean type -->
+  <xsl:variable name="isStrictBoolean" select="@type = 'boolean'"/>
+  <xsl:variable name="param" select="concat('params.', @name)"/>
+  <xsl:variable name="strictPrefix">
+    <xsl:choose>
+      <xsl:when test="$isStrictBoolean">!!</xsl:when>
+      <xsl:otherwise></xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+<xsl:value-of select="concat('&#10;    ', $param, ' = ', $param, ' == null ? ', @default, ' : ', $strictPrefix, $param, ';')"/>
+  </xsl:template>
+
+  <!-- defaults for non-boolean -->
+  <xsl:template match="Api/Param[not(contains(@type, 'boolean'))]" mode="jsInitDefaultsInParams">
     <xsl:variable name="defaultValue">
       <xsl:choose>
-        <xsl:when test="contains(@type,'number') or contains(@type,'boolean')"><xsl:value-of select="@default"/></xsl:when>
+        <xsl:when test="contains(@type,'number') or contains(@type,'integer')"><xsl:value-of select="@default"/></xsl:when>
         <xsl:otherwise>"<xsl:value-of select="@default"/>"</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-<xsl:value-of select="concat('&#10;    params.', @name, ' = params.', @name, ' || ', normalize-space($defaultValue), ';')"/>
+    <xsl:variable name="param" select="concat('params.', @name)"/>
+<xsl:value-of select="concat('&#10;    ', $param, ' = ', $param, ' == null ? ', normalize-space($defaultValue), ' : ', $param, ';')"/>
   </xsl:template>
 
   <!-- Helper to validate required -->
   <xsl:template match="Api/Param" mode="jsValidateRequired">
-  if (params.<xsl:value-of select="@name"/> === undefined || params.<xsl:value-of select="@name"/> === null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");
+  if (params.<xsl:value-of select="@name"/> == null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");
   </xsl:template>
 
   <!--
@@ -205,9 +221,16 @@
         <xsl:if test="@default"> || <xsl:value-of select="concat('Number(',@default,')')"/></xsl:if>
         <xsl:text> || undefined</xsl:text>
       </xsl:when>
+      <xsl:when test="contains(@type, 'integer')">
+        <xsl:value-of select="concat(@name,': parseInt(htmlElement.getAttribute(',$qq,$bcdName,$qq,'), 10)')"/>
+        <xsl:if test="@default"> || <xsl:value-of select="concat('parseInt(',@default,', 10)')"/></xsl:if>
+        <xsl:text> || undefined</xsl:text>
+      </xsl:when>
       <xsl:when test="contains(@type, 'string') or contains(@type, 'i18nToken')">
         <xsl:value-of select="concat(@name,': htmlElement.getAttribute(',$qq,$bcdName,$qq,')')"/>
         <xsl:choose>
+          <!-- if the type supports boolean and the default is true,false keep the type boolean -->
+          <xsl:when test="contains('|false|true|', @default) and contains(@type, 'boolean')"> || <xsl:value-of select="@default"/></xsl:when>
           <xsl:when test="@default"> || '<xsl:value-of select="@default"/>'</xsl:when>
           <xsl:otherwise> || undefined</xsl:otherwise>
         </xsl:choose>

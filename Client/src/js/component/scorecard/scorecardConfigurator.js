@@ -526,7 +526,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    */
   _generateDefaultLayout : function() {
     // 960 grid based layout with possible horizontal flip
-    var dndDirectionTargetLeft = bcdui.config.settings.bcdui.component.dnd.targetLeft || true;
+    var dndDirectionTargetLeft = bcdui.config.settings.bcdui.component.dnd.targetLeft == null ? true : bcdui.config.settings.bcdui.component.dnd.targetLeft;
     var targetArea = "" +
       "<div class='grid_3 omega bcdCurrentKpiList" + (dndDirectionTargetLeft ? " alpha" : "") + "'></div>" +
       "<div class='grid_3 omega'>" +
