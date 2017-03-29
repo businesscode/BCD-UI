@@ -114,7 +114,7 @@ public class Functions {
       }
       return o.toString().trim();
     }
-    if (obj instanceof String) {
+    if (obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj.getClass().isPrimitive()) {
       return obj.toString().trim();
     }
     return "";
