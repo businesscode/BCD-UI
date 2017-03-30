@@ -30,7 +30,7 @@
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
-  <xsl:variable name="kpiDef" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$cellFilter/*//f:Expression[@bRef='bcd_kpi_id']/@value]"/>
+  <xsl:variable name="kpiDef" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]"/>
 
   <xsl:template match="/">
     <guiStatus:Status xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0">
@@ -39,7 +39,7 @@
       <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/*[not(name()='f:Filter')]"/>
 
       <f:Filter>
-        <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/f:Filter/*"/>
+        <xsl:copy-of select="$cellAndGuiStatusFilterDetailTranslated/guiStatus:Status/f:Filter/*[@bRef!='bcd_kpi_id' and not(starts-with(@bRef,'bcdCategory_'))]"/>
         <xsl:copy-of select="$detailDataDefaults/f:Filter[not($detailData/f:Filter)]/* | $detailData/f:Filter/*"/>
       </f:Filter>
 

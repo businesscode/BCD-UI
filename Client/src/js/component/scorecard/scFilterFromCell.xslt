@@ -29,11 +29,12 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
   <!-- Use scope to externally control sets of export, for example to provide 2 different exports in context menu for an item via "chainParameters: { scope: 'myScope2' }" -->
+  <xsl:param name="kpiId"/>
   <xsl:param name="scope"         select="''"/>
   <xsl:param name="sccDefinition" select="/*[1=0]"/>
 
   <!-- Overwrite xsl:params in filterFromCell.xslt -->
-  <xsl:param name="detailData"         select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$cellFilter/*//f:Expression[@bRef='bcd_kpi_id']/@value]/dm:DetailData[not(@scope) or @scope=$scope][1]"/>
+  <xsl:param name="detailData"         select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]/dm:DetailData[not(@scope) or @scope=$scope][1]"/>
   <xsl:param name="detailDataDefaults" select="$sccDefinition/*/scc:Kpis/dm:DetailDataDefaults/dm:DetailData[(not(@name) or @name=$detailData/@defaults) and (not(@scope)  or @scope=$scope)][1]"/>
 
 </xsl:stylesheet>
