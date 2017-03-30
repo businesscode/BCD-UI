@@ -278,7 +278,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         bcdui.core.removeXPath(scTargetModel.getData(), scTargetXPathRoot + "/Categories");
         if (scTargetModel.read(scTargetXPathRoot + "/Category", "0") == "1") {
           jQuery.makeArray(scBucket.queryNodes("//scc:CategoryTypeRef")).forEach(function(e) {
-            bcdui.core.createElementWithPrototype(scTargetModel.getData(), scTargetXPathRoot + "/Categories[@id='" + e.getAttribute("idRef")+"']");
+            bcdui.core.createElementWithPrototype(scTargetModel.getData(), scTargetXPathRoot + "/Categories[@id='" + e.getAttribute("idRef") + "|" + e.getAttribute("caption") + "']");
           });
         };
 
