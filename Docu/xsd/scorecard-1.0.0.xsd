@@ -585,6 +585,11 @@
         <xs:documentation>Whether the KPI value becomes better in business sense with an increasing value (true) or worse (false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="skipAspects" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Space separated list of scc:Aspects which should be skipped for this kpi</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="validFrom" type="xs:integer">
       <xs:annotation><xs:documentation>
         See scc:ScorecardConfiguration/@validAt

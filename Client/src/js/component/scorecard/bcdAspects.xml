@@ -484,38 +484,33 @@
 
 
   <!--
-    For a % Kpi this expresses that each n-th failed.
-    Total = 100, succeeded 80 => (100/(100-80)) = 5, one out of 5 failed = every 5th failed
-    On purpose, this is NaN if 1-kpi < 0 to limit this to % KPIs
+    For an indicator Kpi, this expresses that each n-th failed.
+    Total = 100, indicator 80 => (100/(100-80)) = 5, one out of 5 failed = every 5th failed
+    Per default this is removed for KPIs not looking like an indicator KPI via scc:Kpi/@skipAspects
    -->
   <scc:Aspect id="bcdFrequency" caption="Frequency">
     <calc:Calc type-name="NUMERIC" scale="1">
       <calc:Div>
         <calc:Value>1</calc:Value>
-        <calc:Max>
-          <calc:Sub>
-            <calc:Value>1</calc:Value>
-            <calc:KpiRef />
-          </calc:Sub>
-          <calc:Value>0</calc:Value>
-        </calc:Max>
+        <calc:Sub>
+          <calc:Value>1</calc:Value>
+          <calc:KpiRef />
+        </calc:Sub>
       </calc:Div>
     </calc:Calc>
   </scc:Aspect>
 
   <!--
-    For a % Kpi this expresses how many failed.
-    Total = 100, succeeded = 80 => 20 = 20 failed
-    On purpose, this is currently limited to bcdSum_$.t / i built indicator KPIs for a more general rule we would need another way to detect indicator kpis
+    For an indicator Kpi this expresses how many failed.
+    Total = 100, indicator = 80 => 20 failed
+    Per default this is removed for KPIs not looking like an indicator KPI via scc:Kpi/@skipAspects
    -->
   <scc:Aspect id="bcdFailed" caption="Failed">
     <calc:Calc type-name="NUMERIC">
-      <calc:Niz>
-        <calc:Sub>
-          <calc:AggregatorRef idRef="agg_bcdSum_$.t"/>
-          <calc:AggregatorRef idRef="agg_bcdSum_$.i"/>
-        </calc:Sub>
-      </calc:Niz>
+      <calc:Sub>
+        <calc:AggregatorRef idRef="agg_bcdSum_$.t"/>
+        <calc:AggregatorRef idRef="agg_bcdSum_$.i"/>
+      </calc:Sub>
     </calc:Calc>
   </scc:Aspect>
 

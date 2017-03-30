@@ -73,6 +73,11 @@
           <xsl:variable name="calcOrChoose" select="."/>
           <xsl:choose>
 
+            <!-- scc:Kpi/@skipAspects allows to list per kpi aspects, which do not apply -->
+            <xsl:when test="contains(concat(' ',$kpi/@skipAspects,' '),concat(' ',$aspect/@id,' '))">
+              <wrs:C/>
+            </xsl:when>
+
             <!-- Simple case: plain calc -->
             <xsl:when test="local-name($calcOrChoose)='Calc' and $calcOrChoose/calc:*">
               <wrs:C>

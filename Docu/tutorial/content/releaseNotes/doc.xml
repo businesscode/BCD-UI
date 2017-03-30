@@ -41,6 +41,7 @@
             <ul>
               <li>Added Scorecard configurator with a drag'n drop area similar to the cube one</li>
               <li>Scorecard new scc:Description element in configuration, picked up by tooltip</li>
+              <li>Scorecard new scc:Kpi/@skipAspects allows to list space separated per kpi, which aspects do not apply. Per default bcdFailure and bcdFrequeny are disabled for KPI which are not of type i/t</li>
             </ul>
           </li>
           <li>Widgets
