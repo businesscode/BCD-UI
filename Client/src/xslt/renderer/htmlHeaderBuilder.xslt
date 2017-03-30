@@ -43,7 +43,7 @@
   <xsl:variable name="maxCells">
     <xsl:choose>
       <xsl:when test="$paramSet/xp:MaxCells"><xsl:value-of select="$paramSet/xp:MaxCells"/></xsl:when>
-      <xsl:otherwise>25000</xsl:otherwise><!-- Default limit -->
+      <xsl:otherwise>500000</xsl:otherwise><!-- Default limit -->
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="maxRows">
