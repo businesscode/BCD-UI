@@ -29,6 +29,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.util.JNDIProvider;
 import de.businesscode.util.SingletonHolder;
+import org.apache.log4j.Logger;
 
 /**
  * bare configuration singleton, this class is for internal purpose and must not be used in
@@ -37,6 +38,9 @@ import de.businesscode.util.SingletonHolder;
  *
  */
 public class BareConfiguration extends JNDIProvider {
+
+  private static Logger log = Logger.getLogger( BareConfiguration.class );
+
   /* singleton handling */
   private static SingletonHolder<BareConfiguration> holder = new SingletonHolder<BareConfiguration>() {
     @Override
@@ -250,7 +254,7 @@ public class BareConfiguration extends JNDIProvider {
         }
       }
       DataSource dataSource = (DataSource) provider.getConfigurationParameter(dbSourceName);
-      boolean throwErrorForNotClosedObjects = provider.getConfigurationParameter(Configuration.IS_DEBUG, false);
+      boolean throwErrorForNotClosedObjects = log.isDebugEnabled();
       DataSource s = dataSource;
       InvocationHandler proxiedInstance = Configuration.getClassInstance(Configuration.OPT_CLASSES.DATASOURCEWRAPPER, new Class<?>[]{DataSource.class, Boolean.class, String.class}, dataSource, throwErrorForNotClosedObjects, dbSourceName);
       if( proxiedInstance != null ) {
@@ -287,11 +291,6 @@ public class BareConfiguration extends JNDIProvider {
     catch (Exception e) {
       throw new Exception("Unable to get DataSource. dbSourceName=" + dbSourceName, e);
     }
-  }
-
-  // Convenience
-  public boolean isDebug() {
-    return (Boolean)getConfigurationParameter(Configuration.IS_DEBUG, false);
   }
 
   // Convenience

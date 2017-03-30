@@ -58,14 +58,12 @@ public class Configuration implements ConfigurationProvider {
 
   // Well known context values:
   public static final String CONFIG_FILE_PATH_KEY  = "bcdui/filePathKey";
-  public static final String IS_DEBUG              = "bcdui/isDebug";
   public static final String DISABLE_CACHE         = "bcdui/disableCache";
   public static final String VFS_CATALOG_KEY       = "bcdui/cache/vfs/catalog";
   public static final String CONFIG_DB_RELOAD_SEC  = "bcdui/config/dbProperties/reloadFrequencySeconds";
-  public static final String CONFIG_DB_STATEMENT_TIMEOUT  = "bcdui/config/dbProperties/statementTimeout";
 
   public static final String DEFAULT_DB_CONTEXT_ID = "bcdui/defaultConnection";
-  private static final String BINDING_DB_CONFIG     = "bcd_db_properties";
+  private static final String BINDING_DB_CONFIG    = "bcd_db_properties";
   private static final int DEFAULT_CONFIG_DB_RELOAD_SEC = 30; // db properties are reloaded after every 30sec
 
   private DbProperties dbProperties;
@@ -122,11 +120,6 @@ public class Configuration implements ConfigurationProvider {
       getConfigurationParameter(DISABLE_CACHE);
     } catch (Exception e) {
       addConfigurationParameter(DISABLE_CACHE, false);
-    }
-    try {
-      getConfigurationParameter(IS_DEBUG);
-    } catch (Exception e) {
-      addConfigurationParameter(IS_DEBUG, false);
     }
 
     /*
@@ -235,22 +228,6 @@ public class Configuration implements ConfigurationProvider {
   }
 
   /* Convenience API Layer - Projects are encouraged to use this class, not the BareConfiguration */
-
-  /**
-   * see {@link BareConfiguration#isDebug()}
-   * @return
-   */
-  public static boolean isDebug() {
-    /*
-     * here we either proxy through instance to trigger refresh values or refer to
-     * BareConfiguration
-     */
-    if(isInitialized){
-      return getInstance().getConfigurationParameter(Configuration.IS_DEBUG, false);
-    }else{
-      return BareConfiguration.getInstance().isDebug();
-    }
-  }
 
   /**
    * see {@link BareConfiguration#isCacheDisabled()}

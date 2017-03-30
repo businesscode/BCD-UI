@@ -17,15 +17,14 @@
 <!--
   Default context xml for tomcat
 -->
-<Context>
+<Context seeAttributesBelow="">
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false", cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 
   <!-- Disable cache means, configuration files keep being read every time  -->
-  <Environment name="bcdui/isDebug"      type="java.lang.Boolean" value="false"/>
-  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="false"/> <!-- Disable BCD-UI client-caching -->
+  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="false"/>
 
-  <!-- If no connection name is given in a binding set, this one is used -->
+  <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one is used -->
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
 
   <!-- Some sample DB connections. Replace all values with XX in their name -->

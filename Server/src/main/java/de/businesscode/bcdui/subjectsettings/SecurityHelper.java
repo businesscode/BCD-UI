@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.mgt.DefaultSecurityManager;
@@ -36,6 +37,8 @@ import de.businesscode.bcdui.toolbox.Configuration;
  * helper to evaluate shiro security on {@link Security} settings
  */
 public class SecurityHelper {
+
+  private static Logger log = Logger.getLogger(SecurityHelper.class);
 
   /**
    * checks current security context of the user for given operation. Security
@@ -70,7 +73,7 @@ public class SecurityHelper {
 
       // for performace' sake used detailed infos in debug mode only
 
-      if(Configuration.isDebug()){
+      if(log.isDebugEnabled()){
         String perms[] = op.getPermission().split(" ");
         boolean result[] = subject.isPermitted(perms);
         StringBuilder sb = new StringBuilder();
