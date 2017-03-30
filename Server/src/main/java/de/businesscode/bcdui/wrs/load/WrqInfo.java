@@ -16,13 +16,8 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -30,6 +25,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +47,7 @@ import de.businesscode.util.XPathUtils;
  */
 public class WrqInfo
 {
-
+  private final Logger log = Logger.getLogger(getClass());
   private final Element wrq;
   private final Bindings bindings;
   private int columnNumber = 1;
@@ -63,7 +59,7 @@ public class WrqInfo
   // Maps all wrs:C/@bRef and wrs:A @bRef combinations to a BindingSetwithMetadata (ignoring the @aggr)
   // This includes the select list of the ResultSet and all other places
   private Map<String,WrqBindingItem> allBRefs;
-  // Lists all wrs:C/@bRef and wrs:A @bRef to a BindingSetwithMetadata (note, without the aggr part!)
+  // Lists all wrs:C/@bRef and wrs:A/@bRef
   // This is to determine the tables (BindingSets) needed for the statement
   private Set<String> allRawBRefs;
   // All wrs:C/@bRef-@aggr and wrs:A/@bRef-@aggr combinations of the select list to a BindingSetWithMetadata
@@ -81,6 +77,8 @@ public class WrqInfo
   // We may replace the given f:Filter by one modified at the server. Since we do not want to change the original WrsRequest, 
   // because it is returned to the client and we do not want that to be included there, we hold such an element here.
   private Element resultingFilterParent;
+  // Keeps track of the virtual dimension members. Maps a bRef to a map of new names (i.e. content) of the data to the values mapped to this new name
+  private Map<String,Map<String,Set<String>>> vdms = new HashMap<>();
 
   int aliasCounter     = 1;
   int virtualBiCounter = 1;
@@ -113,6 +111,8 @@ public class WrqInfo
       filterBidRefXpathExpr       = xp.compile(".//f:Expression/@bRef");
       groupingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | /*/wrq:Select/wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       orderingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | /*/wrq:Select/wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+
+      vdmXpathExpr                 = xp.compile("/*/wrq:Select/wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
     } catch (XPathExpressionException e) {
       throw new RuntimeException("Cannot initialize class. Wrong XPath", e); // it's a bug
     }
@@ -214,13 +214,43 @@ public class WrqInfo
 
     // Let's check, whether we have a filter modifiers attached to the BindingSet (/Group) and apply them
     // Note, we have a chicken and egg problem here. To ask a BindingSet for its modifiers, 
-    // we first have to know the requested BindingItems to get the right BindingSet in case the id references to a BindngSetGroup
+    // we first have to know the requested BindingItems to get the right BindingSet in case the id references to a BindingSetGroup
     // But the modifier can change the set of required BindingItems. We handle this as follows:
-    // If there is a BindingSetGroup registered for the name, we take its modifiers, otherwise we get the direk BindingSet ones
+    // If there is a BindingSetGroup registered for the name, we take its modifiers, otherwise we get the direct BindingSet ones
     resultingFilterParent = wrq;
     for( Class<? extends Modifier> modifier: bindings.getWrqModifiers(wrqBindingSetId) ) {
       // Calculate filterServer so that we have the correct bRef set
       resultingFilterParent = modifier.newInstance().process((Element) filterXpathExpr.evaluate(wrq, XPathConstants.NODE));
+    }
+
+    // Read the vdm virtual dimension members, they will be applied by WrqBindingItem further down
+    // We know from the xPath, that ../*/@bRef, @to and @from are not empty.
+    // We indicate the 'rest' value via a from=null assigned to to
+    NodeList vdmMapNodeList  = (NodeList) vdmXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    String vdmBRef = null;
+    Map<String,Set<String>> mapping = null;
+    for( int vm=0; vm<vdmMapNodeList.getLength(); vm++ ) {
+      Element vdmMapElem = (Element)vdmMapNodeList.item(vm);
+
+      // Let's see, whether we deal with a different bRef than before
+      String tmp = ((Element)vdmMapElem.getParentNode()).getAttribute("bRef");
+      if( !tmp.equals(vdmBRef) ) {
+        vdmBRef = tmp;
+        mapping = vdms.get( vdmBRef ) != null ? vdms.get( vdmBRef ) : new HashMap();
+        // Take care for the 'rest' mapping
+        String rest = ((Element)vdmMapElem.getParentNode()).getAttribute("rest");
+        if( ! rest.isEmpty() )
+          mapping.put(rest, null);
+      }
+
+      // Split @from into individual values
+      String fromParam = vdmMapElem.getAttribute("from");
+      String toParam = vdmMapElem.getAttribute("to");
+      Set<String> from = new HashSet<>();
+      Stream.of(fromParam.split("\uE0F2")).forEach(from::add);
+      mapping.put(toParam, from);
+
+      vdms.put( vdmBRef, mapping );
     }
 
     NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
@@ -436,6 +466,15 @@ public class WrqInfo
     return groupingBRefs;
   }
 
+  /**
+   * Return the virtual dimension members for a bRef
+   * @param bRef
+   * @return
+   */
+  public Map<String,Set<String>> getVdm( String bRef ) {
+    return vdms.get( bRef );
+  }
+
   private static final Map<String, String> aggregationMapping;
   private final XPath xp;
   private final XPathExpression fromBindingSetXpathExpr;
@@ -453,6 +492,8 @@ public class WrqInfo
   private final XPathExpression filterBidRefXpathExpr;
   private final XPathExpression groupingBidRefXpathExpr;
   private final XPathExpression orderingBidRefXpathExpr;
+
+  private final XPathExpression vdmXpathExpr;
 
   static {
     aggregationMapping = new HashMap<String, String>();

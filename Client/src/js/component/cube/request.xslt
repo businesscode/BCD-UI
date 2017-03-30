@@ -92,6 +92,16 @@
           </xsl:for-each>
         </wrq:Ordering>
 
+        <wrq:Vdms>
+          <xsl:for-each select="/*/cube:Layout/cube:Dimensions/*/dm:LevelRef[cube:VDM/cube:Map]">
+            <wrq:Vdm bRef="{@bRef}">
+              <xsl:for-each select="cube:VDM/cube:Map">
+                <wrq:VdmMap to="{@to}" from="{@from}"/>
+              </xsl:for-each>
+            </wrq:Vdm>
+          </xsl:for-each>
+        </wrq:Vdms>
+
       </wrq:Select>
     </wrq:WrsRequest>
 

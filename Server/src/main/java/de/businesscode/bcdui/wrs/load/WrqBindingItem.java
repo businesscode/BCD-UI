@@ -16,16 +16,12 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.sql.Types;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -44,6 +40,7 @@ public class WrqBindingItem implements WrsBindingItem
   private final boolean columnQuoting;
   private final Boolean isEscapeXml;
   private String plainColumnExpression;
+  private String plainColumnExpressionWithVdm;
   private final List<Element> boundVariables = new LinkedList<Element>();
 
   protected final Map<String,Object> attributes = new HashMap<String,Object>(); // Request specific wrs:C/@ and wrs:A/@ attributes
@@ -58,7 +55,7 @@ public class WrqBindingItem implements WrsBindingItem
   private List<String> cCE = null; // Column expression split by column-reference
   private String cCEBase = null;
 
-  private boolean orderByDescending;             // Only if part of ordering
+  private boolean orderByDescending;        // Only if part of ordering
 
   private final String wrsAName;            // Only for wrs:A
   private final WrqBindingItem parentWrsC;  // Only for wrs:A
@@ -77,7 +74,7 @@ public class WrqBindingItem implements WrsBindingItem
 
     this.alias = alias;
 
-    // We may have a calc:Calc
+    // We may have a wrq:Calc
     NodeList calcNodes = elem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"Calc");
     if( calcNodes.getLength() > 0 && calcNodes.item(0).getParentNode() == elem ) {
       WrqCalc2Sql wrqCalc2Sql = Configuration.getClassInstance(Configuration.OPT_CLASSES.WRQCALC2SQL, new Class<?>[]{WrqInfo.class}, wrqInfo);
@@ -114,14 +111,12 @@ public class WrqBindingItem implements WrsBindingItem
       columnQuoting = false;
       isEscapeXml = "false".equals(elem.getAttribute("escapeXml")) ? new Boolean(false) : new Boolean(true);
 
-      this.plainColumnExpression = wrqCalc2Sql.getWrqCalcAsSql( calc, boundVariables, enforceAggr, getJDBCDataType() );
-
+      setColumnExpression( wrqCalc2Sql.getWrqCalcAsSql( calc, boundVariables, enforceAggr, getJDBCDataType() ) );
     }
     // Or refer to a bRef
     else {
       BindingItem bi = wrqInfo.getResultingBindingSet().get(elem.getAttribute("bRef"));
       this.referenceBindingItem = bi;
-      this.plainColumnExpression = bi.getColumnExpression();
       this.aggr = determineAggr(elem);
       // TODO imported bindingitems have the getId() of the source BindingSet (not matching our bRef). Any import-prefix or renaming is ignored. We use bRef here, because it reflects this properly.
       this.id = elem.getAttribute("id").isEmpty() ? elem.getAttribute("bRef").isEmpty() ? bi.getId() : elem.getAttribute("bRef") : elem.getAttribute("id");
@@ -131,6 +126,7 @@ public class WrqBindingItem implements WrsBindingItem
       jdbcDataType = bi.getJDBCDataType();
       columnQuoting = bi.isColumnQuoting();
       isEscapeXml = elem.getAttribute("escapeXml").isEmpty() ? bi.isEscapeXML() : new Boolean(elem.getAttribute("escapeXml"));
+      setColumnExpression( bi.getColumnExpression() );
     }
 
 
@@ -186,11 +182,11 @@ public class WrqBindingItem implements WrsBindingItem
     attributes.put("name", wrsAName);
     wrqInfo.getAllBRefAggrs().get(parentC.getId()).addWrsAAttribute(this); // We are in document order, so we know our parent wrs:C exists already
     this.parentWrsC = parentC;
-    this.plainColumnExpression = columnExpression;
     this.jdbcDataType = Types.VARCHAR;
     this.tableAlias = parentC.getTableAlias();
     this.columnQuoting = false;
     isEscapeXml = new Boolean(true);
+    setColumnExpression( columnExpression );
   }
 
   protected WrqBindingItem(WrqInfo wrqInfo, BindingItem bi, String alias, boolean enforceAggr)
@@ -202,13 +198,13 @@ public class WrqBindingItem implements WrsBindingItem
     this.alias = alias;
     this.wrsAName = null;
     this.parentWrsC = null;
-    this.plainColumnExpression = bi.getColumnExpression();
     this.tableAlias = bi.getTableAliasName();
 
     attributes.putAll(bi.getAttributes());
     jdbcDataType = bi.getJDBCDataType();
     columnQuoting = bi.isColumnQuoting();
     isEscapeXml = bi.isEscapeXML();
+    setColumnExpression( bi.getColumnExpression() );
   }
 
 
@@ -274,7 +270,7 @@ public class WrqBindingItem implements WrsBindingItem
 
     if (withColumnExpression) {// thus WRS response does not write this element
       writer.writeStartElement("Column");
-      writer.writeCharacters(getColumnExpression());
+      writer.writeCharacters(getColumnExpression(false));
       writer.writeEndElement(); // Column
     }
     
@@ -331,11 +327,23 @@ public class WrqBindingItem implements WrsBindingItem
     this.orderByDescending = isDescending;
   }
 
-  // Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias
-  public List<String> getSplitColumnExpression()
+  /**
+   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@see BindingUtils.splitColumnExpression}
+   * @return
+   */
+  public List<String> getSplitColumnExpression() {
+    return getSplitColumnExpression(true);
+  }
+
+  /**
+   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@see BindingUtils.splitColumnExpression}
+   * @param applyVdm If false, virtual dimension member caused case-when are ignored here
+   * @return
+   */
+  public List<String> getSplitColumnExpression(boolean applyVdm)
   {
-    if( ! getColumnExpression().equals( cCEBase ) || cCE == null ) {
-      cCEBase = getColumnExpression();
+    if( ! getColumnExpression(applyVdm).equals( cCEBase ) || cCE == null ) {
+      cCEBase = getColumnExpression(applyVdm);
       cCE = BindingUtils.splitColumnExpression(cCEBase, columnQuoting, wrqInfo.getResultingBindingSet());
     }
     return cCE;
@@ -367,21 +375,128 @@ public class WrqBindingItem implements WrsBindingItem
   // Allows for example to eliminate complete-constant expressions from group-by as they are not allowed in SQLServer
   public boolean hasAColumReference()
   {
-    List<String> sCE = getSplitColumnExpression();
+    List<String> sCE = getSplitColumnExpression(true);
     return sCE.size() > 1;
   }
 
-  public String getQColumnExpression() 
+  /**
+   * Return the column expression with the table alias
+   * @return
+   */
+  public String getQColumnExpression()
   {
-    List<String> sCE = getSplitColumnExpression();
+    return getQColumnExpression( true );
+  }
+  /**
+   * Return the column expression with the table alias
+   * @param applyVdm If false, virtual dimension members are ignored here
+   * @return
+   */
+  public String getQColumnExpression( boolean applyVdm )
+  {
+    List<String> sCE = getSplitColumnExpression(applyVdm);
     return BindingUtils.addTableAlias(sCE, tableAlias);
   }
+
+  /**
+   * Return the physical DB column expression including virtual dimension member caused adjustments
+   * @return
+   */
   public String getColumnExpression() {
-    return plainColumnExpression != null ? plainColumnExpression : parentWrsC.getColumnExpression();
+    return getColumnExpression(true);
   }
 
+  /**
+   * Allows to retrieve he column expression ignoring virtual dimension members, for example when creating the where clause
+   * @param applyVdm
+   * @return
+   */
+  private String getColumnExpression(boolean applyVdm) {
+    if( applyVdm )
+      return plainColumnExpressionWithVdm != null ? plainColumnExpressionWithVdm : parentWrsC.getColumnExpression();
+    else
+      return plainColumnExpression != null ? plainColumnExpression : parentWrsC.getColumnExpression();
+  }
+
+  /**
+   * Derive the column expression<
+   * Note that for VDM, this relies on plainColumnExpression and jdbcDataType being set already to this.
+   * @param cE
+   */
   public void setColumnExpression(String cE) {
     plainColumnExpression = cE;
+    evaluateVdms();
+  }
+
+  /**
+   * We may need to wrap our column expression in a case-when chain to apply virtual dimension member vdm
+   * SQL Injection. Sadly, we cannot use bind variables ('?') here because database engines do not recognize such case-when statements as same, even of the
+   * bound values are. This leads to "not a group by expression", even if the same case-when is used in group by and a select list.
+   * So we need to literally embed the values here as an exception to BCD-UI. We escape all ' from them to make sure, all content is treated as string.
+   * Other cases like _ or %, which can be used for injection in LIKE contexts do not affect us here because we know hard-coded we are in an IN clause
+   */
+  private void evaluateVdms()
+  {
+    // Check for VDM virtual dimension members
+    StringBuffer pCEWithVdm = new StringBuffer();
+    String elseValue = null;
+    // Do we have value mappings for this bRef?
+    String q = isNumeric() ? "" : "'";
+    boolean isNumeric = isNumeric();
+    if( wrqInfo.getVdm( getId() ) != null ) {
+      Map<String,Set<String>> mappings = wrqInfo.getVdm( getId() );
+      pCEWithVdm.append(" CASE ");
+      // Make a WHEN THEN part for each mapping
+      for( String to: mappings.keySet() ) {
+        if( mappings.get( to ) == null ) {
+          elseValue = to;
+          continue;
+        }
+        // List the values we map from to 'to' in an IN clause
+        pCEWithVdm.append(" WHEN ").append( plainColumnExpression ).append(" IN (");
+        String sep = "";
+        for( String from: mappings.get( to ) ) {
+          // Prevent SQL injection
+          if( isNumeric )
+            Double.parseDouble(from);
+          else
+            from = StringEscapeUtils.escapeSql( from );
+          pCEWithVdm.append(sep).append(q).append(from).append(q);
+          sep = ",";
+        }
+        pCEWithVdm.append(") THEN ");
+        // Prevent SQL injection
+        if( isNumeric )
+          Double.parseDouble(to);
+        else
+          to = StringEscapeUtils.escapeSql( to );
+        pCEWithVdm.append(q).append(to).append(q);
+      }
+      pCEWithVdm.append(" ELSE ");
+      // Else are either the original values or the @to with an empty @from value, serving as value for the rest
+      if( elseValue != null ) {
+        // Prevent SQL injection
+        if( isNumeric )
+          Double.parseDouble(elseValue);
+        else
+          elseValue = StringEscapeUtils.escapeSql( elseValue );
+        pCEWithVdm.append(q).append(elseValue).append(q);
+      } else
+        pCEWithVdm.append(plainColumnExpression);
+      pCEWithVdm.append(" END ");
+      // Special and strange case: there is only the else value, we just print the value, no case-when chain
+      if( elseValue!=null && mappings.keySet().size() == 1 ) {
+        // Prevent SQL injection
+        if( isNumeric )
+          Double.parseDouble(elseValue);
+        else
+          elseValue = StringEscapeUtils.escapeSql( elseValue );
+        plainColumnExpressionWithVdm = q+elseValue+q;
+      } else
+        plainColumnExpressionWithVdm = pCEWithVdm.toString();
+    }
+    else
+      plainColumnExpressionWithVdm = plainColumnExpression;
   }
 
   public String getTableAlias() {
@@ -407,4 +522,13 @@ public class WrqBindingItem implements WrsBindingItem
   public List<Element> getBoundVariables() {
     return boundVariables;
   }
+
+  /**
+   * @return true if the BindingItem represents a numeric value
+   */
+  public boolean isNumeric() {
+    return ( jdbcDataType == Types.INTEGER || jdbcDataType == Types.NUMERIC || jdbcDataType == Types.DECIMAL || jdbcDataType == Types.DOUBLE || jdbcDataType == Types.FLOAT
+             || jdbcDataType == Types.BIGINT  || jdbcDataType == Types.BIT  || jdbcDataType == Types.REAL || jdbcDataType == Types.SMALLINT || jdbcDataType == Types.TINYINT );
+  }
+
 }

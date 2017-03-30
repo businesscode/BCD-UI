@@ -150,7 +150,7 @@ public class WrqFilter2Sql
     WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(itemFrom.getAttribute("bRef"));
     elementList.add(itemFrom);
     elementList.add(itemTo);
-    return bindingItem.getQColumnExpression() + " BETWEEN ? AND ?";
+    return bindingItem.getQColumnExpression(false) + " BETWEEN ? AND ?";
   }
 
   /**
@@ -174,10 +174,10 @@ public class WrqFilter2Sql
         operator = "=";
     }
     if ((!item.hasAttribute("value") || "".equals(item.getAttribute("value"))) && "=".equals(operator)) {
-      return bindingItem.getQColumnExpression() + " IS NULL";
+      return bindingItem.getQColumnExpression(false) + " IS NULL";
     }
     if ((!item.hasAttribute("value") || "".equals(item.getAttribute("value"))) && "<>".equals(operator)) {
-      return bindingItem.getQColumnExpression() + " IS NOT NULL";
+      return bindingItem.getQColumnExpression(false) + " IS NOT NULL";
     }
 
     // Take care for ignore case
@@ -197,9 +197,9 @@ public class WrqFilter2Sql
     String colExpr = null;
     if( ignoreCase ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
-      colExpr = "lower("+bindingItem.getQColumnExpression()+")";
+      colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
     } else {
-      colExpr = bindingItem.getQColumnExpression();
+      colExpr = bindingItem.getQColumnExpression(false);
     }
 
     // In operator does not support ? syntax
