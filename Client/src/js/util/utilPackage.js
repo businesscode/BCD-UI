@@ -248,7 +248,7 @@ bcdui.util =
       if(!jsFuncStr){
         return null;
       }
-      return eval( "(function(){" + jsFuncStr + "})" );
+      return eval( "(function(){return " + jsFuncStr + "})" );
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";
