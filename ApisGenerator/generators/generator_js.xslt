@@ -56,7 +56,12 @@
   var htmlE = jQuery("#" + args.targetHtmlElementId);
   if( ! htmlE.length > 0 )
      return;
-  args.id = args.targetHtmlElementId;
+  if(args.id) {
+    htmlE.attr("id", args.id);
+    args.targetHtml = args.targetHtmlElementId = args.id;
+  } else {
+    args.id = args.targetHtml;
+  }
   htmlE.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>", jQuery.extend(true, {}, args));
 
     <xsl:value-of select="concat('&#10;&#10;  ', $package, '.', @name,'.init(htmlE.get(0));')"/>

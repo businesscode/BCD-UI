@@ -59,8 +59,8 @@
         <ApiChange since="4.3.3">@targetModelId deprecated</ApiChange>
         <Param name="id" type="string">
           <Doc>
-            ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable.
-            If not given, an auto-id is generated.
+          Id of the widget, if not provided this id will be auto-generated. Must be unique. The id must not be used from jQuery UI API,
+          the id should be used within declarative scope only, i.e. X-API / JSP. If provided, this id will overwrite targetHtml element's id.
           </Doc>
         </Param>
         <Param name="tabindex" type="integer">
