@@ -135,11 +135,11 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-
+	  int maxRows = this.maxRows;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
         Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdWrs:maxRows");
-        try { maxRows = perms.iterator().hasNext() ? Integer.parseInt(perms.iterator().next()) : maxRows; } catch (Exception e) {}
+        try { if (perms.iterator().hasNext()) maxRows = Integer.parseInt(perms.iterator().next()); } catch (Exception e) {}
       }
     }
     catch (UnavailableSecurityManagerException e) {}
@@ -222,11 +222,11 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+	  int maxRows = this.maxRows;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
-        Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdWrs:maxRows ");
-        try { maxRows = perms.iterator().hasNext() ? Integer.parseInt(perms.iterator().next()) : maxRows; } catch (Exception e) {}
+        Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdWrs:maxRows");
+        try { if (perms.iterator().hasNext()) maxRows = Integer.parseInt(perms.iterator().next()); } catch (Exception e) {}
       }
     }
     catch (UnavailableSecurityManagerException e) {}
