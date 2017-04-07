@@ -116,7 +116,7 @@ var myModel = new bcdui.core.AutoModel({
 var renderer =  new bcdui.core.Renderer({ 
                  inputModel: myModel,  
                  targetHtml: "myData",
-                 parameters : { makeRowSpan: true, sortRows: false } });]]></pre>
+                 parameters : { makeRowSpan: true, sortRows: false } });]]></pre>
         <p>
           The page now looks like this:   
         </p>

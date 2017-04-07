@@ -205,41 +205,47 @@ bcdui.factory.createRenderer({
         </dl>
         <p/>
         Example: Typical xslt file header to work with string utilities
-        <pre><![CDATA[<xsl:stylesheet version="1.0"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:exslt="http://exslt.org/common"
-    xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-    exclude-result-prefixes="exslt msxsl">
-  
-    <xsl:import href="../../../xslt/stringUtil.xslt"/>
-  
-    <msxsl:script language="JScript" implements-prefix="exslt">this['node-set']= function (x) { return x; }</msxsl:script>
-  
-    <xsl:output method="xml" version="1.0" encoding="UTF-8"  indent="no" />
-  </xsl:stylesheet>
-]]></pre>
+        <doc:xml>
+          <xsl:stylesheet version="1.0"
+            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:exslt="http://exslt.org/common"
+            xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+            exclude-result-prefixes="exslt msxsl">
+
+            <xsl:import href="../../../xslt/stringUtil.xslt"/>
+
+            <msxsl:script language="JScript" implements-prefix="exslt">this['node-set']= function (x) { return x; }</msxsl:script>
+
+            <xsl:output method="xml" version="1.0" encoding="UTF-8"  indent="no" />
+          </xsl:stylesheet>
+        </doc:xml>
 
         <p/>
-        Example: Tokenizing a space separated string and do something with each token. 
-        <pre><![CDATA[<xsl:variable name="myString">This is a test</xsl:variable>
+        Example: Tokenizing a space separated string and do something with each token.
+        <doc:xml>
+          <xsl:stylesheet version="1.0"
+                          xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+            <xsl:variable name="myString">This is a test</xsl:variable>
 
-<!-- split up the string -->
-<xsl:variable name="myStringTokens">
-  <xsl:call-template name="tokenize">
-    <xsl:with-param name="string" select="$myString" />
-    <xsl:with-param name="delimiter" select="' '" />
-  </xsl:call-template>
-</xsl:variable>
-  
-<!-- build a nodeset -->
-<xsl:variable name="myNodes" select="exslt:node-set($myStringTokens)" />
+            <!-- split up the string -->
+            <xsl:variable name="myStringTokens">
+              <xsl:call-template name="tokenize">
+                <xsl:with-param name="string" select="$myString" />
+                <xsl:with-param name="delimiter" select="' '" />
+              </xsl:call-template>
+            </xsl:variable>
 
-<!-- and run through the non empty single nodes and do something with each node -->
-<xsl:for-each select="$myNodes/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
-  <xsl:call-template name="doSomething">
-    <xsl:with-param name="item" select="."/>
-  </xsl:call-template>
-</xsl:for-each>]]></pre>
+            <!-- build a nodeset -->
+            <xsl:variable name="myNodes" select="exslt:node-set($myStringTokens)" />
+
+            <!-- and run through the non empty single nodes and do something with each node -->
+            <xsl:for-each select="$myNodes/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
+              <xsl:call-template name="doSomething">
+                <xsl:with-param name="item" select="."/>
+              </xsl:call-template>
+            </xsl:for-each>
+          </xsl:stylesheet>
+        </doc:xml>
       </doc:Body>
     </doc:SubChapter>
 

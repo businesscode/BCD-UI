@@ -1,0 +1,103 @@
+//*********************************************
+// Provides a one-time conversion of tutorial's doc.xml into AsciiDoctor format
+// Plus converting the resulting adoc files into html
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+    classpath group: 'org.asciidoctor', name: 'asciidoctorj-pdf', version: '1.5.0-alpha.14'
+  }
+}
+apply plugin: "org.asciidoctor.convert"
+
+def docuRoot = "$projectDir/Docu"
+
+//*********************************************
+// Generate an Asciidoctor adoc file from our doc format.
+task bcduiDocuXml2Adoc {
+
+  outputs.upToDateWhen { false }
+  def taskDestDirName = "$docuRoot/tutorial"
+  def taskSource      = "$docuRoot/tutorial/content"
+  inputs.dir file(taskSource)
+
+  // xml content is converted to HTML in case it has a processing instruction
+  doFirst {
+    // Copy manual files needed for adoc
+    copy{ from "$docuRoot/gradle/xml2adoc/docinfo.html"; into taskDestDirName; }
+    copy{ from "$docuRoot/gradle/xml2adoc/all.adoc"; into taskDestDirName; }
+
+    // We know we are not up-to-date here. Since this task owns the output folder, it is save to delete it now
+    fileTree(taskDestDirName).include('*/**/doc.adoc').each { delete( it ) }
+
+    // Convert all doc.xml files to adoc with docXml2Adoc.xslt
+    def docFiles = fileTree(taskSource).include('*/**/doc.xml')
+    docFiles.each { docFile ->
+
+      def upperDirs = relativePath(docFile).replaceAll(/tutorial.(.*)[\/\\][a-zA-Z0-9_]+\.xml/,'$1')
+      def logicalDocName = upperDirs.substring( upperDirs.lastIndexOf('\\') + 1 )
+      def outFile = file("$taskDestDirName/${logicalDocName}.adoc")
+      ant.xslt(
+              in: docFile,
+              style: file("$docuRoot/gradle/xml2adoc/docXml2Adoc.xslt"),
+              out: outFile
+      ) {
+        param( name: "logicalName", expression: logicalDocName )
+        param( name: "docName", expression: 'Doc' + logicalDocName.substring(0,1).toUpperCase() + logicalDocName.substring( 1 ) )
+      }
+
+      // These are replacements which are done easier here than in xslt
+      // Also replace all relative links to xml files to point to html files
+      outFile.text = outFile.text.replaceAll('<<.*/([^/]+)/doc.xml', '<<Doc$1')
+      outFile.text = outFile.text.replaceAll('<<Doc(.)') { group -> return '<<Doc'+group[1].toUpperCase() }
+      outFile.text = outFile.text.replaceAll(' ?xmlns(:doc)?="http://www.businesscode.de/schema/bcdui/doc-1.1.0"', '')
+    }
+  }
+
+  // Copy all images into a flat tutorial/images/ folder, prefix each image name with the page-name_
+  def images = fileTree( dir: taskSource, exclude: ['**/*.xml', '**/*.adoc'] )
+  file(taskDestDirName+'/images').mkdirs()
+  images.each {
+    def prefix = (it.name.startsWith('w_') || it.name.startsWith('ng_')) ? 'widgets' : it.parentFile.name
+    def targetName = prefix+'_'+it.name
+    new File(file(taskDestDirName+'/images/'), targetName).withDataOutputStream {
+      os -> os << it.withDataInputStream { is -> os << is }
+    }
+  }
+}
+
+
+//*********************************************
+// Generate tutorial HTML from all.adoc
+task bcduiDocuTutorial ( type: org.asciidoctor.gradle.AsciidoctorTask ) {
+  outputs.upToDateWhen { false }
+
+  dependsOn bcduiDocuXml2Adoc
+
+  def taskDestDirName = "$docuRoot/build/adoc"
+  def taskSource      = "$docuRoot/tutorial"
+
+  configure {
+    sources {
+      include "all.adoc"
+    }
+//    backends = ['html5','pdf']
+    backends = ['html5']
+    attributes 'source-highlighter'    : 'coderay',
+            'coderay-linenums-mode' : 'table',
+            icons                   : 'font',
+            linkattrs               : true,
+            encoding                : 'UTF-8'
+    sourceDir = file(taskSource)
+    outputDir = file(taskDestDirName)
+  }
+
+  // copy images folder to output
+  doLast {
+    copy{ from "$taskSource/images"; into "$buildDir/adoc/images"; include '*.*' }
+  }
+}

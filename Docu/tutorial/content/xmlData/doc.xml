@@ -152,8 +152,8 @@
                 </And>
               </And>
           </Filter>
-          <!-- Leads to: ((val>=? AND val <=?) AND (ctrName IS NULL OR ctrName like ? ESCAPE ?) AND (yr=? AND cw IN (?,?,?)) -->
         </xml>
+        Above leads to: <pre>(val>=? AND val &lt;=?) AND (ctrName IS NULL OR ctrName like ? ESCAPE ?) AND (yr=? AND cw IN (?,?,?)</pre>
         Note that prepared statements are used for security and performance reasons.
         Between operator is not available, please use <![CDATA[... <= ... AND ... >= ...]]> instead.
       </Body>
@@ -212,7 +212,7 @@
 
     </Body>
   </Chapter>
-  <Chapter>
+  <Chapter title="XSD Schema">
 
     <SubChapter title="Details">
       <Body>

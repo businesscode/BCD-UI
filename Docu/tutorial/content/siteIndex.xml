@@ -19,9 +19,9 @@
 <Docs>
   <Block title="BCD-UI Overview">
     <DocUrl>../content/architecture/doc.xml</DocUrl>
-    <DocUrl>../content/howTo/GettingStarted/doc.xml</DocUrl>
+    <DocUrl>../content/howTo/gettingStarted/doc.xml</DocUrl>
     <DocUrl>../content/howTo/minimalCube/doc.xml</DocUrl>
-    <DocUrl>../content/howTo/coreArtifacts/coreArtifacts.xml</DocUrl>
+    <DocUrl>../content/howTo/coreArtifacts/doc.xml</DocUrl>
   </Block>
 
   <Block title="Components">

@@ -72,8 +72,6 @@
       Behaviour:
       <ul>
         <li>If a level is expaned and it (and all of its loaded children) has only one leaf, it is fully expanded.</li>
-        <li></li>
-        <li></li>
       </ul>
     </Body>
   </Chapter>

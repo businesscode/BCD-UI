@@ -18,37 +18,37 @@
 <doc:Doc title="Use Gradle to setup a BCD-UI project" xmlns:doc="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
   <doc:Chapter title="Overview" type="overview">
     <doc:Body>
-     <p>
-     This section it about building a simple BCD-UI project with <a target="_blank" href="https://gradle.org/">gradle</a>. 
-     All libraries required are
-     specified as dependencies and it is therefore easy to get the application setup.
-     </p>
-     <div>The following steps are necessary in general:
-       <dl>
-         <dt>1. Install Gradle plugin if necessary</dt> 
-         <dt>2. Add gradle.build to the project</dt>
-         <dt>3. Configure gradle support for the project</dt>
-         <dt>4. Refresh dependencies</dt>
-      </dl>
-      Each step is described in the following sub chapters.
-     </div>
-     </doc:Body>
-   </doc:Chapter>
-    <doc:Chapter title="Step by Step">
-    <doc:SubChapter>
+      <p>
+        This section it about building a simple BCD-UI project with <a target="_blank" href="https://gradle.org/">gradle</a>.
+        All libraries required are
+        specified as dependencies and it is therefore easy to get the application setup.
+      </p>
+      <div>The following steps are necessary in general:
+        <ol>
+          <li>Install Gradle plugin if necessary</li>
+          <li>Add gradle.build to the project</li>
+          <li>Configure gradle support for the project</li>
+          <li>Refresh dependencies</li>
+        </ol>
+        Each step is described in the following sub chapters.
+      </div>
+    </doc:Body>
+  </doc:Chapter>
+  <doc:Chapter title="Step by Step">
+    <doc:SubChapter title="Gradle plugin">
       <doc:Body>
         Install a gradle plugin. The following steps depend on the BuildShip plugin. Other gradle plugins might be different.
       </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="Add Gradle.build to the project">
-     <doc:Body>
-      <p>
-      The BCD-UI build process is implemented with gradle as an example, but can be built with any tool. 
-      So we first create a empty build.gradle file in the root directory of the GettingStarted project.
-      Open the file for editing and paste the following content into the build.gradle file. The important part is that the configuration of webAppDirName is right. 
-      The biggest part of the build file are the dependencies.
-      </p>
-      <pre>
+      <doc:Body>
+        <p>
+          The BCD-UI build process is implemented with gradle as an example, but can be built with any tool.
+          So we first create a empty build.gradle file in the root directory of the GettingStarted project.
+          Open the file for editing and paste the following content into the build.gradle file. The important part is that the configuration of webAppDirName is right.
+          The biggest part of the build file are the dependencies.
+        </p>
+        <pre>
 apply plugin: "java"
 apply plugin: "war"
 
@@ -88,32 +88,32 @@ dependencies {
     compile 'de.businesscode.bcdui:bcd-ui-core:5.0.0'
   }
 }
-     </pre>
-     </doc:Body>
-     </doc:SubChapter>
-     <doc:SubChapter title="Configure Gradle support for the project">
-       <doc:Body>
-         <p>
-           Before we can use the gradle file within eclipse, we have to add the "Gradle Nature" to the GettingStarted project. So select the project,
-           open the context menu and choose Configure->Add Gradle Nature.
-         </p>
-       </doc:Body>
-     </doc:SubChapter>   
-     <doc:SubChapter title="Refresh dependencies">
-     <doc:Body>
-      <p>
-       Afterwards the context menu has a new entry for gradle and there we can invoke grade refresh. The menu entry is only visible when on project root or
-       gradle.build file. 
-       This might take some time, because all libraries specified
-       by the dependencies above will be loaded.
-          
-      </p>
-       <img src="gradle_refresh_project.png"/>
-       <p>
-         After the gradle refresh, the GettingStarted project has its dependencies and these can be found in the project tree as shown in the following image.
-       </p>
-      <img src="references.png"/>
-     </doc:Body>
-     </doc:SubChapter>    
+        </pre>
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Configure Gradle support for the project">
+      <doc:Body>
+        <p>
+          Before we can use the gradle file within eclipse, we have to add the "Gradle Nature" to the GettingStarted project. So select the project,
+          open the context menu and choose Configure->Add Gradle Nature.
+        </p>
+      </doc:Body>
+    </doc:SubChapter>
+    <doc:SubChapter title="Refresh dependencies">
+      <doc:Body>
+        <p>
+          Afterwards the context menu has a new entry for gradle and there we can invoke grade refresh. The menu entry is only visible when on project root or
+          gradle.build file.
+          This might take some time, because all libraries specified
+          by the dependencies above will be loaded.
+
+        </p>
+        <img src="gradle_refresh_project.png"/>
+        <p>
+          After the gradle refresh, the GettingStarted project has its dependencies and these can be found in the project tree as shown in the following image.
+        </p>
+        <img src="references.png"/>
+      </doc:Body>
+    </doc:SubChapter>
   </doc:Chapter>  
 </doc:Doc>

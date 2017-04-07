@@ -89,7 +89,7 @@
           For example only user may only be allowed <code>page:report:scorecard</code> where else another user may be granted
           access to all pages <code>page:*</code>.
           All attributes and permissions assigned to a user in bcd_sec_user_settings to are read when the user logs in.
-          These become in-memory subject settings, that can be used to query for a certain permission..
+          These become in-memory subject settings, that can be used to query for a certain permission.
           <table class="propertyList">
             <tr><th>Column</th><th>Content</th></tr>
             <tr><td>user_id</td><td>Id of the user this permission is assigned to.</td></tr>
@@ -199,82 +199,88 @@
     
     <doc:SubChapter title="Tomcat Configuration">
       <doc:Body>
-<pre>
-0) Keytab from Domain Controller
-
-Please ask your domain administrator to provide a keytab file for
-tomcat service to connect to Domain Controller. A sample keytab file
-is located at tomcat1-sample.keytab; (however, that file can't be
-used in your environment).
-
-1) Install Java 8 on Linux box
-
-2) Install Tomcat7 v.7.0.60 or newer
-
-After you have factory-installed your tomcat, please
-copy files from tomcat_lib/* to your $tomcat.home/lib
-
-3) Install JAAS/Kerberos configuration:
-Copy your keytab file (which you have got in step 0) and tomcat_conf/*
-to your $catalina.base/conf folder and adjust the files to meet your
-environment configuration:
-
-file: jaas.conf, change following properties:
-- principal -> (put your principal here the keytab file was issued for)
-- keytab -> adjust path to reflect location of your keytab file
-
-file: krb5.ini
-- change realm VIRTUAL.BUSINESS-CODE.DE to yours, realm names must be CAPITAL CASE.
-- default_keytab_name -> adjust path to reflect location of your keytab file
-- [realms].&lt;YOUR_REALM>.kdc -> hostname of your domain controller
-
-4) Install SSO Test App:
-copy BCD-UI-SSO.war to $tomcat.base/webapps
-
-ensure the app is running by navigating in your browser to url:
-
-&lt;your-tomcat-hostname>/BCD-UI-SSO
-
-you should see a page with a link
-
-"Enter Secured Page"
-
-Please, don't klick the link yet. If you dont see the page, please
-check Tomcat logs. Most likely you have missed to copy extra library
-to tomcat as described in step 2.
-
-5) Configure Browsers on Windows client machine with domain user to test SSO:
-
-For IE and Chrome ( chrome re-uses settings from IE ):
-- add &lt;your-tomcat-hostname> to "Local intranet" security-zone
-- ensure "Enable integrated windows authentication" is checked in Internet Options -> Advanced -> Security subtree
-
-For Firefox:
-open about:config in your Firefox browser and change following options:
-
-network.negotiate-auth.allow-non-fqdn     => true
-network.negotiate-auth.delegation-uris    => &lt;your-tomcat-hostname>
-network.automatic-ntlm-auth.trusted-uris  => &lt;your-tomcat-hostname>
-network.automatic-ntlm-auth.allow-proxies => True
-network.negotiate-auth.allow-proxies      => True
-
-6) Verify SSO on Windows client machine with domain user:
-After security settings changed, please restart the browser and navigate to url:
-&lt;your-tomcat-hostname>/BCD-UI-SSO
-
-then click on "Enter Secured Page" link
-
-Your should see one of the following:
-
-"SSO success", along with principal name.
-"SSO failed", which means that SSO has failed for some reason. Please consult
-tomcat logs for further information. In such a case the webapplication will
-trigger authentication on itself.
-
-in case you see HTTP-401 or some default authentication-failed screen or a browser
-pop-ups authentication dialog, then you most likely did not configure your browser
-properly (see step 5)
-</pre>
+        <ol>
+          <li>
+            Keytab from Domain Controller<br/>
+            Please ask your domain administrator to provide a keytab file for
+            tomcat service to connect to Domain Controller. A sample keytab file
+            is located at tomcat1-sample.keytab; (however, that file can't be
+            used in your environment).
+          </li>
+          <li>Install Java 8 on Linux box</li>
+          <li>Install Tomcat7 v.7.0.60 or newer</li>
+          <li>
+            After you have factory-installed your tomcat, please
+            copy files from tomcat_lib/* to your $tomcat.home/lib
+          </li>
+          <li>
+            Install JAAS/Kerberos configuration:
+            <ul>
+              <li>Copy your keytab file (which you have got in step 0) and tomcat_conf/*
+              to your $catalina.base/conf folder and adjust the files to meet your
+              environment configuration:</li>
+              <li>file: jaas.conf, change following properties:</li>
+              <li>principal -> (put your principal here the keytab file was issued for)</li>
+              <li>keytab -> adjust path to reflect location of your keytab file
+              file: krb5.ini</li>
+              <li>change realm VIRTUAL.BUSINESS-CODE.DE to yours, realm names must be CAPITAL CASE.</li>
+              <li>default_keytab_name -> adjust path to reflect location of your keytab file</li>
+              <li>[realms].&lt;YOUR_REALM>.kdc -> hostname of your domain controller</li>
+            </ul>
+          </li>
+          <li>
+            Install SSO Test App:
+            <ul>
+              <li>copy BCD-UI-SSO.war to $tomcat.base/webapps</li>
+              <li>ensure the app is running by navigating in your browser to url:</li>
+              <li>&lt;your-tomcat-hostname>/BCD-UI-SSO</li>
+              <li> you should see a page with a link</li>
+              <li>"Enter Secured Page"</li>
+              <li>Please, don't klick the link yet. If you dont see the page, please
+              check Tomcat logs. Most likely you have missed to copy extra library
+              to tomcat as described in step 2.</li>
+            </ul>
+          </li>
+          <li>
+            Configure Browsers on Windows client machine with domain user to test SSO:<br/>
+            <ul>
+              <li>
+                For IE and Chrome ( chrome re-uses settings from IE ):
+                <ul>
+                  <li>add &lt;your-tomcat-hostname> to "Local intranet" security-zone</li>
+                  <li>ensure "Enable integrated windows authentication" is checked in Internet Options -> Advanced -> Security subtree</li>
+                </ul>
+              </li>
+              <li>
+                For Firefox:<br/>
+                open about:config in your Firefox browser and change following options:
+                <pre>
+                  network.negotiate-auth.allow-non-fqdn     => true
+                  network.negotiate-auth.delegation-uris    => &lt;your-tomcat-hostname>
+                  network.automatic-ntlm-auth.trusted-uris  => &lt;your-tomcat-hostname>
+                  network.automatic-ntlm-auth.allow-proxies => True
+                  network.negotiate-auth.allow-proxies      => True
+                </pre>
+              </li>
+            </ul>
+          </li>
+          <li>
+            Verify SSO on Windows client machine with domain user:<br/>
+            <ul>
+              <li>After security settings changed, please restart the browser and navigate to url:</li>
+              &lt;your-tomcat-hostname>/BCD-UI-SSO
+              <li>then click on "Enter Secured Page" link</li>
+              <li>Your should see one of the following:</li>
+              <li>"SSO success", along with principal name.</li>
+              <li>"SSO failed", which means that SSO has failed for some reason. Please consult</li>
+              <li>tomcat logs for further information. In such a case the webapplication will
+              trigger authentication on itself.</li>
+              <li>In case you see HTTP-401 or some default authentication-failed screen or a browser
+              pop-ups authentication dialog, then you most likely did not configure your browser
+              properly (see step 5)</li>
+            </ul>
+          </li>
+        </ol>
       </doc:Body>
     </doc:SubChapter>
     

@@ -83,38 +83,41 @@
       Such renderer code in jsp can look like this: 
      <pre><![CDATA[<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
 <div id="xsltArea"><div>
-<b:renderer stylesheetUrl="renderer.xslt" targetHtml="xsltArea"/>]]></pre>
-     And our example stylesheet renderer.xslt file looks like this:
-    <pre><![CDATA[
-<xsl:stylesheet
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:import href="../../bcdui/js/core/core.xslt"/>
-  <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
-  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
-
-  <xsl:template match="/*">
-    <div>
-      <xsl:call-template name="autoModel">
-        <xsl:with-param name="id" select="'myDataModel'"/>
-        <xsl:with-param name="bindingSetId" select="'auto_test_wrs_oracle'"/>
-        <xsl:with-param name="bindingItemRefs" select="'country'"/>
-        <xsl:with-param name="isDistinct" select="'true'"/>
-      </xsl:call-template>
-      <xsl:call-template name="singleSelectNg">
-        <xsl:with-param name="targetModelXPath">/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value</xsl:with-param>
-        <xsl:with-param name="optionsModelXPath">$myDataModel//wrs:Data/wrs:R/wrs:C[1]</xsl:with-param>
-      </xsl:call-template>
-    </div>
-  </xsl:template>
-</xsl:stylesheet>
+<b:renderer stylesheetUrl="renderer.xslt" targetHtml="xsltArea"/>
 ]]></pre>
+      <p>
+        And our example stylesheet renderer.xslt file looks like this:
+      </p>
+    <doc:xml>
+      <xsl:stylesheet
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+        <xsl:import href="../../bcdui/js/core/core.xslt"/>
+        <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
+        <xsl:output method="html" encoding="UTF-8" indent="yes"/>
+
+        <xsl:template match="/*">
+          <div>
+            <xsl:call-template name="autoModel">
+              <xsl:with-param name="id" select="'myDataModel'"/>
+              <xsl:with-param name="bindingSetId" select="'auto_test_wrs_oracle'"/>
+              <xsl:with-param name="bindingItemRefs" select="'country'"/>
+              <xsl:with-param name="isDistinct" select="'true'"/>
+            </xsl:call-template>
+            <xsl:call-template name="singleSelectNg">
+              <xsl:with-param name="targetModelXPath">/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value</xsl:with-param>
+              <xsl:with-param name="optionsModelXPath">$myDataModel//wrs:Data/wrs:R/wrs:C[1]</xsl:with-param>
+            </xsl:call-template>
+          </div>
+        </xsl:template>
+      </xsl:stylesheet>
+    </doc:xml>
     As you see in the example, you need to use import API xslts (core.xslt, component.xslt, widget.xslt, widgetNg.xslt) to make use of the templates.
     </doc:Body>
     </doc:SubChapter>
     <doc:SubChapter title="XML" type="overview">
     <doc:Body>
       <p>
-        <b>Restrictions</b>
+        <b>Restrictions</b>:
         <ul>
           <li>It is not possible to use core:modelUpdater on the guiStatus to initially transform it. Please use either JS or JSP API for that purpose.</li>
           <li>Following widgets from /bcdui/js/widget/widget.xslt are not available in this API: BlindUpDown, LoginForm, UserMessagesEditor, UserMessagesViewer</li>

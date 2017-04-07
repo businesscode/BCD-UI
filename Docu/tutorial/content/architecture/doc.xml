@@ -68,7 +68,7 @@
           <li>Add widgets, like report filters, in the form of BCD-UI jsp tags to your page</li>
           <li>Add a report, provided for convenience as a jsp tag to your page</li>
         </ol>
-        .. and you are done. A step-by-step example is given <a href="../howTo/minimalCube/doc.xml">here.</a>
+        and you are done. A step-by-step example is given <a href="../howTo/minimalCube/doc.xml">here</a>.
       </Body>
     </SubChapter>
 

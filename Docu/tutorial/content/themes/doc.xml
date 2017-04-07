@@ -173,7 +173,7 @@
     <SubChapter title="Theme Sample">
       <Body>
         A sample page with header, menu, sidebar, body and footer.
-        <img src="images/examplePage.png"/>
+        <img src="examplePage.png"/>
       </Body>
     </SubChapter>
 

@@ -21,8 +21,8 @@
     This section is about creating a simple BCD-UI project in eclipse IDE and build it with gradle.
     The BCD-UI project has security enabled and requires authentication. It has a simple page with database content 
     depending on user input. The tutorials shows the setup in the popular IDE eclipse, but can be done with other tools as well.
-    
-     <div>The steps to create the Gettting Started application are:
+
+      The steps to create the Gettting Started application are:
        <ol>
          <li>Development environment setup.
           Get Java, Eclipse and Tomcat to set up your development environment.</li>
@@ -32,7 +32,6 @@
          <li>Create a simple request Page</li>
       </ol>
       Each step is described in the following sub chapters.
-     </div>
      </doc:Body>
    </doc:Chapter>  
    <doc:Chapter title="Step by step">
@@ -74,13 +73,11 @@
           the environment settings bcdui/disableCache = true for the BCD-UI caching. 
           The tomcat configuration is for tomcat version 8. Please refer the documentation for other versions of tomcat. 
         </p>
-        <pre><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>]]></pre>
-    
+
         <doc:xml>
 <!--
   Context XML 
 -->
-
 <Context reloadable="true" antiResourceLocking="false">
   <Resources cachingAllowed="false"/>
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/bcduidemo"/>
@@ -142,21 +139,22 @@
   <C id="carsRepaired" caption="Cars repaired" ><Column>cars_repaired</Column></C>
 </BindingSet>
         </doc:xml>
-        <p>Create a similar file in WEB-INF/bcdui/bindings and name it e.g. testData.xml. By convention, the filename should be the same as the binding set id plus the file extension xml. 
-         The BindingSet is validated and enriched by database catalog information during the startup of the web application.
-         So typos in column names or not existing columns are detected that way. The output can be found in the tomcat console.
-         <pre>2017-03-08 10:59:31  ReadBindingSet: BindingSet 'test_data': org.postgresql.util.PSQLException: ERROR: column t3.unicorns_feeded does not exist</pre>
-         In case a binding set is not correct, it is ignored by BCD-UI so that any access to it would lead to an BindingNotFound Exception.
-         The columns elements C are enriched during startup and BCD-UI knows the type, size, not null and other properties.
-         Important for our next steps in this tutorial are the ids. So, to tell BCD-UI components what table to access we would then use
-         id="testData" and if we specify a certain column we use the value of the id attribute of the desired column.  
+        <p>
+          Create a similar file in WEB-INF/bcdui/bindings and name it e.g. testData.xml. By convention, the filename should be the same as the binding set id plus the file extension xml.
+          The BindingSet is validated and enriched by database catalog information during the startup of the web application.
+          So typos in column names or not existing columns are detected that way. The output can be found in the tomcat console.
+          <pre>2017-03-08 10:59:31  ReadBindingSet: BindingSet 'test_data': org.postgresql.util.PSQLException: ERROR: column t3.unicorns_feeded does not exist</pre>
+          In case a binding set is not correct, it is ignored by BCD-UI so that any access to it would lead to an BindingNotFound Exception.
+          The columns elements C are enriched during startup and BCD-UI knows the type, size, not null and other properties.
+          Important for our next steps in this tutorial are the ids. So, to tell BCD-UI components what table to access we would then use
+          id="testData" and if we specify a certain column we use the value of the id attribute of the desired column.
         </p>  
       </doc:Body>
     </doc:SubChapter>
       <doc:SubChapter title="Create Login Page">
         <doc:Body>
           The next step is to enable the security filter and to create a login page. This is optional.
-          Here are the detail instructions on how to setup everything:<a href="../login/doc.xml">Login Page</a>
+          Here are the detail instructions on how to setup everything:<a href="../login/doc.xml">Login Page</a>.
         </doc:Body>
       </doc:SubChapter>
       <doc:SubChapter title="Create Simple Request Page">

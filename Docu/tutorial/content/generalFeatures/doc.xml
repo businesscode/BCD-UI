@@ -116,10 +116,7 @@
           <dd>
             Another client-only feature is the bcdxml:include. This is an extension to the standard
             XInclude in that it supports two additional features:
-            <ul>
-              <li>It can contain a request document inside its body. If this is present it is
-                  compressed and then appended to the href.</li>
-            </ul>
+            It can contain a request document inside its body. If this is present it is compressed and then appended to the href.
             Example:
             <xml>
               <bcdxml:include href="myDoc.xml" xpointer="xpointer(/*/*)" xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"/>
@@ -137,6 +134,7 @@
                 </Status>
               </bcdxml:include>
             </xml>
+            TODO: verify
           </dd>
         </dl>
       </Body>

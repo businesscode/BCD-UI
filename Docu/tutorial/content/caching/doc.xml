@@ -42,12 +42,12 @@
       The definition of when a resource expires is done identically for server and client caching.
       It is possible to define the 'expires' date of the answer for a request as a sample occurring at <code>Tue, 01 Dec 2009 12:30:40 UTC</code> in terms of
       <dl>
-        <dt><code>ExpiresAbsTime</code></dt><dd> time, like "00:00:00" leading to <code>Wed, 02 Dec 2009 00:00:00 UTC</code></dd>
-        <dt><code>ExpiresAbsDow</code></dt><dd> day of week incl. hour, like "Sat-12" leading to <code>Sat, 05 Dec 2009 12:00:00 UTC</code></dd>
-        <dt><code>ExpiresAbsDatetime</code></dt><dd> absolute date time, like "2011-01-20 12:00:00" leading to <code>Thu, 01 Jan 2011 12:00:00 UTC</code></dd>
-        <dt><code>ExpiresRelDays</code></dt><dd> number of days starting from the request, same time, like "2" leading to <code>Thu, 03 Dec 2009 12:30:40 UTC</code></dd>
-        <dt><code>ExpiresRelTime</code></dt><dd> number of hours/min/sec starting from the request, like "01:00:05" leading to <code>Tue, 01 Dec 2009 13:30:45 UTC</code></dd>
-        <dt><code>CacheRequestDirective</code></dt><dd> native HTTP1.1 header string to be set in Cache-Control header</dd>
+        <dt>ExpiresAbsTime</dt><dd> time, like "00:00:00" leading to <code>Wed, 02 Dec 2009 00:00:00 UTC</code></dd>
+        <dt>ExpiresAbsDow</dt><dd> day of week incl. hour, like "Sat-12" leading to <code>Sat, 05 Dec 2009 12:00:00 UTC</code></dd>
+        <dt>ExpiresAbsDatetime</dt><dd> absolute date time, like "2011-01-20 12:00:00" leading to <code>Thu, 01 Jan 2011 12:00:00 UTC</code></dd>
+        <dt>ExpiresRelDays</dt><dd> number of days starting from the request, same time, like "2" leading to <code>Thu, 03 Dec 2009 12:30:40 UTC</code></dd>
+        <dt>ExpiresRelTime</dt><dd> number of hours/min/sec starting from the request, like "01:00:05" leading to <code>Tue, 01 Dec 2009 13:30:45 UTC</code></dd>
+        <dt>CacheRequestDirective</dt><dd> native HTTP1.1 header string to be set in Cache-Control header</dd>
       </dl>
       There can be multiple space separated values for ExpiresAbsTime and ExpiresAbsDow, like "00:00:00 12:00:00", the next matching one is used for the response expires.
       The response will have the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.21">HTTP Expires</a> header be set accordingly.
@@ -160,8 +160,8 @@
         <p/>
         Usage of default items in <a href="../binding/doc.xml">Bindings</a>, for example for row-level-security or language setting,
         requires that the resource is excluded from caching or that the user profile last modifies changes accordingly.
-       <p/>
-       The server checks the correctness of the user token for <a href="../security/doc.xml">security</a> reasons.
+        <p/>
+        The server checks the correctness of the user token for <a href="../security/doc.xml">security</a> reasons.
       </Body>
     </SubChapter>
 

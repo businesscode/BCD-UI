@@ -15,7 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<Doc title="Caching" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
+<Doc title="Configuration" xmlns="http://www.businesscode.de/schema/bcdui/doc-1.1.0">
 
   <Chapter title="Configuration overview" type="overview">
     <Body>
@@ -53,13 +53,6 @@
 
       the bcd_db_properties table has following column definition:
 
-      <style>
-        table.definition tbody tr td {
-          background-color: #f0f0f0;
-          vertical-align: top;
-          padding: 0px 10px 0px 10px;
-        }
-      </style>
       <table class="definition">
         <tbody>
           <tr>

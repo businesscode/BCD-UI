@@ -169,7 +169,7 @@
             </table>
           </li>
           <li>A reference to such a definition in BindingSet.<br/>
-            In the the restricted BindingSet you just need to refer to such a SubjectFilterType and have the BindingItem with the correct id <it>country</it>.
+            In the restricted BindingSet you just need to refer to such a SubjectFilterType and have the BindingItem with the correct id <it>country</it>.
             <xml>
               <BindingSet id="rowLevelBs" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
                 <!-- all C's etc ... -->
@@ -247,7 +247,7 @@
     <SubChapter title="Write pre-processing">
       <Body>
         The optional write pre-processing allows to enforce additional processing of data before it is written to the BindingSet.
-        A project specific callback derived from <code>the de.businesscode.bcdui.binding.write.WriteProcessingCallback</code>
+        A project specific callback derived from the <code>de.businesscode.bcdui.binding.write.WriteProcessingCallback</code>
         can be called to modify the data to be written, for example for security reasons.
         When multiple callbacks are configured, they are called in given order.
         An callback receives the following events:

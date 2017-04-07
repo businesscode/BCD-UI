@@ -24,21 +24,21 @@
       Starting BCD-UI development requires only a few steps shown below. At the end of the page you will be able to run your new cube report.
       <div/>The following steps are necessary in general:
       <dl>
-        <dt>1. Development environment setup</dt>
+        <dt>Development environment setup</dt>
         <dd>Get Java, Eclipse and Tomcat to set up your development environment.</dd>
-        <dt>2. Set up an application</dt>
+        <dt>Set up an application</dt>
         <dd>A standard J2EE application must be set up, and BCD-UI capability is to be added to the application.</dd>
-        <dt>3. Define the logical data model</dt>
+        <dt>Define the logical data model</dt>
         <dd>To access the database, you define Bindings as the application's logical view to the database.</dd>
-        <dt>4. Set up a page</dt>
+        <dt>Set up a page</dt>
         <dd>Each report or edit page has a carrier HTML or JSP, which hosts choosers, menu, report etc.. This carrier page will also load BCD-UI libraries.</dd>
-        <dt>5. Add a filter on the page</dt>
+        <dt>Add a filter on the page</dt>
         <dd>This allows you to define which data is taken into account for the report.</dd>
-        <dt>6. Add a cube report on the page</dt>
+        <dt>Add a cube report on the page</dt>
         <dd>This allows you to choose the dimensions and measures you want to see.</dd>
-        <dt>7. Use the report</dt>
+        <dt>Use the report</dt>
         <dd>You are done, use the report to analyze the data!</dd>
-        <dt>8. Where to go from here</dt>
+        <dt>Where to go from here</dt>
         <dd>Some links for further studies</dd>
       </dl>
       Each step is described in the following subsections.
@@ -232,7 +232,7 @@
         And change the script block to:
 	    <pre><![CDATA[
         // Create Cube component
-        var cube = new bcdui.component.cube.Cube({ 
+        var cube = new bcdui.component.cube.Cube({
           targetHtml: "myCube"
          });
         ]]></pre>
@@ -318,7 +318,7 @@
           targetHtml: "myDNDArea",
           cubeRenderer: cube.id,
           config:      cubeConfiguration.id,
-          contextMenu: true, 
+          contextMenu: true,
           isDefaultHtmlLayout: true});]]></pre>
           <p>
         The cube configurator needs a configuration file which tells it which measures and dimensions can be used
