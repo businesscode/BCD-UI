@@ -1,0 +1,75 @@
+[[DocCompatibility]]
+== Compatibility
+
+=== Compatibility
+
+As of 2013 BCD-UI works without modifications within the following environments
+
+* JDK 1.6 update 6 and up
+* Application Server: Tomcat 6.13 and up
+* Internet Explorer 6, 7, 8 and up
+* FireFox 3 and up
+* Safari 5.0.5 and up and Chrome 3.0 and up
+* Teradata 10 and up
+* Oracle 9i and up including Oracle 10g ExpressEdition
+
+It makes use of current versions of technologies
+
+* JDBC, Servlet, JSP and JAXB
+* ECMA/JS, DHTML, CSS, HTML and JSON
+* ANT, CVS and Eclipse
+* Openlayers, prototype.js and scriptaculous
+* SVG and VML
+* XML, XSLT and XSD
+* WFS, WMS and OGC specifications
+* Ajax, webservices and XForms architecture, sxslt
+* Apache commons
+* JUnit, Selenium
+* SQL Workbench, Sparx EA, utilities of Oracle and Teradata
+
+
+=== Known browser incompatibilites
+
+* favicon.ico is picked up by FireFox when found in webapp root, ie does not do this
+* IE does not allow to set name attribute via DOM (helper function in corePackage.js)
+* FireFox throws exception when writing &lt;input&gt;text&lt;/input&gt;, this is in sync with the specs
+* IE ignores overflow when filter is set in css
+* IE: innerHTML (used by renderer) for &lt;script&gt; and &lt;style&gt; tags require both to start with a scoped element, like  `&lt;input type="hidden"/&gt;&lt;script defer="false"...`  and the script tag in addition requires a defer="false" attribute 
+* IE has a maximum URL length of 2083 bytes, others do not. When copying URLs from other browsers, they may be less compressed (because it was not necessary), so they may be too long.
+* FireFox: the bookmarks created with the bookmark tag open in a sidebar window by default, unless the bookmark property is adjusted manually by the user or if the bookmark is opened in a new tag
+* Chrome/WebKit: don't support bookmark via javascript at all
+* IE 6,7 always and 8,9 in quirks mode do change @href and @src into absolute paths ("http://..") when written via innerHTML=. This can lead to issues with image references and pdf export.
+* IE seems to handle position() in xsl:key/@match expressions wrong. Sample: match="/*/Something[@pos&gt;3][position()&lt;2]". It will find an empty list instead of a lost with two elements.
+* Due to a well-known bug in FireFox (at-least 10-24), you need to enable 3rd-party cookies or better add an exception for a webpage with BCD-UI. This flag is per default off ("disabled") since version 22.
+
+=== Working with webkit browsers
+
+Webkit browsers like Safari, Chrome and Opera compatibility requires the following to be taken into account
+
+* Declare all namespaces used by XSLT, since documents addressed via document() and xsl:import are included in the host xslt and
+elements with undeclared namespaces inherit the default namepace of the (possibly generated) host xslt
+* When using createElementWithPrototype or similar, always work with an explicit namespace, do not use the empty namespace. 
+* xsl:include is not supported (use xsl:import instead)
+* xsl:apply-imports is not supported. (normally xsl:apply-templates will be sufficient)
+* Do not use msxml:node-set(), declare and use exslt:node-set() even for IE.
+* When generating xslt with the help of xslt, use 'generateXSLT' as the generation mode
+* When generating xslt and matching on an input template xslt, be aware that those elements do not have xsl as namespace
+because they are embedded, use select="*[local-name()='output']" and so on instead.
+Also do not copy such elements into the output as they would keep the non-xsl namespace,
+create these elements with &lt;xsl:element name="output" namespace="http://www.w3.org/1999/XSL/Transform"/&gt; instead
+* For webkit it is not allowed to use variables in template match attributes, like &lt;xsl:template match="*[@attr=$myVar/Values]"&gt;.. 
+* When a node is provided to the XSLT processor as input, that node becomes the document root, for Gecko and IE "/" remains the root.
+* Mix of constant strings and AVT (Attribute Value Template) is not allowed. So use attr="{concat('abc ', $var)}" instead ofattr="abc {$var}" for webkit."
+* For Webkit the imports are resolved by BCD-UI. This is done by including the imported stylesheet leaving out templates with the same
+@match/@name and @mode values for which already a template in the importing stylesheet exists.
+But since the others are included then an imported template with match="ns:E[@a]" will win over a template with match="ns:E" existing in the
+importing stylesheet. This will let Webkit behave differently than other browsers. Make sure to prevent this situation by defining
+exact matching templates in the importing stylesheet.
+* It is much faster if in wrs:C[indexExpr] indexExpr is a plain number (a variable holding a number) than an expression. Move such an expression to a helper variable.
+* Large documents slow Webkit down. Only provide the part of large documents, if possible.
+Use xsl:stylesheet/@bcdxml:wrsHeaderIsEnough to minimize the input for example for generating stylesheets only needed the header.
+* All known namespace declarations are repeated on the highest node of each subtree of explicitly written elements.
+For example $lt;wrs:C/&gt; will hold all such namespacen-odes if all elements above are created via xsl:element or xsl:copy.
+As a workaround, write the root node (in this case wrs:Wrs) also explicitly $lt;wrs:Wrs&gt;...$lt;/wrs:Wrs&gt;, then this is the highest and they will ony
+appear once. Because Webkit is sensitive against documents with a large serialization representation this improves performance.
+

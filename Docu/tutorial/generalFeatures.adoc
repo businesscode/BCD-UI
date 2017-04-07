@@ -1,0 +1,107 @@
+[[DocGeneralFeatures]]
+== General Features
+
+=== General Features
+
+Bookmark feature:: Each page together with its settings like filter choosers or which parts are opened or hided can be bookmarked.
+Such a bookmark can be used as the starting point to enter the application and as a quick navigation link including
+previous settings.
+Additionally the link can be passed to others in case they have sufficient rights to enter the page.
+
+=== Transactions and connection pooling
+
+Per default each request is associated with a transaction.
+Each server activity retrieves its connection from the request object, providing the data source name.
+All activities within the same request get the same connection when retrieving it from the request.
+The first database access in a request starts the transaction and the request finishes transaction with commit unless
+a ServletException is uncatched or a SOAPFault is returned, in this case a roll-back is executed.
+Still, each step may itself decide to commit or rollback its work.
+
+
+In case the client wants multiple writes to become part of one database transaction, it will a multi-WRS document.
+
+=== XML Inclusion
+
+The BCD-UI library makes use of XML inclusion to support some advanced XML features. These includes
+are allowed in XML files read on the server and also on the client. The main reasons to use XML
+inclusion are as follows:
+
+==== Use cases
+
+Reusing XML parts in different documents:: XML inclusion is especially useful is some XML documents share common content.
+Then this content can be put to a separate XML file. This use case is often applied in Binding
+files when two binding files have the same column names (e.g. for common dimension columns like
+period or geography).
+Merge different XML data sources:: Some XML documents require information from other sources (like reference data in grids)
+which can be implemented by defining a master document containing inclusions of other referenced
+documents.
+Lazy loading:: BCD-UI offers a special kind of include (bcdxml:include) for the client. This bcdxml:include
+can be evaluated on demand rather that resolving it immediately on loading. It is the basis
+for most lazy loading mechanism on the client.
+Structuring large documents:: It can be useful to split very large XML documents into parts to make them more
+readable.
+
+==== Implementation
+
+There are three kinds of XML inclusion supported by BCD-UI:
+
+XInclude without any XPointer:: 
+This basic xinclude type is available on the server and on the client. These includes
+are replaced with the whole document available on the specified href.
+Example:
++
+[source,xml]
+----
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" href="myDoc.xml"/>
+----
++
+XInclude with XPointer element() Scheme:: 
+This xinclude is also available on the server and client and it offers the selection
+of one single XML element to be included.
+Example:
++
+[source,xml]
+----
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" href="myDoc.xml" xpointer="element(/1/2)"/>
+----
++
+XInclude with XPointer xpointer() Scheme:: 
+The BCD-UI client processor also supports xincludes with a limited set of the xpointer()
+Scheme. It supports all XPointers corresponding to one single XPath. With this XPath the
+target document is then filtered before it is inserted at the xinclude.
+Example:
++
+[source,xml]
+----
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" href="myDoc.xml" xpointer="xpointer(/*/Country[. = 'DE']/City)"/>
+----
++
+bcdxml:include:: 
+Another client-only feature is the bcdxml:include. This is an extension to the standard
+XInclude in that it supports two additional features:
+It can contain a request document inside its body. If this is present it is compressed and then appended to the href.
+Example:
++
+[source,xml]
+----
+<bcdxml:include xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" href="myDoc.xml" xpointer="xpointer(/*/*)"/>
+----
++
+Example with nested status document:
++
+[source,xml]
+----
+<bcdxml:include xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" href="myDoc.xml">
+  <Status xmlns="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0">
+    <Filter xmlns="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+      <And id="period">
+        <Expression bRef="dy" op="&gt;=" value="2010-01-01"/>
+        <Expression bRef="dy" op="&lt;=" value="2010-12-31"/>
+      </And>
+    </Filter>
+  </Status>
+</bcdxml:include>
+----
++
+TODO: verify
+

@@ -1,0 +1,128 @@
+[[DocI18n]]
+== Internationalization
+
+=== Internationalization
+
+Internationalization (I18n) allows to provide the user interface in different languages to different users.
+To allow this, caption, text, number and date formats can be changed on runtime depending on a user's language setting.
+I18n will typically operate on front end captions and date formats, but can also in certain cases operate on data level when reading from a database.
+The translation happens on client side in browser by parsing HTML elements that contain bcdTranslate attribute with i18n key as value.
+Each renderer automatically translates its content before pasting the HTML transformation result into HTML document.
+Translation for static HTML contents can be triggered separately.
+
+==== I18n Setup
+
+In order to setup BCD-UI internationalization either you have to declare a BindingSet @id=bcdui_i18n
+or save a static file under /myProject/bcdui/conf/messages.xml in WRS format according to BindingSet @id=bcdui_i18n with i18n messages,
+a sample is under BCD-UI/src/js/i18n/messages.xml.
+
+The BindingSet and data table should have 3 columns named "key", "lang" and "value".
+The content of the "lang"-column can have values conform the java.util.Locale values or a value "default".
+*Defaults:*
+* i18n model URL: /bcdui/servletsCached/WrsServlet/i18n - the mapping to the URL could be changed in web.xml
+
+* i18n model request document: /bcdui/i18n/requestDoc.xml- default request document for default i18n model
+
+* static i18n file in project: /bcdui/messages.xml - a static file in WRS format with some default BCDUI messages
+
+
+
+==== I18n on client side
+
+The client is provided with an XML containing the translated values for the chosen language. The translation APIs are available in JS, XSLT or static HTML.
+Please note that the file is cached on the the client and thus does not harm performance.
+
+
+The following fragment shows a sample I18n.xml file created by BCD-UI:
+
+[source,xml]
+----
+<Data format="bcdI18n" isKeyNormalized="true">
+  <bcd_autoCompletionBox_emptyValue lang="en">Please select</bcd_autoCompletionBox_emptyValue>
+  <bcd_autoCompletionBox_clearOption lang="en">Please select</bcd_autoCompletionBox_clearOption>
+</Data>
+----
+
+
+The translation happens under the hood when working with renderers, consider following XSLT fragment (which produces HTML):
+
+[source,html]
+----
+...
+<xsl:template match="/">
+  <div bcdTranslate="report.header"></div>
+  <table>
+  ..
+  </table>
+</xsl:template>
+...
+
+----
+
+you solely need to place a 'bcdTranslate' attribute with an i18n key on an HTML element to be translated.
+
+
+
+In case you have a mass of data to translate (i.e. contents of a table), then you would write more performant code when
+translating explicitly via XSLT i18n API:
+The following fragment shows how to use i18n translation XSLT API for table data translation:
+
+[source,javascript]
+----
+<xsl:import href="i18nUtilsTemplate.xslt"/>
+...
+<xsl:param name="bcdI18nModel" select="//*[1=2]"/>
+...
+<xsl:template match="wrs:C">
+  <td>
+    <!-- get value of a key -->
+    <xsl:call-template name="getMessageByKey">
+      <xsl:with-param name="key">bcd_autoCompletionBox_emptyValue</xsl:with-param>
+    </xsl:call-template>
+  </td>
+</xsl:template>
+...
+
+----
+
+This is more performant than implicit 'bcdTranslate' for big number of elements.
+
+
+
+The following fragment shows how to use I18n in HTML/JS in case you create HTML without a renderer (i.e. via JS DOM scripting):
+
+[source,html]
+----
+<div id="rootElement2Translate">
+  <div id="autoCompletionBox_1" bcdTranslate="bcd_autoCompletionBox_emptyValue">
+    first none i18n value
+  </div>
+  <div id="autoCompletionBox_2" bcdTranslate="bcd_autoCompletionBox_clearOption">
+    second none i18n value
+  </div>
+</div>
+
+bcdui.i18n.translateHTMLElement({elementOrId:"rootElement2Translate"});
+
+----
+
+
+Please note that you don't need to trigger translation of static HTML via JS-API which is delivered by web-server during page-request,
+as the translation kicks in automatically once the document has been loaded.
+
+The bcdui.i18n JS object is created by BCD-UI runtime.
+In addition we can translate HTML attributes by setting its names into @bcdTranslateAttrs,
+like @bcdTranslateAttrs="alt" @alt="my Photo"
+
+==== I18n during data access
+
+Sometimes, data derived from the database should depend on the language setting.
+For example, status code captions of events are to be translated for an export without the possibility to use XSLT for translation.
+In such cases, the *default item mechanism of * is to be used.
+To achieve this, create a Binding, joining the event data with the translation table and let the SubjectFilter filter the appropriate rows.
+
+==== i18n interpolation
+
+Interpolation supported, lets assume we want to have a message like 'Value must be between 10 and 20', where 10 and 20 are provided during translation.
+To achieve that the caption shall read: 'Value must be between {0,integer} and {1,integer}', the message key may be 'my.info' and msgkey parameter
+has to be 'some.info|10|20'

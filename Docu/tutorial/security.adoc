@@ -1,0 +1,314 @@
+[[DocSecurity]]
+== Security
+
+=== Security Overview
+
+BCD-UI supports security with the following features
+
+* Hosting under https completely or in parts, allowing ssl connections, is possible
+* Company authentication and authorization mechanisms like central LDAP and single login can be applied
+* SQL injection prevention
+* Allowing no-cache no-store to clients to protect secure data on shared computers, see <<DocCaching,caching>>
+* Each request is validated against the current user's access rules
+* Security access filter for the whole application
+* Easy declarative user rights
+
+. Write access to BindingSets
+. Row-level security support for reading for all databases, for example even in a country report only data for those centers are shown,
+for which a user has rights, see <<DocBinding,BindingSets>>
+. Menu structure shown to the user, for example whether admin pages are offered for navigation
+. Selection options shown in report filters to a user, for example a list of countries to run the report for
+
+
+=== Security Implementation
+
+==== Security access filter
+
+A security access filter serves as the central entry point to the application and validates each access against the security policy.
+Each request is checked whether it addresses a
+
+. Public resource: Not in scope of the filter, the filter will let the request through
+. Protected resource
+
+. accessed in a valid session: The filter will let the request through
+. no valid session but auto-login: Auto-login is available through the use of HTTP cookies.
+. no valid session: The filter will re-direct the request to the login page to establish a valid session with a valid login.
+After login the original request is processed.
+
+
+The configuration of which paths are of which type is done in the init-param of IniShiroFilter in web.xml.
+The rights are checked against the current Subject's permissions.
+
+==== Developer's view
+
+Developers need to follow these rules to implement secure applications:
+
+* Use security filter as the central entry point to enforce login for all non-public areas
+* Configure BCD-UI's CachingFilter to send user dependent and sensitive data with no-cache
+* Invalidate sessionId on log-off and session timeout explicitly
+* The system is supporting deep links. I.e. when a user tries to reach a specific page is is redirected there after login.
+Note, the system use the first unsuccessful access for that.
+Make sure all resources addressed from the public login page are public, otherwise the user is forwarded to that
+resource (could be a css) after the successful login attempt in, when the target was the login page.
+
+=== Assign attributes/permissions to users
+
+The subject of the current session has three ways to get personal attributes assigned.
+
+. Shiro, used in BCD-UI, allows to assign hierarchical permissions to a user, which can be queried via
+ `SecurityUtils.getSubject().isPermitted(value)`  or from jsp, wildcards are supported.
+For example only user may only be allowed  `page:report:scorecard`  where else another user may be granted
+access to all pages  `page:*` .
+All attributes and permissions assigned to a user in bcd_sec_user_settings to are read when the user logs in.
+These become in-memory subject settings, that can be used to query for a certain permission.
++
+[options="header"]
+|===
+|Column|Content
+|user_id|Id of the user this permission is assigned to.
+|right_type|Id of the permission the values relate to.
+|right_value|Single value or list of values.
+|===
+
+These permissions are checked for example by the security filter.
+Note, due to their hierarchical structure, there is no way to ask for the list of allowed values.
+This also means they cannot be used for row-level-security of a BindingSet, except for one exception:
+If the a permission  `someRight:*`  is assigned, the row-level test for that right is skipped, all rows are returned.
+
+. In addition a project can set any such value to the Subject by overwriting the LoginServlet or later during the session by doing
+ `SecurityUtils.getSubject().getSession()setAttribute(name,value);` .
+Such values are in-memory and also allow the usage in BindingSet/SubjectSettings for row-level-security without an additional join.
+This is useful for example for a language setting value but  `IN`  clauses are also allowed.
+
+. A third option, for use for row-level-security with BindingSets, restricts values returned from Wrs by joining against a table, see
+see <<DocBinding,BindingSets>>.
+
+
+You may use views to convert permissions assigned to roles to permissions assigned to users.
+
+=== BindingSet Security
+
+There are multiple mechanisms to apply security to BindingSets like
+
+. <<DocBinding,Row-level security>>
+. <<DocBinding,Write protection>>
+. Server side data <<DocBinding,historization>> and noting change users.
+
+For row-level-security, permissions are not hierarchical.
+See <<DocBinding,BindingSets>> for details.
+
+=== Using user rights
+
+To use BCD user rights table, you need to add the jdbcRealm class to your ShiroFilter settings in web.xml:
+
+[source,javascript]
+----
+<filter>
+  <filter-name>bcdui4.ShiroFilter</filter-name>
+  <filter-class>org.apache.shiro.web.servlet.IniShiroFilter</filter-class>
+  <init-param>
+    <param-name>config</param-name>
+    <param-value>
+      [main]
+      bcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
+
+----
+
+The jdbcRealm class is used for retrieving authentication and authorization from the database. It uses the well known binding sets bcd_sec_user and bcd_sec_user_settings.
+
+[source,xml]
+----
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0" id="bcd_sec_user" table="bcd_sec_user">
+  <C id="user_id" isKey="true" caption="User Id">
+    <Column>user_id</Column>
+  </C>
+  <C id="name" caption="Name">
+    <Column>name</Column>
+  </C>
+  <C id="password" caption="Password">
+    <Column>password</Column>
+  </C>
+  <C id="is_disabled" caption="Is disabled">
+    <Column>is_disabled</Column>
+  </C>
+</BindingSet>
+----
+
+[source,xml]
+----
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0" id="bcd_sec_user_settings" table="bcd_sec_user_settings">
+  <C id="user_id" isKey="true">
+    <Column>user_id</Column>
+  </C>
+  <C id="right_type" isKey="true">
+    <Column>right_type</Column>
+  </C>
+  <C id="right_value" isKey="true">
+    <Column>right_value</Column>
+  </C>
+</BindingSet>
+----
+
+The urls section within the shiroFilter settings define which pages require login, users not logged in will be sent to /login.html
+
+[source,javascript]
+----
+
+[urls]
+# format: /reports/budget/** = authc, perms["pages:budget"]
+/_dev_testing/wrs/** = authc
+/artifacts/widgets/** = user, perms["pages:charts"]
+/_dev_testing/subjectSettings/** = authc
+
+----
+
+As an example to restrict a user to a given country (e.g. bcd, geo:ctr, US (user_id, right_type, right_value)) can be found <<DocBinding,here>>.
+After setting it up, the user bcd gets only filtered data from the database since the query internally performed an inner join with country = 'US'.
+
+=== Kerberos / Windows SSO / Windows Authentication
+
+BCDUI provides transparent integration for authentication against Windows Active Directory (or any other Directory service) via Kerberos protocol for web applications running
+Tomcat v7 or greater. In any case of authentication failure the system fallsback to built-in form authentication.
+
+==== Prerequisites
+
+. Copy bcd-spnego-valve-[x.x.x].jar to be copied into $TOMCAT_HOME/lib folder (or any other folder known to Tomcat's common-classloader); there are no side-effects
+of putting this library into tomcat.
+
+. Existing service account on Active Directory, i.e. HTTP/tomcat1.virtual.business-code.de@VIRTUAL.BUSINESS-CODE.DE to be used by tomcat
+. Create a .keytab file for that service account.
+. Tomcat must be running on a remote machine from Active Directory perspective as well as from User's perspective, otherwise SPNEGO on browser will fallback to proprietary NTLM, which is not supported.
+. The hostname must be added to "Local Intranet" security zone for IE (Chrome uses same settings), for FF you have to enter configuration to add host to trusted sites.
+
+==== Windows Active Directory User Setup
+
+TODO
+
+==== Tomcat Configuration
+
+. Keytab from Domain Controller
++
+Please ask your domain administrator to provide a keytab file for
+tomcat service to connect to Domain Controller. A sample keytab file
+is located at tomcat1-sample.keytab; (however, that file can't be
+used in your environment).
+
+. Install Java 8 on Linux box
+. Install Tomcat7 v.7.0.60 or newer
+. After you have factory-installed your tomcat, please
+copy files from tomcat_lib/* to your $tomcat.home/lib
+
+. Install JAAS/Kerberos configuration:
+
+* Copy your keytab file (which you have got in step 0) and tomcat_conf/*
+to your $catalina.base/conf folder and adjust the files to meet your
+environment configuration:
+* file: jaas.conf, change following properties:
+* principal -&gt; (put your principal here the keytab file was issued for)
+* keytab -&gt; adjust path to reflect location of your keytab file
+file: krb5.ini
+* change realm VIRTUAL.BUSINESS-CODE.DE to yours, realm names must be CAPITAL CASE.
+* default_keytab_name -&gt; adjust path to reflect location of your keytab file
+* [realms].&lt;YOUR_REALM&gt;.kdc -&gt; hostname of your domain controller
+
+. Install SSO Test App:
+
+* copy BCD-UI-SSO.war to $tomcat.base/webapps
+* ensure the app is running by navigating in your browser to url:
+* &lt;your-tomcat-hostname&gt;/BCD-UI-SSO
+*  you should see a page with a link
+* "Enter Secured Page"
+* Please, don't klick the link yet. If you dont see the page, please
+check Tomcat logs. Most likely you have missed to copy extra library
+to tomcat as described in step 2.
+
+. Configure Browsers on Windows client machine with domain user to test SSO:
++
+* For IE and Chrome ( chrome re-uses settings from IE ):
+
+* add &lt;your-tomcat-hostname&gt; to "Local intranet" security-zone
+* ensure "Enable integrated windows authentication" is checked in Internet Options -&gt; Advanced -&gt; Security subtree
+
+* For Firefox:
++
+open about:config in your Firefox browser and change following options:
+
+[source,javascript]
+----
+
+network.negotiate-auth.allow-non-fqdn     => true
+network.negotiate-auth.delegation-uris    => <your-tomcat-hostname>
+network.automatic-ntlm-auth.trusted-uris  => <your-tomcat-hostname>
+network.automatic-ntlm-auth.allow-proxies => True
+network.negotiate-auth.allow-proxies      => True
+
+----
+
+
+. Verify SSO on Windows client machine with domain user:
++
+* After security settings changed, please restart the browser and navigate to url:
+* then click on "Enter Secured Page" link
+* Your should see one of the following:
+* "SSO success", along with principal name.
+* "SSO failed", which means that SSO has failed for some reason. Please consult
+* tomcat logs for further information. In such a case the webapplication will
+trigger authentication on itself.
+* In case you see HTTP-401 or some default authentication-failed screen or a browser
+pop-ups authentication dialog, then you most likely did not configure your browser
+properly (see step 5)
+
+
+==== Context (Webapp) Configuration
+
+Extend your Context descriptor (context.xml) and register the Valve 'de.businesscode.bcdui.security.SpnegoValve':
+
+[source,xml]
+----
+<Context>
+  <Valve className="de.businesscode.bcdui.security.SpnegoValve"/>
+</Context>
+----
+
+Now, the Valve is attached to request processing, yet without effect. We have to arm it in your web.xml. As such, please
+add following to your descriptor:
+
+[source,xml]
+----
+<security-role>
+  <role-name>*</role-name>
+</security-role><security-constraint>
+  <web-resource-collection>
+    <web-resource-name>SPNEGO AUTHENTICATION</web-resource-name>
+    <url-pattern>/*</url-pattern>
+  </web-resource-collection>
+  <auth-constraint>
+    <role-name>*</role-name>
+  </auth-constraint>
+</security-constraint>
+----
+
+no &lt;login-config&gt; element is required here, since we have attached our Valve explicitely. Essentially, security-constraint/web-resource-collection/url-pattern
+shall match those secured by Shiro Filter. Once done you have enabled Windows/Kerberos SSO, which will fall back to form based authentication in any failure. Please, also consult
+#Resources for trouble-shooting.
+Finally, rewrite the default 'authc' filter in Shiro descriptor (inline in web.xml or shiro.ini) and add this line into [main] section:
+
+[source,javascript]
+----
+
+[main]
+authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
+realm = de.businesscode.bcdui.subjectsettings.JdbcRealm
+...
+
+----
+
+==== How it works
+
+TODO
+
+=== Future versions
+
+Later versions of BCD-UI will support a role model, dependent right-types, deny rights, caption look-up for right-value and hierarchical right-values.
+Also it will be possible to use userNamePattern attribute in the configuration to restrict a authentication source to certain users.
+Users will also be set to inactive if their login failed for a configurable number of times and custom attributes for the user's core data.

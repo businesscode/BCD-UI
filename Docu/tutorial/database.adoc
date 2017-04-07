@@ -1,0 +1,199 @@
+[[DocDatabase]]
+== Calculation Control
+
+=== Job Control 3.x Overview
+
+The Job Control engine BCD-JC allows to drive the execution of batch jobs optimized for tasks like ETL or calculation processes.
+
+Jobs:: A job definition is a collection of steps connected via transitions.
+Jobs can use other job definitions as steps.
+Steps:: A step definition is from the perspective of the engine an atomic operation.
+A step can be an SQL statement or a java code identified by the java class.
+There are pre-defined java steps for extracting data from and to Teradata or Oracle for example.
+Custom java steps can be added.
+Transitions:: A transition definition connects to steps, a fromStep and a toStep and has an optional condition.
+If a step is finished, all outgoing transitions are checked for their condition.
+For each transition evaluating to true, the toStep is executed.
+Job execution:: 
+A job instance execution starts whenever a job-due-event is detected. The job execution is as follows:
+
+. An entry for the job run is made into the job log table
+. All configuration steps are executed first, leaving their entry in the step log table
+. Whenever a step finishes, its log entry is closed and all outgoing transitions are evaluated
+. For each transition with a condition evaluating to true, the toStep is executed
+. If multiple transitions evaluate to true all steps are executed in parallel
+
+
+==== Restart behaviour
+
+If a job was ended premature due to a failing step with throw 'J' raising an error or due to the job engine being killed for technical reasons,
+its entry in the job log is not closed. Such a job can be restarted.
+
+. In case of restart open steps of the failed run are searched.
+. In case such a step is within a logical transaction, the step carrying this logical transaction is the entry point,
+otherwise the failed step itself is the entry point.
+In case multiple steps have the same logical transaction point in terms of stepRunId, this step is only used once.
+. From including the identified entry points the job definition is being executed in this restart run.
+
+The failed job's log entry is marked with the runId of the restart.
+None of the open steps log entries of the originally failed job is closed or changed on restart.
+
+==== More details
+
+Error behavior:: If a step returns an error (rc code &gt;= 8) there are two ways to react
+
+* If the step definition's throw flag is 'J', the job ends unsuccessfully.
+All other currently running steps are can finish but no new step is started.
+If the job is called from within another job, the calling step ends unsuccessfully.
+From their on the same logic applies upwards.
+* The outgoing transitions condition can check the fromSteps rc and evaluate to true only in case of error or success.
+This the further flow can differ in case of error of a step.
+
+Transactions:: Due to parallelism not all steps can execute with the same uncommited session.
+To still allow transactions, the engine guarantees that if only one outgoing transition of a step evaluates to true, its toStep gets the same uncommited session.
+In all other cases the sessions are retrieved from a pool.
+Transition conditions:: Transitions can have a condition. The condition is an expression in javascript syntax evaluating to a boolean.
+Conditions can use parameters from the job instants' parameter set via the well-known  `p`  object.
+In addition it has access to well-known properties of the  `bcdjc`  object like  `bcdjc.fromStepRc` 
+which is the return code of the trnsition's fromStep.
+BCD-JC allows for checking the syntax of all conditions and the usage of only well-known objects and properties during definition time.
+A sample expression is  `p.myParam == 2 &amp;&amp; bcdjc.fromStepRc &gt;= 4` .
+TODO Configuration steps:: Java steps derived from class JavaConfigurationStep are executed before any other steps.
+Logging:: Each job and each step gets an 'open' log entry when started with its definition id, start time and other information.
+When a step is finished, its return code, affected row count and end time is written to close the step's entry.
+Logical names in SQL:: Steps defined via SQL statements can make use of the logical naming used in BindingSets.
+Parallelism:: If multiple transitions leaving a step evaluate to true, all toSteps of these transitions are executed in parallel.
+A limit of max parallel step execution can be set, the engine chooses then which steps to execute first.
+Starting jobs via a step:: Jobs with class JobStepExternal Steps can start other jobs as external jobs in a fire-and-forget way.
+Using jobs via a step:: Jobs with class JobStep can reference to job definitions which are then executed within the current job.
+The calling step is not finished until the called job definition is finished.
+
+ToDo:
+
+* parameters are only strings
+* configuration steps have no specific order and can only be java steps
+
+=== Calculation Control Overview
+
+To ease the calculation of KPIs which are specific for organizational units, a calculation control table together with a scheduler is available.
+The scheduler will interpret the entries in the execution control table and log into the execution history table.
+This allows an easy, ordered and declarative controlled execution of free as well as BCD-BM created complex queries.
+Where and how often the scheduler runs and what parameters it is started with, depends on the installation.
+Although this mechanism targets the execution of measure calculation, the scheduler run can also cover the aggregations.
+
+
+Features covered among others:
+
+History log:: All executions are stored in a history table together with the core description from the control table.
+The history will show the start and finishing timestamp of the step and in case of insert or update also the number of changed rows
+and the return code.
+Control execution dependencies:: Calculations running on top of each other can be marked as dependent, the system will assure the correct order.
+Parameters:: Within the sql you have access to two types of string parameters via $params.paramName.
+One set of parameters is given on start to the calculation control engine.
+The second set is derived from table entries in the row of the statement.
+Which parameters are available for the latter case depends on the setup where else start parameters can always be added.Executions can be run with free named string parameters, given on start.
+In case of conflicts, start parameters overwrite table parameters.
+In addition, the timestamp of the calculation control run start is available via $param.CCstart.
+Logical DB naming:: SQLs triggered by the scheduler can use the logical naming of Bindings, which will be replaced with the physical names by the calculation control
+Partly re-run:: Explicit runs for certain calculation id's only or for those that depend on a certain calculation can be triggered.
+This allows focused re-runs in case of issues. The triggering is done by a manual call of the engine or a one-time entry into the scheduler log.
+Error handling:: All errors are logged.
+Dependent steps can be marked to only start in case of success of the previous step or only also in case of failure.
+Sets:: To allow multiple runs of the scheduler with different, independent sets of calculations, each calculation is marked with a named categories.
+
+==== Later extensions
+
+The following features are not yet part but will likely be made available for future versions:
+
+Parallel execution:: The scheduler can run a configurable number of calculations in parallel, still keeping track of dependencies of course. As soon as a slot becomes free, a new calculation scheduled is started.
+Visualized dependency tree:: A graphical tree showing the calculation dependencies.
+Checks:: A report can show check results. For examples statements can be test-parsed by the database to assure their correctness and hanging dependencies can be detected.
+Indicator id:: By maintaining the indicator-id along with the statement, it is possible to keep track of an indicator's up-to-date-ness.
+Notification:: Each step can be declared to send an email notification in case of error.
+Each calculation control run can send out a notification summary in any case or only in case of a failure happened during execution.
+
+=== Configuration
+
+A calculation control run is started with at least the start-category and the configuration file as parameters.
+All statements belonging to the start category are started, statements depending on others only start after the others have finished.
+Each run gets a unique number, which is maintained in the execution history.
+
+[source,xml]
+----
+<CalculationControl>
+  <!-- Where to find control and history tables -->
+  <JDBC>
+    <Class>oracle.jdbc.OracleDriver</Class>
+    <Url>jdbc:oracle:thin:@localhost:1521:bcddemo</Url>
+    <User>scott</User>
+    <Password>tiger</Password>
+  </JDBC>
+  <!-- Location of BindingsSets to be used for resolving logical DB names. -->
+  <Bindings>/apps/myApp/WEB-INF/bcd/bindings</Bindings>
+  <Notification>
+    <!-- Where to send notifications -->
+    <Email>
+      <To>info@business-code.de</To>
+      <Subject>Demo calculation control</Subject>
+      <Url>mail.smtp.port</Url>
+      <Port>888</Port>
+    </Email>
+  </Notification>
+</CalculationControl>
+----
+
+==== Calculation control table
+
+The following properties control a calculation run, the details depend on the features being available:
+
+[options="header"]
+|===
+|Property|Semantics
+|category|Free text, limit the calculation to certain scheduler runs
+|calc_id|Unique id
+|is_active|Y or N.
+|name|Speaking short description
+|depends_on|Comma separated list of calc_ids which have to be executed successfully first
+|start_after|Comma separated list of calc_ids which have to be executed first. This statement will also executed of those statements failed.
+|valid from/to|Time range when to execute
+|remarks|Free text field for documentation.
+|sql|The SQL to be executed itself.
+|immedeat_notify_on_error|If 'Y' and the statement failed, an immediate notification is send out.
+|last_applied|When the calculation was actually executed last time.
+|===
+
+
+The following table shows a sample setup, some obvious columns are left away, but two sample parameter columns are listed:
+
+|===
+|category|calc_id|depends_on|param_ctr|param_center|valid_from|valid_to|remarks|sql|last_applied
+|morning|1001||DE||2010-01-20|2999-01-20||update t_order set... where last_load&gt;$last_applied|2010-02-12 07:12:23
+|*|1002|1001||SFO|2010-01-01|2999-01-20||insert into t_... where last_load&gt;$last_applied|2010-02-12 07:14:23
+|morning|1004|||SFO, HHY|2009-11-20|2010-01-20||update t_order set... where last_load&gt;$last_applied|2010-01-20 07:22:23
+|evening|1005||US, DE||2010-01-20|2999-01-20|Special ... |update t_order set... where last_load&gt;$last_applied|2010-02-12 21:33:23
+|===
+
+==== Execution history
+
+Two history tables are maintained. Only keeps an entry per calculation control run and the second one keeps an entry per executed statement.
+
+
+
+Calculation control run history table sample:
+
+|===
+|run_id|category|count_calcs|sum_rows|worst_status|message|start|finish
+|1231|morning|12|19742|info||2010-01-10 06:00:00|2010-01-10 07:12:33
+|1232|noon|5|3876|ok||2010-01-10 12:08:00|2010-01-10 13:12:33
+|1234|evening|8|1295|ok||2010-01-10 20:12:33|2010-01-10 20:18:33
+|===
+
+
+Calculation control statement history table sample:
+
+|===
+|run_id|calc_id|calc_name|timestamp|status|message|rows|sql
+|1231|1001|ontime measure|2010-01-11 07:12:23|ok|ok|213|update t_order... where center='SFO' and last_load&gt;2010-01-10 07:12:33
+|1231|1004|delivery|2010-01-11 07:12:23|info|no rows touched|0|insert into t_claims...
+|1232|1002|dock to stock|2010-01-11 07:23:23|ok|ok|234|update t_order...
+|===

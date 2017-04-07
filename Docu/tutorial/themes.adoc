@@ -1,0 +1,155 @@
+[[DocThemes]]
+== Themes
+
+=== Themes overview
+
+In order to support different look and feels and to be adjustable to each corporate standard, BCD-UI provides theme support.
+It mainly defines the visual structure of the screens and provides styles for the UI of widgets and components defined by BCDUI library.
+
+Overall Page layout:: Defines the common page structure and coloring of all pages with the standard frame.
+This overall structure provides a div for each major page component, like title, menu, sideBar, body, which are identified via their id.
+The default page layout uses basic class definitions from the 960 grid system (http://960.gs/).
+
+Default styles:: The theme css files are compiled ones. The raw definitions are written in scss format. For further information for this format, please
+ consult documentation for "Sass: Syntactically Awesome Style Sheets" at http://sass-lang.com/. BCD-UI's scss files include a default styling
+ for all widget, component, modules and general page layout. 
+
+
+Themes are plugged in via conventions.
+Each theme is located in bcdui/theme and all css class names are for standard components are identical in all themes.
+During the build process, the style is being compiled, images are taken from the generic and the custom and form a theme jar file.
+
+==== Usage
+
+To use the style just css-import allStyles.css and make sure you got the well known divs available. Put
+all pages content, like choosers or reports in divs with the appropriate id like id="bcdBodyContainer" or id="bcdSideBarContainer".
+The theme takes care to position the elements correctly and provide them with the right color and size.
+See chapter 'Page structuring' below for details.
+
+=== Implementation
+
+==== Defining a new theme
+
+A new theme can be defined by creating a theme folder structure like the generic one. The images subfolder can hold additional, custom images. The scss file holds a list of variables which can be used to define custom coloring, custom logos etc.
+After setting up the variables, the file holds includes to the default generic scss files and finally you can overwrite specific styles, e.g. for creating a custom menu layout.
+
+So if your company layout needs a general coloring of green and red, you modify the 2 variables $corporate-color and $corporate-color-alt. And maybe your body background should be a fixed image, then you can overwrite the body style after importing the default ones.
+
+
+[source,javascript]
+----
+
+[...]
+$corporate-color-alt:       #FF0000;  // my new alternative color is red
+$corporate-color:           #00FF00;  // my new main color is green
+[...]
+@import '../../../generic/theme/sass/_standardPage.scss';
+[...]
+body {
+  background: #f1f1f1 url("../images/bg.jpg") no-repeat center 0 fixed; // and do some overwriting with a fixed image
+}
+[...]
+
+----
+
+All available variables can be found in _constants.scss.
+
+==== Themes folder structure
+
+This is a typical compiled style .jar package structure:
+
+[source,javascript]
+----
+
+\theme
+  \css                          <--  Common css parts except page structure definition
+    \allStyles.css              <--  compiled css file holding all styles
+  \images                       <--  image container
+
+----
+
+==== Page structuring
+
+BCD-UI follows a 960 grid system based layout. The following shows a standard html page which includes the library (and so it includes the styles, too) with footer, body and sidebar areas.
+
+[source,html]
+----
+
+<!DOCTYPE HTML>
+<html>
+
+  <head>
+    <meta charset="UTF-8"></meta>
+    <title>Hello World Page</title>
+    <script type="text/javascript" src="./bcdui/bcdui.js"></script>
+  </head>
+
+  <body>
+
+    <!-- well known required divs -->
+    <div id="bcdContextMenuDiv" style="display: none"></div>
+    <div id="bcdTooltipDiv" style="display: none"></div>
+    <div id="bcdModalBoxDiv" style="display: none"></div>
+
+    <div id="bcdMainContainer">
+      <div id="bcdHeaderArea"><div id="bcdLogoImageArea"></div></div>
+      <div id="bcdMenuBarArea"><!-- place your menu here --></div>
+      <div id="bcdSpacerArea"><!-- mainly some vertical space or custom use --></div>
+
+      <div class="bcdContentContainer">
+
+        <div id="bcdSideBarContainer">
+        
+          <!-- place your sidebar sections and widgets here -->
+          <div class="bcdSection"><div class="bcdSectionCaption">Section 1</div>
+            <div class="bcdItem">
+              <span id="bcdCaption">Widget 1</span>
+              <div><!-- add a widget here --></div>
+              <span id="bcdCaption">Widget 2</span>
+              <div><!-- add a widget here --></div>
+            </div>
+          </div>
+
+          <div class="bcdSection"><div class="bcdSectionCaption">Section 2</div>
+            <div class="bcdItem">
+              <span id="bcdCaption">Widget 3</span>
+              <div><!-- add a widget here --></div>
+              <span id="bcdCaption">Widget 4</span>
+              <div><!-- add a widget here --></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="bcdBodyContainer">
+          <!-- place your main body information here -->
+          <span class="bcdCaption">Hello World Page</span>
+          <p>Hello World</p>
+        </div>
+
+      </div>
+
+      <div id="bcdFooterArea"><!-- place your footer information here --></div>
+    </div>
+  </body>
+</html>
+
+----
+
+
+Content or theme setup styling is usually affecting the following ids:
+
+
+bcdHeaderArea:: A top area where usually a logo is placed (bcdLogoImageArea)
+bcdMenuBarArea:: A top area below the header where commonly the menu bar is shown
+bcdSideBarContainer:: The place where you add your sidebar widgets
+bcdBodyContainer bcdCaption:: The title of the page is shown here
+bcdBodyContainer:: Scorecards, cubes, the main content of your page should be here
+bcdFooterArea:: An area at the bottom of the page.
+
+=== Theme Sample
+
+==== Theme Sample
+
+A sample page with header, menu, sidebar, body and footer.
+
+image::images/themes_examplePage.png[]

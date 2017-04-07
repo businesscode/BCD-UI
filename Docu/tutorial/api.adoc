@@ -1,0 +1,166 @@
+[[DocApi]]
+== JS, JSP, XML, XSLT Api
+
+=== Apis
+
+BCD-UI offers a variety of APIs for core, component, widget, widgetNg functionalities. The common basis of all APIs is javascript. So for example
+JSP tags or XSLT templates will call or generate javascript code.
+The following subchapters will show you some examples how to use the different APIs.
+*Please note that some auxiliary APIs may have technical restrictions.*
+
+==== JS
+
+Javascript is commonly used in your HTML/JSP script blocks. It offers you access to all BCD-UI features.
+Keep in mind, within javascript the targetHtml attribute (e.g. used in components, widgets) is a required attribute. It's optional for other APIs (since they can generate their own target optionally).
+As an example, the following code will create a drop down chooser which takes its information from an automodel. It can be part of an HTML page's body element.
+
+[source,html]
+----
+<div id="myChooser"></div>
+<script  type="text/javascript">
+  var myDataModel = new bcdui.core.AutoModel({
+    bindingSetId: "auto_test_wrs_oracle"
+  , bRefs: "country"
+  , isDistinct: true
+  });
+  bcdui.widgetNg.createSingleSelect({
+    targetHtml: "myChooser"
+  , targetModelXPath: "/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
+  , optionsModelXPath: "$" + myDataModel.id + "//wrs:Data/wrs:R/wrs:C[1]"
+  })
+</script>
+
+----
+
+==== JSP
+
+Widgets, components, core objects and functionalities are also available as JSP tags. Let's take the previous javascript example in JSP tag syntax.
+Keep in mind, inJSP, XSLT or XML environment you can reference objects via ids only. JSPs allow nesting of elements, too.
+You need to use taglib entries in your jsp to access the single tags. 
+
+[source,javascript]
+----
+
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/widgetNg" prefix="wNg"%>
+
+<b:autoModel id="myDataModel"
+  bindingSetId="auto_test_wrs_oracle"
+  bindingItemRefs="country"
+  isDistinct="true"/>
+
+<wNg:singleSelect
+  targetModelXPath="/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
+  optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
+
+----
+
+The target HTML position - if not specified - is automatically generated at the position where you place your tag. So if you placed your container div
+manually elsewhere you might use the following for the singleSelect tag:
+ 
+[source,html]
+----
+
+<div id="myChooser"></div>
+<wNg:singleSelect
+  targetHtml="myChooser"
+  targetModelXPath="/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
+  optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
+
+----
+
+==== XSLT
+*Restrictions*
+* It is not possible to use core:modelUpdater on the guiStatus to initially transform it. Please use either JS or JSP API for that purpose.
+* Following widgets from /bcdui/js/widget/widget.xslt are not available in this API: blindUpDown, loginForm, userMessagesEditor, userMessagesViewer
+
+
+For using the XSLT API we include a renderer in our page which handles the transformation of the stylesheet holding the single API template calls.
+Such renderer code in jsp can look like this: 
+ 
+[source,html]
+----
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
+<div id="xsltArea"><div>
+<b:renderer stylesheetUrl="renderer.xslt" targetHtml="xsltArea"/>
+
+----
+
+And our example stylesheet renderer.xslt file looks like this:
+
+
+[source,xml]
+----
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+  <xsl:import href="../../bcdui/js/core/core.xslt"/>
+  <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
+  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
+  <xsl:template match="/*">
+    <div>
+      <xsl:call-template name="autoModel">
+        <xsl:with-param name="id" select="'myDataModel'"/>
+        <xsl:with-param name="bindingSetId" select="'auto_test_wrs_oracle'"/>
+        <xsl:with-param name="bindingItemRefs" select="'country'"/>
+        <xsl:with-param name="isDistinct" select="'true'"/>
+      </xsl:call-template>
+      <xsl:call-template name="singleSelectNg">
+        <xsl:with-param name="targetModelXPath">/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value</xsl:with-param>
+        <xsl:with-param name="optionsModelXPath">$myDataModel//wrs:Data/wrs:R/wrs:C[1]</xsl:with-param>
+      </xsl:call-template>
+    </div>
+  </xsl:template>
+</xsl:stylesheet>
+----
+
+As you see in the example, you need to use import API xslts (core.xslt, component.xslt, widget.xslt, widgetNg.xslt) to make use of the templates.
+
+==== XML
+*Restrictions*:
+
+* It is not possible to use core:modelUpdater on the guiStatus to initially transform it. Please use either JS or JSP API for that purpose.
+* Following widgets from /bcdui/js/widget/widget.xslt are not available in this API: BlindUpDown, LoginForm, UserMessagesEditor, UserMessagesViewer
+* Recommended way for XML API is to use the inputModel on the transformator when generating.
+
+
+For the XML Api, you can define your objects in an XML file. We will use a helper xslt tranformation which simply applies the listed elements.
+Renderer code in jsp can look like this: 
+ 
+[source,html]
+----
+<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
+<div id="xmlArea"><div>
+<b:renderer stylesheetUrl="apply.xslt" targetHtml="xmlArea">
+  <b:model url="elements.xml"/>
+</b:renderer>
+
+----
+
+And our helper stylesheet apply.xslt file looks like this:
+
+[source,xml]
+----
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+  <xsl:import href="../../bcdui/js/core/core.xslt"/>
+  <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
+  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+  <xsl:template match="/*">
+    <div>
+      <xsl:for-each select="*">
+        <xsl:apply-templates select="."/>
+      </xsl:for-each>
+    </div>
+  </xsl:template>
+</xsl:stylesheet>
+----
+
+And finally our example stylesheet elements.xml file looks like this:
+
+[source,xml]
+----
+<Root>
+  <AutoModel xmlns="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0" id="myDataModel" bindingSetId="auto_test_wrs_oracle" isDistinct="true" bindingItemRefs="country"/>
+  <SingleSelectNg targetModelXPath="/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value" optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
+</Root>
+----
+
+As you see in the example, the helper xslt imports API xslts (core.xslt, component.xslt, widget.xslt, widgetNg.xslt) to make use of the templates.

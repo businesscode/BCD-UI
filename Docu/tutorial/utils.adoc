@@ -1,0 +1,19 @@
+[[DocUtils]]
+== Utils
+
+=== Overview
+
+BCD-UI provides a set of utils
+
+==== DB wrapper
+
+A set of DB wrapper eases working with differences between DB systems, driver bugs and several checks.
+Each JDBC connection is wrapped as it serves a the factory for Statement and ResultSet and is the anchor point of the wrapping.
+The following fixes and checks are implemented:
+
+* Checking whether all Statements and ResultSets are closed by the application before the connection is closed. If not close is triggered, in debug mode, an Exception is raised
+* Keep track of execution time of a Statement
+* Bugfix regarding fixed length char fields in Teradata
+* Audit all executed statements
+* Some syntactical differences between Oracle and Teradata
+* Lazy connection opening. Connection open is deferred until the connection is actually used.

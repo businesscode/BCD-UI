@@ -1,0 +1,206 @@
+[[DocXsltLibrary]]
+== XSLT library
+
+=== Overview
+
+The XSLT library contains a set of generic XSLTs often required tasks many of the XSLTs perform operations on Wrs.
+In several cases, the final stylesheets are generated in the background for optimal performance n the fly.
+These XSLT may be used in a chain a model wrapper or a model updater.
+
+==== Data transformation
+
+Column filter and order:: Only include listed columns the order given by the parameter. (orderCols.xslt)
+Pagination:: limit and access data with a given page size
+Join:: Join two WRS over data keys, supports inner, left outer and cross joins.
+Transpose grouping:: Transpose a dimension column into a row (i.e. it becomes a column dimension). All data cells are adjusted accordingly.
+Pivots:: Takes a subset of the dimensions and moves then into a top-row and adjusts the measures accordingly.
+Grouping:: Create aggregate rows as roll-ups, useful for totals.
+
+Later versions of BCD-UI are likely to contain sort rows by content, filter rows on content.
+
+==== Data set manipulation
+
+Insert empty rows:: Insert n consecutive empty rows (with new row ids), auto-fill in mandatory columns if they only have on possible value.
+Duplicate rows:: Duplicate a range of rows (with new row ids).
+Delete:: Delete (=mark as deleted) a range of rows.
+Restore:: Restore a range of rows, marked as deleted.
+Merge:: Merge one WRS into another. Existing rows (same row-id) will be modified, rows with new row-ids will be inserted (marked as inserted).
+Validate:: Validates the data of the input WRS against the WRS header. Adds a validation-resule WRS into the input WRS' header
+Number formatting:: Formats the data according to their format defined in the WRS header (scale, unit, later also i18n).
+
+
+Example: Inserting or deleting rows in Javascript. Assuming you got a model with id "wrs" with some rows in it.
+
+[source,javascript]
+----
+bcdui.wrs.wrsUtil.insertRow({model: bcdui.factory.objectRegistry.getObject("wrs"), rowStartPos: 2, rowEndPos: 3});
+
+----
+
+[source,javascript]
+----
+bcdui.wrs.wrsUtil.deleteRows({model: bcdui.factory.objectRegistry.getObject("wrs"), rowStartPos: 2, rowEndPos: 3});
+
+----
+
+==== Transformation into none-WRS
+
+These XSLT translate between a simplified clipboard format and WRS.
+The in/output is &lt;Wrs xmlns:wrs=".."&gt;&lt;Data&gt;&lt;R&gt;&lt;D/&gt;..&lt;D/&gt;&lt;/R&gt;&lt;R&gt;&lt;D/&gt;..&lt;D/&gt;&lt;/R&gt;..&lt;/Data&gt;&lt;/Wrs&gt;without any header.
+A js function is responsible for transforming csv from clipboard from and into the simplified format.
+
+Copy:: Puts the content of a WRS in clip board format into the clipboard.
+Paste/Paste as new:: Pasts the content of the clipboard given in the clip board format to a row in a given WRS.
+
+Later versions of BCD-UI are likely to support transformations to CSV, Sylk and Excel XML
+
+==== XSLT parametrisation
+
+All wrs modifying XSLT get their parameters via an XML of type xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0".
+Basically there is an element defined for each of the stylesheets with the same name which holds the parameters.
+If the parameter model contains multiple elements of the same type, for example to support multiple chains or switch between settings,
+an optional attribute paramSetId allows to select a specific one.
+
+[source,xml]
+----
+<xp:XSLTParameters xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0" xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
+  <xp:Paginate>
+    <xp:PageSize>6</xp:PageSize>
+    <xp:PageNumber>1</xp:PageNumber>
+  </xp:Paginate>
+  <xp:OrderCols>
+    <wrs:Columns>
+      <wrs:C id="CTR" pos="1"/>
+      <wrs:C id="LOW" pos="2"/>
+      <wrs:C id="COLOR" pos="3"/>
+    </wrs:Columns>
+  </xp:OrderCols>
+  <xp:OrderCols paramSetId="set2">
+    <wrs:Columns>
+      <wrs:C id="CW" pos="1"/>
+      <wrs:C id="HIGH" pos="2"/>
+      <wrs:C id="PNLOW" pos="3"/>
+    </wrs:Columns>
+  </xp:OrderCols>
+</xp:XSLTParameters>
+----
+
+Above example shows three parameters, one for paginate.xslt and two for orderCols.xslt.
+Since there are two OrderCols elements, orderCols action has to get the parameter paramSetId=set2 to choose the second one.
+
+[source,javascript]
+----
+<b:modelWrapper id="mW" stylesheetUrl="../../bcdui/xslt/wrs/orderCols.xslt">
+  <b:ref idRef="inputModel"/>
+  <b:param name="paramModel"><b:model id="xsltParams" url="xsltParams.xml"/></b:param>
+  <b:param name="paramSetId" value="set2"/>
+</b:modelWrapper>
+
+----
+
+==== HTML rendering
+
+BCDUI offers you some HTML renderer which allow you easy visualization of data.
+While the html builder renders data in a flat table format (also supporting cube-like visualization
+with column and row spanning), the tree builder supports a tree-like structure with branches and leafs
+which can expand and collapse.
+
+HTML builder:: Rendering a table out of the data in "myDataModel" model in a container div "myDiv" can
+be done like this:
+
+[source,javascript]
+----
+bcdui.factory.createRenderer({
+  targetHTML: "myDiv"
+, inputModel: bcdui.factory.objectRegistry.getObject("myDataModel")
+, url: "../../bcdui/xslt/renderer/htmlBuilder.xslt"});
+
+----
+
+
+image::images/xsltLibrary_plainView.png[]
+
+HTML tree builder:: Rendering data as a tree can be achieved with the following renderer chain for example:
+
+[source,javascript]
+----
+bcdui.factory.createModel({id: "tree_chain", url: "tree_chain.xml"});
+bcdui.factory.createRenderer({
+  , targetHtml: "myDiv"
+  , chain: "tree_chain"
+  , dataProviders: ["myDataModel"]
+  , parameters: { number_of_levels: "3" }
+});
+
+----
+
+with tree_chain.xml as follows:
++
+[source,xml]
+----
+<Chain xmlns="http://www.businesscode.de/schema/bcdui/chain-1.0.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <Phase name="rendering">
+    <Stylesheet url="../../bcdui/js/component/treeView/generateTree.xslt"/>
+    <Stylesheet url="../../bcdui/js/component/treeView/rendering.xslt"/>
+  </Phase>
+</Chain>
+----
++
+
+image::images/xsltLibrary_treeView.png[]
+
+
+==== String Utilites
+
+Common string operations which do not come automatically with XSLT-1.0 are provided via string utility templates:
+
+printRows:: prints a multi-line string with an indent row by row
+left-trim:: cuts of whitespace from string start
+right-trim:: cuts of whitespace from string end
+trim:: cuts of whitespace from string start and end
+stringRepeater:: repeats a given string n-times
+lastIndexOf:: Finds the last occurrence of a character c in a string s
+replaceString:: replace substring s1 with substring s2 in string s
+tokenize:: splits up a delimiter separated string and returns a node set of elements
+nthToken:: Gets the n-th token starting at 1 of a delimiter separated string
+
+
+Example: Typical xslt file header to work with string utilities
+
+[source,xml]
+----
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exslt="http://exslt.org/common" xmlns:msxsl="urn:schemas-microsoft-com:xslt" version="1.0" exclude-result-prefixes="exslt msxsl">
+  <xsl:import href="../../../xslt/stringUtil.xslt"/>
+  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set']= function (x) { return x; }</msxsl:script>
+  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
+</xsl:stylesheet>
+----
+
+
+Example: Tokenizing a space separated string and do something with each token.
+
+[source,xml]
+----
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+  <xsl:variable name="myString">This is a test</xsl:variable>
+  <!-- split up the string -->
+  <xsl:variable name="myStringTokens">
+    <xsl:call-template name="tokenize">
+      <xsl:with-param name="string" select="$myString"/>
+      <xsl:with-param name="delimiter" select="' '"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <!-- build a nodeset -->
+  <xsl:variable name="myNodes" select="exslt:node-set($myStringTokens)"/>
+  <!-- and run through the non empty single nodes and do something with each node -->
+  <xsl:for-each select="$myNodes/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
+    <xsl:call-template name="doSomething">
+      <xsl:with-param name="item" select="."/>
+    </xsl:call-template>
+  </xsl:for-each>
+</xsl:stylesheet>
+----
+
+==== Details
+
+image::images/xsltLibrary_xsltLibSchema.png[]

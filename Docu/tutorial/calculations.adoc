@@ -1,0 +1,19 @@
+[[DocCalculations]]
+== Calculations
+
+=== Calculations
+
+The following calculations can be applied on the client in various places.
+
+=== Sample
+
+[source,xml]
+----
+<Calc operation="div" precision="1">
+  <ValueRef bRef="i_ontime" caption="Ontime shipments"/>
+  <Calc operation="min" precision="1">
+    <ValueRef bRef="t_ontime1" caption="Ontime shipments"/>
+    <ValueRef bRef="t_ontime2" caption="Ontime exregion shipments"/>
+  </Calc>
+</Calc>
+----

@@ -1,0 +1,207 @@
+[[DocCaching]]
+== Caching
+
+=== Caching overview
+
+Caching is a mechanism to speed up performance drastically, next to database tuning it is the most important performance measure.
+BCD-UI supports caching and makes caching setup easy.
+It allows for reducing server and network load and improving user experience at the same time.
+Depending on the type of expected access different caching strategies are optimal.
+BCD-UI supports two types of caching
+
+Client side caching:: Client side caching is often the most effective way of caching.
+It prevents completely repeated requests from a client, like for static image files or often needed identical data like geo-data.
+No load at all is produced for network and server and the user sees the requested data immediately, more like in a desktop application.
+This is the best approach for repeated requests from a single client.
+Server side caching:: Server side caching use the cache on the server.
+The clients need to do an actual request but repeated identical requests from multiple clients, like default reports, are answered with low overhead.
+
+=== Caching setup
+
+The definition of when a resource expires is done identically for server and client caching.
+It is possible to define the 'expires' date of the answer for a request as a sample occurring at  `Tue, 01 Dec 2009 12:30:40 UTC`  in terms of
+
+ExpiresAbsTime::  time, like "00:00:00" leading to  `Wed, 02 Dec 2009 00:00:00 UTC` 
+ExpiresAbsDow::  day of week incl. hour, like "Sat-12" leading to  `Sat, 05 Dec 2009 12:00:00 UTC` 
+ExpiresAbsDatetime::  absolute date time, like "2011-01-20 12:00:00" leading to  `Thu, 01 Jan 2011 12:00:00 UTC` 
+ExpiresRelDays::  number of days starting from the request, same time, like "2" leading to  `Thu, 03 Dec 2009 12:30:40 UTC` 
+ExpiresRelTime::  number of hours/min/sec starting from the request, like "01:00:05" leading to  `Tue, 01 Dec 2009 13:30:45 UTC` 
+CacheRequestDirective::  native HTTP1.1 header string to be set in Cache-Control header
+
+There can be multiple space separated values for ExpiresAbsTime and ExpiresAbsDow, like "00:00:00 12:00:00", the next matching one is used for the response expires.
+The response will have the link:http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.21[HTTP Expires, window="_blank"] header be set accordingly.
+
+==== Disable Caching
+
+During development, you do not usually have enable caching. For this case BCD-UI provides the possibility to enable/disable all caching settings.
+To achieve this please define a environment entry within your context.xml file with the name: "bcdui/disableCache" like this:
+
+[source,xml]
+----
+<Environment name="bcdui/disableCache" type="java.lang.Boolean" value="true"/>
+----
+
+This does not only apply to the server and client side caching described here but also to the caching of <<DocBinding,Bindings>>.
+RequestLifecycleFilter will send a Cache-Control: no-cache; no-store for all resources if set to true.
+
+=== Client side caching
+
+Client side caching is by far the most efficient way of caching in most cases.
+BCD-UI's ClientCachingFilter is responsible for adding caching information to the HTTP response.
+Client filters also allow an ExcludeUrls parameter with a space separated list of regular expressions.
+If an expression matches the request path, the filter takes no action.
+
+==== ClientCachingFilter
+
+The following defaults are added to web.xml
+
+[source,xml]
+----
+<filter>
+  <filter-class>de.businesscode.soa.web.cacheControl.ClientCachingFilter</filter-class>
+  <filter-name>DefaultClientCacheFilter</filter-name>
+  <init-param>
+    <param-name>ExtensionsRestriction</param-name>
+    <param-value>gif jpg png css xslt</param-value>
+  </init-param>
+  <init-param>
+    <param-name>ExpiresAbsTime</param-name>
+    <param-value>00:00:00</param-value>
+  </init-param>
+  <init-param>
+    <param-name>ExcludeUrls</param-name>
+    <param-value>/private/</param-value>
+  </init-param>
+</filter><filter-mapping>
+  <filter-name>DefaultClientCacheFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+----
+
+
+Sometimes even the browser-build in caching needs to be disabled.
+This can be either because it can be changed at any moment in the data base
+or because the content produced by the server depends on a server session value like user or language.
+This can be achieved by adding the following to web.xml
+
+[source,xml]
+----
+<filter>
+  <filter-class>de.businesscode.soa.web.cacheControl.ClientCachingFilter</filter-class>
+  <filter-name>NoClientCacheFilter</filter-name>
+  <init-param>
+    <param-name>CacheRequestDirective</param-name>
+    <param-value>no-cache; no-store</param-value>
+  </init-param>
+</filter><filter-mapping>
+  <filter-name>NoClientCacheFilter</filter-name>
+  <url-pattern>/userRights</url-pattern>
+</filter-mapping>
+----
+
+==== Client side JSP carrier page caching
+
+To enable caching of jsp carrier pages it is important not to make the produced content dependent
+on server side values, which are not included in the parameter like implicit user rights.
+BCD-UI assures that client side status like filter settings or tab status is not transferred as a parameter but rather as a anchor, not conflicting with caching.
+Developers need to assure that links within the application follow the same pattern for example by using the appropriate link builder tag.
+In most cases, only language and the user-rights will be parameters controlling the server side page producing.
+If it is required to control HTML content with information other than parameters, for example server session information,
+exclude jsp page from caching or see user token below.
+
+==== Client side caching of static files
+
+Static files can usually be cached. How long depends on when a re-deployment may happen.
+Typically if deployments happen over the week-end, set  `ExpiresAbsDow`  to 'Sat' as shown above.
+To identify static files it is possible to define for which extensions the ClientCachingFilter applies via ExtensionsRestriction.
+
+==== Client side static data caching
+
+In a reporting environment, reporting and reference data can often be cached until the next morning.
+This is supported by setting  `ExpiresAbsTime`  to '07:00:00'.
+To support different caching times for different data, create different servlet instances at these URLs.
+User dependent data is to be excluded from the caching. If caching should be enabled, see User token below.
+
+==== User token
+
+The user token consists of the userid plus the last modification timestamp of the user profile. It is added to all data requests from BCD-UI behind the scenes.
+Since the browser uses the cache only for recurrent requests with the same URL changing the user token will lead to a new server request.
+Every property change, influencing the response of the server independent of the request parameters, must change the last-modified of the user profile.
+This can be, for example, a change in user rights or preferred language.
+
+
+Usage of default items in <<DocBinding,Bindings>>, for example for row-level-security or language setting,
+requires that the resource is excluded from caching or that the user profile last modifies changes accordingly.
+
+
+The server checks the correctness of the user token for <<DocSecurity,security>> reasons.
+
+==== Other headers
+
+For the client side header it is also possible to define the response header value of value of cache-directive with the  `cache-response-directive`  parameter.
+See sample for no-cache below.
+The response will have the link:http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9[HTTP Cache-Control, window="_blank"] header be set accordingly.
+
+==== Session Scope Caching
+
+The WrsServlet can be bound to  `/bcdui/servletsSessionCached/WrsServlet/*`  URL, when working with BCD-UI models you can point them explicitely to that URL (or any other
+containing infix  `/servletsSessionCached/`  ) to make the framework add a  `sessionHash`  parameter to the URL for data request calls. You may also
+add that  `sessionHash`  parameter yourself, i.e. for your custom servlets. The hash is stored in  `bcdSessionHash`  session attribute.
+Having session specific URL you can now facade it behind the ClientCachingFilter. The data on that URL will always refresh for every new session or earliest at setting
+of ClientCachingFilter. The  `sessionHash`  is also stored in  `bcdui.config`  object in JS scope.
+
+=== Server side caching
+
+In some cases server side caches make sense, for example to cache a standard country report shown to many users on application entry.
+It can be can be combined with client side caching.
+
+==== ServerCachingFilter configuration
+
+The ServerCachingFilter will cache all responses to resources it is assigned to on a defined store for later requests.
+BCD-UI supports the file system based store out of the box.
+
+
+User can easy add a custom store for handle caches.
+For this issue the interface de.businesscode.soa.web.cacheControl.IServerCachePersist must be implemented.
+
+In order to enable server side caching the cache store must be defined.
+
+
+The store must be defined as a JNDI resource within the context.xml file and must have the name "BCD-UI/ServerCacheControl".
+
+
+[source,xml]
+----
+<Resource name="BCD-UI/ServerCacheControl" auth="Container" type="de.businesscode.soa.web.cacheControl.FileCachePersist" absoluteFolderPath="E:\cacheTest" factory="org.apache.naming.factory.BeanFactory"/>
+----
+
+The same way you can define your oun cache store.
+
+
+The expires parameters follow the format given above and define when the server side cache is to be cleaned.
+This can be used to cache heavy requests being served identically to many users.
+To achieve this, add the following to to web.xml
+
+[source,xml]
+----
+<filter>
+  <filter-class>de.businesscode.soa.web.cacheControl.ServerCachingFilter</filter-class>
+  <filter-name>DefaultServerCacheFilter</filter-name>
+  <init-param>
+    <param-name>ExpiresAbsTime</param-name>
+    <param-value>00:00:00</param-value>
+    <init-param/>
+    <param-name>pattern</param-name>
+    <param-value>.. full URLs including request document, space or new line separated ..</param-value>
+  </init-param>
+</filter><filter-mapping>
+  <filter-name>DefaultServerCacheFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
+----
+
+==== Explicitly triggered cache drop
+
+In addition to the configured expires, it is possible to trigger a drop of the server side caches.
+This is achieved by a GET request with a  `bcd:clearServerCache`  parameter, sample:  `/contextRoot/anyCachedResource?bcd:clearServerCache=cacheFilterName` ,
+where  `anyCachedResource`  is a resource path the filter is mapped for and  `cacheFilterName`  is the logical name of the filter instance given in web.xml.

@@ -15,6 +15,18 @@
 */
 //--------------------------------------------------
 // Handles generation of HTML documentation from manual doc.xml and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+    classpath group: 'org.asciidoctor', name: 'asciidoctorj-pdf', version: '1.5.0-alpha.14'
+  }
+}
+apply plugin: "org.asciidoctor.convert"
 
 apply plugin: 'java'
 apply plugin: "com.moowork.node"
@@ -88,61 +100,26 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
 
 //*********************************************
-// Generate HTML from manual doc.xml documentation
-task bcduiDocuXml2Html (type: Copy) {
+// Generate tutorial HTML from all.adoc
+task bcduiDocuTutorial ( type: org.asciidoctor.gradle.AsciidoctorTask ) {
 
   def taskDestDirName = "$buildDir/htmldocs/tutorial"
-  def taskSource = './tutorial/content'
-  inputs.dir file(taskSource)
+  def taskSource      = "tutorial"
 
-  // xml content is converted to HTML in case it has a processing instruction
-  doFirst {
-    // We know we are not up-to-date here. Since this task owns the output folder, it is save to delete it now
-    delete taskDestDirName
-
-    // Loop over all xml files
-    def docFiles = fileTree(taskSource).include('**/*.xml')
-    docFiles.each { docFile ->
-
-      // Read xslt processing instruction (targeting towards browsers, when viewing the xml directly) to apply the right style in ant.xslt
-      def procInstr = docFile.text.find(/.*xml-stylesheet.*?href=.([^\'"]*).*/) { fullMatch, procInstr -> return procInstr }
-
-      // Get the path to our xml, remove the filename
-      def upperDirs = relativePath(docFile).replaceAll(/tutorial.(.*)[\/\\][a-zA-Z0-9_]+\.xml/,'$1')
-
-      // If there is no xslt to be applied, just copy out xml 1:1
-      if( ! procInstr ) {
-        copy{ from docFile; into taskDestDirName+"/$upperDirs" }
-        return false
-      }
-
-      // Otherwise apply the found xslt as style
-      def fileName  = docFile.name.replaceAll(/(.*)\.[^\.]+/,'$1')
-      def outFile = file("$taskDestDirName/$upperDirs/${fileName}.html")
-      ant.xslt(
-              in:       docFile,
-              style:    file(docFile.getParentFile().path + fileSep + procInstr),
-              out:      outFile
-      )
-
-      // Also replace all relative links to xml files to point to html files
-      outFile.text = outFile.text.replaceAll('(href=.\\.\\./[a-zA-Z0-9_\\-\\./]+).xml(\\W)', '$1.html$2')
+  // Resources under ./images/ are per default copied by AsciidoctorTask
+  configure {
+    sources {
+      include "index.adoc"
     }
-
-    // The docu/index.html also needs to be copied and have the links to *.xml replaced by *.html
-    copy { from "./tutorial/index.html"; into taskDestDirName }
-    ["indexNavigationPage", "overviewPage"].each { page ->
-      file("$taskDestDirName/index.html").text = file("$taskDestDirName/index.html").text.replaceAll( "${page}.xml", "${page}.html" )
-    }
-  }
-
-  // Non-xml files are just copied 1:1
-  into taskDestDirName
-  from( "./tutorial/content" ) {
-    includeEmptyDirs false
-    into "content"
-    exclude "index.html"
-    exclude "**/*.xml"
+    backends = ['html5'] // ['html5','pdf']
+    separateOutputDirs = false
+    attributes 'source-highlighter'    : 'coderay',
+            'coderay-linenums-mode' : 'table',
+            icons                   : 'font',
+            linkattrs               : true,
+            encoding                : 'UTF-8'
+    sourceDir = file(taskSource)
+    outputDir = file(taskDestDirName)
   }
 }
 
@@ -171,7 +148,7 @@ task bcduiJavadoc(type: Javadoc) {
 // Creates /build/htmldocs folder with all content meant to be human readable
 task bcduiHtmlDocs( type: Copy ) {
 
-  dependsOn bcduiDocuXml2Html, bcduiDocuJsHtml, bcduiJavadoc
+  dependsOn bcduiDocuTutorial, bcduiDocuJsHtml, bcduiJavadoc
 
   from "gradle/static"
   into "$buildDir/htmldocs"

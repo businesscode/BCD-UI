@@ -1,0 +1,54 @@
+[[DocMenu]]
+== Menu
+
+=== Overview
+
+This tutorial shows how to add a menu to our simple tutorial application. 
+
+
+The following steps are necessary in general:
+
+1. Create a menu :: Create a menu.xml file in WEB-INF/bcdui/menu
+2. Add createMenu to your pages:: Invoke the js api to create a menu on the pages.
+
+Each step is described in the following sub chapters.
+
+=== Step by step
+
+==== Create a menu.xml file
+BCD-UI has a mechanism that makes it easy to handle menues in a web application. This feature is activated when a menu.xml file is created and after restart the tomcat server.
+The file is an xml configuration file and has its own schema. For our test application the file would look like this.
+
+[source,xml]
+----
+<Menu xmlns="http://www.businesscode.de/schema/bcdui/menu-1.0.0" id="gettingStarted" isDefault="true">
+  <Entry id="report" caption="Reports">
+    <Entry id="simpleReq" caption="Simple Req" href="/simpleReq/index.html" title="Click here for Simple Request"/>
+    <Entry id="minimalCube" caption="Minimal Cube" href="/minimalCube/index.html" title="Click here for Minimal Cube"/>
+  </Entry>
+  <Entry id="logout" caption="logout" href="/logout" title="Click here to logout"/>
+</Menu>
+----
+The element "Entry" can contain other Entry element so you can create a typical menue hierarchy. 
+The href attributes starts with a slash, you don't have to add the name of the application here.
+
+==== Add createMenu to your pages
+The menu needs to be created in all html pages you want to have a menu. In our example that would mean the cube page, the simple request, but not
+ the login.html page. So add the following javascript code to your pages.
+ `   
+          // Create Menu
+          bcdui.widget.createMenu({ targetHtml: 'bcdMenuBarArea'});
+       ` Please note that the targetHtml arguments has to match to an existing element. The easiest thing is to use the menuBar element in the standard page, we used so far
+
+[source,xml]
+----
+<div id="bcdHeaderArea">
+  <div id="bcdLogoImageArea"/>
+</div><div id="bcdMenuBarArea"/><div id="bcdSpacerArea"/>
+----
+
+
+The element with id "bcdMenuBarArea". After restart of tomcat the menu should appear on your pages. Please note that changes on the menu.xml content require
+a tomcat restart, because the menu is cached. 
+ 
+

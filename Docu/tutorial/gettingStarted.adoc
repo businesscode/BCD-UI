@@ -1,0 +1,147 @@
+[[DocGettingStarted]]
+== Getting Started
+
+=== Overview
+
+This section is about creating a simple BCD-UI project in eclipse IDE and build it with gradle.
+The BCD-UI project has security enabled and requires authentication. It has a simple page with database content 
+depending on user input. The tutorials shows the setup in the popular IDE eclipse, but can be done with other tools as well.
+
+The steps to create the Gettting Started application are:
+ 
+. Development environment setup.
+Get Java, Eclipse and Tomcat to set up your development environment.
+. Application setup
+. Connect the web application to a database
+. Create Login Page
+. Create a simple request Page
+
+Each step is described in the following sub chapters.
+ 
+=== Step by step
+
+==== Development environment setup
+
+This step is required only once when starting to work with BCD-UI; subsequent projects can re-use the same environment.
+To start working with BCD-UI you need some tools installed, mainly Java, Eclipse and Tomcat.
+Follow the <<DocBootstrap,bootstrap>> description.
+
+==== Application setup
+
+This step is only required once when starting a new BCD-UI application; subsequent pages or reports will re-use the same environment.
+
+* copy of dependencies.gradle to project root folder and execute gradle refresh dependencies
+* entries to web.xml
+* entries to context.xml
+
+That's all, see more details in these <<DocAppsetup,instructions>>.
+
+==== Connect the web application to a database
+To avoid setting up a database and test data from scratch, you can simply connect to an existing database and adjust the table and column information
+accordingly.
+
+To connect the web application to a database, we configure a datasource in our tomcat. This can be done in the application context file, which is
+located in WebContent/META-INF/context.xml. 
+We configure a datasource as follows. Please adjust the username, password, driverClassName and url to match your RDMBS. 
+Please be aware that the JDBC driver file should be put in your tomcat/lib directory.
+Some databases require specific additional attributes to fully support, please have a look at
+link:https://github.com/businesscode/BCD-UI/blob/master/Server/configFiles/tomcat/context.xml[BCD-UI/Server/configFiles/tomcat/context.xml, window="_blank"] there you might
+find a sample for your database. 
+
+
+The context file below has some settings to disable the BCD-UI and tomcat caching mechanism. 
+These are the context attributes antiResourceLocking and cachedAllowed for the tomcat server and 
+the environment settings bcdui/disableCache = true for the BCD-UI caching. 
+The tomcat configuration is for tomcat version 8. Please refer the documentation for other versions of tomcat. 
+
+
+[source,xml]
+----
+<Context reloadable="true" antiResourceLocking="false">
+  <Resources cachingAllowed="false"/>
+  <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/bcduidemo"/>
+  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="true"/>
+  <Resource name="jdbc/bcduidemo" auth="Container" type="javax.sql.DataSource" username="your_username" password="your_password" maxActive="10" maxIdle="2" maxWait="15000" testOnBorrow="true" driverClassName="your_driver_class_name" connectionProperties="defaultRowPrefetch=100;" url="jdbc:your_database"/>
+  <WatchedResource>WEB-INF/web.xml</WatchedResource>
+</Context>
+----
+To continue the tutorial we assume there is table containing data like shown in the following table:
+
+[options="header"]
+|===
+|id|dy|country|station|cars_sold|cars_repaired
+|10001|2017-01-01|DE|Cologne|50.0| 25.0
+|10002|2017-01-02|FR|Paris|1.0|66.0
+|10003|2017-01-03|DE|Berlin|75.0|334.0
+|10004|2017-01-04|US|New York|17.0|43.0
+|10005|2017-02-05|DE|Cologne|29.0|43.0
+|10006|2017-02-06|ES|Barcelona|27.0|10.0
+|10007|2017-02-07|DE|Cologne|21.0|13.0
+|10008|2017-02-08|FR|Paris|22.0|21.0
+|10009|2017-02-09|DE|Berlin|10.0|22.0
+|10010|2017-02-10|US|New York|17.0|2.0
+|10011|2017-02-11|DE|Cologne|99.0|25.0
+|10012|2017-02-12|ES|Barcelona|12.0|66.0
+|10013|2017-03-13|DE|Cologne|9.0|334.0
+|10014|2017-03-14|FR|Paris|7.0|43.0
+|10015|2017-03-15|DE|Berlin|4.0|21.0
+|10016|2017-03-16|US|New York|2.0| 22.0
+|10017|2017-03-17|DE|Cologne|32.0|111.0
+|10018|2017-03-18|ES|Barcelona|334.0|27.0
+|10019|2017-03-19|DE|Cologne|43.0|21.0
+|10020|2017-03-20|FR|Paris|43.0|22.0
+|10021|2017-04-21|DE|Berlin|10.0|10.0
+|10022|2017-04-22|US|New York|13.0|17.0
+|10023|2017-04-23|DE|Cologne|15.0|5.0
+|===
+The link:../../binding/doc.html[BindingSet, window="_blank"] mapping for this table looks like this:
+
+[source,xml]
+----
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0" id="testData" table="test_data">
+  <C id="id" caption="Id" isKey="true">
+    <Column>id</Column>
+  </C>
+  <C id="dy" caption="Dy">
+    <Column>dy</Column>
+  </C>
+  <C id="country" caption="Country">
+    <Column>country</Column>
+  </C>
+  <C id="station" caption="Station">
+    <Column>station</Column>
+  </C>
+  <C id="carsSold" caption="Cars sold">
+    <Column>cars_sold</Column>
+  </C>
+  <C id="carsRepaired" caption="Cars repaired">
+    <Column>cars_repaired</Column>
+  </C>
+</BindingSet>
+----
+
+Create a similar file in WEB-INF/bcdui/bindings and name it e.g. testData.xml. By convention, the filename should be the same as the binding set id plus the file extension xml.
+The BindingSet is validated and enriched by database catalog information during the startup of the web application.
+So typos in column names or not existing columns are detected that way. The output can be found in the tomcat console.
+
+[source,javascript]
+----
+2017-03-08 10:59:31  ReadBindingSet: BindingSet 'test_data': org.postgresql.util.PSQLException: ERROR: column t3.unicorns_feeded does not exist
+
+----
+
+In case a binding set is not correct, it is ignored by BCD-UI so that any access to it would lead to an BindingNotFound Exception.
+The columns elements C are enriched during startup and BCD-UI knows the type, size, not null and other properties.
+Important for our next steps in this tutorial are the ids. So, to tell BCD-UI components what table to access we would then use
+id="testData" and if we specify a certain column we use the value of the id attribute of the desired column.
+
+
+==== Create Login Page
+
+The next step is to enable the security filter and to create a login page. This is optional.
+Here are the detail instructions on how to setup everything:<<DocLogin,Login Page>>.
+
+==== Create Simple Request Page
+
+The next step is to create a simple page that retrieves data filtered by some user input. Detailed instructions can be found
+<<DocSimpleReq,here>>. 
