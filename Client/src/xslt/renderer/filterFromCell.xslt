@@ -341,7 +341,7 @@
   </xsl:template>
 
   <!-- match on outer period node and -if a cell filer with year info is present, use this -->
-  <xsl:template match="f:*[//f:Expression[@bRef='cwyr' or @bRef='yr']]" mode="merge">
+  <xsl:template match="f:*[.//f:Expression[@bRef='cwyr' or @bRef='yr']]" mode="merge">
     <xsl:choose>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
         <xsl:variable name="cellbRef" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@bRef"/>
@@ -368,7 +368,9 @@
         </xsl:copy>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="@*|node()" mode="merge"/>
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()" mode="merge"/>
+        </xsl:copy>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
