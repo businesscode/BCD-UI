@@ -28,7 +28,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   /**
    * @private
    */
-  _dateRangeBindingItemNames: { year : "yr", quarter : "qr", month: "mo", week: "cw",  weekYear: "cwyr", various:"dy", timestamp:"ts"},
+  _dateRangeBindingItemNames: { year : "yr", quarter : "qr", month: "mo", week: "cw",  weekYear: "cwyr", various:"dy", timestamp:"ts", yearweek: "cwyrcw", yearquarter: "yrqr", yearmonth: "yrmo"},
 
   /**
    * @private
@@ -312,6 +312,22 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           postfix = bcdui.widget.periodChooser._getValidPostfix(config, pt != null ? pt : postfix);
           node.setAttribute("bcdPostfix", postfix);
         }
+
+        // repair cwyr-cw and yr-mo nodes to cwyr + cw etc nodes
+        jQuery.makeArray(targetModel.queryNodes(config.targetModelXPath + "//f:Expression[starts-with(@bRef, 'yrqr_') or @bRef='yrqr' or starts-with(@bRef, 'cwyrcw_') or @bRef='cwyrcw' or starts-with(@bRef, 'yrmo_') or @bRef='yrmo']")).forEach(function(e){
+          var bRef = e.getAttribute("bRef") || "";
+          var clone = e.cloneNode(true);
+          var value = (e.getAttribute("value") || "").split("-");
+          var postfix = bRef.indexOf("_") != -1 ? bRef.substring(bRef.indexOf("_") + 1) : "";
+          postfix = postfix == "" ? "" : "_" + postfix;
+          if (value.length == 2) {
+            e.setAttribute("bRef", ((bRef.indexOf("cwyrcw") == 0 ? "cwyr" : "yr") + postfix));
+            e.setAttribute("value", value[0]);
+            clone.setAttribute("bRef", ((bRef.indexOf("cwyrcw") == 0 ? "cw" : (bRef.indexOf("yrqr") == 0 ? "qr" : "mo")) + postfix));
+            clone.setAttribute("value", value[1]);
+            e.parentNode.appendChild(clone);
+          }
+        });
 
         // render input drop down if we have an optionModel
         if (config.optionsModelId) {

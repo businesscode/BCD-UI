@@ -129,11 +129,14 @@
 
   <!--
     Filters of the cell merged with filters from guiStatus, cell filters having higher priority
+    don't include combined (cw)yr/mo/cw/qr bRefs, assuming they were correctly used to replace sidebar filters
     -->
   <xsl:variable name="cellAndGuiStatusFilterVar">
     <guiStatus:Status>
       <f:Filter>
-        <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression/@bRef)]"/>
+        <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression/@bRef)
+        and not(@bRef='yrqr' or @bRef='cwyrcw' or @bRef='yrmo')
+        ]"/>
         <xsl:apply-templates select="$filterModel/*/f:Filter/*" mode="merge"/>
       </f:Filter>
     </guiStatus:Status>
@@ -335,6 +338,39 @@
     <xsl:copy>
       <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
+  </xsl:template>
+
+  <!-- match on outer period node and -if a cell filer with year info is present, use this -->
+  <xsl:template match="f:*[//f:Expression[@bRef='cwyr' or @bRef='yr']]" mode="merge">
+    <xsl:choose>
+      <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
+        <xsl:variable name="cellbRef" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@bRef"/>
+        <xsl:variable name="cellValue" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@value"/>
+        <xsl:variable name="value1" select="substring-before($cellValue, '-')"/>
+        <xsl:variable name="value2" select="substring-after($cellValue, '-')"/>
+        <xsl:variable name="bRef1">
+          <xsl:choose>
+            <xsl:when test="$cellbRef='cwyrcw'">cwyr</xsl:when>
+            <xsl:otherwise>yr</xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="bRef2">
+          <xsl:choose>
+            <xsl:when test="$cellbRef='cwyrcw'">cw</xsl:when>
+            <xsl:when test="$cellbRef='yrqr'">qr</xsl:when>
+            <xsl:otherwise>mo</xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <f:Expression bRef="{$bRef1}" op="=" value="{$value1}"/>
+          <f:Expression bRef="{$bRef2}" op="=" value="{$value2}"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="@*|node()" mode="merge"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
