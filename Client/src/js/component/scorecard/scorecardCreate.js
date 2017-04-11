@@ -175,7 +175,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'bcdRowIdent', value: memo.bcdRowIdent }));
         this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent)}));
         for (var cP in memo.chainParameters) {
-          this.actionDrillToAnalysisGuiStatus.addDataProvider(
+          this.actionDetailExportWrq.addDataProvider(
             memo.chainParameters[cP] instanceof bcdui.core.DataProvider
               ? memo.chainParameters[cP]
               : new bcdui.core.ConstantDataProvider({name: cP, value:  memo.chainParameters[cP]})
