@@ -134,6 +134,18 @@ jQuery.extend( bcdui,
     log: (function(){
       var log = log4javascript.getLogger("bcdui");
 
+      // serizalizes all objects via JSON.stringify() in given array and returns the array, the original array is modified
+      var serializeObjects = function(messagesArray){
+        if(messagesArray){
+          for(var i=0,imax=messagesArray.length; i<imax;i++){
+            if(typeof messagesArray[i] == "object"){
+              messagesArray[i] = JSON.stringify(messagesArray[i]);
+            }
+          }
+        }
+        return messagesArray;
+      };
+
       /**
        * creates a special console appender for log4javascript logging system,
        * new instance is returned depended on the browser used.
@@ -166,6 +178,7 @@ jQuery.extend( bcdui,
             log.applicationStartTs = bcdui.logging.pageStartTs || new Date().getTime(); // pageStartTs is normally set by init.tag
             log.lastLogDate = log.applicationStartTs;
             appender.getLayout().format = function(loggingEvent){
+              serializeObjects(loggingEvent.messages);
               if(loggingEvent.messages.length == 1){
                 var ts = new Date().getTime();
                 var tsStr = new String(("     "+(ts-log.lastLogDate)).slice(-5)+" "+((ts-log.applicationStartTs)/1000).toFixed(3)+": ");
@@ -213,6 +226,7 @@ jQuery.extend( bcdui,
           BCDAppender.prototype.toString = function(){return "BCDAppender";};
           BCDAppender.prototype.layout = new log4javascript.SimpleLayout();
           BCDAppender.prototype.append = function(loggingEvent) {
+            serializeObjects(loggingEvent.messages);
             var formattedMessage = this.getLayout().format(loggingEvent);
             if (this.getLayout().ignoresThrowable())
               formattedMessage += loggingEvent.getThrowableStrRep();
