@@ -22,6 +22,7 @@
   xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
   >
 
+<xsl:import href="../../../../xslt/stringUtil.xslt"/>
 <!--
   Creates a list of additional settings like sorting or hiding for a cube
   input model is the cube's status model with the cube layout
@@ -79,6 +80,18 @@
        </xsl:if>
        <xsl:call-template name="hiddenDimensionValues"><xsl:with-param name="bRef" select="@bRef"/></xsl:call-template>
        <xsl:call-template name="excludedDimensionsValues"><xsl:with-param name="bRef" select="@bRef"/></xsl:call-template>
+
+       <xsl:for-each select="cube:VDM/cube:Map">
+         <xsl:variable name="list">
+           <xsl:call-template name="replaceString">
+             <xsl:with-param name="str" select="@from"/>
+             <xsl:with-param name="find" select="'&#xe0f2;'"/>
+             <xsl:with-param name="replacement" select="', '"/>
+           </xsl:call-template>
+         </xsl:variable>
+         <li><xsl:value-of select="@to"/>: <xsl:value-of select="$list"/></li>
+       </xsl:for-each>
+
     </xsl:variable>
 
     <!-- If there are messages, output them together with the dimension's caption -->
