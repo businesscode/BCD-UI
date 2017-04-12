@@ -137,11 +137,8 @@ public class ErrorLogEvent {
 
   // ==========================================================================
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
-    return "" + getMessage() + "\nURL:" + getRequestUrl() + (this.data != null ? "\nData: " + data : "");
+    return "" + getMessage() + " | URL:" + getRequestUrl() + (this.data != null ? " | Data: " + data.replaceAll("\r\n", "") : "");
   }
 }
