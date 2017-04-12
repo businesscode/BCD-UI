@@ -36,6 +36,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
+import de.businesscode.util.xml.SecureSAXParserFactory;
 
 
 /**
@@ -78,7 +79,7 @@ public class FrontendLogTransceiver extends HttpServlet {
       sw.write("<?xml version=\"1.0\"?>"); sw.write(req.getParameter("data"));sw.flush();
       log.error(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
 
-      SAXParserFactory.newInstance().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
+      SecureSAXParserFactory.newInstance().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
         private String level;
         private StringBuilder messageBuilder = new StringBuilder();
         private boolean insideMessage=false;
