@@ -15,9 +15,14 @@
 */
 package de.businesscode.bcdui.web;
 
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+import org.apache.log4j.Logger;
+
+import de.businesscode.bcdui.logging.LogoutSqlLogger;
+import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 
 public class SessionListener implements HttpSessionListener{
@@ -28,6 +33,13 @@ public class SessionListener implements HttpSessionListener{
   }
 
   @Override
-  public void sessionDestroyed(HttpSessionEvent arg0) {
+  public void sessionDestroyed(HttpSessionEvent se) {
+    HttpSession session = se.getSession();
+
+    // we use logging on RequestLifeCycleFilter
+    Logger logger = Logger.getLogger(de.businesscode.bcdui.web.filters.RequestLifeCycleFilter.class);
+
+    logger.debug(new SessionExpiredSqlLogger.LogRecord(session.getId()));
+    logger.debug(new LogoutSqlLogger.LogRecord(session.getId()));
   }
 }

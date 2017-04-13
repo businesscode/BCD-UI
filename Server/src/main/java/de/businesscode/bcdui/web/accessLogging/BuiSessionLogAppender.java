@@ -17,8 +17,9 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
+
+import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
 import de.businesscode.bcdui.logging.SessionSqlLogger;
-import de.businesscode.bcdui.logging.SessionSqlLogger.LogRecord;
 
 public class BuiSessionLogAppender extends AppenderSkeleton {
 
@@ -31,11 +32,12 @@ public class BuiSessionLogAppender extends AppenderSkeleton {
 
   @Override
   protected void append(LoggingEvent event) {
-    if (event.getMessage() instanceof SessionSqlLogger.LogRecord) {
-      LogRecord sessionLogEvent = (SessionSqlLogger.LogRecord) event.getMessage();
-      if(SessionSqlLogger.getInstance().isEnabled()) {
-        SessionSqlLogger.getInstance().process(sessionLogEvent);
-      }
+    if (event.getMessage() instanceof SessionSqlLogger.LogRecord && SessionSqlLogger.getInstance().isEnabled()) {
+      // Session log
+      SessionSqlLogger.getInstance().process( (SessionSqlLogger.LogRecord) event.getMessage() );
+    } else if (event.getMessage() instanceof SessionExpiredSqlLogger.LogRecord && SessionExpiredSqlLogger.getInstance().isEnabled()) {
+      // Session expiry log
+      SessionExpiredSqlLogger.getInstance().process( (SessionExpiredSqlLogger.LogRecord) event.getMessage() );
     }
   }
 

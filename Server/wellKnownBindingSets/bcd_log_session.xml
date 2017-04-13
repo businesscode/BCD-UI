@@ -20,8 +20,9 @@
   <C id="logTime" type-name="TIMESTAMP"><Column>log_time</Column></C>
   <C id="sessionId" type-name="VARCHAR"><Column>session_id</Column></C>
   <C id="userAgent" type-name="VARCHAR"><Column>user_agent</Column></C>
-  <C id="remoteAddr" type-name="VARCHAR">  <Column>remote_addr</Column></C>
+  <C id="remoteAddr" type-name="VARCHAR"><Column>remote_addr</Column></C>
   <C id="userName" type-name="VARCHAR"><Column>user_name</Column></C>
   <C id="loginResult" type-name="VARCHAR"><Column>login_result</Column></C>
+  <C id="sessionExpiredTime" type-name="TIMESTAMP"><Column>session_exp_time</Column></C>
 
 </BindingSet>

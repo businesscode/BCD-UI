@@ -17,8 +17,9 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
+
 import de.businesscode.bcdui.logging.LoginSqlLogger;
-import de.businesscode.bcdui.logging.LoginSqlLogger.LogRecord;
+import de.businesscode.bcdui.logging.LogoutSqlLogger;
 
 public class BuiLoginLogAppender extends AppenderSkeleton {
 
@@ -31,11 +32,12 @@ public class BuiLoginLogAppender extends AppenderSkeleton {
 
   @Override
   protected void append(LoggingEvent event) {
-    if (event.getMessage() instanceof LoginSqlLogger.LogRecord) {
-      LogRecord loginLogEvent = (LoginSqlLogger.LogRecord) event.getMessage();
-      if(LoginSqlLogger.getInstance().isEnabled()) {
-        LoginSqlLogger.getInstance().process(loginLogEvent);
-      }
+    if (event.getMessage() instanceof LoginSqlLogger.LogRecord && LoginSqlLogger.getInstance().isEnabled()) {
+      // Login event
+      LoginSqlLogger.getInstance().process( (LoginSqlLogger.LogRecord) event.getMessage() );
+    } else if (event.getMessage() instanceof LogoutSqlLogger.LogRecord && LogoutSqlLogger.getInstance().isEnabled()) {
+      // Session expire event
+      LogoutSqlLogger.getInstance().process( (LogoutSqlLogger.LogRecord) event.getMessage() );
     }
   }
 
