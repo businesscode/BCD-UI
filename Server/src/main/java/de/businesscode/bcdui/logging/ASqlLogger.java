@@ -102,10 +102,21 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
       log.trace("processing logs #" + records.size());
     }
     try {
-      new QueryRunner(getDataSource()).batch(sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, convertData(records));
+      executeStatement(convertData(records));
     } catch (SQLException e) {
       log.warn("failed pushing logs to database", e);
     }
+  }
+
+  /**
+   * executes statement with raw parameters and returns number of updated rows
+   *
+   * @param params
+   * @return The number of rows updated per statement
+   * @throws SQLException
+   */
+  protected int[] executeStatement(Object[][] params) throws SQLException {
+    return new QueryRunner(getDataSource()).batch(sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, params);
   }
 
   /**
