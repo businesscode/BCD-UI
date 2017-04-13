@@ -48,6 +48,7 @@
               <li>New widget: Added dropDown Button functionality</li>
               <li>PeriodChooser has quick-pick options for LastDay/Week/Month (depending on the allowed options)</li>
               <li>DimensionChooser has new parameter to limit number of shown levels</li>
+              <li>SideBySideChooser has new parameter doSortOptions to enable/disable sorting of optionsmodel (default is true)</li>
             </ul>
           </li>
           <li>Core

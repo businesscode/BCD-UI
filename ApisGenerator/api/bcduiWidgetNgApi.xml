@@ -558,6 +558,9 @@
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
         </Param>
+        <Param name="doSortOptions" required="false" type="boolean" default="true">
+          <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
+        </Param>
       </Api>
       
       <Api name="connectable" extends="widget">

@@ -72,7 +72,7 @@
           , className: "bcdSbscList"
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
-          , doSortOptions: true // maybe a future optional parameter
+          , doSortOptions: this.options.doSortOptions
           // generateItemHtml - we use standard rendering
           , hint: this.options.hint
           // id - we already use the id for outer rendering and scope, so let the widget generate its own
