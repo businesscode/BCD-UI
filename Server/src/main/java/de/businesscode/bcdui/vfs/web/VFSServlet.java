@@ -32,9 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -44,9 +41,10 @@ import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.cache.CacheFactory;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
-import de.businesscode.bcdui.web.wrs.SOAPFaultMessage;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 
 /**
  * implements following REST API to upload binary data using file streaming API of apache commons-fileupload,
@@ -93,24 +91,6 @@ public class VFSServlet extends HttpServlet {
   }
 
   /**
-   * for custom exception handling, see {@link #doPost(HttpServletRequest, HttpServletResponse)} and {@link #doDelete(HttpServletRequest, HttpServletResponse)} documentation
-   *
-   * @param req
-   * @param resp
-   * @throws ServletException
-   * @throws IOException
-   */
-  @Override
-  protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    try{
-      super.service(req, resp);
-    } catch (CustomException pe){
-      logger.error("custom exception catched", pe);
-      handleException(req, resp, pe);
-    }
-  }
-
-  /**
    * TODO
    * API: pathInfo contains identifier (path) to delete delimited via space
    *
@@ -129,8 +109,6 @@ public class VFSServlet extends HttpServlet {
       fileDao = createFileDao(req);
       fileDao.delete(Arrays.asList(urisToDelete.split(" ")));
       fileDao.commit();
-    } catch (CustomException e) {
-      throw e;
     } catch (Exception e) {
       throw new IOException("an exception stopped us", e);
     }
@@ -151,28 +129,6 @@ public class VFSServlet extends HttpServlet {
     }
 
     processSaveRequest(req);
-  }
-
-  /**
-   * POST method exception handler, the default behaviour is to answer with http status PostException.httpStatusCode
-   * and serialize exception as SOAP
-   *
-   * @param req
-   * @param resp
-   * @param pe
-   */
-  protected void handleException(HttpServletRequest req, HttpServletResponse resp, CustomException pe) throws ServletException {
-    try {
-      resp.sendError(pe.httpStatus,"FAIL");
-      resp.setContentType("text/xml");
-      resp.setCharacterEncoding("UTF-8");
-      // we dont want to have cause sent to client
-      CustomException nce = new CustomException(pe.httpStatus, pe.getMessage());
-      SOAPFaultMessage sf = new SOAPFaultMessage(null, req.getRequestURL().toString(), nce);
-      sf.writeTo(resp.getOutputStream());
-    } catch (Exception e) {
-      throw new ServletException("failed to serialize custom exception", e);
-    }
   }
 
   /**
@@ -208,8 +164,6 @@ public class VFSServlet extends HttpServlet {
       fileDao.commit();
 
       updateDictionary(fileDao.getWrittenFiles());
-    } catch (CustomException e) {
-      throw e;
     } catch (Exception e) {
       throw new IOException("an exception stopped us", e);
     }
@@ -399,11 +353,7 @@ public class VFSServlet extends HttpServlet {
           Closer.closeAllSQLObjects(ps, con);
           ps=null;
         }
-        if(e instanceof CustomException){
-          throw (CustomException)e;
-        }else{
-          throw new RuntimeException(e);
-        }
+        throw new RuntimeException(e);
       } finally {
         Closer.closeAllSQLObjects(ps);
       }
@@ -454,30 +404,6 @@ public class VFSServlet extends HttpServlet {
           Closer.closeAllSQLObjects(con);
         }
       }
-    }
-  }
-
-  /**
-   * a custom unchecked exception
-   *
-   *
-   */
-  protected static class CustomException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
-    final int httpStatus;
-
-    public CustomException(int httpStatus, String messageBody) {
-      super(messageBody);
-      this.httpStatus = httpStatus;
-    }
-
-    public CustomException(int httpStatus, Exception e) {
-      super(e);
-      this.httpStatus = httpStatus;
-    }
-
-    public CustomException(int httpStatus) {
-      this.httpStatus = httpStatus;
     }
   }
 }
