@@ -15,9 +15,9 @@
 */
 package de.businesscode.bcdui.wrs.save.exc;
 
-import de.businesscode.bcdui.web.wrs.SOAPFaultMessage;
 import de.businesscode.bcdui.wrs.save.DataSaver;
 import de.businesscode.bcdui.wrs.validation.WrsValidationResult;
+import de.businesscode.util.SOAPFaultMessage;
 
 /**
  * validation exception that may be thrown by {@link DataSaver} or another class of WRS components

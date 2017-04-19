@@ -40,7 +40,7 @@ import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.vfs.provider.database.DatabaseFileSystemConfigBuilder;
-import de.businesscode.bcdui.web.wrs.SOAPFaultMessage;
+import de.businesscode.util.SOAPFaultMessage;
 
 
 

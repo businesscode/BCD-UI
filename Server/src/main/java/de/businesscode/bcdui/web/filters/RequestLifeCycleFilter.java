@@ -40,7 +40,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
-import de.businesscode.bcdui.web.wrs.SOAPFaultMessage;
+import de.businesscode.util.SOAPFaultMessage;
 
 
 /**

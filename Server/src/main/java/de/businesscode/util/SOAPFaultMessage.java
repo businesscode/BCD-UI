@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package de.businesscode.bcdui.web.wrs;
+package de.businesscode.util;
 
 import static de.businesscode.bcdui.wrs.load.WrsDataWriter.WRS_XML_NAMESPACE;
 
