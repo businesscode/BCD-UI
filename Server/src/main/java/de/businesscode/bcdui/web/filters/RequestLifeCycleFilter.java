@@ -40,6 +40,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
+import de.businesscode.bcdui.web.wrs.SOAPFaultMessage;
 
 
 /**
@@ -104,8 +105,16 @@ public class RequestLifeCycleFilter implements Filter {
       } catch (SQLException e) {
         log.error("Error during rollback.",e);
       }
-      // Root exception is handled by sending a SOAP message locally. TODO could be done here centrally
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+      if(!response.isCommitted()){
+        try {
+          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          // response a SOAPFault with no details to the client
+          SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, null, "Request could not be processed.");
+        } catch (Exception e) {
+          ; // ignore
+        }
+      }
     } finally {
       requestTaggingFlag.remove();
       afterChain(url, request, response, isTransceiver, isDebug);

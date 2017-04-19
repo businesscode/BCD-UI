@@ -40,49 +40,45 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
+import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.bcdui.wrs.save.SQLDetailException;
 import de.businesscode.bcdui.wrs.save.exc.WrsValidationException;
 
-
+/**
+ * <p>
+ * Utility class to create a {@link SOAPFault}
+ * </p>
+ * <p>
+ * Due to security concerns the server should never reveal exception internals to the client,
+ * rather respond with a general message. Generally, the {@link RequestLifeCycleFilter} does
+ * so in case a request failed to process due to a thrown exception.
+ * </p>
+ * <p>However, sometimes you want to respond with a business-exception to the client (yet yielding
+ * a positive http response status) so it knows what went wrong and why. In such a case
+ * you can handle a business exception in your servlet implementation and respond with a
+ * SOAPFault using this class.
+ * </p>
+ */
 public class SOAPFaultMessage {
   private SOAPMessage message;
   private Logger logger = Logger.getLogger(getClass());
 
   /**
    * Convenience method to write a SOAP massage response. The responseOutputStream must not be opened yet.
-   * It captures all Exceptions happening during that and writes them to log
+   * It captures all Exceptions happening during that and writes them to log. The http response status is NOT set
+   * by this method. The response content-type is set to 'text/xml'.
    * @param resp
-   * @param requestDocument
-   * @param requestURL
-   * @param message
+   * @param requestDocument - optional request document to serialize into SOAPFault
+   * @param requestURL - optional URL to appear in SOAPFault
+   * @param faultException - optional exception caused this fault, must not reveal security relevant facts
+   * @param faultMessage - optional literal message provided as FaultReason in SOAPFault must not reveal security relevant facts
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static public boolean writeSOAPFaultToHTTPResponse(HttpServletResponse resp, Document requestDocument, String requestURL, String message)
+  static public boolean writeSOAPFaultToHTTPResponse(HttpServletResponse resp, Document requestDocument, String requestURL, Throwable faultException, String faultMessage)
   {
     try {
       resp.setContentType("text/xml");
-      return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, new Exception(message));
-    } catch( IOException e ) {
-      Logger.getLogger(SOAPFaultMessage.class).error(e+" for "+requestURL);
-      return false;
-    }
-  }
-
-
-  /**
-   * Convenience method to write a SOAP massage response. The responseOutputStream must not be opened yet.
-   * It captures all Exceptions happening during that and writes them to log
-   * @param resp
-   * @param requestDocument
-   * @param requestURL
-   * @param faultException
-   * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
-   */
-  static public boolean writeSOAPFaultToHTTPResponse(HttpServletResponse resp, Document requestDocument, String requestURL, Throwable faultException)
-  {
-    try {
-      resp.setContentType("text/xml");
-      return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, faultException);
+      return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, faultException, faultMessage);
     } catch( Exception e ) {
       Logger.getLogger(SOAPFaultMessage.class).error(e+" causer "+faultException+" for "+requestURL);
       return false;
@@ -90,18 +86,17 @@ public class SOAPFaultMessage {
   }
 
   /**
-   * Convenience method to write a SOAP massage response. The responseOutputStream must not be opened yet.
-   * It captures all Exceptions happening during that and writes them to log
+   * Convenience method to write a SOAP message response. The responseOutputStream must not be opened yet.
+   * It captures all Exceptions happening during that and writes them to log. The http response status is NOT set
+   * by this method. The response content-type is set to 'text/xml'.
    * @param request
    * @param response
-   * @param faultException
+   * @param faultException - optional exception caused this fault, must not reveal security relevant facts
+   * @param message - must not reveal security relevant facts
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static public boolean writeSOAPFaultToHTTPResponse(HttpServletRequest request, HttpServletResponse response, Exception faultException) {
-    Document requestDocument = (Document) request.getAttribute("guiStatusDoc");
-    String requestURL = ServletUtils.getInstance().reconstructURL(request);
-    //
-    return writeSOAPFaultToHTTPResponse(response, requestDocument, requestURL, faultException);
+  static public boolean writeSOAPFaultToHTTPResponse(HttpServletRequest request, HttpServletResponse response, Exception faultException, String faultMessage) {
+    return writeSOAPFaultToHTTPResponse(response, (Document) request.getAttribute("guiStatusDoc"), ServletUtils.getInstance().reconstructURL(request), faultException, faultMessage);
   }
 
   /**
@@ -110,11 +105,12 @@ public class SOAPFaultMessage {
    * @param requestDocument
    * @param requestURL
    * @param faultException
+   * @param faultMessage
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static public boolean writeSOAPFault(OutputStream os, Document requestDocument, String requestURL, Throwable faultException) {
+  static private boolean writeSOAPFault(OutputStream os, Document requestDocument, String requestURL, Throwable faultException, String faultMessage) {
     try {
-      SOAPFaultMessage sFM = new SOAPFaultMessage(requestDocument, requestURL, faultException);
+      SOAPFaultMessage sFM = new SOAPFaultMessage(requestDocument, requestURL, faultException, faultMessage);
       sFM.writeTo(os);
     } catch( Exception e ) {
       Logger.getLogger(SOAPFaultMessage.class).error(faultException,faultException);
@@ -126,12 +122,13 @@ public class SOAPFaultMessage {
   /**
    * SOAPFaultMessage
    *
-   * @param requestDocument
-   * @param requestURL
-   * @param faultException
+   * @param requestDocument - optional request document to serialize into SOAPFault
+   * @param requestURL - optional URL to appear in SOAPFault
+   * @param faultException - optional exception caused this fault
+   * @param faultMessage - optional literal message provided as FaultReason in SOAPFault
    */
-  public SOAPFaultMessage(Document requestDocument, String requestURL, Throwable faultException) throws SOAPException {
-    this.message = createMessage(requestDocument, requestURL, faultException);
+  public SOAPFaultMessage(Document requestDocument, String requestURL, Throwable faultException, String message) throws SOAPException {
+    this.message = createMessage(requestDocument, requestURL, faultException, message);
   }
 
   /**
@@ -152,20 +149,26 @@ public class SOAPFaultMessage {
   }
 
   /**
-   * @param requestDocument
-   * @param requestURL
-   * @param faultException
+   * @param requestDocument - optional request document to serialize into SOAPFault
+   * @param requestURL - optional URL to appear in SOAPFault
+   * @param faultException - optional exception caused this fault
+   * @param faultMessage - optional literal message provided as FaultReason in SOAPFault
    * @return the newly created message
    * @throws SOAPException
    */
-  private SOAPMessage createMessage(Document requestDocument, String requestURL, Throwable faultException) throws SOAPException {
+  private SOAPMessage createMessage(Document requestDocument, String requestURL, Throwable faultException, String faultMessage) throws SOAPException {
     SOAPMessage message = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage();
     SOAPBody body = message.getSOAPBody();
     //
     // write fault part
     SOAPFault fault = body.addFault();
     fault.setFaultCode(SOAPConstants.SOAP_SENDER_FAULT); // TODO analyze exception and send the right code. Later.
-    fault.addFaultReasonText(faultException.getMessage(), Locale.ENGLISH);
+    // faultMessage takes precedence
+    if(faultMessage != null){
+      fault.addFaultReasonText(faultMessage, Locale.ENGLISH);
+    } else if(faultException != null){
+      fault.addFaultReasonText(faultException.getMessage(), Locale.ENGLISH);
+    }
     //
     // write body part
     Detail detailNode = fault.addDetail();
@@ -196,11 +199,11 @@ public class SOAPFaultMessage {
     if (exception != null) {
       SOAPElement element = rootElement.addChildElement("Cause", "");
       element.addAttribute(new QName("class"), exception.getClass().getName());
+      // skip SQL details
       if (exception.getMessage() != null && ! (exception instanceof SQLDetailException) ) {
         element.addTextNode(exception.getMessage());
-      } else {
-        logger.error(exception.getMessage());
       }
+      // serialize WrsValidationException
       if(exception instanceof WrsValidationException) {
         WrsValidationException wrsExc = (WrsValidationException)exception;
         XMLStreamWriter sw = null;
@@ -209,15 +212,13 @@ public class SOAPFaultMessage {
           wrsExc.getValidationResult().serializeTo(sw);
           sw.flush();
         } catch (Exception e) {
-          // we're in trouble
           logger.error("serialization of WrsValidationException failed", e);
-          writeExceptionAsSoapDetails(rootElement, e);
+          rootElement.setTextContent("WrsValidationException serialization failed.");
         } finally {
           if(sw != null) {
             try {
               sw.close();
             } catch (Exception e) {
-              logger.warn("failed to close stream writer to WrsValidationException serialization", e);
             }
           }
         }

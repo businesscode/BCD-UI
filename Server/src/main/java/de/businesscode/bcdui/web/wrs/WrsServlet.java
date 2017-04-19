@@ -171,20 +171,17 @@ public class WrsServlet extends HttpServlet {
       // no need to log Exception 'Connection reset by peer: socket write error'
       if (e.getMessage().indexOf("Connection reset by peer") < 0){
         log.error(new ErrorLogEvent("SocketException while processing the WRS-request.", request), e);
-        SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
         throw new ServletException(e);  // Trigger rollback
       }
     }
     catch (InvocationTargetException e) {
       if( e.getCause() instanceof Exception) {
         log.error(new ErrorLogEvent("InvocationTargetException while processing the WRS-request.", request), e);
-        SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, (Exception)e.getCause());
       }
       throw new ServletException(e.getTargetException());  // Trigger rollback
     }
     catch (Exception e) {
       log.error(new ErrorLogEvent("Exception while processing the WRS-request.", request), e);
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
       throw new ServletException(e); // Trigger rollback
     }
     finally {
@@ -249,17 +246,8 @@ public class WrsServlet extends HttpServlet {
         tagUpdate(request.getPathInfo());
       }
     }
-    catch (XMLStreamException e) {
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
-      throw new ServletException(e);  // Re-throw to trigger rollback and logging
-    }
-    catch (FactoryConfigurationError e) {
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, new Exception(e));
-      throw new ServletException(e);
-    }
     catch (Exception e) {
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
-      throw new ServletException(e);
+      throw new ServletException(e);  // Re-throw to trigger rollback and logging
     }
   }
 

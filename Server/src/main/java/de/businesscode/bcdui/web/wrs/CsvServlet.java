@@ -101,13 +101,12 @@ public class CsvServlet extends HttpServlet {
     catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
       if (e.getMessage().indexOf("Connection reset by peer") < 0){
-        SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
         log.error(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
       }
     }
     catch (Exception e) {
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
       log.error(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
+      throw new ServletException(e);
     }
     finally {
       try {

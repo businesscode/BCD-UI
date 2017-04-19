@@ -42,7 +42,6 @@ public class WrsNextIdentifierServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private final Logger log = Logger.getLogger(getClass());
 
-  // SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
   /**
    * provides next identifier
    * the SCOPE is retrieved from pathInfo
@@ -86,8 +85,7 @@ public class WrsNextIdentifierServlet extends HttpServlet {
 
       response.getWriter().append(sb.toString());
     } catch (Exception e) {
-      log.error("error caught", e);
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, e);
+      throw new ServletException(e);
     }
   }
 

@@ -142,7 +142,7 @@ public class StaticResourceServlet extends HttpServlet {
       // Obviously this only works for ressources under control of this Servlet, but
       // 1) Setting a 404 jsp error page for tomcat would not allow to include the response in bcdui.jar
       // 2) At the end this is a workaround for MSXML6+non-required includes, which only makes sense for vfs anyway
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(req, resp, new Exception("Not found: "+resource.getPath()));
+      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(req, resp, null, "Not Found");
       return;
     }
 
