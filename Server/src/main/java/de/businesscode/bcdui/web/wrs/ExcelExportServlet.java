@@ -38,6 +38,7 @@ import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
 import de.businesscode.bcdui.wrs.export.Wrs2Excel;
+import de.businesscode.util.Utils;
 
 /**
  * Servlet utilizing POI class to create xslx files
@@ -129,7 +130,7 @@ public class ExcelExportServlet extends HttpServlet {
         requestUrl += (reqQuery != null ? "?" + reqQuery : "");
         if (requestUrl.length()> 4000)
           requestUrl = requestUrl.substring(0, 4000);
-        final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(req.getSession(false).getId(), requestUrl, pageHash);
+        final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(Utils.getSessionId(req, false), requestUrl, pageHash);
         log.debug(logRecord);
       }
 

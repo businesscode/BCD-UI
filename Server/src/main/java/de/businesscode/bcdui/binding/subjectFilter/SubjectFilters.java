@@ -85,9 +85,11 @@ public class SubjectFilters {
     SubjectSettings settings = SubjectSettings.getInstance();
     getPlainFilters().forEach(sf -> {
       String subjectFilter = sf.getType();
-      Object attr = session.getAttribute(SubjectSettings.permissionAttributePrefix + subjectFilter);
-      if (attr != null && "*".equals(attr.toString()))
-        return;
+      if(session != null){
+        Object attr = session.getAttribute(SubjectSettings.permissionAttributePrefix + subjectFilter);
+        if (attr != null && "*".equals(attr.toString()))
+          return;
+      }
       SubjectFilterType ft = settings.getSubjectFilterTypeByName(subjectFilter);
       if (subject.isPermitted(ft.getName() + ":*"))
         return;

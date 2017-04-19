@@ -27,11 +27,14 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -43,13 +46,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.DOMException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class Utils {
   private static String bcduiVersion;
+  /**
+   * custom session id http servlet request attribute name, see {@link #getSessionId(HttpServletRequest, boolean)}
+   */
+  private static String REQUEST_ATTR_CUSTOM_SESSION_ID = "bcdCustomSessionId";
 
   /**
    * privides the default Calendar object with preset GERMAN locale.
@@ -273,6 +280,38 @@ public class Utils {
     public long skip(long n) throws IOException {
       return is.skip(n);
     }
+  }
+
+  /**
+   * Retrieves a session id from the session of given request, handles null-sessions with
+   * non stable IDs created locally and stored in request. Sometimes you want to have an
+   * ID for logging even for anonymous users, yet not forcing session creation on the container,
+   * then this is perfect method to use.
+   *
+   * @param httpServletRequest -  to retrieve session id from; no session will be created
+   *                              for this request if there is no existing unless forceSessionCreate
+   *                              is set to true
+   * @param forceSessionCreate -  force or not the creation of a session in case there is no
+   *                              existing for current request. If session creation is not forced,
+   *                              then the returned ID is considered unstable between multiple
+   *                              requests.
+   *
+   * @return either ID of the http-session (if session is available) or a locally created identifier
+   * which remains stable for the current servlet-request only. In case the ID is not retrieved from
+   * a session, it is prefixed with 'bcd_'.
+   */
+  static public String getSessionId(HttpServletRequest httpServletRequest, boolean forceSessionCreate){
+    HttpSession session = httpServletRequest.getSession(forceSessionCreate);
+    if(session != null){
+      return session.getId();
+    }
+    String id = (String)httpServletRequest.getAttribute(REQUEST_ATTR_CUSTOM_SESSION_ID);
+    if(id == null){
+      // create pseudo ID and store in current request object, keep smaller in size
+      id = "bcd_" + DigestUtils.md5Hex(UUID.randomUUID().toString());
+      httpServletRequest.setAttribute(REQUEST_ATTR_CUSTOM_SESSION_ID, id);
+    }
+    return id;
   }
 
 }

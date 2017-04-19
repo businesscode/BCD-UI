@@ -41,6 +41,7 @@ import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
 import de.businesscode.util.SOAPFaultMessage;
+import de.businesscode.util.Utils;
 
 
 /**
@@ -138,7 +139,7 @@ public class RequestLifeCycleFilter implements Filter {
    *          to obtain session id from
    */
   private void enableClientEventQueue(HttpServletRequest request) {
-    MDC.put(MDC_KEY_IS_CLIENT_LOG, request.getSession(false).getId());
+    MDC.put(MDC_KEY_IS_CLIENT_LOG, Utils.getSessionId(request, false));
     FrontendLoggingFacility.deployLogger();
   }
 
@@ -155,8 +156,11 @@ public class RequestLifeCycleFilter implements Filter {
     if (Configuration.isCacheDisabled())
       response.setHeader("Cache-Control", "no-cache; no-store");
 
-    final HttpSession session = request.getSession(true);
-    MDC.put(MDC_KEY_SESSION_ID, session.getId());
+    // session MAY be null
+    final HttpSession session = request.getSession(false);
+    // sessionId is never null
+    final String sessionId = Utils.getSessionId(request, false);
+    MDC.put(MDC_KEY_SESSION_ID, sessionId);
     
     String uri = request.getRequestURI().toLowerCase();
     int idx = uri.indexOf(";jsessionid=");
@@ -174,11 +178,12 @@ public class RequestLifeCycleFilter implements Filter {
     if (pageHash != null)    MDC.put(MDC_KEY_BCD_PAGEHASH, pageHash);
 
     // log session once
-    if (SessionSqlLogger.getInstance().isEnabled()) {
+    if (session != null && SessionSqlLogger.getInstance().isEnabled()) {
+      // attribute created in de.businesscode.bcdui.web.SessionListener
       String sessionCreated = (String)session.getAttribute(SESSION_KEY_BCD_SESSIONCREATED);
       if (sessionCreated != null) {
         session.removeAttribute(SESSION_KEY_BCD_SESSIONCREATED);
-        final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(session.getId(), request.getHeader("user-agent"), request.getRemoteHost());
+        final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost());
         log.debug(record);
       }
     }
@@ -188,12 +193,12 @@ public class RequestLifeCycleFilter implements Filter {
       try {
         org.apache.shiro.session.Session shiroSession = SecurityUtils.getSubject() != null ? SecurityUtils.getSubject().getSession(false) : null;
         if (shiroSession != null) {
-          String userName = (String) SecurityUtils.getSubject().getSession(false).getAttribute("BCD_LOGIN_USER");
+          String userName = (String) shiroSession.getAttribute("BCD_LOGIN_USER");
           LOGIN_RESULTS result = (LOGIN_RESULTS) shiroSession.getAttribute("BCD_LOGIN_RESULT");
           if (userName != null && result != null) {
             shiroSession.removeAttribute("BCD_LOGIN_USER");
             shiroSession.removeAttribute("BCD_LOGIN_RESULT");
-            final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(session.getId(), request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
+            final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
             log.debug(record);
           }
         }

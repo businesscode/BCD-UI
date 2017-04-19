@@ -81,7 +81,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     // Loop over the SubjectFilters of the BindingSet
     SubjectSettings settings = SubjectSettings.getInstance();
     Subject subject = SecurityUtils.getSubject();
-    Session session = subject.getSession(false);
+    Session session = subject.getSession();
 
     final StringBuilder whereClause = new StringBuilder();
 

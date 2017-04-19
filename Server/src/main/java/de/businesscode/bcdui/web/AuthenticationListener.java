@@ -23,6 +23,7 @@ import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
@@ -43,13 +44,14 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
       result = LOGIN_RESULTS.EXCESSIVE_ATTEMPTS;
     else if (arg1 instanceof AuthenticationException)
       result = LOGIN_RESULTS.FAILED;
-    SecurityUtils.getSubject().getSession(true).setAttribute("BCD_LOGIN_USER", userName);
-    SecurityUtils.getSubject().getSession(true).setAttribute("BCD_LOGIN_RESULT", result);
+    Session session = SecurityUtils.getSubject().getSession();
+    // even create a session for failed login attempt
+    session.setAttribute("BCD_LOGIN_USER", userName);
+    session.setAttribute("BCD_LOGIN_RESULT", result);
   }
 
   @Override
   public void onLogout(PrincipalCollection arg0) {
-    // TODO Auto-generated method stub
     
   }
 
@@ -57,7 +59,8 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
   public void onSuccess(AuthenticationToken arg0, AuthenticationInfo arg1) {
     String userName = arg0.getPrincipal().toString();
     LOGIN_RESULTS result = LOGIN_RESULTS.OK;
-    SecurityUtils.getSubject().getSession(true).setAttribute("BCD_LOGIN_USER", userName);
-    SecurityUtils.getSubject().getSession(true).setAttribute("BCD_LOGIN_RESULT", result);
+    Session session = SecurityUtils.getSubject().getSession(); 
+    session.setAttribute("BCD_LOGIN_USER", userName);
+    session.setAttribute("BCD_LOGIN_RESULT", result);
   }
 }
