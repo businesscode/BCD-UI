@@ -16,7 +16,9 @@
 package de.businesscode.bcdui.logging;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 
@@ -41,6 +43,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
    */
   public static final class LogRecord {
     final String sessionId;
+    final Date stamp = new Date();
 
     public LogRecord(String sessionId) {
       super();
@@ -55,7 +58,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
 
   private final static String TPL_UPDATE_STMT =
       "#set($b = $bindings.bcd_log_session)" +
-          " UPDATE $b.plainTableName SET $b.sessionExpiredTime- =CURRENT_TIMESTAMP where $b.sessionId- = ?";
+          " UPDATE $b.plainTableName SET $b.sessionExpiredTime- = ? where $b.sessionId- = ?";
 
   protected SessionExpiredSqlLogger() {
     super("bcd_log_session",
@@ -103,6 +106,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
     int cnt=0;
     for(LogRecord record: records){
       data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
         record.sessionId
       };
     }

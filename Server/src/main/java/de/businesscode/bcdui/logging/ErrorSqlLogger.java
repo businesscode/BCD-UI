@@ -15,7 +15,9 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
@@ -38,7 +40,7 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
    *
    */
   public static final class LogRecord {
-
+    final Date stamp;
     String sessionId;
     String pageHash;
     String requestHash;
@@ -58,6 +60,7 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
       this.message = message;
       this.stackTrace = stackTrace;
       this.revision = revision;
+      this.stamp = new Date();
     }
 
     @Override
@@ -69,7 +72,8 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_error)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.sessionId-" +
+          "   $b.logTime-" +
+          ",  $b.sessionId-" +
           ",  $b.pageHash-" +
           ",  $b.requestHash-" +
           ",  $b.logLevel-" +
@@ -77,7 +81,7 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
           ",  $b.message-" +
           ",  $b.stackTrace-" +
           ",  $b.revision-" +
-          ") VALUES (?,?,?,?,?,?,?,?)";
+          ") VALUES (?,?,?,?,?,?,?,?,?)";
 
   protected ErrorSqlLogger() {
     super("bcd_log_error",
@@ -112,16 +116,17 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
 
     int cnt=0;
     for(LogRecord record: records){
-      Object[] row = data[cnt++] = new Object[8];
-
-      row[0] = record.sessionId;
-      row[1] = record.pageHash;
-      row[2] = record.requestHash;
-      row[3] = record.logLevel;
-      row[4] = record.requestUrl;
-      row[5] = record.message;
-      row[6] = record.stackTrace;
-      row[7] = record.revision;
+      data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
+        record.sessionId,
+        record.pageHash,
+        record.requestHash,
+        record.logLevel,
+        record.requestUrl,
+        record.message,
+        record.stackTrace,
+        record.revision
+      };
     }
 
     return data;

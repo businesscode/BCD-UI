@@ -15,7 +15,9 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
@@ -38,6 +40,7 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
    *
    */
   public static final class LogRecord {
+    final Date stamp;
     String sessionId;
     String pageHash;
     String requestHash;
@@ -65,6 +68,7 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
       this.rsEndTime = rsEndTime;
       this.writeDuration = writeDuration;
       this.executeDuration = executeDuration;
+      this.stamp = new Date();
     }
 
     @Override
@@ -76,7 +80,8 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_access)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.sessionId-" +
+          "   $b.logTime-" +
+          ",  $b.sessionId-" +
           ",  $b.pageHash-" +
           ",  $b.requestHash-" +
           ",  $b.requestUrl-" +
@@ -88,7 +93,7 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
           ",  $b.rsEndTime-" +
           ",  $b.writeDuration-" +
           ",  $b.executeDuration-" +
-          ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+          ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   protected AccessSqlLogger() {
     super("bcd_log_access",
@@ -123,19 +128,21 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
 
     int cnt=0;
     for(LogRecord record: records){
-      Object[] row = data[cnt++] = new Object[12];
-      row[0] = record.sessionId;
-      row[1] = record.pageHash;
-      row[2] = record.requestHash;
-      row[3] = record.requestUrl;
-      row[4] = record.bindingSetName;
-      row[5] = record.requestXml;
-      row[6] = record.rowCount;
-      row[7] = record.valueCount;
-      row[8] = record.rsStartTime;
-      row[9] = record.rsEndTime;
-      row[10] = record.writeDuration;
-      row[11] = record.executeDuration;
+      data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
+        record.sessionId,
+        record.pageHash,
+        record.requestHash,
+        record.requestUrl,
+        record.bindingSetName,
+        record.requestXml,
+        record.rowCount,
+        record.valueCount,
+        record.rsStartTime,
+        record.rsEndTime,
+        record.writeDuration,
+        record.executeDuration
+      };
     }
 
     return data;

@@ -15,7 +15,9 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import org.w3c.dom.Document;
 
@@ -43,6 +45,7 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
    */
   public static final class LogRecord {
     String sessionId, url, pageHash;
+    final Date stamp = new Date();
 
     public LogRecord(String sessionId, String url, String pageHash) {
       super();
@@ -60,11 +63,12 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_page)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.sessionId-" +
+          "   $b.logTime-" +
+          ",  $b.sessionId-" +
           ",  $b.requestUrl-" +
           ",  $b.pageHash-" +
           ",  $b.guiStatus-" +
-          ") VALUES (?,?,?,?)";
+          ") VALUES (?,?,?,?,?)";
 
   protected PageSqlLogger() {
     super("bcd_log_page",
@@ -115,12 +119,13 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
         catch (Exception e) { guiStatus = null; }
       }
 
-      Object[] row = data[cnt++] = new Object[4];
-
-      row[0] = record.sessionId;
-      row[1] = record.url;
-      row[2] = record.pageHash;
-      row[3] = guiStatus;
+      data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
+        record.sessionId,
+        record.url,
+        record.pageHash,
+        guiStatus
+      };
     }
 
     return data;

@@ -15,7 +15,9 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
@@ -101,6 +103,7 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   public static final class LogRecord {
     final private String jdbcMethod;
     final private String sql;
+    final Date stamp = new Date();
     private long durationMs;
     private Integer rowsAffected;
     private String sessionId;
@@ -136,14 +139,15 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_sql)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.durationMs-" +
+          "   $b.logTime-" +
+          ",  $b.durationMs-" +
           ",  $b.rowsAffected-" +
           ",  $b.jdbcMethod-" +
           ",  $b.sql-" +
           ",  $b.sessionId-" +
           ",  $b.pageHash-" +
           ",  $b.requestHash-" +
-          ") VALUES (?,?,?,?,?,?,?)";
+          ") VALUES (?,?,?,?,?,?,?,?)";
 
 
   protected SqlToDatabaseLogger() {
@@ -180,15 +184,17 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
 
     int cnt=0;
     for(SqlToDatabaseLogger.LogRecord record: records){
-      Object[] row = data[cnt++] = new Object[7];
+      data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
+        record.durationMs,
+        record.rowsAffected,
+        record.jdbcMethod,
+        record.sql,
+        record.sessionId,
+        record.pageHash,
+        record.requestHash
+      };
 
-      row[0] = record.durationMs;
-      row[1] = record.rowsAffected;
-      row[2] = record.jdbcMethod;
-      row[3] = record.sql;
-      row[4] = record.sessionId;
-      row[5] = record.pageHash;
-      row[6] = record.requestHash;
     }
 
     return data;

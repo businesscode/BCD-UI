@@ -15,7 +15,9 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
@@ -39,6 +41,7 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
    */
   public static final class LogRecord {
     String sessionId, userAgent,remoteAddress;
+    final Date stamp = new Date();
 
     public LogRecord(String sessionId, String userAgent, String remoteAddress) {
       super();
@@ -56,10 +59,11 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_session)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.sessionId-" +
+          "   $b.logTime-" +
+          ",  $b.sessionId-" +
           ",  $b.userAgent-" +
           ",  $b.remoteAddr-" +
-          ") VALUES (?,?,?)";
+          ") VALUES (?,?,?,?)";
 
   protected SessionSqlLogger() {
     super("bcd_log_session",
@@ -94,11 +98,12 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
 
     int cnt=0;
     for(LogRecord record: records){
-      Object[] row = data[cnt++] = new Object[3];
-
-      row[0] = record.sessionId;
-      row[1] = record.userAgent;
-      row[2] = record.remoteAddress;
+      data[cnt++] = new Object[]{
+        new Timestamp(record.stamp.getTime()),
+        record.sessionId,
+        record.userAgent,
+        record.remoteAddress
+      };
     }
 
     return data;
