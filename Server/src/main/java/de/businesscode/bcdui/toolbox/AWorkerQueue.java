@@ -15,7 +15,6 @@
 */
 package de.businesscode.bcdui.toolbox;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,21 +27,24 @@ import org.apache.log4j.Logger;
 
 
 /**
- *
- * this is a worker with idle support and a queue
+ * <p>
+ * This is a worker with idle support and a queue
  * allows asynchronous processing of objects, supports
  * multi-object for batch processing and idle state to release resource if appropriate.
  * This worker has a Timer which is triggers queue-processing every queueDelayMs after a queue has been populated
  * via {@link #process(Object)} or {@link #process(Collection)}, you implement the {@link #processObjects(Collection)}
- * method to process batched objects gathered into the queue during queueDelayMs.
+ * method to process batched objects gathered into the queue during queueDelayMs. In a container environment you can
+ * gracefully {@link #shutdownQueues()} all queues by calling the method i.e. from context listener, in a standalone
+ * application you can do it via a shutdown hook
+ * </p>
  *
  */
 abstract public class AWorkerQueue<T> {
   public static final int DEFAULT_MAX_QUEUE_SIZE=50;      //when discard the objects
   /**
-   * keeps references to all Timers
+   * keep references to all queues
    */
-  private static final List<WeakReference<Timer>> timers = new LinkedList<WeakReference<Timer>>();
+  private static final List<AWorkerQueue<?>> queues = new LinkedList<AWorkerQueue<?>>();
 
   private Queue<T> queue = new LinkedList<T>();
   private int maxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
@@ -97,21 +99,48 @@ abstract public class AWorkerQueue<T> {
     }
 
     queueSleepTimer = new Timer(getClass().getName()+".QueueTimer", true);
-    timers.add(new WeakReference<Timer>(queueSleepTimer));
+    queues.add(this);
   }
 
   /**
-   * performs a global shutdown of all timer threads
+   * shuts down all queues
+   *
+   * @param discardQueuedObjects - if set to false, processes queued objects ( this happens in current thread ).
    */
-  public synchronized static void shutdown() {
-    for(WeakReference<Timer> tRef : timers){
-      Timer t = tRef.get();
-      if(t == null) continue;
-      t.purge();
-      t.cancel();
-      tRef.clear();
+  public static void shutdownQueues(boolean discardQueuedObjects) {
+    synchronized(queues){
+      while(!queues.isEmpty()){
+        queues.get(0).shutdown(discardQueuedObjects);
+      }
+      queues.clear();
     }
-    timers.clear();
+  }
+
+  /**
+   * shuts down the queue optinally processing queued objects,
+   * you cant reuse this queue after being shut down
+   *
+   * @param discardQueuedObjects - if set to false, the objects in the queue are processed in the current thread.
+   */
+  private void shutdown(boolean discardQueuedObjects){
+    if(log.isTraceEnabled()){
+      log.trace("shutting down " + getClass().getName() + ", discarding objects in queue: " + Boolean.toString(discardQueuedObjects));
+    }
+
+    synchronized(queues){
+      queues.remove(this);
+    }
+
+    queueSleepTimer.cancel();
+    queueSleepTimer.purge();
+
+    if(!discardQueuedObjects){
+      runProcessQueue();
+    }
+
+    if(idleWatchdog != null){
+      idleWatchdog.interrupt();
+    }
   }
 
   /**

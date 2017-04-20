@@ -57,7 +57,7 @@ public class BcdUiApplicationContextListener implements ServletContextListener
     log.debug("closing VFS");
     VFSManagerFactory.shutdown();
     log.debug("shutting down worker queues");
-    AWorkerQueue.shutdown();
+    AWorkerQueue.shutdownQueues(false);
     log.debug("clearing singletons");
     SingletonHolder.clear();
     log.debug("clearing Bindings");
