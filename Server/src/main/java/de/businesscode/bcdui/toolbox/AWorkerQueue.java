@@ -20,8 +20,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -30,38 +34,85 @@ import org.apache.log4j.Logger;
  * <p>
  * This is a worker with idle support and a queue
  * allows asynchronous processing of objects, supports
- * multi-object for batch processing and idle state to release resource if appropriate.
+ * multi-object for batch processing and idle state to release resource if appropriate. The default maximum queue size
+ * is {@link #DEFAULT_MAX_QUEUE_SIZE} and if exceeded, new objects are not put into the queue but discarded.
  * This worker has a Timer which is triggers queue-processing every queueDelayMs after a queue has been populated
  * via {@link #process(Object)} or {@link #process(Collection)}, you implement the {@link #processObjects(Collection)}
  * method to process batched objects gathered into the queue during queueDelayMs. In a container environment you can
  * gracefully {@link #shutdownQueues()} all queues by calling the method i.e. from context listener, in a standalone
- * application you can do it via a shutdown hook
+ * application you can do it via a shutdown hook or you can {@link #shutdown(boolean)} s single instance.
  * </p>
- *
+ * 
+ * <p>
+ * This class uses {@link Executor} for task execution which is shared among all instances of all concrete
+ * implementations of this class. By design, every single instance of implementation class posseses a single
+ * queue which is ought to be processed by a single thread on behalf of the executor, such as 5 instances will
+ * allow the executor to create up to 5 threads. Initially, the executor
+ * pool size is set to {@link #EXECUTOR_MIN_POOL_SIZE}. The core pool size is changed according to number of instances
+ * of this class ranging from [ {@link #EXECUTOR_MIN_POOL_SIZE} .. {@link #EXECUTOR_MAX_POOL_SIZE} ]. If the queue is idling, the
+ * executor will shrink the thread pool size down to 0 after {@link #EXECUTOR_KEEPALIVE_MINS}.
+ * A {@link #shutdown(boolean)} on single instance will reduce the thread pool size.
+ * </p>
  */
 abstract public class AWorkerQueue<T> {
-  public static final int DEFAULT_MAX_QUEUE_SIZE=50;      //when discard the objects
+  /**
+   * keep alive minutes for all executors prior removing idle threads: {@value #EXECUTOR_KEEPALIVE_MINS}
+   */
+  private static final long EXECUTOR_KEEPALIVE_MINS = 5;
+  /**
+   * the overall limit of pool size, please read more in class documentation on how the pool size is sized
+   */
+  private static final int EXECUTOR_MAX_POOL_SIZE = 100;
+  /**
+   * the lower limit of pool size: {@value #EXECUTOR_MIN_POOL_SIZE}
+   */
+  private static final int EXECUTOR_MIN_POOL_SIZE = 1;
+  /**
+   * max queue size before discarding objects: {@value #DEFAULT_MAX_QUEUE_SIZE}
+   */
+  public static final int DEFAULT_MAX_QUEUE_SIZE = 500;
+
   /**
    * keep references to all queues
    */
   private static final List<AWorkerQueue<?>> queues = new LinkedList<AWorkerQueue<?>>();
+  /**
+   * number of instances of this class
+   */
+  private static final AtomicInteger instancesCount = new AtomicInteger(0);
 
   private Queue<T> queue = new LinkedList<T>();
   private int maxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
 
   /**
-   * (additional thread) controls queue sleep time to gather objects for batch execution
-   */
-  private Timer queueSleepTimer;
-  /**
    * the pending queue notification task to notify queue, synchronized by queue
    */
-  private TimerTask pendingQueueNotificationTask = null;
+  private Future<?> pendingQueueProcessingFuture = null;
 
-  /*
-   * this thread will be montoring the idle-state, if enabled
+  /**
+   * idle watchdog to a scheduled call {@link #invokeIdle()}
    */
-  private final IdleWatchdog idleWatchdog;
+  private ScheduledFuture<?> idleFuture = null;
+
+  /**
+   * Executor for {@link #idleFuture}
+   */
+  private static final ScheduledThreadPoolExecutor executor;
+
+  static {
+    executor = new ScheduledThreadPoolExecutor(EXECUTOR_MIN_POOL_SIZE, (r) -> {
+      Thread t = new Thread(r, AWorkerQueue.class.getName() + ".Executor");
+      t.setDaemon(true);
+      return t;
+    });
+    executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+    executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+    executor.setMaximumPoolSize(EXECUTOR_MAX_POOL_SIZE);
+    executor.setRemoveOnCancelPolicy(true);
+    executor.setKeepAliveTime(EXECUTOR_KEEPALIVE_MINS, TimeUnit.MINUTES);
+    executor.allowCoreThreadTimeOut(true);
+  }
+  
   protected Logger log = Logger.getLogger(getClass());
   /*
    * when performing the idle-handling
@@ -73,41 +124,58 @@ abstract public class AWorkerQueue<T> {
    * the delay for queue to gather objects
    */
   private final long queueDelayMs;
+  /*
+   * the delay for timer task
+   */
+  private long idleThresholdMs;
 
   /**
-   * creates a worker with given logger and maxQueueSize
+   * Creates a worker
    *
-   * @param maxQueueSize when set to 0 or below then default value is used, default is {@link #DEFAULT_MAX_QUEUE_SIZE}
-   * @param idleThresholdMs the threshold for idle event or 0 for DISABLED
-   * @param queueDelayMs the threshold for queue delay or 0 for DISABLED
+   * @param maxQueueSize    when set to 0 or below then default value is used, default is {@link #DEFAULT_MAX_QUEUE_SIZE}.
+   * @param idleThresholdMs the threshold for idle event or 0 for DISABLED, if disabled, the {@link #onIdle()} is never called,
+   *                        otherwise it is called after the queue has been idling for given amount of time.
+   * @param queueDelayMs    delay in ms or 0 for DISABLED, this is a waiting period between adding a task to process
+   *                        into the queue and beginning of processing the queue, if 0 the queue is processed immediately.
    */
   protected AWorkerQueue(int maxQueueSize, long idleThresholdMs, long queueDelayMs){
     if(maxQueueSize > 0) {
       this.maxQueueSize = maxQueueSize;
     }
 
-    if(idleThresholdMs > 0){
-      idleWatchdog = new IdleWatchdog(this, idleThresholdMs);
-    }else{
-      idleWatchdog = null;
-    }
-
-    this.queueDelayMs = queueDelayMs;
+    this.idleThresholdMs = Math.max(0, idleThresholdMs);
+    this.queueDelayMs = Math.max(0, queueDelayMs);
 
     if(log.isDebugEnabled()){
-      log.debug("configured with queue size " + this.maxQueueSize + " and idle treshold(ms) of " + idleThresholdMs + " and queue delay (ms): " + this.queueDelayMs);
+      log.debug(getClass().getName() + " worker configured with queue size " + this.maxQueueSize + " and idle treshold(ms) of " + idleThresholdMs + " and queue delay (ms): " + this.queueDelayMs);
     }
 
-    queueSleepTimer = new Timer(getClass().getName()+".QueueTimer", true);
     queues.add(this);
-  }
 
+    resetPoolSize(instancesCount.incrementAndGet());
+  }
+  
+  /**
+   * resets executors pool size according to {@link #instancesCount} 
+   */
+  private void resetPoolSize(int requestedPoolSize){
+    // determine pool size, between EXECUTOR_MIN_POOL_SIZE and EXECUTOR_MAX_POOL_SIZE
+    if(requestedPoolSize < EXECUTOR_MIN_POOL_SIZE){
+      requestedPoolSize = EXECUTOR_MIN_POOL_SIZE;
+    }else if(requestedPoolSize > EXECUTOR_MAX_POOL_SIZE){
+      requestedPoolSize = EXECUTOR_MAX_POOL_SIZE;
+    }
+    executor.setCorePoolSize(requestedPoolSize);
+  }
+  
   /**
    * shuts down all queues
    *
    * @param discardQueuedObjects - if set to false, processes queued objects ( this happens in current thread ).
    */
   public static void shutdownQueues(boolean discardQueuedObjects) {
+    // dont need executor
+    executor.shutdownNow();
     synchronized(queues){
       while(!queues.isEmpty()){
         queues.get(0).shutdown(discardQueuedObjects);
@@ -126,20 +194,19 @@ abstract public class AWorkerQueue<T> {
     if(log.isTraceEnabled()){
       log.trace("shutting down " + getClass().getName() + ", discarding objects in queue: " + Boolean.toString(discardQueuedObjects));
     }
+    resetPoolSize(instancesCount.decrementAndGet());
 
     synchronized(queues){
       queues.remove(this);
     }
 
-    queueSleepTimer.cancel();
-    queueSleepTimer.purge();
-
     if(!discardQueuedObjects){
       runProcessQueue();
     }
 
-    if(idleWatchdog != null){
-      idleWatchdog.interrupt();
+    if(idleFuture != null){
+      idleFuture.cancel(false);
+      idleFuture = null;
     }
   }
 
@@ -156,8 +223,6 @@ abstract public class AWorkerQueue<T> {
     if(log.isTraceEnabled()){
       log.trace("queue processed");
     }
-
-    queueSleepTimer.purge();
   }
 
   /**
@@ -211,13 +276,14 @@ abstract public class AWorkerQueue<T> {
    * handle the watchdog
    */
   private void processQueue(){
-    if(idleWatchdog != null){
-      idleWatchdog.sleep();
+    if(idleFuture != null){
+      idleFuture.cancel(false);
+      idleFuture = null;
     }
     Collection<T> objectsToProcess = new LinkedList<T>();
     synchronized(idleLock){
       //feed the collection
-      if(queue.size()>0){
+      while(queue.size()>0){
         T t;
         synchronized(queue){
           while((t=queue.poll())!=null)objectsToProcess.add(t);
@@ -225,8 +291,8 @@ abstract public class AWorkerQueue<T> {
         processObjects(objectsToProcess);
       }
     }
-    if(idleWatchdog != null){
-      idleWatchdog.monitor();
+    if(idleThresholdMs > 0 && !executor.isShutdown()){
+      idleFuture = executor.schedule(()->invokeIdle(), idleThresholdMs, TimeUnit.MILLISECONDS);
     }
   }
 
@@ -241,98 +307,15 @@ abstract public class AWorkerQueue<T> {
       if(queue.size() >= this.maxQueueSize){
         log.error("queue is full - discarding object " + t);
       } else {
-        if(pendingQueueNotificationTask != null){
-          pendingQueueNotificationTask.cancel();
-          pendingQueueNotificationTask = null;
-          queueSleepTimer.purge();
+        if(pendingQueueProcessingFuture != null){
+          // prevent pending execution
+          pendingQueueProcessingFuture.cancel(false);
         }
 
         queue.addAll(t);
 
-        // scheduled or direct execution
-        if(this.queueDelayMs > 0){
-          pendingQueueNotificationTask = new TimerTask() {
-            @Override
-            public void run() {
-              runProcessQueue();
-            }
-          };
-          queueSleepTimer.schedule(pendingQueueNotificationTask, queueDelayMs);
-        }else{
-          runProcessQueue();
-        }
-      }
-    }
-  }
-
-  /*
-   * TODO rewrite as a schedule on the Timer
-   */
-  private static class IdleWatchdog extends Thread{
-    private AWorkerQueue<?> worker;
-    private boolean doMonitor=false, resetMonitor=false;
-    private long idleMillis;
-    private Object sync=new Object();
-    private Logger logger = Logger.getLogger(getClass());
-
-    public IdleWatchdog(AWorkerQueue<?> w, long idleMillis){
-      worker=w;
-      this.idleMillis=idleMillis;
-      this.setDaemon(true);
-      this.start();
-    }
-    @Override
-    public void run() {
-      if(logger.isTraceEnabled()){
-        logger.trace("started");
-      }
-
-      try {
-        while(!isInterrupted()){
-          synchronized(sync){
-            resetMonitor=false;
-            sync.wait(doMonitor ? idleMillis : 0);
-          }
-          if(doMonitor && !resetMonitor){
-            try{worker.invokeIdle();}catch(Throwable t){}
-            doMonitor=false;
-          }
-        }
-      }
-      catch (InterruptedException e) {
-        if(logger.isTraceEnabled()){
-          logger.trace("interrupted");
-        }
-      }
-
-      worker.invokeIdle();
-      if(logger.isTraceEnabled()){
-        logger.trace("shutdown");
-      }
-    }
-
-    /**
-     * disable monitoring
-     */
-    public void sleep(){
-      if(logger.isTraceEnabled()){
-        logger.trace("sleeping...");
-      }
-      synchronized(sync){
-        this.doMonitor=false;
-      }
-    }
-    /**
-     * enable monitoring
-     */
-    public void monitor(){
-      if(logger.isTraceEnabled()){
-        logger.trace("start monitoring");
-      }
-      synchronized(sync){
-        this.doMonitor=true;
-        this.resetMonitor=true;
-        sync.notify();
+        // schedule execution
+        pendingQueueProcessingFuture = executor.schedule(() -> runProcessQueue(), queueDelayMs, TimeUnit.MILLISECONDS);
       }
     }
   }
