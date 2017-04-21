@@ -103,6 +103,8 @@ task bcduiGensrcJaxb {
 // Compile java, making sure we have generated sources before
 compileJava {
   dependsOn bcduiGensrcJaxb
+  options.debug = true
+  options.debugOptions.debugLevel = "source,lines,vars"
 }
 
 //*********************************
@@ -125,3 +127,15 @@ task bcduiClean {
   dependsOn clean
 }
 
+//********************************
+// Refers to default task
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    baseName = "$artifactsBaseName-server"
+    version  = bcduiVersion
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
