@@ -307,8 +307,8 @@ public class Utils {
     }
     String id = (String)httpServletRequest.getAttribute(REQUEST_ATTR_CUSTOM_SESSION_ID);
     if(id == null){
-      // create pseudo ID and store in current request object, keep smaller in size
-      id = "bcd_" + DigestUtils.md5Hex(UUID.randomUUID().toString());
+      // create pseudo ID and store in current request object, keep smaller in size and trim to 32char
+      id = ("bcd_" + DigestUtils.md5Hex(UUID.randomUUID().toString())).substring(0, 32);
       httpServletRequest.setAttribute(REQUEST_ATTR_CUSTOM_SESSION_ID, id);
     }
     return id;
