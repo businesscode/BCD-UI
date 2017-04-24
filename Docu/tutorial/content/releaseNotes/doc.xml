@@ -91,6 +91,10 @@
           Related to this change /wrs/requestDocumentBuilder.xslt has been modified on lookups for params: $additionalFilterXPath, $additionalPassiveFilterXPath
           both using the DataProviderWithXPathNodes
           </li>
+          <li>Library logging is using application server's local time for timestamps (has used database timestamp before). Due to asynchronous nature of logging
+          the logging event creation time is now captured rather than database record insertion time. Affected loggers:
+          bcd_log_access, bcd_log_error, bcd_log_login, bcd_log_page, bcd_log_session, bcd_log_sql
+          </li>
         </ol>
       </Body>
     </SubChapter>
