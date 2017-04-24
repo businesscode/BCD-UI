@@ -481,14 +481,17 @@
 
           // build list with items from all targets
           var targetValues = [];
+          var targetValuesTemp = [];
           for (var t = 0; t < targetConfig.length; t++) {
             if (targetConfig[t].xPath.indexOf("wrs:") > -1) {
-              targetValues = bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).getData().selectSingleNode(targetConfig[t].xPath);
-              targetValues = targetValues == null ? [] : targetValues.text.split(this.wrsInlineValueDelim);
+              targetValuesTemp = bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).getData().selectSingleNode(targetConfig[t].xPath);
+              targetValuesTemp = targetValuesTemp == null ? [] : targetValuesTemp.text.split(this.wrsInlineValueDelim);
             }
             else
-              targetValues = jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).queryNodes(targetConfig[t].xPath)).map(function(e){return e.text;});
-            targetValues = targetValues.map(function(e){return bcdui.util.escapeHtml(e);})
+              targetValuesTemp = jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetConfig[t].modelId).queryNodes(targetConfig[t].xPath)).map(function(e){return e.text;});
+            targetValuesTemp = targetValuesTemp.map(function(e){return bcdui.util.escapeHtml(e);})
+
+            targetValues = targetValues.concat(targetValuesTemp);
           }
 
           var html = "";
