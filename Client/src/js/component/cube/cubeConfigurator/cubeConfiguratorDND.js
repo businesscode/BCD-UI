@@ -107,8 +107,8 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     };
     bcdui.widgetNg.createConnectable(inputArgs);
 
-    // initally mark the innermost dimensions for GroupManager
-    setTimeout(function(){bcdui.component.cube.configuratorDND._markLastDimensions(args.cubeId);});
+    // initially mark the dimensions for GroupManager
+    setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(args.cubeId);});
     
     // add contextMenu handling for GroupManager
     bcdui.component.cube.configuratorDND._addGroupManagerContextMenu(args.targetHtml, args.cubeId);
@@ -574,18 +574,26 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       }
     }
 
-    // remove possible "now-not-innermost-anymore-vdms"
+    // remove possible "now-not-innermost-anymore-vdms" (not grouping editor ones)
     var dimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef");
-    for (var d = 0; d < dimensions.length - 1; d++)
-      if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
+    for (var d = 0; d < dimensions.length - 1; d++) {
+      if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM/calc:Calc") > 0)
         doRedisplay = true;
+      if (dimensions[d].selectSingleNode("./cube:VDM/*") == null)
+        if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
+          doRedisplay = true;
+    }
     var dimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef");
-    for (var d = 0; d < dimensions.length - 1; d++)
-      if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
+    for (var d = 0; d < dimensions.length - 1; d++) {
+      if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM/calc:Calc") > 0)
         doRedisplay = true;
+      if (dimensions[d].selectSingleNode("./cube:VDM/*") == null)
+        if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
+          doRedisplay = true;
+    }
 
-    // after cleanup, also update the marks for the innermost dimensions for GroupManager
-    bcdui.component.cube.configuratorDND._markLastDimensions(cubeId);
+    // after cleanup, also update the marks for the dimensions for GroupManager
+    bcdui.component.cube.configuratorDND._markGroupingDimensions(cubeId);
 
     return doRedisplay;
   },
@@ -641,6 +649,6 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
   /**
    * @private
    */
-  , _markLastDimensions : function(){}
+  , _markGroupingDimensions : function(){}
 
 });
