@@ -526,9 +526,10 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
        * @extends bcdui.core.DataProviderHolder
        *
        * @constructs
-       * @param {object}  args
-       * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-       * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
+       * @param {object}                  args
+       * @param {modelXPath}              [args.xPath]  - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
+       * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
+       * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
        */
       initialize: function(/* object */ args)
         {
@@ -577,8 +578,9 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
           if (dataElement != null) {
             nodes  = jQuery.makeArray(dataElement.selectNodes(this._xPath));
           }
-          var model = new bcdui.core.StaticModel({data : "<Root/>"});
-          var parent = model.getData().selectSingleNode(('Root'));
+
+          var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<Root/>");
+          var parent = newDoc.documentElement;
           if (nodes != null){
             nodes.forEach( function(e){
               if( e.nodeType===2 )
@@ -587,7 +589,7 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
                 parent.appendChild(e.cloneNode(true));
             })
           }
-          return parent;
+          return newDoc;
         },
       /**
        * @return {string}

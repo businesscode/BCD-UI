@@ -51,7 +51,9 @@
   <xsl:param name="isDistinct" />
   <xsl:param name="useCaptions" />
   <xsl:param name="maxRows" select="-1"/>
+  <!-- type dataProviderWithXPathNodes -->
   <xsl:param name="additionalFilterXPath" select="/*[1=0]" />
+  <!-- type dataProviderWithXPathNodes -->
   <xsl:param name="additionalPassiveFilterXPath" select="/*[1=0]" />
   <xsl:param name="guiStatus" />
 
@@ -207,14 +209,14 @@
 
   <xsl:template name="createFilters">
     <f:Filter>
-      <xsl:if test="count($additionalFilterXPath/*) > 0">
+      <xsl:if test="count($additionalFilterXPath/*/*) > 0">
         <f:And>
-          <xsl:copy-of select="$additionalFilterXPath/*" />
+          <xsl:copy-of select="$additionalFilterXPath/*/*" />
         </f:And>
       </xsl:if>
-      <xsl:if test="count($additionalPassiveFilterXPath) > 0">
+      <xsl:if test="count($additionalPassiveFilterXPath/*/*) > 0">
         <f:And>
-          <xsl:copy-of select="$additionalPassiveFilterXPath/*" />
+          <xsl:copy-of select="$additionalPassiveFilterXPath/*/*" />
         </f:And>
       </xsl:if>
       <xsl:if test="$filterTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">

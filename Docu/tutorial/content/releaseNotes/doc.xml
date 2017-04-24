@@ -53,7 +53,7 @@
           </li>
           <li>Core
             <ul>
-              <li></li>
+              <li>bcdui.core.DataProviderWithXPathNodes can now be used as input model for transformations.</li>
             </ul>
           </li>
           <li>Themes
@@ -86,6 +86,11 @@
           <li>Removed SideBySideChooser source and targetKey attributes. source/targetCaption (removed prefix 'default') attributes support i18n now</li>
           <li>DimensionChooser auto hides level selector if number of visible levels is 1, this now also applies i fonly one is left via visible=false</li>
           <li>dm:FilterTranslation toRangeWhen attribute was moved to dm:PeriodTranslation</li>
+          <li>bcdui.core.DataProviderWithXPathNodes: .getData() returns a document now (instead of an element), hence if used as a parameter to XSL-T the
+          parameter references the document the root element is accessed via xpath: $someParam/* ( previously was referenced by $someParam ).
+          Related to this change /wrs/requestDocumentBuilder.xslt has been modified on lookups for params: $additionalFilterXPath, $additionalPassiveFilterXPath
+          both using the DataProviderWithXPathNodes
+          </li>
         </ol>
       </Body>
     </SubChapter>
