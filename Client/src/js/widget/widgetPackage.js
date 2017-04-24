@@ -1563,6 +1563,11 @@ bcdui.util.namespace("bcdui.widget",
             return;
           bcdui.widget._setIdents(config.event, renderer, config.htmlElement);
         }
+        else if ( args.identsWithin ) {
+          bcdui.wkModels.bcdRowIdent.setData( bcdui.widget._findAttribute( config.event.target, "bcdRowIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
+          bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( config.event.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
+        }
+
         if (args.refreshMenuModel){
           renderer.getPrimaryModel().execute();
         }
@@ -1601,17 +1606,23 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Create an instance of dynamic context menu. Consider setting args.refreshMenuModel to true.
    * @param {Object}         args                     The parameter map contains the following properties.
-   * @param {string}         args.targetRendererId    The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+   * @param {string}         [args.targetRendererId]  The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
    * @param {string}         [args.id]                ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {boolean}        [args.refreshMenuModel]  This flag can be set to 'true' if the menu model needs to be executed always. Needs to be true, if the menu depends on the position in a table, i.e. technically on bcdColIdent and bcdRowIdent.
    * @param {string}         [args.stylesheetUrl]     This parameter can be set when you only want to apply one single XSLT style sheet. It contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be provided
+   * @param {string}         [args.identsWithin]      Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {boolean}        [args.tableMode=false]   This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
-   * @param {string}         [args.targetHtmlElement] The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {targetHtmlRef}  [args.targetHtml]        The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
    */
   createContextMenu: function(args){
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.widget._schema_createContextMenu_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.widget._schema_createContextMenu_args);
+
+    if (args.targetHtml) {
+      var targetId = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "bcdContextMenu_");
+      args.targetHtmlElement = jQuery("#" + targetId);
+    }
     
     // Set default parametrs
     if(!args.tableMode ||args.tableMode == ""){
@@ -1649,6 +1660,7 @@ bcdui.util.namespace("bcdui.widget",
             contextMenuRendererId: args.id
           , targetHtmlElement    : bcdui._migPjs._$(args.targetHtmlElement).length > 0 ? bcdui._migPjs._$(args.targetHtmlElement).get(0) : bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.targetRendererId).targetHTMLElementId).get(0)
           , tableMode            : args.tableMode
+          , identsWithin         : args.identsWithin
           , refreshMenuModel     : args.refreshMenuModel
         });
       }
@@ -1660,20 +1672,25 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Generates a tooltip for another renderer. 
    * @param {Object}         args                       The parameter map contains the following properties.
-   * @param {string}         args.targetRendererId      The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+   * @param {string}         [args.targetRendererId]    The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
    * @param {string}         [args.id]                  ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {integer}        [args.delay]               The delay in Miliseconds that the tooltip should wait before it appears.
    * @param {string}         [args.filter]              An optional filter on the tag name where the tooltip should appear. In 'tableMode' it is recommended to set it on 'td' or 'th|td'.
    * @param {string}         [args.identsWithin]        Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {string}         [args.stylesheetUrl]       This parameter can be set when you only want to apply one single XSLT style sheet. It contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be provided
    * @param {boolean}        [args.tableMode=false]     This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
-   * @param {string}         [args.targetHtmlElement]   The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {targetHtmlRef}  [args.targetHtml]          The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
    * @param {string}         [args.tooltipTargetHtmlId] Existing HTML Element Id which is used for the tooltip. By default this is 'bcdTooltipDiv'.
    */
   createTooltip: function(args){
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.widget._schema_createTooltip_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.widget._schema_createTooltip_args);
+
+    if (args.targetHtml) {
+      var targetId = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "bcdTooltip_");
+      args.targetHtmlElement = jQuery("#" + targetId);
+    }
 
     // Set default parametrs
     if(!args.tableMode ||args.tableMode == ""){

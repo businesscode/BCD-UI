@@ -246,9 +246,15 @@
             renderer.
           </Doc>
         </Param>
-        <Param name="targetHtmlElement" type="htmlElement">
+        <Param name="targetHtmlElement" type="htmlElement" jsName="targetHtml">
           <Doc>
             The HTML listeners are placed on this Element instead of the targetHTMLElement of the given targetRendererId.
+          </Doc>
+        </Param>
+        <Param name="identsWithin" type="string">
+          <Doc>
+            Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the
+            event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
           </Doc>
         </Param>
         <Param name="tableMode" type="boolean">
@@ -833,7 +839,7 @@
             If omitted the tag must be placed within the respective renderer.
           </Doc>
         </Param>
-        <Param name="targetHtmlElement" type="htmlElement">
+        <Param name="targetHtmlElement" type="htmlElement" jsName="targetHtml">
           <Doc>
             The HTML listeners are placed on this Element instead of the targetHTMLElement of the given targetRendererId.
           </Doc>
