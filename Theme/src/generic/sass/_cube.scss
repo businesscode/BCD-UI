@@ -767,6 +767,10 @@ div.bcdContextMenu a.bcdMenuitems {
   top: -1px;
 }
 
+.bcdOptionsActive :after{
+  color: $select-color;
+}
+
 #bcdGroupingEditor {
 
  input, select { width: 160px; }
