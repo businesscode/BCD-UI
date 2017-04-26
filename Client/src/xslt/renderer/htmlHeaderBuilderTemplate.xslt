@@ -118,6 +118,7 @@
         <xsl:otherwise>
           <xsl:choose>
             <xsl:when test="string-length($name)">
+              <xsl:if test="starts-with($name,'&#xE0FF;')"><xsl:attribute name="bcdTranslate"><xsl:value-of select="substring-after($name,'&#xE0FF;')"/></xsl:attribute></xsl:if>
               <xsl:call-template name="renderHeaderColumnToken">
                 <xsl:with-param name="name" select="$name"/>
                 <xsl:with-param name="headerCell" select="."/>
