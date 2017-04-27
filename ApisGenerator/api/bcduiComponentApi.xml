@@ -294,7 +294,7 @@
         </Param>
         <Param name="cubeRenderer" type="dataProvider" isJSPParent="true">
           <Doc>
-            Id of the cubeRenderer the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:cube.
+            Id of the cubeRenderer (or the cube instance itself) the configurator belongs to. If not given, the surrounding renderer is assumed to be a cmp:cube.
           </Doc>
         </Param>
         <Param name="targetModelId" type="string">

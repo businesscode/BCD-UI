@@ -354,7 +354,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix. This parameter must be set unless hasDnDMatrix is false
    * @param {xpath}                   [args.targetModelXPath=$guiStatus/guiStatus:Status/cube:Layout]  - Where to write the result
    * @param {string}                  [args.config=./dimensionsAndMeasures.xml]                   - Model containing the configuration for the cube configurator
-   * @param {string}                  args.cubeRenderer                                           - Id of the cube we belong to
+   * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Id of the cube we belong to or cube instance
    * @param {boolean}                 [args.isRanking=false]                                      - Show ranking editor. This is an Enterprise Edition only feature.
    * @param {string}                  [args.rankingTargetHtmlElementId]                           - Custom location for ranking editor
    * @param {boolean}                 [args.isTemplate=false]                                     - Show template Editor true/false. This is an Enterprise Edition only feature.
@@ -425,6 +425,10 @@ bcdui.util.namespace("bcdui.component",
 
     var metaDataModel = null;
     var targetModel = bcdui.wkModels.guiStatus;
+
+    // allow cube instance, too
+    if (args.cubeRenderer instanceof bcdui.component.cube.Cube)
+      args.cubeRenderer = args.cubeRenderer.id;
 
     // derive cubeId from cubeRenderer
     args.cubeId = (typeof args.cubeRenderer == "string") ? args.cubeRenderer : args.cubeRenderer.refId;
