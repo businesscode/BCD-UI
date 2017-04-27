@@ -321,6 +321,84 @@
         </Impl>
       </Api>
 
+      <Api name="simpleModel" extends="dataProvider">
+        <Doc>
+          Creates a SimpleModel instance from its parameters. This model is NOT executed by default
+          so it does not start loading (unless it is referenced by a renderer) To achieve this an
+          'execute' tag needs to be nested inside id. The following tags are allowed inside the body
+          of this tag:
+            [bcdui:requestDocument]
+              The request document used for the data request.
+            [activity:dataListener]
+              Add a listener monitoring changes in the XML content of the model.
+            [activity:statusListener]
+              Add a listener for status changes of this model.
+            [activity:executeXSLT]
+              Executes the specified transformations and replaces the model's content with the
+              transformation result.
+            [activity:onReady]
+              Runs the nested code as soon as the model has finished loading.
+            [activity:execute]
+              Execute the model loading immediately even when it is not referenced by a renderer.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;b:simpleModel id='myDocument' url='myServlet'/>
+            &lt;b:requestDocument>
+            &lt;b:simpleModel id='myReqDoc' url='requestDoc.xml'/>
+            &lt;/b:requestDocument>
+            &lt;/b:simpleModel>
+          </Example>
+          <Example type="js">
+            bcdui.factory.createModel({
+            id: "myModel",
+            , url: "../../models/myModel"
+            , requestDocument: bcdui.factory.createModel({ url:
+            "requestDoc.xml" })
+            });
+          </Example>
+        </Examples>
+        <Param name="url" type="url">
+          <Doc>
+            The URL the model is loaded from. This URL can be extended with a compressed request document
+            if a requestDocument parameter is provided. If omitted the WrsServlet is taken as default.
+          </Doc>
+        </Param>
+        <Param name="isAutoRefresh" type="boolean">
+          <Doc>
+            If set to true, the model listens to updates on its requestModel and reloads once it changes.
+          </Doc>
+        </Param>
+        <Param name="requestDocument" type="string" isJSPChild="paramBag.requestDocument">
+          <Doc>
+            This parameter specifies the request document for the model. It can either be the request
+            document itself (which is an XML data provider), a SymLink to it or the ID of it.
+          </Doc>
+        </Param>
+        <Param name="mimeType" type="string">
+          <Doc>
+            Mimetype of the expected data. If 'auto' or none is given it is derived from the url.
+            The data if not text/plain, is parsed. I.e.
+           .json, 'application/json' are turned into a js object
+           .js, 'application/javascript' are loaded and executed
+           .xml, .xsl, .xslt, 'application/xml', 'application/xslt+xml' are parsed into DOM
+           All other are just loaded as text.
+          </Doc>
+        </Param>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:requestDocument" doc="The request document used for the data request." />
+              <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model." />
+              <Child name="a:statusListener" doc="Add a listener for status changes of this model." />
+              <Child name="a:executeXSLT" doc="Executes the specified transformations and replaces the model's content with the transformation result." />
+              <Child name="a:onReady" doc="Runs the nested code as soon as the model has finished loading." />
+              <Child name="a:execute" doc="Execute the model loading immediately even when it is not referenced by a renderer." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+      </Api>
+
       <Api name="inlineModel" extends="dataProvider">
         <Doc>
           A model which is created from the XML data inside its body.
@@ -1556,6 +1634,7 @@
       <BcdObject name="inputModel" implements="inputModel" implementationFunction="" tagFolder="bcdui"/>
       <BcdObject name="chain" implements="chain" implementationFunction="" tagFolder="bcdui"/>
       <BcdObject name="model" implements="model" implementationFunction="bcdui.factory.createModel" tagFolder="bcdui"/>
+      <BcdObject name="simpleModel" implements="simpleModel" implementationFunction="bcdui.factory.createModel" tagFolder="bcdui"/>
       <BcdObject name="inlineModel" implements="inlineModel" implementationFunction="bcdui.factory.createStaticModel" tagFolder="bcdui" generateXSLT="false"/>
       <BcdObject name="autoModel" implements="autoModel" implementationFunction="bcdui.factory.createAutoModel" tagFolder="bcdui"/>
       <BcdObject name="modelWrapper" implements="modelWrapper" implementationFunction="bcdui.factory.createModelWrapper" tagFolder="bcdui"/>
