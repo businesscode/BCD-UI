@@ -516,7 +516,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * @private
    */
   _itemRenderer: function(args) {
-    var customClass = args.value == "bcdKpi" ? "bcdLocked" : "";
+    var customClass = args.value == "bcdKpi|KPI" ? "bcdLocked" : "";
     return "<li class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
   
