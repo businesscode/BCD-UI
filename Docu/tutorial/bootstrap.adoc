@@ -1,60 +1,58 @@
 [[DocBootstrap]]
 == Bootstrap
 
-=== Overview
+This chapter guides you through the steps of initially setting up your development environment.
+Often you will have this already and you can skip the first part.
 
-==== Get the tools
+=== Get the tools
 
 To start development with BCD-UI, first get the tools:
 
 * Make sure you have jdk 8 or higher.
-* Install an appropriate version of Eclipse.
-* Install Tomcat 6.13 or higher.
-* Add Tomcat as a server to Eclipse (New-&gt;Server-&gt;Apache-&gt;Tomcat)
-* Make sure you have IE 11 or FireFox. (Chrome and Safari are also supported.)
+* Install an IDE of your preference, we assume Eclipse in our samples +
+At the time of writing this document, the Eclipse Neon is not recommended, because JavaScript support is not working properly.
+* Install a Java EE web server like Oracle Weblogic, IBM Websphere or JBoss, we assume Tomcat 8 in our examples
+* Add Tomcat as a server to Eclipse menu:File[New > Server > Apache > Tomcat]
+* Make sure you use IE 11, Chrome or FireFox for the tutorial +
+MS Edge or older IE browser versions are only partly supported, please contact us for details.
 
-It is possible to develop BCD-UI with other IDEs as Eclipse as well, but BCD-UI development plugins are only available for Eclipse.
-Also any other J2EE application server like Weblogic, Websphere or Oracle AS, can be used instead of tomcat.
-At the time of writing this document, the Eclipse Neon is not recommenend, because JavaScript support is not working properly.
-The Edge or older IE browser versions are only partly compatible; please contact us for details. 
-If you want to use tomcat in production, you should consider setting up the server properly.
-For performance reason you should allow compression for static resources in server.xml, 
+For performance reason you should allow compression for static resources for Tomcat change in server.xml,
 see link:https://github.com/businesscode/BCD-UI/blob/master/Server/configFiles/tomcat/server.xml[BCD-UI/Server/configFiles/tomcat/server.xml, window="_blank"]
 There the compression is turned on for a list of mime/types.
 
-==== XML catalog
+=== XML schema xsd catalog
 
 Adding the XML schema catalog of BCD-UI to your workspace will support you in creating xml configuration files for BCD-UI
-using 
-[source,javascript]
-----
-https://businesscode.github.io/BCD-UI-Docu/xsd/bcduiCatalog.xml
+by linking to `https://businesscode.github.io/BCD-UI-Docu/xsd/bcduiCatalog.xml`
 
-----
+For Tomcat, follow these steps:
 
 image::images/bootstrap_xmlCatalog.png[]
 will bring you:
 
 image::images/bootstrap_xmlSupport.png[]
 
-==== JS Libray
-Adding the BCD-UI Javascript Api Stubs to your workspace will support you writing JavaScript code. 
-The Javascript files can be obtained here: "ADD_LOCATION".
-In Eclipse the js stubs can be setup in Preferences/JavaScript/Include Path/User Libray. First a new library can be added. I.e. BCD-UI and afterwards
-the folder containing all stubs can be added. (Add Folder...)
+==== Javascript Api stubs
 
+BCD-UI provides JavaScript API. Add these to your IDE and you will have auto-complete while editing JavaScript.
+The Javascript files can be obtained here: "ADD_LOCATION".
+For Eclipse the stubs can be added via menu:Preferences[JavaScript > Include Path> User Library].
+First add a new library 'BCD-UI' and then add the folder containing the stubs you downloaded. (Add Folder...)
 
 image::images/bootstrap_addJsCodeCompletion.png[]
 will bring you, code completion and help tooltips while hovering with your mouse:
 
 image::images/bootstrap_jsCompletion.png[]
 
-==== Custom Element
-The Eclipse IDE has a feature to allow code templates to be inserted for html files. It is possible to add the custom elements registered by BCD-UI as
-templates so that there is a kind of code completion.
- So first import the bcdui-templates.xml file in Preferences/Web/HTML Files/Editor/Templates. Then the elements should in the template list.
+==== HTML 5 Custom Elements
+
+The Eclipse IDE has a feature to allow code templates to be inserted for html files.
+It is possible to add the custom elements registered by BCD-UI as templates so that there is a kind of code completion.
+To achieve this, import bcdui-templates.xml via menu:Preferences[Web > HTML Files > Editor > Templates].
+The elements should then appear in the template list.
 
 image::images/bootstrap_htmlTemplates.png[]
-While editing html files the templates popup can be opened with strg-space and the list of BCD-UI elements should be found as shown here:
+
+While editing html files the templates popup can be opened with kbd:[CTRL+SPACE] and the list of BCD-UI elements should be found as shown here:
 
 image::images/bootstrap_htmlTemplates_usage.png[]

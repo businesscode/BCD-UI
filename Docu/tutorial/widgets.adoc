@@ -5,139 +5,195 @@
 
 Widgets are small visual objects for user interaction.
 Commonly they store their state, the user's selection in a target model (by default guiStatus).
-The targetModelXPath points to the exact place where data is stored. Widgets usually work in 2 ways. If the user
-clicks/selects/does an action on it, the target value changes. On the other hand, when you change the value (e.g. via javascript),
+The `targetModelXPath` parameter points to the exact place where data is stored.
+Widgets usually work in 2 ways.
+If the user clicks/selects/does an action on it, the target value changes.
+On the other hand, when you change the value from outside, e.g. via javascript,
 the widget should update itself visually to be in sync with the value.
 
-Some widgets have an options model reference as data source (e.g. the entries which are shown in a drop down box). The option model
-is referenced via (required)optionsModelXPath and (optional)optionsModelRelativeValueXPath. They point to value and caption information used
-for the widget.
+Some widgets have an options model reference as data source, for example entries in a drop down box.
+The option model is referenced via `optionsModelXPath` and optional `optionsModelRelativeValueXPath`.
+They point to value and caption information used for the widget.
 
-Two widget apis are available. Widget and (prefered)WidgetNg. Below a list of widgets is shown plus hyperlinks to the single apis.
-
-==== Widgets creation
+==== Creation
 
 As widgets support their API in different languages, widgets can be created in different ways.
-All are expecting the same set of parameters, but when using js, providing  `targetHTMLElement`  is mandatory.
-Note: the creation itself, the result and behavior of the created widget is exactly the same.
+All are expecting the same set of parameters. When using js, providing `targetHtml` is mandatory.
 
-JS:: A js factory is available following the naming convention:
- `bcdui.widget.createSingleSelect( {id:"myId" ...} )` 
-Custom Elements:: HTML5 allows use of costum elements within html:
- ` &lt;bcd-singleselectng
-                targetModelXPath = "/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value" ... &gt;&lt;/bcd-singleselectng&gt;` 
-JSP:: On a JSP page you can use the tags:
- `&lt;w:singleSelect id="myId" ... /&gt;` 
-XSLT:: When a widget is to be created from within XSLT, you can do:
- `&lt;xsl:call-template name="singleSelect"&gt;&lt;xsl:with-param name="id" select="'myId'"/&gt;...` 
-XAPI:: XAPI allows you saying:
- `&lt;xapi:SingleSelect" id="myId" .../&gt;` 
+.Javascript
+[source,javascript]
+----
+bcdui.widgetNg.createSingleSelect( {
+  targetModelXPath: "/*/f:Filter/f:Expression[@bRef = 'orig_ctr' and @op = '=']/@value",
+  ...
+});
+----
 
-=== Widget Ng Overview
+.As HTML Custom Elements
+[source,html]
+----
+<bcd-singleselectng
+  targetModelXPath = "/*/f:Filter/f:Expression[@bRef = 'orig_ctr' and @op = '=']/@value"
+  ... >
+</bcd-singleselectng> <!--1-->
+----
+<1> Note that some browsers do not allow self-cosing elements ('/>') here
+
+.Used as JSP
+[source,html]
+----
+<w:singleSelect id="myId" ... />
+----
+
+.Created from XSLT
+[source,xml]
+----
+<xsl:call-template name="singleSelect">
+  <xsl:with-param name="id" select="'myId'"/>
+  ...
+</xsl:call-template>
+----
+
+.Called from XAPI
+[source,xml]
+----
+<xapi:SingleSelect id="myId" ... />
+----
+
+Using Javascript and HTML Custom Elements is by far the most common way.
+
+NOTE: While you can create widges from javascript, HTML custom elements, XSLT, XAPI and jsp, the result and behavior is exactly the same.
+You can easily derive the parameters from the javascript api documentation.
+
+=== Overview bcdui.WidgetNg
 
 ==== Button
 
 image::images/widgets_ng_button.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createButton[Button:, window="_blank"] A button widget for a clickable action
+link:../jsdoc/bcdui.widgetNg.html#.createButton[Button:^] A button widget for a clickable action
 
 ==== Checkbox
 
 image::images/widgets_ng_checkbox.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createCheckbox[Checkbox:, window="_blank"] A checkbox widget which allows a on/off (true/false, 1/0) switch
+link:../jsdoc/bcdui.widgetNg.html#.createCheckbox[Checkbox:^] A checkbox widget which allows a on/off (true/false, 1/0) switch
 
 ==== Connectable
 
 image::images/widgets_ng_connectable.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createConnectable[Connectable:, window="_blank"] Connectables, can be used in various ways
+link:../jsdoc/bcdui.widgetNg.html#.createConnectable[Connectable:^] Connectables, can be used in various ways
 
 ==== Date Input
 
 image::images/widgets_ng_dateInput.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createDateInput[Date Input:, window="_blank"] A HTML5 dateinput control
+link:../jsdoc/bcdui.widgetNg.html#.createDateInput[Date Input:^] A HTML5 dateinput control
 
 ==== Input
 
 image::images/widgets_ng_input.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createInput[Input:, window="_blank"] A basic input control
+link:../jsdoc/bcdui.widgetNg.html#.createInput[Input:^] A basic input control
 
 ==== SideBySide Chooser
 
 image::images/widgets_ng_sideBySideChooser.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createSideBySideChooser[SideBySide Chooser:, window="_blank"] A side-by-side chooser allowing selection and ordering of items
+link:../jsdoc/bcdui.widgetNg.html#.createSideBySideChooser[SideBySide Chooser:^] A side-by-side chooser allowing selection and ordering of items
 
 ==== Single Select
 
 image::images/widgets_ng_singleSelect.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createSingleSelect[Single Select:, window="_blank"] A drop down selector
+link:../jsdoc/bcdui.widgetNg.html#.createSingleSelect[Single Select:^] A drop down selector
 
 ==== Suggest Input
 
 image::images/widgets_ng_suggestInput.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createSuggestInput[Suggest Input:, window="_blank"] A drop down selector with autocompletion functionality and custom rendering
+link:../jsdoc/bcdui.widgetNg.html#.createSuggestInput[Suggest Input:^] A drop down selector with autocompletion functionality and custom rendering
 
 ==== Text Area
 
 image::images/widgets_ng_textarea.png[]
-link:../jsdoc/bcdui.widgetNg.html#.createTextArea[Text Area:, window="_blank"] A (resizable) text area field, which allows multiline input
+link:../jsdoc/bcdui.widgetNg.html#.createTextArea[Text Area:^] A (resizable) text area field, which allows multiline input
 
-=== Widget Overview
+=== Overview bcdui.widget
 
 ==== Blind UpDown
 
 image::images/widgets_w_blindUpDown.png[]
-link:../jsdoc/bcdui.widget.html#.createBlindUpDownArea[Blind UpDown:, window="_blank"] A collapsable/expandable area
+link:../jsdoc/bcdui.widget.html#.createBlindUpDownArea[Blind UpDown:^] A collapsable/expandable area
 
 ==== Contex Menu
 
 image::images/widgets_w_contextMenu.png[]
-link:../jsdoc/bcdui.widget.html#.createContextMenu[Context Menu:, window="_blank"] A context menu which can be linked to a cell
+link:../jsdoc/bcdui.widget.html#.createContextMenu[Context Menu:^] A context menu which can be linked to a cell
 
 ==== Dimension Chooser
 
 image::images/widgets_w_dimensionChooser.png[]
-link:../jsdoc/bcdui.widget.html#.createDimensionChooser[Dimension Chooser:, window="_blank"] A multi level selector
+link:../jsdoc/bcdui.widget.html#.createDimensionChooser[Dimension Chooser:^] A multi level selector
 
 ==== Formula Editor
 
 image::images/widgets_w_formulaEditor.png[]
-link:../jsdoc/bcdui.widget.html#.createFormulaEditor[Formula Editor:, window="_blank"] A formula Editor for building custom calculations
+link:../jsdoc/bcdui.widget.html#.createFormulaEditor[Formula Editor:^] A formula Editor for building custom calculations
 
 ==== Input Field
 
 image::images/widgets_w_inputField.png[]
-link:../jsdoc/bcdui.widget.html#.createInputField[Input Field:, window="_blank"] An autocompletion input widget
+link:../jsdoc/bcdui.widget.html#.createInputField[Input Field:^] An autocompletion input widget
 
 ==== Login Form
 
 image::images/widgets_w_loginForm.png[]
-link:../jsdoc/bcdui.widget.html[Login Form:, window="_blank"] A simple login form widget for username and password
+link:../jsdoc/bcdui.widget.html[Login Form:^] A simple login form widget for username and password
 
 ==== Menu
 
 image::images/widgets_w_menu.png[]
-link:../jsdoc/bcdui.widget.html#.createMenu[Menu:, window="_blank"] A top menu bar widget
+link:../jsdoc/bcdui.widget.html#.createMenu[Menu:^] A top menu bar widget
+
+To create a menu follow these steps: First create a WEB-INF/bcdui/menu/menu.xml file with the format of
+link:https://github.com/businesscode/BCD-UI/blob/master/Docu/xsd/menu-1.0.0.xsd[menu-1.0.0.xsd^].
+It is picked-up on next restart.
+
+.Sample menu.xml file
+[source,xml]
+----
+include::../../../BCD-UI-Tutorial/web/WEB-INF/bcdui/menu/menu.xml[]
+----
+
+provide a place where to show it, depending on your theme
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/widgets/index.html[tag=menuTh]
+----
+
+and call
+[source,javascript]
+----
+include::../../../BCD-UI-Tutorial/web/widgets/index.html[tag=menuJs]
+----
+
+The menu is capable of respecting different scopes and even user rights, see XSD for details.
 
 ==== Multi Select
 
 image::images/widgets_w_multiSelect.png[]
-link:../jsdoc/bcdui.widget.html#.createMultiSelect[Multi Select:, window="_blank"] A multiple selection widget (select list or checkbox list)
+link:../jsdoc/bcdui.widget.html#.createMultiSelect[Multi Select:^] A multiple selection widget (select list or checkbox list)
 
 ==== Period Chooser
 
 image::images/widgets_w_periodChooser.png[]
-link:../jsdoc/bcdui.widget.html#.createPeriodChooser[Period Chooser:, window="_blank"] A date/date range popup calendar
+link:../jsdoc/bcdui.widget.html#.createPeriodChooser[Period Chooser:^] A date/date range popup calendar
 
 ==== Single Select
 
 image::images/widgets_w_singleSelect.png[]
-link:../jsdoc/bcdui.widget.html#.createSingleSelect[Single Select:, window="_blank"] A radio button widget offering single selection
+link:../jsdoc/bcdui.widget.html#.createSingleSelect[Single Select:^] A radio button widget offering single selection
 
 ==== Tab
 
 image::images/widgets_w_tab.png[]
-link:../jsdoc/bcdui.widget.html#.createTabMenu[Tab:, window="_blank"] Tabs allow to switch different views of the same data or between different data within a page
+link:../jsdoc/bcdui.widget.html#.createTabMenu[Tab:^] Tabs allow to switch different views of the same data or between different data within a page
 
 ==== Tooltip
 
 image::images/widgets_w_tooltip.png[]
-link:../jsdoc/bcdui.widget.html#.createTooltip[Tooltip:, window="_blank"] Flyover, Tooltips connected to cells
+link:../jsdoc/bcdui.widget.html#.createTooltip[Tooltip:^] Flyover, Tooltips connected to cells

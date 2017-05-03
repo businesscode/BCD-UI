@@ -5,16 +5,21 @@
 :toc: left
 :toclevels: 3
 :docinfo1:
+:experimental:
 
-include::architecture.adoc[]
+include::about.adoc[]
 
 include::gettingStarted.adoc[]
+
+include::simpleReq.adoc[]
 
 include::minimalCube.adoc[]
 
 include::coreArtifacts.adoc[]
 
 include::components.adoc[]
+
+:leveloffset: +1
 
 include::cube.adoc[]
 
@@ -24,6 +29,8 @@ include::treeReport.adoc[]
 
 include::charts.adoc[]
 
+:leveloffset: -1
+
 include::widgets.adoc[]
 
 include::pageStructure.adoc[]
@@ -32,13 +39,9 @@ include::themes.adoc[]
 
 include::i18n.adoc[]
 
-include::exportDetails.adoc[]
-
-include::exportWysiwyg.adoc[]
+include::exports.adoc[]
 
 include::xsltLibrary.adoc[]
-
-include::calculations.adoc[]
 
 include::api.adoc[]
 
@@ -58,36 +61,14 @@ include::vfs.adoc[]
 
 include::debug.adoc[]
 
-include::appsetup.adoc[]
-
 include::bootstrap.adoc[]
 
-include::writingJSDoc.adoc[]
+include::appsetup.adoc[]
 
 include::gradle.adoc[]
 
-include::database.adoc[]
-
 include::generalFeatures.adoc[]
-
-include::utils.adoc[]
-
-include::levelOfComponents.adoc[]
-
-include::releaseNotes.adoc[]
-
-include::conventions.adoc[]
 
 include::compatibility.adoc[]
 
 include::configuration.adoc[]
-
-include::designRationale.adoc[]
-
-include::login.adoc[]
-
-include::menu.adoc[]
-
-include::repository.adoc[]
-
-include::simpleReq.adoc[]

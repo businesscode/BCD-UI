@@ -4,8 +4,8 @@
 === Internationalization
 
 Internationalization (I18n) allows to provide the user interface in different languages to different users.
-To allow this, caption, text, number and date formats can be changed on runtime depending on a user's language setting.
-I18n will typically operate on front end captions and date formats, but can also in certain cases operate on data level when reading from a database.
+To allow this, caption, text, number and date formats can be adjusted on runtime depending on a user's language setting.
+I18n will typically operate on front end captions and date formats, but can also in certain cases operate on data level when reading from a database. +
 The translation happens on client side in browser by parsing HTML elements that contain bcdTranslate attribute with i18n key as value.
 Each renderer automatically translates its content before pasting the HTML transformation result into HTML document.
 Translation for static HTML contents can be triggered separately.
@@ -13,7 +13,7 @@ Translation for static HTML contents can be triggered separately.
 ==== I18n Setup
 
 In order to setup BCD-UI internationalization either you have to declare a BindingSet @id=bcdui_i18n
-or save a static file under /myProject/bcdui/conf/messages.xml in WRS format according to BindingSet @id=bcdui_i18n with i18n messages,
+or save a static file at /myProject/bcdui/conf/messages.xml in WRS format according to BindingSet @id=bcdui_i18n with i18n messages,
 a sample is under BCD-UI/src/js/i18n/messages.xml.
 
 The BindingSet and data table should have 3 columns named "key", "lang" and "value".

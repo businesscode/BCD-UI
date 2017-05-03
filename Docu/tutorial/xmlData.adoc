@@ -76,22 +76,6 @@ Each row can be
 
 Each row has a unique id, whose value has no meaning beside being unique within the document.
 
-Each column C or O contains the column value or a value to be set by the server like
-
-[source,xml]
-----
-<ServerValue name="user" param1="id"/>
-----
-
-for example for the session users's id. In general
-
-[source,xml]
-----
-<ServerValue name="object" param1="parameter 1" paramN="parameter n"/>
-----
-
-See <<DocContext,ServerValues>> for more information.
-
 ==== Request document
 
 To request a Wrs from the server, a request document in the following format is to be sent.
@@ -100,7 +84,6 @@ To request a Wrs from the server, a request document in the following format is 
 ----
 <WrsRequest xmlns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0" maxRows="100" startRow="300">
   <Select id="a">
-    <!-- later can this be wrapped with a Join element -->
     <Columns>
       <C bRef="ctrId"/>
       <C bRef="mo">
@@ -108,12 +91,9 @@ To request a Wrs from the server, a request document in the following format is 
         <A bRef="monthName" name="caption"/>
       </C>
       <C bRef="travelers" aggr="min"/>
-      <!-- the following brings: sum(travelers) over (partition by mo) order by ctrId as percentage -->
-      <C caption="maxPerMonth" aggr="sum" partitionBy="mo" orderBy="ctrId"/>
     </Columns>
     <From>
       <BindingSet>ctrPeople</BindingSet>
-      <!-- Or a later Select element -->
     </From>
     <Filter xmlns="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
       <And>
@@ -128,7 +108,6 @@ To request a Wrs from the server, a request document in the following format is 
       </And>
     </Filter>
     <Grouping>
-      <!-- Optional -->
       <C bRef="ctrName"/>
       <C bRef="mo"/>
     </Grouping>

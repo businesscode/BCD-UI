@@ -3,7 +3,7 @@
 
 === Unified Expression Language
 
-The BCD-UI System uses the J2EE Unified Expression Language to put Server-side Values into
+The BCD-UI System uses the Java EE Unified Expression Language to put Server-side Values into
 XML documents at various places. With this feature it is possible to create for example
 request documents with the period set to the current month or year. This is especially
 useful when such a request document is based on the guiStatus and therefore bookmarkable,

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 //--------------------------------------------------
-// Handles generation of HTML documentation from manual doc.xml and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
+// Handles generation of HTML documentation from manual adoc and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
 buildscript {
   repositories {
     maven {

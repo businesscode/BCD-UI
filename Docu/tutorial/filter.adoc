@@ -1,5 +1,5 @@
 [[DocFilter]]
-== Servlet Filters
+== Servlets / Filters
 
 === Overview
 

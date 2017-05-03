@@ -46,14 +46,14 @@ Filters are listed <<DocFilter,here.>>
 
 ==== Delivered sources
 
-Because BCD-UI applications are J2EE applications, most artifacts are typical J2EE elements.
+Because BCD-UI applications are Java EE applications, most artifacts are typical Java EE elements.
 BCD-UI is delivered in the form of
 
-J2EE Server components:: Like Servlets and ServletFilters fulfilling server side tasks, for example access right evaluation or file upload.
+Java EE Server components:: Like Servlets and ServletFilters fulfilling server side tasks, for example access right evaluation or file upload.
 WebServices:: WebServices server for XML exchange with the client mainly for database access.
 JavaScript library:: JavaScript code forms the base for the client-side controller of the standard Model/View/Control pattern.
 JSP tag library:: JSP tags are wrappers of the JavaScript functionality to ease their use on JSP pages.
 XSLT library:: XSLT forms the base of vies of the standard Model/View/Control pattern.
 Configuration files:: Configuration XML files allow to modify the behaviour of BCD-UI's components.
 
-Each artifact can be extended or replaced by custom-written J2EE components implementing the appropriate interfaces.
+Each artifact can be extended or replaced by custom-written Java EE components implementing the appropriate interfaces.

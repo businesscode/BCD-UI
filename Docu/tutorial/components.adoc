@@ -1,7 +1,7 @@
 [[DocComponents]]
-== BCD-UI components
+== Components
 
-=== Ready-to-use components
+=== Overview
 
 BCD-Suite contains the following ready-to-use components
 

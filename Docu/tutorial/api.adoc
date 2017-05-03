@@ -1,166 +1,193 @@
 [[DocApi]]
-== JS, JSP, XML, XSLT Api
+== Api in different languages
 
-=== Apis
+=== Apis Overview
 
-BCD-UI offers a variety of APIs for core, component, widget, widgetNg functionalities. The common basis of all APIs is javascript. So for example
-JSP tags or XSLT templates will call or generate javascript code.
-The following subchapters will show you some examples how to use the different APIs.
-*Please note that some auxiliary APIs may have technical restrictions.*
+Core objects, widgets and components can be created in different APIs, all leading to the same resulting object.
 
-==== JS
+* Javascript is the most common and most powerful way
+* HTML Custom Elements are available for widgets and components, i.e. for all visible objects
+* JSP provides wrapper for object creation
+* For XSLT named templates are available for creation of thr objects
+* XAPI allows you to trigger creation of objects from XML
 
-Javascript is commonly used in your HTML/JSP script blocks. It offers you access to all BCD-UI features.
-Keep in mind, within javascript the targetHtml attribute (e.g. used in components, widgets) is a required attribute. It's optional for other APIs (since they can generate their own target optionally).
-As an example, the following code will create a drop down chooser which takes its information from an automodel. It can be part of an HTML page's body element.
+In the following chapters we show the same sample for each language API:
+
+=== Javascript API
+
+Javascript is the most common and powerful usage of BCD-UI objects.
+As opposed to the other APIs, it is not declarative but instead you work wit the real objects.
+Start by importing the library
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=jsinclude]
+----
+
+For visual output of widgets, components and renderer, you need to create a targetHtml on you page
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=rendererTH]
+----
+
+Best is to put your javascript code at the page bottom.
+This way you are sure your targetHtml elements are created already:
+[source,javascript,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=jscode]
+----
+
+=== HTML5 Custom Elements API
+
+HTML5 Custom Elements look like standard HTML tags but provide custom functionality.
+They will become more and more common in the next time.
+
+.General rules Rules
+* There are custom tags for widgets, components and the renderer, i.e. for all objects creating visual output.
+* The naming of the tags follows the naming of the Javascript API, preceded by 'bcd-'.
+* The output is placed at the location of the tag, i.e. no targetHtml is necessary
+* To reference other objects, for example DataProviders, you need to give those objects and explicit id
+
+Place the renderer or widget where you expect the output
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=renderer5]
+----
+<1> For HTML5 Custom Elements, don't use self-closing elements ('/>'), use an explicit closing tab instead
+
+Create non-visual objects with Javascript and make sure you assign an id
+[source,javascript,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=model5]
+----
+<1> Assign an id because HTML5 Custom Elements need strings as parameters
+
+=== JSP API
+
+To use BCD-UI's taglib, make sure to add bcui-ui-jsptaglib.jar to WEB-INF/lib. +
+Start by importing the taglibs needed on your page.
+
+[source,jsp]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.jsp[tag=taglibs]
+----
+
+Then use `<b:init/>` tag to load and start BCD-IU
 
 [source,html]
 ----
-<div id="myChooser"></div>
-<script  type="text/javascript">
-  var myDataModel = new bcdui.core.AutoModel({
-    bindingSetId: "auto_test_wrs_oracle"
-  , bRefs: "country"
-  , isDistinct: true
-  });
-  bcdui.widgetNg.createSingleSelect({
-    targetHtml: "myChooser"
-  , targetModelXPath: "/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
-  , optionsModelXPath: "$" + myDataModel.id + "//wrs:Data/wrs:R/wrs:C[1]"
-  })
-</script>
-
+include::../../../BCD-UI-Tutorial/web/api/index.jsp[tag=init]
 ----
 
-==== JSP
+Tags have the same name and parameters as their Javascript counterparts, except SimpleModel, which is named model in jsp.
+Our tags allow tag nesting for parameters.
+A renderer or widget will create its output at the place of the tag, so on this case you do not need a targetHtml parameter.
 
-Widgets, components, core objects and functionalities are also available as JSP tags. Let's take the previous javascript example in JSP tag syntax.
-Keep in mind, inJSP, XSLT or XML environment you can reference objects via ids only. JSPs allow nesting of elements, too.
-You need to use taglib entries in your jsp to access the single tags. 
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.jsp[tag=renderer]
+----
+<1> Output is placed where the tag is
 
+=== XSLT API
+
+You can call our named templates from XSLT to create BCD-UI objects, including core, widgets and components.
+This is useful, if you have an XSLT creating HTML allowing very dynamic UIs. +
+Such an XSLT may look like this:
+
+.xsltApiSample.xslt making calls to XSLT API
+[source,xml]
+----
+include::../../../BCD-UI-Tutorial/web/api/xsltApiSample.xslt[]
+----
+<1> Import bcdui/core/core.xslt, bcdui/widget/widget.xslt, bcdui/widgetNg/widgetNg.xslt and or , bcdui/component/component.xslt
+<2> Embed the tags in yout ordinary HTML output
+<3> The XSLT template names follow the js API names in lower case
+<4> The parameter names follow the js API
+
+First create a place where to show the result:
+[source,html,indent=0]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=rendererXsltTh]
+----
+
+Then create a Renderer to show it and it will trigger the creation of the objects:
 [source,javascript]
 ----
-
-<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
-<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/widgetNg" prefix="wNg"%>
-
-<b:autoModel id="myDataModel"
-  bindingSetId="auto_test_wrs_oracle"
-  bindingItemRefs="country"
-  isDistinct="true"/>
-
-<wNg:singleSelect
-  targetModelXPath="/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
-  optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
-
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=rendererXslt]
 ----
 
-The target HTML position - if not specified - is automatically generated at the position where you place your tag. So if you placed your container div
-manually elsewhere you might use the following for the singleSelect tag:
- 
-[source,html]
-----
-
-<div id="myChooser"></div>
-<wNg:singleSelect
-  targetHtml="myChooser"
-  targetModelXPath="/*/f:Filter/f:Expression[@bRef = 'orig_country' and @op = '=']/@value"
-  optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
-
-----
-
-==== XSLT
-*Restrictions*
+.XSLT API Restrictions
 * It is not possible to use core:modelUpdater on the guiStatus to initially transform it. Please use either JS or JSP API for that purpose.
 * Following widgets from /bcdui/js/widget/widget.xslt are not available in this API: blindUpDown, loginForm, userMessagesEditor, userMessagesViewer
 
+=== XAPI API
 
-For using the XSLT API we include a renderer in our page which handles the transformation of the stylesheet holding the single API template calls.
-Such renderer code in jsp can look like this: 
- 
-[source,html]
-----
-<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
-<div id="xsltArea"><div>
-<b:renderer stylesheetUrl="renderer.xslt" targetHtml="xsltArea"/>
+XAPI is a fully declarative way to create BCD-UI objects in XML.
+It can be used directly and allows for easy creation of a Domain Specific Language (DSL) in XML for your customers on top of it.
 
-----
+An XAPI file looks like the following:
 
-And our example stylesheet renderer.xslt file looks like this:
-
-
+.xapi.xml making use of XAPI
 [source,xml]
 ----
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:import href="../../bcdui/js/core/core.xslt"/>
-  <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
-  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
-  <xsl:template match="/*">
-    <div>
-      <xsl:call-template name="autoModel">
-        <xsl:with-param name="id" select="'myDataModel'"/>
-        <xsl:with-param name="bindingSetId" select="'auto_test_wrs_oracle'"/>
-        <xsl:with-param name="bindingItemRefs" select="'country'"/>
-        <xsl:with-param name="isDistinct" select="'true'"/>
-      </xsl:call-template>
-      <xsl:call-template name="singleSelectNg">
-        <xsl:with-param name="targetModelXPath">/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value</xsl:with-param>
-        <xsl:with-param name="optionsModelXPath">$myDataModel//wrs:Data/wrs:R/wrs:C[1]</xsl:with-param>
-      </xsl:call-template>
-    </div>
-  </xsl:template>
-</xsl:stylesheet>
+include::../../../BCD-UI-Tutorial/web/api/xapi.xml[]
 ----
+<1> Tag and parameter names follow Javascript API
+<2> You can freely mix and nest with HTML here
 
-As you see in the example, you need to use import API xslts (core.xslt, component.xslt, widget.xslt, widgetNg.xslt) to make use of the templates.
+The minimal way to apply it is to create the following XSLT.
+In your version you may want to extend this by your DSL functionality.
 
-==== XML
-*Restrictions*:
+.xapiMinimalRenderer.xslt for applying XAPI
+[source,xml]
+----
+include::../../../BCD-UI-Tutorial/web/api/xapiMinimalRenderer.xslt[]
+----
+<1> Add an html namespace so that we can copy that later 1:1
+<2> Import needed xslt (see comment above XSLT API)
+<3> You can freely mix and nest with HTML here
+<4> Here we make sure we copy HTML content 1:1
 
+And use the standard way to apply this stylesheet to the xapi file. Make sure you created the targetHtml before
+[source,javascript]
+----
+include::../../../BCD-UI-Tutorial/web/api/index.html[tag=rendererXapi]
+----
+<1> A short way to create a SimpleModel and pass it
+
+. XAPI Restrictions
 * It is not possible to use core:modelUpdater on the guiStatus to initially transform it. Please use either JS or JSP API for that purpose.
 * Following widgets from /bcdui/js/widget/widget.xslt are not available in this API: BlindUpDown, LoginForm, UserMessagesEditor, UserMessagesViewer
-* Recommended way for XML API is to use the inputModel on the transformator when generating.
 
+=== Create your own Domain Specific Language DSL
 
-For the XML Api, you can define your objects in an XML file. We will use a helper xslt tranformation which simply applies the listed elements.
-Renderer code in jsp can look like this: 
- 
-[source,html]
-----
-<%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b"%>
-<div id="xmlArea"><div>
-<b:renderer stylesheetUrl="apply.xslt" targetHtml="xmlArea">
-  <b:model url="elements.xml"/>
-</b:renderer>
+The real power of XSLT API and XAPI is that you can easily extend it to your own Domain Specific Language.
 
-----
+First extend the xslt used for the XAPI sample by an xslt template reflecting you DSL.
+In our case we added `cust:MyRenderer`, which is convenient as it gets the data url directly, removing the need to create an extra DataProvider.
+While this is a very simple example, you can easily extend it to a complete DSL.
 
-And our helper stylesheet apply.xslt file looks like this:
-
+.dslRenderer.xslt, defining your extension
 [source,xml]
 ----
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:import href="../../bcdui/js/core/core.xslt"/>
-  <xsl:import href="../../bcdui/js/widgetNg/widgetNg.xslt"/>
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
-  <xsl:template match="/*">
-    <div>
-      <xsl:for-each select="*">
-        <xsl:apply-templates select="."/>
-      </xsl:for-each>
-    </div>
-  </xsl:template>
-</xsl:stylesheet>
+include::../../../BCD-UI-Tutorial/web/api/dslRenderer.xslt[]
 ----
+<1> Use `xmlns:cust=http://www.businesscode.de/schema/bcdui/customization-1.0.0` namespace for your extensions as it is known to the browser's xpath, BCD-UI adds it there.
+<2> This is where your DSL is handled, note the 'cust' namespace. You can create any HTML content and BCD-UI objects here. +
+Here you may also call apply-templates to resolve nested XAPI calls in a more complex sample.
+<3> Internally it will translate to calls to XSLT API
+<4> Here the value of your 'dataUrl' parameter is passed
+<5> Standard handling of XAPI
 
-And finally our example stylesheet elements.xml file looks like this:
+Create a renderer with the dslRenderer.xslt as `chain` an die following as `inputModel`
 
+.dsl.xml, calling your extension
 [source,xml]
 ----
-<Root>
-  <AutoModel xmlns="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0" id="myDataModel" bindingSetId="auto_test_wrs_oracle" isDistinct="true" bindingItemRefs="country"/>
-  <SingleSelectNg targetModelXPath="/*/f:Filter/f:Expression[@bRef= 'orig_country' and @op = '=']/@value" optionsModelXPath="$myDataModel//wrs:Data/wrs:R/wrs:C[1]"/>
-</Root>
+include::../../../BCD-UI-Tutorial/web/api/dsl.xml[]
 ----
+<1> Make sure to HTML content is in html namespace
+<2> You can freely mix and nest with HTML content
+<3> Here you make use of your custom DSL
 
-As you see in the example, the helper xslt imports API xslts (core.xslt, component.xslt, widget.xslt, widgetNg.xslt) to make use of the templates.
+and you will see your own DSL in action!
