@@ -173,6 +173,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    */
   _DND_OBJECTS: [
       { parent: "scc:Dimensions/scc:Rows", configParent: "scc:Dimensions", fullBucketItem: "scc:Dimensions/dm:LevelRef", bucketParent: "scc:Dimensions", bucketItem:"dm:LevelRef", bucketId:"bRef", configId:"bRef", generator: "dm:Dimensions/dm:LevelRef", generatorOption: "clone", dndObject: "RowDimensions", kpiObject: "scc:LevelKpi", kpiObjectMustExist: true}
+    , { parent: "scc:Dimensions/scc:Columns", configParent: "scc:Dimensions", fullBucketItem: "scc:Dimensions/dm:LevelRef", bucketParent: "scc:Dimensions", bucketItem:"dm:LevelRef", bucketId:"bRef", configId:"bRef", generator: "dm:Dimensions/dm:LevelRef", generatorOption: "skip", dndObject: "ColDimensions", kpiObject: "scc:LevelKpi", kpiObjectMustExist: false}
     , { parent: "scc:KpiRefs", configParent: "scc:KpiRefs", fullBucketItem: "scc:KpiRefs/scc:KpiRef", bucketParent: "scc:KpiRefs", bucketItem: "scc:KpiRef", bucketId: "idRef", configId: "id", dndObject: "Kpis", generator: "scc:Kpis/scc:Kpi", kpiObject: undefined}
     , { parent: "scc:AspectRefs", configParent: "scc:AspectRefs", fullBucketItem: "scc:AspectRefs/scc:AspectRef", bucketParent: "scc:AspectRefs", bucketItem: "scc:AspectRef", bucketId: "idRef", configId: "id", dndObject: "Aspects", generator: "scc:Aspects/scc:Aspect", kpiObject: "scc:AspectKpi", generatorOption: "skip"}
     , { parent: "scc:CategoryTypeRefs", configParent: "scc:CategoryTypeRefs", fullBucketItem: "scc:CategoryTypeRefs/scc:CategoryTypeRef", bucketParent: "scc:CategoryTypeRefs", bucketItem: "scc:CategoryTypeRef", bucketId: "idRef", configId: "id", dndObject: "Categories", generator: "scc:CategoryTypes/scc:CategoryType", kpiObject: undefined}
@@ -223,6 +224,15 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
     };
+    bcdui.widgetNg.createConnectable(targetArgs);
+    var targetArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentScColDimensionList"
+      , targetModelXPath: "$" + scBucket.id + scTargetXPathRoot + "/ColDimensions/@id"
+      , isDoubleClickTarget: false
+      , scope: args.scorecardId + "_dims"
+      , unselectAfterMove: true
+      , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
+      };
     bcdui.widgetNg.createConnectable(targetArgs);
 
     // setup connectable source/target for kpis
@@ -516,7 +526,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * @private
    */
   _itemRenderer: function(args) {
-    var customClass = args.value == "bcdKpi|KPI" ? "bcdLocked" : "";
+    var customClass = args.value == "bcdKpi|KPI" ? "bcdTargetLocked" : "";
     return "<li class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
   
@@ -529,8 +539,9 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     var dndDirectionTargetLeft = bcdui.config.settings.bcdui.component.dnd.targetLeft == null ? true : bcdui.config.settings.bcdui.component.dnd.targetLeft;
     var targetArea = "" +
       "<div class='grid_3 omega bcdCurrentKpiList" + (dndDirectionTargetLeft ? " alpha" : "") + "'></div>" +
+      "<div class='grid_3 omega bcdCurrentScRowDimensionList'></div>" +
       "<div class='grid_3 omega'>" +
-      "  <div class='bcdCurrentScRowDimensionList" + (dndDirectionTargetLeft ? " alpha" : "") + "'></div>" +
+      "  <div class='bcdCurrentScColDimensionList'></div>" +
       "  <div class='bcdCurrentAspectList'></div>" +
       "</div>";
     var sourceArea = ""+
@@ -556,6 +567,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     // insert pseudo classes for translated dnd background texts
     jQuery('<style>' +
       '.bcdCurrentScRowDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowDimensions"}) + '"; }' +
+      '.bcdCurrentScColDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColDimensions"}) + '"; }' +
       '.bcdCurrentKpiList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Kpis"}) + '"; }' +
       '.bcdCurrentAspectList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Aspects"}) + '"; }' +
     '</style>').appendTo('head');

@@ -695,7 +695,7 @@ div.bcdContextMenu a.bcdMenuitems {
 }
 
 .bcdScorecardDndMatrix {
-  .bcdCurrentScRowDimensionList {
+  .bcdCurrentScColDimensionList, .bcdCurrentScRowDimensionList {
     .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-dimension; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
     ul.bcdDropTarget { @include topDownGradient($sc-color-dimension, #FFFFFF); }
   }
@@ -710,7 +710,8 @@ div.bcdContextMenu a.bcdMenuitems {
   .bcdKpi {/* background-color: $scorecard-color-kpi !important; */ }
 
   .bcdCurrentKpiList { height: 233px;}
-  .bcdCurrentScRowDimensionList, .bcdCurrentAspectList { height: 114px; margin-bottom: 5px;}
+  .bcdCurrentScColDimensionList, .bcdCurrentAspectList { height: 114px; margin-bottom: 5px;}
+  .bcdCurrentScRowDimensionList { height: 233px; margin-bottom: 5px;}
   .bcdKpiList { height: 211px; }
   .bcdScDimensionList, .bcdAspectList { height: 92px;  margin-bottom: 5px;}
 
@@ -751,6 +752,7 @@ div.bcdContextMenu a.bcdMenuitems {
   */
 }
 
+.bcdTargetLocked :after,
 .bcdLocked :after{
   content: "🔒";
   font-size: 8px;
