@@ -15,10 +15,10 @@
   limitations under the License.
 -->
 <!--
-  Default context xml for tomcat
+  Sample context xml for tomcat
 -->
 <Context seeAttributesBelow="">
-  <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false", cachingAllowed="false">, this allows live updating of content -->
+  <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 
   <!-- Disable cache means, configuration files keep being read every time  -->
@@ -33,8 +33,6 @@
   <Resource name="jdbc/connectionXX"
     auth="Container"
     type="javax.sql.DataSource"
-    username="XX"
-    password="XX"
     maxActive="200"
     maxIdle ="-1"
     maxWait="200"
@@ -45,15 +43,15 @@
     driverClassName="oracle.jdbc.OracleDriver"
     connectionProperties="defaultRowPrefetch=100;"
     initConnectionSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
-    url="jdbc:oracle:thin:@serverXX:1521:dbInstanceXX" />
-
+    url="jdbc:oracle:thin:@serverXX:1521:dbInstanceXX"
+    username="XX"
+    password="XX" />
   -->
+
   <!-- Sample for Teradata
-   <Resource name="jdbc/connectionXX"
+  <Resource name="jdbc/connectionXX"
     auth="Container"
     type="javax.sql.DataSource"
-    username="XX"
-    password="XX"
     maxActive="100"
     maxIdle ="-1"
     maxWait="200"
@@ -62,19 +60,19 @@
     validationQuery="select current_time"
     testOnBorrow="true"
     driverClassName="com.teradata.jdbc.TeraDriver"
-    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8"/>
+    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8"
+    username="XX"
+    password="XX" />
 
     * use the following for V2R6.1 and earlier
     driverClassName="com.ncr.teradata.TeraDriver"
     url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8,COMPAT_DBS=false,COMPAT_ISSIGNED=true"/>
- -->
+   -->
 
-<!-- Sample for MSSqlServer
+  <!-- Sample for MSSqlServer
   <Resource name="jdbc/connectionXX"
     auth="Container"
     type="javax.sql.DataSource"
-    username="XX_"
-    password="XX"
     maxActive="10"
     maxIdle ="5"
     maxWait="15000"
@@ -83,21 +81,23 @@
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="net.sourceforge.jtds.jdbc.Driver"
-    url="jdbc:jtds:sqlserver://serverXX:1433/dbnameXX" />
+    url="jdbc:jtds:sqlserver://serverXX:1433/dbnameXX"
+    username="XX"
+    password="XX" />
   -->
 
   <!-- Sample for MySql (not fully supported, for example no col-totals in cube due to missing grouping sets)
-    <Resource name="jdbc/connectionXX"
-      auth="Container"
-      type="javax.sql.DataSource"
-      username="XX"
-      password="XX"
-      maxActive="10"
-      maxIdle ="5"
-      maxWait="15000"
-      driverClassName="com.mysql.jdbc.Driver"
-      url="jdbc:mysql://serverXX:3306/dbnameXX" />
-    -->
+  <Resource name="jdbc/connectionXX"
+    auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="10"
+    maxIdle ="5"
+    maxWait="15000"
+    driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://serverXX:3306/dbnameXX"
+    username="XX"
+    password="XX" />
+  -->
 
   <WatchedResource>WEB-INF/web.xml</WatchedResource>
 </Context>

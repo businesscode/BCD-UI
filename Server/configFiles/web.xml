@@ -16,8 +16,6 @@
 -->
 <!--
   Standard web.xml for BCD-UI 4 applications.
-
-  Note, for older servers, like Tomcat 6, use version servlet version 2.5 instead of 3.0 in both places below (/web-app/@xsi:schemaLocation and /web-app/@version)
   -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://java.sun.com/xml/ns/javaee"
@@ -33,23 +31,9 @@
   <!--
     BCD-UI 4 Filters
   -->
-  <!-- SPNEGO Windows SSO configuration -->
-  <!-- 
-  <security-role>
-    <role-name>*</role-name>
-  </security-role>
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>SPNEGO AUTHENTICATION</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>*</role-name>
-    </auth-constraint>
-  </security-constraint>
- -->
 
-  <!-- filter for identifying requests from MS Office applications like Word or Excel to not redirect to login page, enable if needed
+  <!-- filter for identifying requests from MS Office applications like Word or Excel to not redirect to login page, enable if needed -->
+  <!--
   <filter>
     <filter-name>bcdui4.AvailabilityFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.filters.AvailabilityFilter</filter-class>
@@ -60,7 +44,8 @@
   </filter-mapping>
   -->
 
-  <!-- Security filter, enable if needed
+  <!-- Security filter, enable if needed -->
+  <!--
   <filter>
     <filter-name>bcdui4.ShiroFilter</filter-name>
     <filter-class>org.apache.shiro.web.servlet.IniShiroFilter</filter-class>
@@ -72,29 +57,36 @@
         # Shiro core settings
         # To use BCD- user rights table, add: realmA = de.businesscode.bcdui.subjectsettings.JdbcRealm
         [main]
-        #realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
-        cacheManager = org.apache.shiro.cache.ehcache.EhCacheManager
-        securityManager.cacheManager = $cacheManager
+        authc.loginUrl      = /login.html
+        logout.redirectUrl  = /index.html
+        ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization
+        ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
+        realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
+        ## Support for bcd_log_login logging
         bcdAuthListener = de.businesscode.bcdui.web.AuthenticationListener
         securityManager.authenticator.authenticationListeners = $bcdAuthListener
+        ## Switch Shiro caching to ehcache, make sure to also enable ShutdownListener below and make sure temp directory is writable
+        # cacheManager = org.apache.shiro.cache.ehcache.EhCacheManager
+        # securityManager.cacheManager = $cacheManager
+        ## Use this only with Windows SSO mechanism
+        # authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
 
         # Users and their roles
         # format: username = password, role1, role2, ..., roleN
-        # Needed when BCD-UI SubjectSettings are not used
+        # Needed when realmBcdJdbc is not used
         [users]
 
         # Rules and their permissions
         # format: roleName = permission1, permission2, ..., permissionN
-        # Needed when BCD-UI SubjectSettings are not used
+        # Needed when realmBcdJdbc is not used
         [roles]
 
-        # URLs which require login, users not logged in will be sent to /login.jsp
+        # URLs which require login, users not logged in will be sent to login
         # format: /reports/budget/** = authc, perms["pages:budget"]
         [urls]
-        /bcdui/servlets/login = anon
         /bcdui/theme/**       = anon
-        /login.jsp            = anon
-        /**                   = anon
+        /login.html           = anon
+        /**                   = authc
       </param-value>
     </init-param>
   </filter>
@@ -104,6 +96,7 @@
   </filter-mapping>
   -->
 
+  <!-- Overall BCD-UI request lifecycle handling -->
   <filter>
     <filter-name>bcdui4.RequestLifeCycleFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.filters.RequestLifeCycleFilter</filter-class>
@@ -113,6 +106,7 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
+  <!-- Handle zipped guiStatus and request documents -->
   <filter>
     <filter-name>bcdui4.UnZipFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.filters.UnZipFilter</filter-class>
@@ -142,7 +136,9 @@
 
   <!--
    Client-side caching for development, caching library content and cached servlet data only till midnight
-   Comments see below
+    Expiry samples: ExpiresAbsTime 00:00:00 (every day midnight) / ExpiresAbsDow Sun-20 (every Sunday 20:00) / ExpiresRelDays 2 (always after 2 *24h)
+    ExcludeUrls: Space separated 'starts-with' of the path like /bcdui/bcdui.js. End folders with a /: /myFolder/
+    ExcludeExtensions: Space separated extensions ('ends-with') like .vfsxml.
   -->
   <filter>
     <filter-name>bcdui4.ClientCachingFilter</filter-name>
@@ -162,28 +158,12 @@
   </filter>
   <filter-mapping>
     <filter-name>bcdui4.ClientCachingFilter</filter-name>
-    <url-pattern>/bcdui/*</url-pattern>
-  </filter-mapping>
 
-  <!--
-    Client-side caching for production
-    Expiry samples: ExpiresAbsTime 00:00:00 (every day midnight) / ExpiresAbsDow Sun-20 (every Sunday 20:00) / ExpiresRelDays 2 (always after 2 *24h)
-    ExcludeUrls: Space separated 'starts-with' of the path like /bcdui/bcdui.js. End folders with a /: /myFolder/
-    ExcludeExtensions: Space separated extensions ('ends-with') like .vfsxml.
-  <filter>
-    <filter-name>bcdui4.ClientCachingFilter</filter-name>
-    <filter-class>de.businesscode.bcdui.web.cacheControl.ClientCachingFilter</filter-class>
-    <init-param>
-      <param-name>ExpiresAbsTime</param-name>
-      <param-value>00:00:00</param-value>
-    </init-param>
-    <init-param>
-      <param-name>ExcludeUrls</param-name>
-      <param-value>/bcdui/servlets/ /vfs/ /bcdui/bcdui.js</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>bcdui4.ClientCachingFilter</filter-name>
+    <!-- For development environment: -->
+    <url-pattern>/bcdui/*</url-pattern>
+
+    <!-- For production environment: -->
+    <!--
     <url-pattern>*.js</url-pattern>
     <url-pattern>*.xslt</url-pattern>
     <url-pattern>*.xml</url-pattern>
@@ -191,29 +171,20 @@
     <url-pattern>*.jpg</url-pattern>
     <url-pattern>*.gif</url-pattern>
     <url-pattern>*.css</url-pattern>
-    Cache this only, if no login is required, and jsp only, if the content is quasi static:
-      <url-pattern>*.html</url-pattern>
-      <url-pattern>*.jsp</url-pattern>
+    <url-pattern>*.html</url-pattern>
+    -->
+    <!-- Cache only content, which is not user dependent (for example no row-level security) -->
+    <!--
+    <url-pattern>*.jsp</url-pattern>
     <url-pattern>/bcdui/servletsCached/*</url-pattern>
     <url-pattern>/bcdui/servletsSessionCached/*</url-pattern>
+    -->
   </filter-mapping>
-  -->
 
   <!--
     BCD-UI Standard servlets
   -->
-  <!-- Login Servlet -->
-  <servlet>
-    <description>Log in user using username and password provided</description>
-    <display-name>Login servlet</display-name>
-    <servlet-name>bcdui4.Login</servlet-name>
-    <servlet-class>de.businesscode.bcdui.subjectsettings.LoginServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>bcdui4.Login</servlet-name>
-    <url-pattern>/bcdui/servlets/login</url-pattern>
-  </servlet-mapping>
-
+  <!-- Serves static resources from bcdui jar and vfs -->
   <servlet>
     <servlet-name>bcdui4.StaticResourceServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.StaticResourceServlet</servlet-class>
@@ -230,6 +201,7 @@
     <url-pattern>*.vfsxml</url-pattern>
   </servlet-mapping>
 
+  <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>
     <servlet-name>bcdui4.WrsServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.wrs.WrsServlet</servlet-class>
@@ -245,6 +217,7 @@
     <url-pattern>/bcdui/servletsSessionCached/WrsServlet/*</url-pattern>
   </servlet-mapping>
 
+  <!-- Export in cvs format, efficient, common but with issues in combination with Excel and data formats -->
   <servlet>
     <servlet-name>bcdui4.CsvServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.wrs.CsvServlet</servlet-class>
@@ -260,6 +233,7 @@
     <url-pattern>/bcdui/servletsSessionCached/CsvServlet/*</url-pattern>
   </servlet-mapping>
 
+  <!-- Export in sylk format, efficient and data type save -->
   <servlet>
     <servlet-name>bcdui4.SylkServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.wrs.SylkServlet</servlet-class>
@@ -275,6 +249,7 @@
     <url-pattern>/bcdui/servletsSessionCached/SylkServlet/*</url-pattern>
   </servlet-mapping>
 
+  <!-- Export in native Excel format, less efficient -->
   <servlet>
     <servlet-name>bcdui4.ExcelExportServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.wrs.ExcelExportServlet</servlet-class>
@@ -287,6 +262,7 @@
     <url-pattern>/bcdui/servletsSessionCached/ExcelExportServlet/*</url-pattern>
   </servlet-mapping>
 
+  <!-- Per page request context infomation -->
   <servlet>
     <servlet-name>bcdui4.BCDUIConfig</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.BCDUIConfig</servlet-class>
@@ -296,6 +272,7 @@
     <url-pattern>/bcdui/bcdui.js</url-pattern>
   </servlet-mapping>
 
+  <!-- Capable of zipping and unzipping guiStatus, Wrs and other documents -->
   <servlet>
     <servlet-name>bcdui4.ZipLet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.ZipLet</servlet-class>
@@ -305,6 +282,7 @@
     <url-pattern>/bcdui/servlets/ZipLet</url-pattern>
   </servlet-mapping>
 
+  <!-- For logging of client-side exception -->
   <servlet>
     <servlet-name>bcdui4.FrontendLogTransceiver</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.clientLogging.FrontendLogTransceiver</servlet-class>
@@ -338,42 +316,22 @@
     <servlet-name>bcdui4.WrsNextIdentifierServlet</servlet-name>
     <url-pattern>/bcdui/servlets/WrsNextIdentifierServlet/*</url-pattern>
   </servlet-mapping>
-  <!-- PDF Servlet -->
-  <!-- Can be uncommented if PDFGenerator.jar is present, Consider extending maxPostSize in your serverconfig
-  <servlet>
-    <servlet-name>bcdui4.PdfServlet</servlet-name>
-    <servlet-class>de.businesscode.bcdui.pdf.HTML2PDFServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>bcdui4.PdfServlet</servlet-name>
-    <url-pattern>/bcdui/servlets/Html2PdfServlet/*</url-pattern>
-  </servlet-mapping>
-  -->
   <!-- WYSIWYG Excel export Servlet -->
-  <!-- Can be uncommented if present, NOTE: Consider extending maxPostSize in your serverconfig
+  <!-- PLEASE NOTE: Consider setting maxPostSize in your server config -->
   <servlet>
     <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.toolbox.MirrorServlet</servlet-class>
     <init-param>
       <param-name>header:Content-Type</param-name>
       <param-value>application/vnd.ms-excel</param-value>
-    </init-param> -->
-    
-    <!-- turning on the following init parameter on can cause issues in IE11 Excel will open but stays blank -->
-    <!--  
-    <init-param>
-      <param-name>header:Content-Disposition</param-name>
-      <param-value>attachment; filename=excel.xls</param-value>
     </init-param>
-     -->
-<!--  </servlet>
+   </servlet>
    <servlet-mapping>
     <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>
     <url-pattern>/bcdui/servlets/Html2ExcelServlet/*</url-pattern>
   </servlet-mapping>
-  -->
 
-  <!-- hook up session listener, needed for session logging -->
+  <!-- Session listener for session logging -->
   <listener>
     <listener-class>de.businesscode.bcdui.web.SessionListener</listener-class>
   </listener>
@@ -391,17 +349,4 @@
   </listener>
   -->
 
-  <!-- welcome -->
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>default.html</welcome-file>
-    <welcome-file>default.htm</welcome-file>
-    <welcome-file>default.jsp</welcome-file>
-  </welcome-file-list>
-  <!-- See also shiro timeout settings above -->
-  <session-config>
-    <session-timeout>30</session-timeout>
-  </session-config>
 </web-app>
