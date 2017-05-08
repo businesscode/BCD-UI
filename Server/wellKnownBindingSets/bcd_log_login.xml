@@ -14,6 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<!-- Add this BindingSet to enable login logging logging.
+  If you application does not support login, use bcd_log_session.xml instead. -->
 <BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
   id="bcd_log_login" table="bcd_log_login" allowSelectAllColumns="true">
 

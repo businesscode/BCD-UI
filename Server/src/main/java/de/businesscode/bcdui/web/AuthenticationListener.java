@@ -28,6 +28,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
 
+/**
+ * Support for bcd_log_login logging
+ */
 public class AuthenticationListener implements org.apache.shiro.authc.AuthenticationListener{
 
   @Override
