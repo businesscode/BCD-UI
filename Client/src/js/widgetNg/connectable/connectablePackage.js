@@ -1002,10 +1002,13 @@
         // handle multi-select, add items from container data in destination
         jQuery("#" + this.config.elementId).on("sortstop", function(event, ui) {
 
-          var items = (ui.item.data("sameBox")) ? ui.item.data('itemContainer') : ui.item.data('itemContainer').not(".bcdLocked");
-          var itemsLocked = ui.item.data('itemContainer').filter(".bcdLocked");
-
           var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']"); // is empty if ui.item is detached
+
+          var isTargetToTarget = jQuery(box).hasClass("bcdTarget") && jQuery(event.target).hasClass("bcdTarget");
+          var selectList = isTargetToTarget ? ".bcdLocked" : ".bcdLocked, .bcdTargetLocked"
+
+          var items = (ui.item.data("sameBox")) ? ui.item.data('itemContainer') : ui.item.data('itemContainer').not(selectList);
+          var itemsLocked = ui.item.data('itemContainer').filter(selectList);
 
           // item got detached from DOM, this happens during a 'cancel' on jQuery sortable plugin
           // when all items got selected, here we reinsert them back to origin and stop
@@ -1093,6 +1096,11 @@
     _moveSelectedItems : function(from, to) {
       if (from.length > 0 && to.length > 0) {
         var itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").length;
+
+        var isTargetToTarget = jQuery(to).hasClass("bcdTarget") && jQuery(from).hasClass("bcdTarget");
+        if (! isTargetToTarget)
+          itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked, .bcdTargetLocked").length;
+        
         if (itemCount > 0) {
           if (this.onBeforeChange({element:jQuery("#" + this.config.elementId).get(0), dir: this._getMoveType(from, to), itemCount: itemCount})) {
 
@@ -1100,7 +1108,10 @@
             jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
             // the actual move...
-            jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").appendTo(to);
+            if (! isTargetToTarget)
+              jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked, .bcdTargetLocked").appendTo(to);
+            else
+              jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").appendTo(to);
 
             // check if we need to unselect our selection after the move
             var widgetEl = jQuery(to).parent();
