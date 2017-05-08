@@ -1021,6 +1021,12 @@ body {
     .bcdGripPinChar:after {
       content: "📌";
     }
+
+    .bcdGripClose > .bcdGripCloseChar {display: inline-block; right: 3px; color: $border-color-dark; position: absolute; bottom: 2px;}
+    .bcdGripCloseChar:after {
+      content: "◄";
+      border: 1px dotted $border-color-dark;
+    }
   }
 
   width: $sideBar-width;

@@ -28,6 +28,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
    *  bcdEffectAutoScroll         - auto scroll sidebar to current view
    *  bcdEffectDraggable          - have sideBar Items drag'n droppable
    *  bcdEffectCollapse           - have sideBar Items collapsable/expandable
+   *  bcdEffectMinimizeOnClick    - have the sidebar size adjust feature with a click to minimize it, not hover over body 
   */
 
   /**
@@ -59,10 +60,11 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       , pageSizeAdjust:     jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageSizeAdjust")
       , sideBarDraggable:   jQuery("#bcdSideBarContainer").hasClass("bcdEffectDraggable")
       , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse")
+      , sideBarMinimizeOnClick: jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
     };
 
     // nothing to do?
-    if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable)
+    if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick)
       return
     
     if (jQuery("#bcdSideBarEffect").length == 0)
@@ -81,13 +83,15 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     bcdui.widget.pageEffects._missedSideBarHover  = false;
     bcdui.widget.pageEffects._timeout             = null;
     bcdui.widget.pageEffects._over                = null;
+    bcdui.widget.pageEffects._minimizeOnClick     = jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
+    bcdui.widget.pageEffects._animationTimeOut    = bcdui.widget.pageEffects._minimizeOnClick ? 1 : 1000;
 
     if (bcdui.widget.pageEffects._bcdSideBarMinWidth == bcdui.widget.pageEffects._bcdSideBarMaxWidth && bcdui.widget.pageEffects._bcdSideBarMaxWidth == bcdui.widget.pageEffects._bcdSideBarWidth)
       args.sideBarSizeAdjust = false;
 
     if (jQuery("#bcdSideBarArea").length == 0) {
       var children = jQuery("#bcdSideBarContainer").children();
-      jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarArea'><span class='bcdSideBarGrip'><span class='bcdGripPin'><span class='bcdGripPinChar'></span>&#160;</span></span></div");
+      jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarArea'><span class='bcdSideBarGrip'><span class='bcdGripPin'><span class='bcdGripPinChar'></span>&#160;</span>" + (bcdui.widget.pageEffects._minimizeOnClick ? "<span class='bcdGripClose'><span class='bcdGripCloseChar'></span>&#160;</span>" : "") + "</span></div");
       
       var focus = jQuery(":focus");
       jQuery("#bcdSideBarArea").append(children);
@@ -129,14 +133,28 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         if (args.pageSizeAdjust)
           jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery("body").prop("scrollWidth") + "px");
 
-        var y = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
-        var h = jQuery("#bcdHeaderArea").height() + jQuery("#bcdMenuBarArea").height() + jQuery("#bcdSpacerArea").height();
-        if (y + jQuery("#bcdSideBarContainer").height() > jQuery("#bcdFooterArea").position().top)
-          y = jQuery("#bcdFooterArea").position().top - jQuery("#bcdSideBarContainer").height();
-        y = (y - h > 0) ? y - h : 0;
-  
-        if (args.sideBarAutoScroll)
-          jQuery('#bcdSideBarContainer').stop().animate({top: y} ,500);
+        if (args.sideBarAutoScroll) {
+          var y = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
+          var off = 0;
+          var top = 0;
+
+          if (jQuery('#bcdSideBarContainer').data("origTop") == null) {
+            top = parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
+            jQuery('#bcdSideBarContainer').data("origTop", "" + top);
+          }
+          else
+            top = parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10);
+
+          if (jQuery('#bcdSideBarContainer').data("origOff") == null) {
+            off = jQuery('#bcdSideBarContainer').offset().top;
+            jQuery('#bcdSideBarContainer').data("origOff", "" + off);
+          }
+          else
+            off = parseInt(jQuery('#bcdSideBarContainer').data("origOff"), 10);
+
+          var newTop = top + y-off < parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) ? parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) : top + y-off;
+          jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
+        }
       });
     }
 
@@ -163,7 +181,8 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         jQuery("#bcdBodyContainer").hover( function () {
           if (bcdui.widget.pageEffects._over != "body") {
             bcdui.widget.pageEffects._over = "body";
-            bcdui.widget.pageEffects._decreaseSideBar();
+            if (! bcdui.widget.pageEffects._minimizeOnClick)
+              bcdui.widget.pageEffects._decreaseSideBar();
           }
         });
       }
@@ -178,28 +197,46 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         jQuery("#bcdBodyContainer").hover( function () {
           if (bcdui.widget.pageEffects._over != "body") {
             bcdui.widget.pageEffects._over = "body";
-            bcdui.widget.pageEffects._moveOutSideBar();
+            if (! bcdui.widget.pageEffects._minimizeOnClick)
+              bcdui.widget.pageEffects._moveOutSideBar();
           }
         });
       }
     
-      jQuery(".bcdSideBarGrip").click( function () {
-        jQuery(".bcdGripPin").toggleClass("bcdGripActive");
-        bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin").text = jQuery(".bcdGripPin").hasClass("bcdGripActive") ? "1" : "0";
-        if (jQuery(".bcdGripPin").hasClass("bcdGripActive")) {
-          jQuery("#bcdSideBarContainer").css("width", 
-            bcdui.widget.pageEffects._bcdSideBarWidth != bcdui.widget.pageEffects._bcdSideBarMinWidth
-              ? bcdui.widget.pageEffects._bcdSideBarWidth + bcdui.widget.pageEffects._bcdSideBarMinWidth
-              : bcdui.widget.pageEffects._bcdSideBarMaxWidth + 20
-          );
-          jQuery("#bcdSideBarArea").css("left", 0);
-        }
-        else {
+      jQuery(".bcdSideBarGrip").click( function (event) {
+        
+        if (jQuery(event.target).hasClass("bcdGripCloseChar")) {
+          bcdui.widget.pageEffects._over = "sidebar";
+          jQuery(".bcdGripPin").removeClass("bcdGripActive");
+          bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin").text = "0";
           jQuery("#bcdSideBarContainer").css("width",
               bcdui.widget.pageEffects._bcdSideBarWidth != bcdui.widget.pageEffects._bcdSideBarMinWidth
               ? bcdui.widget.pageEffects._bcdSideBarMinWidth
               : bcdui.widget.pageEffects._bcdSideBarMinWidth + 20
-          );
+          );          
+          if (bcdui.widget.pageEffects._bcdSideBarWidth == bcdui.widget.pageEffects._bcdSideBarMinWidth)
+            bcdui.widget.pageEffects._decreaseSideBar();
+          else
+            bcdui.widget.pageEffects._moveOutSideBar();
+        }
+        else if (jQuery(event.target).hasClass("bcdGripPinChar")) {
+          jQuery(".bcdGripPin").toggleClass("bcdGripActive");
+          bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin").text = jQuery(".bcdGripPin").hasClass("bcdGripActive") ? "1" : "0";
+          if (jQuery(".bcdGripPin").hasClass("bcdGripActive")) {
+            jQuery("#bcdSideBarContainer").css("width", 
+              bcdui.widget.pageEffects._bcdSideBarWidth != bcdui.widget.pageEffects._bcdSideBarMinWidth
+                ? bcdui.widget.pageEffects._bcdSideBarWidth + bcdui.widget.pageEffects._bcdSideBarMinWidth
+                : bcdui.widget.pageEffects._bcdSideBarMaxWidth + 20
+            );
+            jQuery("#bcdSideBarArea").css("left", 0);
+          }
+          else {
+            jQuery("#bcdSideBarContainer").css("width",
+                bcdui.widget.pageEffects._bcdSideBarWidth != bcdui.widget.pageEffects._bcdSideBarMinWidth
+                ? bcdui.widget.pageEffects._bcdSideBarMinWidth
+                : bcdui.widget.pageEffects._bcdSideBarMinWidth + 20
+            );
+          }
         }
       });
   
@@ -312,7 +349,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           jQuery("#bcdSideBarArea").animate({width: bcdui.widget.pageEffects._bcdSideBarMinWidth + "px"}, 200);
         }
       }
-    }, 1000);
+    }, bcdui.widget.pageEffects._animationTimeOut);
   },
 
   /**
@@ -361,7 +398,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           jQuery("#bcdSideBarArea").animate({left: (-1 * (bcdui.widget.pageEffects._bcdSideBarWidth)) + "px"}, 200);
         }
       }
-    }, 1000);
+    }, bcdui.widget.pageEffects._animationTimeOut);
   },
   
   /**
