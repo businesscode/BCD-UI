@@ -743,6 +743,26 @@ the data that is actually placed in XML.
             If true, a standard layout for dnd area is created. If false, you need to provide containers with classes: bcdCurrentKpiList, bcdCurrentScRowDimensionList, bcdCurrentAspectList, bcdKpiList, bcdScDimensionList, bcdAspectList within an outer bcdScorecardDndMatrix container.
           </Doc>
         </Param>
+        <Param name="isTemplate" type="boolean">
+          <Doc>
+            Enable the template feature. This is an Enterprise Edition only feature.
+          </Doc>
+        </Param>
+        <Param name="templateTargetHtmlElementId" type="string">
+          <Doc>
+            If isTemplate is true then this attribute can be used to control the div where the template editor is placed.
+          </Doc>
+        </Param>
+        <Param name="hasUserEditRole" type="boolean">
+          <Doc>
+            Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdScorecardTemplateEdit is used to determine state (either *(any) or scorecardId to enable).
+          </Doc>
+        </Param>
+        <Param name="reportName" type="string">
+          <Doc>
+            Name of the report is used to access the persistent layouts.
+          </Doc>
+        </Param>
         <Param name="applyFunction" type="string">
           <Doc>
             Function name which is used for the apply button in isDefaultHtmlLayout=true mode. Default is bcdui.core.lifecycle.applyAction.

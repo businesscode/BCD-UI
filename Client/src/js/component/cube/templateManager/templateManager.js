@@ -19,25 +19,43 @@
 bcdui.util.namespace("bcdui.component.cube.templateManager",
 /** @lends bcdui.component.cube.templateManager */
 {
+
+  /**
+   * @private
+   */
+  _templateUrl: bcdui.config.jsLibPath+"component/cube/templateManager/rendering.xslt",
+
+  /**
+   * @private
+   */
+  _renderTemplateArea: function(args) {
+    return (args.isTemplate ? "<div id='bcdUpDown_Template_{{=it.id}}' class='bcdUpDown_Template'></div>" + 
+        "<div id='bcdUpDownBody_Template_{{=it.id}}'>" + 
+          "<div id='bcdDndTemplateDiv_{{=it.id}}'></div>" +
+        "</div>" : "");
+  },
+
   /**
    * applyUserTemplate
    * @private
    */
-  _applyUserTemplate: function( cubeId, id ) {
+  _applyUserTemplate: function( objectId, id ) {
     var metaDataModel = bcdui.component.cube.templateManager._getOptionsModel();
-    var template  = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout[@cubeId = '"+cubeId+"' and @id='"+ id +"']");
+    var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout[@cubeId='"+objectId+ "']") != null ? "@cubeId" : "@scorecardId";
+    var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
+    var template  = metaDataModel.getData().selectSingleNode("/*/*[local-name()='Layouts']/*[local-name()='Layout' and " + idAttr + " = '"+objectId+"' and @id='"+ id +"']");
     if (template != null) {
       // copy data
       var targetModel = bcdui.component.cube.templateManager._getTargetModel();
-      bcdui.core.removeXPath(targetModel.getData(), "/*/cube:Layout[@cubeId ='"+cubeId+"']" );
+      bcdui.core.removeXPath(targetModel.getData(), "/*/*[local-name()='Layout' and " + idAttr + " ='"+objectId+"']" );
       targetModel.getData().selectSingleNode("/*").appendChild(template.cloneNode(true));
 
       // avoid double firing in case of targetModel == guiStatus and flag "no client refresh possible"
-      var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ cubeId+"']" );
+      var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/" + ns + "ClientLayout[" + idAttr + " ='"+ objectId+"']" );
       layoutNode.setAttribute("disableClientRefresh","true");
 
       // avoid double/triple firing in case of targetModel == guiStatus or refresh target  == targetModel
-      var refreshTargetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+      var refreshTargetModelId = jQuery("#" + objectId + "_dnd").data("targetModelId");
       
       // fire guiStatus only when it's not identical to template Target or refreshingCube Target
       // since then it gets fired later down below
@@ -48,25 +66,31 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
       if (targetModel.id != refreshTargetModelId)
         targetModel.fire();
 
-      bcdui.component.cube.configuratorDND.reDisplay(cubeId, true); // fires refreshTargetModelId
+      if (idAttr == "@cubeId")
+        bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
+      else
+        bcdui.component.scorecardConfigurator.reDisplay(objectId, true); // fires refreshTargetModelId
     }
   },
 
   /**
    * Removes the current layout
-   * @param {string}  cubeId    The id of the linked cube
+   * @param {string}  objectId    The id of the linked object (cube or scorecard)
    */
-   clearLayout: function(cubeId) {
+   clearLayout: function(objectId) {
     // remove data
     var targetModel = bcdui.component.cube.templateManager._getTargetModel();
-    bcdui.core.removeXPath(targetModel.getData(), "/*/cube:Layout[@cubeId ='"+cubeId+"']" );
+    var idAttr = targetModel.getData().selectSingleNode("/*/cube:Layout[@cubeId ='"+objectId+"']") != null ? "@cubeId" : "@scorecardId";
+    var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
+
+    bcdui.core.removeXPath(targetModel.getData(), "/*/*[local-name()='Layout' and "+idAttr+" ='"+objectId+"']" );
 
     // avoid double firing in case of targetModel == guiStatus and flag "no client refresh possible"
-    var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ cubeId+"']" );
+    var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/" + ns + "ClientLayout["+idAttr+" ='"+ objectId+"']" );
     layoutNode.setAttribute("disableClientRefresh","true");
 
     // avoid double/triple firing in case of targetModel == guiStatus or refresh target  == targetModel
-    var refreshTargetModelId = jQuery("#" + cubeId + "_dnd").data("targetModelId");
+    var refreshTargetModelId = jQuery("#" + objectId + "_dnd").data("targetModelId");
     
     // fire guiStatus only when it's not identical to template Target or refreshingCube Target
     // since then it gets fired later down below
@@ -77,7 +101,10 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
     if (targetModel.id != refreshTargetModelId)
       targetModel.fire();
 
-    bcdui.component.cube.configuratorDND.reDisplay(cubeId, true); // fires refreshTargetModelId
+    if (idAttr == "@cubeId")
+      bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
+    else
+      bcdui.component.scorecardConfigurator.reDisplay(objectId, true); // fires refreshTargetModelId
 
    },
 
@@ -92,7 +119,7 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
    * @private
   */
   _getTargetModel: function(){
-    return bcdui.factory.objectRegistry.getObject(  bcdui._migPjs._$('cubeTemplateManager').attr("bcdTargetModelId"));
+    return bcdui.factory.objectRegistry.getObject(jQuery('.bcdReportTemplates').attr("bcdTargetModelId"));
   },
 
   /**
@@ -100,6 +127,6 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
    * @private
   */
   _getOptionsModel: function(){
-    return bcdui.factory.objectRegistry.getObject(  bcdui._migPjs._$('cubeTemplateManager').attr("bcdMetaDataModelId"));
+    return bcdui.factory.objectRegistry.getObject(jQuery('.bcdReportTemplates').attr("bcdMetaDataModelId"));
   }
 });

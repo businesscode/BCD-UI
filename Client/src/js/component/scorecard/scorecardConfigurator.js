@@ -61,10 +61,12 @@
         if (args.isDefaultHtmlLayout) {
           
           var template = "<div class='bcdScorecardDndBlind'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
-          [bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
+          [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
           template += "</div></div>";
 
           jQuery("#" + args.targetHtml).append(jQuery(doT.template(template)({id:args.scorecardId})));
+
+          args.templateTargetHtmlElementId = "bcdDndTemplateDiv_" + args.scorecardId;
 
           bcdui.widget.createBlindUpDownArea({
             id: "bcdBlindUpDown_" + args.scorecardId
@@ -75,6 +77,41 @@
           });
 
           bcdui.widgetNg.createButton({caption: "Apply", onClickAction: args.applyFunction || bcdui.core.lifecycle.applyAction, targetHtml: "bcdDndApplyButton_" + args.scorecardId});
+        }
+
+        if( args.isTemplate  ) {
+
+          if (args.isDefaultHtmlLayout) {
+            bcdui.widget.createBlindUpDownArea({
+              id: "bcdBlindUpDown_Template_" + args.scorecardId
+              ,targetHTMLElementId: "bcdUpDown_Template_" + args.scorecardId
+              ,bodyIdOrElement:"bcdUpDownBody_Template_" + args.scorecardId
+              ,caption: "Scorecard Templates"
+              ,defaultState: "open"
+            });
+          }
+
+          // template editor requires a registered metaDataModel
+          if (typeof bcdui.factory.objectRegistry.getObject(args.scorecard.getConfigModel().id) == "undefined")
+            bcdui.factory.objectRegistry.registerObject(args.scorecard.getConfigModel());
+
+          var templateRenderer = new bcdui.core.Renderer({
+            chain: bcdui.component.cube.templateManager._templateUrl,
+            inputModel: args.targetModel,
+            targetHtml: args.templateTargetHtmlElementId,
+            parameters:{
+              metaDataModel:   args.scorecard.getConfigModel(),
+              metaDataModelId: args.scorecard.getConfigModel().id,
+              reportName:      args.reportName,
+              hasUserEditRole: args.hasUserEditRole
+                               || (bcdui.config.clientRights.bcdScorecardTemplateEdit
+                                 &&    (bcdui.config.clientRights.bcdScorecardTemplateEdit.indexOf("*") != -1
+                                     || bcdui.config.clientRights.bcdScorecardTemplateEdit.indexOf(args.scorecardId) != -1 )),
+              targetModelId:   args.targetModel.id,
+              objectId:        args.scorecardId
+            }
+          });
+          args.scorecard.getConfigModel().onChange(function() {templateRenderer.execute()}, "/*/scc:Layouts");
         }
 
         bcdui.component.scorecardConfigurator._initDnd(args);
@@ -192,6 +229,12 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     bcdui.factory.objectRegistry.registerObject(scBucket); // we need to register the model for widget-use
     scBucket.execute(); // we're static, we're synchron, so we can start filling the bucket
     bcdui.component.scorecardConfigurator._fillBucket(scBucket, args.config);
+
+    // remember bucket and targetModelId for refresh function
+    jQuery("#" + args.targetHtml).addClass("bcd_"+ args.scorecardId + "_dnd");
+    jQuery("#" + args.targetHtml).attr("bcdScorecardId", args.scorecardId).attr("contextId", "scorecardDnd");
+    jQuery(".bcd_" + args.scorecardId + "_dnd").data("targetModelId", args.targetModel.id);
+    jQuery(".bcd_" + args.scorecardId + "_dnd").data("cubeBucketModelId", scBucket.id);
 
     // and initialize controls
     var scTargetXPathRoot = bcdui.component.scorecardConfigurator._SCORECARD_TEMP.xPathRootWidget;
@@ -522,6 +565,35 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
   },
 
   /**
+   * Refreshes the scorecard drag'n drop area
+   * This is e.g. necessary when a template is applied or the layout is cleaned
+   * @param {string}  scorecardId  The id of the linked scorecard
+   */
+  reDisplay : function(scorecardId) {
+
+    var targetModelId = jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId");
+    var scBucketId = jQuery(".bcd_" + scorecardId + "_dnd").data("cubeBucketModelId");
+    var targetModel = bcdui.factory.objectRegistry.getObject(targetModelId);
+    var scBucket = bcdui.factory.objectRegistry.getObject(scBucketId);
+    bcdui.component.scorecardConfigurator._scorecardLayoutToControlModel(scBucket, targetModel, scorecardId);
+
+    // force other targetId Listeners to run on a redisplay of data
+    var scorecardLayoutRoot = "/scc:Layout[@scorecardId='" + scorecardId + "']";
+
+    var destination = targetModel.getData().selectSingleNode("/*" + scorecardLayoutRoot);
+
+    // take pseudo attribute bcdRedisplay and increase it by one
+    var r = destination != null ? destination.getAttribute("bcdRedisplay") : null;
+    r = r == null || isNaN(parseInt(r, 10)) ? 0 : parseInt(r, 10) + 1;
+
+    destination = destination != null ? destination : bcdui.core.createElementWithPrototype(targetModel.getData(), "/*" + scorecardLayoutRoot);
+
+    // ensure that we do trigger an event by setting the new value of bcdRedisplay
+    destination.setAttribute("bcdRedisplay", "" + r);
+    targetModel.fire();
+  },
+
+  /**
    * basic box item renderer which adds one class
    * @private
    */
@@ -573,5 +645,5 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     '</style>').appendTo('head');
     
     return template;
-  }  
+  }
 });

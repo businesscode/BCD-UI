@@ -84,15 +84,6 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
 /**
  * @private
  */
-bcdui.component.cube._renderTemplateArea = function(args) {
-  return (args.isTemplate ? "<div id='bcdUpDown_Template_{{=it.id}}' class='bcdUpDown_Template'></div>" + 
-      "<div id='bcdUpDownBody_Template_{{=it.id}}'>" + 
-        "<div id='bcdDndTemplateDiv_{{=it.id}}'></div>" +
-      "</div>" : "");
-};
-/**
- * @private
- */
 bcdui.component.cube._renderDndArea = function(args) {
   return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
 };
@@ -121,10 +112,6 @@ bcdui.component.cube._initRanking = function(){};
 /**
  * @private
  */
-bcdui.component.cube._templateUrl = bcdui.config.jsLibPath+"component/cube/templateManager/rendering.xslt";
-/**
- * @private
- */
 bcdui.component.cube._rankingUrl = bcdui.config.jsLibPath+"component/cube/rankingEditor/rendering.xslt";
 /**
  * @private
@@ -141,7 +128,7 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
 /**
  * @private
  */
-bcdui.component.cube._layoutRenderingInside = [bcdui.component.cube._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube._renderApplyArea];
+bcdui.component.cube._layoutRenderingInside = [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube._renderApplyArea];
 /**
  * @private
  */
@@ -356,9 +343,11 @@ bcdui.util.namespace("bcdui.component",
    * @param {string}                  [args.config=./dimensionsAndMeasures.xml]                   - Model containing the configuration for the cube configurator
    * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Id of the cube we belong to or cube instance
    * @param {boolean}                 [args.isRanking=false]                                      - Show ranking editor. This is an Enterprise Edition only feature.
-   * @param {string}                  [args.rankingTargetHtmlElementId]                           - Custom location for ranking editor
    * @param {boolean}                 [args.isTemplate=false]                                     - Show template Editor true/false. This is an Enterprise Edition only feature.
    * @param {boolean}                 [args.showSummary=false]                                    - Show summary of cube settings
+   * @param {string}                  [args.rankingTargetHtmlElementId]                           - Custom location for ranking editor
+   * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
+   * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
@@ -542,36 +531,28 @@ bcdui.util.namespace("bcdui.component",
             ,defaultState: "open"
           });
         }
+        
+        // template editor requires a registered metaDataModel
+        if (typeof bcdui.factory.objectRegistry.getObject(cube.getConfigModel().id) == "undefined")
+          bcdui.factory.objectRegistry.registerObject(cube.getConfigModel());
 
-        var templateRenderer =
-          bcdui.factory.createRenderer({
-            id: actualIdPrefix + "templateRenderer",
-            url: bcdui.component.cube._templateUrl,
-            inputModel: targetModel,
-            parameters:{
-              metaDataModel:   metaDataModel,
-              metaDataModelId: args.metaDataModelId,
-              reportName:      args.reportName,
-              hasUserEditRole: args.hasUserEditRole
-                               || (bcdui.config.clientRights.bcdCubeTemplateEdit
-                                 &&    (bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf("*") != -1
-                                     || bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf(args.cubeId) != -1 )),
-              targetModelId:   targetModelId,
-              cubeId:          args.cubeId
-            },
-
-            targetHTMLElementId: args.templateTargetHtmlElementId
-          });
-
-        bcdui.factory.addDataListener({
-          idRef: metaDataModel,
-          trackingXPath: "/*/cube:Layouts",
-          side: "after",
-          onlyOnce: false,
-          listener: function() {
-            bcdui.factory.objectRegistry.getObject(actualIdPrefix + "templateRenderer").execute();
+        var templateRenderer = new bcdui.core.Renderer({
+          chain: bcdui.component.cube.templateManager._templateUrl,
+          inputModel: bcdui.factory.objectRegistry.getObject(targetModelId),
+          targetHtml: args.templateTargetHtmlElementId,
+          parameters:{
+            metaDataModel:   bcdui.factory.objectRegistry.getObject(args.metaDataModelId),
+            metaDataModelId: args.metaDataModelId,
+            reportName:      args.reportName,
+            hasUserEditRole: args.hasUserEditRole
+                             || (bcdui.config.clientRights.bcdCubeTemplateEdit
+                               &&    (bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf("*") != -1
+                                   || bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf(args.cubeId) != -1 )),
+            targetModelId:   targetModelId,
+            objectId:        args.cubeId
           }
         });
+        bcdui.factory.objectRegistry.getObject(args.metaDataModelId).onChange(function() {templateRenderer.execute()}, "/*/cube:Layouts");
       }
       if ( args.showSummary ){
         

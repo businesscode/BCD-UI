@@ -320,7 +320,7 @@
         </Param>
         <Param name="templateTargetHtmlElementId" type="string">
           <Doc>
-            If isRanking is true then this attribute can be used to control the div where the template editor is placed.
+            If isTemplate is true then this attribute can be used to control the div where the template editor is placed.
           </Doc>
         </Param>
         <Param name="showSummary" type="boolean">
@@ -330,7 +330,7 @@
         </Param>
         <Param name="summaryTargetHtmlElementId" type="string">
           <Doc>
-            If isRanking is true then this attribute can be used to control the div where the summary is placed.
+            If showSummary is true then this attribute can be used to control the div where the summary is placed.
           </Doc>
         </Param>
         <Param name="reportName" type="string">

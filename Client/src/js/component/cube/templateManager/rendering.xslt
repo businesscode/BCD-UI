@@ -17,6 +17,7 @@
 <xsl:stylesheet
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+  xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   version="1.0" >
 
@@ -28,11 +29,11 @@
   <xsl:param name="targetModelId"/>
   <xsl:param name="progressGifUrl"/>
   <xsl:param name="reportName"/>
-  <xsl:param name="cubeId"/>
+  <xsl:param name="objectId"/>
 
   <xsl:variable name="boolHasUserEditRole" select="boolean(translate($hasUserEditRole,'0false',''))"/>
   <xsl:template match="/">
-    <div class="bcdReportTemplates" id="cubeTemplateManager">
+    <div class="bcdReportTemplates">
 
       <xsl:attribute name="bcdTargetModelId"><xsl:value-of select="$targetModelId"/></xsl:attribute>
       <xsl:attribute name="bcdMetaDataModelId"><xsl:value-of select="$metaDataModelId"/></xsl:attribute>
@@ -44,7 +45,7 @@
 
           <xsl:call-template name="renderEditorLink"/>
 
-          <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager.clearLayout('{$cubeId}');">
+          <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager.clearLayout('{$objectId}');">
             <span class="bcdTemplateItem bcdTemplateIcon"></span>
             <span>Clear current selection</span>
           </a>
@@ -56,12 +57,12 @@
 
         <!-- readOnly layouts -->
 
-        <xsl:if test="count($metaDataModel/*/cube:Layouts/cube:Layout[@isReadOnly='true']) &gt; 0">
+        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true']) &gt; 0">
           <div class="bcdReportTemplatesItemsReadOnly">
-            <xsl:for-each select="$metaDataModel/*/cube:Layouts/cube:Layout[@isReadOnly='true']">
+            <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true']">
              <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
              <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
-              <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$cubeId}', '{@id}')">
+              <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$objectId}', '{@id}')">
                 <span class="bcdTemplateItem bcdTemplateIcon"></span>
                 <span id="{$tempCaptionButton}" class="bcdTemplateItem" title="{@description}">
                   <xsl:value-of select="@name"/>
@@ -74,12 +75,12 @@
 
         <!-- not readOnly layouts -->
 
-        <xsl:if test="count($metaDataModel/*/cube:Layouts/cube:Layout[not(@isReadOnly) or @isReadOnly='false']) &gt; 0">
+        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false')]) &gt; 0">
           <div class="bcdReportTemplatesItems">
-            <xsl:for-each select="$metaDataModel/*/cube:Layouts/cube:Layout[not(@isReadOnly) or @isReadOnly='false']">
+            <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false')]">
               <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
               <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
-              <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$cubeId}', '{@id}')">
+              <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$objectId}', '{@id}')">
                 <xsl:call-template name="showHideDel"><xsl:with-param name="id" select="@id"/></xsl:call-template>
                 <span class="bcdTemplateItem bcdTemplateIcon"></span>
                 <span id="{$tempCaptionButton}" class="bcdTemplateItem" title="{@description}">

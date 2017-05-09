@@ -146,6 +146,16 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiComponent",
+      "required": "mandatory",
+      "files": [
+        "/js/component/cube/templateManager/templateManager.js"
+      ],
+      "buildFolders": [
+        "/js/component/cube/templateManager"
+      ]
+      },
+    {
       "id": "bcduiChart",
       "required": "default",
       "files": [
@@ -166,7 +176,6 @@ bcdui.bcduiCeFiles =
           "/js/component/cube/cubeCreate.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
-        , "/js/component/cube/templateManager/templateManager.js"
       ],
       "buildFolders": [
         "/js/component/cube"
