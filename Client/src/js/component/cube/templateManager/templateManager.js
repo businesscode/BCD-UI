@@ -39,7 +39,12 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
    * applyUserTemplate
    * @private
    */
-  _applyUserTemplate: function( objectId, id ) {
+  _applyUserTemplate: function( objectId, id, element ) {
+
+    // highlight selected item 
+    jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
+    jQuery(element).addClass("bcdSelected");
+
     var metaDataModel = bcdui.component.cube.templateManager._getOptionsModel();
     var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout[@cubeId='"+objectId+ "']") != null ? "@cubeId" : "@scorecardId";
     var ns = idAttr == "@cubeId" ? "cube:" : "scc:";

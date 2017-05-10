@@ -359,6 +359,10 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
 
         // only recreate layout if something in the target changed
         if (! identical) {
+
+          // remove possible markings in template list
+          jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
+
           // disable scorecard renderer on any change
           var layoutNode = bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/scc:ClientLayout[@scorecardId ='"+ args.scorecardId+"']" );
           layoutNode.setAttribute("disableClientRefresh","true");

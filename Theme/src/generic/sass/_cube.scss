@@ -153,6 +153,11 @@
     padding-top: 5px;
   }
   
+  .bcdReportTemplateList a.bcdSelected {
+    @include con_color($flyover-color);
+    border: 1px dotted $corporate-color-alt;
+  }
+
   .bcdReportTemplatesItemsReadOnly {
     .bcdTemplateItem { color: $text-disabled-color !important; }
   }

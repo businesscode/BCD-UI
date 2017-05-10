@@ -171,6 +171,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
         // only recreate layout if something in the target changed
         if (! identical) {
+
+          // remove possible markings in template list
+          jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
+
           // disable cube renderer on any change
           var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ args.cubeId+"']" );
           layoutNode.setAttribute("disableClientRefresh","true");
