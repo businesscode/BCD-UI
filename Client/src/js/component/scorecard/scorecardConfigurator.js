@@ -104,7 +104,7 @@
               metaDataModelId: args.scorecard.getConfigModel().id,
               reportName:      args.reportName,
               hasUserEditRole: args.hasUserEditRole
-                               || (bcdui.config.clientRights.bcdScorecardTemplateEdit
+                               || (bcdui.config.clientRights && bcdui.config.clientRights.bcdScorecardTemplateEdit
                                  &&    (bcdui.config.clientRights.bcdScorecardTemplateEdit.indexOf("*") != -1
                                      || bcdui.config.clientRights.bcdScorecardTemplateEdit.indexOf(args.scorecardId) != -1 )),
               targetModelId:   args.targetModel.id,

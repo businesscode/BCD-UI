@@ -545,7 +545,7 @@ bcdui.util.namespace("bcdui.component",
             metaDataModelId: args.metaDataModelId,
             reportName:      args.reportName,
             hasUserEditRole: args.hasUserEditRole
-                             || (bcdui.config.clientRights.bcdCubeTemplateEdit
+                             || (bcdui.config.clientRights && bcdui.config.clientRights.bcdCubeTemplateEdit
                                &&    (bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf("*") != -1
                                    || bcdui.config.clientRights.bcdCubeTemplateEdit.indexOf(args.cubeId) != -1 )),
             targetModelId:   targetModelId,
