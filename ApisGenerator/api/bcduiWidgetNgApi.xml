@@ -741,6 +741,7 @@ the data that is actually placed in XML.
         <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
             If true, a standard layout for dnd area is created. If false, you need to provide containers with classes: bcdCurrentKpiList, bcdCurrentScRowDimensionList, bcdCurrentAspectList, bcdKpiList, bcdScDimensionList, bcdAspectList within an outer bcdScorecardDndMatrix container.
+            if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default). 
           </Doc>
         </Param>
         <Param name="isTemplate" type="boolean">

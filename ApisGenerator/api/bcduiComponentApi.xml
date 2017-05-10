@@ -351,6 +351,7 @@
         <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
             If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container.
+            if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default). 
           </Doc>
         </Param>
         <Param name="applyFunction" type="string">

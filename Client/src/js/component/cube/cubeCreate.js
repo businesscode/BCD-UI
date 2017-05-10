@@ -85,7 +85,10 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
  * @private
  */
 bcdui.component.cube._renderDndArea = function(args) {
-  return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
+  if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed"))
+    return "<div id='bcdUpDown_Dnd_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_{{=it.id}}'><div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div></div>";
+  else
+    return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
 };
 /**
  * @private
@@ -349,7 +352,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
    * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
-   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container
+   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    *
@@ -487,6 +490,16 @@ bcdui.util.namespace("bcdui.component",
           ,caption: "Report Definition"
           ,defaultState: bcdui.factory.objectRegistry.getObject(layoutModelId).getData().selectSingleNode("/*/cube:Layout") == null ? "open": "closed"
         });
+
+        if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed")) {
+          bcdui.widget.createBlindUpDownArea({
+            id: "bcdBlindUpDown_Dnd_" + args.cubeId
+          , targetHtml: "bcdUpDown_Dnd_" + args.cubeId
+          , bodyIdOrElement:"bcdUpDownBody_Dnd_" + args.cubeId
+          , caption: "Report Layout"
+          , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") ? "open": "closed"
+          });
+        }
 
         bcdui.widgetNg.createButton({
           caption: "Apply",

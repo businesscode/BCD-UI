@@ -64,9 +64,20 @@
             id: "bcdBlindUpDown_" + args.scorecardId
           , targetHtml: "bcdUpDown_" + args.scorecardId
           , bodyIdOrElement:"bcdUpDownBody_" + args.scorecardId
-          , caption: "Report Definition"
+          , caption: "Scorecard Definition"
           , defaultState: layout.query("/*/scc:Layout") == null ? "open": "closed"
           });
+          
+          // optionally add a blind for the dnd area when classes bcdDndBlindOpen/bcdDndBlindClosed are specified
+          if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed")) {
+            bcdui.widget.createBlindUpDownArea({
+              id: "bcdBlindUpDown_Dnd_" + args.scorecardId
+            , targetHtml: "bcdUpDown_Dnd_" + args.scorecardId
+            , bodyIdOrElement:"bcdUpDownBody_Dnd_" + args.scorecardId
+            , caption: "Scorecard Layout"
+            , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") ? "open": "closed"
+            });
+          }
 
           bcdui.widgetNg.createButton({caption: "Apply", onClickAction: args.applyFunction || bcdui.core.lifecycle.applyAction, targetHtml: "bcdDndApplyButton_" + args.scorecardId});
         }
@@ -179,7 +190,10 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * @private
    */
   _renderDndArea: function(args) {
-    return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout() + "</div>";
+    if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed"))
+      return "<div id='bcdUpDown_Dnd_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_{{=it.id}}'><div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout() + "</div></div>";
+    else
+      return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout() + "</div>";
   },
 
   /**
