@@ -424,7 +424,7 @@ code {
   color: #ff7f00;
 }
 .main {
-  background-image: url("../headerBack.png");
+  background-image: url("../../images/headerBack.png");
   background-repeat: no-repeat;
   background-size: 100%;
   padding-top: 150px;

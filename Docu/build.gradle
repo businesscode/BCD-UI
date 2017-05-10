@@ -60,11 +60,6 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
       from "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/jaguarjs/static"
       into targetDir
     }
-    // Add bgimage
-    copy {
-      from "./tutorial/content/headerBack.png"
-      into targetDir
-    }
   }
 }
 
@@ -98,32 +93,6 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 }
 
 
-
-//*********************************************
-// Generate tutorial HTML from all.adoc
-task bcduiDocuTutorial ( type: org.asciidoctor.gradle.AsciidoctorTask ) {
-
-  def taskDestDirName = "$buildDir/htmldocs/tutorial"
-  def taskSource      = "tutorial"
-
-  // Resources under ./images/ are per default copied by AsciidoctorTask
-  configure {
-    sources {
-      include "index.adoc"
-    }
-    backends = ['html5'] // ['html5','pdf']
-    separateOutputDirs = false
-    attributes 'source-highlighter'    : 'coderay',
-            'coderay-linenums-mode' : 'table',
-            icons                   : 'font',
-            linkattrs               : true,
-            encoding                : 'UTF-8'
-    sourceDir = file(taskSource)
-    outputDir = file(taskDestDirName)
-  }
-}
-
-
 //******************************
 // Java doc. We skip JAXB generated, as JAXB does produce invalid output in terms of javadoc (xml-parts in its docu)
 task bcduiJavadoc(type: Javadoc) {
@@ -148,7 +117,7 @@ task bcduiJavadoc(type: Javadoc) {
 // Creates /build/htmldocs folder with all content meant to be human readable
 task bcduiHtmlDocs( type: Copy ) {
 
-  dependsOn bcduiDocuTutorial, bcduiDocuJsHtml, bcduiJavadoc
+  dependsOn bcduiDocuJsHtml, bcduiJavadoc
 
   from "gradle/static"
   into "$buildDir/htmldocs"
@@ -167,6 +136,6 @@ task bcduiClean( type: Delete ) {
 
 task bcduiBuildDocu {
   group "bcd-ui"
-  description "Build docu, see Docu/build, including jsdoc, javadoc and tutorial."
+  description "Build docu, see Docu/build, including jsdoc and javadoc."
   dependsOn bcduiHtmlDocs, bcduiDocuJsApiStubs
 }
