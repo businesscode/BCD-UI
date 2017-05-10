@@ -455,6 +455,8 @@ bcdui.util.namespace("bcdui.component",
         args.targetHTMLElementId = args.id+"Configurator";
       }
 
+      var cube = bcdui.factory.objectRegistry.getObject(args.cubeId);
+
       if (args.isDefaultHtmlLayout) {
 
         var template = "<div class='bcdCubeDNDBlind'>" +
@@ -472,10 +474,9 @@ bcdui.util.namespace("bcdui.component",
         args.rankingTargetHtmlElementId = "bcdDndRankingDiv_" + args.cubeId;
         args.templateTargetHtmlElementId = "bcdDndTemplateDiv_" + args.cubeId;
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
-        
+
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
 
-        var cube = bcdui.factory.objectRegistry.getObject(args.cubeId);
         var layoutModelId = (typeof cube != "undefined") ? cube.getConfigModel().getData().selectSingleNode("//cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel") : null;
         layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
 
