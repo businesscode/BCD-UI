@@ -35,14 +35,6 @@
 
       var args = this.options;
 
-      // create target (as div before scorecard) in case it is not given at all
-      if( !args.targetHtml) {
-        var ccTarget = document.createElement("div");
-        ccTarget.setAttribute("id",args.id+"Configurator");
-        args.scorecard.getTargetHTMLElement().parentNode.insertBefore(ccTarget, args.scorecard.getTargetHTMLElement());
-        args.targetHtml = args.id+"Configurator";
-      }
-
       // take over defaults if needed
       args.scorecardId = args.scorecard.id;
       args.targetHtml =  this.element.attr("id");
