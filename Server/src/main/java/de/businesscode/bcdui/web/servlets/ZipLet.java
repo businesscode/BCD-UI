@@ -87,6 +87,7 @@ import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.Closer;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * Servlet for compression and uncompression of XML data. To compress
@@ -618,8 +619,7 @@ public class ZipLet extends HttpServlet {
     if (compressedString == null || compressedString.isEmpty()) {
       return null;
     }
-    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-    documentBuilderFactory.setXIncludeAware(false);
+    DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setNamespaceAware(true);
     DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 
@@ -727,7 +727,7 @@ public class ZipLet extends HttpServlet {
     if (compressedString == null || compressedString.isEmpty() )
       return null;
 
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory factory = SecureXmlFactory.newDocumentBuilderFactory();
     factory.setXIncludeAware(true);
     factory.setNamespaceAware(true);
     // By default this is true and therefore there will be an xml:base attribute
