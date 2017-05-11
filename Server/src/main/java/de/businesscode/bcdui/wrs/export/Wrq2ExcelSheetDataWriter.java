@@ -37,6 +37,7 @@ import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 import de.businesscode.bcdui.wrs.load.Wrq2Sql;
 import de.businesscode.bcdui.wrs.load.WrsBindingItem;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * Takes a wrq:WrsRequest an optional rnd:Wrs2Excel, executes it and writes the result into an Excel sheet via Poi Api
@@ -65,9 +66,8 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
 
     // Turn the subtree into a DOM, so that we can hand it over to the DataLoader
     try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory factory = SecureXmlFactory.newDocumentBuilderFactory();
       factory.setNamespaceAware(true);
-      factory.setIgnoringComments(true);
       DocumentBuilder builder = factory.newDocumentBuilder();
       StringWriter stringWriter = new StringWriter();
 

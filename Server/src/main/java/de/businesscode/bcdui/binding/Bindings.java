@@ -25,12 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
 import de.businesscode.bcdui.binding.exc.AmbiguousBindingSetException;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingSetNotFoundException;
@@ -39,6 +42,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * A singleton container class for all the bindings defined in the application. These <br>
@@ -163,7 +167,7 @@ public class Bindings {
       return;
     }
     //
-    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
     documentBuilderFactory.setNamespaceAware(true);
 

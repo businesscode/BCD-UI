@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -36,6 +35,7 @@ import org.w3c.dom.NodeList;
 
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * Changes a standard f:Filter element as created by the period chooser from mo/cw to dy
@@ -55,7 +55,7 @@ public class Filter2DyModifier implements Modifier
   
   public Element process(Element filterIn) throws ParserConfigurationException 
   {
-    doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().newDocument();
     // clone f:Filter to new temp doc
     Element wrsRequest = doc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0", "wrq:WrsRequest");
     doc.appendChild(wrsRequest);

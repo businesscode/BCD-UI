@@ -21,7 +21,6 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -33,6 +32,7 @@ import org.xml.sax.SAXException;
 
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * The BindingItem class represents a mapping from a logical name to a <br>
@@ -314,7 +314,7 @@ public class BindingItem extends SimpleBindingItem {
   private Node stringToDomNode(String nodeAsString) throws SAXException, IOException, ParserConfigurationException {
     StringReader strReader = new StringReader(nodeAsString);
     InputSource inSrc = new InputSource(strReader);
-    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inSrc);
+    Document doc = SecureXmlFactory.newDocumentBuilderFactory().newDocumentBuilder().parse(inSrc);
     return doc.getDocumentElement();
   }
 

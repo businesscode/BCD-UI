@@ -35,7 +35,6 @@ import java.util.jar.Manifest;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.TransformerConfigurationException;
@@ -225,16 +224,6 @@ public class Utils {
       // Silently ignore wrong manifests on classpath?
     }
     return null;
-  }
-
-  /**
-   * @return a {@link DocumentBuilderFactory} which is X-include and Namespace aware
-   */
-  public static DocumentBuilderFactory createDocumentBuilderFactory() {
-    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-    documentBuilderFactory.setXIncludeAware(true);
-    documentBuilderFactory.setNamespaceAware(true);
-    return documentBuilderFactory;
   }
 
   /**

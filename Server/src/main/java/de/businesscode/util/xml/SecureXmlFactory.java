@@ -29,6 +29,7 @@ public abstract class SecureXmlFactory {
    *         <li>DTD: disabled</li>
    *         <li>External Entities (general+params): disabled</li>
    *         <li>Namespace aware: false</li>
+   *         <li>Ignoring comments: true</li>
    *         </ul>
    */
   public static DocumentBuilderFactory newDocumentBuilderFactory() {
@@ -46,6 +47,7 @@ public abstract class SecureXmlFactory {
     factory.setExpandEntityReferences(false);
     factory.setValidating(false);
     factory.setNamespaceAware(false);
+    factory.setIgnoringComments(true);
 
     return factory;
   }
