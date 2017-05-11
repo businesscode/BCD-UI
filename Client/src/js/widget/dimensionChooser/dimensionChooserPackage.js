@@ -1169,7 +1169,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
         // check what to do with free floating filters
         var doAddNode = true;
-        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null) {
+        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null && n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "_exclude']") == null) {
           // we don't have a dimchooser outer node, so create it and add the free float
           var root = targetModel.query("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And");
           if (root == null)
