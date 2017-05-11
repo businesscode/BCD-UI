@@ -15,6 +15,7 @@
 */
 package de.businesscode.util;
 
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -35,15 +36,26 @@ public class XPathUtils {
   }
 
   /**
+   * @return new {@link XPath} with {@link StandardNamespaceContext} assigned
+   */
+  public static XPath newXPath(){
+    XPath xp = newXPathFactory().newXPath();
+    StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
+    xp.setNamespaceContext(nsContext);
+    return xp;
+  }
+
+  /**
    * compiles xpath to {@link XPathExpression} using builtin xpathfactory {@link javax.xml.xpath.XPathFactory#newXPath()}
-   * 
+   * and {@link StandardNamespaceContext} namespace context assigned.
+   *
    * @param xpath
    * @return
    * @throws RuntimeException
    */
   public static XPathExpression compile(String xpath) {
     try {
-      return newXPathFactory().newXPath().compile(xpath);
+      return newXPath().compile(xpath);
     } catch (XPathExpressionException e) {
       throw new RuntimeException(e);
     }

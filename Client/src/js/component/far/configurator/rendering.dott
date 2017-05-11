@@ -1,0 +1,22 @@
+<table class="bcd-far-configurator">
+  <thead>
+    <tr>
+      <th class="bcd-far-dims" bcdTranslate="bcd_FarConfigurator_Heading_Dims">Dimensions</th>
+      <th/>
+      <th class="bcd-far-meas" bcdTranslate="bcd_FarConfigurator_Heading_Meas">Measures</th>
+      <th/>
+      <th class="bcd-far-sort" bcdTranslate="bcd_FarConfigurator_Heading_Sort">Sorting</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td id="{{=it.params.dimsChooserId}}"></td>
+      <td>&#160;</td>
+      <td id="{{=it.params.measChooserId}}"></td>
+      <td>&#160;</td>
+      <td class="bcd-far-sort">
+        <div id="{{=it.params.sortChooserId}}"></div>
+      </td>
+    </tr>
+  </tbody>
+</table>

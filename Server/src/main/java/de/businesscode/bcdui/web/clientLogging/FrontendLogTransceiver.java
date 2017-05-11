@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -36,7 +35,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
-import de.businesscode.util.xml.SecureSAXParserFactory;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 
 /**
@@ -79,7 +78,7 @@ public class FrontendLogTransceiver extends HttpServlet {
       sw.write("<?xml version=\"1.0\"?>"); sw.write(req.getParameter("data"));sw.flush();
       log.error(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
 
-      SecureSAXParserFactory.newInstance().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
+      SecureXmlFactory.newSaxParserFactory().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
         private String level;
         private StringBuilder messageBuilder = new StringBuilder();
         private boolean insideMessage=false;

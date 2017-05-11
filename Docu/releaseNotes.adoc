@@ -11,18 +11,23 @@ Some changes are incompatible to previous versions and may require code change i
 Major new features:
 
 . Overall
-* 
+* New reporting component added: a Free Analysis Report component (FAR)
+*
 
 . Components: Scorecard, Cube, Charts, Export
 * Added Scorecard configurator with a drag'n drop area similar to the cube one
 * Scorecard new scc:Description element in configuration, picked up by tooltip
 * Scorecard new scc:Kpi/@skipAspects allows to list space separated per kpi, which aspects do not apply. Per default bcdFailure and bcdFrequeny are disabled for KPI which are not of type i/t
+* dm:Measure element has got dm:Categories definition, currently supported by Free Analysis Report component (FAR)
+* new dm:DimensionsAndMeasures/dm:Dimenions/dm:DimensionRef element now refences dm:Levels of entire Dimension from /bcdui/conf/dimensions.xml
+* new dm:CategoryTypes element defining a global set of categories used for Dimensions and Levels in /bcdui/conf/categories.xml
 
 . Widgets
 * New widget: Added dropDown Button functionality
 * PeriodChooser has quick-pick options for LastDay/Week/Month (depending on the allowed options)
 * DimensionChooser has new parameter to limit number of shown levels
 * SideBySideChooser has new parameter doSortOptions to enable/disable sorting of optionsmodel (default is true)
+* SideBySideChooser has got up/down controls to rearrange target selection
 
 . Core
 * bcdui.core.DataProviderWithXPathNodes can now be used as input model for transformations.

@@ -242,6 +242,6 @@ bcdui.core.transformators.DotJsTransformator = bcdui._migPjs._classCreate( bcdui
   {
     if( !this.transFkt )
       this.transFkt = doT.template(this.template);
-    fn( this.transFkt( sourceDoc ) );
+    fn( this.transFkt( { input:sourceDoc, params:this.params } ) );
   }
 });

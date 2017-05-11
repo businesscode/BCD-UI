@@ -310,16 +310,22 @@
           bcdui.widgetNg.utils._jqmRefresh(el.id, true);
           // re-validate widget
           bcdui.widgetNg.utils._validateElement(el);
+          // un/set bcd-singleselect-empty class if has no options
+          var options = dataListEl.getElementsByTagName("option");
+          if(options.length == 0){
+            jQuery(dataListEl).addClass("bcd-singleselect-empty");
+          }else{
+            jQuery(dataListEl).removeClass("bcd-singleselect-empty");
+          }
 
           // apply doAutoSelectSolelyOption solely option finally
-          var opts=null;
           if(
               widgetInstance.options.doAutoSelectSolelyOption                             // if enabled
-              && (opts=jQuery(dataListEl).find("option")).length==2                       // the only option we have (first one is please select)
+              && options.length==2                                                        // the only option we have (first one is please select)
               && ( ! currentDataValue || ! bcdui.widgetNg.validation.hasValidStatus(el) ) // and no value set OR widget is invalid
           ){
 
-            var solelyValue = opts.last().attr("value");
+            var solelyValue = options[options.length-1].getAttribute("value");
 
             // escape stack
             setTimeout( widgetInstance._syncWrite.bind(undefined,el, solelyValue) );

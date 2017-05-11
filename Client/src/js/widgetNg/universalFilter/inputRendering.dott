@@ -1,0 +1,42 @@
+<span class="{{= it.params.cssClassPrefix }}conj-container">
+  <!-- junction -->
+  <bcd-singleselectng
+    optionsModelXPath="{{= it.params.xPath_reference_junction }}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="{{= it.params.xPath_junction }}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- filter-item -->
+  <bcd-singleselectng
+    required="true"
+    targetModelXPath="{{= it.params.xPath_bref }}"
+    optionsModelXPath="{{= it.params.bRefOptionsModelXpath }}"
+    optionsModelRelativeValueXPath="{{= it.params.bRefOptionsModelRelativeValueXPath }}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- operation -->
+  <bcd-singleselectng
+    required="true"
+    optionsModelXPath="{{= it.params.xPath_reference_op }}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="{{= it.params.xPath_op }}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- reference-value -->
+  <bcd-inputng
+    targetModelXPath="{{= it.params.xPath_value }}"
+  >
+  </bcd-inputng>
+</span>
+<span></span>
+<span></span>
+<span>
+  <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
+</span>
+<span>
+  <!-- simply hide the UI -->
+  <bcd-buttonng caption="X" onClickAction="jQuery(this).closest('.inputrow').detach()"></bcd-buttonng>
+</span>

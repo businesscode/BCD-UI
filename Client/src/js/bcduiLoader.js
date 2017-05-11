@@ -143,6 +143,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/singleSelect/singleSelectPackage.js"
         , "/js/widgetNg/connectable/connectablePackage.js"
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
+        , "/js/widgetNg/universalFilter/universalFilterPackage.js"
       ]
     },
     {
@@ -179,6 +180,19 @@ bcdui.bcduiCeFiles =
       ],
       "buildFolders": [
         "/js/component/cube"
+      ]
+    },
+    {
+      "id": "bcduiFar",
+      "required": "default",
+      "files": [              
+        "/js/component/far/configurator/farConfigurator.js"
+        ,"/js/component/far/farModel.js"
+        ,"/js/component/far/far.js"
+        ,"/js/component/far/create.js"
+      ],
+      "buildFolders": [
+        "/js/component/far"
       ]
     },
     {
@@ -251,6 +265,7 @@ bcdui.bcduiCeFiles =
         , "/js/component/chart/customElements.js"
         , "/js/component/cube/customElements.js"
         , "/js/component/scorecard/customElements.js"
+        , "/js/component/far/customElements.js"
       ]
     }
   ]

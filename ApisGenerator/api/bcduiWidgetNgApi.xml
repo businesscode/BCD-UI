@@ -537,7 +537,7 @@
         <Param name="onBeforeChange" required="false" type="function">
           <Doc>
             Handler function triggered before change, if false is returned, the change is rejected
-            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.sideBySideChooser.CHANGE_DIRECTION.*
+            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.sideBySideChooser.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}
   	     </Doc>       
         </Param>
         <Param name="onChange" required="false" type="function">
@@ -566,7 +566,10 @@
       <Api name="connectable" extends="widget">
         <Doc> Offers a simple container with multi select, drag'n drop functionalities </Doc>
         <Param name="doSortOptions" type="boolean" default="false">
-          <Doc>Can be set to 'true' if the options should be sorted alphabetically. This is disabled per default to avoid CPU wasting.</Doc>
+          <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+        <Param name="sortOptionsFunction" type="function">
+          <Doc>a compareFunction(a,b) passed to Array.prototype.sort(); with a, b are objects with { caption, value } A function used to sort items in the connectable. The defaulting implementation uses alphabetic sorting on caption.</Doc>
         </Param>
         <Param name="scope" type="string" required="true">
           <Doc>Defines the scope of the box. Source.</Doc>
@@ -588,7 +591,7 @@
         </Param>
         <Param name="onBeforeChange" required="false" type="function">
           <Doc>Handler function triggered before change of this box only, if false is returned, the change is rejected
-            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*</Doc>       
+            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}</Doc>       
         </Param>
         <Param name="onChange" required="false" type="function">
           <Doc>Handler function triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc>       
@@ -607,8 +610,18 @@
         </Param>
         <Param name="generateItemHtml" required="false" type="function">
           <Doc>
-            Handler function (or its name in declarative scope) to generate the html for one container item. Gets value, caption and position in options model as input args.
-          </Doc>       
+            Function to generate the html for one container item. Gets object with properties: value , caption, position;
+            see implementation documentation to read more about the structure to return by this function.
+          </Doc>
+          <ImplDoc>
+            this function is expected to return following string template:
+            &lt;li
+              class='ui-selectee'
+              bcdValue='value'
+              bcdPos='1'
+              bcdLoCase='caption'
+              title=''>&lt;span class='bcdItem'>[Caption]&lt;/span>&lt;/li>
+          </ImplDoc>
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       
@@ -771,6 +784,81 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
+      <Api name="farConfigurator" extends="widget">
+        <Doc>
+          A FAR configurator UI displaying 3 side by side choosers for choosing Dimensions, Measures and Sorting of the items,
+          writes far:ConfiguratorLayout format into targetModelXPath; this widget is configured by number of parameters referencing
+          various nodesets as Dimensions and Measures source items. It is expected that every dimension and measure item is represented
+          by an element in options model providing the value and caption in separate attributes on an element,i.e. Item[@value @caption].
+          This widget supports flat or hierarhical input. For either input (flat/hierarchical) you need to provider tree configuration
+          object containing information about how determine your hierarchy.
+          i.e. { levelNodeName : 'far:Category', itemNodeName : 'far:Item', isDefaultCollapsed: true }
+        </Doc>
+        <Param name="targetModelXPath" type="writableModelXPath" required="true" default="$guiStatus/guiStatus:Status">
+          <Doc>
+            Target xPath to write the far:ConfiguratorLayout configuration into.
+          </Doc>
+        </Param>
+        <Param name="dimensions_optionsModelXPath" type="xpath" required="true">
+          <Doc>
+            items considered dimensions, xpath must reference the caption attribute on the item-set; Reference deep link to items 
+            (including levels) in case you have hierarhical structure i.e. $config/far:Configurator/far:Dimensions//* /@caption
+          </Doc>
+        </Param>
+        <Param name="dimensions_optionsModelRelativeValueXPath" type="xpath" required="true">
+          <Doc>
+            xpath relative to 'dimensions_optionsModelXPath' that references a value attribute, i.e. '../@value'
+          </Doc>
+        </Param>
+        <Param name="dimensions_treeConfig" type="object" required="true">
+          <Doc>
+            tree configuration object (see component documentation)
+          </Doc>
+        </Param>
+        <Param name="measures_optionsModelXPath" type="xpath" required="true">
+          <Doc>
+            items considered dimensions, xpath must reference the caption attribute on the item-set; Reference deep link to items 
+            (including levels) in case you have hierarhical structure i.e. $config/far:Configurator/far:Dimensions//* /@caption
+          </Doc>
+        </Param>
+        <Param name="measures_optionsModelRelativeValueXPath" type="xpath" required="true">
+          <Doc>
+            xpath relative to 'dimensions_optionsModelXPath' that references a value attribute, i.e. '../@value'
+          </Doc>
+        </Param>
+        <Param name="measures_treeConfig" type="object" required="true">
+          <Doc>
+            tree configuration object (see component documentation)
+          </Doc>
+        </Param>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted alphabetically. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+      </Api>
+
+      <Api name="universalFilter" extends="widget">
+        <Doc>
+        </Doc>
+        <Param name="targetModelXPath" type="writableModelXPath" required="true" default="$guiStatus/guiStatus:Status/f:Filter/f:And">
+          <Doc>
+            Target xPath for this filter to work with. This widget creates a filter compatible ( http://www.businesscode.de/schema/bcdui/filter-1.0.0 ) structure beyond given target element,
+            and will use f:And, f:Or and f:Expression elements to represent the filter.
+            You can choose either f:And, f:Or or any other element as a target. While choosing f:And/f:Or, the user will not be able do modify that
+            root conjunction whereas there is no such restriction when using another (or custom) element as a target element.
+          </Doc>
+        </Param>
+        <Param name="bRefOptionsModelXpath" type="xpath" required="true">
+          <Doc>
+            xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display.
+          </Doc>
+        </Param>
+        <Param name="bRefOptionsModelRelativeValueXPath" type="xpath" required="false">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+      </Api>
     </BcdAPI>
 
     <BcdObjects>
@@ -785,6 +873,8 @@ the data that is actually placed in XML.
       <BcdObject name="sideBySideChooser" implements="sideBySideChooser" implementationPackage="bcdui.widgetNg.sideBySideChooser"/>
       <BcdObject name="connectable" implements="connectable" implementationPackage="bcdui.widgetNg.connectable"/>
       <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component.scorecard.scorecardConfigurator"/>
+      <BcdObject name="farConfigurator" implements="farConfigurator" implementationPackage="bcdui.component.far.farConfigurator"/>
+      <BcdObject name="universalFilter" implements="universalFilter" implementationPackage="bcdui.widgetNg.universalFilter"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

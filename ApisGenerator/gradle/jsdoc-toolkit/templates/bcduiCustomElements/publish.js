@@ -76,6 +76,13 @@ function customElementsComponent( taffyData, path )
     fs.mkPath( path+"/scorecard" );
     fs.writeFileSync( path+"/scorecard/customElements.js", result, 'utf8');
   }
+
+  clazzes = taffyData( { kind: "class", longname: "bcdui.component.far.Far" } ).get();
+  if( clazzes.length === 1 ) {
+    var result = printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar" );
+    fs.mkPath( path+"/far" );
+    fs.writeFileSync( path+"/far/customElements.js", result, 'utf8');
+  }
 }
 
 /**

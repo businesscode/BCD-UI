@@ -257,9 +257,10 @@ public class WrqInfo
     NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(resultingFilterParent, XPathConstants.NODESET);
     NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
     NodeList orderingBidRefNl  = (NodeList) orderingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(wrq, XPathConstants.NODESET);
 
     // A) No bindingItem addressed, just select all items of the BindingSet
-    if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 && orderingBidRefNl.getLength()==0 )
+    if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 && orderingBidRefNl.getLength()==0 && selectedNl.getLength() == 0)
     {
       resultingBindingSet = bindings.get(wrqBindingSetId); // We just use the explicitly given BindingSet (must not be a BindingGroup obviously)
       selectAllBindingItems();
@@ -268,7 +269,6 @@ public class WrqInfo
     // B) Some bRef/idRef given
     else
     {
-      NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(wrq, XPathConstants.NODESET);
       NodeList groupingNl  = (NodeList) groupingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
       NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
 
@@ -286,7 +286,7 @@ public class WrqInfo
       resultingBindingSet = bindings.get(wrqBindingSetId, allRawBRefs);
 
       // B.1.a Empty select list
-      if( selectedBidRefNl.getLength()==0 ) {
+      if( selectedBidRefNl.getLength()==0 && selectedNl.getLength() == 0 ) {
         selectAllBindingItems();
       }
 

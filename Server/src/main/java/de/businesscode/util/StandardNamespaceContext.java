@@ -53,6 +53,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String CHART_NAMESPACE        = "http://www.businesscode.de/schema/bcdui/charts-1.0.0";
   public static final String CUBE_PREFIX            = "cube";
   public static final String CUBE_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/cube-2.0.0";
+  public static final String FAR_PREFIX             = "far";
+  public static final String FAR_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/far-1.0.0";
   public static final String CUST_PREFIX            = "cust";
   public static final String CUST_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/customization-1.0.0";
   public static final String CSV_PREFIX             = "csv";
@@ -131,6 +133,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XSLTFORMULAR_PREFIX, XSLTFORMULAR_NAMESPACE);
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
     mapping.put(EXSLTDATE_PREFIX,    EXSLTDATE_NAMESPACE);
+    mapping.put(FAR_PREFIX,          FAR_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();

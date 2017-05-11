@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema version="1.0" elementFormDefault="qualified"
+  targetNamespace="http://www.businesscode.de/schema/bcdui/far-1.0.0"
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/far-1.0.0"
+  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:annotation><xs:documentation>
+
+      This XSD defines types used by FAR component
+
+  </xs:documentation></xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"/>
+
+  <xs:element name="Configuration">
+    <xs:annotation><xs:documentation>
+      the FAR configuration document with dimensions and measures repository.
+    </xs:documentation></xs:annotation>
+
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="wrq:BindingSet"/>
+        <xs:element name="MaxRows" type="xs:integer" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Maximum amount of rows to be requested from Wrs. This number, however, does not override the general maximum rows configuration parameter of Wrs. 
+          </xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="Configurator" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Activates configurator and allows its parameterization.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CategoryGrouping" minOccurs="0" maxOccurs="1">
+                <xs:annotation><xs:documentation>
+                  Enables category grouping for Dimensions and Measures by specific group
+                </xs:documentation></xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="idRef">
+                    <xs:annotation><xs:documentation>
+                      References a group from categories.xml repository
+                    </xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Sorting" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:annotation><xs:documentation>
+                    Provides access to sorting configuration for Dimenions and Measures
+                  </xs:documentation></xs:annotation>
+                  <xs:attribute name="enabled" type="xs:boolean" default="false">
+                    <xs:annotation><xs:documentation>
+                    Enables or disables alphabetical sorting of Dimensions, Measures and Ordering,
+                    if your model contains already sorted data you can keep this flag disabled.
+                    </xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="ReportFilter" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Enables the report filter which is a UI element allowing to
+            create complex filtering on Dimensions and Measures.
+          </xs:documentation></xs:annotation>
+        </xs:element>
+
+        <xs:element name="Dimensions">
+          <xs:annotation><xs:documentation>
+            List of Dimensions Level references in this scope.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:extension base="dm:TypeDimensionReferences"/>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="Measures">
+          <xs:annotation><xs:documentation>
+            Measures defined in this scope.
+          </xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="dm:Measure" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:key name="measureUnique"><xs:selector xpath="tns:Measure"/><xs:field xpath="@id"/></xs:key>
+        </xs:element>
+
+        <xs:element name="Layout" minOccurs="0">
+          <xs:complexType>
+            <xs:annotation><xs:documentation>
+              Defines the layout of the report including dimensions and measures to load and display,
+              as well as configuration of various rendering parameters.
+            </xs:documentation></xs:annotation>
+            <xs:sequence>
+              <xs:element ref="xp:XSLTParameters" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  XSLT Parameters, currently supported are:
+                  - Pagination
+                </xs:documentation></xs:annotation>
+              </xs:element>
+              <xs:element name="Columns" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  List references in the order they should appear in the report. The @sort attribute on reference
+                  item is ignored. To configure sorting please list references in far:Ordering
+                </xs:documentation></xs:annotation>
+                <xs:complexType>
+                  <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="dm:LevelRef"/>
+                    <xs:element ref="dm:MeasureRef"/>
+                  </xs:choice>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Ordering" minOccurs="0">
+                <xs:annotation><xs:documentation>
+                  List references in the order they should be sorted and provide the @sort attribute,
+                  default sorting is ASCENDING
+                </xs:documentation></xs:annotation>
+                <xs:complexType>
+                  <xs:choice maxOccurs="unbounded">
+                    <xs:element ref="dm:LevelRef"/>
+                    <xs:element ref="dm:MeasureRef"/>
+                  </xs:choice>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

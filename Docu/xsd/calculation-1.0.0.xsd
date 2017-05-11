@@ -90,7 +90,7 @@
         <xs:extension base="tns:CalculatedValueType">
           <xs:attribute name="idRef" type="xs:NCName" use="required">
             <xs:annotation><xs:documentation>
-              Id of the referenced data item.
+              Id of the referenced data item, which is usually references a binding-item ( bRef ).
               In scc:Kpi/calc:Calc the format is [myMeasureId].[myMeasurePropertyId].
             </xs:documentation></xs:annotation>
           </xs:attribute>

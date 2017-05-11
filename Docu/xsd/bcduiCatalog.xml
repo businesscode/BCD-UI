@@ -41,6 +41,7 @@
   <uri name="http://www.businesscode.de/schema/bcdui/xsltFormulas-1.0.0"    uri="xsltFormulas-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/xinclude-1.0.0"        uri="xinclude-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"      uri="xsltParams-1.0.0.xsd"/>
+  <uri name="http://www.businesscode.de/schema/bcdui/far-1.0.0"             uri="far-1.0.0.xsd"/>
 
   <uri name="http://www.w3.org/2001/XInclude"                               uri="xinclude-1.0.0.xsd"/>
 

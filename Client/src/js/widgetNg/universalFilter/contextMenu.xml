@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContextMenu
+  xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
+  xmlns:ctx="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
+
+  <!-- empty context menu -->
+  <ctx:Context id="default"/>
+
+  <!-- used for empty content and for read-only conjunctions -->
+  <ctx:Context id="empty">
+    <ctx:Entry caption="Add Expression">
+      <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
+    </ctx:Entry>
+  </ctx:Context>
+
+  <ctx:Context id="non-empty">
+    <ctx:Entry caption="Delete">
+      <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:delete");</ctx:JavaScriptAction>
+    </ctx:Entry>
+
+    <ctx:Entry caption="Combine with new expression">
+      <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
+    </ctx:Entry>
+  </ctx:Context>
+</ContextMenu>

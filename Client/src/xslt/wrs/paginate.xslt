@@ -38,17 +38,24 @@
   <!-- (Integer) size of one page and
        (Integer) number of page to be kept (starting at 1) -->
   <xsl:param name="pageSize"   select="$paramSet/xp:PageSize"/>
-  <xsl:param name="pageNumber" select="$paramSet/xp:PageNumber"/>
+  <xsl:param name="pageNumber">
+    <xsl:choose>
+      <xsl:when test="$paramSet/xp:PageNumber"><xsl:value-of select="$paramSet/xp:PageNumber"/></xsl:when>
+      <xsl:otherwise>1</xsl:otherwise>
+    </xsl:choose>
+  </xsl:param>
+
+  <xsl:variable name="impl.pageNumber" select="normalize-space($pageNumber)"/>
 
   <xsl:variable name="y2">
     <xsl:choose>
-      <xsl:when test="$pageNumber = 'all'"><xsl:value-of select="count(/wrs:Wrs/wrs:Data/wrs:*)"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="number($pageSize) * number($pageNumber)"/></xsl:otherwise>
+      <xsl:when test="$impl.pageNumber = 'all'"><xsl:value-of select="count(/wrs:Wrs/wrs:Data/wrs:*)"/></xsl:when>
+      <xsl:otherwise><xsl:value-of select="number($pageSize) * number($impl.pageNumber)"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="y1">
    <xsl:choose>
-      <xsl:when test="$pageNumber = 'all'">1</xsl:when>
+      <xsl:when test="$impl.pageNumber = 'all'">1</xsl:when>
       <xsl:otherwise><xsl:value-of select="number($y2) - number($pageSize) + 1"/></xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

@@ -236,7 +236,8 @@
         <xsl:choose>
           <!-- if the type supports boolean and the default is true,false keep the type boolean -->
           <xsl:when test="contains('|false|true|', @default) and contains(@type, 'boolean')"> || <xsl:value-of select="@default"/></xsl:when>
-          <xsl:when test="@default"> || '<xsl:value-of select="@default"/>'</xsl:when>
+          <xsl:when test="@default and contains(@default, '&quot;')"> || '<xsl:value-of select="@default"/>'</xsl:when>
+          <xsl:when test="@default"> || "<xsl:value-of select="@default"/>"</xsl:when>
           <xsl:otherwise> || undefined</xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -253,7 +254,8 @@
       <xsl:otherwise>
         <xsl:value-of select="concat(@name,': htmlElement.getAttribute(',$qq,$bcdName,$qq,')')"/>
         <xsl:choose>
-          <xsl:when test="@default"> || '<xsl:value-of select="@default"/>'</xsl:when>
+          <xsl:when test="@default and contains(@default, '&quot;')"> || '<xsl:value-of select="@default"/>'</xsl:when>
+          <xsl:when test="@default"> || "<xsl:value-of select="@default"/>"</xsl:when>
           <xsl:otherwise> || undefined</xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>

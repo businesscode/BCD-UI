@@ -114,7 +114,7 @@
         defined with this element
       </xs:documentation>
     </xs:annotation>
-    <xs:choice maxOccurs="unbounded" minOccurs="1">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="Entry" type="tns:ContextMenuEntry">
       </xs:element>
       <xs:element name="EntryGroup" type="tns:ContextMenuEntryGroup">

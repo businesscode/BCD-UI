@@ -51,6 +51,15 @@
       }
   });
 
+  /**
+   * internal parameters (not in the public API):
+   * @param {function} [onItemMoved]          The callback is executed everytime an item (or a set of) is moved from between two connectables.
+   *                                          the context is set to the instance of the origin widget and following parameters are passed
+   *                                          from : container
+   *                                          to   : container
+   *                                          dir  : "src2dst" or "dst2src"
+   * @private
+   */
   jQuery.widget("bcdui.bcdConnectable", jQuery.bcdui.bcduiWidget,
     /** @lends bcdui.bcdConnectable */
     {
@@ -117,10 +126,13 @@
       if (typeof bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope] == "undefined") bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope] = {};
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("creating connectable widget with config ");
-      var rootContainer = this.element;
 
       // setup our variables
       var args = this.options;
+
+      if (!this.options.sortOptionsFunction){ // deploy default sorting function
+        this.options.sortOptionsFunction = this._optionsSortingFunction;
+      }
 
       this.wrsInlineValueDelim = args.wrsInlineValueDelim || "/";
 
@@ -134,7 +146,6 @@
       this.lastIndex = 0;             // matchlist index for type-to-select functionality
 
       // init internal config
-      // TODO remove / rewrite / communicate via widget-extensions (inheritance) and events
       var extendedConfig=null;
       this.config = {
         target: args.targetModelXPath ? bcdui.factory._extractXPathAndModelId(args.targetModelXPath) : null,
@@ -148,18 +159,17 @@
       }
 
       // avoid rendering while attaching children
-      rootContainer.hide();
+      this.element.hide();
 
       // and initally render the (empty) container
-      var html = this._generateContainerHtml();
-      jQuery(rootContainer).append(html);
+      this.container = jQuery(this._generateContainerHtml()).appendTo(this.element);
 
 
       // build optionsmodel wrapper if we got model dependencies
       // and replace config ids/xpaths if necessary
       if (this.config.source) {
         var cfg = {
-          element: jQuery("#" + this.config.elementId).get(0),
+          element: this.container.get(0),
           optionsModelId: this.config.source.modelId,
           optionsModelXPath: this.config.source.xPath,
           optionsModelRelativeValueXPath: this.config.source.optionsModelRelativeValueXPath
@@ -172,31 +182,32 @@
           this.config.source.optionsModelRelativeValueXPath = cfg.optionsModelRelativeValueXPath;
         }
 
+        // in case of non-Wrs and with predicate enabled we add another target listener considering predicate to trigger options refresh
+        // when pointing to Wrs options the change gets propagated by multiOptionsModelWrapper
+        if(this.config.source && this.config.source.optionsModelRelativeFilterPredicate && this.options.optionsModelXPath.indexOf("wrs:") == -1){
+          var _selector = this._getOptionSelector();
+          // we have only to refresh the source side without syncing back to model
+          _selector.getDataProvider().onChange(this._renderItems.bind(this, false), _selector.xPath + this.config.source.optionsModelRelativeFilterPredicate);
+        }
+
         // finally set the valueXPath used in the update listener
         this.config.source.valueXPath = this.config.source.xPath + (this.config.source.optionsModelRelativeValueXPath ? "/" + this.config.source.optionsModelRelativeValueXPath : "");
       }
 
       // init the control
-      var uiControl = this._createConnectableControl(args, rootContainer);
-
-      // store args on element
-      // TODO rewrite, use jQuery data style
-      jQuery(uiControl.control).data("_args_", args);
-      jQuery(uiControl.control).data("_config_", this.config);
+      this._createConnectableControl();
 
       // initially render items
       this._renderItems(true, true);
 
       // rerender connected boxes to ensure integrity of items
       if (this.config.target) {
-        var source = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
-        if (source.length > 0)
-          source._bcduiWidget()._renderItems(true);
+        // we are a target, so update the source
+        this._getScopedSourceElement()._bcduiWidget()._renderItems(true);
       }
       if (this.config.source) {
-        var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
-        for (var t = 0; t < targets.length; t++)
-          jQuery(targets[t])._bcduiWidget()._renderItems(true);
+        // we a a source, so update (multiple) targets
+        var targets = this._getScopedTargetElements().each(function(){ jQuery(this)._bcduiWidget()._renderItems(true) });
       }
 
       // register listeners, one for targetmodel changes, one for optionsmodel changes
@@ -225,43 +236,46 @@
 
       // attach balloon
       if (this.options.hint) {
-        jQuery("#" + this.config.elementId).attr("bcdHint", this.options.hint);
+        this.container.attr("bcdHint", this.options.hint);
       }
       bcdui.widgetNg.commons.balloon.attach(this.config.elementId, {noTooltip: this.config.extendedConfig.noTooltip});
 
       // display constructed container
-      rootContainer.show();
+      this.element.show();
 
       // set autofocus after display
       if(args.autofocus)
-        jQuery(uiControl.control).focus();
+        this.container.focus();
     },
 
     /**
-     *  is triggered when we need to recreate our connectable, e.g. when options model changed or you injected something into target model
+     *  is triggered when data model has changed and we need to re-render our connectable, e.g. when options model changed or you injected something into target model
      *  @private
      */
     _readDataFromXML: function(listenerType, reEntry){
 
       // re-render current connectable
       this._renderItems(listenerType == "source");
+      
+      var targetReadFunc = function(){ jQuery(this)._bcduiWidget()._readDataFromXML(listenerType, true); };
 
       // we rerendered the target box due to a target event, now we also need to redraw the belonging source box
       if (this.config.target && ! reEntry) {
-        var source = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
-        if (source.length > 0)
-          source._bcduiWidget()._readDataFromXML(listenerType, true);
+        this._getScopedSourceElement().each(targetReadFunc);
       }
 
       // we rerendered the source box due to a source event, now we also need to redraw each belonging target box
       if (this.config.source && ! reEntry) {
-        var target = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
-        for (var t = 0; t < target.length; t++)
-          jQuery(target[t])._bcduiWidget()._readDataFromXML(listenerType, true);
+        this._getScopedTargetElements().each(targetReadFunc);
       }
     },
 
     /**
+     * writes values into data model, handles Wrs and non-Wrs targets.
+     *
+     * @param {object} sourceBox      Container as jQuery object to extract the values from.
+     * @param {object} targetConfig   Configuration of the target to write values to.
+     *
      * @private
      */
     _doWriteXML: function(sourceBox, targetConfig) {
@@ -287,29 +301,30 @@
     },
 
     /**
+     * Writes data on both connectables, this function is called if an item has been moved from source to target
      * @private
      */
     _writeDataToXML: function(source, target){
+      source = jQuery(source);
+      target = jQuery(target);
 
       // remember source and target boxes, can be reused for all kind of purposes (e.g. same box move detection)
-      bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope].source = jQuery(source).attr("id");
-      bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope].target = jQuery(target).attr("id");
+      bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope].source = source.attr("id");
+      bcdui.widgetNg.connectable._bcdConnectableScope[this.options.scope].target = target.attr("id");
 
       // when the target is a target box, we need to write data to its targetxpath
-      if (jQuery(target).hasClass("bcdTarget")) {
-        var t = jQuery(target).parent()._bcduiWidget();
-        var realTarget = bcdui.factory._extractXPathAndModelId( t.options.targetModelXPath );
-        this._doWriteXML(target, realTarget);
-        t.onChange();
+      if (target.hasClass("bcdTarget")) {
+        var tInstance = target.parent()._bcduiWidget();
+        this._doWriteXML(target, bcdui.factory._extractXPathAndModelId( tInstance.options.targetModelXPath ));
+        tInstance.onChange();
       }
 
       // when the source is also a target box, we of course need to write data to its targetxpath, too
       // we skip an obsolete additional write if we moved an item within the same target box
-      if (jQuery(source).attr("id") != jQuery(target).attr("id") && jQuery(source).hasClass("bcdTarget")) {
-        var t = jQuery(source).parent()._bcduiWidget();
-        var realTarget = bcdui.factory._extractXPathAndModelId( t.options.targetModelXPath );
-        this._doWriteXML(source, realTarget);
-        t.onChange();
+      if (source.attr("id") != target.attr("id") && source.hasClass("bcdTarget")) {
+        var tInstance = source.parent()._bcduiWidget();
+        this._doWriteXML(source, bcdui.factory._extractXPathAndModelId( tInstance.options.targetModelXPath ));
+        tInstance.onChange();
       }
     },
 
@@ -318,28 +333,56 @@
      */
     _destroy: function() {
       this._super();
-      var htmlElementId = this.options.id;
-      var el = bcdui._migPjs._$(htmlElementId);
-
-      // ## move on with prototypeJS tidy up ##
-      if(el.length > 0){
-        el.off();
-        el.data("_args_",   null);
-        el.data("_config_", null);
-      }
+      this.container.off();
 
       // ## now detach listeners
-      if (this.config.target) {
+      if (this.syncValueListener) {
         this.syncValueListener.unregister();
         this.syncValueListener = null;
       }
-      if (this.config.source) {
+      if (this.updateValueListener) {
         this.updateValueListener.unregister();
         this.updateValueListener = null;
       }
     },
+    
+    /**
+     * @return jQuery object containing the source element for current scope; this is the element containing .bcdSource container
+     * @private
+     */
+    _getScopedSourceElement: function(){
+      return this._getScopedSourceContainer().parent();
+    },
 
     /**
+     * @return jQuery object containing the source container for current scope; this is the .bcdSource element
+     * @private
+     */
+    _getScopedSourceContainer: function(){
+      return jQuery("[bcdScope='" + this.options.scope + "'].bcdSource");
+    },
+
+    /**
+     * @return jQuery object containing (mulitple) target element for current scope; these are elements each containing a .bcdTarget container
+     * @private
+     */
+    _getScopedTargetElements: function(){
+      return this._getScopedTargetContainers().parent();
+    },
+
+    /**
+     * @return jQuery object containing (mulitple) containers for current scope; these are .bcdTarget elements
+     * @private
+     */
+    _getScopedTargetContainers: function(){
+      return jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget");
+    },
+
+    /**
+     * renders items (and optionally purges target model)
+     *
+     * @param {boolean} [doWriteXML=false]    If set to true, also purges current configuration into target model, effective on a connectable of type 'bcdTarget' only.
+     * @param {boolean} [isInitalCall=false]  If set to true, also runs one time init routine, i.e. navPath initialization
      * @private
      */
     _renderItems: function(doWriteXML, isInitalCall) {
@@ -349,16 +392,11 @@
 
         // we wait for readiness of current target and belonging source
         // and remember source options
-        var models = new Array();
-        models[models.length] = this.config.target.modelId;
-        var sources = jQuery("[bcdScope='" + this.options.scope + "'].bcdSource").parent();
-        var sourceConfig = {};
-        if (sources.length > 0) {
-          var sourceOptions = sources._bcduiWidget().options;
-          sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
-          models[models.length] = sourceConfig.modelId;
-          sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
-        }
+        var models = new Array(this.config.target.modelId);
+        var sourceOptions = this._getScopedSourceElement()._bcduiWidget().options;
+        var sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
+        models.push(sourceConfig.modelId);
+        sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
 
         bcdui.factory.objectRegistry.withReadyObjects(models, function(){
 
@@ -379,10 +417,9 @@
           });
 
           if (this.options.doSortOptions) {
-            sortedOptions = sortedOptions.sort(function(a, b){
-              var x = a.caption.toLowerCase(), y = b.caption.toLowerCase();
-              return x < y ? -1 : x > y ? 1 : 0;
-            });
+            sortedOptions = sortedOptions.sort(function(a,b){
+              return this.options.sortOptionsFunction(a,b,{ instance : this });
+            }.bind(this));
           }
 
           for (var i = 0; i < sortedOptions.length; i++) {
@@ -392,7 +429,7 @@
           }
 
           // regenerate items
-          jQuery("#" + this.config.elementId).empty();
+          this.container.empty();
 
           var html = "";
           // get array of target item in case of wrs mode
@@ -405,16 +442,16 @@
 
             // only render items which are available in the options model and get original position and caption information (unless you allow them)
             if (typeof bcdPosMap[idValue] != "undefined")
-              html += this.generateItemHtml({value: idValue, caption: captionMap[idValue], position: bcdPosMap[idValue], id: this.config.elementId});
+              html += this.generateItemHtml({value: idValue, caption: captionMap[idValue], position: bcdPosMap[idValue], id: this.config.elementId, isTarget: true, _widgetInstance: this });
             else if (this.options.allowUnknownTargetValue && idValue != "")
-              html += this.generateItemHtml({value: idValue, caption: idValue, position: -1, id: this.config.elementId});
+              html += this.generateItemHtml({value: idValue, caption: idValue, position: -1, id: this.config.elementId, isTarget: true, _widgetInstance: this});
           }
-          jQuery("#" + this.config.elementId).append(html);
+          this.container.append(html);
 
           // clean possibly existing garbage (not valid) entries on target element
           // this should be done on init or on options model change
           if (doWriteXML)
-            this._doWriteXML(jQuery("#" + this.config.elementId), this.config.target);
+            this._doWriteXML(this.container, this.config.target);
 
           if (isInitalCall) {
             bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
@@ -429,21 +466,22 @@
       if (this.config.source) {
 
         // we wait for readiness of all belonging targets and source
-        var models = new Array();
-        models.push(this.config.source.modelId);
-
-        var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
-        for (var t = 0; t < targets.length; t++)
-          models.push(bcdui.factory._extractXPathAndModelId( jQuery(targets[t])._bcduiWidget().options.targetModelXPath ).modelId);
+        var models = new Array(this.config.source.modelId);
+        // collect target model ids into models-array
+        this._getScopedTargetElements().each(function(){
+          models.push( bcdui.factory._extractXPathAndModelId( jQuery(this)._bcduiWidget().options.targetModelXPath ).modelId )
+        });
 
         bcdui.factory.objectRegistry.withReadyObjects(models, function(){
           // we need to ensure to always use the *current* target information for filtering out source items here
-          var targets = jQuery("[bcdScope='" + this.options.scope + "'].bcdTarget").parent();
           var targetConfig = new Array();
-          for (var t = 0; t < targets.length; t++)
-            targetConfig.push(bcdui.factory._extractXPathAndModelId( jQuery(targets[t])._bcduiWidget().options.targetModelXPath ));
 
-          jQuery("#" + this.config.elementId).empty();
+          // collect target model xpath into targetConfig
+          this._getScopedTargetElements().each(function(){
+            targetConfig.push( bcdui.factory._extractXPathAndModelId( jQuery(this)._bcduiWidget().options.targetModelXPath ) )
+          });
+
+          this.container.empty();
 
           var nodes = bcdui.factory.objectRegistry.getObject(this.config.source.modelId).getData().selectNodes(this.config.source.xPath);
 
@@ -460,8 +498,8 @@
             this.filteredItems[idValue] = idValue;
           }
 
-          // let's optionally sort our optionsmodel by caption
           var self = this;
+          // extract options from data model
           var sortedOptions = jQuery.makeArray(nodes).map(function(node) {
             var caption = node.nodeValue || node.text;
             var value = self.config.source.optionsModelRelativeValueXPath ? node.selectSingleNode(self.config.source.optionsModelRelativeValueXPath) : null;
@@ -472,11 +510,11 @@
             return { value: bcdui.util.escapeHtml(value), caption: bcdui.util.escapeHtml(caption) };
           });
 
+          // let's optionally sort our optionsmodel by caption
           if (this.options.doSortOptions) {
-            sortedOptions = sortedOptions.sort(function(a, b){
-              var x = a.caption.toLowerCase(), y = b.caption.toLowerCase();
-              return x < y ? -1 : x > y ? 1 : 0;
-            });
+            sortedOptions = sortedOptions.sort(function(a,b){
+              return this.options.sortOptionsFunction(a,b,{ instance : this });
+            }.bind(this));
           }
 
           // build list with items from all targets
@@ -503,9 +541,9 @@
             // render item only if it's part of the filtered values and not in one target
             var doShow = (this.filteredItems[idValue] == idValue) && targetValues.indexOf(idValue) == -1;
             if (doShow)
-              html += this.generateItemHtml({value: idValue, caption: sortedOptions[i].caption, position: i, id: this.config.elementId});
+              html += this.generateItemHtml({value: idValue, caption: sortedOptions[i].caption, position: i, id: this.config.elementId, isTarget: false, _widgetInstance: this});
           }
-          jQuery("#" + this.config.elementId).append(html);
+          this.container.append(html);
 
           if (isInitalCall) {
             bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
@@ -515,6 +553,60 @@
 
         }.bind(this));
       }
+    },
+
+    /**
+     * our default options sorting function uses alphabetical sorting on captions
+     * @private
+     */
+    _optionsSortingFunction : function(a, b){
+      var x = a.caption.toLowerCase(), y = b.caption.toLowerCase();
+      return x < y ? -1 : x > y ? 1 : 0;
+    },
+
+    /**
+     * @return {array} an array with all selected values from all targets and returns as array
+     * @private
+     */
+    _collectSelectedValues : function(){
+      var wrsDelim = this.wrsInlineValueDelim; // delimiter used in a Wrs element
+      return this._getScopedTargetElements()
+      // to {modelId, xPath}
+      .map(function(){
+        return bcdui.factory._extractXPathAndModelId( jQuery(this)._bcduiWidget().options.targetModelXPath )
+      })
+      // get raw array
+      .get()
+      // resolve values
+      .reduce(function(arr,t){
+        var values; // array of values to return
+
+        if(t.xPath.indexOf("wrs:") > -1){ // is targeting to Wrs element
+          var value = bcdui.factory.objectRegistry.getObject(t.modelId).read(t.xPath);
+          if(value){
+            values = value.split(wrsDelim);
+          }
+        } else {
+          values = jQuery.makeArray(
+            bcdui.factory.objectRegistry.getObject(t.modelId).getData().selectNodes(t.xPath)
+          )
+          // extract value from dom node
+          .map(function(n){
+            return n.text;
+          });
+        }
+
+        return arr.concat(values);
+      },[]);
+    },
+
+    /**
+     * Same as _collectSelectedValues() but returns a hashmap (with null values)
+     * @return {object} a map with values as keys (and undefined as values)
+     * @private
+     */
+    _collectSelectedValuesMap : function(){
+      return this._collectSelectedValues().reduce(function(o,e){ o[e] = undefined; return o; }, {});
     },
 
     /**
@@ -528,7 +620,6 @@
      * straight forward sort which sorts by the attribute bcdPos (original position)
      * @private
      */ 
-    
     _sort: function(theContainer) {
       var theItems = jQuery(theContainer).children(".ui-selectee");
       theItems.sort(function (a, b) {
@@ -627,21 +718,21 @@
     },
 
     /**
+     * attach events to container
      * @private
      */
-    _createConnectableControl: function(args, rootContainer){
-
-      var self = this;
-      var instance = jQuery(rootContainer)._bcduiWidget();
+    _createConnectableControl: function(){
       var nop = function(args){ return true; };
 
       // setup our function handlers
-      this.onBeforeChange = instance.options.onBeforeChange || nop;
-      this.onChange = instance.options.onChange || nop;
-      this.generateItemHtml = instance.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
+      this.onBeforeChange = this.options.onBeforeChange || nop;
+      this.onChange = this.options.onChange || nop;
+      this.generateItemHtml = this.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
+
+      var self = this;
 
       // let's handle ctrl-a, del, return via keydown
-      jQuery("#" + this.config.elementId).keydown(function(event) {
+      this.container.keydown(function(event) {
         // select ALL
         if ((event.ctrlKey || event.metaKey) && event.keyCode == "65") {
           jQuery(this).children(".ui-selectee").addClass("ui-selected");
@@ -650,15 +741,15 @@
         }
         // in case of DEL key (and being a target), move all seletect items to source
         if (event.keyCode == "46" && self.config.target) {
-          self._moveSelectedItems(jQuery(this), jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first());
+          self._moveSelectedItems(jQuery(this), self._getScopedSourceContainer());
           event.preventDefault();
           return false;
         }
         // in case of RETURN key move all selected items to first target or bcdDblClkTargetor or to source
         if (event.keyCode == "13") {
           var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
-          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'].bcdTarget");
-          var to = (jQuery(this).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first();
+          target = target.length > 0 ? target : self._getScopedTargetContainers();
+          var to = (jQuery(this).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
           self._moveSelectedItems(jQuery(this), to);
           event.preventDefault();
           return false;
@@ -666,7 +757,7 @@
       });
 
       // for typing we better use keypress
-      jQuery("#" + this.config.elementId).keypress(function(event) {
+      this.container.keypress(function(event) {
 
         var old = self.lastWord;
         self.lastWord += String.fromCharCode(event.charCode||event.which||event.keyCode).toLowerCase();
@@ -707,10 +798,10 @@
 
       // have a separate on click handler to support ctrl/shift and click actions on bcdItems only
       // this is needed to bring the selection functions of selectables to sortables
-      jQuery("#" + this.config.elementId).on("click", ".bcdItem", function (event) {
+      this.container.on("click", ".bcdItem", function (event) {
 
         // clean variable and timers of keystroke support
-        jQuery("#" + self.config.elementId).focus();
+        self.container.focus();
         if (self.keyTimeout) clearTimeout(self.keyTimeout);
         self.lastWord = "";
         self.lastIndex = 0;
@@ -753,7 +844,7 @@
       // mouse down has to handle several things
       // - shift key support
       // - recalculated relative item positions and remmeber first clicked position for virtual lasso
-      jQuery("#" + this.config.elementId).mousedown(function(event) {
+      this.container.mousedown(function(event) {
 
         // mark clicks on scrollbars, we then set another class which is in the cancel list of the selectable
         // otherwise it would deselect items when you try to scroll
@@ -817,7 +908,7 @@
 
       // create the jquery selectable
       if (! this.options.disabled) {
-        jQuery("#" + this.config.elementId).selectable({
+        this.container.selectable({
             filter: ".ui-selectee"
           , cancel: ".bcdItem, .bcdNotSelectable"
           , start: function () {
@@ -834,9 +925,9 @@
 
               if (self.options.showLasso) {
                 // get relative position of current mouse pos
-                var boxOffset = jQuery("#" + self.config.elementId).offset();
-                var scrollLeft = jQuery("#" + self.config.elementId).prop('scrollLeft');
-                var scrollTop = jQuery("#" + self.config.elementId).prop('scrollTop');
+                var boxOffset = self.container.offset();
+                var scrollLeft = self.container.prop('scrollLeft');
+                var scrollTop = self.container.prop('scrollTop');
   
                 var q = {
                     top:    boxOffset.top  - scrollTop  + self.clickedRelativePos.top
@@ -861,12 +952,12 @@
                   q.left = boxOffset.left;
                   classes[classes.length] = "bcdNoLeft";
                 }
-                if (boxOffset.top + jQuery("#" + self.config.elementId).prop("clientHeight") < q.bottom) {
-                  q.bottom = boxOffset.top + jQuery("#" + self.config.elementId).prop("clientHeight");
+                if (boxOffset.top + self.container.prop("clientHeight") < q.bottom) {
+                  q.bottom = boxOffset.top + self.container.prop("clientHeight");
                   classes[classes.length] = "bcdNoBottom";
                 }
-                if (boxOffset.left + jQuery("#" + self.config.elementId).prop("clientWidth") < q.right) {
-                  q.right = boxOffset.left + jQuery("#" + self.config.elementId).prop("clientWidth");
+                if (boxOffset.left + self.container.prop("clientWidth") < q.right) {
+                  q.right = boxOffset.left + self.container.prop("clientWidth");
                   classes[classes.length] = "bcdNoRight";
                 }
 
@@ -883,7 +974,7 @@
               // for auto scrolling we add an interval which calls the scroll handling again....
               if (self.doScroll && self.intervalId == null) {
                 self.intervalId = setInterval(function () {
-                  self._handleSelectableScrolling({id: jQuery("#" + self.config.elementId), pageY: event.pageY, pageX: event.pageX});
+                  self._handleSelectableScrolling({id: self.container, pageY: event.pageY, pageX: event.pageX});
                 }, 100);
               }
               // in case we don't have autoscrolling we kill the interval
@@ -893,7 +984,7 @@
               }
 
               // custom scroll handling
-              self._handleSelectableScrolling({id: jQuery("#" + self.config.elementId), pageY: event.pageY, pageX: event.pageX});
+              self._handleSelectableScrolling({id: self.container, pageY: event.pageY, pageX: event.pageX});
 
               // turn off standard processing...since we do everything on our own...
               // i.e. no more lasso
@@ -916,25 +1007,25 @@
         });
 
         // prevent jQuery dblclick issue (
-        var _mouseStart = jQuery("#" + this.config.elementId).data('selectable')['_mouseStart'];
-        jQuery("#" + this.config.elementId).data('selectable')['_mouseStart'] = function(e) {
+        var _mouseStart = this.container.data('selectable')['_mouseStart'];
+        this.container.data('selectable')['_mouseStart'] = function(e) {
           _mouseStart.call(this, e);
           this.helper.css({"top": -1, "left": -1 });
         };
 
         // prevent IE 8 specific text selection issues
-        jQuery("#" + this.config.elementId).on('dragstart, selectstart', function(event) {
+        this.container.on('dragstart, selectstart', function(event) {
           event.preventDefault();
         });
 
         // tiny hover effect on items
-        jQuery("#" + this.config.elementId).on({
+        this.container.on({
           mouseenter: function(event) { jQuery(this).addClass("bcdConnectableHover"); },
           mouseleave: function(event) { jQuery(this).removeClass("bcdConnectableHover"); }
         }, ".ui-selectee");
 
         // create sortables with custom scrolling
-        jQuery("#" + this.config.elementId).sortable({
+        this.container.sortable({
             connectWith: "[bcdScope='" + this.options.scope + "']"
           , scroll: false
           , start: function(){
@@ -947,7 +1038,7 @@
           , helper: function(event, item) {
 
             // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
-            var selectedItems = jQuery("#" + self.config.elementId).children('.ui-selected').not(".ui-sortable-placeholder").add(item);
+            var selectedItems = self.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
             var caption = "<ul>";
             for (var i = 0; i < selectedItems.length && i < 5; i++)
               caption += "<li>" + (jQuery(selectedItems[i]).text() == "" ? jQuery(selectedItems[i]).attr("bcdValue") : jQuery(selectedItems[i]).text()) + "</li>";
@@ -962,23 +1053,23 @@
         // since we want to scroll the underlying sortable and not necessarily only the source
         // which is actually an issue in jQuery...it scrolls the box where the item comes from only
         // bcdDropTarget for possibly existing css effects
-        jQuery("#" + this.config.elementId).on("sortover", function(event, ui) {
+        this.container.on("sortover", function(event, ui) {
           jQuery(this).addClass("bcdDropTarget");
           bcdui.widgetNg.connectable._bcdConnectableScope[self.options.scope].activeBox = event.target;
         });
-        jQuery("#" + this.config.elementId).on("sortout", function(event, ui) {
+        this.container.on("sortout", function(event, ui) {
           jQuery(this).removeClass("bcdDropTarget");
         });
 
         // handle multi-select, add items in container data and remove them from source
-        jQuery("#" + this.config.elementId).on("sortstart", function(event, ui) {
+        this.container.on("sortstart", function(event, ui) {
 
           ui.item.data("sameBox", true);
           this.valuesBefore = jQuery(this).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get().join();
 
           // take all .ui-selected items, not the sortable placeholder but the item itself
           //  (since for a standard drag it doesn't need to be .ui-selected yet...)
-          var selectedItems = jQuery("#" + self.config.elementId).children('.ui-selected').not(".ui-sortable-placeholder").add(ui.item);
+          var selectedItems = self.container.children('.ui-selected').not(".ui-sortable-placeholder").add(ui.item);
           var items = jQuery(selectedItems).clone();
 
           // store pos of selected ones in items
@@ -995,12 +1086,12 @@
           if (items != null && items.length > 0){
             ui.item.data('itemContainer', items).siblings('.ui-selected').remove();
             // store our origin container in case we get detached from DOM
-            ui.item.data("bcdSortStartOriginContainer", jQuery(this));
+            ui.item.data("bcdSortStartOriginContainer", self.container);
           }
         });
 
         // handle multi-select, add items from container data in destination
-        jQuery("#" + this.config.elementId).on("sortstop", function(event, ui) {
+        this.container.on("sortstop", function(event, ui) {
 
           var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']"); // is empty if ui.item is detached
 
@@ -1055,6 +1146,15 @@
           if (box.hasClass("bcdSource"))
             self._sort(box);
 
+          var to_instance = box._bcduiWidget();
+          if(to_instance.options.onItemMoved){
+            to_instance.options.onItemMoved.call(self, {
+              from:self.container,
+              to:box,
+              dir: self._getMoveType(this, box)
+            })
+          }
+
           // and update XML (only if something really changed, e.g. in case of a source to source move, nothing changes)
           if (this.valuesBefore != jQuery(this).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get().join())
             self._writeDataToXML(this, box);
@@ -1062,31 +1162,30 @@
 
         // cancel sort depending on result of onBeforeChange function call
         // this is only called when you change the box, not when you reorder items within a box...
-        jQuery("#" + this.config.elementId).on("sortreceive", function(event, ui) {
+        this.container.on("sortreceive", function(event, ui) {
           ui.item.data("sameBox", false);
           var from = to = event.target;
           if (typeof ui.sender != "undefined")
             from = ui.sender;
-          if (! self.onBeforeChange({element:jQuery("#" + self.config.elementId).get(0), dir: self._getMoveType(from, to), itemCount: ui.item.data('itemContainer').length})) {
+          var scope = {
+            items : ui.item.data('itemContainer')
+          };
+          if (! self.onBeforeChange({element:self.container.get(0), dir: self._getMoveType(from, to), itemCount: scope.items.length, scope : scope})) {
             ui.sender.sortable("cancel");
+          } else {
+            // re-assign scope.items in case is has been modified
+            ui.item.data("itemContainer", scope.items);
           }
         });
 
         // add a double click handler to directly move item from source to main target or vice versa
-        jQuery("#" + this.config.elementId).on("dblclick", ".ui-selectee", function (event) {
+        this.container.on("dblclick", ".ui-selectee", function (event) {
           var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
-          target = target.length > 0 ? target : jQuery("[bcdScope='" + self.options.scope + "'].bcdTarget");
-          var from = jQuery("#" + self.config.elementId); // we filter on li in this function, so use the outer box as 'from'
-          var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : jQuery("[bcdScope='" + self.options.scope + "'].bcdSource").first();
+          target = target.length > 0 ? target : self._getScopedTargetContainers();
+          var from = self.container; // we filter on li in this function, so use the outer box as 'from'
+          var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
           self._moveSelectedItems(from, to);
         });
-      }
-
-      var el = jQuery("#" + this.config.elementId);
-
-      return {
-        widget: el.get(0),
-        control: el.get(0)
       }
     },
 
@@ -1094,35 +1193,41 @@
      * @private
      */
     _moveSelectedItems : function(from, to) {
+      from = jQuery(from);
+      to = jQuery(to);
       if (from.length > 0 && to.length > 0) {
-        var itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").length;
-
         var isTargetToTarget = jQuery(to).hasClass("bcdTarget") && jQuery(from).hasClass("bcdTarget");
-        if (! isTargetToTarget)
-          itemCount = jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked, .bcdTargetLocked").length;
-        
-        if (itemCount > 0) {
-          if (this.onBeforeChange({element:jQuery("#" + this.config.elementId).get(0), dir: this._getMoveType(from, to), itemCount: itemCount})) {
+        // enclose items into scope to be modifyable in .onBeforeChange handler
+        var scope = {
+          items : from.children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked" + (!isTargetToTarget ? ", .bcdTargetLocked" : ""))
+        };
+        if (scope.items.length) {
+          if (this.onBeforeChange({element:this.container.get(0), dir: this._getMoveType(from, to), itemCount: scope.items.length, scope:scope})) {
 
+            var to_instance = to.parent()._bcduiWidget();
             // on a move, clear selected items in the target first, so only the new added ones remain active
-            jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
+            to.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
             // the actual move...
-            if (! isTargetToTarget)
-              jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked, .bcdTargetLocked").appendTo(to);
-            else
-              jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").not(".bcdLocked").appendTo(to);
+            scope.items.appendTo(to);
 
             // check if we need to unselect our selection after the move
-            var widgetEl = jQuery(to).parent();
-            if (widgetEl._bcduiWidget().options.unselectAfterMove)
-              jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
+            if (to_instance.options.unselectAfterMove)
+              to.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
             // resort source side since source side should use original ordering
-            if (jQuery(to).hasClass("bcdSource"))
-              this._sort(jQuery(to));
+            if (to.hasClass("bcdSource"))
+              this._sort(to);
 
-            // and update XML
+            if(to_instance.options.onItemMoved){
+              to_instance.options.onItemMoved.call(this, {
+                from:from,
+                to:to,
+                dir: this._getMoveType(from, to)
+              })
+            }
+
+            // and update XML according to what we have in the boxes
             this._writeDataToXML(from, to);
           }
         }
@@ -1191,6 +1296,255 @@
       );
 
       this._doWriteXML(container, this.config.target);
+    }
+  });
+
+  bcdui.util.namespace("bcdui.widgetNg.connectable");
+  bcdui.widgetNg.connectable.TreeSupport = bcdui._migPjs._classCreate(null,
+  /**
+   * @lends bcdui.widgetNg.connectable.TreeSupport
+   * */ 
+  {
+    /**
+     * @classdesc
+     * Tree support class providing item rendering, controls binding and onItemMoved handler
+     *
+     * @constructs
+     * @param {jQuery}  container                       The container
+     * @param {object}  config                            Options
+     * @param {boolean} [config.isDefaultCollapsed=true]  Initial state
+     * @param {string}  config.levelNodeName              Local nodename of the level, i.e. "Level"
+     * @param {string}  config.itemNodeName               Local nodename of the item, i.e. "Item"
+     * @param {string}  config.valueAttrName              Attribute name of value attribute, i.e. "id"
+     * @param {string}  config.captionAttrName            Attribute name of caption attribute, i.e. "caption"
+     * @param {number}  [config.leftPaddingLevel=14]      Left padding in pixels per level depth
+     */
+    initialize : function(container, config){
+      config = config || {};
+      if(!config.levelNodeName){
+        throw ".levelNodeName property undefined";
+      }
+      if(!config.itemNodeName){
+        throw ".itemNodeName property undefined";
+      }
+      if(!config.valueAttrName){
+        throw ".valueAttrName property undefined";
+      }
+      if(!config.captionAttrName){
+        throw ".captionAttrName property undefined";
+      }
+      this.config = jQuery.extend(config, {
+        isDefaultCollapsed : config.isDefaultCollapsed == undefined ? true : config.isDefaultCollapsed
+      });
+      this.config.leftPaddingLevel = this.config.leftPaddingLevel || 14;
+
+      this.levelStateMap = {}; 
+      // doT template as expected by connectable
+      this.templates = {
+        item : doT.compile("<li class='ui-selectee {{=it.className}}' style='padding-left: {{=it.depth * " + this.config.leftPaddingLevel + "}}px' bcdValue='{{=it.value}}' bcdPos='{{=it.position}}' bcdLoCase='{{=it.caption.toLowerCase()}}'>{{=it.handle}}<span class='bcdItem'>{{=it.caption}}</span></li>")
+      };
+
+      var self = this;
+      container.on("click", ".ui-node-handle", function(){
+        var li = jQuery(this).parent(); // li
+        var isCollapsed = li.hasClass("ui-node-collapsed");
+        var levelId = li.attr("bcdValue");
+
+        if(self.config.isDefaultCollapsed){
+          self.levelStateMap[levelId] = isCollapsed ? false : true;
+        } else {
+          self.levelStateMap[levelId] = isCollapsed ? true : false;
+        }
+
+        // re render widget
+        li._bcduiWidget()._renderItems(false);
+      });
+
+      // prebuilt xpath for _optionsSortingFunction()
+      this.ancestorSelfXPath = "ancestor-or-self::*[ self::" + this.config.levelNodeName + " or self::" + this.config.itemNodeName + " ]";
+    },
+
+    /**
+     * our default options sorting function uses alphabetical sorting on captions but
+     * preserves leafs in trees.
+     *
+     * @private
+     */
+    _optionsSortingFunction : function(a, b, args){
+      var buildAncestorPath = function(value){
+        var elementInData = args.instance._getOptionSelector().valueNode(value);
+        elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
+        // build ancestorPath by caption
+        return jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(function(n){
+          return n.getAttribute(this.config.captionAttrName);
+        }.bind(this)).reverse().join(".");
+      }.bind(this);
+
+      var x = buildAncestorPath(a.value), y = buildAncestorPath(b.value);
+      return x < y ? -1 : x > y ? 1 : 0;
+    },
+
+    /**
+     * @return {boolean}  true, if given level is collapsed
+     * @private
+     */
+    isLevelCollapsed : function(levelId){
+      // try prefix lookup (assume the id on leaf prefixed by parent id)
+      var levelState = (function(levelStateMap, isDefaultCollapsed){
+        for(var key in levelStateMap){
+          var state = levelStateMap[key];
+          if( levelId.startsWith(key + ".") && state == isDefaultCollapsed){ // TODO hardcoded level separator
+            return state;
+          }
+        }
+      })(this.levelStateMap, this.config.isDefaultCollapsed);
+
+      if(levelState === undefined){
+        levelState = this.levelStateMap[levelId];
+      }
+
+      if(levelState === undefined){
+        return this.config.isDefaultCollapsed;
+      }
+
+      if (this.config.isDefaultCollapsed){
+        return levelState == true;
+      } else {
+        return levelState == false;
+      }
+    },
+
+    /**
+     * Context: widget's instace
+     * @param {object}  args  parameters from connectable
+     * @param {jQuery}  from  The source container .bcdSource/.bcdTarget, depends on direction
+     * @param {jQuery}  to    The target container .bcdTarget/.bcdSource, depends on direction
+     * @param {string}  dir   Direction: src2dst, dst2src
+     * @private
+     */
+    onItemMoved : function(args) {
+      var self = this;
+      var sourceBox = args.dir == "src2dst" ? args.from : args.to;
+      var targetBox = args.dir == "dst2src" ? args.from : args.to;
+      var levelNodeName = this.config.levelNodeName, itemNodeName = this.config.itemNodeName, valueAttrName = this.config.valueAttrName;
+
+      // rebuild source box
+
+      // rebuild target box if it has got new items
+      if(args.dir == "src2dst"){
+        var optionsSelector = args.from._bcduiWidget()._getOptionSelector();
+        var modelData = optionsSelector.getData();
+        // find the parent of last level ancestor from our options we use to lookup levels from
+        var levelLookupElement = modelData.selectSingleNode(optionsSelector.xPath).selectSingleNode("ancestor::" + levelNodeName + "[last()]/..");
+
+        /*
+        * we solely rely on html dom information as the target box
+        * is either modified via UI (retaining level information from our renderer)
+        * or is rendered from target, which is flat and does not contain level information
+        */
+        var getLeaveValues = function(levelId){
+          // select all items belonging to given level
+          return jQuery.makeArray( levelLookupElement.selectNodes(".//" + levelNodeName + "[@"+ valueAttrName +"='"+levelId+"']//" + itemNodeName) ); //Level[@id]//Item
+        };
+
+        // used to render target box
+        var itemTpl = doT.compile('<ul class="ui-selectee" bcdvalue="{{=it.value}}" bcdlocase="{{=it.caption.toLowerCase()}}"><span class="bcdItem">{{=it.caption}}</span></ul>');
+
+        /*
+        * here we (1) expand all level nodes to its children and
+        * (2) remove the level nodes from dom and remove (3) css styling
+        */
+
+        // leaves in the box
+        var itemsInTheBox = targetBox.children(":not(.ui-node)");
+        
+        // (3) on remove decoration from non-node items
+        itemsInTheBox.removeClass("ui-leaf").removeAttr("style"); // @style yields padding
+
+        // process level nodes
+        targetBox.children(".ui-node")
+        // (1) for each level expand children (merge)
+        .each(function(){
+          getLeaveValues(this.getAttribute("bcdValue")).forEach(function(node){
+            var value = node.getAttribute(self.config.valueAttrName); // value provided by attribute
+            // skip possible duplicate
+            if(itemsInTheBox.has("[bcdvalue='"+value+"']").length)return;
+            // insert
+            jQuery(itemTpl({
+              value : value,
+              caption : node.getAttribute(self.config.captionAttrName) // caption provided by attribute
+            })).insertBefore(this);
+          }.bind(this));
+        })
+        // (2) remove level node from html dom
+        .remove();
+        ;
+      }
+      // in either case we have to re-render sourceBox in order to rebuild tree
+      sourceBox._bcduiWidget()._renderItems(true);
+    },
+
+    /**
+     * item html renderer for tree structure
+     * @param {object}  args                  Gets them from connectable, which area
+     * @param {string}  args.value            The value of the item
+     * @param {string}  args.caption          The caption of the item
+     * @param {integer} args.position         The position of the item in the options document
+     * @param {object}  args._widgetInstance  The instance of the connectable
+     * @private
+     */
+    generateItemHtml : function(args){
+      var elementInData = args._widgetInstance._getOptionSelector().valueNode(args.value);
+      // normalize to Element (i.e. value node is mapped to attribute)
+      elementInData = elementInData.nodeType === 2 ? elementInData.ownerElement || elementInData.selectSingleNode("parent::*") : elementInData;
+
+      args.handle = "";     // handle to expand/collapse node
+      args.className = "";  // extra class name
+      args.depth = 0;       // default level depth
+
+      var levelNodeName = this.config.levelNodeName, itemNodeName = this.config.itemNodeName, valueAttrName = this.config.valueAttrName;
+
+      var isChild = !!elementInData.selectSingleNode("parent::" + this.config.levelNodeName);
+      var hasChildren = !!elementInData.selectSingleNode(itemNodeName);
+
+      // returns true if all children of a level have been selected 
+      var checkIfAllChildrenSelected = function(levelId){
+        var selectedValuesMap = args._widgetInstance._collectSelectedValuesMap();
+        // TODO performance opt: map
+        var leftOver = jQuery.makeArray( elementInData.selectNodes(".//" + itemNodeName) ).filter(function(n){ return !(n.getAttribute(valueAttrName) in selectedValuesMap); });
+        return leftOver.length == 0;
+      };
+
+      // source rendering
+
+      if(hasChildren){ // node rendering
+        args.handle = "<span class='ui-node-handle'></span>";
+
+        if(checkIfAllChildrenSelected(args.value)){
+          return ""; // dont need to render this level 
+        }
+
+        if(this.isLevelCollapsed(args.value)){
+          args.className = "ui-node ui-node-collapsed";
+        } else {
+          args.className = "ui-node ui-node-expanded";
+        }
+
+      } else { 
+        args.className = "ui-leaf";
+      }
+
+      if(isChild){ // leaves rendering
+        
+        // check if parent collapsed, then dont render child
+        if( this.isLevelCollapsed( elementInData.parentNode.getAttribute(valueAttrName) ) ){
+          return "";
+        }
+
+        args.depth = elementInData.selectNodes("ancestor::" + levelNodeName).length; // level depth
+      }
+
+      return this.templates.item(args);
     }
   });
 }());

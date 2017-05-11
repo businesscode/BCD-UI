@@ -259,6 +259,44 @@ a {
 /* Widgets */
 /* ******************************************************************* */
 
+/* universalFilter */
+.bcd-unifilter-widget {
+  .bcd-unifilter-conj-container {
+    display: flex;
+    flex-direction: row;
+    margin: 5px 0px;
+
+    .bcd-unifilter-conj-header {
+      align-self: center;
+      text-transform: uppercase;
+      -webkit-transform: rotate(270deg); 
+      -moz-transform: rotate(270deg);
+      -ms-transform: rotate(270deg);
+      -o-transform: rotate(270deg);
+      transform: rotate(270deg);
+      width: 22px;
+      text-align:right;
+      padding-right: 3px;
+    }
+
+    .bcd-unifilter-conj-spacer {
+      align-self: stretch;
+      background-color: #ccc;
+    }
+  }
+
+  .bcd-unifilter-expression {
+    margin-left: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .bcd-unifilter-creator-container {
+    margin-left: 25px;
+    padding: 5px;
+    border: 1px dashed #ccc;
+  }
+}
 
 /* inputfield dropdown */
 
@@ -356,6 +394,21 @@ a {
     border: 1px dashed $border-color-dark;
     @include con_color($border-color);
     cursor: move;
+  }
+  li.ui-node-expanded > .ui-node-handle:after {
+    content: url(../images/tree/tree_minus.gif)
+  }
+  li.ui-node-collapsed > .ui-node-handle:after {
+    content: url(../images/tree/tree_plus.gif)
+  }
+  li.ui-node {
+    font-style: italic;
+  }
+  li.ui-leaf {
+
+  }
+  .ui-node-handle {
+    margin: 2px;
   }
 }
 .ui-selectable-helper {
@@ -1393,6 +1446,7 @@ span.bcd-notification-warn {
 
 @import '_cube.scss';
 @import '_grid.scss';
+@import '_far.scss';
 
 /* ******************************************************************* */
 /* IE specific

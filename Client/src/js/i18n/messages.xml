@@ -123,7 +123,7 @@
       <R id="R103"><C>bcd_Wait</C><C>Please, be patient...</C><C>en</C></R>
       <R id="R104"><C>bcd_SessionTimeout</C><C>Session Timeout</C><C>en</C></R>
       <R id="R105"><C>bcd_SessionTimeoutMessage</C><C>Your session has timed out. You will be redirected.</C><C>en</C></R>
-      
+
       <!-- Grid messages -->
       <R id="R70"><C>bcd_Grid_expCloseOpen</C><C>Please close expanded area before opening new one.</C><C>en</C></R>
       <R id="R71"><C>bcd_Grid_expFill</C><C>Please fill all mandatory input fields.</C><C>en</C></R>
@@ -134,6 +134,13 @@
       <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
       <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional cell filters and user restrictions were applied.</C><C>en</C></R>
       <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
+
+      <!-- FAR configurator -->
+      <R id="R180"><C>bcd_FarConfigurator_Sbsc_Src</C><C>Available</C><C>en</C></R>
+      <R id="R181"><C>bcd_FarConfigurator_Sbsc_Trg</C><C>Selected</C><C>en</C></R>
+      <R id="R182"><C>bcd_FarConfigurator_Heading_Dims</C><C>Dimensions</C><C>en</C></R>
+      <R id="R183"><C>bcd_FarConfigurator_Heading_Meas</C><C>Measures</C><C>en</C></R>
+      <R id="R184"><C>bcd_FarConfigurator_Heading_Sort</C><C>Sorting</C><C>en</C></R>
 
       <!-- Typical control headers and captions -->
       <R id="R140"><C>bcd_Ctrl_Ok</C><C>Ok</C><C>en</C></R>

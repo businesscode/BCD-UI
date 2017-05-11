@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+  <Junction>
+    <Item caption="And">AND</Item>
+    <Item caption="Or">OR</Item>
+  </Junction>
+  <Op>
+    <Item caption="=">=</Item>
+    <Item caption="&lt;&gt;">!=</Item>
+    <Item caption="&gt;">&gt;</Item>
+    <Item caption="&gt;=">&gt;=</Item>
+    <Item caption="&lt;">&lt;</Item>
+    <Item caption="&lt;=">&lt;=</Item>
+    <Item caption="LIKE">like</Item>
+    <Item caption="IN">in</Item>
+  </Op>
+</Data>

@@ -40,19 +40,27 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Dimensions">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element ref="tns:LevelRef" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="Dimensions" type="tns:TypeDimensionReferences"/>
         <xs:element ref="tns:Measures"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
   <!-- ===================================================================== -->
+  <xs:complexType name="TypeDimensionReferences">
+    <xs:annotation><xs:documentation>
+      List of Dimension Level references to Levels defined in /bcdui/conf/dimensions.xml
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element ref="tns:DimensionRef" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          References all Levels within a Dimension.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element ref="tns:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:element name="Measures">
     <xs:annotation><xs:documentation>
       List of definition of measures.
@@ -68,12 +76,17 @@
   <!-- ===================================================================== -->
   <xs:element name="Measure">
     <xs:annotation><xs:documentation>
-      Definition of a single measure.
+      Definition of a single measure, it has either to contain a calc:Calc element or declare the bRef attribute.
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="calc:Calc"/>
+        <xs:element ref="calc:Calc" minOccurs="0"/>
         <xs:element ref="tns:DetailData" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Categories" type="tns:Categories" minOccurs="0">
+          <xs:annotation><xs:documentation>
+            Assign specific categories to this Measure; the categories are defined globally in /bcdui/conf/categories.xml
+          </xs:documentation></xs:annotation>
+        </xs:element>
       </xs:sequence>
       <xs:attribute name="id" type="xs:NCName" use="required">
         <xs:annotation><xs:documentation>
@@ -95,11 +108,25 @@
           Readable formula string entered by the user if this is a userDefined measure.
         </xs:documentation></xs:annotation>
       </xs:attribute>
+      <xs:attribute name="bRef" type="xs:string">
+        <xs:annotation><xs:documentation>
+          reference to binding-item id to reference the value 1:1.
+          If this attribute is set, no calc:Calc element shall be nested.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
     <xs:attributeGroup ref="tns:measureLayoutInformtion"/>
     </xs:complexType>
   </xs:element>
 
   <!-- ===================================================================== -->
+  <xs:element name="DimensionRef">
+    <xs:annotation><xs:documentation>
+      References a Dimension by its via @refId
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="idRef" use="required"/>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="LevelRef" type="tns:TypeLevelRef">
     <xs:annotation><xs:documentation>
       Reference to a dimension level.
@@ -117,7 +144,7 @@
     </xs:sequence>
     <xs:attribute name="bRef" type="xs:NCName" use="required">
       <xs:annotation><xs:documentation>
-        Binding item to be used for this dimension level
+        Reference to a dimensions Level element in dimensions.xml repository.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="sort" type="tns:TypeSortAttr" default="ascending">
@@ -404,6 +431,19 @@
     </xs:restriction>
    </xs:simpleType>
 
+   <xs:complexType name="Categories">
+    <xs:annotation>
+      <xs:documentation>
+        Assignes an entity to one or more business category types.
+        You can have any number of categorie types, for example one international/national/city
+        and another independently financial/producivity/quality.
+        To assign a category, create a variable with the name of the category type and the respective value.
+        For example &lt;Categories intnat="city" and cat="quality"/>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:anyAttribute processContents="lax"/>
+  </xs:complexType>
+
   <!-- Definition of bcdui/conf/dimensions.xml with project-wide definitions of dimensions, hierarchies and levels -->
   <xs:element name="Dimensions">
     <xs:complexType>
@@ -414,8 +454,21 @@
               <xs:element name="Hierarchy" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
+                    <xs:element name="Categories" type="tns:Categories" minOccurs="0">
+                      <xs:annotation><xs:documentation>
+                      Assigns these Categories to all Levels within this Hierarchy, which makes these categories the default one.
+                      You can still assign specific categories on a level overriding these defaults.
+                      </xs:documentation></xs:annotation>
+                    </xs:element>
                     <xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Categories" type="tns:Categories" minOccurs="0">
+                            <xs:annotation><xs:documentation>
+                            Assign specific categories to this Level. These categories override default categories possibly assigned on Hierarchy.
+                            </xs:documentation></xs:annotation>
+                          </xs:element>
+                        </xs:sequence>
                         <xs:attribute name="id">
                           <xs:annotation><xs:documentation>Id, unique within the parent hierarchy</xs:documentation></xs:annotation>
                         </xs:attribute>
@@ -450,6 +503,37 @@
           <xs:attribute name="id">
             <xs:annotation><xs:documentation>Unique id of the dimension.</xs:documentation></xs:annotation>
           </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <!--
+    Category definitions
+   -->
+  <xs:element name="CategoryTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Definition of Level categories. Categories group Levels, they form a dimension above the KPI level.
+        Each Level can be assigned to zero, one or many categories via the dm:Categories element.
+        Each attribute of this names a category type and its value, which category of the type it belongs to.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="CategoryType" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Category" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="id"/>
+                  <xs:attribute name="caption"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id"/>
+            <xs:attribute name="caption"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

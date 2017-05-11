@@ -930,6 +930,51 @@ bcdui.util.namespace("bcdui.factory",
       }else{
         return ( defaultValue === "true" || defaultValue === true);
       }
+    },
+
+    /**
+     * Syncs to given objects and normalizes them by reinjecting as object references into args eventually execute the callback providing
+     * new args with resolved objects. All references listed in objArray can be expected by callback as raw object references and
+     * reached they .ready state.
+     *
+     * consider call to _syncAndNormalize( ['statusDoc'], { statusDoc : 'guiStatus', foo : "bar" }, cb ), the cb will be executed
+     * once 'guiStatus' is ready and cb will get following args: { statusDoc : bcdui.wkModels.guiStatus, foo : "bar" }
+     *
+     * @param {array}     objArray  Array of object references to AbstractExecutables, may be string (an id), SymLink or object reference
+     * @param {object}    args      Original args
+     * @param {function}  cb        Function to execute once objects are ready receiving 'args' as parameters with resolved properties defined in objArray
+     * @private
+     */
+    _syncAndNormalize : function(objArray, args, cb){
+      if(!objArray.map){
+        objArray = [objArray];
+      }
+      // map to : { id, refId }
+      objArray = objArray.map(function(e){
+        var refId;
+
+        var obj = args[e];
+        if (typeof obj == "string"){
+          refId = obj;
+        } else if(obj) {
+          refId = obj.refId || obj.id;
+        }
+        if(!refId)throw "Cannot normalize object to identifier, property name '"+e+"', property: " + obj;
+        return {
+          id : e,
+          refId : refId
+        }
+      });
+      var idsToSync = objArray.map(function(e){
+        return e.refId;
+      });
+
+      bcdui.factory.objectRegistry.withReadyObjects(idsToSync, function(){
+        objArray.forEach(function(e){
+          args[e.id] = bcdui.factory.objectRegistry.getObject(e.refId);
+        });
+        cb(args);
+      });
     }
 }); // namespace  bcdui.factory
 

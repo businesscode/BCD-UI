@@ -78,17 +78,26 @@
       // assure id with following priority: element.id, options.id, generatedId
       this.options.id = this.element.attr("id") || this.options.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName.replace(/-/g,"_") );
       this.element.attr("id", this.id = this.element.id = this.options.id);
+
+      // the cache object, which can be emptied anytime
+      this.cache = {};
     },
 
     /**
-     * registers XMLListener if options.targetModelXPath, executing callback everytime
-     * the data changes. Currently it is up to implementation to detect if the change
-     * was originated from widget itself.
+     * If your widget supports targetModelXPath, you cann register a target modification callback which is 
+     * executed everytime the data in options.targetModelXPath changes. In order to prevent a cycle
+     * (i.e. your widget is update targetModelXPath and then you usually do not want to get your
+     * modification callback executed), please call _targetUpdated() everytime you updating data
+     * in targetModelXPath BEFORE .fire()ing the data-provider.
      *
      * @param {function} callback The callback to executon upon model change
      * @private
+     * @throws Throws an error if targetModelXPath option is not set 
      */
     _setOnTargetModelChange : function( callback ){
+      if(! this.options.targetModelXPath){
+        throw ".targetModelXPath is not set";
+      }
       // ## detach listener in case we have one
       if (this._modelListener) {
         this._modelListener.unregister();
@@ -102,10 +111,31 @@
           trackingXPath: target.xPath,
           htmlElementId: this.options.id
         });
-        this._modelListener.onUpdateCallback = callback;
+        this._modelListener.onUpdateCallback = function(){
+          var ts = this._getTargetSelector();
+          var currentSnapshot = ts.getDataProvider()._hashValueForListener(ts.xPath);
+          if ( !this._targetSnapshotHash || this._targetSnapshotHash !== currentSnapshot ){
+            callback();
+          }
+        }.bind(this);
         // register data update listener, once target model available
         bcdui.factory.addDataListener(this._modelListener);
       }
+    },
+
+    /**
+     * If you have registered a target modification callback via _setOnTargetModelChange(), then call
+     * this method everytime you write internal state into targetModelXPath and before issueing .fire() on
+     * the target data provider.
+     * @private
+     * @throws Throws an error if targetModelXPath option is not set 
+     */
+    _targetUpdated : function(){
+      if( !this.options.targetModelXPath ){
+        throw ".targetModelXPath is not set";
+      }
+      var ts = this._getTargetSelector();
+      this._targetSnapshotHash = ts.getDataProvider()._hashValueForListener(ts.xPath);
     },
 
     /**
@@ -120,6 +150,8 @@
         this._modelListener.unregister();
         delete this._modelListener;
       }
+
+      delete this.cache;
     },
 
     /**
@@ -159,6 +191,102 @@
      */
     execJsOption : function(optionId){
       return bcdui.util._execJs( this.options[optionId], this.element.get(0), false, arguments, 1 );
+    },
+
+    /**
+     * Provide selector to options (if widget has optionXPath defined)
+     * @private
+     */
+    _getOptionSelector : function(){
+      this.cache._getOptionSelector = this.cache._getOptionSelector || this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath);
+      return this.cache._getOptionSelector;
+    },
+
+    /**
+     * Provide selector to target
+     * @private
+     */
+    _getTargetSelector : function(){
+      this.cache._getTargetSelector = this.cache._getTargetSelector || this._getSelector(this.options.targetModelXPath);
+      return this.cache._getTargetSelector;
+    },
+
+    /**
+     * Creates a selector
+     *
+     * @param {string}  modelXPath            The modelXPath
+     * @param {string}  [relativeValueXPath]  The relative xPath (relative to modelXPath)
+     * @return {object}   with xPath, modelId, captionXPath, valueXPath, valueNodes():array/nodelist,
+     *                    captionNodes():array/nodelist; values():array of values; captions():array of captions;
+     *                    entries():returns array of value,caption; map():returns single object with value:caption map;
+     *                    valueNode(id):returns node matching id;valueNode():returns the value node;
+     *                    getData():returns underlying dataDoc;getDataProvider():returns dataprovider;
+     *                    selectSingleNode(xPath):returns single node;
+     * @private
+     */
+    _getSelector : function(modelXPath, relativeValueXPath){
+      if(!modelXPath){ // this widget does not have optionsXPath
+        return undefined;
+      }
+      var res = bcdui.factory._extractXPathAndModelId(modelXPath);
+      res.captionXPath = res.valueXPath = res.xPath;
+
+      if(relativeValueXPath){
+        res.optionsModelRelativeValueXPath = relativeValueXPath;
+        res.valueXPath = res.captionXPath + "/" + relativeValueXPath;
+      }
+
+      /* helpers */
+      var selectNodes = function(xPath){
+        return jQuery.makeArray(
+            bcdui.factory.objectRegistry.getObject(res.modelId).getData().selectNodes(xPath)
+        );
+      };
+      var mapNodeToString = function(node){
+        return node.text;
+      }
+
+      /* provide api */
+      res.getDataProvider = function(){
+        return bcdui.factory.objectRegistry.getObject(res.modelId);
+      }
+      res.getData = function(){
+        return res.getDataProvider().getData();
+      }
+      res.selectSingleNode = function(xPath){
+        return selectNodes(xPath)[0];
+      }
+      res.valueNode = function(id){
+        if(!id){
+          return selectNodes(res.valueXPath)[0]; // just the first node 
+        }
+        return selectNodes(res.valueXPath + "[.='" + id + "']")[0]; // i.e. valueNode('identifier')
+      };
+      res.valueNodes = selectNodes.bind(null, res.valueXPath);
+      res.captionNodes = selectNodes.bind(null, res.captionXPath);
+      res.values = function(){
+        return res.valueNodes().map(mapNodeToString);
+      }
+      res.captions = function(){
+        return res.captionNodes().map(mapNodeToString);
+      }
+      res.entries = function(){
+        var valueNodes = res.valueNodes();
+        var captionNodes = res.captionNodes();
+        return valueNodes.map(function(n,i){
+          return {
+            value : n.text,
+            caption : captionNodes[i].text
+          }
+        });
+      }
+      res.map = function(){
+        return res.entries().reduce(function(map, e){
+          map[e.value] = e.caption;
+          return map;
+        }, {});
+      }
+      return res;
     }
   });
 

@@ -14,6 +14,17 @@
   limitations under the License.
 */
 (function(){
+  /**
+   * internal parameters (not in the public API):
+   * @param {function}  [onItemMoved]                   See bcduiConnectable.onItemMoved; when provided this function is bound to both connectables.
+   * @param {function}  [generateItemHtmlSource]        See bcduiConnectable.generateItemHtml, used for source box
+   * @param {function}  [generateItemHtmlTarget]        See bcduiConnectable.generateItemHtml, used for target box
+   * @param {boolean}   [doSortOptions=false]           See bcduiConnectable.doSortOptions, used for both boxes
+   * @param {boolean}   [unselectAfterMove=false]       See bcduiConnectable.unselectAfterMove, used for both boxes
+   * @param {object}    [treeConfig]                    Configuration according to bcdui.widgetng.connectable.TreeSupport
+   *
+   * @private
+   */
   jQuery.widget("bcdui.bcduiSideBySideChooserNg", jQuery.bcdui.bcduiWidget, {
     EVENT: {
       SYNC_WRITE : "bcd:widget.sideBySideChooser.sync_write",
@@ -72,7 +83,7 @@
           , className: "bcdSbscList"
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
-          , doSortOptions: this.options.doSortOptions
+          , doSortOptions: this.options.doSortOptions || false // maybe a future optional parameter
           // generateItemHtml - we use standard rendering
           , hint: this.options.hint
           // id - we already use the id for outer rendering and scope, so let the widget generate its own
@@ -82,9 +93,10 @@
           , scope: this.options.id
           , showLasso: false
           // targetHtmlElementId - we rendered a tab, so we set our own ids now
-          , unselectAfterMove: false
+          , unselectAfterMove: this.options.unselectAfterMove || false
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
+          , onItemMoved: this.options.onItemMoved
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
       }
       var sourceArgs = {
@@ -92,10 +104,23 @@
         , optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
         , targetHtmlElementId: this.options.id + "sbsLeft"
+        , generateItemHtml: this.options.generateItemHtmlSource
       }
       var targetArgs = {
         targetModelXPath: this.options.targetModelXPath
         , targetHtmlElementId: this.options.id + "sbsRight"
+        , generateItemHtml: this.options.generateItemHtmlTarget
+      }
+
+      // treeMode: attach our handles
+      if(this.options.treeConfig){
+        var treeSupport = new bcdui.widgetNg.connectable.TreeSupport(this.element, this.options.treeConfig);
+        jQuery.extend(args, {
+          onItemMoved :             treeSupport.onItemMoved.bind(treeSupport),
+          unselectAfterMove :       true
+        });
+        sourceArgs.generateItemHtml = treeSupport.generateItemHtml.bind(treeSupport);
+        sourceArgs.sortOptionsFunction = treeSupport._optionsSortingFunction.bind(treeSupport);
       }
 
       jQuery.extend(sourceArgs, args);
@@ -119,26 +144,7 @@
           to = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();
         }
         if (from != to) {
-
-          if (jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length > 0) {
-
-            var widgetInstance = jQuery(to)._bcduiWidget(); // bcduiConnectable
-
-            if (widgetInstance.onBeforeChange({element:jQuery("#" + widgetInstance.config.elementId).get(0), dir: widgetInstance._getMoveType(from, to), itemCount: jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").length})) {
-              // on a move, clear selected items in the target first, so only the new added ones remain active
-              jQuery(to).children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
-
-              // the actual move...
-              jQuery(from).children('.ui-selected').not(".ui-sortable-placeholder").appendTo(to);
-
-              // resort source side since source side should use original ordering
-              if (jQuery(to).hasClass("bcdSource"))
-                widgetInstance._sort(jQuery(to));
-
-              // and update XML
-              widgetInstance._writeDataToXML(from, to);
-            }
-          }
+          from._bcduiWidget()._moveSelectedItems(from, to);
         };
       });
 
@@ -159,15 +165,6 @@
      */
     _destroy: function() {
       this._super();
-
-      var htmlElementId = this.options.id;
-      var el = jQuery(htmlElementId);
-
-      if(el.length > 0){
-        el.off()
-        el.data("_args_",   null);
-        el.data("_config_", null);
-      }
     }
   });
 }());

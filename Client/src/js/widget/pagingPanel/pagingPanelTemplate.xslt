@@ -24,7 +24,10 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsl:template name="createPagingPanel">
     <xsl:param name="pageSize"/>
+    <!-- data rows count currently available to calculate total page count, must represent count(wrs:Data/*) -->
     <xsl:param name="rowsCount" />
+    <!-- total rows count available on backend -->
+    <xsl:param name="totalRowsCount" select="-1" />
     <xsl:param name="page" />
     <xsl:param name="targetModelId" />
     <xsl:param name="targetModelXPath" />
@@ -95,7 +98,7 @@
               </xsl:call-template>
             </select>
           </td>
-          <td class="bcdPagingCoutOfElements"> of <xsl:value-of select="$rowsCount"/></td>
+          <td class="bcdPagingCoutOfElements"> of <xsl:choose><xsl:when test="$totalRowsCount >= 0"><xsl:value-of select="$totalRowsCount"/></xsl:when><xsl:otherwise><xsl:value-of select="$rowsCount"/></xsl:otherwise></xsl:choose></td>
 
           <xsl:variable name="actionForwards">
             bcdui.widget._pagingPanelChangePageNum(

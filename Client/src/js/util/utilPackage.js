@@ -419,6 +419,43 @@ bcdui.util =
         throw Error("targetHtml missing for '" + (args.id || scope) + "'" );
     }
     return id;
+  },
+
+  /**
+   * sends a HTTP request using HTML form submit
+   *
+   * {string} url                   the url to call
+   * {object} [args]                optional arguments
+   * {string} [args.method=get]     request method
+   * {string} [args.target=_blank]  the target
+   * {string} [args.enctype=application/x-www-form-urlencoded]  the enctype
+   * {object} [args.parameters]     object map with parameters to send
+   */
+  _sendFormRequest : function(url, args){
+    args = jQuery.extend({
+      method : "get",
+      target : "_blank",
+      enctype: "application/x-www-form-urlencoded"
+    }, args);
+
+    var formEl = jQuery("<form style='display:none' accept-charset='utf8'></form>").appendTo(document.body);
+
+    formEl.attr("action", url);
+    formEl.attr("method", args.method);
+    formEl.attr("enctype", args.enctype);
+
+    args.target && formEl.attr("target", args.target);
+
+    if(args.parameters){
+      Object.keys(args.parameters).forEach(function(k){
+        jQuery("<input type='hidden'></input>")
+        .appendTo(formEl)
+        .attr("name", k)
+        .val(args.parameters[k]);
+      });
+    }
+    formEl.submit();
+    formEl.remove(); // wont execute in case target=self
   }
 }
 

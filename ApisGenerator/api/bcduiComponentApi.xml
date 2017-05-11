@@ -361,6 +361,63 @@
         </Param>
       </Api>
 
+      <Api name="farModel" extends="dataProvider">
+        <Doc>
+          A FAR model. Can be used as a DataProvider.
+        </Doc>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config" required="true">
+          <Doc>
+            Required. The model providing component's configuration data.
+          </Doc>
+        </Param>
+        <Param name="statusModel" type="dataProvider" isJSPChild="paramBag.statusModel" required="false" default="bcdui.wkModels.guiStatusEstablished">
+          <Doc>
+            The StatusModel, containing the filters at /SomeRoot/f:Filter
+          </Doc>
+        </Param>
+        <Param name="componentId" type="string" default="far">
+          <Doc>
+            The componentId, it is a business id (not techincal) i.e. if you have more than one component on a screen
+            you need to provide unique componentId for each of the entity, otherwise the entities will share configuration.
+          </Doc>
+        </Param>
+        <Examples>
+          <Example type="jsp">
+            &lt;cmp:farModel>
+              &lt;cmp:config>
+                &lt;b:model url='far-config.xml'/>
+              &lt;/cmp:config>
+            &lt;/cmp:farModel>
+          </Example>
+          <Example type="js">
+          new bcdui.component.far.FarModel({
+            config : new bcdui.core.SimpleModel({ url:"far-config.xml" })
+          });
+          </Example>
+        </Examples>
+      </Api>
+
+      <Api name="far" extends="farModel hasTargetHtml">
+        <Doc>
+          This tag creates a far component.
+        </Doc>
+        <Examples>
+          <Example type="jsp">
+            &lt;cmp:far>
+              &lt;cmp:config>
+                &lt;b:model url='far-config.xml'/>
+              &lt;/cmp:config>
+            &lt;/cmp:far>
+          </Example>
+          <Example type="js">
+          new bcdui.component.far.Far({
+            targetHtml : "#far",
+            config : new bcdui.core.SimpleModel({ url:"far-config.xml" })
+          });
+          </Example>
+        </Examples>
+      </Api>
+
       <Api name="scorecardModel" extends="transformationChain dataProvider">
         <Doc>
           A scorecard model. Can be used as a DataProvider for renderers.
@@ -476,6 +533,8 @@
       <BcdObject name="cubeConfigurator" implements="cubeConfigurator" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="scorecardModel" implements="scorecardModel" implementationPackage="bcdui.component."  tagFolder="component"/>
       <BcdObject name="scorecard" implements="scorecard" implementationPackage="bcdui.component." tagFolder="component"/>
+      <BcdObject name="farModel" implements="farModel" implementationPackage="bcdui.component."  tagFolder="component"/>
+      <BcdObject name="far" implements="far" implementationPackage="bcdui.component." tagFolder="component"/>
       <BcdObject name="metaData" implements="metaData" implementationFunction="" tagFolder="component"/>
       <BcdObject name="config" implements="config" implementationFunction="" tagFolder="component"/>
       <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="component"/>
