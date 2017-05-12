@@ -93,14 +93,12 @@
   </xsl:template>
   <xsl:template match="dm:MeasureRef" mode="asWrqC">
     <xsl:variable name="measure" select="key('measureById',@idRef)"/>
-    <!-- support for Measure/@bRef (forced aggr: none) -->
+    <!-- support for Measure/@bRef (default aggregation from binding applies) -->
     <xsl:choose>
       <xsl:when test="$measure/@bRef">
         <C
           bRef="{$measure/@bRef}"
-          caption="{$measure/@caption}"
-          aggr="none">
-        </C>
+          caption="{$measure/@caption}"/>
       </xsl:when>
       <xsl:otherwise>
         <!-- support for Measure/Calc: currently supported calc:ValueRef only -->
@@ -108,8 +106,11 @@
         <xsl:variable name="aggr" select="$measure/calc:Calc/calc:ValueRef/@aggr"/>
         <C
           bRef="{$bRef}"
-          caption="{$measure/@caption}"
-          aggr="{concat(substring('sum',0,1 div string-length($aggr)), $aggr)}">
+          caption="{$measure/@caption}">
+          <!-- if not provided, default aggregation applies -->
+          <xsl:if test="$aggr">
+            <xsl:attribute name="aggr"><xsl:value-of select="$aggr"/></xsl:attribute>
+          </xsl:if>
         </C>
       </xsl:otherwise>
     </xsl:choose>
