@@ -2297,7 +2297,7 @@ bcdui.util.namespace("bcdui.widget",
      /**
       * Get current live navpath widget information via callback for the given widget targets. This function regets the current caption information from the
       * widgets themselves and does not use the navPath model which represents the captions when entering the page 
-      * @param {function}      callback         A callback function which gets the final navpath
+      * @param {function}      callback         A callback function which gets the final navpath string and an object holding the single ids/captions
       * @param {string}        [values]         A space separated string which lists the ordered targetIds of the widgets which should be queried (or empty for all)
       * @param {string}        [separator=" "]  A string used for delimiter between single widget navpath values
       */
@@ -2323,13 +2323,13 @@ bcdui.util.namespace("bcdui.widget",
          if (jQuery("#" + id + " > .bcdMultiSelect").length > 0)       getFunction = bcdui.widget.multiSelect.getNavPath;
          if (jQuery("#" + id + " > .bcdPeriodChooser").length > 0)     getFunction = bcdui.widget.periodChooser.getNavPath;
          if (jQuery("#" + id + " > .bcdSingleSelect").length > 0)      getFunction = bcdui.widget.singleSelect.getNavPath;
-         if (jQuery("#" + id + " button").length > 0)                 getFunction = bcdui.widgetNg.button.getNavPath;
-         if (jQuery("#" + id + " input[type='checkbox']").length > 0) getFunction = bcdui.widgetNg.checkbox.getNavPath;
-         if (jQuery("#" + id + " input[type='date']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
-         if (jQuery("#" + id + " input[type='text']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
-         if (jQuery("#" + id + " .bcdSideBySideChooser").length > 0)  getFunction = bcdui.widgetNg.sideBySideChooser.getNavPath;
-         if (jQuery("#" + id + " select").length > 0)                 getFunction = bcdui.widgetNg.singleSelect.getNavPath;
-         if (jQuery("#" + id + " textarea").length > 0)               getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " > button").length > 0)                 getFunction = bcdui.widgetNg.button.getNavPath;
+         if (jQuery("#" + id + " > input[type='checkbox']").length > 0) getFunction = bcdui.widgetNg.checkbox.getNavPath;
+         if (jQuery("#" + id + " > input[type='date']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " > input[type='text']").length > 0)     getFunction = bcdui.widgetNg.input.getNavPath;
+         if (jQuery("#" + id + " > .bcdSideBySideChooser").length > 0)  getFunction = bcdui.widgetNg.sideBySideChooser.getNavPath;
+         if (jQuery("#" + id + " > select").length > 0)                 getFunction = bcdui.widgetNg.singleSelect.getNavPath;
+         if (jQuery("#" + id + " > textarea").length > 0)               getFunction = bcdui.widgetNg.input.getNavPath;
          // connectable widget excluded (returns "" anyway), suggestInput handled via input
 
          if (getFunction != null) {
@@ -2354,7 +2354,7 @@ bcdui.util.namespace("bcdui.widget",
                    caption += ((caption != "") ? sep + widgetCaption + valueX : widgetCaption + valueX);
                  }
                }
-               callback(caption);
+               callback(caption, valueArray);
                return;
              }
            });
@@ -2380,7 +2380,7 @@ bcdui.util.namespace("bcdui.widget",
                  caption += ((caption != "") ? sep + widgetCaption + valueX : widgetCaption + valueX);
                }
              }
-             callback(caption);
+             callback(caption, valueArray);
              return;
            }
          }
