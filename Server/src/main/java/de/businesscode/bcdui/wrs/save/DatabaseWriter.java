@@ -505,7 +505,7 @@ public class DatabaseWriter {
         }
       }
     }
-    catch (Exception e) {
+    catch (SQLException e) {
       throw new SQLDetailException(getErrorMessage(getUpdateStatementSQL(exceptKeyCols), updateValues), e);
     }
   }
@@ -541,7 +541,7 @@ public class DatabaseWriter {
         }
       }
     }
-    catch (Exception e) {
+    catch (SQLException e) {
       throw new SQLDetailException(getErrorMessage(getInsertStatementSQL(), columnValues), e);
     }
   }
@@ -577,7 +577,7 @@ public class DatabaseWriter {
         }
       }
     }
-    catch (Exception e) {
+    catch (SQLException e) {
       throw new SQLDetailException(getErrorMessage(getDeleteStatementSQL(), columnValues), e);
     }
   }

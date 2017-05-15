@@ -15,14 +15,44 @@
 */
 package de.businesscode.bcdui.wrs.save;
 
+import java.sql.SQLException;
+
 /**
  * An exception with SQL details, which may not be save to be included in the message to the client
  */
-public class SQLDetailException extends Exception
-{
-  private static final long serialVersionUID = -717057192812741240L;
+public class SQLDetailException extends SQLException {
+  private static final long serialVersionUID = -1;
+  private final String sql;
 
-  public SQLDetailException( String message, Exception e) {
-    super(message,e);
+  /**
+   * @param message
+   *          explaining what happened
+   * @param sqlException
+   *          root cause
+   */
+  public SQLDetailException(String message, SQLException sqlException) {
+    this(message, null, sqlException);
+  }
+
+  /**
+   * @param message
+   *          explaining what happened
+   * @param sql
+   *          which caused this exception, may be null if not available
+   * @param sqlException
+   *          root cause
+   */
+  public SQLDetailException(String message, String sql, SQLException sqlException) {
+    super(message, sqlException);
+    this.sql = sql;
+  }
+
+  @Override
+  public String getMessage() {
+    String msg = super.getMessage();
+    if (this.sql != null) {
+      msg += " (SQL: " + this.sql + ")";
+    }
+    return msg;
   }
 }
