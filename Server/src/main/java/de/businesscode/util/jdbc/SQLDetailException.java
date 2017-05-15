@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package de.businesscode.bcdui.wrs.save;
+package de.businesscode.util.jdbc;
 
 import java.sql.SQLException;
 

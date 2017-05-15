@@ -32,6 +32,7 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.wrs.save.exc.KeyColumnsNotDefinedException;
 import de.businesscode.util.jdbc.Closer;
+import de.businesscode.util.jdbc.SQLDetailException;
 
 /**
  * The Class is a writer of WebRowSet document into database,

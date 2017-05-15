@@ -41,8 +41,8 @@ import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
-import de.businesscode.bcdui.wrs.save.SQLDetailException;
 import de.businesscode.bcdui.wrs.save.exc.WrsValidationException;
+import de.businesscode.util.jdbc.SQLDetailException;
 
 /**
  * <p>
