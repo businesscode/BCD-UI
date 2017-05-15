@@ -142,8 +142,12 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
       }
 
-      var _getKpiId = function( inputModel, bcdRowIdent) {
-        return inputModel.getData().selectSingleNode("/*/wrs:Data/wrs:R[@id='"+bcdRowIdent+"']/wrs:C[position()=/*/wrs:Header/wrs:Columns/wrs:C[@id='bcd_kpi_id']/@pos]/text()").nodeValue;
+      var _getKpiId = function( inputModel, bcdRowIdent, bcdColIdent) {
+        var kpiIdx = inputModel.read("/*/wrs:Header/wrs:Columns/@colDimLevelIds", "").split("|").indexOf("bcd_kpi_id");
+        if (bcdColIdent && kpiIdx != -1)
+          return bcdColIdent.split("|")[kpiIdx];
+        else
+          return inputModel.getData().selectSingleNode("/*/wrs:Data/wrs:R[@id='"+bcdRowIdent+"']/wrs:C[position()=/*/wrs:Header/wrs:Columns/wrs:C[@id='bcd_kpi_id']/@pos]/text()").nodeValue;
       }
 
       //-----------------------------------------------------------
@@ -173,7 +177,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         // we are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
         this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'bcdColIdent', value: memo.bcdColIdent }));
         this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'bcdRowIdent', value: memo.bcdRowIdent }));
-        this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent)}));
+        this.actionDetailExportWrq.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent, memo.bcdColIdent)}));
         for (var cP in memo.chainParameters) {
           this.actionDetailExportWrq.addDataProvider(
             memo.chainParameters[cP] instanceof bcdui.core.DataProvider
@@ -213,7 +217,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         // We are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
         this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: "bcdColIdent", value: memo.bcdColIdent}));
         this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: "bcdRowIdent", value: memo.bcdRowIdent}));
-        this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent)}));
+        this.actionDrillToAnalysisGuiStatus.addDataProvider(new bcdui.core.ConstantDataProvider({name: 'kpiId', value: _getKpiId( this.inputModel, memo.bcdRowIdent, memo.bcdColIdent)}));
         for (var cP in memo.chainParameters) {
           this.actionDrillToAnalysisGuiStatus.addDataProvider(
             memo.chainParameters[cP] instanceof bcdui.core.DataProvider
