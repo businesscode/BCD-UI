@@ -66,7 +66,8 @@ task bcduiBuildCore( type: Jar ) {
     if( tasks.findByPath(subJar) == null )
       return
     from zipTree( tasks.getByPath(subJar).archivePath )
-    exclude '**/MANIFEST.MF'
+    exclude 'META-INF//MANIFEST.MF'
+    exclude 'META-INF/gitInformation/**'
   }
 
   manifest {

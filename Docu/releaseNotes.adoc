@@ -43,7 +43,7 @@ Major new features:
 * JSDoc Introduced new well-known types for modelXPath, WritableModelXPath, chainDef, i18nToken, targetHtmlRef
 
 Major bug fixes:
-. 
+. gitInformation about git's local repo status is back again
 
 Deprecated:
 . 
@@ -61,6 +61,7 @@ Incompatibilities:
   both using the DataProviderWithXPathNodes
 . dm:FilterTranslation toRangeWhen attribute was moved to dm:PeriodTranslation
 . If you used cubeConfigurator's isDefaultHtmlLayout='false' before, you need to provide bcdCubeDndMatrix container yourself
+. LoginServlet was removed, adjust web.xml and let loginform have action=""
 
 ==== Release 5_0_0
 
