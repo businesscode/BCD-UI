@@ -545,7 +545,7 @@
           <Jsp>
             <AddCode><![CDATA[
 <%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/widgetNg" prefix="wng"%>
-<form name="loginform" action="bcdui/servlets/login" method="post">
+<form name="loginform" action="" method="post">
   <table align="left" border="0" cellspacing="0" cellpadding="3">
     <tr>
       <td>Username:</td>
