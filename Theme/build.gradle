@@ -80,7 +80,7 @@ task bcduiThemeDistCollect ( type: Copy ) {
   into taskTargetDir
 
   doFirst {
-    new File(taskTargetDir).mkdirs()
+    file(taskTargetDir).mkdirs()
     delete outputs
   }
 
