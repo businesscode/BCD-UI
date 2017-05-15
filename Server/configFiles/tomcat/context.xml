@@ -48,27 +48,6 @@
     password="XX" />
   -->
 
-  <!-- Sample for Teradata
-  <Resource name="jdbc/connectionXX"
-    auth="Container"
-    type="javax.sql.DataSource"
-    maxActive="100"
-    maxIdle ="-1"
-    maxWait="200"
-    logAbandoned="true"
-    removeAbandoned="true"
-    validationQuery="select current_time"
-    testOnBorrow="true"
-    driverClassName="com.teradata.jdbc.TeraDriver"
-    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8"
-    username="XX"
-    password="XX" />
-
-    * use the following for V2R6.1 and earlier
-    driverClassName="com.ncr.teradata.TeraDriver"
-    url="jdbc:teradata://serverXX/DATABASE=dbNameXX,tmode=default,CHARSET=UTF8,COMPAT_DBS=false,COMPAT_ISSIGNED=true"/>
-   -->
-
   <!-- Sample for MSSqlServer
   <Resource name="jdbc/connectionXX"
     auth="Container"
@@ -82,6 +61,19 @@
     testOnBorrow="true"
     driverClassName="net.sourceforge.jtds.jdbc.Driver"
     url="jdbc:jtds:sqlserver://serverXX:1433/dbnameXX"
+    username="XX"
+    password="XX" />
+  -->
+
+  <!-- Sample for PostgreSQL
+  <Resource name="jdbc/bcduitestpostgres"
+    auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="10"
+    maxIdle ="5"
+    maxWait="15000"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://postgresserver:5432/dbNameXX"
     username="XX"
     password="XX" />
   -->
