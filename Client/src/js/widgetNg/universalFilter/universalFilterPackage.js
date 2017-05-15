@@ -77,7 +77,11 @@
         inputModel  : this.targetDataProvider,
         parameters  : {
           nodeIdAttribute : this.NODE_ID_ATTR,
-          cssClassPrefix  : this.options.cssClassPrefix
+          cssClassPrefix  : this.options.cssClassPrefix,
+          bRefModel       : new bcdui.core.OptionsDataProvider({
+            optionsModelXPath               : this.options.bRefOptionsModelXPath,
+            optionsModelRelativeValueXPath  : this.options.bRefOptionsModelRelativeValueXPath
+          })
         }
       });
       renderer.onReady(function(){
@@ -158,16 +162,24 @@
           xPath_value               : baseTargetModelXPath + "/Value"
       };
 
+      /*
+       * internal API:
+       * this.options.inputRow.renderingChain
+       * this.options.inputRow.renderingChainParameters
+       */
+      if(!this.options.inputRow){
+        this.options.inputRow = {}
+      }
       var createUiRenderer = new bcdui.core.Renderer({
         targetHtml  : this.createUiElement,
-        chain       : bcdui.config.libPath + "js/widgetNg/universalFilter/inputRendering.dott",
+        chain       : this.options.inputRow.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/inputRendering.dott",
         inputModel  : this.statusModel,
         parameters  : jQuery.extend({}, createUiConfig, {
           widgetReferenceModel  : widgetReferenceModel, // put into depedency chain
           cssClassPrefix        : this.options.cssClassPrefix,
-          bRefOptionsModelXpath : this.options.bRefOptionsModelXpath,
+          bRefOptionsModelXPath : this.options.bRefOptionsModelXPath,
           bRefOptionsModelRelativeValueXPath : this.options.bRefOptionsModelRelativeValueXPath || ""
-        }),
+        }, this.options.inputRow.renderingChainParameters),
         suppressInitialRendering : true // just create, render initially
       });
 
@@ -215,6 +227,10 @@
             op        : statusModel.read("/*/Op","").replace(/</g,"&lt;"),
             value     : statusModel.read("/*/Value","").replace(/</g,"&lt;")
         };
+        if(!args.bRef || !args.op){
+          // do nothing if missing input
+          return;
+        }
         // hide ui
         uiElement.detach();
         // add expression
@@ -260,11 +276,11 @@
           (args)
       ).selectSingleNode("/*/*");
       var nextFilterNode = refFilterNode.selectSingleNode("following-sibling::f:*");
-      // need reference parent, either we have one (beyond of targetModelXPath) or we chose self
-      var refFilterParent = refFilterNode.parentNode.localName && targetSelector.valueNode().contains(refFilterNode) ? refFilterNode.parentNode : refFilterNode;
+      // need reference parent, either we have one (non-document node and beyond of targetModelXPath) or we chose self
+      var refFilterParent = refFilterNode.parentNode.nodeName && jQuery.contains(targetSelector.valueNode(),refFilterNode) ? refFilterNode.parentNode : refFilterNode;
 
       // either parent junction = requested, then just add new expression
-      if(args.targetNodeId && refFilterParent.localName.toUpperCase() == requestedJunction){
+      if(args.targetNodeId && (refFilterParent.baseName||refFilterParent.localName).toUpperCase() == requestedJunction){
         refFilterParent.insertBefore(newExpressionNode, nextFilterNode);
       }else{
         if(!args.targetNodeId){
@@ -274,7 +290,7 @@
           var newJunctNode = bcdui.core.browserCompatibility.createDOMFromXmlString("<R>" + this.MAPPING_JUNCT_FILTER[requestedJunction] + "</R>").selectSingleNode("/*/*");
           newJunctNode = refFilterParent.insertBefore(newJunctNode, nextFilterNode);
           // move only if not root element
-          refFilterNode.parentNode.localName && newJunctNode.appendChild(refFilterNode);
+          refFilterNode.parentNode.nodeName && newJunctNode.appendChild(refFilterNode);
           // and the new one
           newJunctNode.appendChild(newExpressionNode);
         }
@@ -312,7 +328,7 @@
       // render ui
       this.createUiElement.trigger("bcdui:universalFilter:renderCreateUi",{
         anchorElement     : anchorElement,
-        proposedJunction  : (!!proposedJunctionElement ? proposedJunctionElement.localName.toUpperCase() : "") || this.options.defaultJunction,
+        proposedJunction  : (!!proposedJunctionElement ? (proposedJunctionElement.baseName||proposedJunctionElement.localName).toUpperCase() : "") || this.options.defaultJunction,
         targetNodeId      : targetNodeId
       });
     },

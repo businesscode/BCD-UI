@@ -847,15 +847,15 @@ the data that is actually placed in XML.
             root conjunction whereas there is no such restriction when using another (or custom) element as a target element.
           </Doc>
         </Param>
-        <Param name="bRefOptionsModelXpath" type="xpath" required="true">
+        <Param name="bRefOptionsModelXPath" type="xpath" required="true">
           <Doc>
             xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display.
           </Doc>
         </Param>
         <Param name="bRefOptionsModelRelativeValueXPath" type="xpath" required="false">
           <Doc>
-            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
-            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+            xPath expression relative to 'bRefOptionsModelXpath' providing values for options to display, if this is defined,
+            values referenced by bRefOptionsModelXpath are treated as captions.
           </Doc>
         </Param>
       </Api>

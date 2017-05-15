@@ -11,7 +11,7 @@
   <bcd-singleselectng
     required="true"
     targetModelXPath="{{= it.params.xPath_bref }}"
-    optionsModelXPath="{{= it.params.bRefOptionsModelXpath }}"
+    optionsModelXPath="{{= it.params.bRefOptionsModelXPath }}"
     optionsModelRelativeValueXPath="{{= it.params.bRefOptionsModelRelativeValueXPath }}"
   ></bcd-singleselectng>
 </span>
@@ -36,7 +36,6 @@
 <span>
   <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
 </span>
-<span>
-  <!-- simply hide the UI -->
-  <bcd-buttonng caption="X" onClickAction="jQuery(this).closest('.inputrow').detach()"></bcd-buttonng>
+<!-- simply hide the UI -->
+<span class="{{= it.params.cssClassPrefix }}creator-container-closer" onclick="jQuery(this).closest('.{{= it.params.cssClassPrefix }}creator-container').detach()">
 </span>

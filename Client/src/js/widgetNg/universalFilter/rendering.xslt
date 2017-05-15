@@ -2,6 +2,7 @@
 <xsl:stylesheet
   version="1.0"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" media-type="text/html"/>
@@ -9,6 +10,8 @@
   <xsl:param name="cssClassPrefix" select="'bcd-unifilter-'"/>
   <!-- attribute name of which provides uniquelly generated node id -->
   <xsl:param name="nodeIdAttribute" select="'bcd-univ-node-id'"/>
+  <!-- OptionsDataProvider -->
+  <xsl:param name="bRefModel"/>
 
   <!--
     input: dataProviderWithXPathNodes: Root/[usersProvidedTarget]/*
@@ -21,8 +24,7 @@
       <xsl:choose>
         <!-- if no filters -->
         <xsl:when test="not($target/f:*)">
-          <div contextId="empty">
-            [ No Filters ]
+          <div class="{$cssClassPrefix}empty" contextId="empty" bcdTranslate="bcd_widget_universalFilter_noFilters">
           </div>
         </xsl:when>
         <!-- if exact one nested expression, dont display junction -->
@@ -49,15 +51,29 @@
   <!-- as container -->
   <xsl:template match="f:Expression">
     <div class="{$cssClassPrefix}expression" data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty">
+      <xsl:variable name="expressionCaption" select="$bRefModel/*/cust:Option[@value = current()/@bRef]/@caption"/>
+      <xsl:variable name="expressionName" select="concat(substring(@bRef,0,1 div string-length($expressionCaption)),$expressionCaption)"/>
+      
+      <span>
+        <xsl:attribute name="class">
+          <xsl:value-of select="concat($cssClassPrefix,'expression-name')"/>
+          <xsl:if test="not($expressionCaption)">
+            <xsl:value-of select="concat(' ', $cssClassPrefix,'expression-name-nomapping')"/>
+          </xsl:if>
+        </xsl:attribute>
+        <xsl:value-of select="$expressionName"/>
+      </span>
+
       <xsl:choose>
         <xsl:when test="(@op = '!=' or @op = '&lt;&gt;') and ( @value='' or not(@value) )"><!-- operator matters -->
-          <xsl:value-of select="concat(@bRef, ' IS NOT EMPTY')"/>
+          <span class="{$cssClassPrefix}expression-type-notempty" bcdTranslate="bcd_widget_universalFilter_valueNotNull"></span>
         </xsl:when>
         <xsl:when test="( @value='' or not(@value) )"><!-- operator does not matter -->
-          <xsl:value-of select="concat(@bRef, ' IS EMPTY')"/>
+          <span class="{$cssClassPrefix}expression-type-empty" bcdTranslate="bcd_widget_universalFilter_valueNull"></span>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="concat(@bRef, ' ', @op, ' ', @value)"/>
+          <span class="{$cssClassPrefix}expression-op"><xsl:value-of select="@op"/></span>
+          <span class="{$cssClassPrefix}expression-value"><xsl:value-of select="@value"/></span>
         </xsl:otherwise>
       </xsl:choose>
     </div>

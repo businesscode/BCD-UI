@@ -156,6 +156,10 @@
       <R id="R150"><C>bcd_GroupingEditor</C><C>Grouping Editor</C><C>en</C></R>
       <R id="R151"><C>bcd_GroupingEditorGroups</C><C>Groupings</C><C>en</C></R>
       <R id="R152"><C>bcd_GroupingEditorGroupName</C><C>Grouping Name</C><C>en</C></R>
-
+      
+      <!-- UniversalFilter -->
+      <R id="R200"><C>bcd_widget_universalFilter_valueNotNull</C><C>is not null</C><C>en</C></R>
+      <R id="R201"><C>bcd_widget_universalFilter_valueNull</C><C>is null</C><C>en</C></R>
+      <R id="R202"><C>bcd_widget_universalFilter_noFilters</C><C>no filters</C><C>en</C></R>
     </Data>
 </Wrs>

@@ -190,8 +190,9 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
       // render filter widget
       this.options.targetHtml.find(".bcd-far-filter").bcduiUniversalFilterNg({
         targetModelXPath      : "$guiStatus/guiStatus:Status/f:Filter/f:And[@id='" + this.options.componentId + "']",
-        bRefOptionsModelXpath : "$" + universalFilterModel.id + "/*/Item/@caption",
-        bRefOptionsModelRelativeValueXPath : "../@id"
+        bRefOptionsModelXPath : "$" + universalFilterModel.id + "/*/Item/@caption",
+        bRefOptionsModelRelativeValueXPath : "../@id",
+        inputRow                           : this.options.reportFilter ? this.options.reportFilter.inputRow : null  // internal widget API
       });
     }
   }

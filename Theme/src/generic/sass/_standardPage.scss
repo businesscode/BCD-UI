@@ -261,6 +261,9 @@ a {
 
 /* universalFilter */
 .bcd-unifilter-widget {
+  .bcd-unifilter-empty { /* displays empty message */
+     text-transform: uppercase;
+  }
   .bcd-unifilter-conj-container {
     display: flex;
     flex-direction: row;
@@ -289,12 +292,38 @@ a {
     margin-left: 25px;
     margin-top: 5px;
     margin-bottom: 5px;
+    > span {
+      padding-left: 3px;
+      padding-right: 3px;
+    }
+    .bcd-unifilter-expression-name {
+    }
+    .bcd-unifilter-expression-name-nomapping {
+      font-style: italic;
+      color: $text-disabled-color;
+    }
+    .bcd-unifilter-expression-type-empty,
+    .bcd-unifilter-expression-type-notempty {
+      text-transform: uppercase;
+    }
+    .bcd-unifilter-expression-op {
+    }
+    .bcd-unifilter-expression-value {
+    }
   }
 
   .bcd-unifilter-creator-container {
     margin-left: 25px;
     padding: 5px;
     border: 1px dashed #ccc;
+
+    .bcd-unifilter-creator-container-closer:hover {
+      cursor: pointer;
+    }
+
+    .bcd-unifilter-creator-container-closer:after {
+      content: "\274C";
+    }
   }
 }
 
