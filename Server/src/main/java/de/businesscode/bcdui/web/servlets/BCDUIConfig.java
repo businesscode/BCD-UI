@@ -73,7 +73,6 @@ public class BCDUIConfig extends HttpServlet {
       properties.load(new FileInputStream(propFile));
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
-    String sessionId = (request != null && request.getSession(false) != null ? request.getSession(false).getId() : "");
 
     PrintWriter writer = new PrintWriter(response.getWriter());
     writer.println("var bcdui = bcdui || {};");
@@ -81,8 +80,6 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("bcdui.config = {");
     writeClientParams(writer);
     writer.println("    contextPath: \"" + getServletContext().getContextPath() + "\"");
-    // FIXME TODO drop sessionId from here and use sessionHash where appropriate.
-    writer.println("  , sessionId: \"" + sessionId + "\"");
 
     // write authenticate information
     try {
@@ -167,6 +164,7 @@ public class BCDUIConfig extends HttpServlet {
     if( ! "true".equals( request.getParameter("bcduiConfigOnly") ) )
       writer.println("document.write(\"<script type='text/javascript' src='" + getServletContext().getContextPath() + "/bcdui/js/bcduiLoader.js'></script>\");");
 
+    String sessionId = (request != null && request.getSession(false) != null ? request.getSession(false).getId() : "");
     if( log.isDebugEnabled() )
       log.debug("PageHash "+pageHash+" for "+request.getHeader("Referer")+", "+sessionId);
   

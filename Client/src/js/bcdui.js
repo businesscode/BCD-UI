@@ -266,8 +266,7 @@ jQuery.extend( bcdui,
            * @private
            */
           BCDAppender.prototype._getDetailMessage = function() {
-            var msg = bcdui.config.sessionId;
-            msg += "\n" + new Date().toISOString();
+            var msg = "\n" + new Date().toISOString();
             msg += "\n" + navigator.userAgent;
             msg += "\n\n" + location.href;
             msg += "\n\n" + this.bufferedMessage;
