@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
 
 /**
  * Factory methods preventing XXE attacks, according to <a href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Java">OWASP
@@ -22,13 +23,26 @@ public abstract class SecureXmlFactory {
   };
 
   /**
+   * Create an XMLInputFactory which is save against injection attacks
+   * If you need XInclude, enable it explicitly after retrieving this
+   * @return
+   */
+  public static XMLInputFactory newXMLInputFactory() {
+    final XMLInputFactory xif = XMLInputFactory.newInstance();
+    xif.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+    xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    xif.setProperty(XMLInputFactory.IS_VALIDATING, false);
+    xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    return xif;
+  }
+
+  /**
    * @return {@link DocumentBuilderFactory} with following options set
    *         <ul>
    *         <li>XInclude: disabled</li>
    *         <li>Validation: disabled</li>
    *         <li>DTD: disabled</li>
    *         <li>External Entities (general+params): disabled</li>
-   *         <li>Namespace aware: false</li>
    *         <li>Ignoring comments: true</li>
    *         </ul>
    */
@@ -46,7 +60,6 @@ public abstract class SecureXmlFactory {
     factory.setXIncludeAware(false);
     factory.setExpandEntityReferences(false);
     factory.setValidating(false);
-    factory.setNamespaceAware(false);
     factory.setIgnoringComments(true);
 
     return factory;
@@ -59,7 +72,6 @@ public abstract class SecureXmlFactory {
    *         <li>Validation: disabled</li>
    *         <li>DTD: disabled</li>
    *         <li>External Entities (general+params): disabled</li>
-   *         <li>Namespace aware: false</li>
    *         </ul>
    */
   public static SAXParserFactory newSaxParserFactory() {
@@ -75,7 +87,6 @@ public abstract class SecureXmlFactory {
 
     factory.setXIncludeAware(false);
     factory.setValidating(false);
-    factory.setNamespaceAware(false);
 
     return factory;
   }

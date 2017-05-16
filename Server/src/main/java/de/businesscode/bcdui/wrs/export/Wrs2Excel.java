@@ -32,6 +32,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.EncryptedDocumentException;
@@ -199,7 +201,7 @@ public class Wrs2Excel {
   public void export(Reader wrsReader, OutputStream excelOutputStream, IRequestOptions options) throws Exception {
     log.trace("exporting Wrs");
     try {
-      XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(wrsReader);
+      XMLEventReader reader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(wrsReader);
       // externalize verbose parsing
       try {
         new WrsContainerParser(excelOutputStream, options, reader).process();

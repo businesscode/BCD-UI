@@ -760,7 +760,7 @@ public class ZipLet extends HttpServlet {
       in = new ByteArrayInputStream(resolveELExpressions(new String(IOUtils.toByteArray(inTemp),"UTF-8"), request).getBytes("UTF-8"));
     }
 
-    XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(new StreamSource(in));
+    XMLEventReader reader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(new StreamSource(in));
     XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(stringWriter);
     XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     Namespace xIncludeNamespace = eventFactory.createNamespace("http://www.w3.org/2001/XInclude");
