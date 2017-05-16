@@ -1041,7 +1041,7 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
      * 
      * @constructs
      * @param args The parameter map contains the following properties:
-     * @param {function} args.callback - The callback providing the data
+     * @param {function} args.callback - The callback providing the data; gets args object with 'setData' function to call once data is available.
      * @param {id}       [args.id]     - A globally unique id for use in declarative contexts
      * @param {string}   [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
      */
