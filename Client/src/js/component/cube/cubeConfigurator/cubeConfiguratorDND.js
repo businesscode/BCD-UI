@@ -62,6 +62,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetHtml: "#" + args.targetHtml + " .bcdDimensionList"
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -70,6 +71,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -79,6 +81,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , isDoubleClickTarget: true
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -87,6 +90,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetHtml: "#" + args.targetHtml + " .bcdMeasureList"
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -95,6 +99,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
     var inputArgs = {
@@ -104,6 +109,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , isDoubleClickTarget: true
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
 

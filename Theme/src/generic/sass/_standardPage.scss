@@ -675,6 +675,10 @@ a {
   th, td { padding: 3px 5px; white-space: nowrap; }
   th { font-weight: bold; text-align: left; }
   td { text-align: right; }
+
+  .bcdLeft { text-align: left; }
+  .bcdRight { text-align: right; }
+
   .bcdFooter { text-align: left; border-top: 1px solid $border-color; }
   thead { border-bottom: 1px solid $border-color; font-size: 14px; }
 }

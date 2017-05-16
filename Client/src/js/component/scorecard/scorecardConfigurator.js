@@ -51,7 +51,7 @@
 
         // render default layout if required (dnd area, blinds and apply button)
         if (args.isDefaultHtmlLayout) {
-          
+
           var template = "<div class='bcdScorecardDndBlind'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
           [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
           template += "</div></div>";
@@ -81,6 +81,21 @@
 
           bcdui.widgetNg.createButton({caption: "Apply", onClickAction: args.applyFunction || bcdui.core.lifecycle.applyAction, targetHtml: "bcdDndApplyButton_" + args.scorecardId});
         }
+
+        var contextMenu = new bcdui.core.ModelWrapper({
+          chain: bcdui.contextPath + "/bcdui/js/component/scorecard/dndContextMenu.xslt"
+        , inputModel: bcdui.wkModels.guiStatus
+        , parameters: { scorecardId: args.scorecardId, bcdRowIdent: bcdui.wkModels.bcdRowIdent }
+        });
+        bcdui.widget.createContextMenu({refreshMenuModel: true, targetHtml: args.targetHtml, inputModel: contextMenu, identsWithin: args.targetHtml});
+        
+        bcdui.widget.createTooltip({
+            targetHtml: args.targetHtml
+          , url: bcdui.contextPath + "/bcdui/js/component/scorecard/dndTooltip.xslt"
+          , inputModel: args.targetModel
+          , identsWithin: args.targetHtml
+          , parameters: { scorecardId: args.scorecardId, bcdRowIdent: bcdui.wkModels.bcdRowIdent, scConfig: args.config }
+        });
 
         if( args.isTemplate  ) {
 
@@ -127,6 +142,12 @@
             // enhancedConfig's input model is the scorecard config model, we need to ensure
             // that both are ready, otherwise you get a refresh which is one step out of sync
             // Indicate that the scorecard is currently working and disable context menu as it would work on vanishing HTML elements (producing errors)
+
+            jQuery(".bcd_" + args.scorecardId + "_dnd li").removeClass("bcdOptions");
+            jQuery.makeArray(layout.queryNodes("//scc:Layout[@scorecardId ='"+ args.scorecardId +"']//*[@bcdModified!='']")).forEach(function(e) {
+              jQuery(".bcd_" + args.scorecardId + "_dnd li[bcdValue='" + e.getAttribute("bcdModified") + "']").addClass("bcdOptions");
+            });
+
             var targetHtmlElement = jQuery(args.scorecard.getTargetHTMLElement()).children().first().get(0);
             if (targetHtmlElement && ! jQuery("#bcdScorecardHide" + args.scorecardId).length > 0) {
               var div = jQuery("<div class='bcdScorecardHide' title='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_PressApplyFirst"}) + "' id='" + "bcdScorecardHide" + args.scorecardId + "'></div>");
@@ -240,7 +261,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     jQuery("#" + args.targetHtml).addClass("bcd_"+ args.scorecardId + "_dnd");
     jQuery("#" + args.targetHtml).attr("bcdScorecardId", args.scorecardId).attr("contextId", "scorecardDnd");
     jQuery(".bcd_" + args.scorecardId + "_dnd").data("targetModelId", args.targetModel.id);
-    jQuery(".bcd_" + args.scorecardId + "_dnd").data("cubeBucketModelId", scBucket.id);
+    jQuery(".bcd_" + args.scorecardId + "_dnd").data("scBucketModelId", scBucket.id);
 
     // and initialize controls
     var scTargetXPathRoot = bcdui.component.scorecardConfigurator._SCORECARD_TEMP.xPathRootWidget;
@@ -263,6 +284,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , scope: args.scorecardId + "_dims"
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
     var targetArgs = {
@@ -272,6 +294,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , scope: args.scorecardId + "_dims"
     , unselectAfterMove: true
     , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(targetArgs);
     var targetArgs = {
@@ -281,7 +304,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
       , scope: args.scorecardId + "_dims"
       , unselectAfterMove: true
       , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
-      };
+      , extendedConfig: {noTooltip: true }
+    };
     bcdui.widgetNg.createConnectable(targetArgs);
 
     // setup connectable source/target for kpis
@@ -291,6 +315,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , targetHtml: "#" + args.targetHtml + " .bcdKpiList"
     , scope: args.scorecardId + "_kpi"
     , unselectAfterMove: true
+    , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
     var targetArgs = {
@@ -299,6 +325,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , isDoubleClickTarget: true
     , scope: args.scorecardId + "_kpi"
     , unselectAfterMove: true
+    , generateItemHtml: bcdui.component.scorecardConfigurator._itemRenderer
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(targetArgs);
 
@@ -309,6 +337,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , targetHtml: "#" + args.targetHtml + " .bcdAspectList"
     , scope: args.scorecardId + "_asp"
     , unselectAfterMove: true
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
     var targetArgs = {
@@ -317,6 +346,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , isDoubleClickTarget: true
     , scope: args.scorecardId + "_asp"
     , unselectAfterMove: true
+    , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(targetArgs);
 
@@ -407,7 +437,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
      jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
        var split = i.text.split("|");
-       var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.parent + "/" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
+       var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
        item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
        if (item != null) {
          var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
@@ -582,7 +612,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
   reDisplay : function(scorecardId) {
 
     var targetModelId = jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId");
-    var scBucketId = jQuery(".bcd_" + scorecardId + "_dnd").data("cubeBucketModelId");
+    var scBucketId = jQuery(".bcd_" + scorecardId + "_dnd").data("scBucketModelId");
     var targetModel = bcdui.factory.objectRegistry.getObject(targetModelId);
     var scBucket = bcdui.factory.objectRegistry.getObject(scBucketId);
     bcdui.component.scorecardConfigurator._scorecardLayoutToControlModel(scBucket, targetModel, scorecardId);
@@ -609,7 +639,11 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    */
   _itemRenderer: function(args) {
     var customClass = args.value == "bcdKpi|KPI" ? "bcdTargetLocked" : "";
-    return "<li class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";
+    var scorecardId = jQuery("#" + args.id).closest("*[bcdScorecardId]").attr("bcdScorecardId");
+    var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
+    if (targetModel && targetModel.query("/*/scc:Layout[@scorecardId ='"+ scorecardId +"']//*[@bcdModified='"+ args.value +"']") != null)
+      customClass += " bcdOptions";
+    return "<li bcdRowIdent='" + args.value + "' contextId='bcdDim' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
   
   /**
@@ -655,5 +689,80 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     '</style>').appendTo('head');
     
     return template;
+  },
+
+  /**
+   * contextMenu function call to hide current dimension's totals by cleaning total attribute
+   * @private
+   */
+  _hideTotals : function(scorecardId) {
+    
+    var dim = bcdui.wkModels.bcdRowIdent.getData() || "";
+    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : ""}, dim);
+  },
+
+  /**
+   * contextMenu function call to show current dimension's totals by setting total attribute
+   * @private
+   */
+  _showTotals : function(scorecardId) {
+    var dim = bcdui.wkModels.bcdRowIdent.getData() || "";
+    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : "trailing"}, dim);
+  },
+
+  /**
+   * general modify attributes routine which sets information at bucketitems and layout items
+   * @private
+   */
+  _modify : function(scorecardId, attributes, id) {
+
+    var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
+    var scBucketModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("scBucketModelId"));
+    var bucketNode = scBucketModel.query("/*/*/*[@bcdId='" + id + "']");
+    var layoutNodeName = bucketNode.nodeName;
+    var layoutIdValue = "";
+    var layoutIdName = "";
+
+    // for now, no modifications on special items
+    if (id == "bcdKpi|KPI")
+      return;
+
+    if (bucketNode.getAttribute("idRef") != null) {
+      layoutIdValue = bucketNode.getAttribute("idRef");
+      layoutIdName = "idRef"
+    }
+    else if (bucketNode.getAttribute("bRef") != null) {
+      layoutIdValue = bucketNode.getAttribute("bRef");
+      layoutIdName = "bRef"
+    }
+    
+    if (layoutIdName != "" && layoutIdValue != "") {
+      var layoutNode = targetModel.query("/*/scc:Layout[@scorecardId='" + scorecardId + "']//" + layoutNodeName + "[@" + layoutIdName + "='" + layoutIdValue + "']");
+      if (layoutNode != null) {
+
+        // set actual values
+        for (a in attributes) {
+          if (attributes[a] == "")
+            layoutNode.removeAttribute(a);
+          else
+            layoutNode.setAttribute(a, attributes[a]);
+        }
+
+        // test list of attributes which can get changed and mark layout item accordingly
+        var modified = false;
+        ["total"].forEach(function(a){
+          modified = layoutNode.getAttribute(a) != bucketNode.getAttribute(a);
+        });
+        
+        if (modified)
+          layoutNode.setAttribute("bcdModified", id);
+        else
+          layoutNode.removeAttribute("bcdModified");
+
+        var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@scorecardId ='"+ scorecardId+"']" );
+        layoutNode.setAttribute("disableClientRefresh","true");
+        bcdui.wkModels.guiStatus.fire();
+      }
+    }
   }
 });
