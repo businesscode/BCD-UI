@@ -31,7 +31,7 @@ public class RequestHashGenerator {
     String addOn = request.getSession(false) != null ? request.getSession(false).getId() : "-";
     String url = request.getHeader("Referer");
     if (url == null)
-      return addOn;
+      return new Integer(addOn.hashCode()).toString(); // Here we avoid sharing sessionid information with the client
     int x = url.indexOf("//");
     url = x != -1 ? url.substring(x + 2) : url;
     int y = url.indexOf("/");
