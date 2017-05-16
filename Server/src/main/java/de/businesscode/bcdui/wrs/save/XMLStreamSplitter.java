@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.wrs.save;
 
+import de.businesscode.util.xml.SecureXmlFactory;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationHandler;
@@ -68,7 +70,7 @@ public class XMLStreamSplitter {
     writer.add(factory.createEndDocument());
     writer.flush();
 
-    metaDataReader = XMLInputFactory.newInstance().createXMLEventReader(new StringReader(stringWriter.getBuffer().toString()));
+    metaDataReader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(new StringReader(stringWriter.getBuffer().toString()));
 
     dataReader = createPartialXMLEventReader(reader, startDocumentEvent, rootElementEvent);
   }

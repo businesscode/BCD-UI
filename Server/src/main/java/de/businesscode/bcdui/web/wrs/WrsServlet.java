@@ -35,6 +35,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
+import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -235,7 +236,7 @@ public class WrsServlet extends HttpServlet {
     XMLEventReader reader;
     try {
       log.trace("try to write data in Database");
-      XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+      XMLInputFactory inputFactory = SecureXmlFactory.newXMLInputFactory();
       inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
       reader = inputFactory.createXMLEventReader(request.getInputStream());
       DataSaver dataSaver = new DataSaver();

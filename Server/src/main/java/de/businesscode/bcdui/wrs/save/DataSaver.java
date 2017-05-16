@@ -26,6 +26,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
+import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.Bindings;
@@ -99,7 +100,7 @@ public class DataSaver {
       }
     };
 
-    dataReader = XMLInputFactory.newInstance().createFilteredReader(dataReader, eventFilter);
+    dataReader = SecureXmlFactory.newXMLInputFactory().createFilteredReader(dataReader, eventFilter);
     XMLEventReader input = dataReader;
     fireEvent(SaveEventState.BeforeTransformation);
 
