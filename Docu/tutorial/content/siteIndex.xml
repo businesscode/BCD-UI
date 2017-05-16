@@ -73,7 +73,6 @@
 
   <Block title="Backup">
     <DocUrl>../content/levelOfComponents/doc.xml</DocUrl>
-    <DocUrl>../content/releaseNotes/doc.xml</DocUrl>
     <DocUrl>../content/_designRationale/doc.xml</DocUrl>
     <DocUrl>../content/conventions/doc.xml</DocUrl>
     <DocUrl>../content/compatibility/doc.xml</DocUrl>
