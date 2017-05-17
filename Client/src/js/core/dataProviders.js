@@ -600,6 +600,82 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
         }
     });
 
+bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProviderHolder,
+/**
+ * @lends bcdui.core.OptionsDataProvider.prototype
+ */
+{
+  /** 
+   * @classdesc
+   *  This class creates a static model with a top level element '<cust:Options/>' and appends all
+   *  the elements that are found by xpath as children (as element '<cust:Option value="v" caption="x"/>').
+   *  Useful for be passing data as parameter to transformators.
+   * @extends bcdui.core.DataProviderHolder
+   *
+   * @constructs
+   * @param {object}                  args
+   * @param {modelXPath}              args.optionsModelXPath                - Data xPath with model reference, like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>,
+   *                                                                        is treated as value+caption in case args.optionsModelRelativeValueXPath is NOT DEFINED or
+   *                                                                        is treated as value only in case args.optionsModelRelativeValueXPath IS DEFINED.
+   * @param {xPath}                   [args.optionsModelRelativeValueXPath] - optional xPath relative to args.optionsModelXPath
+   * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
+   */
+  initialize: function(/* object */ args){
+    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.OptionsDataProvider" ): "") != "";
+
+    if (!args.optionsModelXPath) {
+      throw Error('Must specify an "optionsModelXPath" property in the parameter map.');
+    }
+
+    this.args = jQuery.extend(true, {}, args, {
+      options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
+    });
+    this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);
+    bcdui.core.DataProviderHolder.call( this, args);
+    
+    if (isLeaf)
+      this._checkAutoRegister();
+  },
+  /**
+   * returns the root-element of the document
+   * @private
+   */
+  _getDataElement: function(){
+    if (this.args.source == null) return null;
+    var data = this.args.source.getData();
+    if (data == null) return null;
+    if (typeof data.item == "undefined") {
+      return data;
+    }
+    if (data.length > 0) {
+      return data.item(0);
+    }
+    return null;
+  },
+  /**
+   * @inheritdoc
+   */
+  getData: function(){
+    var dataElement = this._getDataElement();
+    var nodes = null;
+    if (dataElement != null) {
+      nodes  = jQuery.makeArray(dataElement.selectNodes(this.args.options.xPath));
+    }
+
+    var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString('<cust:Options xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0" xmlns="http://www.businesscode.de/schema/bcdui/customization-1.0.0"/>');
+    var parent = newDoc.documentElement;
+    if (nodes != null){
+      nodes.forEach(function(n){
+        var captionNode = n;
+        var valueNode = this.args.optionsModelRelativeValueXPath ? n.selectSingleNode(this.args.optionsModelRelativeValueXPath) : null;
+        var optionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(parent, "cust:Option");
+        optionNode.setAttribute("value", (valueNode || captionNode).text);
+        optionNode.setAttribute("caption", captionNode.text);
+      }.bind(this))
+    }
+    return newDoc;
+  }
+});
 
 bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
 /**

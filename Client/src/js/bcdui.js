@@ -541,6 +541,15 @@ bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading")
  */
 
 /**
+ * @typedef {string} xPath
+ * @description
+ * Provide an XPath, which can be used to use nodes from, can point to an attribute or a full subtree.
+ * <br/>Note: must not contain model references.
+ * @example
+ * /guiStatus:Status/guiStatus:MyNode                                     // A string with a simple XPath
+ */
+
+/**
  * @typedef {string} writableModelXPath
  * @description
  * Provide an XPath, which can be used to append nodes to. In most cases the path will be created if it does not exist,
