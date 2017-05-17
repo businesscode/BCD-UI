@@ -583,9 +583,9 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
           var parent = newDoc.documentElement;
           if (nodes != null){
             nodes.forEach( function(e){
-              if( e.nodeType===2 )
-                parent.setAttribute(e.nodeName,e.nodeValue);
-              else
+              if( e.nodeType===2 ){
+                parent.appendChild( newDoc.createElement(e.nodeName) ).text=e.nodeValue;
+              } else
                 parent.appendChild(e.cloneNode(true));
             })
           }
