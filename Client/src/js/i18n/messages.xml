@@ -141,6 +141,8 @@
       <R id="R182"><C>bcd_FarConfigurator_Heading_Dims</C><C>Dimensions</C><C>en</C></R>
       <R id="R183"><C>bcd_FarConfigurator_Heading_Meas</C><C>Measures</C><C>en</C></R>
       <R id="R184"><C>bcd_FarConfigurator_Heading_Sort</C><C>Sorting</C><C>en</C></R>
+      <!-- FAR component -->
+      <R id="R190"><C>bcd_FarComponent_DimensionMissing</C><C>Please, select at least one dimension to run the report.</C><C>en</C></R>
 
       <!-- Typical control headers and captions -->
       <R id="R140"><C>bcd_Ctrl_Ok</C><C>Ok</C><C>en</C></R>

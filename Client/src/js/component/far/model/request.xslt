@@ -48,7 +48,8 @@
 
   <xsl:template match="/*">
     <WrsRequest>
-      <xsl:if test="$dimensionsMeasures">
+      <!-- currently, we at least require dimension selected -->
+      <xsl:if test="$dimensions">
         <Select>
           <xsl:if test="$maxRows">
             <xsl:attribute name="rowEnd"><xsl:value-of select="$maxRows"/></xsl:attribute>
@@ -91,8 +92,14 @@
     </C>
   </xsl:template>
   <xsl:template match="dm:MeasureRef" mode="asWrqC">
+    <!-- 
+      to support measure-only we have to enforce aggregation
+      on wrq-level but same time we want be able to
+      to suppress explicit aggregation on binding-item level,
+      i.e. in case the column-expression contains an aggr. already.
+     -->
     <xsl:variable name="measure" select="key('measureById',@idRef)"/>
-    <!-- support for Measure/@bRef (default aggregation from binding applies) -->
+    <!-- support for Measure/@bRef (default aggregation from binding-item applies) -->
     <xsl:choose>
       <xsl:when test="$measure/@bRef">
         <C
@@ -106,7 +113,7 @@
         <C
           bRef="{$bRef}"
           caption="{$measure/@caption}">
-          <!-- if not provided, default aggregation applies -->
+          <!-- if not provided, default aggregation from binding-item applies -->
           <xsl:if test="$aggr">
             <xsl:attribute name="aggr"><xsl:value-of select="$aggr"/></xsl:attribute>
           </xsl:if>

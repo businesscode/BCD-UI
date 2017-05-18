@@ -23,6 +23,7 @@
   xmlns:far="http://www.businesscode.de/schema/bcdui/far-1.0.0"
   xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns="http://www.businesscode.de/schema/bcdui/far-1.0.0">
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
@@ -54,6 +55,14 @@
           <xsl:apply-templates select="far:Layout/far:Paginate" mode="toInternalApi"/>
         </xsl:otherwise>
       </xsl:choose>
+      
+      <!-- write appropriate message, in case no dimension was selected -->
+      <xsl:if test="not( (far:Layout|$layoutInStatus)/far:Columns/dm:LevelRef )">
+        <xp:HtmlBuilder>
+          <!-- i18n-key -->
+          <xp:EmptyMessage>bcd_FarComponent_DimensionMissing</xp:EmptyMessage>
+        </xp:HtmlBuilder>
+      </xsl:if>
     </Configuration>
   </xsl:template>
 
