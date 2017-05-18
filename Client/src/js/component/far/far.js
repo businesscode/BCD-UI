@@ -87,7 +87,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
   _initRenderer : function(){
     // paginate control, only if configured
     this.enhancedConfig.onceReady(function(){
-      if(!this.enhancedConfig.getData().selectSingleNode("/*/far:Layout//xp:Paginate")){
+      if(!this.enhancedConfig.getData().selectSingleNode("/*/far:Layout//far:Paginate")){
         return; // no pagination enabled
       }
       var totalRowsCountProvider = this.farModel._getTotalRowsCountProvider();
@@ -109,7 +109,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     var gridRendering = new bcdui.core.Renderer({
       targetHtml : this.options.targetHtml.find(".bcd-far-grid"),
       chain : [
-        bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply xp:Paginate
+        bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply far:Paginate
         bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt" // final rendering of Wrs
       ],
       inputModel : this.farModel,
@@ -122,7 +122,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     });
 
     // trigger rendering everytime UI pagination updates $config/xp:Paginate
-    this.enhancedConfig.onChange(gridRendering.execute.bind(gridRendering), "/*/far:Layout/xp:XSLTParameters/xp:Paginate");
+    this.enhancedConfig.onChange(gridRendering.execute.bind(gridRendering), "/*/xp:Paginate");
   },
 
   /**

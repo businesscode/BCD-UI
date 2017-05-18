@@ -38,7 +38,11 @@
   <!-- data provider $/Root/* -->
   <xsl:param name="totalRowCountModel"/>
 
-  <xsl:variable name="paginate" select="/*/far:Layout/xp:XSLTParameters/xp:Paginate"/>
+  <!--
+    we work on internal xp:Paginate element located under root element of enhancedConfiguration,
+    which translates far:Layout/far:Paginate to xp:Paginate
+  -->
+  <xsl:variable name="paginate" select="/*/xp:Paginate"/>
 
   <xsl:template match="/">
     <div>
@@ -50,7 +54,7 @@
           <xsl:with-param name="rowsCount" select="count($farModel/*/wrs:Data/wrs:*)"/>
           <xsl:with-param name="page" select="$paginate/xp:PageNumber"/>
           <xsl:with-param name="targetModelId" select="$enhancedConfigModelId"/>
-          <xsl:with-param name="targetModelXPath">/*/far:Layout/xp:XSLTParameters/xp:Paginate/xp:PageNumber</xsl:with-param>
+          <xsl:with-param name="targetModelXPath">/*/xp:Paginate/xp:PageNumber</xsl:with-param>
           <xsl:with-param name="showAllOption" select="$paginate/xp:ShowAllOption"/>
           <xsl:with-param name="bcdControllerVariableName" select="$bcdControllerVariableName"/>
         </xsl:call-template>

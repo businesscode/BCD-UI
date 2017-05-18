@@ -20,7 +20,6 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:far="http://www.businesscode.de/schema/bcdui/far-1.0.0"
   xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"

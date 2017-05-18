@@ -47,14 +47,33 @@
       <xsl:choose>
         <xsl:when test="not(far:Layout)"><!-- no local Layout definition, just take what we have from status -->
           <xsl:copy-of select="$layoutInStatus"/>
+          <xsl:apply-templates select="$layoutInStatus/far:Paginate" mode="toInternalApi"/>
         </xsl:when>
         <xsl:otherwise><!-- we have local Layout, merge it -->
           <xsl:apply-templates select="far:Layout" mode="mergeLayout"/>
+          <xsl:apply-templates select="far:Layout/far:Paginate" mode="toInternalApi"/>
         </xsl:otherwise>
       </xsl:choose>
     </Configuration>
   </xsl:template>
-  
+
+  <!--
+    transforms far:Paginate to xp:Paginate
+   -->
+  <xsl:template match="far:Paginate" mode="toInternalApi">
+    <xp:Paginate xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0">
+      <xsl:if test="far:PageSize">
+        <xp:PageSize><xsl:value-of select="far:PageSize"/></xp:PageSize>
+      </xsl:if>
+      <xsl:if test="far:PageNumber">
+        <xp:PageNumber><xsl:value-of select="far:PageNumber"/></xp:PageNumber>
+      </xsl:if>
+      <xsl:if test="far:ShowAllOption">
+        <xp:ShowAllOption><xsl:value-of select="far:ShowAllOption"/></xp:ShowAllOption>
+      </xsl:if>
+    </xp:Paginate>
+  </xsl:template>
+
   <!-- 
     local far:Layout always overrides over the one provided via status,
     if no local exists, we take the one from status 
