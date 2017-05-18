@@ -27,8 +27,8 @@
 
   <!-- Root -->
   <xsl:template match="/*">
-    <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]">
-      <ContextMenu>
+    <ContextMenu>
+      <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]">
         <Context id="bcdDim">
           <ContextMenuEntryGroup caption="Total" >
             <xsl:choose>
@@ -45,8 +45,8 @@
             </xsl:choose>
           </ContextMenuEntryGroup>
         </Context>
-      </ContextMenu>
-    </xsl:if>
+      </xsl:if>
+    </ContextMenu>
   </xsl:template>
 
 </xsl:stylesheet>
