@@ -183,10 +183,8 @@
       el.attr("readonly", opts.readonly);
       el.attr("type", "checkbox");
 
-      // bind native html events, if defined
-      ["onchange","onclick"].forEach(function(v){
-        opts[v]&&el.attr(v, opts[v]);
-      });
+      // bind native html events if provided; defined by hasHtmlEvents API
+      this._mapNativeHtmlEvents(el);
 
       if(opts.disabled){
         el.attr("disabled","disabled");

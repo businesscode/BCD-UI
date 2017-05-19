@@ -379,6 +379,11 @@
       </Api>
 
       <Api name="hasHtmlEvents">
+        <!-- 
+          implementation info:
+
+          generally implemented in bcduiWidget._mapNativeHtmlEvents()
+         -->
         <Doc>
           Widgets are tied to models hence if one would like to be updated on data change he listens to updates on the model,
           this is the encouraged way to listen to updates. However, sometimes one also would like to bind to html events, such as

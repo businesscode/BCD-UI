@@ -284,9 +284,7 @@
       el.attr("required", args.required);
       el.attr("readonly", args.readonly);
       // bind native html events, if defined
-      ["onchange","onclick"].forEach(function(v){
-        args[v]&&el.attr(v, args[v]);
-      });
+      this._mapNativeHtmlEvents(el);
 
       if(args.type){
         if(args.type=="int"){

@@ -68,7 +68,7 @@
 
       if(this.element.prop($.bcdui.bcduiWidget.KEY_WIDGET_NAME)){
         var err = "Widget construction error: element is already occupied by another widget!";
-        window.console && window.error(err, this);
+        window.console && window.console.error(err, this);
         throw err;
       }
       this.element.prop($.bcdui.bcduiWidget.KEY_WIDGET_NAME, this.widgetFullName);
@@ -287,6 +287,25 @@
         }, {});
       }
       return res;
+    },
+
+    /**
+     * maps native HTML events defined by hasHtmlEvents API,
+     * every concrete widget has to call this method providing
+     * element to bind the events to. The events are bound to functions
+     * provided by options.
+     *
+     * @param {element} [targetElement=this.element]  The target to bind events to.
+     *
+     * @private
+     */
+    _mapNativeHtmlEvents : function(targetElement){
+      var opts = this.options;
+      targetElement = !!targetElement ? jQuery(targetElement) : this.element;
+      ["onchange","onclick"].filter(function(v){return opts[v]}).forEach(function(v){
+        // our paramaters are always native js functions
+        targetElement.on(v.substring(2), opts[v]);
+      });
     }
   });
 
