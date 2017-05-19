@@ -44,3 +44,13 @@ CREATE TABLE BCD_SEC_USER
   is_disabled VARCHAR(64),
   PRIMARY KEY (user_id)
 );
+
+-- PostgreSQL
+CREATE TABLE BCD_SEC_USER
+(  
+  user_id     VARCHAR(128), 
+  name        VARCHAR(128), 
+  password    VARCHAR(64),
+  is_disabled VARCHAR(64),
+  PRIMARY KEY (user_id)
+);
