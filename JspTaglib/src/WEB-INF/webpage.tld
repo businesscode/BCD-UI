@@ -256,7 +256,7 @@
          de.businesscode.bcdui.web.taglib.webpage.Functions
       </function-class>
       <function-signature>
-         java.lang.String optionalJsBooleanParam(java.lang.String, java.lang.Object)
+         java.lang.String optionalJsFunctionParam(java.lang.String, java.lang.Object)
       </function-signature>
    </function>
   <function>
