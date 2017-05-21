@@ -175,8 +175,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
        * An array of URLs containing CSS files to be loaded by the server.
        * @type Array
        */
-      this.css = [];
-      this.css = args.css || [];
+      this.css = args.css ? args.css.split(" ") : [];
 
       /**
        * The title of the HTML fragment sent to the server.
