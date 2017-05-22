@@ -18,9 +18,16 @@ package de.businesscode.util.xml;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Factory methods preventing XXE attacks, according to <a href="https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Java">OWASP
@@ -104,6 +111,64 @@ public abstract class SecureXmlFactory {
     factory.setValidating(false);
 
     return factory;
+  }
+
+  /**
+   * @return {@link TransformerFactory} with following options set
+   *         <ul>
+   *         <li>External DTD: disabled</li>
+   *         <li>External Stylesheet: disabled</li>
+   *         </ul>
+   */
+  public static TransformerFactory newTransformerFactory() {
+    TransformerFactory factory = TransformerFactory.newInstance();
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+    return factory;
+  }
+
+  /**
+   * @return {@link SAXTransformerFactory} with following options set
+   *         <ul>
+   *         <li>External DTD: disabled</li>
+   *         <li>External Stylesheet: disabled</li>
+   *         </ul>
+   */
+  public static SAXTransformerFactory newSaxTransformerFactory() {
+    SAXTransformerFactory factory = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+    return factory;
+  }
+
+  /**
+   * @return {@link XMLReader} with following options set
+   *         <ul>
+   *         <li>XInclude: disabled</li>
+   *         <li>Validation: disabled</li>
+   *         <li>DTD: disabled</li>
+   *         <li>External Entities (general+params): disabled</li>
+   *         </ul>
+   */
+  public static XMLReader newXmlReader() {
+    XMLReader reader;
+    try {
+      reader = XMLReaderFactory.createXMLReader();
+    } catch (SAXException e) {
+      throw new RuntimeException(e);
+    }
+
+    // apply general features
+    GENERAL_FACTORY_FEATURES.forEach((feature, flag) -> {
+      try {
+        reader.setFeature(feature, flag);
+      } catch (Exception e) {
+      }
+    });
+
+    return reader;
   }
 
   /**
