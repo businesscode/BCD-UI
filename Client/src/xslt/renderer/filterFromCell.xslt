@@ -399,4 +399,13 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="f:Or[@bcdDimension]" mode="merge">
+    <xsl:variable name="dimName" select="@bcdDimension"/>
+    <xsl:variable name="dimension" select="$dimensionModel/*/dm:Dimension[@id=$dimName]"/>
+    <xsl:copy-of select="."/>
+    <f:And>
+      <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef=$dimension/*/dm:Level/@bRef]"/>
+    </f:And>
+  </xsl:template>
+
 </xsl:stylesheet>

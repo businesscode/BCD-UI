@@ -217,6 +217,7 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
             bcdRowIdent: memo.bcdRowIdent, bcdColIdent: memo.bcdColIdent,
             cubeOrigConfiguration: bcdui.factory.objectRegistry.getObject(metaDataModel),
             cubeEnhancedConfiguration: bcdui.factory.objectRegistry.getObject(cubeEnhancedConfiguration),
+            dimensionModel: bcdui.wkModels.bcdDimensions,
             filterModel: bcdui.factory.objectRegistry.getObject(detailExportFilterModel)
           }
           jQuery.extend(parameters, memo.chainParameters);
