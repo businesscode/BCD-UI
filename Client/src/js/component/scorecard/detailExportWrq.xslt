@@ -50,7 +50,7 @@
               </wrq:BindingSet>
             </wrq:From>
             <f:Filter>
-              <xsl:apply-templates select="$cellAndGuiStatusFilterDetailTranslated/*/f:Filter/*[@bRef!='bcd_kpi_id' and not(starts-with(@bRef,'bcdCategory_'))]"/>
+              <xsl:apply-templates select="$cellAndGuiStatusFilterDetailTranslated/*/f:Filter/*[not(@bRef) or (@bRef!='bcd_kpi_id' and not(starts-with(@bRef,'bcdCategory_')))]"/>
               <xsl:copy-of select="$detailDataDefaults/f:Filter[not($detailData/f:Filter)]/* | $detailData/f:Filter/*"/>
             </f:Filter>
           </wrq:Select>
