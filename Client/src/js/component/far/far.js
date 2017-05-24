@@ -45,6 +45,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
 
     // create enhanced configuration
     this.enhancedConfig = bcdui.component.far.enhancer.createEnhancedConfiguration({
+      chain:        this.options.enhancedConfigurationChain, // internal API
       config:       this.options.config,
       statusModel:  this.options.statusModel,
       componentId:  this.options.componentId,
@@ -215,6 +216,7 @@ bcdui.util.namespace("bcdui.component.far.enhancer",
    *                                                            this ID is used as component identifer to support multiple components on single page
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  StatusModel, containing the filters at /SomeRoot/f:Filter,
    *                                                                                            far:Far/far:ConfiguratorLayout element, etc. default is 'guiStatusEstablished'
+   * @param {chainDef}                  [args.chain=/bcdui/js/component/far/config-enhancer.xslt] Overrides default chain definition.
    *
    * @return {bcdui.core.DataProvider}  Dataprovider with enhanced configuration document
    *                                    based on the input configuration. This data provider
@@ -224,7 +226,7 @@ bcdui.util.namespace("bcdui.component.far.enhancer",
    */
   createEnhancedConfiguration : function(args){
     var enhancerParams = jQuery.extend(true,{},args,{
-      chain : bcdui.contextPath + "/bcdui/js/component/far/config-enhancer.xslt",
+      chain : args.chain || bcdui.contextPath + "/bcdui/js/component/far/config-enhancer.xslt",
       inputModel : args.config,
       parameters : {
         statusModel : args.statusModel || bcdui.wkModels.guiStatusEstablished,
