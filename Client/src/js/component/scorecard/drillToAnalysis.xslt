@@ -48,9 +48,9 @@
         <cube:Layout cubeId="{$translations/@cubeId}">
           <cube:Dimensions>
             <cube:Rows>
-              <xsl:if test="$filterModel//f:Expression[@bRef='qr'] and not($kpiDef//dm:PeriodTranslation[contains(@toRangeWhen,'qr')])"><dm:LevelRef bRef="yr" sort="ascending" total="trailing"/><dm:LevelRef bRef="qr" sort="ascending" total="trailing"/></xsl:if>
-              <xsl:if test="$filterModel//f:Expression[@bRef='mo'] and not($kpiDef//dm:PeriodTranslation[contains(@toRangeWhen,'mo')])"><dm:LevelRef bRef="yr" sort="ascending" total="trailing"/><dm:LevelRef bRef="mo" sort="ascending" total="trailing"/></xsl:if>
-              <xsl:if test="$filterModel//f:Expression[@bRef='cw'] and not($kpiDef//dm:PeriodTranslation[contains(@toRangeWhen,'cw')])"><dm:LevelRef bRef="cwyr" sort="ascending" total="trailing"/><dm:LevelRef bRef="cw" sort="ascending" total="trailing"/></xsl:if>
+              <xsl:if test="$filterModel//f:Expression[@bRef='qr'] and not($kpiDef//dm:PT[contains(@toRangeWhen,'qr')])"><dm:LevelRef bRef="yr" sort="ascending" total="trailing"/><dm:LevelRef bRef="qr" sort="ascending" total="trailing"/></xsl:if>
+              <xsl:if test="$filterModel//f:Expression[@bRef='mo'] and not($kpiDef//dm:PT[contains(@toRangeWhen,'mo')])"><dm:LevelRef bRef="yr" sort="ascending" total="trailing"/><dm:LevelRef bRef="mo" sort="ascending" total="trailing"/></xsl:if>
+              <xsl:if test="$filterModel//f:Expression[@bRef='cw'] and not($kpiDef//dm:PT[contains(@toRangeWhen,'cw')])"><dm:LevelRef bRef="cwyr" sort="ascending" total="trailing"/><dm:LevelRef bRef="cw" sort="ascending" total="trailing"/></xsl:if>
               <xsl:if test="$filterModel//f:Expression[@bRef='dy']"><dm:LevelRef bRef="dy" sort="ascending" total="trailing"/></xsl:if>
             </cube:Rows>
           </cube:Dimensions>

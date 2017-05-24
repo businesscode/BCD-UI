@@ -277,7 +277,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
   bcdui.component.scorecard._periodTranslator = function(doc, param) {
 
     if (param && param.sccDefinition) {
-      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PeriodTranslation[@toRangeWhen]");
+      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PT[@toRangeWhen]");
       if (nodeFtTrw) {
 
         // generate correct dateFrom/dateTo
@@ -333,7 +333,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       }
 
       // replace all bRefs postfixes
-      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PeriodTranslation[@postfix]");
+      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PT[@postfix]");
       if (nodeFtTrw) {
         var postfix = nodeFtTrw.getAttribute("postfix") || "";
         for (var x in bcdui.widget.periodChooser._dateRangeBindingItemNames) {

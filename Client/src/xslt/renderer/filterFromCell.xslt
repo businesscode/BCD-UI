@@ -58,7 +58,7 @@
   <xsl:variable name="filterFromCellIncludebcdGr" select="false()"/>
   <!-- We either take local or the default dm:Translations, we do not merge an that level -->
   <xsl:variable name="translations"  select="$detailData/dm:Translations | $detailDataDefaults/dm:Translations[not($detailData/dm:Translations)]"/>
-  <xsl:variable name="transFromDims" select="$dimensionModel/*/dm:Dimension[@id=$translations/dm:DimensionTranslation/@from]"/>
+  <xsl:variable name="transFromDims" select="$dimensionModel/*/dm:Dimension[@id=$translations/dm:DT/@from]"/>
 
   <!--
     These three variables are the main result of this stylesheet
@@ -276,7 +276,7 @@
 
   <xsl:template match="f:Or[@bcdDimension]" mode="detailTranslate">
     <xsl:variable name="fromDim" select="$transFromDims[./dm:Hierarchy/dm:Level/@bRef=current()/f:And/f:Expression/@bRef][1]"/>
-    <xsl:variable name="toDimId" select="$translations/dm:DimensionTranslation[@from=$fromDim/@id]/@to"/>
+    <xsl:variable name="toDimId" select="$translations/dm:DT[@from=$fromDim/@id]/@to"/>
     <f:Or>
       <xsl:attribute name="bcdDimension">
         <xsl:choose>
@@ -290,7 +290,7 @@
 
   <xsl:template match="f:And[@bcdDimension]" mode="detailTranslate">
     <xsl:variable name="fromDim" select="$transFromDims[./dm:Hierarchy/dm:Level/@bRef=current()/f:Or/f:Expression/@bRef][1]"/>
-    <xsl:variable name="toDimId" select="$translations/dm:DimensionTranslation[@from=$fromDim/@id]/@to"/>
+    <xsl:variable name="toDimId" select="$translations/dm:DT[@from=$fromDim/@id]/@to"/>
     <f:And>
       <xsl:variable name="dimName">
         <xsl:choose>
@@ -307,11 +307,11 @@
 
   <xsl:template match="f:Expression" mode="detailTranslate">
     <xsl:variable name="fromDim"     select="$transFromDims[./dm:Hierarchy/dm:Level/@bRef=current()/@bRef][1]"/>
-    <xsl:variable name="filterTrans" select="$translations/dm:FilterTranslation[@from=current()/@bRef]"/>
+    <xsl:variable name="filterTrans" select="$translations/dm:FT[@from=current()/@bRef]"/>
     <xsl:choose>
       <!-- levels which are part of any detail dimension translation get a prefix handling -->
       <xsl:when test="$fromDim">
-        <xsl:variable name="toDimId" select="$translations/dm:DimensionTranslation[@from=$fromDim/@id]/@to"/>
+        <xsl:variable name="toDimId" select="$translations/dm:DT[@from=$fromDim/@id]/@to"/>
         <xsl:variable name="toDim"   select="$dimensionModel/*/dm:Dimension[@id=$toDimId]"/>
         <xsl:copy>
           <xsl:copy-of select="@*"/>

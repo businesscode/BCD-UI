@@ -266,7 +266,7 @@
   <!-- ===================================================================== -->
   <xs:complexType name="TypeTranslations">
     <xs:sequence>
-      <xs:element name="DimensionTranslation" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="DT" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Use this to translate LevelRef/@bRef values for a whole dimension into another dimension.
           See documentation of the cube for the allowed target dimensions.
@@ -286,14 +286,25 @@
           </xs:attribute>
         </xs:complexType>
       </xs:element>
-      <xs:element name="FilterTranslation" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="FT" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Use this to translate individual binding items
         </xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:attribute name="from" type="xs:string"/>
           <xs:attribute name="to" type="xs:string"/>
-          <xs:attribute name="toRangeWhen" type="xs:string"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PT" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Use this to translate individual period based binding items
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="toRangeWhen" type="xs:string">
+            <xs:annotation><xs:documentation>
+              Space separated list of well known period bRefs (yr,mo,cwyr,cw,qr). If the listed bRef is found the date information will be transformed to a dy range.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
