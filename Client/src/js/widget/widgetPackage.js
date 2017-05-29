@@ -2257,6 +2257,8 @@ bcdui.util.namespace("bcdui.widget",
        if(!caption && el.is(jQuery.bcdui.bcduiWidget.SELECTOR)){
          caption = el._bcduiWidget().options.widgetCaption || caption; // WidgetNg API
        }
+       if (! caption  && el.find("[bcdWidgetCaption]").length > 0)
+         caption = el.find("[bcdWidgetCaption]").first().attr("bcdWidgetCaption");
        if (caption.length > 1 && caption[0] === bcdui.i18n.TAG)
          caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)});
        return caption;
