@@ -139,14 +139,14 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           var top = 0;
 
           if (jQuery('#bcdSideBarContainer').data("origTop") == null) {
-            top = parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
+            top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : jQuery('#bcdSideBarContainer').css("top");
             jQuery('#bcdSideBarContainer').data("origTop", "" + top);
           }
           else
             top = parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10);
 
           if (jQuery('#bcdSideBarContainer').data("origOff") == null) {
-            off = jQuery('#bcdSideBarContainer').offset().top;
+            off = isNaN(jQuery('#bcdSideBarContainer').offset().top) ? 0 : jQuery('#bcdSideBarContainer').offset().top;
             jQuery('#bcdSideBarContainer').data("origOff", "" + off);
           }
           else
