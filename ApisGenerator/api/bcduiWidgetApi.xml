@@ -349,9 +349,9 @@
             See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
           </Doc>
         </Param>
-        <Param name="mandatory" type="boolean">
+        <Param name="mandatory" type="boolean" default="false">
           <Doc>
-            Set this to false if you don't want mandatory input fields.
+            An empty value is invalid if this parameters sets to true. Default is false.
           </Doc>
         </Param>
         <Param name="limitLevels" type="string">
@@ -385,9 +385,9 @@
             Turn on-off the validation of the formula.
           </Doc>
         </Param>
-        <Param name="mandatory" type="boolean">
+        <Param name="mandatory" type="boolean" default="false">
           <Doc>
-            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+            An empty value is invalid if this parameters sets to true. Default is false.
           </Doc>
         </Param>
         
@@ -470,9 +470,9 @@
             The wildcards apply to filtering within the top down list and for server side filters, both plain and for retrieving drop-down values dynamically from the server.
           </Doc>
         </Param>
-        <Param name="mandatory" type="boolean">
+        <Param name="mandatory" type="boolean" default="false">
           <Doc>
-            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+            An empty value is invalid if this parameters sets to true. Default is false.
           </Doc>
         </Param>
         <Param name="maxlength" type="integer">
@@ -752,9 +752,9 @@
             Turn on-off the validation of the keyboard entered date values.
           </Doc>
         </Param>
-        <Param name="mandatory" type="boolean">
+        <Param name="mandatory" type="boolean" default="false">
           <Doc>
-            The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+            An empty value is invalid if this parameters sets to true. Default is false.
           </Doc>
         </Param>
         <Param name="suppressCaptions" type="boolean">

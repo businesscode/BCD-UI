@@ -52,7 +52,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.clearOption=false]              If != 'false', an additional option to clear the selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
    * @param {string}        [args.emptyValue=false]               If != 'false', a text is displayed if nothing is selected / entered. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
-   * @param {boolean}       [args.mandatory=false]                The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+   * @param {boolean}       [args.mandatory=false]                An empty value is invalid if this parameters sets to true. Default is false.
    * @param {string}        [args.wildcard]                       For a f:Filter with @op='like', this controls the prefilling with wildcards ('*') when the value is yet empty and the field gets the focus. Can be 'contains', 'startswith' or 'endswith'. The user can overwrite this by adding/removing wildcards when editing the field. The wildcards apply to filtering within the top down list and for server side filters, both plain and for retrieving drop-down values dynamically from the server.
    * @param {boolean}       [args.bcdAutofit=false]               If true, drop down resizes depending on available options.
    * @param {boolean}       [args.isSortOptions=false]            A flag that can be set to 'true' if the options shown in popup should be sorted alphabetically.
@@ -133,7 +133,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.clearOptionLevel=false]         See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
    * @param {string}        [args.emptyValue=false]               If != 'false', a text is displayed if no level is selected. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
    * @param {string}        [args.emptyValueLevel=false]          See emptyValue. This value is for the level selector input box only. If not specified, emptyValue is used.
-   * @param {boolean}       [args.mandatory=false]                Set this to false if you don't want mandatory input fields.
+   * @param {boolean}       [args.mandatory=false]                An empty value is invalid if this parameters sets to true. Default is false.
    * @param {boolean}       [args.useCaptions=false]              If true, the chooser will receive captions and codes. By convention the bref of the captions column is 'bRef'_caption. By default no captions are created.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {string}        [args.configurationModelId]           ModelId of chooser configuration xml file. This model can hold a per-level configuration which allows additional filtering.
@@ -353,7 +353,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.isMonthSelectable=true]       Allows month selection.
    * @param {boolean}       [args.isQuarterSelectable=true]     Allows quarter selection
    * @param {boolean}       [args.isYearSelectable=true]        Allows year selection.
-   * @param {boolean}       [args.mandatory=false]              The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+   * @param {boolean}       [args.mandatory=false]              An empty value is invalid if this parameters sets to true. Default is false.
    * @param {boolean}       [args.outputPeriodType=false]       Produces selected dates as one of known date periods. For example if this contains mo and the user selects a data range, which fits a month, mo with be written.
    *                                                            This is usefull if you allow free range but you also have a month aggregation for performance optimization.
    *                                                            On the other hand, if this is not set and the user selects a month in the widget, then the month is written in terms of dy.
@@ -425,7 +425,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {string}        [args.caption='']                     Default '', it will be used as i18n key to translate the caption.
-   * @param {boolean}       [args.mandatory=false]                The value is mandatory. An empty value is invalid if this parameters sets to true. Default is false.
+   * @param {boolean}       [args.mandatory=false]                An empty value is invalid if this parameters sets to true. Default is false.
    * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.validate=true]                  Turn on-off the validation of the formula.
