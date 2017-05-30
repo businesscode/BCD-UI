@@ -730,6 +730,9 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           // 21) Optionally join category data
           if (this.refSccDefinition.query("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef") !== null ) {
             urls.push(this.cp + "addCategories.xslt");
+            // for column kpi categories we need to resort our data
+            if (this.refSccDefinition.query("/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi") !== null)
+              urls.push(this.cp + "sortColCategories.xslt");
           }
           // 22) Optionally remove empty rows and cols
           if ( bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Layout/@removeEmptyCells") ) {

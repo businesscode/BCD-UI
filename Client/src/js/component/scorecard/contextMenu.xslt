@@ -27,7 +27,14 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
-  xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
+  xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
+  xmlns:exslt="http://exslt.org/common"
+  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+  <xsl:import href="../../../xslt/stringUtil.xslt"/>
+
+  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
@@ -47,8 +54,23 @@
         -->
       <xsl:if test="string($bcdColIdent) and string($bcdRowIdent)">
         <ContextMenuEntryGroup caption="KPI actions" >
-          <!-- Convention:  bcdRowIdent is kpiId preceded by R<nr>_ -->
-          <xsl:variable name="kpiId" select="substring-after($bcdRowIdent,'_')"/>
+
+          <xsl:variable name="kpiPos" select="1 + count(/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi/preceding-sibling::*) + count(/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef)"/>
+          <xsl:variable name="colIdentString">
+            <xsl:call-template name="tokenize">
+              <xsl:with-param name="string" select="$bcdColIdent"/>
+              <xsl:with-param name="delimiter" select="'|'"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="kpiIdCol" select="exslt:node-set($colIdentString)/wrs:Wrs/wrs:Data/wrs:R[position()=$kpiPos]/wrs:C"/>
+
+          <xsl:variable name="kpiId">
+            <xsl:choose>
+              <xsl:when test="/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi"><xsl:value-of select="$kpiIdCol"/></xsl:when>
+              <xsl:otherwise><xsl:value-of select="substring-after($bcdRowIdent,'_')"/></xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
           <xsl:variable name="detailData" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]/dm:DetailData"/>
 
           <!-- Drill to analysis  -->
