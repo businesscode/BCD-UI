@@ -159,6 +159,20 @@
      */
     execJsOption : function(optionId){
       return bcdui.util._execJs( this.options[optionId], this.element.get(0), false, arguments, 1 );
+    },
+
+    /**
+     * triggers explicit widget (re)validation. After calling this function
+     * this.element.hasClass("bcdInvalid") shall return true, in case the
+     * widget has invalid input.
+     * <p>
+     * <b>Implementation note</b>:
+     * This function must be overwritten by a concrete widget implementation, if
+     * validation is supported. The default implementation does nothing.
+     * </p>
+     * @private
+     */
+    validate : function(){
     }
   });
 
