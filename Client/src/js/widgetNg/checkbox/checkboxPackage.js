@@ -295,13 +295,6 @@
     },
 
     /**
-     * re-validates the widget, this API allows jQuery(el).bcduiCheckboxNg("validate")
-     */
-    validate : function(){
-      // do nothing
-    },
-
-    /**
      * @private
      */
     _destroy: function() {
