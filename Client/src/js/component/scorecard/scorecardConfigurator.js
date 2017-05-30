@@ -35,7 +35,13 @@
 
       var args = this.options;
 
-      // take over defaults if needed
+			// in case of allowing row aspects, we add the object to our main array
+      if (args.rowAspect) {
+        bcdui.component.scorecardConfigurator._DND_OBJECTS.push(
+         { parent: "scc:RowAspectRefs", configParent: "scc:RowAspectRefs", fullBucketItem: "scc:AspectRefs/scc:AspectRef", bucketParent: "scc:AspectRefs", bucketItem: "scc:AspectRef", bucketId: "idRef", configId: "id", dndObject: "RowAspects", generator: "scc:Aspects/scc:Aspect", kpiObject: "scc:AspectKpi", generatorOption: "skip"}
+        );
+      }
+
       args.scorecardId = args.scorecard.id;
       args.targetHtml =  this.element.attr("id");
       args.targetModel = args.targetModel || bcdui.wkModels.guiStatus;
@@ -52,11 +58,13 @@
         // render default layout if required (dnd area, blinds and apply button)
         if (args.isDefaultHtmlLayout) {
 
-          var template = "<div class='bcdScorecardDndBlind'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
+					// row aspects need a slightly bigger default layout          
+          var cClass = args.rowAspect ? "bcdScorecardDndBlindBig" : "bcdScorecardDndBlind";
+          var template = "<div class='"+cClass+"'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
           [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
           template += "</div></div>";
 
-          jQuery("#" + args.targetHtml).append(jQuery(doT.template(template)({id:args.scorecardId})));
+          jQuery("#" + args.targetHtml).append(jQuery(doT.template(template)({id:args.scorecardId, rowAspect : args.rowAspect})));
 
           args.templateTargetHtmlElementId = "bcdDndTemplateDiv_" + args.scorecardId;
 
@@ -212,9 +220,9 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    */
   _renderDndArea: function(args) {
     if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed"))
-      return "<div id='bcdUpDown_Dnd_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_{{=it.id}}'><div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout() + "</div></div>";
+      return "<div id='bcdUpDown_Dnd_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_{{=it.id}}'><div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout(args) + "</div></div>";
     else
-      return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout() + "</div>";
+      return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.scorecardConfigurator._generateDefaultLayout(args) + "</div>";
   },
 
   /**
@@ -319,6 +327,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
+
     var targetArgs = {
       targetHtml: "#" + args.targetHtml + " .bcdCurrentKpiList"
     , targetModelXPath: "$" + scBucket.id + scTargetXPathRoot + "/Kpis/@id"
@@ -340,6 +349,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
+
     var targetArgs = {
       targetHtml: "#" + args.targetHtml + " .bcdCurrentAspectList"
     , targetModelXPath: "$" + scBucket.id + scTargetXPathRoot + "/Aspects/@id"
@@ -350,6 +360,17 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     };
     bcdui.widgetNg.createConnectable(targetArgs);
 
+    if (args.rowAspect) {
+      var targetArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentAspectListRow"
+      , targetModelXPath: "$" + scBucket.id + scTargetXPathRoot + "/RowAspects/@id"
+      , isDoubleClickTarget: false
+      , scope: args.scorecardId + "_asp"
+      , unselectAfterMove: true
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(targetArgs);
+    }
 
     // and our listener to generate the layout on any control layout change
     scBucket.onChange({
@@ -372,16 +393,23 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         };
 
         // target layout item with parent, bucket item with parent, item identifier, connectable item
-         bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
-           jQuery.makeArray(args.targetModel.queryNodes("/*" + scLayoutRoot + "/" + o.parent + "/*")).forEach(function(i) {
+        bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
+
+          // differ between row and common aspects
+          var xPath = o.parent + "/*";
+          if (o.parent == "scc:RowAspectRefs") xPath = "scc:AspectRefs/*[@isRow='true']";
+          if (o.parent == "scc:AspectRefs")    xPath = "scc:AspectRefs/*[not(@isRow) or @isRow='false']";
+
+          jQuery.makeArray(args.targetModel.queryNodes("/*" + scLayoutRoot + "/" + xPath)).forEach(function(i) {
             var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
             if (i.nodeName == o.kpiObject)
-              idArray.push("bcdKpi|KPI");
+              idArray.push("bcdKpi|KPI" + o.dndObject);
             else if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
-              idArray.push(id);
+              idArray.push(id + o.dndObject);
           });
+
           jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i){
-            idArrayTarget.push(i.text);
+            idArrayTarget.push(i.text + o.dndObject);
           });
         });
 
@@ -389,7 +417,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         var i = 0;
         var identical = idArrayTarget.length == idArray.length  // we only need to continue if we got the same amount of values;
         while (identical && i < idArray.length) {
-          identical &= idArray[i] == idArrayTarget[i]  // also compare the order/values themsel;
+          identical &= idArray[i] == idArrayTarget[i]  // also compare the order/values themselves;
           i++;
         }
 
@@ -435,29 +463,29 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
 
     // now insert kpiRefs, aspectRefs, etc into temp layout based on ordering from collectable targets
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
-     jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
-       var split = i.text.split("|");
-       var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
-       item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
-       if (item != null) {
-         var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
-         // if destination does not yet exist, create it
-         destination = destination != null ? destination : tempModel.write(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
+      jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
+        var split = i.text.split("|");
+        var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
+        item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
+        if (item != null) {
+          var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
+          // if destination does not yet exist, create it
+          destination = destination != null ? destination : tempModel.write(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
 
-         // special translation for kpiObjects like scc:LevelKpi/etc
-         if (item.getAttribute(o.bucketId) == "bcdKpi") {
-           // special item got subnode (created during bucket fill) with actual object
-           destination.appendChild(item.selectSingleNode("./*").cloneNode(true));
-         }
-         // all other nodes can simply be copied
-         else {
-           var clone = item.cloneNode(true);
-           clone.removeAttribute("bcdId");
-           destination.appendChild(clone);
-         }
-       }
-     });
-   });
+          // special translation for kpiObjects like scc:LevelKpi/etc
+          if (item.getAttribute(o.bucketId) == "bcdKpi") {
+            // special item got subnode (created during bucket fill) with actual object
+            destination.appendChild(item.selectSingleNode("./*").cloneNode(true));
+          }
+          // all other nodes can simply be copied
+          else {
+            var clone = item.cloneNode(true);
+            clone.removeAttribute("bcdId");
+            destination.appendChild(clone);
+          }
+        }
+      });
+    });
 
     // force triggering other scTargetId listeners by cleaning and rebuilding layout
     targetModel.remove("/*" + scLayoutRoot);
@@ -466,9 +494,47 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     var destination = targetModel.query("/*");
     destination.appendChild(source.cloneNode(true));
     tempModel.fire();
+
+    // generate rowAspectRefs as leading aspectRefs
+    jQuery.makeArray(targetModel.getData().selectNodes("/*" + scLayoutRoot + "/scc:AspectRefs/scc:AspectRef")).forEach(function(e){
+      e.removeAttribute("isRow");
+    });
+    var aspectRefsRoot = bcdui.core.createElementWithPrototype(targetModel.getData(), "/*" + scLayoutRoot + "/scc:AspectRefs");
+    jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/scc:RowAspectRefs/*")).reverse().forEach(function(e) {
+      e.setAttribute("isRow", "true");
+      aspectRefsRoot.insertBefore(e.cloneNode(true), aspectRefsRoot.childNodes && aspectRefsRoot.childNodes.length > 0 ? aspectRefsRoot.childNodes[0] : null);
+    });
+    bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:RowAspectRefs");
+
+    // do some special rules cleanup
+    var doRedisplay = bcdui.component.scorecardConfigurator._cleanUp(scBucket, targetModel, scorecardId);
+
     targetModel.fire();
+
+    // in case cleanup did something, we need to redisplay our connectables
+    if (doRedisplay)
+      bcdui.component.scorecardConfigurator.reDisplay(scorecardId);
   },
-  
+
+  /**
+   * cleanup some special rules
+   * @private
+   */
+  _cleanUp : function(scBucket, targetModel, scorecardId) {
+    
+    var doRedisplay = false;
+    var scLayoutRoot = "/scc:Layout[@scorecardId='" + scorecardId + "']";
+
+    // only allow RowAspectRefs when scc:LevelKpi is a row dimension
+    if (targetModel.query("/*" + scLayoutRoot + "/scc:Dimensions/scc:Rows/scc:LevelKpi") == null)
+      doRedisplay |= bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:AspectRefs/*[@isRow='true']") > 0;
+
+    // only allow RowAspectRefs which are marked with rowAspect
+    doRedisplay |= bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:AspectRefs/*[@isRow='true' and (not(@rowAspect) or @rowAspect='false')]") > 0;
+    
+    return doRedisplay;
+  },
+
   /**
    * convert (guiStatus) scc:Layout to internal layout data
    * @private
@@ -493,7 +559,15 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     scTargetModel.remove(scTargetXPathRoot);
 
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
-      jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/" + o.parent + "/*")).forEach(function(i){
+
+      // differ between row and common aspects
+      var xPath = o.parent + "/*";
+      if (o.parent == "scc:RowAspectRefs") xPath = "scc:AspectRefs/*[@isRow='true']";
+      if (o.parent == "scc:AspectRefs")    xPath = "scc:AspectRefs/*[not(@isRow) or @isRow='false']";
+
+      jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/" + xPath)).forEach(function(i){
+
+        // ignore AspectRef in AspectRefs which also appear in rowAspectRefs
         var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
         // generate entry as long as it is part of the bucket
         if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
@@ -582,6 +656,19 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
 
       // fill up empty or missing caption attributes in bucket data from config data (or id)
       bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
+        
+        // special handling for AspectRefs, mark them with rowAspect attribute if the assigned scc:Aspect (or this scc:AspectKpi) got it set
+        if (o.bucketItem == "scc:AspectRef") {
+          jQuery.makeArray(scBucket.queryNodes("/*/" + o.fullBucketItem)).forEach(function(b) {
+            if (b.getAttribute(o.bucketId) == "bcdKpi") {
+              if (configModel.read("/*/scc:AspectRefs/scc:AspectKpi/@rowAspect", "false") == "true")
+                b.setAttribute("rowAspect", "true");
+            }
+            else if (configModel.read("/*/scc:Aspects/scc:Aspect[@id='" + b.getAttribute(o.bucketId) + "']/@rowAspect", "false") == "true")
+              b.setAttribute("rowAspect", "true");
+          });
+        }
+
         jQuery.makeArray(scBucket.queryNodes("/*/" + o.fullBucketItem + "[not(@caption) or @caption='']")).forEach(function(b) {
           var caption = configModel.read("//" + o.generator + "[@" + o.configId + "='" + b.getAttribute(o.bucketId) + "']/@caption", "");
           if (caption == "") {
@@ -650,22 +737,24 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * Generates a default layout for the scorecard drag'n drop area
    * @private
    */
-  _generateDefaultLayout : function() {
+  _generateDefaultLayout : function(args) {
     // 960 grid based layout with possible horizontal flip
     var dndDirectionTargetLeft = bcdui.config.settings.bcdui.component.dnd.targetLeft == null ? true : bcdui.config.settings.bcdui.component.dnd.targetLeft;
+    var grid = args.rowAspect ? "grid_4" : "grid_5";
     var targetArea = "" +
       "<div class='grid_3 omega bcdCurrentKpiList" + (dndDirectionTargetLeft ? " alpha" : "") + "'></div>" +
       "<div class='grid_3 omega bcdCurrentScRowDimensionList'></div>" +
+      (args.rowAspect ? "<div class='grid_3 omega bcdCurrentAspectListRow'></div>" : "") +
       "<div class='grid_3 omega'>" +
       "  <div class='bcdCurrentScColDimensionList'></div>" +
       "  <div class='bcdCurrentAspectList'></div>" +
       "</div>";
     var sourceArea = ""+
-      "<div class='grid_5 omega" + (dndDirectionTargetLeft ? "" : " alpha") + "'>" +
+      "<div class='" + grid + " omega" + (dndDirectionTargetLeft ? "" : " alpha") + "'>" +
       "  <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Kpis"}) + "</div>" +
       "  <div class='bcdKpiList'></div>" +
       "</div>" +
-      "<div class='grid_5 omega'>" +
+      "<div class='" + grid + " omega'>" +
       "  <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Dimensions"}) + "</div>" +
       "  <div class='bcdScDimensionList'></div>" +
       "  <div class='bcdHeader'>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Aspects"}) + "</div>" +
@@ -686,6 +775,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
       '.bcdCurrentScColDimensionList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_ColDimensions"}) + '"; }' +
       '.bcdCurrentKpiList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Kpis"}) + '"; }' +
       '.bcdCurrentAspectList ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Aspects"}) + '"; }' +
+      '.bcdCurrentAspectListRow ul:after { content: "' + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_RowAspects"}) + '"; }' +
     '</style>').appendTo('head');
     
     return template;

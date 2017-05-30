@@ -91,6 +91,7 @@
       <R id="R41"><C>bcd_Kpis</C><C>KPIs</C><C>en</C></R>
       <R id="R42"><C>bcd_Aspects</C><C>Aspects</C><C>en</C></R>
       <R id="R43"><C>bcd_Categories</C><C>Categories</C><C>en</C></R>
+      <R id="R44"><C>bcd_RowAspects</C><C>Row Aspects</C><C>en</C></R>
 
       <!-- Editor context menu -->
       <R id="R40"><C>bcd_ctxEdit_Copy</C><C>Copy content</C><C>en</C></R>

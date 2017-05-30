@@ -809,6 +809,11 @@
         <xs:documentation>Caption or lookup key for the caption for i18n</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="rowAspect">
+      <xs:annotation>
+        <xs:documentation>set to true if aspect can be used as a row aspect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!--

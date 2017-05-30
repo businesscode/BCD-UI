@@ -762,6 +762,11 @@ the data that is actually placed in XML.
             if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default). 
           </Doc>
         </Param>
+        <Param name="rowAspect" type="boolean" default="false">
+          <Doc>
+            Enables another drag'n drop box for aspects (marked with rowAspect='true') which are put in front of all aspects. KPI dimensions needs to be a row dimension in this case.
+          </Doc>
+        </Param>
         <Param name="isTemplate" type="boolean">
           <Doc>
             Enable the template feature. This is an Enterprise Edition only feature.

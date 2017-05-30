@@ -23,6 +23,9 @@
 .bcdScorecardDndBlind {
   width: $scDndWidth;
 }
+.bcdScorecardDndBlindBig {
+  width: $scDndWidthBig;
+}
 
 .bcdUpDown
 ,.bcdUpDown_Template
@@ -708,6 +711,7 @@ div.bcdContextMenu a.bcdMenuitems {
     .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-kpi; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
     ul.bcdDropTarget { @include topDownGradient($sc-color-kpi, #FFFFFF); }
   }
+  .bcdCurrentAspectListRow,
   .bcdCurrentAspectList {
     .ui-selectee {z-index: 1; width: 80%; background-color: $sc-color-aspect; border: 1px solid $border-color; text-align: center; font-size: $font-size-small; padding: 2px; }
     ul.bcdDropTarget { @include topDownGradient($sc-color-aspect, #FFFFFF); }
@@ -716,7 +720,7 @@ div.bcdContextMenu a.bcdMenuitems {
 
   .bcdCurrentKpiList { height: 233px;}
   .bcdCurrentScColDimensionList, .bcdCurrentAspectList { height: 114px; margin-bottom: 5px;}
-  .bcdCurrentScRowDimensionList { height: 233px; margin-bottom: 5px;}
+  .bcdCurrentAspectListRow, .bcdCurrentScRowDimensionList { height: 233px; margin-bottom: 5px;}
   .bcdKpiList { height: 211px; }
   .bcdScDimensionList, .bcdAspectList { height: 92px;  margin-bottom: 5px;}
 
