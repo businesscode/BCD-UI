@@ -399,9 +399,8 @@
           <xs:annotation>
             <xs:documentation>
               This element causes all BindingItems of the sourceBindingSet to be
-              imported. This is also the default behavior when there are no
-              [Default]Imports elements at all, but this element allows the user
-              to set an import prefix.
+              imported. Also, this element allows the user to set an import prefix.
+              You have to use DefaultImports or Imports element in a Relation.
             </xs:documentation>
           </xs:annotation>
           <xs:complexType>
@@ -422,6 +421,7 @@
               The list of imported BindingItems from the sourceBindingSet. In
               contrast to the DefaultImports element this element is used to
               import single items and individually set the names of them.
+              You have to use DefaultImports or Imports element in a Relation.
             </xs:documentation>
           </xs:annotation>
           <xs:complexType>
