@@ -467,10 +467,10 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         value = node.getAttribute("bRef") || "";
       var caption = node.getAttribute("caption") || "";
 
-      // To prevent user calc editor from creating nested aggregations, we need to find out whether a measure istself is already containing an aggregation
+      // To prevent user calc editor from creating nested aggregations, we need to find out whether a measure itself is already containing an aggregation
       var wrqNodes = metaDataModel.getData().selectNodes("/*/dm:Measures/dm:Measure[@id='"+value+"']/*[local-name()='Calc']//wrq:*");
       var containsAgg = "false";
-      jQuery.each(wrqNodes, function( eachIdx, eachValue ) { if(jQuery.inArray(eachValue.localName,serverAggrs)) containsAgg = "true"; } );
+      jQuery.each(wrqNodes, function( eachIdx, eachValue ) { if(jQuery.inArray((eachValue.localName||eachValue.baseName),serverAggrs)) containsAgg = "true"; } );
 
       bcdui.core.createElementWithPrototype(e, "Option[@value='" + value.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @caption='" + caption.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @type-name='NUMERIC' and @containsAgg='"+containsAgg+"']");
 
