@@ -81,6 +81,9 @@
 
       // the cache object, which can be emptied anytime
       this.cache = {};
+
+      // track listeners of type XMLDataUpdateListener
+      this._updateListeners = [];
     },
 
     /**
@@ -149,6 +152,11 @@
       if (this._modelListener) {
         this._modelListener.unregister();
         delete this._modelListener;
+      }
+
+      // detach other listeners
+      while(this._updateListeners.length){
+        this._updateListeners.pop().unregister();
       }
 
       delete this.cache;
@@ -236,11 +244,22 @@
         res.valueXPath = res.captionXPath + "/" + relativeValueXPath;
       }
 
+      var cache = this.cache.selector = {}; // selector cache
+      // listen to updates on options model to purge cache
+      this._addUpdateListener(res.modelId, function(){
+        cache.selector = {};
+      });
+
       /* helpers */
       var selectNodes = function(xPath){
-        return jQuery.makeArray(
-            bcdui.factory.objectRegistry.getObject(res.modelId).getData().selectNodes(xPath)
-        );
+        cache.selectedNodes = cache.selectedNodes || {};
+        var nodes;
+        if(!(nodes = cache.selectedNodes[xPath])){
+          nodes = cache.selectedNodes[xPath] = jQuery.makeArray(
+              bcdui.factory.objectRegistry.getObject(res.modelId).getData().selectNodes(xPath)
+          );
+        }
+        return nodes;
       };
       var mapNodeToString = function(node){
         return node.text;
@@ -287,6 +306,33 @@
         }, {});
       }
       return res;
+    },
+
+    /**
+     * listen to updates on given reference data provider with given tracking xpath,
+     * unlike 'dataProvider.onChange()', this listener is automatically removed as
+     * soon as the widget is destroyed.
+     *
+     * @param {string}    idRef           Reference to data provider.
+     * @param {function}  updateValueCb   The callback to execute once 'idRef' has changed. Context is set to this widget's instance.
+     * @param {string}    [trackingXPath] Optional trackingXPath to listen for updates on.
+     *
+     * @private
+     */
+    _addUpdateListener : function(idRef, updateValueCb, trackingXPath){
+      var listener = new bcdui.widget.XMLDataUpdateListener({
+        idRef: idRef,
+        trackingXPath: trackingXPath,
+        htmlElementId: this.element.id
+      });
+      listener.updateValue = function(){
+        if(!this.isDestroyed){
+          updateValueCb.apply(this);
+        }
+      }.bind(this);
+      this._updateListeners.push(listener);
+      bcdui.factory.addDataListener(listener);
+      return listener;
     },
 
     /**
