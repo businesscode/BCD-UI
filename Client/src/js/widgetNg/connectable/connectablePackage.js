@@ -1360,8 +1360,22 @@
         li._bcduiWidget()._renderItems(false);
       });
 
-      // prebuilt xpath for _optionsSortingFunction()
+      // prebuilt xpath and funcs for _optionsSortingFunction()
       this.ancestorSelfXPath = "ancestor-or-self::*[ self::" + this.config.levelNodeName + " or self::" + this.config.itemNodeName + " ]";
+      this._funcMapNodeToCaptionAttrName = function(attrName, n){
+        return n.getAttribute(attrName);
+      }.bind(null, this.config.captionAttrName);
+    },
+
+    _buildAncestorPath : function(widgetInstance, value){
+      var elementInData = widgetInstance._getOptionSelector().valueNode(value);
+      elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
+      // build ancestorPath by caption
+      var ancestors = jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(this._funcMapNodeToCaptionAttrName);
+      if(bcdui.browserCompatibility.isWebKit){
+        ancestors = ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
+      }
+      return ancestors.join(".");
     },
 
     /**
@@ -1371,20 +1385,7 @@
      * @private
      */
     _optionsSortingFunction : function(a, b, args){
-      var buildAncestorPath = function(value){
-        var elementInData = args.instance._getOptionSelector().valueNode(value);
-        elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
-        // build ancestorPath by caption
-        var ancestors = jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(function(n){
-          return n.getAttribute(this.config.captionAttrName);
-        }.bind(this));
-        if(bcdui.browserCompatibility.isWebKit){
-          ancestors = ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
-        }
-        return ancestors.join(".");
-      }.bind(this);
-
-      var x = buildAncestorPath(a.value), y = buildAncestorPath(b.value);
+      var x = this._buildAncestorPath(args.instance, a.value), y = this._buildAncestorPath(args.instance, b.value);
       return x < y ? -1 : x > y ? 1 : 0;
     },
 
