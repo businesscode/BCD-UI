@@ -1375,9 +1375,13 @@
         var elementInData = args.instance._getOptionSelector().valueNode(value);
         elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
         // build ancestorPath by caption
-        return jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(function(n){
+        var ancestors = jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(function(n){
           return n.getAttribute(this.config.captionAttrName);
-        }.bind(this)).reverse().join(".");
+        }.bind(this));
+        if(bcdui.browserCompatibility.isWebKit){
+          ancestors = ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
+        }
+        return ancestors.join(".");
       }.bind(this);
 
       var x = buildAncestorPath(a.value), y = buildAncestorPath(b.value);
