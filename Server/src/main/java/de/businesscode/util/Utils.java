@@ -32,7 +32,6 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.stream.XMLOutputFactory;
@@ -224,51 +223,6 @@ public class Utils {
       // Silently ignore wrong manifests on classpath?
     }
     return null;
-  }
-
-  /**
-   * A useful helper for overwriting the input Wrs in a filter for example
-   * TODO In the long run, BCD-UI should allow passing DOM documents as such around, without "hiding them" in a wrapped ServletInputStream
-   */
-  static public class ServletInputStreamImpl extends ServletInputStream
-  {
-    private InputStream is;
-
-    public ServletInputStreamImpl(InputStream is) {
-      this.is = is;
-    }
-
-    public int read() throws IOException {
-      return is.read();
-    }
-
-    public boolean markSupported() {
-      return false;
-    }
-
-    public synchronized void mark(int i) {
-      throw new RuntimeException(new IOException("mark/reset not supported"));
-    }
-
-    public synchronized void reset() throws IOException {
-      throw new IOException("mark/reset not supported");
-    }
-
-    public int read(byte[] arg0) throws IOException {
-      return is.read(arg0);
-    }
-
-    public int read(byte[] b, int off, int len) throws IOException {
-      return is.read(b, off, len);
-    }
-
-    public int readLine(byte[] b, int off, int len) throws IOException {
-      throw new RuntimeException(new IOException("readLine not supported"));
-    }
-
-    public long skip(long n) throws IOException {
-      return is.skip(n);
-    }
   }
 
   /**
