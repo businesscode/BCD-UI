@@ -232,18 +232,17 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    */
   private boolean resolveSubjectFilter(Collection<Element> elementList, SubjectSettings settings, Subject subject, Session session, final StringBuilder sqlClause, SubjectFilter sf,
       Connective connective, Collection<String> preparedStatementParams) throws BindingNotFoundException, BindingException {
-    String subjectFilter = sf.getType();
-    SubjectFilterType ft = settings.getSubjectFilterTypeByName(subjectFilter);
+    SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
     // Either this is attached as an attribute to our session
-    final Object sessionFilterValue = session.getAttribute(SubjectSettings.permissionAttributePrefix + subjectFilter);
+    final String sessionFilterValue = settings.getFilterTypeValue(session, ft);
 
     if (sessionFilterValue != null) {
       resolveWithValue(elementList, sqlClause, ft, bRef, sessionFilterValue, connective);
       return true;
     } else if (SubjectSettings.rightsInDbAvailable()) {
-      resolveByUserRightsTable(sqlClause, subject, subjectFilter, ft, bRef, connective, preparedStatementParams);
+      resolveByUserRightsTable(sqlClause, subject, ft, bRef, connective, preparedStatementParams, settings.getFilterType(ft));
       return true;
     } else {
       // Otherwise the user has no rights at all
@@ -251,15 +250,15 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
   }
 
-  private void resolveByUserRightsTable(StringBuilder subjectSettingsClause, Subject subject, String subjectFilter, SubjectFilterType ft, String bRef, Connective connective,
-      Collection<String> preparedStatementParams) throws BindingException, BindingNotFoundException {
-    if (subject.isPermitted(ft.getName() + ":*")) {
+  private void resolveByUserRightsTable(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective,
+      Collection<String> preparedStatementParams, String filterType) throws BindingException, BindingNotFoundException {
+    if (subject.isPermitted(filterType + ":*")) {
       // If the subjects has all rights for this SubjectFilterType
       writeCanonicalConnective(subjectSettingsClause, connective, true);
       return;
     }
 
-    Set<String> permissions = SecurityHelper.getPermissions(subject, subjectFilter);
+    Set<String> permissions = SecurityHelper.getPermissions(subject, filterType);
     if (permissions.size() == 0) {
       writeCanonicalConnective(subjectSettingsClause, connective, false);
       return;
@@ -283,11 +282,11 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append(col + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
       // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
       preparedStatementParams.add(subject.getPrincipal().toString());
-      preparedStatementParams.add(subjectFilter);
+      preparedStatementParams.add(filterType);
     }
   }
 
-  private void resolveWithValue(Collection<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final Object sessionFilterValue,
+  private void resolveWithValue(Collection<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
       Connective connective) throws BindingNotFoundException {
     String value = sessionFilterValue.toString();
 

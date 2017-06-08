@@ -134,9 +134,16 @@
     </attribute>
     <attribute name="name" use="required" type="string">
       <annotation><documentation>
-        Name of this FiltreType definition.
-        Will be referenced in the SubjectFilter/@type attribute in a BindingSet and will be the name of the permission,
-        for example given in bcd_sec_user_settings in right_type.
+        Unique Name of this FilterType definition.
+        Will be referenced in the SubjectFilter/@type attribute in a BindingSet and will be the name of the filter type,
+        for example given in bcd_sec_user_settings in right_type, unless overwritten with @type.
+      </documentation></annotation>
+    </attribute>
+    <attribute name="type" use="optional" type="string">
+      <annotation><documentation>
+        Overwrites the filter type to map to in [bcd_sec_user_settings].right_type, i.e. you can define different filters
+        all mapped to same type to realize relations like having origin_country or destination_country permission set
+        defined by 'country' acl.
       </documentation></annotation>
     </attribute>
   </complexType>

@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.session.Session;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -51,7 +52,7 @@ import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 @XmlRootElement(name = "SubjectSettingsConfig", namespace="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0")
 public class SubjectSettings extends SubjectSettingsConfig {
 
-  public static final String permissionAttributePrefix = "permission:";
+  private static final String permissionAttributePrefix = "permission:";
 
   private static SubjectSettings singelton = null;
   private static final Logger log = Logger.getLogger(SubjectSettings.class);
@@ -148,6 +149,29 @@ public class SubjectSettings extends SubjectSettingsConfig {
   // Otherwise they may be given as subject attributes
   public static boolean rightsInDbAvailable() {
     return rightsInDbAvailable;
+  }
+
+  /**
+   * @param subjectFilterType
+   * @return filter type literal, which is either defined by filter type name or explicit type
+   */
+  public String getFilterType(SubjectFilterType subjectFilterType){
+    String type = subjectFilterType.getType();
+    // would be better if SubjectFilterType.getType() did this lookup, but its generated hence need jaxb to support custom getters
+    return type != null ? type : subjectFilterType.getName();
+  }
+
+  /**
+   * returns permission mapped for given filter type from the user session
+   *
+   * @param session - which may be null, then this method returns null
+   * @param subjectFilterType - to lookup permission for in the session
+   * @return value for the permission or null if none found
+   */
+  public String getFilterTypeValue(Session session, SubjectFilterType subjectFilterType){
+    if(session == null)return null;
+    Object value = session.getAttribute(permissionAttributePrefix + getFilterType(subjectFilterType));
+    return value == null ? null : value.toString();
   }
 
   /**

@@ -84,14 +84,13 @@ public class SubjectFilters {
     Session session = subject.getSession(false);
     SubjectSettings settings = SubjectSettings.getInstance();
     getPlainFilters().forEach(sf -> {
-      String subjectFilter = sf.getType();
-      if(session != null){
-        Object attr = session.getAttribute(SubjectSettings.permissionAttributePrefix + subjectFilter);
-        if (attr != null && "*".equals(attr.toString()))
-          return;
+      SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
+      // we have a wildcard in session
+      if("*".equals(settings.getFilterTypeValue(session, ft))){
+        return;
       }
-      SubjectFilterType ft = settings.getSubjectFilterTypeByName(subjectFilter);
-      if (subject.isPermitted(ft.getName() + ":*"))
+      // we have a wildcard in subject settings
+      if (subject.isPermitted(settings.getFilterType(ft) + ":*"))
         return;
       brefs.add(ft.getBindingItems().getC().getBRef());
     });
