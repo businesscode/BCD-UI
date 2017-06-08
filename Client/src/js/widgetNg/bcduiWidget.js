@@ -206,7 +206,7 @@
      * @private
      */
     _getOptionSelector : function(){
-      this.cache._getOptionSelector = this.cache._getOptionSelector || this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath);
+      this.cache._getOptionSelector = this.cache._getOptionSelector || this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath, true);
       return this.cache._getOptionSelector;
     },
 
@@ -224,6 +224,7 @@
      *
      * @param {string}  modelXPath            The modelXPath
      * @param {string}  [relativeValueXPath]  The relative xPath (relative to modelXPath)
+     * @param {boolean} [enableCaching=false] Enables caching
      * @return {object}   with xPath, modelId, captionXPath, valueXPath, valueNodes():array/nodelist,
      *                    captionNodes():array/nodelist; values():array of values; captions():array of captions;
      *                    entries():returns array of value,caption; map():returns single object with value:caption map;
@@ -232,7 +233,7 @@
      *                    selectSingleNode(xPath):returns single node;
      * @private
      */
-    _getSelector : function(modelXPath, relativeValueXPath){
+    _getSelector : function(modelXPath, relativeValueXPath, enableCaching){
       if(!modelXPath){ // this widget does not have optionsXPath
         return undefined;
       }
@@ -244,20 +245,24 @@
         res.valueXPath = res.captionXPath + "/" + relativeValueXPath;
       }
 
-      var cache = this.cache.selector = {}; // selector cache
-      // listen to updates on options model to purge cache
-      this._addUpdateListener(res.modelId, function(){
-        cache.selector = {};
-      });
+      var cache = enableCaching ? (this.cache.selector = { selectedNodes : {} }) : null; // selector cache
+      if(enableCaching){
+        // listen to updates on options model to purge cache
+        this._addUpdateListener(res.modelId, function(){
+          cache.selector = {};
+        });
+      }
 
       /* helpers */
       var selectNodes = function(xPath){
-        cache.selectedNodes = cache.selectedNodes || {};
         var nodes;
-        if(!(nodes = cache.selectedNodes[xPath])){
-          nodes = cache.selectedNodes[xPath] = jQuery.makeArray(
+        if(!cache || !(nodes = cache.selectedNodes[xPath])){
+          nodes = jQuery.makeArray(
               bcdui.factory.objectRegistry.getObject(res.modelId).getData().selectNodes(xPath)
           );
+          if(cache){
+            cache.selectedNodes[xPath] = nodes;
+          }
         }
         return nodes;
       };
