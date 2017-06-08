@@ -767,7 +767,7 @@ the data that is actually placed in XML.
             Enables another drag'n drop box for aspects (marked with rowAspect='true') which are put in front of all aspects. KPI dimensions needs to be a row dimension in this case.
           </Doc>
         </Param>
-        <Param name="isTemplate" type="boolean">
+        <Param name="isTemplate" type="boolean" default="false">
           <Doc>
             Enable the template feature. This is an Enterprise Edition only feature.
           </Doc>
@@ -777,7 +777,27 @@ the data that is actually placed in XML.
             If isTemplate is true then this attribute can be used to control the div where the template editor is placed.
           </Doc>
         </Param>
-        <Param name="hasUserEditRole" type="boolean">
+        <Param name="isRanking" type="boolean" default="false">
+          <Doc>
+            Enable the ranking feature. This is an Enterprise Edition only feature.
+          </Doc>
+        </Param>
+        <Param name="rankingTargetHtmlElementId" type="string">
+          <Doc>
+         If isRanking is true then this attribute can be used to control the div where the ranking editor is placed.
+         </Doc>
+        </Param>
+        <Param name="showSummary" type="boolean" default="false">
+          <Doc>
+            Enable the summary feature.
+          </Doc>
+        </Param>
+        <Param name="summaryTargetHtmlElementId" type="string">
+          <Doc>
+            If showSummary is true then this attribute can be used to control the div where the summary is placed.
+          </Doc>
+        </Param>
+        <Param name="hasUserEditRole" type="boolean" default="false">
           <Doc>
             Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdScorecardTemplateEdit is used to determine state (either *(any) or scorecardId to enable).
           </Doc>

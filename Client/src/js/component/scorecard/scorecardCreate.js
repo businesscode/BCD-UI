@@ -98,11 +98,25 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       return;
     }
 
+    var rowSpan = new bcdui.core.StringDataProvider( { id: "rowSpan", name: "rowSpan", value: true } );
+    var colSpan = new bcdui.core.StringDataProvider( { id: "colSpan", name: "colSpan", value: true } );
+
     this.inputModel = new bcdui.core.DataProviderHolder();
     bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
+
+      var enhancedConfiguration = bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration);
+
+      // turn off spanning when aspec sort is enabled
+      if (enhancedConfiguration.query("/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]") != null) {
+        if (enhancedConfiguration.query("/*/scc:Layout/scc:Dimensions/scc:Rows/scc:LevelKpi") != null)
+          rowSpan.setData("false");
+        if (enhancedConfiguration.query("/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi") != null)
+          colSpan.setData("false");
+      }
+
       var rqModel = null;
       // don't run when we don't have at least one KpiRef
-      if( ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/scc:Layout/scc:KpiRefs/scc:KpiRef") )
+      if( ! enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef") )
         rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
       else if( !!args.config )
         rqModel = new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter });
@@ -116,7 +130,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       inputModel: this.inputModel,
       targetHtml: args.targetHtml, 
       chain: args.chain,
-      parameters: jQuery.extend({ sortRows: false, sortCols: false, makeRowSpan: true, scConfig: args.enhancedConfiguration, customParameter: args.customParameter}, args.parameters )
+      parameters: jQuery.extend({ sortRows: false, sortCols: false, makeRowSpan: rowSpan,  makeColSpan: colSpan, scConfig: args.enhancedConfiguration, customParameter: args.customParameter}, args.parameters )
     });
   
     //------------------

@@ -18,7 +18,7 @@
  */
 (function(){
   jQuery.widget("bcdui.bcduiScorecardConfiguratorNg", jQuery.bcdui.bcduiWidget, {
-
+ 
     _getCreateOptions : function(){
       return bcdui.component.scorecard.impl.readParams.scorecardConfigurator(this.element[0]);
     },
@@ -60,13 +60,20 @@
 
 					// row aspects need a slightly bigger default layout          
           var cClass = args.rowAspect ? "bcdScorecardDndBlindBig" : "bcdScorecardDndBlind";
-          var template = "<div class='"+cClass+"'><div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_{{=it.id}}'>";
-          [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
-          template += "</div></div>";
+          var template = "<div class='"+cClass+"'>" +
+          "<div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div>" + 
+          "<div id='bcdUpDownBody_{{=it.id}}'>";
+          [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.scorecardConfigurator._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.scorecardConfigurator._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
+          template += "</div>";
+          [bcdui.component.cube.summaryDisplay._renderSummaryArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
+          template += "</div>";
 
-          jQuery("#" + args.targetHtml).append(jQuery(doT.template(template)({id:args.scorecardId, rowAspect : args.rowAspect})));
+          var defTemplate = jQuery(doT.template(template)({id:args.scorecardId, rowAspect : args.rowAspect}));
+          jQuery("#" + args.targetHtml).append(defTemplate);
 
           args.templateTargetHtmlElementId = "bcdDndTemplateDiv_" + args.scorecardId;
+          args.rankingTargetHtmlElementId = "bcdDndRankingDiv_" + args.scorecardId;
+          args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.scorecardId;
 
           bcdui.widget.createBlindUpDownArea({
             id: "bcdBlindUpDown_" + args.scorecardId
@@ -93,7 +100,7 @@
         var contextMenu = new bcdui.core.ModelWrapper({
           chain: bcdui.contextPath + "/bcdui/js/component/scorecard/dndContextMenu.xslt"
         , inputModel: bcdui.wkModels.guiStatus
-        , parameters: { scorecardId: args.scorecardId, bcdRowIdent: bcdui.wkModels.bcdRowIdent }
+        , parameters: { scorecardId: args.scorecardId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, sccConfig: args.config }
         });
         bcdui.widget.createContextMenu({refreshMenuModel: true, targetHtml: args.targetHtml, inputModel: contextMenu, identsWithin: args.targetHtml});
         
@@ -102,8 +109,11 @@
           , url: bcdui.contextPath + "/bcdui/js/component/scorecard/dndTooltip.xslt"
           , inputModel: args.targetModel
           , identsWithin: args.targetHtml
-          , parameters: { scorecardId: args.scorecardId, bcdRowIdent: bcdui.wkModels.bcdRowIdent, scConfig: args.config }
+          , parameters: { scorecardId: args.scorecardId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, scConfig: args.config }
         });
+        
+        if (args.isRanking)
+          bcdui.component.cube.rankingEditor._initRanking(args, args.targetModel.id);
 
         if( args.isTemplate  ) {
 
@@ -139,6 +149,36 @@
           });
           args.scorecard.getConfigModel().onChange(function() {templateRenderer.execute()}, "/*/scc:Layouts");
         }
+        
+        if ( args.showSummary ){
+          
+          if (args.isDefaultHtmlLayout) {
+            bcdui.widget.createBlindUpDownArea({
+              id: "bcdBlindUpDown_Summary_" + args.scorecardId
+              ,targetHTMLElementId: "bcdUpDown_Summary_" + args.scorecardId
+              ,bodyIdOrElement:"bcdUpDownBody_Summary_" + args.scorecardId
+              ,caption: "Scorecard Additional Settings"
+              ,defaultState: "open"
+            });
+          }
+          
+          var summaryRenderer = new bcdui.core.Renderer({
+            chain: bcdui.component.cube.summaryDisplay._summaryUrl,
+            inputModel: args.targetModel,
+            targetHtml: args.summaryTargetHtmlElementId,
+            parameters:{
+              dndOptionsModel: args.scorecard.getConfigModel(),
+              guiStatus:       bcdui.wkModels.guiStatus,
+              objectId:        args.scorecardId
+            }
+          });
+
+          args.targetModel.onChange(function() {summaryRenderer.execute(true)}, "/*/scc:Layout");
+
+          // since disableClientRefresh flag is always stored in guiStatus (targetModel above does not have to be guiStatus)
+          // we need to have a second listener here which rerenders the summary
+          bcdui.wkModels.guiStatus.onChange(function() {summaryRenderer.execute(true)}, "/*/guiStatus:ClientSettings//scc:ClientLayout[@cubeId ='" + args.scorecardId + "']/@disableClientRefresh");
+        }
 
         bcdui.component.scorecardConfigurator._initDnd(args);
 
@@ -150,11 +190,6 @@
             // enhancedConfig's input model is the scorecard config model, we need to ensure
             // that both are ready, otherwise you get a refresh which is one step out of sync
             // Indicate that the scorecard is currently working and disable context menu as it would work on vanishing HTML elements (producing errors)
-
-            jQuery(".bcd_" + args.scorecardId + "_dnd li").removeClass("bcdOptions");
-            jQuery.makeArray(layout.queryNodes("//scc:Layout[@scorecardId ='"+ args.scorecardId +"']//*[@bcdModified!='']")).forEach(function(e) {
-              jQuery(".bcd_" + args.scorecardId + "_dnd li[bcdValue='" + e.getAttribute("bcdModified") + "']").addClass("bcdOptions");
-            });
 
             var targetHtmlElement = jQuery(args.scorecard.getTargetHTMLElement()).children().first().get(0);
             if (targetHtmlElement && ! jQuery("#bcdScorecardHide" + args.scorecardId).length > 0) {
@@ -346,6 +381,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , targetHtml: "#" + args.targetHtml + " .bcdAspectList"
     , scope: args.scorecardId + "_asp"
     , unselectAfterMove: true
+    , generateItemHtml: bcdui.component.scorecardConfigurator._itemRendererAspects
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(sourceArgs);
@@ -357,6 +393,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     , scope: args.scorecardId + "_asp"
     , unselectAfterMove: true
     , extendedConfig: {noTooltip: true }
+    , generateItemHtml: bcdui.component.scorecardConfigurator._itemRendererAspects
     };
     bcdui.widgetNg.createConnectable(targetArgs);
 
@@ -368,6 +405,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
       , scope: args.scorecardId + "_asp"
       , unselectAfterMove: true
       , extendedConfig: {noTooltip: true }
+      , generateItemHtml: bcdui.component.scorecardConfigurator._itemRendererAspects
       };
       bcdui.widgetNg.createConnectable(targetArgs);
     }
@@ -459,13 +497,13 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
       destination.appendChild(source.cloneNode(true));
 
     // only keep a skeleton of parent nodes
-    tempModel.remove(tempModelXPathRoot + scLayoutRoot + "/*/*");
+    tempModel.remove(tempModelXPathRoot + scLayoutRoot + "/*[name()!='scc:TopNDimMembers']/*");
 
     // now insert kpiRefs, aspectRefs, etc into temp layout based on ordering from collectable targets
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
       jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
         var split = i.text.split("|");
-        var item  = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
+        var item = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
         item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
         if (item != null) {
           var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
@@ -475,14 +513,12 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
           // special translation for kpiObjects like scc:LevelKpi/etc
           if (item.getAttribute(o.bucketId) == "bcdKpi") {
             // special item got subnode (created during bucket fill) with actual object
-            destination.appendChild(item.selectSingleNode("./*").cloneNode(true));
+            var realNode = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.kpiObject + "[@" + o.bucketId + "='" + split[0] + "']");
+            item = realNode || item.selectSingleNode("./*");
           }
-          // all other nodes can simply be copied
-          else {
-            var clone = item.cloneNode(true);
-            clone.removeAttribute("bcdId");
-            destination.appendChild(clone);
-          }
+          var clone = item.cloneNode(true);
+          clone.removeAttribute("bcdId");
+          destination.appendChild(clone);
         }
       });
     });
@@ -728,11 +764,15 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     var customClass = args.value == "bcdKpi|KPI" ? "bcdTargetLocked" : "";
     var scorecardId = jQuery("#" + args.id).closest("*[bcdScorecardId]").attr("bcdScorecardId");
     var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
-    if (targetModel && targetModel.query("/*/scc:Layout[@scorecardId ='"+ scorecardId +"']//*[@bcdModified='"+ args.value +"']") != null)
-      customClass += " bcdOptions";
-    return "<li bcdRowIdent='" + args.value + "' contextId='bcdDim' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
+    return "<li bcdColIdent='dim' bcdRowIdent='" + args.value + "' contextId='bcdDim' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
   
+  _itemRendererAspects: function(args) {
+    var customClass = "";
+    var scorecardId = jQuery("#" + args.id).closest("*[bcdScorecardId]").attr("bcdScorecardId");
+    var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
+    return "<li bcdColIdent='asp' bcdRowIdent='" + args.value + "' contextId='bcdAsp' class='ui-selectee" + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
+  },
   /**
    * Generates a default layout for the scorecard drag'n drop area
    * @private
@@ -766,7 +806,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
           (dndDirectionTargetLeft ? targetArea : sourceArea) +
           (dndDirectionTargetLeft ? sourceArea : targetArea) +
       "   </div>" +
-      "   <div style='display: none;' class='grid_24 bcdDndCategory'><span></span><span>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Categories"}) + "</span></div>"
+      "   <div style='display: none;' class='grid_24 bcdDndCategory'><span></span><span>" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Categories"}) + "</span></div>" +
       " </div>";
   
     // insert pseudo classes for translated dnd background texts
@@ -786,9 +826,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    * @private
    */
   _hideTotals : function(scorecardId) {
-    
     var dim = bcdui.wkModels.bcdRowIdent.getData() || "";
-    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : ""}, dim);
+    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : ""}, dim, 'dimension', false);
   },
 
   /**
@@ -797,62 +836,75 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
    */
   _showTotals : function(scorecardId) {
     var dim = bcdui.wkModels.bcdRowIdent.getData() || "";
-    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : "trailing"}, dim);
+    bcdui.component.scorecardConfigurator._modify(scorecardId, {"total" : "trailing"}, dim, 'dimension', false);
+  },
+
+  /**
+   * contextMenu function call to sort aspects
+   * @private
+   */
+  _sortAspect : function(scorecardId, direction) {
+    var asp = bcdui.wkModels.bcdRowIdent.getData() || "";
+    bcdui.component.scorecardConfigurator._modify(scorecardId, {"sort" : direction}, asp, 'aspect', true);
   },
 
   /**
    * general modify attributes routine which sets information at bucketitems and layout items
    * @private
    */
-  _modify : function(scorecardId, attributes, id) {
+  _modify : function(scorecardId, attributes, id, type, clean) {
 
     var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
     var scBucketModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("scBucketModelId"));
-    var bucketNode = scBucketModel.query("/*/*/*[@bcdId='" + id + "']");
-    var layoutNodeName = bucketNode.nodeName;
-    var layoutIdValue = "";
-    var layoutIdName = "";
+    var pre = type == "aspect" ? "scc:AspectRefs" : "scc:Dimensions";
+    var doFire = false;
 
-    // for now, no modifications on special items
-    if (id == "bcdKpi|KPI")
-      return;
+    var nodes = [];
+    if (clean)
+      nodes = nodes.concat(jQuery.makeArray(scBucketModel.queryNodes("/*/" + pre + "/*")));
+    else
+      nodes.push(scBucketModel.query("/*/" + pre + "/*[@bcdId='" + id + "']"));
 
-    if (bucketNode.getAttribute("idRef") != null) {
-      layoutIdValue = bucketNode.getAttribute("idRef");
-      layoutIdName = "idRef"
-    }
-    else if (bucketNode.getAttribute("bRef") != null) {
-      layoutIdValue = bucketNode.getAttribute("bRef");
-      layoutIdName = "bRef"
-    }
-    
-    if (layoutIdName != "" && layoutIdValue != "") {
-      var layoutNode = targetModel.query("/*/scc:Layout[@scorecardId='" + scorecardId + "']//" + layoutNodeName + "[@" + layoutIdName + "='" + layoutIdValue + "']");
-      if (layoutNode != null) {
-
-        // set actual values
-        for (a in attributes) {
-          if (attributes[a] == "")
-            layoutNode.removeAttribute(a);
-          else
-            layoutNode.setAttribute(a, attributes[a]);
-        }
-
-        // test list of attributes which can get changed and mark layout item accordingly
-        var modified = false;
-        ["total"].forEach(function(a){
-          modified = layoutNode.getAttribute(a) != bucketNode.getAttribute(a);
-        });
-        
-        if (modified)
-          layoutNode.setAttribute("bcdModified", id);
-        else
-          layoutNode.removeAttribute("bcdModified");
-
-        var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@scorecardId ='"+ scorecardId+"']" );
-        layoutNode.setAttribute("disableClientRefresh","true");
-        bcdui.wkModels.guiStatus.fire();
+    nodes.forEach(function(e) {
+      var bucketNode = e;
+      var layoutNodeName = bucketNode.childNodes.length > 0 ? bucketNode.childNodes[0].nodeName : bucketNode.nodeName;
+      var layoutIdValue = "";
+      var layoutIdName = "";
+  
+      if (bucketNode.getAttribute("idRef") != null) {
+        layoutIdValue = bucketNode.getAttribute("idRef");
+        layoutIdName = "idRef"
       }
-    }
+      else if (bucketNode.getAttribute("bRef") != null) {
+        layoutIdValue = bucketNode.getAttribute("bRef");
+        layoutIdName = "bRef"
+      }
+      
+      if (layoutIdName != "" && layoutIdValue != "") {
+        var layoutNode = targetModel.query("/*/scc:Layout[@scorecardId='" + scorecardId + "']//" + layoutNodeName + "[@" + layoutIdName + "='" + layoutIdValue + "']");
+        if (layoutNode != null) {
+          if (e.getAttribute("bcdId") == id) {
+            // set actual values
+            for (a in attributes) {
+              if (attributes[a] == "")
+                layoutNode.removeAttribute(a);
+              else
+                layoutNode.setAttribute(a, attributes[a]);
+            }
+          }
+          // clean mode, remove all listed attributes for all nodes except the selected one
+          else {
+            for (a in attributes)
+              layoutNode.removeAttribute(a);
+          }
+
+          var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/scc:ClientLayout[@scorecardId ='"+ scorecardId+"']" );
+          layoutNode.setAttribute("disableClientRefresh","true");
+          doFire = true;
+        }
+      }
+    });
+    if (doFire)
+      bcdui.wkModels.guiStatus.fire();
   }
 });

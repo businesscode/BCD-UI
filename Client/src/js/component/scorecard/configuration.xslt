@@ -118,6 +118,44 @@
         </xp:ColDims>
         
         <xp:RemoveEmptyCells apply="{/*/scc:Layout/@removeEmptyCells}"/>
+        
+        <xsl:if test="$configPrecalc/*/scc:Layout/scc:AspectRefs/*[@sort!=''] or $configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember">
+
+          <xsl:variable name="aspectId">
+            <xsl:choose>
+              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember/scc:AspectRef/@idRef='bcdKpi'">performance</xsl:when>
+              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember/scc:AspectRef/@idRef"><xsl:value-of select="concat('asp_', $configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember/scc:AspectRef/@idRef, '.')"/></xsl:when>
+              <xsl:when test="$configPrecalc/*/scc:Layout/scc:AspectRefs/scc:AspectRef[@sort!='']"><xsl:value-of select="concat('asp_', $configPrecalc/*/scc:Layout/scc:AspectRefs/scc:AspectRef[@sort!='']/@idRef, '.')"/></xsl:when>
+              <xsl:otherwise>performance</xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
+          <xsl:variable name="direction">
+            <xsl:choose>
+              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='top'">descending</xsl:when>
+              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='bottom'">ascending</xsl:when>
+              <xsl:otherwise><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:AspectRefs/*[@sort!='']/@sort"/></xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
+          <xp:OrderAndCut>
+            <xp:RowsOrder>
+              <xsl:if test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n">
+                <xsl:attribute name="limit"><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n"/></xsl:attribute>
+              </xsl:if>
+              <wrs:Columns>
+                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/*/scc:LevelKpi/preceding-sibling::dm:LevelRef">
+                  <wrs:C id="{@bRef}" sort="{@sort}" total="{@total}"/>
+                </xsl:for-each>
+                <wrs:C id="bcd_kpi_id" sort="ascending"/>
+                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/*/scc:LevelKpi/following-sibling::dm:LevelRef">
+                  <wrs:C id="{@bRef}" sort="{$direction}" total="{@total}" sortBy="{$aspectId}"/>
+                </xsl:for-each>
+              </wrs:Columns>
+            </xp:RowsOrder>
+          </xp:OrderAndCut>
+        </xsl:if>
+        
       </xp:XSLTParameters>
 
       <!--  XSLT parameters for scorecard-only stylesheets -->
@@ -198,6 +236,18 @@
     <xsl:copy>
       <xsl:apply-templates select="node()|@*" mode="xsltParameters"/>
     </xsl:copy>
+  </xsl:template>
+  
+  <!-- remove sort/sortBy if we got a aspect sorting -->
+  <xsl:template match="dm:LevelRef" mode="xsltParameters">
+    <xsl:choose>
+      <xsl:when test="$configPrecalc/*/scc:Layout/scc:AspectRefs/scc:*[@sort!='']">
+        <xsl:copy><xsl:apply-templates select="node()|@*[name()!='sort' and name()!='sortBy']" mode="xsltParameters"/></xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy><xsl:apply-templates select="node()|@*" mode="xsltParameters"/></xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- Per default, copy everything one:one  -->

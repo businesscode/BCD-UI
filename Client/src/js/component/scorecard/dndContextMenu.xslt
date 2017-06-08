@@ -24,25 +24,38 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
   <xsl:param name="scorecardId" />
   <xsl:param name="bcdRowIdent" />
+  <xsl:param name="bcdColIdent" />
+  <xsl:param name="sccConfig" select="/*[0=1]"/>
 
   <!-- Root -->
   <xsl:template match="/*">
+    <xsl:variable name="itemId" select="substring-before($bcdRowIdent,'|')"/>
     <ContextMenu>
-      <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]">
+      <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=$itemId]">
         <Context id="bcdDim">
-          <ContextMenuEntryGroup caption="Total" >
-            <xsl:choose>
-              <xsl:when test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]/@total='trailing'">
-                <Entry caption="{concat('Hide total for ', /*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]/@caption)}">
-                  <JavaScriptAction>bcdui.component.scorecardConfigurator._hideTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
-                </Entry>
-              </xsl:when>
-              <xsl:otherwise>
-                <Entry caption="{concat('Show total for ', /*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=substring-before($bcdRowIdent,'|')]/@caption)}">
-                  <JavaScriptAction>bcdui.component.scorecardConfigurator._showTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
-                </Entry>
-              </xsl:otherwise>
-            </xsl:choose>
+          <ContextMenuEntryGroup caption="{concat(/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=$itemId]/@caption, ' Totals')}" >
+            <Entry caption="Hide total">
+              <JavaScriptAction>bcdui.component.scorecardConfigurator._hideTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
+            </Entry>
+            <Entry caption="Show total">
+              <JavaScriptAction>bcdui.component.scorecardConfigurator._showTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
+            </Entry>
+          </ContextMenuEntryGroup>
+        </Context>
+      </xsl:if>
+      <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectRef[@idRef=$itemId] or (/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectKpi and $itemId='bcdKpi' and $bcdColIdent='asp')">
+        <Context id="bcdAsp">
+          <xsl:variable name="aspNode" select="/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectRef[@idRef=$itemId]|/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectKpi[$itemId='bcdKpi' and $bcdColIdent='asp']"/>
+          <ContextMenuEntryGroup caption="{concat($aspNode/@caption, ' Sorting')}" >
+              <Entry caption="Sort ascending">
+                <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "ascending", "")</JavaScriptAction>
+              </Entry>
+            <Entry caption="Sort descending">
+              <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "descending", "")</JavaScriptAction>
+            </Entry>
+            <Entry caption="Remove Sorting">
+              <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "", "")</JavaScriptAction>
+            </Entry>
           </ContextMenuEntryGroup>
         </Context>
       </xsl:if>

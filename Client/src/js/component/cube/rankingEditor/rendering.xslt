@@ -25,7 +25,8 @@
   <!-- models for the input fields -->
   <xsl:param name="rankOrderModelId"/>
   <xsl:param name="targetModelId" />
-  <xsl:param name="cubeId"/>
+  <xsl:param name="metaDataModel"/>
+  <xsl:param name="objectId"/>
 
   <xsl:template match="/">
     <xsl:call-template name="renderRankingEditor"/>

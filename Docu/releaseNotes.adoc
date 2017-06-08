@@ -11,6 +11,7 @@ Some changes are incompatible to previous versions and may require code change i
 .Major new features:
 
 . Components: Scorecard, Cube, Charts, Export
+* Scorecard Configurator now supports templates, ranking, sorting and rowAspects
 
 . Widgets
 * New reporting component added: a Free Analysis Report component (FAR)

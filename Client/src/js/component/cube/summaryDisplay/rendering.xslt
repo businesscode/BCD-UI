@@ -18,6 +18,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
   >
@@ -32,13 +33,13 @@
 
   <xsl:param name="guiStatus" select="*[false()]"/>
   <xsl:param name="bcdI18nModel" select="*[false()]"/>
-  <xsl:param name="dndOptionsModel"/>
-  <xsl:param name="cubeId"/>
+  <xsl:param name="dndOptionsModel" select="*[false()]"/>
+  <xsl:param name="objectId"/>
 
   <xsl:template match="/">
     <div class="bcdDnDSummary">
       <xsl:choose>
-        <xsl:when test="$guiStatus/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId=$cubeId and @disableClientRefresh='true']">
+        <xsl:when test="$guiStatus/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId=$objectId and @disableClientRefresh='true'] or $guiStatus/*/guiStatus:ClientSettings/scc:ClientLayout[@scorecardId=$objectId and @disableClientRefresh='true']">
           <span style="font-weight:bold">The report definition is modified and client side refresh is disabled. Please press apply first.</span>
         </xsl:when>
         <xsl:otherwise>
@@ -46,22 +47,57 @@
             <xsl:call-template name="dimensions"/>
             <xsl:call-template name="columnDimensions"/>
             <xsl:call-template name="measures"/>
+            <xsl:call-template name="scorecard"/>
           </ul>
         </xsl:otherwise>
       </xsl:choose>
     </div>
   </xsl:template>
 
+  <xsl:template name="scorecard">
+    <xsl:for-each select="/*/scc:Layout[@scorecardId=$objectId]/scc:AspectRefs/scc:*[@sort]">
+      <li>
+        Aspect <span style="font-weight:bold"><xsl:value-of select="@caption"/></span>
+        <ul>
+          <li>Is sorted <xsl:value-of select="@sort"/></li>
+        </ul>
+      </li>
+    </xsl:for-each>
+
+    <xsl:for-each select="/*/scc:Layout[@scorecardId=$objectId]/scc:Dimensions/*/dm:LevelRef">
+      <xsl:variable name="origLevel" select="$dndOptionsModel/scc:ScorecardConfiguration/scc:Dimensions/dm:LevelRef[@bRef=current()/@bRef]"/>
+      <xsl:variable name="rowColCaption">
+        <xsl:choose>
+          <xsl:when test="/*/scc:Layout[@scorecardId=$objectId]/scc:Dimensions/scc:Columns/dm:LevelRef[@bRef=current()/@bRef]">Column</xsl:when>
+          <xsl:otherwise>Row</xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:if test="$origLevel/@total != current()/@total or (not($origLevel/@total) and current()/@total) or ($origLevel/@total and not(current()/@total))">
+         <li>
+           <xsl:value-of select="$rowColCaption"/> dimension <span style="font-weight:bold"><xsl:value-of select="@caption"/></span>
+           <ul>
+             <li>
+               <xsl:choose>
+                 <xsl:when test="@total!=''">shows total values</xsl:when>
+                 <xsl:otherwise>hides total values</xsl:otherwise>
+               </xsl:choose>
+             </li>
+           </ul>
+         </li>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
   <!-- Output row dimensions -->
   <xsl:template name="dimensions">
-    <xsl:apply-templates select="/*/cube:Layout[@cubeId=$cubeId]/cube:Dimensions/cube:Rows/dm:LevelRef">
+    <xsl:apply-templates select="/*/cube:Layout[@cubeId=$objectId]/cube:Dimensions/cube:Rows/dm:LevelRef">
       <xsl:with-param name="rowColCaption" select="'Row'"/>
     </xsl:apply-templates>
   </xsl:template>
 
   <!-- Output col dimensions -->
   <xsl:template name="columnDimensions">
-    <xsl:apply-templates select="/*/cube:Layout[@cubeId=$cubeId]/cube:Dimensions/cube:Columns/dm:LevelRef">
+    <xsl:apply-templates select="/*/cube:Layout[@cubeId=$objectId]/cube:Dimensions/cube:Columns/dm:LevelRef">
       <xsl:with-param name="rowColCaption" select="'Column'"/>
     </xsl:apply-templates>
   </xsl:template>
@@ -73,7 +109,7 @@
     <!-- Collect the messages -->
     <xsl:variable name="levelOutput">
        <xsl:if test="@sortBy">
-         <li>Is sorted <xsl:value-of select="@sort"/> by measure <xsl:value-of select="($dndOptionsModel/cube:CubeConfiguration/cube:Measures/dm:MeasureRef[@idRef=current()/@sortBy] | /*/cube:Layout[@cubeId=$cubeId]/cube:Measures//dm:Measure[@id=current()/@sortBy])/@caption"/></li>
+         <li>Is sorted <xsl:value-of select="@sort"/> by measure <xsl:value-of select="($dndOptionsModel/cube:CubeConfiguration/cube:Measures/dm:MeasureRef[@idRef=current()/@sortBy] | /*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:Measure[@id=current()/@sortBy])/@caption"/></li>
        </xsl:if>
        <xsl:if test="@total!='trailing'">
          <li>has a <xsl:value-of select="@total"/> total</li>
@@ -108,9 +144,9 @@
   <!-- Helper for cube hide -->
   <xsl:template name="hiddenDimensionValues">
     <xsl:param name="bRef"/>
-    <xsl:if test="count( /*/cube:Layout[@cubeId=$cubeId]/cube:Hide/f:Filter/*[@bRef = $bRef]/descendant-or-self::f:Expression) > 0">
+    <xsl:if test="count( /*/cube:Layout[@cubeId=$objectId]/cube:Hide/f:Filter/*[@bRef = $bRef]/descendant-or-self::f:Expression) > 0">
       <li><xsl:text>Hidden values: </xsl:text>
-        <xsl:for-each select="/*/cube:Layout[@cubeId=$cubeId]/cube:Hide/f:Filter/*[@bRef = $bRef]">
+        <xsl:for-each select="/*/cube:Layout[@cubeId=$objectId]/cube:Hide/f:Filter/*[@bRef = $bRef]">
           <xsl:if test="position() > 1">, </xsl:if>
           <xsl:choose>
             <!-- Don't show each level for total (they are all total), but just 'total' -->
@@ -137,9 +173,9 @@
   <!-- Helper for cube exclude-->
   <xsl:template name="excludedDimensionsValues">
     <xsl:param name="bRef"/>
-    <xsl:if test="count(/*/f:Filter/*[@type=concat('bcdCubeExclude_',$cubeId) and @exclBRef=$bRef])">
+    <xsl:if test="count(/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef])">
       <li><xsl:text>Excluded values: </xsl:text>
-        <xsl:for-each select="/*/f:Filter/*[@type=concat('bcdCubeExclude_',$cubeId) and @exclBRef=$bRef]">
+        <xsl:for-each select="/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef]">
           <xsl:if test="position() > 1">, </xsl:if>
             <xsl:for-each select="descendant-or-self::f:Expression[@value or not(@op='=')]"> <!-- skip those with empty @value as they just serve allowing null for these in the sql -->
               <xsl:if test="position() > 1"> / </xsl:if>
@@ -157,7 +193,7 @@
   <xsl:template name="measures">
 
     <!-- Collect the messages -->
-    <xsl:for-each select="/*/cube:Layout[@cubeId=$cubeId]/cube:Measures//dm:MeasureRef | /*/cube:Layout[@cubeId=$cubeId]/cube:Measures//dm:Measure">
+    <xsl:for-each select="/*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:MeasureRef | /*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:Measure">
       <xsl:variable name="measureOutput">
         <xsl:if test="@sort">
           <li>Is sorted <xsl:value-of select="@sort"/></li>

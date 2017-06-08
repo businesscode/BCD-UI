@@ -151,9 +151,13 @@ bcdui.bcduiCeFiles =
       "required": "mandatory",
       "files": [
         "/js/component/cube/templateManager/templateManager.js"
+        , "/js/component/cube/rankingEditor/rankingEditor.js"
+        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
       ],
       "buildFolders": [
         "/js/component/cube/templateManager"
+        , "/js/component/cube/rankingEditor"
+        , "/js/component/cube/summaryDisplay"
       ]
       },
     {

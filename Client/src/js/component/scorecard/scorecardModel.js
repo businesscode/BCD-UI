@@ -721,6 +721,11 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           var parameters = {
               sccDefinition: bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition")
           };
+
+          // add sorting when we got sorted aspects or top n 
+          if (this.refSccDefinition.query("/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]") != null)
+            urls.push(this.cp + "orderAndCut.xslt");
+
           // LevelKpi does not count as a coldim in this sense but is treated as a measure
           var colDims = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectNodes("/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef");
           if(colDims.length>0) {

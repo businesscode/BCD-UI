@@ -96,26 +96,9 @@ bcdui.component.cube._renderDndArea = function(args) {
 bcdui.component.cube._renderApplyArea = function(args) {
   return "<div><span id='bcdDNDApplyButton_{{=it.id}}'></span></div>";
 };
-/**
- * @private
- */
-bcdui.component.cube._renderSummaryArea = function(args) {
-  return (args.showSummary ? "<div id='bcdUpDown_Summary_{{=it.id}}' class='bcdUpDown_Summary'></div>" + 
-      "<div id='bcdUpDownBody_Summary_{{=it.id}}'>" + 
-        "<div id='bcdDndSummaryDiv_{{=it.id}}'></div>" +
-      "</div>" : "")
-};
 
 // Extension Points
 
-/**
- * @private
- */
-bcdui.component.cube._initRanking = function(){};
-/**
- * @private
- */
-bcdui.component.cube._rankingUrl = bcdui.config.jsLibPath+"component/cube/rankingEditor/rendering.xslt";
 /**
  * @private
  */
@@ -123,19 +106,15 @@ bcdui.component.cube._contextMenuUrl = bcdui.config.jsLibPath+"component/cube/cu
 /**
  * @private
  */
-bcdui.component.cube._renderRankingArea = function() {return "";};
-/**
- * @private
- */
 bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/chain.xml";
 /**
  * @private
  */
-bcdui.component.cube._layoutRenderingInside = [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube._renderApplyArea];
+bcdui.component.cube._layoutRenderingInside = [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.cube._renderApplyArea];
 /**
  * @private
  */
-bcdui.component.cube._layoutRenderingOutside = [bcdui.component.cube._renderSummaryArea];
+bcdui.component.cube._layoutRenderingOutside = [bcdui.component.cube.summaryDisplay._renderSummaryArea];
 
 
 // cube
@@ -492,6 +471,7 @@ bcdui.util.namespace("bcdui.component",
           ,defaultState: bcdui.factory.objectRegistry.getObject(layoutModelId).getData().selectSingleNode("/*/cube:Layout") == null ? "open": "closed"
         });
 
+        // optionally add a blind for the dnd area when classes bcdDndBlindOpen/bcdDndBlindClosed are specified
         if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed")) {
           bcdui.widget.createBlindUpDownArea({
             id: "bcdBlindUpDown_Dnd_" + args.cubeId
@@ -511,7 +491,8 @@ bcdui.util.namespace("bcdui.component",
 
       var bucketModelId = bcdui.component.cube.configuratorDND.init(args);
       
-      bcdui.component.cube._initRanking(args, targetModel, targetModelId, actualIdPrefix);
+      if (args.isRanking)
+        bcdui.component.cube.rankingEditor._initRanking(args, targetModelId);
 
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu; 
@@ -580,45 +561,29 @@ bcdui.util.namespace("bcdui.component",
             ,defaultState: "open"
           });
         }
-        
-        var summaryRenderer =
-          bcdui.factory.createRenderer({
-            id: actualIdPrefix + "summaryRenderer",
-            url: bcdui.config.jsLibPath+"component/cube/cubeConfigurator/cubeSummary.xslt",
-            inputModel: args.statusModel,
-            parameters:{
-              dndOptionsModel: metaDataModel,
-              guiStatus:       bcdui.wkModels.guiStatus,
-              cubeId:          args.cubeId
-            },
-            targetHTMLElementId: args.summaryTargetHtmlElementId
-          });
+
+        var summaryRenderer = new bcdui.core.Renderer({
+          chain: bcdui.component.cube.summaryDisplay._summaryUrl,
+          inputModel: args.statusModel,
+          targetHtml: args.summaryTargetHtmlElementId,
+          parameters:{
+            dndOptionsModel: bcdui.factory.objectRegistry.getObject(args.metaDataModelId),
+            guiStatus:       bcdui.wkModels.guiStatus,
+            objectId:        args.cubeId
+          }
+        });
 
         var trackingXPath = "/*/cube:Layout";
         trackingXPath += "|//f:Or[@type='bcdCubeExclude_" + args.cubeId + "']"
         trackingXPath += "|//f:Expression[@type='bcdCubeExclude_" + args.cubeId + "']"
 
-        bcdui.factory.addDataListener({
-          idRef: targetModel,
-          trackingXPath: trackingXPath,
-          side: "after",
-          onlyOnce: false,
-          listener: function() {
-            bcdui.factory.objectRegistry.getObject(actualIdPrefix + "summaryRenderer").execute(true);
-          }
-        });
+        bcdui.factory.objectRegistry.getObject(targetModel).onChange(function() {summaryRenderer.execute(true)}, trackingXPath);
+
         // since disableClientRefresh flag is always stored in guiStatus (targetModel above does not have to be guiStatus)
         // we need to have a second listener here which rerenders the summary
-        bcdui.factory.addDataListener({
-          idRef: bcdui.wkModels.guiStatus.id,
-          trackingXPath: "/*/guiStatus:ClientSettings//cube:ClientLayout[@cubeId ='" + args.cubeId + "']/@disableClientRefresh",
-          side: "after",
-          onlyOnce: false,
-          listener: function() {
-            bcdui.factory.objectRegistry.getObject(actualIdPrefix + "summaryRenderer").execute(true);
-          }
-        });
+        bcdui.wkModels.guiStatus.onChange(function() {summaryRenderer.execute(true)}, "/*/guiStatus:ClientSettings//scc:ClientLayout[@cubeId ='" + args.scorecardId + "']/@disableClientRefresh");
       }
+
       // cube redisplay listener, greys out cube or triggers enhanced config
       // if client sided refresh is possible (determined by disableClientRefresh flag)
       // either listens to cube configurator targetmodel or given layoutModel
