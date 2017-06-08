@@ -236,7 +236,7 @@ public class DatabaseCompatibility
   {
     // Allowed calc expressions in sql
     Map<String, String[]> calcFktMapping;
-    // isNumeric, openingExpression, operandSeperator, closingExpression
+    // isArithmetic, openingExpression, operandSeparator, closingExpression, inner aggregation or an analyt. fct
     calcFktMapping = new HashMap<String,String[]>();
     calcFktMapping.put("Calc",          new String[]{"Y",  "",     "+",   "", "Y"}); // We default to + if Calc has multiple children
 
@@ -247,7 +247,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("Count",         new String[]{"N",  "COUNT(",        "",  ")", "I"});
     calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
-    calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING",      "",  ")", "I"});
+    calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
 
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
@@ -274,8 +274,8 @@ public class DatabaseCompatibility
     // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values cause by higher aggregation
     // So both nulls will end up in one row and for MySQL we treat all such rows as a (sub)total rows
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    mysqlCalcFktMapping.put("Grouping", new String[]{"N",  "ISNULL(", "", ")", "I"});
-    
+    mysqlCalcFktMapping.put("Grouping",   new String[]{"N",  "ISNULL(", "", ")", "I"});
+
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
     aggregationMappingGeneric = new HashMap<String, String>();
     aggregationMappingGeneric.put("sum",       "SUM");
@@ -354,7 +354,7 @@ public class DatabaseCompatibility
     sqlKeyWordsSqlServer.addAll(
         Arrays.asList( new String[]
           {
-            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "ISO_WEEK"
+            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "ISO_WEEK", "FORMAT"
           }
         )
       );
@@ -363,7 +363,7 @@ public class DatabaseCompatibility
     sqlKeyWordsMysql.addAll(
         Arrays.asList( new String[]
           {
-            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "QUARTER"
+            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "QUARTER", "STR_TO_DATE"
           }
         )
       );
