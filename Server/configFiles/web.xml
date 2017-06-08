@@ -91,8 +91,8 @@
     </init-param>
   </filter>
   <filter-mapping>
-      <filter-name>bcdui4.ShiroFilter</filter-name>
-      <url-pattern>/*</url-pattern>
+    <filter-name>bcdui4.ShiroFilter</filter-name>
+    <url-pattern>/*</url-pattern>
   </filter-mapping>
   -->
 
@@ -144,12 +144,18 @@
     <filter-name>bcdui4.ClientCachingFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.cacheControl.ClientCachingFilter</filter-class>
     <init-param>
-      <param-name>ExpiresAbsTime</param-name>
+      <param-name>ExpiresAbsTime</param-name> <!-- See doc for other values -->
       <param-value>00:00:00</param-value>
     </init-param>
+    <!--
+      Exclude content of virtual file system and other stuff here, if needed (space separated)
+      At least /bcdui/servlets/config.js and /bcdui/servlets/ must never be cached.
+      Also exclude any keep-alive addresses and of course data.
+      If you do any user-dependent activity, make sure they are also excluded from caching.
+      -->
     <init-param>
       <param-name>ExcludeUrls</param-name>
-      <param-value>/bcdui/servlets/ /vfs/ /bcdui/bcdui.js</param-value>
+      <param-value>/bcdui/servlets/ /vfs/ /bcdui/bcdui.js</param-value> <!-- Space separated. make sure to append /, otherwise it will also match to servletCached -->
     </init-param>
     <init-param>
       <param-name>ExcludeExtensions</param-name>
@@ -162,7 +168,9 @@
     <!-- For development environment: -->
     <url-pattern>/bcdui/*</url-pattern>
 
-    <!-- For production environment: -->
+    <!-- For production environment:
+      Do not cache all /* unless we are sure that *.jsp can be cached and row-level security is not used,
+      always exclude /bcdui/servlets/ and /bcdui/bcdui.js -->
     <!--
     <url-pattern>*.js</url-pattern>
     <url-pattern>*.xslt</url-pattern>
@@ -325,8 +333,8 @@
       <param-name>header:Content-Type</param-name>
       <param-value>application/vnd.ms-excel</param-value>
     </init-param>
-   </servlet>
-   <servlet-mapping>
+  </servlet>
+  <servlet-mapping>
     <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>
     <url-pattern>/bcdui/servlets/Html2ExcelServlet/*</url-pattern>
   </servlet-mapping>

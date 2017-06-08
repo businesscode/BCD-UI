@@ -78,7 +78,9 @@
     password="XX" />
   -->
 
-  <!-- Sample for MySql (not fully supported, for example no col-totals in cube due to missing grouping sets)
+  <!-- Sample for MySql
+     Not fully supported, for example no col-totals in cube due to missing grouping sets
+     and no partitioning (row-from-to reading) due to missing ranking functionality
   <Resource name="jdbc/connectionXX"
     auth="Container"
     type="javax.sql.DataSource"
@@ -86,7 +88,7 @@
     maxIdle ="5"
     maxWait="15000"
     driverClassName="com.mysql.jdbc.Driver"
-    url="jdbc:mysql://serverXX:3306/dbnameXX"
+    url="jdbc:mysql://serverXX:3306/dbnameXX?sessionVariables=sql_mode='NO_BACKSLASH_ESCAPES,ANSI'"
     username="XX"
     password="XX" />
   -->
