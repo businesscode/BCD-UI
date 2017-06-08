@@ -16,6 +16,7 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Collection;
 
 import org.w3c.dom.Element;
@@ -28,11 +29,11 @@ import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 public class SQLStatementWithParams {
 
   private String statement;
-  private Collection<Element> filterItems;
-  private Collection<String> filterValues;
-  private Collection<BindingItem> filterBindingItems;
+  private List<Element> filterItems;
+  private List<String> filterValues;
+  private List<BindingItem> filterBindingItems;
 
-  public SQLStatementWithParams(String statement, Collection<Element> filterItems, BindingSet bindingSet) throws BindingNotFoundException {
+  public SQLStatementWithParams(String statement, List<Element> filterItems, BindingSet bindingSet) throws BindingNotFoundException {
     super();
     this.statement = statement;
     this.filterItems = filterItems;
@@ -59,15 +60,31 @@ public class SQLStatementWithParams {
     return statement;
   }
 
-  public Collection<Element> getFilterItems() {
+  public List<Element> getFilterItems() {
     return filterItems;
   }
 
-  public Collection<String> getFilterValues() {
+  public List<String> getFilterValues() {
     return filterValues;
   }
 
-  public Collection<BindingItem> getFilterBindingItems() {
+  public List<BindingItem> getFilterBindingItems() {
     return filterBindingItems;
+  }
+
+  /**
+   * Provides the statement with values filled in instead of showing '?' for bound variables
+   * @return
+   */
+  public String getStatementWithParams() {
+    StringBuffer stmt = new StringBuffer();
+    String[] parts = getStatement().split("\\?");
+    for( int i=0; i<parts.length && i<filterValues.size(); i++ ) {
+      if (filterBindingItems.get(i).isNumeric())
+        stmt.append(parts[i]).append(filterValues.get(i));
+      else
+        stmt.append(parts[i]).append("'").append(filterValues.get(i)).append("'");
+    }
+    return stmt.toString();
   }
 }
