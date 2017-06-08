@@ -36,14 +36,15 @@ import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
  */
 public class WrqFilter2Sql
 {
-
-  private final Element filterElement;
   private final WrqInfo wrqInfo;
+  private final Element filterElement; // f:Filter or wrq:Having
+  private final boolean useAggr;       // true for having, using aggretated expressions
 
-  public WrqFilter2Sql(WrqInfo wrqInfo) throws XPathExpressionException
+  public WrqFilter2Sql(WrqInfo wrqInfo, Element root, boolean useAggr) throws XPathExpressionException
   {
-    this.filterElement = wrqInfo.getFilterNode();
+    this.filterElement = root;
     this.wrqInfo       = wrqInfo;
+    this.useAggr       = useAggr;
   }
 
   public String getAsSql(Collection<Element> elementList) throws BindingNotFoundException
@@ -119,7 +120,7 @@ public class WrqFilter2Sql
         String subClause = null;
         String newConnective = connectiveMapping.get(nodeName.toLowerCase());
         if (newConnective == null) {
-          subClause = generateSingleColumnExpression(wrqInfo, child, elementList, element.getOwnerDocument());
+          subClause = generateSingleColumnExpression(wrqInfo, child, elementList, element.getOwnerDocument(), useAggr);
         }
         else {
           subClause = generateWhereClause(child, newConnective, !connective.equalsIgnoreCase(newConnective), elementList);
@@ -162,17 +163,21 @@ public class WrqFilter2Sql
    * @return
    * @throws BindingNotFoundException
    */
-  static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> elementList, Document ownerDocument)
+  static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> elementList, Document ownerDocument, boolean useAggr)
       throws BindingNotFoundException
   {
     WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(item.getAttribute("bRef"));
     String op = item.getAttribute("op");
     String operator = "=";
+
+    // Default op is '='
     if (op != null) {
       operator = operatorMapping.get(op.trim().toLowerCase());
       if (operator == null)
         operator = "=";
     }
+
+    // Special cases with empty @value lead to IS (NOT) NULL
     if ((!item.hasAttribute("value") || "".equals(item.getAttribute("value"))) && "=".equals(operator)) {
       return bindingItem.getQColumnExpression(false) + " IS NULL";
     }
@@ -180,7 +185,6 @@ public class WrqFilter2Sql
       return bindingItem.getQColumnExpression(false) + " IS NOT NULL";
     }
 
-    // Take care for ignore case
     boolean ignoreCase = "true".equals(item.getAttribute("ic"));
     boolean isLike = "LIKE".equals(operator);
     String colExprPostfix = "";
@@ -194,10 +198,13 @@ public class WrqFilter2Sql
       valueElement = item;
 
     // Take care for translation in to lower case for database and statement values
+    // Otherwise use qualified expression in aggregated for (in case of having) or plain form
     String colExpr = null;
     if( ignoreCase ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
       colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
+    } else if( useAggr ) {
+      colExpr = bindingItem.getQColumnExpressionWithAggr();
     } else {
       colExpr = bindingItem.getQColumnExpression(false);
     }

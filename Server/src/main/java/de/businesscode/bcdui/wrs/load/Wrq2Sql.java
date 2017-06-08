@@ -206,7 +206,7 @@ public class Wrq2Sql implements ISqlGenerator
       return sql;
     }
 
-    WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo);
+    WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo, wrqInfo.getFilterNode(), false);
     String filterClause = wrqFilter2Sql.getAsSql( boundVariables );
     String subjectSettingsClause = "";
 

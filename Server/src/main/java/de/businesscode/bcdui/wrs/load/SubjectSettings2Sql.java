@@ -65,9 +65,6 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
 
   /**
    * Returns a where clause based on the SubjectFilters of the BindingSet and the current Subject's permissions
-   * 
-   * @param elementList
-   *          collection of actual values to be bound, collection of Connective element
    * @return additional condition or empty string
    * @throws BindingException
    */
@@ -314,7 +311,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       wrqInfo.getAllBRefs().put(bRef, new WrqBindingItem(wrqInfo, wrqInfo.getResultingBindingSet().get(bRef), "v" + (wrqInfo.aliasCounter++), false));
     }
 
-    subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, elementList, wrqInfo.getOwnerDocument()));
+    subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, elementList, wrqInfo.getOwnerDocument(), false));
   }
 
   /**
