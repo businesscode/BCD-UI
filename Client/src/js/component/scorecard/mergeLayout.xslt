@@ -45,7 +45,6 @@
        -->
       <xsl:copy-of select="/*/*[not(self::scc:Layout)]"/>
       <scc:Layout>
-        <xsl:attribute name="removeEmptyCells">rowCol</xsl:attribute>
         <xsl:copy-of select="/*/scc:Layout/@removeEmptyCells"/>
          <xsl:choose>
           <xsl:when test="$statusModel//scc:Layout[@scorecardId=$scorecardId]/*">
