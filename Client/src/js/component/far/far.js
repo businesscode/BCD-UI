@@ -18,6 +18,17 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
 /** @lends bcdui.component.far.Far.prototype */
 {
   /**
+   * events fired on (or on a child of) the targetHtml
+   *
+   * @public
+   */
+  events : {
+    /**
+     * is fired on the element containing far grid everytime the FAR renderer has finished rendering
+     */
+    rendered : "bcdui.component.far.rendered"
+  },
+  /**
    * @classdesc
    * A FAR component
    *
@@ -107,8 +118,9 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     }.bind(this));
 
     // htmlBuilder on Wrs
+    var gridRenderingTarget = this.options.targetHtml.find(".bcd-far-grid");
     var gridRendering = new bcdui.core.Renderer({
-      targetHtml : this.options.targetHtml.find(".bcd-far-grid"),
+      targetHtml : gridRenderingTarget,
       chain : [
         bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply far:Paginate
         bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt" // final rendering of Wrs
@@ -121,6 +133,9 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
         paramModel : this.enhancedConfig
       }
     });
+    gridRendering.onReady(function(){
+      gridRenderingTarget.trigger( this.events.rendered );
+    }.bind(this));
 
     // trigger rendering everytime UI pagination updates $config/xp:Paginate
     this.enhancedConfig.onChange(gridRendering.execute.bind(gridRendering), "/*/xp:Paginate");
