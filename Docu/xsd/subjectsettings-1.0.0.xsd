@@ -88,14 +88,6 @@
   <complexType name="SubjectFilterType">
     <sequence>
       <element name="Caption" minOccurs="0" maxOccurs="1"/>
-      <element name="BindingSet" minOccurs="0">
-        <annotation><documentation>
-          Optional source for the permission values. Defaults to bcd_sec_user_settings.
-          A BindingSet referenced here has to have "bcd_user_id" and "bcd_right_value" as BindingItems and can have "bcd_right_type".
-          If "bcd_right_type" is not present, all rights are expected to be of the right type.
-        </documentation></annotation>
-        <simpleType><restriction base="NCName"><minLength value="1"></minLength></restriction></simpleType>
-      </element>
       <element name="BindingItems">
         <complexType>
           <sequence>
