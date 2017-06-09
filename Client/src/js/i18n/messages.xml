@@ -135,6 +135,7 @@
       <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
       <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional cell filters and user restrictions were applied.</C><C>en</C></R>
       <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
+      <R id="R93"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
 
       <!-- FAR configurator -->
       <R id="R180"><C>bcd_FarConfigurator_Sbsc_Src</C><C>Available</C><C>en</C></R>

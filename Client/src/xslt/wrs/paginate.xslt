@@ -44,7 +44,9 @@
       <xsl:otherwise>1</xsl:otherwise>
     </xsl:choose>
   </xsl:param>
-
+  <xsl:param name="addRowCounter" select="translate($paramSet/xp:AddRowCounter,'0false','')"/>
+  
+  <xsl:variable name="impl.addRowCounter" select="boolean($addRowCounter)"/>
   <xsl:variable name="impl.pageNumber" select="normalize-space($pageNumber)"/>
 
   <xsl:variable name="y2">
@@ -84,6 +86,26 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- rewrite if row counter requested -->
+  <xsl:template match="/wrs:Wrs/wrs:Header/wrs:Columns">
+    <xsl:choose>
+      <xsl:when test="$impl.addRowCounter"><!-- add row counter, rewrite @pos on wrs:C -->
+        <xsl:copy>
+          <xsl:copy-of select="@*|*[not(self::wrs:C)]"/>
+          <wrs:C pos="1" id="bcd_Report_RowCounterCaption" type-name="NUMERIC" caption="&#xE0FF;bcd_Report_RowCounterCaption"/>
+          <xsl:for-each select="wrs:C">
+            <xsl:copy>
+              <xsl:attribute name="pos" select="position() + 1"/>
+              <xsl:copy-of select="@*[not(name() = 'pos')]|*"/>
+            </xsl:copy>
+          </xsl:for-each>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise><!-- clone, as-is -->
+        <xsl:copy-of select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
        filter rows
@@ -91,7 +113,32 @@
   <xsl:template match="/wrs:Wrs/wrs:Data">
     <xsl:copy>
       <xsl:copy-of select="@*"/>
-      <xsl:copy-of select="*[position() >= $y1 and $y2 >= position()]"/>
+      <xsl:choose>
+        <xsl:when test="$impl.addRowCounter">
+          <xsl:apply-templates select="*[position() >= $y1 and $y2 >= position()]" mode="addRowCounter"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="*[position() >= $y1 and $y2 >= position()]"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:copy>
+  </xsl:template>
+
+  <!-- row with row counter -->
+  <xsl:template match="wrs:*" mode="addRowCounter">
+    <xsl:variable name="rowCount" select="position() + $y1 - 1"/>
+    <xsl:copy>
+      <xsl:copy-of select="@*"/>
+      <xsl:choose>
+        <xsl:when test="self::wrs:M">
+          <wrs:C><xsl:value-of select="$rowCount"/></wrs:C>
+          <wrs:O><xsl:value-of select="$rowCount"/></wrs:O>
+        </xsl:when>
+        <xsl:otherwise>
+          <wrs:C><xsl:value-of select="$rowCount"/></wrs:C>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:copy-of select="*"/>
     </xsl:copy>
   </xsl:template>
 

@@ -277,6 +277,12 @@
               Is need to show "show all items" on pager instead of page view
             </documentation></annotation>
           </element>
+          <element name="AddRowCounter" default="false" type="boolean" minOccurs="0">
+            <annotation><documentation>
+              If enabled, the resulting Wrs will contain an extra leading wrs:C indicating
+              the row count. The i18n key for caption used is 'bcd_Report_RowCounterCaption'.
+            </documentation></annotation>
+          </element>
         </sequence>
       </extension>
     </complexContent>
