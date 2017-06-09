@@ -317,6 +317,25 @@
     },
 
     /**
+     * delete elements by bRef reference
+     * @param {array} bRefs Array of bRef (string) of items to remove
+     *
+     * @private
+     */
+    _deleteElementsByRef : function(bRefs){
+      var selector = this._getTargetSelector();
+      var dataProvider = selector.getDataProvider();
+      var xPath = selector.xPath;
+
+      // remove nodes (use pipe as separator, since its not allowed as bRef)
+      bcdui.core.removeXPath(dataProvider.getData(), xPath + "/.//f:Expression[contains('|"+ bRefs.join("|") +"|', @bRef)]", false, false);
+      // remove empty junctions
+      bcdui.core.removeXPath(dataProvider.getData(), xPath + "/.//f:*[ not(self::f:Expression) and not(.//f:Expression) ]", false, false);
+
+      dataProvider.fire();
+    },
+
+    /**
      * opens up an UI to configure new filter and combines it with given filter at nodeId
      *
      * @private
