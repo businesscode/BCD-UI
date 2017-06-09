@@ -87,6 +87,7 @@
       </xs:element>
       <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
       <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
+      <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">

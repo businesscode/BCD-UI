@@ -126,6 +126,7 @@ public class Wrq2Sql implements ISqlGenerator
     sql.append( generateFromClause() );
     sql.append( generateWhereClause( boundVariables ) );
     sql.append( generateGroupingClause(boundVariables) );
+    sql.append( generateHavingClause(boundVariables) );
     // If the database does not allow ORDER BY together with ROLLUP and so on, we silently skip it.
     // This only affects MySql, far from perfect but needs to be enough for know
     if( !wrqGroupBy2Sql.hasTotals() || !DatabaseCompatibility.getInstance().dbOnlyKnowsWithRollup(resultingBindingSet) )
@@ -244,6 +245,22 @@ public class Wrq2Sql implements ISqlGenerator
     return wrqGroupBy2Sql.generateGroupingClause(boundVariables);
   }
 
+  /**
+   * Generates Having SQL clause
+   * @param boundVariables
+   * @return
+   * @throws XPathExpressionException
+   * @throws BindingException
+   */
+  protected StringBuffer generateHavingClause( List<Element> boundVariables ) throws XPathExpressionException, BindingException
+  {
+    StringBuffer sql = new StringBuffer();
+    WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo, wrqInfo.getHavingNode(), true);
+    String filterClause = wrqFilter2Sql.getAsSql( boundVariables );
+    if( !filterClause.isEmpty() )
+      sql.append(" HAVING ").append( filterClause );
+    return sql;
+  }
 
   /**
    * Generates Order-By clause

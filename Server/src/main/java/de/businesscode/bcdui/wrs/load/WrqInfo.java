@@ -73,12 +73,15 @@ public class WrqInfo
   private LinkedList<WrqBindingItem> wrsCOnlySelectListBRefs;
   // Contains all bRefs which are part of the requested group-by
   private Set<String> groupingBRefs;
+  private Set<String> havingBRefs;
   private LinkedHashSet<String> orderingBRefs = new LinkedHashSet<String>();
   // We may replace the given f:Filter by one modified at the server. Since we do not want to change the original WrsRequest, 
   // because it is returned to the client and we do not want that to be included there, we hold such an element here.
   private Element resultingFilterParent;
   // Keeps track of the virtual dimension members. Maps a bRef to a map of new names (i.e. content) of the data to the values mapped to this new name
   private Map<String,Map<String,Set<String>>> vdms = new HashMap<>();
+  // This indicates whether this request uses a Grouping Function, for example grouping sets
+  private boolean reqHasGroupingFunction = false;
 
   int aliasCounter     = 1;
   int virtualBiCounter = 1;
@@ -101,6 +104,7 @@ public class WrqInfo
       groupByRootXpathExpr =      xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping");     // grouping columns or functions
       groupByChildrenXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*");     // grouping columns or functions
       groupByFunctionXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*[not(self::wrq:C)]");  // grouping functions
+      havingRootXpathExpr      =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Having");  // having clause
       topNXPathExpr =             xp.compile("/wrq:WrsRequest/wrq:Select/wrq:TopNDimMembers");
 
       selectListCAXpathExpr =     xp.compile("/*/wrq:Select/wrq:Columns//*[self::wrq:C | self::wrq:A]");
@@ -110,6 +114,7 @@ public class WrqInfo
       selectListBidRefXpathExpr   = xp.compile("/*/wrq:Select/wrq:Columns//*[not(wrq:Calc)]/@bRef       | /*/wrq:Select//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       filterBidRefXpathExpr       = xp.compile(".//f:Expression/@bRef");
       groupingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | /*/wrq:Select/wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      havingBidRefXpathExpr       = xp.compile("/*/wrq:Select/wrq:Having//f:Expression//@bRef");
       orderingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | /*/wrq:Select/wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
 
       vdmXpathExpr                 = xp.compile("/*/wrq:Select/wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
@@ -188,6 +193,9 @@ public class WrqInfo
   protected Element getGroupingNode() throws XPathExpressionException {
     return (Element) groupByRootXpathExpr.evaluate(wrq, XPathConstants.NODE);
   }
+  protected Element getHavingNode() throws XPathExpressionException {
+    return (Element) havingRootXpathExpr.evaluate(wrq, XPathConstants.NODE);
+  }
 
   /**
    * Initializes internal data structures for this Wrq
@@ -211,6 +219,7 @@ public class WrqInfo
     userSelectListBRefs = new LinkedHashSet<String>();
     wrsCOnlySelectListBRefs = new LinkedList<WrqBindingItem>();
     groupingBRefs = new HashSet<String>();
+    havingBRefs = new HashSet<String>();
 
     // Let's check, whether we have a filter modifiers attached to the BindingSet (/Group) and apply them
     // Note, we have a chicken and egg problem here. To ask a BindingSet for its modifiers, 
@@ -219,7 +228,7 @@ public class WrqInfo
     // If there is a BindingSetGroup registered for the name, we take its modifiers, otherwise we get the direct BindingSet ones
     resultingFilterParent = wrq;
     for( Class<? extends Modifier> modifier: bindings.getWrqModifiers(wrqBindingSetId) ) {
-      // Calculate filterServer so that we have the correct bRef set
+      // Calculate filterServer so thaxt we have the correct bRef set
       resultingFilterParent = modifier.newInstance().process((Element) filterXpathExpr.evaluate(wrq, XPathConstants.NODE));
     }
 
@@ -256,6 +265,7 @@ public class WrqInfo
     NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
     NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(resultingFilterParent, XPathConstants.NODESET);
     NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    NodeList havingBidRefNl    = (NodeList) havingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
     NodeList orderingBidRefNl  = (NodeList) orderingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
     NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(wrq, XPathConstants.NODESET);
 
@@ -280,6 +290,10 @@ public class WrqInfo
         allRawBRefs.add(groupingBidRefNl.item(i).getNodeValue());
         groupingBRefs.add(groupingBidRefNl.item(i).getNodeValue());
       }
+      for( int i=0; i<havingBidRefNl.getLength(); i++ ) {
+        allRawBRefs.add(havingBidRefNl.item(i).getNodeValue());
+        havingBRefs.add(havingBidRefNl.item(i).getNodeValue());
+      }
       for( int i=0; i<orderingBidRefNl.getLength(); i++ )
         allRawBRefs.add(orderingBidRefNl.item(i).getNodeValue());
 
@@ -293,7 +307,7 @@ public class WrqInfo
       // B.1.b Select list given
       else
       {
-        boolean reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
+        reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
         WrqBindingItem lastWrqC = null;
         for( int i=0; i<selectedNl.getLength(); i++ )
         {
@@ -382,10 +396,14 @@ public class WrqInfo
     }
   }
 
+  /**
+   * No binding items are explicitly given in select clause, collect here all the BindingSet has to offer
+   * @throws BindingException
+   */
   protected void selectAllBindingItems() throws BindingException
   {
     if( !resultingBindingSet.isAllowSelectAllColumns() )
-      throw new BindingException("The BindingSet " + wrqBindingSetId +" requires list of bindings items in Select clause");
+      throw new BindingException("The BindingSet " + wrqBindingSetId +" requires list of bindings items in Select clause, see bnd:BindingSet/@allowSelectAllColumns");
 
     Iterator<BindingItem> bitemsIt = resultingBindingSet.getBindingItems().iterator();
     while( bitemsIt.hasNext() ) {
@@ -465,6 +483,13 @@ public class WrqInfo
   {
     return groupingBRefs;
   }
+  public Set<String> getHavingBRefs()
+  {
+    return havingBRefs;
+  }
+  public boolean reqHasGroupingFunction() {
+    return reqHasGroupingFunction;
+  }
 
   /**
    * Return the virtual dimension members for a bRef
@@ -482,6 +507,7 @@ public class WrqInfo
   private final XPathExpression groupByRootXpathExpr;
   private final XPathExpression groupByChildrenXpathExpr;
   private final XPathExpression groupByFunctionXpathExpr;
+  private final XPathExpression havingRootXpathExpr;
   private final XPathExpression topNXPathExpr;
 
   private final XPathExpression selectListCAXpathExpr;
@@ -491,6 +517,7 @@ public class WrqInfo
   private final XPathExpression selectListBidRefXpathExpr;
   private final XPathExpression filterBidRefXpathExpr;
   private final XPathExpression groupingBidRefXpathExpr;
+  private final XPathExpression havingBidRefXpathExpr;
   private final XPathExpression orderingBidRefXpathExpr;
 
   private final XPathExpression vdmXpathExpr;
