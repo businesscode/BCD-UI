@@ -121,10 +121,10 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     var gridRenderingTarget = this.options.targetHtml.find(".bcd-far-grid");
     var gridRendering = new bcdui.core.Renderer({
       targetHtml : gridRenderingTarget,
-      chain : [
+      chain : this.options.renderingChain || [
         bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply far:Paginate
         bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt" // final rendering of Wrs
-      ],
+      ], // renderingChain = internal API
       inputModel : this.farModel,
       parameters : {
         sortCols : false,
