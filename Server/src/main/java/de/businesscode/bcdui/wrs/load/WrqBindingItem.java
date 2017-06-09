@@ -50,6 +50,8 @@ public class WrqBindingItem implements WrsBindingItem
   private final WrqInfo wrqInfo;
   private final int jdbcDataType;
   private String tableAlias;
+  // A bRef for which we do not want to be calculated if that one is on (sub)total level
+  private String skipForTotals = "";
   // may be null, refers to original BindingItem
   private final BindingItem referenceBindingItem;
   private List<String> cCE = null; // Column expression split by column-reference
@@ -129,7 +131,6 @@ public class WrqBindingItem implements WrsBindingItem
       setColumnExpression( bi.getColumnExpression() );
     }
 
-
     if( "A".equals(elem.getLocalName()) ) {
       this.wrsAName = elem.getAttribute("name");
       // Now let's attach this wrs:A attr to its parent wrs:C
@@ -137,6 +138,7 @@ public class WrqBindingItem implements WrsBindingItem
         throw new Exception("Wrong request - found an wrs:A element which isn't under wrs:C element.");
       this.parentWrsC = parentWrqC;
       parentWrqC.addWrsAAttribute(this); // We are in document order, so we know our parent wrs:C exists already
+      skipForTotals = elem.getAttribute("skipForTotals");
     }
     else {
       this.wrsAName   = null;
@@ -521,6 +523,10 @@ public class WrqBindingItem implements WrsBindingItem
 
   public List<Element> getBoundVariables() {
     return boundVariables;
+  }
+
+  public String getSkipForTotals() {
+    return skipForTotals;
   }
 
   /**

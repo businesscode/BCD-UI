@@ -148,7 +148,17 @@ public class Wrq2Sql implements ISqlGenerator
     while( it.hasNext() )
     {
       WrqBindingItem bi = wrqInfo.getAllBRefAggrs().get(it.next());
-      sql.append( concat ).append( bi.getQColumnExpressionWithAggr() ).append( " " ).append( bi.getAlias() );
+      sql.append(concat);
+      // We may want to not calculate this value if another bRef part of Grouping Set is on (sub)total level
+      // Typical case is the caption. It could be part of the Grouping Set itself but this keeps the query simpler, see scorecard
+      if( wrqInfo.reqHasGroupingFunction() && wrqInfo.getGroupingBRefs().contains(bi.getSkipForTotals()) ) {
+        String[] grpFM = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getResultingBindingSet()).get("Grouping");
+        WrqBindingItem sftBi = wrqInfo.getAllBRefs().get(bi.getSkipForTotals());
+        sql.append("CASE WHEN ").append(grpFM[1]).append(sftBi.getQColumnExpression()).append(grpFM[3]).append(" = 0 THEN ");
+        sql.append(bi.getQColumnExpressionWithAggr()).append(" END ");
+      } else
+        sql.append(bi.getQColumnExpressionWithAggr()).append(" ");
+      sql.append( bi.getAlias() );
       concat = ", ";
       boundVariables.addAll( bi.getBoundVariables() );
     }
