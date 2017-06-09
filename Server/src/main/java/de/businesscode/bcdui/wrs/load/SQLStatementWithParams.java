@@ -17,7 +17,6 @@ package de.businesscode.bcdui.wrs.load;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collection;
 
 import org.w3c.dom.Element;
 
@@ -77,6 +76,8 @@ public class SQLStatementWithParams {
    * @return
    */
   public String getStatementWithParams() {
+    if( filterValues.size() == 0 )
+      return getStatement();
     StringBuffer stmt = new StringBuffer();
     String[] parts = getStatement().split("\\?");
     for( int i=0; i<parts.length && i<filterValues.size(); i++ ) {

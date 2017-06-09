@@ -53,9 +53,9 @@ public class Wrq2SqlServlet extends HttpServlet {
       IRequestOptions options = new HttpRequestOptions(getServletContext(), request, -1);
       ISqlGenerator generator = new Wrq2Sql(options);
       response.getWriter()
-        .append("<Wrs xmlns='"+StandardNamespaceContext.WRS_NAMESPACE+"'><Header><Sql>")
+        .append("<Wrs xmlns='"+StandardNamespaceContext.WRS_NAMESPACE+"'><Header><Sql><![CDATA[")
         .append(generator.getSelectStatement().getStatementWithParams())
-        .append("</Sql></Header></Wrs>");
+        .append("]]></Sql></Header></Wrs>");
     }
     catch (Exception e) {
       log.error(new ErrorLogEvent("Exception while processing the request.", request), e);
