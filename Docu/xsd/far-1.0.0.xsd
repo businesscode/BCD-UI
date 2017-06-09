@@ -132,6 +132,11 @@
                         Initial page number to display.
                       </xs:documentation></xs:annotation>
                     </xs:element>
+                    <xs:element name="AddRowCounter" type="xs:boolean" minOccurs="0" default="false">
+                      <xs:annotation><xs:documentation>
+                        Enables row counter as a first column in the report. The i18n key for caption used is 'bcd_Report_RowCounterCaption'.
+                      </xs:documentation></xs:annotation>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

@@ -78,7 +78,13 @@
         <xp:PageNumber><xsl:value-of select="far:PageNumber"/></xp:PageNumber>
       </xsl:if>
       <xsl:if test="far:ShowAllOption">
-        <xp:ShowAllOption><xsl:value-of select="far:ShowAllOption"/></xp:ShowAllOption>
+        <xp:ShowAllOption>true</xp:ShowAllOption>
+      </xsl:if>
+      <xsl:if test="far:ShowAllOption">
+        <xp:ShowAllOption>true</xp:ShowAllOption>
+      </xsl:if>
+      <xsl:if test="far:AddRowCounter">
+        <xp:AddRowCounter>true</xp:AddRowCounter>
       </xsl:if>
     </xp:Paginate>
   </xsl:template>
