@@ -63,7 +63,9 @@
             <xsl:copy-of select="wrq:BindingSet"/>
           </From>
           <!-- Extended filters are expected to work an aggregated level, we handle them in the having part -->
-          <xsl:copy-of select="$statusModel//f:Filter/*[not(self::f:And[@id=$componentId])]"/>
+          <f:Filter>
+            <xsl:copy-of select="$statusModel//f:Filter/*[not(self::f:And[@id=$componentId])]"/>
+          </f:Filter>
           <Grouping>
             <xsl:apply-templates select="$dimensions" mode="asWrqC"/>
           </Grouping>
