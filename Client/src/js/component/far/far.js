@@ -173,13 +173,16 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
 
     // enable report filter
     if(this.enhancedConfig.query("/*/far:ReportFilter")){
+      // our HideUnselected option on $guiStatus
+      var xPath_hideUnselected = "/guiStatus:Status/guiStatus:ClientSettings/far:ReportFilter[@id='" + this.options.componentId + "']/far:HideUnselected";
+      var xPath_farLayout = "/guiStatus:Status/far:Far[@id='" + this.options.componentId + "']/far:Layout/far:Columns";
       // create options model from Dimenions and Measures suitable for universal filter widget
       var universalFilterModel = new bcdui.core.ModelWrapper({
         id          : this.id + "_universalFilterModel",
         inputModel  : this.enhancedConfig,
         chain       : [function(doc){
           var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<Root/>");
-          jQuery
+          var allItems = jQuery
           // select all Dimensions and Measures
           .makeArray( doc.selectNodes("/*/far:Dimensions//dm:LevelRef|/*/far:Measures//dm:Measure") )
           // normalize to value/caption
@@ -189,6 +192,24 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
               caption : n.getAttribute("caption")
             }
           })
+          ;
+
+          // if hide-unselected is enabled, keep selected only
+          if(bcdui.wkModels.guiStatus.read(xPath_hideUnselected, "0") == "1"){
+            // build map of our current selection
+            var farLayoutItems = jQuery.makeArray(
+              bcdui.wkModels.guiStatus.getData().selectNodes(xPath_farLayout + "/*")
+            ).reduce(function(map, n){
+              map[(n.getAttribute("idRef") || n.getAttribute("bRef"))] = null;
+              return map;
+            },{});
+            
+            allItems = allItems.filter(function(item){ // value,caption object
+              return farLayoutItems.hasOwnProperty(item.value);
+            });
+          }
+
+          allItems
           // sort by caption
           .sort(function(a,b){
             return a.caption < b.caption ? -1 : a.caption == b.caption ? 0 : 1;
@@ -203,6 +224,11 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
           return newDoc;
         }]
       });
+      // recompute on showAll change
+      bcdui.wkModels.guiStatus.onChange(universalFilterModel.execute.bind(universalFilterModel), xPath_hideUnselected);
+      // recompute on layout change
+      bcdui.wkModels.guiStatus.onChange(universalFilterModel.execute.bind(universalFilterModel), xPath_farLayout);
+
       // render filter widget
       var targetModelXPathReportFilter = "/guiStatus:Status/f:Filter/f:And[@id='" + this.options.componentId + "']";
       var reportFilterContainer = this.options.targetHtml.find(".bcd-far-filter");
@@ -210,7 +236,12 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
         targetModelXPath      : "$guiStatus" + targetModelXPathReportFilter,
         bRefOptionsModelXPath : "$" + universalFilterModel.id + "/*/Item/@caption",
         bRefOptionsModelRelativeValueXPath : "../@id",
-        inputRow                           : this.options.reportFilter ? this.options.reportFilter.inputRow : null  // internal widget API
+        inputRow                           : jQuery.extend(true, { // internal widget API
+          renderingChain : bcdui.contextPath + "/bcdui/js/component/far/reportFilterInputRendering.dott", // we need custom UI here for the HideUnselected option
+          renderingChainParameters : {
+            xPath_hideUnselected : "$guiStatus" + xPath_hideUnselected
+          }
+        }, this.options.reportFilter != null ? this.options.reportFilter.inputRow : null)
       });
 
       /*
