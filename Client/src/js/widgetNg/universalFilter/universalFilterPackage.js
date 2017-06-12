@@ -215,7 +215,11 @@
           uiElement.show();
         }.bind(null, !!args.targetNodeId, uiElement);
         createUiRenderer.onReady(revealUi);
-        createUiRenderer.execute(false); // execute only once, widgets will update on their own
+        createUiRenderer.execute();
+      })
+      // trigger by create-ui
+      .on("bcdui:universalFilter:closeCreateUi", function(event){
+        uiElement.empty().hide();
       })
       // triggered by create-ui
       .on("bcdui:universalFilter:add", function(event){

@@ -36,6 +36,5 @@
 <span>
   <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
 </span>
-<!-- simply hide the UI -->
-<span class="{{= it.params.cssClassPrefix }}creator-container-closer" onclick="jQuery(this).closest('.{{= it.params.cssClassPrefix }}creator-container').detach()">
+<span class="{{= it.params.cssClassPrefix }}creator-container-closer" onclick="jQuery(this).trigger('bcdui:universalFilter:closeCreateUi')">
 </span>
