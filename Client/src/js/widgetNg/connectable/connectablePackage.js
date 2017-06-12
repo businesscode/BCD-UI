@@ -1365,10 +1365,12 @@
       this._funcMapNodeToCaptionAttrName = function(attrName, n){
         return n.getAttribute(attrName);
       }.bind(null, this.config.captionAttrName);
+
+      this.cache={selector:{}};
     },
 
     _buildAncestorPath : function(widgetInstance, value){
-      var elementInData = widgetInstance._getOptionSelector().valueNode(value);
+      var elementInData = this._getOptionSelector(widgetInstance).valueNode(value);
       elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
       // build ancestorPath by caption
       var ancestors = jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(this._funcMapNodeToCaptionAttrName);
@@ -1490,6 +1492,14 @@
     },
 
     /**
+     * returns cached option selector of given widgetInstance
+     * @private
+     */
+    _getOptionSelector : function(widgetInstance){
+      return this.cache.selector[widgetInstance.id] = this.cache.selector[widgetInstance.id] || widgetInstance._getOptionSelector({ enableCaching: true });
+    },
+
+    /**
      * item html renderer for tree structure
      * @param {object}  args                  Gets them from connectable, which area
      * @param {string}  args.value            The value of the item
@@ -1499,7 +1509,7 @@
      * @private
      */
     generateItemHtml : function(args){
-      var elementInData = args._widgetInstance._getOptionSelector().valueNode(args.value);
+      var elementInData = this._getOptionSelector(args._widgetInstance).valueNode(args.value);
       // normalize to Element (i.e. value node is mapped to attribute)
       elementInData = elementInData.nodeType === 2 ? elementInData.ownerElement || elementInData.selectSingleNode("parent::*") : elementInData;
 
