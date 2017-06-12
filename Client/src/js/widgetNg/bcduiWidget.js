@@ -203,10 +203,18 @@
 
     /**
      * Provide selector to options (if widget has optionXPath defined)
+     * @param {object}  args                        Arguments
+     * @param {boolean} [args.enableCaching=false]  If enabled, the returned selector enables caching of data,
+     *                                              you have to .clearCache() on selector manually to avoid access
+     *                                              to stale data.
+     *
      * @private
      */
-    _getOptionSelector : function(){
-      this.cache._getOptionSelector = this.cache._getOptionSelector || this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath, true);
+    _getOptionSelector : function(args){
+      if(args && args.enableCaching){ // dont cache internally the selector with local caching enabled
+        return this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath, true);
+      }
+      this.cache._getOptionSelector = this.cache._getOptionSelector || this._getSelector(this.options.optionsModelXPath, this.options.optionsModelRelativeValueXPath, false);
       return this.cache._getOptionSelector;
     },
 
@@ -224,13 +232,13 @@
      *
      * @param {string}  modelXPath            The modelXPath
      * @param {string}  [relativeValueXPath]  The relative xPath (relative to modelXPath)
-     * @param {boolean} [enableCaching=false] Enables caching
+     * @param {boolean} [enableCaching=false] Enables local caching of lookups, you have to .clearCache() manually in order not to access stale data
      * @return {object}   with xPath, modelId, captionXPath, valueXPath, valueNodes():array/nodelist,
      *                    captionNodes():array/nodelist; values():array of values; captions():array of captions;
      *                    entries():returns array of value,caption; map():returns single object with value:caption map;
      *                    valueNode(id):returns node matching id;valueNode():returns the value node;
      *                    getData():returns underlying dataDoc;getDataProvider():returns dataprovider;
-     *                    selectSingleNode(xPath):returns single node;
+     *                    selectSingleNode(xPath):returns single node;clearCache():clears cache.
      * @private
      */
     _getSelector : function(modelXPath, relativeValueXPath, enableCaching){
@@ -245,13 +253,7 @@
         res.valueXPath = res.captionXPath + "/" + relativeValueXPath;
       }
 
-      var cache = enableCaching ? (this.cache.selector = { selectedNodes : {} }) : null; // selector cache
-      if(enableCaching){
-        // listen to updates on options model to purge cache
-        this._addUpdateListener(res.modelId, function(){
-          cache.selector = {};
-        });
-      }
+      var cache = enableCaching ? { selectedNodes : {} } : null; // local selector cache
 
       /* helpers */
       var selectNodes = function(xPath){
@@ -271,6 +273,9 @@
       }
 
       /* provide api */
+      res.clearCache = function(){
+        cache.selectedNodes = {};
+      }
       res.getDataProvider = function(){
         return bcdui.factory.objectRegistry.getObject(res.modelId);
       }
