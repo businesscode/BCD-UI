@@ -95,7 +95,7 @@
           <wrs:C pos="1" id="bcd_Report_RowCounterCaption" type-name="NUMERIC" caption="&#xE0FF;bcd_Report_RowCounterCaption"/>
           <xsl:for-each select="wrs:C">
             <xsl:copy>
-              <xsl:attribute name="pos" select="position() + 1"/>
+              <xsl:attribute name="pos"><xsl:value-of select="position() + 1"/></xsl:attribute>
               <xsl:copy-of select="@*[not(name() = 'pos')]|*"/>
             </xsl:copy>
           </xsl:for-each>
