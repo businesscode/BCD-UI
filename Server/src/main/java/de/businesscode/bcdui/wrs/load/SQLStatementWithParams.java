@@ -79,13 +79,18 @@ public class SQLStatementWithParams {
     if( filterValues.size() == 0 )
       return getStatement();
     StringBuffer stmt = new StringBuffer();
+    // We assume here, that all ? are bind variable place holders
     String[] parts = getStatement().split("\\?");
-    for( int i=0; i<parts.length && i<filterValues.size(); i++ ) {
+    int i = 0;
+    for( ; i<parts.length && i<filterValues.size(); i++ ) {
       if (filterBindingItems.get(i).isNumeric())
         stmt.append(parts[i]).append(filterValues.get(i));
       else
         stmt.append(parts[i]).append("'").append(filterValues.get(i)).append("'");
     }
+    // This is usually just the part after the last ?
+    for( ; i<parts.length; i++ )
+      stmt.append(parts[i]).append(" ");
     return stmt.toString();
   }
 }
