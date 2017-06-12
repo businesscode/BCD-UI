@@ -57,6 +57,24 @@
         </xsl:choose>
       </scc:Layout>
 
+      <!-- turn off row/col span for top-n and sorting -->
+      <xp:XSLTParameters>
+        <xp:HtmlBuilder>
+          <xsl:choose>
+           <xsl:when test="$statusModel//scc:Layout[@scorecardId=$scorecardId]/*">
+             <xp:MakeColSpan><xsl:value-of select="string(not(boolean($statusModel//scc:Layout[@scorecardId=$scorecardId and (scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember)]/scc:Dimensions/scc:Columns/scc:LevelKpi)))"/></xp:MakeColSpan>
+             <xp:MakeRowSpan><xsl:value-of select="string(not(boolean($statusModel//scc:Layout[@scorecardId=$scorecardId and (scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember)]/scc:Dimensions/scc:Rows/scc:LevelKpi)))"/></xp:MakeRowSpan>
+           </xsl:when>
+           <xsl:otherwise>
+             <xp:MakeColSpan><xsl:value-of select="string(not(boolean(/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]/scc:Dimensions/scc:Columns/scc:LevelKpi)))"/></xp:MakeColSpan>
+             <xp:MakeRowSpan><xsl:value-of select="string(not(boolean(/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]/scc:Dimensions/scc:Rows/scc:LevelKpi)))"/></xp:MakeRowSpan>
+           </xsl:otherwise> 
+          </xsl:choose>
+          <xp:SortRows>false</xp:SortRows>
+          <xp:SortCols>false</xp:SortCols>
+        </xp:HtmlBuilder>
+      </xp:XSLTParameters>
+
     </scc:ScorecardConfiguration>
   </xsl:template>
 
