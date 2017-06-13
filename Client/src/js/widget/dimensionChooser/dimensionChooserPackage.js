@@ -75,7 +75,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     + " bcdIsCheckBox='false'"
     + "></span>"
 
-    + "</td></tr><tr" + ((multiSelect != "true") ? " style='display:none'>" : ">") + "<td>"
+    + "</td></tr><tr" + ((multiSelect != "true") ? " style='display:none'" : "") + ((htmlElement.getAttribute("bcdAllowMixedSelect") != "true") ? " class='bcdNonMixed'" : "class='bcdMixed'") +  "><td>"
     + "<span id='" + id + "_addButton_cell' class='bcdButton bcdAdd'><a onclick='this.className=&quot;bcdClicked&quot;; bcdui.widget.dimensionChooser._addMultiSelect(&quot;" + id + "_multiSelectBox\&quot;, false, false); this.className=&quot;&quot;;' href='javascript:void(0)' id='" + id + "_addButton' title='Add'>Incl.</a></span>"
 
     + (htmlElement.getAttribute("bcdAllowMixedSelect") == "true" ? ("<span id='" + id + "_excludeButton_cell'class='bcdButton bcdExclude'><a onclick='this.className=&quot;bcdClicked&quot;; bcdui.widget.dimensionChooser._addMultiSelect(&quot;" + id + "_multiSelectBox\&quot;, false, true); this.className=&quot;&quot;;' href='javascript:void(0)' id='" + id + "_excludeButton' title='Exclude'>Excl.</a></span>") : "")
