@@ -187,7 +187,7 @@
         if(this.config.source && this.config.source.optionsModelRelativeFilterPredicate && this.options.optionsModelXPath.indexOf("wrs:") == -1){
           var _selector = this._getOptionSelector();
           // we have only to refresh the source side without syncing back to model
-          _selector.getDataProvider().onChange(this._renderItems.bind(this, false), _selector.xPath + this.config.source.optionsModelRelativeFilterPredicate);
+          _selector.onChange(this._renderItems.bind(this, false), _selector.xPath + this.config.source.optionsModelRelativeFilterPredicate);
         }
 
         // finally set the valueXPath used in the update listener

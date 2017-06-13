@@ -61,7 +61,7 @@
       var targetSelector = this._getTargetSelector();
 
       // re-identify nodes in target everytime it changes
-      targetSelector.getDataProvider().onChange(function(){
+      targetSelector.onChange(function(){
         this._identifyNode(targetSelector.getDataProvider().getData(), targetSelector.xPath);
       }.bind(this), targetSelector.xPath);
 
@@ -92,7 +92,7 @@
       // one time init
       renderer.onceReady(function(){
         // rendering update if target changes
-        targetSelector.getDataProvider().onChange(function(){
+        targetSelector.onChange(function(){
           this.createUiElement && this.createUiElement.detach();  // recycle
           renderer.execute();
         }.bind(this), targetSelector.xPath);
