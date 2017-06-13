@@ -173,7 +173,6 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
           // Create the export Wrq and execute each time, we become ready
           this.actionDetailExportWrq = new bcdui.core.ModelWrapper({ inputModel: this.inputModel, chain: chain, parameters: parameters });
-          var fileType = memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
         }
         // Enforce updating of context sensitive parameters, especially bcdRow/ColIdent
         // we are using memo.bcdRow/ColIdent and not bcdui.wkModels because the mouse may have moved already
@@ -189,7 +188,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         }
 
         this.actionDetailExportWrq.execute(true);
-        bcdui.component.exports.detailExport( { wrq: this.actionDetailExportWrq, type: fileType } );
+        bcdui.component.exports.detailExport( { wrq: this.actionDetailExportWrq, type:  memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat, fileName: memo.fileName } );
 
       }.bind( this, args.id ) );
 
