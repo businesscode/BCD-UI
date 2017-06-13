@@ -228,6 +228,8 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
       bcdui.wkModels.guiStatus.onChange(universalFilterModel.execute.bind(universalFilterModel), xPath_hideUnselected);
       // recompute on layout change
       bcdui.wkModels.guiStatus.onChange(universalFilterModel.execute.bind(universalFilterModel), xPath_farLayout);
+      // recompute on enhancedConfig change
+      this.enhancedConfig.onChange(universalFilterModel.execute.bind(universalFilterModel));
 
       // render filter widget
       var targetModelXPathReportFilter = "/guiStatus:Status/f:Filter/f:And[@id='" + this.options.componentId + "']";
