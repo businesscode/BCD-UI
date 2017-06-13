@@ -84,6 +84,8 @@
 
       // track listeners of type XMLDataUpdateListener
       this._updateListeners = [];
+      // track data listeners; array of { dataProvider, listener }; unregistered at .destroy() 
+      this._dataListeners = [];
     },
 
     /**
@@ -147,6 +149,7 @@
      */
     _destroy: function() {
       this._super();
+      this.isDestroyed = true;
 
       // ## detach listener in case we have one
       if (this._modelListener) {
@@ -157,6 +160,12 @@
       // detach other listeners
       while(this._updateListeners.length){
         this._updateListeners.pop().unregister();
+      }
+
+      // detach data listeners
+      while(this._dataListeners.length){
+        var ref = this._dataListeners.pop();
+        ref.dataProvider.removeDataListener(ref.listener);
       }
 
       delete this.cache;
@@ -238,7 +247,8 @@
      *                    entries():returns array of value,caption; map():returns single object with value:caption map;
      *                    valueNode(id):returns node matching id;valueNode():returns the value node;
      *                    getData():returns underlying dataDoc;getDataProvider():returns dataprovider;
-     *                    selectSingleNode(xPath):returns single node;clearCache():clears cache.
+     *                    selectSingleNode(xPath):returns single node;clearCache():clears cache;onChange():registers onChange listener with automatic removal
+     *                    once widget is destroyed.
      * @private
      */
     _getSelector : function(modelXPath, relativeValueXPath, enableCaching){
@@ -273,6 +283,10 @@
       }
 
       /* provide api */
+      var self = this;
+      res.onChange = function(func, trackingXPath){
+        self._addOnChange(res.getDataProvider(), func, trackingXPath);
+      };
       res.clearCache = function(){
         cache.selectedNodes = {};
       }
@@ -343,6 +357,31 @@
       this._updateListeners.push(listener);
       bcdui.factory.addDataListener(listener);
       return listener;
+    },
+
+    /**
+     * Same as dataProvider.onChange(func, trackingXPath) but the callback is unregistered upon widget destruction.
+     *
+     * @param {bcdui.core.DataProvider}     dataProvider      Reference to data provider.
+     * @param {function}                    func              Callback function, context is set to this widget's instance.
+     * @param {xpath}                       [trackingXPath]   Optional trackingXPath
+     * @private
+     */
+    _addOnChange : function(dataProvider, func, trackingXPath){
+      if(!bcdui.util.isFunction(func)){
+        // we do not accept listener objects
+        throw "Argument 'func' not a function.";
+      }
+      var self = this;
+      var listener = function(){
+        if(self.isDestroyed){
+          dataProvider.removeDataListener(listener);
+        } else {
+          func.apply(self);
+        }
+      };
+      self._dataListeners.push({ dataProvider : dataProvider, listener : listener});
+      dataProvider.onChange(listener, trackingXPath);
     },
 
     /**
