@@ -26,7 +26,7 @@
   input:  Wrq
   output: Wrq (with row count request)
   
-  resulting sql: select count(*) over () FROM [bindingSet] WHERE [filter] GROUP BY [grouping];
+  resulting sql: select count(*) over () FROM [bindingSet] WHERE [filter] GROUP BY [grouping] HAVING;
 
    -->
 
@@ -50,7 +50,7 @@
             </C>
           </Columns>
           <!-- we want to take over filters and grouping part from original data request -->
-          <xsl:copy-of select="wrq:Select/wrq:From | wrq:Select/f:Filter | wrq:Select/wrq:Grouping"/>
+          <xsl:copy-of select="wrq:Select/wrq:From | wrq:Select/f:Filter | wrq:Select/wrq:Grouping | wrq:Select/wrq:Having"/>
         </Select>
       </xsl:if>
     </WrsRequest>
