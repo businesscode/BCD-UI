@@ -87,7 +87,13 @@
       </xs:element>
       <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
       <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
-      <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0"/>
+      <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0">
+        <xs:annotation><xs:documentation>
+          Allows the same f:* children as f:Filter. Ignore case @ic is only allowed for dimensions.
+          For non-dimensions reuses the aggr if the bindingItem also appears in the SELECT clause (last the occurance, if it appears multiple times),
+          otherwise it falls back to aggregation defaults SUM for numeric else MAX.
+        </xs:documentation></xs:annotation>
+      </xs:element>
     </xs:sequence>
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">

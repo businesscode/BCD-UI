@@ -366,9 +366,24 @@ public class WrqBindingItem implements WrsBindingItem
     aggregationMapping.put("grouping", "GROUPING");
     aggregationMapping.put("none", ""); // Can be used if the column expression already has a aggregator defined
   }
+
+  /**
+   * Returns the column expression with aggregation applied, if any is set
+   * @return
+   */
   public String getQColumnExpressionWithAggr() {
+    return getQColumnExpressionWithAggr(false);
+  }
+
+  /**
+   * Returns the column expression with aggregation applied, if any is set or if enforceAggr=true
+   * @return
+   */
+  public String getQColumnExpressionWithAggr( boolean enforceAggr ) {
     if( aggr!=null && !aggr.isEmpty() )
       return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet()).get(aggr.toLowerCase())+"("+getQColumnExpression()+")";
+    else if( enforceAggr )
+      return getDefaultAggr(getJDBCDataType())+"("+getColumnExpression()+")";
     else
       return getQColumnExpression();
   }

@@ -156,6 +156,9 @@ public class WrqFilter2Sql
 
   /**
    * Helper for WHERE clause generation
+   * ignoreCase is only allowed for dimensions and non-numeric types
+   * TODO If a non-dim bindingItem is used multiple times with different aggr in the select list, the aggr of the last one wins
+   * This limitation could be removed by allowing to overwrite the aggr at the having-filter expression, for example
    * @param wrqInfo
    * @param item
    * @param elementList
@@ -166,6 +169,8 @@ public class WrqFilter2Sql
   static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> elementList, Document ownerDocument, boolean useAggr)
       throws BindingNotFoundException
   {
+    // If the binding item appears twice, we don't know which one to use and here we get the last one returned
+    // This does impact the aggr being used below
     WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(item.getAttribute("bRef"));
     String op = item.getAttribute("op");
     String operator = "=";
@@ -197,14 +202,15 @@ public class WrqFilter2Sql
     } else
       valueElement = item;
 
-    // Take care for translation in to lower case for database and statement values
-    // Otherwise use qualified expression in aggregated for (in case of having) or plain form
+    // Take care for translation into lower case for database and statement values (only allowed for dims)
+    // and enforce aggr for non-dims
     String colExpr = null;
-    if( ignoreCase ) {
+    if( ignoreCase && ! bindingItem.isNumeric() ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
       colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
     } else if( useAggr ) {
-      colExpr = bindingItem.getQColumnExpressionWithAggr();
+      // If we do having for example, we are required to work on aggregated level for non-dims
+      colExpr = bindingItem.getQColumnExpressionWithAggr(! wrqInfo.getGroupingBRefs().contains(bindingItem.getId()));
     } else {
       colExpr = bindingItem.getQColumnExpression(false);
     }
