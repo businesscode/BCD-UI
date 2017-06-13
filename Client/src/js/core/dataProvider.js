@@ -301,7 +301,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
   },
 
   /**
-   * Removes a data listener via its id or listener object
+   * Removes a data listener via its id or listener object / function.
    * @param {(string|function|Object)} listenerObject - Either a listener function or id <p/>or a parameter map with the following properties:
    * @param {string} [listenerObject.id] - listener id
    * @param {string} [listenerObject.callback] - listener function
@@ -317,8 +317,13 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       this.removeDataListener({id: listenerObject});
     }
 
+    var extractedId = this._extractIdFromModificationListener(listenerObject);
+
     this.dataModificationListeners = this.dataModificationListeners.filter(function(item) {
-      return (this._extractIdFromModificationListener(item) !== this._extractIdFromModificationListener(listenerObject) && (item !== listenerObject));
+      if(!extractedId && (listenerObject.callback === item.listenerFunction || listenerObject.callback === item.callback)){ // match by listener function reference
+        return false;
+      }
+      return (this._extractIdFromModificationListener(item) !== extractedId && (item !== listenerObject));
     }, this);
   },
 
