@@ -342,7 +342,7 @@ bcdui.util.namespace("bcdui.widgetNg.checkbox",
         bcdui.factory.objectRegistry.withReadyObjects(targetModel, function() {
           var targetNode = bcdui.factory.objectRegistry.getObject(targetModel).getData().selectSingleNode(targetXPath);
           var value = (targetNode == null ? "0" : targetNode.text);
-          callback(id, (value == "1" ? "X" : "-"));
+          callback(id, (value == "1" ? "&#10003;" : ""));
         });
         return;
       }
