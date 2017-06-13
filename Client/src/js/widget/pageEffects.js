@@ -139,7 +139,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           var top = 0;
 
           if (jQuery('#bcdSideBarContainer').data("origTop") == null) {
-            top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : jQuery('#bcdSideBarContainer').css("top");
+            top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
             jQuery('#bcdSideBarContainer').data("origTop", "" + top);
           }
           else
@@ -153,7 +153,19 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
             off = parseInt(jQuery('#bcdSideBarContainer').data("origOff"), 10);
 
           var newTop = top + y-off < parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) ? parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) : top + y-off;
-          jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
+
+          var containerHeight = jQuery("#bcdContentContainer").height();
+          var containerOff = isNaN(jQuery('#bcdContentContainer').offset().top) ? 0 : jQuery('#bcdContentContainer').offset().top;
+          var sideBarHeight = jQuery("#bcdSideBarContainer").height();
+
+          if (newTop + sideBarHeight > containerOff + containerHeight) {
+            newTop = containerOff + containerHeight - sideBarHeight;
+            if (newTop < parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10))
+              hewTop = parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10);
+            jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
+          }
+          else
+            jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
         }
       });
     }
