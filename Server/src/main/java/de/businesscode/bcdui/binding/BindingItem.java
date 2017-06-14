@@ -430,6 +430,8 @@ public class BindingItem extends SimpleBindingItem {
     }
     if( getJDBCNullable()!=null )
       attrs.put(Bindings.jdbcNullableAttribute, getJDBCNullable());
+    if( getAggr()!=null && ! getAggr().isEmpty() )
+      attrs.put(Bindings.aggrAttribute, getAggr());
 
     return attrs;
   }

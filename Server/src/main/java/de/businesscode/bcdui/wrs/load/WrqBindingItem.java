@@ -64,11 +64,24 @@ public class WrqBindingItem implements WrsBindingItem
 
   private Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
 
+  /**
+   * Used to derive a BindingItem from a wrs:C, it is combined with the info from the BindingSet but the WrsRequest provided info wins in case of conflict
+   */
   protected WrqBindingItem(WrqInfo wrqInfo, Element elem, String alias, boolean enforceAggr) throws Exception
   {
     this(wrqInfo, elem, alias, enforceAggr, null);
   }
-  
+
+  /**
+   * Used to derive a BindingItem from a wrs:C/wrs:A, it is combined with the info from the BindingSet but the WrsRequest provided info wins in case of conflict
+   * If parentWrqC is not null, then this is a wrs:A
+   * @param wrqInfo
+   * @param elem
+   * @param alias
+   * @param enforceAggr
+   * @param parentWrqC
+   * @throws Exception
+   */
   protected WrqBindingItem(WrqInfo wrqInfo, Element elem, String alias, boolean enforceAggr, WrqBindingItem parentWrqC) throws Exception
   {
 
@@ -191,6 +204,13 @@ public class WrqBindingItem implements WrsBindingItem
     setColumnExpression( columnExpression );
   }
 
+  /**
+   * Used for creating a BindingItem from the info of a BindingSet
+   * @param wrqInfo
+   * @param bi
+   * @param alias
+   * @param enforceAggr
+   */
   protected WrqBindingItem(WrqInfo wrqInfo, BindingItem bi, String alias, boolean enforceAggr)
   {
     this.referenceBindingItem = bi;
