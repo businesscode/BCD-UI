@@ -67,14 +67,11 @@
                       <wrq:A bRef="{@sortBy}" name="order" aggr="max"/>
                     </xsl:if>
                     <xsl:if test="@captionBRef">
-                      <!-- 
-                        aggr = sum for numeric and max for char, unless defined at the binding item.
-                        Define it at the binding item as aggr="none", to allow inline caption definitions via a partitioned CASE statement, example:
-                        <b:C id="mo_caption" caption="Month Caption" aggr="none">
-                          <b:Column>max(CASE WHEN MO=1 THEN 'Jan' ... WHEN MO=12 THEN 'Dez' END) OVER (PARTITION BY mo)</b:Column>
-                        </b:C>
+                      <!--
+                        We could add captionBRef to grouping but that would make it harder for WrqModifier to work with the query.
+                        As a work-around, we just null the value for (sub)totals
                         -->
-                      <wrq:A bRef="{@captionBRef}" name="caption"/>
+                      <wrq:A bRef="{@captionBRef}" name="caption" skipForTotals="{@bRef}"/>
                     </xsl:if>
                   </wrq:C>
                 </xsl:for-each>
