@@ -112,7 +112,7 @@ public class WrqInfo
       orderingCXpathExpr    =     xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C");
 
       selectListBidRefXpathExpr   = xp.compile("/*/wrq:Select/wrq:Columns//*[not(wrq:Calc)]/@bRef       | /*/wrq:Select//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
-      filterBidRefXpathExpr       = xp.compile(".//f:Expression/@bRef");
+      filterBidRefXpathExpr       = xp.compile("/*/wrq:Select/f:Filter//f:Expression/@bRef");
       groupingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | /*/wrq:Select/wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       havingBidRefXpathExpr       = xp.compile("/*/wrq:Select/wrq:Having//f:Expression//@bRef");
       orderingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | /*/wrq:Select/wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
@@ -270,7 +270,8 @@ public class WrqInfo
     NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(wrq, XPathConstants.NODESET);
 
     // A) No bindingItem addressed, just select all items of the BindingSet
-    if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 && orderingBidRefNl.getLength()==0 && selectedNl.getLength() == 0)
+    if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 
+        && havingBidRefNl.getLength() == 0 && orderingBidRefNl.getLength()==0 && selectedNl.getLength() == 0)
     {
       resultingBindingSet = bindings.get(wrqBindingSetId); // We just use the explicitly given BindingSet (must not be a BindingGroup obviously)
       selectAllBindingItems();
@@ -370,7 +371,19 @@ public class WrqInfo
         }
       }
 
-      // B.4 Take care for BindingItems used in ordering
+      // B.4 Take care for BindingItems used in having
+      for( int i=0; i<havingBidRefNl.getLength(); i++ )
+      {
+        Node hBiDRef = havingBidRefNl.item(i);
+        String bRef = hBiDRef.getNodeValue();
+        if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
+          BindingItem bi = resultingBindingSet.get(bRef);
+          WrqBindingItem wrqBi = new WrqBindingItem(this, bi, "v"+(aliasCounter++), false);
+          allBRefs.put(bRef, wrqBi);
+        }
+      }
+
+      // B.5 Take care for BindingItems used in ordering
       for( int i=0; i<orderingNl.getLength(); i++ )
       {
         Element orElem = (Element)orderingNl.item(i);
