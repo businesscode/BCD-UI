@@ -189,7 +189,8 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
           .map(function(n){
             return {
               value   : n.getAttribute("id") || n.getAttribute("bRef"), // Measures/@id or dm:LevelRef/@bRef 
-              caption : n.getAttribute("caption")
+              caption : n.getAttribute("caption"),
+              isDim   : (n.baseName||n.localName) == "LevelRef"
             }
           })
           ;
@@ -219,6 +220,9 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
             var itemEl = doc.createElement("Item");
             itemEl.setAttribute("id", n.value);
             itemEl.setAttribute("caption", n.caption);
+            if(n.isDim){
+              itemEl.setAttribute("isDim", "true"); // required by reportFilterRendering.xslt
+            }
             newDoc.documentElement.appendChild(itemEl);
           });
           return newDoc;
@@ -238,6 +242,10 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
         targetModelXPath      : "$guiStatus" + targetModelXPathReportFilter,
         bRefOptionsModelXPath : "$" + universalFilterModel.id + "/*/Item/@caption",
         bRefOptionsModelRelativeValueXPath : "../@id",
+        renderingChain        : bcdui.contextPath + "/bcdui/js/component/far/reportFilterRendering.xslt",
+        renderingChainParameters : {
+          universalFilterModel : universalFilterModel
+        },
         inputRow                           : jQuery.extend(true, { // internal widget API
           renderingChain : bcdui.contextPath + "/bcdui/js/component/far/reportFilterInputRendering.dott", // we need custom UI here for the HideUnselected option
           renderingChainParameters : {
