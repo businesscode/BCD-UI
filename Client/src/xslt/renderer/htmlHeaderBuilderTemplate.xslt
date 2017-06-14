@@ -82,6 +82,10 @@
         <xsl:if test="@bcdVdm and $isInnerMostDim"> bcdVdm</xsl:if>
         <xsl:if test="$isMeasure and @bcdVmeas"> bcdVmeas</xsl:if>
         <xsl:choose>
+          <xsl:when test="@dimId"> bcdDimension</xsl:when>
+          <xsl:when test="$isMeasure"> bcdMeasure</xsl:when>
+        </xsl:choose>
+        <xsl:choose>
           <xsl:when test="$isMeasure and @bcdRowCumulate and @bcdColCumulate"> bcdRowColCumulate</xsl:when>
           <xsl:when test="$isMeasure and @bcdRowCumulate"> bcdRowCumulate</xsl:when>
           <xsl:when test="$isMeasure and @bcdColCumulate"> bcdColCumulate</xsl:when>
