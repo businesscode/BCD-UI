@@ -17,6 +17,7 @@
 package de.businesscode.bcdui.web.accessLogging;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 public class RequestHashGenerator {
 
@@ -40,5 +41,13 @@ public class RequestHashGenerator {
     url = z != -1 ? url.substring(0, z) : url;
     url = "" + (url + addOn).hashCode();
     return url;
+  }
+  
+  /**
+   * @param request
+   * @return a unique (not strictly) number based on currentTime and random number
+   */
+  public static String generatePageHash(HttpServletRequest request) {
+    return "" + new Date().getTime() + "" + Math.round(Math.random()*10000);
   }
 }

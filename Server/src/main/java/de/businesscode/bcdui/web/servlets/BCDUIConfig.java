@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,7 @@ import de.businesscode.bcdui.logging.PageSqlLogger;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
+import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.util.StandardNamespaceContext;
 
@@ -147,7 +147,7 @@ public class BCDUIConfig extends HttpServlet {
     }
     
     // generate unique pageHash
-    String pageHash = "" + new Date().getTime() + "" + Math.round(Math.random()*10000);
+    String pageHash = RequestHashGenerator.generatePageHash(request);
     writer.println("  , frame: { pageHash: \"" + pageHash + "\" }");
 
     // App-wide config from /bcdui/conf/configuration.json

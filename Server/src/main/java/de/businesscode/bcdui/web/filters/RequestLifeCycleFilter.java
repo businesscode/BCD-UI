@@ -167,13 +167,15 @@ public class RequestLifeCycleFilter implements Filter {
     if (idx != -1)
       uri = uri.substring(0, idx);
 
-    // Get requestHash from XHTTP header if available
+    // Get requestHash from XHTTP header if available or generate it based on page hash and random number
     // Get pageHash from XHTTP header if available or generate it based on hashing the referrer/sessionId (this keeps accesses from same page together)
     // remember values in MDC for access logging use
     String requestHash = request.getHeader(RequestHashGenerator.X_HTTP_HEADER_REQUEST);
     String pageHash = request.getHeader(RequestHashGenerator.X_HTTP_HEADER_PAGE);
     if ((pageHash == null || pageHash.isEmpty()) && uri.indexOf("/bcdui/servlets") != -1)
       pageHash = RequestHashGenerator.generateHash(request);
+    if ((requestHash == null || requestHash.isEmpty()) && uri.indexOf("/bcdui/servlets") != -1)
+      requestHash = pageHash +"."+Math.round(Math.random()*1000);
     if (requestHash != null) MDC.put(MDC_KEY_BCD_REQUESTHASH, requestHash);
     if (pageHash != null)    MDC.put(MDC_KEY_BCD_PAGEHASH, pageHash);
 
