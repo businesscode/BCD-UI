@@ -32,6 +32,7 @@ public class WrsAccessLogEvent {
   public static final String ACCESS_TYPE_WRS = "WRS";
   public static final String ACCESS_TYPE_SYLK = "SYLK";
   public static final String ACCESS_TYPE_CVS = "CVS";
+  public static final String ACCESS_TYPE_XLS = "XLS";
   //
   private String accessType;
   private HttpServletRequest request;

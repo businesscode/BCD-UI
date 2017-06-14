@@ -120,7 +120,7 @@ public class ExcelExportServlet extends HttpServlet {
     }
     // do export
     try {
-      new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows) );
+      new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
       // log page
       if(PageSqlLogger.getInstance().isEnabled()) {

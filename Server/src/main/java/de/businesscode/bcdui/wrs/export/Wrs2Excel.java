@@ -25,9 +25,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.util.Stack;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
@@ -48,6 +48,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType;
+import de.businesscode.bcdui.web.wrs.WrsAccessLogEvent;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 
 /**
@@ -78,11 +79,13 @@ public class Wrs2Excel {
     private final IRequestOptions options;
     private XMLEvent event;
     private XMLEventReader eventReader;
+    private HttpServletRequest request;
 
-    WrsContainerParser(OutputStream excelOutputStream, IRequestOptions options, XMLEventReader eventReader) {
+    WrsContainerParser(OutputStream excelOutputStream, IRequestOptions options, XMLEventReader eventReader, HttpServletRequest req) {
       this.excelOutputStream = excelOutputStream;
       this.options = options;
       this.eventReader = eventReader;
+      this.request = req;
     }
 
     /**
@@ -125,7 +128,12 @@ public class Wrs2Excel {
           // Here we read the wrq:Select, turn it in a full wrq:WrsRequest Document and hand it over to a Wrq2Sql 
           // and we run a db query, currently, they are all synchronously executed
           if( "WrsRequest".equals(getPath()) || "WrsContainer/WrsRequest".equals(getPath()) ) {
-            maxRowsExceeded |= new Wrq2ExcelSheetDataWriter( options, workbook, event, eventReader, pathStack, usingTemplate ).process();
+            Wrq2ExcelSheetDataWriter writer = new Wrq2ExcelSheetDataWriter( options, workbook, event, eventReader, pathStack, usingTemplate);
+            maxRowsExceeded |= writer.process();
+
+            // log wrs-access
+            WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_XLS, request, options, writer.getGenerator(), writer.getLoader(), writer);
+            log.debug(logEvent);
           }
 
           // Client did send a Wrs with data
@@ -198,13 +206,13 @@ public class Wrs2Excel {
    * @throws ExcelWriterException
    *           - in case anything goes rong
    */
-  public void export(Reader wrsReader, OutputStream excelOutputStream, IRequestOptions options) throws Exception {
+  public void export(Reader wrsReader, OutputStream excelOutputStream, IRequestOptions options, HttpServletRequest req) throws Exception {
     log.trace("exporting Wrs");
     try {
       XMLEventReader reader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(wrsReader);
       // externalize verbose parsing
       try {
-        new WrsContainerParser(excelOutputStream, options, reader).process();
+        new WrsContainerParser(excelOutputStream, options, reader, req).process();
       } finally {
         try {
           reader.close();

@@ -121,11 +121,13 @@ public class BcdUiApplicationContextListener implements ServletContextListener
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
           logger.setLevel(Level.DEBUG);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.CsvServlet"));
-          logger.setLevel(Level.TRACE);
+          logger.setLevel(Level.DEBUG);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.SylkServlet"));
-          logger.setLevel(Level.TRACE);
+          logger.setLevel(Level.DEBUG);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.WrsServlet"));
-          logger.setLevel(Level.TRACE);
+          logger.setLevel(Level.DEBUG);
+          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.wrs.export.Wrs2Excel"));
+          logger.setLevel(Level.DEBUG);
           Logger.getRootLogger().addAppender(new BuiAccessLogAppender());
         }
       } catch (Exception e) {}

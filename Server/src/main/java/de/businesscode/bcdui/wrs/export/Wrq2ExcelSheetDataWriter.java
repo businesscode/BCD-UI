@@ -47,8 +47,11 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
 {
   
   private final DataLoader loader;
+  private final ISqlGenerator generator;
   private int rowCount, colCount; // For IDataWriter
   private boolean maxRowsExceeded = false;
+  public DataLoader getLoader() {return loader;}
+  public ISqlGenerator getGenerator() {return generator;}
 
   /**
    * {@link AbstractExcelSheetDataWriter}
@@ -97,7 +100,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
       String wrsRequestString = stringWriter.getBuffer().toString();
       Document doc = builder.parse(IOUtils.toInputStream(wrsRequestString,"UTF-8"));
       options.setRequestDoc( doc );
-      ISqlGenerator generator = new Wrq2Sql(options);
+      generator = new Wrq2Sql(options);
       
       // We serve as the DataWriter
       loader = new DataLoader(options, generator, this);
