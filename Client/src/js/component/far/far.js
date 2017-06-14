@@ -340,8 +340,8 @@ bcdui.util.namespace("bcdui.component.far.enhancer",
       parameters : {
         statusModel : args.statusModel || bcdui.wkModels.guiStatusEstablished,
         componentId : args.componentId || "far",
-        dimensionsModel : new bcdui.core.SimpleModel({ url : bcdui.contextPath + "/bcdui/conf/dimensions.xml" }),
-        categoriesModel : new bcdui.core.SimpleModel({ url : bcdui.contextPath + "/bcdui/conf/categories.xml" }),
+        dimensionsModel : bcdui.wkModels.bcdDimensions,
+        categoriesModel : bcdui.wkModels.bcdCategories,
         sortingItemSeparator : bcdui.core.magicChar.separator
       }
     });
