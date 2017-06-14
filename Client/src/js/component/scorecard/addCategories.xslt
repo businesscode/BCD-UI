@@ -239,6 +239,8 @@
                     <xsl:value-of select="concat('|', format-number(@pos, $formatPos))"/>
                   </xsl:attribute>
                 </xsl:if>
+
+                <xsl:apply-templates select="*"/>
               </wrs:C>
             </xsl:for-each>
           </wrs:Columns>
