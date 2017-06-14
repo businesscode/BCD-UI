@@ -73,16 +73,16 @@
       // attach main renderer
       var renderer = new bcdui.core.Renderer({
         targetHtml  : this.element,
-        chain       : bcdui.config.libPath + "js/widgetNg/universalFilter/rendering.xslt",
+        chain       : this.options.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/rendering.xslt", // internal API
         inputModel  : this.targetDataProvider,
-        parameters  : {
+        parameters  : jQuery.extend(true, {
           nodeIdAttribute : this.NODE_ID_ATTR,
           cssClassPrefix  : this.options.cssClassPrefix,
           bRefModel       : new bcdui.core.OptionsDataProvider({
             optionsModelXPath               : this.options.bRefOptionsModelXPath,
             optionsModelRelativeValueXPath  : this.options.bRefOptionsModelRelativeValueXPath
           })
-        }
+        }, this.options.renderingChainParameters) // internal API
       });
       renderer.onReady(function(){
         // trigger translation after rendering

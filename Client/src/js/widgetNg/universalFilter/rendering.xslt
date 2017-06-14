@@ -48,12 +48,25 @@
     </div>
 	</xsl:template>
 
+  <!-- extension point for css class name generation -->
+  <xsl:template match="f:Expression" mode="class"/>
+
   <!-- as container -->
   <xsl:template match="f:Expression">
-    <div class="{$cssClassPrefix}expression" data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty">
+    <div data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty">
       <xsl:variable name="expressionCaption" select="$bRefModel/*/cust:Option[@value = current()/@bRef]/@caption"/>
       <xsl:variable name="expressionName" select="concat(substring(@bRef,0,1 div string-length($expressionCaption)),$expressionCaption)"/>
-      
+      <xsl:variable name="customClass">
+        <xsl:apply-templates select="." mode="class"/>
+      </xsl:variable>
+      <xsl:attribute name="class">
+        <xsl:value-of select="concat($cssClassPrefix,'expression')"/>
+        <xsl:if test="normalize-space($customClass)">
+          <xsl:text> </xsl:text>
+          <xsl:value-of select="$customClass"/>
+        </xsl:if>
+      </xsl:attribute>
+
       <span>
         <xsl:attribute name="class">
           <xsl:value-of select="concat($cssClassPrefix,'expression-name')"/>
