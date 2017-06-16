@@ -17,9 +17,11 @@ package de.businesscode.bcdui.binding.write;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -55,7 +57,7 @@ import de.businesscode.bcdui.el.ELEnvironment;
 public class WrsModificationCallback extends WriteProcessingCallback {
   protected final  Logger log = Logger.getLogger(getClass());
 
-  private List<BindingItemConfig> bindingItemConfig;
+  private Set<BindingItemConfig> bindingItemConfig;
 
   /*
    * this set contains ordered binding-items which are missing in original WRS and are appended
@@ -207,13 +209,13 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    *
    * @return the list of binding item config items
    */
-  protected List<BindingItemConfig> getBindingItemConfig() {
+  protected Set<BindingItemConfig> getBindingItemConfig() {
     return bindingItemConfig;
   }
 }
 
 /**
- * param configuration bean according to doc
+ * param configuration bean according to doc, is unique on bindingItemId
  *
  */
 final class BindingItemConfig {
@@ -226,8 +228,8 @@ final class BindingItemConfig {
   final CONFIG_IGNORE ignore;
   final boolean isCoalesce;
 
-  public static List<BindingItemConfig> fromConfiguration(WriteProcessingCallbackParams params){
-    final List<BindingItemConfig> configList = new LinkedList<BindingItemConfig>();
+  public static Set<BindingItemConfig> fromConfiguration(WriteProcessingCallbackParams params){
+    final Set<BindingItemConfig> configList = new HashSet<BindingItemConfig>();
 
     for(Map<String,String> paramMap : params.getParamList()){
       configList.add(
@@ -259,6 +261,16 @@ final class BindingItemConfig {
     if(log.isTraceEnabled()){
       log.trace("initialize parameter: " + toString());
     }
+  }
+  
+  @Override
+  public int hashCode() {
+    return bindingItemId.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return bindingItemId.equals(obj);
   }
 
   @Override

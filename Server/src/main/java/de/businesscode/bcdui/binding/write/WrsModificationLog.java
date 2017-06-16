@@ -15,8 +15,10 @@
 */
 package de.businesscode.bcdui.binding.write;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * preserves the update information on a record, handles following items:
@@ -75,7 +77,7 @@ public class WrsModificationLog extends WrsModificationCallback {
   public void initialize() {
     super.initialize();
 
-    final List<BindingItemConfig> referenceList = new LinkedList<BindingItemConfig>();
+    final Set<BindingItemConfig> referenceList = new HashSet<BindingItemConfig>();
     referenceList.add(new BindingItemConfig("bcdUpdateStamp", "${bcdBean.creationStamp}", BindingItemConfig.CONFIG_IGNORE.never, false));
     referenceList.add(new BindingItemConfig("bcdUpdateBy", "${bcdBean.userName}", BindingItemConfig.CONFIG_IGNORE.never, false));
     referenceList.add(new BindingItemConfig("bcdCreateStamp", "${bcdBean.creationStamp}", BindingItemConfig.CONFIG_IGNORE.update, false));
