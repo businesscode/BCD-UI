@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 
+import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingSetNotFoundException;
@@ -59,13 +61,16 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   final private String u_userid;
   final private String u_login;
   final private String u_password;
+
   private String ur_table;
   private String ur_userid;
+  private String ur_userid_jdbcType;
   private String ur_righttype;
   private String ur_rightvalue;
 
   private String uro_table;
   private String uro_userid;
+  private String uro_userid_jdbcType;
   private String uro_userrole;
   
 
@@ -78,13 +83,16 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
       BindingSet bs = Bindings.getInstance().get(BS_USER, c);
       u_table    = bs.getTableName();
-      u_userid   = bs.get("user_id").getColumnExpression();
+      BindingItem biUserId = bs.get("user_id");
+      u_userid   = biUserId.getColumnExpression();
       u_login    = bs.get("user_login").getColumnExpression();
       u_password = bs.get("password").getColumnExpression();
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
         ur_table  = bs.getTableName();
-        ur_userid = bs.get("user_id").getColumnExpression();
+        biUserId = bs.get("user_id");
+        ur_userid_jdbcType = getCustomJdbcType(biUserId);
+        ur_userid = biUserId.getColumnExpression();
         ur_righttype  = bs.get("right_type").getColumnExpression();
         ur_rightvalue = bs.get("right_value").getColumnExpression();
         this.setPermissionsLookupEnabled(true);
@@ -94,13 +102,43 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         bs = Bindings.getInstance().get(BS_USER_ROLES, c);
         uro_table  = bs.getTableName();
-        uro_userid = bs.get("user_id").getColumnExpression();
+        biUserId = bs.get("user_id");
+        uro_userid_jdbcType = getCustomJdbcType(biUserId);
+        uro_userid = biUserId.getColumnExpression();
         uro_userrole  = bs.get("user_role").getColumnExpression();
       } catch (BindingSetNotFoundException bsnf) {
         log.warn("JDBC User Roles not available due to missing binding set " + BS_USER_ROLES);
       } 
     } catch (Exception e) {
       throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
+    }
+  }
+
+  /**
+   * Support for type-name=OTHER, cust:type-name=uuid
+   *
+   * @param biUserId
+   * @return cust:type-name , if defined
+   */
+  protected String getCustomJdbcType(BindingItem bindingItem) {
+    if(bindingItem.isDefinedJDBCDataType() && bindingItem.getJDBCDataType() == Types.OTHER){
+      return bindingItem.getCustomAttributesMap().get("type-name");
+    }
+    return null;
+  }
+
+  /**
+   * support for custom jdbc type, do any explicit casts here
+   *
+   * @param columnExpression
+   * @param customType (may be null)
+   * @return
+   */
+  protected String getDefineJdbcParameter(String columnExpression, String customType) {
+    if (customType != null && !customType.isEmpty()) {
+      return " " + columnExpression + " = (?)::" + customType + " ";
+    } else {
+      return " " + columnExpression + " = ? ";
     }
   }
 
@@ -215,7 +253,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     if (uro_table == null) {
       roles.add("default");
     } else {
-      new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE "+uro_userid+"=?", (rs) -> {
+      new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE " + getDefineJdbcParameter(uro_userid, uro_userid_jdbcType), (rs) -> {
         while(rs.next()){
           roles.add(rs.getString(1));
         }
@@ -236,7 +274,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     throws SQLException
   {
     Set<String> permissions = new HashSet<String>();
-    String stmt = "select "+ur_righttype+", "+ur_rightvalue+" from "+ur_table+" where "+ur_userid+" = ?";
+    String stmt = "select "+ur_righttype+", "+ur_rightvalue+" from "+ur_table+" where " + getDefineJdbcParameter(ur_userid, ur_userid_jdbcType);
     PreparedStatement ps = null;
     ResultSet rs = null;
 

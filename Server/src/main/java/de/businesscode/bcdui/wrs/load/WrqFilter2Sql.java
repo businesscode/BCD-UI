@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
+import de.businesscode.bcdui.binding.write.CustomJdbcTypeSupport;
 
 /**
  * Parses a f:Filter expression and returns the SQL Where expression
@@ -219,8 +220,9 @@ public class WrqFilter2Sql
     if( "IN".equals(operator) ) {
       String[] values = valueElement.getAttribute("value").split(",");
       StringBuffer qm = new StringBuffer("(");
+      String pqm = CustomJdbcTypeSupport.wrapTypeCast(bindingItem, "?");
       for( int i = 0; i<values.length; i++ ) {
-        qm.append( i<values.length-1 ? "?," : "?");
+        qm.append( i<values.length-1 ? (pqm + ",") : pqm);
         Element e = ownerDocument.createElement("InElement");
         e.setAttribute("bRef",  bindingItem.getId());
         e.setAttribute("value", ignoreCase ? values[i].toLowerCase() : values[i]);
@@ -249,7 +251,7 @@ public class WrqFilter2Sql
 
     // Add the element containing the comparison value for usage after the prepare and return the sql text fragment
     elementList.add(valueElement);
-    return colExpr + " " + operator + " ?" + colExprPostfix;
+    return colExpr + " " + operator + CustomJdbcTypeSupport.wrapTypeCast(bindingItem, " ?") + colExprPostfix;
   }
 
   // The following mappings help preventing SQL injection

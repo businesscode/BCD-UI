@@ -116,7 +116,11 @@ public class DatabaseWriter {
       BindingItem column = columns[c];
 
       builder.append(column.getColumnExpression());
-      builder.append("=?,");
+      if(column.isDefinedJDBCDataType() && column.getJDBCDataType() == Types.OTHER){
+        builder.append("=(?)::" + getCustomDatabaseType(column) + ",");
+      } else {
+        builder.append("=?,");
+      }
     }
     builder.setLength(builder.length()-1);  //remove last comma
 
@@ -132,9 +136,15 @@ public class DatabaseWriter {
         // setParam(3, value != null ? 0 : 1)
         wherePart.append(sep);
         wherePart.append("((");
-        wherePart.append(columns[i].getColumnExpression());
-        wherePart.append("=? AND 1=?) OR (");
-        wherePart.append(columns[i].getColumnExpression());
+        BindingItem bi = columns[i];
+        wherePart.append(bi.getColumnExpression());
+        if(bi.isDefinedJDBCDataType() && bi.getJDBCDataType() == Types.OTHER){
+          wherePart.append("=(?)::" + getCustomDatabaseType(bi));
+        } else {
+          wherePart.append("=?");
+        }
+        wherePart.append(" AND 1=?) OR (");
+        wherePart.append(bi.getColumnExpression());
         wherePart.append(" IS NULL AND 1=?))");
         sep = " AND ";
       }
@@ -168,11 +178,29 @@ public class DatabaseWriter {
     for (int i = 0; i < columns.length; ++i) {
       if (i > 0)
         builder.append(", ");
-      builder.append("?");
+      BindingItem bItem = columns[i];
+      if(bItem.isDefinedJDBCDataType() && bItem.getJDBCDataType() == Types.OTHER){
+        builder.append("(?)::" + getCustomDatabaseType(bItem));
+      } else {
+        builder.append("?");
+      }
     }
 
     builder.append(")");
     return builder.toString();
+  }
+
+  /**
+   * 
+   * @param bItem
+   * @return custom type defined as cust:type-name or throws exception if empty/null
+   */
+  private String getCustomDatabaseType(BindingItem bItem) {
+    String type = bItem.getCustomAttributesMap().get("type-name");
+    if (type == null || type.trim().isEmpty()) {
+      throw new RuntimeException("Custom database type expected on bindingItem " + bItem.getId() + " at @cust:type-name but was not defined");
+    }
+    return type;
   }
 
   /**
@@ -198,9 +226,17 @@ public class DatabaseWriter {
         // setParam(3, value != null ? 0 : 1)
         wherePart.append(sep);
         wherePart.append("((");
-        wherePart.append(columns[i].getColumnExpression());
-        wherePart.append("=? AND 1=?) OR (");
-        wherePart.append(columns[i].getColumnExpression());
+        BindingItem bi = columns[i];
+        wherePart.append(bi.getColumnExpression());
+
+        if(bi.isDefinedJDBCDataType() && bi.getJDBCDataType() == Types.OTHER){
+          wherePart.append("=(?)::" + getCustomDatabaseType(bi));
+        } else {
+          wherePart.append("=?");
+        }
+
+        wherePart.append(" AND 1=?) OR (");
+        wherePart.append(bi.getColumnExpression());
         wherePart.append(" IS NULL AND 1=?))");
         sep = " AND ";
       }
