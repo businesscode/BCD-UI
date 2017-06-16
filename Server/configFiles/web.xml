@@ -59,9 +59,19 @@
         [main]
         authc.loginUrl      = /login.html
         logout.redirectUrl  = /index.html
+        
+        # enables password hashing and salting; create password in de.businesscode.bcdui.subjectsettings.SecurityHelper.generatePasswordHashSalt(String)
+        # https://shiro.apache.org/realm.html#Realm-%7B%7BSaltedAuthenticationInfo%7D%7D
+        #credentialsMatcher = org.apache.shiro.authc.credential.Sha256CredentialsMatcher
+        #credentialsMatcher.storedCredentialsHexEncoded = true
+        #credentialsMatcher.hashIterations = 1024
+        #credentialsMatcher.hashSalted = true
+
         ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
         realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
+        #realmBcdJdbc.credentialsMatcher = $credentialsMatcher
+
         ## Support for bcd_log_login logging
         bcdAuthListener = de.businesscode.bcdui.web.AuthenticationListener
         securityManager.authenticator.authenticationListeners = $bcdAuthListener

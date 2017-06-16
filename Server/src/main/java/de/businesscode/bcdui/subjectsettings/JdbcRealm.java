@@ -35,10 +35,13 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAccount;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.codec.Hex;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.util.SimpleByteSource;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
@@ -56,11 +59,12 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private static final String BS_USER = "bcd_sec_user";
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
   private static final String BS_USER_ROLES = "bcd_sec_user_roles";
-  private static final Logger log = Logger.getLogger(JdbcRealm.class);
+  private final Logger log = Logger.getLogger(getClass());
   final private String u_table;
   final private String u_userid;
   final private String u_login;
   final private String u_password;
+  final private String u_password_salt;
 
   private String ur_table;
   private String ur_userid;
@@ -87,6 +91,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       u_userid   = biUserId.getColumnExpression();
       u_login    = bs.get("user_login").getColumnExpression();
       u_password = bs.get("password").getColumnExpression();
+      u_password_salt = bs.get("password_salt").getColumnExpression();
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
         ur_table  = bs.getTableName();
@@ -160,31 +165,31 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
     return dataSource;
   }
-  
+
   /**
-   * checks against local database if user exists, either with or without a password, according to the flag
-   * 
-   * @param principal - i.e. username
-   * @param passwd - is provided as-is
-   * @param ignorePassword - if true, the password is ignored while solely assuring existence of user
-   * 
-   * @return technical user id (primary principal), if accounts exist, null otherwise.
-   * @throws AuthenticationException if the imlementation wants to expose detail reason
+   * To support hashed passwords with salt we have to load the password + hash from database,
+   * so the hash can be recomputed and verified.
+   *
+   * @param userLogin
+   * @return array of: [technical user id, password (hex), salt(hex)] or null if userLogin is not known; salt can be set to null, if not supported
    */
-  protected String authenticate(String principal, String passwd, boolean ignorePassword) throws AuthenticationException, SQLException {
-    String stmt = "select "+u_userid+" from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
-    ArrayList<String> params = new ArrayList<>();
-    params.add(principal);
-    if(!ignorePassword){
-      stmt += " and "+u_password+" = ? ";
-      params.add(passwd);
-    }
+  protected String[] getAccountCredentials(String userLogin) throws SQLException {
+    String stmt = "select "+u_userid+", "+u_password+", "+u_password_salt+" from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
     return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
       if(rs.next()){
-        return rs.getString(1);
+        ArrayList<String> result = new ArrayList<>();
+        result.add(rs.getString(1));
+        result.add(rs.getString(2));
+        String salt = rs.getString(3);
+        if(salt != null && salt.trim().isEmpty()){
+          salt = null;
+        }
+        result.add(salt);
+        return result.toArray(new String[]{});
+      } else {
+        return null;
       }
-      return null;
-    }, params.toArray());
+    }, userLogin);
   }
 
   /**
@@ -223,13 +228,21 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         // in case of SSO we do not verify if user exists in local table
         return new SimpleAccount(token.getPrincipal(), token.getCredentials(), getClass().getName());
       } else if (token instanceof UsernamePasswordToken) {
-        UsernamePasswordToken theToken = (UsernamePasswordToken) token;
-        String userId = authenticate(theToken.getUsername(), new String(theToken.getPassword()), false);
-        if(userId != null){
+        UsernamePasswordToken upassToken = (UsernamePasswordToken) token;
+
+        String[] credentialInfo = getAccountCredentials(upassToken.getUsername());
+        if(credentialInfo != null){
           SimplePrincipalCollection pc = new SimplePrincipalCollection();
-          pc.add(new PrimaryPrincipal(userId), getName());  // technical user-id
-          pc.add(theToken.getUsername(), getName());        // user-login
-          return new SimpleAccount(pc, token.getCredentials());
+          pc.add(new PrimaryPrincipal(credentialInfo[0]), getName());   // technical user-id
+          pc.add(upassToken.getUsername(), getName());                  // user-login
+
+          SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(pc, credentialInfo[1]);
+
+          if(credentialInfo[2] != null){
+            info.setCredentialsSalt(new SimpleByteSource(Hex.decode(credentialInfo[2])));
+          }
+
+          return info;
         }
       } else {
         return null;

@@ -17,6 +17,7 @@ package de.businesscode.bcdui.subjectsettings;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,10 +25,15 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
+import org.apache.shiro.util.SimpleByteSource;
 
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
@@ -236,5 +242,29 @@ public class SecurityHelper {
       throw new RuntimeException("failed to retrieve pemissions", e);
     }
     return permissions;
+  }
+
+  /**
+   * Generates a password hash + salt with 1024 iterations, for use with
+   * {@link org.apache.shiro.authc.credential.Sha256CredentialsMatcher}
+   *
+   * The hash and salt are returned as hex-encoded string, compatible with
+   * {@link JdbcRealm}
+   *
+   * @param plainTextPassword
+   * @return [ password hash (hex), password salt (hash) ]
+   */
+  public static String[] generatePasswordHashSalt(String plainTextPassword) {
+    ArrayList<String> result = new ArrayList<>();
+
+    RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+    ByteSource salt = rng.nextBytes();
+
+    String hashedPassword = new Sha256Hash(plainTextPassword, salt, 1024).toHex();
+
+    result.add(hashedPassword);
+    result.add(new SimpleByteSource(salt).toHex());
+
+    return result.toArray(new String[] {});
   }
 }
