@@ -31,7 +31,6 @@ import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
-import de.businesscode.bcdui.toolbox.Configuration;
 
 /**
  * helper to evaluate shiro security on {@link Security} settings
@@ -121,6 +120,61 @@ public class SecurityHelper {
       }
     }
     return null;
+  }
+  
+  /**
+   * Returns a principal used by user to login into the system or any first principal made available
+   * by the realm. Also see {@link #getUserId(Subject)}
+   *
+   * @param subject
+   * @return user login or null if either no subject provided or no such princpial found or subject is not authenticated
+   */
+  public static String getUserLogin(Subject subject){
+    if(subject == null || !subject.isAuthenticated()){
+      return null;
+    }
+    // our Jdbc prinpical sets the login as string and any other realms set prinipals as string, too.
+    PrincipalCollection pc = subject.getPrincipals();
+    String princ;
+    if(pc == null){
+      Object p = subject.getPrincipal();
+      princ = p == null ? null : p.toString();
+    } else {
+      princ = pc.byType(String.class).iterator().next();
+    }
+    if(princ == null){
+      throw new RuntimeException("Authenticated subject but no principal found.");
+    }
+    return princ;
+  }
+
+  /**
+   * Returns a primary principal by sense of shiro's primary principle. When using {@link JdbcRealm} this
+   * is the technical user id. If you use any other realm the value returned by this method would equal
+   * to {@link #getUserLogin(Subject)}
+   *
+   * @param subject
+   * @return user login or null if either no subject provided or no such princpial found or subject is not authenticated
+   */
+  public static String getUserId(Subject subject){
+    if(subject == null || !subject.isAuthenticated()){
+      return null;
+    }
+    PrincipalCollection pc = subject.getPrincipals();
+    final Object princ;
+    if(pc == null){
+      princ = subject.getPrincipal();
+    } else {
+      princ = pc.getPrimaryPrincipal();
+    }
+    if(princ == null){
+      throw new RuntimeException("Authenticated subject but no principal found.");
+    }
+    if(princ instanceof PrimaryPrincipal){ // may not be available when using other realm
+      return ((PrimaryPrincipal)princ).getId();
+    } else {
+      return princ.toString();
+    }
   }
 
   /**

@@ -18,10 +18,13 @@ DROP TABLE BCD_SEC_USER;
 CREATE TABLE BCD_SEC_USER
 (  
   user_id     VARCHAR2(128), 
+  user_login  VARCHAR2(128), 
   name        VARCHAR2(128), 
   password    VARCHAR2(64),
+  password_salt    VARCHAR2(64),
   is_disabled VARCHAR2(64),
-  PRIMARY KEY (user_id)
+  PRIMARY KEY (user_id),
+  UNIQUE(user_login)
 );
 
 -- SQLServer
@@ -39,18 +42,24 @@ DROP TABLE BCD_SEC_USER;
 CREATE TABLE BCD_SEC_USER
 (  
   user_id     VARCHAR(128), 
+  user_login  VARCHAR(128), 
   name        VARCHAR(128), 
   password    VARCHAR(64),
+  password_salt    VARCHAR(64),
   is_disabled VARCHAR(64),
-  PRIMARY KEY (user_id)
+  PRIMARY KEY (user_id),
+  UNIQUE(user_login)
 );
 
 -- PostgreSQL
 CREATE TABLE BCD_SEC_USER
 (  
   user_id     VARCHAR(128), 
+  user_login  VARCHAR(128), 
   name        VARCHAR(128), 
   password    VARCHAR(64),
+  password_salt    VARCHAR(64),
   is_disabled VARCHAR(64),
-  PRIMARY KEY (user_id)
+  PRIMARY KEY (user_id),
+  UNIQUE(user_login)
 );

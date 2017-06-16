@@ -26,8 +26,24 @@ public interface ServerSideValueBean {
    * returns the principal username (as token known to the system user has used for authentication)
    *
    * @return username OR null, in case user is not known
+   * @deprecated use {@link #getUserLogin()} instead
    */
   String getUserName();
+  
+  /**
+   * returns the string literal the user used to login. To retrieve the technical user-id see {@link #getUserId()}
+   * 
+   * @return the user login or null, in case user is not known
+   */
+  String getUserLogin();
+  
+  /**
+   * returns technical user identifier, it does not necessarily is the literal used by user to login
+   * into his account, see {@link #getUserLogin()} for this case.
+   * 
+   * @return the user id or null, in case user is not known
+   */
+  String getUserId();
 
   /**
    * current session id

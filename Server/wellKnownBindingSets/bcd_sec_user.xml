@@ -17,8 +17,10 @@
 <BindingSet id="bcd_sec_user" table="bcd_sec_user" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
 
   <C id="user_id"     isKey="true" caption="User Id"><Column>user_id</Column></C>
+  <C id="user_login"  caption="User Login"><Column>user_login</Column></C>
   <C id="name"        caption="Name"><Column>name</Column></C>
   <C id="password"    caption="Password"><Column>password</Column></C>
+  <C id="password_salt"    caption="Password Salt"><Column>password_salt</Column></C>
   <C id="is_disabled" caption="Is disabled"><Column>is_disabled</Column></C>
 
 </BindingSet>

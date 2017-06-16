@@ -36,6 +36,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -83,10 +84,16 @@ public class BCDUIConfig extends HttpServlet {
 
     // write authenticate information
     try {
-      if( subject.isAuthenticated() ) {
-        String userName = subject.getPrincipal() != null ? "\""+subject.getPrincipal()+"\"" : "null";
+      if(subject.isAuthenticated() ) {
+        String userLogin = SecurityHelper.getUserLogin(subject);
+        if(userLogin == null){
+          userLogin = "null";
+        } else {
+          userLogin = "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
+        }
         writer.println("  , isAuthenticated: true");
-        writer.println("  , userName: " + userName ); // js null or js string with name
+        writer.println("  , userName: " + userLogin ); // js null or js string with name; backwards compatible (in future may be removed; is to be replaced by .userLogin)
+        writer.println("  , userLogin: " + userLogin ); // js null or js string with user login;
 
         // write bcdClient security settings as bcdui.config.clientRights object values
         writer.println("  , clientRights: {");
@@ -228,7 +235,7 @@ public class BCDUIConfig extends HttpServlet {
     InputStream confIs = getServletContext().getResourceAsStream("/bcdui/conf/settings.json");
     if( confIs != null ) {
       try {
-        configJson = IOUtils.toString(confIs);
+        configJson = IOUtils.toString(confIs, "UTF-8");
         confIs.close();
       } catch (IOException e) {
         throw new ServletException(e);

@@ -37,6 +37,7 @@ import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -53,10 +54,10 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private static final String BS_USER = "bcd_sec_user";
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
   private static final Logger log = Logger.getLogger(JdbcRealm.class);
-  private String u_table;
-  private String u_userid;
-  private String u_name;
-  private String u_password;
+  final private String u_table;
+  final private String u_userid;
+  final private String u_login;
+  final private String u_password;
   private String ur_table;
   private String ur_userid;
   private String ur_righttype;
@@ -72,7 +73,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       BindingSet bs = Bindings.getInstance().get(BS_USER, c);
       u_table    = bs.getTableName();
       u_userid   = bs.get("user_id").getColumnExpression();
-      u_name     = bs.get("name").getColumnExpression();
+      u_login    = bs.get("user_login").getColumnExpression();
       u_password = bs.get("password").getColumnExpression();
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
@@ -115,19 +116,23 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @param passwd - is provided as-is
    * @param ignorePassword - if true, the password is ignored while solely assuring existence of user
    * 
-   * @return true if user exists, false otherwise; additionally this method may throw any defined exceptions if
-   * implementation wants to expose more detailed information
+   * @return technical user id (primary principal), if accounts exist, null otherwise.
    * @throws AuthenticationException if the imlementation wants to expose detail reason
    */
-  protected boolean authenticate(String principal, String passwd, boolean ignorePassword) throws AuthenticationException, SQLException {
-    String stmt = "select 1 from "+u_table+" where "+u_userid+" = ? and (is_disabled is null or is_disabled<>'1')";
+  protected String authenticate(String principal, String passwd, boolean ignorePassword) throws AuthenticationException, SQLException {
+    String stmt = "select "+u_userid+" from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
     ArrayList<String> params = new ArrayList<>();
     params.add(principal);
     if(!ignorePassword){
       stmt += " and "+u_password+" = ? ";
       params.add(passwd);
     }
-    return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> rs.next(), params.toArray());
+    return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
+      if(rs.next()){
+        return rs.getString(1);
+      }
+      return null;
+    }, params.toArray());
   }
 
   /**
@@ -136,6 +141,19 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   @Override
   public boolean supports(AuthenticationToken token) {
     return token instanceof ImplicitAuthenticationToken ?  true : super.supports(token);
+  }
+
+  /**
+   * we return technical user identifier here so {@link #getPermissions(Connection, String, Collection)} and {@link #getRoleNamesForUser(Connection, String)}
+   * work on technical identifier, too.
+   */
+  @Override
+  protected String getAvailablePrincipal(PrincipalCollection pc) {
+    Object princ = pc.getPrimaryPrincipal();
+    if(princ instanceof PrimaryPrincipal){
+      return ((PrimaryPrincipal)princ).getId();
+    }
+    return princ.toString();
   }
 
   @Override
@@ -148,20 +166,21 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     try {
       // we dont want to log our JDBC activity
       BcdSqlLogger.setLevel(Level.OFF);
-      final boolean isAuthenticated;
 
       if (token instanceof ImplicitAuthenticationToken) {
         // in case of SSO we do not verify if user exists in local table
-        isAuthenticated = true;
+        return new SimpleAccount(token.getPrincipal(), token.getCredentials(), getClass().getName());
       } else if (token instanceof UsernamePasswordToken) {
         UsernamePasswordToken theToken = (UsernamePasswordToken) token;
-        isAuthenticated = authenticate(theToken.getUsername(), new String(theToken.getPassword()), false);
+        String userId = authenticate(theToken.getUsername(), new String(theToken.getPassword()), false);
+        if(userId != null){
+          SimplePrincipalCollection pc = new SimplePrincipalCollection();
+          pc.add(new PrimaryPrincipal(userId), getName());  // technical user-id
+          pc.add(theToken.getUsername(), getName());        // user-login
+          return new SimpleAccount(pc, token.getCredentials());
+        }
       } else {
-        isAuthenticated = false;
-      }
-
-      if (isAuthenticated) {
-        return new SimpleAccount(token.getPrincipal(), token.getCredentials(), getClass().getName());
+        return null;
       }
     } catch (AuthenticationException aue) {
       throw aue;
@@ -179,7 +198,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @see org.apache.shiro.realm.jdbc.JdbcRealm#getRoleNamesForUser(java.sql.Connection, java.lang.String)
    * @Override
    */
-  protected Set<String> getRoleNamesForUser(Connection con, String username)
+  protected Set<String> getRoleNamesForUser(Connection con, String userId)
       throws SQLException
   {
     Set<String> roles = new HashSet<String>();
@@ -194,7 +213,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @see org.apache.shiro.realm.jdbc.JdbcRealm#getPermissions(java.sql.Connection, java.lang.String, java.util.Collection)
    * @Override
    */
-  protected Set<String> getPermissions(Connection con, String username, Collection<String> roleNames)
+  protected Set<String> getPermissions(Connection con, String userId, Collection<String> roleNames)
     throws SQLException
   {
     Set<String> permissions = new HashSet<String>();
@@ -207,7 +226,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       BcdSqlLogger.setLevel(Level.OFF);
 
       ps = con.prepareStatement(stmt);
-      ps.setString(1, username);
+      ps.setString(1, userId);
       rs = ps.executeQuery();
       while( rs.next() ) {
         String permission = rs.getString(1);

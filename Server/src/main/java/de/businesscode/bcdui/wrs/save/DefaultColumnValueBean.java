@@ -30,6 +30,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Document;
 
+import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.bcdui.web.servlets.ZipLet;
 import de.businesscode.bcdui.web.wrs.HttpRequestOptions;
@@ -48,7 +49,7 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
   private String requestHash = null;
   private Document refererGuiStatusDoc = null;
   private String refererUrl = null;
-  private String userName = null;
+  private String userName = null, userLogin = null, userId = null;
   private Logger log;
   private Date creationStamp = new Date();
   private final String creationStampString;
@@ -66,10 +67,9 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
     this.requestHash = (String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH);
 
     try{
-      Subject sec = SecurityUtils.getSubject();
-      if(sec.getPrincipal() != null){
-        this.userName = sec.getPrincipal().toString();
-      }
+      Subject subject = SecurityUtils.getSubject();
+      this.userName = this.userLogin = SecurityHelper.getUserLogin(subject);
+      this.userId = SecurityHelper.getUserId(subject);
     }catch(Exception e){
       ;// swallow
     }
@@ -159,5 +159,15 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
   @Override
   public String getCreationStamp() {
     return creationStampString;
+  }
+
+  @Override
+  public String getUserLogin() {
+    return userLogin;
+  }
+
+  @Override
+  public String getUserId() {
+    return userId;
   }
 }
