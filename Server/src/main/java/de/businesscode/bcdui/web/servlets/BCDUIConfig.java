@@ -95,9 +95,16 @@ public class BCDUIConfig extends HttpServlet {
         writer.println("  , userName: " + userLogin ); // js null or js string with name; backwards compatible (in future may be removed; is to be replaced by .userLogin)
         writer.println("  , userLogin: " + userLogin ); // js null or js string with user login;
 
+        // write userRoles
+        writer.println("  , userRoles : {");
+        writer.print(SecurityHelper.getRoles(subject).stream().map(s->{
+          return "\"" + StringEscapeUtils.escapeJavaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
+        }).collect(Collectors.joining(",")));
+        writer.println("  }");
+
         // write bcdClient security settings as bcdui.config.clientRights object values
         writer.println("  , clientRights: {");
-        
+
         List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
         Collections.sort(sortedPerms);
 

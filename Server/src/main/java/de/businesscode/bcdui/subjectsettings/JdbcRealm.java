@@ -53,6 +53,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
 public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private static final String BS_USER = "bcd_sec_user";
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
+  private static final String BS_USER_ROLES = "bcd_sec_user_roles";
   private static final Logger log = Logger.getLogger(JdbcRealm.class);
   final private String u_table;
   final private String u_userid;
@@ -62,6 +63,11 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private String ur_userid;
   private String ur_righttype;
   private String ur_rightvalue;
+
+  private String uro_table;
+  private String uro_userid;
+  private String uro_userrole;
+  
 
   public JdbcRealm() {
     super();
@@ -84,6 +90,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         this.setPermissionsLookupEnabled(true);
       } catch (BindingSetNotFoundException bsnf) {
         log.warn("JDBC Authorization not available due to missing binding set " + BS_USER_RIGHTS);
+      } 
+      try {
+        bs = Bindings.getInstance().get(BS_USER_ROLES, c);
+        uro_table  = bs.getTableName();
+        uro_userid = bs.get("user_id").getColumnExpression();
+        uro_userrole  = bs.get("user_role").getColumnExpression();
+      } catch (BindingSetNotFoundException bsnf) {
+        log.warn("JDBC User Roles not available due to missing binding set " + BS_USER_ROLES);
       } 
     } catch (Exception e) {
       throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
@@ -193,16 +207,21 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     return null;
   }
 
-  /*
-   * Roles are not yet implemented
-   * @see org.apache.shiro.realm.jdbc.JdbcRealm#getRoleNamesForUser(java.sql.Connection, java.lang.String)
-   * @Override
+  /**
+   * load roles from db
    */
-  protected Set<String> getRoleNamesForUser(Connection con, String userId)
-      throws SQLException
-  {
-    Set<String> roles = new HashSet<String>();
-    roles.add("default");
+  protected Set<String> getRoleNamesForUser(Connection con, String userId) throws SQLException {
+    final Set<String> roles = new HashSet<String>();
+    if (uro_table == null) {
+      roles.add("default");
+    } else {
+      new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE "+uro_userid+"=?", (rs) -> {
+        while(rs.next()){
+          roles.add(rs.getString(1));
+        }
+        return null;
+      }, userId);
+    }
     return roles;
   }
 
