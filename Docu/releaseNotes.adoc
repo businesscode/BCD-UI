@@ -92,6 +92,7 @@ The Renderer either works directly with the specified element or (in case of spe
 . dm:FilterTranslation, dm:DimensionTranslation and dm:PeriodTranslation were renamed to dm:FT, dm:DT and dm:PT
 . dm:FilterTranslation toRangeWhen attribute was moved to dm:PeriodTranslation
 . LoginServlet was removed, adjust web.xml and let loginform have action=""
+. bcdui.utils.wrsUtils.postWrs: onSuccessCb, onFailureCb become onSuccess, onFailure
 
 ==== Release 5_1_0
 

@@ -1248,10 +1248,10 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * Multiple document are handled by WrsServlet in one transaction,
    *
    * @param {(Object|XMLDocument|XMLDocument[])} args - Document(s) or a parameter object with the following properties
-   * @param {document}                           args.wrsDoc              - Document(s) or a parameter object with the following properties
-   * @param {function}                           [args.onSuccessCb]            - Callback on succcess
-   * @param {function}                           [args.onFailureCb]            - Callback on failure
-   * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailureCb is used in case of validation failures
+   * @param {document}                           args.wrsDoc                   - Document(s) or a parameter object with the following properties
+   * @param {function}                           [args.onSuccess]              - Callback on succcess
+   * @param {function}                           [args.onFailure]              - Callback on failure
+   * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {string}                             [args.uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
    *
    * you can also simply provide one argument: wrsDoc or array thereof, which is then POSTed
@@ -1264,10 +1264,10 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
     }
     args = jQuery.extend({
       uri : "",
-      onFailureCb : function(msg){
+      onFailure : function(msg){
         bcdui.log.fatal("failed to POST wrs: " + msg);
       },
-      onSuccessCb : function(){}
+      onSuccess : function(){}
     }, args);
     var url = bcdui.core.webRowSetServletPath + (args.uri ? "/" + args.uri : "");
 
@@ -1293,13 +1293,13 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       return;
     }
     if(!args.onWrsValidationFailure){
-      args.onWrsValidationFailure = args.onFailureCb;
+      args.onWrsValidationFailure = args.onFailure;
     }
     bcdui.core.xmlLoader.post({
       url: url,
       doc: args.wrsDoc,
-      onSuccess: args.onSuccessCb,
-      onFailure: args.onFailureCb,
+      onSuccess: args.onSuccess,
+      onFailure: args.onFailure,
       onWrsValidationFailure: args.onWrsValidationFailure
     });
   },
