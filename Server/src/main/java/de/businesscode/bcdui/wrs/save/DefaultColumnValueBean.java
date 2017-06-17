@@ -18,6 +18,7 @@ package de.businesscode.bcdui.wrs.save;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -169,5 +170,10 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
   @Override
   public String getUserId() {
     return userId;
+  }
+
+  @Override
+  public String generateUuid() {
+    return UUID.randomUUID().toString();
   }
 }

@@ -46,6 +46,11 @@ public interface ServerSideValueBean {
   String getUserId();
 
   /**
+   * @return UUID v4
+   */
+  String generateUuid();
+
+  /**
    * current session id
    *
    * @return session id or null
