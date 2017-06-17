@@ -24,12 +24,14 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ByteSource;
@@ -104,6 +106,17 @@ public class SecurityHelper {
   }
 
   /**
+   * @return shiro's {@link Session} or null if no exits, does not create a session if there is none
+   */
+  public static Session getSession(){
+    Subject subject = SecurityUtils.getSubject();
+    if(subject !=null){
+      return subject.getSession(false);
+    }
+    return null;
+  }
+
+  /**
    *
    * @param security
    * @param operationName
@@ -160,7 +173,7 @@ public class SecurityHelper {
    * to {@link #getUserLogin(Subject)}
    *
    * @param subject
-   * @return user login or null if either no subject provided or no such princpial found or subject is not authenticated
+   * @return user identifier or null if either no subject provided or no such princpial found or subject is not authenticated
    */
   public static String getUserId(Subject subject){
     if(subject == null || !subject.isAuthenticated()){
@@ -184,8 +197,38 @@ public class SecurityHelper {
   }
 
   /**
-   * retrieve list of permissions for given type on the subject. This method heavily utilizes internals of Shiro framework via reflection as Shiro do not
-   * provide such an interface to retrieve collection of permissions.
+   * Returns a primary principal by sense of shiro's primary principle. When
+   * using {@link JdbcRealm} this is the technical user id. If you use any other
+   * realm the value returned by this method would equal to
+   * {@link #getUserLogin(Subject)}
+   *
+   * @param authInfo
+   * @return user identifier or null if either no authInfo provided or no
+   *         principals found or no primary principal found
+   */
+  public static String getUserId(AuthenticationInfo authInfo) {
+    if (authInfo == null){
+      return null;
+    }
+    PrincipalCollection pc = authInfo.getPrincipals();
+    final Object princ;
+    if (pc == null) {
+      return null;
+    } else {
+      princ = pc.getPrimaryPrincipal();
+    }
+    if (princ == null) {
+      return null;
+    }
+    if (princ instanceof PrimaryPrincipal) { // may not be available when using other realm
+      return ((PrimaryPrincipal) princ).getId();
+    } else {
+      return princ.toString();
+    }
+  }
+
+  /**
+   * retrieve list of permissions for given type on the subject.
    *
    * @param subject
    *          the subject must be authenticated
@@ -197,13 +240,65 @@ public class SecurityHelper {
    *           in case the subject is not authenticated
    */
   public static Set<String> getPermissions(Subject subject, String permissionType) {
+    return extractFromAuthorizationInfo(subject, (ai, set) -> {
+      // geo:country:de, geo:country:*, foo:bar
+      Collection<String> stringPerms = ai.getStringPermissions();
+      // empty perms-set
+      if(stringPerms == null){
+        return;
+      }
+      stringPerms.stream().filter(p -> p.startsWith(permissionType + ":")).forEach(p -> {
+        // remove permissiontype followed by colon
+        set.add(p.substring(permissionType.length() + 1));
+      });
+    });
+  }
+
+  /**
+   * retrieve list of roles on the subject.
+   *
+   * @param subject
+   *          the subject must be authenticated
+   * @param permissionType
+   *          to retrieve permissions for
+   * @return empty/non-empty set of permissions
+   *
+   * @throws SecurityException
+   *           in case the subject is not authenticated
+   */
+  public static Set<String> getRoles(Subject subject) {
+    return extractFromAuthorizationInfo(subject, (ai, set) -> {
+      set.addAll(ai.getRoles());
+    });
+  }
+
+  @FunctionalInterface
+  private static interface InfoCollector {
+    /**
+     * collect desired information from {@link AuthorizationInfo} into set
+     * @param ai
+     * @param set
+     */
+    void collect(AuthorizationInfo ai, Set<String> set);
+  }
+
+  /**
+   * general method to collect information from {@link AuthorizationInfo} on a provided subject
+   * using {@link InfoCollector}. This method heavily utilizes internals of Shiro framework via reflection as Shiro do not
+   * provide such an interface to retrieve collection of permissions.
+   *
+   * @param subject
+   * @param collector
+   * @return
+   */
+  private static Set<String> extractFromAuthorizationInfo(Subject subject, InfoCollector collector) {
     if (!subject.isAuthenticated()) {
       throw new SecurityException("subject is not authenticated");
     }
     final PrincipalCollection principals = subject.getPrincipals();
     DefaultSecurityManager dsm = (DefaultSecurityManager) SecurityUtils.getSecurityManager();
 
-    Set<String> permissions = new HashSet<>();
+    Set<String> valueSet = new HashSet<>();
 
     final Method queryMethod;
     try {
@@ -223,17 +318,7 @@ public class SecurityHelper {
           return;
         }
         if (queryResult instanceof AuthorizationInfo) {
-          AuthorizationInfo ai = (AuthorizationInfo) queryResult;
-          // geo:country:de, geo:country:*, foo:bar
-          Collection<String> stringPerms = ai.getStringPermissions();
-          // empty perms-set
-          if(stringPerms == null){
-            return;
-          }
-          stringPerms.stream().filter(p -> p.startsWith(permissionType + ":")).forEach(p -> {
-            // remove permissiontype followed by colon
-            permissions.add(p.substring(permissionType.length() + 1));
-          });
+          collector.collect( (AuthorizationInfo) queryResult, valueSet);
         } else {
           throw new RuntimeException("query-result is not of compatible type: " + queryResult.getClass().getName());
         }
@@ -241,7 +326,7 @@ public class SecurityHelper {
     } catch (Exception e) {
       throw new RuntimeException("failed to retrieve pemissions", e);
     }
-    return permissions;
+    return valueSet;
   }
 
   /**
