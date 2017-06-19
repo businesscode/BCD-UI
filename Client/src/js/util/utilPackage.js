@@ -456,6 +456,23 @@ bcdui.util =
     }
     formEl.submit();
     formEl.remove(); // wont execute in case target=self
+  },
+
+  /**
+   * create a div container and append to body, if such an element with given id is not found in DOM,
+   * initially the element is set to display:none. Can be used for singleton containers.
+   *
+   * @param {string}  id  Id of a container to create
+   * @return jQuery object with craeted (or located) element.
+   *
+   * @private
+   */
+  getSingletonElement : function(id){
+    var el = document.getElementById(id);
+    if(!el){
+      jQuery(document.body).prepend(el = jQuery("<div id='" + id + "' style='display:none'></div>"));
+    }
+    return jQuery(el);
   }
 }
 

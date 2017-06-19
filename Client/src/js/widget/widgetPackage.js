@@ -792,9 +792,10 @@ bcdui.util.namespace("bcdui.widget",
         text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
 
       // take over either created html text or prepared html via id
-      jQuery("#bcdModalBoxDiv").empty();
-      jQuery("#bcdModalBoxDiv").append(typeof args.htmlElementId != "undefined" ? jQuery("#" + args.htmlElementId) : text);
-      jQuery("#bcdModalBoxDiv").dialog( {
+      bcdui.util.getSingletonElement("bcdModalBoxDiv")
+      .empty()
+      .append(typeof args.htmlElementId != "undefined" ? jQuery("#" + args.htmlElementId) : text)
+      .dialog( {
             width: args.width
           , height: args.height
           , minWidth: 50
@@ -1721,6 +1722,7 @@ bcdui.util.namespace("bcdui.widget",
     var boundToRenderer = args.targetRendererId && !!args.targetRendererId.trim();
 
     var _createTooltipRenderer = function(args){
+      bcdui.util.getSingletonElement("bcdTooltipDiv");
       bcdui.factory.createRenderer({
           id                 : args.id
         , targetHTMLElementId: tooltipTargetHtmlId

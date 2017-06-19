@@ -27,10 +27,7 @@ bcdui.util.namespace("bcdui.widget.contextMenu",
    */
   _createContextMenuDiv: function()
     {
-      // The existence of the div is mandatory in the theme
-      // It cannot be create dynamically as we need is synchronously and may be during page load when creating the context menu
-      // Doing it dynamically fails at least for IE6 and some IE8 (creating a child of body during page load from script inside body), also applies to tooltip
-      var cm = bcdui._migPjs._$("bcdContextMenuDiv");
+      var cm = bcdui.util.getSingletonElement("bcdContextMenuDiv");
       if( "true"!=cm.attr("bcdInitialized") ) {
         bcdui.widget.contextMenu._attachDelayedAutoHiding({ targetHTMLElementId: "bcdContextMenuDiv" });
         bcdui._migPjs._$("bcdContextMenuDiv").on("click", bcdui.widget.contextMenu._clickItem);

@@ -140,12 +140,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
       return;
     var x   = window.event ? window.event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft + 10 : event.pageX + 20;
     var y   = window.event ? window.event.clientY + document.body.scrollTop + document.documentElement.scrollTop   - 10 : event.pageY - 30;
-    var div = document.getElementById("bcdChartToolTip");
-    if( ! div ) {
-      div = document.createElement("span");
-      div.id = "bcdChartToolTip";
-      document.getElementsByTagName("body")[0].appendChild(div);
-    }
+    var div = bcdui.util.getSingletonElement("bcdChartToolTip").get(0);
 
     div.innerHTML = text;
     div.border = 1;
