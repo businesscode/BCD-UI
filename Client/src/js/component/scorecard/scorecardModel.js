@@ -754,18 +754,27 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
     );
     bcdui.factory.objectRegistry.withReadyObjects( this.internalPrefix+"_final", function() {
       // If we did treat the KPIs as measures in colDims for performance reasons, we need to manupulate the resulting header a bit
-      var doVerticalize = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Internal/scc:VerticalizeKpis[@doVerticalize='true']") != null;
+      var scDef = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition");
+      var doVerticalize = scDef.query("/*/scc:Internal/scc:VerticalizeKpis[@doVerticalize='true']") != null;
       if( !doVerticalize ) {
         var valueHeaderNodes = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_final").getData().selectNodes("/*/wrs:Header/wrs:Columns/wrs:C[@valueId]");
         for( var h=0; h<valueHeaderNodes.length; h++ ) {
           var valueId = valueHeaderNodes.item(h).getAttribute("valueId").split("|")[0];
           valueHeaderNodes.item(h).setAttribute("valueId",valueHeaderNodes.item(h).getAttribute("valueId").split("|")[1]);
         }
+        
+        // update colDimLevelIds/colDimLevelCaptions attributes by adding category and kpi information
         var columnHeaderNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_final").getData().selectSingleNode("/*/wrs:Header/wrs:Columns");
-        if( columnHeaderNode.getAttribute("colDimLevelIds") )
-          columnHeaderNode.setAttribute("colDimLevelIds",columnHeaderNode.getAttribute("colDimLevelIds")+"|bcd_kpi_id");
-        else
-          columnHeaderNode.setAttribute("colDimLevelIds","bcd_kpi_id");
+
+        var oldColDimLevelIds = columnHeaderNode.getAttribute("colDimLevelIds") || "";
+        var cat = "";
+        jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("idRef");});
+        columnHeaderNode.setAttribute("colDimLevelIds", oldColDimLevelIds + cat + "|bcd_kpi_id");
+
+        var oldColDimLevelCaptions = columnHeaderNode.getAttribute("colDimLevelCaptions") || "";
+        var cat = "";
+        jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("caption");});
+        columnHeaderNode.setAttribute("colDimLevelCaptions", oldColDimLevelCaptions + cat + "|");
       }
       // Scorecard is ready
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();

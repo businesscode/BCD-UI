@@ -27,6 +27,8 @@
 <xsl:import href="../../../xslt/renderer/numberFormatting.xslt"/>
 <xsl:import href="../../../xslt/stringUtil.xslt"/>
 
+<msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
+
 <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
 
 <xsl:key name="columnDefinitionLookupById" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
@@ -58,7 +60,22 @@
   <xsl:param name="cell" select="/*/wrs:Data/wrs:R[@id=$bcdRowIdent]/wrs:C[number(key('columnDefinitionLookupById',$bcdColIdent)/@pos)]"/>
   <xsl:param name="attrs" select="$cell/@*[local-name()=/*/wrs:Header/wrs:Columns/wrs:C[@id=$bcdColIdent]/wrs:A/@id]"/>
   <xsl:variable name="cellCaption" select="/*/wrs:Header/wrs:Columns/wrs:C[number(key('columnDefinitionLookupById',$bcdColIdent)/@pos)]/@caption"/>
-  <xsl:variable name="kpiId" select="/*/wrs:Data/wrs:R[@id=$bcdRowIdent]/wrs:C[number(key('columnDefinitionLookupById','bcd_kpi_id')/@pos)]"/>
+
+  <xsl:variable name="kpiPos" select="1 + count($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi/preceding-sibling::*) + count($sccDefinition/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef)"/>
+  <xsl:variable name="colIdentString">
+    <xsl:call-template name="tokenize">
+      <xsl:with-param name="string" select="$bcdColIdent"/>
+      <xsl:with-param name="delimiter" select="'|'"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="kpiIdCol" select="exslt:node-set($colIdentString)/wrs:Wrs/wrs:Data/wrs:R[position()=$kpiPos]/wrs:C"/>
+  <xsl:variable name="kpiId">
+    <xsl:choose>
+      <xsl:when test="$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/scc:LevelKpi"><xsl:value-of select="$kpiIdCol"/></xsl:when>
+      <xsl:otherwise><xsl:value-of select="substring-after($bcdRowIdent,'_')"/></xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:variable name="kpi" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]"/>
   <xsl:variable name="kpiDescription" select="$kpi/scc:Description"/>
 
