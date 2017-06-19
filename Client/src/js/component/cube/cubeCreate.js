@@ -581,7 +581,7 @@ bcdui.util.namespace("bcdui.component",
 
         // since disableClientRefresh flag is always stored in guiStatus (targetModel above does not have to be guiStatus)
         // we need to have a second listener here which rerenders the summary
-        bcdui.wkModels.guiStatus.onChange(function() {summaryRenderer.execute(true)}, "/*/guiStatus:ClientSettings//scc:ClientLayout[@cubeId ='" + args.cubeId + "']/@disableClientRefresh");
+        bcdui.wkModels.guiStatus.onChange(function() {summaryRenderer.execute(true)}, "/*/guiStatus:ClientSettings//cube:ClientLayout[@cubeId ='" + args.cubeId + "']/@disableClientRefresh");
       }
 
       // cube redisplay listener, greys out cube or triggers enhanced config
