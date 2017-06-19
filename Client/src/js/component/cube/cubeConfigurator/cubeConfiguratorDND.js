@@ -513,7 +513,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    */
   _cleanUp : function (cubeId) {
 
-    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId");
+    var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId") || "guiStatus";
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
     var gotColDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef").length > 0;
     var gotRowDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef").length > 0;

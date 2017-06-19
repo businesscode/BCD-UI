@@ -443,7 +443,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   _addMeasure: function( cubeId, targetModelId, targetModelXPath, dialogCaption, isEditMode){
     // preparing variablesModel
 
-    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId");
+    var cubeBucketModelId = jQuery(".bcd_" + cubeId + "_dnd").data("cubeBucketModelId") || targetModelId;
 
     var tempOptionsModel = bcdui.factory.objectRegistry.getObject(bcdui.factory.createStaticModel( {
       id: "temp_opt_model_" + (new Date()).valueOf(),
@@ -456,7 +456,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
 
     // add measurerefs
     bcdui.core.createElementWithPrototype(e, "Option[@bcdSeparator='true' and @value='' and @caption='------ Measures ------']");
-    nodes = bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectNodes("/*/cube:Measures/dm:MeasureRef");
+    nodes = bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectNodes("/*//cube:Measures//dm:MeasureRef");
     var metaDataModel = bcdui.factory.objectRegistry.getObject(cubeId).getConfigModel();
     var serverAggrs = [];
     jQuery.each(bcdui.widget.formulaEditor.Parser.op_info, function(eachIdx, eachValue){ if(eachValue.isAgg) serverAggrs.push(eachValue.opName);} )
@@ -466,6 +466,8 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       if (value == null)
         value = node.getAttribute("bRef") || "";
       var caption = node.getAttribute("caption") || "";
+      if (caption == "")
+        caption = metaDataModel.read("/*/dm:Measures/dm:Measure[@id='" + value + "']/@caption", "");
 
       // To prevent user calc editor from creating nested aggregations, we need to find out whether a measure itself is already containing an aggregation
       var wrqNodes = metaDataModel.getData().selectNodes("/*/dm:Measures/dm:Measure[@id='"+value+"']/*[local-name()='Calc']//wrq:*");
@@ -487,11 +489,13 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
 
     // add dimensions
     bcdui.core.createElementWithPrototype(e, "Option[@bcdSeparator='true' and @value='' and @caption='------ Dimensions ------']");
-    nodes = bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectNodes("/*/cube:Dimensions/dm:LevelRef");
+    nodes = bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectNodes("/*//cube:Dimensions//dm:LevelRef");
     for (var j = 0; j < nodes.length; j++){
       var node = nodes[j];
       var value = node.getAttribute("bRef") || "";
       var caption = node.getAttribute("caption") || "";
+      if (caption == "")
+        caption = metaDataModel.read("/*/dm:Dimensions/dm:LevelRef[@bRef='" + value + "']/@caption", "");
       bcdui.core.createElementWithPrototype(e, "Option[@value='" + value.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @caption='" + caption.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @type-name='VARCHAR']");
     }
     var optionsModelXpath = "$" + tempOptionsModel.id + "//Root/Options/Option/@caption";
