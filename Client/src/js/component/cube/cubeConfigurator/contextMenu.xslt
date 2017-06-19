@@ -27,11 +27,9 @@
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
-  <xsl:param name="dndOptionsModel" select="/*[0=1]"/>
   <xsl:param name="wrsModel" select="/*[0=1]"/>
   <xsl:param name="bcdColIdent" />
   <xsl:param name="bcdRowIdent" />
-  <xsl:param name="reportName"/>
 
   <xsl:variable name="maxRowDimPos" select="count($wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@dimId])"/>
   <xsl:variable name="statusModel" select="/"/>

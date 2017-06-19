@@ -502,7 +502,7 @@ bcdui.util.namespace("bcdui.component",
         , url: contextMenuUrl
         , inputModel: "guiStatus"
         , dataProviders: []
-        , parameters: { dndOptionsModel: { refId: args.metaDataModelId}, bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, wrsModel: { refId: args.cubeId } }
+        , parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, wrsModel: { refId: args.cubeId } }
         });
         bcdui.widget.createContextMenu({
             targetRendererId: args.cubeId
