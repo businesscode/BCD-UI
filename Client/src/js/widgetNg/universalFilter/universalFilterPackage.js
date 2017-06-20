@@ -17,6 +17,16 @@
  * Universal Filter Widget Implementation as jQuery Widget
  */
 (function(){
+
+  var htmlEvents = {
+    /**
+     * this event is triggered everytime the widget is ready rendering html content
+     *
+     * @private
+     */
+    contentRendered : "bcdui.bcduiUniversalFilterNg.events.contentRendered"
+  };
+
   jQuery.widget("bcdui.bcduiUniversalFilterNg", jQuery.bcdui.bcduiWidget, {
 
     _getCreateOptions : function(){
@@ -42,6 +52,11 @@
       "AND" : "<f:And/>",
       "OR"  : "<f:Or/>"
     },
+
+    /**
+     * @private
+     */
+    htmlEvents : htmlEvents,
 
     /**
      * the default options
@@ -87,6 +102,9 @@
       renderer.onReady(function(){
         // trigger translation after rendering
         bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
+
+        // trigger dom event
+        this.element.trigger(this.htmlEvents.contentRendered);
       }.bind(this));
 
       // one time init
@@ -370,6 +388,9 @@
       return targetDoc;
     }
   });
+
+  // expose to Widget namespace
+  jQuery.bcdui.bcduiUniversalFilterNg.htmlEvents = htmlEvents;
 }());
 
 /**
