@@ -11,16 +11,23 @@ Some changes are incompatible to previous versions and may require code change i
 .Major new features:
 
 . Components: Scorecard, Cube, Charts, Export
-* Scorecard Configurator now supports templates, ranking, sorting and rowAspects
+* Scorecard new DnD configurator now supports templates, ranking, sorting
 
 . Widgets
 * New reporting component added: a Free Analysis Report component (FAR)
+* htmlHeaderBuilder now adds css classes bcdDimension/bcdMeasure
+* New filter widget bcduiUniversalFilterNg allowing AND/OR expressions
 
 . Core
+* wrs-request wrq now supports HAVING clause
+* New bcdui.wkModels.bcdCategories well-known model
+* New Wrq2SqlServlet returning plain SQL generated from WRS-Request
+* Extended features for taking over filters for detail export and drill
 
 . Themes
 
 . Security
+* Preventing XML entity injection everywhere
 
 . Build / Dev / Docu
 
