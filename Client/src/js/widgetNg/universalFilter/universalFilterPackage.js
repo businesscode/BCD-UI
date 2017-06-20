@@ -63,6 +63,7 @@
      */
     options : {
       defaultJunction : "AND",
+      defaultOp       : "=",
       cssClassPrefix  : "bcd-unifilter-"
     },
 
@@ -212,12 +213,13 @@
        */
       .on("bcdui:universalFilter:renderCreateUi", function(event, args){
         args.anchorElement.after(uiElement);
-        // cleanup and preset internal status model; clear all but preset Junction
+        // cleanup and preset internal status model; clear all but preset Junction and Op
         {
           statusModel.remove("/*/*");
           if(args.targetNodeId){
             statusModel.write("/*/ReferenceNodeId", args.targetNodeId);
             statusModel.write("/*/Junction", args.proposedJunction);
+            statusModel.write("/*/Op", args.op);
           }
           statusModel.fire();
         }
@@ -370,7 +372,8 @@
       this.createUiElement.trigger("bcdui:universalFilter:renderCreateUi",{
         anchorElement     : anchorElement,
         proposedJunction  : (!!proposedJunctionElement ? (proposedJunctionElement.baseName||proposedJunctionElement.localName).toUpperCase() : "") || this.options.defaultJunction,
-        targetNodeId      : targetNodeId
+        targetNodeId      : targetNodeId,
+        op                : this.options.defaultOp
       });
     },
 
