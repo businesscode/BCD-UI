@@ -437,7 +437,7 @@
   <xsl:template name="detailExport">
     <ContextMenuEntryGroup caption="Detail Export" >
       <Entry caption="Detail export for this cell">
-        <xsl:if test="$isVdm"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
+        <xsl:if test="$isVdm or $measure/@userDefined='true'"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
         <!-- We "freeze" the current row/colIdents to prevent them von changing between the closing of the context menu and the start of the detail export -->
         <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:detailExport", {bcdRowIdent: '<xsl:value-of select="$bcdRowIdent"/>', bcdColIdent: '<xsl:value-of select="$bcdColIdent"/>'} )</JavaScriptAction>
       </Entry>
