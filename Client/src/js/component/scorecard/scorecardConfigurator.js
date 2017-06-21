@@ -648,7 +648,9 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
       
         var refList = o.configParent ? jQuery.makeArray(configModel.queryNodes("/*/" + o.configParent + "/" + o.bucketItem)) : [];
         var kpiObjectNode = o.configParent && o.kpiObject ? configModel.query("/*/" + o.configParent + "/" + o.kpiObject) : null;
-        if (refList.length > 0 || kpiObjectNode != null) {
+
+        // also avoid double lookup for RowAspects and ColDimensions
+        if (o.dndObject != "RowAspects" && o.dndObject != "ColDimensions" && (refList.length > 0 || kpiObjectNode != null)) {
           var parent = scBucket.write("/*/" + o.bucketParent);
           // in case we have a special item (e.g. LevelKpi), we add it as pseudo item with the original node (with attributes and children) as subitem
           if (kpiObjectNode != null) {
