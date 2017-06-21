@@ -226,7 +226,7 @@ if (bcdui.browserCompatibility.isIE) {
   bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.createAttribute = function( name ) { return this.msxmlImpl.createAttribute( name ); };
   bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.createTextNode = function( text ) { return this.msxmlImpl.createTextNode( text ); };
   bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.getElementsByTagName = function( tagName ) { return this.msxmlImpl.getElementsByTagName( tagName ); };
-  bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.cloneNode = function( deep ) { return this.msxmlImpl.cloneNode( deep ); };
+  bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.cloneNode = function( deep ) { return this.msxmlImpl.documentElement ? new bcdui.core.browserCompatibility.MSXMLDocumentWrapper( this.msxmlImpl.cloneNode(deep) ) : this.msxmlImpl.cloneNode( deep ); };
   bcdui.core.browserCompatibility.MSXMLDocumentWrapper.prototype.importNode = function( node, deep ) { return this.msxmlImpl.importNode( node, deep ); };
 
   // This is to support handling a plain doc similar to a bcd dataprovider. Similar means, fire events and so on is not dummied here
