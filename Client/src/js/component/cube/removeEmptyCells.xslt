@@ -18,17 +18,17 @@
   Removes empty rows and columns in cube data
   -->
 <xsl:stylesheet version="1.0"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
-  xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
-  xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
-  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
-  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
-  xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
-  xmlns:generator="urn(bcd-xsltGenerator)">
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
+                xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+                xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+                xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+                xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
+                xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
+                xmlns:exslt="http://exslt.org/common"
+                xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+                xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
+                xmlns:generator="urn(bcd-xsltGenerator)">
 
   <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
@@ -42,14 +42,29 @@
   <!-- (NodeSet) As parameter or as default or specific parameter set from parameter model-->
   <xsl:param name="paramSet" select="$paramModel//xp:RemoveEmptyCells[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
 
-  <xsl:variable name="dimensionCount" select="count(/*/wrs:Header/wrs:Columns/wrs:C/@dimId)"/>
+  <xsl:variable name="ignoreCols">
+    <!-- Ignore all positions, which are dimensions. This is also the default for all cases -->
+    <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[@dimId]">
+      <xsl:value-of select="concat(' ',@pos,' ')"/>
+    </xsl:for-each>
+    <!-- Positions to be ignored can be given explicitly -->
+    <xsl:value-of select="concat(' ',$paramSet/@ignorePos,' ')"/>
+    <!-- List of valueIds to be ignores is given -->
+    <xsl:if test="normalize-space($paramSet/@ignoreValueIds)">
+      <xsl:variable name="ignoreValueIds" select="concat(' ',$paramSet/@ignoreValueIds,' ')"/>
+      <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[@valueId and contains($ignoreValueIds, concat(' ',@valueId,' '))]">
+        <xsl:value-of select="concat(' ',@pos,' ')"/>
+      </xsl:for-each>
+    </xsl:if>
+  </xsl:variable>
 
   <!-- Node-set with column @pos of all cols which have no data -->
   <xsl:variable name="emptyColumnsString">
     <EmptyColumns>
+      <xsl:variable name="dimensionCount" select="count(/*/wrs:Header/wrs:Columns/wrs:C/@dimId)"/>
       <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[position() > $dimensionCount]">
         <xsl:variable name="content">
-          <xsl:value-of select="/*/wrs:Data/wrs:*/wrs:*[position()=current()/@pos and text()!='' and text()!='NaN']"/>
+          <xsl:value-of select="/*/wrs:Data/wrs:*/wrs:*[position()=current()/@pos and normalize-space(text())!='' and text()!='NaN']"/>
         </xsl:variable>
         <xsl:if test="normalize-space($content)=''">
           <Col><xsl:value-of select="@pos"/></Col>
@@ -75,10 +90,11 @@
 
   <!-- Removing empty rows and columns -->
   <xsl:template match="wrs:R">
+    <!-- Check, whether we have content in any cell (i.e. search the first, which has, skip cols listed in $ignoreCols -->
     <xsl:variable name="content">
-      <xsl:value-of select="wrs:*[position() > $dimensionCount and text()!='' and text()!='NaN']"/>
+      <xsl:value-of select="wrs:*[not(contains($ignoreCols,concat(' ',position(),' '))) and normalize-space(text()) and text()!='NaN']"/>
     </xsl:variable>
-    <xsl:if test="normalize-space($content)!=''">
+    <xsl:if test="normalize-space($content)">
       <wrs:R>
         <xsl:copy-of select="@*"/>
         <xsl:copy-of select="wrs:*[not(position()=$emptyColumns/*/Col)]"/>

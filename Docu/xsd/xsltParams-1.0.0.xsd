@@ -106,7 +106,7 @@
       </element>
       <element name="RemoveEmptyCells" type="tns:RemoveEmptyCellsParamType" minOccurs="0" maxOccurs="unbounded">
         <annotation>
-          <documentation>Parameters for removeEmptyCells. If enabled, rows and cols holding no measures are removed from Wrs. This is aware of column dimensions.</documentation>
+          <documentation>Parameters for removeEmptyCells. If enabled, rows and cols holding no measures are removed from Wrs.</documentation>
         </annotation>
       </element>
       <element name="HtmlBuilder" type="tns:HtmlBuilderParamType" minOccurs="0" maxOccurs="unbounded">
@@ -714,6 +714,16 @@
         <attribute name="apply">
           <annotation><documentation>
             Currently only 'rowCol' is allowed, all other values will disable this functionality.
+          </documentation></annotation>
+        </attribute>
+        <attribute name="ignoreCols">
+          <annotation><documentation>
+            Space separated list of cols pos, which are ignored in the _test_ for skipping rows.
+          </documentation></annotation>
+        </attribute>
+        <attribute name="ignoreValueIds">
+          <annotation><documentation>
+            Space separated list of @valueIds, i.e. cols, which are ignored in the _test_ for skipping rows.
           </documentation></annotation>
         </attribute>
       </extension>
