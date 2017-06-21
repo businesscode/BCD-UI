@@ -182,6 +182,12 @@
         All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="skipForTotals" type="xs:boolean" use="optional" default="false">
+      <xs:annotation><xs:documentation>
+        Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e. when their parent wrs:C does not have a unique value.
+        With @skipForTotals, they can also be nulled-out for sub-totals of their parent wrs:C.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="TypeSelectColumn">

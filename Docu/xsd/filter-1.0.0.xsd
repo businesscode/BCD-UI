@@ -52,6 +52,11 @@
     <xs:attribute name="bRef" type="xs:NCName" use="required"/>
     <xs:attribute name="op" type="tns:TypeSQLOperators" default="="/>
     <xs:attribute name="value" type="xs:string"/>
+    <xs:attribute name="ic" type="xs:boolean" use="optional" default="false">
+      <xs:annotation><xs:documentation>
+        Ignores case when comparing strings in f:Filter.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:simpleType name="TypeSQLOperators">
