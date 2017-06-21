@@ -117,7 +117,15 @@
           </xp:Dimensions>
         </xp:ColDims>
         
-        <xp:RemoveEmptyCells apply="{/*/scc:Layout/@removeEmptyCells}"/>
+        <xp:RemoveEmptyCells apply="{/*/scc:Layout/@removeEmptyCells}">
+          <!-- If an aspect has @removeEmptyRows=true, we add his valueId(s) here to ignoreValueIds -->
+          <xsl:variable name="ignoreValueIds">
+            <xsl:for-each select="$configPrecalc/*/scc:Aspects/scc:Aspect[@id=$configPrecalc/*/scc:Layout/scc:AspectRefs/scc:AspectRef/@idRef and @removeEmptyRows='true']/calc:Calc">
+              <xsl:value-of select="concat(../@id,'.',@id,' ')"/>
+            </xsl:for-each>
+          </xsl:variable>
+          <xsl:attribute name="ignoreValueIds"><xsl:value-of select="$ignoreValueIds"/></xsl:attribute>
+        </xp:RemoveEmptyCells>
         
         <xsl:if test="$configPrecalc/*/scc:Layout/scc:AspectRefs/*[@sort!=''] or $configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember">
 

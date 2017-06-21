@@ -765,8 +765,9 @@
         </xs:element>
         <xs:element name="BcdAspectWrqBuilder" minOccurs="0">
           <xs:annotation><xs:documentation>
-            Use BCD-UI's convenience default WrqBuilder, its attributes and scc:Property childs configure it.
-            In addition, if scc:Layout//scc:AspectRef[@id=$thisId]/@repeatOnPeriods is true, in a scorecard with period breakdown, an aspect not having time in its dimension, is repeated for each period.
+            In many casey you can use BCD-UI's convenience default WrqBuilder and, configure it.
+            If scc:Layout//scc:AspectRef[@id=$thisId]/@allPeriods is false, an Aspect having no time breakdown is not repeated per period but only shown once, for the last period.
+            Note: If there is no data at all for the last period, the Aspect is also not shown.
           </xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
@@ -866,7 +867,17 @@
     </xs:attribute>
     <xs:attribute name="rowAspect">
       <xs:annotation>
-        <xs:documentation>set to true if aspect can be used as a row aspect</xs:documentation>
+        <xs:documentation>Set to true if aspect can be used as a row aspect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="removeEmptyRows">
+      <xs:annotation>
+        <xs:documentation>
+          If true, this aspect alone should not cause a dimension-combinations to survive, which do not have data otherwise.
+          Take for example a target, then a country maybe should be not shown, if there is only target but no performance data.
+          This is especially the case if the aspect was only inherited (denormalized) downwards during join,
+          that way it can establish rows for kpi-dimension combinations, for which there will never be performance data.
+        </xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
