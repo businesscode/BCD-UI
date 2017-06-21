@@ -232,5 +232,15 @@ bcdui.util.xml =
          * We assume that parentNode is correct for non-attribute nodes.
          */
         return node.parentNode;
-      }
+      },
+  /**
+   * Parses an XML document and register well-known namespaces and their prefixes to enable
+   * xPath lookups thru JS API, i.e. document.selectSingleNode("/wrs:Wrs/wrs:Header").
+   *
+   * @param {string|document}  doc   XML Document as a String or Document, in latter case the document will be cloned.
+   * @return wrapped Document with namespace resolver and .selectSingleNode(), .selectNodes() API
+   */
+  parseDocument : function(doc){
+    return doc.documentElement ? bcdui.core.browserCompatibility.cloneDocument(doc) : bcdui.core.browserCompatibility.createDOMFromXmlString(doc);
+  }
 }; // namespace
