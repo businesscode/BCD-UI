@@ -221,6 +221,13 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
        */
       this.chainStylesheetLoadingFailed = new bcdui.core.status.ChainStylesheetLoadingFailed();
 
+      /**
+       * store on instance for _fireStatusEvent() to access it; TODO remove when
+       * refactoring to deferred targetHtml rediscovery after transformation completion.
+       * @private
+       */
+      this.suppressInitialRendering = !!args.suppressInitialRendering;
+
       this.setStatus(this.initializedStatus);
 
       /*
@@ -231,12 +238,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
 
       // Only HTML renderers start execution immediately in case it is not suppressed
       if ( !!this.targetHTMLElementId && !args.suppressInitialRendering) {
-        var targetHtmlElement = jQuery("#" + this.targetHTMLElementId);
-        if (targetHtmlElement.length > 0) {
-          targetHtmlElement
-          .attr('bcdRendererId', args.id)
-          .data('bcdRenderer',this);
-        }
+        jQuery("#" + this.targetHTMLElementId).attr('bcdRendererId', args.id).data('bcdRenderer',this);
         this.execute();
       }
 
@@ -921,7 +923,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
           throw Error("TargetElement '"+this.targetHTMLElementId+"' not found.");
         if (this.isReady()) {
           targetElement.addClass("statusReady").removeClass("statusNotReady");
-        } else {
+        } else if (!this.suppressInitialRendering || this.getStatus() !== this.initializedStatus) {
           targetElement.addClass("statusNotReady").removeClass("statusReady");
         }
       }
