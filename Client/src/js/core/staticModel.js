@@ -64,10 +64,12 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
       if (typeof args.data == "undefined" || (typeof args.data == "string" && !args.data.trim())) {
         args.data = "<Empty/>";
       }
-      if (typeof args.data == "string") {
-        this.dataDoc = bcdui.core.browserCompatibility.createDOMFromXmlString(args.data," data parameter for static model: '"+args.id+"'");
-      } else if( args.data.nodeType === 1 || args.data.nodeType === 9 ) {
-        this.dataDoc = bcdui.core.browserCompatibility.createDOMFromXmlString( new XMLSerializer().serializeToString(args.data)," data parameter for static model: '"+args.id+"'");
+      if (typeof args.data == "string" || args.data.nodeType === 1 || args.data.nodeType === 9) {
+        try{
+          this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
+        }catch(e){
+          throw new Error("Failed parsing data parameter for static model: '"+args.id+"'", e);
+        }
       } else {
         this.dataDoc = args.data;
       }
