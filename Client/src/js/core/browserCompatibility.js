@@ -75,7 +75,7 @@ bcdui.core.browserCompatibility = {
         var parser = new DOMParser();
         serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
         var doc = parser.parseFromString(serializedDoc, "text/xml");
-        if( doc.selectSingleNode("/*[local-name()='parsererror']") )
+        if( doc.selectSingleNode("//*[local-name()='parsererror']") )
           throw new Error("Failed parsing"+(msg ? msg : "")+". Content's first 100 characters: '"+serializedDoc.substring(0,100)+"'");
         return doc;
       },
@@ -436,6 +436,11 @@ if (bcdui.browserCompatibility.isIE) {
           dom.msxmlImpl.async = false;
           serializedDoc = bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement(serializedDoc);
           dom.loadXML(serializedDoc);
+          if(dom.msxmlImpl.parseError.errorCode != 0){
+            throw new Error("Reason: " + dom.msxmlImpl.parseError.reason);
+          } else if(dom.documentElement == null) {
+            throw new Error("Reason: unknown; result is null.");
+          }
           return dom;
         } catch (e) {
           throw new Error("Failed to create de-serialize document: " +
