@@ -83,7 +83,7 @@ public class SQLStatementWithParams {
     String[] parts = getStatement().split("\\?");
     int i = 0;
     for( ; i<parts.length && i<filterValues.size(); i++ ) {
-      if (filterBindingItems.get(i).isNumeric())
+      if (filterBindingItems.get(i)!=null && filterBindingItems.get(i).isNumeric())
         stmt.append(parts[i]).append(filterValues.get(i));
       else
         stmt.append(parts[i]).append("'").append(filterValues.get(i)).append("'");
