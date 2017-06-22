@@ -93,7 +93,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
   _hideToolTip : function () {
     var div = document.getElementById("bcdChartToolTip");
     if( div ) {
-      div.style.visibility = "hidden";
+      div.style.display = "none";
     }
   },
 
@@ -161,7 +161,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
 
     div.style.top = y+'px';
     div.style.left = x+'px';
-    div.style.visibility = "visible";
+    div.style.display = "block";
   },
 
   /**
