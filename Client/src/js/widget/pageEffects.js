@@ -134,38 +134,44 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery("body").prop("scrollWidth") + "px");
 
         if (args.sideBarAutoScroll) {
-          var y = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
-          var off = 0;
-          var top = 0;
-
-          if (jQuery('#bcdSideBarContainer').data("origTop") == null) {
-            top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
-            jQuery('#bcdSideBarContainer').data("origTop", "" + top);
-          }
-          else
-            top = parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10);
-
-          if (jQuery('#bcdSideBarContainer').data("origOff") == null) {
-            off = isNaN(jQuery('#bcdSideBarContainer').offset().top) ? 0 : jQuery('#bcdSideBarContainer').offset().top;
-            jQuery('#bcdSideBarContainer').data("origOff", "" + off);
-          }
-          else
-            off = parseInt(jQuery('#bcdSideBarContainer').data("origOff"), 10);
-
-          var newTop = top + y-off < parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) ? parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10) : top + y-off;
-
-          var containerHeight = jQuery("#bcdContentContainer").height();
-          var containerOff = isNaN(jQuery('#bcdContentContainer').offset().top) ? 0 : jQuery('#bcdContentContainer').offset().top;
           var sideBarHeight = jQuery("#bcdSideBarContainer").height();
+          var bodyHeight = jQuery("body").height();
+          var documentHeight = jQuery(document).height();
+          var scrollY = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
+          var top = 0;
+          var offTop = 0;
+          var threshold = sideBarHeight/4;
 
-          if (newTop + sideBarHeight > containerOff + containerHeight) {
-            newTop = containerOff + containerHeight - sideBarHeight;
-            if (newTop < parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10))
-              hewTop = parseInt(jQuery('#bcdSideBarContainer').data("origTop"), 10);
-            jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
-          }
-          else
-            jQuery('#bcdSideBarContainer').stop().animate({top: newTop} ,500);
+          // remember original top position
+          top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
+          if (jQuery('#bcdSideBarContainer').data("origTop") == null)
+            jQuery('#bcdSideBarContainer').data("origTop", "" + isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10));
+
+          // remember original offset top position
+          offTop = isNaN(jQuery('#bcdSideBarContainer').offset().top) ? 0 : jQuery('#bcdSideBarContainer').offset().top;
+          if (jQuery('#bcdSideBarContainer').data("origOffTop") == null)
+            jQuery('#bcdSideBarContainer').data("origOffTop", offTop);
+
+          var newTop = top;
+
+          // hit top, reset sidebar to original top position
+          if (scrollY <= 0)
+            newTop = jQuery('#bcdSideBarContainer').data("origTop");
+
+          // hit bottom, set sidebar so that its bottom ends with the page
+          else if (scrollY + bodyHeight >= documentHeight)
+            newTop = documentHeight - sideBarHeight - jQuery('#bcdSideBarContainer').data("origOffTop");
+
+          // sidebar disappeared at top, set it to the current scrollpos (taking original offset top into account)
+          else if (offTop + sideBarHeight - threshold < scrollY)
+            newTop = scrollY - jQuery('#bcdSideBarContainer').data("origOffTop");
+
+          // sidebar disappeared at bottom, set it so its bottom ends with the current window (taking original offset top into account)
+          else if (scrollY + bodyHeight < offTop + threshold)
+            newTop = scrollY - jQuery('#bcdSideBarContainer').data("origOffTop") - sideBarHeight + bodyHeight;
+
+          if (newTop != top)
+            jQuery('#bcdSideBarContainer').stop(true).animate({top: newTop} ,750);
         }
       });
     }
