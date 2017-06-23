@@ -134,33 +134,33 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery("body").prop("scrollWidth") + "px");
 
         if (args.sideBarAutoScroll) {
+          var docHeight     = jQuery(document).height();
+          var bodyHeight    = jQuery("body").height();
           var sideBarHeight = jQuery("#bcdSideBarContainer").height();
-          var bodyHeight = jQuery("body").height();
-          var documentHeight = jQuery(document).height();
-          var scrollY = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
-          var top = 0;
-          var offTop = 0;
-          var threshold = sideBarHeight/4;
+          var scrollY       = jQuery("html").scrollTop() > jQuery("body").scrollTop() ? jQuery("html").scrollTop() : jQuery("body").scrollTop();
+          var threshold     = sideBarHeight/4;
 
           // remember original top position
-          top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
+          var top = isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10);
           if (jQuery('#bcdSideBarContainer').data("origTop") == null)
             jQuery('#bcdSideBarContainer').data("origTop", "" + isNaN(parseInt(jQuery('#bcdSideBarContainer').css("top"), 10)) ? 0 : parseInt(jQuery('#bcdSideBarContainer').css("top"), 10));
 
           // remember original offset top position
-          offTop = isNaN(jQuery('#bcdSideBarContainer').offset().top) ? 0 : jQuery('#bcdSideBarContainer').offset().top;
+          var offTop = isNaN(jQuery('#bcdSideBarContainer').offset().top) ? 0 : jQuery('#bcdSideBarContainer').offset().top;
           if (jQuery('#bcdSideBarContainer').data("origOffTop") == null)
             jQuery('#bcdSideBarContainer').data("origOffTop", offTop);
 
           var newTop = top;
 
-          // hit top, reset sidebar to original top position
+          // hit top, reset sidebar to original top position, set it always since we have a kind of natural top down placement 
           if (scrollY <= 0)
             newTop = jQuery('#bcdSideBarContainer').data("origTop");
 
-          // hit bottom, set sidebar so that its bottom ends with the page
-          else if (scrollY + bodyHeight >= documentHeight)
-            newTop = documentHeight - sideBarHeight - jQuery('#bcdSideBarContainer').data("origOffTop");
+          // hit bottom, set sidebar so that its bottom ends with the page but only when the original top of sidebar is not visible
+          else if (scrollY + bodyHeight >= docHeight) {
+            if (jQuery('#bcdSideBarContainer').data("origOffTop") < docHeight - bodyHeight)
+              newTop = docHeight - sideBarHeight - jQuery('#bcdSideBarContainer').data("origOffTop");
+          }
 
           // sidebar disappeared at top, set it to the current scrollpos (taking original offset top into account)
           else if (offTop + sideBarHeight - threshold < scrollY)
@@ -170,6 +170,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           else if (scrollY + bodyHeight < offTop + threshold)
             newTop = scrollY - jQuery('#bcdSideBarContainer').data("origOffTop") - sideBarHeight + bodyHeight;
 
+          // start animation to new position when something actually changed
           if (newTop != top)
             jQuery('#bcdSideBarContainer').stop(true).animate({top: newTop} ,750);
         }
