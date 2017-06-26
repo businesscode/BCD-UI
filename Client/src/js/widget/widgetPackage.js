@@ -2483,7 +2483,7 @@ bcdui.util.namespace("bcdui.widget",
          var targetModelId = eOptions.targetModelId || "guiStatus";
          var targetXPath = eOptions.targetModelXPath;
          var optionsModelId = eOptions.optionsModelId;
-         var optionsModelXPath = eOptions.optionsModelXpath;
+         var optionsModelXPath = eOptions.optionsModelXPath;
          var optionsModelRelativeValueXPath = eOptions.optionsModelRelativeValueXPath;
        } else { // Widget
          e = e.get(0);
