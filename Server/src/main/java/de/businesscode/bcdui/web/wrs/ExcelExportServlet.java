@@ -120,7 +120,6 @@ public class ExcelExportServlet extends HttpServlet {
     }
     // do export
     try {
-      new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
       // log page
       if(PageSqlLogger.getInstance().isEnabled()) {
@@ -133,6 +132,8 @@ public class ExcelExportServlet extends HttpServlet {
         final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(Utils.getSessionId(req, false), requestUrl, pageHash);
         log.debug(logRecord);
       }
+
+      new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
     } catch (Exception e) {
       throw new ServletException(e.getCause());
