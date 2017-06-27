@@ -4,17 +4,46 @@
 === Release Notes
 
 The following release notes allow to follow BCD-UI's updates and to judge whether migrating to a newer version is worth it.
-Some changes are incompatible to previous versions and may require code change in the project. They are listed here as well.
+Some changes are backward incompatible and may require code change in the project. They are listed here as well.
 
-==== Release 5_2_0 .. in progress
+==== Release 5_3_0 ...in progress
 
 .Major new features:
 
 . Components: Scorecard, Cube, Charts, Export
-* Scorecard new DnD configurator now supports templates, ranking, sorting
+* to come
 
 . Widgets
+* to come
+
+. Core
+* to come
+
+. Themes
+* to come
+
+. Security
+* to come
+
+. Build / Dev / Docu
+* to come
+
+.Major bug fixes:
+* to come
+
+.Backward Incompatibilities:
+* to come
+
+
+==== Release 5_2_0
+
+.Major new features:
+
+. Components: Scorecard, Cube, Charts, Export
+* Scorecard configurator added support for templates, ranking, sorting
 * New reporting component added: a Free Analysis Report component (FAR)
+
+. Widgets
 * htmlHeaderBuilder now adds css classes bcdDimension/bcdMeasure
 * New filter widget bcduiUniversalFilterNg allowing AND/OR expressions
 
@@ -24,16 +53,7 @@ Some changes are incompatible to previous versions and may require code change i
 * New Wrq2SqlServlet returning plain SQL generated from WRS-Request
 * Extended features for taking over filters for detail export and drill
 
-. Themes
-
-. Security
-* Preventing XML entity injection everywhere
-
-. Build / Dev / Docu
-
-.Major bug fixes:
-
-.Incompatibilities:
+.Backward Incompatibilities:
 . dm:FilterTranslation, dm:DimensionTranslation and dm:PeriodTranslation were renamed to dm:FT, dm:DT and dm:PT
 . dm:FilterTranslation toRangeWhen attribute was moved to dm:PeriodTranslation
 . LoginServlet was removed, adjust web.xml and let loginform have action=""
