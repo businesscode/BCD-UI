@@ -842,7 +842,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
   + (isWeekSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevWeek:true});'>Week</a>" : "")
   + (isMonthSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevMonth:true});'>Month</a>": "");
 
-  prevString = prevString != "" ? "<span style='position: absolute; right: 5px;'>Last:" + prevString + "</span>" : "";
+  prevString = prevString != "" ? "<span style='position: absolute; right: 5px;'>Prev:" + prevString + "</span>" : "";
   selectCurrentMonth = selectCurrentMonth != "" ? "<span style='position: absolute; left: 5px;'>" + selectCurrentMonth + "</span>" : "";
 
   document.getElementById("lblPick").innerHTML = selectCurrentMonth + "&nbsp;" + prevString;
