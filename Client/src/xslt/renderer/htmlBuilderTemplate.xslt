@@ -157,7 +157,13 @@
         <xsl:value-of select="$rowTotalCss"/>
         <xsl:if test="$isInnerMostDim and ../@bcdVdm"> bcdVdm</xsl:if>
       </xsl:attribute>
-      <xsl:apply-templates select="@*|node()"/>
+        <xsl:choose>
+          <xsl:when test="@bcdGr='1'"><xsl:attribute name="bcdTranslate">bcd_Total</xsl:attribute></xsl:when>
+          <xsl:when test="@bcdOt='1'"><xsl:attribute name="bcdTranslate">bcd_OtherDimmember</xsl:attribute></xsl:when>
+          <xsl:when test="string-length(.)=0 and string-length(@caption)=0"><xsl:attribute name="bcdTranslate">bcd_EmptyDimmember</xsl:attribute></xsl:when>
+          <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
+          <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
+        </xsl:choose>
     </th>
   </generator:MatchHeaderColumn>
 </generator:IfNoRowSpan>
