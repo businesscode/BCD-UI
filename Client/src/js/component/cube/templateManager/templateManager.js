@@ -84,6 +84,7 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
    */
    clearLayout: function(objectId) {
     // remove data
+    jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
     var targetModel = bcdui.component.cube.templateManager._getTargetModel();
     var idAttr = targetModel.getData().selectSingleNode("/*/cube:Layout[@cubeId ='"+objectId+"']") != null ? "@cubeId" : "@scorecardId";
     var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
