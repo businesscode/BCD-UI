@@ -542,14 +542,65 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     });
     bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:RowAspectRefs");
 
+    // optionally limit measures/dimensions
+    var doRedisplay = bcdui.component.scorecardConfigurator._limitDimensions(scorecardId);
+
     // do some special rules cleanup
-    var doRedisplay = bcdui.component.scorecardConfigurator._cleanUp(scBucket, targetModel, scorecardId);
+    doRedisplay |= bcdui.component.scorecardConfigurator._cleanUp(scBucket, targetModel, scorecardId);
 
     targetModel.fire();
 
     // in case cleanup did something, we need to redisplay our connectables
     if (doRedisplay)
       bcdui.component.scorecardConfigurator.reDisplay(scorecardId);
+  },
+  
+  /**
+   * limits the number of dimensions
+   * into account
+   * @private
+   */
+  _limitDimensions: function(scorecardId) {
+
+    var doRedisplay = false;
+    var maxDimensions = 8; // More is not supported by Chrome
+
+    // limit aspects/dimensions if required
+    if (maxDimensions) {
+      var dimOk = false;
+      var promptDim = false;
+
+      var targetModelId = jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId");
+      var scorecardLayoutRoot = "/scc:Layout[@scorecardId='" + scorecardId + "']";
+      var targetModelDoc = bcdui.factory.objectRegistry.getObject(targetModelId).getData();
+
+      while (! dimOk) {
+        // count only unique dimensions since during dragNdrop, this function is called in states where source and destination contain the same item
+        var dimensions = jQuery.makeArray(targetModelDoc.selectNodes("/*" + scorecardLayoutRoot + "/scc:Dimensions/*/*")).map(function(e){
+          return (e.nodeName == "scc:LevelKpi" ? "bcd_kpi" : e.getAttribute("bRef"));
+        });
+        var numberOfDimensions = dimensions.filter(function(e, idx){return dimensions.indexOf(e) == idx}).length
+
+        if (maxDimensions != -1 && numberOfDimensions > maxDimensions) {
+          doRedisplay = true;
+          if (! promptDim) {
+            alert(
+              bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_MaxDimensions"}) +
+              " " + maxDimensions + "\n" +
+              bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_MaxReduce"})
+            );
+            promptDim = true;
+          }
+          if (targetModelDoc.selectSingleNode("/*" + scorecardLayoutRoot + "/scc:Dimensions/scc:Rows/dm:LevelRef") != null)
+            bcdui.core.removeXPath(targetModelDoc, "/*" + scorecardLayoutRoot + "/scc:Dimensions/scc:Rows/dm:LevelRef[position()=last()]");
+          else
+            bcdui.core.removeXPath(targetModelDoc, "/*" + scorecardLayoutRoot + "/scc:Dimensions/scc:Columns/dm:LevelRef[position()=last()]");
+        }
+        else
+          dimOk = true;
+      }
+    }
+    return doRedisplay;
   },
 
   /**
