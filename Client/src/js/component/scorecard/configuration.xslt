@@ -328,7 +328,7 @@
     <xsl:if test="not($validAt &lt; @validFrom) and not($validAt &gt; @validUpTo)">
       <xsl:copy>
         <!-- Per default, we skip some Aspects if KPI does not look like an indicator KPI. @skipAspects can be overwritten by the user. -->
-        <xsl:if test="@positive='false' or count(calc:Calc/calc:Div/calc:ValueRef)!=2">
+        <xsl:if test="count(calc:Calc/calc:Div/calc:ValueRef)!=2">
           <xsl:attribute name="skipAspects"> bcdFailure bcdFrequency </xsl:attribute>
         </xsl:if>
         <xsl:apply-templates select="@*|node()" mode="configPrecalc"/>

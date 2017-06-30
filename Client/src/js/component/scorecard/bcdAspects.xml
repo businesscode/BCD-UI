@@ -489,15 +489,27 @@
     Per default this is removed for KPIs not looking like an indicator KPI via scc:Kpi/@skipAspects
    -->
   <scc:Aspect id="bcdFrequency" caption="Frequency">
-    <calc:Calc type-name="NUMERIC" scale="1">
-      <calc:Div>
-        <calc:Value>1</calc:Value>
-        <calc:Sub>
-          <calc:Value>1</calc:Value>
-          <calc:KpiRef />
-        </calc:Sub>
-      </calc:Div>
-    </calc:Calc>
+    <scc:chooseCalc type-name="NUMERIC" scale="1">
+      <scc:whenKpiAttr name="positive" value="false">
+        <calc:Calc>
+          <calc:Div>
+            <calc:Value>1</calc:Value>
+            <calc:KpiRef />
+          </calc:Div>
+        </calc:Calc>
+      </scc:whenKpiAttr>
+      <scc:otherwise>
+        <calc:Calc>
+          <calc:Div>
+            <calc:Value>1</calc:Value>
+            <calc:Sub>
+              <calc:Value>1</calc:Value>
+              <calc:KpiRef />
+            </calc:Sub>
+          </calc:Div>
+        </calc:Calc>
+      </scc:otherwise>
+    </scc:chooseCalc>
   </scc:Aspect>
 
   <!--
