@@ -75,13 +75,15 @@
           args.rankingTargetHtmlElementId = "bcdDndRankingDiv_" + args.scorecardId;
           args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.scorecardId;
 
-          bcdui.widget.createBlindUpDownArea({
-            id: "bcdBlindUpDown_" + args.scorecardId
-          , targetHtml: "bcdUpDown_" + args.scorecardId
-          , bodyIdOrElement:"bcdUpDownBody_" + args.scorecardId
-          , caption: "Scorecard Definition"
-          , defaultState: layout.query("/*/scc:Layout") == null ? "open": "closed"
-          });
+          if (jQuery("#" + args.targetHtml).hasClass("bcdOuterBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdOuterBlindOpenClosed")) {
+            bcdui.widget.createBlindUpDownArea({
+              id: "bcdBlindUpDown_" + args.scorecardId
+            , targetHtml: "bcdUpDown_" + args.scorecardId
+            , bodyIdOrElement:"bcdUpDownBody_" + args.scorecardId
+            , caption: "Scorecard Definition"
+            , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdOuterBlindOpen") ? "open": "closed"
+            });
+          }
           
           // optionally add a blind for the dnd area when classes bcdDndBlindOpen/bcdDndBlindClosed are specified
           if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed")) {
