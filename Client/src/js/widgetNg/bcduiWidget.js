@@ -232,6 +232,8 @@
      * @private
      */
     _getTargetSelector : function(){
+      if (! this.cache)
+        this.cache = {};
       this.cache._getTargetSelector = this.cache._getTargetSelector || this._getSelector(this.options.targetModelXPath);
       return this.cache._getTargetSelector;
     },

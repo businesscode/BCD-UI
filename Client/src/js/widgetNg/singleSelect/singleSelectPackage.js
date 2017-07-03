@@ -221,6 +221,13 @@
       }, false);
     },
 
+    
+    /**
+     * forces widget to write its current content to targetModelXPath
+     */
+    manifestValue: function() {
+      bcdui.widgetNg.utils.updateValue.bind(this, this.element.children().first().get(0).id);
+    },
 
     /**
      * syncs widget to options data provider and update the internal datalist element

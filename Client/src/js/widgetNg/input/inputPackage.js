@@ -120,7 +120,9 @@
           }
           return;
         }
-        this._syncValue(config.inputElementId);
+        // initial sync only when no data was injected yet
+        if (jQuery("#" + config.inputElementId).val() == "")
+          this._syncValue(config.inputElementId);
       }.bind(this));
 
       // listen to updates on model
@@ -506,6 +508,13 @@
           el.get(0).setSelectionRange(startPos,pos);
         }
       }
+    },
+
+    /**
+     * forces widget to write its current content to targetModelXPath
+     */
+    manifestValue: function(){
+      this.updateValue(this.element.children().first().get(0).id);
     },
 
     /**
