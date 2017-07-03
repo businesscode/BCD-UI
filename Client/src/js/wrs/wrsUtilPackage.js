@@ -1191,6 +1191,39 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   },
 
   /**
+   * delete rows identified by the column value(s)
+   * 
+   * @param {document|element}  wrs         the Wrs document
+   * @param {number|string}     colIdOrPos  column id or position
+   * @param {array}             values      array of string values to lookup
+   */
+  deleteRowByColumnValue : function(wrs, colIdOrPos, values){
+    if(!Array.isArray(values)){
+      values = [values];
+    }
+
+    if(values.length == 0){
+      return;
+    }
+
+    var colPos = bcdui.util.isString(colIdOrPos) ? bcdui.wrs.wrsUtil.getColPosById(wrs, colIdOrPos) : colIdOrPos;
+    
+    // build string inset to apply contains() on
+    var delim = bcdui.core.magicChar.separator;
+    var inset = delim + values.join(delim) + delim;
+
+    if(inset.indexOf("'") > -1){
+      throw "Cannot complete operation, contains not allowed character: '";
+    }
+
+    var rowNodes = wrs.selectNodes("/*/wrs:Data/wrs:*[ not(self::D) and contains('" + inset + "', wrs:C["+colPos+"]) ]");
+
+    for(var i=0,imax=rowNodes.length; i<imax; i++){
+      bcdui.wrs.wrsUtil.deleteWrsRow(rowNodes.item(i));
+    }
+  },
+
+  /**
    * Restores a wrs:D, wrs:M identified by id, also see {@link bcdui.wrs.wrsUtil.restore restore()}
    * 
    * @param {string|bcdui.core.DataProvider} model - Id of a DataProvider or the DataProvider itself (dp must be ready)
