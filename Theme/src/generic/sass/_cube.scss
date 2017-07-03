@@ -790,21 +790,15 @@ div.bcdContextMenu a.bcdMenuitems {
  table {
    margin-bottom: 10px;
  }
- 
- .bcdGE_separator {
-   border: none;
-   @include con_color($flyover-color);
-   font-weight: bold;
-   margin: 10px 0px;
-   text-align: center;
-   text-overflow: ellipsis;
-   overflow: hidden;
-   width: 362px;
-   margin-left: auto;
-   margin-right: auto;
-   padding: 3px;
-   height: 12px;
+
+ .bcdClose {
+   cursor: pointer;
+   position: absolute;
+   right: 0px;
  }
+ .bcdClose:after {
+   content: "❌";
+  }
  .bcdGE_level {
    font-weight: bold;
  }
