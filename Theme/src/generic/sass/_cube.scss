@@ -81,7 +81,7 @@
     content: "+";
   }
   span.bcdCubeRemoveRank:after {
-    content: "-";
+    content: "−";
   }
 
   .bcdCubeAddRank, .bcdCubeRemoveRank {
@@ -406,10 +406,10 @@
   .bcdLevel3.bcdNoLeaf td {
     @include con_color($tree-color-cell_l3);
   }
-
-  .bcdExpand .bcdButton a:after { content: "+"; }
-  .bcdCollapse .bcdButton a:after { content: "-";}
 }
+
+.bcdExpand .bcdButton a:after { content: "+"; }
+.bcdCollapse .bcdButton a:after { content: "−";}
 
 .bcdReport
 {
