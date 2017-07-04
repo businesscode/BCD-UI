@@ -37,7 +37,7 @@
   </xsl:template>
 
   <xsl:template match="Tooltip">
-    <span><xsl:apply-templates select="text()" mode="text"/></span>
+    <span><xsl:apply-templates select="text()" mode="i18n"/></span>
   </xsl:template>
 
   <xsl:template match="ValidationMessages">
@@ -59,6 +59,4 @@
     </xsl:if>
     <xsl:value-of select="."/>
   </xsl:template>
-
-  <xsl:template match="text()"/>
 </xsl:stylesheet>

@@ -108,7 +108,6 @@ bcdui.widgetNg.commons.balloon.DATA_PROVIDER = bcdui.factory.createJsDataProvide
 bcdui.widgetNg.commons.balloon._init = function(){
   if(!bcdui.widgetNg.commons.balloon.TOOLTIP_RENDERER){
     // special balloon container
-    /* TODO: move creation to standardPage.html ? */
     if(!jQuery("#bcdWidgetBalloon").length > 0){
       var widgetBalloonContainer = jQuery("<div id='bcdWidgetBalloon'></div>");
       widgetBalloonContainer.css({display: "none"});
