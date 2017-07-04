@@ -723,8 +723,10 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           };
 
           // add sorting when we got sorted aspects or top n 
-          if (this.refSccDefinition.query("/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]") != null)
+          if (this.refSccDefinition.query("/*/scc:Layout[scc:AspectRefs/*[@sort!=''] or scc:TopNDimMembers/scc:TopNDimMember]") != null) {
+            parameters.paramModel = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition");
             urls.push(this.cp + "orderAndCut.xslt");
+          }
 
           // LevelKpi does not count as a coldim in this sense but is treated as a measure
           var colDims = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectNodes("/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef");
