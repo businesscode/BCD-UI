@@ -55,7 +55,7 @@ bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsData
     // create request transformation
     this.requestModel = new bcdui.core.ModelWrapper({
       inputModel : args.enhancedConfig,
-      chain : bcdui.contextPath + "/bcdui/js/component/far/model/request.xslt",
+      chain : args.requestModelChain || bcdui.contextPath + "/bcdui/js/component/far/model/request.xslt", // internal API
       parameters : {
         statusModel: args.statusModel,
         componentId: args.componentId

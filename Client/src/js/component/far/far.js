@@ -65,7 +65,8 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     this.farModel = new bcdui.component.far.FarModel({
       enhancedConfig: this.enhancedConfig,
       statusModel:  this.options.statusModel,
-      componentId:  this.options.componentId
+      componentId:  this.options.componentId,
+      requestModelChain: this.options.farModel ? this.options.farModel.requestModelChain : undefined // internal API
     });
 
     // create UI skeleton
