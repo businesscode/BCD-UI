@@ -216,11 +216,9 @@
         // cleanup and preset internal status model; clear all but preset Junction and Op
         {
           statusModel.remove("/*/*");
-          if(args.targetNodeId){
-            statusModel.write("/*/ReferenceNodeId", args.targetNodeId);
-            statusModel.write("/*/Junction", args.proposedJunction);
-            statusModel.write("/*/Op", args.op);
-          }
+          args.targetNodeId && statusModel.write("/*/ReferenceNodeId", args.targetNodeId);
+          args.proposedJunction && statusModel.write("/*/Junction", args.proposedJunction);
+          args.op && statusModel.write("/*/Op", args.op);
           statusModel.fire();
         }
 
