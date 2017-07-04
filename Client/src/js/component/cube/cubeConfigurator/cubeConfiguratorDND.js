@@ -389,6 +389,8 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeTargetId), cubeTargetXPathRoot + "/RowMes[@id='" + rowMeas[i].text + "']");
 
     bcdui.factory.objectRegistry.getObject(cubeTargetId).fire();
+    
+    setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(cubeId);});
   },
 
   /**
@@ -601,9 +603,6 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
           doRedisplay = true;
     }
-
-    // after cleanup, also update the marks for the dimensions for GroupManager
-    bcdui.component.cube.configuratorDND._markGroupingDimensions(cubeId);
 
     return doRedisplay;
   },
