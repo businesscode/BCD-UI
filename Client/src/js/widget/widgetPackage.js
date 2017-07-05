@@ -1242,6 +1242,10 @@ bcdui.util.namespace("bcdui.widget",
       if(!args.caption || args.caption == ""){
          args.caption = "Blind content";
       }
+
+      if (args.caption.length > 1 && args.caption[0] === bcdui.i18n.TAG)
+        args.caption = bcdui.i18n.syncTranslateFormatMessage({msgid: args.caption.substring(1)});
+
       if(!args.defaultState || args.defaultState == ""){
          args.defaultState = "closed";
       }
