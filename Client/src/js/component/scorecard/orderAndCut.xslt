@@ -28,6 +28,8 @@
   xmlns:generator="urn(bcd-xsltGenerator)"
   bcdxml:wrsHeaderIsEnough="true">
 
+  <xsl:import href="../../../xslt/wrs/orderRowsAndCols.xslt"/>
+
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" media-type="text/xslt"/>
 
   <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>
@@ -109,7 +111,9 @@
 
             <!-- sort everything before kpi -->
             <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos][@sort | @total]">
-              <xsl:call-template name="generateSort"/>
+              <xsl:call-template name="generateSort">
+                <xsl:with-param name="elem" select="."/>
+              </xsl:call-template>
             </xsl:for-each>
 
             <!-- sort kpi using its original ordering -->
@@ -121,7 +125,9 @@
 
                 <!-- sort everything after kpi -->
                 <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos][@sort | @total]">
-                  <xsl:call-template name="generateSort"/>
+                  <xsl:call-template name="generateSort">
+                    <xsl:with-param name="elem" select="."/>
+                  </xsl:call-template>
                 </xsl:for-each>
 
                 <!-- limit output -->
@@ -146,84 +152,9 @@
           <xsla:apply-templates select="@*|node()" />
         </xsla:copy>
       </xsla:template>
-    
+
     </xsla:stylesheet>
-  
-  </xsl:template>
 
-  <xsl:template name="generateSort">
-      <xsl:variable name="elem" select="."/>
-
-      <!-- Take care of the position of the (sub)totals, they win over the other sorting  -->
-      <xsl:for-each select="$doc">
-        <xsl:choose>
-          <xsl:when test="$elem/@total='leading'">
-            <xsla:sort select="wrs:C[{key('colHeadById',$elem/@id)/@pos}]/@bcdGr" order="descending"/>
-          </xsl:when>
-          <xsl:when test="$elem/@total='trailing'">
-            <xsla:sort select="wrs:C[{key('colHeadById',$elem/@id)/@pos}]/@bcdGr" order="ascending"/>
-          </xsl:when>
-        </xsl:choose>
-
-        <!-- Sort order (except totals) -->
-        <xsl:if test="$elem/@sort">
-          <xsl:element name="sort" namespace="http://www.w3.org/1999/XSL/Transform">
-            <xsl:attribute name="order"><xsl:value-of select="$elem/@sort"/></xsl:attribute>
-            <!--
-              Now check for alphanumeric/numeric sorting. @sortBy (order dim-level by measure) is assumes to always be numeric.
-              Otherwise we check for the type of the data itself or - if any - preferred for the type of the @order attribute. -->
-            <xsl:variable name="isNumericSorting" select="
-              $elem/@sortBy
-              or $headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/wrs:A[@name='order']/@type-name=$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name
-              or $headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/@type-name=$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name
-            "/>
-            <!-- Sort by the column itself or by the sub-total-value of a measure -->
-            <xsl:choose>
-              <xsl:when test="$elem/@sortBy">
-                <xsl:variable name="sortByPos" select="number($headerCs[@id=$elem/@sortBy or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@sortBy,'1|','') and @valueId=$elem/@sortBy)]/@pos)"/>
-                <xsl:variable name="ourPos" select="number(key('colHeadById',$elem/@id)/@pos)"/>
-                <xsl:choose>
-                  <xsl:when test="$ourPos > 1 and /*/wrs:Header/wrs:Columns/wrs:C[$ourPos+1]/@dimId">
-                    <!-- If we are not the innermost and not the outermost dim, we need to search for the row which contains the total for our following dimension
-                         within our group, i.e. all previous dimensions have the same value -->
-                    <xsl:attribute name="select">../wrs:R[
-                      <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[@pos &lt;= $ourPos]">
-                        wrs:C[<xsl:value-of select="@pos"/>]=current()/wrs:C[<xsl:value-of select="@pos"/>] and
-                      </xsl:for-each>
-                      wrs:C[number(<xsl:value-of select="$ourPos"/>+1)]/@bcdGr='1']/wrs:C[<xsl:value-of select="$sortByPos"/>]</xsl:attribute>
-                  </xsl:when>
-                  <xsl:when test="/*/wrs:Header/wrs:Columns/wrs:C[$ourPos+1]/@dimId">
-                    <!-- If we are the outermost but not the innermost dim, we need to search for the row which contains the total for our following dimension and the same value for our dimension, but we do not have an outer group to watch -->
-                    <xsl:attribute name="select">../wrs:R[wrs:C[<xsl:value-of select="$ourPos"/>]=current()/wrs:C[<xsl:value-of select="$ourPos"/>] and wrs:C[number(<xsl:value-of select="$ourPos"/>+1)]/@bcdGr='1']/wrs:C[<xsl:value-of select="$sortByPos"/>]</xsl:attribute>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <!-- If we are innermost we can just sort by value, previous sortings make sure we do not cross dimension borders -->
-                    <xsl:attribute name="select">wrs:C[<xsl:value-of select="$sortByPos"/>]</xsl:attribute>
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:when>
-              <!-- Sort by the column itself -->
-              <xsl:otherwise>
-                <xsl:variable name="sortColPos" select="number($headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/@pos)"/>
-                <xsl:attribute name="select">
-                  <xsl:choose>
-                    <xsl:when test="$headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/wrs:A[@name='order']">
-                      <xsl:value-of select="concat('wrs:C[',$sortColPos,']/@order')"/>
-                    </xsl:when>
-                    <xsl:when test="$isNumericSorting">wrs:C[<xsl:value-of select="$sortColPos"/>]</xsl:when>
-                    <!-- We do sort empty last as opposed to XSLT default, because db sorts them last per default as well their order should not depend on whether the order comes from db or us -->
-                    <xsl:otherwise>concat(boolean(string-length(wrs:C[<xsl:value-of select="$sortColPos"/>])=0),'&#xE0F0;',wrs:C[<xsl:value-of select="$sortColPos"/>])</xsl:otherwise>
-                  </xsl:choose>
-                </xsl:attribute>
-              </xsl:otherwise>
-            </xsl:choose>
-            <!-- set type of sorting -->
-            <xsl:if test="$isNumericSorting">
-              <xsl:attribute name="data-type">number</xsl:attribute>
-            </xsl:if>
-          </xsl:element>
-        </xsl:if>
-      </xsl:for-each>
   </xsl:template>
 
 </xsl:stylesheet>
