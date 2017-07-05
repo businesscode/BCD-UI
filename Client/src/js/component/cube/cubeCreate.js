@@ -467,7 +467,7 @@ bcdui.util.namespace("bcdui.component",
           id: "bcdBlindUpDown_" + args.cubeId
           ,targetHTMLElementId: "bcdUpDown_" + args.cubeId
           ,bodyIdOrElement:"bcdUpDownBody_" + args.cubeId
-          ,caption: "Report Definition"
+          ,caption: bcdui.i18n.TAG + "bcd_Cb_Blind_Definition"
           ,defaultState: bcdui.factory.objectRegistry.getObject(layoutModelId).getData().selectSingleNode("/*/cube:Layout") == null ? "open": "closed"
         });
 
@@ -477,7 +477,7 @@ bcdui.util.namespace("bcdui.component",
             id: "bcdBlindUpDown_Dnd_" + args.cubeId
           , targetHtml: "bcdUpDown_Dnd_" + args.cubeId
           , bodyIdOrElement:"bcdUpDownBody_Dnd_" + args.cubeId
-          , caption: "Report Layout"
+          , caption: bcdui.i18n.TAG + "bcd_Cb_Blind_Layout"
           , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") ? "open": "closed"
           });
         }
@@ -523,7 +523,7 @@ bcdui.util.namespace("bcdui.component",
             id: "bcdBlindUpDown_Template_" + args.cubeId
             ,targetHTMLElementId: "bcdUpDown_Template_" + args.cubeId
             ,bodyIdOrElement:"bcdUpDownBody_Template_" + args.cubeId
-            ,caption: "Report Templates"
+            ,caption: bcdui.i18n.TAG + "bcd_Cb_Blind_Templates"
             ,defaultState: "open"
           });
         }
@@ -557,7 +557,7 @@ bcdui.util.namespace("bcdui.component",
             id: "bcdBlindUpDown_Summary_" + args.cubeId
             ,targetHTMLElementId: "bcdUpDown_Summary_" + args.cubeId
             ,bodyIdOrElement:"bcdUpDownBody_Summary_" + args.cubeId
-            ,caption: "Cube Additional Settings"
+            ,caption:bcdui.i18n.TAG + "bcd_Cb_Blind_Settings"
             ,defaultState: "open"
           });
         }

@@ -80,7 +80,7 @@
               id: "bcdBlindUpDown_" + args.scorecardId
             , targetHtml: "bcdUpDown_" + args.scorecardId
             , bodyIdOrElement:"bcdUpDownBody_" + args.scorecardId
-            , caption: "Scorecard Definition"
+            , caption: bcdui.i18n.TAG + "bcd_Sc_Blind_Definition"
             , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdOuterBlindOpen") ? "open": "closed"
             });
           }
@@ -91,7 +91,7 @@
               id: "bcdBlindUpDown_Dnd_" + args.scorecardId
             , targetHtml: "bcdUpDown_Dnd_" + args.scorecardId
             , bodyIdOrElement:"bcdUpDownBody_Dnd_" + args.scorecardId
-            , caption: "Scorecard Layout"
+            , caption: bcdui.i18n.TAG + "bcd_Sc_Blind_Layout"
             , defaultState: jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") ? "open": "closed"
             });
           }
@@ -124,7 +124,7 @@
               id: "bcdBlindUpDown_Template_" + args.scorecardId
               ,targetHTMLElementId: "bcdUpDown_Template_" + args.scorecardId
               ,bodyIdOrElement:"bcdUpDownBody_Template_" + args.scorecardId
-              ,caption: "Scorecard Templates"
+              ,caption: bcdui.i18n.TAG + "bcd_Sc_Blind_Templates"
               ,defaultState: "open"
             });
           }
@@ -159,7 +159,7 @@
               id: "bcdBlindUpDown_Summary_" + args.scorecardId
               ,targetHTMLElementId: "bcdUpDown_Summary_" + args.scorecardId
               ,bodyIdOrElement:"bcdUpDownBody_Summary_" + args.scorecardId
-              ,caption: "Scorecard Additional Settings"
+              ,caption: bcdui.i18n.TAG + "bcd_Sc_Blind_Settings"
               ,defaultState: "open"
             });
           }

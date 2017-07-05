@@ -32,7 +32,7 @@ Some changes are backward incompatible and may require code change in the projec
 * to come
 
 .Backward Incompatibilities:
-* to come
+* cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
 
 
 ==== Release 5_2_0
