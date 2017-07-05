@@ -96,7 +96,6 @@
           }
         })
         .onceReady(function(){
-          bcdui.widget._linkNavPath(this.element.id, "");
           bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
           this._initChoosers();
         }.bind(this));

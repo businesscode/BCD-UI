@@ -73,10 +73,6 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
             : config.targetModelId,
           function() {
 
-            bcdui.widget.formulaEditor.getNavPath(jQuery(containerHtmlElement).parent().attr("id"), function(id, value) {
-              bcdui.widget._linkNavPath(id, value);
-            }.bind(this));
-
             bcdui.log.isDebugEnabled() && bcdui.log.debug("init: " + id + ", " + config.targetModelId);
             // initialization
             bcdui.widget.formulaEditor._initUpdaterViewFromXMLData(el.get(0));
@@ -805,15 +801,6 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
           bcdui.widget.formulaEditor._hideOptions(elem);
         }
       }
-    },
-
-    /**
-     * @param {string} id targetHtml of widget
-     * @param {function} callback to be called with generated caption
-     * @return {string} NavPath information via callback for widget
-     */
-    getNavPath: function(id, callback) {
-      callback(id, "");
     },
 
   /**

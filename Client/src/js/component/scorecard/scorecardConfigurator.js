@@ -203,10 +203,6 @@
           }
         });
       });
-
-      bcdui.component.scorecardConfigurator.getNavPath(this.element.attr("id"), function(id, value) {
-        bcdui.widget._linkNavPath(id, value);
-      }.bind(this));
     },
 
     /**
@@ -241,15 +237,6 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
   init: function(htmlElement){
     bcdui.log.isDebugEnabled() && bcdui.log.debug("bcdui widget adapter init");
     jQuery(htmlElement).bcduiScorecardConfiguratorNg();
-  },
-
-  /**
-   * @param {string} id targetHtml of widget
-   * @param {function} callback to be called with generated caption
-   * @return {string} NavPath information via callback for widget
-   */
-  getNavPath: function(id, callback) {
-    return callback(id, "");
   },
   
   /**

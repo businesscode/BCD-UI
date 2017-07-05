@@ -453,11 +453,6 @@
           if (doWriteXML)
             this._doWriteXML(this.container, this.config.target);
 
-          if (isInitalCall) {
-            bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
-              bcdui.widget._linkNavPath(id, value);
-            }.bind(this));
-          }
         }.bind(this));
       }
 
@@ -544,12 +539,6 @@
               html += this.generateItemHtml({value: idValue, caption: sortedOptions[i].caption, position: i, id: this.config.elementId, isTarget: false, _widgetInstance: this});
           }
           this.container.append(html);
-
-          if (isInitalCall) {
-            bcdui.widgetNg.connectable.getNavPath(this.element.id, function(id, value) {
-              bcdui.widget._linkNavPath(id, value);
-            }.bind(this));
-          }
 
         }.bind(this));
       }
@@ -1596,15 +1585,6 @@ bcdui.util.namespace("bcdui.widgetNg.connectable",
   init: function(htmlElement){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui connectable widget adapter init");
     jQuery(htmlElement).bcdConnectable();
-  },
-
-  /**
-   * @param {string} id targetHtml of widget
-   * @param {function} callback to be called with generated caption
-   * @return {string} NavPath information via callback for widget
-   */
-  getNavPath: function(id, callback) {
-    return callback(id, "");
   }
 
 });
