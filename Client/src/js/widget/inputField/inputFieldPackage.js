@@ -137,7 +137,9 @@ bcdui.util.namespace("bcdui.widget.inputField",
         });
         bcdui.factory.addDataListener(listener);
         bcdui.widget._registerHTMLElementListener(htmlElement, listener);
-        bcdui.widget.inputField._readDataFromXML(htmlElement.id);
+        // initial sync only when no data was injected yet
+        if (jQuery("#" + htmlElement.id).val() == "")
+          bcdui.widget.inputField._readDataFromXML(htmlElement.id);
 
         if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
           bcdui.widget.inputField.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
@@ -158,7 +160,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
     // This is the listener on the options model (if present)
     if (isOptionsModelPresented)
     {
-      bcdui._migPjs._$(htmlElement).prop("disabled", true);
+
+      // disable inputField as long as we don't have drop down masterdata ready
+      if (! bcdui.factory.objectRegistry.getObject(config.optionsModelId).isReady())
+        bcdui._migPjs._$(htmlElement).prop("disabled", true);
 
       bcdui.widget.inputField._addDropDownListeners(htmlElement.id);
 
