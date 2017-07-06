@@ -162,7 +162,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
     {
 
       // disable inputField as long as we don't have drop down masterdata ready
-      if (! bcdui.factory.objectRegistry.getObject(config.optionsModelId).isReady())
+      if (typeof bcdui.factory.objectRegistry.getObject(config.optionsModelId) != "undefined" && ! bcdui.factory.objectRegistry.getObject(config.optionsModelId).isReady())
         bcdui._migPjs._$(htmlElement).prop("disabled", true);
 
       bcdui.widget.inputField._addDropDownListeners(htmlElement.id);
