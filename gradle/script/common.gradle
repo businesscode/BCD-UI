@@ -53,13 +53,12 @@ task bcduiMetaInf {
     // Create gitInformation
     def gitInformationFile = new File("$gitInfoFolder/${project.name}_info.txt")
     gitInformationFile.createNewFile()
-    gitInformationFile.text = "Git status during distribution build at "+ new SimpleDateFormat("yyyy-MM-dd HHmm").format(new Date()) + newLine
+    gitInformationFile.text = "Git status during distribution build at "+ new SimpleDateFormat("yyyy-MM-dd HHmm").format(new Date()) + " by " + System.getProperty("user.name") + newLine
     gitInformationFile << "Branch: " << "git rev-parse --abbrev-ref HEAD".execute(null, projectDir).text
     gitInformationFile << "Commit: " << "git rev-parse HEAD".execute(null, projectDir).text + newLine
     gitInformationFile << "git describe --tags".execute(null, projectDir).text + newLine
-    gitInformationFile << "git status --short".execute(null, projectDir).text + newLine
+    gitInformationFile << "Local changes against commit:" + newLine
     gitInformationFile << "git diff --stat".execute(null, projectDir).text + newLine
-    gitInformationFile << "git diff --stat ..@{u}".execute(null, projectDir).text
   }
 }
 
