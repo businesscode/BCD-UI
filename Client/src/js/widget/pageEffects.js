@@ -182,8 +182,10 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       jQuery(window).resize(function(e) {
         if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
         if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
-        if (args.pageSizeAdjust)
-          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery("body").prop("scrollWidth") + "px");
+        if (args.pageSizeAdjust) {
+          var w = jQuery(document).width() > jQuery("body").width() ? jQuery(document).width() : jQuery("body").width();
+          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", w + "px");
+        }
       });
     }
 
