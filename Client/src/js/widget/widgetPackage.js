@@ -365,6 +365,9 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {string}        [args.postfix]                      An optional postfix which is added to the filter bRefs (dy/mo.., see above). Use this if you deal with different types of dates. If optionsModel is given, this value should be one of the available ones.
    * @param {string}        [args.widgetCaption]                A caption which is used as prefix for navPath generation for this widget.
+   * @param {string}        [args.useSimpleXPath=false]         Set this to true if you want a minimal periodchooser setup (only day selectable via popcalendar) which only writes an ISO date to an XPath which you provide (not a complex one in normal mode).
+   * @param {string}        [args.autoPopup=false]              Set this to true if the popup calendar should appear after creation.
+   * @param {string}        [args.suppressButtons=false]        Set this to true if from and to buttons should be hidden. Default is false.
    */
   createPeriodChooser: function(args)
     {
@@ -402,7 +405,10 @@ bcdui.util.namespace("bcdui.widget",
         , suppressCaptions:       args.suppressCaptions
         , id:                     args.id
         , postfix:                args.postfix
-        , widgetCaption:         args.widgetCaption
+        , widgetCaption:          args.widgetCaption
+        , useSimpleXPath:         args.useSimpleXPath
+        , autoPopup:              args.autoPopup
+        , suppressButtons:        args.suppressButtons
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);

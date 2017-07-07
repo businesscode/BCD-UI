@@ -42,6 +42,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
       var targetModelXPath = containerHtmlElement.getAttribute("bcdTargetModelXPath");
       var node = targetModel.query(targetModelXPath);
       if (node) {
+        if (node.nodeType == 2)
+          node = targetModel.getData().selectSingleNode(targetModelXPath + "/..");
         postfix = node.getAttribute("bcdPostfix");
         postfix = postfix != null ? postfix : "";
       }
@@ -71,6 +73,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var node = targetModel.query(targetModelXPath);
     var postfix = "";
     if (node) {
+      if (node.nodeType == 2)
+        node = targetModel.getData().selectSingleNode(targetModelXPath + "/..");
       postfix = node.getAttribute("bcdPostfix");
       postfix = postfix != null ? postfix : "";
     }
@@ -166,7 +170,26 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
    * @param containerHtmlElement {HTMLElement} Widget container element.
    * @private
    */
+  
+  setSimpleXPathMode : function(containerHtmlElement) {
+    if (containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true") {
+      containerHtmlElement.setAttribute("bcdIsFreeRangeSelectable", "false");
+      containerHtmlElement.setAttribute("bcdOutputPeriodType",      "false");
+      containerHtmlElement.setAttribute("bcdIsDaySelectable",       "true");        // we only allow DAY
+      containerHtmlElement.setAttribute("bcdIsWeekSelectable",      "false");
+      containerHtmlElement.setAttribute("bcdIsMonthSelectable",     "false");
+      containerHtmlElement.setAttribute("bcdIsQuarterSelectable",   "false");
+      containerHtmlElement.setAttribute("bcdIsYearSelectable",      "false");
+      containerHtmlElement.removeAttribute("bcdPostfix");                           // remove the following attributes since they only provide bRef manipulation (and we got a fixed xpath)
+      containerHtmlElement.removeAttribute("bcdOptionsModelXPath");
+      containerHtmlElement.removeAttribute("bcdOptionsModelRelativeValueXPath");
+      containerHtmlElement.removeAttribute("bcdOptionsModelId");
+    }
+  },
+
   init: function(containerHtmlElement) {
+
+    bcdui.widget.periodChooser.setSimpleXPathMode(containerHtmlElement);
 
     var isFreeRange         = containerHtmlElement.getAttribute("bcdIsFreeRangeSelectable") == "true";
     var showPrevNextButtons = containerHtmlElement.getAttribute("bcdShowPrevNextButtons") == "true";
@@ -175,6 +198,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var isSecondSelectable  = containerHtmlElement.getAttribute("bcdIsSecondSelectable") == "true";
     var isMinuteSelectable  = containerHtmlElement.getAttribute("bcdIsMinuteSelectable") == "true";
     var isHourSelectable    = containerHtmlElement.getAttribute("bcdIsHourSelectable") == "true";
+    var useSimpleXPath      = containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true";
 
     var hint = "yyyy-mm-dd";
          if (isSecondSelectable) hint = "yyyy-mm-dd hh:mm:ss";
@@ -189,10 +213,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     else if (containerHtmlElement.getAttribute("bcdCaption")) {caption1 = containerHtmlElement.getAttribute("bcdCaption"); caption2 = containerHtmlElement.getAttribute("bcdCaption")}
 
     var timeClass = isSecondSelectable ? "bcdTimeMiddle bcdMinute" : "bcdMinute";
-
+    
+    var buttoStyle = (containerHtmlElement.getAttribute("bcdSuppressButtons") == "true" ? "style='display:none'" : "");
+    
     jQuery(containerHtmlElement).append(
           "<input class='bcdHidden'/>"
-        + "<span class='bcdButton'><a href='javascript:void(0)'>" + caption1 + "</a></span>"
+        + "<span class='bcdButton' " + buttoStyle + "><a href='javascript:void(0)'>" + caption1 + "</a></span>"
         + ("<span class='bcdValue'>"
             + (textInput ?
               ( " <input type='text' class='bcdYear' maxLength='4'/>"
@@ -215,7 +241,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         + (isFreeRange ?
             ("<div class='bcdHr'><hr/></div>"
             + "<input class='bcdHidden'/>"
-            + "<span class='bcdButton'><a href='javascript:void(0)'>" + caption2 + "</a></span>"
+            + "<span class='bcdButton' " + buttoStyle + "><a href='javascript:void(0)'>" + caption2 + "</a></span>"
             + ("<span class='bcdValue'>"
               + (textInput ?
                 ( " <input type='text' class='bcdYear' maxLength='4'/>"
@@ -249,6 +275,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
    * @private
    */
   _initElement: function(containerHtmlElement) {
+    
+    bcdui.widget.periodChooser.setSimpleXPathMode(containerHtmlElement);
+
     this._adjustDefaultParameters(containerHtmlElement);
       var id = containerHtmlElement.getAttribute("id");
       if (!id) {
@@ -294,6 +323,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         if (node == null)
           node = bcdui.core.createElementWithPrototype(targetModel.getData(), config.targetModelXPath);
         if (node != null) {
+          if (node.nodeType == 2)
+            node = targetModel.getData().selectSingleNode(config.targetModelXPath + "/..");
           
           // get postfix from html
           var pt = node.getAttribute("bcdPostfix");
@@ -304,9 +335,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
             if (filterNodes.length > 0) {
               pt = filterNodes[0].getAttribute("bRef");
               pt = (pt.indexOf("_") != -1) ? pt.substring(pt.indexOf("_") + 1) : "";
-              if (pt == "")
-                pt = "bcdEmpty";
             }
+            if (pt == null || pt == "")
+              pt = "bcdEmpty";
           }
 
           postfix = bcdui.widget.periodChooser._getValidPostfix(config, pt != null ? pt : postfix);
@@ -376,20 +407,35 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   
           // grab simple =, >=, <= period types
           var __names = bcdui.widget.periodChooser._getBindingItemNames(id);
-          for (var x in __names) {
-            var newName = __names[x].indexOf("_") == -1 ? __names[x] : __names[x].substring(0, __names[x].indexOf("_"));
-            var value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value"); value = value == null ? "" : value.text;
-            if (value != "") argsFrom[newName] = value;
-            value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
-            if (value != "") argsTo[newName] = value;
+
+          if (t.useSimpleXPath) {
+            for (var x in __names) {
+              var newName = __names[x].indexOf("_") == -1 ? __names[x] : __names[x].substring(0, __names[x].indexOf("_"));
+              if (newName == "dy") {
+                var node = t.doc.selectSingleNode(t.targetModelXPath);
+                var value = node != null ? node.text : "";
+                argsFrom[newName] = argsTo[newName] = value;
+              }
+            }
           }
-          // grab multi year period types (we're only interested in the outer ranges)
-          for (var x in __names) {
-            var newName = __names[x].indexOf("_") == -1 ? __names[x] : __names[x].substring(0, __names[x].indexOf("_"));
-            var value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Or/f:And[f:Expression[@op='>=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value"); value = value == null ? "" : value.text;
-            if (value != "") argsFrom[newName] = value;
-            value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Or/f:And[f:Expression[@op='<=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
-            if (value != "") argsTo[newName] = value;
+          else {
+    
+            // grab simple =, >=, <= period types
+            for (var x in __names) {
+              var newName = __names[x].indexOf("_") == -1 ? __names[x] : __names[x].substring(0, __names[x].indexOf("_"));
+              var value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value"); value = value == null ? "" : value.text;
+              if (value != "") argsFrom[newName] = value;
+              value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
+              if (value != "") argsTo[newName] = value;
+            }
+            // grab multi year period types (we're only interested in the outer ranges)
+            for (var x in __names) {
+              var newName = __names[x].indexOf("_") == -1 ? __names[x] : __names[x].substring(0, __names[x].indexOf("_"));
+              var value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Or/f:And[f:Expression[@op='>=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value"); value = value == null ? "" : value.text;
+              if (value != "") argsFrom[newName] = value;
+              value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Or/f:And[f:Expression[@op='<=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
+              if (value != "") argsTo[newName] = value;
+            }
           }
 
           // let's convert the found values to iso dates
@@ -420,6 +466,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         bcdui.widget.periodChooser.getNavPath(jQuery(containerHtmlElement).parent().attr("id"), function(id, value) {
           bcdui.widget._linkNavPath(id, value);
         }.bind(this));
+
+        if (containerHtmlElement.getAttribute("bcdAutoPopup") == "true") {
+          var values = jQuery(containerHtmlElement).find("span.bcdValue").first().get(0);
+          var hiddens = jQuery(containerHtmlElement).find("input.bcdHidden").first().get(0);
+          bcdui.widget.periodChooser._showPopup(values, hiddens, "from");
+        }
       });
     },
     /**
@@ -445,14 +497,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
       t.validateWrapperUrl = bcdui.contextPath + "/bcdui/js/widget/periodChooser/periodChooserValidate.xslt";
       t.validateWrapperParameters = {
         from: new bcdui.core.DataProviderWithXPath({
-          id: fromId,
           name: fromId + "_name",
           source: t.targetModel,
           xPath: xpathFrom,
           nullValue: ""
         }),
         to: new bcdui.core.DataProviderWithXPath({
-          id: toId,
           name: toId + "_name",
           source: t.targetModel,
           xPath: xpathTo,
@@ -472,7 +522,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var id = containerHtmlElement.getAttribute("id");
     var t = bcdui.widget.periodChooser._getTargetData(containerHtmlElement);
       var xpath = t.targetModelXPath;
-      if (!bcdui.widget._isWrs(t.doc)) {
+      if (!t.useSimpleXPath && !bcdui.widget._isWrs(t.doc)) {
         if (!bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)){
           xpath += "/f:Expression[@bRef='" + bcdui.widget.periodChooser._getBindingItemName(id, "various") + "']/@value";
         }
@@ -542,6 +592,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           isMonthSelectable: containerHtmlElement.getAttribute("bcdIsMonthSelectable") != "false",
           isQuarterSelectable: containerHtmlElement.getAttribute("bcdIsQuarterSelectable") != "false",
           isYearSelectable: containerHtmlElement.getAttribute("bcdIsYearSelectable") != "false",
+          useSimpleXPath: containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true",
           id: containerHtmlElement.getAttribute("id")
       };
     },
@@ -636,6 +687,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     _getDateFromXPath: function(doc, targetModelXPath, outputPeriodType){
       var xpathFrom = targetModelXPath;
       if (!bcdui.widget._isWrs(doc)) {
+        if (doc.selectSingleNode(targetModelXPath) != null && doc.selectSingleNode(targetModelXPath).nodeType == 2)
+          xpathFrom = targetModelXPath + "/../@dateFrom";
+        else
         xpathFrom = targetModelXPath + "/@dateFrom";
       }
       return xpathFrom;
@@ -648,6 +702,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     _getDateToXPath: function(doc, targetModelXPath, outputPeriodType){
       var xpathTo = targetModelXPath;
       if (!bcdui.widget._isWrs(doc)) {
+        if (doc.selectSingleNode(targetModelXPath) != null && doc.selectSingleNode(targetModelXPath).nodeType == 2)
+          xpathTo = targetModelXPath + "/../@dateTo";
+        else
         xpathTo = targetModelXPath + "/@dateTo";
       }
       return xpathTo;
@@ -920,6 +977,11 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         return;
       var from = bcdui.util.datetime.parseDate(dateFrom);
       var to = bcdui.util.datetime.parseDate(dateTo);
+
+      if (pcConfig.useSimpleXPath) {
+        bcdui.core.createElementWithPrototype(doc, xPath).text  = bcdui.util.datetime.formatDate(from);
+        return;
+      }
 
       if (pcConfig.outputPeriodType){
         // if isYear range
@@ -1621,6 +1683,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
             }
           } else {
             var targetElement = bcdui.core.createElementWithPrototype(t.doc, t.targetModelXPath);
+            if (targetElement.nodeType == 2)
+              targetElement = t.doc.selectSingleNode(t.targetModelXPath + "/..");
             if (message) {
               targetElement.setAttribute("isValid", "false");
               targetElement.setAttribute("message", message);

@@ -762,6 +762,21 @@
             Set this to true if the buttons should not have any caption text. Default is false.
           </Doc>
         </Param>
+        <Param name="useSimpleXPath" type="boolean" default="false">
+          <Doc>
+            Set this to true if you want a minimal periodchooser setup (only day selectable via popcalendar) which only writes an ISO date to an XPath which you provide (not a complex one in normal mode). Default is false.
+          </Doc>
+        </Param>
+        <Param name="autoPopup" type="string" default="false">
+          <Doc>
+            Set this to true if the popup calendar should appear after creation. Default is false.
+          </Doc>
+        </Param>
+        <Param name="suppressButtons" type="boolean" default="false">
+          <Doc>
+            Set this to true if from and to buttons should be hidden. Default is false.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="singleSelect" extends="widget hasTarget hasCaptions">
