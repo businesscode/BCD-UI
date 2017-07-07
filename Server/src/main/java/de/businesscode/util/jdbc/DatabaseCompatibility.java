@@ -320,7 +320,7 @@ public class DatabaseCompatibility
             "OVER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",
-            "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "TO", "MONTH",  "SECOND",
+            "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
             "FLOAT", "REAL", "DECIMAL",
             "EXTRACT", "FROM",
             "CHAR", "CHARACTER", "NVARCHAR2", "NCHAR", "VARCHAR2", "VARCHAR",
@@ -354,7 +354,9 @@ public class DatabaseCompatibility
     sqlKeyWordsSqlServer.addAll(
         Arrays.asList( new String[]
           {
-            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "ISO_WEEK", "FORMAT"
+            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK",
+            "ISO_WEEK", "QUARTER", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
+            "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS"
           }
         )
       );
