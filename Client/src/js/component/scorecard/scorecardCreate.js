@@ -89,33 +89,34 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     this.targetHtml = args.targetHtml;
     args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
 
-    if (! args.enhancedConfiguration && args.config)
-      args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
-    if (! args.enhancedConfiguration && args.inputModel)
-      args.enhancedConfiguration = args.inputModel;
-    if (! args.enhancedConfiguration) {
+    if (! args.inputModel && ! args.config) {
       bcdui.log.error("Scorecard "+this.id+" has neither an inputModel nor a config parameter");
       return;
     }
 
-    this.inputModel = new bcdui.core.DataProviderHolder();
-    bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
+    // generate enhancedConfiguration out of config
+    if (args.config)
+      args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
 
-      var enhancedConfiguration = bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration);
-      var rqModel = null;
-      // don't run when we don't have at least one KpiRef
-      if( ! enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef") )
-        rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
-      else if( !!args.config )
-        rqModel = new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter });
-      else if( !!args.inputModel )
-        rqModel = args.inputModel;
-      this.inputModel.setSource(rqModel);
-    }.bind(this));
+    var dpHolder = new bcdui.core.DataProviderHolder();
+
+    // if we got an input model, we can directly proceed
+    if (!!args.inputModel)
+      dpHolder.setSource(args.inputModel);
+    else {
+      bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
+        // don't run (provide an empty wrq) when we don't have at least one KpiRef in our configuration
+        dpHolder.setSource(
+          rqModel = ! args.enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef")
+          ? new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" )
+          : new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter })
+        );
+      }.bind(this));
+    }
 
     bcdui.core.Renderer.call( this, {
       id: this.id,
-      inputModel: this.inputModel,
+      inputModel: dpHolder,
       targetHtml: args.targetHtml, 
       chain: args.chain,
       parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
