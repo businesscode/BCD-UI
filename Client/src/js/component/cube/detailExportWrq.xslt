@@ -39,7 +39,7 @@
   exclude-result-prefixes="exslt msxsl">
 
   <!-- Creates filters from the cell position in the report (using bcdRow/ColIdent and the Wrs needs to be the input model)  -->
-  <xsl:import href="../../../xslt/renderer/filterFromCell.xslt"/>
+  <xsl:import href="cubeFilterFromCell.xslt"/>
 
   <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
@@ -107,19 +107,6 @@
           <xsl:apply-templates select="$cellAndGuiStatusFilter/*/f:Filter/*"/> <!-- Derived from guiStatus and cell -->
           <xsl:copy-of select="$measure/dm:DetailData/f:Filter/*"/>
         </f:Filter>
-
-        <!-- copy vdm maps -->
-        <xsl:if test="$cubeEnhancedConfiguration/*/cube:Layout/cube:Dimensions/*/dm:LevelRef/cube:VDM/cube:Map">
-	      <wrq:Vdms>
-	        <xsl:for-each select="$cubeEnhancedConfiguration/*/cube:Layout/cube:Dimensions/*/dm:LevelRef[cube:VDM]">
-	          <wrq:Vdm bRef="{@bRef}">
-	            <xsl:for-each select="cube:VDM/cube:Map">
-	              <wrq:VdmMap from="{@from}" to="{@to}"/>
-	            </xsl:for-each>
-	          </wrq:Vdm>
-	        </xsl:for-each>
-	      </wrq:Vdms>
-	    </xsl:if>
 
       </wrq:Select>
     </wrq:WrsRequest>
