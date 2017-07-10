@@ -131,7 +131,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
         if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
         if (args.pageSizeAdjust)
-          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery("body").prop("scrollWidth") + "px");
+          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", jQuery(document).width() + "px");
 
         if (args.sideBarAutoScroll) {
           var docHeight     = jQuery(document).height();
@@ -183,8 +183,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
         if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
         if (args.pageSizeAdjust) {
-          var w = jQuery(document).width() > jQuery("body").width() ? jQuery(document).width() : jQuery("body").width();
-          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", w + "px");
+          var docWidth     = jQuery(document).width();
+          var bodyWidth    = jQuery("body").width();
+          var scrollX      = jQuery("html").scrollLeft() > jQuery("body").scrollLeft() ? jQuery("html").scrollLeft() : jQuery("body").scrollLeft();
+          var newWidth = bodyWidth;
+          if (scrollX + bodyWidth >= docWidth)
+            newWidth = docWidth;
+          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", newWidth + "px");
         }
       });
     }
