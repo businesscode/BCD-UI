@@ -98,15 +98,15 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     if (args.config)
       args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
 
-    var dpHolder = new bcdui.core.DataProviderHolder();
+    this.inputModel = new bcdui.core.DataProviderHolder();
 
     // if we got an input model, we can directly proceed
     if (!!args.inputModel)
-      dpHolder.setSource(args.inputModel);
+      this.inputModel.setSource(args.inputModel);
     else {
       bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
         // don't run (provide an empty wrq) when we don't have at least one KpiRef in our configuration
-        dpHolder.setSource(
+        this.inputModel.setSource(
           rqModel = ! args.enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef")
           ? new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" )
           : new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter })
@@ -116,7 +116,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
 
     bcdui.core.Renderer.call( this, {
       id: this.id,
-      inputModel: dpHolder,
+      inputModel: this.inputModel,
       targetHtml: args.targetHtml, 
       chain: args.chain,
       parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
