@@ -139,7 +139,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       // Create the context menu
       if( !!args.contextMenu && args.contextMenu !== 'false' && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === true || args.contextMenu === 'true' ? bcdui.config.jsLibPath+"component/scorecard/contextMenu.xslt" : args.contextMenu;
-        var bcdPageAccess = " " + (bcdui.config.clientRights.bcdPageAccess || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
+        var bcdPageAccess = " " + ((bcdui.config.clientRights && bcdui.config.clientRights.bcdPageAccess) || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
         this.contextMenu = new bcdui.core.ModelWrapper({ chain: contextMenuUrl, inputModel: this.statusModel,
           parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, sccDefinition: args.enhancedConfiguration, bcdPageAccess: bcdPageAccess } });
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
