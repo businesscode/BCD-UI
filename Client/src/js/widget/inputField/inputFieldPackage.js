@@ -596,7 +596,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
           } else
             newV = result.value;
   
-          var gotFocus = document.activeElement != null && document.activeElement.id == bcdui._migPjs._$(htmlElementId).get(0).id;
+          var gotFocus = document.activeElement != null && document.activeElement.id == htmlElement.id;
   
           if (! gotFocus && newV == "" && htmlElement.getAttribute("bcdOptionsModelId") ) {
             if( htmlElement.getAttribute("bcdEmptyValue")=="true" )
