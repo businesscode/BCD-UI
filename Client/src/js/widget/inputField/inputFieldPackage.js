@@ -664,7 +664,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
 
       // Handling for a drop-down single select, find which value to write to tatgetModel
       var optionsModel = bcdui.factory.objectRegistry.getObject(htmlElement.getAttribute("bcdOptionsModelId"));
-      if( optionsModel && optionsModel.getData().selectSingleNode("/*/wrs:RequestDocument/wrq:WrsService[@serviceName='BcdMultiLevelSuggest']") ) {
+      if( optionsModel && optionsModel.isReady() && optionsModel.getData().selectSingleNode("/*/wrs:RequestDocument/wrq:WrsService[@serviceName='BcdMultiLevelSuggest']") ) {
         var optionsModelXPath = htmlElement.getAttribute("bcdOptionsModelXPath") || "";
         var caption = htmlElement.value;
         var cellNodes = optionsModel.getData().selectNodes("/*/wrs:Data/wrs:R[@id='"+htmlElement.getAttribute("bcdSelectedRowId")+"']/wrs:C");
