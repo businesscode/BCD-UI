@@ -15,7 +15,7 @@
 
   <xsl:template match="/">
     <xsl:variable name="itemId" select="substring-before($bcdRowIdent,'|')"/>
-    <table class="bcdTooltip">
+    <table class="bcdTooltip bcdScDndTooltip">
       <xsl:variable name="kpiNode" select="$scConfig/*/scc:Kpis/scc:Kpi[@id=substring-before($bcdRowIdent,'|')]"/>
       <tbody>
         <xsl:if test="$kpiNode and $kpiNode/scc:Description/.!=''">

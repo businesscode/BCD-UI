@@ -82,7 +82,7 @@
   <xsl:variable name="kpiDescription" select="$kpi/scc:Description"/>
 
   <xsl:if test="$attrs[string(.)] or ($bcdColIdent='bcd_kpi_id' and $kpiDescription)">
-    <table class="bcdTooltip">
+    <table class="bcdTooltip bcdScTooltip">
 
       <!-- Print KPI caption -->
       <thead><tr><th><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
