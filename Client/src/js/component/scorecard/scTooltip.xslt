@@ -127,20 +127,14 @@
         <!-- scc:Description main text -->
         <xsl:if test="string-length($kpiDescription)">
           <tr>
-            <th colspan="2">
-              <xsl:value-of select="$kpiDescription"/>
-            </th>
+            <th colspan="2"><xsl:value-of select="$kpiDescription"/></th>
           </tr>
         </xsl:if>
         <!-- scc:Description attributes -->
         <xsl:for-each select="$kpiDescription/@*">
           <tr>
-            <th>
-              <xsl:value-of select="local-name()"/>:
-            </th>
-            <th>
-              <xsl:value-of select="."/>
-            </th>
+            <th><xsl:value-of select="local-name()"/>:</th>
+            <th><xsl:value-of select="."/></th>
           </tr>
         </xsl:for-each>
       </xsl:if>
