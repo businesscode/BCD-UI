@@ -23,7 +23,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 /**
- *  Cache factory to managed BCD caches
+ * Cache factory to BCD-UI managed caches, (currently backed by ehCache v2). You can access the {@link CacheManager} via {@link #getCacheManager()}
  **/
 public class CacheFactory {
   private static final String CACHE_ID_VFS = "de.businesscode.bcdui.vfs.DataBaseFileSystem";
@@ -36,11 +36,9 @@ public class CacheFactory {
 
 
   /**
-   *
-   * Method getCacheManager
-   * @return
+   * @return the default {@link CacheManager} configured by 'ehcache.xml' from given classpath.
    */
-  private static CacheManager getCacheManager(){
+  public static CacheManager getCacheManager(){
     if(bcdCacheManager == null){
       synchronized (CacheFactory.class) {
         if(bcdCacheManager == null){
@@ -54,9 +52,7 @@ public class CacheFactory {
 
 
   /**
-   *
-   * Method getVFSCache
-   * @return
+   * @return {@link Cache} for VFS entries. 
    */
   public static Cache getVFSCache(){
     getCacheManager().addCacheIfAbsent(CACHE_ID_VFS);
