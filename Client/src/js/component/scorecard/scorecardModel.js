@@ -771,11 +771,15 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
         var oldColDimLevelIds = columnHeaderNode.getAttribute("colDimLevelIds") || "";
         var cat = "";
         jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("idRef");});
+        // if we don't have any coldims, we don't start with a pipe separator
+        if (oldColDimLevelIds == "") cat = cat.substring(1);
         columnHeaderNode.setAttribute("colDimLevelIds", oldColDimLevelIds + cat + "|bcd_kpi_id");
 
         var oldColDimLevelCaptions = columnHeaderNode.getAttribute("colDimLevelCaptions") || "";
         var cat = "";
         jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("caption");});
+        // if we don't have any coldims, we don't start with a pipe separator
+        if (oldColDimLevelCaptions == "") cat = cat.substring(1);
         columnHeaderNode.setAttribute("colDimLevelCaptions", oldColDimLevelCaptions + cat + "|");
       }
       // Scorecard is ready
