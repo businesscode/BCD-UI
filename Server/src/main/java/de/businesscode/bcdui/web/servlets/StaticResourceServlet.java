@@ -95,7 +95,7 @@ public class StaticResourceServlet extends HttpServlet {
   /**
    * file extensions to be served from VFS
    */
-  static String[] vfsFileExtensions={"xml","txt"};//default values
+  static String[] vfsFileExtensions={"xml","txt","xslt"};//default values
   /**
    * init parameter name to set VFS file extensions
    */
