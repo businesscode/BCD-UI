@@ -163,26 +163,27 @@
       <R id="R152"><C>bcd_GroupingEditorGroupName</C><C>Grouping Name</C><C>en</C></R>
       
       <!-- blindUpDown captions for cube and scorecard, ranking -->
-      <R id="R160"><C>bcd_Sc_Blind_Templates</C><C>Scorecard Templates</C><C>en</C></R>
-      <R id="R161"><C>bcd_Sc_Blind_Definition</C><C>Scorecard Definition</C><C>en</C></R>
-      <R id="R162"><C>bcd_Sc_Blind_Layout</C><C>Scorecard Layout</C><C>en</C></R>
-      <R id="R163"><C>bcd_Sc_Blind_Settings</C><C>Scorecard Additional Settings</C><C>en</C></R>
-      <R id="R164"><C>bcd_Sc_Blind_Rank</C><C>Scorecard Ranks</C><C>en</C></R>
-      <R id="R165"><C>bcd_Cb_Blind_Templates</C><C>Report Templates</C><C>en</C></R>
-      <R id="R166"><C>bcd_Cb_Blind_Definition</C><C>Report Definition</C><C>en</C></R>
-      <R id="R167"><C>bcd_Cb_Blind_Layout</C><C>Report Layout</C><C>en</C></R>
-      <R id="R168"><C>bcd_Cb_Blind_Settings</C><C>Cube Additional Settings</C><C>en</C></R>
-      <R id="R169"><C>bcd_Cb_Blind_Rank</C><C>Report Ranks</C><C>en</C></R>
-      <R id="R170"><C>bcd_Rank_Aspect</C><C>Aspect</C><C>en</C></R>
-      <R id="R171"><C>bcd_Rank_Dimension</C><C>Dimension</C><C>en</C></R>
-      <R id="R172"><C>bcd_Rank_Measure</C><C>Measure</C><C>en</C></R>
-      <R id="R173"><C>bcd_Rank_Show</C><C>Show</C><C>en</C></R>
-      <R id="R174"><C>bcd_Rank_Rows</C><C>Rows</C><C>en</C></R>
-      <R id="R175"><C>bcd_Rank_Addk</C><C>Add a Rank</C><C>en</C></R>
-      <R id="R176"><C>bcd_Rank_Remk</C><C>Remove Rank</C><C>en</C></R>
-      <R id="R177"><C>bcd_Rank_Err</C><C>Please fill all fields and enter a rows value bigger 0</C><C>en</C></R>
-      <R id="R178"><C>bcd_Rank_Top</C><C>Top</C><C>en</C></R>
-      <R id="R179"><C>bcd_Rank_Bottom</C><C>Bottom</C><C>en</C></R>
+      <R id="R155"><C>bcd_Sc_Blind_Templates</C><C>Scorecard Templates</C><C>en</C></R>
+      <R id="R156"><C>bcd_Sc_Blind_Definition</C><C>Scorecard Definition</C><C>en</C></R>
+      <R id="R157"><C>bcd_Sc_Blind_Layout</C><C>Scorecard Layout</C><C>en</C></R>
+      <R id="R158"><C>bcd_Sc_Blind_Settings</C><C>Scorecard Additional Settings</C><C>en</C></R>
+      <R id="R159"><C>bcd_Sc_Blind_Rank</C><C>Scorecard Ranks</C><C>en</C></R>
+      <R id="R160"><C>bcd_Cb_Blind_Templates</C><C>Report Templates</C><C>en</C></R>
+      <R id="R161"><C>bcd_Cb_Blind_Definition</C><C>Report Definition</C><C>en</C></R>
+      <R id="R162"><C>bcd_Cb_Blind_Layout</C><C>Report Layout</C><C>en</C></R>
+      <R id="R163"><C>bcd_Cb_Blind_Settings</C><C>Cube Additional Settings</C><C>en</C></R>
+      <R id="R164"><C>bcd_Cb_Blind_Rank</C><C>Report Ranks</C><C>en</C></R>
+      <R id="R165"><C>bcd_Rank_Aspect</C><C>Aspect</C><C>en</C></R>
+      <R id="R166"><C>bcd_Rank_Dimension</C><C>Dimension</C><C>en</C></R>
+      <R id="R167"><C>bcd_Rank_Measure</C><C>Measure</C><C>en</C></R>
+      <R id="R168"><C>bcd_Rank_Show</C><C>Show</C><C>en</C></R>
+      <R id="R169"><C>bcd_Rank_Rows</C><C>Rows</C><C>en</C></R>
+      <R id="R170"><C>bcd_Rank_Addk</C><C>Add a Rank</C><C>en</C></R>
+      <R id="R171"><C>bcd_Rank_Remk</C><C>Remove Rank</C><C>en</C></R>
+      <R id="R172"><C>bcd_Rank_Err</C><C>Please fill all fields and enter a rows value bigger 0</C><C>en</C></R>
+      <R id="R173"><C>bcd_Rank_Top</C><C>Top</C><C>en</C></R>
+      <R id="R174"><C>bcd_Rank_Bottom</C><C>Bottom</C><C>en</C></R>
+      <R id="R175"><C>bcd_Rank_NoDim</C><C>Add dimension beneath KPI for ranking</C><C>en</C></R>
 
       <!-- UniversalFilter -->
       <R id="R200"><C>bcd_widget_universalFilter_valueNotNull</C><C>is not null</C><C>en</C></R>
