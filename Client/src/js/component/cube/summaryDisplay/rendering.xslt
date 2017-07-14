@@ -173,9 +173,9 @@
   <!-- Helper for cube exclude-->
   <xsl:template name="excludedDimensionsValues">
     <xsl:param name="bRef"/>
-    <xsl:if test="count(/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef and f:Expression])">
+    <xsl:if test="count(/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef])">
       <li><xsl:text>Excluded values: </xsl:text>
-        <xsl:for-each select="/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef and f:Expression]">
+        <xsl:for-each select="/*/f:Filter/*[@type=concat('bcdCubeExclude_',$objectId) and @exclBRef=$bRef]">
           <xsl:if test="position() > 1">, </xsl:if>
             <xsl:for-each select="descendant-or-self::f:Expression[@value or not(@op='=')]"> <!-- skip those with empty @value as they just serve allowing null for these in the sql -->
               <xsl:if test="position() > 1"> / </xsl:if>
