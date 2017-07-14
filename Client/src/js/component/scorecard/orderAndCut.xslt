@@ -20,6 +20,7 @@
   xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
   xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
@@ -52,8 +53,12 @@
 
   <xsl:variable name="doc" select="/"/>
   
-  <xsl:variable name="kpiPos" select="key('colHeadById','bcd_kpi_id')/@pos"/>  
-  
+  <xsl:variable name="kpiPos" select="key('colHeadById','bcd_kpi_id')/@pos"/>
+
+  <xsl:variable name="gotColDims" select="boolean($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef)"/>
+  <xsl:variable name="kpiAsRows" select="boolean($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/scc:LevelKpi)"/>
+  <xsl:variable name="colDimIdx" select="$headerCs[@id=$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef[position()=1]/@bRef]/@pos"/>
+
   <xsl:template match="/">
 
     <xsla:stylesheet version="1.0"
@@ -92,14 +97,29 @@
       <xsla:variable name="doc" select="/"/>
       
       <xsla:variable name="kpiPos" select="key('colHeadById','bcd_kpi_id')/@pos"/>
-    
+
+      <!-- the key consists of all C's up to the KPI
+           in case of row kpis and additional column dimensions, the key also takes these column dims into account
+      -->
       <xsl:variable name="use">
-        <xsl:text>concat('',''</xsl:text>
-          <xsl:for-each select="$doc/*/wrs:Header/wrs:Columns/wrs:C[position() &lt;= $kpiPos]">
-            <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]</xsl:text>
-            <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]/@bcdGr</xsl:text>
-          </xsl:for-each>
-          <xsl:text>)</xsl:text>
+        <xsl:choose>
+          <xsl:when test="$gotColDims and $kpiAsRows">
+            <xsl:text>concat('',''</xsl:text>
+              <xsl:for-each select="$doc/*/wrs:Header/wrs:Columns/wrs:C[position() &lt;= $kpiPos or (position() &gt;= $colDimIdx and @dimId!='')]">
+                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]</xsl:text>
+                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]/@bcdGr</xsl:text>
+              </xsl:for-each>
+              <xsl:text>)</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>concat('',''</xsl:text>
+              <xsl:for-each select="$doc/*/wrs:Header/wrs:Columns/wrs:C[position() &lt;= $kpiPos]">
+                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]</xsl:text>
+                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]/@bcdGr</xsl:text>
+              </xsl:for-each>
+              <xsl:text>)</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:variable>
 
       <xsla:key name="rowKey" match="/*/wrs:Data/wrs:R" use="{$use}"/>
@@ -109,12 +129,23 @@
           <xsla:copy-of select="@*"/>
           <xsla:for-each select="*">
 
-            <!-- sort everything before kpi -->
-            <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos][@sort | @total]">
-              <xsl:call-template name="generateSort">
-                <xsl:with-param name="elem" select="."/>
-              </xsl:call-template>
-            </xsl:for-each>
+            <!-- sort everything before kpi (for row kpis with column dimension, we also sort the column dimensions) -->
+            <xsl:choose>
+              <xsl:when test="$gotColDims and $kpiAsRows">
+                <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos or (position() &gt;= $colDimIdx and @dimId!='')][@sort | @total]">
+                  <xsl:call-template name="generateSort">
+                    <xsl:with-param name="elem" select="."/>
+                  </xsl:call-template>
+                </xsl:for-each>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos][@sort | @total]">
+                  <xsl:call-template name="generateSort">
+                    <xsl:with-param name="elem" select="."/>
+                  </xsl:call-template>
+                </xsl:for-each>
+              </xsl:otherwise>
+            </xsl:choose>
 
             <!-- sort kpi using its original ordering -->
             <xsla:sort select="count($sccDefinition/*/scc:Layout/scc:KpiRefs/scc:KpiRef[@idRef=current()/wrs:C[$kpiPos]/@id]/preceding-sibling::*)" order="ascending"/>
@@ -123,12 +154,23 @@
             <xsla:if test="generate-id(.)=generate-id(key('rowKey',{$use}))">
               <xsla:for-each select="key('rowKey',{$use})">
 
-                <!-- sort everything after kpi -->
-                <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos][@sort | @total]">
-                  <xsl:call-template name="generateSort">
-                    <xsl:with-param name="elem" select="."/>
-                  </xsl:call-template>
-                </xsl:for-each>
+                <!-- sort everything after kpi (for row kpis with column dimension, we exclude the column dimensions, since they were part of the sort before already) -->
+                <xsl:choose>
+                  <xsl:when test="$gotColDims and $kpiAsRows">
+                    <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos and not(position() &gt;= $colDimIdx and @dimId='')][@sort | @total]">
+                      <xsl:call-template name="generateSort">
+                        <xsl:with-param name="elem" select="."/>
+                      </xsl:call-template>
+                    </xsl:for-each>
+                  </xsl:when>
+                  <xsl:otherwise>
+                   <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos][@sort | @total]">
+                      <xsl:call-template name="generateSort">
+                        <xsl:with-param name="elem" select="."/>
+                      </xsl:call-template>
+                    </xsl:for-each>
+                  </xsl:otherwise>
+                </xsl:choose>
 
                 <!-- limit output -->
                 <xsl:choose>
