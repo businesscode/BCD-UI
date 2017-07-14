@@ -294,12 +294,12 @@
     <f:And>
       <xsl:variable name="dimName">
         <xsl:choose>
-          <xsl:when test="$toDimId!=''"><xsl:value-of select="$toDimId"/></xsl:when>
+          <xsl:when test="$toDimId!=''"><xsl:value-of select="concat($toDimId, '_exclude')"/></xsl:when>
           <xsl:otherwise><xsl:value-of select="@bcdDimension"/></xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
       <xsl:attribute name="bcdDimension">
-        <xsl:value-of select="concat($dimName, '_exclude')"/>
+        <xsl:value-of select="$dimName"/>
       </xsl:attribute>
       <xsl:apply-templates select="f:Or" mode="detailTranslate"/>
     </f:And>
