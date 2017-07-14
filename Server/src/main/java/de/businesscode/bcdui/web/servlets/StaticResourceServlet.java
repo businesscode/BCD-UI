@@ -92,7 +92,6 @@ public class StaticResourceServlet extends HttpServlet {
   static String bcduiOverwriteDefaultFolderName="bcduiOverwrite";
   private String bcduiOverwriteFolderName=bcduiOverwriteDefaultFolderName;
   private final String bcduiOverwriteFolderInitParamName="bcduiOverwriteFolderName";
-  static BindingSet virtualFileSystemBindingSet = null;
   /**
    * file extensions to be served from VFS
    */
@@ -115,18 +114,6 @@ public class StaticResourceServlet extends HttpServlet {
     Arrays.sort(vfsFileExtensions);// for binary searching
 
     existOverridden = config.getServletContext().getRealPath( "/"+bcduiOverwriteFolderName) != null;
-
-    try {
-      virtualFileSystemBindingSet = Bindings.getInstance().get(DatabaseFileSystemConfigBuilder.bindingSetId
-          , Arrays.asList(
-              DatabaseFileSystemConfigBuilder.pathBindingSetItemId
-              ,DatabaseFileSystemConfigBuilder.resourceBlobBindingSetItemId
-              ,DatabaseFileSystemConfigBuilder.bindingItemIdResourceClob
-          )
-      );
-    } catch (BindingException e) {
-      log.debug("did not find the bindingSet for VFS: " + DatabaseFileSystemConfigBuilder.bindingSetId +" - no VFS is activated");
-    }
   }
 
   /**
@@ -204,6 +191,7 @@ public class StaticResourceServlet extends HttpServlet {
    * a static resource provider singleton
    */
   public static class StaticResourceProvider implements ResourceProvider {
+    private final static ResourceProvider vfsResrouceProvider = Configuration.getClassInstance(Configuration.OPT_CLASSES.VFSRESOURCEPROVIDER, new Class<?>[]{});
     private static StaticResourceProvider instance;
     public synchronized static StaticResourceProvider getInstance(){
       if(instance == null){
@@ -211,7 +199,20 @@ public class StaticResourceServlet extends HttpServlet {
       }
       return instance;
     }
-    private StaticResourceProvider(){}
+    private BindingSet virtualFileSystemBindingSet = null;
+    private StaticResourceProvider(){
+      try {
+        virtualFileSystemBindingSet = Bindings.getInstance().get(DatabaseFileSystemConfigBuilder.bindingSetId
+            , Arrays.asList(
+                DatabaseFileSystemConfigBuilder.pathBindingSetItemId
+                ,DatabaseFileSystemConfigBuilder.resourceBlobBindingSetItemId
+                ,DatabaseFileSystemConfigBuilder.bindingItemIdResourceClob
+            )
+        );
+      } catch (BindingException e) {
+        log.debug("Did not find the bindingSet for VFS: " + DatabaseFileSystemConfigBuilder.bindingSetId +" - no VFS is activated");
+      }
+    }
     /**
      * Gets the resource specified in the request URI.
      * @param context The servlet context used to locate the files if it is a file resource.
@@ -262,11 +263,6 @@ public class StaticResourceServlet extends HttpServlet {
         res = new LocalResource( fullyQualifiedPath, overwriteFile, null );
       }
       return res;
-    }
-
-    final static ResourceProvider vfsResrouceProvider;
-    static {
-      vfsResrouceProvider = Configuration.getClassInstance(Configuration.OPT_CLASSES.VFSRESOURCEPROVIDER, new Class<?>[]{});
     }
 
     /**
