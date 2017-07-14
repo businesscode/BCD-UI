@@ -1159,17 +1159,22 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
       jQuery.makeArray(targetModel.queryNodes("/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']")).forEach(function(n) {
 
-        // remove filter which are not unique and the required levels are missing
-        if (!e.unique) {
-          var count = 0;
-          e.requires.forEach(function(r){ count += (targetModel.query("/*/f:Filter//f:Expression[@bRef='" + r + "']") != null) ? 1 : 0; });
-          if (count < e.requires.length)
-            bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']");
-        }
+        // don't check filters which are in a dimchooser structure (inc./exl.) or a cube exclude
+        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null
+            && n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "_exclude']") == null
+            && n.selectSingleNode("./ancestor::*[@exclBRef]") == null
+        ) {
+          // remove filter which are not unique and the required levels are missing
+          if (!e.unique) {
+            var count = 0;
+            e.requires.forEach(function(r){ count += (targetModel.query("/*/f:Filter//f:Expression[@bRef='" + r + "']") != null) ? 1 : 0; });
+            if (count < e.requires.length)
+              bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']");
+          }
+  
+          // check what to do with free floating filters
+          var doAddNode = true;
 
-        // check what to do with free floating filters
-        var doAddNode = true;
-        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null && n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "_exclude']") == null) {
           // we don't have a dimchooser outer node, so create it and add the free float
           var root = targetModel.query("/*/f:Filter/f:Or[@bcdDimension='" + config.dimensionName + "']/f:And");
           if (root == null)
