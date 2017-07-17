@@ -516,16 +516,17 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
   _cleanUp : function (cubeId) {
 
     var targetModelId = jQuery(".bcd_" + cubeId + "_dnd").data("targetModelId") || "guiStatus";
+    var targetModel = bcdui.factory.objectRegistry.getObject(targetModelId);
     var cubeLayoutRoot = "/cube:Layout[@cubeId='" + cubeId + "']";
-    var gotColDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef").length > 0;
-    var gotRowDimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef").length > 0;
-    var gotVDM = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/*/dm:LevelRef/cube:VDM").length > 0;
+    var gotColDimensions = targetModel.queryNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef").length > 0;
+    var gotRowDimensions = targetModel.queryNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef").length > 0;
+    var gotVDM = targetModel.queryNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/*/dm:LevelRef/cube:VDM").length > 0;
     var layoutRoot =  "/*/cube:Layout[@cubeId='" + cubeId + "']";
     var doRedisplay = false;
 
     // remove 'cumulateCol' when no rowDimension is available anymore
     if (! gotRowDimensions) {
-      var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@cumulateCol]");
+      var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@cumulateCol]");
       for (var n = 0; n < nodes.length; n++)
         nodes[n].removeAttribute("cumulateCol");
       if (nodes.length > 0)
@@ -534,7 +535,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
     // remove 'cumulateRow' when no colDimension is available anymore
     if (! gotColDimensions) {
-      var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@cumulateRow]");
+      var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@cumulateRow]");
       for (var n = 0; n < nodes.length; n++)
         nodes[n].removeAttribute("cumulateRow");
       if (nodes.length > 0)
@@ -543,7 +544,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     
     // remove simple 'sort' when colDimension or a VDM are available
     if (gotColDimensions || gotVDM) {
-      var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@sort]");
+      var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@sort]");
       for (var n = 0; n < nodes.length; n++) {
         nodes[n].removeAttribute("sort");
         doRedisplay = true;
@@ -551,10 +552,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     }
 
     // remove obsolete sortBy
-    var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@sortBy]");
+    var nodes = targetModel.queryNodes(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@sortBy]");
     for (var n = 0; n < nodes.length; n++) {
       var sortBy = nodes[n].getAttribute("sortBy");
-      if (bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@idRef='" + sortBy + "']") == null) {
+      if (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@idRef='" + sortBy + "']") == null) {
         nodes[n].removeAttribute("sortBy");
         nodes[n].removeAttribute("sort");
         doRedisplay = true;
@@ -564,30 +565,46 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     var isSameBoxDim = bcdui.widgetNg.connectable._isSameBoxMovement(cubeId + "_dims");
 
     // remove obsolete hide (specific)
-    var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Hide/f:Filter/f:Or/f:Expression");
+    var nodes = targetModel.queryNodes(layoutRoot + "/cube:Hide/f:Filter/f:Or/f:Expression");
     for (var n = 0; n < nodes.length; n++) {
-      if (! isSameBoxDim || bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*[dm:LevelRef[@bRef='" + nodes[n].getAttribute("bRef") + "']]") == null)
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(targetModelId).getData(), layoutRoot + "/cube:Hide/f:Filter/f:Or[f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "']]");
+      if (! isSameBoxDim || targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*[dm:LevelRef[@bRef='" + nodes[n].getAttribute("bRef") + "']]") == null)
+        bcdui.core.removeXPath(targetModel.getData(), layoutRoot + "/cube:Hide/f:Filter/f:Or[f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "']]");
     }
 
     // remove obsolete hide (all)
-    var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Hide/f:Filter/f:Expression");
+    var nodes = targetModel.queryNodes(layoutRoot + "/cube:Hide/f:Filter/f:Expression");
     for (var n = 0; n < nodes.length; n++)
-      if (bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + nodes[n].getAttribute("bRef") + "']") == null)
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(targetModelId).getData(), layoutRoot + "/cube:Hide/f:Filter/f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "']");
+      if (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + nodes[n].getAttribute("bRef") + "']") == null)
+        bcdui.core.removeXPath(targetModel.getData(), layoutRoot + "/cube:Hide/f:Filter/f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "']");
 
-    // remove obsolete exclude (all and specific)
-    var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and f:Expression]");
+    // remove obsolete exclude
+    var nodes = targetModel.queryNodes("/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "']");
     for (var n = 0; n < nodes.length; n++) {
-      if (bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + nodes[n].getAttribute("bRef") + "']") == null)
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(targetModelId).getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "']]");
-      else if (! isSameBoxDim) {
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(targetModelId).getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and f:Expression[@bRef='" + nodes[n].getAttribute("bRef") + "'] and not(f:Expression[@bRef != '" + nodes[i].getAttribute("bRef") + "'])]");
+      var node = nodes[n];
+      var exclBRef = node.getAttribute("exclBRef") || "";
+      var exp = node.selectNodes("f:Expression");
+      var isColumnExclusion = (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef[@bRef='" + exclBRef + "']") != null);
+
+      for (var e = 0; e < exp.length; e++) {
+        var bRef= exp[e].getAttribute("bRef");
+
+        // remove it when it doesn't appear in the selected dimensions at all
+        if (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + bRef + "']") == null)
+          bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "']/f:Expression[@bRef='" + bRef + "']");
+        else {
+          // or if we got a column dimension exclusion and you moved them to a row (or vice versa), we remove the full OR-node if it contains
+          // invalid row/col combinations
+          var dimIsColumn = (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef[@bRef='" + bRef + "']") != null);
+          if ((dimIsColumn && ! isColumnExclusion) || (!dimIsColumn && isColumnExclusion))
+            bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and f:Expression[@bRef='" + bRef + "']]");
+        }
       }
     }
+    // remove empty excludes
+    bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and not(f:Expression)]");
 
     // remove possible "now-not-innermost-anymore-vdms" (not grouping editor ones)
-    var dimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef");
+    var dimensions = targetModel.queryNodes(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef");
     for (var d = 0; d < dimensions.length - 1; d++) {
       if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM/calc:Calc") > 0)
         doRedisplay = true;
@@ -595,7 +612,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM") > 0)
           doRedisplay = true;
     }
-    var dimensions = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(layoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef");
+    var dimensions = targetModel.queryNodes(layoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef");
     for (var d = 0; d < dimensions.length - 1; d++) {
       if (bcdui.core.removeXPath(dimensions[d], "./cube:VDM/calc:Calc") > 0)
         doRedisplay = true;
