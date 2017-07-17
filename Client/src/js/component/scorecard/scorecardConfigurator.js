@@ -99,6 +99,8 @@
           bcdui.widgetNg.createButton({caption: "Apply", onClickAction: args.applyFunction || bcdui.core.lifecycle.applyAction, targetHtml: "bcdDndApplyButton_" + args.scorecardId});
         }
 
+        var bucketModelId = bcdui.component.scorecardConfigurator._initDnd(args);
+
         var contextMenu = new bcdui.core.ModelWrapper({
           chain: bcdui.contextPath + "/bcdui/js/component/scorecard/dndContextMenu.xslt"
         , inputModel: bcdui.wkModels.guiStatus
@@ -115,7 +117,7 @@
         });
         
         if (args.isRanking)
-          bcdui.component.cube.rankingEditor._initRanking(args, args.targetModel.id);
+          bcdui.component.cube.rankingEditor._initRanking(args, args.targetModel.id, bucketModelId);
 
         if( args.isTemplate  ) {
 
@@ -181,8 +183,6 @@
           // we need to have a second listener here which rerenders the summary
           bcdui.wkModels.guiStatus.onChange(function() {summaryRenderer.execute(true)}, "/*/guiStatus:ClientSettings//scc:ClientLayout[@cubeId ='" + args.scorecardId + "']/@disableClientRefresh");
         }
-
-        bcdui.component.scorecardConfigurator._initDnd(args);
 
         // scorecard redisplay listener, greys out scorecard
         // either listens to scorecard configurator targetmodel or given layoutModel
@@ -462,6 +462,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         }
       }
     });
+
+    return scBucket.id;
   },
 
   /**

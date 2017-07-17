@@ -492,7 +492,7 @@ bcdui.util.namespace("bcdui.component",
       var bucketModelId = bcdui.component.cube.configuratorDND.init(args);
       
       if (args.isRanking)
-        bcdui.component.cube.rankingEditor._initRanking(args, targetModelId);
+        bcdui.component.cube.rankingEditor._initRanking(args, targetModelId, bucketModelId);
 
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu; 
