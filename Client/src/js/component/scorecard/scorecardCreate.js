@@ -228,11 +228,12 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
           , cP);
         }
 
-        this.actionDrillToAnalysisGuiStatus.onceReady( function() {
+        // use a futureOnly listener here so for multiple calls you can be sure that the wrapper is executed again
+        this.actionDrillToAnalysisGuiStatus.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
           bcdui.core.compression.compressDOMDocument( this.actionDrillToAnalysisGuiStatus.getData(), function(compressedDoc) {
             window.open(bcdui.core.setRequestDocumentParameter(memo.targetPage, compressedDoc));
-          });
-        }.bind(this));
+          }.bind(this));
+        }.bind(this)});
 
         this.actionDrillToAnalysisGuiStatus.execute(true);
 
