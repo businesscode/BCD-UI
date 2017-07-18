@@ -39,10 +39,12 @@
   <xsl:param name="paramSet" select="$paramModel//xp:InsertEmptyRows[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
 
   <!--
-    (Boolean?) This flag indicates whether the new row is inserted before row y1 or
+    This flag indicates whether the new row is inserted before row y1 or
     appended after row y2.
     -->
-  <xsl:param name="insertBeforeSelection" select="true()"/>
+  <xsl:param name="insertBeforeSelection" select="'true'"/>
+  <xsl:variable name="insertBeforeSelectionBoolean" select="boolean($insertBeforeSelection='true')"/>
+  
   <!--
     (Integer) maybe used for generation the unique row-id.
     -->
@@ -79,7 +81,7 @@
             <xsl:variable name="wrsRowCount" select="count(/wrs:Wrs/wrs:Data/wrs:*)"/>
             <xsl:value-of select="concat(1, ' ', $wrsRowCount + 1, ' ', $wrsColCount, ' ', $wrsRowCount + 1)"/>
           </xsl:when>
-          <xsl:when test="$insertBeforeSelection">
+          <xsl:when test="$insertBeforeSelectionBoolean">
             <xsl:value-of select="concat(1, ' ', $y1, ' ', $wrsColCount, ' ', $y1)"/>
           </xsl:when>
           <xsl:otherwise>
@@ -97,13 +99,13 @@
   </xsl:template>
 
   <xsl:template match="wrs:Data/wrs:*">
-    <xsl:if test="position() = $y1 and $rowCount and $insertBeforeSelection">
+    <xsl:if test="position() = $y1 and $rowCount and $insertBeforeSelectionBoolean">
       <xsl:apply-templates select="." mode="insertRow"/>
     </xsl:if>
     <xsl:copy>
       <xsl:apply-templates select="node()|@*"/>
     </xsl:copy>
-    <xsl:if test="position() = $y2 and $rowCount and not($insertBeforeSelection)">
+    <xsl:if test="position() = $y2 and $rowCount and not($insertBeforeSelectionBoolean)">
       <xsl:apply-templates select="." mode="insertRow"/>
     </xsl:if>
   </xsl:template>

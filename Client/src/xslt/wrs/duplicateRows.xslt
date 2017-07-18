@@ -40,7 +40,8 @@
     (Boolean) This flag indicates whether the cursor should stay in the selected
     rows or it should be moved behind the current selection
     -->
-  <xsl:param name="insertBeforeSelection" select="true()"/>
+  <xsl:param name="insertBeforeSelection" select="'true'"/>
+  <xsl:variable name="insertBeforeSelectionBoolean" select="boolean($insertBeforeSelection='true')"/>
   <!--
     (Integer) maybe used for generation the unique row-id.
     -->
@@ -71,7 +72,7 @@
       <xsl:apply-templates select="@*"/>
       <xsl:attribute name="newSelection">
         <xsl:choose>
-          <xsl:when test="$insertBeforeSelection">
+          <xsl:when test="$insertBeforeSelectionBoolean">
             <xsl:value-of select="concat(1, ',', $y1, ',', $wrsColCount, ',', $y2)"/>
           </xsl:when>
           <xsl:otherwise>
@@ -84,14 +85,14 @@
   </xsl:template>
 
   <xsl:template match="wrs:Data/*">
-    <xsl:if test="position() = $y1 and $rowCount and $insertBeforeSelection">
+    <xsl:if test="position() = $y1 and $rowCount and $insertBeforeSelectionBoolean">
       <xsl:apply-templates select="." mode="duplicateRow"/>
       <xsl:apply-templates select="following-sibling::*[$rowCount > position()]" mode="duplicateRow"/>
     </xsl:if>
 
     <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>
 
-    <xsl:if test="position() = $y2 and $rowCount and not($insertBeforeSelection)">
+    <xsl:if test="position() = $y2 and $rowCount and not($insertBeforeSelectionBoolean)">
       <xsl:apply-templates select="preceding-sibling::*[$rowCount > position()]" mode="duplicateRow"/>
       <xsl:apply-templates select="." mode="duplicateRow"/>
     </xsl:if>
