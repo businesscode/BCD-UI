@@ -76,14 +76,17 @@
               <xsl:for-each select="../@caption">
                 <xsl:attribute name="caption"><xsl:value-of select="."/></xsl:attribute>
               </xsl:for-each>
-              <!-- Take care for the well-known dimension member attributes @caption and @order (creating attributes on the data) -->
-              <xsl:if test="../@captionBRef">
+              <!-- Take care for the well-known dimension member attributes @orderBRef and @captionBRef (creating attributes on the data)
+                These cannot be used in case of VDM as they have no value and min() can also not be applied as it depends on the actual data not on the possible values.
+                -->
+              <xsl:variable name="hasVdms" select="/*/cube:Layout/cube:Dimensions/*/dm:LevelRef[@bRef=current()]/cube:VDM/cube:Map"/>
+              <xsl:if test="../@captionBRef and not($hasVdms)">
                 <wrq:A>
                   <xsl:attribute name="name">caption</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@captionBRef"/></xsl:attribute>
                 </wrq:A>
               </xsl:if>
-              <xsl:if test="../@orderBRef">
+              <xsl:if test="../@orderBRef and not($hasVdms)">
                 <wrq:A>
                   <xsl:attribute name="name">order</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@orderBRef"/></xsl:attribute>
@@ -126,6 +129,14 @@
       <xsl:call-template name="xsltParameters"/>
 
     </cube:CubeConfiguration>
+  </xsl:template>
+
+  <!-- @orderBRef and @captionBRef cannot be used in case of VDM as they have no value and min() can also not be applied as it depends on the actual data not on the possible values. -->
+  <xsl:template match="dm:LevelRef[cube:VDM/cube:Map]">
+    <xsl:copy>
+      <xsl:copy-of select="@*[not(local-name(.)='orderBRef') and not(local-name(.)='captionBRef')]"/>
+      <xsl:apply-templates select="node()"/>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template name="xsltParameters">
