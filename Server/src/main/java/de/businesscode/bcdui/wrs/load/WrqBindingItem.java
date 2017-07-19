@@ -49,6 +49,7 @@ public class WrqBindingItem implements WrsBindingItem
   private final String id;
   private final WrqInfo wrqInfo;
   private final int jdbcDataType;
+  private final int origJdbcDataType; // Can differ, if the datatype had to be adjusted due to VDM
   private String tableAlias;
   // A bRef for which we do not want to be calculated if that one is on (sub)total level
   private String skipForTotals = "";
@@ -111,12 +112,19 @@ public class WrqBindingItem implements WrsBindingItem
         if( ! calc.getAttribute(dataType).isEmpty() )
           attributes.put(dataType, calc.getAttribute(dataType));
       }
+      final int dt;
       if( ! calc.getAttribute("type-name").isEmpty() )
-        this.jdbcDataType = Types.class.getField(calc.getAttribute("type-name")).getInt(null);
+        dt = Types.class.getField(calc.getAttribute("type-name")).getInt(null);
       else if ( bi != null )
-        this.jdbcDataType = bi.getJDBCDataType();
+        dt = bi.getJDBCDataType();
       else
-        this.jdbcDataType = Types.VARCHAR;
+        dt = Types.VARCHAR;
+      // Because the value for a vdm is string, we need to adjust the column type, otherwise then and else mismatch
+      if( wrqInfo.getVdm( getId() ) != null ) {
+        origJdbcDataType = dt;
+        jdbcDataType = Types.VARCHAR;
+      } else
+        origJdbcDataType = jdbcDataType = dt;
 
       this.id = "bcd_virt_"+(wrqInfo.virtualBiCounter++);
       if( enforceAggr || WrqCalc2Sql.containsAggr(calc) || wrqInfo.getGroupingBRefs().isEmpty() ) // grouping by colexpr
@@ -138,7 +146,9 @@ public class WrqBindingItem implements WrsBindingItem
       this.tableAlias = bi.getTableAliasName(); // what in case of wrq:Calc
 
       attributes.putAll(bi.getAttributes());
-      jdbcDataType = bi.getJDBCDataType();
+      // User-provided VDM values are strings
+      origJdbcDataType = bi.getJDBCDataType();
+      jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
       columnQuoting = bi.isColumnQuoting();
       isEscapeXml = elem.getAttribute("escapeXml").isEmpty() ? bi.isEscapeXML() : new Boolean(elem.getAttribute("escapeXml"));
       setColumnExpression( bi.getColumnExpression() );
@@ -197,7 +207,7 @@ public class WrqBindingItem implements WrsBindingItem
     attributes.put("name", wrsAName);
     wrqInfo.getAllBRefAggrs().get(parentC.getId()).addWrsAAttribute(this); // We are in document order, so we know our parent wrs:C exists already
     this.parentWrsC = parentC;
-    this.jdbcDataType = Types.VARCHAR;
+    this.jdbcDataType = origJdbcDataType = Types.VARCHAR;
     this.tableAlias = parentC.getTableAlias();
     this.columnQuoting = false;
     isEscapeXml = new Boolean(true);
@@ -223,7 +233,9 @@ public class WrqBindingItem implements WrsBindingItem
     this.tableAlias = bi.getTableAliasName();
 
     attributes.putAll(bi.getAttributes());
-    jdbcDataType = bi.getJDBCDataType();
+    // User-provided VDM values are strings
+    origJdbcDataType = bi.getJDBCDataType();
+    jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
     columnQuoting = bi.isColumnQuoting();
     isEscapeXml = bi.isEscapeXML();
     setColumnExpression( bi.getColumnExpression() );
@@ -474,16 +486,17 @@ public class WrqBindingItem implements WrsBindingItem
    */
   private void evaluateVdms()
   {
-    // Check for VDM virtual dimension members
     StringBuffer pCEWithVdm = new StringBuffer();
     String elseValue = null;
-    // Do we have value mappings for this bRef?
     String q = isNumeric() ? "" : "'";
     boolean isNumeric = isNumeric();
+
+    // Do we have VDM value mappings for this bRef?
     if( wrqInfo.getVdm( getId() ) != null ) {
       Map<String,Set<String>> mappings = wrqInfo.getVdm( getId() );
       pCEWithVdm.append(" CASE ");
-      // Make a WHEN THEN part for each mapping
+
+      // 1a. Make a WHEN THEN part for each mapping
       for( String to: mappings.keySet() ) {
         if( mappings.get( to ) == null ) {
           elseValue = to;
@@ -509,7 +522,27 @@ public class WrqBindingItem implements WrsBindingItem
           to = StringEscapeUtils.escapeSql( to );
         pCEWithVdm.append(q).append(to).append(q);
       }
-      pCEWithVdm.append(" ELSE ");
+
+      // 1b) This is the ELSE case, i.e. all unmapped values or the explicit value for 'other'.
+      // Workaround:
+      // Oracle (only) showed a strange behaviour (tested v11.2, v12.1) for DATE columns leading to ORA-00932
+      // "inconsistent datatypes: expected CHAR got DATE" if we would actually use ELSE here.
+      // That's why as a workaround, we add the test for NOT NULL. Test case for Oracle:
+      //      select
+      //        --  CASE WHEN num_rows > 1000 THEN 'big' ELSE TO_CHAR(num_rows) END,
+      //        CASE WHEN last_analyzed in ('2016-05-06') THEN 'isMay6' ELSE TO_CHAR(last_analyzed) END,
+      //        CACHE,
+      //        count(*)
+      //      from user_tables
+      //      group by grouping sets (
+      //        (),
+      //        --   ( CASE WHEN num_rows > 1000 THEN 'big' ELSE TO_CHAR(num_rows) END ),
+      //        --   ( CASE WHEN num_rows > 1000 THEN 'big' ELSE TO_CHAR(num_rows) END, CACHE )
+      //        ( CASE WHEN last_analyzed in ('2016-05-06') THEN 'isMay6' ELSE TO_CHAR(last_analyzed) END ),
+      //        ( CASE WHEN last_analyzed in ('2016-05-06') THEN 'isMay6' ELSE TO_CHAR(last_analyzed) END, CACHE )
+      //  );
+      // fails but work with the number field num_rows, or when skipping the grand total or when removing the 'cache' level.
+      pCEWithVdm.append(" WHEN ").append( plainColumnExpression ).append(" IS NOT NULL THEN ");
       // Else are either the original values or the @to with an empty @from value, serving as value for the rest
       if( elseValue != null ) {
         // Prevent SQL injection
@@ -518,10 +551,13 @@ public class WrqBindingItem implements WrsBindingItem
         else
           elseValue = StringEscapeUtils.escapeSql( elseValue );
         pCEWithVdm.append(q).append(elseValue).append(q);
-      } else
-        pCEWithVdm.append(plainColumnExpression);
+      } else {
+        // Because in CASE THEN and ELSE data types have to match, we cast the column to string if needed
+        pCEWithVdm.append(DatabaseCompatibility.getInstance().castToVarchar(wrqInfo.getResultingBindingSet(), origJdbcDataType, plainColumnExpression));
+      }
       pCEWithVdm.append(" END ");
-      // Special and strange case: there is only the else value, we just print the value, no case-when chain
+
+      // 2. Special and strange case: there is only the else value, we just print the value, no case-when chain
       if( elseValue!=null && mappings.keySet().size() == 1 ) {
         // Prevent SQL injection
         if( isNumeric )
@@ -532,6 +568,8 @@ public class WrqBindingItem implements WrsBindingItem
       } else
         plainColumnExpressionWithVdm = pCEWithVdm.toString();
     }
+
+    // No VDMs found
     else
       plainColumnExpressionWithVdm = plainColumnExpression;
   }
