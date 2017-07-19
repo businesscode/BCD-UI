@@ -296,6 +296,9 @@
       el.attr("pattern", args.pattern);
       el.attr("required", args.required);
       el.attr("readonly", args.readonly);
+      if(!!args.autocomplete){
+        el.attr("autocomplete", args.autocomplete);
+      }
       // bind native html events, if defined
       this._mapNativeHtmlEvents(el);
 

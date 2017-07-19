@@ -336,6 +336,11 @@
             Sets the maximum value for an integer or numeric type input field (HTML5 only).
           </Doc>
         </Param>
+        <Param name="autocomplete" type="enum" value="|on|off" default="">
+          <Doc>
+            html autocomplete attribute
+          </Doc>
+        </Param>
         <Param name="type" type="enum" value="text|email|password|int|numeric" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
