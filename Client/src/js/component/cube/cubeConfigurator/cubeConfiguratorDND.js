@@ -590,7 +590,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
 
         // remove it when it doesn't appear in the selected dimensions at all
         if (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + bRef + "']") == null)
-          bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "']/f:Expression[@bRef='" + bRef + "']");
+          bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and f:Expression[@bRef='" + bRef + "']]");
         else {
           // or if we got a column dimension exclusion and you moved them to a row (or vice versa), we remove the full OR-node if it contains
           // invalid row/col combinations
