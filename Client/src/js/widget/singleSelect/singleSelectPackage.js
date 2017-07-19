@@ -65,9 +65,11 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
       bcdui.widget._registerHTMLElementListener(htmlElement, listener);
       bcdui.widget.singleSelect._readDataFromXML(htmlElement.id, bcdui.factory.objectRegistry.getObject(config.optionsModelId));
 
-      bcdui.widget.singleSelect.getNavPath(jQuery(htmlElement).parent().attr("id"), function(id, value) {
-        bcdui.widget._linkNavPath(id, value);
-      }.bind(this));
+      if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+        bcdui.widget.singleSelect.getNavPath(jQuery(htmlElement).parent().attr("id"), function(id, value) {
+          bcdui.widget._linkNavPath(id, value);
+        }.bind(this));
+      }
     };
 
     if (bcdui.util.isString(config.optionsModelId) && !!config.optionsModelId.trim()) {

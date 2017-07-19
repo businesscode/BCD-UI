@@ -145,9 +145,11 @@
         checkboxEl.focus();
       }
 
-      bcdui.widgetNg.checkbox.getNavPath(this.element.id, function(id, value) {
-        bcdui.widget._linkNavPath(id, value);
-      }.bind(this));
+      if (! this.options.disableNavPath) {
+        bcdui.widgetNg.checkbox.getNavPath(this.element.id, function(id, value) {
+          bcdui.widget._linkNavPath(id, value);
+        }.bind(this));
+      }
 
     },
 

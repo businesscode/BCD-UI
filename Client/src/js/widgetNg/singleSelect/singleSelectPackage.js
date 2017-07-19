@@ -210,9 +210,11 @@
                   jQuery(controlEl).focus();
                 }
 
-                bcdui.widgetNg.singleSelect.getNavPath(args.id, function(id, value) {
-                  bcdui.widget._linkNavPath(id, value);
-                }.bind(this));
+                if (! args.disableNavPath) {
+                  bcdui.widgetNg.singleSelect.getNavPath(args.id, function(id, value) {
+                    bcdui.widget._linkNavPath(id, value);
+                  }.bind(this));
+                }
               }
             }, false);
           }.bind(undefined,args, config, controlEl.get(0), rootContainer, this)

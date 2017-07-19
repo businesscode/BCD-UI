@@ -139,9 +139,11 @@ bcdui.util.namespace("bcdui.widget.inputField",
         bcdui.widget._registerHTMLElementListener(htmlElement, listener);
         bcdui.widget.inputField._readDataFromXML(htmlElement.id);
 
-        bcdui.widget.inputField.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
-          bcdui.widget._linkNavPath(id, value);
-        }.bind(this));
+        if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+          bcdui.widget.inputField.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
+            bcdui.widget._linkNavPath(id, value);
+          }.bind(this));
+        }
       }
     });
 

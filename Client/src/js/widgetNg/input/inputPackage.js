@@ -224,9 +224,11 @@
         jQuery(uiControl.control).focus();
       }
 
-      bcdui.widgetNg.input.getNavPath(this.options.id, function(id, value) {
-        bcdui.widget._linkNavPath(id, value);
-      }.bind(this));
+      if (! this.options.disableNavPath) {
+        bcdui.widgetNg.input.getNavPath(this.options.id, function(id, value) {
+          bcdui.widget._linkNavPath(id, value);
+        }.bind(this));
+      }
     },
 
     /**

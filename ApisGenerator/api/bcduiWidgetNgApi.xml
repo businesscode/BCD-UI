@@ -104,6 +104,9 @@
         <Param name="widgetCaption" type="string">
           <Doc>A caption which is used as prefix for navPath generation for this widget.</Doc>
         </Param>
+        <Param name="disableNavPath" type="boolean" default="false">
+          <Doc>Set to true if widget should not be added to navpath handling.</Doc>
+        </Param>
       </Api>
 
 

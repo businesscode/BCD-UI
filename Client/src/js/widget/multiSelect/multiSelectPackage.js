@@ -81,16 +81,21 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
                       bcdui.factory.addDataListener(optionsListener);
                       bcdui.widget._registerHTMLElementListener(htmlElement, optionsListener);
                     }
-                  bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
-                    bcdui.widget._linkNavPath(id, value);
-                  }.bind(this));
+                  
+                  if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+                    bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
+                      bcdui.widget._linkNavPath(id, value);
+                    }.bind(this));
+                  }
                 }
           });
         }
         else {
-          bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(value) {
-            bcdui.widget._linkNavPath(jQuery(htmlElement).parent().parent().attr("id"), value);
-          }.bind(this));
+          if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+            bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(value) {
+              bcdui.widget._linkNavPath(jQuery(htmlElement).parent().parent().attr("id"), value);
+            }.bind(this));
+          }
         }
 
         bcdui.widget.multiSelect._readDataFromXML(htmlElement.id, bcdui.factory.objectRegistry.getObject(config.optionsModelId) );
