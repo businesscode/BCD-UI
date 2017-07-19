@@ -16,6 +16,7 @@
 package de.businesscode.util.jdbc;
 
 import java.sql.Connection;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +56,9 @@ public class DatabaseCompatibility
 
   protected final Map<String, String> aggregationMappingGeneric;
   protected final Map<String, String> aggregationMappingMySql;
+
+  // When casting to VARCHAR, we use this size, should be long enough and not hurt on the other side
+  private int LENGTH_FOR_CAST_TO_VARCHAR = 1024;
 
   /**
    * 
@@ -165,6 +169,34 @@ public class DatabaseCompatibility
         return 2;
       }
     }
+  }
+
+  /**
+   * Wraps the expression so that the result is of type VARCHAR or CHAR
+   * @param bindingSet       Used to derive database specific syntax
+   * @param origJdbcDataType Used to skip wrapping if already CHAR/VARCHAR and keep format YYYY-MMM-DDD for type date
+   * @param expr             Expression to be wrapped
+   * @return                 Wrapped SQL expression
+   */
+  public String castToVarchar(BindingSet bindingSet, int origJdbcDataType, String expr)
+  {
+    if( origJdbcDataType == Types.CHAR || origJdbcDataType == Types.VARCHAR )
+      return expr;
+    // Conversion via CAST is ok for all types for all databases when ansi date is set as default.
+    // But BCD-UI treats DATE as date-only (without time). Usually this is handled when reading the result-set for data-type DATE.
+    // Since for VDM we switch to type VARCHAR, it would not happen and thus we make sure here, that DATE is ANSI-Date but without time
+    else if( origJdbcDataType == Types.DATE ) {
+      if( getDatabaseProductNameLC(bindingSet).contains("microsoft sql server") )
+        return "FORMAT("+expr+",'yyyy-mm-dd')";
+      else if( getDatabaseProductNameLC(bindingSet).contains("mysql") )
+        return "DATE_FORMAT("+expr+",'%Y-%m-%d')";
+      else
+        return "TO_CHAR("+expr+",'yyyy-mm-dd')";
+    }
+    else if( getDatabaseProductNameLC(bindingSet).contains("oracle") )
+      return "CAST (" + expr + " AS VARCHAR2("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
+    else
+      return "CAST (" + expr + " AS VARCHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
   }
 
   
@@ -370,6 +402,5 @@ public class DatabaseCompatibility
         )
       );
   }
-
 }
 
