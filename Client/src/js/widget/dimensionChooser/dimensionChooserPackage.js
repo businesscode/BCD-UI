@@ -529,7 +529,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
         for (var e = 0; e < exp.length; e++) {
           var bRef = bcdui.util.escapeHtml(exp[e].getAttribute("bRef"));
           var value = bcdui.util.escapeHtml(exp[e].getAttribute("value"));
-          var caption = bcdui.util.escapeHtml(exp[e].getAttribute("caption"));
+          var caption = exp[e].getAttribute("caption") != null ? bcdui.util.escapeHtml(exp[e].getAttribute("caption")) : null;
           var path = "@op='!='" + (bRef ? " and @bRef='" + bRef + "'" : "") + (value ? " and @value='" + value + "'" : "") + (caption ? " and @caption='" + caption + "'" : "");
           bcdui.core.createElementWithPrototype(targetModel, targetModelXPath + "/f:Or[@bcdCount='" + a + "']/f:Expression[" + path + "]");
 
