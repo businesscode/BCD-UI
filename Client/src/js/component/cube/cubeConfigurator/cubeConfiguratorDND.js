@@ -215,9 +215,9 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     var source = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("/*" + cubeLayoutRoot);
     if (source != null)
       destination.appendChild(source.cloneNode(true));
-    // since we only want a skeleton (but with possible hideAllTotal, TopN, hide/exclude etc attributes, we remove dims and measures
+    // since we only want a skeleton (but with possible hideAllTotal, TopN, hide/exclude etc attributes, we remove dims and measureRefs (user defined dm:Measure survive)
     bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot + cubeLayoutRoot + "/cube:Dimensions/*");
-    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot + cubeLayoutRoot + "/cube:Measures/*");
+    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot + cubeLayoutRoot + "/cube:Measures/*/*[name()!='dm:Measure']");
 
     // now insert measures and dims into temp layout based on ordering from collectable targets
     // by doing this, all attributes and childs (VDMs) are taken over
