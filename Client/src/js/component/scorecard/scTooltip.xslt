@@ -49,7 +49,7 @@
   
   <xsl:call-template name="showAttrs">
     <xsl:with-param name="cell" select="$cell"/>
-    <xsl:with-param name="attr" select="$attr"/>
+    <xsl:with-param name="attrs" select="$attr"/>
   </xsl:call-template>
 </xsl:template>
 
@@ -85,7 +85,7 @@
     <table class="bcdTooltip bcdScTooltip">
 
       <!-- Print KPI caption -->
-      <thead><tr><th style="white-space: nowrap"><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
+      <thead><tr><th colspan="2"><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
 
       <!-- Print each attribute -->
       <xsl:for-each select="$attrs">

@@ -826,3 +826,7 @@ div.bcdContextMenu a.bcdMenuitems {
     display: none;
   }
 }
+
+.bcdScTooltip thead tr:first-child th {
+  white-space: nowrap;
+}
