@@ -46,17 +46,19 @@
       <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectRef[@idRef=$itemId] or (/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectKpi and $itemId='bcdKpi' and $bcdColIdent='asp')">
         <Context id="bcdAsp">
           <xsl:variable name="aspNode" select="/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectRef[@idRef=$itemId]|/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectKpi[$itemId='bcdKpi' and $bcdColIdent='asp']"/>
-          <ContextMenuEntryGroup caption="{concat($aspNode/@caption, ' Sorting')}" >
-              <Entry caption="Sort ascending">
-                <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "ascending", "")</JavaScriptAction>
+          <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/scc:Rows/scc:LevelKpi">
+            <ContextMenuEntryGroup caption="{concat($aspNode/@caption, ' Sorting')}" >
+                <Entry caption="Sort ascending">
+                  <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "ascending", "")</JavaScriptAction>
+                </Entry>
+              <Entry caption="Sort descending">
+                <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "descending", "")</JavaScriptAction>
               </Entry>
-            <Entry caption="Sort descending">
-              <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "descending", "")</JavaScriptAction>
-            </Entry>
-            <Entry caption="Remove Sorting">
-              <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "", "")</JavaScriptAction>
-            </Entry>
-          </ContextMenuEntryGroup>
+              <Entry caption="Remove Sorting">
+                <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "", "")</JavaScriptAction>
+              </Entry>
+            </ContextMenuEntryGroup>
+          </xsl:if>
         </Context>
       </xsl:if>
     </ContextMenu>

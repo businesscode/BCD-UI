@@ -602,6 +602,17 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     
     var doRedisplay = false;
     var scLayoutRoot = "/scc:Layout[@scorecardId='" + scorecardId + "']";
+    
+    // remove topN and aspect sorts if we got a column kpi
+    if (targetModel.query("/*" + scLayoutRoot + "/scc:Dimensions/scc:Columns/scc:LevelKpi") != null) {
+      doRedisplay |= bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:TopNDimMembers") > 0;
+      var nodes = targetModel.queryNodes("/*" + scLayoutRoot + "/scc:AspectRefs/*[@sort or @sortBy]");
+      doRedisplay |= nodes.length > 0;
+      for (var n = 0; n < nodes.length; n++) {
+        nodes[n].removeAttribute("sort");
+        nodes[n].removeAttribute("sortBy");
+      }
+    }
 
     // only allow RowAspectRefs when scc:LevelKpi is a row dimension
     if (targetModel.query("/*" + scLayoutRoot + "/scc:Dimensions/scc:Rows/scc:LevelKpi") == null)

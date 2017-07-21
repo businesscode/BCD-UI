@@ -184,6 +184,7 @@
       <R id="R173"><C>bcd_Rank_Top</C><C>Top</C><C>en</C></R>
       <R id="R174"><C>bcd_Rank_Bottom</C><C>Bottom</C><C>en</C></R>
       <R id="R175"><C>bcd_Rank_NoDim</C><C>Add dimension beneath KPI for ranking</C><C>en</C></R>
+      <R id="R176"><C>bcd_Rank_NoColKpi</C><C>Ranking and sorting are not available for column KPIs</C><C>en</C></R>
 
       <!-- UniversalFilter -->
       <R id="R200"><C>bcd_widget_universalFilter_valueNotNull</C><C>is not null</C><C>en</C></R>
