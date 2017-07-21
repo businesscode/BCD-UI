@@ -159,9 +159,10 @@
 
       <!-- Grouping Editor -->
       <R id="R150"><C>bcd_GroupingEditor</C><C>Grouping Editor</C><C>en</C></R>
-      <R id="R151"><C>bcd_GroupingEditorGroups</C><C>Groupings</C><C>en</C></R>
-      <R id="R152"><C>bcd_GroupingEditorGroupName</C><C>Grouping Name</C><C>en</C></R>
-      
+      <R id="R151"><C>bcd_GroupingEditor_Groups</C><C>Groupings</C><C>en</C></R>
+      <R id="R152"><C>bcd_GroupingEditor_GroupName</C><C>Grouping Name</C><C>en</C></R>
+      <R id="R153"><C>bcd_GroupingEditor_Postfix</C><C> ✱</C><C>en</C></R>
+            
       <!-- blindUpDown captions for cube and scorecard, ranking -->
       <R id="R155"><C>bcd_Sc_Blind_Templates</C><C>Scorecard Templates</C><C>en</C></R>
       <R id="R156"><C>bcd_Sc_Blind_Definition</C><C>Scorecard Definition</C><C>en</C></R>
