@@ -138,30 +138,16 @@
             </xsl:choose>
           </xsl:variable>
 
-          <xsl:variable name="direction">
-            <xsl:choose>
-              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='top'">descending</xsl:when>
-              <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='bottom'">ascending</xsl:when>
-              <xsl:otherwise><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:AspectRefs/*[@sort!='']/@sort"/></xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable>
-
-          <xp:OrderAndCut>
-            <xp:RowsOrder>
-              <xsl:if test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n">
-                <xsl:attribute name="limit"><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n"/></xsl:attribute>
-              </xsl:if>
-              <wrs:Columns>
-                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/*/scc:LevelKpi/preceding-sibling::dm:LevelRef">
-                  <wrs:C id="{@bRef}" sort="{@sort}" total="{@total}"/>
-                </xsl:for-each>
-                <wrs:C id="bcd_kpi_id" sort="ascending"/>
-                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/*/scc:LevelKpi/following-sibling::dm:LevelRef">
-                  <wrs:C id="{@bRef}" sort="{$direction}" total="{@total}" sortBy="{$aspectId}"/>
-                </xsl:for-each>
-              </wrs:Columns>
-            </xp:RowsOrder>
-          </xp:OrderAndCut>
+          <scc:OrderAndCut sortBy="{$aspectId}">
+            <xsl:attribute name="sort">
+              <xsl:choose>
+                <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='top'">descending</xsl:when>
+                <xsl:when test="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@tb='bottom'">ascending</xsl:when>
+                <xsl:otherwise><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:AspectRefs/*[@sort!='']/@sort"/></xsl:otherwise>
+              </xsl:choose>
+            </xsl:attribute>
+            <xsl:attribute name="limit"><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n"/></xsl:attribute>
+          </scc:OrderAndCut>
         </xsl:if>
         
       </xp:XSLTParameters>

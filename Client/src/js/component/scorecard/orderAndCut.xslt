@@ -13,28 +13,29 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<!--
+  Scorecard-aware sorting and TOP-N, only applies if scc:LeveKpi is a row-dimension
+  Parameters follow xsltParams standard but are not listed in xsd because of the specific nature of the stylesheet
+  Root Element scc:OrderAndCut
+   @sortBy: A valueId according to which to sort. If col-dims are present, its row-total is evaluated.
+      This sorting is KPI aware, i.e. it first sorts the upper dimensions, then for each such combination all KPIs in the requested order
+      and all row-dimensions below KPI after this value. Column dimensions are not affected.
+   @sort (ascending|descending), default descending:
+      Whether to sort ascending or descending. If @sortBy equals 'performance', then negative KPIs are sorted in reverse order.
+   @limit integer
+      If set, only the first 'limit' rows are shown. Subtotal rows are not counted or displayed.
+      This implies sorting.
+  -->
 
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
   xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
-  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
-  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
-  xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
-  xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  xmlns:generator="urn(bcd-xsltGenerator)"
-  bcdxml:wrsHeaderIsEnough="true">
+  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0">
 
-  <xsl:import href="../../../xslt/wrs/orderRowsAndCols.xslt"/>
+  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
-  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" media-type="text/xslt"/>
-
-  <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>
-  
   <xsl:param name="sccDefinition"/>
   
   <!-- Parameter model  -->
@@ -43,160 +44,169 @@
   <!-- (String) Optional specific parameter set ID  -->
   <xsl:param name="paramSetId"/>
   <!-- (NodeSet) As parameter or as default or specific parameter set from parameter model-->
-  <xsl:param name="paramSet" select="$paramModel//xp:OrderAndCut[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
+  <xsl:param name="paramSet" select="$paramModel//scc:OrderAndCut[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
   <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 
-  <xsl:variable name="sqlTypesDoc" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
-  <xsl:variable name="headerCs" select="/*/wrs:Header/wrs:Columns/wrs:C"/>
+  <xsl:variable name="isAscending" select="$paramSet/@sort='ascending'"/>
+  <xsl:variable name="isTopN"      select="number($paramSet/@limit)=number($paramSet/@limit)"/>
+  <xsl:variable name="topNRaw">
+    <xsl:choose>
+      <xsl:when test="$isTopN"><xsl:value-of select="$paramSet/@limit"/></xsl:when>
+      <xsl:otherwise>4096</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="topN" select="number($topNRaw)"/>
 
-  <xsl:variable name="doc" select="/"/>
-  
-  <xsl:variable name="kpiPos" select="key('colHeadById','bcd_kpi_id')/@pos"/>
+  <xsl:variable name="hasColDims"    select="boolean($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/*)"/>
+  <xsl:variable name="kpiPos"        select="number(key('colHeadById','bcd_kpi_id')/@pos)"/>
+  <xsl:variable name="criteria"      select="$paramSet/@sortBy"/>
+  <xsl:variable name="criteriaPos"   select="number(key('colHeadById',$criteria)/@pos)"/>
+  <xsl:variable name="lastRowDimPos" select="count($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*)"/>
 
-  <xsl:variable name="gotColDims" select="boolean($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef)"/>
-  <xsl:variable name="kpiAsRows" select="boolean($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/scc:LevelKpi)"/>
-  <xsl:variable name="colDimIdx" select="$headerCs[@id=$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef[position()=1]/@bRef]/@pos"/>
+  <!-- Define a set of keys for row dimensions on different levels -->
+  <xsl:key name="rowDims1" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;')"/>
+  <xsl:key name="rowDims2" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;',wrs:C[2],'&#xE0F2;')"/>
+  <xsl:key name="rowDims3" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;',wrs:C[2],'&#xE0F2;',wrs:C[3],'&#xE0F2;')"/>
+  <xsl:key name="rowDims4" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;',wrs:C[2],'&#xE0F2;',wrs:C[3],'&#xE0F2;',wrs:C[4],'&#xE0F2;')"/>
+  <xsl:key name="rowDims5" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;',wrs:C[2],'&#xE0F2;',wrs:C[3],'&#xE0F2;',wrs:C[4],'&#xE0F2;',wrs:C[5],'&#xE0F2;')"/>
+  <xsl:key name="rowDims6" match="/*/wrs:Data/wrs:R" use="concat('&#xE0F2;',wrs:C[1],'&#xE0F2;',wrs:C[2],'&#xE0F2;',wrs:C[3],'&#xE0F2;',wrs:C[4],'&#xE0F2;',wrs:C[5],'&#xE0F2;',wrs:C[5],'&#xE0F2;')"/>
 
-  <xsl:template match="/">
+  <xsl:variable name="keyRowDims"         select="concat('rowDims',count($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*))"/>
+  <xsl:variable name="keyAboveKpiDims"    select="concat('rowDims',count($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*[following-sibling::scc:LevelKpi]))"/>
+  <xsl:variable name="keyKpiAndAboveDims" select="concat('rowDims',count($sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*[not(preceding-sibling::scc:LevelKpi)]))"/>
 
-    <xsla:stylesheet version="1.0"
-      xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
-      xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
-      xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
-      xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
-      xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
-      xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-      xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
-      xmlns:exslt="http://exslt.org/common"
-      xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-      xmlns:generator="urn(bcd-xsltGenerator)"
-      bcdxml:wrsHeaderIsEnough="true">
-    
-      <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
-    
-      <xsla:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
-      
-      <xsla:param name="sccDefinition"/>
-      
-      <!-- Parameter model  -->
-      <!-- (DOM) Parameter model according to xmlns http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0 -->
-      <xsla:param name="paramModel" select="/*[0=1]"/>
-      <!-- (String) Optional specific parameter set ID  -->
-      <xsla:param name="paramSetId"/>
-      <!-- (NodeSet) As parameter or as default or specific parameter set from parameter model-->
-      <xsla:param name="paramSet" select="$paramModel//xp:OrderAndCut[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
-    
-      <xsla:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
-      <xsla:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
-    
-      <xsla:variable name="sqlTypesDoc" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
-      <xsla:variable name="headerCs" select="/*/wrs:Header/wrs:Columns/wrs:C"/>
-    
-      <xsla:variable name="doc" select="/"/>
-      
-      <xsla:variable name="kpiPos" select="key('colHeadById','bcd_kpi_id')/@pos"/>
+  <xsl:template match="/*">
+      <xsl:choose>
+        <xsl:when test="$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/scc:LevelKpi and $paramSet/@sortBy or $paramSet/@limit">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
+            <xsl:apply-templates select="*"/>
+          </xsl:copy>
+        </xsl:when>
+        <xsl:otherwise>
+          <bcdxml:XsltNop xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"/>
+        </xsl:otherwise>
+      </xsl:choose>
+  </xsl:template>
 
-      <!-- the key consists of all C's up to the KPI
-           in case of row kpis and additional column dimensions, the key also takes these column dims into account
-      -->
-      <xsl:variable name="use">
+  <xsl:template match="wrs:Data">
+    <xsl:copy>
+      <xsl:copy-of select="@*"/>
+
+      <xsl:for-each select="wrs:R">
+
+        <xsl:variable name="allRowsLoop" select="."/>
+
+        <!-- For the current row the concatenated dim values for above kpi dims -->
+        <xsl:variable name="aboveKpiDims">
+          <xsl:for-each select="$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*[following-sibling::scc:LevelKpi]">
+            <xsl:variable name="pos" select="position()"/>
+            <xsl:value-of select="concat('&#xE0F2;',$allRowsLoop/wrs:C[$pos])"></xsl:value-of>
+          </xsl:for-each>
+          <xsl:value-of select="'&#xE0F2;'"/>
+        </xsl:variable>
+
         <xsl:choose>
-          <xsl:when test="$gotColDims and $kpiAsRows">
-            <xsl:text>concat('',''</xsl:text>
-              <xsl:for-each select="$doc/*/wrs:Header/wrs:Columns/wrs:C[position() &lt;= $kpiPos or (position() &gt;= $colDimIdx and @dimId!='')]">
-                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]</xsl:text>
-                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]/@bcdGr</xsl:text>
-              </xsl:for-each>
-              <xsl:text>)</xsl:text>
+          <xsl:when test="$aboveKpiDims = '&#xE0F2;'">
+
+            <xsl:apply-templates select="$allRowsLoop">
+              <xsl:with-param name="aboveKpiDims" select="$aboveKpiDims"/>
+            </xsl:apply-templates>
+
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>concat('',''</xsl:text>
-              <xsl:for-each select="$doc/*/wrs:Header/wrs:Columns/wrs:C[position() &lt;= $kpiPos]">
-                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]</xsl:text>
-                <xsl:text>,'|',wrs:C[</xsl:text><xsl:value-of select="@pos"/><xsl:text>]/@bcdGr</xsl:text>
-              </xsl:for-each>
-              <xsl:text>)</xsl:text>
+
+            <!-- Get all rows for this above-kpi-dimension-combination -->
+            <xsl:for-each select="key($keyAboveKpiDims,$aboveKpiDims)">
+              <!-- For each distinct outer dim combination -->
+              <xsl:if test="generate-id(.)=generate-id(key($keyAboveKpiDims,$aboveKpiDims))">
+
+                <xsl:apply-templates select="$allRowsLoop">
+                  <xsl:with-param name="aboveKpiDims" select="$aboveKpiDims"/>
+                </xsl:apply-templates>
+
+              </xsl:if> <!-- End for each distinct outer dim combination -->
+            </xsl:for-each>
+
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:variable>
 
-      <xsla:key name="rowKey" match="/*/wrs:Data/wrs:R" use="{$use}"/>
+      </xsl:for-each>
 
-      <xsla:template match="wrs:Data">
-        <xsla:copy>
-          <xsla:copy-of select="@*"/>
-          <xsla:for-each select="*">
+    </xsl:copy>
+  </xsl:template>
 
-            <!-- sort everything before kpi (for row kpis with column dimension, we also sort the column dimensions) -->
-            <xsl:choose>
-              <xsl:when test="$gotColDims and $kpiAsRows">
-                <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos or (position() &gt;= $colDimIdx and @dimId!='')][@sort | @total]">
-                  <xsl:call-template name="generateSort">
-                    <xsl:with-param name="elem" select="."/>
-                  </xsl:call-template>
-                </xsl:for-each>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &lt; $kpiPos][@sort | @total]">
-                  <xsl:call-template name="generateSort">
-                    <xsl:with-param name="elem" select="."/>
-                  </xsl:call-template>
-                </xsl:for-each>
-              </xsl:otherwise>
-            </xsl:choose>
+  <xsl:template match="wrs:R">
+    <xsl:param name="aboveKpiDims"/>
 
-            <!-- sort kpi using its original ordering -->
-            <xsla:sort select="count($sccDefinition/*/scc:Layout/scc:KpiRefs/scc:KpiRef[@idRef=current()/wrs:C[$kpiPos]/@id]/preceding-sibling::*)" order="ascending"/>
+      <!-- For such a combination, get the distinct kpis -->
+      <xsl:variable name="kpiAndAboveDims" select="concat($aboveKpiDims,wrs:C[$kpiPos],'&#xE0F2;')"/>
 
-            <!-- run block-wise over data to keep ordering up to kpi position -->
-            <xsla:if test="generate-id(.)=generate-id(key('rowKey',{$use}))">
-              <xsla:for-each select="key('rowKey',{$use})">
+      <!-- Is this the first appearance of the kpi within the above-kpi combination? -->
+      <xsl:if test="generate-id(.) = generate-id(key($keyKpiAndAboveDims,$kpiAndAboveDims))">
 
-                <!-- sort everything after kpi (for row kpis with column dimension, we exclude the column dimensions, since they were part of the sort before already) -->
-                <xsl:choose>
-                  <xsl:when test="$gotColDims and $kpiAsRows">
-                    <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos and not(position() &gt;= $colDimIdx and @dimId='')][@sort | @total]">
-                      <xsl:call-template name="generateSort">
-                        <xsl:with-param name="elem" select="."/>
-                      </xsl:call-template>
-                    </xsl:for-each>
-                  </xsl:when>
-                  <xsl:otherwise>
-                   <xsl:for-each select="$paramSet/xp:RowsOrder/wrs:Columns/*[position() &gt; $kpiPos][@sort | @total]">
-                      <xsl:call-template name="generateSort">
-                        <xsl:with-param name="elem" select="."/>
-                      </xsl:call-template>
-                    </xsl:for-each>
-                  </xsl:otherwise>
-                </xsl:choose>
+        <xsl:variable name="kpiId"    select="wrs:C[$kpiPos]"/>
+        <xsl:variable name="kpiIsNeg" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id=$kpiId]/@positive='false'"/>
 
-                <!-- limit output -->
-                <xsl:choose>
-                  <xsl:when test="$paramSet/xp:RowsOrder/@limit != ''">
-                    <xsla:if test="position() &lt;= {$paramSet/xp:RowsOrder/@limit} or wrs:C[{$kpiPos + 1}]/@bcdGr='1'">
-                      <xsla:apply-templates select="."/>
-                    </xsla:if>
-                    </xsl:when>
-                  <xsl:otherwise>
-                    <xsla:apply-templates select="."/>
-                  </xsl:otherwise>
-                </xsl:choose>
-               </xsla:for-each>
-            </xsla:if>
-          </xsla:for-each>
-        </xsla:copy>
-      </xsla:template>
+        <!-- Per kpi we decide wehther to sort ascending or descending -->
+        <xsl:variable name="ascdesc">
+          <xsl:choose>
+            <!-- We don't know how pos/neg affects the aspects except performance -->
+            <xsl:when test="$criteria != 'performance'">descending</xsl:when>
+            <xsl:when test="$kpiIsNeg and $isAscending">descending</xsl:when>
+            <xsl:when test="$kpiIsNeg">ascending</xsl:when>
+            <xsl:when test="$isAscending">ascending</xsl:when>
+            <xsl:otherwise>descending</xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
 
-      <xsla:template match="@*|node()">
-        <xsla:copy>
-          <xsla:apply-templates select="@*|node()" />
-        </xsla:copy>
-      </xsla:template>
+        <!-- For each row for this above kpi dim and kpi combination -->
+        <xsl:choose>
+          <!-- We have column dimensions -->
+          <xsl:when test="$hasColDims">
+            <!-- Print all rows for that above-kpi-dims and kpi combination, sorted by criteria.
+              In top-n case we do not display or count the row total, in case of sorting-only we want it to be included -->
+            <xsl:for-each select="key($keyKpiAndAboveDims,$kpiAndAboveDims)[(not($isTopN) or not(wrs:C[$lastRowDimPos]/@bcdGr='1')) and wrs:C[$lastRowDimPos + 1]/@bcdGr='1']">
+              <xsl:sort select="wrs:C[$criteriaPos]" order="{$ascdesc}" data-type="number"/>
+              <xsl:if test="position() &lt;= $topN">
+                <!-- In case of later colDims, we create new rows combining different rows with the same row-dimensions.
+                     For that reason we need to make sure we include all of them here. -->
+                <xsl:variable name="rowAboveAndKpiDimLoop" select="."/>
+                <xsl:variable name="rowDims">
+                  <xsl:value-of select="$kpiAndAboveDims"/>
+                  <xsl:for-each select="$sccDefinition/*/scc:Layout/scc:Dimensions/scc:Rows/*[preceding-sibling::scc:LevelKpi]">
+                    <xsl:variable name="pos" select="count(preceding-sibling::*)+1"/>
+                    <xsl:value-of select="concat($rowAboveAndKpiDimLoop/wrs:C[$pos],'&#xE0F2;')"/>
+                  </xsl:for-each>
+                </xsl:variable>
+                <xsl:copy-of select="key($keyRowDims,$rowDims)"/>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <!-- We have no column dimensions -->
+          <xsl:otherwise>
+            <!-- Print all rows for that above-kpi-dims and kpi combination, sorted by criteria
+                 In top-n case we do not display or count the row total, in case of sorting-only we want it to be included -->
+            <xsl:for-each select="key($keyKpiAndAboveDims,$kpiAndAboveDims)[not($isTopN) or not(wrs:C[$lastRowDimPos]/@bcdGr='1')]">
+              <xsl:sort select="wrs:C[$criteriaPos]" order="{$ascdesc}" data-type="number"/>
+              <xsl:if test="position() &lt;= $topN">
+                <xsl:copy-of select="."/>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
 
-    </xsla:stylesheet>
+      </xsl:if> <!-- First kpi appearance for this above-kpi-dim combination -->
 
+  </xsl:template>
+
+  <!-- 1:1 copy -->
+  <xsl:template match="@*|node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()" />
+    </xsl:copy>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -89,17 +89,12 @@
       <element name="FilterXPath" type="tns:FilterXPathParamType" minOccurs="0" maxOccurs="unbounded">
         <annotation><documentation>Filter XPath</documentation></annotation>
       </element>
-      <element name="OrderRowsAndCols" type="tns:OrderRowsAndCols" minOccurs="0" maxOccurs="unbounded">
+      <element name="OrderRowsAndCols" type="tns:OrderRowsAndColsType" minOccurs="0" maxOccurs="unbounded">
         <annotation>
           <documentation>Ordering of rows and columns</documentation>
         </annotation>
       </element>
-      <element name="OrderAndCut" type="tns:OrderAndCut" minOccurs="0" maxOccurs="unbounded">
-        <annotation>
-          <documentation>Ordering and limiting of scorecard aspects</documentation>
-        </annotation>
-      </element>
-      <element name="ColDims" type="tns:ColDims" minOccurs="0" maxOccurs="unbounded">
+      <element name="ColDims" type="tns:ColDimsType" minOccurs="0" maxOccurs="unbounded">
         <annotation>
           <documentation>Creating a Wrs with col dimensions from a standard Wrs</documentation>
         </annotation>
@@ -513,7 +508,7 @@
   </complexType>
 
   <!-- Order rows and columns -->
-  <complexType name="OrderRowsAndCols">
+  <complexType name="OrderRowsAndColsType">
     <complexContent>
       <extension base="tns:BaseParamType">
 
@@ -572,79 +567,6 @@
                   </complexType>
                 </element>
               </sequence>
-            </complexType>
-          </element>
-
-        </sequence>
-
-      </extension>
-    </complexContent>
-
-  </complexType>
-
-
-  <complexType name="OrderAndCut">
-    <complexContent>
-      <extension base="tns:BaseParamType">
-        <sequence>
-          <element name="RowsOrder" minOccurs="0">
-            <annotation><documentation>
-              Definition of the row's ordering
-            </documentation></annotation>
-            <complexType>
-              <sequence>
-                <element name="Columns" minOccurs="0">
-                  <annotation><documentation>
-                    Order by the following columns with prio in their order
-                  </documentation></annotation>
-                  <complexType>
-                    <sequence>
-                      <element name="C" minOccurs="0" maxOccurs="unbounded">
-                        <annotation><documentation>
-                          Order according to the attributes
-                        </documentation></annotation>
-                        <complexType>
-                          <attribute name="id" type="NCName" use="required"/>
-                          <attribute name="sort" default="ascending">
-                            <annotation><documentation>
-                              Sort order
-                            </documentation></annotation>
-                            <simpleType>
-                              <restriction base="string">
-                               <enumeration value="ascending"/>
-                               <enumeration value="descending"/>
-                              </restriction>
-                            </simpleType>
-                          </attribute>
-                          <attribute name="total" default="trailing">
-                            <annotation><documentation>
-                              Whether to move totals to the end or top. Wins over other sortings.
-                              'true' means the position of the totals follows their value
-                            </documentation></annotation>
-                            <simpleType>
-                              <restriction base="string">
-                               <enumeration value="leading"/>
-                               <enumeration value="trailing"/>
-                              </restriction>
-                            </simpleType>
-                          </attribute>
-                          <attribute name="sortBy" type="NCName">
-                            <annotation><documentation>
-                              A value-id according to which to sort the column.
-                              For example you can sort the countries according their population instead of their name
-                            </documentation></annotation>
-                          </attribute>
-                        </complexType>
-                      </element>
-                    </sequence>
-                  </complexType>
-                </element>
-              </sequence>
-              <attribute name="limit" type="integer">
-                <annotation><documentation>
-                  Limit the number of shown rows to this value
-                </documentation></annotation>
-              </attribute>
             </complexType>
           </element>
 
@@ -656,7 +578,7 @@
   </complexType>
 
   <!-- xp:ColDims -->
-  <complexType name="ColDims">
+  <complexType name="ColDimsType">
     <annotation><documentation>Parameters creating column row- and dimensions from a standard Wrs document</documentation></annotation>
     <sequence>
       <element name="Measures">
