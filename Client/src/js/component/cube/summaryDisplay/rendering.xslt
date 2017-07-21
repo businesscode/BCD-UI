@@ -40,7 +40,7 @@
     <div class="bcdDnDSummary">
       <xsl:choose>
         <xsl:when test="$guiStatus/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId=$objectId and @disableClientRefresh='true'] or $guiStatus/*/guiStatus:ClientSettings/scc:ClientLayout[@scorecardId=$objectId and @disableClientRefresh='true']">
-          <span style="font-weight:bold">The report definition is modified and client side refresh is disabled. Please press apply first.</span>
+          <span class="bcdBold">The report definition is modified and client side refresh is disabled. Please press apply first.</span>
         </xsl:when>
         <xsl:otherwise>
           <ul>
