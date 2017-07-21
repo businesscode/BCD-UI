@@ -85,7 +85,7 @@
     <table class="bcdTooltip bcdScTooltip">
 
       <!-- Print KPI caption -->
-      <thead><tr><th><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
+      <thead><tr><th style="white-space: nowrap"><xsl:value-of select="$kpi/@caption"/></th></tr></thead>
 
       <!-- Print each attribute -->
       <xsl:for-each select="$attrs">
