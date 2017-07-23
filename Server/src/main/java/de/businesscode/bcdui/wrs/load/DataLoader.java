@@ -226,7 +226,9 @@ public class DataLoader {
       try {
         SQLStatementWithParams stmData = getGenerator().getSelectStatement();
         String sql = stmData.getStatement();
-        // log.debug("SQL generated: " + sql);
+        if(log.isDebugEnabled()){
+          log.debug("Query SQL: " + sql);
+        }
         try {
           statement = prepareStatement(connection, sql);
           // log.trace("Statement prepared.");

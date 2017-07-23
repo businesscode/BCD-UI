@@ -93,4 +93,9 @@ public class SQLStatementWithParams {
       stmt.append(parts[i]).append(" ");
     return stmt.toString();
   }
+  
+  @Override
+  public String toString() {
+    return getStatementWithParams();
+  }
 }
