@@ -16,7 +16,13 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.sql.Types;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -600,6 +606,13 @@ public class WrqBindingItem implements WrsBindingItem
 
   public String getSkipForTotals() {
     return skipForTotals;
+  }
+
+  /**
+   * @return a {@link BindingItem} this item is referencing, maybe null in case this is a virtual item
+   */
+  public BindingItem getReferenceBindingItem() {
+    return referenceBindingItem;
   }
 
   /**
