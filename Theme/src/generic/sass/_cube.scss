@@ -231,7 +231,11 @@
   margin-bottom: 5px;
 
   .bcdConnectable {
+    outline: 0;
     .bcdItem { display: inline-block; width: 100%; }
+  }
+  .bcdConnectable:focus {
+    border: 1px solid $select-color;
   }
 
   .bcdConnectableHover,
