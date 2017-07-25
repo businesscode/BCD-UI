@@ -27,6 +27,8 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamSource;
@@ -84,6 +86,7 @@ public class DatabaseWriter {
    * @param keyColumnNames
    * @param maxBatchSizePr
    * @throws SQLException
+   * @throws IllegalArgumentException if keyColumnNames does not contain all keys from bindingSetPr
    */
   public DatabaseWriter(BindingSet bindingSetPr, Connection defaultConnectionPr, BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames, int maxBatchSizePr) throws SQLException {
     this.bindingSet = bindingSetPr;
@@ -94,6 +97,23 @@ public class DatabaseWriter {
     this.maxBatchSize = maxBatchSizePr;
     for (int i = 0; i < columnsPr.length; ++i) {
       isKeyColumn[i] = keyColumnNames.contains(columnsPr[i].getId());
+    }
+    ensureAllKeysAvailable(bindingSetPr, keyColumnNames);
+  }
+
+  /**
+   * ensures that all key items of a bindingSet are contained in keyColumnNames 
+   * @param bindingSet
+   * @param keyColumnNames
+   * @throws IllegalArgumentException if keyColumnNames does not contain all keys from bindingSet
+   */
+  private void ensureAllKeysAvailable(BindingSet bindingSet, Collection<String> keyColumnNames) {
+    if(
+      ! new HashSet<String>(keyColumnNames).containsAll(
+        Arrays.stream(bindingSet.getKeyBindingItems()).map(bi->bi.getId()).collect(Collectors.toSet())
+      )
+    ) {
+      throw new IllegalArgumentException(String.format("Constraint violation: Not all key-items provided for binding-set '%s'.", bindingSet.getName()));
     }
   }
 
