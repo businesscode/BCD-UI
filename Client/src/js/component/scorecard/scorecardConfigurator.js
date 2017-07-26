@@ -935,8 +935,10 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         layoutIdName = "bRef"
       }
       
+      var x = pre == "scc:AspectRefs" ? "/*/" : "/*/*/";
+
       if (layoutIdName != "" && layoutIdValue != "") {
-        var layoutNode = targetModel.query("/*/scc:Layout[@scorecardId='" + scorecardId + "']//" + layoutNodeName + "[@" + layoutIdName + "='" + layoutIdValue + "']");
+        var layoutNode = targetModel.query("/*/scc:Layout[@scorecardId='" + scorecardId + "']" + x + layoutNodeName + "[@" + layoutIdName + "='" + layoutIdValue + "']");
         if (layoutNode != null) {
           if (e.getAttribute("bcdId") == id) {
             // set actual values
