@@ -100,10 +100,8 @@ bcdui.util.namespace("bcdui.component.exports",
         var navPathTarget = root.getAttribute("targetId");
         var oldRoot = args.rootElement;
         args.rootElement = [];
-        if (navPathTarget) {
-          args.rootElement.push(navPathTarget);
-          args.rootElement.push(jQuery("<table><tr></tr></table>").get(0));
-        }
+        if (navPathTarget)
+          args.rootElement.push(jQuery("<table><tr><td>" + jQuery("#" + navPathTarget).text() + "</td></tr><tr></tr></table>").get(0));
         if (typeof oldRoot == "string")      // html id
           args.rootElement.push(oldRoot);
         else if (jQuery(oldRoot).length > 0) // html element
