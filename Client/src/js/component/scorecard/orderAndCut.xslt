@@ -154,11 +154,21 @@
         <xsl:variable name="ascdesc">
           <xsl:choose>
             <!-- We don't know how pos/neg affects the aspects except performance -->
-            <xsl:when test="$criteria != 'performance'">descending</xsl:when>
+            <xsl:when test="$criteria != 'performance'">
+              <xsl:choose>
+                <xsl:when test="$isAscending">ascending</xsl:when>
+                <xsl:otherwise>descending</xsl:otherwise>
+              </xsl:choose>
+            </xsl:when>
             <xsl:when test="$kpiIsNeg and $isAscending">descending</xsl:when>
             <xsl:when test="$kpiIsNeg">ascending</xsl:when>
             <xsl:when test="$isAscending">ascending</xsl:when>
-            <xsl:otherwise>descending</xsl:otherwise>
+            <xsl:otherwise>
+              <xsl:choose>
+                <xsl:when test="$isAscending">ascending</xsl:when>
+                <xsl:otherwise>descending</xsl:otherwise>
+              </xsl:choose>
+            </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
 
