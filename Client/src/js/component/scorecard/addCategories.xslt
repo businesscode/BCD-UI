@@ -48,8 +48,8 @@
   <xsl:variable name="categoryAttrTypes"     select="$sccDefinition/*/scc:Layout/scc:CategoryTypeRefs/*[@asKpiAttribute='true']"/>
   <xsl:variable name="categoryAttrTypeCount" select="count($categoryAttrTypes)"/>
   
-  <xsl:variable name="formatPos" select="translate(string(count(/*/wrs:Header/wrs:Columns/wrs:C)), '0123456789', '000000000')"/>
-  <xsl:variable name="formatCat" select="translate(string(count($categoryColTypes)), '0123456789', '000000000')"/>
+  <xsl:variable name="formatPos" select="translate(string(count(/*/wrs:Header/wrs:Columns/wrs:C)), '0123456789', '0000000000')"/>
+  <xsl:variable name="formatCat" select="translate(string(count($categoryColTypes)), '0123456789', '0000000000')"/>
 
   <xsl:variable name="categoryTypeElements" select="$sccDefinition/*/scc:CategoryTypes/scc:CategoryType"/>
 
