@@ -179,9 +179,10 @@
             <!-- Print all rows for that above-kpi-dims and kpi combination, sorted by criteria.
               In top-n case we do not display or count the row total, in case of sorting-only we want it to be included -->
             <xsl:for-each select="key($keyKpiAndAboveDims,$kpiAndAboveDims)[(not($isTopN) or not(wrs:C[$lastRowDimPos]/@bcdGr='1')) and wrs:C[$lastRowDimPos + 1]/@bcdGr='1']">
-              <!-- always sort NaN/empty cells to the bottom -->
-               <xsl:sort select="number(boolean(wrs:C[$criteriaPos]='NaN' or string-length(wrs:C[$criteriaPos])=0))" data-type="number" order="ascending"/>
-               <xsl:sort select="wrs:C[$criteriaPos]" order="{$ascdesc}" data-type="number"/>
+              <!-- always sort totals, then NaN/empty cells to the bottom and finally sort by criteria numerical -->
+              <xsl:sort select="number(boolean(wrs:C[$lastRowDimPos]/@bcdGr='1'))" data-type="number" order="ascending"/>
+              <xsl:sort select="number(boolean(wrs:C[$criteriaPos]='NaN' or string-length(wrs:C[$criteriaPos])=0))" data-type="number" order="ascending"/>
+              <xsl:sort select="wrs:C[$criteriaPos]" order="{$ascdesc}" data-type="number"/>
               <xsl:if test="position() &lt;= $topN">
                 <!-- In case of later colDims, we create new rows combining different rows with the same row-dimensions.
                      For that reason we need to make sure we include all of them here. -->
@@ -202,7 +203,8 @@
             <!-- Print all rows for that above-kpi-dims and kpi combination, sorted by criteria
                  In top-n case we do not display or count the row total, in case of sorting-only we want it to be included -->
             <xsl:for-each select="key($keyKpiAndAboveDims,$kpiAndAboveDims)[not($isTopN) or not(wrs:C[$lastRowDimPos]/@bcdGr='1')]">
-              <!-- always sort NaN/empty cells to the bottom -->
+              <!-- always sort totals, then NaN/empty cells to the bottom and finally sort by criteria numerical -->
+              <xsl:sort select="number(boolean(wrs:C[$lastRowDimPos]/@bcdGr='1'))" data-type="number" order="ascending"/>
               <xsl:sort select="number(boolean(wrs:C[$criteriaPos]='NaN' or string-length(wrs:C[$criteriaPos])=0))" data-type="number" order="ascending"/>
               <xsl:sort select="wrs:C[$criteriaPos]" order="{$ascdesc}" data-type="number"/>
               <xsl:if test="position() &lt;= $topN">
