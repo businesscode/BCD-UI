@@ -232,10 +232,11 @@
     </xsl:copy>
   </xsl:template>
   
-  <!-- remove sort/sortBy if we got a aspect sorting -->
+  <!-- remove sort/sortBy from RowDims if we got a aspect sorting -->
   <xsl:template match="dm:LevelRef" mode="xsltParameters">
+    <xsl:variable name="bRef" select="@bRef"/>
     <xsl:choose>
-      <xsl:when test="$configPrecalc/*/scc:Layout/scc:AspectRefs/scc:*[@sort!='']">
+      <xsl:when test="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Rows/dm:LevelRef[@bRef=$bRef] and $configPrecalc/*/scc:Layout/scc:AspectRefs/scc:*[@sort!='']">
         <xsl:copy><xsl:apply-templates select="node()|@*[name()!='sort' and name()!='sortBy']" mode="xsltParameters"/></xsl:copy>
       </xsl:when>
       <xsl:otherwise>
