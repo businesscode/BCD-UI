@@ -522,17 +522,21 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     destination.appendChild(source.cloneNode(true));
     tempModel.fire();
 
-    // generate rowAspectRefs as leading aspectRefs
+    // generate rowAspectRefs as leading aspectRefs by first mark all as non row aspects
     jQuery.makeArray(targetModel.getData().selectNodes("/*" + scLayoutRoot + "/scc:AspectRefs/scc:AspectRef")).forEach(function(e){
       e.removeAttribute("isRow");
     });
+    // insert the row ones before all others and mark them isRow
     var aspectRefsRoot = bcdui.core.createElementWithPrototype(targetModel.getData(), "/*" + scLayoutRoot + "/scc:AspectRefs");
     jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/scc:RowAspectRefs/*")).reverse().forEach(function(e) {
       e.setAttribute("isRow", "true");
       aspectRefsRoot.insertBefore(e.cloneNode(true), aspectRefsRoot.childNodes && aspectRefsRoot.childNodes.length > 0 ? aspectRefsRoot.childNodes[0] : null);
     });
-    bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:RowAspectRefs");
-
+    // remove non-row aspects from layout which are now handled as row aspects to avoid dupes 
+    jQuery.makeArray(targetModel.queryNodes("/*" + scLayoutRoot + "/scc:AspectRefs/*[@isRow='true']")).forEach(function(e) {
+      bcdui.core.removeXPath(targetModel.getData(), "/*" + scLayoutRoot + "/scc:AspectRefs/*[(not(@isRow) or @isRow='false') and @idRef='" + e.getAttribute("idRef") + "']");
+    });
+ 
     // optionally limit measures/dimensions
     var doRedisplay = bcdui.component.scorecardConfigurator._limitDimensions(scorecardId);
 
