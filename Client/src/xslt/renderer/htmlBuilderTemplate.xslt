@@ -172,9 +172,14 @@
   Creates a single data cell which usually contains a formatted numeric value.
  -->
 <xsl:template match="wrs:C">
-  <xsl:variable name="originalColumnIndex" select="substring-before(substring-after($columnOrderingList, concat('|', position() + $headerOffsetValue, ':')), '|')"/>
-  <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', $originalColumnIndex)"/>
-  
+  <generator:OnlyIfRowSpan>
+    <xsl:variable name="originalColumnIndex" select="substring-before(substring-after($columnOrderingList, concat('|', position() + $headerOffsetValue, ':')), '|')"/>
+    <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', $originalColumnIndex)"/>
+  </generator:OnlyIfRowSpan>
+  <generator:IfNoRowSpan>
+    <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', position())"/>
+  </generator:IfNoRowSpan>
+
   <xsl:variable name="tableElement">
     <xsl:choose>
       <xsl:when test="boolean($columnDefinition/@dimId!='')">th</xsl:when>
