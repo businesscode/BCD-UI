@@ -175,7 +175,17 @@
 
   <xsl:template match="dm:LevelRef">
     <dm:LevelRef>
-      <xsl:copy-of select="@*"/>
+      <xsl:variable name="bRef" select="@bRef"/>
+      <xsl:choose>
+        <!-- remove @total from LevelRefs two or more levels beneath LevelKpi to hide sub totals in case of sorting -->
+        <xsl:when test="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Rows/scc:LevelKpi/following-sibling::dm:LevelRef[position()&gt;1 and @bRef=$bRef]
+            and $configPrecalc/*/scc:Layout/scc:AspectRefs/scc:*[@sort!='']">
+          <xsl:copy-of select="@*[name()!='total']"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:copy-of select="@*"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <!-- Optimization for verticalizeKpis -->
       <xsl:attribute name="posInWrsBeforeVerticalizeKpis"><xsl:value-of select="count(preceding::dm:LevelRef)+1"/></xsl:attribute>
     </dm:LevelRef>
