@@ -84,6 +84,7 @@
             Enables the report filter which is a UI element allowing to
             create complex filtering on Dimensions and Measures.
           </xs:documentation></xs:annotation>
+          <xs:complexType/>
         </xs:element>
 
         <xs:element name="Dimensions">
