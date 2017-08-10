@@ -92,8 +92,8 @@
     </div>
   </xsl:template>
 
-  <!-- dont render empty junctions -->
-  <xsl:template match="f:And[not(f:Expression)] | f:Or[not(f:Expression)]">
+  <!-- skip rendering empty junctions and junctions containing only 1 child -->
+  <xsl:template match="*[ (self::f:And or self::f:Or) and ( count(f:*) &lt; 2 ) ]">
     <xsl:apply-templates/>
   </xsl:template>
 
@@ -101,7 +101,7 @@
     <xsl:variable name="isReadOnly" select="generate-id($target) = generate-id(.)"/>
     <xsl:variable name="contextId">
       <xsl:choose>
-        <xsl:when test="$isReadOnly"><xsl:text>empty</xsl:text></xsl:when>
+        <xsl:when test="$isReadOnly"><xsl:text>default</xsl:text></xsl:when>
         <xsl:otherwise><xsl:text>non-empty</xsl:text></xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
