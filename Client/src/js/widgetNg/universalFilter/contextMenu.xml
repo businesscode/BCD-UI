@@ -3,10 +3,10 @@
   xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
   xmlns:ctx="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
 
-  <!-- empty context menu -->
+  <!-- default context menu (which must be empty) -->
   <ctx:Context id="default"/>
 
-  <!-- used for empty content and for read-only conjunctions -->
+  <!-- used for empty content -->
   <ctx:Context id="empty">
     <ctx:Entry caption="Add Expression">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
