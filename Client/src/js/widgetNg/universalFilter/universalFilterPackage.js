@@ -246,8 +246,8 @@
             targetNodeId    : statusModel.read("/*/ReferenceNodeId"),
             junction  : statusModel.read("/*/Junction","").toUpperCase(),
             bRef      : statusModel.read("/*/bRef","").replace(/</g,"&lt;"),
-            op        : statusModel.read("/*/Op","").replace(/</g,"&lt;"),
-            value     : statusModel.read("/*/Value","").replace(/</g,"&lt;")
+            op        : statusModel.read("/*/Op",""),
+            value     : statusModel.read("/*/Value","")
         };
         if(!args.bRef || !args.op){
           // do nothing if missing input
@@ -292,11 +292,16 @@
 
       // either our reference is f:Expression or a f:Junction
       var requestedJunction = args.junction || this.options.defaultJunction;
-      var newExpressionNode = bcdui.core.browserCompatibility.createDOMFromXmlString(
-          doT
-          .compile("<R><f:Expression bRef='{{=it.bRef}}' op='{{=it.op}}' value='{{=it.value}}'/></R>")
-          (args)
-      ).selectSingleNode("/*/*");
+      var newExpressionNode = (function(){
+        var node = bcdui.core.browserCompatibility.createDOMFromXmlString(
+            doT
+            .compile("<R><f:Expression bRef='{{=it.bRef}}'/></R>")
+            (args)
+        ).selectSingleNode("/*/*");
+        node.setAttribute("value", args.value);
+        node.setAttribute("op", args.op);
+        return node;
+      })();
       var nextFilterNode = refFilterNode.selectSingleNode("following-sibling::f:*");
       // need reference parent, either we have one (non-document node and beyond of targetModelXPath) or we chose self
       var refFilterParent = refFilterNode.parentNode.nodeName && jQuery.contains(targetSelector.valueNode(),refFilterNode) ? refFilterNode.parentNode : refFilterNode;
