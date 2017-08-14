@@ -28,7 +28,7 @@
  * after loading and processing, all AbstractExecutable reach {@link bcdui.core.AbstractExecutable#isReady .isReady()}  === true, if everything is OK.
  * It depends on the exact concrete subclass of AbstractExecutable, which of the statuses below means successful final, i.e. isReady(). 
  * You can retrieve this final-success status via {@link bcdui.core.AbstractExecutable#getReadyStatus .getReadyStatus()} of the subclass.
- * @namespace
+ * @namespace bcdui.core.status
  */
 bcdui.core.status = bcdui.core.status || {};
 

@@ -17,7 +17,7 @@ For more details visit the documentation https://businesscode.github.io/BCD-UI-D
 <img alt="Charts Example" src="https://businesscode.github.io/BCD-UI-Docu/tutorial/images/charts_examples.png">
 
 ### Tree report example
-<img alt="Tree Report Example" src="https://businesscode.github.io/BCD-UI-Docu/tutorial/images/treeReport_treeReport.png">
+<img alt="Tree Report Example" src="https://businesscode.github.io/BCD-UI-Docu/tutorial/images/treeReport_treeView.png">
 
 ### Widgets examples
 <img alt="Widgets Example" src="https://businesscode.github.io/BCD-UI-Docu/tutorial/images/widgets_ng_connectable.png">
