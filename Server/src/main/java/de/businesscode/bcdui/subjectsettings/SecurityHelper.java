@@ -55,10 +55,29 @@ public class SecurityHelper {
    * @param security
    *          to check against
    * @param forOperationName
-   *          for operation name
+   *          for operation name (which must be defined in security)
+   * @throws SecurityException
    * @throws NoPermissionException
    */
   public static void checkSecurity(Security security, String forOperationName) throws SecurityException {
+    checkSecurity(security, forOperationName, true);
+  }
+
+  /**
+   * checks current security context of the user for given operation. Security
+   * is retrieved via SecurityUtils provided by shiro. Please read specification
+   * in subjectsettings.xsd
+   *
+   * @param security
+   *          to check against
+   * @param forOperationName
+   *          for operation name
+   * @param operationNameMandatory
+   *          if true, and operation name is not found in security, a SecurityException is thrown, otherwise execution passes
+   * @throws SecurityException
+   * @throws NoPermissionException
+   */
+  public static void checkSecurity(Security security, String forOperationName, boolean operationNameMandatory) throws SecurityException {
     if(security == null){
       throw new SecurityException("Security configuration missing, attempted to check operation name " + forOperationName);
     }
@@ -70,9 +89,13 @@ public class SecurityHelper {
     }
 
     Operation op = findOperation(security, forOperationName);
-    // no operation means exception
+    // no operation yet is mandatory, means exception
     if(op == null){
-      throw new SecurityException("Configuration for Operation " + forOperationName + " is missing");
+      if(operationNameMandatory){
+        throw new SecurityException("Configuration for Operation " + forOperationName + " is missing");
+      } else {
+        return; // operation is not secured: pass
+      }
     }
 
     // blank permission means: pass, otherwise check each separated by ' '

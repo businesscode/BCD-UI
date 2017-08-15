@@ -24,6 +24,7 @@ import java.util.Map;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
+import de.businesscode.bcdui.binding.exc.SecurityMissingForBindingException;
 import de.businesscode.bcdui.binding.rel.BindingItemRef;
 import de.businesscode.bcdui.binding.rel.Coalesce;
 import de.businesscode.bcdui.binding.rel.ImportItem;
@@ -31,6 +32,9 @@ import de.businesscode.bcdui.binding.rel.Relation;
 import de.businesscode.bcdui.binding.rel.impl.AbstractColumn;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilters;
 import de.businesscode.bcdui.binding.write.WriteProcessing;
+import de.businesscode.bcdui.subjectsettings.SecurityException;
+import de.businesscode.bcdui.subjectsettings.SecurityHelper;
+import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
 
@@ -372,5 +376,25 @@ public class StandardBindingSet implements BindingSet {
   @Override
   public List<Class<? extends Modifier>> getWrqModifiers() {
     return wrqModifiers;
+  }
+
+  @Override
+  public void assurePermissionDefined(SECURITY_OPS operation) throws SecurityMissingForBindingException {
+    if(
+        SubjectSettings.getInstance().isWasConfigured() &&
+        (
+            getSecurity()==null ||
+            !SecurityHelper.hasOperation(getSecurity(), operation.name())
+        )
+      ){
+      throw new SecurityMissingForBindingException(this, operation.name());
+    }
+  }
+
+  @Override
+  public void assurePermitted(SECURITY_OPS operation) throws SecurityException {
+    if(getSecurity()!=null){
+      SecurityHelper.checkSecurity(getSecurity(), operation.name(), false);
+    }
   }
 }

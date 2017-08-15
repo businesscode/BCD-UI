@@ -38,14 +38,11 @@ import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
+import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.Bindings;
-import de.businesscode.bcdui.binding.exc.SecurityMissingForBindingException;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallback;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallbackFactory;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
-import de.businesscode.bcdui.subjectsettings.SecurityHelper;
-import de.businesscode.bcdui.subjectsettings.SecurityMissingException;
-import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.save.event.ISaveEventListener;
 import de.businesscode.bcdui.wrs.save.event.SaveEvent;
@@ -445,34 +442,11 @@ public class XMLToDataBase implements XMLEventConsumer {
   private void checkSecurity(BindingSet bs, BindingSet.SECURITY_OPS op) throws SecurityException{
     switch(op){
       case write:
-        checkGeneralSecurityForWrite(bs);
-        if(bs.getSecurity()!=null){
-          SecurityHelper.checkSecurity(bs.getSecurity(), op.name());
-        }
+        bs.assurePermissionDefined(SECURITY_OPS.write); // write permission must be defined on a BindingSet
+        bs.assurePermitted(SECURITY_OPS.write); // check if write is permitted for subject
         break;
       default:
         throw new SecurityException("operation " + op.name() + " is not supported!");
-    }
-  }
-
-  /**
-   * we check here if the application has set up the subjectSettings. In case it is
-   * set up, the binding-set HAS TO define the Security context for {@link BindingSet.SECURITY_OPS#write},
-   * otherwise we throw {@link SecurityMissingException}
-   *
-   * @param bs
-   * @return
-   * @throws SecurityMissingException
-   */
-  private void checkGeneralSecurityForWrite(BindingSet bs) throws SecurityMissingForBindingException {
-    if(
-        SubjectSettings.getInstance().isWasConfigured() &&
-        (
-            bs.getSecurity()==null ||
-            !SecurityHelper.hasOperation(bs.getSecurity(), BindingSet.SECURITY_OPS.write.name())
-        )
-      ){
-      throw new SecurityMissingForBindingException(bs, BindingSet.SECURITY_OPS.write.name());
     }
   }
 

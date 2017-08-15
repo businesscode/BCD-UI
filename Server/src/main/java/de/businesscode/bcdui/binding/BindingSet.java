@@ -22,9 +22,12 @@ import java.util.List;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
+import de.businesscode.bcdui.binding.exc.SecurityMissingForBindingException;
 import de.businesscode.bcdui.binding.rel.Relation;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilters;
 import de.businesscode.bcdui.binding.write.WriteProcessing;
+import de.businesscode.bcdui.subjectsettings.SecurityException;
+import de.businesscode.bcdui.subjectsettings.SecurityMissingException;
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
 import de.businesscode.util.StandardNamespaceContext;
@@ -164,6 +167,24 @@ public interface BindingSet extends Cloneable, Serializable {
   public abstract ArrayList<Relation> getRelations();
 
   public abstract WriteProcessing getWriteProcessing();
+
+  /**
+   * we check here if the application has set up the subjectSettings. In case it is
+   * set up, the binding-set HAS TO define the Security context for given operation
+   * otherwise we throw {@link SecurityMissingException}
+   *
+   * @param operation - to assure the permission is defined for
+   * @throws SecurityMissingException - in case subjectSettings are enabled, yet no explicit permission is provided for this BindingSet.
+   */
+  public void assurePermissionDefined(SECURITY_OPS operation) throws SecurityMissingForBindingException;
+
+  /**
+   * check if given operation is permitted according to permissions set on subject in scope
+   *
+   * @param operation - to assure permission for
+   * @throws SecurityException, if operation is not permitted
+   */
+  public void assurePermitted(BindingSet.SECURITY_OPS operation) throws SecurityException;
 
   /**
    *
