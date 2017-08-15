@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingSet;
+import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
@@ -87,6 +88,7 @@ public class Wrq2Sql implements ISqlGenerator
       resultingBindingSet = options.getBindings().get(wrqInfo.getBindingSetId(),  wrqInfo.getAllRawBRefs());
     }
 
+    resultingBindingSet.assurePermitted(SECURITY_OPS.read);
     sqlConditionGeneratorClass = Configuration.getClassoption(OPT_CLASSES.SUBJECTSETTINGS2SQL);
     pagination      = new WrsPagination( wrqInfo, resultingBindingSet );
   }

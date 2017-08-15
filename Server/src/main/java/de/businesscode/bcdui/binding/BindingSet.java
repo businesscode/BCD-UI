@@ -43,7 +43,11 @@ public interface BindingSet extends Cloneable, Serializable {
     /**
      * any operation modifying data (C-UD) as defined by 'name' attribute of the Operation node in the configuration
      */
-    write
+    write,
+    /**
+     * any read operation as defined by 'name' attribute of the Operation node in the configuration
+     */
+    read
   }
 
   /**

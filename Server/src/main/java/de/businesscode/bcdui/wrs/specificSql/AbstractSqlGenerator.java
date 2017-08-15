@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
+import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.wrs.load.BindingItemWithMetaData;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
@@ -64,6 +65,7 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
       selectedBindingItems.add( bi );
     }
     resultingBindingSet = sqlE.getResultingBindingSets().iterator().next();
+    resultingBindingSet.assurePermitted(SECURITY_OPS.read);
     selectStatementWithParams = new SQLStatementWithParams( convertedSql, parameters, resultingBindingSet);
   }
   

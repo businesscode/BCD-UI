@@ -256,8 +256,14 @@
           </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-          <xs:attribute name="name" use="required" type="xs:string" fixed="write">
-            <xs:annotation><xs:documentation>only -write- operation is currently supported</xs:documentation></xs:annotation>
+          <xs:attribute name="name" use="required">
+            <xs:annotation><xs:documentation>write: any data manipulating operation, read: any data read operation</xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="write"/>
+                <xs:enumeration value="read"/>
+              </xs:restriction>
+            </xs:simpleType>
           </xs:attribute>
           <xs:attribute name="permission" type="xs:string" use="required">
             <xs:annotation>
