@@ -104,13 +104,17 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_error")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.clientLogging.FrontendLogTransceiver"));
-          logger.setLevel(Level.ERROR);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
+            logger.setLevel(Level.ERROR);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.CsvServlet"));
-          logger.setLevel(Level.ERROR);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
+            logger.setLevel(Level.ERROR);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.SylkServlet"));
-          logger.setLevel(Level.ERROR);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
+            logger.setLevel(Level.ERROR);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.WrsServlet"));
-          logger.setLevel(Level.ERROR);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
+            logger.setLevel(Level.ERROR);
           Logger.getRootLogger().addAppender(new BuiErrorLogAppender());
         }
       } catch (Exception e) {}
@@ -119,15 +123,20 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_access")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          logger.setLevel(Level.DEBUG);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
+            logger.setLevel(Level.DEBUG);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.CsvServlet"));
-          logger.setLevel(Level.TRACE);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.SylkServlet"));
-          logger.setLevel(Level.TRACE);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.WrsServlet"));
-          logger.setLevel(Level.TRACE);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.wrs.export.Wrs2Excel"));
-          logger.setLevel(Level.TRACE);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           Logger.getRootLogger().addAppender(new BuiAccessLogAppender());
         }
       } catch (Exception e) {}
@@ -136,9 +145,11 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_page")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          logger.setLevel(Level.DEBUG);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.ExcelExportServlet"));
-          logger.setLevel(Level.DEBUG);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           Logger.getRootLogger().addAppender(new BuiPageLogAppender());
         }
       } catch (Exception e) {}
@@ -147,7 +158,8 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_session")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          logger.setLevel(Level.DEBUG);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
+            logger.setLevel(Level.DEBUG);
           Logger.getRootLogger().addAppender(new BuiSessionLogAppender());
         }
       } catch (Exception e) {}
@@ -156,7 +168,8 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_login")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          logger.setLevel(Level.DEBUG);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
+            logger.setLevel(Level.DEBUG);
           Logger.getRootLogger().addAppender(new BuiLoginLogAppender());
         }
       } catch (Exception e) {}
@@ -164,7 +177,8 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_sql")) {
           Logger logger = Logger.getLogger(Class.forName("de.businesscode.util.jdbc.wrapper.BcdStatementWrapper"));
-          logger.setLevel(Level.TRACE);
+          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
+            logger.setLevel(Level.TRACE);
           Logger.getRootLogger().addAppender(new BuiSqlLogAppender());
         }
       } catch (Exception e) {}
