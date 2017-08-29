@@ -1126,7 +1126,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
    * @private
    */
   _cleanFilters: function(config) {
-
+    
     // collect unique list of existing bRefs for current dimension
     var possibleBrefs = jQuery.makeArray(bcdui.wkModels.bcdDimensions.queryNodes("/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level/@bRef")).map(function(e){return e.text;});
     possibleBrefs = possibleBrefs.filter(function(e, i) {return i == possibleBrefs.indexOf(e)});
@@ -1160,8 +1160,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       jQuery.makeArray(targetModel.queryNodes("/*/f:Filter//f:Expression[@bRef='" + e.bRef + "']")).forEach(function(n) {
 
         // don't check filters which are in a dimchooser structure (inc./exl.) or a cube exclude
-        if (n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "']") == null
-            && n.selectSingleNode("./ancestor::*[@bcdDimension='" + config.dimensionName + "_exclude']") == null
+        if (n.selectSingleNode("./ancestor::*[@bcdDimension]") == null
             && n.selectSingleNode("./ancestor::*[@exclBRef]") == null
         ) {
           // remove filter which are not unique and the required levels are missing
