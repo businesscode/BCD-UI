@@ -106,7 +106,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
        var wrapper = new bcdui.core.ModelWrapper(wrapperArgs);
 
        var simpleModelArgs = {
-           url: new bcdui.core.RequestDocumentDataProvider( { requestModel: wrapper } )
+           url: new bcdui.core.RequestDocumentDataProvider( { requestModel: wrapper, modelUrl: args.url } )
          , isAutoRefresh: args.isAutoRefresh
          , debug: args.debug
        };
