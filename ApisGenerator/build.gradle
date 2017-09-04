@@ -40,8 +40,8 @@ task bcduiGensrcJsXsltXapiJspTagApis {
   def taskTempDirName = "$buildDir/tmp/$name"
 
   // For up-to-date check
-  inputs.dir  "./docu/api"
-  inputs.dir  "./gradle/generators"
+  inputs.dir  "./api"
+  inputs.dir  "./generators"
   outputs.dir genSrcOutputDir
 
   // Generate jsp, xslt and xapi API for each of the 4 api groups
