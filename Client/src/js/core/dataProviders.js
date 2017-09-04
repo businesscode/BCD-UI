@@ -255,6 +255,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    *    It tries to reuse all matching parts that are already there. If you provide for example "/n:Root/n:MyElem/@attr1" and there is already "/n:Root/n:MyElem@attr1", then ""/n:Root/n:MyElem" will be "re-used" and get a second attribute attr1.
    *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
    *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
+   *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content. 
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
@@ -607,8 +608,8 @@ bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
 {
   /** 
    * @classdesc
-   *  This class creates a static model with a top level element '<cust:Options/>' and appends all
-   *  the elements that are found by xpath as children (as element '<cust:Option value="v" caption="x"/>').
+   *  This class creates a static model with a top level element '&lt;cust:Options/>' and appends all
+   *  the elements that are found by xpath as children (as element '&lt;cust:Option value="v" caption="x"/>').
    *  Useful for be passing data as parameter to transformators.
    * @extends bcdui.core.DataProviderHolder
    *

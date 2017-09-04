@@ -50,7 +50,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       /**
        * A globally unique id of the object. DataProviders do also register themselves at {@link bcdui.factory.objectRegistry} when an id is provided to the constructor. 
        * This id is only needed in declarative contexts, like jsp or, when a DataProvider is accessed in a xPath like <bcd-input targetModelId="$myModelId/ns:Root/ns:MyValue"/>.
-       * If not provided in the constructor, an id is set but the object is not automatically registered.
+       * If not provided in the constructor, a random id starting with 'bcd' is set, but the object is not automatically registered.
        * @type {string}
        * @constant
        */
