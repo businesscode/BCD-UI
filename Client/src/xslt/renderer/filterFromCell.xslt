@@ -130,14 +130,18 @@
   <!--
     Filters of the cell merged with filters from guiStatus, cell filters having higher priority
     don't include combined (cw)yr/mo/cw/qr bRefs, assuming they were correctly used to replace sidebar filters
+    cube @exclBRef excluded dimension filters form a special case here
+    when checking if the cell filter should be taken 1:1 (does not exist as filtermodel filter), we need to exclude such filters within a f:*[@exclBRef] node
+    the actual merge should not take such filters into account either and finally we add them 1:1 again  
     -->
   <xsl:variable name="cellAndGuiStatusFilterVar">
     <guiStatus:Status>
       <f:Filter>
-        <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression/@bRef)
+        <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression[not(./ancestor::*[@exclBRef])]/@bRef)
         and not(@bRef='yrqr' or @bRef='cwyrcw' or @bRef='yrmo')
         ]"/>
-        <xsl:apply-templates select="$filterModel/*/f:Filter/*" mode="merge"/>
+        <xsl:apply-templates select="$filterModel/*/f:Filter/*[not(@exclBRef)]" mode="merge"/>
+        <xsl:apply-templates select="$filterModel/*/f:Filter/*[@exclBRef]"/>
       </f:Filter>
     </guiStatus:Status>
   </xsl:variable>
