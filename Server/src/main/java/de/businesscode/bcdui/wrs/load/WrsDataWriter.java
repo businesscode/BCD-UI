@@ -54,6 +54,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
   private XMLStreamWriter writer;
   //
   private boolean maxRowsExceed = false;
+  DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 
   /**
@@ -413,8 +415,6 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
    * @throws Exception
    */
   protected void writeWrsDataRowColumnValue(int jdbcColumnType, int colNum) throws Exception {
-    DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     switch (jdbcColumnType) {
       case Types.TIMESTAMP: {
         Timestamp data = getResultSet().getTimestamp(colNum);
@@ -506,8 +506,6 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
    * @throws Exception
    */
   protected void writeWrsDataRowColumnAttributes(WrsBindingItem item) throws Exception {
-    DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     if (item.hasWrsAAttributes()) {
       for (WrsBindingItem attribute : item.getWrsAAttributes()) {
         String name = attribute.getWrsAName();
