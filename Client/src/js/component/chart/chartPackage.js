@@ -27,8 +27,8 @@
  * - legend not yet working
  */
 /**
- * The chart package contains classes to draw charts and for drawing primitives like circles, lines and polylines in VM and SVG, 
- * see {@link bcdui.component.chart.VMLDrawer} and {@link bcdui.component.chart.SVGDrawer}.
+ * The chart package contains classes to draw charts and for drawing primitives like circles, lines and polylines in SVG,
+ * see {@link bcdui.component.chart.SVGDrawer}. (For VML support please contact BusinessCode)
  * You can define a chart with js calls with {@link bcdui.component.chart.Chart} 
  * as well as be providing a XML definition according to http://www.businesscode.de/schema/bcdui/charts-1.0.0 using {@link bcdui.component.chart.XmlChart}.
  * @namespace bcdui.component.chart

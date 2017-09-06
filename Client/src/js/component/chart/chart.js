@@ -82,7 +82,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {boolean}       [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {string}        [args.id]                             - Page unique id for used in declarative contexts. If provided, the chart will register itself
    * @param {boolean}       [args.showAxes=true]                  - If false, no axes will be shown
-   * @param {boolean}       [args.isSvg]                          - Allows to enforce VML or SVG, needed for example to create  PDF in VML IE
+   * @param {boolean}       [args.isSvg]                          - Allows to enforce VML (please contact BusinessCode) or SVG, needed for example to create  PDF in VML IE
    * @param {string}        [args.title]                          - Title
    * @param {number}        [args.width]                          - Overwrite the chart's auto-width derived from targetHtml
    * @param {number}        [args.height]                         - Overwrite the chart's auto-height derived from targetHtml
@@ -394,7 +394,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': creating drawer, isSvg: "+isSvg);
     this.drawer = ( isSvg==true )
                       ? new bcdui.component.chart.SVGDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb, width: this.width, height: this.height  } )
-                      : new bcdui.component.chart.VMLDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb } );
+                      : new bcdui.componentDe.chart.VMLDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb } );
 
     // Some re-initialization steps
     this._drawCalc();
@@ -1540,7 +1540,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * Draw the chart's tooltip as a static function to be used as a call back by the drawer
    * @param map with
    *  <ul>
-   *     <li>target: the root element of the svg/vml chart</li>
+   *     <li>target: the root element of the svg chart</li>
    *     <li>src: the element originally firing the event, for example a box</li>
    *  </ul>
    * @private
