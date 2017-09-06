@@ -165,6 +165,18 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     this.origin          = { x: 0, y: 0 };
     this.numberOfBars    = 0;
 
+    this.isLightBackground = true;
+    var bgColor = jQuery(this.targetHtmlElement).parents().andSelf().filter(function() {
+      var color = jQuery(this).css('background-color');
+      if(color != 'transparent' && color != 'rgba(0, 0, 0, 0)' && color != undefined) 
+        return color; 
+    }).last().css('background-color');
+    if( jQuery.Color(bgColor).lightness() < 0.5 )
+      this.isLightBackground = false;
+    this.defaultLabelClass = this.isLightBackground ? "bcdChartTextDark" : "bcdChartTextLight";
+    this.gridColor = this.isLightBackground ? "#DDD" : "#666";
+
+
     // This will hold per chart type and axis an TypeStackedInfo if that combination is to be stacked
     this.stackedInfo = new Array((this.TYPEMAXINDEX+1)*2);
     for( var si=0; si<this.stackedInfo.length; si++ ){
@@ -869,7 +881,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     // 11 px = "..."
     if (curCaptionPercentage > this.maxBottomMarginPercentage) {
       this.plotArea.margin.bottom = maxAllowedPixel;
-      this.maxXCaptionChars = (maxAllowedPixel - defaulMarginBottom - 11) / 6;
+      this.maxXCaptionChars = (maxAllowedPixel - defaulMarginBottom) / 6;
     }
 
     this.plotArea.height = this.height-this.plotArea.margin.bottom-this.plotArea.margin.top;
@@ -981,7 +993,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                           x: (!isGp ? ((this.width/2-this.plotArea.margin.left)/this.xAxis.scale-Math.abs(this.xAxis.minValue))
                                       : (-this.width/5)),
                           y: (-10+this.yAxis1.transScale.transform.y)/Math.abs(this.yAxis1.transScale.scale.y),
-                          cssClass: "bcdChartTitle" } );
+                          cssClass: "bcdChartTitle "+this.defaultLabelClass } );
     }
 
     // Rest is not just not needed, but dangerous since not all values used here are initialized in this case
@@ -1008,11 +1020,13 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       // Y1 axis values plus horizontal grid lines
       for( var y=yGrid.minValue; y<=yGrid.maxValue; y+=yGrid.width ) {
         isMain = !isMain;
-        this.drawer.line( { points : [ [y1GridXStart,y],[y1GridXEnd,y] ], rgb : isMain ? "rgb(225,225,225)" : "rgb(245,245,245)" } );
+        if(!isMain)
+          continue;
+        this.drawer.line( { points : [ [y1GridXStart,y],[y1GridXEnd,y] ], rgb : isMain ? this.gridColor : this.gridColor, shapeRendering: "crispEdges" } );
         if( isMain && y!=0 && y<this.yAxis1.maxValue*1.1 )
         {
           var numberText = yGrid.cutNumberCaptionAt ? (y/Math.pow(10,yGrid.readMag)).toFixed(yGrid.cutNumberCaptionAt) : (y/Math.pow(10,yGrid.readMag));
-          this.drawer.text( { cssClass: this._getCssClass({axisName: "YAxis", axisCssClass: this.yAxis1.cssClass})
+          this.drawer.text( { cssClass: this._getCssClass({axisName: "YAxis", axisCssClass: this.yAxis1.cssClass})+" "+this.defaultLabelClass
                             , align: "end"
                               , text : numberText+unit
                             , x: x-2/Math.abs(this.yAxis1.transScale.scale.x)
@@ -1022,18 +1036,17 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
       // Magnitude
       if( yGrid.readMag > 0 )
-        this.drawer.text( { text : "'"+this._formatNumber1000S(Math.pow(10,yGrid.readMag),this.yAxis1.scale), x: this.xAxis.minValue-this.plotArea.margin.left/Math.abs(this.yAxis1.transScale.scale.x), y: y-yGrid.width*0.8 } );
+        this.drawer.text( { text : "'"+this._formatNumber1000S(Math.pow(10,yGrid.readMag),this.yAxis1.scale), cssClass: this.defaultLabelClass,
+                            x: this.xAxis.minValue-this.plotArea.margin.left/Math.abs(this.yAxis1.transScale.scale.x), y: y-yGrid.width*0.8 } );
 
       // Y1 caption at the bottom
       if(this.showAxesCaptions!=false) {
-        this.drawer.line( { points : [ [-(this.plotArea.margin.left*0.5)/Math.abs(this.yAxis1.transScale.scale.x),mainAxisCaptionYPos+10/Math.abs(this.yAxis1.transScale.scale.y)],
-                                       [0,this.yAxis1.minValue-5/Math.abs(this.yAxis1.transScale.scale.y)] ], rgb: "rgb(225,225,225)" } );
         var caption = this.yAxis1.caption + (this.yAxis1.unit!="" ? " ["+this.yAxis1.unit+"]" : "");
         this.drawer.text( { text: caption
           , x: this.xAxis.minValue - (this.plotArea.margin.left-4)/Math.abs(this.yAxis1.transScale.scale.x)
           , y: mainAxisCaptionYPos
           , align: "start"
-          , cssClass: this.id+"YAxisCaption"
+          , cssClass: this.id+"YAxisCaption "+this.defaultLabelClass
        });
       }
     }
@@ -1049,12 +1062,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
       // Y2 axis values plus small horizontal helper lines (instead of grid)
       for( var y=yGrid.minValue; y<=yGrid.maxValue; y+=yGrid.width ) {
-        this.drawer.line( { points : [ [this.xAxis.maxValue,y], [y2GridXEnd,y] ] } );
         isMain = !isMain;
+        if(!isMain)
+          continue;
+        this.drawer.line( { points : [ [this.xAxis.maxValue,y], [y2GridXEnd,y] ], shapeRendering: "crispEdges", rgb: this.gridColor } );
 
         var numberText = yGrid.cutNumberCaptionAt ? (y/Math.pow(10,yGrid.readMag)).toFixed(yGrid.cutNumberCaptionAt) : (y/Math.pow(10,yGrid.readMag));
         if( isMain )
-          this.drawer.text( { cssClass: this._getCssClass({axisName: "2ndYaxis", axisCssClass: this.yAxis2.cssClass})
+          this.drawer.text( { cssClass: this._getCssClass({axisName: "2ndYaxis", axisCssClass: this.yAxis2.cssClass})+" "+this.defaultLabelClass
                             , text : numberText+unit
                             , x: this.xAxis.maxValue+8/Math.abs(this.yAxis2.transScale.scale.x)
                             , y: y-5/Math.abs(this.yAxis2.transScale.scale.y) } );
@@ -1063,20 +1078,19 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       var extraCaptionsX = this.xAxis.maxValue+16/Math.abs(this.yAxis2.transScale.scale.x);
       // Magnitude
       if( yGrid.readMag > 0 )
-        this.drawer.text( { text : "'"+this._formatNumber1000S(Math.pow(10,yGrid.readMag),this.yAxis2.scale), x: extraCaptionsX, y: y-yGrid.width*0.8 } );
+        this.drawer.text( { text : "'"+this._formatNumber1000S(Math.pow(10,yGrid.readMag),this.yAxis2.scale), cssClass: this.defaultLabelClass,
+                            x: extraCaptionsX, y: y-yGrid.width*0.8 } );
 
       // Y2 axis it self plus axis caption at the bottom
       if(this.showAxesCaptions!=false) {
         var mainAxisCaptionY2Pos = this.yAxis2.minValue - ( (this.yAxis2.minValue<0) ? -(15/this.yAxis2.transScale.scale.y)
                                                                                      : (this.plotArea.margin.bottom-8)/Math.abs(this.yAxis2.transScale.scale.y) );
-        this.drawer.line( { points : [ [extraCaptionsX,mainAxisCaptionY2Pos+10/Math.abs(this.yAxis2.transScale.scale.y)],
-                                       [this.xAxis.maxValue,this.yAxis2.minValue-5/Math.abs(this.yAxis2.transScale.scale.y)] ], rgb: "rgb(225,225,225)" } );
         var caption = this.yAxis2.caption + (this.yAxis2.unit!="" ? " ["+this.yAxis2.unit+"]" : "");
         this.drawer.text( { text: caption
           , x: this.xAxis.maxValue + (this.plotArea.margin.right-4)/Math.abs(this.yAxis1.transScale.scale.x)
           , y: mainAxisCaptionY2Pos
           , align: "end"
-          ,cssClass: this.id+"2ndYAxisCaption"
+          ,cssClass: this.id+"2ndYAxisCaption "+this.defaultLabelClass
         });
       }
     }
@@ -1085,7 +1099,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     if( this.hasScatteredChart && this.showAxesCaptions!=false  ) {
       this.drawer.setTransScale( this.yAxis1.transScale );
       var caption = "Size: "+this.yAxis2.caption + (this.yAxis2.unit!="" ? " ["+this.yAxis2.unit+"]" : "");
-      this.drawer.text( { text: caption, x: (this.xAxis.maxValue), y: mainAxisCaptionYPos, align: "end" });
+      this.drawer.text( { text: caption, x: (this.xAxis.maxValue), y: mainAxisCaptionYPos, align: "end", cssClass: this.defaultLabelClass });
     }
 
     //-----------------
@@ -1111,7 +1125,8 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       for( var x=xGrid.minValue;  x<xGrid.maxValue; x+=xGrid.width ) {
         if( !this.xAxis.categoriesGiven && x==0 ) // no caption on  x-y charts where the axes intersect (too buys)
           continue;
-        this.drawer.line( { points : [ [x,xGridYStart], [x,xGridYEnd] ], rgb : "rgb(240,240,240)"  } );
+        if( !this.xAxis.categoriesGiven )
+          this.drawer.line( { points : [ [x,xGridYStart], [x,xGridYEnd] ], rgb : this.gridColor, shapeRendering: "crispEdges"  } );
         var caption = "";
         if( this.xAxis.categoriesGiven && ! this.hasMarimekkoChart )
           caption = this.xAxis.categories[x/xGrid.width];
@@ -1125,12 +1140,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
         }
 
         if (this.maxXCaptionChars != -1 && caption.length > this.maxXCaptionChars) {
-          caption = caption.substring(0, this.maxXCaptionChars) + "...";
+          caption = caption.substring(0, this.maxXCaptionChars) + ".";
         }
 
         this.drawer.text( { text : caption,
                             align: "middle",
-                            cssClass:this._getCssClass({suff: caption, axisName: "XAxis", axisCssClass: this.xAxis.cssClass}),
+                            cssClass:this._getCssClass({suff: caption, axisName: "XAxis", axisCssClass: this.xAxis.cssClass})+"  "+this.defaultLabelClass,
                             x: x+shift,
                             y: y,
                             layoutFlow: this.xAxis.layoutFlow } );
@@ -1140,7 +1155,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       if(this.showAxesCaptions == true) {
         var caption = this.xAxis.caption + (this.xAxis.unit!="" ? " ["+this.yAxis.unit+"]" : "");
         this.drawer.text( { align: "middle", text: caption, x: this.xAxis.minValue+this.plotArea.width/2/Math.abs(this.yAxis1.transScale.scale.x), y: mainAxisCaptionYPos,
-                            cssClass: this.id+"XAxisCaption" });
+                            cssClass: this.id+"XAxisCaption "+this.defaultLabelClass });
       }
     }
   },
@@ -1179,17 +1194,23 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
     // Draw the 2 or 3 main axes
     this.drawer.setTransScale( this.yAxis1.transScale );
-    var x1 = this.xAxis.minValue - this.plotArea.margin.left/Math.abs(this.yAxis1.transScale.scale.x);
-    var x2 = this.xAxis.maxValue + this.plotArea.margin.right/Math.abs(this.yAxis1.transScale.scale.x);
-    this.drawer.line( { addAttr: { axisX12: "x" },
-                        points : [ [x1,y], [x2,y] ], width : "2px" } );
+    var x1 = this.xAxis.minValue-5/Math.abs(this.yAxis1.transScale.scale.x);
+    var x2 = this.xAxis.maxValue;
+    this.drawer.line( { addAttr: { axisX12: "x" }, rgb: this.gridColor, shapeRendering: "crispEdges",
+                        points : [ [x1,y], [x2,y] ] } );
     this.drawer.setTransScale( this.yAxis1.transScale );
-    this.drawer.line( { addAttr: { axisX12: "1" },
-                        points : [ [Math.max(0,this.xAxis.minValue), this.yAxis1.minValue], [Math.max(0,this.xAxis.minValue), this.yAxis1.maxValue] ], width : "2px" } );
-    if( this.has2ndYAxis && ! this.hasScatteredChart ) {
-      this.drawer.setTransScale( this.yAxis2.transScale );
-      this.drawer.line( { addAttr: { axisX12: "2" },
-                          points : [ [this.xAxis.maxValue,this.yAxis2.minValue], [this.xAxis.maxValue,this.yAxis2.maxValue] ], width : "2px" } );
+    if( ! this.xAxis.categoriesGiven ) { // Show y12 vertical axis lines only for XY charts to indiacte x=0
+      this.drawer.line({
+        addAttr: {axisX12: "1"}, rgb: this.gridColor, shapeRendering: "crispEdges",
+        points: [[Math.max(0, this.xAxis.minValue), this.yAxis1.minValue], [Math.max(0, this.xAxis.minValue), this.yAxis1.maxValue]]
+      });
+      if (this.has2ndYAxis && !this.hasScatteredChart) {
+        this.drawer.setTransScale(this.yAxis2.transScale);
+        this.drawer.line({
+          addAttr: {axisX12: "2"}, rgb: this.gridColor, shapeRendering: "crispEdges",
+          points: [[this.xAxis.maxValue, this.yAxis2.minValue], [this.xAxis.maxValue, this.yAxis2.maxValue]]
+        });
+      }
     }
   },
 
@@ -1287,7 +1308,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                           height:  markerSizeY,
                           x:       x - markerSizeX/2,
                           y:       yData*asPercentScaling - markerSizeY/2,
-                          rgb:     color, stroke: "#000",
+                          rgb:     color, stroke: series.chartType==this.AREACHART ? "#000" : "",
                           onClick: series.onClick,
                           addAttr: { series: series.caption, valueX: series.xCategories[i],
                                      valueY: this._formatNumber1000S(series.yData[i],series.yAxis.scale), yAxis1Or2: series.yAxis1Or2,
@@ -1378,8 +1399,9 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       // Labels
       if( this.xAxis.layoutFlow!="suppress" && angleDelta>0.05 ) {
         this.drawer.line( { points: [ [Math.sin(Math.PI-(angle+angleDelta/2))*radius,      -Math.cos(Math.PI-(angle+angleDelta/2))*radius],
-                                      [Math.sin(Math.PI-(angle+angleDelta/2))*(radius+10), -Math.cos(Math.PI-(angle+angleDelta/2))*(radius+10)] ] } );
-        this.drawer.text( { text : this.xAxis.categories[i], align: "middle",
+                                      [Math.sin(Math.PI-(angle+angleDelta/2))*(radius+10), -Math.cos(Math.PI-(angle+angleDelta/2))*(radius+10)] ],
+                            rgb: this.gridColor } );
+        this.drawer.text( { text : this.xAxis.categories[i], align: "middle", cssClass: this.defaultLabelClass,
                             x: Math.sin(Math.PI-(angle+angleDelta/2))*(radius+18),
                             y: -Math.cos(Math.PI-(angle+angleDelta/2))*(radius+18)-5 } );
       }
@@ -1419,9 +1441,10 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       // Labels
       if( this.xAxis.layoutFlow!="suppress" ) {
         this.drawer.line( { points: [ [Math.sin(Math.PI-(angle+angleDelta))*radius,     -Math.cos(Math.PI-(angle+angleDelta))*radius],
-                                      [Math.sin(Math.PI-(angle+angleDelta))*(radius+5), -Math.cos(Math.PI-(angle+angleDelta))*(radius+5)] ] } );
+                                      [Math.sin(Math.PI-(angle+angleDelta))*(radius+5), -Math.cos(Math.PI-(angle+angleDelta))*(radius+5)] ],
+                            rgb: this.gridColor } );
         if( i==0 || angleDelta>0.1 )
-          this.drawer.text( { text : this.xAxis.categories[i]+" "+this.xAxis.unit, align: "middle",
+          this.drawer.text( { text : this.xAxis.categories[i]+" "+this.xAxis.unit, align: "middle", cssClass: this.defaultLabelClass,
             x: Math.sin(Math.PI-(angle+angleDelta))*(radius+20),
             y: -Math.cos(Math.PI-(angle+angleDelta))*(radius+10) } );
       }
@@ -1432,11 +1455,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     for( var i=0; i < series.yData.length; i++ ) {
       var angle = (series.yData[i]-this.xAxis.minValue)/range*Math.PI-Math.PI/2;
       this.drawer.line( { points: [ [-2, 0], [Math.sin(Math.PI-angle)*(radius-15), -Math.cos(Math.PI-angle)*(radius-15)], [2, 0] ],
+                          rgb: this.gridColor,
                           linecap: "round", isFilled: true,
                           addAttr: { valueX: series.yData[i], series: series.caption }
                         } );
     }
-    this.drawer.circle( { x:0, y:0, radius: 2 } );
+    this.drawer.circle( { x:0, y:0, radius: 2, rgb: this.gridColor } );
   },
 
   /**
@@ -1627,7 +1651,24 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    */
   getPrimaryModel: function(){
     return null;
-  }
+  },
+
+  /*
+   These are inherited from DataProvider but do not apply to Renderer and its children
+   Cleanest would be a mixin instead for optionally XML providing DataProviders only
+   */
+  /** @private */
+  read: function(){},
+  /** @private */
+  query: function(){},
+  /** @private */
+  queryNodes: function(){},
+  /** @private */
+  read: function(){},
+  /** @private */
+  remove: function(){},
+  /** @private */
+  write: function(){}
 
 } ); // Create class: bcdui.component.Chart
 
