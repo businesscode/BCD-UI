@@ -660,6 +660,8 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
       if(i< args.points.length-1) points += ", ";
     }
 
+    if( args.shapeRendering )
+      elem.setAttribute("shape-rendering", args.shapeRendering);
     elem.setAttribute("points",points);
     var style =  ";stroke:" + (args.strokeRgb ? args.strokeRgb : args.rgb);
     style    += args.dashstyle ? ";stroke-dasharray:" +args.dashstyle : "";
@@ -702,7 +704,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     elem.setAttribute("x" ,     new Number(this._xPx(args.x)).toString());
     elem.setAttribute("y" ,     new Number(this._yPx(args.y)).toString());
     var defId = this._addEffect(args.effect, args.rgb);
-    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+"; stroke-width:0.5; stroke:"+(args.stroke ? args.stroke : "#000"));
+    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+";" + (args.stroke ? "stroke-width:0.5; stroke:"+args.stroke : "") );
     if( args.onClick ){
       this._addEventListener({element:elem, type:"click", listener:args.onClick});
       this._addEventListener({element:elem, type:"mouseover", listener:this._setCursorToPointer});
@@ -758,7 +760,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     elem.setAttribute("d", d);
 
     var defId = this._addEffect(args.effect, args.rgb);
-    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+"; stroke-width:0.5; stroke:"+(args.stroke ? args.stroke : "#000"));
+    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+";" + (args.stroke ? "stroke-width:0.5; stroke:"+args.stroke : "") );
     if( args.onClick ){
       this._addEventListener({element:elem, type:"click", listener:args.onClick});
       this._addEventListener({element:elem, type:"mouseover", listener:this._setCursorToPointer});
@@ -790,7 +792,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     elem.setAttribute("cy", this._yPx(args.y) );
     elem.setAttribute("r",  args.radius);
     var defId = this._addEffect(args.effect, args.rgb);
-    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+"; stroke-width:0.5; stroke:"+(args.stroke ? args.stroke : "#000"));
+    elem.setAttribute(this.styleAttName,"fill:url(#"+defId+") "+args.rgb+";" + (args.stroke ? "stroke-width:0.5; stroke:"+args.stroke : "") );
     if( args.onClick ){
       this._addEventListener({element:elem, type:"click", listener:args.onClick});
       this._addEventListener({element:elem, type:"mouseover", listener:this._setCursorToPointer});
@@ -917,7 +919,9 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
       rg.appendChild(stop);
       stop = this._createElementNS("stop");
       stop.setAttribute("offset","100%");
-      stop.setAttribute(this.styleAttName,"stop-color:"+color+";stop-opacity:0.8");
+      var lightNess = jQuery.Color(color).lightness();
+      var lighterColor = jQuery.Color(color).lightness(lightNess*1.4).toRgbaString();
+      stop.setAttribute(this.styleAttName,"stop-color:"+lighterColor+";stop-opacity:1");
       rg.appendChild(stop);
       this.rootElem.appendChild(def);
     }
@@ -933,7 +937,9 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
       rg.setAttribute("r","1");
       var stop = this._createElementNS("stop");
       stop.setAttribute("offset","90%");
-      stop.setAttribute(this.styleAttName,"stop-color:"+color+";stop-opacity:0.8");
+      var lightNess = jQuery.Color(color).lightness();
+      var lighterColor = jQuery.Color(color).lightness(lightNess*1.4).toRgbaString();
+      stop.setAttribute(this.styleAttName,"stop-color:"+lighterColor+";stop-opacity:1");
       rg.appendChild(stop);
       stop = this._createElementNS("stop");
       stop.setAttribute("offset","100%");
@@ -956,7 +962,9 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
       rg.appendChild(stop);
       stop = this._createElementNS("stop");
       stop.setAttribute("offset","50%");
-      stop.setAttribute(this.styleAttName,"stop-color:"+color+";stop-opacity:0.65");
+      var lightNess = jQuery.Color(color).lightness();
+      var lighterColor = jQuery.Color(color).lightness(lightNess*1.4).toRgbaString();
+      stop.setAttribute(this.styleAttName,"stop-color:"+lighterColor+";stop-opacity:1");
       rg.appendChild(stop);
       stop = this._createElementNS("stop");
       stop.setAttribute("offset","100%");
@@ -979,7 +987,9 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
       rg.appendChild(stop);
       stop = this._createElementNS("stop");
       stop.setAttribute("offset","100%");
-      stop.setAttribute(this.styleAttName,"stop-color:"+color+";stop-opacity:0.8");
+      var lightNess = jQuery.Color(color).lightness();
+      var lighterColor = jQuery.Color(color).lightness(lightNess*1.1).toRgbaString();
+      stop.setAttribute(this.styleAttName,"stop-color:"+lighterColor+";stop-opacity:1");
       rg.appendChild(stop);
       this.rootElem.appendChild(def);
     }
