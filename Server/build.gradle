@@ -15,8 +15,7 @@
 */
 //**************************************
 // Handle compilation of BCD-UI's Java server and generation of Java classes from xsd
-
-apply plugin: "java"
+apply plugin: 'java' // because we are also imported else where, we can not use the new plugins{} maechanism (gradle 4.1)
 
 // Add jaxb gensrc to default source set
 sourceSets {
@@ -27,9 +26,8 @@ sourceSets {
   }
 }
 
-
 // 3rdParty jars
-configurations { provided }
+configurations { antLib }
 dependencies {
   repositories {
     mavenCentral()
@@ -57,12 +55,13 @@ dependencies {
   compile 'org.slf4j:slf4j-log4j12:1.6.1'
   compile 'taglibs:standard:1.1.0'
 
+  // Tomcat 7
   compileOnly 'javax.el:javax.el-api:2.2.5'
   compileOnly 'javax.servlet.jsp:jsp-api:2.2'
   compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
 
-  provided 'com.sun.xml.bind:jaxb-impl:2.2.6'
-  provided 'com.sun.xml.bind:jaxb-xjc:2.2.6'
+  antLib 'com.sun.xml.bind:jaxb-impl:2.2.6' // Latest version working with ant.xjc
+  antLib 'com.sun.xml.bind:jaxb-xjc:2.2.6'
 }
 
 //********************************
@@ -85,7 +84,7 @@ task bcduiGensrcJaxb {
 
   doLast {
     System.setProperty('javax.xml.accessExternalSchema', 'file')
-    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.provided.asPath)
+    ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.antLib.asPath)
 
     file(taskDestDirName).mkdirs()
 
@@ -121,7 +120,7 @@ jar {
 }
 
 //********************************
-// Refers to Java Plugin default task
+// Refers to Java Plugin's default clean task
 task bcduiClean {
   group = 'bcd-ui'
   dependsOn clean
@@ -130,12 +129,12 @@ task bcduiClean {
 //********************************
 // Refers to default task
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    baseName = "$artifactsBaseName-server"
-    version  = bcduiVersion
-    from sourceSets.main.allSource
+  classifier = 'sources'
+  baseName = "$artifactsBaseName-server"
+  version  = bcduiVersion
+  from sourceSets.main.allSource
 }
 
 artifacts {
-    archives sourcesJar
+  archives sourcesJar
 }

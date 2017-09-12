@@ -15,8 +15,7 @@
 */
 //--------------------------------------------------
 // Handles compilation of JSP taglib related Java classes
-
-apply plugin: "java"
+apply plugin: "java" // Because we are also imported as a script, we can't currently (gradle 4.1) use plugins{}
 
 dependencies {
   repositories {

@@ -1,11 +1,6 @@
 **/build/
-
 /.idea/
 /.gradle/
-/gradle/wrapper/
-/gradlew
-/gradlew.bat
-
 **/.classpath
 /Server/.gitignore
 /JspTaglib/.gitignore

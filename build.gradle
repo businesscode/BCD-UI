@@ -16,7 +16,16 @@
 //--------------------------
 // Main BCD-UI build script, responsible for  global project settings and providing main bcduiAll entry task
 
-// We cannot use the new plugin system as it won't support importing via 'apply from:' this script from other build files (gradle 2.13)
+// To keep the BCD-UI subprojects in Eclipse's view together, we preprend 'BCD-UI--' here to each subproject
+apply plugin: 'eclipse'
+subprojects {
+  apply plugin: 'eclipse'
+  eclipse {
+    project.name = rootProject.name + '--' + project.name
+  }
+}
+
+// We cannot use the new plugins{} system as it won't support importing via 'apply from:' this script from other build files (gradle 4.1)
 buildscript {
   repositories {
     maven {
@@ -24,7 +33,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.moowork.gradle:gradle-node-plugin:0.13"
+    classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
   }
 }
 apply plugin: 'com.moowork.node'

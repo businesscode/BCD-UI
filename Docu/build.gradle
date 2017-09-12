@@ -15,20 +15,10 @@
 */
 //--------------------------------------------------
 // Handles generation of HTML documentation from manual adoc and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
-    classpath group: 'org.asciidoctor', name: 'asciidoctorj-pdf', version: '1.5.0-alpha.14'
-  }
+plugins {
+  id 'java'
+  id 'org.asciidoctor.gradle.asciidoctor' version '1.5.1'
 }
-apply plugin: "org.asciidoctor.convert"
-
-apply plugin: 'java'
 apply plugin: "com.moowork.node"
 import groovy.json.JsonSlurper
 

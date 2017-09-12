@@ -16,13 +16,13 @@
 //--------------------------------------------------
 // Deals with js and xslt sources, mainly: file-group-packaging for js and minifying
 
-// We cannot use the new plugin system as it won't support apply from: this from other build files (gradle 2.13)
+// We cannot use the new plugins{} system as it won't support apply from: this from other build files (gradle 4.1)
 buildscript {
   repositories {
     mavenCentral()
   }
   dependencies {
-    classpath group: 'com.eriwen', name: 'gradle-js-plugin',  version: '1.12.+'
+    classpath group: 'com.eriwen', name: 'gradle-js-plugin',  version: '1.12.0'
   }
 }
 import com.eriwen.gradle.js.JsPlugin
