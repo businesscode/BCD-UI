@@ -43,13 +43,14 @@
       <!--
         there might be no layout in given cubeConfiguration, so we generate one and take over
         a possibly existing one (but we do prefer status model layout over metadata layout)
+        a set merge!='true' attribute at the statusModel forbids merging, useful if you have e.g. a dynamic config model which modifies layout before sent to server
        -->
       <xsl:copy-of select="/*/*[not(self::cube:Layout)]"/>
       <cube:Layout>
         <xsl:attribute name="removeEmptyCells">rowCol</xsl:attribute>
         <xsl:copy-of select="/*/cube:Layout/@removeEmptyCells"/>
          <xsl:choose>
-          <xsl:when test="$statusModel//cube:Layout[@cubeId=$cubeId]/*">
+          <xsl:when test="$statusModel//cube:Layout[@cubeId=$cubeId]/* and (not($statusModel//cube:Layout[@cubeId=$cubeId]/@merge) or $statusModel//cube:Layout[@cubeId=$cubeId]/@merge='true')">
             <xsl:apply-templates select="$statusModel//cube:Layout[@cubeId=$cubeId]/*"/>
           </xsl:when>
           <xsl:otherwise>
