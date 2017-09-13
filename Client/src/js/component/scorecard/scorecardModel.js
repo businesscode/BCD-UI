@@ -771,16 +771,16 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
         var oldColDimLevelIds = columnHeaderNode.getAttribute("colDimLevelIds") || "";
         var cat = "";
         jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("idRef");});
-        // if we don't have any coldims, we don't start with a pipe separator
-        if (oldColDimLevelIds == "") cat = cat.substring(1);
-        columnHeaderNode.setAttribute("colDimLevelIds", oldColDimLevelIds + cat + "|bcd_kpi_id");
+        var f = oldColDimLevelIds + cat + "|bcd_kpi_id";
+        f = f[0] == "|" ? f.substring(1) : f;
+        columnHeaderNode.setAttribute("colDimLevelIds", f);
 
         var oldColDimLevelCaptions = columnHeaderNode.getAttribute("colDimLevelCaptions") || "";
         var cat = "";
         jQuery.makeArray(scDef.queryNodes("/*/scc:Layout/scc:CategoryTypeRefs/scc:CategoryTypeRef")).forEach(function(e) {cat += "|" + e.getAttribute("caption");});
-        // if we don't have any coldims, we don't start with a pipe separator
-        if (oldColDimLevelCaptions == "") cat = cat.substring(1);
-        columnHeaderNode.setAttribute("colDimLevelCaptions", oldColDimLevelCaptions + cat + "|");
+        var f = oldColDimLevelCaptions + cat + "|";
+        f = f[0] == "|" ? f.substring(1) : f;
+        columnHeaderNode.setAttribute("colDimLevelCaptions", f);
       }
       // Scorecard is ready
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
