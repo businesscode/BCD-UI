@@ -321,7 +321,7 @@ bcdui.util.namespace("bcdui.component",
    *
    * @param {Object} args - The parameter map contains the following properties:
    * @param {string}                  args.id                                                     - Id of the created object
-   * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix. This parameter must be set unless hasDnDMatrix is false
+   * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix.
    * @param {xpath}                   [args.targetModelXPath=$guiStatus/guiStatus:Status/cube:Layout]  - Where to write the result
    * @param {string}                  [args.config=./dimensionsAndMeasures.xml]                   - Model containing the configuration for the cube configurator
    * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Id of the cube we belong to or cube instance
@@ -335,6 +335,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
+   * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
    *
    * @return null.
    *
@@ -428,6 +429,9 @@ bcdui.util.namespace("bcdui.component",
     args.isTemplate = bcdui.component._trueFalse(args.isTemplate);
     args.showSummary  = bcdui.component._trueFalse(args.showSummary);
     args.isDefaultHtmlLayout = bcdui.component._trueFalse(args.isDefaultHtmlLayout);
+    
+    // remember url parameter on target (so it can be accessed through e.g. grouping editor
+    jQuery("#" + args.targetHTMLElementId).data("url", args.url);    
 
     var action = function() {
 

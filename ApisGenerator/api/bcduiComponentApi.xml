@@ -359,6 +359,11 @@
             Function name which is used for the apply button in isDefaultHtmlLayout=true mode. Default is bcdui.core.lifecycle.applyAction
           </Doc>
         </Param>
+        <Param name="url" type="url">
+          <Doc>
+            The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="farModel" extends="dataProvider">
