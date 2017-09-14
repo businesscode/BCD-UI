@@ -85,11 +85,6 @@
         <xs:documentation>Title shown at the top of the chart</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="isSvg" type="xs:boolean" use="optional">
-      <xs:annotation>
-        <xs:documentation>If true, SVG is enforced, otherwise the browser's default is used'</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
     <xs:attribute name="showAxes" type="xs:boolean" use="optional">
       <xs:annotation>
         <xs:documentation>If false, no axes are shown</xs:documentation>

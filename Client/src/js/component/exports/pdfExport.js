@@ -232,11 +232,6 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
        */
       this.form = null;
 
-      /**
-       * sets the handler for svg chart assure
-       */
-      this.setAssureSvgChartIEHandler(args.assureSvgChartIEHandler || null);
-
       if (args.form) {
         this.form = args.form;
       } else {
@@ -303,10 +298,6 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
         if( !rootElement )
           continue;
 
-        // IE needs shadow SVG charts for pdf export
-        if( this.mode!="Excel" )
-          this._assureSvgCharts( rootElement );
-
         // Extract HTML content
         var tree = bcdui.component.exports._doInlineCss( rootElement );
         var contentHTML = bcdui.util.stripScripts(tree.outerHTML);
@@ -314,7 +305,6 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
         // Adjust HTML for export
         contentHTML = contentHTML.replace(/\s(xmlns):?\s*(\w+)?\s*=\s*"?'?(http(s)?)?:[\d\w\d\s:.\/_-]+"?'?/gi, ''); // no namespaces
         contentHTML = contentHTML.replace(/css\.style/gi, 'style');              // IE seems to make css.style for style attributes in svg
-        contentHTML = contentHTML.replace(/<bcdVml:graph\b[^>]*>(.*?)<\/bcdVml:graph>/gi, ''); // remove vml charts
         contentHTML = contentHTML.replace(/bcdpdfstyle\b/gi, 'style');           // this allows different styling of elements in pdf export (display: none !important)
 
         fullHTML += contentHTML;
@@ -347,63 +337,6 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       formElement.submit();
       this.onAfterSend();
     },
-
-  /**
-   * Makes sure that each chart has a svg representation
-   * Only relevant in case of IE, there it will be invisible (display:none) for the browser
-   * @private
-   */
-  _assureSvgCharts: function( rootElement )
-    {
-      if( !bcdui.browserCompatibility.isIE )
-        return;
-
-      // For each chart, check whether the svg node is already there.
-      // If the chart changes, it is removed and needs to be recreated
-      // Otherwise create it
-      var vmlChartNodes = rootElement.getElementsByTagName("graph");
-      for( var i=0; i<vmlChartNodes.length; i++ ) {
-        var chartId = vmlChartNodes.item(i).getAttribute("chartId");
-        var chart = bcdui.factory.objectRegistry.getObject(chartId);
-        if( chart.targetHtmlElement.getElementsByTagName("svg").length!=0 )
-          continue;
-
-        // Keep the svg invisible in the browser in an extra div
-        // bcdPdfStyle will make it visible (will become 'style')
-        // The pdf export erases the vml graph from the data when sending to the server
-        var target = document.createElement("div");
-        target.style.display = "none";
-        target.setAttribute( "bcdPdfStyle", "display: inline !important;" );
-
-        this.assureSvgChartIE(chartId, chart);
-        // Get the svg and append it to the node holding the vml
-        chart._draw( true, target );
-        chart.targetHtmlElement.appendChild( target );
-      }
-    },
-
-  /**
-   *  in case of IE we have to temporary re-draw the chart in SVG format
-   *  to be exportable to PDF export, this function is called for every
-   *  chart found (recognized by "graph" vml element from HTML DOM) and
-   *  can take any modifications to the chart prior to be drawn
-   *
-   *  @param chartId the chart id as defined by chartId attribute
-   *  @param chart the chart object
-   */
-  assureSvgChartIE : function(chartId, chart){
-    if(this.assureSvgChartIEHandler){
-      this.assureSvgChartIEHandler(chartId, chart);
-    }
-  },
-
-  /**
-   * sets (or removes) the handler, read more info on #assureSvgChartIE function
-   * @param a function reference taking two parameters: chartId,chart which are described in #assureSvgChartIE function
-   */
-  setAssureSvgChartIEHandler : function(func){
-    this.assureSvgChartIEHandler = func;
-  },
 
   /**
    * An event handler function which can be used in sub-classes to intercept the

@@ -44,7 +44,6 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {string}                  [args.id]                             - Page unique id for used in declarative contexts. If provided, the chart will register itself
    * @param {boolean}                 [args.showAxes=true]                  - If false, no axes will be shown
-   * @param {boolean}                 [args.isSvg]                          - Allows to enforce VML or SVG, needed for example to create  PDF in VML IE
    * @param {string}                  [args.title]                          - Title
    * @param {boolean}                 [args.suppressInitialRendering=false] - As every renderer, charts will execute and output itself automatically and their parameters after creation. This can be suppressed here.
    * @param {number}                  [args.width]                          - Overwrite the chart's auto-width derived from targetHtml
@@ -92,9 +91,6 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
     var showAxesNode = this.defDoc.selectSingleNode("/chart:Chart/@showAxes");
     if( showAxesNode!=null )
       this.showAxes = showAxesNode.nodeValue=="true" ? true : false;
-    var isSvgNode = this.defDoc.selectSingleNode("/chart:Chart/@isSvg");
-    if( isSvgNode!=null )
-      this.isSvg = isSvgNode.nodeValue=="true" ? true : false;
     var showAxesCaptionsNode = this.defDoc.selectSingleNode("/chart:Chart/@showAxesCaptions");
     this.showAxesCaptions = (showAxesCaptionsNode && showAxesCaptionsNode.nodeValue=="false") ? false : true;
 
@@ -252,9 +248,9 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    * redisplays the chart with the same values
    * @private
    */
-  _draw: function(forceSvg, overwriteTarget )
+  _draw: function(overwriteTarget )
   {
-    var rVal = bcdui.component.chart.Chart.prototype._draw.call(this,forceSvg,overwriteTarget);
+    var rVal = bcdui.component.chart.Chart.prototype._draw.call(this, overwriteTarget);
     if ( rVal < 0)// the chart was not drawn
       this.chartsDrawn = false;
     else
@@ -433,7 +429,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
               this._initValues();
               var doDraw = this._calc();
               if( doDraw )
-                this._draw( this.isSvg, this.targetHtmlElement );
+                this._draw( this.targetHtmlElement );
               else{
                 var msg = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_EmptyChart"}) || "[No Data]";
                 this.targetHtmlElement.innerHTML = "<div class='bcdEmptyChart'><span>"+msg+"</span></div>";

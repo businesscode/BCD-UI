@@ -50,7 +50,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    *
    * @constructs
    * Constructor of bcdui.component.chart.SVGVMLDrawer, called by prototype. 
-   * Instantiate {@link bcdui.component.chart.SVGDrawer} (please contact BusinesssCode for VML) concrete subclass
+   * Instantiate {@link bcdui.component.chart.SVGDrawer} concrete subclass
    * @param {Object} args - parameter Object
    * @param {Object} [args.scale=x:1,y:1] - Default is no scaling \{ x: 1, y: 1\}
    * @param {Object} [args.transform]     - Default is no shifting \{ x: 0, y: 0 \}
@@ -209,7 +209,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
   },
 
   /**
-   * Returns the a DOM element containing the VML or SVG drawing
+   * Returns the a DOM element containing the SVG drawing
    * @returns {Element} Returns the a DOM element containing the VML or SVG drawing
    */
   getResult: function()

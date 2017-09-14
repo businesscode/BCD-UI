@@ -82,7 +82,6 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {boolean}       [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {string}        [args.id]                             - Page unique id for used in declarative contexts. If provided, the chart will register itself
    * @param {boolean}       [args.showAxes=true]                  - If false, no axes will be shown
-   * @param {boolean}       [args.isSvg]                          - Allows to enforce VML (please contact BusinessCode) or SVG, needed for example to create  PDF in VML IE
    * @param {string}        [args.title]                          - Title
    * @param {number}        [args.width]                          - Overwrite the chart's auto-width derived from targetHtml
    * @param {number}        [args.height]                         - Overwrite the chart's auto-height derived from targetHtml
@@ -101,7 +100,6 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     this.title           = args.title  || null;
     this.showToolTip  = this.optToolTip;
     this.showAxes     = args.showAxes ? args.showAxes : true; // may change in calc depending on chart type
-    this.isSvgUser    = args.isSvg ? args.isSvg : null;
     this.has2ndYAxis  = false;
     args.targetHTMLElementId = bcdui.util._getTargetHtml( args, "chart_" );
 
@@ -192,7 +190,6 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     this.effect = "linearPlate";
     this.colorProvider = null;
     this.optToolTip = true;
-    this.isSvg = this.isSvgUser ? this.isSvgUser : !!(window.SVGSVGElement);
 
     this.maxXCaptionChars = -1;
     this.maxBottomMarginPercentage = 33;
@@ -374,12 +371,11 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *
    * @param map with
    *  <ul>
-   *     <li>isSvg, If true, SVG is drawn, otherwise VML</li>
    *     <li>targetHtmlElement, Will clear its content and insert the chart</li>
    *  </ul>
    * @private
    */
-  _draw: function( isSvg, targetHtmlElement )
+  _draw: function( targetHtmlElement )
   {
     bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': drawing of all "+this.seriesArray.length+" series started");
 
@@ -390,11 +386,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                     yAxis2: this.yAxis2.caption, yAxis2Unit: this.yAxis2.unit };
     var tooltipCb = (this.showToolTip && this.showToolTip==false) ? null : this._createToolTipCb;
 
-    // Make sure the right XML vector graph language VML/SVG is produced
-    bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': creating drawer, isSvg: "+isSvg);
-    this.drawer = ( isSvg==true )
-                      ? new bcdui.component.chart.SVGDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb, width: this.width, height: this.height  } )
-                      : new bcdui.componentDe.chart.VMLDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb } );
+    this.drawer = new bcdui.component.chart.SVGDrawer( {doc:document, transform:{ x: this.plotArea.margin.left, y: this.height-this.plotArea.margin.bottom }, scale:{ x: 1, y: -1 }, addAttr: addAttr, createToolTipCb: tooltipCb, width: this.width, height: this.height  } );
 
     // Some re-initialization steps
     this._drawCalc();
@@ -1482,7 +1474,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                             onClick: y.onClick,
                             addAttr: { series: y.caption, valueX: y.xCategories[i],
                                        valueY: this._formatNumber1000S(y.yData[i]), yAxis1Or2: y.yAxis1Or2,
-                                       valueSize: this._formatNumber1000S(size.yData[i])+this.yAxis2.unit } } );
+                                       valueSize: this._formatNumber1000S(size.yData[i]) } } );
 
     }
   },
@@ -1634,7 +1626,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       this._initValues();
       var doDraw = this._calc();
       if( doDraw )
-        this._draw( this.isSvg, this.targetHtmlElement );
+        this._draw( this.targetHtmlElement );
       else{
         var msg = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_EmptyChart"}) || "[No Data]";
         this.targetHtmlElement.innerHTML = "<div class='bcdEmptyChart'><span>"+msg+"</span></div>";

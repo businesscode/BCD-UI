@@ -1606,13 +1606,6 @@
             Name of the file send by the server as the response.
           </Doc>
         </Param>
-        <Param name="assureSvgChartIEHandler" type="function">
-          <Doc>
-            In case of IE we have to temporary re-draw the chart in SVG format to be exportable to PDF
-            export, this function is called for every chart found (recognized by graph vml element from HTML DOM) and
-            can take any modifications to the chart prior to be drawn
-          </Doc>
-        </Param>
         <Param name="jsParams" type="jsattr">
           <Doc>
             Optional jsParams which are passed over to the bcdui.component.exports.PDFExport constructor
