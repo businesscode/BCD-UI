@@ -28,39 +28,46 @@ sourceSets {
 
 // 3rdParty jars
 configurations { antLib }
+configurations.all {
+  // The list is exhaustive, we don't need transitive dependency during compile or run
+  transitive = false
+}
 dependencies {
   repositories {
     mavenCentral()
   }
-  compile 'commons-beanutils:commons-beanutils:1.8.3'
-  compile 'commons-codec:commons-codec:1.9'
-  compile 'commons-collections:commons-collections:3.2.1'
-  compile 'commons-dbutils:commons-dbutils:1.5'
-  compile 'commons-fileupload:commons-fileupload:1.2.2'
-  compile 'commons-io:commons-io:2.0'
-  compile 'commons-lang:commons-lang:2.4'
-  compile 'commons-logging:commons-logging:1.1.1'
+  compile 'commons-codec:commons-codec:1.10'
+  compile 'commons-collections:commons-collections:3.2.2'
+  compile 'commons-dbutils:commons-dbutils:1.7'
+  compile 'commons-fileupload:commons-fileupload:1.3.3'
+  compile 'commons-io:commons-io:2.5'
+  compile 'commons-lang:commons-lang:2.6'
+  compile 'commons-logging:commons-logging:1.2'
   compile 'commons-vfs:commons-vfs:1.0'
   compile 'jstl:jstl:1.1.0'
   compile 'log4j:log4j:1.2.17'
-  compile 'net.sf.ehcache:ehcache-core:2.3.1'
+  compile 'net.sf.ehcache:ehcache-core:2.6.11'
   compile 'net.sf.opencsv:opencsv:2.3'
-  compile 'oro:oro:2.0.8'
-  compile 'org.apache.shiro:shiro-all:1.1.0'
+  compile 'org.apache.shiro:shiro-all:1.4.0'
   compile 'org.apache.velocity:velocity:1.7'
-  compile 'org.apache.poi:poi:3.14'
-  compile 'org.apache.poi:poi-ooxml:3.14'
-  compile 'org.apache.poi:poi-ooxml-schemas:3.14'
-  compile 'org.slf4j:slf4j-api:1.6.1'
-  compile 'org.slf4j:slf4j-log4j12:1.6.1'
-  compile 'taglibs:standard:1.1.0'
+  compile 'org.apache.poi:poi:3.16'
+  compile 'org.apache.poi:poi-ooxml:3.16'
+  compile 'org.apache.poi:poi-ooxml-schemas:3.16'
+  compile 'org.apache.xmlbeans:xmlbeans:2.6.0'
+  compile 'org.slf4j:slf4j-api:1.7.25'
+  compile 'org.apache.taglibs:taglibs-standard-impl:1.2.5'
 
-  // Tomcat 7
+  // Additionally needed during runtime
+  runtime 'commons-beanutils:commons-beanutils:1.9.3'
+  runtime 'org.slf4j:slf4j-log4j12:1.7.25'
+
+  // Provided during runtime by servlet container
   compileOnly 'javax.el:javax.el-api:2.2.5'
   compileOnly 'javax.servlet.jsp:jsp-api:2.2'
   compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
 
-  antLib 'com.sun.xml.bind:jaxb-impl:2.2.6' // Latest version working with ant.xjc
+  // Needed by Ant during build
+  antLib 'com.sun.xml.bind:jaxb-impl:2.2.6'
   antLib 'com.sun.xml.bind:jaxb-xjc:2.2.6'
 }
 
