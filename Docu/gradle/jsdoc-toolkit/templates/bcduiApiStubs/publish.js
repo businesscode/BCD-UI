@@ -80,33 +80,30 @@ function printClass( taffyData, clazz )
   // This dummy has to come before the clazz comment and it has to have the same name as the member (without the package)
   // Eclipse does not recognize prototype extension on nested objects, that's why we put them on this global object first
   var tempAlias = clazz.name;
-  result += "var "+tempAlias+"; // Serves as an Eclipse workaround"+newLine;
-  
+
   // Print the comment.
   // Class related
   result += newLine+"/**"+newLine;
-  if( clazz.classdesc || clazz.virtual )
-    result += "@classdesc"+newLine;
   if( clazz.classdesc )
-    result += clazz.classdesc+newLine;
+    result += multilineStringToTable(clazz.classdesc);
+  if( clazz.description )
+    result += "<p/> "+multilineStringToTable(clazz.description); //
+  result += printCommentParamsAsTable( clazz.params, clazz, "Constructor" );
+
   if( clazz.virtual )
     result += "@abstract Use a concrete subclass"+newLine; // Wired enough, Eclipse needs a random string here to not treat the next tag as its content
   if( clazz.augments )
     clazz.augments.forEach( function(aug) { result+="@extends "+aug+newLine } );
   if( clazz.deprecated )
     result += "@deprecated" + clazz.deprecated + newLine;
-
-  // Constructor related. Eclipse Mars does not like the @constructs tag, it will use the next tag as its content
-  if( clazz.description )
-    result += "@description "+clazz.description+newLine;
   result += printCommentExamplesMandatories( clazz, clazz );
   result += printCommentExamples( clazz.examples, clazz, "Constructor" );
   result += printCommentParams( clazz.params, clazz, "Constructor" );
-  result += newLine+" */"+newLine;
+  result += " */"+newLine;
 
   // Assignment to name with package is needed for Eclipse auto-suggest and for tooltip of functions
   // Assignment to short name is necessary for Eclipse fly-over on constructor and the type-name for the methods
-  result += clazz.alias+" = "+tempAlias+" = function(";
+  result += clazz.alias+" = function(";
   if( clazz.params ) {
     clazz.params.filter(function(param){
       if( param.name )
@@ -121,7 +118,9 @@ function printClass( taffyData, clazz )
   }
   result += "){};"+newLine;
   if( clazz.augments )
-    result += clazz.name+".prototype = Object.create("+clazz.augments+".prototype);"+newLine+newLine;
+    result += clazz.alias+".prototype = Object.create("+clazz.augments+".prototype);"+newLine;
+
+  result += clazz.alias+".prototype.constructor = "+clazz.alias+";"+newLine+newLine;
 
   // Now print the methods
   var methods = find(taffyData,{ kind: "function", memberof: clazz.longname });
@@ -143,12 +142,42 @@ function printClass( taffyData, clazz )
     result += printMethod(method, methodIdx, clazz, tempAlias )
   });
 
-  // Finally re-assign the temp object with same name but without package to the long name to complete the Eclipse workaround
-  result += clazz.alias+" = "+tempAlias+";"+newLine+newLine;
-
   return result;
 }
 
+/**
+ * Eclipse (oxygen with tern) and IDEA (2012.2) have issues with new lines
+ * Eclipse tends to ignore the rest of the comment and IDEA ignores the newlines themselves
+ * To make comments better to read, we turn them into a table with rows for each new line
+ * if they span multiple lines and don't contain html tags
+ * @param text
+ * @returns {*}
+ */
+function multilineStringToTable(text)
+{
+  if( !text )
+    return "";
+  if( text.indexOf("</") === -1 && (text.indexOf("\n") !== -1 || text.indexOf("\r") !== -1) ) {
+    text =  stringCleaner( text );
+    var result = "<table border='0' cellspacing='0' cellpadding='0'><tr><td>" + newLine;
+    result += text.replace(/\r?\n|\r/g,"</td></tr><tr><td>") + newLine;
+    result += "</td></tr></table>" + newLine;
+    return result;
+  } else
+    return stringCleaner( text, true ) + newLine;
+}
+
+/**
+ * Eclipse Oxygen+Tern have issues with a point followed by a single space and leading spaces. Everything after that tends to be ignored.
+ * Also they have issues with new lines in JSDoc text, text can be turned in a one-liner, if needed
+ * @param text
+ */
+function stringCleaner( text, makeOneLiner )
+{
+  if( makeOneLiner )
+    text = text.replace(/(\r?\n|\r)/gm,"");
+  return text.replace(/^(\r?\n|\r)/gm,"").replace(/\. /g,".  ").replace(/^ +/gm,"");
+}
 
 /**
  * Print a method docu block
@@ -160,19 +189,24 @@ function printClass( taffyData, clazz )
 function printMethod(method, methodIdx, clazz, tempAlias) 
 {
   var result = "/**"+newLine;
-  if( method.description )
-    result += "@description"+newLine+method.description+newLine;
+  // Eclipse (oxygen, tern), wants us to start with the description
+  // They also fail if the are new lines in the cell and the also want two spaces after a sentence dot
+  result += multilineStringToTable(method.description);
+  // IDEA (2012.2) needs @method (to show type) and @memberOf (to understand it belongs to the class)
+  result += printCommentParamsAsTable( method.params, clazz, method );
+  result += "@method "+method.name+newLine;
+  result += "@memberOf "+clazz.longname+newLine;
   if( method.virtual )
     result += "@abstract Use a concrete subclass"+newLine; // Wired enough, Eclipse needs a random string here to not indent the next tag
-  if( method.inherits )
-    result += "@inherits "+method.inherits+newLine;
   if( method.overrides )
-    result += "@overrides "+method.overrides+newLine;
+    result += "@overrides "+(method.inherits || method.overrides)+newLine;
   if( method.deprecated )
     result += "@deprecated" + method.deprecated + newLine;
-  result += printCommentParams( method.params, clazz, method );
+  // IDEA prefers samples before parameters
   result += printCommentExamplesMandatories( method, clazz );
   result += printCommentExamples( method.examples, clazz, method );
+  // Since tern ignores the param descriptions and they are hard to read in IDEA, we also include them here in the comment as a table
+  result += printCommentParams( method.params, clazz, method );
 
   if( method.returns ) {
     var ret = method.returns[0];
@@ -186,8 +220,8 @@ function printMethod(method, methodIdx, clazz, tempAlias)
   result += " */"+newLine;
 
   // Now the Javascript code
-  result += tempAlias;
-  if( !method.scope === "static" ) 
+  result += clazz.longname;
+  if( method.scope !== "static" )
     result += ".prototype";
   result += "."+method.name+" = function(";
   if( method.params ) {
@@ -219,41 +253,52 @@ function printCommentParams( params, clazz, method )
   if( !params || params.length===0)
     return "";
   
-  var result = "@parameters"+newLine; // Fake tag, useful for building an optical group. @param woul conflict with our dl approach
-  result += "<dl>" + newLine;
+  var result = "";
   params.forEach( function(param) {
-    result += "<dt>";
-    if( param.name ) {
-      result += param.name.indexOf(".")!==-1 ? "&#160;&#160;&#160;&#160;- " : ""; // Indent properties of argument object
-      result += param.name.split(".")[param.name.split(".").length-1];
+    result += "@param";
+    result += printCommentDataTypes(param.type);
+    if (param.name) {
+      result += " " + (param.optional ? '['+param.name+']' : param.name);
     } else
-      console.warn("Missing param name at "+clazz.longname+"."+method.name);
-    result += printCommentDataTypes( param.type );
-    if( param.defaultvalue )
-      result += " - default: " + param.defaultvalue;
-    else if( param.optional )
-      result += " - optional";
-    result += "</dt><dd>";
-    if( param.description )
-      result += "  "+param.description;
-    result += "</dd>"+newLine;
-    
-    /*
-  // Backup - Classic JSDoc style
-  result += "@param";
-  result += printCommentDataTypes( param.type );
-  if( param.name ) {
-    result += " "+param.name;
-  } else
-    console.warn("Missing param name at "+clazz.longname+"."+method.name);
-  if( param.description )
-    result += "  "+param.description;
-     */
+      console.warn("Missing param name at " + clazz.longname + "." + method.name);
+    if (param.description)
+      result += "  " + param.description;
+    result += newLine;
   });
-  result += "</dl>" + newLine;
 
   return result;
 }
+
+/**
+ * Print the comment section for the parameters as an HTML table, not as a JSDoc
+ * This is very compact (name, type + descrition in one cell) fly-overoptimized
+ * @param params
+ * @param clazz
+ * @param method
+ * @returns {String}
+ */
+function printCommentParamsAsTable( params, clazz, method )
+{
+  if( !params || params.length===0)
+    return "";
+
+  var result = "<table border='0'>" + newLine;
+  params.forEach( function(param) {
+    result += "<tr>";
+    var paramText = param.name;
+    if( param.defaultvalue )
+      paramText += "=" + param.defaultvalue;
+    if( param.optional )
+      paramText = "["+paramText+"]";
+    result += "<td>"+paramText+"</td>";
+    result += "<td>"+printCommentDataTypes(param.type)+"&nbsp;&nbsp;";
+    result += (param.description?stringCleaner(param.description,true):"")+"</td></tr>";
+  });
+  result += "</table>" + newLine;
+
+  return result;
+}
+
 
 /**
  * Print a {type} or {(type1|type2)} for the comment section
@@ -266,7 +311,7 @@ function printCommentDataTypes( type )
   if( type && type.names ) {
     result += " {" + (type.names.length>1 ? "(":"");
     type.names.forEach( function(pTNname, pTNnameIdx) { result += pTNnameIdx>0 ? "|" : ""; result += pTNname } );
-    result += "}" + (type.names.length>1 ? ")":"");
+    result += (type.names.length>1 ? ")":"") + "}";
   }
   return result;
 }
@@ -280,7 +325,7 @@ function printCommentExamples( examples )
 {
   var result = "";
   if( examples )
-    examples.forEach( function(example) { result+="@example <code><pre>"+newLine+example.replace(/</g, "&lt;")+newLine+"</pre></code>"+newLine } );
+    examples.forEach( function(example) { result+="@example "+newLine+example.replace(/</g, "&lt;")+newLine } );
   return result;
 }
 
@@ -292,18 +337,23 @@ function printCommentExamplesMandatories( method, clazz )
 {
   if( ! method.params || method.params.length < 2 )
     return "";
- 
-  var instName = clazz.name.charAt(0).toLowerCase() + clazz.name.slice(1);
-    
-  var result = "// Usage using just the mandatory parameters:"+newLine;
+
+  // generate a sample. Eclupse needs leading spaces to show comment as a comment
+  var instName = "my" + clazz.name;
+  var result = "  // Sample using just the mandatory parameters:"+newLine;
   if( method === clazz ) {
     if( clazz.virtual )
       return "";
-    result += "var "+instName+" = new " + clazz.longname;
-  } else {
+    result += "  var "+instName+" = new " + clazz.longname;
+  } else if( method.scope !== "static" ) {
+    if( method.returns )
+      result += "  var ret = ";
+    result += instName + "." + method.name;
+  } else  {
+    result += "  ";
     if( method.returns )
       result += "var ret = ";
-    result += method.longname;
+    result += method.longname.replace("#","."); // Instance functions are separeted with a # from classname in jsdoc, but her we want to see the dot
   }
   result += "(";
 
@@ -325,9 +375,7 @@ function printCommentExamplesMandatories( method, clazz )
     result += " }";
   result += " );";
 
-  result += newLine;
-
-  return "@example"+newLine+"<code><pre>"+newLine+result.replace(/</g, "&lt;")+newLine+"</pre></code>"+newLine;
+  return "@example"+newLine+result.replace(/</g, "&lt;")+newLine;
   
 }
 
@@ -355,7 +403,7 @@ function printNamespaces( taffyData, opts )
     
     result += "/**" + newLine;
     if( namespace.description )
-      result += " * " + namespace.description + newLine;
+      result += stringCleaner(namespace.description) + newLine;
     result += " * @namespace " + newLine;
     result += " */" + newLine;
     if( namespace.longname.indexOf(".") === -1 )
