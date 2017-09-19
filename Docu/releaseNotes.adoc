@@ -14,7 +14,8 @@ Some changes are backward incompatible and may require code change in the projec
 * to come
 
 . Widgets
-* to come
+* periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all
+* disableNavPath attribute to turn off navPath linkage
 
 . Core
 * to come
