@@ -84,18 +84,19 @@ function printClass( taffyData, clazz )
   // Print the comment.
   // Class related
   result += newLine+"/**"+newLine;
+  result += "<p><b>@see</b> <a href='https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html'>Online help</a></p>"+newLine;
   if( clazz.classdesc )
-    result += multilineStringToTable(clazz.classdesc);
+    result += "<b>@classdesc</b>"+newLine+multilineStringToTable(clazz.classdesc);
   if( clazz.description )
-    result += "<p/> "+multilineStringToTable(clazz.description); //
+    result += "<b>@description</b>"+newLine+multilineStringToTable(clazz.description);
   result += printCommentParamsAsTable( clazz.params, clazz, "Constructor" );
 
   if( clazz.virtual )
-    result += "@abstract Use a concrete subclass"+newLine; // Wired enough, Eclipse needs a random string here to not treat the next tag as its content
+    result += "<b>@abstract</b> Use a concrete subclass"+newLine; // Wired enough, Eclipse needs a random string here to not treat the next tag as its content
   if( clazz.augments )
-    clazz.augments.forEach( function(aug) { result+="@extends "+aug+newLine } );
+    clazz.augments.forEach( function(aug) { result+="<b>@extends</b> "+aug+"<p/>"+newLine } );
   if( clazz.deprecated )
-    result += "@deprecated" + clazz.deprecated + newLine;
+    result += "<b>@deprecated</b> " + clazz.deprecated+"<p/>"+newLine;
   result += printCommentExamplesMandatories( clazz, clazz );
   result += printCommentExamples( clazz.examples, clazz, "Constructor" );
   result += printCommentParams( clazz.params, clazz, "Constructor" );
@@ -149,7 +150,7 @@ function printClass( taffyData, clazz )
  * Eclipse (oxygen with tern) and IDEA (2012.2) have issues with new lines
  * Eclipse tends to ignore the rest of the comment and IDEA ignores the newlines themselves
  * To make comments better to read, we turn them into a table with rows for each new line
- * if they span multiple lines and don't contain html tags
+ * if they span multiple lines and don't contain table, ol, ul or dl tags to keep their formatting
  * @param text
  * @returns {*}
  */
@@ -157,7 +158,8 @@ function multilineStringToTable(text)
 {
   if( !text )
     return "";
-  if( text.indexOf("</") === -1 && (text.indexOf("\n") !== -1 || text.indexOf("\r") !== -1) ) {
+  if( text.indexOf("</table") === -1 && text.indexOf("</ol") === -1 && text.indexOf("</ul") === -1 && text.indexOf("</dl") === -1
+      && (text.indexOf("\n") !== -1 || text.indexOf("\r") !== -1) ) {
     text =  stringCleaner( text );
     var result = "<table border='0' cellspacing='0' cellpadding='0'><tr><td>" + newLine;
     result += text.replace(/\r?\n|\r/g,"</td></tr><tr><td>") + newLine;
@@ -191,17 +193,23 @@ function printMethod(method, methodIdx, clazz, tempAlias)
   var result = "/**"+newLine;
   // Eclipse (oxygen, tern), wants us to start with the description
   // They also fail if the are new lines in the cell and the also want two spaces after a sentence dot
+  result += "<p><b>@see</b> <a href='https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name+"'>Online help</a></p>"+newLine;
+  result += "<b>@description</b>"+newLine;
   result += multilineStringToTable(method.description);
   // IDEA (2012.2) needs @method (to show type) and @memberOf (to understand it belongs to the class)
   result += printCommentParamsAsTable( method.params, clazz, method );
-  result += "@method "+method.name+newLine;
-  result += "@memberOf "+clazz.longname+newLine;
+  result += "<table border='0' cellpadding=\"0\" cellspacing=\"0\">";
+  result += "<tr><td><b>@method</b> "+method.name+"</td></tr>"+newLine;
+  result += "<tr><td><b>@memberOf</b> "+clazz.longname+(method.scope!=="static" ? ".prototype" : "")+"</td></tr>"+newLine;
   if( method.virtual )
-    result += "@abstract Use a concrete subclass"+newLine; // Wired enough, Eclipse needs a random string here to not indent the next tag
+    result += "<tr><td><b>@abstract</b> Use a concrete subclass</td></tr>"+newLine; // Wired enough, Eclipse needs a random string here to not indent the next tag
+  if( method.inherits )
+    result += "<tr><td><b>@inherits</b> "+method.inherits+"</td></tr>"+newLine;
   if( method.overrides )
-    result += "@overrides "+(method.inherits || method.overrides)+newLine;
+    result += "<tr><td><b>@overrides</b> "+method.overrides+"</td></tr>"+newLine;
   if( method.deprecated )
-    result += "@deprecated" + method.deprecated + newLine;
+    result += "<tr><td><b>@deprecated</b> "+ method.deprecated+"</td></tr>"+newLine;
+  result += "</table>";
   // IDEA prefers samples before parameters
   result += printCommentExamplesMandatories( method, clazz );
   result += printCommentExamples( method.examples, clazz, method );
@@ -216,7 +224,8 @@ function printMethod(method, methodIdx, clazz, tempAlias)
       result += " "+ret.description;
     result += newLine;
   }
-  
+  // Next row is actually evaluated by IDEA and it is not enough to have that in the able above
+  result += "@memberOf "+clazz.longname+(method.scope !== "static" ? "#" : "")+""+newLine;
   result += " */"+newLine;
 
   // Now the Javascript code
@@ -282,7 +291,8 @@ function printCommentParamsAsTable( params, clazz, method )
   if( !params || params.length===0)
     return "";
 
-  var result = "<table border='0'>" + newLine;
+  var result = "<b>@parameters</b>"+newLine;
+  result += "<table border='0'>" + newLine;
   params.forEach( function(param) {
     result += "<tr>";
     var paramText = param.name;
@@ -325,7 +335,7 @@ function printCommentExamples( examples )
 {
   var result = "";
   if( examples )
-    examples.forEach( function(example) { result+="@example "+newLine+example.replace(/</g, "&lt;")+newLine } );
+    examples.forEach( function(example) { result+=multilineStringToTable("<b>@example</b>"+newLine+example.replace(/</g, "&lt;")) } );
   return result;
 }
 
@@ -340,7 +350,7 @@ function printCommentExamplesMandatories( method, clazz )
 
   // generate a sample. Eclupse needs leading spaces to show comment as a comment
   var instName = "my" + clazz.name;
-  var result = "  // Sample using just the mandatory parameters:"+newLine;
+  var result = "  // Sample using the mandatory parameters"+newLine;
   if( method === clazz ) {
     if( clazz.virtual )
       return "";
@@ -353,7 +363,7 @@ function printCommentExamplesMandatories( method, clazz )
     result += "  ";
     if( method.returns )
       result += "var ret = ";
-    result += method.longname.replace("#","."); // Instance functions are separeted with a # from classname in jsdoc, but her we want to see the dot
+    result += method.longname.replace("#","."); // Instance functions are separated with a # from classname in jsdoc, but her we want to see the dot
   }
   result += "(";
 
@@ -375,7 +385,7 @@ function printCommentExamplesMandatories( method, clazz )
     result += " }";
   result += " );";
 
-  return "@example"+newLine+result.replace(/</g, "&lt;")+newLine;
+  return multilineStringToTable("<b>@example</b>"+newLine+result.replace(/</g, "&lt;"));
   
 }
 
