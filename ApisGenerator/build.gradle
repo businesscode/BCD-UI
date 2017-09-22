@@ -21,9 +21,9 @@
 configurations { antlibs }
 dependencies {
   repositories {
-    maven { url "http://repository.pentaho.org/artifactory/repo" }
+    maven { url "https://maven.atlassian.com/3rdparty/" }
   }
-  antlibs 'oopsconsultancy:xmltask:1.16'
+  antlibs 'com.oopsconsultancy:xmltask:1.16'
 }
 import groovy.text.SimpleTemplateEngine
 import groovy.json.JsonSlurper
