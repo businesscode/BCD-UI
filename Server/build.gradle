@@ -142,6 +142,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   from sourceSets.main.allSource
 }
 
+//********************************
+// Convenience task, collecting all 3rdParty dependencies
+task bcduiServerCollect3rdPartyJars ( type: Copy ) {
+  from configurations.runtime
+  into "$buildDir/3rdPartyJars"
+}
+
 artifacts {
   archives sourcesJar
 }
