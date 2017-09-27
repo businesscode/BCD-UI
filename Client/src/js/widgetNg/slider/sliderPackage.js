@@ -168,9 +168,11 @@
       })).done(create);
 
       // init navPath
-      bcdui.widgetNg.slider.getNavPath(this.options.id, function(id, value) {
-        bcdui.widget._linkNavPath(id, value);
-      });
+      if (! this.options.disableNavPath) {
+        bcdui.widgetNg.slider.getNavPath(this.options.id, function(id, value) {
+          bcdui.widget._linkNavPath(id, value);
+        }.bind(this));
+      }
     },
 
     /**
