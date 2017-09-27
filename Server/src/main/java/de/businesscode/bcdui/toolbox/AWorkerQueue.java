@@ -280,15 +280,21 @@ abstract public class AWorkerQueue<T> {
       idleFuture.cancel(false);
       idleFuture = null;
     }
-    Collection<T> objectsToProcess = new LinkedList<T>();
     synchronized(idleLock){
-      //feed the collection
-      while(queue.size()>0){
-        T t;
+      // keep processing objects from queue
+      while(queue.size()>0){ // keep this check outside of lock on the queue
+        final Collection<T> objectsToProcess = new LinkedList<T>();
+
         synchronized(queue){
+          T t;
+          // assemble collection to process, dont process yet
+          // there is no guarantee that poll() returns anything
           while((t=queue.poll())!=null)objectsToProcess.add(t);
+        } // unlock queue for others
+
+        if( objectsToProcess.size() > 0) { // may be empty
+          processObjects(objectsToProcess);
         }
-        processObjects(objectsToProcess);
       }
     }
     if(idleThresholdMs > 0 && !executor.isShutdown()){
