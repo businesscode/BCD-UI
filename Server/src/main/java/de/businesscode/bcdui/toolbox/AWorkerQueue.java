@@ -82,7 +82,7 @@ abstract public class AWorkerQueue<T> {
   private static final AtomicInteger instancesCount = new AtomicInteger(0);
 
   private Queue<T> queue = new LinkedList<T>();
-  private int maxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
+  private final int maxQueueSize;
 
   /**
    * the pending queue notification task to notify queue, synchronized by queue
@@ -130,17 +130,20 @@ abstract public class AWorkerQueue<T> {
   private long idleThresholdMs;
 
   /**
-   * Creates a worker
+   * Creates a queue
    *
-   * @param maxQueueSize    when set to 0 or below then default value is used, default is {@link #DEFAULT_MAX_QUEUE_SIZE}.
+   * @param maxQueueSize    when set to 0 then default value is used (which is {@link #DEFAULT_MAX_QUEUE_SIZE} ). A positive value sets a maximum queue size before discarding objects.
+   *                        A negative value removes any limit, which may cause memory issues in case the queue grows faster than it is processed.
    * @param idleThresholdMs the threshold for idle event or 0 for DISABLED, if disabled, the {@link #onIdle()} is never called,
    *                        otherwise it is called after the queue has been idling for given amount of time.
    * @param queueDelayMs    delay in ms or 0 for DISABLED, this is a waiting period between adding a task to process
    *                        into the queue and beginning of processing the queue, if 0 the queue is processed immediately.
    */
   protected AWorkerQueue(int maxQueueSize, long idleThresholdMs, long queueDelayMs){
-    if(maxQueueSize > 0) {
-      this.maxQueueSize = maxQueueSize;
+    if(maxQueueSize == 0) {
+      this.maxQueueSize = DEFAULT_MAX_QUEUE_SIZE;
+    } else {
+      this.maxQueueSize = Math.max(-1, maxQueueSize);
     }
 
     this.idleThresholdMs = Math.max(0, idleThresholdMs);
@@ -310,7 +313,7 @@ abstract public class AWorkerQueue<T> {
    */
   final protected void enqueue(Collection<T> t){
     synchronized(queue){
-      if(queue.size() >= this.maxQueueSize){
+      if(this.maxQueueSize > 0 && queue.size() >= this.maxQueueSize){
         log.error("queue is full - discarding object " + t);
       } else {
         if(pendingQueueProcessingFuture != null){
