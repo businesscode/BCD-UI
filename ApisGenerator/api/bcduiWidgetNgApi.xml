@@ -898,6 +898,64 @@ the data that is actually placed in XML.
           </Doc>
         </Param>
       </Api>
+
+      <Api name="slider" extends="baseInput">
+        <Doc>
+          A slider widget providing UI with a moving handle to select a value or to select a range. The implementation is based
+          on noUiSlider, so is the API. Please refer to original documentation to explore all options. You can use full options
+          from JS-API, however, they are not available from declarative context. Currently, the range mode is restricted to 2
+          handles only and you cannot provide start option, since it is read from the model.
+        </Doc>
+        <Param name="optionsModelXPath" type="modelXPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]. If not provided, the widget is not linked to discrete
+          values, in this case the min/max options has to be provided.</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions.
+          </Doc>
+        </Param>
+        <Param name="min" type="number">
+          <Doc>
+            Defines the minimum value, must not be set if optionsModelXpath is provided.
+          </Doc>
+        </Param>
+        <Param name="max" type="number">
+          <Doc>
+            Defines the maximum value, must not be set if optionsModelXpath is provided.
+          </Doc>
+        </Param>
+        <Param name="isRange" type="boolean" default="false">
+          <Doc>
+            If enabled, the slider will operate in range-selection mode, providing min/max handles to define a range.
+          </Doc>
+        </Param>
+        <Param name="relativeTargetXPathMin" type="xpath" default="/min">
+          <Doc>
+            When operating in range-mode, this defines the relative xpath to targetModelXPath, to write the 'min' value. This option not defined in non-range mode.
+          </Doc>
+        </Param>
+        <Param name="relativeTargetXPathMax" type="xpath" default="/max">
+          <Doc>
+            When operating in range-mode, this defines the relative xpath to targetModelXPath, to write the 'max' value. This option not defined in non-range mode.
+          </Doc>
+        </Param>
+        <Param name="labelRenderingFunction" type="function">
+          <Doc>
+            Your custom rendering function to render the label, which gets args with following properties: targetHtml, values[], captions[];
+            this function is executed on every update to the widget but also while sliding. This option is only effective unless native 'tooltips' option is
+            used.
+          </Doc>
+        </Param>
+        <Param name="labelRenderingFunctionTargetHtml" type="string">
+          <Doc>
+            jQuery selector to access element to use as targetHtml for labelRenderingFunction, if you choose to use your custom one.
+            This option is only effective unless native 'tooltips' option is used.
+          </Doc>
+        </Param>
+      </Api>
     </BcdAPI>
 
     <BcdObjects>
@@ -914,6 +972,7 @@ the data that is actually placed in XML.
       <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component.scorecard.scorecardConfigurator"/>
       <BcdObject name="farConfigurator" implements="farConfigurator" implementationPackage="bcdui.component.far.farConfigurator"/>
       <BcdObject name="universalFilter" implements="universalFilter" implementationPackage="bcdui.widgetNg.universalFilter"/>
+      <BcdObject name="slider" implements="slider" implementationPackage="bcdui.widgetNg.slider"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

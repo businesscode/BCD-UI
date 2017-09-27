@@ -101,17 +101,29 @@ task bcduiClientCollect3rdParty {
                      "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
                      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js"],
                      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js"],
-                     "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"]
+                     "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"],
+                     "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
+                     /* sample of having multi-file distribution set
+                     "nouislider":     [ [ fn: "nouislider.js",       ofn: "nouislider/distribute/nouislider.js"],
+                                         [ fn: "nouislider.css",      ofn: "nouislider/distribute/nouislider.css"] ]*/
     ]
     // Becomes only part of the assembly, if listed in gradle.properties
     fileList = fileList.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
-    fileList.each { key, value ->
-      copy {
-        into taskDestDir
-        from "$clientNodeModulesDir/${value.ofn}"
-        rename { value.fn }
+    // collect distributables, allow recursion
+    def collectDist
+    collectDist = { key, value ->
+      // if is array, go recursive
+      if (value[0]) {
+        value.each { collectDist(key, it) }
+      } else { // or map
+        copy {
+          into taskDestDir
+          from "$clientNodeModulesDir/${value.ofn}"
+          rename { value.fn }
+        }
       }
     }
+    fileList.each collectDist
 
     // Optionally jquery-ui
     if( project.hasProperty('bcdui.3rdPartyJs.jquery-ui') ) {

@@ -55,6 +55,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/jquery-ui.js"
         , "/js/3rdParty/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
+        , "/js/3rdParty/nouislider.js"
       ]
     },
     {
@@ -144,6 +145,8 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/connectable/connectablePackage.js"
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
         , "/js/widgetNg/universalFilter/universalFilterPackage.js"
+        , "/js/widgetNg/slider/sliderPackage.js"
+        , "/js/widgetNg/slider/typedSliders.js"
       ]
     },
     {

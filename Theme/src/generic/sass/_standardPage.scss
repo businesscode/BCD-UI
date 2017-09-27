@@ -263,6 +263,9 @@ a {
 /* Widgets */
 /* ******************************************************************* */
 
+@import '_bcduiSlider.scss'; /* bcduiSlider Widget */
+@import '_bcduiTimeSlider.scss'; /* bcduiTimeSlider Widget */
+
 /* universalFilter */
 .bcd-unifilter-widget {
   .bcd-unifilter-empty { /* displays empty message */
