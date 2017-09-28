@@ -333,6 +333,13 @@
       <param-name>header:Content-Type</param-name>
       <param-value>application/vnd.ms-excel</param-value>
     </init-param>
+    
+    <!-- set this to true if your server.xml connector is not using UTF-8 URIEncoding, otherwise set it to false -->
+     <init-param>
+      <param-name>EncodeUTF8</param-name>
+      <param-value>true</param-value>
+    </init-param>
+
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>

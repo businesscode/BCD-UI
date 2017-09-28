@@ -21,6 +21,7 @@ package de.businesscode.bcdui.toolbox;
  */
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,11 +37,20 @@ public class MirrorServlet extends HttpServlet
 {
   private Map<String,String> headers;
   private static final long serialVersionUID = 9103767540296410884L;
+  private boolean encodeUtf8 = false;
 
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException ,IOException
   {
     String html = request.getParameter("htmlString");
+
+    // Most servers, including Apache Tomcat server, are configured to parameter encoding with ISO-8859-1 by default
+    // the following workaround fixes problems when utf-8 characters are not correctly encoded
+    // this can be enabled with a web.xml EncodeUTF8=true init-param
+    if (encodeUtf8) {
+      byte[] bytes = html.getBytes(StandardCharsets.ISO_8859_1);
+      html = new String(bytes, StandardCharsets.UTF_8);
+    }
 
     Iterator<Map.Entry<String,String>> it = headers.entrySet().iterator();
     while( it.hasNext() ) {
@@ -71,5 +81,7 @@ public class MirrorServlet extends HttpServlet
       if( pName.startsWith("header:") )
         headers.put(pName.substring("header:".length()), config.getInitParameter(pName) );
     }
+    String enc = config.getInitParameter("EncodeUTF8");
+    encodeUtf8 = enc != null && "true".compareToIgnoreCase(enc) == 0;
   }
 }
