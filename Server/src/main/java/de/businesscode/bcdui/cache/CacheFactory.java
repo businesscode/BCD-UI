@@ -27,6 +27,9 @@ import net.sf.ehcache.CacheManager;
  **/
 public class CacheFactory {
   private static final String CACHE_ID_VFS = "de.businesscode.bcdui.vfs.DataBaseFileSystem";
+  private static class CacheManagerHolder {
+    static CacheManager defaultCacheManager = CacheManager.getInstance(); // re-use the default one 
+  }
 
   /**
    * Constructor
@@ -38,7 +41,7 @@ public class CacheFactory {
    * @return the default {@link CacheManager} configured by '/ehcache.xml' from given classpath.
    */
   public static CacheManager getCacheManager(){
-    return CacheManager.getInstance(); // re-use the default one
+    return CacheManagerHolder.defaultCacheManager;
   }
 
 
