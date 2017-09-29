@@ -70,6 +70,9 @@
         # securityManager.cacheManager = $cacheManager
         ## Use this only with Windows SSO mechanism
         # authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
+        ## Enable delegating session manager to use containers session management
+        #sessionManager = org.apache.shiro.web.session.mgt.ServletContainerSessionManager
+        #securityManager.sessionManager = $sessionManager
 
         # Users and their roles
         # format: username = password, role1, role2, ..., roleN
