@@ -16,7 +16,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<ehcache updateCheck="false">
+<ehcache updateCheck="false" name="org.apache.shiro.cache.ehcache">
 
     <!-- Sets the path to the directory where cache .data files are created.
 
