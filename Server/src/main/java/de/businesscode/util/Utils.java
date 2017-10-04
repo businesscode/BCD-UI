@@ -209,7 +209,7 @@ public class Utils {
           if (is != null) {
             Manifest manifest = new Manifest(is);
             Attributes mainAttribs = manifest.getMainAttributes();
-            if ("BCDUI".equals(mainAttribs.getValue("Implementation-Title"))) {
+            if ("BusinessCode BCD-UI".equals(mainAttribs.getValue("Implementation-Title"))) {
               return mainAttribs.getValue("Implementation-Version");
             }
           }
