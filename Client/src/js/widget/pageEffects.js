@@ -332,6 +332,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           var id = sItem.attr("bcdId");
           var value = sBody.stop().is(":visible") ? 0 : 1;
           sHeader.toggleClass("bcdHeadOpened bcdHeadClosed");
+          jQuery(".bcdSideBarGrip").hide();
           sBody.toggle("blind", 250, bcdui.widget.pageEffects._findGripPosition.bind(null, args.sideBarSizeAdjust, args.sideBarCollapsable));
           bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarVisible/guiStatus:Item[@id='" + id + "']").text = value;
         });
@@ -457,9 +458,9 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       jQuery(".bcdSideBarGrip").hide();
     }
     else {
-      // set it to the first open one (we take the element below the sectionCaption top position as anchor, -1 for px adjustment)
+      // set it to the first open one (we take the element below the sectionCaption top position as anchor)
       jQuery(".bcdSideBarGrip").show();
-      jQuery(".bcdSideBarGrip").css("top", jQuery("*.bcdSection *.bcdSectionCaption:not(.bcdHeadClosed)").next().position().top -1);
+      jQuery(".bcdSideBarGrip").css("top", jQuery("*.bcdSection *.bcdSectionCaption:not(.bcdHeadClosed)").next().position().top);
     }
   }
 });

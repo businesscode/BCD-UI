@@ -1105,9 +1105,10 @@ body {
     @include con_color($control-color);
     border-radius: 0px $border-radius-default $border-radius-default 0px;
     border-right: 1px solid $border-color-dark;
-    border-top: 1px solid $border-color-dark;
+    border-top: 1px solid $control-color;
     border-bottom: 1px solid $border-color-dark;
-    top: 22px;
+    border-left: 1px solid $control-color;
+    top: 23px;
     text-align: center;
     @include shadow();
     .bcdGripPin > .bcdGripPinChar {display: inline-block; right: 3px; color: $border-color; position: absolute;}
