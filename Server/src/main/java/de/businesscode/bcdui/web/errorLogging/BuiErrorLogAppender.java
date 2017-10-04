@@ -57,6 +57,10 @@ public class BuiErrorLogAppender extends AppenderSkeleton {
           if (revision != null && revision.length() > 30)
             revision = revision.substring(0, 30);
 
+          String clientMsg = event.getRenderedMessage();
+          String throwInfo = event.getThrowableInformation() != null ? ExceptionUtils.getStackTrace(event.getThrowableInformation().getThrowable()) : null;
+          String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? throwInfo : "");
+
           // log error
           if(ErrorSqlLogger.getInstance().isEnabled()) {
             final ErrorSqlLogger.LogRecord recordError = new ErrorSqlLogger.LogRecord(
@@ -66,7 +70,7 @@ public class BuiErrorLogAppender extends AppenderSkeleton {
                 , requestHash
                 , level
                 , bcduiLogEvent.getMessage()
-                , event.getThrowableInformation() != null ? ExceptionUtils.getStackTrace(event.getThrowableInformation().getThrowable()) : null
+                , message
                 , revision
             );
             ErrorSqlLogger.getInstance().process(recordError);
