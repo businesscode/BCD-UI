@@ -152,61 +152,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       parameters: {chooserId: e.id, dimensionName: config.dimensionName }
     });
 
-    // listener on manifested f:filter changes
-    bcdui.factory.addDataListener({
-      idRef: config.targetModelId,
-      onlyOnce: false,
-      trackingXPath: multiSelectTargetXpath + "|" + multiSelectTargetXpathExclude,
-      id: e.id + "_listenerMultiSelectTargetXpath",
-      listener: function(){
-
-        // if html doesn't exist anymore, we remove the listener 
-        if (bcdui.widget.dimensionChooser._cleanupListener(config)) return;
-
-        // update optionsmodel for multiselect
-        bcdui.factory.objectRegistry.getObject(e.id +'_Selection').execute(true);
-
-        // check if we got an internal or external change
-        // this internal change flag needs to be set when the dimchooser itself triggers
-        // a filter change (e.g. when adding or removing an entry)
-        // you need to ensure(!) that in case it is set, this listener IS triggered, so the flag gets reset correctly
-        var levelStorage = jQuery("#" + e.id).data("levelStorage");
-        var internalUpdate = jQuery("#" + e.id).data("internal") || false;
-        jQuery("#" + e.id).data("internal", false);
-
-        // in case the event was triggered from outside, we try to set the elements and level
-        if (! internalUpdate) {
-          var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
-          
-          var foundLevel =  bcdui.widget.dimensionChooser._guessLevel(targetModel, multiSelectTargetXpath, levelStorage);
-
-          // let's remove all choosers first (deregister objects, remove lines etc) without refreshing the filter area
-          bcdui.widget.dimensionChooser._removeObsoleteChooser(config.element.id, [], config.element.id, config.targetModelId, true, config.dimensionName);
-
-          // show multi area accordingly if we got more than one filter elements
-          if (config.multiSelect != "false" && targetModel.getData().selectNodes(multiSelectTargetXpathExclude + "/f:Or").length > 0)
-            bcdui.widget.dimensionChooser._showMultiSelectArea(config.element.id);
-          else if (config.multiSelect != "false" && targetModel.getData().selectNodes(multiSelectTargetXpath + "/f:And").length > 1)
-            bcdui.widget.dimensionChooser._showMultiSelectArea(config.element.id);
-          else if (config.multiSelect != "true")
-            bcdui.widget.dimensionChooser._hideMultiSelectArea(config.element.id);
-
-          // copy 1st filter into edit area to make it visible in the input fields (especially needed in single mode) 
-          bcdui.core.removeXPath(targetModel.getData(), multiSelectEditXpath);
-          var source = targetModel.getData().selectSingleNode(multiSelectTargetXpath + "/f:And[1]");
-          if (source != null) {
-            var destination = bcdui.core.createElementWithPrototype(targetModel.getData(), multiSelectEditXpathRoot);
-            destination.appendChild(source.cloneNode(true));
-          }
-
-          // write calculated level based on 1st filter and recreate the chooser
-          bcdui.core.createElementWithPrototype(targetModel.getData(), config.targetModelXPath).text = foundLevel;
-          var Levels = foundLevel != "" && levelStorage[foundLevel] ? levelStorage[foundLevel] : new Array();
-          bcdui.widget.dimensionChooser._createDimensionChooser(Levels, config.element.id, config);
-        }
-      }
-    });
-
     // Listener creates or removes dimension chooser selects according to the level
     var models = [ bcdui.wkModels.bcdDimensions, config.targetModelId, distinctWrapper.id];
     if (config.configurationModelId)
@@ -214,6 +159,72 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
     bcdui.factory.objectRegistry.withReadyObjects(models, function(){
 
+      // build levelStorage object which is a lookup of elements for each level
+      var xPath = "/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level/@id";
+      var levelStorage = {};
+      var availLevels = bcdui.wkModels.bcdDimensions.queryNodes(xPath);
+      for (var l = 0; l < availLevels.length; l++) {
+        var Levels = new Array();
+        bcdui.widget.dimensionChooser._createLevelLists(Levels, availLevels[l], config.dimensionName);
+        levelStorage[availLevels[l].text] = Levels;
+      }
+      jQuery("#" + e.id).data("levelStorage", levelStorage);
+
+      // listener on manifested f:filter changes
+      bcdui.factory.addDataListener({
+        idRef: config.targetModelId,
+        onlyOnce: false,
+        trackingXPath: multiSelectTargetXpath + "|" + multiSelectTargetXpathExclude,
+        id: e.id + "_listenerMultiSelectTargetXpath",
+        listener: function(){
+
+          // if html doesn't exist anymore, we remove the listener 
+          if (bcdui.widget.dimensionChooser._cleanupListener(config)) return;
+
+          // update optionsmodel for multiselect
+          bcdui.factory.objectRegistry.getObject(e.id +'_Selection').execute(true);
+
+          // check if we got an internal or external change
+          // this internal change flag needs to be set when the dimchooser itself triggers
+          // a filter change (e.g. when adding or removing an entry)
+          // you need to ensure(!) that in case it is set, this listener IS triggered, so the flag gets reset correctly
+          var levelStorage = jQuery("#" + e.id).data("levelStorage");
+          var internalUpdate = jQuery("#" + e.id).data("internal") || false;
+          jQuery("#" + e.id).data("internal", false);
+
+          // in case the event was triggered from outside, we try to set the elements and level
+          if (! internalUpdate) {
+            var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
+            
+            var foundLevel =  bcdui.widget.dimensionChooser._guessLevel(targetModel, multiSelectTargetXpath, levelStorage);
+
+            // let's remove all choosers first (deregister objects, remove lines etc) without refreshing the filter area
+            bcdui.widget.dimensionChooser._removeObsoleteChooser(config.element.id, [], config.element.id, config.targetModelId, true, config.dimensionName);
+
+            // show multi area accordingly if we got more than one filter elements
+            if (config.multiSelect != "false" && targetModel.getData().selectNodes(multiSelectTargetXpathExclude + "/f:Or").length > 0)
+              bcdui.widget.dimensionChooser._showMultiSelectArea(config.element.id);
+            else if (config.multiSelect != "false" && targetModel.getData().selectNodes(multiSelectTargetXpath + "/f:And").length > 1)
+              bcdui.widget.dimensionChooser._showMultiSelectArea(config.element.id);
+            else if (config.multiSelect != "true")
+              bcdui.widget.dimensionChooser._hideMultiSelectArea(config.element.id);
+
+            // copy 1st filter into edit area to make it visible in the input fields (especially needed in single mode) 
+            bcdui.core.removeXPath(targetModel.getData(), multiSelectEditXpath);
+            var source = targetModel.getData().selectSingleNode(multiSelectTargetXpath + "/f:And[1]");
+            if (source != null) {
+              var destination = bcdui.core.createElementWithPrototype(targetModel.getData(), multiSelectEditXpathRoot);
+              destination.appendChild(source.cloneNode(true));
+            }
+
+            // write calculated level based on 1st filter and recreate the chooser
+            bcdui.core.createElementWithPrototype(targetModel.getData(), config.targetModelXPath).text = foundLevel;
+            var Levels = foundLevel != "" && levelStorage[foundLevel] ? levelStorage[foundLevel] : new Array();
+            bcdui.widget.dimensionChooser._createDimensionChooser(Levels, config.element.id, config);
+          }
+        }
+      });
+      
       // update level input field with possible visible=false flags to hide levels (also take limitLevels into account)
       var optionsModelLevel = bcdui.factory.objectRegistry.getObject(distinctWrapper.id);
       var notVisibleLevels = config.configurationModelId ? jQuery.makeArray(bcdui.factory.objectRegistry.getObject(config.configurationModelId).getData().selectNodes("rnd:Configuration/rnd:Level[@visible='false']/@id")).map(function(e) { return e.nodeValue || e.text; }) : [];
@@ -227,17 +238,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       }
       optionsModelLevel.fire();
       var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
-      var xPath = "/dm:Dimensions/dm:Dimension[@id='" + config.dimensionName + "']/*/dm:Level/@id";
-
-      // build levelStorage object which is a lookup of elements for each level
-      var levelStorage = {};
-      var availLevels = bcdui.wkModels.bcdDimensions.queryNodes(xPath);
-      for (var l = 0; l < availLevels.length; l++) {
-        var Levels = new Array();
-        bcdui.widget.dimensionChooser._createLevelLists(Levels, availLevels[l], config.dimensionName);
-        levelStorage[availLevels[l].text] = Levels;
-      }
-      jQuery("#" + e.id).data("levelStorage", levelStorage);
 
       bcdui.widget.dimensionChooser._cleanFilters(config);
 
