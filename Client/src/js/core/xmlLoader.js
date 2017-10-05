@@ -388,16 +388,23 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
                   args.onFailure("BCD-UI: loading '"+args.url+"' failed.");
                 }
               }.bind(this, response, jqXHR);
+
+              // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page) 
+              var resource = args.url.substring(args.url.lastIndexOf("/") + 1);
+              var rUrl = xhr.responseURL || xhr.url;
+              if (rUrl.indexOf(resource) == -1) {
+                bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
+                return;
+              }
+
               setTimeout(deferred);
             }.bind(this),
             error: function(jqXHR, textStatus, errorThrown) {
 
-              // don't react on status codes == 0 which happen when you quickly switch pages during load 
-              if (jqXHR.status === 0)
-                return;
-
-              // redirect in case of a session timeout
-              if (jqXHR.status === 401) {
+              // test for C00CE00D error code which corresponds to an element used but not declared in the DTD/Schema
+              // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
+              // FF & Chrome will run into success in this case
+              if (xhr.domDocument && xhr.domDocument.msxmlImpl && xhr.domDocument.msxmlImpl.parseError && xhr.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
                 bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
                 return;
               }
@@ -488,16 +495,14 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
             }.bind(this),
             error: function(jqXHR, textStatus, errorThrown) {
 
-              // don't react on status codes == 0 which happen when you quickly switch pages during load 
-              if (jqXHR.status === 0)
-                return;
-
-              // redirect in case of a session timeout
-              if (jqXHR.status === 401) {
+              // test for C00CE00D error code which corresponds to an element used but not declared in the DTD/Schema
+              // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
+              // FF & Chrome will run into success in this case
+              if (xhr.domDocument && xhr.domDocument.msxmlImpl && xhr.domDocument.msxmlImpl.parseError && xhr.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
                 bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
                 return;
               }
-              
+
               if (bcdui.util.isFunction(args.onFailure)) {
                 // Use the low-level responseXML, see comment above
                 jqXHR.responseXML = xhr.responseXML;

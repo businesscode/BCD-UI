@@ -348,15 +348,13 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
           }.bind(this),
           error : function(jqXHR, textStatus, errorThrown) {
 
-            // don't react on status codes == 0 which happen when you quickly switch pages during load 
-            if (jqXHR.status === 0)
-              return;
-
-            // redirect in case of a session timeout
-            if (jqXHR.status === 401) {
-              bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
-              return;
-            }
+              // test for C00CE00D error code which corresponds to an element used but not declared in the DTD/Schema
+              // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
+              // FF & Chrome will run into success in this case
+              if (xhr.domDocument && xhr.domDocument.msxmlImpl && xhr.domDocument.msxmlImpl.parseError && xhr.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
+                bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
+                return;
+              }
 
             bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'");
             this.dataDoc = null;
