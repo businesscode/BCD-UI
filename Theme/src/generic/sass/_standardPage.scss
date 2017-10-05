@@ -1393,6 +1393,37 @@ span.bcd-notification-warn {
   @include alpha(0.75);
 }
 
+.bcd-detailview-overlay {
+  background-color: black;
+  opacity: 0.75;
+  -moz-opacity: 0.75;
+  filter: alpha(opacity=75)
+}
+
+.bcd-detailview-titlebar {
+  font: 12px Arial;
+  font-weight: bold;
+  text-align: left;
+  @include con_color($corporate-color);
+  border: none;
+  a {
+    outline: none;
+    text-decoration: none;
+    padding: 0px !important;
+    color: #000000;
+  }
+  span.ui-icon {
+    text-indent: 0;
+  }
+}
+
+.bcd-detailview-dialog {
+  border: 1px solid #e4e4e4;
+  border-radius: 5px;
+  background-color: white;
+  padding: 5px;
+}
+
 /* ******************************************************************* */
 /* uploader */
 /* ******************************************************************* */
