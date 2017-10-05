@@ -1192,7 +1192,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
         if ( htmlElement.getAttribute("bcdOptionsModelId") && clearOption && clearOption!="false" )
         {
           var text = bcdui.i18n.syncTranslateFormatMessage({msgid: clearOption=="true" ? 'bcd_autoCompletionBox_clearOption' : clearOption });
-          var item = bcdui._migPjs._$(bcdui.widget.inputField._addOption(valueBox.get(0), htmlElementId, document.createTextNode(text)));
+          var item = bcdui._migPjs._$(bcdui.widget.inputField._addOption(valueBox.get(0), htmlElementId, jQuery("<span>" + text + "</span>").get(0)));
           item.attr("bcd_autoCompletionBox_emptyValue", "true");
           item.addClass("bcdClearOption");
         }

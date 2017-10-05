@@ -525,12 +525,22 @@ a {
   height: 150px;
   overflow-y: auto;
   z-index: 1005;
-  div { padding: 3px; white-space: nowrap; }
+  div { white-space: nowrap; }
   div div.bcdOptionIsHovered,
   .bcdOptionIsSelected,
   .bcdSelected {
     @include con_color( $select-color );
   }
+}
+#bcd_widget_suggestInput_dataList div {
+  padding: 3px;
+}
+#bcdAutoCompletionBox div >span {
+  display: inline-block;
+  padding: 3px;
+}
+#bcdAutoCompletionBox div.bcdSelected >span {
+  @include con_color($select-color);
 }
 
 /* period chooser  */
