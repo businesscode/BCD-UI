@@ -268,6 +268,12 @@
         <Entry caption="Report export">
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId: 'exportWysiwygAsExcel'})</JavaScriptAction>
         </Entry>
+        <Entry caption="Show all hidden values">
+          <JavaScriptAction>
+            var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
+            bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: "bcdAll", showAll: true} )
+          </JavaScriptAction>
+        </Entry>
       </ContextMenuEntryGroup>
     </ContextMenu>
   </xsl:template>

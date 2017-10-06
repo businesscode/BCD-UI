@@ -150,8 +150,12 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     //------------------------------------------
     // showAll clears all hide and exclude(!) settings, affecting the level
     if( args.showAll == true ) {
-      jQuery.makeArray(["//cube:Layout[@cubeId ='"+cubeId+"']/cube:Hide/f:Filter/*[@bRef='"+args.levelId+"']",
-          "/*/f:Filter/*[@type='bcdCubeExclude_"+cubeId+"' and @exclBRef='"+args.levelId+"']"]).forEach(
+      
+      var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"']";
+      var bRef2 = (args.levelId == "bcdAll") ? "" : "='"+args.levelId+"'";
+      
+      jQuery.makeArray(["//cube:Layout[@cubeId ='"+cubeId+"']/cube:Hide/f:Filter/*" + bRef1,
+          "/*/f:Filter/*[@type='bcdCubeExclude_"+cubeId+"' and @exclBRef" + bRef2 + "]"]).forEach(
          function(xpath){
            var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(xpath);
            for( var hN=0; hN<nodes.length; hN++ )
