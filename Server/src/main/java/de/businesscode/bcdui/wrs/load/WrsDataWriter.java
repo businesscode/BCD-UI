@@ -35,15 +35,14 @@ import java.text.SimpleDateFormat;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.stax.StAXResult;
-import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * The default implementation of the IDataWriter - write wrs-xml-format using xml-stream <br>
@@ -57,8 +56,16 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
   private XMLStreamWriter writer;
   //
   private boolean maxRowsExceed = false;
-  DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-  DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private final DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private final DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private final Transformer transformer;
+  {
+    try {
+      this.transformer = SecureXmlFactory.newTransformerFactory().newTransformer();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 
   /**
@@ -470,7 +477,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         }else if (isEscapeXMLType(colNum)){
           getWriter().writeCharacters(data);
         }else{
-          TransformerFactory.newInstance().newTransformer().transform(
+          transformer.transform(
               new StreamSource(new StringReader(data)), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
         }
         break;
@@ -482,7 +489,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         }else if (isEscapeXMLType(colNum)){
           getWriter().writeCharacters(data.getString());
         }else{
-          TransformerFactory.newInstance().newTransformer().transform(data.getSource(StreamSource.class), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
+          transformer.transform(data.getSource(StreamSource.class), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
         }
         break;
       }
@@ -493,7 +500,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         } else if (isEscapeXMLType(colNum) ) {
           getWriter().writeCharacters(data);
         } else {
-          TransformerFactory.newInstance().newTransformer().transform(
+          transformer.transform(
               new StreamSource(new StringReader(data)), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
         }
         break;
