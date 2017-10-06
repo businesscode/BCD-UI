@@ -86,9 +86,15 @@
           <ContextMenuEntryGroup caption="Hide Total" >
             <Entry caption="Hide total for this dimension">
               <JavaScriptAction>
-                var levelId = bcdui._migPjs._$(this.eventSrcElement).closest("tr").attr("levelId");
+                var levelNode = bcdui._migPjs._$(this.eventSrcElement).closest("tr");
+                var levelId = levelNode.attr("levelId");
+                if (levelId == null) {
+                  levelNode = levelNode.prev();
+                  if (levelNode.length > 0)
+                    levelId = levelNode.attr("levelId");
+                }
                 var outerLevelId = null;
-                var outerLevel = bcdui._migPjs._$(this.eventSrcElement).closest("tr").prevAll("tr");
+                var outerLevel = levelNode.prevAll("tr");
                 if( outerLevel )
                   outerLevelId = outerLevel.attr("levelId");
                 if( bcdui._migPjs._$(this.eventSrcElement).get(0).firstChild )
@@ -158,7 +164,7 @@
             <Entry caption="Hide total for this dimension">
               <JavaScriptAction>
                 var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
-                var outerLevelId = "<xsl:value-of select="$colHead/preceding-sibling::*/@id"/>";
+                var outerLevelId = "<xsl:value-of select="$colHead/preceding-sibling::*[1]/@id"/>";
                 if( bcdui._migPjs._$(this.eventSrcElement).get(0).firstChild )
                   bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, outerLevelId: outerLevelId, isColDim: false, all: true} )
               </JavaScriptAction>
