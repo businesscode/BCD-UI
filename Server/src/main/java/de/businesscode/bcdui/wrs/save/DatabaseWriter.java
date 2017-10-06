@@ -15,24 +15,32 @@
 */
 package de.businesscode.bcdui.wrs.save;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.stream.StreamSource;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.wrs.save.exc.KeyColumnsNotDefinedException;
 import de.businesscode.util.jdbc.Closer;
 import de.businesscode.util.jdbc.SQLDetailException;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * The Class is a writer of WebRowSet document into database,
@@ -279,6 +287,17 @@ public class DatabaseWriter {
               stm.setNull(paramNo, Types.DECIMAL);
             else
               stm.setBigDecimal(paramNo, new BigDecimal(value));
+            break;
+          case Types.SQLXML:
+            if (isNull)
+              // setNull() does not work here
+              stm.setObject(paramNo, null);
+            else {
+              SQLXML data = stm.getConnection().createSQLXML();
+              data.setString(value);
+              stm.setSQLXML(paramNo, data);
+              data.free();
+            }
             break;
           default:
             if (isNull)

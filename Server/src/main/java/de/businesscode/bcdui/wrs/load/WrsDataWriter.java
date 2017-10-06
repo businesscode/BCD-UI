@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
@@ -35,7 +36,9 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
+import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import de.businesscode.bcdui.binding.BindingSet;
@@ -469,6 +472,17 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         }else{
           TransformerFactory.newInstance().newTransformer().transform(
               new StreamSource(new StringReader(data)), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
+        }
+        break;
+      }
+      case Types.SQLXML: {
+        SQLXML data = getResultSet().getSQLXML(colNum);
+        if ( data == null || getResultSet().wasNull()){
+          getWriter().writeEmptyElement("null");
+        }else if (isEscapeXMLType(colNum)){
+          getWriter().writeCharacters(data.getString());
+        }else{
+          TransformerFactory.newInstance().newTransformer().transform(data.getSource(StreamSource.class), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
         }
         break;
       }
