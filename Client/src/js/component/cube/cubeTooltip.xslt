@@ -62,13 +62,8 @@
 <xsl:variable name="colDef" select="/*/wrs:Header/wrs:Columns/wrs:C[@id=$bcdColIdent]"/>
 <!-- Plain row is just any row matching the row dines, ignoring the coldim -->
 <xsl:variable name="plainRow" select="/*/wrs:Data/wrs:*[@id=$bcdRowIdent]"/>
-<xsl:variable name="precalcRaw"><xsl:call-template name="findMatchingPrecalcedRowAnd"/></xsl:variable>
-<xsl:variable name="precalcedRowId">
-  <xsl:choose>
-    <xsl:when test="$precalcRaw='' or $precalcRaw='-1'">R1</xsl:when>
-    <xsl:otherwise><xsl:value-of select="$precalcRaw"/></xsl:otherwise>
-  </xsl:choose>
-</xsl:variable>
+<xsl:variable name="precalcedRowId"><xsl:call-template name="findMatchingPrecalcedRowAnd"/></xsl:variable>
+
 <!-- Precalced row is exactly the row matching row and col dims of the cell -->
 <xsl:variable name="precalcedRow" select="$preCalcData/*/wrs:Data/wrs:*[@id=$precalcedRowId]"/>
 <xsl:variable name="measure"  select="$cubeEnhancedConfiguration/*/cube:Layout/cube:Measures//dm:Measure[@id=($colDef/@valueId|$colDef/@id)]"/>
