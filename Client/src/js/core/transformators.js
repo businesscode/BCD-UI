@@ -51,17 +51,17 @@ bcdui.core.transformators =
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model) ) } } },
   
        // JS source file. Becomes a webworker
-       { test: function(rule){ return  typeof rule === "string" && rule.endsWith(".js") },
+       { test: function(rule){ return  typeof rule === "string" && rule.match(/\.js[\;\?\#]?/) != null },
          info: { ruleDp: function( rule, name ) { return new bcdui.core.ConstantDataProvider({ name: name, value: rule }); },
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.WebworkerTransformator( args.model) ) } } },
   
        // dotJs template
-       { test: function(rule){ return typeof rule === "string" && rule.endsWith(".dott") }, 
+       { test: function(rule){ return typeof rule === "string" && rule.match(/\.dott[\;\?\#]?/) != null }, 
          info: { ruleDp: function( rule ) { return new bcdui.core.SimpleModel({ url: rule }); }, 
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.DotJsTransformator( args.model) ) } } },
   
        // xslt
-       { test: function(rule){ return  typeof rule === "string" && (rule.endsWith(".xsl") || rule.endsWith(".xslt")); }, 
+       { test: function(rule){ return  typeof rule === "string" && rule.match(/\.xsl[t\;\?\#]?/) != null }, 
          info: { ruleDp: function( rule ) { return new bcdui.core.SimpleModel({ url: rule }); }, 
                  ruleTf: function( args ) { bcdui.core.browserCompatibility.asyncCreateXsltProcessor(args) } } }
     ]
