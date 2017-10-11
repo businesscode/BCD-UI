@@ -326,22 +326,29 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           if (node.nodeType == 2)
             node = targetModel.getData().selectSingleNode(config.targetModelXPath + "/..");
           
-          // get postfix from html
-          var pt = node.getAttribute("bcdPostfix");
-
-          // guess postfix from filter if we don't have a html set attribute
-          if (pt == null) {
-            var filterNodes = targetModel.queryNodes(config.targetModelXPath + "//f:Expression");
-            if (filterNodes.length > 0) {
-              pt = filterNodes[0].getAttribute("bRef");
-              pt = (pt.indexOf("_") != -1) ? pt.substring(pt.indexOf("_") + 1) : "";
-            }
-            if (pt == null || pt == "")
-              pt = "bcdEmpty";
+          // guess postfix from filters
+          var pt = null;
+          var filterNodes = targetModel.queryNodes(config.targetModelXPath + "//f:Expression");
+          if (filterNodes.length > 0) {
+            pt = filterNodes[0].getAttribute("bRef");
+            pt = (pt.indexOf("_") != -1) ? pt.substring(pt.indexOf("_") + 1) : "";
           }
+          // if nothing was found (or no prefix), we take the one from config
+          if (pt == null || pt == "")
+            pt = (config.postfix && config.postfix != "") ? config.postfix : "bcdEmpty";
 
+          // validate found postfix and set attribute
           postfix = bcdui.widget.periodChooser._getValidPostfix(config, pt != null ? pt : postfix);
           node.setAttribute("bcdPostfix", postfix);
+
+          // repair bRefs in case one of the latter postfix setters changed the postfix
+          jQuery.makeArray(filterNodes).forEach(function(e) {
+            var bRef = e.getAttribute("bRef");
+            bRef = (bRef.indexOf("_") != -1) ? bRef.substring(0, bRef.indexOf("_")) : bRef;
+            var pf = (postfix != "bcdEmpty") ? "_" + postfix : "";
+            e.setAttribute("bRef", bRef + pf);
+          });
+
         }
 
         // repair cwyr-cw and yr-mo nodes to cwyr + cw etc nodes
@@ -596,7 +603,11 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           isQuarterSelectable: containerHtmlElement.getAttribute("bcdIsQuarterSelectable") != "false",
           isYearSelectable: containerHtmlElement.getAttribute("bcdIsYearSelectable") != "false",
           useSimpleXPath: containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true",
-          id: containerHtmlElement.getAttribute("id")
+          id: containerHtmlElement.getAttribute("id"),
+          optionsModelId: containerHtmlElement.getAttribute("bcdOptionsModelId"),
+          optionsModelXPath: containerHtmlElement.getAttribute("bcdOptionsModelXPath"),
+          optionsModelRelativeValueXPath: containerHtmlElement.getAttribute("bcdOptionsModelRelativeValueXPath"),
+          postfix: containerHtmlElement.getAttribute("bcdPostfix")
       };
     },
 
