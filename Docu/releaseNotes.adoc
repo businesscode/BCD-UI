@@ -20,6 +20,8 @@ Some changes are backward incompatible and may require code change in the projec
 * new widget: "slider", based on noUiSlider implementation
 
 . Core
+* Promise polyfill: ecma6-promise (used for IE)
+* Wrs: add support for JDBC SQLXML type
 * to come
 
 . Themes
