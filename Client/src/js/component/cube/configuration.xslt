@@ -64,6 +64,7 @@
 
       <xsl:apply-templates select="/*/wrq:BindingSet"/>
       <cube:Layout>
+        <xsl:copy-of select="/*/cube:Layout/@*"/>
         <xsl:apply-templates select="/*/cube:Layout/*"/>
       </cube:Layout>
 

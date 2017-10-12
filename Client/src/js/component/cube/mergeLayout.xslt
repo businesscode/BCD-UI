@@ -51,6 +51,7 @@
         <xsl:copy-of select="/*/cube:Layout/@removeEmptyCells"/>
          <xsl:choose>
           <xsl:when test="$statusModel//cube:Layout[@cubeId=$cubeId]/* and (not($statusModel//cube:Layout[@cubeId=$cubeId]/@merge) or $statusModel//cube:Layout[@cubeId=$cubeId]/@merge='true')">
+            <xsl:copy-of select="$statusModel//cube:Layout[@cubeId=$cubeId]/@*" />
             <xsl:apply-templates select="$statusModel//cube:Layout[@cubeId=$cubeId]/*"/>
           </xsl:when>
           <xsl:otherwise>
