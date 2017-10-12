@@ -473,6 +473,29 @@ bcdui.util =
       jQuery(document.body).prepend(el = jQuery("<div id='" + id + "' style='display:none'></div>"));
     }
     return jQuery(el);
+  },
+
+  /**
+   * Custom element creation helper.
+   *
+   * @param {string}    elementName     The name of the custom element to create, must adhere to custom element standards.
+   * @param {function}  createdCallback The function which is called on the element once browser has parsed it, the context is set to the element.
+   */
+  createCustomElement : function(elementName, createdCallback) {
+    if(!elementName){
+      throw "elementName param required";
+    }
+    if(!createdCallback && !bcdui.util.isFunction(createdCallback)){
+      throw "createdCallback param required";
+    }
+    // currently using (deprecated) document.registerElement() but in future we may use customElements.define() instead.
+    document.registerElement(elementName, {
+      prototype : Object.create(HTMLElement.prototype, {
+        createdCallback : {
+          value : createdCallback
+        }
+      })
+    });
   }
 }
 
