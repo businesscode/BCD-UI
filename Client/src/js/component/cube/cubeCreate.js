@@ -173,7 +173,7 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
         id: args.id,
         inputModel: args.inputModel,
         targetHtml: args.targetHtml, 
-        parameters: { paramModel: args.enhancedConfiguration },
+        parameters: { paramModel: args.enhancedConfiguration, cubeId: args.id },
         chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
       }
     );
