@@ -152,7 +152,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiComponent",
-      "required": "mandatory",
+      "required": "default",
       "files": [
         "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"
