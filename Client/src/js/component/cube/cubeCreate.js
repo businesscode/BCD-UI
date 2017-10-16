@@ -107,14 +107,6 @@ bcdui.component.cube._contextMenuUrl = bcdui.config.jsLibPath+"component/cube/cu
  * @private
  */
 bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/chain.xml";
-/**
- * @private
- */
-bcdui.component.cube._layoutRenderingInside = [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.cube._renderApplyArea];
-/**
- * @private
- */
-bcdui.component.cube._layoutRenderingOutside = [bcdui.component.cube.summaryDisplay._renderSummaryArea];
 
 
 // cube
@@ -449,9 +441,9 @@ bcdui.util.namespace("bcdui.component",
         var template = "<div class='bcdCubeDNDBlind'>" +
         "<div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div>" + 
         "<div id='bcdUpDownBody_{{=it.id}}'>";
-        bcdui.component.cube._layoutRenderingInside.forEach(function(e) {if (typeof e == "function") template += e(args);});
+        [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.cube._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
         template += "</div>";
-        bcdui.component.cube._layoutRenderingOutside.forEach(function(e) {if (typeof e == "function") template += e(args);});
+        [bcdui.component.cube.summaryDisplay._renderSummaryArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
         template += "</div>";
 
         var defTemplate = jQuery(doT.template(template)({id:args.cubeId}));
