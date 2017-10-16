@@ -165,7 +165,9 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     //-------------------------------------------
     // all means all occurrences of the value (if it is nested within another dimension, it will appear multiple times)
     else if( args.all == true ) {
-      var value = bcdui.component.cube.configurator._getDimMemberValue(targetModelId, cubeId, args);
+      var obj = bcdui.component.cube.configurator._getDimMemberValueAndCaption(targetModelId, cubeId, args);
+      var value = obj.value;
+      var caption = obj.caption;
       var layoutNode = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("//cube:Layout[@cubeId ='"+cubeId+"']");
       // standard case for hide all occurrences, just what the affected level, ignore the rest
       if( value!="1" || ! args.outerLevelId) {
@@ -173,6 +175,8 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode, "f:Expression");
         expressionNode.setAttribute("bRef", args.levelId);
         expressionNode.setAttribute("op", '!=');
+        if (caption)
+          expressionNode.setAttribute("caption", caption);
         if(value)
           expressionNode.setAttribute("value", value);
       }
@@ -203,12 +207,17 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         // Take care for col dimensions
         var colDimLevelIds = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/@colDimLevelIds").nodeValue.split("|");
         var colDims = bcdui.wkModels.bcdColIdent.value.split("|");
+        var captionNode = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id='" + bcdui.wkModels.bcdColIdent.value + "']/@caption");
         for( var l=0; l<colDimLevelIds.length; l++) { // making the level itself and more outer levels part of the decision
           var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
           expressionNode.setAttribute("bRef", colDimLevelIds[l]);
           expressionNode.setAttribute("op", '!=');
           if(colDims[l])
             expressionNode.setAttribute("value", colDims[l]);
+          if (captionNode != null) {
+            var caption = captionNode.text.split("|");
+            expressionNode.setAttribute("caption", caption[l]);
+          }
           if( colDimLevelIds[l]==args.levelId ) // Ignore more inner levels
             break;
         }
@@ -225,6 +234,8 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
             expressionNode.setAttribute("value", value);
           else
             expressionNode.setAttribute("value", "0");
+          if (row.selectSingleNode("wrs:C["+(l+1)+"]/@caption") != null)
+            expressionNode.setAttribute("caption", row.selectSingleNode("wrs:C["+(l+1)+"]/@caption").text);
           if( rowDims.item(l).getAttribute("id")==args.levelId ) // Ignore more inner levels
             break;
         }
@@ -239,7 +250,9 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
    */
   excludeDimMember: function( targetModelId, cubeId, args )
   {
-    var value = bcdui.component.cube.configurator._getDimMemberValue(targetModelId, cubeId, args);
+    var obj = bcdui.component.cube.configurator._getDimMemberValueAndCaption(targetModelId, cubeId, args);
+    var value = obj.value;
+    var caption = obj.caption;
 
     //-------------------------------------------
     // Exclude all occurrences of the value (if it is nested within another dimension, it will appear multiple times)
@@ -263,6 +276,8 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         expressionNode.setAttribute("bRef", args.levelId);
         expressionNode.setAttribute("op", '<>');
         expressionNode.setAttribute("value", value);
+        if (caption)
+          expressionNode.setAttribute("caption", caption);
         expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
         expressionNode.setAttribute("bRef", args.levelId);
         expressionNode.setAttribute("op", '=');
@@ -280,12 +295,17 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         // Take care for col dimensions
         var colDimLevelIds = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/@colDimLevelIds").nodeValue.split("|");
         var colDims = bcdui.wkModels.bcdColIdent.value.split("|");
+        var captionNode = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id='" + bcdui.wkModels.bcdColIdent.value + "']/@caption");
         for( var l=0; l<colDimLevelIds.length; l++) { // making the level itself and more outer levels part of the decision
           var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
           expressionNode.setAttribute("bRef", colDimLevelIds[l]);
           expressionNode.setAttribute("op", '!=');
           if(colDims[l]!="0")
             expressionNode.setAttribute("value", colDims[l]);
+          if (captionNode != null) {
+            var caption = captionNode.text.split("|");
+            expressionNode.setAttribute("caption", caption[l]);
+          }
           // To exclude a value, we say "<> the value" but do explicitly allow null, otherwise they disappear as well
           // Exception, if we should include null (value==null), we do not allow null
           if(colDims[l]!="0") {
@@ -307,6 +327,8 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
           expressionNode.setAttribute("op", '!=');
           value = row.selectSingleNode("wrs:C["+(l+1)+"]").text;
           expressionNode.setAttribute("value", value);
+          if (row.selectSingleNode("wrs:C["+(l+1)+"]/@caption") != null)
+            expressionNode.setAttribute("caption", row.selectSingleNode("wrs:C["+(l+1)+"]/@caption").text);
           // To exclude a value, we say "<> the value" but do explicitly allow null, otherwise they disappear as well
           // Exception, if we should include null (value==null), we do not allow null
           if(!!value.trim()) {
@@ -324,34 +346,44 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   },
 
   /**
-   * Internal helper to the one dim member value for exclude and hide matching the clicked header row
+   * Internal helper to the one dim member value and caption for exclude and hide matching the clicked header row
    * @private
    */
-  _getDimMemberValue: function(targetModelId, cubeId, args)
+  _getDimMemberValueAndCaption: function(targetModelId, cubeId, args)
   {
     var value = null;
+    var caption = null;
 
     var dataModel = bcdui.factory.objectRegistry.getObject(cubeId).getPrimaryModel();
     if( args.isColDim ) {
       // If we have to hide a col dim, we get the value (id) from the pipe delimited bcdColIdent
       var colDimLevelIds = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/@colDimLevelIds").nodeValue.split("|");
+      var captionNode = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id='" + bcdui.wkModels.bcdColIdent.value + "']/@caption");
+
       for( var l=0; l<colDimLevelIds.length; l++) { // search for the right level l
         if(colDimLevelIds[l]==args.levelId)
           break;
       }
-      if(l<colDimLevelIds.length)
+      if(l<colDimLevelIds.length) {
+        if (captionNode != null)
+          caption = captionNode.text.split("|")[l];
         value = bcdui.wkModels.bcdColIdent.value.split("|")[l];
+      }
     } else {
       // If we have to hide a row dim, we get the value (id) from the Wrs
       var row = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Data/wrs:R[@id='"+bcdui.wkModels.bcdRowIdent.value+"']");
       var colPos = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id='"+args.levelId+"']/@pos").nodeValue;
       value = row.selectSingleNode("wrs:C["+colPos+"]").text;
+
+      if (row.selectSingleNode("wrs:C["+colPos+"]/@caption") != null)
+        caption = row.selectSingleNode("wrs:C["+colPos+"]/@caption").text;
+
       if( "1"==row.selectSingleNode("wrs:C["+colPos+"]").getAttribute("bcdGr") )
         value = "1";
       else if(value=="")
         value = "0";
     }
-    return value;
+    return {value: value, caption: caption};
   },
 
   /**

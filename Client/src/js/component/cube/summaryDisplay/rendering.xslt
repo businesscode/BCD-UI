@@ -160,6 +160,7 @@
                 <xsl:choose>
                   <xsl:when test="@value='&#xE0F0;1'"><xsl:value-of select="$bcdI18nModel/*/bcd_Total"/></xsl:when>
                   <xsl:when test="@value='&#xE0F0;0'"><xsl:value-of select="$bcdI18nModel/*/bcd_EmptyDimmember"/></xsl:when>
+                  <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
                   <xsl:otherwise><xsl:value-of select="@value"/></xsl:otherwise>
                </xsl:choose>
               </xsl:for-each>
@@ -181,6 +182,7 @@
               <xsl:if test="position() > 1"> / </xsl:if>
               <xsl:choose>
                 <xsl:when test="not(@value)"><xsl:value-of select="$bcdI18nModel/*/bcd_EmptyDimmember"/></xsl:when>
+                <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
                 <xsl:otherwise><xsl:value-of select="@value"/></xsl:otherwise>
              </xsl:choose>
             </xsl:for-each>
