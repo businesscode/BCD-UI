@@ -84,7 +84,20 @@
                 </xsl:if>
               </wrq:C>
             </xsl:if>
-            <wrq:C bRef="{@orderBRef | @bRef[not(../@orderBRef)]}">
+            <wrq:C>
+              <xsl:attribute name="bRef">
+                <xsl:choose>
+                  <xsl:when test="@orderBRef">
+                    <xsl:value-of select="@orderBRef"/>
+                  </xsl:when>
+                  <xsl:when test="@captionBRef">
+                    <xsl:value-of select="@captionBRef"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="@bRef"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:attribute>
               <xsl:if test="@sort='descending'">
                 <xsl:attribute name="order">desc</xsl:attribute>
               </xsl:if>
