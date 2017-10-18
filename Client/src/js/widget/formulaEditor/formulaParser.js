@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Formula parser, based on shunting_yard algorithm in C, found at Wikipedia 2012
  * Adopted to support functions and to create BCD-UI calc:Calc formulas, extended to support functions with a non-fixed number of args
@@ -381,7 +382,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor.Parser",
     operators.argsCnt = new Array();  // operator we found for each level
     var operandsForOp = new Array();  // This is the number of operands we found for one level
     var ns = "calc:";                 // This indicates the namespace of the created calc elements. calc is client, from aggr down we use wrq: for server
-    nsEnteredSeverCalcAt = null;     // If !=null this is the index of the operator on the current subtree's stack where we entered server side calc downwards
+    var nsEnteredSeverCalcAt = null;     // If !=null this is the index of the operator on the current subtree's stack where we entered server side calc downwards
     for( var o=oPos-1; o>=0; o-- ) {
 
       // Each operator 'eats' as many operands as defined. An expression like max(1,2,3) will be detected here

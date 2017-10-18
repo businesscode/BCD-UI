@@ -4,7 +4,7 @@
  * ECMA 6 polyfills from MDN
  * © 2005-2016 Mozilla Developer Network and individual contributors.
  */
-
+"use strict";
 /**
  * Array
  */

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  * The implementation of the Chart class.
@@ -498,11 +499,11 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    */
   _getMaxXScaledValue: function()
   {
+    var xGrid;
     if( this.hasMarimekkoChart )
       xGrid = { width: 20, minValue: 0, maxValue: 101, cutNumberCaptionAt: false, readMag: 0 };
     else if( this.xAxis.categoriesGiven ) {
       xGrid = { width: 1, minValue: 0, maxValue: this.xAxis.categories.length};
-      shift = xGrid.width/2;
     } else
       xGrid = this._autoGrid( {axisLength:(this.xAxis.maxValue-this.xAxis.minValue), minValue:this.xAxis.minValue, maxValue:this.xAxis.maxValue, scale:this.xAxis.scale} );
 
@@ -1655,8 +1656,6 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
   query: function(){},
   /** @private */
   queryNodes: function(){},
-  /** @private */
-  read: function(){},
   /** @private */
   remove: function(){},
   /** @private */

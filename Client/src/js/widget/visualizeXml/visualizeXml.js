@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
+"use strict";
 if( typeof bcdui=="undefined" )
     bcdui = {};
 
@@ -70,9 +70,9 @@ bcdui.widget.visualizeXml =
   _fix: function(e,cl){
     bcdui.widget.visualizeXml._setClassName(e,cl);
     e.style.display="";
-    j=e.parentNode.firstChild;
+    var j=e.parentNode.firstChild;
     bcdui.widget.visualizeXml._setClassName(j,"visXml_c");
-    k=j.firstChild;
+    var k=j.firstChild;
     k.style.visibility="visible";
     k.href="#";
   },
@@ -81,7 +81,7 @@ bcdui.widget.visualizeXml =
    * @private
    */
   _ch: function(e) {
-    mark=e.firstChild.firstChild;
+    var mark=e.firstChild.firstChild;
     mark = e.getElementsByTagName("A")[0];
     if( !mark.firstChild )
       mark.appendChild(document.createTextNode(''));
@@ -104,12 +104,12 @@ bcdui.widget.visualizeXml =
    * @private
    */
   _ch2: function(e) {
-    mark=e.firstChild.firstChild;
+    var mark=e.firstChild.firstChild;
     mark = e.getElementsByTagName("A")[0];
     if( !mark.firstChild )
       mark.appendChild(document.createTextNode(''));
     mark = mark.firstChild;
-    contents=e.childNodes.item(1);
+    var contents=e.childNodes.item(1);
     if (mark.nodeValue.match(/\+$/)) {
       mark.nodeValue = mark.nodeValue.substring(0,mark.nodeValue.length-1)+ (bcdui.widget.visualizeXml._visualizeXml_CollapsSign.length!=0?bcdui.widget.visualizeXml._visualizeXml_CollapsSign:" ");
       if (bcdui.widget.visualizeXml._getClassName(contents)=="visXml_db"||bcdui.widget.visualizeXml._getClassName(contents)=="visXml_cb") {

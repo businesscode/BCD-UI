@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * The namespace for the Excel export functions.
  * @namespace bcdui.component.exports.excel
@@ -91,7 +92,7 @@ bcdui.util.namespace("bcdui.component.exports.excel",
       // write navPath information as AddHeaderInfo if available 
       var root = bcdui.wkModels.bcdNavPath.query("/*");
       if (root && root.getAttribute("targetId") != null) {
-        target = root.getAttribute("targetId");
+        var target = root.getAttribute("targetId");
         if (jQuery("#" + target).length > 0)
           var addInfo = jQuery("#" + target).text();
           addInfo += " - " + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_AddFilters" });

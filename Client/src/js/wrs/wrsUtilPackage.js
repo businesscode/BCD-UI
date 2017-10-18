@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Utility functions for working with wrs:Wrs documents from JavaScript.
  * These are mainly JavaScript wrappers around XML library found a bcdui/xslt
@@ -912,7 +913,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       var posStart = dimNodesCnt+m*valueNodes.length+1;
       for( var v=0; v<valueNodes.length; v++ ) {
         wrs += "<C pos='"+(posStart+v)+"'";
-        for( p in measurePos )
+        for( var p in measurePos )
           if( measurePos[p] === m )
             break;
         var key = p;
@@ -1507,7 +1508,7 @@ bcdui.util.namespace("bcdui.wrs.jsUtil",
       }
     }
 
-    result = {};
+    var result = {};
     createJsForElem( arg, result, 0);      
     
     return result;
@@ -1531,14 +1532,14 @@ bcdui.util.namespace("bcdui.wrs.jsUtil",
       {
         var prop = childrenJ[k];
         if( Array.isArray(elemJ[prop]) ) {
-          for( c in elemJ[prop] )
+          for( var c in elemJ[prop] )
             if( typeof elemJ[prop][c] !== "function" )
               childrenA[elemJ[prop][c].$p] = { name: prop, vlaue: elemJ[prop][c] };
         }
         else if( typeof prop !== "function" && !prop.startsWith("$") )
           elemX.setAttribute(prop,elemJ[prop]);
       }
-      for( k in childrenA )
+      for( var k in childrenA )
         if( typeof k !== "function" )
           convertElem( childrenA[k].name, elemJ ,elemX );
 
@@ -1563,7 +1564,7 @@ bcdui.util.namespace("bcdui.wrs.jsUtil",
     
       else if ( o.constructor === Array ) {
         newO = [];
-        for (i = 0; i < o.length; i += 1) {
+        for (var i = 0; i < o.length; i += 1) {
           newO[i] = this.deepClone(o[i]);
         }
         return newO;
@@ -1571,7 +1572,7 @@ bcdui.util.namespace("bcdui.wrs.jsUtil",
 
       else {        
         newO = {};
-        for (i in o) {
+        for (var i in o) {
           newO[i] = this.deepClone(o[i]);
         }
         return newO;

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 (function(){
   /**
    * Listens to updates on the target model and syncs the value back to the widget
@@ -814,14 +815,14 @@
           var iCurrent = jQuery(event.currentTarget).find('.ui-selectee').index(jQuery(event.currentTarget).find('.ui-selected'));
 
           if (iCurrent < iNew) {
-            iHold = iNew;
+            var iHold = iNew;
             iNew = iCurrent;
             iCurrent = iHold;
           }
 
           if(iNew != '-1') {
             jQuery(event.currentTarget).find('.ui-selected').removeClass('ui-selected');
-            for (i=iNew;i<=iCurrent;i++)
+            for (var i=iNew;i<=iCurrent;i++)
               jQuery(event.currentTarget).find('.ui-selectee').eq(i).addClass('ui-selected');
           }
         }
@@ -855,14 +856,14 @@
           var iCurrent = jQuery(event.currentTarget).find('.ui-selectee').index(jQuery(event.currentTarget).find('.ui-selected'));
 
           if (iCurrent < iNew) {
-            iHold = iNew;
+            var iHold = iNew;
             iNew = iCurrent;
             iCurrent = iHold;
           }
 
           if(iNew != '-1') {
             jQuery(event.currentTarget).find('.ui-selected').removeClass('ui-selected');
-            for (i=iNew;i<=iCurrent;i++)
+            for (var i=iNew;i<=iCurrent;i++)
               jQuery(event.currentTarget).find('.ui-selectee').eq(i).addClass('ui-selected');
             event.stopImmediatePropagation(); // we need to stop here, otherwise bubbling will deselect our items directly
             return false;
@@ -1153,7 +1154,8 @@
         // this is only called when you change the box, not when you reorder items within a box...
         this.container.on("sortreceive", function(event, ui) {
           ui.item.data("sameBox", false);
-          var from = to = event.target;
+          var from = event.target;
+          var to = from;
           if (typeof ui.sender != "undefined")
             from = ui.sender;
           var scope = {

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  * This file contains definition of the xmlLoader class. It also registers the Singleton
@@ -461,7 +462,6 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
             xhr: xhrFactory,
             success : function(dataDoc, successCode, jqXHR) {
               // Use the low-level responseXML, see comment above
-              response = xhr.responseXML
               jqXHR.responseXML = xhr.responseXML;
 
               if (!bcdui.browserCompatibility.isIE) {

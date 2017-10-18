@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  * Container file for the AbstractExecutable class.
@@ -453,7 +454,8 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         this.setStatus(newStatus);
       } else {
         var waitingCounter = 0;
-        var traceWaitingFor = traceExecutedSync = "";  // log messages
+        var traceWaitingFor = "";
+        var traceExecutedSync = "";  // log messages
         dependentStatusPublishers.forEach(function(statusPublisher) {
           if (!statusPublisher.isReady()) {
             ++waitingCounter;

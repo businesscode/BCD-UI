@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /*
  * JSDoc improvement:
  *           This statement is required by JSDoc, because it reaches this
@@ -219,7 +220,7 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
           this.filter == null)
         return this._currentHtmlElement;
       var startElement = bcdui._migPjs._$(this._currentHtmlElement).get(0);
-      endElement = this.baseElement;
+      var endElement = this.baseElement;
       do {
         if (this.filter.test(startElement.tagName)) return startElement;
         if (startElement == endElement) return null;

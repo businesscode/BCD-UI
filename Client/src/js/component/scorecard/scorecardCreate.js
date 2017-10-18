@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 bcdui.util.namespace("bcdui.component",
 /** @lends bcdui.component */
 {
@@ -107,9 +108,9 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
         // don't run (provide an empty wrq) when we don't have at least one KpiRef in our configuration
         this.inputModel.setSource(
-          rqModel = ! args.enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef")
-          ? new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" )
-          : new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter })
+          ! args.enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef")
+            ? new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" )
+            : new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter })
         );
       }.bind(this));
     }
@@ -158,7 +159,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       // Fires a detail export request based on current bcdRow/ColIdents of context menu
       bcdui._migPjs._$(args.targetHtml).on(" scorecardActions:detailExport", function(scId, evt, memo){
 
-        // Each scorecard gets a detailExportWrq creating ModelWarpper, if its not there for us yet, create it
+        // Each scorecard gets a detailExportWrq creating ModelWrapper, if its not there for us yet, create it
         if( ! this.actionDetailExportWrq ) 
         {
           // Standard parameters

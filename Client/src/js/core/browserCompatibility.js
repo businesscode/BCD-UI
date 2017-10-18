@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * <p>
  *
@@ -251,7 +252,7 @@ if (bcdui.browserCompatibility.isIE) {
   {
     // Note, for unknown reasons, Webkit will overwrite its XSLTProcessor when stating function XSLTProcessor().. as regular code, even if inside this IE block.
     // For that reason we do eval here. Seems to be a bug in Webkit
-    eval("function XSLTProcessor() {};");
+    eval("window.XSLTProcessor = function() {};");
     XSLTProcessor.prototype.importStylesheet = function( xslt ) {
       this.outputFormat = bcdui.core.browserCompatibility.extractMetaDataFromStylesheetDoc( (xslt.msxmlImpl || xslt) );
       this.msxmlImpl_Xslt = bcdui.core.browserCompatibility.ie.createMSObject("Msxml2.XSLTemplate");
@@ -636,16 +637,6 @@ if (bcdui.browserCompatibility.isIE) {
 // BEGIN: Implementation of Specific functions in all non-IE Browsers.
 // -----------------------------------------------------------------------------
 if (!bcdui.browserCompatibility.isIE) {
-
-  /**
-   * @ignore
-   */
-  function TypeParseError()
-  {
-    this.errorCode = 0;
-    this.url = "unknown";
-    this.reason = "";
-  }
 
   /**
    * @private

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * A namespace for the BCD-UI periodChooser widget. For creation @see {@link bcdui.widget.createPeriodChooser}
  * @namespace bcdui.widget.periodChooser
@@ -1903,7 +1904,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           var i = 0;
           // finding next visible input
           while (next == null || ! next.length > 0) {
-            nextIndex = i == inputs.length - 1 ? 0 : i + 1;
+            var nextIndex = i == inputs.length - 1 ? 0 : i + 1;
             if (input == inputs[i]){
               if (bcdui.widget.periodChooser._isVisible(inputs[nextIndex])){
                 next = jQuery(inputs[nextIndex]);
@@ -1961,7 +1962,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           var i = inputs.length - 1;
           // finding next visible input
           while (prev == null || ! prev.length > 0) {
-            nextIndex = i == 0 ? inputs.length - 1 : i - 1;
+            var nextIndex = i == 0 ? inputs.length - 1 : i - 1;
             if (input == inputs[i]){
               if (bcdui.widget.periodChooser._isVisible(inputs[nextIndex])){
                 prev = jQuery(inputs[nextIndex]);

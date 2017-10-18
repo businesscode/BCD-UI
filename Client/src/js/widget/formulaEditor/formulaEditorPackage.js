@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * A namespace for the BCD-UI formulaEditor widget.
  * @namespace bcdui.widget.formulaEditor
@@ -396,7 +397,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         var formula = bcdui.widget._getDataFromXML(t.targetModel, t.userInputXPath);
         var message = "";
         var nullableAttr = t.doc.selectSingleNode(bcdui.widget._getMandatoryXPath(t.targetModel, t.targetModelXPath));
-        mandatory = (nullableAttr != null && nullableAttr.value == "0") || el.attr("bcdMandatory") == "true"
+        var mandatory = (nullableAttr != null && nullableAttr.value == "0") || el.attr("bcdMandatory") == "true"
                       ? true : false;
         if (mandatory && (formula == null || formula == "")){
           message = "Formula is empty";

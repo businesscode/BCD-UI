@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * A namespace for the BCD-UI dimensionChooser widget. For creation @see {@link bcdui.widgetNg.createDimensionChooser}
  * @namespace bcdui.widget.dimensionChooser
@@ -1064,7 +1065,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           bcdui.factory.objectRegistry.withReadyObjects(targetModelId, function() {
             var captionArray = ["", ""];
 
-            for (x = 0; x < 2; x++) {
+            for (var x = 0; x < 2; x++) {
 
               var targetNodes = x == 0
                ? bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*/f:Filter/f:Or[@bcdDimension='" + dimension + "']/f:And")

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * A namespace for the BCD-UI widgets.
  * @namespace bcdui.widget
@@ -933,7 +934,8 @@ bcdui.util.namespace("bcdui.widget",
         bcdui.factory.objectRegistry.withReadyObjects(_rendererOrRendererRefId, function(optionsModelId) {
 
           bcdui.log.isTraceEnabled() && bcdui.log.trace('call TransformedStatus listener on: ' + _rendererRefId);
-          var strVal =_menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'"
+          // _menuHandlerVarName is later accesed from the generated menu
+          var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'"
           +", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}"
           +",rootIdOrElement:'"+_menuRootElementId+"'});";
 
@@ -988,7 +990,7 @@ bcdui.util.namespace("bcdui.widget",
       bcdui.factory.addDataListener({
           idRef: config.optionsModelId,
           listener: function() {
-            dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
+            var dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
             if( dW && dW.getStatus()==dW.getReadyStatus())
               dW.execute(true);
           }
@@ -1008,7 +1010,7 @@ bcdui.util.namespace("bcdui.widget",
               idRef: modelId,
               trackingXPath: p,
               listener: function() {
-              dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
+              var dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
               if( dW && dW.getStatus()==dW.getReadyStatus())
                 dW.execute(true);
               }
@@ -1445,7 +1447,7 @@ bcdui.util.namespace("bcdui.widget",
       var isVisible = false;
 
       var config = {
-      baseElement: args.targetHtmlElement
+          baseElement: args.targetHtmlElement
         , htmlElement: bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.tooltipRendererId).targetHTMLElementId).get(0)
         , rendererId: args.tooltipRendererId
         , event: null

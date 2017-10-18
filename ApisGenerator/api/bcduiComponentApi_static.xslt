@@ -28,7 +28,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
   if( parametersString == "") {
     var params = bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1].parameters;
     if ( params ) {
-      for( p in params ) {
+      for( var p in params ) {
         parametersString += parametersString!="" ? ", " : "";
         parametersString += p+": "+params[p]+"";
       }

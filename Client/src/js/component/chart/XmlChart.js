@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  * Extends the JS implementation of the Chart class allowing an XML definition model as input
@@ -142,7 +143,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
     //--------------------
     // Add series
     var seriesElems = this.defDoc.selectNodes("/*/chart:Series/chart:Series");
-    for( s=0; s<seriesElems.length; s++ ) {
+    for( var s=0; s<seriesElems.length; s++ ) {
       var sElem = seriesElems.item(s);
       var sAttr = new Array();
       this._attrToArray(sAttr, sElem);
@@ -358,7 +359,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    */
   _attrToArray: function ( result, elem ) {
     if( !elem ) return;
-    for( a=0; a<elem.attributes.length; a++ ) {
+    for( var a=0; a<elem.attributes.length; a++ ) {
       var argName = this._xmlElemNameToArgName(elem.attributes[a].nodeName);
       var arg = elem.attributes[a].nodeValue;
       if( isFinite(arg) )
@@ -420,7 +421,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
         {
           var modelIds = this.chartDefModel.getData().selectNodes("//@modelId");
           var objects = new Array(); // Check, which models we depend on
-          for( i=0; i<modelIds.length; i++ ){
+          for( var i=0; i<modelIds.length; i++ ){
             objects.push(modelIds.item(i).text);
           }
           bcdui.factory.objectRegistry.withReadyObjects({ ids:objects,

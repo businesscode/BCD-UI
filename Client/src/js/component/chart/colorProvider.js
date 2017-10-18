@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  * The implementation of a color provider
@@ -255,7 +256,7 @@ bcdui.component.chart.TypeColorProviderBaseColors = bcdui._migPjs._classCreate(b
       this.baseColors = args.baseColors;
     } else {
       this.baseColors = this.rgbBaseColors[0];
-      for( i=1; i<this.rgbBaseColors.length-1; i++ )
+      for( var i=1; i<this.rgbBaseColors.length-1; i++ )
         this.baseColors += " " + this.rgbBaseColors[i];
     }
 
@@ -266,10 +267,10 @@ bcdui.component.chart.TypeColorProviderBaseColors = bcdui._migPjs._classCreate(b
     // result is an integer number of color.
     if( args.count > cols.length){
       var perBaseColor = args.count / cols.length + args.count % cols.length;
-      for( bc = 1; bc <= 7; bc++ ) {
+      for( var bc = 1; bc <= 7; bc++ ) {
        if( this.baseColors.search(this.rgbBaseColors[bc-1]) == -1 )
          continue;
-       for( i = 1; i <= perBaseColor; i++ ) {
+       for( var i = 1; i <= perBaseColor; i++ ) {
           var color = (200/perBaseColor*i+ 55)  *(bc & 1);
           color = color << 8;
           color += (200/perBaseColor*i+55)     *(bc/2 & 1) ;

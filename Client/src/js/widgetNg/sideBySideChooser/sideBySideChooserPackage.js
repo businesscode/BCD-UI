@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 (function(){
   /**
    * internal parameters (not in the public API):
@@ -133,7 +134,8 @@
       // click handler for buttons movement moving selected entries from source to target or vice versa
       jQuery("#" + this.options.id + " .bcd-sbs-controls a").click(function(event) {
 
-        var from = to = "";
+        var from = "";
+        var to = "";
 
         if (jQuery(event.target).parent().hasClass("bcdToMainTarget")) {
           from = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();

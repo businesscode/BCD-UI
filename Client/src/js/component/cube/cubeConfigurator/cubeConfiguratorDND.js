@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @namespace bcdui.component.cube.configuratorDND
  */
@@ -422,7 +423,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
           measureParent.appendChild(measureRefList[m].cloneNode(true));
       } else {
         // generate measureRefs out of measures
-        measureList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("//dm:Measures/dm:Measure");
+        var measureList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("//dm:Measures/dm:Measure");
         for (var m = 0; m < measureList.length; m++) {
           var idRef = measureList[m].getAttribute("id");
           var caption = measureList[m].getAttribute("caption");

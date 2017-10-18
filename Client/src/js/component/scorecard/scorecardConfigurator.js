@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * ScorecardConfigurator Widget Implementation as jQuery Widget
  */
@@ -946,7 +947,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         if (layoutNode != null) {
           if (e.getAttribute("bcdId") == id) {
             // set actual values
-            for (a in attributes) {
+            for (var a in attributes) {
               if (attributes[a] == "")
                 layoutNode.removeAttribute(a);
               else

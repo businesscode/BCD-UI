@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Input field
  * - Text input field
@@ -1014,7 +1015,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
 
         if (args.forceFirst) {
           nextElement = bcdui.util.xml.firstElementChild(valueBox.get(0));
-          htmlElement = document.getElementById(args.htmlElementId);
+          var htmlElement = document.getElementById(args.htmlElementId);
           if (htmlElement != null && htmlElement.getAttribute("bcdClearOption") && htmlElement.getAttribute("bcdClearOption")!="false" )
             nextElement = bcdui.util.xml.nextElementSibling(nextElement,1);
         }
@@ -1248,7 +1249,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
                   for( var sv = 0; sv<searchLevels[sl].length; sv++ ) { // do not reinit sv when coming here via searchLevelLoop: label
 
                     // Therefore we look in all value levels and start as deep as we are on search level
-                    ld=sv; // Reinit also when entering via searchLevelLoop: label
+                    var ld = sv; // Reinit also when entering via searchLevelLoop: label
                     for( ; ld<valueLevels[vl].length; ld++ ) {
                       var sVal = searchLevels[sl][sv];
 

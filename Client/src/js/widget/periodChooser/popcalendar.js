@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 //  A heavily modified version based on a calendar
 //  written by Tan Ling Wee on 2 Dec 2001 - last updated 20 June 2003 - email: fuushikaden@yahoo.com
 
@@ -57,7 +58,8 @@ var selectMonthMessage = "Click to select a month.";
 var selectYearMessage = "Click to select a year.";
 var selectDateMessage = "Select [date] as date."; // do not replace [date], it will be replaced by date.
 
-var  crossobj, crossMonthObj, crossYearObj, monthSelected, yearSelected, dateSelected, omonthSelected, oyearSelected, odateSelected, monthConstructed, yearConstructed, intervalID1, intervalID2, timeoutID1, timeoutID2, ctlToPlaceValue, ctlNow, dateFormat, nStartingYear;
+var  crossobj, crossMonthObj, crossYearObj, monthSelected, yearSelected, dateSelected, omonthSelected, oyearSelected, odateSelected, monthConstructed, yearConstructed, intervalID1, intervalID2, timeoutID1, timeoutID2, ctlToPlaceValue, ctlToPlaceValue2, ctlNow, dateFormat, nStartingYear;
+var dateFormatStartRange, dateFormatEndRange, dateFormatParse, isTimeSpan;
 
 var  bPageLoaded=false;
 var  ie=document.all;
@@ -152,19 +154,19 @@ function getAbsolutePosition(el) {
       }
 
       var potentialElements = document.body.getElementsByTagName( elmID );
-      for( i = 0; i < potentialElements.length; i++ )
+      for( var i = 0; i < potentialElements.length; i++ )
       {
         //obj = document.all.tags( elmID )[i];
-        obj = potentialElements[i];
+        var obj = potentialElements[i];
         if( !obj || !obj.offsetParent )
         {
           continue;
         }
 
         // Find the element's offsetTop and offsetLeft relative to the BODY tag.
-        objLeft   = obj.offsetLeft;
-        objTop    = obj.offsetTop;
-        objParent = obj.offsetParent;
+        var objLeft   = obj.offsetLeft;
+        var objTop    = obj.offsetTop;
+        var objParent = obj.offsetParent;
 
         while( objParent && objParent != document.body ) // IE has undefined obj.offsetParent so check it before accessing
         {
@@ -173,8 +175,8 @@ function getAbsolutePosition(el) {
           objParent = objParent.offsetParent;
         }
 
-        objHeight = obj.offsetHeight;
-        objWidth = obj.offsetWidth;
+        var objHeight = obj.offsetHeight;
+        var objWidth = obj.offsetWidth;
 
         if((overDivLeft + overDiv.offsetWidth ) <= objLeft ){}
         else if(( overDivTop + overDiv.offsetHeight ) <= objTop ){}
@@ -196,9 +198,9 @@ function getAbsolutePosition(el) {
   {
     if( ie )
     {
-      for( i = 0; i < document.all.tags( elmID ).length; i++ )
+      for( var i = 0; i < document.all.tags( elmID ).length; i++ )
       {
-        obj = document.all.tags( elmID )[i];
+        var obj = document.all.tags( elmID )[i];
 
         if( !obj || !obj.offsetParent )
         {
@@ -234,14 +236,7 @@ function addHoliday (d, m, y, desc)
 
 var  monthName =  new  Array("January","February","March","April","May","June","July","August","September","October","November","December");
 var  monthName2 = new Array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
-if (startAt==0)
-{
-  dayName = new Array  ("Sun","Mon","Tue","Wed","Thu","Fri","Sat");
-}
-else
-{
-  dayName = new Array  ("Mon","Tue","Wed","Thu","Fri","Sat","Sun");
-}
+var dayName = startAt==0 ? new Array  ("Sun","Mon","Tue","Wed","Thu","Fri","Sat"): new Array  ("Mon","Tue","Wed","Thu","Fri","Sat","Sun");
 var  styleAnchor="text-decoration:none;color:black;";
 var  styleLightBorder="border-style:solid;border-width:1px;border-color:#ffffff;";
 var  styleUnselectableDay="color:red; background: gray;";
@@ -302,7 +297,7 @@ function _initPopupCalendar()  {
 
 
 
-    sHTML1="<span id='spanLeft' class='popupStyle'>&nbsp";
+    var sHTML1="<span id='spanLeft' class='popupStyle'>&nbsp";
     if (showPopCalendarImages) sHTML1+= "<IMG id='changeLeft' SRC='"+imgDir+imgsrc[2]+"' width=10 height=11 BORDER=0></img>";
     sHTML1 +="<SPAN class='changeLeft' " + utf8CharStyle + "></SPAN>&nbsp</span>&nbsp;";
     sHTML1 +="<span id='spanRight' class='popupStyle'>&nbsp;";
@@ -401,7 +396,7 @@ function padZero(num) {
  */
 function constructDate(d,m,y)
 {
-  sTmp = dateFormat;
+  var sTmp = dateFormat;
   sTmp = sTmp.replace  ("dd","<e>");
   sTmp = sTmp.replace  ("d","<d>");
   sTmp = sTmp.replace  ("<e>",padZero(d));
@@ -432,8 +427,8 @@ bcdui.widget.periodChooser._closeCalendar = function(args) {
       monthIsSelected = args.monthIsSelected;
     if (typeof args.firstDay != "undefined")
       firstDay = args.firstDay;
-    if (typeof args.currentweek != "undefined")
-      currentweek = args.currentweek;
+    if (typeof args.currentWeek != "undefined")
+      currentWeek = args.currentWeek;
     if (typeof args.weekIsSelected != "undefined")
       weekIsSelected = args.weekIsSelected;
     if (typeof args.dateSelected != "undefined")
@@ -489,7 +484,7 @@ bcdui.widget.periodChooser._closeCalendar = function(args) {
       lastDay = firstDay+7;
       lastDayOfWeek = new Date(yearSelected,monthSelected,lastDay);
     }
-    // ctlToPlaceValue.value = "Week " + currentweek+" ");
+    // ctlToPlaceValue.value = "Week " + currentWeek+" ");
     ctlToPlaceValue.value = constructDateUserFormat(firstDayOfWeek.getDate(),firstDayOfWeek.getMonth(),firstDayOfWeek.getFullYear(),dateFormatStartRange)+" - "+constructDateUserFormat(lastDayOfWeek.getDate(),lastDayOfWeek.getMonth(),lastDayOfWeek.getFullYear(),dateFormatEndRange);
      if( ctlToPlaceValue2 != null )
       ctlToPlaceValue2.value = constructDateUserFormat(firstDayOfWeek.getDate(),firstDayOfWeek.getMonth(),firstDayOfWeek.getFullYear(),dateFormatParse)+ ";"+constructDateUserFormat(lastDayOfWeek.getDate(),lastDayOfWeek.getMonth(),lastDayOfWeek.getFullYear(),dateFormatParse);
@@ -508,7 +503,7 @@ bcdui.widget.periodChooser._closeCalendar = function(args) {
     quarterIsSelected = 0;
   } else if (monthIsSelected==1){
       //ctlToPlaceValue.value = monthName[monthSelected]
-      endDate  = new Date (yearSelected,monthSelected+1,1);
+      var endDate  = new Date (yearSelected,monthSelected+1,1);
       endDate  = new Date (endDate.getTime() - 1000); // -1 seconds, switch one day back to the last day of previous month
       endDate.setHours(0, 0, 0, 0); // reinit to 00:00:00.00
     ctlToPlaceValue.value = constructDateUserFormat(1,monthSelected,yearSelected,dateFormatStartRange)+" - "+constructDateUserFormat(endDate.getDate(),endDate.getMonth(),endDate.getFullYear(),dateFormatEndRange);
@@ -601,9 +596,9 @@ function decMonth () {
 function constructMonth() {
   popDownYear();
   if (!monthConstructed) {
-    sHTML =  "";
-    for  (i=0; i<12;  i++) {
-      sName =  monthName[i];
+    var sHTML =  "";
+    for  (var i=0; i<12;  i++) {
+      var sName =  monthName[i];
       if (i==monthSelected){
         sName =  "<font class=popupContraColor >" +  sName +  "</font>";
       }
@@ -653,8 +648,9 @@ function popDownMonth()  {
  * @ignore
  */
 function incYear() {
-  for  (i=0; i<7; i++){
-    newYear  = (i+nStartingYear)+1;
+  for  (var i=0; i<7; i++){
+    var newYear  = (i+nStartingYear)+1;
+    var txtYear;
     if (newYear==yearSelected)
     { txtYear =  "&nbsp;<font class=popupContraColor >" +  newYear +  "</font>&nbsp;" }
     else
@@ -669,8 +665,9 @@ function incYear() {
  * @ignore
  */
 function decYear() {
-  for  (i=0; i<7; i++){
-    newYear  = (i+nStartingYear)-1;
+  for  (var i=0; i<7; i++){
+    var newYear  = (i+nStartingYear)-1;
+    var txtYear;
     if (newYear==yearSelected)
     { txtYear =  "&nbsp;<font class=popupContraColor >" +  newYear +  "</font>&nbsp;" }
     else
@@ -696,15 +693,15 @@ function selectYear(nYear) {
  */
 function constructYear() {
   popDownMonth();
-  sHTML =  "";
+  var sHTML =  "";
   if (!yearConstructed) {
 
     sHTML =  "<tr><td class='popupSelectBox' id='yearDown' align='center'>-</td></tr>";
 
-    j =  0;
+    var j =  0;
     nStartingYear =  yearSelected-3;
-    for  (i=(yearSelected-3); i<=(yearSelected+3); i++) {
-      sName =  i;
+    for  (var i=(yearSelected-3); i<=(yearSelected+3); i++) {
+      var sName =  i;
       if (i==yearSelected){
         sName =  "<font class=popupContraColor >" +  sName +  "</font>"
       }
@@ -785,8 +782,9 @@ function popUpYear() {
     // d1 = ((d4 - L) mod 365) + L
     // WeekNumber = d1 / 7 + 1
 
-    year = n.getFullYear();
-    month = n.getMonth() + 1;
+    var year = n.getFullYear();
+    var month = n.getMonth() + 1;
+    var day;
     if (startAt == 0) {
        day = n.getDate() + 1;
     }
@@ -794,15 +792,15 @@ function popUpYear() {
        day = n.getDate();
     }
 
-    a = Math.floor((14-month) / 12);
-    y = year + 4800 - a;
-    m = month + 12 * a - 3;
-    b = Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400);
-    J = day + Math.floor((153 * m + 2) / 5) + 365 * y + b - 32045;
-    d4 = (((J + 31741 - (J % 7)) % 146097) % 36524) % 1461;
-    L = Math.floor(d4 / 1460);
-    d1 = ((d4 - L) % 365) + L;
-    week = Math.floor(d1/7) + 1;
+    var a = Math.floor((14-month) / 12);
+    var y = year + 4800 - a;
+    var m = month + 12 * a - 3;
+    var b = Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400);
+    var J = day + Math.floor((153 * m + 2) / 5) + 365 * y + b - 32045;
+    var d4 = (((J + 31741 - (J % 7)) % 146097) % 36524) % 1461;
+    var L = Math.floor(d4 / 1460);
+    var d1 = ((d4 - L) % 365) + L;
+    var week = Math.floor(d1/7) + 1;
 
     return week;
  }
@@ -863,6 +861,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
   {
     endDate  = new Date (yearSelected,monthSelected+1,1);
     endDate  = new Date (endDate  - (24*60*60*1000));
+    var numDaysInMonth;
     numDaysInMonth = endDate.getDate()
   }
   else
@@ -870,15 +869,15 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
     numDaysInMonth = aNumDays[monthSelected];
   }
 
-  datePointer  = 0;
-  dayPointer = startDate.getDay() - startAt;
+  var datePointer  = 0;
+  var dayPointer = startDate.getDay() - startAt;
 
   if (dayPointer<0)
   {
     dayPointer = 6
   }
 
-  sHTML =  "<table class='popupContentTable' border=0 style='font-family:verdana;font-size:10px;'><tr>";
+  var sHTML =  "<table class='popupContentTable' border=0 style='font-family:verdana;font-size:10px;'><tr>";
 
   if (showWeekNumber==1)
   {
@@ -907,7 +906,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
           );
     }
     if (isWeekSelectable && isWeekWithinSelectableRange){
-      sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentweek:"+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected: 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
+      sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentWeek:"+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected: 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
     }else{
       sHTML += "<td class='weekListSelection' align=right>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "&nbsp;</td>"
     }
@@ -922,12 +921,12 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
   {
     dayPointer++;
     sHTML += "<td align=right>";
-    sStyle=styleAnchor;
+    var sStyle=styleAnchor;
     if ((datePointer==odateSelected) &&  (monthSelected==omonthSelected)  && (yearSelected==oyearSelected))
     { sStyle+=styleLightBorder }
 
-    sHint = "";
-    for (k=0;k<HolidaysCounter;k++)
+    var sHint = "";
+    for (var k=0;k<HolidaysCounter;k++)
     {
       if ((parseInt(Holidays[k].d)==datePointer)&&(parseInt(Holidays[k].m)==(monthSelected+1)))
       {
@@ -944,7 +943,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
 
     dateMessage = "onmousemove='window.status=\""+selectDateMessage.replace("[date]",constructDate(datePointer,monthSelected,yearSelected))+"\"' onmouseout='window.status=\"\"' ";
     var noDateMessage = "onmousemove='window.status=\"Date selection not possible\"' onmouseout='window.status=\"\"' ";
-
+    var currentDate;
     if (firstSelectableDay > 0 && (firstSelectableDay > (currentDate = new Date(yearSelected, monthSelected, datePointer).getTime()) || lastSelectableDay < currentDate)) {
       sHTML += "<span style='"+sStyle+";cursor: default'>&nbsp;<font style=\"font-style: italic; font-weight: bold; color: #C0C0C0\">" + datePointer + "</font>&nbsp;</span>"
     } else
@@ -974,7 +973,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
               );
         }
         if (isWeekSelectable && isWeekWithinSelectableRange){
-            sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentweek: "+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected : 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
+            sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentWeek: "+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected : 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
           }else{
             sHTML += "<td class='weekListSelection' align=right>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "&nbsp;</td>"
           }
@@ -1116,8 +1115,8 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
       dateFormatEndRange=endFormat;
       dateFormatParse=parseFormat;
 
-      formatChar = " ";
-      aFormat  = dateFormat.split(formatChar);
+      var formatChar = " ";
+      var aFormat  = dateFormat.split(formatChar);
       if (aFormat.length<3)
       {
         formatChar = "/";
@@ -1144,12 +1143,12 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
         }
       }
 
-      tokensChanged =  0;
+      var tokensChanged =  0;
       if ( formatChar  != "" )
       {
         // use user's date
-        aData =  ctl2.value.split(formatChar);
-        for  (i=0;i<3;i++)
+        var aData =  ctl2.value.split(formatChar);
+        for(var i=0;i<3;i++)
         {
           if ((aFormat[i]=="d") || (aFormat[i]=="dd"))
           {
@@ -1168,7 +1167,7 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
           }
           else if  (aFormat[i]=="mmm")
           {
-            for  (j=0; j<12;  j++)
+            for  (var j=0; j<12;  j++)
             {
               if (aData[i]==monthName[j])
               {
@@ -1298,7 +1297,7 @@ document.onclick = function hidecal2 () {
 function constructDateUserFormat(d,m,y,uf)
   {
 //  alert("d:"  +d + " m:" + m + " y:" + y + " uf:" + uf);
-    sTmp = uf;
+    var sTmp = uf;
     sTmp = sTmp.replace  ("dd","<e>");
     sTmp = sTmp.replace  ("d","<d>");
     sTmp = sTmp.replace  ("<e>",padZero(d));
