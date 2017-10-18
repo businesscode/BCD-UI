@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * The namespace for the i18n (internationalization) functions.
  * @namespace bcdui.i18n

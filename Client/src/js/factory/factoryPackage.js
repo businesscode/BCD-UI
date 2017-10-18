@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Most parts of this package are not intended to be used from JavaScript and thus not part of the API documentation.
  * <p/>

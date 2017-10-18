@@ -1,3 +1,4 @@
+"use strict";
 (function(){
   /**
    * A namespace for the BCUDI GUI widget utils.

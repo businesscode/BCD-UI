@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
 /**
  * @lends bcdui.widget.XMLDataUpdateListener.prototype

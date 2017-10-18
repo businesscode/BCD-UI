@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreate( null,
 /**
  * @lends bcdui.factory.ObjectRegistry.prototype

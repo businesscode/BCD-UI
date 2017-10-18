@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Well-known scorecard aspects
  * @namespace bcdui.component.scorecard.aspects
@@ -40,7 +41,6 @@ bcdui.component.scorecard.aspects.bcdNormSlope = function( doc, parameters )
  */
 bcdui.component.scorecard.aspects.bcdSlope = function( doc, parameters )
 {
-  "use strict";
   // Accepted parameters
   var sccDef      = parameters.sccDefinition;
   var doNormalize = parameters.noNormalize;

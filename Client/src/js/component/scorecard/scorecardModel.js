@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /*
  * TODO: precalc auch fuer WrqModifer an aspect definition und steuerbar ob aggr precalc wirklich fuer alle wrsmo mit angewendet werden soll
  *       merge columns on join. for example an aspect loads specific values, these overwrite the aggr values for those dims (for example aggrs.)

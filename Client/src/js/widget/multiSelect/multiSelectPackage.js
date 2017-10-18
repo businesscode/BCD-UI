@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * A namespace for the BCD-UI multiSelect widget. For creation @see {@link bcdui.widget.createMultiSelect}
  * @namespace  bcdui.widget.multiSelect

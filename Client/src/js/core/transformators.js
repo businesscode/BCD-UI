@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Collection of the different transformator types
  * XSLT kind of transformators are defined in browserCompatibility and extendedBrowserCompatibilty

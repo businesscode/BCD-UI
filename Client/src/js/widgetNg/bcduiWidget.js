@@ -1,3 +1,4 @@
+"use strict";
 (function($){
   /**
    * Listens to updates on the target model and syncs the value back to the widget

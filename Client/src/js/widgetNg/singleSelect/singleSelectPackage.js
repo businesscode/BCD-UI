@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * API for an SingleSelectPackage implementation as jQuery Widget
  * This widget offers mobile and custom implementation dependending on the browser. 'mobile' is referred to as 'native'

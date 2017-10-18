@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 bcdui.util.namespace("bcdui.component.far",{});
 bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsDataProvider,
 /** @lends bcdui.component.far.FarModel.prototype */

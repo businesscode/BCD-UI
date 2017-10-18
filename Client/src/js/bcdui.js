@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
+"use strict";
 /**
  * @file Manages set up of client logging and provides essentials API into window.bcdui context
  */

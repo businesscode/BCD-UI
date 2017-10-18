@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * Global configuration settings of BCD-UI
  * You may overwrite these defaults in a file bcdui/conf/settings.json

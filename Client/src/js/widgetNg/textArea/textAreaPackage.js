@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * API for an Text Area widget implementation as jQuery Widget and extends the bcduiInput
  * widget for implementation.

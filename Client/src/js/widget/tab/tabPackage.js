@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
     /**
      * @lends bcdui.core.HTML2XMLDataProvider.prototype

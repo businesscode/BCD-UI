@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+"use strict";
 /**
  * @fileoverview
  *
@@ -354,7 +355,7 @@ bcdui.core.status.RefreshingModelUpdaters = bcdui._migPjs._classCreate(bcdui.cor
 
 bcdui.core.status.RefreshingModelUpdatersCausedByExecute = bcdui._migPjs._classCreate(bcdui.core.Status,
     /**
-     * @lends bcdui.core.status.RefreshingModelUpdaters.prototype
+     * @lends bcdui.core.status.RefreshingModelUpdatersCausedByExecute.prototype
      */
     {
       /**
