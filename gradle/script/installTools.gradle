@@ -31,7 +31,7 @@ ext {
 // Configure node.js exec and modules local installation process
 node {
 
-  version = "4.6.0"
+  version = "6.11.4"
 
   // If false, it will try to use globally installed node.
   // TODO find a way to dynamically use existing node, if it exists
@@ -54,6 +54,7 @@ afterEvaluate {
       it.execOverrides {
         it.executable = "${nodePath.NODE_ROOT}/node"
       }
+      it.dependsOn ':bcduiNodeJsTools'
     }
   }
 }
@@ -111,7 +112,7 @@ task bcduiNodeJsTools( type: NpmTask ) {
     // create a local node_modules folder as we want to keep stuff local
     new File(nodeModulesDir).mkdirs()
   }
-  args = ['install', 'jsdoc', 'jaguarjs-jsdoc', 'node-sass', 'clean-css-cli']
+  args = ['install', 'jsdoc', 'jaguarjs-jsdoc', 'node-sass', 'clean-css-cli', 'babel-cli', 'babel-preset-es2015', 'babel-preset-minify' ]
 }
 
 

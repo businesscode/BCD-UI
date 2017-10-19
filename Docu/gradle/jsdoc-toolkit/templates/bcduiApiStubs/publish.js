@@ -38,25 +38,27 @@ exports.publish = function(taffyData, opts, tutorials)
   var result = printNamespaces( taffyData, opts );
 
   var allClasses = find( taffyData, { kind: "class", access: { "!is": "private" }, virtual: { "!is": true } } );
-  var bcdFileGroups = opts.query.bcdFileGroups.split(",");
 
-  bcdFileGroups.forEach( function(group)
-  {
-
-    var groupClasses = allClasses.filter( function(clazz) { 
-      return clazz.meta.filename.indexOf(group) !== -1;
+  // We want the definitions to follow the order in bcduiLoader.js
+  // So we loop over the files there and find the matching classes
+  // Further, for windows, we first normalize the path separator to /
+  var jsFiles = opts.query.files.split(",");
+  allClasses.forEach( function(clazz){
+    clazz.meta.bcdFullJsPath = clazz.meta.path.replace(/\\/g,'/')+'/'+clazz.meta.filename
+  });
+  jsFiles.forEach( function(jsFile) {
+    // Find all classs in the current file
+    var groupClasses = allClasses.filter( function(clazz) {
+      return clazz.meta.bcdFullJsPath.indexOf(jsFile) !== -1;
     });
-    
+    // Print classes
     groupClasses.forEach( function(clazz, clazzIdx) {
-
       result += printClass( taffyData, clazz );
-
     }); // class
-    
   });
 
   // Hiding local symbols
-  result = "// This file BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine + result + newLine;
+  result = "// This file contains BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine + result + newLine;
 
   fs.mkPath(opts.destination);
   fs.writeFileSync(opts.destination+"/bcduiApiStubs.js", result, 'utf8')
@@ -134,7 +136,7 @@ function printClass( taffyData, clazz )
   });
 
   // TODO note in comment that the method is inherited
-  var inheritedMethods = methods.filter( function(m){ return !!m.inherits } );
+  var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
   if( inheritedMethods.length > 0 ) {
     result += "//------------------"+newLine;
     result += "// Inherited Methods"+newLine+newLine;
@@ -142,6 +144,8 @@ function printClass( taffyData, clazz )
   inheritedMethods.forEach( function(method, methodIdx) {
     result += printMethod(method, methodIdx, clazz, tempAlias )
   });
+
+  result += printProperties( taffyData, clazz.longname );
 
   return result;
 }
@@ -442,7 +446,7 @@ function printProperties( taffyData, containerLongname )
 {
   var result = "";
   var members = taffyData( { memberof: containerLongname, access: {"!is": "private"} }, [ {kind: "member"}, {kind: "constant"} ] ).get();
-  members.forEach( function(member) {
+  members.filter( m => m.description ).forEach( function(member) {
 
     if( // Wired, happens on bcdui.something[1] = x;
         member.longname.indexOf("[undefined]") !== -1
@@ -459,7 +463,8 @@ function printProperties( taffyData, containerLongname )
       result += " */" + newLine;
     }
 
-    result += member.longname;
+    var connect = member==="static" ? '.' : '.prototype.'; // Member are separated with a # from classname in jsdoc, but her we want to see the dot
+    result += member.longname.replace("#",connect);
     if( member.meta.code.type === "NewExpression" && member.type )
       result += " = new " + member.type.names[0] + "()";
     else if( member.meta.code.type === "Literal" && member.meta.code.value && member.type && member.type.names[0].toLowerCase() === "string" )

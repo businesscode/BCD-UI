@@ -229,7 +229,7 @@ li {
 }
 .main .tag-source {
   font-size: 12px;
-  display: none;
+  color: #888;
 }
 .main dt.tag-source {
   margin-top: 5px;
@@ -391,7 +391,13 @@ footer {
   background-color: white;
 }
 .navigation li.item .title .static {
-  display: none;
+  display: block;
+  border-radius: 3px;
+  background-color: #ddd;
+  color: #fff;
+  font-size: 0.7em;
+  padding: 2px 4px;
+  float: right;
 }
 .main h4.name span.type-signature {
   background-color: #f8f8f8 !important;

@@ -356,6 +356,10 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
     return true;
   };
 
+  // For Internet Explorer, ECMA6 files are transpiled to ECMA5, this is only done on file gouping
+  // i.e., when merging all non-3rdParty files of a group into one
+  var switchEs5 = bcdui.browserCompatibility.isIE;
+
   for (var g = 0; g < bcdui.bcduiFiles.groups.length; g++) {
     var group = bcdui.bcduiFiles.groups[g];
 
@@ -370,8 +374,11 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
         || indexOf !== -1
         || ( bcdui.config.loadFiles.length === 0 && group.required === "default" )
         ) && isBrowserCompatible(group) ) {
-      for (var f = 0; f < group.files.length; f++)
+      for (var f = 0; f < group.files.length; f++) {
+        if( switchEs5 )
+          group.files[f] = group.files[f].replace('.js', '-es5.js');
         document.write("<script type='text/javascript' src='" + bcdui.config.contextPath + "/bcdui" + group.files[f] + "'><\/script>");
+      }
     }
   }
   // and finally signal that all scripts are loaded 

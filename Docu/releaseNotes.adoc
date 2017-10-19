@@ -10,6 +10,11 @@ Some changes are backward incompatible and may require code change in the projec
 
 .Major new features:
 
+. Support for ECMA6
+* Introduced Babel to transpile for usage in Internet Explorer
+* Adjusted js loader for IE
+* Using 'strict' mode now in all JS sources
+
 . Components: Scorecard, Cube, Charts, Export
 * Charts support for dark themes
 * Charts removed some chart background grid elements for less crowded charts
@@ -17,12 +22,11 @@ Some changes are backward incompatible and may require code change in the projec
 . Widgets
 * periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all
 * disableNavPath attribute to turn off navPath linkage
-* new widget: "slider", based on noUiSlider implementation
+* New widget: "slider", based on noUiSlider implementation
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
 * Wrs: add support for JDBC SQLXML type
-* to come
 
 . Themes
 * new pageEffect bcdEffectPageStickyFooter
@@ -35,17 +39,18 @@ Some changes are backward incompatible and may require code change in the projec
 
 . Build / Dev / Docu
 * In Eclipse, sub-projects Client, Server, Theme etc now have names BCD-UI--SubProjectName to keep them together in the navigation tree
-* Switched to gradle 4.2, added gradle wrapper
+* Switched to gradle 4.2, added gradle wrapper, updated nodeJs to 6.11
 * Updated bcduiApiStubs.js to fit Eclipse Oxygen+Tern and IDEA 2017.2
+* HTML JS API docu is now showing source names and lines
 
 .Major bug fixes:
 * to come
 
 .Backward Incompatibilities:
-* cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
+* Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
 * Charts: Moved VML drawer to BCD-UI-DE
 * Updated 3rd party jars (apache commons etc) to latest versions
-* when using cube or scorecard with TemplateManager, RankingEditor or Summary, you need to include bcduiComponent, too
+* Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
 
 ==== Release 5_2_0
 

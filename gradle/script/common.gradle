@@ -30,8 +30,6 @@ ext {
   // Content provided by one project for another
   bcdXsdDir        = "$docuRoot/xsd"
   generatedApisDir = "$apisGeneratorRoot/build/gensrc"
-  clientFileGroupsDist  = "$clientRoot/build/tmp/bcduiJsFileGroups/dist"
-  clientFileGroupsDebug = "$clientRoot/build/tmp/bcduiJsFileGroups/debug"
 }
 
 

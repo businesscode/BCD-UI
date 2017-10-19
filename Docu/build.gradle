@@ -17,7 +17,6 @@
 // Handles generation of HTML documentation from manual adoc and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
 plugins {
   id 'java'
-  id 'org.asciidoctor.gradle.asciidoctor' version '1.5.1'
 }
 apply plugin: "com.moowork.node"
 import groovy.json.JsonSlurper
@@ -29,13 +28,14 @@ import groovy.json.JsonSlurper
 // (eriwen gradle-js-plugin even supports only a much older JSDoc version, which even frequently with wired errors without source information on simple things like empty comments, we can't use it here)
 task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
-  dependsOn ":Client:bcduiBuild"
+  dependsOn ':Client:bcduiClientCollectAll'
 
-  inputs.dir clientFileGroupsDebug
+  def inputsDir = "${tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir}/js"
   def targetDir = "$buildDir/htmldocs/jsdoc"
+  inputs.dir inputsDir
 
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-  args   = [ clientFileGroupsDebug, '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
+  args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).files + [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
   outputs.dir targetDir
 
   doLast {
@@ -68,10 +68,10 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 // For each filegroup, created in Client, we also generate API stubs, suited for Eclipse (version Mars) to support auto-suggest
 task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
-  dependsOn ":Client:bcduiBuild"
+  dependsOn ":Client:bcduiClientCollectAll"
 
   def taskDestDirName = "$buildDir/jsApiStubs"
-  def inputsDir       = clientFileGroupsDebug
+  def inputsDir       = "${tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir}/js"
 
   inputs.dir  inputsDir
   outputs.dir taskDestDirName
@@ -81,13 +81,14 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
     // Which files are part of this distribution? We only want this to happen in execution phase
     def jsonSlurper = new JsonSlurper()
     def bcduiFiles = jsonSlurper.parseText(file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")[1])
-    def fileGroups = (bcduiFiles.groups.inject(""){ result, i -> i.files.any{ ! it.contains("3rdParty") } ? (result.length() ? result+","+i.id: i.id ) : result })
+    def files = bcduiFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
 
     script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-    args   = [ inputsDir,
+    args   = files.collect { tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir.path+it } +
+             [ "--recurse",
                "--template", file("$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs"),
                "--destination", file(taskDestDirName),
-               "--query", "bcdFileGroups="+fileGroups ]
+               "--query", "files="+files.join(',') ]
   }
 }
 
