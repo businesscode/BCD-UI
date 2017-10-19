@@ -558,8 +558,7 @@ if (bcdui.browserCompatibility.isIE) {
           this.responseHeaders = {};
         }
         if (this.domDocument.msxmlImpl.parseError.errorCode != 0) {
-          bcdui.log.error("Failed to load " + this.url + ": " + this.domDocument.msxmlImpl.parseError.reason);
-          // The status must be set so that prototype.js handles it as error.
+          // The status must be set so that it is still handled as error.
           this.status = -1;
         }
         if (typeof this.onreadystatechange == "function") {
