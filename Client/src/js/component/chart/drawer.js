@@ -91,10 +91,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @private
    */
   _hideToolTip : function () {
-    var div = document.getElementById("bcdChartToolTip");
-    if( div ) {
-      div.style.display = "none";
-    }
+    jQuery("#bcdChartToolTip").hide();
   },
 
   /**
@@ -102,27 +99,11 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param event
    * @private
    */
-  _moveToolTip: function (event)
-  {
+  _moveToolTip: function (event) {
     var div = document.getElementById("bcdChartToolTip");
-    if( ! div )
+    if (! div)
       return;
-    var x   = window.event ? window.event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft + 10 : event.pageX + 20;
-    var y   = window.event ? window.event.clientY + document.body.scrollTop + document.documentElement.scrollTop   - 10 : event.pageY - 30;
-
-    // compute position
-    var elHeight = div.offsetHeight;
-    var elWidth = div.offsetWidth;
-    if( ( y + elHeight ) >= jQuery(window).innerHeight() && ( y - elHeight - 10) >= 0 )
-    {
-      y = y - elHeight - 10;
-    }
-
-    // right or left, prefer right
-    if( (x + elWidth ) > jQuery(window).innerWidth() && (x - elWidth - 10) >= 0)
-      x = x - elWidth - 10;
-    div.style.top = y+'px';
-    div.style.left = x+'px';
+    bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
   },
 
   /**
@@ -130,38 +111,15 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param {Event} event
    * @private
    */
-  _showToolTip: function (event)
-  {
-    if( this.createToolTipCb== null )
+  _showToolTip: function (event) {
+    if (this.createToolTipCb == null)
       return;
-    var src = window.event ? window.event.srcElement : event.target;
-    var text = this.createToolTipCb(this,src);
-    if( text==null )
+    var text = this.createToolTipCb(this, window.event ? window.event.srcElement : event.target);
+    if (text == null)
       return;
-    var x   = window.event ? window.event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft + 10 : event.pageX + 20;
-    var y   = window.event ? window.event.clientY + document.body.scrollTop + document.documentElement.scrollTop   - 10 : event.pageY - 30;
     var div = bcdui.util.getSingletonElement("bcdChartToolTip").get(0);
-
     div.innerHTML = text;
-    div.border = 1;
-
-    // compute position
-    var elHeight = div.offsetHeight;
-    var elWidth = div.offsetWidth;
-
-    // top or down, prefer down
-    if( ( y + elHeight ) >= jQuery(window).innerHeight() && ( y - elHeight - 10) >= 0 )
-    {
-      y = y - elHeight - 10;
-    }
-
-    // right or left, prefer right
-    if( (x + elWidth ) > jQuery(window).innerWidth() && (x - elWidth - 10) >= 0)
-      x = x - elWidth - 10;
-
-    div.style.top = y+'px';
-    div.style.left = x+'px';
-    div.style.display = "block";
+    bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
   },
 
   /**
