@@ -982,9 +982,9 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   /**
    * Get cell value
    *
-   * @param {string|bcdui.core.DataProvider} wrs - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @param {string}           rowId       - The row-id
-   * @param {(string|integer)} columnId    - ID or 1-based position of column
+   * @param {string|bcdui.core.DataProvider}  wrs         Id of a DataProvider or the DataProvider itself (dp must be ready)
+   * @param {string|number}                   rowId       The row-id or 1-based position of row
+   * @param {string|number}                   columnId    ID or 1-based position of column
    *
    * @return {string} Current cell value or null
    */
@@ -998,7 +998,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
 
     var isWrs = (wrs.baseName||wrs.localName) == "Wrs";
     var wrsPos = bcdui.util.isString(columnId) ? bcdui.wrs.wrsUtil.getColPosById(wrs, columnId) : columnId;
-    var value = wrs.selectSingleNode((!isWrs ? "*/" : "") + "wrs:Data/*[@id='"+rowId+"']/wrs:C["+wrsPos+"][not(wrs:null)]");
+    rowId = bcdui.util.isNumber(rowId) ? rowId : "@id='" + rowId + "'";
+    var value = wrs.selectSingleNode((!isWrs ? "*/" : "") + "wrs:Data/*["+rowId+"]/wrs:C["+wrsPos+"][not(wrs:null)]");
     return value==null?null:value.text;
   },
 
@@ -1083,10 +1084,10 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * Sets cell value, both, the row and cell MUST exist in target model
    * This also changes wrs:R to wrs:M and clones wrs:C to wrs:O values.
    *
-   * @param {string|bcdui.core.DataProvider} wrs - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @param {string}           rowId        - The row-id
-   * @param {(string|integer)} columnId     - ID or 1-based position of column
-   * @param {string}           [value=null] - If NULL then wrs:null node is appended to column
+   * @param {string|bcdui.core.DataProvider}  wrs           Id of a DataProvider or the DataProvider itself (dp must be ready)
+   * @param {string|number}                   rowId       The row-id or 1-based position of row
+   * @param {string|number}                   columnId      ID or 1-based position of column
+   * @param {string}                          [value=null]  If NULL then wrs:null node is appended to column
    *
    * @return true if value has been set, false otherwise
    */
@@ -1100,7 +1101,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
 
     var isWrs = (wrs.baseName||wrs.localName) == "Wrs";
     var wrsPos = bcdui.util.isString(columnIdOrPos) ? bcdui.wrs.wrsUtil.getColPosById(wrs, columnIdOrPos) : columnIdOrPos;
-    var wrsC = bcdui.core.createElementWithPrototype(wrs,(!isWrs ? "*/" : "") + "wrs:Data/*[@id='"+rowId+"']/wrs:C["+wrsPos+"]");
+    rowId = bcdui.util.isNumber(rowId) ? rowId : "@id='" + rowId + "'";
+    var wrsC = bcdui.core.createElementWithPrototype(wrs,(!isWrs ? "*/" : "") + "wrs:Data/*["+rowId+"]/wrs:C["+wrsPos+"]");
     if(!wrsC)return;
     if(value != null){
       // implicit String-cast
