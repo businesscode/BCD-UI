@@ -24,6 +24,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
   /* 
    * class names:
    *  bcdEffectPageSizeAdjust     - auto resize header/footer/menu to current bodycontainer/area width
+   *  bcdEffectPageStickyFooter   - auto put footer at bottom of window/body container
    *  bcdEffectSizeAdjust         - sidebar effects (either grip with floating/sticky sidebar, or increasing sidebar
    *  bcdEffectAutoScroll         - auto scroll sidebar to current view
    *  bcdEffectDraggable          - have sideBar Items drag'n droppable
@@ -61,10 +62,11 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       , sideBarDraggable:   jQuery("#bcdSideBarContainer").hasClass("bcdEffectDraggable")
       , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse")
       , sideBarMinimizeOnClick: jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
+      , pageStickyFooter: jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageStickyFooter")
     };
 
     // nothing to do?
-    if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick)
+    if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick && ! args.pageStickyFooter)
       return
     
     if (jQuery("#bcdSideBarEffect").length == 0)
@@ -91,7 +93,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
 
     if (jQuery("#bcdSideBarArea").length == 0) {
       var children = jQuery("#bcdSideBarContainer").children();
-      jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarArea'><span class='bcdSideBarGrip'><span class='bcdGripPin'><span class='bcdGripPinChar'></span>&#160;</span>" + (bcdui.widget.pageEffects._minimizeOnClick ? "<span class='bcdGripClose'><span class='bcdGripCloseChar'></span>&#160;</span>" : "") + "</span></div");
+      jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarArea'><span class='bcdSideBarGrip'><span class='bcdGripPin'><span class='bcdGripPinChar'></span>&#160;</span>" + (bcdui.widget.pageEffects._minimizeOnClick ? "<span class='bcdGripClose'><span class='bcdGripCloseChar'></span>&#160;</span>" : "") + "</span></div>");
       
       var focus = jQuery(":focus");
       jQuery("#bcdSideBarArea").append(children);
@@ -126,8 +128,12 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     // scroll sidebar to current view (avoid open drop downs)
     // also set header/footer width to current bodyContainer/Area width
     
-    if (args.sideBarSizeAdjust || args.pageSizeAdjust || args.sideBarAutoScroll) {
+    if (args.sideBarSizeAdjust || args.pageSizeAdjust || args.sideBarAutoScroll || args.pageStickyFooter) {
       jQuery(window).scroll(function(e) {
+        
+        if (args.pageStickyFooter)
+          bcdui.widget.pageEffects._repositionFooter();
+        
         if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
         if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
         if (args.pageSizeAdjust)
@@ -178,8 +184,12 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     }
 
     // resize header/footer on a resize
-    if (args.sideBarSizeAdjust || args.pageSizeAdjust) {
+    if (args.sideBarSizeAdjust || args.pageSizeAdjust || args.pageStickyFooter) {
       jQuery(window).resize(function(e) {
+
+        if (args.pageStickyFooter)
+          bcdui.widget.pageEffects._repositionFooter();
+
         if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
         if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
         if (args.pageSizeAdjust) {
@@ -356,6 +366,9 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         });
       }
     }
+
+    if (args.pageStickyFooter)
+      bcdui.widget.pageEffects._repositionFooter();
   },
    
   /**
@@ -462,5 +475,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       jQuery(".bcdSideBarGrip").show();
       jQuery(".bcdSideBarGrip").css("top", jQuery("*.bcdSection *.bcdSectionCaption:not(.bcdHeadClosed)").next().position().top);
     }
+  },
+  
+  _repositionFooter: function() {
+    var newTop = jQuery(window).height() - jQuery("#bcdFooterArea").height();
+    if (jQuery("#bcdBodyContainer").length > 0 && newTop < jQuery("#bcdBodyContainer").offset().top + jQuery("#bcdBodyContainer").outerHeight() + 10)
+      newTop = jQuery("#bcdBodyContainer").offset().top + jQuery("#bcdBodyContainer").outerHeight() + 10;
+    jQuery("#bcdFooterArea").css({position: "absolute", left: 0, top: newTop});
   }
+
 });
