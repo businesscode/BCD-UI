@@ -242,6 +242,6 @@ bcdui.util.xml =
    * @return wrapped Document with namespace resolver and .selectSingleNode(), .selectNodes() API
    */
   parseDocument : function(doc){
-    return doc.documentElement ? bcdui.core.browserCompatibility.cloneDocument(doc) : bcdui.core.browserCompatibility.createDOMFromXmlString(doc);
+    return bcdui.util.isString(doc) ? bcdui.core.browserCompatibility.createDOMFromXmlString(doc) : bcdui.core.browserCompatibility.cloneDocument(doc);
   }
 }; // namespace
