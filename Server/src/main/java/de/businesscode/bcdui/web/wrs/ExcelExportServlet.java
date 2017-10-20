@@ -35,6 +35,7 @@ import org.apache.shiro.UnavailableSecurityManagerException;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
 import de.businesscode.bcdui.wrs.export.Wrs2Excel;
@@ -136,6 +137,7 @@ public class ExcelExportServlet extends HttpServlet {
       new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
     } catch (Exception e) {
+      log.error(new ErrorLogEvent("Exception while processing the Wrs2Excel request.", req), e);
       throw new ServletException(e.getCause());
     } finally {
       concurrent.decrementAndGet();
