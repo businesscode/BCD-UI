@@ -16,6 +16,7 @@
 package de.businesscode.bcdui.web.filters;
 
 import java.io.IOException;
+import org.apache.log4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -32,6 +33,7 @@ import de.businesscode.bcdui.web.servlets.ZipLet;
 
 public class UnZipFilter implements Filter {
   private ServletContext servletContext;
+  private static final Logger log = Logger.getLogger(UnZipFilter.class);
 
   /**
    *
@@ -67,7 +69,7 @@ public class UnZipFilter implements Filter {
           request.setAttribute("guiStatusDoc", doc);
         }
         catch (Exception e) {
-          getServletContext().log("Cannot unzip the GuiStatus.", e);
+          log.warn("Cannot unzip the GuiStatus.", e);
         }
       }
     }
