@@ -77,7 +77,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
              if(this.hasBeenRun)return "";
              this.hasBeenRun = true;
              return initialFilterBRefs;
-           }.bind(undefined,args.initialFilterBRefs)
+           }.bind(this,args.initialFilterBRefs)
          });
          params.initialFilterBRefs = dataLink;
        }
