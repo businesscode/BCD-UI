@@ -21,7 +21,7 @@
 configurations { antlibs }
 dependencies {
   repositories {
-    maven { url "https://maven.atlassian.com/3rdparty/" }
+    maven { url "https://maven.atlassian.com/maven-3rdparty/" }
   }
   antlibs 'com.oopsconsultancy:xmltask:1.16'
 }
