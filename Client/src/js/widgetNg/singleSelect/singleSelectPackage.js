@@ -77,6 +77,10 @@
       var rootContainer = bcdui._migPjs._$(this.element[0]);
       var args = this.options;
 
+      // handle empty placeholder as no placeholder
+      if (this.options.placeholder && this.options.placeholder == "")
+        delete this.options.placeholder;
+
       // TODO rename htmlElementId to inputElementId
       var config = {
           target: bcdui.factory._extractXPathAndModelId(args.targetModelXPath),
@@ -252,7 +256,7 @@
 
       // used within forEachFunc loop to detect the first run for the "please select" option
       var optionContextScope = {
-          captionNode : jQuery("<option value='' bcdTranslate='bcd_singleSelect_please_select'></option>"),
+          captionNode : jQuery("<option value='' bcdTranslate='" + this.options.placeholder + "'></option>"),
           isFirst: true,
           hasSelectedValue: false
       }
@@ -279,16 +283,17 @@
 
       // copy all options into dataListEl, tag selected
       // TODO reuse / externalize?
+      var self = this;
       bcdui.widgetNg.utils._updateInternalOptions({
         htmlElementId: el.get(0),
         doSort : args.doSortOptions && !config.isOptionsModelNormalized,  // in case we have no optionsmodel wrapper we have to care about sorting
         // this function is called on every node selected by config.source.xPath
         forEachFunc: function(index, attrNode){
-          // add "please select" as first option
-          if(optionContextScope.isFirst){
+
+          // add placeholder as first option
+          if (self.options.placeholder && optionContextScope.isFirst)
             dataListEl.appendChild(optionContextScope.captionNode.get(0));
-            optionContextScope.isFirst=false;
-          }
+          optionContextScope.isFirst=false;
 
           var valueObject = getNodeValueCaption(attrNode);
 
@@ -328,10 +333,12 @@
             jQuery(dataListEl).removeClass("bcd-singleselect-empty");
           }
 
+          var count = widgetInstance.options.placeholder ? 2 : 1;
+
           // apply doAutoSelectSolelyOption solely option finally
           if(
               widgetInstance.options.doAutoSelectSolelyOption                             // if enabled
-              && options.length==2                                                        // the only option we have (first one is please select)
+              && options.length==count                                                    // the only option we have (first one is please select)
               && ( ! currentDataValue || ! bcdui.widgetNg.validation.hasValidStatus(el) ) // and no value set OR widget is invalid
           ){
 
