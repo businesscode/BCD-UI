@@ -333,19 +333,19 @@
             jQuery(dataListEl).removeClass("bcd-singleselect-empty");
           }
 
-          var count = widgetInstance.options.placeholder ? 2 : 1;
+          if ( ! currentDataValue || ! bcdui.widgetNg.validation.hasValidStatus(el) ) {
+            // enable first option when doAutoSelectSolelyOption is enabled (only if you also got only one option at all)
+            // or in case of no placeholder use, then the first item is used directly and we need to make sure the value is written to the target initially
+            if (
+                (widgetInstance.options.doAutoSelectSolelyOption && options.length == 2)
+                ||
+                (! widgetInstance.options.placeholder && options.length > 0)
+                ) { 
 
-          // apply doAutoSelectSolelyOption solely option finally
-          if(
-              widgetInstance.options.doAutoSelectSolelyOption                             // if enabled
-              && options.length==count                                                    // the only option we have (first one is please select)
-              && ( ! currentDataValue || ! bcdui.widgetNg.validation.hasValidStatus(el) ) // and no value set OR widget is invalid
-          ){
-
-            var solelyValue = options[options.length-1].getAttribute("value");
-
-            // escape stack
-            setTimeout( widgetInstance._syncWrite.bind(undefined,el, solelyValue) );
+              var solelyValue = options[0].getAttribute("value");
+              // escape stack
+              setTimeout( widgetInstance._syncWrite.bind(undefined,el, solelyValue) );
+            }
           }
         }.bind(undefined,el.get(0), dataListEl, this)
       });
