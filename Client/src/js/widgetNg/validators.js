@@ -242,21 +242,23 @@ bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS = {
 // TODO refactor packages, rename validators.js to validationPackage.js
 
 /**
- * this function carries out validation via native html5 constraint validation api (if available)
+ * this function carries out validation via native html5 constraint validation api (if available and not suppressed)
  * and optionally marks the field as invalid in case customValidationMessages are provided (i.e.
  * already has been validation with custom validators), additionally it displays the validationMessages
  * to the user. Also resets the field to valid if neither customValidationMessages has been provided nor
  * native validation has returned negative result.
  *
- * @param htmlElementId - validatable element
- * @param validationMessages{string[]} array of custom validation messages to display for this element (optional)
+ * @param {string|element}  htmlElementId                 validatable element
+ * @param {string[]}        validationMessages            An array of custom validation messages to display for this element (optional)
+ * @param {boolean}         [skipNativeValidation=false]  If you want to skip implicit, native html5 validation on the element.
  *
  * @return TRUE if field has been validated and has no errors, false otherwise
  */
-bcdui.widgetNg.validation.validateField = function(htmlElementId, customValidationMessages){
+bcdui.widgetNg.validation.validateField = function(htmlElementId, customValidationMessages, skipNativeValidation){
   var el = bcdui._migPjs._$(htmlElementId);
   var customMsg = null;
   var hasCustomMsg = customValidationMessages!=null && customValidationMessages.length>0;
+  skipNativeValidation = !!skipNativeValidation;
 
   var nativeValidationMsg="";
 
@@ -266,25 +268,27 @@ bcdui.widgetNg.validation.validateField = function(htmlElementId, customValidati
   // message is stored in 'nativeValidationMsg' variable (in case of invalidity)
   var hasNativelyValidated=false;
 
-  // if available, run native validation
-  if(el.get(0).checkValidity || bcdui.browserCompatibility._hasFeature("inputtypes." + (el.attr("type")||"text"))){
-    hasNativelyValidated = true;
-    // reset custom validity if set set to trigger automatic validation
-    if(el.get(0).validity.customError){
-      el.get(0).setCustomValidity("");
-    }
-    bcdui.log.isTraceEnabled() && bcdui.log.trace("validateField: type " + el.attr("type") + " is supported or constraint validation API available");
-    if(!el.get(0).checkValidity()){
-      // some browsers store validation message in title, suppress it here
-      // since we display that information in our balloon
-      el.attr("title","");
-      nativeValidationMsg = el.get(0).validationMessage;
-      bcdui.log.isTraceEnabled() && bcdui.log.trace("native validation passed and detects field invalid: " + nativeValidationMsg);
+  if(!skipNativeValidation){
+    // if available, run native validation
+    if(el.get(0).checkValidity || bcdui.browserCompatibility._hasFeature("inputtypes." + (el.attr("type")||"text"))){
+      hasNativelyValidated = true;
+      // reset custom validity if set set to trigger automatic validation
+      if(el.get(0).validity.customError){
+        el.get(0).setCustomValidity("");
+      }
+      bcdui.log.isTraceEnabled() && bcdui.log.trace("validateField: type " + el.attr("type") + " is supported or constraint validation API available");
+      if(!el.get(0).checkValidity()){
+        // some browsers store validation message in title, suppress it here
+        // since we display that information in our balloon
+        el.attr("title","");
+        nativeValidationMsg = el.get(0).validationMessage;
+        bcdui.log.isTraceEnabled() && bcdui.log.trace("native validation passed and detects field invalid: " + nativeValidationMsg);
+      }else{
+        bcdui.log.isTraceEnabled() && bcdui.log.trace("native validation passed - the field is valid.");
+      }
     }else{
-      bcdui.log.isTraceEnabled() && bcdui.log.trace("native validation passed - the field is valid.");
+      bcdui.log.isTraceEnabled() && bcdui.log.trace("validateField: type " + el.attr("type") + " is NOT supported,skip native validation");
     }
-  }else{
-    bcdui.log.isTraceEnabled() && bcdui.log.trace("validateField: type " + el.attr("type") + " is NOT supported,skip native validation");
   }
 
   // collect custom and native validation messages
