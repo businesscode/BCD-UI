@@ -396,3 +396,27 @@ bcdui.widgetNg.validation.indicateFieldValidity = function(htmlElement){
 bcdui.widgetNg.validation.hasValidStatus = function(htmlElement){
   return htmlElement.validity==null || (htmlElement.validity.valid && !bcdui._migPjs._$(htmlElement).hasClass("bcdInvalid"));
 }
+
+/**
+ * appends validity message to validationResult object and returns validationResult,
+ * creates a new one if none is provided. message must not be null.
+ *
+ * @param {object}          validationResult  The validationResult object to extend or null to create a new one, this object is modified.
+ * @param {string|string[]} message           Message to append to the validationResult.validationMessage
+ * 
+ * @return {object} validationResult object with validationMessage array with appended message(s)
+ */
+bcdui.widgetNg.validation.addValidityMessage = function(validationResult, message){
+  if(!message){
+    throw "'message' argument must not be null";
+  }
+  validationResult = validationResult || { };
+  if(validationResult.validationMessage == null){
+    validationResult.validationMessage = [];
+  } else if(!Array.isArray(validationResult.validationMessage)){ // convert to array
+    validationResult.validationMessage = [validationResult.validationMessage];
+  }
+  validationResult.validationMessage.push(... Array.isArray(message)?message:[message]);
+  
+  return validationResult;
+};
