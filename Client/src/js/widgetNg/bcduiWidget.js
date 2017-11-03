@@ -90,9 +90,101 @@
     },
 
     /**
+     * runs async validation, this must be only run AFTER any implicit or syncrhonous validation
+     * has been run and widget is considered VALID
+     * 
+     * in case of invalidity, this function calls #_setInvalidity() providing message to set.
+     * 
+     * To cancel pending validation you may call #_cancelPendingValidation()
+     *
+     * @private
+     * @return Promise resolving with validation result ( object with validationMessage property )
+     */
+    _asyncValidate : function(){
+      var validatorId = this.pendingAsyncValidatorId = (this.pendingAsyncValidatorId||0)+1; // use ids to discard validators
+      this.hasPendingValidator = true;
+      var self = this;
+      return new Promise(function(resolve, reject){
+        if(!self.options.asyncValidationFunction){
+          // no async validator at all, resolve instantly
+          resolve();
+        } else {
+          // we have async validator, set widget state
+          self._setAsyncValidationIndicator(true);
+
+          // run async validation factory and resolve promise
+          self.options.asyncValidationFunction(self._getValidatingElement()).then((validationResult) => {
+            // check validator id
+            if(self.pendingAsyncValidatorId !== validatorId){
+              return;
+            }
+            self._setAsyncValidationIndicator(false);
+            if(validationResult && validationResult.validationMessage){
+              self._setValidityMessage(validationResult.validationMessage);
+            }
+            resolve(validationResult);
+          }, (validationResult) => {
+            validationResult = bcdui.widgetNg.validation.addValidityMessage(validationResult, "Internal Error Occurred");
+            self._setAsyncValidationIndicator(false);
+            self._setValidityMessage(validationResult.validationMessage);
+            reject(validationResult);
+          });
+        }
+      });
+    },
+
+    /**
+     * @return  element considered to support validation and represent validity messages, default
+     *          implementation returns a first input element of the onwing element.
+     * @private
+     */
+    _getValidatingElement : function(){
+      return this.element.find("input, select").first();
+    },
+
+    /**
+     * sets/reset invalidity status of a widget including custom messages, this function does not run implicit html5
+     * validation, it is up to implementation to override this function and to do it so.
+     *
+     * @param {string[]} validationMessages Error messages for #_getValidatingElement(), if null or empty, any validity status on widget is removed, effectivly making
+     *                                      the widget valid, otherwise it turns widget invalid setting the messages.
+     * @private
+     */
+    _setValidityMessage : function(validationMessages){
+      bcdui.widgetNg.validation.validateField(this._getValidatingElement(), validationMessages, true);
+    },
+
+    /**
+     * sets validation indicator of #_getValidatingElement() to the 'bcdValidationPending' CSS class
+     * @private
+     */
+    _setAsyncValidationIndicator : function(isPending){
+      if(isPending){
+        this._getValidatingElement().addClass("bcdValidationPending");
+      } else {
+        this._getValidatingElement().removeClass("bcdValidationPending");
+      }
+    },
+
+    /**
+     * Cancels pending async validation. Result of a possible pending
+     * validation is discarded. Unsets 'bcdValidationPending' attributes on targetXPath
+     * and owning element.
+     *
+     * @private
+     */
+    _cancelPendingValidation : function(){
+      if(this.hasPendingValidator){
+        this.pendingAsyncValidatorId = (this.pendingAsyncValidatorId||0)+1; // reset to next identifier
+        this._setAsyncValidationIndicator(false);
+        this.hasPendingValidator = false;
+      }
+    },
+
+    /**
      * If your widget supports targetModelXPath, you cann register a target modification callback which is 
      * executed everytime the data in options.targetModelXPath changes. In order to prevent a cycle
-     * (i.e. your widget is update targetModelXPath and then you usually do not want to get your
+     * (i.e. your widget is updating targetModelXPath and then you usually do not want to get your
      * modification callback executed), please call _targetUpdated() everytime you updating data
      * in targetModelXPath BEFORE .fire()ing the data-provider.
      *

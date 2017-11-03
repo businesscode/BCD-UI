@@ -261,7 +261,7 @@
 
       <Api name="hasValidator">
         <Doc>
-          This API provides general RegExp validation and provides support to attach custom validator
+          This API provides general RegExp validation and provides support to attach custom validators
         </Doc>
         <Param name="pattern" type="string">
           <Doc>regular expression pattern to validate the input</Doc>
@@ -326,6 +326,31 @@
               Ignores the column type given in Wrs/Header.
             </Doc>
           </Impl>
+        </Param>
+        <!-- TODO move to hasValidator api and implement where supported -->
+        <Param name="asyncValidationFunction" type="function">
+          <Doc>
+            Like 'validationFunction' but this one must return a Promise resolving with validation result. While validating, the widget sets 'bcdValidationPending'
+            CSS class on the owning html element. The value is written to the model after a positive validation result. If a Promise is rejected for any reason,
+            the widget switches to invalid state.
+          </Doc>
+          <ImplDoc>
+            window.myAsyncValidationFunction = function(htmlElementId){
+              var value = bcdui.widgetNg.validation.validators.widget.getValue(htmlElementId); // obtain value from widget
+              return new Promise(function(resolve){
+                if(!value)resolve(); // allow empty values
+                setTimeout(function(){
+                  var result = null;
+                  if ( isNaN(value) || value &lt; 10 ){
+                    result = {
+                      validationMessage : "Value must be >= 10"
+                    };
+                  }
+                  resolve(result);
+                }, 1000);
+              });
+            };
+          </ImplDoc>
         </Param>
       </Api>
 

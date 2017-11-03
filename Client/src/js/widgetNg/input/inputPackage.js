@@ -150,6 +150,12 @@
 
       // add listeners
       if(!args.readonly){
+        jQuery(uiControl.control).on("keydown", (e) => {
+          // cancel validation when receiving keystrokes yet only when input has focus
+          if(jQuery(e.target).is(":focus")){
+            this._cancelPendingValidation();
+          }
+        });
         bcdui.log.isTraceEnabled() && bcdui.log.trace("input NOT read-only, set up handlers.");
 
         if(!config.extendedConfig.hasCustomUpdateHandler){
@@ -258,11 +264,13 @@
       var isValueEmpty = value == null || !value.trim();
       // validate
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validate after sync, value read from model is: " + value + ", is value empty: " + isValueEmpty);
-      this._validateElement(inputElementId, true);
-      if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
-        this._setUnsetPlaceholder(inputElementId, isValueEmpty);
-      }
-      el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
+      this._validateElement(inputElementId, true)
+      .then(() => {
+        if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
+          this._setUnsetPlaceholder(inputElementId, isValueEmpty);
+        }
+        el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
+      });
     },
 
     /**
@@ -345,12 +353,10 @@
      * which is also checked during SYNC_READ (means data loaded from model to widget) but check is
      * omitted in case of SYNC_WRITE (means data written from widget to model).
      *
-     * TODO: this is generic purpose widget API extract this function to generic widget package
-     *
      * @param inputElementId
      * @param checkDataModelValidity if true, additionally the model validity is taken into account
      *
-     * @return true in case of valid or false in case of invalid element status
+     * @return Promise resolving with validation result.
      *
      * @private
      */
@@ -370,7 +376,19 @@
         }
       }
 
-      return bcdui.widgetNg.validation.validateField(inputElementId, msg);
+      var isValid = bcdui.widgetNg.validation.validateField(inputElementId, msg);
+
+      return new Promise((resolve, reject) => {
+        if(msg){ // custom validators reported errors
+          resolve({
+            validationMessage : msg
+          });
+        } else if (!isValid){ // implicit validator reported error
+          resolve(bcdui.widgetNg.validation.addValidityMessage(null, "Error")); // unknown error occurred
+        } else {
+          this._asyncValidate().then(resolve, reject);
+        }
+      });
     },
 
     /**
@@ -542,42 +560,46 @@
       var modelValue = this._readDataFromXML(inputElementId).value||"";
       // tells if current widget value differs from data value
       var hasValueChanged = guiValue != modelValue;
-      var isValid = null;
-
-      // validation hier vorziehen, im fall das feld ist invalid um evtl. aufzuraumen
-      if(!bcdui.widgetNg.validation.hasValidStatus(inputEl.get(0))){
-        bcdui.log.isTraceEnabled() && bcdui.log.trace("force validation in case of invalid field status");
-        isValid = this._validateElement(inputElementId, !hasValueChanged);
-      }
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.input.updateValue: modelValue: " + modelValue + ", guiValue: " + guiValue);
-
-      var hasWritten = false;
-      if(hasValueChanged){
-        bcdui.log.isTraceEnabled() && bcdui.log.trace("validate before write?");
-        // we only revalidate in case we did not do it by chance before
-        if(isValid || (isValid==null && this._validateElement(inputElementId, false))){
-          this._writeDataToXML({
-            inputElementId: inputElementId,
-            value : guiValue
-          });
-          hasWritten = true;
-        }else{
-          bcdui.log.isTraceEnabled() && bcdui.log.trace("skip _writeDataToXML due to invalid input");
-        }
-      }else{
-        bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.input.updateValue: skip update due to unchanged value");
-      }
 
       // handle placeholder here if we have to
       if(guiValue=="" && !config.extendedConfig.hasCustomPlaceholderHandler){
         this._setUnsetPlaceholder(inputElementId, true);
       }
-      inputEl.trigger(this.EVENT.SYNC_WRITE,{
-        isValueEmpty : guiValue == "",
-        value : guiValue,
-        hasWritten: hasWritten
-      });
+
+      var triggerWrite = (hasWritten) => {
+        inputEl.trigger(this.EVENT.SYNC_WRITE,{
+          isValueEmpty : guiValue == "",
+          value : guiValue,
+          hasWritten: !!hasWritten // default:false
+        });
+      };
+
+      // if value has changed we revalidate and write it to the model if value was valid
+      if(hasValueChanged){
+        this._validateElement(inputElementId, false)
+        .then((validationResult) => {
+          var hasWritten = false;
+          if(!validationResult){ // write only with valid value
+            this._writeDataToXML({
+              inputElementId: inputElementId,
+              value : guiValue
+            });
+            hasWritten = true;
+          }
+          triggerWrite(hasWritten);
+        });
+      } else { // value has not changed
+
+        // tidy up, in case of invalidity state
+        if(!bcdui.widgetNg.validation.hasValidStatus(inputEl.get(0))){
+          bcdui.log.isTraceEnabled() && bcdui.log.trace("force validation in case of invalid field status");
+          this._validateElement(inputElementId, !hasValueChanged).then(() => { triggerWrite() });
+        } else {
+          triggerWrite();
+        }
+      }
     },
 
     /**
