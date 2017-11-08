@@ -89,8 +89,8 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
     <xsl:otherwise>
       bcdui.core.bcdParamBag.push(new Object());
       <xsl:apply-templates select="xapi:*"/>
-      bcdParamBagChild = bcdui.core.bcdParamBag.pop();
-      bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1].parameters.<xsl:value-of select="@name"/> = "{ refId: '"+bcdParamBagChild.dataProviders+"'}";
+      bcdui.core.bcdParamBagChild = bcdui.core.bcdParamBag.pop();
+      bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1].parameters.<xsl:value-of select="@name"/> = "{ refId: '"+bcdui.core.bcdParamBagChild.dataProviders+"'}";
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
