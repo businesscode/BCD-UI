@@ -508,6 +508,9 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     }
   }
   private String readClob(Clob clob) throws Exception{
+    if(clob == null) {
+      return null;
+    }
     final StringBuilder sb  = new StringBuilder();
     final Reader reader     = clob.getCharacterStream();
     final BufferedReader br = new BufferedReader(reader);
