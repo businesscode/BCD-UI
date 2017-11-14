@@ -1,5 +1,9 @@
 "use strict";
 (function($){
+   var EVENT = {
+    validate : "bcd-validate"
+  };
+  
   /**
    * Listens to updates on the target model and syncs the value back to the widget
    * @private
@@ -32,6 +36,9 @@
    * read more on that on _setOnTargetModelChange() method.
    *
    * Always propagate call to the super() implementation on an overwritten method.
+   * 
+   * Validation:
+   * A 'bcd-validate' event on widget's this.element triggers #validate() function.
    *
    * @private
    */
@@ -75,6 +82,7 @@
       this.element.prop($.bcdui.bcduiWidget.KEY_WIDGET_NAME, this.widgetFullName);
       // write data- attr to make widgets selectable via DOM
       this.element.attr("data-" + $.bcdui.bcduiWidget.KEY_WIDGET_NAME, this.widgetFullName);
+      this.element.attr("data-bcdui-widget", this.widgetFullName);
 
       // assure id with following priority: element.id, options.id, generatedId
       this.options.id = this.element.attr("id") || this.options.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope( this.widgetFullName.replace(/-/g,"_") );
@@ -87,6 +95,8 @@
       this._updateListeners = [];
       // track data listeners; array of { dataProvider, listener }; unregistered at .destroy() 
       this._dataListeners = [];
+      // bind 'bcd-validate'
+      this.element.on(EVENT.validate, () => !this.options.disabled && this.validate());
     },
 
     /**
