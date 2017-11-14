@@ -464,6 +464,10 @@
         el.removeClass("bcdLoading");
         el.attr("readonly", null);
       }
+    },
+
+    validate : function(){
+      bcdui.widgetNg.utils._validateElement(this.element.find("select").first());
     }
   });
 }());
