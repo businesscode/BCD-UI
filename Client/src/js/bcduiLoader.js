@@ -207,8 +207,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiExport",
       "required": "default",
       "files": [
-          "/js/component/exports/excelPackage.js"
-        , "/js/component/exports/pdfExport.js"
+          "/js/component/exports/pdfExport.js"
         , "/js/component/exports/exportsPackage.js"
       ],
       "buildFolders": [

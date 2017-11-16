@@ -51,6 +51,7 @@ Some changes are backward incompatible and may require code change in the projec
 * Charts: Moved VML drawer to BCD-UI-DE
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
+* Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 
 ==== Release 5_2_0
 
