@@ -435,28 +435,17 @@ bcdui.util.namespace("bcdui.factory",
   createRenderer: function(/* Object */ args)
     {
       args = this._xmlArgs( args, bcdui.factory.validate.core._schema_createRenderer_args );
-      args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "renderer_");
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_createRenderer_args);
       args.id = bcdui.factory.objectRegistry.generateTemporaryId(args.id);
+      args.isRenderer = true; // since target might not be given, we need a token to identify the type
 
-      if (args.targetHTMLElementId){
+      if (args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId){
         // call rendererCallback() if any defined
         if(bcdui.config.rendererCallback && bcdui.util.isFunction(bcdui.config.rendererCallback)) {
           bcdui.config.rendererCallback(args.id);
         }
-        // set bcdRendererId attribute on targetHTMLElement in case we dont have a deferred renderer
-        // and set loading status for visualization
-        if(!args.suppressInitialRendering){
-          var targetHtmlElement = jQuery("#" + args.targetHTMLElementId);
-          if (targetHtmlElement.length > 0) {
-            targetHtmlElement
-              .attr("bcdRendererId", args.id)
-              .addClass("statusNotReady")
-              .html("&#160;");  // ensure container element is not empty to visualize loading effect
-          }
-        }
       }
-      
+      // we pass all args to trafo chain (targetHtml, targetHTMLElementId, targetHtmlElementId)
       return bcdui.factory.createTransformationChain(args);
     },
 
@@ -469,13 +458,13 @@ bcdui.util.namespace("bcdui.factory",
     var o = bcdui.factory._collectDependencies(args);
 
     var actionFunction = function() {
-      var constructor = args.targetHTMLElementId ? bcdui.core.Renderer : bcdui.core.ModelWrapper;
+      var constructor = args.isRenderer ? bcdui.core.Renderer : bcdui.core.ModelWrapper;
       var renderer =
           new constructor({
             id: args.id,
             chain: (!args.url) ? bcdui.factory.objectRegistry.getObject(o.chain) : o.chain,
             dataProviders: bcdui.factory._mapDataProviders(o.dataProviders),
-            targetHTMLElementId: args.targetHTMLElementId,
+            targetHtml: args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId, // map all possible options to targetHtml for simplification
             suppressInitialRendering: args.suppressInitialRendering,
             debug: args.debug
           });

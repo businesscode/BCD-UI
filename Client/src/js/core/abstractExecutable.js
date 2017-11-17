@@ -350,7 +350,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       if (!this.nullStatus.equals(status) && !this.status.equals(status)) {
         if( bcdui.log.isDebugEnabled() && this.getReadyStatus().equals(status) ) {
           var logMsg = "Ready "+this.toString({verbosity:1});
-          if( this.getData() && ! this.targetHTMLElementId ) // Wrapper with data
+          if( this.getData() && this.type != "bcdui.core.Renderer" ) // Wrapper with data
             logMsg += ((this.getData().nodeType ? new XMLSerializer().serializeToString(this.getData()).length : this.getData().length) /1000).toFixed(1)+"k";
           bcdui.log.isDebugEnabled() && bcdui.log.debug(logMsg);
         }

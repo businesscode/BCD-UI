@@ -125,12 +125,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       );
 
       /**
-       * (optional) The ID of the HTML element getting the result of the final XSLT
+       * (optional) The ID of the HTML element and the html element itself getting the result of the final XSLT
        * transformation if it has output="html". If it creates XML this can be null.
+       * this is set on first exectue
        * @type string
        * @private
        */
-      this.targetHTMLElementId = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId || null;
+      if (this.setTargetHtml)
+        this.setTargetHtml(this.targetHtml);
 
       /**
        * chainParam: chain parameter. Can have many typey: xml, string, array etc. 
@@ -237,12 +239,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
        */
       this.addStatusListener(this._statusTransitionHandler.bind(this));
 
-      // Only HTML renderers start execution immediately in case it is not suppressed
-      if ( !!this.targetHTMLElementId && !args.suppressInitialRendering) {
-        jQuery("#" + this.targetHTMLElementId).attr('bcdRendererId', args.id).data('bcdRenderer',this);
-        this.execute();
+      // Only HTML renderers start execution immediately in case it is not suppressed (or target does not yet exist)
+      if (! args.suppressInitialRendering) {
+        var targetElement = this.targetHtmlElement || (this.targetHTMLElementId ? document.getElementById(this.targetHTMLElementId) : null);
+        if (targetElement != null) {
+          jQuery(targetElement).attr('bcdRendererId', args.id).data('bcdRenderer',this);
+          this.execute();
+        }
       }
-
     },
 
   /**
@@ -429,42 +433,44 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
           // We cannot make this dependent on the outputFormat as that is only know explicitly for XSLT
           if( xslt.isLastOfChain && !!this.targetHTMLElementId ) 
           {
-            var targetElement = (this.targetHTMLElementId ? document.getElementById(this.targetHTMLElementId) : null);
-            targetElement.setAttribute('bcdRendererId', this.id); // Set it again, it could have been removed in between
-
-            this._executeOnXAttributes(targetElement, "bcdOnUnLoad");
-
-            // Transformation can deliver HTML as DOM or as a string
-            if( typeof result=="string" ) {
-              jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
-              bcdui.i18n.syncTranslateHTMLElement({elementOrId:targetElement});
-            }
-            // XSLT will deliver fragment
-            else
-            {
-              var partiallIdDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
-              if( partiallIdDP && !!partiallIdDP.getData().trim()) {
-                var ids = partiallIdDP.getData().split(" ");
-                for( var i = 0; i < ids.length; i++ ) {
-                  var node = document.getElementById(ids[i]);
-                  var newContent = result.querySelector ? result.querySelector("#"+ids[i]) : result.getElementById(ids[i]); // getElementById for IE <= 7 
-                  if( node && newContent ) {
-                    bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
-                    jQuery(node).replaceWith( newContent );
-                  } else if( node )
-                    jQuery(node).remove();
-                }
-              }  else {
-                for ( var ch = 0; ch < result.childNodes.length; ch++) {
-                  bcdui.i18n.syncTranslateHTMLElement({elementOrId:result.childNodes[ch]});
-                }
-                // Browser takes care that the fragment itself is treated as a container and only its children are appended to the HTML DOM
-                jQuery(targetElement).empty();  // to support .destroy() mechanism of jQuery Widgets
-                targetElement.appendChild(result);
+            var targetElement = this.targetHtmlElement || (this.targetHTMLElementId ? document.getElementById(this.targetHTMLElementId) : null);
+            if (targetElement != null) {
+              targetElement.setAttribute('bcdRendererId', this.id); // Set it again, it could have been removed in between
+  
+              this._executeOnXAttributes(targetElement, "bcdOnUnLoad");
+  
+              // Transformation can deliver HTML as DOM or as a string
+              if( typeof result=="string" ) {
+                jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
+                bcdui.i18n.syncTranslateHTMLElement({elementOrId:targetElement});
               }
+              // XSLT will deliver fragment
+              else
+              {
+                var partiallIdDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
+                if( partiallIdDP && !!partiallIdDP.getData().trim()) {
+                  var ids = partiallIdDP.getData().split(" ");
+                  for( var i = 0; i < ids.length; i++ ) {
+                    var node = document.getElementById(ids[i]);
+                    var newContent = result.querySelector ? result.querySelector("#"+ids[i]) : result.getElementById(ids[i]); // getElementById for IE <= 7 
+                    if( node && newContent ) {
+                      bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
+                      jQuery(node).replaceWith( newContent );
+                    } else if( node )
+                      jQuery(node).remove();
+                  }
+                }  else {
+                  for ( var ch = 0; ch < result.childNodes.length; ch++) {
+                    bcdui.i18n.syncTranslateHTMLElement({elementOrId:result.childNodes[ch]});
+                  }
+                  // Browser takes care that the fragment itself is treated as a container and only its children are appended to the HTML DOM
+                  jQuery(targetElement).empty();  // to support .destroy() mechanism of jQuery Widgets
+                  targetElement.appendChild(result);
+                }
+              }
+  
+              this._executeOnXAttributes(targetElement, "bcdOnload");
             }
-
-            this._executeOnXAttributes(targetElement, "bcdOnload");
           }
 
           // Now transform the next of this.chain.phases.xslt
@@ -919,13 +925,13 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
   _fireStatusEvent: function(/* Object */ args)
     {
       if (this.targetHTMLElementId) {
-        var targetElement = jQuery(document.getElementById(this.targetHTMLElementId));
-        if( targetElement.length == 0 )
+        var targetElement = this.targetHtmlElement || (this.targetHTMLElementId ? document.getElementById(this.targetHTMLElementId) : null);
+        if (targetElement == null)
           throw Error("TargetElement '"+this.targetHTMLElementId+"' not found.");
         if (this.isReady()) {
-          targetElement.addClass("statusReady").removeClass("statusNotReady");
+          jQuery(targetElement).addClass("statusReady").removeClass("statusNotReady");
         } else if (!this.suppressInitialRendering || this.getStatus() !== this.initializedStatus) {
-          targetElement.addClass("statusNotReady").removeClass("statusReady");
+          jQuery(targetElement).addClass("statusNotReady").removeClass("statusReady");
         }
       }
       bcdui.core.DataProvider.prototype._fireStatusEvent.call(this, args);
@@ -954,7 +960,7 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    * </ul>
    * Make sure the last transformation outputs html, for example in case of XSLT set the last stylesheet to &lt;xsl:output method="html" 
    * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
-   * @param {targetHtmlRef}           args.targetHtml                       - A reference to the HTML DOM Element where to put the output
+   * @param {targetHtmlRef}           [args.targetHtml]                     - A reference to the HTML DOM Element where to put the output
    * @param {Object}                  [args.parameters]                     - An object, where each property holds a DataProvider as a transformation parameter
    * Once this Renderer is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it if it is not {@link bcdui.core.AbstractExecutable .isReady()} before executing itself.
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
@@ -965,9 +971,11 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.Renderer" ): "") != "";
     
     args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-    args.targetHtml = bcdui.util._getTargetHtml(args, "renderer_");
+
+    // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
+    // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
+    this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
     bcdui.core.TransformationChain.call(this, args);
-    
     if (isLeaf)
       this._checkAutoRegister();
   },
@@ -985,6 +993,14 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    */
   execute: function( /* object */ args)
   {
+    // set targetHTMLElementId/targetHtmlElement on first execute
+    if (! this.targetHTMLElementId) {
+      // we have a real html element object
+      if (typeof this.targetHtml != "string" && jQuery(this.targetHtml).length > 0)
+        this.targetHtmlElement = jQuery(this.targetHtml).get(0);
+      this.targetHTMLElementId = bcdui.util._getTargetHtml({targetHtml: this.targetHtml}, "renderer_");
+    }
+
     // Well-known data provider, reuse if already created
     var bcdPartialHtmlDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
 
@@ -1021,11 +1037,29 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
 
   /**
    * Return the target html element where the renderer places its output
-   * @param args {HtmlElement} target
    */
   getTargetHtml: function()
   {
-    return jQuery("#" + this.targetHTMLElementId).get(0);
+    return this.targetHtmlElement || jQuery("#" + this.targetHTMLElementId).get(0);
+  },
+
+  /**
+   * Sets the target html element where the renderer places its output
+   * @param targetHtmlElement {HtmlElement} target html element
+   */
+  setTargetHtml: function(targetHtmlElement)
+  {
+    this.targetHtmlElement = null;
+    this.targetHTMLElementId = null;
+
+    // a real html element id, then use the access via id
+    if (typeof targetHtmlElement == "string" && document.getElementById(targetHtmlElement) != null) {
+      this.targetHTMLElementId = targetHtmlElement;
+    }
+    else if (jQuery(targetHtmlElement).length > 0) {
+      this.targetHtmlElement = jQuery(targetHtmlElement).get(0);
+      this.targetHTMLElementId = bcdui.util._getTargetHtml({targetHtml: targetHtmlElement}, "renderer_");
+    }
   }
 });
 

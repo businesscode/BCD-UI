@@ -201,9 +201,7 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
         throw Error("A model updater must be a data provider (model id: " + this.id + ", updater: " + updater + ")");
       if (!bcdui.util.isFunction(updater.setPrimaryModel))
         throw Error("Model updater must offer setPrimaryModel method");
-      if (typeof updater.targetHTMLElementId != "undefined" &&
-          updater.targetHTMLElementId != null &&
-          !!updater.targetHTMLElementId.trim()) {
+      if (updater.type == "bcdui.core.Renderer") {
         bcdui.log.warn("Added a model updater to the model " + this.id + " which has a targetHTMLElementId set: " + updater);
       }
       updater.setPrimaryModel(new bcdui.core._ModelBeingUpdated({ source: this, name: this.name, readyStatiForModelUpdates: this._readyStatiForModelUpdates }));
