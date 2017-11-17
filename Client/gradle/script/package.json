@@ -14,7 +14,8 @@
     "jquery-mobile":      "git+https://github.com/jquery/jquery-mobile#@version",
     "webcomponents":      "git+https://github.com/webcomponents/webcomponentsjs#@version",
     "nouislider":         "@version",
-    "es6-promise":        "@version"
+    "es6-promise":        "@version",
+    "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version"
   }
 
 }

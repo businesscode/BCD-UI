@@ -209,6 +209,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/component/exports/pdfExport.js"
         , "/js/component/exports/exportsPackage.js"
+        , "/js/3rdParty/fileSaver.js" 
       ],
       "buildFolders": [
         "/js/component/exports"

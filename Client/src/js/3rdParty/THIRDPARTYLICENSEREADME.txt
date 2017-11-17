@@ -6,6 +6,7 @@ This license applies to
 - ddr-ecma5.js       Copyright (c) 2010 David de Rosier. All rights reserved.
 - doT.js             Copyright (c) 2011 Laura Doktorova
 - Promise.js         Copyright (c) 2014 Forbes Lindesay
+- FileSaver.js       Copyright (c) 2016 Eli Grey
 
 which may be part of BCD-UI distribution
 

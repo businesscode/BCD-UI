@@ -108,6 +108,7 @@ task bcduiClientCollect3rdParty {
                      "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"],
                      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
                      "es6-promise":    [ fn: "es6-promise.js",        ofn: "es6-promise/dist/es6-promise.auto.min.js"],
+                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"],
                      /* sample of having multi-file distribution set
                      "nouislider":     [ [ fn: "nouislider.js",       ofn: "nouislider/distribute/nouislider.js"],
                                          [ fn: "nouislider.css",      ofn: "nouislider/distribute/nouislider.css"] ]*/
