@@ -41,7 +41,11 @@ public class BindingSetContextObject
   private String tableName;
   private String plainTableName;
 
+  // All BindingItems listed before the table name
   private final List<BindingItem> selectedBindigItemsInOrder = new LinkedList<BindingItem>();
+
+  // all BindingItems in hteir order
+  private final List<BindingItem> allBindigItemsInOrder = new LinkedList<BindingItem>();
 
   /**
    * @param bindings       Global BCD-UI Bindings singleton
@@ -120,6 +124,7 @@ public class BindingSetContextObject
       // Avoids BindingItems being part of group by or order by clauses for example to be identified as selected
       if( tableName == null && plainTableName == null )
         selectedBindigItemsInOrder.add(bindingItem);
+      allBindigItemsInOrder.add(bindingItem);
 
       return bindingItem.getQColumnExpression() ;
     }
@@ -153,10 +158,18 @@ public class BindingSetContextObject
 
 
   /**
-   * Getter for BindingItems which are part of the select clause,
+   * Getter for BindingItems which are part of the select clause, i.e. they are mentioned before the table name,
    * useful for a caller of SQLEngine to get info about the query structure
    */
   public List<BindingItem> getSelectedBindigItemsInOrder() {
     return selectedBindigItemsInOrder;
+  }
+
+  /**
+   * Getter for BindingItems mentioned somewhere,
+   * useful for a caller of SQLEngine to get info about the query structure
+   */
+  public List<BindingItem> getAllBindigItemsInOrder() {
+    return allBindigItemsInOrder;
   }
 }

@@ -50,12 +50,34 @@ public class SQLEngine {
    private Collection<String> requestedBindingSets = new LinkedList<String>();
    private Collection<BindingSet> resultingBindingSets = new LinkedList<BindingSet>();
    private final List<BindingItem> selectedBindigItemsInOrder = new LinkedList<BindingItem>();
+   private final List<BindingItem> allBindigItemsInOrder = new LinkedList<BindingItem>();
+
+   /**
+    * Getter for a list of all BindindItems used in this sql and mentioned before the table name
+    */
+   public List<BindingItem> getSelectedBindigItemsInOrder() {
+    return selectedBindigItemsInOrder;
+  }
 
    /**
     * Getter for a list of all BindindItems used in this sql
     */
-   public List<BindingItem> getSelectedBindigItemsInOrder() {
-    return selectedBindigItemsInOrder;
+   public List<BindingItem> getAllBindigItemsInOrder() {
+    return allBindigItemsInOrder;
+  }
+
+   /**
+    * Get first index of selected BindingItem
+    */
+  public int getIndex(String bindingItem) {
+    int index = 1;
+    for(BindingItem bi: allBindigItemsInOrder) {
+      if( bi.getId().equals(bindingItem)) {
+        return index;
+      }
+      index++;
+    }
+    return -1;
   }
 
   /**
@@ -147,6 +169,7 @@ public class SQLEngine {
       bindingMap.keySet().stream().forEach( requestedBindingSets::add );
       bindingMap.values().stream().map( p->p.getBindingSet() ).forEach( resultingBindingSets::add );
       bindingMap.values().stream().map( p->p.getSelectedBindigItemsInOrder() ).flatMap( l->l.stream() ).forEach( selectedBindigItemsInOrder::add );
+      bindingMap.values().stream().map( p->p.getAllBindigItemsInOrder() ).flatMap( l->l.stream() ).forEach( allBindigItemsInOrder::add );
 
       return result.toString();
    }
