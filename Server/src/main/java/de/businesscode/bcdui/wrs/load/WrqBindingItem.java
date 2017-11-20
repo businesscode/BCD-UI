@@ -606,8 +606,7 @@ public class WrqBindingItem implements WrsBindingItem
    * @return true if the BindingItem represents a numeric value
    */
   public boolean isNumeric() {
-    return ( jdbcDataType == Types.INTEGER || jdbcDataType == Types.NUMERIC || jdbcDataType == Types.DECIMAL || jdbcDataType == Types.DOUBLE || jdbcDataType == Types.FLOAT
-             || jdbcDataType == Types.BIGINT  || jdbcDataType == Types.BIT  || jdbcDataType == Types.REAL || jdbcDataType == Types.SMALLINT || jdbcDataType == Types.TINYINT );
+    return BindingUtils.isNumeric(jdbcDataType);
   }
 
 }

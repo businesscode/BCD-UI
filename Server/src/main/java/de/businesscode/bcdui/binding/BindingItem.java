@@ -139,9 +139,7 @@ public class BindingItem extends SimpleBindingItem {
   }
 
   public boolean isNumeric() {
-    return jdbcDataType != null 
-           && ( jdbcDataType == Types.BIGINT  || jdbcDataType == Types.BIT     || jdbcDataType == Types.DECIMAL || jdbcDataType == Types.DOUBLE   || jdbcDataType == Types.FLOAT
-                || jdbcDataType == Types.INTEGER || jdbcDataType == Types.NUMERIC || jdbcDataType == Types.REAL    || jdbcDataType == Types.SMALLINT || jdbcDataType == Types.TINYINT) ;
+    return BindingUtils.isNumeric(jdbcDataType);
   }
   
   /**

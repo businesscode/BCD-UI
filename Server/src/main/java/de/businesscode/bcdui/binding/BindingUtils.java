@@ -117,4 +117,24 @@ public class BindingUtils
     List<String> colExpr = splitColumnExpression(sCE, columnQuoting, bs);
     return addTableAlias(colExpr, tableAlias);
   }
+
+
+  /**
+   * @return true typeName represents a numeric type
+   */
+  public static boolean isNumeric(String typeName) {
+    try {
+      return isNumeric(Types.class.getField(typeName).getInt(null));
+    } catch ( NoSuchFieldException | IllegalAccessException ex ) {
+      return false;
+    }
+  }
+
+  /**
+   * @return true if jdbcType represents a numeric type
+   */
+  public static boolean isNumeric(int jdbcType) {
+    return ( jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC || jdbcType == Types.DECIMAL || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
+            || jdbcType == Types.BIGINT  || jdbcType == Types.BIT  || jdbcType == Types.REAL || jdbcType == Types.SMALLINT || jdbcType == Types.TINYINT );
+  }
 }
