@@ -272,7 +272,7 @@
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"toggleHideTotals"} )</JavaScriptAction>
         </Entry>
         <Entry caption="Report export">
-          <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId: 'exportWysiwygAsExcel'})</JavaScriptAction>
+          <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:reportExport")</JavaScriptAction>
         </Entry>
         <Entry caption="Show all hidden values">
           <JavaScriptAction>

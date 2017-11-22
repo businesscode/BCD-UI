@@ -19,60 +19,6 @@
  *   This file contains the class definition of the PDFExport class.
  */
 
-jQuery.extend(bcdui.component.exports, {
-  /**
-   * Converts a subset of the css styles assigned by the browser into inline styles because Excel does not have the full css logic
-   * @return {Element} A clone of the element tree to be exported enriched with inline styles.
-   * @private
-   */
-  _doInlineCssAttributes: ["colspan","rowspan"],
-  /**
-   * @private
-   */
-  _doInlineCssStyles:  [ "backgroundColor", "color", "fontWidth",
-                         "borderTopColor", "borderTopStyle", "borderTopWidth","borderRightColor", "borderRightStyle", "borderRightWidth",
-                         "borderBottomColor", "borderBottomStyle", "borderBottomWidth","borderLeftColor", "borderLeftStyle", "borderLeftWidth" ],
-  /**
-   * @private
-   */
-  _doInlineCss: function(origParent, newParent) {
-    if( ! newParent )
-      newParent = document.createElement(origParent.nodeName.replace("BCD-","BCD")); // We do not want custom elements becoming active here
-
-    for( var c=0; c<origParent.childNodes.length; c++ )
-    {
-      var nodeType = origParent.childNodes[c].nodeType;
-      if( nodeType == 1 )
-      {
-        var origChild = bcdui._migPjs._$(origParent.childNodes[c]).get(0);
-        if( origChild.getAttribute("bcdHideOnExport")=="true" || origChild.nodeName=="INPUT" )
-          continue;
-
-        var newChild = bcdui._migPjs._$(origChild.cloneNode(false)).get(0);
-
-        bcdui.component.exports._doInlineCssAttributes.forEach( function(attrName)
-          {
-            var attrValue;
-            if( (attrValue = origChild.getAttribute(attrName)) )
-              newChild.setAttribute( attrName, attrValue );
-          });
-
-        bcdui.component.exports._doInlineCssStyles.forEach( function(styleName)
-            {
-               var styleValue = bcdui._migPjs._$(origChild).css(styleName);
-               if( styleValue && styleValue!="transparent" && styleValue!="normal" && styleValue!="none" && styleValue!="#000000" && styleValue!="rgb(0,0,0)" )
-                 newChild.style[styleName] = styleValue;
-             });
-        bcdui.component.exports._doInlineCss( origChild, newChild );
-        newParent.appendChild( newChild )
-
-      } else if( nodeType == 3 )
-        newParent.appendChild( origParent.childNodes[c].cloneNode(false) );
-    }
-    return newParent;
-  }
-});
-
 bcdui.util.namespace("bcdui.component.exports");
 
 bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
@@ -164,13 +110,6 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       this.servletBaseUrl = args.servletBaseUrl || bcdui.component.exports._html2PdfServletUrl;
       this.mode = args.mode || "PdfOrImage";
       this.fileName = args.fileName || "";
-
-      // We overwrite depending on the mode the css handling. The one, which does not apply, becomes a dummy
-      if( this.mode=="Excel" ) {
-        this._generateCSSLinkElements = function() { return "" }; //  No need to create css imports
-      } else {
-        bcdui.component.exports._doInlineCss = function(rootElement) { return rootElement }; // No need to create inline styles
-      }
 
       /**
        * An array of URLs containing CSS files to be loaded by the server.
@@ -291,25 +230,14 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       if (formElement == null)
         throw Error("Internal error, form element (" + this.form + ") for PDF export not found.");
 
-      // Lets loop over the elements to be included and collect their content
-      var fullHTML = "";
-      for( var re=0; re<this.rootElementArray.length; re++ )
-      {
-        var rootElement = bcdui._migPjs._$(this.rootElementArray[re]).get(0);
-        if( !rootElement )
-          continue;
-
-        // Extract HTML content
-        var tree = bcdui.component.exports._doInlineCss( rootElement );
-        var contentHTML = bcdui.util.stripScripts(tree.outerHTML);
-
-        // Adjust HTML for export
-        contentHTML = contentHTML.replace(/\s(xmlns):?\s*(\w+)?\s*=\s*"?'?(http(s)?)?:[\d\w\d\s:.\/_-]+"?'?/gi, ''); // no namespaces
-        contentHTML = contentHTML.replace(/css\.style/gi, 'style');              // IE seems to make css.style for style attributes in svg
-        contentHTML = contentHTML.replace(/bcdpdfstyle\b/gi, 'style');           // this allows different styling of elements in pdf export (display: none !important)
-
-        fullHTML += contentHTML;
+      // prepend navpath
+      var navPathTable = bcdui.component.exports._generateNavPathTable();
+      if (navPathTable != null) {
+        this.rootElementArray.unshift(navPathTable);
       }
+        
+      // Lets loop over the elements to be included and collect their content
+      var fullHTML = bcdui.component.exports._html2String(this.rootElementArray);    
 
       // Generate full HTML page
       fullHTML = this._htmlPageTemplate({
@@ -320,16 +248,13 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
 
       // Insert data into form
       formElement.elements['htmlString'].value = fullHTML;
-
-      if( this.mode == "PdfOrImage" ) {
-        formElement.elements['orientation'].value = this.orientationLandscape ? "landscape" : "portrait";
-        formElement.elements['dimension'].value = this.dimension;
-        formElement.elements['format'].value = this.format;
-        formElement.elements['basePath'].value = location.pathname.substring(bcdui.config.contextPath.length);
-        formElement.elements['pageHash'].value = bcdui.config.frame.pageHash; // for tracking
-        formElement.elements['fileName'].value = this.fileName;
-        formElement.elements['htmlWidth'].value = this.htmlWidth;
-      }
+      formElement.elements['orientation'].value = this.orientationLandscape ? "landscape" : "portrait";
+      formElement.elements['dimension'].value = this.dimension;
+      formElement.elements['format'].value = this.format;
+      formElement.elements['basePath'].value = location.pathname.substring(bcdui.config.contextPath.length);
+      formElement.elements['pageHash'].value = bcdui.config.frame.pageHash; // for tracking
+      formElement.elements['fileName'].value = this.fileName;
+      formElement.elements['htmlWidth'].value = this.htmlWidth;
 
       // Send data
       // Date param is workaround for caching issue on ff;

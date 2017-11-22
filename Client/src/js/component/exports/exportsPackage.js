@@ -21,6 +21,7 @@
  * </p>
  * @namespace bcdui.component.exports
  */
+
 bcdui.util.namespace("bcdui.component.exports",
 /** @lends bcdui.component.exports */
 {
@@ -40,6 +41,109 @@ bcdui.util.namespace("bcdui.component.exports",
   _bcdExportFormId: "bcdExportForm",
 
 
+  /**
+   * Define the htmlElement attributes which will be consider in the _doInlineCss function. All others attributes are dropped.
+   * @private
+   */
+  _doInlineCssAttributes: ["colspan","rowspan"],
+  
+  /**
+   * Define the htmlElement styles which will be consider in the _doInlineCss function. All others styles are dropped.
+   * @private
+   */
+  _doInlineCssStyles:  [ "backgroundColor", "color", "fontWidth",
+                         "borderTopColor", "borderTopStyle", "borderTopWidth","borderRightColor", "borderRightStyle", "borderRightWidth",
+                         "borderBottomColor", "borderBottomStyle", "borderBottomWidth","borderLeftColor", "borderLeftStyle", "borderLeftWidth",
+                         "text-align"],
+  /**
+   * Converts a subset of the css styles assigned by the browser into inline styles because Excel does not have the full css logic
+   * @return {Element} A clone of the element tree to be exported enriched with inline styles.
+   * @private
+   */
+  _doInlineCss: function(origParent, newParent) {
+    if( ! newParent )
+      newParent = document.createElement(origParent.nodeName.replace("BCD-","BCD")); // We do not want custom elements becoming active here
+
+    for( var c=0; c<origParent.childNodes.length; c++ )
+    {
+      var nodeType = origParent.childNodes[c].nodeType;
+      if( nodeType == 1 )
+      {
+        var origChild = bcdui._migPjs._$(origParent.childNodes[c]).get(0);
+        if( origChild.getAttribute("bcdHideOnExport")=="true" || origChild.nodeName=="INPUT" )
+          continue;
+
+        var newChild = bcdui._migPjs._$(origChild.cloneNode(false)).get(0);
+
+        bcdui.component.exports._doInlineCssAttributes.forEach( function(attrName)
+          {
+            var attrValue;
+            if( (attrValue = origChild.getAttribute(attrName)) )
+              newChild.setAttribute( attrName, attrValue );
+          });
+
+        bcdui.component.exports._doInlineCssStyles.forEach( function(styleName)
+            {
+               var styleValue = bcdui._migPjs._$(origChild).css(styleName);
+               if( styleValue && styleValue!="transparent" && styleValue!="normal" && styleValue!="none" && styleValue!="#000000" && styleValue!="rgb(0,0,0)" )
+                 newChild.style[styleName] = styleValue;
+             });
+        bcdui.component.exports._doInlineCss( origChild, newChild );
+        newParent.appendChild( newChild )
+
+      } else if( nodeType == 3 )
+        newParent.appendChild( origParent.childNodes[c].cloneNode(false) );
+    }
+    return newParent;
+  },
+
+  /**
+   * Convert HtmlElements to string
+   * @return {String} HTML String
+   * @private
+   */
+  _html2String: function(targetElementOrArrayOfElements) {
+    var rootElement = [];
+    if (Array.isArray(targetElementOrArrayOfElements)) {
+      rootElement = rootElement.concat(targetElementOrArrayOfElements);
+    } else {
+      rootElement.push(targetElementOrArrayOfElements);
+    }
+    var fullHTML = '';
+    //
+    for( var re=0; re<rootElement.length; re++ )
+    {
+      var tElement = bcdui._migPjs._$(rootElement[re]).get(0);
+      if( !tElement ) {
+        continue;
+      }
+      // Extract HTML content
+      var contentHTML = bcdui.util.stripScripts(tElement.outerHTML);
+      // Adjust HTML for export
+      contentHTML = contentHTML.replace(/\s(xmlns):?\s*(\w+)?\s*=\s*"?'?(http(s)?)?:[\d\w\d\s:.\/_-]+"?'?/gi, ''); // no namespaces
+      contentHTML = contentHTML.replace(/css\.style/gi, 'style');              // IE seems to make css.style for style attributes in svg
+      contentHTML = contentHTML.replace(/bcdpdfstyle\b/gi, 'style');           // this allows different styling of elements in pdf export (display: none !important)
+      //
+      fullHTML += contentHTML;
+    }
+    //
+    return fullHTML;
+  },
+  
+  /**
+   * get navpath and return a table which contains it
+   * @return {Element}
+   * @private
+   */
+  _generateNavPathTable: function() {
+    var root = bcdui.wkModels.bcdNavPath.query("/*");
+    if (root && root.getAttribute("targetId") != null) {
+      var navPathTarget = root.getAttribute("targetId");
+      return jQuery("<table><tr><td>" + jQuery("#" + navPathTarget).text() + "</td></tr><tr></tr></table>").get(0);
+    }
+    return null;
+  },
+  
   /**
    * Produces a WYSIWYG pdf export of a windows.document subtree, needs pdf extension, part of EnterpriseEdition
    * @param {Object} args The parameter map contains the following properties:
@@ -85,46 +189,53 @@ bcdui.util.namespace("bcdui.component.exports",
   },
 
   /**
-   * Produces a WYSIWYG pdf export of a windows.document subtree
+   * Produces a WYSIWYG Excel export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
    * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
    * @param {string}                [args.fileName=export(_timestamp).xsl] - The name of the returned Excel document
-   * @param {string[]|string}       [args.css]                        - An array or space separated list of URLs containing CSS files to be used, relative the the current page.
-   * This allows using different styling on export than on the page. You can also use an bcdPdfStyle for inline style only to be applied on export.
-   * Absolute paths starting with '/' are relative to the context path. Use more specific rule precedence. (css precedence based on later declaration is not supported).
-   * Local css are being cached.
    */
   exportWysiwygAsExcel: function( args )
   {
-    args.mode = "Excel";
-    args.servletBaseUrl = args.servletBaseUrl || bcdui.component.exports._html2ExcelServletUrl;
-
+    // rootElement to Array
+    // make sure we have an array of Elements or Ids
+    var rootElementArray = [];
+    if (Array.isArray(args.rootElement)) {
+      rootElementArray = args.rootElement;
+    } else {
+      rootElementArray.push(args.rootElement);
+    }
+    args.rootElement = rootElementArray;
+    //
+    // no file name - generate
     if (! args.fileName) {
-
-      // use navPath title if available and no fileName is given
-      // also - when using navPath - prepend navPath html for export  
-      var root = bcdui.wkModels.bcdNavPath.query("/*");
-      if (root && root.getAttribute("targetId") != null) {
-        var navPathTarget = root.getAttribute("targetId");
-        var oldRoot = args.rootElement;
-        args.rootElement = [];
-        if (navPathTarget)
-          args.rootElement.push(jQuery("<table><tr><td>" + jQuery("#" + navPathTarget).text() + "</td></tr><tr></tr></table>").get(0));
-        if (typeof oldRoot == "string")      // html id
-          args.rootElement.push(oldRoot);
-        else if (jQuery(oldRoot).length > 0) // html element
-          args.rootElement.push(oldRoot);
-        else if (oldRoot.length > 0)         // array
-          args.rootElement.concat(oldRoot);
-
-        var fileName = bcdui.component.exports._getFileNameFromNavPath();
-        if (fileName)
-          args.fileName = fileName + "_" + bcdui.component.exports._getExportTimeStamp() + ".xls";
+      var fileName = bcdui.component.exports._getFileNameFromNavPath();
+      if (fileName) {
+        args.fileName = fileName + "_" + bcdui.component.exports._getExportTimeStamp() + ".xls";
+      } else {
+        args.fileName = "export_" + bcdui.component.exports._getExportTimeStamp() + ".xls";
       }
     }
+    //
+    // add Nav Path as an element to rootElement chain
+    var navPathTable = bcdui.component.exports._generateNavPathTable();
+    if (navPathTable != null) {
+        args.rootElement.unshift(navPathTable);
+    }
+    //
+    for (var i = 0; i < args.rootElement.length; i++) {
+      args.rootElement[i] = bcdui.component.exports._doInlineCss(bcdui._migPjs._$(args.rootElement[i]).get(0));
+    }
 
-    args.fileName = args.fileName || "export_" + bcdui.component.exports._getExportTimeStamp() + ".xls";
-    new bcdui.component.exports.PDFExport( args ).execute();
+    // build a frame html tag and provide charset
+    var fullHTML = '<html><head><meta http-equiv=Content-Type content="text/html; charset=UTF-8"></head>';
+    fullHTML += '<style>\n<!--table {mso-displayed-decimal-separator:"\."; mso-displayed-thousand-separator:"\,";} -->\n</style>';
+    fullHTML += bcdui.component.exports._html2String(args.rootElement);
+    fullHTML += "</html>";
+    
+    //
+    var blob = new Blob([fullHTML],{encoding:"UTF-8",type:"application/vnd.ms-excel;charset=UTF-8"});
+    saveAs(blob, args.fileName);
+    //
   },
 
   /**

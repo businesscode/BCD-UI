@@ -216,6 +216,13 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
         bcdui.component.exports.detailExport( { wrq: modelName, type: fileType } );
       }.bind(undefined,args.id, args.inputModel, args.enhancedConfiguration, args.metaDataModel, args.detailExportFilterModel)
     );
+
+    // Fires a detail export request based on current bcdRow/ColIdents of context menu
+    jQuery("#"+this.targetHtml).on( "cubeActions:reportExport",
+      function(targetHtml) {
+      	bcdui.component.exports.exportWysiwygAsExcel({rootElement: targetHtml});
+      }.bind(undefined,this.targetHtml)
+    );
     
     if (isLeaf)
       this._checkAutoRegister();

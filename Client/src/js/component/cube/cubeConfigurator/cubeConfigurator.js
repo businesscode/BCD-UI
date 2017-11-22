@@ -705,10 +705,6 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     if (node)
       node.parentNode.removeChild(node);
     return true;
-  },
-
-  exportWysiwygAsExcel: function( targetModelId, cubeId, args ){
-    bcdui.component.exports.exportWysiwygAsExcel({rootElement: jQuery("[bcdrendererid='" + cubeId + "']").get(0).id});
-    return false;
   }
+  
 });
