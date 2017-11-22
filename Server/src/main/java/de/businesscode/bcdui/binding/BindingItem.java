@@ -139,7 +139,7 @@ public class BindingItem extends SimpleBindingItem {
   }
 
   public boolean isNumeric() {
-    return BindingUtils.isNumeric(jdbcDataType);
+    return BindingUtils.isNumeric(getJDBCDataType());
   }
   
   /**
