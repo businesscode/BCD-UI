@@ -44,6 +44,9 @@
         </xsl:when>
         <xsl:otherwise>
           <ul>
+            <xsl:if test="/*/cube:Layout[@cubeId=$objectId]/cube:Dimensions/@hideTotals='true' or /*/scc:Layout[@scorecardId=$objectId]/scc:Dimensions/@hideTotals='true'">
+              <li>All totals are hidden</li>
+            </xsl:if>
             <xsl:call-template name="dimensions"/>
             <xsl:call-template name="columnDimensions"/>
             <xsl:call-template name="measures"/>
