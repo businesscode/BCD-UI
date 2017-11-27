@@ -223,7 +223,17 @@
         <f:And>
           <xsl:for-each select="$filterTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
             <xsl:variable name="bRefName" select="./wrs:C" />
-            <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+            <xsl:choose>
+              <!-- see dimchooser comment below -->
+              <xsl:when test="$guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
+                <xsl:element name="{name($guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
+                  <xsl:apply-templates select="$guiStatus/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+                </xsl:element>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:for-each>
         </f:And>
       </xsl:if>
@@ -231,7 +241,23 @@
         <f:And>
           <xsl:for-each select="$initialFilterTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
             <xsl:variable name="bRefName" select="./wrs:C" />
-            <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+            <xsl:choose>
+              <!--
+                if requested filter token is part of a dimension chooser structure we cannot simply copy the outer filter.
+                We only want to copy sub elements (OR for include, AND for exclude mode) where the bRef matches.
+                This is needed if you got a mixed mode multi selection where sub element groups can use different bRef
+                combinations which even may belong to different bindings (e.g. via binding set group).
+                For non-mixed mode filter structures, this when part is identical to the otherwise part.
+               -->
+              <xsl:when test="$guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
+                <xsl:element name="{name($guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
+                  <xsl:apply-templates select="$guiStatus/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+                </xsl:element>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:for-each>
         </f:And>
       </xsl:if>
