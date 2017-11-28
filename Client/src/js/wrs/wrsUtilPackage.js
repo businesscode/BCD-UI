@@ -1128,7 +1128,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       dataProvider = bcdui.factory.objectRegistry.getObject(wrs);
     else if (wrs instanceof bcdui.core.DataProvider)
       dataProvider = wrs;
-    wrs = dataProvider == null ? wrs : dataProvider.getData().selectSingleNode("/*");
+    wrs = dataProvider == null ? (wrs.documentElement||wrs) : dataProvider.getData().selectSingleNode("/*");
 
     var isWrs = (wrs.baseName||wrs.localName) == "Wrs";
     if(!isWrs)
