@@ -120,9 +120,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "bcdui.util.namespace('" + jsConstructorLongname.substring(0,jsConstructorLongname.lastIndexOf(".")) + "');" + newLine;
   result += jsConstructorLongname + " = document.registerElement(\"" + tagName + "\", { prototype: " + newLine;
   result += "  Object.create(HTMLElement.prototype, {" + newLine;
-  result += "    createdCallback: {" + newLine;
+  result += "    attachedCallback: {" + newLine;
   result += "      value: function() {" + newLine;  
-  result += "        setTimeout( function() { " + newLine;
   result += "          var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
@@ -182,7 +181,6 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "            args.id = this.getAttribute('objectId');" + newLine;
 
   result += "          " + factory + "( args );" + newLine;
-  result += "        }.bind(this) );" + newLine;
   result += "      }" + newLine;
   result += "    }" + newLine;
   result += "  })" + newLine;
