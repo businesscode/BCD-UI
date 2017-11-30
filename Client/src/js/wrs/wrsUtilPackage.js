@@ -1256,7 +1256,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
 
   /**
    * POSTs one or mode WRS documents to well known WrsServlet URL
-   * Multiple document are handled by WrsServlet in one transaction
+   * Multiple document are handled by WrsServlet in one transaction,
    *
    * @param {(Object|XMLDocument|XMLDocument[])} args - Document(s) or a parameter object with the following properties
    * @param {(Object|XMLDocument|XMLDocument[])} args.wrsDoc              - Document(s) or a parameter object with the following properties
@@ -1287,13 +1287,21 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       var docs = args.wrsDoc;
       args.wrsDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<MultiWrs/>");
       docs.forEach(function(doc){
-        var targetWrsDoc = doc.selectSingleNode("/wrs:Wrs[wrs:Data/*[not(wrs:R)]]");
+        var targetWrsDoc = doc.selectSingleNode("/wrs:Wrs[wrs:Data/wrs:*[not(wrs:R)]]");
         if(targetWrsDoc){
           args.wrsDoc.documentElement.appendChild(
             args.wrsDoc.importNode(targetWrsDoc, true)
           );
         }
       });
+    }
+    // remove waste
+    bcdui.core.removeXPath(args.wrsDoc, "//wrs:Wrs/wrs:Data/wrs:R", false);
+
+    // dont do roundtrip in case we have no write operations (wrs:R were removed in step before)
+    if(!args.wrsDoc.selectSingleNode("//wrs:Wrs[wrs:Data/wrs:*]")){
+      setTimeout(args.onSuccessCb); // defer to keep compatibility
+      return;
     }
     if(!args.onWrsValidationFailure){
       args.onWrsValidationFailure = args.onFailureCb;
