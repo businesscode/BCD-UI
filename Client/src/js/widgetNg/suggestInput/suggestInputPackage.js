@@ -972,7 +972,8 @@
         renderer = bcdui.factory.objectRegistry.getObject(rendererId);
   
         var customStaticRebind = function(renderer){
-          renderer.targetHTMLElementId = this._CST_DATALIST_ELEMENT_ID;
+          // rebind to different target before rendering
+          renderer.setTargetHtml(this._CST_DATALIST_ELEMENT_ID);
           renderer.addDataProvider(bcdui.factory.objectRegistry.getObject(this._WIDGET_VALUE_DATAPROVIDER));
         }.bind(this);
   
