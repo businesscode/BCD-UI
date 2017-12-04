@@ -117,10 +117,11 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
  */
 bcdui.widgetNg.validation.validators.widget.getValue = function(htmlElementId){
   var el = bcdui._migPjs._$(htmlElementId);
-  if(el.get(0).value==null||!el.get(0).value.trim()||el.data("bcdIsValuePlaceholder")){
+  var value = el.val();
+  if(!value || !value.trim() || el.data("bcdIsValuePlaceholder")){
     return "";
   }else{
-    return el.get(0).value;
+    return value;
   }
 }
 
