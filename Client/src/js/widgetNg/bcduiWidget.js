@@ -100,8 +100,9 @@
     },
 
     /**
-     * runs async validation, this must be only run AFTER any implicit or syncrhonous validation
-     * has been run and widget is considered VALID
+     * runs async validation on element returned by #_getValidatingElement(), this must
+     * be only run AFTER any implicit or syncrhonous validation has been run and widget
+     * is considered VALID
      * 
      * in case of invalidity, this function calls #_setInvalidity() providing message to set.
      * 
@@ -149,7 +150,7 @@
      * @private
      */
     _getValidatingElement : function(){
-      return this.element.find("input, select").first();
+      return this.element.find("input, select, textarea").first();
     },
 
     /**
