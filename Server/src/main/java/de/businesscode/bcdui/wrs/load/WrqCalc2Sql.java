@@ -119,20 +119,19 @@ public class WrqCalc2Sql
         String aggr = null;
         if( ! isWithinAggr && needsAggr ) { // We need to use the "local" aggr
           aggr = child.getAttribute("aggr").isEmpty() ? wrqInfo.getDefaultAggr(bi) : aggregationMapping.get(child.getAttribute("aggr"));
-          sql.append(aggr).append("(");
+          sql.append(aggr);
+          if ("COUNT".equalsIgnoreCase(aggr))
+            doCastToDecimal = false;
         }
+        sql.append("(");
 
-        if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) )
-          sql.append(" CAST(");
-        sql.append("("+bi.getColumnExpression()+")"); // Just for cases where colExpr is nontrivial ()
         if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) ) {
-          sql.append(" AS DECIMAL(38,19))");
+          sql.append(" CAST((").append(bi.getColumnExpression()).append(") AS DECIMAL(38,19))");
           doCastToDecimal = false;
+        } else {
+          sql.append(bi.getColumnExpression());
         }
-
-        // Close local unaggregated level
-        if( aggr != null ) // Close local aggr
-          sql.append( ")" );
+        sql.append( ")" );
       }
 
       // We found a const expression
