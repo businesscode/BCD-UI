@@ -288,6 +288,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("Div",           new String[]{"Y",  "(",     "/ NULLIF(",  ",0) )", "N"});
     calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
     calcFktMapping.put("Concat",        new String[]{"N",  "(",     "||", ")", "N"});
+    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
     // Analytical functions optional module
     calcFktMapping.put("CountOver",     new String[]{"N", "COUNT(",         "",   ")", "O"});
@@ -295,12 +296,12 @@ public class DatabaseCompatibility
     calcFktMapping.put("LeadOver",      new String[]{"N", "LEAD(",          ",",  ")", "O"});
     calcFktMapping.put("PartitionBy",   new String[]{"N", " PARTITION BY ", ",",  "",  "I"});
     calcFktMapping.put("OrderBy",       new String[]{"N", " ORDER BY ",     ",",  "",  "O"});
-    
+
     // Calc functions are just _almost_ the same for all db dialects
     oracleCalcFktMapping = calcFktMapping;
     sqlServerCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     // Using '+' for MSSQL for concat does not autocast: VARCHAR + INTEGER fails. Concat does cast, same as || does for oracle.
-    // On the other hand, concat for oracle does not support >2 agruments, so Concat is handled db specific
+    // On the other hand, concat for oracle does not support >2 arguments, so Concat is handled db specific
     sqlServerCalcFktMapping.put("Concat", new String[]{"N",  "CONCAT(",     ",", ")", "N"});
 
     // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values cause by higher aggregation

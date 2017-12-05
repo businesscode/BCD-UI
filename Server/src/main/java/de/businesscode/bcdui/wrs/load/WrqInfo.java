@@ -116,6 +116,7 @@ public class WrqInfo
       groupingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | /*/wrq:Select/wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       havingBidRefXpathExpr       = xp.compile("/*/wrq:Select/wrq:Having//f:Expression//@bRef");
       orderingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | /*/wrq:Select/wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      topNBidRefXPathExpr         = xp.compile("/*/wrq:Select/wrq:TopNDimMembers//wrq:LevelRef/@bRef   | /*/wrq:Select/wrq:TopNDimMembers//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
 
       vdmXpathExpr                 = xp.compile("/*/wrq:Select/wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
     } catch (XPathExpressionException e) {
@@ -245,7 +246,7 @@ public class WrqInfo
       String tmp = ((Element)vdmMapElem.getParentNode()).getAttribute("bRef");
       if( !tmp.equals(vdmBRef) ) {
         vdmBRef = tmp;
-        mapping = vdms.get( vdmBRef ) != null ? vdms.get( vdmBRef ) : new HashMap();
+        mapping = vdms.get( vdmBRef ) != null ? vdms.get( vdmBRef ) : new HashMap<String,Set<String>>();
         // Take care for the 'rest' mapping
         String rest = ((Element)vdmMapElem.getParentNode()).getAttribute("rest");
         if( ! rest.isEmpty() )
@@ -282,6 +283,7 @@ public class WrqInfo
     {
       NodeList groupingNl  = (NodeList) groupingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
       NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+      NodeList topNBidRefNl = (NodeList) topNBidRefXPathExpr.evaluate(wrq, XPathConstants.NODESET);
 
       for( int i=0; i<selectedBidRefNl.getLength(); i++ )
         allRawBRefs.add(selectedBidRefNl.item(i).getNodeValue());
@@ -297,7 +299,9 @@ public class WrqInfo
       }
       for( int i=0; i<orderingBidRefNl.getLength(); i++ )
         allRawBRefs.add(orderingBidRefNl.item(i).getNodeValue());
-
+      for ( int i=0; i<topNBidRefNl.getLength();i++) {
+        allRawBRefs.add(topNBidRefNl.item(i).getNodeValue());
+      }
       resultingBindingSet = bindings.get(wrqBindingSetId, allRawBRefs);
 
       // B.1.a Empty select list
@@ -399,7 +403,6 @@ public class WrqInfo
         else
           allBRefAggrs.get(bRef_Aggr).setOrderByDescending(isDescending);
       }
-
 
     }
     // Now we need to assure the correct columnNumber for our users, i.e. it defines the position in the outer most select list
@@ -532,6 +535,7 @@ public class WrqInfo
   private final XPathExpression groupingBidRefXpathExpr;
   private final XPathExpression havingBidRefXpathExpr;
   private final XPathExpression orderingBidRefXpathExpr;
+  private final XPathExpression topNBidRefXPathExpr;
 
   private final XPathExpression vdmXpathExpr;
 
