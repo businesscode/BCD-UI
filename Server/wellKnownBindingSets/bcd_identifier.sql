@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-CREATE TABLE TB_FE_IDENTIFIER (
+CREATE TABLE BCD_IDENTIFIER (
   "SCOPE" VARCHAR2(255 CHAR) PRIMARY KEY,
   "LASTID" NUMBER(22,0) DEFAULT 1
 );

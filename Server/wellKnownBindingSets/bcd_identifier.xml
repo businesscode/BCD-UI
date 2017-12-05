@@ -16,7 +16,7 @@
 -->
 <BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
   xmlns:sec="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0"
-  id="bcd_identifier" table="TB_FE_IDENTIFIER" allowSelectAllColumns="true">
+  id="bcd_identifier" table="BCD_IDENTIFIER" allowSelectAllColumns="true">
   <C id="scope" isKey="true"><Column>SCOPE</Column></C>
   <C id="lastid"><Column>LASTID</Column></C>
 </BindingSet>

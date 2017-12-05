@@ -19,7 +19,7 @@
 
   <xsl:output method="xml" indent="no"/>
 
-  <xsl:param name="tableName">TB_I18N</xsl:param>
+  <xsl:param name="tableName">BCD_I18N</xsl:param>
   <xsl:param name="ddl.key">I18N_KEY</xsl:param>
   <xsl:param name="ddl.value">I18N_VALUE</xsl:param>
   <xsl:param name="ddl.lang">I18N_LANG</xsl:param>
