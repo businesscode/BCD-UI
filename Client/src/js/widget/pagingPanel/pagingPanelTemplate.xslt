@@ -93,9 +93,15 @@
                 <xsl:with-param name="lastPage"><xsl:value-of select="$lastPage"/></xsl:with-param>
                 <xsl:with-param name="pageSize"><xsl:value-of select="$pageSize"/></xsl:with-param>
                 <xsl:with-param name="currentPage"><xsl:value-of select="$currentPage"/></xsl:with-param>
-                <xsl:with-param name="showAllOption"><xsl:value-of select="$showAllOption"/></xsl:with-param>
-                <xsl:with-param name="showAllTitle"><xsl:value-of select="$showAllTitle"/></xsl:with-param>
               </xsl:call-template>
+              <xsl:if test="$showAllOption = 'true'">
+                <option value="all">
+                  <xsl:if test="$currentPage = 'all'">
+                    <xsl:attribute name="selected">selected</xsl:attribute>
+                  </xsl:if>
+                  <xsl:value-of select='$showAllTitle'/>
+                </option>
+              </xsl:if>
             </select>
           </td>
           <td class="bcdPagingCoutOfElements"> of <xsl:choose><xsl:when test="$totalRowsCount >= 0"><xsl:value-of select="$totalRowsCount"/></xsl:when><xsl:otherwise><xsl:value-of select="$rowsCount"/></xsl:otherwise></xsl:choose></td>
@@ -144,48 +150,54 @@
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
   <xsl:template name="createOptions">
     <xsl:param name="pageNum" select="1"/>
     <xsl:param name="rowsCount"/>
     <xsl:param name="lastPage"/>
     <xsl:param name="pageSize"/>
     <xsl:param name="currentPage"/>
-    <xsl:param name="showAllOption" select="false"/>
-    <xsl:param name="showAllTitle" select="'All'"/>
-
-    <option value="{$pageNum}">
-      <xsl:if test="$pageNum = $currentPage">
-        <xsl:attribute name="selected">selected</xsl:attribute>
-      </xsl:if>
-      <xsl:variable name="value">
-        <xsl:value-of select="($pageSize * ($pageNum - 1 )) + 1*(boolean($rowsCount>0))"/>
-        -
-        <xsl:choose>
-          <xsl:when test="$pageNum = $lastPage"><xsl:value-of select="$rowsCount"/></xsl:when>
-          <xsl:otherwise><xsl:value-of select="$pageSize * $pageNum"/></xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:value-of select="normalize-space($value)"/>
-    </option>
-
-    <xsl:if test="$pageNum &lt; $lastPage">
-      <xsl:call-template name="createOptions">
-        <xsl:with-param name="pageNum" select="$pageNum + 1"/>
-        <xsl:with-param name="rowsCount"><xsl:value-of select="$rowsCount"/></xsl:with-param>
-        <xsl:with-param name="lastPage"><xsl:value-of select="$lastPage"/></xsl:with-param>
-        <xsl:with-param name="pageSize"><xsl:value-of select="$pageSize"/></xsl:with-param>
-        <xsl:with-param name="currentPage"><xsl:value-of select="$currentPage"/></xsl:with-param>
-        <xsl:with-param name="showAllOption"><xsl:value-of select="$showAllOption"/></xsl:with-param>
-        <xsl:with-param name="showAllTitle"><xsl:value-of select="$showAllTitle"/></xsl:with-param>
-      </xsl:call-template>
-    </xsl:if>
-    <xsl:if test="$pageNum = $lastPage and $showAllOption = 'true'">
-      <option value="all">
-        <xsl:if test="$currentPage = 'all'">
-          <xsl:attribute name="selected">selected</xsl:attribute>
-        </xsl:if>
-        <xsl:value-of select='$showAllTitle'/>
-      </option>
+    <xsl:if test="not($pageNum > $lastPage)">
+      <xsl:choose>
+        <xsl:when test="$pageNum = $lastPage">
+          <option value="{$pageNum}">
+            <xsl:if test="$pageNum = $currentPage">
+              <xsl:attribute name="selected">selected</xsl:attribute>
+            </xsl:if>
+            <xsl:variable name="value">
+              <xsl:value-of select="($pageSize * ($pageNum - 1 )) + 1*(boolean($rowsCount>0))" />
+              -
+              <xsl:choose>
+                <xsl:when test="$pageSize * $pageNum > $rowsCount">
+                  <xsl:value-of select="$rowsCount" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$pageSize * $pageNum" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <xsl:value-of select="normalize-space($value)" />
+          </option>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:variable name="vMid" select="floor(($pageNum + $lastPage) div 2)" />
+          <xsl:call-template name="createOptions">
+            <xsl:with-param name="pageNum" select="$pageNum" />
+            <xsl:with-param name="rowsCount" select="$rowsCount" />
+            <xsl:with-param name="lastPage" select="$vMid" />
+            <xsl:with-param name="pageSize" select="$pageSize" />
+            <xsl:with-param name="currentPage" select="$currentPage" />
+          </xsl:call-template>
+          <xsl:call-template name="createOptions">
+            <xsl:with-param name="pageNum" select="$vMid+1" />
+            <xsl:with-param name="rowsCount" select="$rowsCount" />
+            <xsl:with-param name="lastPage" select="$lastPage" />
+            <xsl:with-param name="pageSize" select="$pageSize" />
+            <xsl:with-param name="currentPage" select="$currentPage" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:template>
+
 </xsl:stylesheet>
