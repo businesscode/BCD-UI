@@ -257,8 +257,8 @@ bcdui.util.namespace("bcdui.i18n",
    * Translates the given over HTML element or the whole document
    * without waiting for i18nModel, we rely on it being loaded and executed before before. If
    * the catalog is not initialized up to this moment (the catalog
-   * initialization is asychronous) then NULL is returned in production
-   * and an error is thrown in debug mode.
+   * initialization is asychronous) then translation is optionally scheduled to a point
+   * when the catalog is loaded.
    *
    * @param {Object} args - Parameter object
    * @param {(HTMLElement|string)} args.elementOrId  - ID or HTML element to translate, default "document"
