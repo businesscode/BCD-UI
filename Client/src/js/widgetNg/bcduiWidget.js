@@ -97,6 +97,20 @@
       this._dataListeners = [];
       // bind 'bcd-validate'
       this.element.on(EVENT.validate, () => !this.options.disabled && this.validate());
+
+      // handle placeholder i18n
+      if(this.options.placeholder && this.options.placeholder.startsWith(bcdui.i18n.TAG)){
+        if(bcdui.i18n.isReady()){ // adhoc translation
+          this.options.placeholder = bcdui.i18n.syncTranslateFormatMessage({msgid:this.options.placeholder});
+        }else{
+          // no i18n yet, fix when loaded
+          bcdui.i18n._onTranslatorInitFuncs.push(()=>{
+            this.options.placeholder = bcdui.i18n.syncTranslateFormatMessage({msgid:this.options.placeholder});
+            this.element.attr("placeholder") !== undefined && this.element.attr("placeholder", this.options.placeholder);
+            this.element.find("[placeholder]").attr("placeholder", this.options.placeholder);
+          });
+        }
+      }
     },
 
     /**
