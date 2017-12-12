@@ -297,6 +297,13 @@ bcdui.util.namespace("bcdui.i18n",
   },
 
   /**
+   * @return {boolean} true, when i18n catalog is loaded and ready to use
+   */
+  isReady : function(){
+    return !!this._getHtmlTranslator();
+  },
+
+  /**
    * @private
    */
   _messageFormatToJSPattern: /\{\s*(\d+)\s*(,\s*(\w*)\s*(,([^\}]*))?)?\}/g,
