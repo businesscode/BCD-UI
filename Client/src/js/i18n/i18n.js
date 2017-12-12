@@ -117,7 +117,7 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
    * @private
    */
   _msgIdProxy_asis : function(msgid){
-    if(msgid && msgid.indexOf(bcdui.i18n.TAG)>-1){
+    if(msgid && msgid.startsWith(bcdui.i18n.TAG)){
       return msgid.substring(1);
     }
     return msgid;
