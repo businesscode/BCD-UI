@@ -128,6 +128,9 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
    * @private
    */
   _normalizeKey:function(/*String*/ key){
+    if(key.startsWith(bcdui.i18n.TAG)){
+      key = key.substring(1);
+    }
     return key.replace(/[^a-zA-Z_0-9-]/g, "");
   }
 });
