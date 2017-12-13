@@ -1317,6 +1317,13 @@ bcdui.util.namespace("bcdui.widget",
             zoom:1
           });
 
+          // in case of a custom element, we take its body (not itself since this would end in a recusion). If no body is avaialble, an empty div is created
+          if (typeof args.bodyIdOrElement == "object" && args.bodyIdOrElement.nodeName == "BCD-BLINDUPDOWNAREA") {
+            if (jQuery(args.bodyIdOrElement).children().length == 0)
+              jQuery(args.bodyIdOrElement).append("<div></div>");
+            args.bodyIdOrElement = jQuery(args.bodyIdOrElement).children().first().get(0);
+          }
+
           bcdui._migPjs._$(args.bodyIdOrElement).css({display:"inline"});
           liBody.append(bcdui._migPjs._$(args.bodyIdOrElement));
           ul.append(liBody);
