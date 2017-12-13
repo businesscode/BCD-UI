@@ -59,7 +59,7 @@ apply from: "$sharedBuildFilesRoot/gradle/script/installTools.gradle"
 
 
 //--------------------------
-// Collects 3 binaries: bcd-ui-core with client + server, theme and jsp-taglib
+// Collects 3 binaries: bcd-ui-core with client + server
 task bcduiBuildCore( type: Jar ) {
   dependsOn    ':Server:jar', ':Client:bcduiDist'
 

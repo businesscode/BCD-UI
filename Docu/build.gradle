@@ -34,6 +34,11 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   def targetDir = "$buildDir/htmldocs/jsdoc"
   inputs.dir inputsDir
 
+  // If we are not up-to-date, cleanup before generating
+  doFirst {
+    delete targetDir
+  }
+
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
   args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).files + [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
   outputs.dir targetDir

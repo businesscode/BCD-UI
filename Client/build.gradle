@@ -292,7 +292,7 @@ task bcduiClientJsFileGroups {
  */
 task bcduiClientEcma5One2One (type: NodeTask) {
 
-  group       'bcd-ui.advanced'
+  group       'bcd-ui/advanced'
   description 'Needed for Eclipse inject, see Docu/eclipseinject.xml'
 
   def taskDestDir = "$buildDir/jsEcma5One2One"
@@ -401,7 +401,7 @@ task bcduiClean {
 //************************************
 // Clean 3rdParty artifacts
 task bcduiClean3rdParty( type: Delete ) {
-  group "bcd-ui"
+  group "bcd-ui/advanced"
   delete buildDir
 }
 

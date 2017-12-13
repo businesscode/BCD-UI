@@ -145,8 +145,20 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 //********************************
 // Convenience task, collecting all 3rdParty dependencies
 task bcduiServerCollect3rdPartyJars ( type: Copy ) {
-  from configurations.runtime
-  into "$buildDir/3rdPartyJars"
+  group 'bcd-ui/advanced'
+  def taskDestDir = '3rdPartyJars'
+  description "Collects all 3rd party dependency jars in Server|JspTaglib/$buildDir.name/$taskDestDir"
+
+  into "$buildDir/$taskDestDir"
+  from(configurations.compile) {
+    into "compileAndWebinf"
+  }
+  from(configurations.runtime - configurations.compile) {
+    into "onlyWebinf"
+  }
+  from(configurations.compileOnly) {
+    into "compileOnlyNotWebinf"
+  }
 }
 
 artifacts {
