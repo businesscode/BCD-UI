@@ -218,15 +218,45 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     },
 
   /**
+   * transforms a xpath string with placeholders. A value with an apostrophe gets translated into a concat statement.
+   * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
+   * @return {string} final xPath with filled in values for possibly existing placeholders 
+   * @private
+   */
+  _getFillParams: function(fillParams, xPath)
+    {
+      var x = xPath;
+      var concat = false;
+      if (typeof fillParams == "object") {
+        var obj = {};
+        for (var p in fillParams) {
+          var gotApos = fillParams[p].indexOf("'") != -1;
+          concat |= gotApos;
+          obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
+        }
+        x = doT.template(xPath)(obj);
+      }
+
+      // remove possibly existing outer quotes/apostrophe around the inserted concat to make a valid xPath expression
+      if (concat)
+        x = x.replace(/('|\")*(\s)*Xconcat\('/g, "concat('").replace(/, ''X\)(\s)*('|\")*/g, ", '')");
+      return x;
+    },
+
+  /**
    * Reads value from a given xPath (or optionally return default value)
-   * @param {string} xPath - xPath pointing to value 
+   * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {string} [defaultValue] - default value in case xPath value does not exist
    * @return text value stored at xPath (or null if nothing found and no defaultValue supplied)
    */
-  read: function(xPath, defaultValue) {
-    if (this.getData() == null) return (defaultValue === undefined ? null : defaultValue);
-    var node = this.getData().selectSingleNode(xPath);
-    return node != null ? node.text : (defaultValue === undefined ? null : defaultValue);
+  read: function(xPath, fillParams, defaultValue) {
+    var def = (typeof fillParams == "string") ? fillParams : defaultValue;
+    if (this.getData() == null) return (def === undefined ? null : def);
+    var x = this._getFillParams(fillParams, xPath);
+    var node = this.getData().selectSingleNode(x);
+    return node != null ? node.text : (def === undefined ? null : def);
   },
 
   /**
@@ -240,22 +270,28 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
    *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
    *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
+   *    (can include dot template placeholders which get filled with the given fillParams)
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
+   *     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return The xPath's node or null if dataProvider isn't ready
    */
-  write: function(xPath, value, fire) {
+  write: function(xPath, fillParams, value, fire) {
     if (this.getData() == null)
       return null;
-    
     this._uncommitedWrites = true;
-    
+
+    var v = (typeof fillParams == "string") ? fillParams : typeof value == "string" ? value : null;
+    var f = (typeof fillParams == "boolean") ? fillParams : typeof value == "boolean" ? value : fire;
+    var x = this._getFillParams(fillParams, xPath);
+
     // At least we assure that the path exists, maybe we also set a value
-    var newPath = bcdui.core.createElementWithPrototype(this.getData(), xPath);
-    if( value != null )
-      newPath.text = "" + value;
-    if (fire) 
+    var newPath = bcdui.core.createElementWithPrototype(this.getData(), x);
+    if( v != null )
+      newPath.text = "" + v;
+    if (f) 
       this.fire();
     return newPath;
   },
@@ -263,35 +299,43 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
   /**
    * removes given xPath
    * @param {string} xPath - xPath pointing to value 
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
    */
-  remove: function(xPath, fire) {
+  remove: function(xPath, fillParams, fire) {
     if (this.getData() == null) return;
 
     this._uncommitedWrites = true;
 
-    bcdui.core.removeXPath(this.getData(), xPath);
-    if (fire) this.fire();
+    var f = (typeof fillParams == "boolean") ? fillParams : fire;
+    var x = this._getFillParams(fillParams, xPath);
+
+    bcdui.core.removeXPath(this.getData(), x);
+    if (f) this.fire();
   },
 
   /**
    * Reads a single node from a given xPath
    * @param {string} xPath - xPath to query 
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @return single node or null if query fails
    */
-  query: function(xPath) {
+  query: function(xPath, fillParams) {
     if (this.getData() == null) return null;
-    return this.getData().selectSingleNode(xPath);
+    var x = this._getFillParams(fillParams, xPath);
+    return this.getData().selectSingleNode(x);
   },
   
   /**
    * Get node list from a given xPath
    * @param {string} xPath - xPath to query 
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @return node list or empty list if query fails
    */
-  queryNodes: function(xPath) {
+  queryNodes: function(xPath, fillParams) {
     if (this.getData() == null) return [];
-    return this.getData().selectNodes(xPath);
+    var x = this._getFillParams(fillParams, xPath);
+    return this.getData().selectNodes(x);
   },
 
   /**

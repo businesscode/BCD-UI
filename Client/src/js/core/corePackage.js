@@ -767,7 +767,15 @@ bcdui.util.namespace("bcdui.core",
                  * Each of the parts (e.g. wrs:C[1]='DE') must be decomposed into
                  * node name, index and assignment value.
                  */
-                var matches = this._createElementWithPrototype_EqualityExpressionSplitter.exec(predicates[predNo]);
+
+                // if we got a concat xpath part as predicate, we resolve it and concatenate the string on our own
+                // this is a concat which was created via dp.write (ending with , '')
+                // _getFillParams ensures no ' or " around it, so we add it to make it a real string again
+                var matches = /(.*)concat\(('.+, '')\)/g.exec(predicates[predNo]);
+                if (matches != null && matches.length == 3)
+                  predicates[predNo] = matches[1] + "'" + matches[2].split(",").map(function(e){ return e.trim().substring(1, e.trim().length - 1)}).join("") + "'";
+
+                matches = this._createElementWithPrototype_EqualityExpressionSplitter.exec(predicates[predNo]);
                 if (matches == null || matches.length < 6) {
                   throw new Error("createElementWithPrototype: Unrecognized predicate in XPath: " + pathElementArray[i]);
                 }

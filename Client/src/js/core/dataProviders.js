@@ -235,15 +235,18 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
   /**
    * Reads value from a given xPath (or optionally return default value)
    * @param {string} xPath - xPath pointing to value 
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {string} [defaultValue] - default value in case xPath value does not exist
    * @return text value stored at xPath (or null if nothing found and no defaultValue supplied or when source isn't set yet)
    */
-  read: function(xPath, defaultValue)
+  read: function(xPath, fillParams, defaultValue)
     {
       if (this.source)
-        return this.source.read(xPath, defaultValue);
-      else
-        return (defaultValue === undefined ? null : defaultValue);
+        return this.source.read(xPath, fillParams, defaultValue);
+      else {
+        var def = (typeof fillParams == "string") ? fillParams : defaultValue;
+        return (defaultValue === undefined ? null : def);
+      }
     },
     
   /**
@@ -257,15 +260,16 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
    *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
    *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content. 
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return The xPath's node (can be null if source isn't set yet or dataProvider isn't ready)
    */
-  write: function(xPath, value, fire)
+  write: function(xPath, fillParams, value, fire)
     {
       if (this.source)
-        return this.source.write(xPath, value, fire);
+        return this.source.write(xPath, fillParams, value, fire);
       else
         return null;
     },
@@ -273,12 +277,13 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
   /**
    * removes given xPath
    * @param {string} xPath - xPath pointing to value 
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
    */
-  remove: function(xPath, fire)
+  remove: function(xPath, fillParams, fire)
     {
       if (this.source)
-        this.source.remove(xPath, fire);
+        this.source.remove(xPath, fillParams, fire);
     },
 
   /**
