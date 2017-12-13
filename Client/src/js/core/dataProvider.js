@@ -377,7 +377,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
   _fire: function(causedByReadyStatus) {
 
     if (this.getStatus() instanceof bcdui.core.status.WaitingForUncomittedChanges) {
-      this.setStatus(this.getReadyStatus())
+      this.setStatus(this.getReadyStatus());
       return;
     }
     // we don't execute the listener function if we're not ready
@@ -479,7 +479,12 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       this._fire(true); 
     }
   },
-  
+
+  /**
+   * True, if DataProvider is ready and there are no uncomitted write transactions,
+   * see {@link bcdui.core.AbstractExecutable#isReady isReady()} and {@link bcdui.core.DataProvider#onChange fire()}.
+   * @returns {boolean}
+   */
   isClear: function() {
     return (! this._uncommitedWrites && this.isReady());
   }

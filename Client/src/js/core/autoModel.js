@@ -37,7 +37,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {number}                  [args.maxRows]                      - Optional, Limits the request to n rows. Use distinct if you need a certain order.
    *
    * @param {string}  [args.id]                   - A globally unique id for use in declarative contexts
-   * @param {boolean} [args.isAutorefresh=false]  - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
+   * @param {boolean} [args.isAutoRefresh=false]  - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
    * @param {string}  [args.url=WrsServlet]       - Optional, allows overwriting Wrs-servlet as source.
    *
    * @param {string} [args.reqDocStyleSheetUrl]   - Optional custom wrq-stylesheet URL to generate the request. Most parameters here only apply when using default wrq-styleshhet.

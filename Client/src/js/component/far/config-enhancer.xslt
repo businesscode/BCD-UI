@@ -17,7 +17,7 @@
 
 <!--
   transforms the configuration model to enhanced canonical configuration format,
-  resolved dimensions, categeroies
+  resolved dimensions, categories
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:far="http://www.businesscode.de/schema/bcdui/far-1.0.0"

@@ -57,6 +57,7 @@ bcdui.core.browserCompatibility = {
       },
 
     /**
+     * @param {Document} doc - To be cloned
      * @return {Document} A clone of the given DOM document
      */
     cloneDocument: function(doc){
