@@ -139,6 +139,9 @@
 
           // run async validation factory and resolve promise
           self.options.asyncValidationFunction(self._getValidatingElement()).then((validationResult) => {
+            // stop here if we've been destroyed meanwhile (dont even reject)
+            if(self.isDestroyed)return;
+
             // check validator id
             if(self.pendingAsyncValidatorId !== validatorId){
               return;
@@ -235,7 +238,6 @@
           htmlElementId: this.options.id
         });
         this._modelListener.onUpdateCallback = function(){
-          if(this.isDestroyed)return; // widget may has been destroyed in the meantime
           var ts = this._getTargetSelector();
           var currentSnapshot = ts.getDataProvider()._hashValueForListener(ts.xPath);
           if ( !this._targetSnapshotHash || this._targetSnapshotHash !== currentSnapshot ){
