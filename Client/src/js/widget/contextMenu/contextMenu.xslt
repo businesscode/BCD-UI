@@ -34,7 +34,7 @@
       render only if Entry found or (no Entry - then we might only have context bound entries, which
       anyway require the contextId - so skip if such was not found
      -->
-    <xsl:variable name="toBeShown" select="/*/*[not(self::ctx:Context) or (self::ctx:Context and (not($contextId) or not(@id) or @id=$contextId))]"/>
+    <xsl:variable name="toBeShown" select="/*/*[not(self::ctx:Context) or (self::ctx:Context and (not($contextId) or not(@id) or contains(concat(' ',$contextId,' '), concat(' ', @id, ' '))))]"/>
     <xsl:choose>
 
       <!-- Empty context menu is not shown -->

@@ -30,6 +30,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all
 * disableNavPath attribute to turn off navPath linkage
 * New widget: "slider", based on noUiSlider implementation
+* Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
