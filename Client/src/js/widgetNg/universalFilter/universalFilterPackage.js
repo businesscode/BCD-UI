@@ -17,7 +17,7 @@
 /**
  * Universal Filter Widget Implementation as jQuery Widget
  */
-(function(){
+(function($){
 
   var htmlEvents = {
     /**
@@ -55,6 +55,15 @@
     },
 
     /**
+     * pre-create elements
+     */
+    TEMPLATE_ELEMENTS : {
+      "f:And"         : (()=>bcdui.util.xml.parseDocument("<D><f:And/></D>").selectSingleNode("/*/*"))(),
+      "f:Or"          : (()=>bcdui.util.xml.parseDocument("<D><f:Or/></D>").selectSingleNode("/*/*"))(),
+      "f:Expression"  : (()=>bcdui.util.xml.parseDocument("<D><f:Expression/></D>").selectSingleNode("/*/*"))()
+    },
+
+    /**
      * @private
      */
     htmlEvents : htmlEvents,
@@ -74,6 +83,8 @@
     _create : function(){
       this._super();
       this.element.addClass( this.options.cssClassPrefix + "widget" );
+
+      this.instanceId = bcdui.factory.objectRegistry.generateTemporaryIdInScope("universalFilter");
 
       var targetSelector = this._getTargetSelector();
 
@@ -127,18 +138,25 @@
         inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
       });
       
+      var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
+        var anchorElement = targetElement.closest("[data-node-id]");
+        if(!anchorElement.length){
+          // relocate to itself in case no closest data node reference found
+          anchorElement = targetElement;
+        }
+        return anchorElement;
+      };
       // attach and delegate events from the context menu
       this.element
+      .on("bcdui:universalFilter:edit", function(event){
+        var anchorElement = _getAnchorElement($(event.target));
+        this._editElement( anchorElement.data("node-id"), anchorElement );
+      }.bind(this))
       .on("bcdui:universalFilter:delete", function(event){
         this._deleteElement( jQuery(event.target).closest("[data-node-id]").data("node-id") );
       }.bind(this))
       .on("bcdui:universalFilter:combine", function(event){
-        var target = jQuery(event.target);
-        var anchorElement = target.closest("[data-node-id]");
-        if(!anchorElement.length){
-          // relocate to itself in case no closest data node reference found
-          anchorElement = target;
-        }
+        var anchorElement = _getAnchorElement($(event.target));
         this._combineElement( anchorElement.data("node-id"), anchorElement );
       }.bind(this));
 
@@ -153,13 +171,14 @@
      * @private
      */
     _initCreateUi : function(){
+      var self = this;
       // create and hide initially because our input has to be attached to dom prior creating renderer
       var uiElement = this.createUiElement = jQuery("<div class='" + this.options.cssClassPrefix + "creator-container'></div>").hide();
       this.createUiElement.appendTo(document.body); // has to be attached to DOM when calling Renderer
 
       var statusModel = this.statusModel = new bcdui.core.StaticModel({
         id    : bcdui.factory.objectRegistry.generateTemporaryIdInScope("bcdui_universalFilter_statusModel"), // for widgets
-        data  : "<Root/>"
+        data  : "<Status/>"
       });
 
       // widgets get their references from here
@@ -179,7 +198,8 @@
           xPath_junction            : baseTargetModelXPath + "/Junction",
           xPath_bref                : baseTargetModelXPath + "/bRef",
           xPath_op                  : baseTargetModelXPath + "/Op",
-          xPath_value               : baseTargetModelXPath + "/Value"
+          xPath_value               : baseTargetModelXPath + "/Value",
+          xPath_values              : baseTargetModelXPath + "/Values/Item" // for multi-input values
       };
 
       /*
@@ -198,28 +218,48 @@
           widgetReferenceModel  : widgetReferenceModel, // put into depedency chain
           cssClassPrefix        : this.options.cssClassPrefix,
           bRefOptionsModelXPath : this.options.bRefOptionsModelXPath,
-          bRefOptionsModelRelativeValueXPath : this.options.bRefOptionsModelRelativeValueXPath || ""
+          bRefOptionsModelRelativeValueXPath : this.options.bRefOptionsModelRelativeValueXPath || "",
+          instanceId            : this.instanceId
         }, this.options.inputRow.renderingChainParameters),
         suppressInitialRendering : true // just create, render initially
       });
 
+      {
+        // re-render operator portion everytime operator or bRef changes
+        statusModel.onChange(()=>{
+          if(uiElement.is(":visible")){
+            createUiRenderer.execute({
+              partialHtmlTargets : `${this.instanceId}_operator_container`
+            });
+          }
+        }, "/*/Op|/*/bRef");
+      }
+
       var cssClassPrefix = this.options.cssClassPrefix;
       this.createUiElement
       /*
-       * expose API for rendering/displaying event
+       * expose API for rendering/displaying event for new/update
        *
        * args.anchorElement     : to pin the entry form to
-       * args.targetNodeId      : optional node id of element to combine with
-       * args.proposedJunction  : must be provided in case targetNodeId is set; AND, OR
+       * args.targetNodeId      : optional node id of element to combine with, mandatory when updating
+       * args.proposedJunction  : must be provided in case targetNodeId is set and NOT updating; [AND, OR]
+       * args.op                : operator
+       * args.value             : value
+       * args.bRef              : bref
+       * args.isUpdating        : if in editing mode
        */
       .on("bcdui:universalFilter:renderCreateUi", function(event, args){
-        args.anchorElement.after(uiElement);
-        // cleanup and preset internal status model; clear all but preset Junction and Op
+        args.anchorElement.after(uiElement.empty());
+        args.isUpdating = !!args.isUpdating;
+        // cleanup and preset internal status model;
         {
           statusModel.remove("/*/*");
-          args.targetNodeId && statusModel.write("/*/ReferenceNodeId", args.targetNodeId);
+          statusModel.write("/*/isUpdating", args.isUpdating);
+          args.targetNodeId     && statusModel.write("/*/ReferenceNodeId", args.targetNodeId);
           args.proposedJunction && statusModel.write("/*/Junction", args.proposedJunction);
-          args.op && statusModel.write("/*/Op", args.op);
+          args.op               && statusModel.write("/*/Op", args.op);
+          args.value            && statusModel.write("/*/Value", args.value);
+          args.bRef             && statusModel.write("/*/bRef", args.bRef);
           statusModel.fire();
         }
 
@@ -233,8 +273,8 @@
           // finally make the ui visible
           uiElement.show();
         }.bind(null, !!args.targetNodeId, uiElement);
-        createUiRenderer.onReady(revealUi);
         createUiRenderer.execute();
+        createUiRenderer.onReady(revealUi);
       })
       // trigger by create-ui
       .on("bcdui:universalFilter:closeCreateUi", function(event){
@@ -242,24 +282,166 @@
       })
       // triggered by create-ui
       .on("bcdui:universalFilter:add", function(event){
-        // args for _addExpression()
+        // args for _addExpression(), _updateExpression()
         var args = {
             targetNodeId    : statusModel.read("/*/ReferenceNodeId"),
             junction  : statusModel.read("/*/Junction","").toUpperCase(),
             bRef      : statusModel.read("/*/bRef","").replace(/</g,"&lt;"),
-            op        : statusModel.read("/*/Op",""),
-            value     : statusModel.read("/*/Value","")
+            op        : statusModel.read("/*/Op","")
         };
+
+        // value is either single value or multi
+        {
+          const values = statusModel.queryNodes("/*/Values/*");
+          if(values.length){
+            args.value = $.makeArray(values).map((e)=>e.text);
+          } else {
+            args.value = [statusModel.read("/*/Value","")];
+          }
+        }
+
         if(!args.bRef || !args.op){
           // do nothing if missing input
           return;
         }
         // hide ui
-        uiElement.detach();
-        // add expression
-        this._addExpression(args);
+        uiElement.trigger("bcdui:universalFilter:closeCreateUi");
+        // add or update expression
+        if(statusModel.read("/*/isUpdating","") == "true"){
+          self._updateExpression(args);
+        }else{
+          self._addExpression(args);
+        }
       }.bind(this))
+      // triggered when rendering IN operator
+      .on("bcdui:universalFilter:createMultiValueInput", function(event){
+        self.createMultiValueInput(event.target);
+      })
       ;
+    },
+
+    /**
+     * creates a multi-input widget within targetElement,
+     * currently does not rebuild from status
+     */
+    createMultiValueInput : function(targetElement){
+      var widgetElement = $(targetElement); // this is a proxy-widget element
+
+      targetElement = $(`<div class="${this.options.cssClassPrefix}multi-input-container"/>`).appendTo($(targetElement).empty());
+      var self = this;
+
+      let inputItemTemplate = doT.compile(`<div class='${this.options.cssClassPrefix}multi-input-item'>
+          <bcd-inputng
+            targetModelXPath="{{=it.targetModelXPath}}"
+            {{=it.apiAttrs}}
+          ></bcd-inputng>
+          <bcd-buttonng class='action-add' caption='+'></bcd-buttonng>
+          <bcd-buttonng class='action-remove' caption='-'></bcd-buttonng>
+        </div>`);
+
+      var context = {
+        cnt : 0, // input counter
+        targetModelXPathBase : targetElement.closest("[targetModelXPath]").attr("targetModelXPath"), // take from view
+        nextTargetModelXPath : function(){
+          return context.targetModelXPathBase + "[@cnt='" + (++context.cnt) + "']";
+        }
+      };
+
+      var inputItemTemplateArgs = {
+        targetModelXPath : context.nextTargetModelXPath()
+      };
+
+      {// collect other api-attrs
+        const apiAttrs = ["validationFunction", "asyncValidationFunction", "class", "placeholder"]
+        .filter((attrName) => !!widgetElement.attr(attrName))
+        .map((attrName) => `${attrName}="${widgetElement.attr(attrName)}"`)
+        .join(" ");
+
+        if(apiAttrs){
+          inputItemTemplateArgs.apiAttrs = apiAttrs;
+        }
+      }
+
+      targetElement
+      .html(inputItemTemplate(inputItemTemplateArgs))
+      .on("click", ".action-add", function(){
+        targetElement.append($(inputItemTemplate($.extend({}, inputItemTemplateArgs, { // retain generic args + override targetModelXPath for a new item
+          targetModelXPath : context.nextTargetModelXPath()
+        }))));
+      })
+      .on("click", ".action-remove", function(){
+        const inputRow = $(this).closest("div");
+        const targetXPath = inputRow.find("[targetModelXPath]").attr("targetModelXPath").substr(self.statusModel.id.length + 1); // $modelId..
+        // remove input
+        inputRow.remove();
+        // remove value from status model
+        self.statusModel.remove(targetXPath, true);
+      })
+      ;
+    },
+
+    /**
+     * updates f:Expression
+     *
+     * @param {object}  args arguments
+     * @param {string}  args.targetNodeId Reference element to add expression to (or combine with), if not provided will simply append new expression to targetXPath element
+     * @param {string}  [args.bRef] the new bRef 
+     * @param {string}  [args.op] the new Operator
+     * @param {string}  [args.value] the new Value
+     *
+     * @private
+     */
+    _updateExpression : function(args){
+      if(!Array.isArray(args.value))throw ".value is not an array";
+      var targetNode = this._getTargetNode(args.targetNodeId);
+
+      // single update, or we replace by new entirely new expression
+      if(args.op == "in" && args.value.length>1){
+        // replace target
+        targetNode.parentNode.replaceChild(this._createExpressionNode(args), targetNode);
+      }else{
+        // update bRef, op, value
+        targetNode.setAttribute("bRef", args.bRef);
+        targetNode.setAttribute("op", args.op);
+        targetNode.setAttribute("value", args.value[0]);
+      }
+
+      this._getTargetSelector().getDataProvider().fire();
+    },
+
+    /**
+     * create an expression node, usually f:Expression but not necessarily, as it supports multi-values, as such
+     * depending on 'op' and number of values it also may return a predicate like f:Or for 'in' operator
+     *
+     * @param {object} args arguments
+     * @param {string} args.bRef
+     * @param {string} args.op
+     * @param {string[]} args.value
+     */
+    _createExpressionNode : function(args){
+      if(!Array.isArray(args.value)) throw ".value is not an array";
+      if(!args.bRef) throw ".bRef missing";
+      if(!args.op) throw ".op missing";
+      var self = this;
+
+      var fillExpressionNode = function(node, bRef, op, value){ // helper
+        node.setAttribute("value", value); node.setAttribute("bRef", bRef); node.setAttribute("op", op); return node;
+      };
+
+      if(args.value.length > 1){ // multi-value
+        if(args.op == "in"){
+          // create f:Or with f:Expresion/op = '=' for each value
+          const fOr = self.TEMPLATE_ELEMENTS["f:Or"].cloneNode(false);
+          args.value.forEach((v)=>{
+            fOr.appendChild(fOr.ownerDocument.importNode( fillExpressionNode( self.TEMPLATE_ELEMENTS["f:Expression"], args.bRef, "=", v ), false ));
+          });
+          return fOr;
+        } else {
+          throw `Multi-value for op '${args.op}' is not supported`;
+        }
+      } else { // single value turns into single f:Expression
+        return fillExpressionNode(self.TEMPLATE_ELEMENTS["f:Expression"].cloneNode(false), args.bRef, args.op, args.value[0]);
+      }
     },
 
     /**
@@ -270,11 +452,12 @@
      * @param {string}  [args.junction] - [AND, OR] Optional junction to apply with reference element 
      * @param {string}  [args.bRef] - bRef
      * @param {string}  [args.op] - Operator
-     * @param {string}  [args.value] - Value
+     * @param {string[]}  [args.value] - Value: single or multiple (multiple to be combined into predicate And/Or depending on operator)
      *
      * @private
      */
     _addExpression : function(args){
+      if(!Array.isArray(args.value))throw ".value is not an array";
       var targetSelector = this._getTargetSelector();
       var refFilterNode = targetSelector.valueNode();
 
@@ -293,16 +476,8 @@
 
       // either our reference is f:Expression or a f:Junction
       var requestedJunction = args.junction || this.options.defaultJunction;
-      var newExpressionNode = (function(){
-        var node = bcdui.core.browserCompatibility.createDOMFromXmlString(
-            doT
-            .compile("<R><f:Expression bRef='{{=it.bRef}}'/></R>")
-            (args)
-        ).selectSingleNode("/*/*");
-        node.setAttribute("value", args.value);
-        node.setAttribute("op", args.op);
-        return node;
-      })();
+      var newExpressionNode = this._createExpressionNode(args);
+
       var nextFilterNode = refFilterNode.selectSingleNode("following-sibling::f:*");
       // need reference parent, either we have one (non-document node and beyond of targetModelXPath) or we chose self
       var refFilterParent = refFilterNode.parentNode.nodeName && jQuery.contains(targetSelector.valueNode(),refFilterNode) ? refFilterNode.parentNode : refFilterNode;
@@ -324,6 +499,42 @@
         }
       }
       targetSelector.getDataProvider().fire();
+    },
+
+    /**
+     * @param {string} nodeId to identify the node within target scope
+     * @return {element} from target identified by given nodeid, may return NULL no such node was found
+     */
+    _getTargetNode : function(nodeId){
+      if(!nodeId) throw "Missing .nodeId";
+      var selector = this._getTargetSelector();
+      var dataProvider = selector.getDataProvider();
+      var xPath = selector.xPath;
+
+      return dataProvider.getData().selectSingleNode(`${xPath}/.//f:*[@${this.NODE_ID_ATTR} = '${nodeId}']`);
+    },
+
+    /**
+     * edit an element via nodeId lookup
+     *
+     * @private
+     */
+    _editElement : function(nodeId, anchorElement){
+      var refExpressionNode = this._getTargetNode(nodeId);
+
+      if(!refExpressionNode.selectSingleNode("self::f:Expression"))throw "Not supported.";
+
+      var args = { // args for :renderCreateUi event
+        anchorElement     : anchorElement,
+        targetNodeId      : nodeId,
+        op                : refExpressionNode.getAttribute("op"),
+        value             : refExpressionNode.getAttribute("value"),
+        bRef              : refExpressionNode.getAttribute("bRef"),
+        isUpdating        : true
+      };
+
+      // render ui
+      this.createUiElement.trigger("bcdui:universalFilter:renderCreateUi", args);
     },
 
     /**
@@ -398,7 +609,7 @@
 
   // expose to Widget namespace
   jQuery.bcdui.bcduiUniversalFilterNg.htmlEvents = htmlEvents;
-}());
+}(jQuery));
 
 /**
  * A namespace for the BCD-UI widget. For creation @see {@link bcdui.widgetNg.createUniversalFilter}

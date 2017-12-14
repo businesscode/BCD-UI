@@ -13,6 +13,12 @@
     </ctx:Entry>
   </ctx:Context>
 
+  <ctx:Context id="is-expression">
+    <ctx:Entry caption="Edit">
+      <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:edit");</ctx:JavaScriptAction>
+    </ctx:Entry>
+  </ctx:Context>
+  
   <ctx:Context id="non-empty">
     <ctx:Entry caption="Delete">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:delete");</ctx:JavaScriptAction>

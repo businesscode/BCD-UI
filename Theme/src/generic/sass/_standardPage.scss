@@ -295,6 +295,17 @@ a {
     }
   }
 
+  .bcd-unifilter-operator-container {
+    /* dont display '-' for first item */
+    .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:first-child .action-remove {
+      display: none;
+    }
+    /* display '+' for last item only */
+    .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:not(:last-child) .action-add {
+      display: none
+    }
+  }
+
   .bcd-unifilter-expression {
     margin-left: 25px;
     margin-top: 5px;

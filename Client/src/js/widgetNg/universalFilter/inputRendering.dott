@@ -1,10 +1,12 @@
 <span class="{{= it.params.cssClassPrefix }}conj-container">
-  <!-- junction -->
+  <!-- junction; only if not in update mode -->
+  {{? it.input.selectSingleNode("/Status/isUpdating[.='true']") == null }}
   <bcd-singleselectng
     optionsModelXPath="{{= it.params.xPath_reference_junction }}/@caption"
     optionsModelRelativeValueXPath=".."
     targetModelXPath="{{= it.params.xPath_junction }}"
   ></bcd-singleselectng>
+  {{?}}
 </span>
 <span>
   <!-- filter-item -->
@@ -24,15 +26,20 @@
     targetModelXPath="{{= it.params.xPath_op }}"
   ></bcd-singleselectng>
 </span>
-<span>
+<span id="{{=it.params.instanceId}}_operator_container" class="{{= it.params.cssClassPrefix }}operator-container">
+  {{? it.input.selectSingleNode("/Status/Op[.='in']") != null }}
+  <!-- creates a default multi input value input; if you need custom one, do it but write to xPath_values -->
+  <div
+    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')"
+    targetModelXPath="{{= it.params.xPath_values }}"
+  ></div>
+  {{??}}
   <!-- reference-value -->
   <bcd-inputng
     targetModelXPath="{{= it.params.xPath_value }}"
-  >
-  </bcd-inputng>
+  ></bcd-inputng>
+  {{?}}
 </span>
-<span></span>
-<span></span>
 <span>
   <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
 </span>

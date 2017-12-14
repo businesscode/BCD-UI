@@ -53,7 +53,7 @@
 
   <!-- as container -->
   <xsl:template match="f:Expression">
-    <div data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty">
+    <div data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty is-expression">
       <xsl:variable name="expressionCaption" select="$bRefModel/*/cust:Option[@value = current()/@bRef]/@caption"/>
       <xsl:variable name="expressionName" select="concat(substring(@bRef,0,1 div string-length($expressionCaption)),$expressionCaption)"/>
       <xsl:variable name="customClass">
