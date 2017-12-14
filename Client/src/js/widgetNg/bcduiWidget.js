@@ -19,7 +19,7 @@
       updateValue: function(){
         var widgetInstance = $("#" + this.htmlElementId)._bcduiWidget();
         // check if the instance is still alive
-        widgetInstance && this.onUpdateCallback && this.onUpdateCallback();
+        widgetInstance && !widgetInstance.isDestroyed && this.onUpdateCallback && this.onUpdateCallback();
       }
   });
 
@@ -235,6 +235,7 @@
           htmlElementId: this.options.id
         });
         this._modelListener.onUpdateCallback = function(){
+          if(this.isDestroyed)return; // widget may has been destroyed in the meantime
           var ts = this._getTargetSelector();
           var currentSnapshot = ts.getDataProvider()._hashValueForListener(ts.xPath);
           if ( !this._targetSnapshotHash || this._targetSnapshotHash !== currentSnapshot ){
