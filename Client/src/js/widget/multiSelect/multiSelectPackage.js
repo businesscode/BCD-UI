@@ -51,11 +51,14 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
           optionsModelXPath: htmlElement.getAttribute("bcdOptionsModelXPath"),
           optionsModelRelativeValueXPath: htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath"),
           isCheckBox:                       htmlElement.getAttribute("bcdIsCheckBox"),
-          delimiter:                        htmlElement.getAttribute("bcdDelimiter")
+          delimiter:                        htmlElement.getAttribute("bcdDelimiter"),
+          doSortOptions:                    htmlElement.getAttribute("bcdDoSortOptions") == "true" ? true : false
       };
       var models = bcdui.widget._extractModelsFromModelXPath(config.optionsModelXPath);
       if (models) {
-        bcdui.widget._createWrapperModel(models, config, "widget/multiOptionsModelWrapper.xslt"); // does change config!
+        bcdui.widget._createWrapperModel(models, config, "widget/multiOptionsModelWrapper.xslt",{
+          doSortOptions : config.doSortOptions
+        }); // does change config!
       }
       var action = function() {
         bcdui.widget._cleanupHTMLElementId(htmlElement);

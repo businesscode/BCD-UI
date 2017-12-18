@@ -302,6 +302,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
    */
   createMultiSelect: function(args)
     {
@@ -325,7 +326,8 @@ bcdui.util.namespace("bcdui.widget",
           id:                       args.id,
           delimiter:                args.delimiter||"",
           widgetCaption:            args.widgetCaption,
-          disableNavPath:           args.disableNavPath
+          disableNavPath:           args.disableNavPath,
+          doSortOptions:            args.doSortOptions || "false"
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
