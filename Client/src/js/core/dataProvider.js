@@ -272,7 +272,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
    *    (can include dot template placeholders which get filled with the given fillParams)
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
-   *     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
+   *     Example: bcdui.wkModels.guiStatus.write("/guiStatus:Statu/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
@@ -283,7 +283,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       return null;
     this._uncommitedWrites = true;
 
-    var v = (typeof fillParams == "string") ? fillParams : typeof value == "string" ? value : null;
+    var v = (typeof fillParams != "object") ? fillParams : typeof value != "undefined" ? value : null;
     var f = (typeof fillParams == "boolean") ? fillParams : typeof value == "boolean" ? value : fire;
     var x = this._getFillParams(fillParams, xPath);
 
