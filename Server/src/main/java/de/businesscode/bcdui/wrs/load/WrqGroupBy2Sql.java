@@ -80,7 +80,11 @@ public class WrqGroupBy2Sql
           sep = ", ";
         }
       }
-      return new StringBuffer(" GROUP BY ").append( sql ).append(" WITH ROLLUP ");
+      if ( sql.length() > 0 ) {
+        return new StringBuffer(" GROUP BY ").append( sql ).append(" WITH ROLLUP ");
+      } 
+
+      return new StringBuffer();
     }
 
     // ANSI (sub)total calculations

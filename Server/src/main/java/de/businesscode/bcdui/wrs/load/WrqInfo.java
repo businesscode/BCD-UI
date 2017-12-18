@@ -25,7 +25,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,7 +46,6 @@ import de.businesscode.util.XPathUtils;
  */
 public class WrqInfo
 {
-  private final Logger log = Logger.getLogger(getClass());
   private final Element wrq;
   private final Bindings bindings;
   private int columnNumber = 1;
@@ -103,7 +101,8 @@ public class WrqInfo
       filterXpathExpr =           xp.compile("/wrq:WrsRequest/wrq:Select/f:Filter");
       groupByRootXpathExpr =      xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping");     // grouping columns or functions
       groupByChildrenXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*");     // grouping columns or functions
-      groupByFunctionXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*[not(self::wrq:C)]");  // grouping functions
+      groupByIndicatorXpathExpr=  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:Set | /wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:C");     // indicates grouping query
+
       havingRootXpathExpr      =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Having");  // having clause
       topNXPathExpr =             xp.compile("/wrq:WrsRequest/wrq:Select/wrq:TopNDimMembers");
 
@@ -312,7 +311,7 @@ public class WrqInfo
       // B.1.b Select list given
       else
       {
-        reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
+        reqHasGroupingFunction = ((NodeList)groupByIndicatorXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
         WrqBindingItem lastWrqC = null;
         for( int i=0; i<selectedNl.getLength(); i++ )
         {
@@ -320,12 +319,11 @@ public class WrqInfo
 
           WrqBindingItem wrqBi = new WrqBindingItem(this, cAElem, "v"+(aliasCounter++), false, lastWrqC);
 
-
           String bRef_Aggr = wrqBi.getId()+(wrqBi.getAggr()==null ? "":" "+wrqBi.getAggr());
 
           // wrs:C go to selectList
           if( "C".equals(cAElem.getLocalName()) ) {
-          lastWrqC = wrqBi;
+            lastWrqC = wrqBi;
             WrqBindingItem prevBiwmd = allBRefAggrs.get(bRef_Aggr);
             wrsCOnlySelectListBRefs.add(prevBiwmd!=null? prevBiwmd : wrqBi);
           }
@@ -522,7 +520,7 @@ public class WrqInfo
   private final XPathExpression filterXpathExpr;
   private final XPathExpression groupByRootXpathExpr;
   private final XPathExpression groupByChildrenXpathExpr;
-  private final XPathExpression groupByFunctionXpathExpr;
+  private final XPathExpression groupByIndicatorXpathExpr;
   private final XPathExpression havingRootXpathExpr;
   private final XPathExpression topNXPathExpr;
 
