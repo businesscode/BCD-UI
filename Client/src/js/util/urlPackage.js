@@ -121,8 +121,8 @@ resolveURLWithXMLBase: function(/* XMLElement */ xmlElement, /* String */ url)
   {
     // Context path
     if( url.startsWith("bcduicp://") )
-      return "/" + window.location.pathname.split("/")[1] + "/" + url.substring(10);
-      
+      return bcdui.config.contextPath + "/" + url.substring(10);
+
     // Absolute URL
     if (bcdui.util.url.isAbsoluteURL(url)) return url;
 
