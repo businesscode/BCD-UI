@@ -202,6 +202,23 @@ public class Filter2DyModifier implements Modifier
           if (value != "") argsTo.put(newName, value);
         } catch (XPathExpressionException e) { throw new RuntimeException(e); }
       }
+
+      //  special filter case: you might have a filter structure like this (e.g. via a 2016-01-01 to 2017-12-31 plus cell filter 2016 filterFromCell result)
+      //  f:Or
+      //    f:And
+      //      f:Expression[bRef='yr' value='2016' op='=']
+      //      f:Expression[bRef='mo' value='01' op='>=']
+      //    /f:And
+      //    f:And
+      //      f:Expression[bRef='mo' value='12' op='<=']
+      //    /f:And
+      //  /f:Or
+      //  which would lead to a from "yr:2016, mo:01" and a to "mo:12". In this case the yr information from 'from' needs to be cloned to the 'to' part
+      if (argsFrom.containsKey("yr")   && ! argsTo.containsKey("yr"))     argsTo.put("yr", argsFrom.get("yr"));
+      if (argsTo.containsKey("yr")     && ! argsFrom.containsKey("yr"))   argsFrom.put("yr", argsTo.get("yr"));
+      if (argsFrom.containsKey("cwyr") && ! argsTo.containsKey("cwyr"))   argsTo.put("cwyr", argsFrom.get("cwyr"));
+      if (argsTo.containsKey("cwyr")   && ! argsFrom.containsKey("cwyr")) argsFrom.put("cwyr", argsTo.get("cwyr"));
+
       // now we've collected the to-be-transformed types and values, let's transform them to a range
       Map<String, String> periodFrom = periodToISORange(argsFrom);
       Map<String, String> periodTo = periodToISORange(argsTo);

@@ -445,6 +445,11 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
               value = t.doc.selectSingleNode(t.targetModelXPath + "/f:Or/f:And[f:Expression[@op='<=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
               if (value != "") argsTo[newName] = value;
             }
+            //  special filter case (see rebuildDateFromDateToFromFilter)
+            if (argsFrom["yr"]   && ! argsTo["yr"])     argsTo["yr"]     = argsFrom["yr"];
+            if (argsTo["yr"]     && ! argsFrom["yr"])   argsFrom["yr"]   = argsTo["yr"];
+            if (argsFrom["cwyr"] && ! argsTo["cwyr"])   argsTo["cwyr"]   = argsFrom["cwyr"];
+            if (argsTo["cwyr"]   && ! argsFrom["cwyr"]) argsFrom["cwyr"] = argsTo["cwyr"];
           }
 
           // let's convert the found values to iso dates
@@ -2232,6 +2237,21 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           value = targetNode.selectSingleNode("./f:Or/f:And[f:Expression[@op='<=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value"); value = value == null ? "" : value.text;
           if (value != "") argsTo[newName] = value;
         }
+        //  special filter case: you might have a filter structure like this (e.g. via a 2016-01-01 to 2017-12-31 plus cell filter 2016 filterFromCell result)
+        //  f:Or
+        //    f:And
+        //      f:Expression[bRef='yr' value='2016' op='=']
+        //      f:Expression[bRef='mo' value='01' op='>=']
+        //    /f:And
+        //    f:And
+        //      f:Expression[bRef='mo' value='12' op='<=']
+        //    /f:And
+        //  /f:Or
+        //  which would lead to a from "yr:2016, mo:01" and a to "mo:12". In this case the yr information from 'from' needs to be cloned to the 'to' part
+        if (argsFrom["yr"]   && ! argsTo["yr"])     argsTo["yr"]     = argsFrom["yr"];
+        if (argsTo["yr"]     && ! argsFrom["yr"])   argsFrom["yr"]   = argsTo["yr"];
+        if (argsFrom["cwyr"] && ! argsTo["cwyr"])   argsTo["cwyr"]   = argsFrom["cwyr"];
+        if (argsTo["cwyr"]   && ! argsFrom["cwyr"]) argsFrom["cwyr"] = argsTo["cwyr"];
 
         // let's convert the found values to iso dates and add the attributes
         var periodFrom = bcdui.widget.periodChooser._periodToISORange(argsFrom);
