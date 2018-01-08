@@ -15,6 +15,9 @@
 */
 package de.businesscode.bcdui.web.errorLogging;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.AppenderSkeleton;
@@ -23,7 +26,6 @@ import org.apache.log4j.MDC;
 import org.apache.log4j.spi.LoggingEvent;
 
 import de.businesscode.bcdui.logging.ErrorSqlLogger;
-import de.businesscode.bcdui.toolbox.ExceptionUtils;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.util.Utils;
 
@@ -57,8 +59,14 @@ public class BuiErrorLogAppender extends AppenderSkeleton {
           if (revision != null && revision.length() > 30)
             revision = revision.substring(0, 30);
 
+          String throwInfo = null; 
+          if (event.getThrowableInformation() != null && event.getThrowableInformation().getThrowable() != null) {
+            StringWriter writer = new StringWriter();
+            event.getThrowableInformation().getThrowable().printStackTrace(new PrintWriter(writer));
+            throwInfo = writer.toString();  
+          }
+
           String clientMsg = event.getRenderedMessage();
-          String throwInfo = event.getThrowableInformation() != null ? ExceptionUtils.getStackTrace(event.getThrowableInformation().getThrowable()) : null;
           String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? throwInfo : "");
 
           // log error
