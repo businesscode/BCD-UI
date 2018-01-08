@@ -42,13 +42,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.FilterUtils;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.toolbox.WEEKDAY;
-import de.businesscode.bcdui.web.cacheControl.server.wrapper.TeeOutputStreamWrapper;
 import de.businesscode.bcdui.web.cacheControl.server.wrapper.TeePrintWriterWrapper;
 
 
@@ -307,9 +307,9 @@ public class ServerCachingFilter extends AbstractCacheFilter {
      * @return ServletOutputStream which supports teeing to another stream
      * @throws IOException
      */
-    protected ServletOutputStream wrap(String key, ServletOutputStream outputStream) throws Exception {
-        log.info(String.format("deploying ServletOutputStream on url '%s'", key));
-        return new TeeOutputStreamWrapper(outputStream, getServerCacheControl().getOutputStream(getFilterName(), key));
+    protected TeeOutputStream wrap(String key, ServletOutputStream outputStream) throws Exception {
+      log.info(String.format("deploying ServletOutputStream on url '%s'", key));
+      return new TeeOutputStream(outputStream, getServerCacheControl().getOutputStream(getFilterName(), key));
     }
 
     /**
