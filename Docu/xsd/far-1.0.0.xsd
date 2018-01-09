@@ -87,6 +87,13 @@
           <xs:complexType/>
         </xs:element>
 
+        <xs:element name="ContextMenu" minOccurs="0">
+          <xs:annotation><xs:documentation>
+          Enables the default context menu
+          </xs:documentation></xs:annotation>
+          <xs:complexType/>
+        </xs:element>
+
         <xs:element name="Dimensions">
           <xs:annotation><xs:documentation>
             List of Dimensions Level references in this scope.

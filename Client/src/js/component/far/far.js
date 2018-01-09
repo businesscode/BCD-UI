@@ -42,6 +42,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
   initialize : function(args){
+    const self = this;
     // enhance arguments
     this.options = jQuery.extend(true,{},args);
     // business component id to read configuration, may be ambiguous
@@ -73,13 +74,29 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     // create UI skeleton
     this._createLayout();
 
+    this.gridRenderingTarget = this.options.targetHtml.find(".bcd-far-grid"); // container for the grid
+
     // complete initialization
     this.enhancedConfig.onceReady(this._configLoaded.bind(this));
+
+    // bind UI events
+    this.gridRenderingTarget.on("bcdui:far:reportExport", ()=>{
+      self.reportExport();
+    });
 
     // create far renderer
     this._initRenderer();
   },
-  
+
+  /**
+   * runs a excel export on currently rendered grid
+   * 
+   * @private
+   */
+  reportExport : function(){
+    bcdui.component.exports.exportWysiwygAsExcel({rootElement: this.gridRenderingTarget});
+  },
+
   /**
    * Prepare layout for UI components, convention for class is : bcd-far- + [component], containers:
    *
@@ -120,9 +137,8 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
     }.bind(this));
 
     // htmlBuilder on Wrs
-    var gridRenderingTarget = this.options.targetHtml.find(".bcd-far-grid");
     var gridRendering = new bcdui.core.Renderer({
-      targetHtml : gridRenderingTarget,
+      targetHtml : this.gridRenderingTarget,
       chain : this.options.renderingChain || [
         bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply far:Paginate
         bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt" // final rendering of Wrs
@@ -136,7 +152,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
       }
     });
     gridRendering.onReady(function(){
-      gridRenderingTarget.trigger( this.events.rendered );
+      this.gridRenderingTarget.trigger( this.events.rendered );
     }.bind(this));
 
     // trigger rendering everytime UI pagination updates $config/xp:Paginate
@@ -173,6 +189,13 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
       });
     }
 
+    // enable default context menu; TODO: implementation note, in future we many want to extend it with href to xml or inline definition
+    if(this.enhancedConfig.query("/*/far:ContextMenu")){
+      bcdui.widget.createContextMenu({
+        targetHtml : this.gridRenderingTarget,
+        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml")
+      });
+    }
     // enable report filter
     if(this.enhancedConfig.query("/*/far:ReportFilter")){
       // our HideUnselected option on $guiStatus
