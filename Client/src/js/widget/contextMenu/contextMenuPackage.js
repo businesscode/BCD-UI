@@ -85,6 +85,11 @@ bcdui.util.namespace("bcdui.widget.contextMenu",
         var _srcEl = jQuery("#" + event.eventSourceElement);
         event.bcdRowIdent = _srcEl.closest("[bcdRowIdent]").attr("bcdRowIdent");
         event.bcdColIdent = _srcEl.closest("[bcdColIdent]").attr("bcdColIdent");
+        var _table;
+        if(!event.bcdColIdent && (_table=_srcEl.closest("table")).length){ // lookup in the thead/tr[last()] element of the outer table, if colIdent was not on ancestor path
+          var _lastTr = _table.find("thead tr").last();
+          event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
+        }
         // We must call this function deferred, because otherwise the menu
         // mechanism gets broken in case of an exception.
         setTimeout((function() { eval(bcdMenuCode) }).bind(event));
