@@ -71,7 +71,7 @@ bcdui.util.namespace("bcdui.i18n",
     //array of functions to execute within _onTranslatorInitializedCb();
     this._onTranslatorInitFuncs = [];
 
-    this.initTranslate = args.initTranslate == "true" ||  args.initTranslate == true;
+    this.initTranslate = args.initTranslate == null ? true : !!args.initTranslate;
 
     if(!args.modelId){
       // this._modelDefaultName is fixed , so the raw model (which is available only in default i18n bootstrapping) is fixed, too.
