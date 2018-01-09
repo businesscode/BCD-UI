@@ -1210,8 +1210,8 @@ bcdui.util.namespace("bcdui.widget",
     * Creates tab menu widget.
     * @param {Object}        args                       The parameter map contains the following properties.
     * @param {targetHtmlRef} args.targetHtml            An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
-    * @param {string}        defElementId               Html element id where tabs are defined.
-    * @param {string}        [args.id]                  ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
+    * @param {string}        args.defElementId          Html element id where tabs are defined.
+    * @param {string}        [args.args.id]             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
     * @param {string}        [args.handlerJsClassName]  own JS class name to handler click action on tab
     * @param {string}        [args.rendererUrl]         URL to own renderer
     */
