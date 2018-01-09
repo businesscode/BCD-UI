@@ -157,6 +157,14 @@ bcdui.util.namespace("bcdui.i18n",
         ,listener: function(){
             bcdui.core.ready(
                 function(){
+                  // translates the title (if translation provided)
+                  (()=>{
+                    const titleEl = $("head title");
+                    if(titleEl.attr("bcdtranslate")){
+                      bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
+                      document.title = titleEl.text();
+                    }
+                  })(jQuery);
                   // translates the document.body
                   bcdui.i18n.translateHTMLElement();
                 }
