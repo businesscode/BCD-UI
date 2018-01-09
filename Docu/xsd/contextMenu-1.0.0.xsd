@@ -63,7 +63,7 @@
         <xs:annotation>
           <xs:documentation>
             This JavaScript action extends the default JavaScriptAction
-            in that it provides additional parameters "rowIdent" and "colIdent"
+            in that it provides additional parameters "bcdRowIdent" and "bcdColIdent"
             on the event object. These are based on the ident attributes in the
             tr and thead/th elements.
           </xs:documentation>
