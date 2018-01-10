@@ -1259,11 +1259,11 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * Multiple document are handled by WrsServlet in one transaction,
    *
    * @param {(Object|XMLDocument|XMLDocument[])} args - Document(s) or a parameter object with the following properties
-   * @param {(Object|XMLDocument|XMLDocument[])} args.wrsDoc              - Document(s) or a parameter object with the following properties
-   * @param {function}                           [onSuccessCb]            - Callback on succcess
-   * @param {function}                           [onFailureCb]            - Callback on failure
-   * @param {function}                           [onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailureCb is used in case of validation failures
-   * @param {string}                             [uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
+   * @param {document}                           args.wrsDoc              - Document(s) or a parameter object with the following properties
+   * @param {function}                           [args.onSuccessCb]            - Callback on succcess
+   * @param {function}                           [args.onFailureCb]            - Callback on failure
+   * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailureCb is used in case of validation failures
+   * @param {string}                             [args.uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
    *
    * you can also simply provide one argument: wrsDoc or array thereof, which is then POSTed
    */
