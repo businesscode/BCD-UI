@@ -26,13 +26,16 @@ table.bcd-far-configurator {
       padding: 3px 0px;
     }
 
-    th.bcd-far-dims,
+    th.bcd-far-dims  {
+      @include con_color($far-configurator-color-dimension);
+    }
+
     th.bcd-far-sort {
-      background-color: lighten($corporate-color, 50%);
+      @include con_color($far-configurator-color-sorting);
     }
 
     th.bcd-far-meas {
-      background-color: $corporate-color;
+      @include con_color($far-configurator-color-measure);
     }
   }
 
