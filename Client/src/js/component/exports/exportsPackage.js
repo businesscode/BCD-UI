@@ -371,8 +371,8 @@ bcdui.util.namespace("bcdui.component.exports",
   /**
    * Uses ExcelExportServlet to export Wrs(s) into XLSX template
    * @param {Object} args The argument map with the following properties
-   * @param {bcdui.core.DataProvider} [args.inputModel]                - containing wrs:WrsContainer with 1..n wrs:Wrs/wrq:WrsRequest elements, containing wrs:Header/rnd:Wrs2Excel defining target sheets
-   * @param {string}                  [args.fileName=excelExport.xlsx] - URL name used as suffix, must end with .xlsx
+   * @param {bcdui.core.DataProvider} args.inputModel                   - containing wrs:WrsContainer with 1..n wrs:Wrs or wrq:WrsRequest elements, containing wrs:Header or rnd:Wrs2Excel defining target sheets
+   * @param {string}                  [args.fileName=excelExport.xlsx]  - URL name used as suffix, must end with .xlsx
    */
   exportToExcelTemplate: function( args )
   {

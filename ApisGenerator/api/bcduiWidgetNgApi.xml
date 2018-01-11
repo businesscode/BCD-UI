@@ -493,7 +493,7 @@
         </Param>
         <Param name="filterFunction" type="string">
           <Doc>
-            function name of filtering function receiving keystrokes
+            function name of filtering function receiving keystrokes; it gets { value, onComplete } and must call onComplete() callback once its done
           </Doc>
         </Param>
       </Api>
