@@ -27,6 +27,7 @@
   <!-- creates DML inserts from messages.xml: i.e. use eclipse to run this stylesheet on messages.xml in format (KEY,VALUE,LANG) -->
   <xsl:template match="/*/wrs:Data">
     <Ddl>
+DELETE FROM <xsl:value-of select="$tableName"/> WHERE <xsl:value-of select="$ddl.key"/> LIKE 'bcd_%';&#10;
       <xsl:apply-templates/>
     </Ddl>
   </xsl:template>
