@@ -106,6 +106,8 @@ task bcduiClientCollect3rdParty {
                      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js"],
                      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js"],
                      "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"],
+                     "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js"],
+                                         [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
                      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
                      "es6-promise":    [ fn: "es6-promise.js",        ofn: "es6-promise/dist/es6-promise.auto.min.js"],
                      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"],

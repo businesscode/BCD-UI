@@ -31,7 +31,7 @@
           </Jsp>
         </Impl>
       </Api>
-      
+
       <Api name="hasTargetHtml">
         <Param name="targetHTMLElementId" type="string" deprecated="4.6">
           <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
@@ -117,7 +117,7 @@
           </Jsp>
         </Impl>
       </Api>
-      
+
       <Api name="chart" extends="hasTargetHtml">
         <Doc>
           Creates a chart. Requires width/height to explicitely assigned to the target html element either thru inline styling or CSS or defined by meta data model.
@@ -229,9 +229,9 @@
         <Examples>
           <Example type="jsp">
             &lt;component:cube>
-              &lt;component:config>
-                &lt;b:model url='cubeConfiguration.xml'/>
-              &lt;/component:config>
+            &lt;component:config>
+            &lt;b:model url='cubeConfiguration.xml'/>
+            &lt;/component:config>
             &lt;/component:cube>
           </Example>
           <Example type="js">
@@ -262,17 +262,17 @@
         <Examples>
           <Example type="jsp">
             &lt;component:cubeConfigurator>
-              &lt;b:model url='cubeConfiguratorOptions.xml'/>
+            &lt;b:model url='cubeConfiguratorOptions.xml'/>
             &lt;/component:cubeConfigurator>
           </Example>
           <Example type="js">
             bcdui.component.createCubeConfigurator({
-             id:                    "cubeConfigurator",
-             , config:              bcdui.factory.createModel({ url: "dimensionsAndMeasures.xml" })
-             , targetHTMLElementId: "cubeConfiguratorDiv"
-             , targetModelId        "guiStatus2"
-             , isRanking            true
-             , rankingTargetHtmlElementId: "rankingDiv"
+            id:                    "cubeConfigurator",
+            , config:              bcdui.factory.createModel({ url: "dimensionsAndMeasures.xml" })
+            , targetHTMLElementId: "cubeConfiguratorDiv"
+            , targetModelId        "guiStatus2"
+            , isRanking            true
+            , rankingTargetHtmlElementId: "rankingDiv"
           </Example>
         </Examples>
         <Param name="cubeId" type="string">
@@ -310,8 +310,8 @@
         </Param>
         <Param name="rankingTargetHtmlElementId" type="string">
           <Doc>
-         If isRanking is true then this attribute can be used to control the div where the ranking editor is placed.
-         </Doc>
+            If isRanking is true then this attribute can be used to control the div where the ranking editor is placed.
+          </Doc>
         </Param>
         <Param name="isTemplate" type="boolean">
           <Doc>
@@ -351,7 +351,7 @@
         <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
             If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container.
-            if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default). 
+            if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
           </Doc>
         </Param>
         <Param name="applyFunction" type="string">
@@ -389,15 +389,15 @@
         <Examples>
           <Example type="jsp">
             &lt;cmp:farModel>
-              &lt;cmp:config>
-                &lt;b:model url='far-config.xml'/>
-              &lt;/cmp:config>
+            &lt;cmp:config>
+            &lt;b:model url='far-config.xml'/>
+            &lt;/cmp:config>
             &lt;/cmp:farModel>
           </Example>
           <Example type="js">
-          new bcdui.component.far.FarModel({
+            new bcdui.component.far.FarModel({
             config : new bcdui.core.SimpleModel({ url:"far-config.xml" })
-          });
+            });
           </Example>
         </Examples>
       </Api>
@@ -409,16 +409,16 @@
         <Examples>
           <Example type="jsp">
             &lt;cmp:far>
-              &lt;cmp:config>
-                &lt;b:model url='far-config.xml'/>
-              &lt;/cmp:config>
+            &lt;cmp:config>
+            &lt;b:model url='far-config.xml'/>
+            &lt;/cmp:config>
             &lt;/cmp:far>
           </Example>
           <Example type="js">
-          new bcdui.component.far.Far({
+            new bcdui.component.far.Far({
             targetHtml : "#far",
             config : new bcdui.core.SimpleModel({ url:"far-config.xml" })
-          });
+            });
           </Example>
         </Examples>
       </Api>
@@ -445,10 +445,10 @@
           <Doc>
             Custom parameter for usage in the custom aggregator and aspect transformations.
           </Doc>
-         <Impl>
-           <Jsp><![CDATA[ <webpage:paramBag.extractJSParams/>.customParameterModel]]></Jsp>
-           <Xslt><![CDATA[parameters.customParameterModel]]></Xslt>
-         </Impl>
+          <Impl>
+            <Jsp><![CDATA[ <webpage:paramBag.extractJSParams/>.customParameterModel]]></Jsp>
+            <Xslt><![CDATA[parameters.customParameterModel]]></Xslt>
+          </Impl>
         </Param>
       </Api>
 
@@ -459,14 +459,19 @@
         <Examples>
           <Example type="jsp">
             &lt;cmp:scorecard id='scorecardOne'>
-              &lt;cmp:config>
-                &lt;b:model url='scorecardConfiguration.xml'/>
-              &lt;/cmp:config>
+            &lt;cmp:config>
+            &lt;b:model url='scorecardConfiguration.xml'/>
+            &lt;/cmp:config>
             &lt;/cmp:scorecard>
           </Example>
           <Example type="js"></Example>
         </Examples>
 
+        <Param name="contextMenu" type="string">
+          <Doc>
+            'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
         <Param name="tooltipUrl" type="url">
           <Doc>
             To overwrite default renderer xslt of the tooltip.
@@ -484,7 +489,7 @@
         <Examples>
           <Example type="jsp">
             &lt;component:config>
-              &lt;b:ref idRef='myConfigData'/>
+            &lt;b:ref idRef='myConfigData'/>
             &lt;/component:config>
           </Example>
           <Example type="js">
@@ -501,7 +506,7 @@
         <Examples>
           <Example type="jsp">
             &lt;component:metaData>
-              &lt;b:ref idRef='myMetaData'/>
+            &lt;b:ref idRef='myMetaData'/>
             &lt;/component:metaData>
           </Example>
           <Example type="js">
@@ -520,7 +525,7 @@
         <Examples>
           <Example type="jsp">
             &lt;component:statusModel>
-              &lt;b:model url='preDefinedStatusDoc.xml'/>
+            &lt;b:model url='preDefinedStatusDoc.xml'/>
             &lt;/component:statusModel>
           </Example>
           <Example type="js">

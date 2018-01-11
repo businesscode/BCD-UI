@@ -14,6 +14,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<!--
+  Validates a Wrs, i.e. validates its content against the Header/Columns
+  Input: A Wrs
+  Output: A Wrs with the failures (row, col, type) embedded in the input document as wrs:Wrs/wrs:Header/wrs:ValidationResult/wrs:Wrs
+    with three columns RowId, ColPos, error, where error is one of bcd_ValidXX, see messages.xml
+  Parameters:
+  - Parameter node set 'columnRules': Per default wrs:Header is taken from the input document use this for providing other rules (same format)
+  - Parameter 'standAlone': Per default, this re-produces the input Wrs with a wrs:Wrs/wrs:Header/wrs:ValidationResult/wrs:Wrs added
+    with string standAlone=true only /wrs:ValidationResult/wrs:Wrs is the output
+  - Parameter string 'bcdValidationId': Per default an existing wrs:Wrs/wrs:Header/wrs:ValidationResult is replaced
+    with bcdValidationId given, only wrs:ValidationResult[@bcdValidationId] is replaced and the new one also gets this attribute and value
+  Extension points:
+    Import this stylesheet into you own and add rules with mode mode="customValidation"
+-->
 <xsl:stylesheet version="1.0"
   xmlns:gen="http://businesscode.de/generated"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

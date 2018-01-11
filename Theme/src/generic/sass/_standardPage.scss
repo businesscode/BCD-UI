@@ -348,7 +348,7 @@ a {
 /* inputfield dropdown */
 
 .bcdComboInputField input {
-  padding-right: 16px !important;
+/*  padding-right: 16px; */
 }
 
 .bcdComboInputField span {
@@ -363,6 +363,7 @@ a {
 .bcdComboInputField span:after {
   content: "▼";
   position: relative;
+  @include con_color(#ffffff);
 }
 
 /* button */
@@ -1039,7 +1040,7 @@ body {
 #bcdSideBarContainer {
 
   margin-top: 10px;
-  z-index: 2;
+  z-index: 200;
 
   .bcdPeriodChooser {
     @extend .bcdPeriodChooser;
@@ -1193,7 +1194,7 @@ body {
     ul {
       background: $menuBarArea-background;
       margin:     0px;
-      z-index:    90;
+      z-index:    201;
       list-style: none;
 
       .bcdActivePath,

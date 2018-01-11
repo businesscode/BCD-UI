@@ -139,9 +139,10 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
             // End of R or C
             if (event.isEndElement()) {
               EndElement endElement = event.asEndElement();
+              String     localName = endElement.getName().getLocalPart();
               if (NS_WRS_DATA.equals(endElement.getName())) {
                 break;
-              } else if ("R".equals(endElement.getName().getLocalPart())) {
+              } else if ("R".equals(localName) || "M".equals(localName) || "I".equals(localName) || "D".equals(localName)) {
                 // wrs:R end move to next line
                 moveToNextLine();
                 if( currentRowIdx-startRowIdx > options.getMaxRows() )

@@ -179,3 +179,20 @@ input.bcdInputFieldGrid {
   background-color: $flyover-color !important;
   border: 1px solid $grid-hover-color-border !important;
 }
+
+#bcdBodyContainer .bcdGridEditor,
+.bcdGridEditor {
+  input {
+    padding: 0px 5px 1px 5px;
+    margin: 0px;
+  }
+}
+
+.bcdGrid tfoot tr td {
+  text-align: right;
+  padding-top: 10px;
+  
+  .bcdButton {
+    margin-left: 10px;
+  }
+}

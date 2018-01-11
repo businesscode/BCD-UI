@@ -53,6 +53,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String CHART_NAMESPACE        = "http://www.businesscode.de/schema/bcdui/charts-1.0.0";
   public static final String CUBE_PREFIX            = "cube";
   public static final String CUBE_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/cube-2.0.0";
+  public static final String GRID_PREFIX            = "grid";
+  public static final String GRID_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/grid-1.0.0";
   public static final String FAR_PREFIX             = "far";
   public static final String FAR_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/far-1.0.0";
   public static final String CUST_PREFIX            = "cust";
@@ -113,6 +115,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(CHART_PREFIX,        CHART_NAMESPACE);
     mapping.put(CSV_PREFIX,          CSV_NAMESPACE);
     mapping.put(CUBE_PREFIX,         CUBE_NAMESPACE);
+    mapping.put(GRID_PREFIX,         GRID_NAMESPACE);
     mapping.put(CUST_PREFIX,         CUST_NAMESPACE);
     mapping.put(EXSLT_PREFIX,        EXSLT_NAMESPACE);
     mapping.put(DM_PREFIX,           DM_NAMESPACE);

@@ -444,9 +444,11 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
                 jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
                 bcdui.i18n.syncTranslateHTMLElement({elementOrId:targetElement});
               }
-              // XSLT will deliver fragment
-              else
-              {
+            // XSLT will deliver fragment
+            // If we receive a document, we assume the last step did not provide any output to us, because in such cases
+            // we do always treat the input doc as the output. In these cases, we do nothing
+            else if( result.nodeType !== Node.DOCUMENT_NODE )
+            {
                 var partiallIdDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
                 if( partiallIdDP && !!partiallIdDP.getData().trim()) {
                   var ids = partiallIdDP.getData().split(" ");

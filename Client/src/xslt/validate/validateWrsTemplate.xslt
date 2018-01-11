@@ -15,23 +15,7 @@
   limitations under the License.
 -->
 <!--
-  Validates a Wrs, i.e. validates its content against the Header/Columns
-  Per default the Header is taken from the input document, but it can be overwritten as a parameter
-
-  Input: A Wrs
-  Output: A Wrs with the failures (row, col, type) embedded in the input document
-
-  Param: columnRules, as Wrs of which the Header/Column definitions are used for the validation of the input document
-         standAlone, if "true" the output is not embedded as a Wrs in the tested Wrs but rather only the Wrs with the failures
-
-  Extension points to enable custom validation, works with apply-templates providing specified XSL-T matching mode:
-  the convention is: validation.[type-name]
-    - validation.DATE:
-      for date validation on wrs:Data/wrs:*/wrs:C
-      params:
-        bindingItemId
-        
-      custom validation extension point is the mode="customValidation"  
+  Part of validationWrs.xslt
 -->
 <xsl:stylesheet version="1.0"
   xmlns:gen="http://businesscode.de/generated"
@@ -158,7 +142,7 @@
       <xsl:with-param name="bindingItemId" select="@id"/>
       <xsl:with-param name="colPos" select="number(@pos)"/>
     </xsl:apply-templates>
-    
+
     <xsl:apply-templates select="@*" mode="customValidation">
       <xsl:with-param name="bindingItemId" select="@id"/>
       <xsl:with-param name="colPos" select="number(@pos)"/>
@@ -184,7 +168,7 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="@*[local-name(.)='type-name' and contains('NUMERIC|DECIMAL',.)]">
+  <xsl:template match="@*[local-name(.)='type-name' and contains('DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL',.)]"> <!-- INTEGER is handled blow -->
     <xsl:param name="bindingItemId"/>
     <xsl:param name="colPos"/>
     <xsl:for-each select="/*/wrs:Data/wrs:*[ not(self::wrs:D) and not(wrs:C[$colPos]/wrs:null) and string-length(wrs:C[$colPos]) and string(number(wrs:C[$colPos])) = 'NaN' ]">
@@ -209,7 +193,7 @@
   </xsl:template>
 
   <!-- Apply display-size check -->
-  <xsl:template match="@*[local-name(.)='display-size' and ../@type-name='VARCHAR']">
+  <xsl:template match="@*[local-name(.)='display-size' and contains('VARCHAR|CHAR',../@type-name)]">
     <xsl:param name="bindingItemId"/>
     <xsl:param name="colPos"/>
     <xsl:variable name="attr" select="."/>
@@ -232,6 +216,20 @@
            <wrs:C><xsl:value-of select="@id"/></wrs:C>
            <wrs:C><xsl:value-of select="$bindingItemId"/></wrs:C>
            <wrs:C>bcd_ValidNullable</wrs:C>
+        </wrs:R>
+    </xsl:for-each>
+  </xsl:template>
+
+  <!-- Apply scale check -->
+  <xsl:template match="@*[local-name(.)='scale']">
+    <xsl:param name="bindingItemId"/>
+    <xsl:param name="colPos"/>
+    <xsl:variable name="attr" select="."/>
+    <xsl:for-each select="/*/wrs:Data/wrs:*[not(self::wrs:D) and string-length(substring-after(number(wrs:C[$colPos]), '.')) > number($attr) ]">
+        <wrs:R>
+           <wrs:C><xsl:value-of select="@id"/></wrs:C>
+           <wrs:C><xsl:value-of select="$bindingItemId"/></wrs:C>
+           <wrs:C>bcd_ValidScale</wrs:C>
         </wrs:R>
     </xsl:for-each>
   </xsl:template>
@@ -345,6 +343,7 @@
 
   <!-- All other attributes do not lead to a check -->
   <xsl:template match="@*"/>
+  <xsl:template match="@*" mode="customValidation"/>
 
   <!-- default, empty extension points -->
   <xsl:template match="text()" mode="validation.DATE"/>

@@ -57,6 +57,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
         , "/js/3rdParty/nouislider.js"
+        , "/js/3rdParty/handsontable.js"
       ]
     },
     {
@@ -103,6 +104,10 @@ bcdui.bcduiCeFiles =
         , "/js/i18n/i18nPackage.js"
         , "/js/core/lifecycle/lifecyclePackage.js"
         , "/js/wrs/wrsUtilPackage.js"
+      ],
+      "css": [
+        "/theme/css/allStyles.css",
+        "/js/3rdParty/jquery-ui.css"
       ]
     },
     {
@@ -313,10 +318,6 @@ if( typeof bcdui.bcduiFiles.groups != 'undefined' )
 else
   bcdui.bcduiFiles.groups = bcdui.bcduiCeFiles.groups;
 
-// write css link for allStyles and jquery
-document.write("<link rel='stylesheet' type='text/css' href='" + bcdui.config.contextPath + "/bcdui/theme/css/allStyles.css'>");
-document.write("<link rel='stylesheet' type='text/css' href='" + bcdui.config.contextPath + "/bcdui/js/3rdParty/jquery-ui.css'>");
-
 // construct bcdui.config.loadFiles array
 (function(){
   var scripts = document.getElementsByTagName("script");
@@ -379,6 +380,8 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
           group.files[f] = group.files[f].replace('.js', '-es5.js');
         document.write("<script type='text/javascript' src='" + bcdui.config.contextPath + "/bcdui" + group.files[f] + "'><\/script>");
       }
+      for (var c = 0; group.css && c < group.css.length; c++)
+        document.write("<link rel='stylesheet' type='text/css' href='" + bcdui.config.contextPath + "/bcdui" + group.css[c] + "'>");
     }
   }
   // and finally signal that all scripts are loaded 

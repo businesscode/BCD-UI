@@ -84,77 +84,51 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   },
 
   /**
-   * Save data of a SimpleModel to its origin, if 
+   * Save Wrs data of a {@link bcdui.core.DataProvider}
    * 
-   * @param {Object} args - Parameter object with the following properties
-   * @param {(string|bcdui.core.SimpleModel)} args.model          - SimpleModel or id of a SimpleModel to be saved
-   * @param {bcdui.core.DataProvider[]}       args.dataProviders  - Additional data providers as parameters
-   * @param {boolean}                         [args.reload=false] - If true, the model is refreshed from server after saving
-   * @param {funcrion}                        [args.fn]           - Callback after saving (and reloading) is finished
+   * @param {Object} args - Parameter object with the following properties:
+   * @param {(string|bcdui.core.DataProvider)} args.model          - DataProvider (or its id), holding the Wrs with wrs:R|I|M|D row and wrs:C|O column nodesto be saved
+   * @param {boolean}                          [args.reload=false] - Useful especially for models of type SimpleModel for refreshing from server after save
+   * @param {function}                         [args.onSuccess]    - Callback after saving (and optionally reloading) was successfully finished
    */
   saveModel: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
     if (typeof(model) == "undefined")
       throw new Error("Model is required parameter");
 
-    // transform before post, post only wrs:D|wrs:M|wrs:I
-    var transformationId = "bcdui_prepareToPostTransformation"+ bcdui.factory.objectRegistry.generateTemporaryIdInScope("wrsUtilSave");
-    var transformation = bcdui.factory.objectRegistry.getObject(transformationId);
-
-    if(transformation != null){
-      bcdui.factory.objectRegistry.deRegisterObject(transformation);
-    }
-
-    var url = this._wrsPrepareToPostTransformationURL;
-    var dataProviders = new Array();
-    if( args.dataProviders )
-      dataProviders.push(args.dataProviders);
-    dataProviders.push(model);
-
-    transformation = new bcdui.core.TransformationChain({
-        id: transformationId
-        ,chain: url
-        ,dataProviders: dataProviders
+    // Transform and clean Wrs before post, limit to wrs:D, wrs:M, wrs:I and bring them in that order
+    var cleanupMw = new bcdui.core.ModelWrapper({
+      chain: this._wrsPrepareToPostTransformationURL,
+      inputModel: model
     });
 
-    bcdui.factory.reDisplay({
-      idRef:transformationId
-      ,fn:function() {
-        // post to the server
-        var nd = transformation.getData().selectSingleNode("//wrs:Wrs/wrs:Data/wrs:*");
-        if( nd != null){
+    // Once the ModelWrapper with the cleaned, use a temporary SimpleModel for saving
+    cleanupMw.onceReady({ executeIfNotReady: true, onSuccess: function() {
 
-          bcdui.factory.addStatusListener({
-            idRef: model.id
-            ,status: "bcdui.core.status.SavedStatus"
-            ,onlyOnce: true
-            ,listener: function() {
+      // Create a temp model for sending the data, we do not touch our input
+      var sendModel = new bcdui.core.SimpleModel({ url: args.url || model.urlProvider });
+      sendModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument( cleanupMw.getData() );
+      sendModel.setStatus( sendModel.getReadyStatus() );
 
-              bcdui.log.warn("saved " + model.id);
-
-              if(args.reload && args.reload === true){// reload model after save
-                model.execute(true);
-              }
-              if ( typeof args.fn =='function' ){
-                args.fn({changesFound: true});
-              }
-            }
-          });
-
-          model.dataDoc = transformation.getData();
-          model.sendData();
-
-        }
-        else
-        {
-          bcdui.log.warn("no changes found " + model.id);
-          if ( typeof args.fn =='function' ){
-            args.fn({changesFound: false});
+      // In case we want a reload our input, prepare the handler here
+      if( args.reload === true ) {
+        // With reload: call onSuccess after reloading input model
+        sendModel.addStatusListener({
+          status: new bcdui.core.status.SavedStatus(),
+          onlyOnce: true,
+          listener: function () {
+            model.onReady({ onSuccess: args.onSuccess, onlyFuture: true, onlyOnce: true });
+            model.execute(true);
           }
-        }
-      }// end function
+        });
+      } else {
+        // No reload: call onSuccess after saving
+        sendModel.onReady({ onSuccess: args.onSuccess, onlyFuture: true, onlyOnce: true });
+      }
 
-    });// end reDisplay
+      // Save the data with the help of the temp model
+      sendModel.sendData();
+    }});
   },
 
   /**
@@ -474,7 +448,17 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       element.parentNode.removeChild(element);
       return true;
     },
-    
+
+  /**
+   * @param {bcdui.core.DataProvider} model - Id of a DataProvider or the DataProvider itself (dp must be ready)
+   * @param {Element|string}          row   - Row element or row-id to be duplicated
+   */
+  duplicateRow: function( model, row ) {
+    var row = bcdui.util.isString(row) ? model.query("/*/wrs:Data/wrs:*[@id='"+row+"']") : row;
+    var pos = row.selectNodes("preceding-sibling::*").length + 1;
+    bcdui.wrs.wrsUtil.duplicateRows({ model: model, rowStartPos: pos });
+  },
+
   /**
    * Duplicate rows in Wrs. Fires fire
    * 

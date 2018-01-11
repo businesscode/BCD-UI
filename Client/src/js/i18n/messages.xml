@@ -16,11 +16,10 @@
 <Wrs xmlns="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
   <!--
     Default messages of the library.
-    Can be overwritten by webContent/bcdui/conf/messages.xml or via full i18n.
+    Can be overwritten by webContent/bcdui/conf/messages.xml or via full i18n using BindingSet bcd_i18n.
     -->
   <RequestDocument>
-    <WrsRequest xmlns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
-      xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+    <WrsRequest xmlns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
     <Select>
       <Columns></Columns>
       <From>
@@ -48,7 +47,7 @@
       <R id="R115"><C>bcd_uploadMapping_please_select</C><C>Skip</C><C>en</C></R>
 
       <!-- widgetNg messages -->
-      <R id="R130"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
+      <R id="R131"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
 
       <!-- Wrs data validation messages -->
       <R id="R120"><C>bcd_ValidUniq</C><C>Value must be unique.</C><C>en</C></R>
@@ -57,10 +56,11 @@
       <R id="R123"><C>bcd_ValidTypeName_INTEGER</C><C>Value must be an integer number.</C><C>en</C></R>
       <R id="R124"><C>bcd_ValidTypeName_NUMERIC</C><C>Value must be a number.</C><C>en</C></R>
       <R id="R125"><C>bcd_ValidDisplaySize</C><C>Value is too long.</C><C>en</C></R>
-      <R id="R126"><C>bcd_ValidReferences</C><C>Value is not in list of allowed values.</C><C>en</C></R>
-      <R id="R127"><C>bcd_ValidTypeName_TIMESTAMP</C><C>Value must be a timestamp.</C><C>en</C></R>
-      <R id="R128"><C>bcd_ValidPattern</C><C>Value must match a pattern.</C><C>en</C></R>
-      <R id="R129"><C>bcd_ValidEmail</C><C>Value must be an email.</C><C>en</C></R>
+      <R id="R126"><C>bcd_ValidScale</C><C>Value has too many positions after decimal point.</C><C>en</C></R>
+      <R id="R127"><C>bcd_ValidReferences</C><C>Value is not in list of allowed values.</C><C>en</C></R>
+      <R id="R128"><C>bcd_ValidTypeName_TIMESTAMP</C><C>Value must be a timestamp.</C><C>en</C></R>
+      <R id="R129"><C>bcd_ValidPattern</C><C>Value must match a pattern.</C><C>en</C></R>
+      <R id="R130"><C>bcd_ValidEmail</C><C>Value must be an email.</C><C>en</C></R>
 
       <!-- Dimensions and measures in reports -->
       <R id="R11"><C>bcd_PleaseSelectFirst</C><C>Please make your selection and hit apply.</C><C>en</C></R>
@@ -93,7 +93,7 @@
       <R id="R43"><C>bcd_Categories</C><C>Categories</C><C>en</C></R>
       <R id="R44"><C>bcd_RowAspects</C><C>Row Aspects</C><C>en</C></R>
 
-      <!-- Editor context menu -->
+      <!-- Context menu -->
       <R id="R40"><C>bcd_ctxEdit_Copy</C><C>Copy content</C><C>en</C></R>
 
       <R id="R50"><C>bcd_EmptyChart</C><C>Please note, no data is found for the current settings.</C><C>en</C></R>
@@ -130,12 +130,29 @@
       <R id="R71"><C>bcd_Grid_expFill</C><C>Please fill all mandatory input fields.</C><C>en</C></R>
       <R id="R72"><C>bcd_Grid_expCloseSave</C><C>Before saving please close the expanded area.</C><C>en</C></R>
       <R id="R73"><C>bcd_Grid_expLeave</C><C>All non-saved changes will be lost! Proceed?</C><C>en</C></R>
+      <R id="R74"><C>bcd_Grid_RowAdd</C><C>Add row</C><C>en</C></R>
+      <R id="R75"><C>bcd_Grid_RowDelete</C><C>Delete row</C><C>en</C></R>
+      <R id="R76"><C>bcd_Grid_RowRestore</C><C>Restore row</C><C>en</C></R>
+      <R id="R77"><C>bcd_Grid_RowDuplicate</C><C>Duplicate row</C><C>en</C></R>
+      <R id="R78"><C>bcd_Grid_RowActionsHdr</C><C>Cell actions</C><C>en</C></R>
+      <R id="R79"><C>bcd_Grid_ActionsGlobalHdr</C><C>Data actions</C><C>en</C></R>
+      <R id="R80"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
+
+      <!-- Editing -->
+      <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>
+      <R id="R221"><C>bcd_Edit_ResetAll</C><C>Reset All</C><C>en</C></R>
+      <R id="R222"><C>bcd_Edit_OrigValue</C><C>Original Value</C><C>en</C></R>
 
       <!-- Reports general -->
       <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
-      <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional cell filters and user restrictions were applied.</C><C>en</C></R>
+      <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
       <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
       <R id="R93"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
+
+      <!-- Export general -->
+      <R id="R230"><C>bcd_Export_WYSIWYG</C><C>Export WYSIWYG</C><C>en</C></R>
+      <R id="R231"><C>bcd_Export_FullData</C><C>Export full data</C><C>en</C></R>
+      <R id="R232"><C>bcd_Export_CellData</C><C>Export detail data</C><C>en</C></R>
 
       <!-- FAR configurator -->
       <R id="R180"><C>bcd_FarConfigurator_Sbsc_Src</C><C>Available</C><C>en</C></R>
