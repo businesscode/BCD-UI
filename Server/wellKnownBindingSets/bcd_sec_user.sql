@@ -24,7 +24,17 @@ CREATE TABLE BCD_SEC_USER
   PRIMARY KEY (user_id)
 );
 
--- MS SQL Server
+-- SQLServer
+DROP TABLE BCD_SEC_USER;
+CREATE TABLE BCD_SEC_USER
+(  
+  user_id     VARCHAR(128), 
+  name        VARCHAR(128), 
+  password    VARCHAR(64),
+  is_disabled VARCHAR(64),
+  PRIMARY KEY (user_id)
+);
+-- PostgreSQL
 DROP TABLE BCD_SEC_USER;
 CREATE TABLE BCD_SEC_USER
 (  

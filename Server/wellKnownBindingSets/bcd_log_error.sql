@@ -59,7 +59,7 @@ CREATE TABLE bcd_log_error
 );
    
 
--- Postgres
+-- PostgreSQL
 DROP TABLE bcd_log_error;
 CREATE TABLE bcd_log_error
 (

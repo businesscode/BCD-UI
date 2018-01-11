@@ -35,3 +35,12 @@ CREATE TABLE bcd_db_properties
   "type" VARCHAR(64) NULL,
   "value" VARCHAR(255) NOT NULL
 );
+-- PostgreSQL
+DROP TABLE bcd_db_properties CASCADE CONSTRAINTS;
+CREATE TABLE bcd_db_properties
+(
+  scope VARCHAR(32) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  type VARCHAR(64) NULL,
+  value VARCHAR(255) NOT NULL
+);

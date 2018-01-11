@@ -28,7 +28,7 @@ CREATE TABLE bcd_log_pageperformance
    LOG_NAME     VARCHAR2(64)
 );
 
--- TeraData, Postgres
+-- Teradata
 drop table bcd_log_pageperformance;
 CREATE MULTISET TABLE bcd_log_pageperformance
 (
@@ -55,5 +55,19 @@ CREATE TABLE bcd_log_pageperformance
    ADD_INFO     VARCHAR(256),
    REQUEST_URL  VARCHAR(4000),
    GUI_STATUS   VARCHAR(MAX),
+   LOG_NAME     VARCHAR(64)
+);
+-- PostgreSQL
+drop table bcd_log_pageperformance;
+CREATE TABLE bcd_log_pageperformance
+(
+   LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   SESSION_ID   VARCHAR(64),
+   PAGE_HASH    VARCHAR(64),
+   REQUEST_HASH VARCHAR(64),
+   DURATION     INTEGER,
+   ADD_INFO     VARCHAR(256),
+   REQUEST_URL  VARCHAR(4000),
+   GUI_STATUS   VARCHAR(27000),
    LOG_NAME     VARCHAR(64)
 );

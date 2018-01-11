@@ -29,7 +29,7 @@ CREATE SET TABLE bcd_tinyurl_control, FALLBACK, NO BEFORE JOURNAL, NO AFTER JOUR
 UNIQUE PRIMARY INDEX ( tiny_url );
 
 
--- ORACLE
+-- Oracle
 DROP TABLE bcd_tinyurl_control;
 CREATE TABLE bcd_tinyurl_control
 (
@@ -46,6 +46,16 @@ CREATE TABLE bcd_tinyurl_control
 (
   tiny_url VARCHAR(33) NOT NULL,
   long_url VARCHAR(MAX),
+  creation_dt DATE NOT NULL,
+  last_used_dt DATE NOT NULL
+);
+
+-- PostgreSQL
+DROP TABLE bcd_tinyurl_control;
+CREATE TABLE bcd_tinyurl_control
+(
+  tiny_url VARCHAR(33) NOT NULL PRIMARY KEY,
+  long_url VARCHAR(27000),
   creation_dt DATE NOT NULL,
   last_used_dt DATE NOT NULL
 );

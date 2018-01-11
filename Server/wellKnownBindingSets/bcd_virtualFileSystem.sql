@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-DROP TABLE "bcd_virtualFileSystem" CASCADE CONSTRAINTS;
+DROP TABLE bcd_virtualFileSystem CASCADE CONSTRAINTS;
 
 -- Oracle
 CREATE TABLE bcd_virtualFileSystem
@@ -35,4 +35,13 @@ CREATE TABLE bcd_virtualFileSystem
    resource_blob  VARBINARY(MAX),
    is_server      INTEGER NOT NULL,
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server)
+);
+-- PostgreSQL
+CREATE TABLE bcd_virtualFileSystem
+(
+   path           VARCHAR(850) NOT NULL,
+   resource_clob  TEXT,
+   resource_blob  BYTEA,
+   is_server      INTEGER NOT NULL,
+   CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server)
 );

@@ -23,7 +23,16 @@ CREATE TABLE bcd_sec_user_settings
    PRIMARY KEY (user_id,  right_type)
 );
 
--- MS SQL Server
+-- SQLServer
+DROP TABLE bcd_sec_user_settings;
+CREATE TABLE bcd_sec_user_settings
+(
+   user_id         VARCHAR(128) NOT NULL,
+   right_type      VARCHAR(64)  NOT NULL,
+   right_value     VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id,  right_type)
+);
+-- PostgreSQL
 DROP TABLE bcd_sec_user_settings;
 CREATE TABLE bcd_sec_user_settings
 (

@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+-- Oracle
 DROP TABLE BCD_I18N CASCADE CONSTRAINTS;
 CREATE TABLE BCD_I18N
 (
@@ -22,8 +23,8 @@ CREATE TABLE BCD_I18N
    PRIMARY KEY(I18N_KEY, I18N_LANG)
 );
 
--- PostgreSql
-DROP TABLE BCD_I18N CASCADE;
+-- Teradata, SQLServer, PostgreSQL
+DROP TABLE BCD_I18N CASCADE CONSTRAINTS;
 CREATE TABLE BCD_I18N
 (
    I18N_KEY    VARCHAR(255),
