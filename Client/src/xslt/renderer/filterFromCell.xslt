@@ -162,30 +162,24 @@
     - or otherwise use the year brefs from >= (or <=) filter group
   -->
   <xsl:template match="f:*[count(*/*/f:Expression[@bRef='cwyr' or @bRef='yr']) &gt; 1]" mode="merge">
+    <!-- match on outer complex period node and -if a cell filer with year info is present, use this -->
     <xsl:choose>
-      <!-- match on outer complex period node and -if a cell filer with year info is present, use this -->
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
-        <xsl:variable name="cellbRef" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@bRef"/>
-        <xsl:variable name="cellValue" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@value"/>
-        <xsl:variable name="value1" select="substring-before($cellValue, '-')"/>
-        <xsl:variable name="value2" select="substring-after($cellValue, '-')"/>
-        <xsl:variable name="bRef1">
-          <xsl:choose>
-            <xsl:when test="$cellbRef='cwyrcw'">cwyr</xsl:when>
-            <xsl:otherwise>yr</xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="bRef2">
-          <xsl:choose>
-            <xsl:when test="$cellbRef='cwyrcw'">cw</xsl:when>
-            <xsl:when test="$cellbRef='yrqr'">qr</xsl:when>
-            <xsl:otherwise>mo</xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
+        <!-- do not combine these into one since you may have more than one type of such brefs (e.g. yrmo and yrcw) -->
         <xsl:copy>
           <xsl:copy-of select="@*"/>
-          <f:Expression bRef="{$bRef1}" op="=" value="{$value1}"/>
-          <f:Expression bRef="{$bRef2}" op="=" value="{$value2}"/>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrmo']">
+            <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+            <f:Expression bRef="mo" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+          </xsl:if>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrqr']">
+            <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
+            <f:Expression bRef="qr" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
+          </xsl:if>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='cwyrcw']">
+            <f:Expression bRef="cwyr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+            <f:Expression bRef="cw" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+          </xsl:if>
         </xsl:copy>
       </xsl:when>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='mo' or @bRef='cw' or @bRef='qr']">
@@ -369,31 +363,25 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- match on outer simple period node and -if a cell filer with year info is present, use this -->
+  <!-- match on outer simple period node and -if a cell filter with year info is present, use this -->
   <xsl:template match="f:*[f:Expression[@bRef='cwyr' or @bRef='yr']]" mode="merge">
     <xsl:choose>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
-        <xsl:variable name="cellbRef" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@bRef"/>
-        <xsl:variable name="cellValue" select="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']/@value"/>
-        <xsl:variable name="value1" select="substring-before($cellValue, '-')"/>
-        <xsl:variable name="value2" select="substring-after($cellValue, '-')"/>
-        <xsl:variable name="bRef1">
-          <xsl:choose>
-            <xsl:when test="$cellbRef='cwyrcw'">cwyr</xsl:when>
-            <xsl:otherwise>yr</xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="bRef2">
-          <xsl:choose>
-            <xsl:when test="$cellbRef='cwyrcw'">cw</xsl:when>
-            <xsl:when test="$cellbRef='yrqr'">qr</xsl:when>
-            <xsl:otherwise>mo</xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
+        <!-- do not combine these into one since you may have more than one type of such brefs (e.g. yrmo and yrcw) -->
         <xsl:copy>
           <xsl:copy-of select="@*"/>
-          <f:Expression bRef="{$bRef1}" op="=" value="{$value1}"/>
-          <f:Expression bRef="{$bRef2}" op="=" value="{$value2}"/>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrmo']">
+            <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+            <f:Expression bRef="mo" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+          </xsl:if>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrqr']">
+            <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
+            <f:Expression bRef="qr" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
+          </xsl:if>
+          <xsl:if test="$cellFilter/f:Filter//*[@bRef='cwyrcw']">
+            <f:Expression bRef="cwyr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+            <f:Expression bRef="cw" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+          </xsl:if>
         </xsl:copy>
       </xsl:when>
       <xsl:otherwise>
