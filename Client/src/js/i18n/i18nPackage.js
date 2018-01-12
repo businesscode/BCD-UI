@@ -159,7 +159,7 @@ bcdui.util.namespace("bcdui.i18n",
                 function(){
                   // translates the title (if translation provided)
                   (()=>{
-                    const titleEl = $("head title");
+                    const titleEl = jQuery("head title");
                     if(titleEl.attr("bcdtranslate")){
                       bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
                       document.title = titleEl.text();
