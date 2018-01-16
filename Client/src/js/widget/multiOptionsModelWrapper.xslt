@@ -21,6 +21,7 @@
   xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   xmlns:chain="http://www.businesscode.de/schema/bcdui/chain-1.0.0"
   xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0"
+  xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
   xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
   xmlns:csv="http://www.businesscode.de/schema/bcdui/csv-1.0.0"
   xmlns:ctx="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
