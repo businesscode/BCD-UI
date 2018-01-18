@@ -35,6 +35,7 @@ The Renderer either works directly with the specified element or (in case of spe
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
 * Wrs: add support for JDBC SQLXML type
+* SimpleModel: add saveChain/Parameters to be able to modify save actions
 * DataProvider: added support for xpath with placeholders/fill parameters for query/queryNodes/read/write/remove operations. Mainly for handling quote/apostrophe issues when dynamically building up xPath Expressions
     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"]);
 

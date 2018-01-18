@@ -385,9 +385,23 @@
            All other are just loaded as text.
           </Doc>
         </Param>
+        <Param name="chain" type="dataProvider" isJSPChild="paramBag.chain">
+          <Doc>
+            The definition of the transformation chain for save operation only.
+          </Doc>
+        </Param>
+        <Param name="parameters" type="object">
+          <Doc>
+            An object, where each property holds a DataProvider, used as a transformation parameters for save operation only.
+          </Doc>
+          <Impl>
+             <Jsp><![CDATA[ <webpage:paramBag.extractJSParams/> ]]></Jsp>
+           </Impl>
+        </Param>
         <Impl>
           <Jsp allowsChildren="true">
             <AllowedChildren>
+              <Child name="chain" type="param"></Child>
               <Child name="b:requestDocument" doc="The request document used for the data request." />
               <Child name="a:dataListener" doc="Add a listener monitoring changes in the XML content of the model." />
               <Child name="a:statusListener" doc="Add a listener for status changes of this model." />

@@ -46,6 +46,8 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * @param {string}                                        [args.id]                  - Globally unique id for used in declarative contexts
    * @param {boolean}                                       [args.isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
    * @param {string}                                        [args.mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
+   * @param {chainDef}                                      [args.saveChain]           - The definition of the transformation chain
+   * @param {Object}                                        [args.saveParameters]      - An object, where each property holds a DataProvider, used as a transformation parameters.
    *  If not text/plain, (derived or via mimeType), the data is parsed.
    *  <table>
    *    <tr><th>"auto"</th><th>mimeType</th><th>Result</th></tr>
@@ -67,6 +69,9 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
   initialize: function(args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.SimpleModel" ): "") != "";
+
+      this.saveChain = args.saveChain;
+      this.saveParameters = args.saveParameters;
 
       if( typeof args === "string" ) {
         args = { url: args };
@@ -235,7 +240,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
        * Remove unnecessary parameters from URL.
        */
       saveUrl = saveUrl.replace(/^([^?]+).*$/, "$1");
-      bcdui.core.xmlLoader.post({
+      var p = {
         url: saveUrl,
         doc: this.dataDoc,
         onSuccess: function(domDocument) {
@@ -251,7 +256,34 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
           var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
           this.setStatus(newStatus);
         }.bind(this)
-      });
+      };
+
+      // transform model if saveChain is provided
+      var mw = null;
+      if (this.saveChain) {
+        // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
+        var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+        sendModel.execute();
+        mw = new bcdui.core.ModelWrapper({chain: this.saveChain, parameters: this.saveParameters, inputModel: sendModel});
+      }
+
+      // if we use a wrapper, we need to wait for readiness
+      if (mw) {
+        mw.onceReady({
+          executeIfNotReady: true
+        , onSuccess: function() {
+            p.doc = mw.getData();  // do not forget to use the new document
+            bcdui.core.xmlLoader.post(p);
+          }.bind(this)
+        , onFailure: function() {
+            bcdui.log.error("BCD-UI: Failed transforming save model: '" + this.id);
+            this.setStatus(this.saveFailedStatus);
+          }.bind(this)
+        });
+      }
+      // otherwise we can post the data directly
+      else
+        bcdui.core.xmlLoader.post(p);
     },
 
   /**

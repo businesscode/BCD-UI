@@ -107,6 +107,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
 
       // Create a temp model for sending the data, we do not touch our input
       var sendModel = new bcdui.core.SimpleModel({ url: args.url || model.urlProvider });
+      sendModel.saveChain = model.saveChain;
+      sendModel.saveParameters = model.saveParameters;
       sendModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument( cleanupMw.getData() );
       sendModel.setStatus( sendModel.getReadyStatus() );
 

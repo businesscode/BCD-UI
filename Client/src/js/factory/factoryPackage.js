@@ -247,7 +247,9 @@ bcdui.util.namespace("bcdui.factory",
           url: requestDataProvider || args.url,
           isAutoRefresh: args.isAutoRefresh,
           mimeType: args.mimeType,
-          debug:args.debug
+          debug:args.debug,
+          saveChain: args.saveChain || args.chain,
+          saveParameters: args.saveParameters || args.parameters
         });
       };
 
