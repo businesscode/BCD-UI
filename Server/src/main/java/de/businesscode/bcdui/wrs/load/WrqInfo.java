@@ -80,6 +80,7 @@ public class WrqInfo
   private Map<String,Map<String,Set<String>>> vdms = new HashMap<>();
   // This indicates whether this request uses a Grouping Function, for example grouping sets
   private boolean reqHasGroupingFunction = false;
+  private boolean reqHasGroupBy = false;
 
   int aliasCounter     = 1;
   int virtualBiCounter = 1;
@@ -102,7 +103,7 @@ public class WrqInfo
       groupByRootXpathExpr =      xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping");     // grouping columns or functions
       groupByChildrenXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*");     // grouping columns or functions
       groupByIndicatorXpathExpr=  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:Set | /wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:C");     // indicates grouping query
-
+      groupByFunctionXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*[not(self::wrq:C)]");  // grouping functions
       havingRootXpathExpr      =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Having");  // having clause
       topNXPathExpr =             xp.compile("/wrq:WrsRequest/wrq:Select/wrq:TopNDimMembers");
 
@@ -311,7 +312,8 @@ public class WrqInfo
       // B.1.b Select list given
       else
       {
-        reqHasGroupingFunction = ((NodeList)groupByIndicatorXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
+        reqHasGroupBy = ((NodeList)groupByIndicatorXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
+        reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
         WrqBindingItem lastWrqC = null;
         for( int i=0; i<selectedNl.getLength(); i++ )
         {
@@ -504,6 +506,9 @@ public class WrqInfo
   public boolean reqHasGroupingFunction() {
     return reqHasGroupingFunction;
   }
+  public boolean reqHasGroupBy() {
+    return reqHasGroupBy;
+  }
 
   /**
    * Return the virtual dimension members for a bRef
@@ -521,6 +526,7 @@ public class WrqInfo
   private final XPathExpression groupByRootXpathExpr;
   private final XPathExpression groupByChildrenXpathExpr;
   private final XPathExpression groupByIndicatorXpathExpr;
+  private final XPathExpression groupByFunctionXpathExpr;
   private final XPathExpression havingRootXpathExpr;
   private final XPathExpression topNXPathExpr;
 

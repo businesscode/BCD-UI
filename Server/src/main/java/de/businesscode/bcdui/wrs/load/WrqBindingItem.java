@@ -127,7 +127,7 @@ public class WrqBindingItem implements WrsBindingItem
         origJdbcDataType = jdbcDataType = dt;
 
       this.id = "bcd_virt_"+(wrqInfo.virtualBiCounter++);
-      if( enforceAggr || WrqCalc2Sql.containsAggr(calc) || !wrqInfo.reqHasGroupingFunction() ) // grouping by colexpr
+      if( enforceAggr || WrqCalc2Sql.containsAggr(calc) || !wrqInfo.reqHasGroupBy() ) // grouping by colexpr
         this.aggr = null;
       else
         this.aggr = getDefaultAggr(getJDBCDataType());
@@ -246,7 +246,7 @@ public class WrqBindingItem implements WrsBindingItem
     String bRef = e.hasAttribute("bRef") ? e.getAttribute("bRef") : e.getAttribute("idRef");
     String aggr = aggregationMapping.get(e.getAttribute("aggr").toLowerCase());
     // There is a grouping but we are not part of it
-    if( aggr==null && wrqInfo.reqHasGroupingFunction() && !wrqInfo.getGroupingBRefs().contains(bRef) ) {
+    if( aggr==null && wrqInfo.reqHasGroupBy() && !wrqInfo.getGroupingBRefs().contains(bRef) ) {
       BindingItem bi = wrqInfo.getResultingBindingSet().get(bRef);
       aggr = bi.getAggr()!=null ? aggregationMapping.get(bi.getAggr()) : getDefaultAggr(bi.getJDBCDataType());
     }
