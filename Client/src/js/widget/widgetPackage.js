@@ -2237,7 +2237,7 @@ bcdui.util.namespace("bcdui.widget",
      _moveBcdAttributes: function(sourceHtmlElement, targetHtmlElement) {
        jQuery.makeArray(sourceHtmlElement.attributes).forEach(function(a){
          if (a.nodeName.startsWith("bcd")) {
-           targetHtmlElement.setAttribute(a.nodeName, a.nodeValue);
+           targetHtmlElement.setAttribute(a.nodeName, a.value);
            sourceHtmlElement.removeAttribute(a.nodeName);
          }
        });
