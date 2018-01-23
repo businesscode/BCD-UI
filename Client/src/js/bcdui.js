@@ -519,7 +519,8 @@ bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading")
 /**
  * @typedef {string|HTMLElement|jQuery} targetHtmlRef
  * @description
- * Any reference to an existing HTML element: Can be a DOM element, a jQuery list, a css selector or a plain id of an element.
+ * Any reference to an existing HTML element: Can be a DOM element, a jQuery object, a css selector or a plain id of an element.
+ * The referenced element *must*  be attached to html document unless the reference itself is a DOM element.
  * <br/>If jQuery returns a list with multiple matches, the first member is used. These are all valid examples:
  * @example
  * document.getElementById("myId").firstChild      // Any plain <b>DOM element</b>
