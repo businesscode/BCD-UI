@@ -1521,7 +1521,7 @@ bcdui.util.namespace("bcdui.widget",
   _findAttribute: function(/* HTMLElement */ startElement, /* String */ attrName, /* HTMLElement */ endElement)
     {
       var _endElement = endElement || null;
-      while (startElement != null) {
+      while (startElement != null && !startElement.documentElement) {
         var attr = startElement.getAttribute(attrName);
         if (attr != null) return attr;
         if (startElement == _endElement) return null;
