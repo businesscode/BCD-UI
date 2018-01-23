@@ -52,19 +52,10 @@
       <xsl:apply-templates select="." mode="jsDoc"/>
     </xsl:for-each>
 */<xsl:value-of select="concat('&#10;', $package, '.', $createName)"/> = function( args ) {
-  args.targetHtml = args.targetHtmlElementId = bcdui.util._getTargetHtml(args, "<xsl:value-of select="concat(@name, '_')"/>");
-  var htmlE = jQuery("#" + args.targetHtmlElementId);
-  if( ! htmlE.length > 0 )
-     return;
-  if(args.id) {
-    htmlE.attr("id", args.id);
-    args.targetHtml = args.targetHtmlElementId = args.id;
-  } else {
-    args.id = args.targetHtml;
-  }
+  var htmlE = jQuery(bcdui.widgetNg.utils._getAndFixTargetHtmlElement(args, "<xsl:value-of select="concat(@name, '_')"/>"));
   htmlE.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>", jQuery.extend(true, {}, args));
 
-    <xsl:value-of select="concat('&#10;&#10;  ', $package, '.', @name,'.init(htmlE.get(0));')"/>
+  <xsl:value-of select="concat('&#10;&#10;  ', $package, '.', @name,'.init(htmlE.get(0));')"/>
 };<xsl:text/>
   </xsl:template>
 

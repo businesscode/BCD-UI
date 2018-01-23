@@ -392,39 +392,52 @@ bcdui.util =
    * Also understands deprecated args.targetHTMLElementId and args.targetHtmlElementId instead instead of args.targetHtml and ids without leading '#' for backward compatibility
    * @param {Object} args Parameter Object
    * @param {string|HTMLElement|jQuery} args.targetHtml A CSS selector, or a plain HTMLElement or a jQuery element list. If there are multiple matching elements, the id of the first is used.
-   * @returns The id of the targetHtml
+   * @param {boolean} [args.doReturnElement=false]  Return an element instead of the ID, is only compatible when using args.targetHtml
+   * @returns The id of the targetHtml or the element if args.doReturnElement=true
    * @private
    */
-  _getTargetHtml: function(args, scope) {
+  _getTargetHtml: function(args, scope, doReturnElement) {
     // either take deprecated provided Ids
     var id = args.targetHTMLElementId || args.targetHtmlElementId;
     if (!id) {
       
       // For a plain word, we assume, always means an id not all matching tags. Even if no leading '#' is set.
       if (typeof args.targetHtml == "string" && args.targetHtml.match(/^#?[\w:-_]+$/)) {
-        if (jQuery(args.targetHtml.startsWith("#") ? args.targetHtml : "#" + args.targetHtml).length > 0)
-          return args.targetHtml.startsWith("#") ? args.targetHtml.substring(1) : args.targetHtml;
+        var _el = jQuery(args.targetHtml.startsWith("#") ? args.targetHtml : "#" + args.targetHtml);
+        if (_el.length > 0){
+          if(doReturnElement){
+            return _el[0];
+          }else{
+            return _el.attr("id"); // return ID without #
+          }
+        }
       }
 
       //  is dom or jquery element or jquery selector?
-      if (jQuery(args.targetHtml).length > 0) {
+      var jqEl = jQuery(args.targetHtml);
+      if (jqEl.length > 0) {
         // take its id
-        if (jQuery(args.targetHtml).first().attr("id")) {
-          id = jQuery(args.targetHtml).first().attr("id")
+        if (jqEl.first().attr("id")) {
+          id = jqEl.first().attr("id")
         }
         // or generate one by using its id
         else if (args.id) {
           id = args.id + "_tE";
-          jQuery(args.targetHtml).first().attr("id", id)
+          jqEl.first().attr("id", id)
         }
         // or a totally new one from scope
         else {
           id = bcdui.factory.objectRegistry.generateTemporaryIdInScope(scope||"") + "_tE";
-          jQuery(args.targetHtml).first().attr("id", id)
+          jqEl.first().attr("id", id)
+        }
+        if(doReturnElement === true){
+          return jqEl[0];
         }
       }
       else
         throw Error("targetHtml missing for '" + (args.id || scope) + "'" );
+    } else if(doReturnElement) { // we've got id via deprecated API, doReturnElement must not be defined here
+      throw "Error, .doReturnElement must not be set here.";
     }
     return id;
   },

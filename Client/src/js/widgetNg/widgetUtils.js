@@ -39,6 +39,52 @@
     },
 
     /**
+     * this function converts the legacy .targetHtmlElementId property to .targetHtml,
+     * deletes .targetHtmlElementId from arguments, ensures only .targetHtml is provided
+     * in arguments then calls bcdui.util._getTargetHtml() and returns the html-element,
+     * it is undefined to have .targetHtml and .targetHtmlElementId both defined in args,
+     * thus resulting in error.
+     *
+     * @param {object}        args                        - arguments
+     * @param {string}        [args.prefixAutoId=autoId_] - the prefix for id generation, in case it is not provided in args
+     * @param {string}        [args.targetHtmlElementId]  - possible legacy reference
+     * @param {targetHtmlRef} [args.targetHtml]           - reference to target
+     * @param {string}        [args.id]                   - the id to ensure on targetHtml element
+     *
+     * @return {element} - the target html element; migrates the legacy .targetHtmlElementId to .targetHtml in args and removes the legacy.
+     * @throws  will throw error if args.targetHtmlElementId and args.targetHtml are both defined; if targetHtml is not found, i.e. the lookup
+     *          was done using CSS selector or ID reference but was not found in html document.
+     *  
+     * @private
+     */
+    _getAndFixTargetHtmlElement : function(args, prefixAutoId){
+      const legacyRef = args.targetHTMLElementId || args.targetHtmlElementId;
+
+      if(!args.targetHtml){
+        args.targetHtml = "#" + legacyRef;
+        delete args.targetHTMLElementId;
+        delete args.targetHtmlElementId;
+      } else if (args.targetHTMLElementId || args.targetHtmlElementId){
+        throw "Must not define .targetHtml and args.args.targetHtmlElementId";
+      }
+
+      const targetEl = bcdui.util._getTargetHtml(args, prefixAutoId || "autoId_", true);
+
+      if(!targetEl){
+        throw "Element not found, referenced by: " + args.targetHtml;
+      }
+
+      // sync args.id on element.id; args.id has precedence and overrides element.id
+      if(args.id){
+        (args.id !== targetEl.getAttribute("id")) && targetEl.setAttribute("id", args.id);
+      } else {
+        args.id = targetEl.getAttribute("id");
+      }
+
+      return targetEl;
+    },
+
+    /**
      * writes newValue into bound model, DOES NOT VALIDATE! params:
      *
      * - inputElementId
