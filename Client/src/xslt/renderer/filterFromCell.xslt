@@ -166,21 +166,27 @@
     <xsl:choose>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
         <!-- do not combine these into one since you may have more than one type of such brefs (e.g. yrmo and yrcw) -->
-        <xsl:copy>
-          <xsl:copy-of select="@*"/>
-          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrmo']">
+        <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrmo']">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
             <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
             <f:Expression bRef="mo" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
-          </xsl:if>
-          <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrqr']">
+          </xsl:copy>
+        </xsl:if>
+        <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrqr']">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
             <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
             <f:Expression bRef="qr" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
-          </xsl:if>
-          <xsl:if test="$cellFilter/f:Filter//*[@bRef='cwyrcw']">
+          </xsl:copy>
+        </xsl:if>
+        <xsl:if test="$cellFilter/f:Filter//*[@bRef='cwyrcw']">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
             <f:Expression bRef="cwyr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
             <f:Expression bRef="cw" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
-          </xsl:if>
-        </xsl:copy>
+          </xsl:copy>
+        </xsl:if>
       </xsl:when>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='mo' or @bRef='cw' or @bRef='qr']">
         <xsl:variable name="expGreater" select=".//*[@op='&gt;=' and @bRef=$cellFilter/f:Filter//*/@bRef]"/>
@@ -368,21 +374,27 @@
     <xsl:choose>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
         <!-- do not combine these into one since you may have more than one type of such brefs (e.g. yrmo and yrcw) -->
-        <xsl:copy>
-          <xsl:copy-of select="@*"/>
           <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrmo']">
-            <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
-            <f:Expression bRef="mo" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+            <xsl:copy>
+              <xsl:copy-of select="@*"/>
+              <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+              <f:Expression bRef="mo" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrmo']/@value, '-')}"/>
+            </xsl:copy>
           </xsl:if>
           <xsl:if test="$cellFilter/f:Filter//*[@bRef='yrqr']">
+          <xsl:copy>
+            <xsl:copy-of select="@*"/>
             <f:Expression bRef="yr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
             <f:Expression bRef="qr" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='yrqr']/@value, '-')}"/>
+          </xsl:copy>
           </xsl:if>
           <xsl:if test="$cellFilter/f:Filter//*[@bRef='cwyrcw']">
-            <f:Expression bRef="cwyr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
-            <f:Expression bRef="cw" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+            <xsl:copy>
+              <xsl:copy-of select="@*"/>
+              <f:Expression bRef="cwyr" op="=" value="{substring-before($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+              <f:Expression bRef="cw" op="=" value="{substring-after($cellFilter/f:Filter//*[@bRef='cwyrcw']/@value, '-')}"/>
+            </xsl:copy>
           </xsl:if>
-        </xsl:copy>
       </xsl:when>
       <xsl:otherwise>
         <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/>
