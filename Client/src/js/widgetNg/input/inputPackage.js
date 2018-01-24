@@ -104,7 +104,7 @@
       args.type = config.extendedConfig.type||args.type||"text";
 
       // avoid rendering while attaching children
-      rootContainer.hide();
+      this.setVisible(false);
 
       var uiControl = this._createInputControl(args, config);
 
@@ -226,7 +226,7 @@
       }
 
       // display constructed container
-      rootContainer.show();
+      this.setVisible(true);
 
       // set autofocus after display
       if(args.autofocus){

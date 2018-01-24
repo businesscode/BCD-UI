@@ -76,6 +76,7 @@
 
       var rootContainer = bcdui._migPjs._$(this.element[0]);
       var args = this.options;
+      var self = this;
 
       // handle empty placeholder as no placeholder
       if (this.options.placeholder && this.options.placeholder == "")
@@ -119,7 +120,7 @@
         }).addClass("statusNotReady");
         // workaround for jqm, as it overlays our native SELECT with his custom layer
         rootContainer.data("__LOADING_INDICATOR__", _loadingDiv.get(0));
-        rootContainer.hide();
+        this.setVisible(false);
         rootContainer.parent().get(0).appendChild(_loadingDiv.get(0));
       }
 
@@ -206,7 +207,7 @@
                   if(loadIndicator){
                     rootContainer.parent().get(0).removeChild(loadIndicator);
                     rootContainer.data("__LOADING_INDICATOR__", null)
-                    rootContainer.show();
+                    self.setVisible(true);
                   }
                 }
 

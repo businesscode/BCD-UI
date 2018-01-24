@@ -114,6 +114,25 @@
     },
 
     /**
+     * delegates to this.element.show()/.hide() only in case this.element
+     * is not detached, otherwise does nothing (see BUI-876)
+     * 
+     * Sometimes, being a complex widget, it may hide itself while initially rendering
+     * complex content to avoid wasted rendering cycles, so a widget may call this.setVisible(false)
+     * at _create().
+     * @private
+     */
+    setVisible : function(isVisible){
+      if(jQuery.contains(document.documentElement, this.element[0])){
+        if(isVisible){
+          this.element.show();
+        } else {
+          this.element.hide();
+        }
+      }
+    },
+
+    /**
      * runs async validation on element returned by #_getValidatingElement(), this must
      * be only run AFTER any implicit or syncrhonous validation has been run and widget
      * is considered VALID

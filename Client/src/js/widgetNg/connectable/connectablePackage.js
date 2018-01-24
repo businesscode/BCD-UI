@@ -160,7 +160,7 @@
       }
 
       // avoid rendering while attaching children
-      this.element.hide();
+      this.setVisible(false);
 
       // and initally render the (empty) container
       this.container = jQuery(this._generateContainerHtml()).appendTo(this.element);
@@ -242,7 +242,7 @@
       bcdui.widgetNg.commons.balloon.attach(this.config.elementId, {noTooltip: this.config.extendedConfig.noTooltip});
 
       // display constructed container
-      this.element.show();
+      this.setVisible(true);
 
       // set autofocus after display
       if(args.autofocus)
