@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Element;
 
@@ -72,19 +71,14 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   public String getCondition() throws BindingException {
     if (!bindingSet.hasSubjectFilters()) {
       return "";
-    } else if (SecurityUtils.getSubject().getPrincipal() == null)
-      throw new BindingException("BindingSet '" + bindingSet.getName() + "' requires authorization, but no principal exists for current session.");
-
-    // Loop over the SubjectFilters of the BindingSet
-    SubjectSettings settings = SubjectSettings.getInstance();
-    Subject subject = SecurityUtils.getSubject();
-    Session session = subject.getSession();
+    }
 
     final StringBuilder whereClause = new StringBuilder();
 
     StringBuilder loggingSb = logger.isTraceEnabled() ? new StringBuilder() : null;
 
-    boolean hasAccess = build(whereClause, bindingSet.getSubjectFilters().getConnective(), boundVariables, settings, subject, session, loggingSb, 0);
+    // Loop over the SubjectFilters of the BindingSet
+    boolean hasAccess = build(whereClause, bindingSet.getSubjectFilters().getConnective(), boundVariables, SubjectSettings.getInstance(), SecurityUtils.getSubject(), loggingSb, 0);
 
     if (loggingSb != null) {
       logger.trace("(see next line)\n" + loggingSb);
@@ -102,7 +96,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     });
   }
 
-  private boolean build(StringBuilder connectiveSb, Connective connective, Collection<Element> boundVariables, SubjectSettings settings, Subject subject, Session session,
+  private boolean build(StringBuilder connectiveSb, Connective connective, Collection<Element> boundVariables, SubjectSettings settings, Subject subject,
       StringBuilder loggingSb, int level) throws BindingNotFoundException, BindingException {
     String padding = loggingSb != null ? StringUtils.leftPad("", level * 4) : null;
 
@@ -118,7 +112,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       if (sfNode instanceof SubjectFilter) { // SubjectFilter
         if (loggingSb != null)
           loggingSb.append(padding).append("| resolve filter: ").append(((SubjectFilter) sfNode).getType()).append("\n");
-        if (!resolveSubjectFilter(nestedElementList, settings, subject, session, innerSb, (SubjectFilter) sfNode, connective, nestedPsValues)) {
+        if (!resolveSubjectFilter(nestedElementList, settings, subject, innerSb, (SubjectFilter) sfNode, connective, nestedPsValues)) {
           // in case one filter failed to resolve due to not available permissions, we stop
           return false;
         }
@@ -128,7 +122,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         // use new builder for scoping so undelying logic detects when to omit leading AND/OR symbols also
         // the scope might be empty i.e. due to * permit
         StringBuilder scopeSb = new StringBuilder();
-        if (!build(scopeSb, (Connective) sfNode, nestedElementList, settings, subject, session, loggingSb, level + 1)) {
+        if (!build(scopeSb, (Connective) sfNode, nestedElementList, settings, subject, loggingSb, level + 1)) {
           return false;
         } else if (scopeSb.length() > 0) {
           // drop inner supportive operands
@@ -227,13 +221,13 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @throws BindingNotFoundException
    * @throws BindingException
    */
-  private boolean resolveSubjectFilter(Collection<Element> elementList, SubjectSettings settings, Subject subject, Session session, final StringBuilder sqlClause, SubjectFilter sf,
+  private boolean resolveSubjectFilter(Collection<Element> elementList, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
       Connective connective, Collection<String> preparedStatementParams) throws BindingNotFoundException, BindingException {
     SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
     // Either this is attached as an attribute to our session
-    final String sessionFilterValue = settings.getFilterTypeValue(session, ft);
+    final String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
 
     if (sessionFilterValue != null) {
       resolveWithValue(elementList, sqlClause, ft, bRef, sessionFilterValue, connective);
