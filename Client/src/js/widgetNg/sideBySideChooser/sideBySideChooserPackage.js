@@ -93,7 +93,7 @@
           , onChange: this.options.onChange
           , scope: this.options.id
           , showLasso: false
-          // targetHtmlElementId - we rendered a tab, so we set our own ids now
+          // targetHtml - we rendered a tab, so we set our own ids now
           , unselectAfterMove: this.options.unselectAfterMove || false
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
@@ -104,12 +104,12 @@
           optionsModelRelativeFilterPredicate: this.options.optionsModelRelativeFilterPredicate
         , optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
-        , targetHtmlElementId: this.options.id + "sbsLeft"
+        , targetHtml: this.element.find("#" + this.options.id + "sbsLeft")
         , generateItemHtml: this.options.generateItemHtmlSource
       }
       var targetArgs = {
         targetModelXPath: this.options.targetModelXPath
-        , targetHtmlElementId: this.options.id + "sbsRight"
+        , targetHtml: this.element.find("#" + this.options.id + "sbsRight")
         , generateItemHtml: this.options.generateItemHtmlTarget
       }
 

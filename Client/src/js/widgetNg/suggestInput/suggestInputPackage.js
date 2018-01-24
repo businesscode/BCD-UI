@@ -1004,7 +1004,7 @@
            */
           bcdui.factory.createRenderer({
             id:         rendererId
-            , targetHTMLElementId: this._CST_DATALIST_ELEMENT_ID
+            , targetHtml: "#" + this._CST_DATALIST_ELEMENT_ID
             , url:      bcdui.config.jsLibPath + "widgetNg/suggestInput/optionsRenderer.xslt"
             , inputModel: bcdui.core.emptyModel
             , dataProviders: this._WIDGET_VALUE_DATAPROVIDER

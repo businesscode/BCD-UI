@@ -489,7 +489,7 @@ bcdui.util.namespace("bcdui.component",
         bcdui.widgetNg.createButton({
           caption: "Apply",
           onClickAction: bcdui.util._toJsFunction(args.applyFunction),
-          targetHtmlElementId: "bcdDNDApplyButton_" + args.cubeId
+          targetHtml: "#bcdDNDApplyButton_" + args.cubeId
         });
       }
 
