@@ -122,6 +122,7 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "  Object.create(HTMLElement.prototype, {" + newLine;
   result += "    attachedCallback: {" + newLine;
   result += "      value: function() {" + newLine;  
+  result += "          if(this.__created) { return; } else { this.__created = true; }" + newLine;
   result += "          var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly

@@ -487,7 +487,7 @@ bcdui.util =
    * Custom element creation helper.
    *
    * @param {string}    elementName     The name of the custom element to create, must adhere to custom element standards.
-   * @param {function}  createdCallback The function which is called on the element once browser has parsed it, the context is set to the element.
+   * @param {function}  createdCallback The function which is called on the element once it is attached to the document, the context is set to the element.
    */
   createCustomElement : function(elementName, createdCallback) {
     if(!elementName){
@@ -499,8 +499,13 @@ bcdui.util =
     // currently using (deprecated) document.registerElement() but in future we may use customElements.define() instead.
     document.registerElement(elementName, {
       prototype : Object.create(HTMLElement.prototype, {
-        createdCallback : {
-          value : createdCallback
+        attachedCallback : {
+          value : function(){
+            if(!this.__created){
+              this.__created = true;
+              createdCallback.apply(this);
+            }
+          }
         }
       })
     });
