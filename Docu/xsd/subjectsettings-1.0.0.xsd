@@ -138,6 +138,12 @@
         defined by 'country' acl.
       </documentation></annotation>
     </attribute>
+    <attribute name="isClientControlled" use="optional" type="boolean" default="false">
+      <annotation><documentation>
+        Allows this subject filter to be set/overridden from client, such filters shall not be used to restrict access to data 
+        or operations as they are inherently insecure.
+      </documentation></annotation>
+    </attribute>
   </complexType>
 
   <complexType name="AuthenticationType">

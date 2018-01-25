@@ -175,6 +175,16 @@ public class SubjectSettings extends SubjectSettingsConfig {
   }
 
   /**
+   * sets a value of given subjectFilterType
+   * 
+   * @param session, must not be null
+   * @param subjectFilterType
+   */
+  public void setFilterTypeValue(Session session, SubjectFilterType subjectFilterType, Object value){
+    session.setAttribute(permissionAttributePrefix + getFilterType(subjectFilterType), value);
+  }
+
+  /**
    * Do not use directly, use getInstance() instead,
    * this class is expected to be only instantiated by JAXB as a singelton
    */

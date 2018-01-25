@@ -351,12 +351,14 @@ bcdui.util.namespace("bcdui.core",
    * @param {boolean} [asAnchor=false] A boolean value (which is false by default)
    * indicating if the parameter definition should be placed in the anchor section
    * of the URL.
+   * @param {boolean} [allowMultiple=false] If set to true, allows multiple occurences
+   * of parameter (i.e. resulting in a parsed array on the server)
    * @return {string} The transformed URL.
    */
-  setUrlParameter: function(/* string */ url, /* string */ parameterName, /* string */ unEscapedValue, /* boolean? */ asAnchor)
+  setUrlParameter: function(url, parameterName, unEscapedValue, asAnchor, allowMultiple)
     {
-      // Removes the already existing param=value definition from the URL
-      var result = url.replace(new RegExp("([?&#])" + parameterName + "(=[^&#]*)?&?"), "$1").replace(new RegExp("[&?]#"), "#");
+      // Removes the already existing param=value definition from the URL, in case allowMultiple=false
+      var result = !!allowMultiple ? url : url.replace(new RegExp("([?&#])" + parameterName + "(=[^&#]*)?&?"), "$1").replace(new RegExp("[&?]#"), "#");
 
       if (unEscapedValue != null) {
 
