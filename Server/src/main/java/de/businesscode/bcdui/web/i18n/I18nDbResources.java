@@ -40,7 +40,7 @@ import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.Closer;
 
-public class I18n extends ListResourceBundle {
+public class I18nDbResources extends ListResourceBundle {
   public static final String BCDUI_LANG_VAR_NAME = "bcdui.lang";
   public static final String BCDUI_DECIMAL_SEPARATOR = "bcdui.dec.sep";
   public static final String BCDUI_GROUPING_SEPARATOR = "bcdui.group.sep";
@@ -50,7 +50,7 @@ public class I18n extends ListResourceBundle {
   public static final String BCDUI_XSLT_DATETIME_PATTERN = "bcdui.xslt.datetime.pattern";
   public static final String BCDUI_DATE_SEPARATOR = "bcdui.date.separator";
 
-  private static final String SESSION_KEY_CONTENTS = I18n.class.getName();
+  private static final String SESSION_KEY_CONTENTS = I18nDbResources.class.getName();
 
   private Locale lang;
   private Logger logger;
@@ -81,21 +81,21 @@ public class I18n extends ListResourceBundle {
       " AND $k.key- NOT IN (SELECT $k.key- FROM $k.getPlainTableName() WHERE $k.key- = v2.$k.key- and $k.lang- = ?)";
 
   /**
-   * I18n
+   * I18nDbResources
    */
-  public I18n(HttpSession session, Connection con) {
+  public I18nDbResources(HttpSession session, Connection con) {
     this.session = session;
 
-    this.lang = (Locale) session.getAttribute(I18n.BCDUI_LANG_VAR_NAME);
-    this.decimalSeparator = (String) session.getAttribute(I18n.BCDUI_DECIMAL_SEPARATOR);
-    this.groupSeparator = (String) session.getAttribute(I18n.BCDUI_GROUPING_SEPARATOR);
+    this.lang = (Locale) session.getAttribute(I18nDbResources.BCDUI_LANG_VAR_NAME);
+    this.decimalSeparator = (String) session.getAttribute(I18nDbResources.BCDUI_DECIMAL_SEPARATOR);
+    this.groupSeparator = (String) session.getAttribute(I18nDbResources.BCDUI_GROUPING_SEPARATOR);
 
-    this.datePattern = (String) session.getAttribute(I18n.BCDUI_DATE_PATTERN);
-    this.dateSeparator = (String) session.getAttribute(I18n.BCDUI_DATE_SEPARATOR);
-    this.xsltDatePattern = (String) session.getAttribute(I18n.BCDUI_XSLT_DATE_PATTERN);
+    this.datePattern = (String) session.getAttribute(I18nDbResources.BCDUI_DATE_PATTERN);
+    this.dateSeparator = (String) session.getAttribute(I18nDbResources.BCDUI_DATE_SEPARATOR);
+    this.xsltDatePattern = (String) session.getAttribute(I18nDbResources.BCDUI_XSLT_DATE_PATTERN);
 
-    this.dateTimePattern = (String) session.getAttribute(I18n.BCDUI_DATETIME_PATTERN);
-    this.xsltDateTimePattern = (String) session.getAttribute(I18n.BCDUI_XSLT_DATETIME_PATTERN);
+    this.dateTimePattern = (String) session.getAttribute(I18nDbResources.BCDUI_DATETIME_PATTERN);
+    this.xsltDateTimePattern = (String) session.getAttribute(I18nDbResources.BCDUI_XSLT_DATETIME_PATTERN);
 
     this.logger = Logger.getLogger(this.getClass());
     this.con = con;
@@ -174,29 +174,29 @@ public class I18n extends ListResourceBundle {
             map.put(result.getString(1), result.getString(2));
           }
           if (decimalSeparator != null) {
-            map.put(I18n.BCDUI_DECIMAL_SEPARATOR, decimalSeparator);
+            map.put(I18nDbResources.BCDUI_DECIMAL_SEPARATOR, decimalSeparator);
           }
           if (groupSeparator != null) {
-            map.put(I18n.BCDUI_GROUPING_SEPARATOR, groupSeparator);
+            map.put(I18nDbResources.BCDUI_GROUPING_SEPARATOR, groupSeparator);
           }
           if (datePattern != null) {
-            map.put(I18n.BCDUI_DATE_PATTERN, datePattern);
+            map.put(I18nDbResources.BCDUI_DATE_PATTERN, datePattern);
           }
           if (dateTimePattern != null) {
-              map.put(I18n.BCDUI_DATETIME_PATTERN, dateTimePattern);
+              map.put(I18nDbResources.BCDUI_DATETIME_PATTERN, dateTimePattern);
           }
           if (dateSeparator != null) {
-            map.put(I18n.BCDUI_DATE_SEPARATOR, dateSeparator);
+            map.put(I18nDbResources.BCDUI_DATE_SEPARATOR, dateSeparator);
           }
           if (xsltDatePattern != null) {
-            map.put(I18n.BCDUI_XSLT_DATE_PATTERN, xsltDatePattern);
+            map.put(I18nDbResources.BCDUI_XSLT_DATE_PATTERN, xsltDatePattern);
           }
           if (xsltDateTimePattern != null) {
-              map.put(I18n.BCDUI_XSLT_DATETIME_PATTERN, xsltDateTimePattern);
+              map.put(I18nDbResources.BCDUI_XSLT_DATETIME_PATTERN, xsltDateTimePattern);
           }
           else{
             if (datePattern != null && dateSeparator != null){
-              map.put(I18n.BCDUI_XSLT_DATE_PATTERN, datePattern.replace(dateSeparator, ""));
+              map.put(I18nDbResources.BCDUI_XSLT_DATE_PATTERN, datePattern.replace(dateSeparator, ""));
             }
           }
           if (messagesBundle != null) {
@@ -226,7 +226,7 @@ public class I18n extends ListResourceBundle {
     }
     else {
       // debug:
-      logger.warn("I18n table name was not found!");
+      logger.warn("I18nDbResources table name was not found!");
     }
     // convert to array
     Set<String> keySet = map.keySet();

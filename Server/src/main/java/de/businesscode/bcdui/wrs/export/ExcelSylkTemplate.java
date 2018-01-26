@@ -33,7 +33,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import de.businesscode.bcdui.web.i18n.I18n;
+import de.businesscode.bcdui.web.i18n.I18nDbResources;
 
 
 
@@ -76,7 +76,7 @@ public class ExcelSylkTemplate  {
     private String applicationURL = null;
     private String addInfo = null;
 
-    private I18n i18n = null;
+    private I18nDbResources i18nDbResources = null;
 
     private Logger logger;
 
@@ -117,10 +117,10 @@ public class ExcelSylkTemplate  {
     }
 
 
-    public ExcelSylkTemplate( ResultSetMetaData metaData, int rowCountIfKnown ,I18n i18n)
+    public ExcelSylkTemplate( ResultSetMetaData metaData, int rowCountIfKnown ,I18nDbResources i18nDbResources)
     throws SQLException
     {
-      this(metaData, rowCountIfKnown, null, i18n);
+      this(metaData, rowCountIfKnown, null, i18nDbResources);
     }
     
     private int getFirstRow() {
@@ -128,8 +128,8 @@ public class ExcelSylkTemplate  {
     }
 
 
-    public ExcelSylkTemplate( ResultSetMetaData metaData, int rowCountIfKnown, List<ColumnMapping> orderedLogicalColumnNames , I18n i18n)throws SQLException{
-      this.i18n = i18n;
+    public ExcelSylkTemplate( ResultSetMetaData metaData, int rowCountIfKnown, List<ColumnMapping> orderedLogicalColumnNames , I18nDbResources i18nDbResources)throws SQLException{
+      this.i18nDbResources = i18nDbResources;
       this.logger = Logger.getLogger(getClass());
         // set row and col count. has to be done before header construction
         if (rowCountIfKnown > 0) { nrRows = rowCountIfKnown; }
@@ -436,9 +436,9 @@ public class ExcelSylkTemplate  {
         h.append("\nP;P#0.00000");                   // P7  - 5
         h.append("\nP;P#0.000000");                  // P8  - 6 decimals
 
-        if(this.i18n!=null && this.i18n.containsKey(I18n.BCDUI_DATE_PATTERN) && this.i18n.containsKey(I18n.BCDUI_DATE_SEPARATOR)){
-          String i18nDatePattern = this.i18n.getString(I18n.BCDUI_DATE_PATTERN);
-          String i18nDateSeparator = this.i18n.getString(I18n.BCDUI_DATE_SEPARATOR);
+        if(this.i18nDbResources!=null && this.i18nDbResources.containsKey(I18nDbResources.BCDUI_DATE_PATTERN) && this.i18nDbResources.containsKey(I18nDbResources.BCDUI_DATE_SEPARATOR)){
+          String i18nDatePattern = this.i18nDbResources.getString(I18nDbResources.BCDUI_DATE_PATTERN);
+          String i18nDateSeparator = this.i18nDbResources.getString(I18nDbResources.BCDUI_DATE_SEPARATOR);
           StringTokenizer split = new StringTokenizer(i18nDatePattern, i18nDateSeparator);
           StringBuffer datePattern = new StringBuffer();
           if(split != null){
