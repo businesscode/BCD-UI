@@ -196,3 +196,18 @@ input.bcdInputFieldGrid {
     margin-left: 10px;
   }
 }
+
+.bcdGroupAction:after {
+  content: "−";
+  cursor: pointer;
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background-color: #e4e4e4;
+  color: #646464;
+  border: 1px solid #828790;
+  line-height: 1.5;
+}
+.bcdCollapsed.bcdGroupAction:after {content: "+"; cursor: pointer;}
