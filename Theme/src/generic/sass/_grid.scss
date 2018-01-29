@@ -210,4 +210,19 @@ input.bcdInputFieldGrid {
   border: 1px solid #828790;
   line-height: 1.5;
 }
+.bcdGroupAction:hover:after {
+  background-color: #828790;
+  color: white;
+  border: 1px solid #e4e4e4;
+}
+
 .bcdCollapsed.bcdGroupAction:after {content: "+"; cursor: pointer;}
+
+.bcdGrid td.bcdKey {
+}
+
+.bcdGrid th.bcdKey {
+  background-color: #31486a;
+  color: #fff;
+  font-weight: bold;
+}
