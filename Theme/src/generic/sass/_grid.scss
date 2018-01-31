@@ -201,7 +201,6 @@ input.bcdInputFieldGrid {
 
   .bcdGroupAction:after {
     content: "−";
-    cursor: pointer;
     position: absolute;
     left: 3px;
     top: 3px;
@@ -217,7 +216,9 @@ input.bcdInputFieldGrid {
     color: $control-color;
     border: 1px solid $border-color;
   }
-  .bcdCollapsed.bcdGroupAction:after {content: "+"; cursor: pointer;}
+  .bcdCollapsed.bcdGroupAction:after {content: "+";}
+
+  .bcdGroupAction { cursor: pointer; }
 
   td.bcdKey {}
   th.bcdKey { font-weight: bold; }
