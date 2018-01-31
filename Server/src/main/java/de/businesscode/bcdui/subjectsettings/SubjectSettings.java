@@ -39,9 +39,12 @@ import org.apache.shiro.session.Session;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
+import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType.BindingItems;
+import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType.BindingItems.C;
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
+import de.businesscode.bcdui.web.i18n.I18n;
 
 /**
  * Subject settings are session settings in web and non-web environments
@@ -82,6 +85,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
           String confPath = (String)BareConfiguration.getInstance().getConfigurationParameterOrNull(Configuration.CONFIG_FILE_PATH_KEY);
           if(confPath == null){
             singelton = new SubjectSettings();
+            singelton.initImplicitFilters();
           }else{
             try {
               FileInputStream file = new FileInputStream(confPath+File.separator+"subjectSettings.xml");
@@ -90,6 +94,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
               SubjectSettings s = (SubjectSettings)u.unmarshal( file );
               file.close();
               s.wasConfigured=true;
+              s.initImplicitFilters();
 
               singelton = s;
               // early init of the map here in same thread while stream is open
@@ -145,6 +150,34 @@ public class SubjectSettings extends SubjectSettingsConfig {
     return subjectFilterTypeMap.get(type);
   }
 
+  /**
+   * setup implicit filters
+   */
+  private void initImplicitFilters() {
+    // inject well known i18n type and define as client-controlled, if was not defined already
+    SubjectFilterTypes types = getSubjectFilterTypes();
+    if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> I18n.SUBJECT_FILTER_TYPE.equals(f.getName()))) {
+      if (types == null) {
+        types = new SubjectFilterTypes();
+        setSubjectFilterTypes(types);
+      }
+      SubjectFilterType i18nFilter = new SubjectFilterType();
+      i18nFilter.setIsClientControlled(true);
+      i18nFilter.setName(I18n.SUBJECT_FILTER_TYPE);
+      i18nFilter.setOp("=");
+      C c = new C();
+      c.setBRef("bcd_lang");
+      BindingItems bi = new BindingItems();
+      bi.setC(c);
+      i18nFilter.setBindingItems(bi);
+
+      getSubjectFilterTypes().getSubjectFilterType().add(i18nFilter);
+      log.debug("'" + I18n.SUBJECT_FILTER_TYPE + "': implict filter added.");
+    } else {
+      log.debug("'" + I18n.SUBJECT_FILTER_TYPE + "': filter defined in context.");
+    }
+  }
+
   // Allow to check whether there are also rights stored in db
   // Otherwise they may be given as subject attributes
   public static boolean rightsInDbAvailable() {
@@ -175,6 +208,25 @@ public class SubjectSettings extends SubjectSettingsConfig {
   }
 
   /**
+   * returns permission mapped for given filter type from the user session
+   *
+   * @param session
+   *          - which may be null, then this method returns null
+   * @param subjectFilterTypeName
+   *          - to lookup permission for in the session
+   * @return value for the permission or null if none found
+   */
+  public String getFilterTypeValue(Session session, String subjectFilterTypeName) {
+    if (session == null)
+      return null;
+    final SubjectFilterType filterType = getSubjectFilterTypeByName(subjectFilterTypeName);
+    if (filterType != null) {
+      return getFilterTypeValue(session, filterType);
+    }
+    return null;
+  }
+
+  /**
    * sets a value of given subjectFilterType
    * 
    * @param session, must not be null
@@ -185,10 +237,19 @@ public class SubjectSettings extends SubjectSettingsConfig {
   }
 
   /**
-   * Do not use directly, use getInstance() instead,
-   * this class is expected to be only instantiated by JAXB as a singelton
+   * sets a value of given subjectFilterType
+   * 
+   * @param session
+   * @param subjectFilterTypeName
+   * @param value
    */
-  protected SubjectSettings()
-  {
+  public void setFilterTypeValue(Session session, String subjectFilterTypeName, String value){
+    session.setAttribute(permissionAttributePrefix + getSubjectFilterTypeByName(subjectFilterTypeName), value);
+  }
+
+  /**
+   * Do not use directly, use getInstance() instead, this class is expected to be only instantiated by JAXB as a singelton
+   */
+  protected SubjectSettings() {
   }
 }

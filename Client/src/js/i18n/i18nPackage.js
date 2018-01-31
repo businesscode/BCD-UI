@@ -28,25 +28,12 @@ bcdui.util.namespace("bcdui.i18n",
    * @private
    */
   _modelDefaultName:"bcdI18nModel",
-/**
-   * default request document
-   * @private
-   */
-  _modelDefaultRequestDocument:bcdui.config.jsLibPath + "i18n/requestDoc.xml" ,
+
   /**
-   * transformation stylesheet WRS format to i18n format
+   * URL to i18n endpoint providing i18n catalog xml
    * @private
    */
-  _wrsTransform2I18nXSLT:bcdui.config.jsLibPath + "i18n/transformWrs.xslt" ,
-  /**
-   * URL to default static file
-   * @private
-   */
-  _messagesXmlURL: bcdui.config.messagesXml,
-  /**
-   * @private
-   */
-  _isMessagesXmlStatic: bcdui.config.isMessagesXmlStatic,
+  _messagesXmlURL: bcdui.config.libPath + "servletsSessionCached/I18nServlet",
 
   /**
    * checks if given string is a key
@@ -74,74 +61,14 @@ bcdui.util.namespace("bcdui.i18n",
     this.initTranslate = args.initTranslate == null ? true : !!args.initTranslate;
 
     if(!args.modelId){
-      // this._modelDefaultName is fixed , so the raw model (which is available only in default i18n bootstrapping) is fixed, too.
-      args.modelId = "bcd_raw_" + this._modelDefaultName;
-      var modelURL = null;
-      if( this._isMessagesXmlStatic ){
-        modelURL = this._messagesXmlURL + "?sessionHash=" + bcdui.config.sessionHash;
-      }else{
-        modelURL = new bcdui.core.RequestDocumentDataProvider({url: this._modelDefaultRequestDocument, modelURL : bcdui.core.webRowSetServletPathSessionCached + "/bcd_i18n.xml" });
-      }
-
-      var origModel = new bcdui.core.SimpleModel({ id:args.modelId ,url: modelURL});
-
-      var stylesheetModelId = args.modelId+"_stylesheet";
-      //
-      //-------------------------------
-      var str = '<TransformationChain xmlns="http://www.businesscode.de/schema/bcdui/chain-1.0.0"><Phase name="rendering">';
-      str += '<Stylesheet jsFactoryExpression="bcdui.factory.objectRegistry.getObject(\''+stylesheetModelId+'\')"/>';
-      str += "</Phase></TransformationChain>";
-      var chainModel = new bcdui.core.StaticModel({
-        id: bcdui.factory.objectRegistry.generateTemporaryId(args.modelId+"_chain")
-        ,data: str
-      });
-
-      var stylesheet =
-        "<xsl:stylesheet version=\"1.0\""+
-        "  xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\""+
-        "  xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\">"+
-        "  <xsl:output method=\"xml\" version=\"1.0\" encoding=\"UTF-8\" indent=\"no\"/>"+
-        "  <xsl:key use=\"@id\" name=\"getPositionByName\" match=\"/wrs:*/wrs:Header/wrs:Columns/wrs:C\"></xsl:key>"+
-        "  <xsl:template match=\"/*\">"+
-        "     <xsl:variable name=\"replacedStr\">"+
-        "      <xsl:for-each select=\"/wrs:*/wrs:Data/*/wrs:C[number(key('getPositionByName', 'key')/@pos)]\">"+
-        "        <xsl:if test=\"string-length("+
-        "          translate(."+
-        "                    , 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-'"+
-        "                    , '')"+
-        "          ) > 0\">x</xsl:if>"+
-        "      </xsl:for-each>"+
-        "     </xsl:variable>"+
-        "    <Data format=\"bcdI18n\" isKeyNormalized=\"{string-length($replacedStr) > 0}\">"+
-        "      <xsl:apply-templates select=\"*\"/>"+
-        "    </Data>"+
-        "  </xsl:template>"+
-        "  <xsl:template match=\"wrs:C[number(key('getPositionByName', 'key')/@pos)]\">"+
-        "    <!-- removes all none NMTOKENs -->"+
-        "    <xsl:variable name=\"elName\" select=\"translate(., translate(., 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-', ''), '')\"/>"+
-        "    <xsl:if test=\"string-length($elName) &gt; 0\">"+
-        "       <xsl:element name=\"{$elName}\">"+
-        "         <xsl:attribute name=\"lang\"><xsl:value-of select=\"../wrs:C[number(key('getPositionByName', 'lang')/@pos)]\"/></xsl:attribute>"+
-        "        <xsl:value-of select=\"../wrs:C[number(key('getPositionByName', 'value')/@pos)]\"/>"+
-        "      </xsl:element>"+
-        "     </xsl:if>"+
-        "  </xsl:template>"+
-        "  <xsl:template match=\"text()\"></xsl:template>"+
-        "</xsl:stylesheet>";
-
-      var stylesheetModel = bcdui.factory.createStaticModel({ id: stylesheetModelId ,data: stylesheet });
-      
-      bcdui.wkModels = bcdui.wkModels || new Object();
-
-      bcdui.wkModels.bcdI18nModel = new bcdui.core.TransformationChain({
-        id:this._modelDefaultName
-        ,dataProviders:[origModel]
-        ,chain:chainModel
-      });
       args.modelId = this._modelDefaultName;
-    }
-    else{
-      if(args.modelId != this._modelDefaultName){
+      bcdui.wkModels = bcdui.wkModels || {};
+      bcdui.wkModels.bcdI18nModel = new bcdui.core.SimpleModel({
+        id  : args.modelId,
+        url : this._messagesXmlURL + "?sessionHash=" + bcdui.config.sessionHash
+      });
+    } else {
+      if(args.modelId !== this._modelDefaultName){
         if(bcdui.config.isDebug)
           return new Error("the i18n model must be called:" + this._modelDefaultName);
         else
@@ -151,25 +78,21 @@ bcdui.util.namespace("bcdui.i18n",
 
     // load message catalog and the htmlTranslator
     if( this.initTranslate ) {
-      bcdui.wkModels.bcdI18nModel.addStatusListener({
-        status: bcdui.wkModels.bcdI18nModel.getReadyStatus()
-        ,onlyOnce: true
-        ,listener: function(){
-            bcdui.core.ready(
-                function(){
-                  // translates the title (if translation provided)
-                  (()=>{
-                    const titleEl = jQuery("head title");
-                    if(titleEl.attr("bcdtranslate")){
-                      bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
-                      document.title = titleEl.text();
-                    }
-                  })(jQuery);
-                  // translates the document.body
-                  bcdui.i18n.translateHTMLElement();
+      bcdui.wkModels.bcdI18nModel.onceReady(()=>{
+        bcdui.core.ready(
+            function(){
+              // translates the title (if translation provided)
+              (()=>{
+                const titleEl = jQuery("head title");
+                if(titleEl.attr("bcdtranslate")){
+                  bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
+                  document.title = titleEl.text();
                 }
-            );
-        }.bind(this)
+              })(jQuery);
+              // translates the document.body
+              bcdui.i18n.translateHTMLElement();
+            }
+        );
       });
     }
 
@@ -181,22 +104,22 @@ bcdui.util.namespace("bcdui.i18n",
    */
   _getHtmlTranslator : function(){
     if(!this.htmlTranslator) {
+      var i18nModel = bcdui.factory.objectRegistry.getObject(this._modelDefaultName);
 
       var createFunc = function(){
         if(!this.htmlTranslator){
-          this.htmlTranslator = new bcdui.i18n.HTMLTranslator({catalog:new bcdui.i18n.MessageCatalog({document:bcdui.factory.objectRegistry.getObject(this._modelDefaultName).getData()})});
+          this.htmlTranslator = new bcdui.i18n.HTMLTranslator({catalog:new bcdui.i18n.MessageCatalog({document:i18nModel.getData()})});
           this._onTranslatorInitializedCb();
         }
       }.bind(this);
 
       // defer only in case the model is not ready yet
-      if(!bcdui.factory.objectRegistry.getObject(this._modelDefaultName).isReady()){
-        bcdui.factory.objectRegistry.withReadyObjects(this._modelDefaultName, createFunc , false);
+      if(!i18nModel.isReady()){
+        i18nModel.onceReady(createFunc);
         return null;
       } else {
         createFunc();
       }
-
     }
     return this.htmlTranslator;
   },
@@ -483,6 +406,14 @@ bcdui.util.namespace("bcdui.i18n",
    */
   getValue: function(key,defaultValue){
     return bcdui.i18n.syncTranslateFormatMessage({msgid:key}) || defaultValue;
+  },
+
+  /**
+   * reloads entire page in a given language
+   * @param {string} lang - the language code
+   */
+  switchLanguage: function(lang){
+    bcdui.subjectSettings.setSubjectFilterAndReload({[bcdui.config.i18n.langSubjectFilterName]:lang});
   }
 });
 
@@ -490,7 +421,7 @@ bcdui.i18n._initializeI18nModul();
 
 //Support email is configured via i18n (for example messages.xml)
 //Cannot be done in logging module since that is setup before bcdui
-bcdui.factory.objectRegistry.withReadyObjects("bcdI18nModel", function() {
+bcdui.wkModels.bcdI18nModel.onceReady(()=>{
   var emailContact = bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_ErrorEmailContactCcSubject")[0];
   if(bcdui.log && bcdui.log._getBCDAppender() && emailContact && emailContact.firstChild) {
    bcdui.log._getBCDAppender().emailContact =   emailContact.firstChild.nodeValue.split(":")[0];

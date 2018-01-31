@@ -21,5 +21,9 @@
   <C id="key" nullable="0" isKey="true"><Column>I18N_KEY</Column></C>
   <C id="value"><Column>I18N_VALUE</Column></C>
   <C id="lang" nullable="0" isKey="true" ><Column>I18N_LANG</Column></C>
-
+  <C id="bcd_lang" nullable="0"><Column>I18N_LANG</Column></C>
+  
+  <!-- 
+    the implicit subject filter for i18n is called: 'bcd_i18n:lang' and maps the language to binding-item: 'bcd_lang'
+   -->
 </BindingSet>

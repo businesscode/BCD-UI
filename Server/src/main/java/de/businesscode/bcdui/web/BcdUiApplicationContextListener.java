@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.web;
 
+import java.util.ResourceBundle.Control;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -36,6 +38,7 @@ import de.businesscode.bcdui.web.accessLogging.BuiPageLogAppender;
 import de.businesscode.bcdui.web.accessLogging.BuiSessionLogAppender;
 import de.businesscode.bcdui.web.accessLogging.BuiSqlLogAppender;
 import de.businesscode.bcdui.web.errorLogging.BuiErrorLogAppender;
+import de.businesscode.bcdui.web.i18n.I18n;
 import de.businesscode.util.SingletonHolder;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
@@ -48,6 +51,11 @@ import de.businesscode.util.jdbc.DatabaseCompatibility;
 public class BcdUiApplicationContextListener implements ServletContextListener
 {
   private final Logger log = Logger.getLogger(getClass());
+  private static Control resourceBundleControl;
+  
+  public static Control getResourceBundleControl() {
+    return resourceBundleControl;
+  }
 
   /*
    * can be overriden to add features
@@ -93,9 +101,10 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       initBeforeBindings(conf);
 
       // initial binding set generation
-      Bindings.getInstance();
-      Bindings.getInstance().readDependentBindings();
-      Bindings.getInstance().readAdditionalBindings();
+      Bindings bindings = Bindings.getInstance();
+      bindings.readDependentBindings();
+      bindings.readAdditionalBindings();
+      resourceBundleControl = I18n.createResourceControl(context.getServletContext());
     } catch (BindingException e) {
       log.error(e.getMessage(), e);
     }finally{

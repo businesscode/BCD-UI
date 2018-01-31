@@ -222,6 +222,18 @@
     <url-pattern>*.vfsxml</url-pattern>
   </servlet-mapping>
 
+  <!-- I18nServlet -->
+  <servlet>
+    <servlet-name>bcdui4.I18nServlet</servlet-name>
+    <servlet-class>de.businesscode.bcdui.web.i18n.I18nServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bcdui4.I18nServlet</servlet-name>
+    <url-pattern>/bcdui/servlets/I18nServlet/*</url-pattern>
+    <url-pattern>/bcdui/servletsCached/I18nServlet/*</url-pattern>
+    <url-pattern>/bcdui/servletsSessionCached/I18nServlet/*</url-pattern>
+  </servlet-mapping>
+
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>
     <servlet-name>bcdui4.WrsServlet</servlet-name>
@@ -376,5 +388,14 @@
     <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
   </listener>
   -->
+  <!-- i18n configuration -->
+
+  <!-- default context entries  -->
+  <env-entry>
+    <description>Default context language</description>
+    <env-entry-name>bcdui/i18n/default/lang</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>en</env-entry-value>
+  </env-entry>
 
 </web-app>

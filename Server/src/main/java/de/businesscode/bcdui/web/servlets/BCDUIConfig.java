@@ -39,15 +39,15 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.subject.Subject;
 
-import de.businesscode.bcdui.binding.Bindings;
-import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.logging.PageSqlLogger;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.filters.SubjectSettingsFilter;
+import de.businesscode.bcdui.web.i18n.I18n;
 import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.util.StandardNamespaceContext;
 
@@ -57,8 +57,6 @@ public class BCDUIConfig extends HttpServlet {
   private static final String clientConfigFilePath="/WEB-INF/clientLog.properties";
   private Logger log = Logger.getLogger(this.getClass());
 
-  private String messagesXml;
-  private boolean isMessagesXmlStatic;
   private String configJson;
 
   public final static String LIB_ROOT_FOLDER_NAME="bcdui";
@@ -74,6 +72,7 @@ public class BCDUIConfig extends HttpServlet {
       properties.load(new FileInputStream(propFile));
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
+    final Subject subject = SecurityUtils.getSubject();
 
     PrintWriter writer = new PrintWriter(response.getWriter());
     writer.println("var bcdui = bcdui || {};");
@@ -84,15 +83,15 @@ public class BCDUIConfig extends HttpServlet {
 
     // write authenticate information
     try {
-      if( SecurityUtils.getSubject().isAuthenticated() ) {
-        String userName = SecurityUtils.getSubject().getPrincipal() != null ? "\""+SecurityUtils.getSubject().getPrincipal()+"\"" : "null";
+      if( subject.isAuthenticated() ) {
+        String userName = subject.getPrincipal() != null ? "\""+subject.getPrincipal()+"\"" : "null";
         writer.println("  , isAuthenticated: true");
         writer.println("  , userName: " + userName ); // js null or js string with name
 
         // write bcdClient security settings as bcdui.config.clientRights object values
         writer.println("  , clientRights: {");
         
-        List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdClient"));
+        List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
         Collections.sort(sortedPerms);
 
         if (! sortedPerms.isEmpty()) {
@@ -136,12 +135,11 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("  , sessionHash: \"" + ( getSessionHash(request) ) + "\"");
     // expose parameter names to the client so the client-API knows how to provide them
     writer.println("  , security: { subjectSettingsFilter: { \"httpParamFilterName\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_NAME + "\", \"httpParamFilterValue\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_VALUE + "\" } } ");
+    writer.println("  , i18n: { \"langSubjectFilterName\":\"" + I18n.SUBJECT_FILTER_TYPE + "\", \"lang\" : \"" + getLang(request) + "\"}");
     writer.println("  , debug: " + isDebug);
     writer.println("  , isDebug: " + isDebug);
     writer.println("  , libPath: \"" + getServletContext().getContextPath() + "/"+LIB_ROOT_FOLDER_NAME+"/\"");
     writer.println("  , jsLibPath: \"" + getServletContext().getContextPath() + "/"+LIB_ROOT_FOLDER_NAME+"/js/\"");
-    writer.println("  , messagesXml: \"" + getServletContext().getContextPath() + messagesXml+ "\"");
-    writer.println("  , isMessagesXmlStatic: " + Boolean.toString(isMessagesXmlStatic));
     if(! properties.isEmpty()){
       if(properties.getProperty("LEVEL") != null)
         writer.println("  , clientLogLevel: \"" + properties.getProperty("LEVEL").trim()+"\"");
@@ -176,6 +174,14 @@ public class BCDUIConfig extends HttpServlet {
       final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(sessionId, request.getHeader("Referer"), pageHash);
       log.debug(logRecord);
     }
+  }
+
+  /**
+   * @param request
+   * @return a language currently active, is never null.
+   */
+  private String getLang(HttpServletRequest request) {
+    return I18n.getUserLocale(request).getLanguage();
   }
 
   /**
@@ -218,17 +224,6 @@ public class BCDUIConfig extends HttpServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    // Let's see whether the default messages file was overwritten:
-    InputStream is = getServletContext().getResourceAsStream("/bcdui/conf/messages.xml");
-    messagesXml = ( is!=null ) ? "/bcdui/conf/messages.xml" : "/bcdui/js/i18n/messages.xml";
-
-    try {
-      if(is!=null)
-        is.close();
-    } catch (IOException e) {
-      throw new ServletException(e);
-    }
-
     // If present, load app-wide configuration
     InputStream confIs = getServletContext().getResourceAsStream("/bcdui/conf/settings.json");
     if( confIs != null ) {
@@ -238,12 +233,6 @@ public class BCDUIConfig extends HttpServlet {
       } catch (IOException e) {
         throw new ServletException(e);
       }
-    }
-
-    try {
-      isMessagesXmlStatic = ! Bindings.getInstance().hasBindingSet("bcd_i18n");
-    } catch (BindingException e1) {
-      // No issue, was just a test
     }
   }
 }

@@ -57,7 +57,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * HTML JS API docu is now showing source names and lines
 
 .Major bug fixes:
-* to come
+* I18n: local messages.xml catalog file can contain multi language enabling full i18n support w/o database
 
 .Backward Incompatibilities:
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
@@ -65,6 +65,9 @@ The Renderer either works directly with the specified element or (in case of spe
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
+* I18n
+** the servlet de.businesscode.bcdui.web.i18n.I18nServlet must be registered in web.xml (and made accessible to public)
+** the servlet filter de.businesscode.bcdui.web.filters.SubjectSettingsFilter must be registered to web.xml, right after security filter (i.e. shiro)
 
 ==== Release 5_2_0
 

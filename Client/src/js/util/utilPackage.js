@@ -526,10 +526,11 @@ bcdui.util =
 }
 
 /**
- * @namespace bcdui.util.security
+ * SubjectSettings related package.
+ * @namespace bcdui.subjectSettings
  */
-bcdui.util.security = 
-/** @lends bcdui.util.security */
+bcdui.util.namespace("bcdui.subjectSettings",
+/** @lends bcdui.subjectSettings */
 {
     /**
      * This function sets filter value and reloads the page at given URL in one go,
@@ -558,7 +559,7 @@ bcdui.util.security =
       // relocate
       location.href = url;
     }
-};
+});
 
 //Dummy implementation in case validation is not loaded
 //This is overwritten with real functionality if apiValidate package is loaded

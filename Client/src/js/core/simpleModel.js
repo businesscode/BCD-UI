@@ -384,7 +384,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
               // test for C00CE00D error code which corresponds to an element used but not declared in the DTD/Schema
               // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
               // FF & Chrome will run into success in this case
-              if (xhr.domDocument && xhr.domDocument.msxmlImpl && xhr.domDocument.msxmlImpl.parseError && xhr.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
+              if (jqXHR.domDocument && jqXHR.domDocument.msxmlImpl && jqXHR.domDocument.msxmlImpl.parseError && jqXHR.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
                 bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
                 return;
               }
