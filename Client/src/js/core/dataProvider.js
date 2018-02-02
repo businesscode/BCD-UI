@@ -531,6 +531,32 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    */
   isClear: function() {
     return (! this._uncommitedWrites && this.isReady());
-  }
+  },
 
+  /**
+   * asynchronously fetch data for this data provider.
+   *
+   * @return {Promise} resolving once data has been loaded, first argument is this instance
+   * @example
+   * new bcdui.core.SimpleModel("data.xml").fetchData().then((dp)=>{ console.info(dp.getData()); })
+   */
+  fetchData: function() {
+    return new Promise(function(resolve) {
+      var resolve = resolve.bind(undefined, this); // resolve passing 'this' as argument
+
+      if (this._uncommitedWrites) { // if has pending writes, wait till .fire() via onChange listener
+        this.onChange({
+          callback : resolve,
+          onlyOnce : true
+        });
+      } else if (this.isReady()) { // if ready, resolve instantly
+        resolve();
+      } else { // else, resolve via .onReady
+        this.onceReady({
+          onSuccess : resolve,
+          executeIfNotReady : true
+        });
+      }
+    }.bind(this));
+  }
 }); // Create class: bcdui.core.DataProvider
