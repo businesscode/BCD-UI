@@ -631,6 +631,20 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
   _executeImpl: function()
     {
       throw Error("Abstract method: bcdui.core.AbstractExecutable._executeImpl");
-    }
+    },
 
+    /**
+     * Prepares this instance for disposal. Particularly, following tasks are done:
+     * - this instance is unregistered from objectRegistry, in case it initially was registered to
+     * - all listeners are removed
+     * @private
+     */
+    destroy: function(){
+      // de-register from object registry
+      if(this._doRegister){
+        bcdui.factory.objectRegistry.deRegisterObject(this);
+      }
+      // remove all listeners
+      this.listeners = {};
+    }
 }); // Create class: bcdui.core.AbstractExecutable
