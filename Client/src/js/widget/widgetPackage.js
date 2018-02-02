@@ -2614,6 +2614,85 @@ bcdui.util.namespace("bcdui.widget",
          }
          callback(finalCaption);
        });
+     },
+
+     /**
+      * opens a modal dialog ready for renderer and delegates to callbacks from arguments;
+      * you can trigger 'dialog-close' event within body to close the dialog programmatically,
+      * any argument to this event will be provided to the resolving promise as well as to the 'close'
+      * callback.
+      * In addition to those parameters described in this documentation you can provide any other
+      * valid parameter according to jQueryUI Dialog Widget API. This dialog returns a Promise
+      * resolving with value provided to 'dialog-close' event, allowing you to easily build
+      * on cascading dialogs utilizing promise chain.
+      * 
+      * @param {object} args - arguments
+      * @param {function} args.open - function to execute when dialog is opened, it gets args object with properties: targetHtml
+      * @param {function} [args.close] - function to execute when dialog is closed
+      * @param {string} [args.title] - dialog title
+      * @return {Promise} resolving with value provided from 'dialog-close' event, when dialog is closed.
+      * @example
+      * bcdui.widget.openDialog({
+      *   open : (args) => {
+      *     new bcdui.core.Renderer({
+      *       targetHtml : args.targetHtml, chain : "confirm.buy.dott"
+      *     });
+      *   },
+      *   title : bcdui.i18n.TAG + "confirm.buy"
+      * });
+      */
+     openDialog: function(args){
+       args = args||{};
+       var delegate = {
+         open : args.open,
+         close : args.close
+       }
+
+       if(!args.open)throw ".open required";
+       
+       return new Promise(function(resolve){
+         const dataPropName = "bcdDialogCloseData";
+
+         // defaults
+         args = jQuery.extend(true, {
+           width: 640,
+           height: 320,
+           minWidth: 100,
+           minHeight: 80,
+           modal: true,
+           closeOnEscape: true,
+           position: {my: "center center", at: "center center"},
+           resizable: false,
+           draggable: false,
+           closeText: "\u2716",
+           title: args.title
+         },
+         args, // provided args
+         {
+           close: function() {
+             jQuery("body").removeClass("bcdNoScroll");
+             resolve($(this).prop(dataPropName)); // resolve promise
+             $(this).empty();
+             delegate.close && delegate.close();
+           },
+           create: function(event, ui){
+             $(this).on("dialog-close", function(event,data){
+               $(this).prop(dataPropName, data).dialog("close");
+             });
+           },
+           open: function() {
+             jQuery("body").addClass("bcdNoScroll");
+             // translate title, if was i18n key
+             if(args.title && args.title.startsWith(bcdui.i18n.TAG)){
+               jQuery(this).parent().find('.ui-dialog-title').attr("bcdTranslate", args.title).bcdTranslate();
+             }
+             delegate.open({
+               targetHtml : $("<div/>").appendTo(this)
+             });
+           }
+         });
+         jQuery("<div/>").appendTo(bcdui.util.getSingletonElement("bcdui_dialog").empty()).dialog(args);
+       });
      }
 }); // namespace
 

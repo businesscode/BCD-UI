@@ -470,6 +470,19 @@ bcdui.util.namespace("bcdui.i18n",
     }else{
       return null;
     }
+  },
+
+  /**
+   * synchronously translates i18n key, please always use bcdTranslate attribute on html for i18n whenever possible.
+   * bcdui.is18n.isReady() must be true prior calling this, otherwise catalog is not loaded yet. You can wrap
+   * your main init function into bcdui.core.ready() to ensure core resources are initialized prior executing your code.
+   *
+   * @param {string} key the key to translate
+   * @param {string} defaultValue to return in case no translation was found or the i18n model is not ready yet
+   * @return {string} translated or default value
+   */
+  getValue: function(key,defaultValue){
+    return bcdui.i18n.syncTranslateFormatMessage({msgid:key}) || defaultValue;
   }
 });
 
