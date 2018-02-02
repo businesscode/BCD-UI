@@ -116,7 +116,7 @@ bcdui.core.lifecycle =
    * @param {Object} args
    * @param {boolean} [args.cleanXPath]            - Additional XPath to be cleaned from the guiStatus
    * @param {boolean} [args.validateFilters=false] - True or false whether or not to check IsValid flags of guiStatus filters
-   *
+   * @param {document} [args.statusDocument=bcdui.wkModels.guiStatus] - optionally, other statusDocument than guiStatus
    */
   applyAction: function(args)
     {
@@ -124,25 +124,45 @@ bcdui.core.lifecycle =
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_applyAction_args);
 
       args = args || { cleanXPath: null };
+      args.statusDocument = args.statusDocument || bcdui.wkModels.guiStatus.getData();
+
       if ( typeof args.validateFilters == "undefined" ){ args.validateFilters = true;}
-      bcdui.core.removeXPath(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:ClientSettings");
+      bcdui.core.removeXPath(args.statusDocument, "/*/guiStatus:ClientSettings");
 
       if(args && args.cleanXPath != null && args.cleanXPath.length > 0){
-        bcdui.core.removeXPath(bcdui.wkModels.guiStatus.getData(), args.cleanXPath);
+        bcdui.core.removeXPath(args.statusDocument, args.cleanXPath);
       }
 
       if ( args.validateFilters == true ) {
-        var node = bcdui.wkModels.guiStatus.getData().selectSingleNode("//f:Filter//*[@isValid='false']");
+        var node = args.statusDocument.selectSingleNode("//f:Filter//*[@isValid='false']");
         if (node != null) {
           bcdui.widget.showModalBox({ titleTranslate: "bcd_ApplyDenyTitle", messageTranslate: "bcd_ApplyDenyMessage", modalBoxType: bcdui.widget.modalBoxTypes.warning});
           return;
         }
       }
 
-      bcdui.core.compression.compressDOMDocument(bcdui.wkModels.guiStatus.getData(), function(/* string */ compressedDoc) {
+      bcdui.core.lifecycle.jumpTo(location.href, args.statusDocument);
+    },
 
-      window.location.href = bcdui.core.setRequestDocumentParameter(location.href, compressedDoc);
-      });
+    /**
+     * Jumps to another url optionally setting status document, this function is executed asynchronously.
+     *
+     * @param {url} href - target URL to jump to.
+     * @param {document} [statusDocument] - status document to pass as guiStatusGZ parameter to href.
+     */
+    jumpTo: function(href, statusDocument) {
+      const go = (statusDocGZ) => { // always defer
+        setTimeout(function() {
+          jQuery(location).attr("href", bcdui.core.setUrlParameter(href, "guiStatusGZ", statusDocGZ, false));
+        });
+      };
+      if (statusDocument) {
+        bcdui.core.compression.compressDOMDocument(statusDocument, go, false, false, function() {
+          throw "status document compression failed";
+        });
+      } else {
+        go();
+      }
     },
 
   /**
