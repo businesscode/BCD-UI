@@ -1377,7 +1377,7 @@ bcdui.util.namespace("bcdui.widget",
       }
 
       // in case we're a header element, we can simply take over the bcdColIdent attribute
-      if (td.get(0).parentNode.parentNode.nodeName == "THEAD") {
+      if (jQuery(td).closest("thead").length > 0) {
         result.bcdColIdent = td.attr("bcdColIdent");
         return result;
       }
