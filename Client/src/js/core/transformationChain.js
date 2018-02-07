@@ -829,12 +829,11 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
 
             // url or xslt
             var xsltModel = null;
-            var xsltId = "bcd"+this.id + "_" + phase.name + "_" + stylesheetNo;
             if (stylesheet.getAttribute("url") != null) {
               /*
                * Usually it comes from a URL attribute.
                */
-              xsltModel = new bcdui.core.SimpleModel({ id: xsltId,
+              xsltModel = new bcdui.core.SimpleModel({
                 url: bcdui.util.url.resolveURLWithXMLBase(stylesheet, stylesheet.getAttribute("url"))
               });
               var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
