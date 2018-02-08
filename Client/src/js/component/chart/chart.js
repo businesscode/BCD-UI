@@ -749,41 +749,43 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     // If user did not define a minimum or maximum, we use the min/max values of the axis
     // In the latter case, for min we prefer 0 if that does not much expand the y axis by more than a third
     // Beside that we extend the axis in the latter case by 10% beyond the extreme values
-    var error = false;
     [this.xAxis, this.yAxis1, this.yAxis2].forEach( function(axis) {
-        if( (typeof axis.categoriesGiven == "undefined" || !axis.categoriesGiven)
-            && (!isFinite(axis.maxValue) || !isFinite(axis.minValue) || axis.maxValue===null || axis.minValue===null ) ) {
-          if( axis===this.yAxis2 && !this.has2ndYAxis )
-            return;
-          bcdui.log.warn("Chart '"+this.id+"': not a single valid value for axis "+axis.caption+" found. No chart can be drawn");
-          error = true;
-        }
-        var buffer = (series.chartType!=this.GAUGECHART) ? 0.1 : 0;
-        if( axis.minValueUser!=null &&  axis.minValueUser <  axis.minValue )
+        if( axis===this.yAxis2 && !this.has2ndYAxis )
+          return;
+        if( axis.minValueUser!=null &&  (axis.minValue===null || !isFinite(axis.minValue) || axis.minValueUser <  axis.minValue))
           axis.minValue = axis.minValueUser;
-        else if ( (axis.maxValue-axis.minValue)/axis.minValue > 3 )
-          axis.minValue = 0;
-        else if( typeof axis.categoriesGiven == "undefined" || !axis.categoriesGiven ) {
-          if( axis.maxValue!=axis.minValue )
-            axis.minValue -= (axis.maxValue-axis.minValue)*buffer;
-          else
-            axis.minValue -= Math.abs(axis.minValue)*0.05;
-        }
-        if( axis.maxValueUser!=null &&  axis.maxValueUser > axis.maxValue )
+        if( axis.maxValueUser!=null &&  (axis.maxValue===null || !isFinite(axis.maxValue) || axis.maxValueUser >  axis.maxValue))
           axis.maxValue = axis.maxValueUser;
-        else if( typeof axis.categoriesGiven == "undefined" || !axis.categoriesGiven ) {
-          if( axis.maxValue!=axis.minValue )
-            axis.maxValue += (axis.maxValue-axis.minValue)*buffer;
-          else
+        if( typeof axis.categoriesGiven == "undefined" || !axis.categoriesGiven ) {
+          if (axis.minValue===null || !isFinite(axis.minValue)) {
+            if (axis.maxValue===null || !isFinite(axis.maxValue)) {
+              bcdui.log.warn("Chart '"+this.id+"': not a single valid value for axis "+axis.caption+" found.");
+              if( axis===this.yAxis2) {
+                this.has2ndYAxis = false;
+                return
+              }
+              axis.minValue=0;
+            } else
+              axis.minValue=axis.maxValue - Math.abs(axis.maxValue)*0.05;
+          }
+          if (axis.maxValue===null || !isFinite(axis.maxValue))
+            axis.maxValue = axis.minValue + Math.abs(axis.minValue)*0.05;
+          if( axis.maxValue!=axis.minValue ) {
+            var offset = (axis.maxValue-axis.minValue)*((series.chartType!=this.GAUGECHART) ? 0.1 : 0);
+            axis.minValue -= offset;
+            axis.maxValue += offset;
+          } else {
+            axis.minValue -= Math.abs(axis.minValue)*0.05;
             axis.maxValue += Math.abs(axis.maxValue)*0.05;
+          }
         }
+        if ( (axis.maxValue-axis.minValue)/axis.minValue > 3 )
+          axis.minValue = 0;
         if( axis.minValue==0 && axis.minValue==axis.maxValue ) {
           axis.minValue = 0;
           axis.maxValue = 5;
         }
       }, this );
-    if( error==true )
-      return false;
 
     // For gauge charts we extent the categories so that the needle is within the gauge
     if( series.chartType==this.GAUGECHART ) {
