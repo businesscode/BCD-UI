@@ -122,6 +122,36 @@
   /**
    * QuickEdit widget provides UI to edit Wrs row
    * @class
+   * 
+   * @example <caption>HTML container for QuickEdit</caption>
+   * &lt;div id="formContainer">&lt;/div>
+   * 
+   * @example <caption>Sample 1: static call</caption>
+   * jQuery("#formContainer").bcduiQuickEdit({
+   *   wrsDataProvider  : new bcdui.core.SimpleModel(), // some wrs data
+   *   rowId            : "R1"                          // i.e. first row
+   * });
+   * 
+   * @example <caption>Sample 2: call edit form from Wrs grid rendering (default/htmlBuilder.xslt rendering)</caption>
+   * const targetHtml = jQuery(".grid-rendering");  // element for grid renderer
+   * const wrsModel = new bcdui.core.SimpleModel(); // Wrs data model
+   * 
+   * // default Wrs rendering
+   * const wrsRendering = new bcdui.core.Renderer({ targetHtml, inputModel:wrsModel });
+   * 
+   * // attach DOM event to open quickEdit on doubleclick on grid row
+   * targetHtml.on("dblclick", "[bcdrowident]", function(){
+   *   jQuery("&lt;div/>").appendTo(jQuery("#formContainer").empty()) // add DIV wrapper for repetitive rendering
+   *   .bcduiQuickEdit({
+   *     wrsDataProvider  : wrsModel,
+   *     rowId            : jQuery(this).attr("bcdrowident"), // current row identifier
+   *     callbackHandler  : (instance, type, args) => {       // our callback to process callbacks
+   *       if (type == "DISPOSE"){
+   *         wrsRendering.execute(); // refresh rendered grid on disposal of the form
+   *       }
+   *     }
+   *   });
+   * });
    */
   class QuickEdit {
     /**
