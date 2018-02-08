@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2018 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -54,5 +54,45 @@
       return jQuery();
     }
     return jQuery(typeof idOrElement === "string" ? (idOrElement[0] === "#" ? idOrElement : ("#" + idOrElement) ) : idOrElement);
-  }
+  };
+
+  /**
+   * jQuery BCD-UI bcdTranslate plugin
+   * 
+   * Translates element. In case i18n catalog is not loaded yet,
+   * the translation is scheduled and runs as soon as the catalog is loaded.
+   */
+  jQuery.fn.bcdTranslate = function(){
+    return this.each(function(){
+      bcdui.i18n.syncTranslateHTMLElement({ elementOrId : this });
+    });
+  };
+
+  /**
+   * jQuery BCD-UI bcdLoad plugin
+   *
+   * like jQuery.load(), but evaluates 'bcdOnLoad' attributes in loaded fragments.
+   */
+  jQuery.fn.bcdLoad = function(url, cb){
+    var self = this;
+    return this.load(url, function(){
+      self.find("[bcdonload]").each(function(i,e){
+        bcdui.util._execJs($(e).attr("bcdonload"), e, true);
+      });
+      cb&&cb();
+    });
+  };
+
+  /**
+   * jQuery BCD-UI bcdRender plugin
+   *
+   * @param {object} bcdRendererArgs arguments to bcdui.core.Renderer
+   */
+  jQuery.fn.bcdRender = function(bcdRendererArgs){
+    return this.each(function(){
+      new bcdui.core.Renderer($.extend({}, bcdRendererArgs, {
+        targetHtml : this
+      }));
+    });
+  };
 }( jQuery ));
