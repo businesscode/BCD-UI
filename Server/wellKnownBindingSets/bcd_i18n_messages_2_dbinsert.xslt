@@ -32,7 +32,7 @@ DELETE FROM <xsl:value-of select="$tableName"/> WHERE <xsl:value-of select="$ddl
     </Ddl>
   </xsl:template>
 
-  <xsl:template match="wrs:R">INSERT INTO <xsl:value-of select="$tableName"/> (<xsl:value-of select="$ddl.key"/>,<xsl:value-of select="$ddl.value"/>,<xsl:value-of select="$ddl.lang"/>) VALUES ('<xsl:value-of select="wrs:C[1]"/>','<xsl:value-of select="wrs:C[2]"/>','<xsl:value-of select="wrs:C[3]"/>');&#10;</xsl:template>
+  <xsl:template match="wrs:R">INSERT INTO <xsl:value-of select="$tableName"/> (<xsl:value-of select="$ddl.key"/>,<xsl:value-of select="$ddl.value"/>,<xsl:value-of select="$ddl.lang"/>) VALUES ('<xsl:value-of select="wrs:C[1]"/>','<xsl:value-of select="normalize-space(wrs:C[2])"/>','<xsl:value-of select="wrs:C[3]"/>');&#10;</xsl:template>
 
   <xsl:template match="text()"/>
 </xsl:stylesheet>
