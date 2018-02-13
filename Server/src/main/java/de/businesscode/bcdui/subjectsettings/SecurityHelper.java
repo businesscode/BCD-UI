@@ -20,12 +20,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.Permission;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -256,7 +259,8 @@ public class SecurityHelper {
    * @param subject
    *          the subject must be authenticated
    * @param permissionType
-   *          to retrieve permissions for
+   *          to retrieve permissions for or NULL in order to retrieve full permission set, in such a case
+   *          the permissions are returned as they are (with full permission domain)
    * @return empty/non-empty set of permissions
    *
    * @throws SecurityException
@@ -264,16 +268,30 @@ public class SecurityHelper {
    */
   public static Set<String> getPermissions(Subject subject, String permissionType) {
     return extractFromAuthorizationInfo(subject, (ai, set) -> {
+      // combine string and object permissions
       // geo:country:de, geo:country:*, foo:bar
       Collection<String> stringPerms = ai.getStringPermissions();
+      {
+        final Collection<Permission> objPerms = ai.getObjectPermissions();
+        if(objPerms != null) { // combine to stringPerms
+          if(stringPerms == null) {
+            stringPerms = new LinkedList<>();
+          }
+          stringPerms.addAll(objPerms.stream().map(p->p.toString()).collect(Collectors.toCollection(LinkedList::new)));
+        }
+      }
       // empty perms-set
-      if(stringPerms == null){
+      if(stringPerms == null || stringPerms.isEmpty()){
         return;
       }
-      stringPerms.stream().filter(p -> p.startsWith(permissionType + ":")).forEach(p -> {
-        // remove permissiontype followed by colon
-        set.add(p.substring(permissionType.length() + 1));
-      });
+      if(permissionType == null) {
+        set.addAll(stringPerms); // add all as they are
+      } else {
+        stringPerms.stream().filter(p -> p.startsWith(permissionType + ":")).forEach(p -> {
+          // remove permissiontype followed by colon
+          set.add(p.substring(permissionType.length() + 1));
+        });
+      }
     });
   }
 
