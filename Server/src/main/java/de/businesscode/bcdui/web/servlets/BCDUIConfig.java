@@ -178,7 +178,7 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("};");
 
     if( ! "true".equals( request.getParameter("bcduiConfigOnly") ) )
-      writer.println("document.write(\"<script type='text/javascript' src='" + getServletContext().getContextPath() + "/bcdui/js/bcduiLoader.js'></script>\");");
+      writer.println("document.write(\"<script type='text/javascript' src='" + request.getContextPath() + response.encodeURL("/bcdui/js/bcduiLoader.js") + "'></script>\");");
 
     String sessionId = (request != null && request.getSession(false) != null ? request.getSession(false).getId() : "");
     if( log.isDebugEnabled() )
