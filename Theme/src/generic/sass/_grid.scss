@@ -223,6 +223,23 @@ input.bcdInputFieldGrid {
   td.bcdKey {}
   th.bcdKey { font-weight: bold; }
   th.bcdKey.ht__highlight { }
+
+  .bcdColumnFilter input {
+    font-size: inherit;
+    font-family: inherit;
+    padding: 1px 5px 0 5px;
+    line-height: 21px;
+    width: 80%;
+  }
+  .bcdClearButton {
+    position: relative;
+    cursor: pointer;
+    padding-left: 3px;
+  }
+  .bcdClearButton:after { content: "❌"; }
+
+  .handsontable .columnSorting:hover { text-decoration: none; }
+  .handsontable .columnSorting:hover > div:first-child { text-decoration: underline; }
 }
 
   
