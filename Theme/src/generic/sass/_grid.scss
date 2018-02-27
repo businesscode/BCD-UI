@@ -39,7 +39,7 @@
     td.bcdPagingButtonActive {
       @include con_color($grid-hover-color-body);
     }
-    td.bcdPagingSelectAction select { width: auto !important; }
+    td.bcdPagingSelectAction select { width: auto !important; font: $font-size-default $font-family-default; }
   }
 }
 
@@ -228,8 +228,9 @@ input.bcdInputFieldGrid {
     font-size: inherit;
     font-family: inherit;
     padding: 1px 5px 0 5px;
-    line-height: 21px;
     width: 80%;
+    border: none;
+    height: 23px;
   }
   .bcdClearButton {
     position: relative;
