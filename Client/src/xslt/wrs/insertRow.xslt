@@ -50,6 +50,12 @@
     -->
   <xsl:param name="transactionsNumber" select="number(concat(0,/wrs:Wrs/wrs:Header/wrs:TransactionsNumber))"/>
 
+  <!--
+    Flag which auto-fills values
+    -->
+  <xsl:param name="setDefaultValue" select="'true'"/>
+  <xsl:variable name="setDefaultValueBoolean" select="boolean($setDefaultValue='true')"/>
+
   <xsl:variable name="wrsColumns" select="/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C"/>
   <xsl:variable name="wrsColCount" select="count($wrsColumns)"/>
   <xsl:variable name="rowCount" select="$y2 - $y1 + 1"/>
@@ -139,6 +145,7 @@
     <xsl:variable name="firstReferenceValue" select="wrs:References/wrs:Wrs/wrs:Data/wrs:*[not(self::wrs:D)][1]/wrs:C[2 >= position()][last()]"/>
     <xsl:choose>
       <!-- When there is only one choice we take it -->
+      <xsl:when test="not($setDefaultValueBoolean)"><wrs:null/></xsl:when>
       <xsl:when test="$firstReferenceValue and not(wrs:References/wrs:Wrs/wrs:Data/wrs:*[not(self::wrs:D)][2]/wrs:C)">
         <xsl:value-of select="$firstReferenceValue"/>
       </xsl:when>

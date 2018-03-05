@@ -561,6 +561,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       args.rowEndPos = args.rowStartPos;
     if (typeof args.insertBeforeSelection == "undefined")
       args.insertBeforeSelection = true;
+    if (typeof args.setDefaultValue == "undefined")
+      args.setDefaultValue = true;
 
     this.runStaticXSLT(
       /* model */               model,
@@ -570,7 +572,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
                                   rowStartPos: args.rowStartPos,
                                   rowEndPos: args.rowEndPos,
                                   insertBeforeSelection: args.insertBeforeSelection,
-                                  transactionsNumber: this._transactionsNumber++
+                                  transactionsNumber: this._transactionsNumber++,
+                                  setDefaultValue: args.setDefaultValue
                                 },
       /* fn */                  function(result) {
                                   model.dataDoc = result;
