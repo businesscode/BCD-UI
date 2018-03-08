@@ -375,7 +375,6 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           + " bcdTargetModelXPath='" + config.targetModelXPath.replace(/'/g, "&#39;") + "/@bcdPostfix'"
           + " bcdOptionsModelId='" + config.optionsModelId + "'"
           + " bcdOptionsModelXPath='" + config.optionsModelXPath + "'"
-          + " bcdDisableNavPath='true'"
           + (config.optionsModelRelativeValueXPath ? "bcdOptionsModelRelativeValueXPath='" + config.optionsModelRelativeValueXPath + "'" : "")
           + "></span>";
           jQuery(containerHtmlElement).prepend(inputHtml);
@@ -477,7 +476,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
         bcdui._migPjs._$(containerHtmlElement).css({ visibility: "" });
 
-        if (containerHtmlElement.getAttribute("bcdDisableNavPath") == null || containerHtmlElement.getAttribute("bcdDisableNavPath") == "false") {
+        if (containerHtmlElement.getAttribute("bcdEnableNavPath") != null && containerHtmlElement.getAttribute("bcdEnableNavPath") == "true") {
           bcdui.widget.periodChooser.getNavPath(jQuery(containerHtmlElement).parent().attr("id"), function(id, value) {
             bcdui.widget._linkNavPath(id, value);
           }.bind(this));

@@ -74,7 +74,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     + " bcdOptionsModelXPath='/Selections/Selection/Caption'"
     + " bcdOptionsModelRelativeValueXPath='../Value'"
     + " bcdIsCheckBox='false'"
-    + " bcdDisableNavPath='true'"
     + "></span>"
 
     + "</td></tr><tr" + ((multiSelect != "true") ? " style='display:none'" : "") + ((htmlElement.getAttribute("bcdAllowMixedSelect") != "true") ? " class='bcdNonMixed'" : "class='bcdMixed'") +  "><td>"
@@ -92,7 +91,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     + " bcdOptionsModelRelativeValueXPath='../@id'"
     + " bcdClearOption='" + clearOptionLevel + "'"
     + " bcdEmptyValue='" + emptyValueLevel + "'"
-    + " bcdDisableNavPath='true'"
     + "></span>"
     
     + "</td></tr></table>"        
@@ -324,7 +322,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
       // and initially
       listener(htmlElement.id, true, config);
 
-      if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+      if (htmlElement.getAttribute("bcdEnableNavPath") != null && htmlElement.getAttribute("bcdEnableNavPath") == "true") {
         bcdui.widget.dimensionChooser.getNavPath(jQuery(htmlElement).parent().attr("id"), function(id, value) {
           bcdui.widget._linkNavPath(id, value);
         }.bind(this));
@@ -826,7 +824,6 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           clearOption: config.clearOption,
           emptyValue: config.emptyValue,
           mandatory: true,
-          disableNavPath: true,
           onEnterKey: ""
         };
 

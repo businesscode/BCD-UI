@@ -66,7 +66,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
       bcdui.widget._registerHTMLElementListener(htmlElement, listener);
       bcdui.widget.singleSelect._readDataFromXML(htmlElement.id, bcdui.factory.objectRegistry.getObject(config.optionsModelId));
 
-      if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+      if (htmlElement.getAttribute("bcdEnableNavPath") != null && htmlElement.getAttribute("bcdEnableNavPath") == "true") {
         bcdui.widget.singleSelect.getNavPath(jQuery(htmlElement).parent().attr("id"), function(id, value) {
           bcdui.widget._linkNavPath(id, value);
         }.bind(this));

@@ -233,7 +233,7 @@
         jQuery(uiControl.control).focus();
       }
 
-      if (! this.options.disableNavPath) {
+      if (this.options.enableNavPath) {
         bcdui.widgetNg.input.getNavPath(this.options.id, function(id, value) {
           bcdui.widget._linkNavPath(id, value);
         }.bind(this));

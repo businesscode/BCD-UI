@@ -67,7 +67,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.setFocus=false]                 If true, let this input field get focus after creation.
    * @param {string}        [args.tabIndex]                       Tab index of html element.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    */
   createInputField: function(args)
     {
@@ -103,7 +103,7 @@ bcdui.util.namespace("bcdui.widget",
           setCursorPositionAtEnd: args.setCursorPositionAtEnd,
           id: args.id,
           widgetCaption: args.widgetCaption,
-          disableNavPath: args.disableNavPath
+          enableNavPath: args.enableNavPath
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -141,7 +141,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {string}        [args.configurationModelId]           ModelId of chooser configuration xml file. This model can hold a per-level configuration which allows additional filtering.
    * @param {string}        [args.limitLevels]                    Space separated list of levelIds. The available levels from the dimensions model get limited to this subset.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * 
    * @example <Caption>Configuration Model</Caption>
    * 
@@ -231,7 +231,7 @@ bcdui.util.namespace("bcdui.widget",
           mandatory: args.mandatory,
           widgetCaption: args.widgetCaption,
           limitLevels: args.limitLevels,
-          disableNavPath: args.disableNavPath
+          enableNavPath: args.enableNavPath
       };
 
       jQuery("#" + args.targetHTMLElementId).empty().append("<div></div>");
@@ -250,7 +250,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    */
   createSingleSelect: function(args)
     {
@@ -273,7 +273,7 @@ bcdui.util.namespace("bcdui.widget",
           bcdInputType:args.inputType,
           id:args.id,
           widgetCaption: args.widgetCaption,
-          disableNavPath: args.disableNavPath
+          enableNavPath: args.enableNavPath
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -301,7 +301,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.isCheckBox=false]               Use checkbox html element instead of multiselect.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
    */
   createMultiSelect: function(args)
@@ -326,7 +326,7 @@ bcdui.util.namespace("bcdui.widget",
           id:                       args.id,
           delimiter:                args.delimiter||"",
           widgetCaption:            args.widgetCaption,
-          disableNavPath:           args.disableNavPath,
+          enableNavPath:           args.enableNavPath,
           doSortOptions:            args.doSortOptions || "false"
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
@@ -379,7 +379,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.useSimpleXPath=false]         Set this to true if you want a minimal periodchooser setup (only day selectable via popcalendar) which only writes an ISO date to an XPath which you provide (not a complex one in normal mode).
    * @param {string}        [args.autoPopup=false]              Set this to true if the popup calendar should appear after creation.
    * @param {string}        [args.suppressButtons=false]        Set this to true if from and to buttons should be hidden. Default is false.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                Set to true if widget should not be added to navpath handling.
    */
   createPeriodChooser: function(args)
     {
@@ -421,7 +421,7 @@ bcdui.util.namespace("bcdui.widget",
         , useSimpleXPath:         args.useSimpleXPath
         , autoPopup:              args.autoPopup
         , suppressButtons:        args.suppressButtons
-        , disableNavPath:         args.disableNavPath
+        , enableNavPath:         args.enableNavPath
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -452,7 +452,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.skipValidationCaption=Skip check of values] Caption to be shown for skipping validation. Default is 'Skip check of values'.
    * @param {boolean}       [args.skipServerSidedFunctions=false] Set to true to disable usage of server sided functions like CntDist. Default is false.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
-   * @param {boolean}       [args.disableNavPath]                 Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    */
   createFormulaEditor: function(args)
     {
@@ -479,7 +479,7 @@ bcdui.util.namespace("bcdui.widget",
           , skipValidationCaption: args.skipValidationCaption
           , skipServerSidedFunctions: args.skipServerSidedFunctions
           , widgetCaption: args.widgetCaption
-          , disableNavPath: args.disableNavPath
+          , enableNavPath: args.enableNavPath
         };
 
       jQuery("#" + args.targetHTMLElementId).empty().append("<span></span>");
@@ -2552,7 +2552,7 @@ bcdui.util.namespace("bcdui.widget",
        if (optionsModelId != null && optionsModelId != "")
          models.push(optionsModelId);
 
-       bcdui.factory.objectRegistry.withReadyObjects(models, function() {
+       bcdui.factory.objectRegistry.withReadyObjectsNoExecute(models, function() {
 
          var finalCaption = "";
          if (targetModelId != null && targetModelId != "") {

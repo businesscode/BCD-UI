@@ -157,7 +157,7 @@
         el.closest(".bcdSideBySideChooser").find(".bcdTarget")._bcduiWidget()._moveSelectedItemsUpDown( isDirUp ? -1 : 1 );
       });
 
-      if (! this.options.disableNavPath) {
+      if (this.options.enableNavPath) {
         bcdui.widgetNg.sideBySideChooser.getNavPath(this.element.id, function(id, value) {
           bcdui.widget._linkNavPath(id, value);
         }.bind(this));

@@ -86,7 +86,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
                       bcdui.widget._registerHTMLElementListener(htmlElement, optionsListener);
                     }
                   
-                  if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+                  if (htmlElement.getAttribute("bcdEnableNavPath") != null && htmlElement.getAttribute("bcdEnableNavPath") == "true") {
                     bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
                       bcdui.widget._linkNavPath(id, value);
                     }.bind(this));
@@ -95,7 +95,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
           });
         }
         else {
-          if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+          if (htmlElement.getAttribute("bcdEnableNavPath") != null && htmlElement.getAttribute("bcdEnableNavPath") == "true") {
             bcdui.widget.multiSelect.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(value) {
               bcdui.widget._linkNavPath(jQuery(htmlElement).parent().parent().attr("id"), value);
             }.bind(this));

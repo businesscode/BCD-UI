@@ -142,7 +142,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
         if (jQuery("#" + htmlElement.id).val() == "")
           bcdui.widget.inputField._readDataFromXML(htmlElement.id);
 
-        if (htmlElement.getAttribute("bcdDisableNavPath") == null || htmlElement.getAttribute("bcdDisableNavPath") == "false") {
+        if (htmlElement.getAttribute("bcdEnableNavPath") != null && htmlElement.getAttribute("bcdEnableNavPath") == "true") {
           bcdui.widget.inputField.getNavPath(jQuery(htmlElement).parent().parent().attr("id"), function(id, value) {
             bcdui.widget._linkNavPath(id, value);
           }.bind(this));
