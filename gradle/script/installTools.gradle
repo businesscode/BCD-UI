@@ -111,8 +111,13 @@ task bcduiNodeJsTools( type: NpmTask ) {
   doFirst {
     // create a local node_modules folder as we want to keep stuff local
     new File(nodeModulesDir).mkdirs()
+    copy {
+      from "$sharedBuildFilesRoot/gradle/build_package.json"
+      into nodeJsDir
+      rename('build_package.json', 'package.json')
+    }
   }
-  args = ['install', 'jsdoc', 'jaguarjs-jsdoc', 'node-sass', 'clean-css-cli', 'babel-cli', 'babel-preset-es2015', 'babel-preset-minify' ]
+  args = ['install']
 }
 
 
