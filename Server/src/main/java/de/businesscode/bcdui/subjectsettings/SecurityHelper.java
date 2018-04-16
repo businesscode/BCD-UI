@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.subjectsettings;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -392,5 +394,22 @@ public class SecurityHelper {
     result.add(new SimpleByteSource(salt).toHex());
 
     return result.toArray(new String[] {});
+  }
+
+  /**
+   * main helper to create passwords interactively or by argument
+   * @param args
+   * @throws Throwable
+   */
+  public static void main(String[] args) throws Throwable{
+    String clearPasswd = args.length>0?args[0]:null;
+    if(clearPasswd==null||clearPasswd.isEmpty()) {
+      System.out.println("login passwd:");
+      try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))){
+        clearPasswd = br.readLine();
+      }
+    }
+    String salted[]=generatePasswordHashSalt(clearPasswd);
+    System.out.println(String.format("passwd hash:%s\nsalt:%s\n", salted[0], salted[1]));
   }
 }
