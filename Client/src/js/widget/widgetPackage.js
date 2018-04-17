@@ -68,6 +68,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.tabIndex]                       Tab index of html element.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.isPassword]                     If true, input element type will be 'password'.
    */
   createInputField: function(args)
     {
@@ -103,7 +104,8 @@ bcdui.util.namespace("bcdui.widget",
           setCursorPositionAtEnd: args.setCursorPositionAtEnd,
           id: args.id,
           widgetCaption: args.widgetCaption,
-          enableNavPath: args.enableNavPath
+          enableNavPath: args.enableNavPath,
+          isPassword: args.isPassword
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
