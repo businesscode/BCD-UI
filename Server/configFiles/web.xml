@@ -55,22 +55,15 @@
         #See Shiro API http://shiro.apache.org/static/current/apidocs/org/apache/shiro/web/servlet/IniShiroFilter.html
 
         # Shiro core settings
-        # To use BCD- user rights table, add: realmA = de.businesscode.bcdui.subjectsettings.JdbcRealm
         [main]
         authc.loginUrl      = /login.html
         logout.redirectUrl  = /index.html
-        
-        # enables password hashing and salting; create password in de.businesscode.bcdui.subjectsettings.SecurityHelper.generatePasswordHashSalt(String)
-        # https://shiro.apache.org/realm.html#Realm-%7B%7BSaltedAuthenticationInfo%7D%7D
-        #credentialsMatcher = org.apache.shiro.authc.credential.Sha256CredentialsMatcher
-        #credentialsMatcher.storedCredentialsHexEncoded = true
-        #credentialsMatcher.hashIterations = 1024
-        #credentialsMatcher.hashSalted = true
 
-        ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization
+        ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization supporting salted passwords, etc.
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
         realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
-        #realmBcdJdbc.credentialsMatcher = $credentialsMatcher
+        # to disable salted passwords (discouraged) and for backwards compatbility set this flag, password is considered plaintext then
+        # realmBcdJdbc.hashSalted = false
 
         ## Support for bcd_log_login logging
         bcdAuthListener = de.businesscode.bcdui.web.AuthenticationListener

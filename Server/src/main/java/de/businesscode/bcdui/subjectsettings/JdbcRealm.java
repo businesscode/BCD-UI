@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.subjectsettings;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,10 +39,16 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.codec.Hex;
+import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.SimpleByteSource;
 
 import de.businesscode.bcdui.binding.BindingItem;
@@ -53,12 +61,17 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
 
 /**
  * Used by shiro framework for retrieving authentication and authorization from the database
- * Relies on fe_user_rights and fe_user BindingSets
+ * Relies on fe_user_rights and fe_user BindingSets providing support for plaintext (backwards compatibility)
+ * and salted/hashed passwords using SHA256 hashing. The default hash iteration is 1024 and can be adjusted in shiro ini by setting
+ * .hashIterations property. The default mode is hashed/salted, which can be disabled by setting .hashSalted=false
+ * in shiro configuration when declaring this realm. When creating new password please use {@link #generatePasswordHashSalt(String, int)}
+ * method of this class.
  */
 public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private static final String BS_USER = "bcd_sec_user";
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
   private static final String BS_USER_ROLES = "bcd_sec_user_roles";
+  private static final int DEFAULT_HASH_ITERATIONS = 1024;
   private final Logger log = Logger.getLogger(getClass());
   final private String u_table;
   final private String u_userid;
@@ -77,7 +90,9 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private String uro_userid_jdbcType;
   private String uro_userrole;
   
-
+  private boolean hashSalted = true;
+  private int hashIterations = DEFAULT_HASH_ITERATIONS;
+  
   public JdbcRealm() {
     super();
     this.setPermissionsLookupEnabled(false);
@@ -117,6 +132,22 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     } catch (Exception e) {
       throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
     }
+  }
+  
+  public int getHashIterations() {
+    return hashIterations;
+  }
+  
+  public boolean isHashSalted() {
+    return hashSalted;
+  }
+  
+  public void setHashIterations(int hashIterations) {
+    this.hashIterations = hashIterations;
+  }
+  
+  public void setHashSalted(boolean hashSalted) {
+    this.hashSalted = hashSalted;
   }
 
   /**
@@ -163,13 +194,24 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
     return dataSource;
   }
+  
+  @Override
+  public CredentialsMatcher getCredentialsMatcher() {
+    if(hashSalted) {
+      final HashedCredentialsMatcher matcher = new org.apache.shiro.authc.credential.HashedCredentialsMatcher(Sha256Hash.ALGORITHM_NAME);
+      matcher.setHashIterations(hashIterations);
+      return matcher;
+    }else {
+      return super.getCredentialsMatcher();
+    }
+  }
 
   /**
    * To support hashed passwords with salt we have to load the password + hash from database,
    * so the hash can be recomputed and verified.
    *
    * @param userLogin
-   * @return array of: [technical user id, password (hex), salt(hex)] or null if userLogin is not known; salt can be set to null, if not supported
+   * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
     String stmt = "select "+u_userid+", "+u_password+", "+u_password_salt+" from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
@@ -234,13 +276,13 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
           pc.add(new PrimaryPrincipal(credentialInfo[0]), getName());   // technical user-id
           pc.add(upassToken.getUsername(), getName());                  // user-login
 
-          SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(pc, credentialInfo[1]);
-
-          if(credentialInfo[2] != null){
-            info.setCredentialsSalt(new SimpleByteSource(Hex.decode(credentialInfo[2])));
+          // salted vs. plaintext pass
+          if(hashSalted) {
+            // use same scheme as in de.businesscode.bcdui.subjectsettings.SecurityHelper.generatePasswordHashSalt(String) tool
+            return new SimpleAuthenticationInfo(pc, Hex.decode(credentialInfo[1]), new SimpleByteSource(Hex.decode(credentialInfo[2])));
+          } else {
+            return new SimpleAuthenticationInfo(pc, credentialInfo[1]);
           }
-
-          return info;
         }
       } else {
         return null;
@@ -319,5 +361,46 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
     getDataSource();
     return super.doGetAuthorizationInfo(arg0);
+  }
+  
+  /**
+   * Generates a password hash + salt with {@link #DEFAULT_HASH_ITERATIONS} iterations, for use with
+   * {@link org.apache.shiro.authc.credential.Sha256CredentialsMatcher}
+   *
+   * The hash and salt are returned as hex-encoded string, compatible with
+   * {@link JdbcRealm}
+   *
+   * @param plainTextPassword
+   * @return [ password hash (hex), password salt (hash) ]
+   */
+  public static String[] generatePasswordHashSalt(String plainTextPassword, int iterations) {
+    ArrayList<String> result = new ArrayList<>();
+
+    RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+    ByteSource salt = rng.nextBytes();
+
+    String hashedPassword = new Sha256Hash(plainTextPassword, salt, iterations).toHex();
+
+    result.add(hashedPassword);
+    result.add(new SimpleByteSource(salt).toHex());
+
+    return result.toArray(new String[] {});
+  }
+  
+  /**
+   * main helper to create passwords interactively or by argument
+   * @param args
+   * @throws Throwable
+   */
+  public static void main(String[] args) throws Throwable{
+    String clearPasswd = args.length>0?args[0]:null;
+    if(clearPasswd==null||clearPasswd.isEmpty()) {
+      System.out.println("login passwd:");
+      try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))){
+        clearPasswd = br.readLine();
+      }
+    }
+    String salted[]=generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
+    System.out.println(String.format("passwd hash:%s\nsalt:%s\n", salted[0], salted[1]));
   }
 }

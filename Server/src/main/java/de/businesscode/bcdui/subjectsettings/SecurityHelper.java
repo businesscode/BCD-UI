@@ -15,11 +15,8 @@
 */
 package de.businesscode.bcdui.subjectsettings;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -31,16 +28,11 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
-import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.crypto.SecureRandomNumberGenerator;
-import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ByteSource;
-import org.apache.shiro.util.SimpleByteSource;
 
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
@@ -370,46 +362,5 @@ public class SecurityHelper {
       throw new RuntimeException("failed to retrieve pemissions", e);
     }
     return valueSet;
-  }
-
-  /**
-   * Generates a password hash + salt with 1024 iterations, for use with
-   * {@link org.apache.shiro.authc.credential.Sha256CredentialsMatcher}
-   *
-   * The hash and salt are returned as hex-encoded string, compatible with
-   * {@link JdbcRealm}
-   *
-   * @param plainTextPassword
-   * @return [ password hash (hex), password salt (hash) ]
-   */
-  public static String[] generatePasswordHashSalt(String plainTextPassword) {
-    ArrayList<String> result = new ArrayList<>();
-
-    RandomNumberGenerator rng = new SecureRandomNumberGenerator();
-    ByteSource salt = rng.nextBytes();
-
-    String hashedPassword = new Sha256Hash(plainTextPassword, salt, 1024).toHex();
-
-    result.add(hashedPassword);
-    result.add(new SimpleByteSource(salt).toHex());
-
-    return result.toArray(new String[] {});
-  }
-
-  /**
-   * main helper to create passwords interactively or by argument
-   * @param args
-   * @throws Throwable
-   */
-  public static void main(String[] args) throws Throwable{
-    String clearPasswd = args.length>0?args[0]:null;
-    if(clearPasswd==null||clearPasswd.isEmpty()) {
-      System.out.println("login passwd:");
-      try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))){
-        clearPasswd = br.readLine();
-      }
-    }
-    String salted[]=generatePasswordHashSalt(clearPasswd);
-    System.out.println(String.format("passwd hash:%s\nsalt:%s\n", salted[0], salted[1]));
   }
 }
