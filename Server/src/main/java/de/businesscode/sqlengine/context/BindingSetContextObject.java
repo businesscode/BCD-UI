@@ -15,8 +15,8 @@
 */
 package de.businesscode.sqlengine.context;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import de.businesscode.bcdui.binding.BindingItem;
@@ -113,10 +113,9 @@ public class BindingSetContextObject
    */
   public Object get(String key) {
     try {
-      if (key.endsWith("-")){
+      final boolean requestedUnqualified = key.endsWith("-");
+      if (requestedUnqualified){
         key = key.substring(0, key.length()-1);
-        BindingItem bindingItem = getBindingSet().get(key);
-        return bindingItem.getColumnExpression();
       }
       BindingItem bindingItem = getBindingSet().get(key);
 
@@ -126,7 +125,7 @@ public class BindingSetContextObject
         selectedBindigItemsInOrder.add(bindingItem);
       allBindigItemsInOrder.add(bindingItem);
 
-      return bindingItem.getQColumnExpression() ;
+      return requestedUnqualified ? bindingItem.getColumnExpression() : bindingItem.getQColumnExpression() ;
     }
     catch (BindingNotFoundException e) {
       throw new RuntimeException("Unable to find the binding item", e);
