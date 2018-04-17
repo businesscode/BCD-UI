@@ -153,9 +153,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    */
   protected DataSource getDataSource(){
     if(dataSource == null){
-      String dsName = null; // Default data source
-      if( SubjectSettings.getInstance().getSubjectSettings().getJdbc().getDataSource()!=null )
-        dsName = SubjectSettings.getInstance().getSubjectSettings().getJdbc().getDataSource().getName();
+      String dsName = SubjectSettings.getInstance().getDataSourceName(); // Default data source
       try {
         dataSource = BareConfiguration.getInstance().getUnmanagedDataSource(dsName);
       } catch (Exception e) {

@@ -185,6 +185,17 @@ public class SubjectSettings extends SubjectSettingsConfig {
   }
 
   /**
+   * @return name of DataSource to use or null if none defined in SubjectSettings/Jdbc/DataSource
+   */
+  public String getDataSourceName() {
+    try {
+      return getSubjectSettings().getJdbc().getDataSource().getName();
+    }catch(NullPointerException npe) {
+      return null;
+    }
+  }
+
+  /**
    * @param subjectFilterType
    * @return filter type literal, which is either defined by filter type name or explicit type
    */
