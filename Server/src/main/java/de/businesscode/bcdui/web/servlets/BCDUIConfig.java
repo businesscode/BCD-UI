@@ -87,14 +87,13 @@ public class BCDUIConfig extends HttpServlet {
     try {
       if(subject.isAuthenticated() ) {
         String userLogin = SecurityHelper.getUserLogin(subject);
-        if(userLogin == null){
-          userLogin = "null";
-        } else {
-          userLogin = "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
-        }
+        userLogin = (userLogin == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
+        String userId = SecurityHelper.getUserId(subject);
+        userId = (userId == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userId) + "'";
         writer.println("  , isAuthenticated: true");
         writer.println("  , userName: " + userLogin ); // js null or js string with name; backwards compatible (in future may be removed; is to be replaced by .userLogin)
         writer.println("  , userLogin: " + userLogin ); // js null or js string with user login;
+        writer.println("  , userId: " + userId ); // js null or js string with user id;
 
         // write userRoles
         writer.println("  , userRoles : {");
