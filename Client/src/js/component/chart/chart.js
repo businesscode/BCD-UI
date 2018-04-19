@@ -1117,8 +1117,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                                               : this.yAxis1.minValue+5/Math.abs(this.yAxis1.transScale.scale.y);
 
       // Values and vertical grid lines
+      var everyNthCaption = 1;
+      if(this.xAxis.categoriesGiven)
+        everyNthCaption = Math.ceil(25 * this.xAxis.categories.length / this.plotArea.width);
+      var nth = 0;
       for( var x=xGrid.minValue;  x<xGrid.maxValue; x+=xGrid.width ) {
-        if( !this.xAxis.categoriesGiven && x==0 ) // no caption on  x-y charts where the axes intersect (too buys)
+        if( !this.xAxis.categoriesGiven && x==0 && this.yAxis1.minValue <= 0 ) // no caption on  x-y charts where the axes intersect (too busy)
           continue;
         if( !this.xAxis.categoriesGiven )
           this.drawer.line( { points : [ [x,xGridYStart], [x,xGridYEnd] ], rgb : this.gridColor, shapeRendering: "crispEdges"  } );
@@ -1138,12 +1142,15 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
           caption = caption.substring(0, this.maxXCaptionChars) + ".";
         }
 
-        this.drawer.text( { text : caption,
+        if(nth % everyNthCaption == 0 ) {
+          this.drawer.text( { text : caption,
                             align: "middle",
                             cssClass:this._getCssClass({suff: caption, axisName: "XAxis", axisCssClass: this.xAxis.cssClass})+"  "+this.defaultLabelClass,
                             x: x+shift,
                             y: y,
                             layoutFlow: this.xAxis.layoutFlow } );
+        }
+        nth++;
       }
 
       // X axis caption at the bottom
