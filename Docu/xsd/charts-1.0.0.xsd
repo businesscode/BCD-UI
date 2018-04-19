@@ -156,6 +156,9 @@
           <xs:enumeration value="suppress"></xs:enumeration>
           <xs:enumeration value="vertical-ideographic"></xs:enumeration>
           <xs:enumeration value="horizontal"></xs:enumeration>
+          <xs:enumeration value="25deg"></xs:enumeration>
+          <xs:enumeration value="35deg"></xs:enumeration>
+          <xs:enumeration value="45deg"></xs:enumeration>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

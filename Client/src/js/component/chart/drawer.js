@@ -419,7 +419,13 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     var x = new Number(this._xPx(args.x));
     var y = new Number(this._yPx(args.y));
     //if vertical layout was chosen, ignore the text anchor declaration
-    if( args.layoutFlow=="vertical-ideographic" ) {
+    if( args.layoutFlow && args.layoutFlow.indexOf("deg")!=-1 ) {
+      x = new Number(this._xPx(args.x));
+      y = new Number(this._yPx(args.y));
+      elem.setAttribute("transform", "rotate("+args.layoutFlow.replace("deg","")+"," + x + "," + y + ")");
+      x -= 5;
+      y += 2;
+    } else if( args.layoutFlow=="vertical-ideographic" ) {
       x = new Number(this._xPx(args.x));
       y = new Number(this._yPx(args.y));
       elem.setAttribute("transform", "rotate(90,"+ x +","+ y +")");
