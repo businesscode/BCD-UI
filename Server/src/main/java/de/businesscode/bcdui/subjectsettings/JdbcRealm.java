@@ -90,7 +90,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private String uro_userid_jdbcType;
   private String uro_userrole;
   
-  private boolean hashSalted = true;
+  private boolean hashSalted = true; // Depends on whether password_salt exists as a bRef in BS_USER
   private int hashIterations = DEFAULT_HASH_ITERATIONS;
   
   public JdbcRealm() {
@@ -106,7 +106,8 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       u_userid   = biUserId.getColumnExpression();
       u_login    = bs.get("user_login").getColumnExpression();
       u_password = bs.get("password").getColumnExpression();
-      u_password_salt = bs.get("password_salt").getColumnExpression();
+      hashSalted = bs.hasItem("password_salt");
+      u_password_salt = hashSalted ? bs.get("password_salt").getColumnExpression() : null;
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
         ur_table  = bs.getTableName();
@@ -207,20 +208,20 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
 
   /**
-   * To support hashed passwords with salt we have to load the password + hash from database,
+   * To support hashed passwords with salt we have to load the password + hash (if salted) from database,
    * so the hash can be recomputed and verified.
    *
    * @param userLogin
    * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
-    String stmt = "select "+u_userid+", "+u_password+", "+u_password_salt+" from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
+    String stmt = "select "+u_userid+", "+u_password + (hashSalted?", "+u_password_salt:"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
     return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
       if(rs.next()){
         ArrayList<String> result = new ArrayList<>();
         result.add(rs.getString(1));
         result.add(rs.getString(2));
-        String salt = rs.getString(3);
+        String salt = hashSalted ? rs.getString(3) : null;
         if(salt != null && salt.trim().isEmpty()){
           salt = null;
         }
