@@ -552,11 +552,11 @@
   <table align="left" border="0" cellspacing="0" cellpadding="3">
     <tr>
       <td>Username:</td>
-      <td><input type="text" name="username" maxlength="30" autocomplete="off"></input></td>
+      <td><input type="text" name="username" maxlength="30" autocomplete="new-user"></input></td>
     </tr>
     <tr>
       <td>Password:</td>
-      <td><input type="password" name="password" maxlength="30" autocomplete="off"></input></td>
+      <td><input type="password" name="password" maxlength="30" autocomplete="new-password"></input></td>
     </tr>
     <tr style="display:none">
       <td colspan="2" align="left"><input type="checkbox" name="rememberMe"><font size="2">Remember Me</font></td>
