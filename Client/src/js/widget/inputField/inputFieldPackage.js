@@ -624,7 +624,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
           if( htmlElement.value != newV ) {
             htmlElement.value = newV;
             if ("true" != htmlElement.getAttribute("bcdIsPassword"))
-              htmlElement.title = newV
+              htmlElement.title = newV;
           }
         });
       }
