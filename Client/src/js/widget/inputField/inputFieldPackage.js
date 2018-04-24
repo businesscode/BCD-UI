@@ -72,7 +72,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
 
     jQuery(e).append(
       "<input"
-      + (e.getAttribute("bcdIsPassword") == "true" ? " type='password'" : "")
+      + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='new-password'" : "")
       + bcdui.widget._domFromBcdAttribute(e, "bcdTabIndex", "tabindex")
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
       + "/>"
@@ -621,8 +621,11 @@ bcdui.util.namespace("bcdui.widget.inputField",
   
           // Do not change if value is still valid.
           // Would re-position the cursor (after refresh of options model for example)
-          if( htmlElement.value != newV )
-            htmlElement.title = htmlElement.value = newV;
+          if( htmlElement.value != newV ) {
+            htmlElement.value = newV;
+            if ("true" != htmlElement.getAttribute("bcdIsPassword"))
+              htmlElement.title = newV
+          }
         });
       }
     },
