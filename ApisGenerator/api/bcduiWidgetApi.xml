@@ -189,7 +189,7 @@
         </Param>
         <Param name="defaultState" type="string" default="closed">
           <Doc>
-            'closed' or empty String for opened, default is closed.
+            'closed' or 'opened', default is closed.
           </Doc>
         </Param>
         <Param name="duration" type="number">
