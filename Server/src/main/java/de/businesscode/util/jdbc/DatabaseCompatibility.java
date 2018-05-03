@@ -350,7 +350,7 @@ public class DatabaseCompatibility
             "AVG", "CORR", "COVAR_POP", "COVAR_SAMP", "COUNT", "CUME_DIST", "DENSE_RANK", "LAG", "FIRST_VALUE", "LAST_VALUE ", "LEAD", "MAX", "MIN", "NTILE", "PERCENT_RANK", "RATIO_TO_REPORT",
             "REGR_SLOPE", "REGR_INTERCEPT", "REGR_COUNT", "REGR_R2", "REGR_AVGX", "REGR_AVGY", "REGR_SXX", "REGR_SYY", "REGR_SXY",
             "RANK", "ROW_NUMBER ", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
-            "OVER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
+            "OVER", "ORDER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",
             "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
