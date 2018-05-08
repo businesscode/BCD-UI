@@ -22,6 +22,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
+import de.businesscode.bcdui.binding.rel.impl.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -30,10 +31,6 @@ import de.businesscode.bcdui.binding.BindingAliasMap;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.binding.rel.impl.AbstractColumn;
-import de.businesscode.bcdui.binding.rel.impl.AbstractConstrain;
-import de.businesscode.bcdui.binding.rel.impl.BooleanConstraintImpl;
-import de.businesscode.bcdui.binding.rel.impl.CombinedConstraintImpl;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
@@ -322,6 +319,7 @@ public class Relation {
     // boolean
     String bindingSetName;
     if (constraintNode.getLocalName().equals("IsEqual") ||
+        constraintNode.getLocalName().equals("IsLike") ||
         constraintNode.getLocalName().equals("LT") ||
         constraintNode.getLocalName().equals("LE") ||
         constraintNode.getLocalName().equals("GT") ||
@@ -329,6 +327,7 @@ public class Relation {
         ) {
       // only 2 BindingItemRef
       if(constraintNode.getLocalName().equals("IsEqual")) curConstraint = new BooleanConstraintImpl(BooleanConstraintImpl.BooleanConstraint.EQ,negate);
+      else if(constraintNode.getLocalName().equals("IsLike")) curConstraint = new IsLikeConstraintImpl(IsLikeConstraintImpl.BooleanConstraint.ISLIKE,negate, constraintNode.getAttribute("prependToSecond"), constraintNode.getAttribute("appendToSecond"));
       else if (constraintNode.getLocalName().equals("LT")) curConstraint = new BooleanConstraintImpl(BooleanConstraintImpl.BooleanConstraint.LT,negate);
       else if (constraintNode.getLocalName().equals("LE")) curConstraint = new BooleanConstraintImpl(BooleanConstraintImpl.BooleanConstraint.LE,negate);
       else if (constraintNode.getLocalName().equals("GT")) curConstraint = new BooleanConstraintImpl(BooleanConstraintImpl.BooleanConstraint.GT,negate);

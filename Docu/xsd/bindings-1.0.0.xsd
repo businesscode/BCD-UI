@@ -590,8 +590,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
           </xs:sequence>
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
@@ -605,8 +604,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
           </xs:sequence>
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
@@ -620,8 +618,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
           </xs:sequence>
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
@@ -635,8 +632,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
           </xs:sequence>
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
@@ -650,8 +646,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
           </xs:sequence>
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
@@ -667,6 +662,21 @@
           <xs:sequence>
             <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
           </xs:sequence>
+          <xs:attribute name="negate" default="false" type="xs:boolean" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="IsLike">
+        <xs:annotation>
+          <xs:documentation>
+            SQL LIKE operator. The second BindingItemRef can be concatenated with @prependToSecond and / or @appendToSecond, for example "appendToSecond='%'" leads to "tp.col_name||'%'"
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef" minOccurs="2" maxOccurs="2"/>
+          </xs:sequence>
+          <xs:attribute name="prependToSecond" default="" type="xs:string" />
+          <xs:attribute name="appendToSecond" default="" type="xs:string" />
           <xs:attribute name="negate" default="false" type="xs:boolean" />
         </xs:complexType>
       </xs:element>

@@ -128,7 +128,7 @@ public class BooleanConstraintImpl extends AbstractConstrain {
    *
    * @return
    */
-  private String getOperator() {
+  protected String getOperator() throws BindingException {
     String op = null;
     if (getType() == BooleanConstraint.EQ) {
       if (isNegate())
@@ -163,6 +163,9 @@ public class BooleanConstraintImpl extends AbstractConstrain {
     else if (getType() == BooleanConstraint.ISNOTNULL)
       op = " IS NOT NULL ";
 
+    else
+      throw new BindingException("Invalid type of Relation constraint: "+getName());
+
     return op;
   }
 
@@ -181,6 +184,8 @@ public class BooleanConstraintImpl extends AbstractConstrain {
 
       for (int i = 0; i < getColumns().size(); i++) {
         boolean isNumeric = Bindings.getInstance().get( getColumns().get( i).getBindingSetName()).get( getColumns().get( i).getName()).isNumeric();
+
+        // This takes care for the join-to case statement handling
         if ( getColumns().get( i).getTable().equals( prepareCaseExpressionForAlias)) {
           BindingItem biRef = ( (de.businesscode.bcdui.binding.rel.BindingItemRef) getColumns().get( i)).getRelatedBindingItem();
           if ( isNumeric ) {
@@ -188,7 +193,9 @@ public class BooleanConstraintImpl extends AbstractConstrain {
           } else {
             str.append( "''' || " + biRef.getColumnExpression() + " || '''");
           }
-        } else {
+        }
+        // Standard join case
+        else {
           str.append( getColumns().get( i).getQColumnExpression());
         }
 
