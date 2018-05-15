@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.session.Session;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -104,7 +105,12 @@ public class I18n {
    *         client information, and fallback to default language as per configuration.
    */
   public static Locale getUserLocale(HttpServletRequest request) {
-    Locale locale = getLocale(SecurityUtils.getSubject().getSession(false), null);
+    Locale locale = null;
+    try {
+      locale = getLocale(SecurityUtils.getSubject().getSession(false), null);
+    }catch(UnavailableSecurityManagerException e) {
+      ; // shiro not in use
+    }
     if (locale == null) { // take from request
       locale = getLocale(request, null);
     }
