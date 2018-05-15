@@ -74,7 +74,6 @@ public class BCDUIConfig extends HttpServlet {
       properties.load(new FileInputStream(propFile));
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
-    final Subject subject = SecurityUtils.getSubject();
 
     PrintWriter writer = new PrintWriter(response.getWriter());
     writer.println("var bcdui = bcdui || {};");
@@ -85,6 +84,7 @@ public class BCDUIConfig extends HttpServlet {
 
     // write authenticate information
     try {
+      final Subject subject = SecurityUtils.getSubject();
       if(subject.isAuthenticated() ) {
         String userLogin = SecurityHelper.getUserLogin(subject);
         userLogin = (userLogin == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
