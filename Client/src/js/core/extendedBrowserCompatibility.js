@@ -447,7 +447,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
       var msmlNodesetScipts = this.xslt.selectNodes("/*//msxsl:script[contains(text(),\"this['node-set']\")]");
       for( var i=0; i < msmlNodesetScipts.length; i++ )
         msmlNodesetScipts.item(i).parentNode.removeChild( msmlNodesetScipts.item(i) );
-      var msmlNodesetCall = this.xslt.selectNodes("/*//@select[contains(text(),'exslt:node-set')]");
+      var msmlNodesetCall = this.xslt.selectNodes("/*//@select[contains(.,'exslt:node-set')]");
       for( var i=0; i<msmlNodesetCall.length; i++ )
         msmlNodesetCall.item(i).nodeValue = msmlNodesetCall.item(i).nodeValue.replace(/exslt:node-set/g,"msxsl:node-set");
       this.importStylesheet(this.xslt);
