@@ -94,7 +94,7 @@ bcdui.wkModels.guiStatus = null;
        type: "GET",
        async: false,
        dataType: "xml",
-       url:  bcdui.contextPath + bcdui.core.compression._zipLetURL + "?data=" + gz
+       url: bcdui.core.compression._zipLetURL + "?data=" + gz
      });
      if (response && response.responseText && response.responseText.replace(/<\?xml .*\?>/, "").length > 0)
        bcdui.unpackedGuiStatus = response.responseText;

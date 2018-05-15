@@ -35,7 +35,7 @@ bcdui.core.compression = {
    * @private
    * @type String
    */
-  _zipLetURL: "/bcdui/servlets/ZipLet",
+  _zipLetURL: bcdui.config.libPath+"servlets/ZipLet",
 
   /**
    * @private
@@ -445,8 +445,6 @@ bcdui.core.compression = {
         }
       }
 
-      var url = location.href.replace(/https?:\/\/[^\/]+\/([^\/]+).*/, "/$1" + this._zipLetURL);
-
       var isGuiStatus = (doc != null) ? (doc.selectSingleNode("/*[self::guiStatus:Status]") != null) : false;
       if (typeof compressAll != "undefined" && compressAll)
         isGuiStatus = true;
@@ -454,7 +452,7 @@ bcdui.core.compression = {
       var self = this;
 
       bcdui.core.xmlLoader.post({
-        "url": url + (isGuiStatus ? "?tiny=" + self._zipLetURLLimit : ""),
+        "url": this._zipLetURL + (isGuiStatus ? "?tiny=" + self._zipLetURLLimit : ""),
         "doc": doc,
         isSync: isSync,
         onSuccess: function(result)
@@ -517,7 +515,7 @@ bcdui.core.compression = {
 
       var result = new bcdui.core.SimpleModel({
         id: id || ("unzipRequest_server_" + (++bcdui.core.compression.unzipRequestId)),
-        url: location.href.replace(/https?:\/\/[^\/]+\/([^\/]+).*/, "/$1" + this._zipLetURL + "?data=" + compressedXmlString)
+        url: this._zipLetURL + "?data=" + compressedXmlString
       });
 
       return result;

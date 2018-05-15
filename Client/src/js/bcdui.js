@@ -394,7 +394,7 @@ jQuery.extend( bcdui,
           var response = jQuery.ajax({
             type: "GET",
             async: false,
-            url:  bcdui.contextPath + bcdui.core.compression._zipLetURL + "?data=" + gzMatch[0]
+            url: bcdui.core.compression._zipLetURL + "?data=" + gzMatch[0]
           });
           if (response && response.responseText)
             unpackedGz = response.responseText;
