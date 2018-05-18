@@ -15,8 +15,10 @@
 */
 package de.businesscode.bcdui.wrs.save;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -30,19 +32,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.wrs.save.exc.KeyColumnsNotDefinedException;
 import de.businesscode.util.jdbc.Closer;
 import de.businesscode.util.jdbc.SQLDetailException;
-import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * The Class is a writer of WebRowSet document into database,
@@ -343,6 +339,16 @@ public class DatabaseWriter {
               stm.setNull(paramNo, Types.DECIMAL);
             else
               stm.setBigDecimal(paramNo, new BigDecimal(value));
+            break;
+          case Types.CLOB:
+            if (isNull)
+              stm.setNull(paramNo, Types.CLOB);
+            else {
+              byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+              int lenBytes = bytes.length;
+              InputStream stream = new ByteArrayInputStream(bytes);
+              stm.setAsciiStream(paramNo, stream, lenBytes);
+            }
             break;
           case Types.SQLXML:
             if (isNull)
