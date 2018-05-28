@@ -63,9 +63,11 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 
-      // We only process a server request, if at least one measure is selected, otherwise further execution is prevented
+      // We only process a server request, if at least one measure or one dimension is selected, otherwise further execution is prevented
       var rqModel = null;
-      if( ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure") ) {
+      if( ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure")
+       && ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/cube:Layout/cube:Dimensions//dm:LevelRef")
+          ) {
         rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
       } else {
         rqModel = new bcdui.core.ModelWrapper( { id: args.id+"_bcdImpl_requestDoc", inputModel: args.enhancedConfiguration,
