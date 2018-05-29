@@ -24,7 +24,7 @@
   <C id="requestHash"     type-name="VARCHAR">  <Column>request_hash</Column></C>
   <C id="requestUrl"      type-name="VARCHAR">  <Column>request_url</Column></C>
   <C id="bindingSetName"  type-name="VARCHAR">  <Column>bindingset_name</Column></C>
-  <C id="requestXml"      type-name="VARCHAR">  <Column>request_xml</Column></C>
+  <C id="requestXml"      type-name="CLOB">     <Column>request_xml</Column></C>
   <C id="rowCount"        type-name="NUMERIC">  <Column>row_count</Column></C>
   <C id="valueCount"      type-name="NUMERIC">  <Column>value_count</Column></C>
   <C id="rsStartTime"     type-name="NUMERIC">  <Column>rs_start_time</Column></C>

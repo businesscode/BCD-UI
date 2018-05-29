@@ -22,7 +22,7 @@
   <C id="durationMs" type-name="NUMERIC"><Column>duration_ms</Column></C>
   <C id="rowsAffected" type-name="NUMERIC"><Column>rows_affected</Column></C>
   <C id="jdbcMethod" type-name="VARCHAR"><Column>jdbc_method</Column></C>
-  <C id="sql" type-name="VARCHAR"><Column>sql</Column></C>
+  <C id="sql" type-name="CLOB"><Column>sql</Column></C>
   <C id="sessionId" type-name="VARCHAR"><Column>session_id</Column></C>
   <C id="pageHash" type-name="VARCHAR"><Column>page_hash</Column></C>
   <C id="requestHash" type-name="VARCHAR"><Column>request_hash</Column></C>
