@@ -314,7 +314,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         var numberOfDimensions = dimensions.filter(function(e, idx){return dimensions.indexOf(e) == idx}).length
         var numberOfMeasures = measures.filter(function(e, idx){return measures.indexOf(e) == idx}).length
 
-        if (maxDimensions != -1 && numberOfDimensions > maxDimensions) {
+        // dimensions limit only if we also got coldims
+        if (targetModelDoc.selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef").length == 0)
+          dimOk = true
+        else if (maxDimensions != -1 && numberOfDimensions > maxDimensions) {
           doRedisplay = true;
           if (! promptDim) {
             alert(
