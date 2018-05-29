@@ -55,7 +55,7 @@ DROP TABLE bcd_tinyurl_control;
 CREATE TABLE bcd_tinyurl_control
 (
   tiny_url VARCHAR(33) NOT NULL PRIMARY KEY,
-  long_url VARCHAR(27000),
+  long_url TEXT,
   creation_dt DATE NOT NULL,
   last_used_dt DATE NOT NULL
 );

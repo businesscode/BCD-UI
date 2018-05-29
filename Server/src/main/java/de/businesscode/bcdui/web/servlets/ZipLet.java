@@ -21,12 +21,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,7 +61,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.Attribute;
@@ -1066,7 +1065,15 @@ public class ZipLet extends HttpServlet {
       rs = stmt.executeQuery();
       if (rs.next()) {
         i = 1;
-        String longUrl = readClob(rs.getClob(i++));
+
+        InputStream clob = rs.getAsciiStream(i++);
+        String longUrl = "";
+        BufferedReader br = new BufferedReader(new InputStreamReader(clob, StandardCharsets.UTF_8));
+        String str;
+        while ((str = br.readLine()) != null) {
+          longUrl += str;
+        }
+
         java.util.Date lastUpdate = rs.getDate(i++);
 
         if (lastUpdate != null) {
@@ -1078,17 +1085,6 @@ public class ZipLet extends HttpServlet {
     }
 
     return longUrlFromDB;
-  }
-
-  private static String readClob(Clob clob) throws Exception{
-    final StringBuilder sb = new StringBuilder();
-    final Reader reader = clob.getCharacterStream();
-    final BufferedReader br = new BufferedReader(reader);
-    int b;
-    while (-1 != (b = br.read()))
-      sb.append((char)b);
-    br.close();
-    return sb.toString();
   }
 
   private static final String deleteFileSQL=

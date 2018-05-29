@@ -16,7 +16,7 @@
 -->
 <BindingSet id="bcd_tinyurl_control" table="bcd_tinyurl_control" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
   <C id="tiny_url" isKey="true" nullable="0"> <Column>tiny_url</Column> </C>
-  <C id="long_url" nullable="0"> <Column>long_url</Column> </C>
+  <C id="long_url" nullable="0" type-name="CLOB"> <Column>long_url</Column> </C>
   <C id="creation_dt" nullable="0"> <Column>creation_dt</Column> </C>
   <C id="last_used_dt" nullable="0"> <Column>last_used_dt</Column> </C>
 </BindingSet>
