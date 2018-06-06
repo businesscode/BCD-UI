@@ -57,7 +57,6 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
         , "/js/3rdParty/nouislider.js"
-        , "/js/3rdParty/handsontable.js"
       ]
     },
     {
