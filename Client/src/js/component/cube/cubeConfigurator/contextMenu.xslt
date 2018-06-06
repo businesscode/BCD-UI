@@ -148,6 +148,12 @@
                 bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, showAll: true } )
               </JavaScriptAction>
             </Entry>
+            <Entry caption="Show total values of this dimension">
+              <JavaScriptAction>
+                var levelId = bcdui._migPjs._$(this.eventSrcElement).closest("tr").attr("levelId");
+                bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
+              </JavaScriptAction>
+            </Entry>
           </ContextMenuEntryGroup>
         </xsl:when>
 
@@ -212,6 +218,12 @@
                 <JavaScriptAction>
                   var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
                   bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, showAll: true} )
+                </JavaScriptAction>
+              </Entry>
+              <Entry caption="Show total values of this dimension">
+                <JavaScriptAction>
+                  var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
+                  bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
                 </JavaScriptAction>
               </Entry>
             </ContextMenuEntryGroup>

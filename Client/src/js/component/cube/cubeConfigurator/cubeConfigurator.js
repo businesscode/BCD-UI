@@ -142,6 +142,35 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     return true;
   },
 
+  showThisTotals: function( targetModelId, cubeId, args )
+  {
+    var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"']";
+    var bRef2 = (args.levelId == "bcdAll") ? "" : "='"+args.levelId+"'";
+
+    // unhide hidden total values
+    jQuery.makeArray(["//cube:Layout[@cubeId ='"+cubeId+"']/cube:Hide/f:Filter/*" + bRef1,
+      "/*/f:Filter/*[@type='bcdCubeExclude_"+cubeId+"' and @exclBRef" + bRef2 + "]"]).forEach(
+     function(xpath){
+       var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(xpath);
+       for( var hN=0; hN<nodes.length; hN++ ) {
+         if (nodes.item(hN).selectNodes("./f:Expression/@value[contains(., '')]").length == nodes.item(hN).selectNodes("./f:Expression/@value").length)
+           nodes.item(hN).parentNode.removeChild(nodes.item(hN));
+       }
+     });
+
+    // check if chosen dimension needs a total attribute, add it and force a server sided refresh
+    var dimNode = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("//cube:Layout[@cubeId ='"+cubeId+"']/cube:Dimensions/*/dm:LevelRef[@bRef='" + args.levelId + "']");
+    if (dimNode != null) {
+      if (dimNode.getAttribute("total") == null) {
+        bcdui.component.cube.configurator._setCubeItemAttributeIdRef( targetModelId, cubeId, args.levelId, true, "total", "trailing");
+        var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ cubeId+"']" );
+        layoutNode.setAttribute("disableClientRefresh","true");
+        return false;
+      }
+    }
+    return true;
+  },
+
   /**
    * Hides (client side filter) the occurrences of a selected dimension member, i.e. for example all values for a country
    * Results in cube:Layout/cube:Hide/f:Filter expressions

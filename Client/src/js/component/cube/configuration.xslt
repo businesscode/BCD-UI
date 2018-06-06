@@ -142,7 +142,6 @@
 
   <xsl:template name="xsltParameters">
     <!-- Create parameter for used stylesheets of xslt lib only when we have at least one measure, otherwise we have an empty dummy report-->
-    <xsl:if test="/*/cube:Layout/cube:Measures/*/*">
       <xp:XSLTParameters>
 
         <!-- Columns dimensions -->
@@ -279,7 +278,7 @@
             </xsl:choose>
           </xp:EmptyMessage>
           <xp:MakeColSpan>true</xp:MakeColSpan>
-          <xp:MakeRowSpan>true</xp:MakeRowSpan>
+          <xp:MakeRowSpan><xsl:value-of select="boolean(count(/*/cube:Layout/cube:Dimensions/*/dm:LevelRef) &lt;= 10)"/></xp:MakeRowSpan>
           <xp:SortRows>false</xp:SortRows>
           <xp:SortCols>false</xp:SortCols>
           <xp:HideTotals><xsl:value-of select="/*/cube:Layout/cube:Dimensions/@hideTotals"/></xp:HideTotals>
@@ -293,7 +292,6 @@
         </xp:HtmlBuilder>
 
       </xp:XSLTParameters>
-    </xsl:if>
   </xsl:template>
 
   <!-- Helper for colDim -->
