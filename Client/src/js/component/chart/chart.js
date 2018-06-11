@@ -1560,7 +1560,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     if( src.getAttribute("axisX12") != null) {
       toolTip += "<tbody>";
       if("x" == src.getAttribute("axisX12"))
-        toolTip += "<tr><th>>X-axis:</th><td>" + target.getAttribute("xAxis") + (target.getAttribute("xAxisUnit") != "" ? " [" + target.getAttribute("xAxisUnit") + "]" : "") + "</td></tr>";
+        toolTip += "<tr><th>X-axis:</th><td>" + target.getAttribute("xAxis") + (target.getAttribute("xAxisUnit") != "" ? " [" + target.getAttribute("xAxisUnit") + "]" : "") + "</td></tr>";
       else if( "1" == src.getAttribute("axisX12"))
         toolTip += "<tr><th>Y-axis:</th><td>" + target.getAttribute("yAxis1") + (target.getAttribute("yAxis1Unit") != "" ? " [" + target.getAttribute("yAxis1Unit") + "]" : "") + "</td></tr>";
       else if( "2" == src.getAttribute("axisX12"))
