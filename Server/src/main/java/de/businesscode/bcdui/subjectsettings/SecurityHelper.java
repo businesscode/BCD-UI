@@ -303,7 +303,10 @@ public class SecurityHelper {
    */
   public static Set<String> getRoles(Subject subject) {
     return extractFromAuthorizationInfo(subject, (ai, set) -> {
-      set.addAll(ai.getRoles());
+      Collection<String> roles = ai.getRoles();
+      if (roles != null) {
+        set.addAll(ai.getRoles());
+      }
     });
   }
 
