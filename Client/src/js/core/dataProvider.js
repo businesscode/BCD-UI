@@ -231,9 +231,11 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       if (typeof fillParams == "object") {
         var obj = {};
         for (var p in fillParams) {
-          var gotApos = fillParams[p].indexOf("'") != -1;
-          concat |= gotApos;
-          obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
+          if (typeof fillParams[p] == "string") {
+            var gotApos = fillParams[p].indexOf("'") != -1;
+            concat |= gotApos;
+            obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
+          }
         }
         x = doT.template(xPath)(obj);
       }
