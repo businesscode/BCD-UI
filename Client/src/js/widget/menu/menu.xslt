@@ -38,6 +38,8 @@
   <xsl:param name="location"/>
   <xsl:param name="bcdPageIdParam"/>
 
+  <xsl:variable name="I18N_TAG" select="'&#xE0FF;'"/>
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
               root template
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -165,11 +167,17 @@
 
       <xsl:if test="$node/@title != ''">
         <xsl:attribute name="title"><xsl:value-of select="$node/@title"/></xsl:attribute>
+        <!-- translate @title if it is i18n key -->
+        <xsl:if test="starts-with($node/@title, $I18N_TAG)">
+          <xsl:attribute name="bcdTranslateAttrs">title</xsl:attribute>
+        </xsl:if>
       </xsl:if>
       <xsl:if test="$node/@id != ''">
         <xsl:attribute name="id"><xsl:value-of select="$node/@id"/></xsl:attribute>
       </xsl:if>
-      <xsl:copy-of select="$node/@bcdTranslate"/>
+      <xsl:if test="starts-with($node/@caption, $I18N_TAG)">
+        <xsl:attribute name="bcdTranslate"><xsl:value-of select="$node/@caption"/></xsl:attribute>
+      </xsl:if>
       <xsl:value-of select="$node/@caption"/>
     </a>
   </xsl:template>

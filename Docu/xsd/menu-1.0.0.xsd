@@ -50,20 +50,23 @@
       </sequence>
 
       <attribute name="id"    use="required" type="ID"/>
-      <attribute name="caption" use="required"/>
+      <attribute name="caption" use="required">
+        <annotation>
+          <documentation>contains either plaintext or i18n-key starting with i18-tag codepoint</documentation>
+        </annotation>
+      </attribute>
 
       <attribute name="href"      use="optional"/>
       <attribute name="onClick"   use="optional"/>
       <attribute name="rights"    use="optional"/>
-      <attribute name="title"     use="optional"/>
+      <attribute name="title"     use="optional">
+        <annotation>
+          <documentation>contains either plaintext or i18n-key starting with i18-tag codepoint</documentation>
+        </annotation>
+      </attribute>
       <attribute name="disable"   use="optional" type="boolean" default="false"/>
       <attribute name="hide"      use="optional" type="boolean" default="false"/>
       <attribute name="newWindow" use="optional" type="boolean" default="false"/>
-      <attribute name="bcdTranslate" type="string">
-        <annotation>
-          <documentation>contains i18n key for caption translation</documentation>
-        </annotation>
-      </attribute>
     </complexType>
   </element>
   <element name="include">

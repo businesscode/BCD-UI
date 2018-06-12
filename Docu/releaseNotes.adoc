@@ -31,6 +31,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * enableNavPath attribute to turn on/off navPath linkage (default is off (false))
 * New widget: "slider", based on noUiSlider implementation
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
+* menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
@@ -68,6 +69,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 * New entries for Eclipse injection to support ECMA5 transpiled sources, see Docu/development/eclipseInjected.xml
 * Widgets: navpath generation is turned off by default, use widget's enableNavPath attribute to turn it on
+* menu.xml: "bcdTranslate" attribute dropped, use "caption" instead
 * I18n
 ** the servlet de.businesscode.bcdui.web.i18n.I18nServlet must be registered in web.xml (and made accessible to public)
 ** the servlet filter de.businesscode.bcdui.web.filters.SubjectSettingsFilter must be registered to web.xml, right after security filter (i.e. shiro)
