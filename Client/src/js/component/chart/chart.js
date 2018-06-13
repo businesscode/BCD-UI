@@ -455,6 +455,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
     targetHtmlElement.innerHTML = "";
     targetHtmlElement.appendChild(this.drawer.getResult());
+    var drawer = this.drawer;
+    if( drawer.rootElem.createToolTipCb ) {
+      jQuery(targetHtmlElement).find("svg *").on("mouseover", function(e){drawer._showToolTip(this, e)});
+      jQuery(targetHtmlElement).find("svg *").on("mousemove", function(e){drawer._moveToolTip(this, e)});
+      jQuery(targetHtmlElement).find("svg *").on("mouseout",  function(e){drawer._hideToolTip(this, e)});
+    }
 
     bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': done");
     return 1;// state is OK

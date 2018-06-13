@@ -91,7 +91,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * _hideToolTip
    * @private
    */
-  _hideToolTip : function () {
+  _hideToolTip : function (element, event) {
     jQuery("#bcdChartToolTip").hide();
   },
 
@@ -100,11 +100,12 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param event
    * @private
    */
-  _moveToolTip: function (event) {
+  _moveToolTip: function (element, event) {
     var div = document.getElementById("bcdChartToolTip");
     if (! div)
       return;
-    bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
+    if (jQuery(div).is(":visible"))
+      bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
   },
 
   /**
@@ -112,12 +113,13 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param {Event} event
    * @private
    */
-  _showToolTip: function (event) {
-    if (this.createToolTipCb == null)
+  _showToolTip: function (element, event) {
+    var root = jQuery(element).closest("svg").get(0);
+    var text = (root && root.createToolTipCb != null) ? root.createToolTipCb(root, window.event ? window.event.srcElement : event.target) : null;
+    if (text == null) {
+      this._hideToolTip(element, event);
       return;
-    var text = this.createToolTipCb(this, window.event ? window.event.srcElement : event.target);
-    if (text == null)
-      return;
+    }
     var div = bcdui.util.getSingletonElement("bcdChartToolTip").get(0);
     div.innerHTML = text;
     bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
@@ -216,9 +218,6 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     this.styleAttName = !!(window.SVGSVGElement) ? "style" : "css.style"; // "tunnel" css attribute for exporting SVG (for image/PDF) from IE<=8
     if( args.createToolTipCb ) {
       this.rootElem.createToolTipCb = args.createToolTipCb;
-      bcdui._migPjs._$(this.rootElem).on("mouseover", this._showToolTip);
-      bcdui._migPjs._$(this.rootElem).on("mousemove", this._moveToolTip);
-      bcdui._migPjs._$(this.rootElem).on("mouseout",  this._hideToolTip);
     }
     for( var attr in args.addAttr )
       this.rootElem.setAttribute(attr,args.addAttr[attr]);
