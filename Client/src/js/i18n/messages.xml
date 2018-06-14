@@ -137,6 +137,7 @@
       <R id="R78"><C>bcd_Grid_RowActionsHdr</C><C>Cell actions</C><C>en</C></R>
       <R id="R79"><C>bcd_Grid_ActionsGlobalHdr</C><C>Data actions</C><C>en</C></R>
       <R id="R80"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
+      <R id="R81"><C>bcd_Grid_CellRestore</C><C>Restore cell</C><C>en</C></R>
 
       <!-- Editing -->
       <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>
