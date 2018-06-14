@@ -142,6 +142,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 args.rowStartPos             - Delete rows from
    * @param {integer}                 [args.rowEndPos=rowStartPos] - Delete rows including to. By default is equal rowStartPos
    * @param {function}                [args.fn]                    - Callback function called after operation
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   deleteRows: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
@@ -163,7 +164,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
                                   },
       /* fn */                   function(result) {
                                     model.dataDoc = result;
-                                    model.fire();
+                                    if (!(args.propagateUpdate === false))
+                                      model.fire();
                                     if (typeof args.fn != 'undefined')
                                       args.fn(result);
                                  }
@@ -182,6 +184,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 [args.colStartPos=1]         - Restore cols from
    * @param {integer}                 [args.colEndPos=colStartPos] - Restore cols including to.
    * @param {function}                [args.fn]                    - Callback function called after operation
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   restore: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
@@ -210,7 +213,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
                               },
       /* fn */                function(result) {
                                 model.dataDoc = result;
-                                model.fire();
+                                if (!(args.propagateUpdate === false))
+                                  model.fire();
                                 if (typeof args.fn != 'undefined')
                                   args.fn(result);
                               }
@@ -314,6 +318,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 [args.colStartPos=1]         - Restore cols from
    * @param {integer}                 [args.colEndPos=1]           - Restore cols including to.
    * @param {function}                [args.fn]                    - Callback function called after operation
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   paste: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
@@ -343,7 +348,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       /* parameters */          selection,
       /* fn */                  function(result) {
                                   model.dataDoc = result;
-                                  model.fire();
+                                  if (!(args.propagateUpdate === false))
+                                    model.fire();
                                   if (typeof args.fn != 'undefined')
                                     args.fn(result);
                                 }
@@ -360,6 +366,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 [args.colStartPos=1]         - Restore cols from
    * @param {integer}                 [args.colEndPos=1]           - Restore cols including to.
    * @param {function}                [args.fn]                    - Callback function called after operation
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   pasteAsNewRows: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
@@ -390,7 +397,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       /* parameters */          selection,
       /* fn */                  function(result) {
                                   model.dataDoc = result;
-                                  model.fire();
+                                  if (!(args.propagateUpdate === false))
+                                    model.fire();
                                   if (typeof args.fn != 'undefined')
                                     args.fn(result);
                                 }
@@ -454,11 +462,13 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   /**
    * @param {bcdui.core.DataProvider} model - Id of a DataProvider or the DataProvider itself (dp must be ready)
    * @param {Element|string}          row   - Row element or row-id to be duplicated
+   * @param {boolean}                 [propagateUpdate=true] - If false, model is not fired
+   * @param {function}                [fn]                   - Callback function called after operation
    */
-  duplicateRow: function( model, row ) {
+  duplicateRow: function( model, row, propagateUpdate, fn ) {
     var row = bcdui.util.isString(row) ? model.query("/*/wrs:Data/wrs:*[@id='"+row+"']") : row;
     var pos = row.selectNodes("preceding-sibling::*").length + 1;
-    bcdui.wrs.wrsUtil.duplicateRows({ model: model, rowStartPos: pos });
+    bcdui.wrs.wrsUtil.duplicateRows({ model: model, rowStartPos: pos, propagateUpdate: propagateUpdate, fn: fn });
   },
 
   /**
@@ -470,6 +480,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 [args.rowEndPos=rowStartPos]      - Last row to be duplicated
    * @param {function}                [args.fn]                         - Callback function called after operation
    * @param {boolean}                 [args.insertBeforeSelection=true]
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   duplicateRows: function(args){
     var model = (typeof (args.model || args.modelId) == "string") ? bcdui.factory.objectRegistry.getObject(args.model || args.modelId) : args.model;
@@ -495,7 +506,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
                                 },
       /* fn */                  function(result) {
                                   model.dataDoc = result;
-                                  model.fire();
+                                  if (!(args.propagateUpdate === false))
+                                    model.fire();
                                   if (typeof args.fn != 'undefined')
                                     args.fn(result);
                                 }
@@ -548,6 +560,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * @param {integer}                 [args.rowEndPos=rowStartPos] - End
    * @param {function}                [args.fn]                    - Callback function called after operation
    * @param {boolean}                 [args.insertBeforeSelection=true]
+   * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
    */
   insertRow: function(args)
   {
@@ -577,7 +590,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
                                 },
       /* fn */                  function(result) {
                                   model.dataDoc = result;
-                                  model.fire();
+                                  if (!(args.propagateUpdate === false))
+                                    model.fire();
                                   if (typeof args.fn != 'undefined')
                                     args.fn(result);
                                 }
