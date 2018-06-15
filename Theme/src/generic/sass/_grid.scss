@@ -228,15 +228,14 @@ input.bcdInputFieldGrid {
     font-size: inherit;
     font-family: inherit;
     padding: 1px 5px 0 5px;
-    width: 80%;
     border: none;
     height: 23px;
   }
-  .bcdClearButton {
-    position: relative;
-    cursor: pointer;
-    padding-left: 3px;
-  }
+
+  .bcdColumnFilter { display: flex; }
+  .bcdColumnFilter > span { width: 100%; }
+  .bcdColumnFilter > span > input { width: 100%; }
+  .bcdColumnFilter > span.bcdClearButton {width: auto; cursor: pointer; padding-left: 12px; line-height: 23px;}
   .bcdClearButton:after { content: "❌"; }
 
   .handsontable .columnSorting:hover { text-decoration: none; }
