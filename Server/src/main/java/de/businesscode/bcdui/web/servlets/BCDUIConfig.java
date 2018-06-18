@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,11 +68,13 @@ public class BCDUIConfig extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     response.setContentType(getServletContext().getMimeType(".js"));
 
-    String realPath = getServletContext().getRealPath(clientConfigFilePath);
+    URL realPath = getServletContext().getResource(clientConfigFilePath);
     Properties properties = new Properties();
-    File propFile = new File(realPath);
-    if(propFile.canRead())
-      properties.load(new FileInputStream(propFile));
+    if( realPath != null && realPath.getPath() != null ) {
+      File propFile = new File(realPath.getPath());
+      if (propFile.canRead())
+        properties.load(new FileInputStream(propFile));
+    }
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
 
