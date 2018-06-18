@@ -264,13 +264,22 @@
       var isValueEmpty = value == null || !value.trim();
       // validate
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validate after sync, value read from model is: " + value + ", is value empty: " + isValueEmpty);
-      this._validateElement(inputElementId, true)
-      .then(() => {
+      if (this.options.isSync){
+        this._validateElement(inputElementId, true, true);
         if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
           this._setUnsetPlaceholder(inputElementId, isValueEmpty);
         }
         el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
-      });
+      }
+      else {
+        this._validateElement(inputElementId, true)
+        .then(() => {
+          if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
+            this._setUnsetPlaceholder(inputElementId, isValueEmpty);
+          }
+          el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
+        });
+      }
     },
 
     /**
@@ -358,12 +367,13 @@
      *
      * @param inputElementId
      * @param checkDataModelValidity if true, additionally the model validity is taken into account
+     * @param isSync, if set to true, the validation is done synchronously ( attached asyncValidate functions are not called)
      *
      * @return Promise resolving with validation result.
      *
      * @private
      */
-    _validateElement: function(inputElementId, checkDataModelValidity){
+    _validateElement: function(inputElementId, checkDataModelValidity, isSync){
       var el = document.getElementById(inputElementId);
       var msg = this._getValidationMessages(inputElementId);
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validation messages: " + msg);
@@ -381,17 +391,27 @@
 
       var isValid = bcdui.widgetNg.validation.validateField(inputElementId, msg);
 
-      return new Promise((resolve, reject) => {
+      if (isSync === true) {
         if(msg){ // custom validators reported errors
-          resolve({
-            validationMessage : msg
-          });
+          return msg;
         } else if (!isValid){ // implicit validator reported error
-          resolve(bcdui.widgetNg.validation.addValidityMessage(null, "Error")); // unknown error occurred
+          return bcdui.widgetNg.validation.addValidityMessage(null, "Error"); // unknown error occurred
         } else {
-          this._asyncValidate().then(resolve, reject);
+          return null; // in sync mode, we don't run asyncValidate functions
         }
-      });
+      }
+      else 
+        return new Promise((resolve, reject) => {
+          if(msg){ // custom validators reported errors
+            resolve({
+              validationMessage : msg
+            });
+          } else if (!isValid){ // implicit validator reported error
+            resolve(bcdui.widgetNg.validation.addValidityMessage(null, "Error")); // unknown error occurred
+          } else {
+            this._asyncValidate().then(resolve, reject);
+          }
+        });
     },
 
     /**
@@ -580,25 +600,40 @@
       };
 
       // if value has changed we revalidate and write it to the model if value was valid
+      var doWrite = function(validationResult) {
+        var hasWritten = false;
+        if(!validationResult){ // write only with valid value
+          this._writeDataToXML({
+            inputElementId: inputElementId,
+            value : guiValue
+          });
+          hasWritten = true;
+        }
+        triggerWrite(hasWritten);
+      }.bind(this);
+
       if(hasValueChanged){
-        this._validateElement(inputElementId, false)
-        .then((validationResult) => {
-          var hasWritten = false;
-          if(!validationResult){ // write only with valid value
-            this._writeDataToXML({
-              inputElementId: inputElementId,
-              value : guiValue
-            });
-            hasWritten = true;
-          }
-          triggerWrite(hasWritten);
-        });
+        if (this.options.isSync) {
+          doWrite(this._validateElement(inputElementId, false, true));
+        }
+        else {
+          this._validateElement(inputElementId, false)
+          .then((validationResult) => {
+            doWrite(validationResult);
+          });
+        }
       } else { // value has not changed
 
         // tidy up, in case of invalidity state
         if(!bcdui.widgetNg.validation.hasValidStatus(inputEl.get(0))){
           bcdui.log.isTraceEnabled() && bcdui.log.trace("force validation in case of invalid field status");
-          this._validateElement(inputElementId, !hasValueChanged).then(() => { triggerWrite() });
+          if (this.options.isSync) {
+            this._validateElement(inputElementId, !hasValueChanged, true);
+            triggerWrite();
+          }
+          else {
+            this._validateElement(inputElementId, !hasValueChanged).then(() => { triggerWrite() });
+          }
         } else {
           triggerWrite();
         }

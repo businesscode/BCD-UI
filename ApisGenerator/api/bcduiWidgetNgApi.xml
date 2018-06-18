@@ -263,6 +263,9 @@
         <Doc>
           This API provides general RegExp validation and provides support to attach custom validators
         </Doc>
+        <Param name="isSync" type="boolean" default="false">
+          <Doc>Uses synchronously validation when set to true. This also disables the use of asyncValidationFunction. Only necessary for setups where you can't handle waiting for the async write of data (e.g. grid widgets)</Doc>
+        </Param>
         <Param name="pattern" type="string">
           <Doc>regular expression pattern to validate the input</Doc>
         </Param>
