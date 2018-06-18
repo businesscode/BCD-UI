@@ -109,8 +109,8 @@ task bcduiClientCollect3rdParty {
                      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js"],
                                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
                      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
-                     "es6-promise":    [ fn: "es6-promise.js",        ofn: "es6-promise/dist/es6-promise.auto.min.js"],
-                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"],
+                     "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js"],
+                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"]
                      /* sample of having multi-file distribution set
                      "nouislider":     [ [ fn: "nouislider.js",       ofn: "nouislider/distribute/nouislider.js"],
                                          [ fn: "nouislider.css",      ofn: "nouislider/distribute/nouislider.css"] ]*/

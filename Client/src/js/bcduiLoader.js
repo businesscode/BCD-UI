@@ -42,8 +42,7 @@ bcdui.bcduiCeFiles =
        "isIE" : true
      },
      "files": [
-          "/js/3rdParty/ecma6Polyfills.js",
-          "/js/3rdParty/es6-promise.js"
+          "/js/3rdParty/babel-polyfill.js"
      ]
     },
     {

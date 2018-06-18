@@ -15,7 +15,7 @@
     "webcomponents":      "git+https://github.com/webcomponents/webcomponentsjs#@version",
     "handsontable":       "@version",
     "nouislider":         "@version",
-    "es6-promise":        "@version",
+    "babel-polyfill":     "@version",
     "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version"
   }
 

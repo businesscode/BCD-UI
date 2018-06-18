@@ -26,7 +26,6 @@ bcdui.component.scorecard.aspects = bcdui.component.scorecard.aspects || {};
  * Calculates linear regression if a  KPI and adds its value for to last period, for all other its zero.
  * bcdNormSlope does calculate percent of average value increase in a year
  * Limitation: Period must be the only dimension
- * Note: For IE pre 11 include Intl polyfill bcdui/js/3rdParty/intl/*
  * TODO neg kpis; with other dims as period; log processing time
  * @private
  */

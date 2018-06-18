@@ -3,9 +3,9 @@ This license applies to
 
 - jquery.blockUI.js
 - modernizr.js
-- ddr-ecma5.js       Copyright (c) 2010 David de Rosier. All rights reserved.
+- babel-polyfills.js
+- handsontable.js    Copyright (c) 2012-2014 Marcin Warpechowski, 2015 Handsoncode sp. z o.o.
 - doT.js             Copyright (c) 2011 Laura Doktorova
-- Promise.js         Copyright (c) 2014 Forbes Lindesay
 - FileSaver.js       Copyright (c) 2016 Eli Grey
 
 which may be part of BCD-UI distribution
@@ -31,83 +31,6 @@ which may be part of BCD-UI distribution
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-
---- end of LICENSE ---
-
-===============
-This license applies to
-
-- intl.js
-
-which may be part of BCD-UI distribution
-
---- begin of LICENSE ---
-
-  The MIT License (MIT)
-
-  Copyright (c) 2013 Andy Earnshaw
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  THE SOFTWARE.
-
-
-  ------------------------------------------------------------------------------
-  Contents of the `locale-data` directory are a modified form of the Unicode CLDR
-  data found at http://www.unicode.org/cldr/data/.  It comes with the following
-  license.
-
-  COPYRIGHT AND PERMISSION NOTICE
-
-  Copyright (c) 1991-2013 Unicode, Inc. All rights reserved. Distributed under
-  the Terms of Use in http://www.unicode.org/copyright.html.
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy of
-  the Unicode data files and any associated documentation (the "Data Files") or
-  Unicode software and any associated documentation (the "Software") to deal in
-  the Data Files or Software without restriction, including without limitation
-  the rights to use, copy, modify, merge, publish, distribute, and/or sell copies
-  of the Data Files or Software, and to permit persons to whom the Data Files or
-  Software are furnished to do so, provided that (a) the above copyright
-  notice(s) and this permission notice appear with all copies of the Data Files
-  or Software, (b) both the above copyright notice(s) and this permission notice
-  appear in associated documentation, and (c) there is clear notice in each
-  modified Data File or in the Software as well as in the documentation
-  associated with the Data File(s) or Software that the data or software has been
-  modified.
-
-  THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD
-  PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN
-  THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL
-  DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
-  OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THE DATA FILES OR
-  SOFTWARE.
-
-  Except as contained in this notice, the name of a copyright holder shall not be
-  used in advertising or otherwise to promote the sale, use or other dealings in
-  these Data Files or Software without prior written authorization of the
-  copyright holder.
-
-  Unicode and the Unicode logo are trademarks of Unicode, Inc. in the United
-  States and other countries. All third party trademarks referenced herein are
-  the property of their respective owners.
 
 --- end of LICENSE ---
 
@@ -371,18 +294,6 @@ which may be part of BCD-UI distribution
 --- end of LICENSE ---
 
 ===============
-This license applies to 
-
-- ecma6Polyfills.js
-- ie8Polyfills.js
-
-which may be part of BCD-UI distribution
-
---- begin of LICENSE ---
- © 2005-2016 Mozilla Developer Network and individual contributors.
---- end of LICENSE ---
-
-===============
 This license applies to
 
 - jQuery.js
@@ -428,5 +339,30 @@ which may be part of BCD-UI distribution
   externally maintained libraries used by this software which have their
   own licenses; we recommend you read them, as their terms may differ from
   the terms above.
+
+--- end of LICENSE ---
+
+===============
+This license applies to
+
+- nouislider.js
+
+which may be part of BCD-UI distribution
+
+--- begin of LICENSE ---
+
+        DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+                    Version 2, December 2004
+
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+ Everyone is permitted to copy and distribute verbatim or modified
+ copies of this license document, and changing it is allowed as long
+ as the name is changed.
+
+            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 --- end of LICENSE ---
