@@ -353,7 +353,7 @@ public class DatabaseCompatibility
             "OVER", "ORDER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",
-            "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
+            "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "ISOYEAR", "QUARTER", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
             "FLOAT", "REAL", "DECIMAL",
             "EXTRACT", "FROM",
             "CHAR", "CHARACTER", "NVARCHAR2", "NCHAR", "VARCHAR2", "VARCHAR",
@@ -388,7 +388,7 @@ public class DatabaseCompatibility
         Arrays.asList( new String[]
           {
             "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK",
-            "ISO_WEEK", "QUARTER", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
+            "ISO_WEEK", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
             "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS"
           }
         )
@@ -398,7 +398,7 @@ public class DatabaseCompatibility
     sqlKeyWordsMysql.addAll(
         Arrays.asList( new String[]
           {
-            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "QUARTER", "STR_TO_DATE"
+            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "STR_TO_DATE"
           }
         )
       );
