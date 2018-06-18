@@ -8,6 +8,7 @@
     "clean-css-cli":        "4.1.9",
     "babel-cli":            "6.26.0",
     "babel-preset-es2015":  "6.24.1",
-    "babel-preset-minify":  "0.2.0"
+    "babel-preset-minify":  "0.2.0",
+    "babel-plugin-transform-async-to-generator": "6.24.1"
   }
 }
