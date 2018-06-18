@@ -396,7 +396,7 @@
       var targetNode = this._getTargetNode(args.targetNodeId);
 
       // single update, or we replace by new entirely new expression
-      if(args.op == "in" && args.value.length>1){
+      if((args.op == "in" || args.op == "notIn") && args.value.length>1){
         // replace target
         targetNode.parentNode.replaceChild(this._createExpressionNode(args), targetNode);
       }else{
@@ -429,13 +429,14 @@
       };
 
       if(args.value.length > 1){ // multi-value
-        if(args.op == "in"){
-          // create f:Or with f:Expresion/op = '=' for each value
-          const fOr = self.TEMPLATE_ELEMENTS["f:Or"].cloneNode(false);
+        if(args.op == "in" || args.op == "notIn"){
+          // create f:Or/*f:And with f:Expresion/op = '=' for each value
+          const fOrAnd = args.op == "in" ? self.TEMPLATE_ELEMENTS["f:Or"].cloneNode(false) : self.TEMPLATE_ELEMENTS["f:And"].cloneNode(false);
+          const cmp = args.op == "in" ? "=" : "!=";
           args.value.forEach((v)=>{
-            fOr.appendChild(fOr.ownerDocument.importNode( fillExpressionNode( self.TEMPLATE_ELEMENTS["f:Expression"], args.bRef, "=", v ), false ));
+            fOrAnd.appendChild(fOrAnd.ownerDocument.importNode( fillExpressionNode( self.TEMPLATE_ELEMENTS["f:Expression"], args.bRef, cmp, v ), false ));
           });
-          return fOr;
+          return fOrAnd;
         } else {
           throw `Multi-value for op '${args.op}' is not supported`;
         }

@@ -192,7 +192,7 @@ public class WrqFilter2Sql
     }
 
     boolean ignoreCase = "true".equals(item.getAttribute("ic"));
-    boolean isLike = "LIKE".equals(operator);
+    boolean isLike = "LIKE".equals(operator) || "NOT LIKE".equals(operator);
     String colExprPostfix = "";
 
     // In some cases we need to modify the incoming value
@@ -217,7 +217,7 @@ public class WrqFilter2Sql
     }
 
     // In operator does not support ? syntax
-    if( "IN".equals(operator) ) {
+    if( "IN".equals(operator) || "NOT IN".equals(operator) ) {
       String[] values = valueElement.getAttribute("value").split(",");
       StringBuffer qm = new StringBuffer("(");
       String pqm = CustomJdbcTypeSupport.wrapTypeCast(bindingItem, "?");
@@ -228,7 +228,7 @@ public class WrqFilter2Sql
         e.setAttribute("value", ignoreCase ? values[i].toLowerCase() : values[i]);
         elementList.add(e);
       }
-      return colExpr + " IN " + qm.toString() + ")";
+      return colExpr + " "+operator+" " + qm.toString() + ")";
     }
 
     // Our like operator has '*' as wild card, translate it here
@@ -266,7 +266,9 @@ public class WrqFilter2Sql
     operatorMapping.put("<>", "<>");
     operatorMapping.put("!=", "<>");
     operatorMapping.put("like", "LIKE");
+    operatorMapping.put("notlike", "NOT LIKE");
     operatorMapping.put("in", "IN");
+    operatorMapping.put("notin", "NOT IN");
     operatorMapping.put("bitand", "BITAND");
     connectiveMapping = new HashMap<String, String>();
     connectiveMapping.put("and", "AND");

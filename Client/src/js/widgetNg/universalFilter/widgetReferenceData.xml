@@ -12,6 +12,8 @@
     <Item caption="&lt;">&lt;</Item>
     <Item caption="&lt;=">&lt;=</Item>
     <Item caption="LIKE">like</Item>
+    <Item caption="NOT LIKE">notLike</Item>
     <Item caption="IN">in</Item>
+    <Item caption="NOT IN">notIn</Item>
   </Op>
 </Data>

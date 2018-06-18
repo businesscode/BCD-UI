@@ -69,7 +69,9 @@
       <xs:enumeration value="&lt;>"/>
       <xs:enumeration value="!="/>
       <xs:enumeration value="like"/>
+      <xs:enumeration value="notLike"/>
       <xs:enumeration value="in"/>
+      <xs:enumeration value="notIn"/>
       <xs:enumeration value="bitand"/>
     </xs:restriction>
   </xs:simpleType>
