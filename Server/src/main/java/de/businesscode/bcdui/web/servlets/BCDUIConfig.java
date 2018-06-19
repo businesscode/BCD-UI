@@ -78,12 +78,18 @@ public class BCDUIConfig extends HttpServlet {
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
 
+    Boolean environmentValue = Boolean.FALSE;
+    try {environmentValue = (Boolean)Configuration.getInstance().getConfigurationParameter("bcdui/serverHasRequestUrlLimit");}catch(Exception e) {}
+
     PrintWriter writer = new PrintWriter(response.getWriter());
     writer.println("var bcdui = bcdui || {};");
     writer.println("bcdui.core = bcdui.core || {};");
     writer.println("bcdui.config = {");
     writeClientParams(writer);
     writer.println("    contextPath: \"" + getServletContext().getContextPath() + "\"");
+
+    // IIS has a limit also for http request URLs, i.e. data requests
+    writer.println("  , serverHasRequestUrlLimit: " + environmentValue.toString());
 
     // write authenticate information
     try {

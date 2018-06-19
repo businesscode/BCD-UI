@@ -26,6 +26,9 @@
 
   <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one is used -->
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
+  
+   <!-- IIS has a limit also for http request URLs, i.e. data requests, set this flag to true to compress all data request -->
+  <Environment name="bcdui/serverHasRequestUrlLimit" type="java.lang.Boolean" value="false"/>
 
   <!-- Some sample DB connections. Replace all values with XX in their name -->
 

@@ -449,6 +449,10 @@ bcdui.core.compression = {
       if (typeof compressAll != "undefined" && compressAll)
         isGuiStatus = true;
 
+      // IIS has a limit also for http request URLs, i.e. data requests
+      if (bcdui.config.serverHasRequestUrlLimit === true)
+        isGuiStatus = true;
+
       var self = this;
 
       bcdui.core.xmlLoader.post({
