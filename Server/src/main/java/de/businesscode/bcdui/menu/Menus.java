@@ -220,7 +220,6 @@ public class Menus {
     newEntry.setOnClick(entry.getOnClick());
     newEntry.setRights(entry.getRights());
     newEntry.setTitle(entry.getTitle());
-    newEntry.setBcdTranslate(entry.getBcdTranslate());
 
     return newEntry;
   }
