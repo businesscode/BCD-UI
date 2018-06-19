@@ -200,6 +200,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var isMinuteSelectable  = containerHtmlElement.getAttribute("bcdIsMinuteSelectable") == "true";
     var isHourSelectable    = containerHtmlElement.getAttribute("bcdIsHourSelectable") == "true";
     var useSimpleXPath      = containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true";
+    var showClearButton     = containerHtmlElement.getAttribute("bcdShowClearButton") == "true";
 
     var hint = "yyyy-mm-dd";
          if (isSecondSelectable) hint = "yyyy-mm-dd hh:mm:ss";
@@ -238,6 +239,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
                   + "<input type='text' class='bcdSecond' maxLength='2'/>"): "")
               ): "")
             + "</span>"
+            + (showClearButton ? "<span class='bcdClearButton'></span>" : "")
           )
         + (isFreeRange ?
             ("<div class='bcdHr'><hr/></div>"
@@ -475,6 +477,23 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         }
 
         bcdui._migPjs._$(containerHtmlElement).css({ visibility: "" });
+        
+        jQuery(containerHtmlElement).on("click", ".bcdClearButton", function(){
+          var targetModelId = jQuery(this).closest(".bcdPeriodChooser").attr("bcdTargetModelId");
+          var targetModelXPath = jQuery(this).closest(".bcdPeriodChooser").attr("bcdTargetModelXPath");
+          var targetModel = bcdui.factory.objectRegistry.getObject(targetModelId);
+
+          if (typeof targetModel != "undefined" && targetModelXPath != "") {
+            var node = targetModel.query(targetModelXPath);
+            var isAttr = node != null ? (node.nodeType == 2) : false;
+            if (node) {
+              node = isAttr ? targetModel.query(targetModelXPath + "/..") : node;
+              node.removeAttribute("dateFrom");
+              node.removeAttribute("dateTo");
+              targetModel.remove(targetModelXPath + (isAttr ? "/.." : "") + (bcdui.widget.periodChooser._isWrs(targetModel.getData()) ? "" : "/*"), true);
+            }
+          }
+        });
 
         if (containerHtmlElement.getAttribute("bcdEnableNavPath") != null && containerHtmlElement.getAttribute("bcdEnableNavPath") == "true") {
           bcdui.widget.periodChooser.getNavPath(jQuery(containerHtmlElement).parent().attr("id"), function(id, value) {

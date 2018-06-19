@@ -680,6 +680,9 @@ a {
     }
   }
 
+  .bcdClearButton {cursor: pointer;}
+  .bcdClearButton:after { content: "❌"; }
+
   input { background: #FFFFFF; padding: 3px 0px 3px 0px; }
   span.bcdHint { display: none; }
   div.bcdHr hr { display: none; }

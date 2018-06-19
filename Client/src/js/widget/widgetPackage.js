@@ -382,6 +382,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.autoPopup=false]              Set this to true if the popup calendar should appear after creation.
    * @param {string}        [args.suppressButtons=false]        Set this to true if from and to buttons should be hidden. Default is false.
    * @param {boolean}       [args.enableNavPath]                Set to true if widget should not be added to navpath handling.
+   * @param {boolean}       [args.showClearButton]              Set this to true if you need one clear button which removes the currently set date.
    */
   createPeriodChooser: function(args)
     {
@@ -423,7 +424,8 @@ bcdui.util.namespace("bcdui.widget",
         , useSimpleXPath:         args.useSimpleXPath
         , autoPopup:              args.autoPopup
         , suppressButtons:        args.suppressButtons
-        , enableNavPath:         args.enableNavPath
+        , enableNavPath:          args.enableNavPath
+        , showClearButton:        args.showClearButton
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
