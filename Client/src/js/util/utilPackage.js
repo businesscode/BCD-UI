@@ -509,19 +509,31 @@ bcdui.util =
     if(!createdCallback && !bcdui.util.isFunction(createdCallback)){
       throw "createdCallback param required";
     }
-    // currently using (deprecated) document.registerElement() but in future we may use customElements.define() instead.
-    document.registerElement(elementName, {
-      prototype : Object.create(HTMLElement.prototype, {
-        attachedCallback : {
-          value : function(){
-            if(!this.__created){
-              this.__created = true;
-              createdCallback.apply(this);
-            }
+    var newTag = function() {
+      return Reflect.construct(HTMLElement, [], newTag);
+    };
+    newTag.prototype = Object.create(HTMLElement.prototype, {
+      attachedCallback : {
+        value : function(){
+          // Our components are not prepared to be created twice, but on the other hand we can only create them after we are attached since we need the parameters
+          // To prevent a re-creation in case of them being moved in the DOM tree, we only do this step the first time we are attached
+          if(!this.__created){
+            this.__created = true;
+            createdCallback.apply(this);
           }
         }
-      })
+      }
     });
+    newTag.prototype.connectedCallback = newTag.prototype.attachedCallback;
+    newTag.prototype.constructor = newTag;
+    if(window.customElements) {
+      // Webcomponents v1 for Chrome and Safari
+      window.customElements.define(elementName, newTag);
+    } else {
+      // Webcomponents v0 for polyfilled Edge, IE and Firefox
+      document.registerElement(elementName, {prototype: newTag.prototype});
+    }
+
   }
 }
 

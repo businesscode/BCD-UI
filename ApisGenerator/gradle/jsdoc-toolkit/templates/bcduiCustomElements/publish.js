@@ -116,14 +116,9 @@ function customElementsWidgets( taffyData, packageName, postfix, path )
 
 function printCustomTag( tagName, jsConstructorLongname, params, factory )
 {
-  result = "// " + tagName + newLine;
-  result += "bcdui.util.namespace('" + jsConstructorLongname.substring(0,jsConstructorLongname.lastIndexOf(".")) + "');" + newLine;
-  result += jsConstructorLongname + " = document.registerElement(\"" + tagName + "\", { prototype: " + newLine;
-  result += "  Object.create(HTMLElement.prototype, {" + newLine;
-  result += "    attachedCallback: {" + newLine;
-  result += "      value: function() {" + newLine;  
-  result += "          if(this.__created) { return; } else { this.__created = true; }" + newLine;
-  result += "          var args = { targetHtml: this };" + newLine;
+  result = "// " + tagName + " HTML custom element" + newLine;
+  result += "bcdui.util.createCustomElement( '"+tagName+"', function() {" + newLine;
+  result += "  var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
   var allowedParamTypes = ["string", "boolean", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer"];
@@ -143,17 +138,17 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
     var isStringType = !!param.type.names.filter(e => stringParamTypes.indexOf(e) > -1).length;
     var padding = "";
     if( !hasDefaultValue ){
-      result += "          if( this.hasAttribute('"+attribName+"') )" + newLine + "  ";
+      result += "  if( this.hasAttribute('"+attribName+"') )" + newLine + "  ";
     }
     if( param.type.names.indexOf("function") >= 0 ){
-      result += "          args." + attribName + " = bcdui.util._toJsFunction( this.getAttribute('"+attribName+"') );" + newLine;
+      result += "    args." + attribName + " = bcdui.util._toJsFunction( this.getAttribute('"+attribName+"') );" + newLine;
     } else if ( param.type.names.indexOf("boolean") >= 0 ) {
       var isDefaultTrue = param.defaultvalue === true;
       if(isStringType){
         // if we have multitype which can also be string, consider default as boolean only if it is true,false, otherwise pass as string literal
-        result += "          args." + attribName + " = this.getAttribute('"+attribName+"') || " + JSON.stringify(param.defaultvalue) + " ;" + newLine;
+        result += "  args." + attribName + " = this.getAttribute('"+attribName+"') || " + JSON.stringify(param.defaultvalue) + " ;" + newLine;
       }else{
-        result += "          args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
+        result += "  args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
       }
     } else if ( param.type.names.indexOf("number") >= 0 || param.type.names.indexOf("integer") >= 0 ) {
       var defaultValue = param.defaultvalue;
@@ -163,7 +158,7 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
         defaultValue = "";
       }
       var parser = param.type.names.indexOf("integer") >= 0 ? "parseInt" : "parseFloat";
-      result += "          args." + attribName + " = " + parser + "( this.getAttribute('"+attribName+"') , 10)" + defaultValue + ";" + newLine;
+      result += "  args." + attribName + " = " + parser + "( this.getAttribute('"+attribName+"') , 10)" + defaultValue + ";" + newLine;
     } else {
       var defaultValue = param.defaultvalue;
       if(defaultValue !== undefined){
@@ -175,18 +170,14 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
       } else {
         defaultValue = "";
       }
-      result += "          args." + attribName + " = this.getAttribute('"+attribName+"')" + defaultValue + ";" + newLine;
+      result += "  args." + attribName + " = this.getAttribute('"+attribName+"')" + defaultValue + ";" + newLine;
     }
   });
-  result += "          if( this.hasAttribute('objectId') )" + newLine;
-  result += "            args.id = this.getAttribute('objectId');" + newLine;
+  result += "  if( this.hasAttribute('objectId') )" + newLine;
+  result += "    args.id = this.getAttribute('objectId');" + newLine;
 
-  result += "          " + factory + "( args );" + newLine;
-  result += "      }" + newLine;
-  result += "    }" + newLine;
-  result += "  })" + newLine;
+  result += "  " + factory + "( args );" + newLine;
   result += "});" + newLine;
-  result += newLine;
   return result;
 }
 
