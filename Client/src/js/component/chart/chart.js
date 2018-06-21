@@ -1239,7 +1239,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     if( series.chartType==this.AREACHART || series.chartType==this.LINECHART )
     {
       if( isArea )
-        points.push( [ series.xValues[0], series.yAxis.minValue ] );
+        points.push( [ series.xValues[0], Math.max(0,series.yAxis.minValue) ] );
 
       for( var i=0; i < series.xValues.length; i++ ) {
         if( !isFinite(series.xValues[i]) || !isFinite(series.yData[i]) )
@@ -1257,7 +1257,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
       // Close area between line and xAxis in case of area series
       if( isArea )
-        points.push( [ series.xValues[series.xValues.length-1], series.yAxis.minValue ] );
+        points.push( [ series.xValues[series.xValues.length-1], Math.max(0,series.yAxis.minValue) ] );
 
       // Draw line part of series
       if( !series.colors )

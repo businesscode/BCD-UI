@@ -166,7 +166,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @private
    */
   _addEventListener: function(args) {
-    !!(window.SVGSVGElement) ? bcdui._migPjs._$(args.element).on(args.type, args.listener, false) : args.element.attachEvent(args.type, args.listener);
+    !!(window.SVGSVGElement) ? bcdui._migPjs._$(args.element).on(args.type, args.listener) : args.element.attachEvent(args.type, args.listener);
   },
 
   /**
