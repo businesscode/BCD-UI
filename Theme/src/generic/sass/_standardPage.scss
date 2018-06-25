@@ -1351,7 +1351,7 @@ span.bcd-notification-warn {
 /* ******************************************************************* */
 /* modal box */
 /* ******************************************************************* */
-
+#bcdFilterDialog, 
 #bcdModalBoxDiv {
   @extend .noselect;
   border: 1px solid $corporate-color;
