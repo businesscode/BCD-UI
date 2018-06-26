@@ -159,7 +159,7 @@
         this._patchOptionsModel();
 
         // resolve options model to get ready ( have to resolve via objectRegistry )
-        bcdui.factory.objectRegistry.withReadyObjectsNoExecute(this.options.optionsModelId, dfd[1].resolve);
+        bcdui.factory.objectRegistry.withReadyObjects(this.options.optionsModelId, dfd[1].resolve);
       }
 
       // once everything got resolved, create the slider
