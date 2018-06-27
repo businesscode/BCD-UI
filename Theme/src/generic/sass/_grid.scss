@@ -231,21 +231,34 @@ input.bcdInputFieldGrid {
     border: none;
     height: 23px;
   }
-  
-  .bcdFilterButton:after {
-    content: "▼";
-    color: #c7cace;
-    border: 1px solid #c7cace;
-    margin-left: 5px;
-    padding: 1px 2px 1px 2px;
+
+  .bcdFilterButton {
+    background: #eee;
+    border-radius: 2px;
+    border: 1px solid #bbb;
+    color: #bbb;
+    font-size: 9px;
+    line-height: 9px;
+    padding: 2px;
+    margin: 3px 1px 0 5px;
+    float: right;
   }
-  .active:after {
-    color: #000 !important;
-    border: 1px solid #000 !important;
+  
+  .bcdFilterButton.active {
+    border: 1px solid #509272;
+    color: #18804e;
+    background-color: #d2e0d9;
+  }
+  
+  .bcdFilterButton:hover {
+    border: 1px solid #777;
+    color: #777;
+    cursor: pointer;
   }
 
-  .handsontable .columnSorting:hover { text-decoration: none; }
-  .handsontable .columnSorting:hover > div:first-child { text-decoration: underline; }
+  .bcdFilterButton:before {
+    content: "▼";
+  }
 }
 
 #bcdFilterDialog {
