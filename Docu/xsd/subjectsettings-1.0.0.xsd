@@ -182,7 +182,9 @@
       <enumeration value="&lt;="/>
       <enumeration value="&lt;>"/>
       <enumeration value="like"/>
+      <enumeration value="notLike"/>
       <enumeration value="in"/>
+      <enumeration value="notIn"/>
       <enumeration value="bitand"/>
     </restriction>
   </simpleType>

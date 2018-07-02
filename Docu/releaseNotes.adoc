@@ -51,6 +51,7 @@ The Renderer either works directly with the specified element or (in case of spe
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
+* Add notLike and notIn operators to f:Filter, including universal filter widget
 
 . Build / Dev / Docu
 * In Eclipse, sub-projects Client, Server, Theme etc now have names BCD-UI--SubProjectName to keep them together in the navigation tree
@@ -60,6 +61,7 @@ The Renderer either works directly with the specified element or (in case of spe
 
 .Major bug fixes:
 * I18n: local messages.xml catalog file can contain multi language enabling full i18n support w/o database
+* HTML Custom Elements for Safari was broken, after Safari switched to Webcomponents API v1
 
 .Backward Incompatibilities:
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
