@@ -131,7 +131,7 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
    * @param {bcdui.core.DataProvider} [args.detailExportFilterModel] 									       - Use this to overwrite filters found in args.statusModel, default set to args.statusModel
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
-   * @param {chainDef}                [args.chain=/bcdui/xslt/renderer/htmlBuilder.xslt]     - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
+   * @param {chainDef}                [args.chain]                                           - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
    * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    */
   initialize: function(args) {
