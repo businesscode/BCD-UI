@@ -779,15 +779,15 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         toDateXPath = bcdui.widget.periodChooser._getDateToXPath(doc, targetModelXPath, outputPeriodType);
         if (fromDate != "") {
           if (doc.selectSingleNode(fromDateXPath) != null
-              && doc.selectSingleNode(fromDateXPath).value
-              && doc.selectSingleNode(fromDateXPath).value == fromDate) {
+              && doc.selectSingleNode(fromDateXPath).text
+              && doc.selectSingleNode(fromDateXPath).text == fromDate) {
             fromDate = "";
           }
         }
         if (toDate != "") {
           if (doc.selectSingleNode(toDateXPath) != null
-              && doc.selectSingleNode(toDateXPath).value
-              && doc.selectSingleNode(toDateXPath).value == toDate) {
+              && doc.selectSingleNode(toDateXPath).text
+              && doc.selectSingleNode(toDateXPath).text == toDate) {
             toDate = "";
           }
         }
@@ -971,7 +971,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     {
       var fromDateXPath = bcdui.widget.periodChooser._getDateFromXPath(doc, targetModelXPath, outputPeriodType);
       var node = bcdui.core.createElementWithPrototype(doc, fromDateXPath);
-      node.value = dateFrom;
+      node.text = dateFrom;
     },
 
     /**
@@ -982,7 +982,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     {
       var toDateXPath = bcdui.widget.periodChooser._getDateToXPath(doc, targetModelXPath, outputPeriodType);
       var node = bcdui.core.createElementWithPrototype(doc, toDateXPath);
-      node.value =  dateTo;
+      node.text =  dateTo;
     },
 
     /**
