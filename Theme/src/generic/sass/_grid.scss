@@ -224,53 +224,6 @@ input.bcdInputFieldGrid {
   th.bcdKey { font-weight: bold; }
   th.bcdKey.ht__highlight { }
 
-  .bcdColumnFilter input {
-    font-size: inherit;
-    font-family: inherit;
-    padding: 1px 5px 0 5px;
-    border: none;
-    height: 23px;
-  }
-
-  .bcdFilterButton {
-    background: #eee;
-    border-radius: 2px;
-    border: 1px solid #bbb;
-    color: #bbb;
-    font-size: 9px;
-    line-height: 9px;
-    padding: 2px;
-    margin: 3px 1px 0 5px;
-    float: right;
-  }
-  
-  .bcdFilterButton.active {
-    border: 1px solid #509272;
-    color: #18804e;
-    background-color: #d2e0d9;
-  }
-  
-  .bcdFilterButton:hover {
-    border: 1px solid #777;
-    color: #777;
-    cursor: pointer;
-  }
-
-  .bcdFilterButton:before {
-    content: "▼";
-  }
+  .handsontable .columnSorting:hover { text-decoration: none; }
+  .handsontable .bcdFilterOriginal:hover { text-decoration: underline; }
 }
-
-#bcdFilterDialog {
-  @include no_shadow();
-  border: none;
-  label {
-    text-align: left;
-    font-weight: bold;
-    display:block; 
-  }
-  input, select {width: 100%; margin-bottom: 10px;}
-}
-
-
-

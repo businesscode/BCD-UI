@@ -899,6 +899,46 @@ div.bcdUserMessages {
   }
 }
 
+
+/* column filter */
+
+.bcdFilterContainer { display: flex; align-items: center;}
+.bcdFilterOriginal { width: 100%;}
+.bcdFilterButton {
+  background: inherit;
+  border-radius: 2px;
+  border: 1px solid $border-color;
+  color: $border-color;
+  font-size: 9px;
+  padding: 2px;
+  height: 10px;
+  margin-left: 5px;
+  line-height: initial;
+}
+.bcdFilterButton.active {
+  border: 1px solid $select-color;
+  color: $select-color;
+  background-color: inherit;
+}
+.bcdFilterButton:hover {
+  border: 1px solid $border-color-dark;
+  color: $border-color-dark;
+  cursor: pointer;
+}
+.bcdFilterButton:before { content: "▼"; }
+
+#bcdFilterDialog {
+  @include no_shadow();
+  border: none;
+  label {
+    text-align: left;
+    font-weight: bold;
+    display:block; 
+  }
+  input, select {width: 100%; margin-bottom: 10px;}
+}
+
+
 /* ******************************************************************* */
 /* Areas */
 /* ******************************************************************* */

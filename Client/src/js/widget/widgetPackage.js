@@ -2090,6 +2090,195 @@ bcdui.util.namespace("bcdui.widget",
     },
 
     /**
+     * Create filter table header
+     * @param {Object}        args                 The parameter map contains the following properties.
+     * @param {string}        args.rendererId      Id of the renderer to work on
+     * @param {boolean}       [args.isSync=false]  Decide whether the action is to be called synchronous or not
+     * @param {boolean}       [args.alwaysShowHeader=true] If filtering leads to no rows to be displayed, this flag will show the table header to allow removal of filters 
+    */
+    createFilterTableHeader: function(args) {
+      var action = function( rendererId ) {
+        var renderer = bcdui.factory.objectRegistry.getObject(rendererId);
+        var tableHead = jQuery(renderer.getTargetHtml()).find("table thead").first();
+
+        if ((tableHead.length == 0 && ! renderer.backupHeader) || renderer.getPrimaryModel().query("/*/wrs:Header/wrs:Columns/wrs:C") == null) {
+          return; // no table found or not using a wrs model, so do nothing
+        }
+
+        // replace renderer input model with filter wrapper
+        if (! renderer.replacedPrimaryModel) {
+          renderer.replacedPrimaryModel = true;
+          renderer.originalInputModel = renderer.getPrimaryModel();
+
+          var paramModel = new bcdui.core.StaticModel("<Root><xp:FilterXPath><xp:Value>$guiStatus/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + renderer.originalInputModel.id +"']</xp:Value></xp:FilterXPath></Root>");
+          paramModel.execute(true);
+          
+          var newInputModel = new bcdui.core.ModelWrapper({
+              inputModel: renderer.originalInputModel
+            , id: renderer.originalInputModel.id + "_filtered" // registered for widget use
+            , chain: bcdui.contextPath + "/bcdui/xslt/wrs/filterRows.xslt"
+            , parameters: {paramModel: paramModel, guiStatus: bcdui.wkModels.guiStatus}
+            });
+          
+          newInputModel.execute();
+          renderer.setPrimaryModel(newInputModel);
+        }
+
+        var dataModel = renderer.originalInputModel;
+        var filteredModel = renderer.getPrimaryModel();
+
+        // table was removed due to filtering, so readd it to target
+        if (tableHead.length == 0 && dataModel.queryNodes("/*/wrs:Data/wrs:*").length > 0 && renderer.backupHeader && args.alwaysShowHeader!==false) {
+         jQuery(renderer.getTargetHtml()).append(renderer.backupHeader);
+         tableHead = jQuery(renderer.getTargetHtml()).find("table thead").first();
+        }
+        else {
+          renderer.backupHeader = tableHead.closest("table").clone(true);
+          jQuery(renderer.backupHeader).find("tbody").remove();
+        }
+
+        // add filter icons and determine filter state for title fly-over
+        tableHead.find("th").each(function(i,e) {
+          var colId = dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (i + 1) +"']/@id", "");
+
+          jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
+
+          var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + colId + "']";
+          var targetModelXPathCondition = rootXPath + "/@condition";
+          var targetModelXPathValue = rootXPath + "/.";
+          var condition = bcdui.wkModels.guiStatus.read(targetModelXPathCondition, "");
+          var cellValue = bcdui.wkModels.guiStatus.read(targetModelXPathValue, "");
+          if (condition != "") {
+            jQuery(e).find(".bcdFilterButton").addClass("active");
+            var title = "";
+            switch (condition) {
+              case "contains":    title = "= *" + cellValue + "*";   break;
+              case "startswith":  title = "= "  + cellValue + "*";   break;
+              case "endswith":    title = "= *" + cellValue;         break;
+              case "isequal":     title = "= "  + cellValue;         break;
+              case "isnotequal":  title = "≠ "  + cellValue;         break;
+              case "isempty":     title = "= ∅" + cellValue;         break;
+              case "isnotempty":  title = "≠ ∅" + cellValue;          break;
+            }
+            jQuery(e).find(".bcdFilterButton").attr("title", (bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + ": " + title));
+          }
+        });
+
+        // and a listener on column change
+        bcdui.wkModels.guiStatus.onChange({
+          trackingXPath: "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id=\"" + dataModel.id + "\"]"
+          , callback: function() {
+            // trigger rerendering by executing the wrapper and the renderer
+            renderer.getPrimaryModel().execute(true);
+            renderer.execute(true);
+          }
+        });
+
+        // add click handler
+        tableHead.on("click", ".bcdFilterButton", {dataModel: dataModel}, function(event, dataModel) {
+          var dataModel = event.data.dataModel;
+          var id = jQuery(event.target).attr("colId");
+          var index = dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@pos", "-1");
+          var caption = dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@caption", "");
+          jQuery("#bcdFilterDialog").remove();
+
+          var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + id + "']";
+          var backupRootPath = "/*/guiStatus:ClientSettings/guiStatus:BackupFilters[@id=\"" + dataModel.id + "\"]/guiStatus:BackupFilter[@bRef=\"" + id + "\"]";
+          var targetModelXPathCondition = backupRootPath + "/@condition";
+          var targetModelXPathValue = backupRootPath + "/.";
+          var optionsModelXPathValue = "$" + filteredModel.id + "/*/wrs:Data/wrs:*/wrs:C["+index+"]";
+          var widget="<div><bcd-suggestinputng doSortOptions='true' optionsModelXPath='" + optionsModelXPathValue +"' targetModelXPath='"+targetModelXPathValue+"'></div>";
+
+          bcdui.wkModels.guiStatus.write(backupRootPath + "/.", bcdui.wkModels.guiStatus.read(rootXPath + "/.", ""));
+          bcdui.wkModels.guiStatus.write(backupRootPath + "/@condition", bcdui.wkModels.guiStatus.read(rootXPath + "/@condition", "contains"));
+          bcdui.wkModels.guiStatus.fire();
+
+          var title = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filterFor"}) + ": " + caption;
+          var apply = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_apply"});
+          var clear = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_clear"});
+          var cancel = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_cancel"});
+          jQuery("body").append("<div id='bcdFilterDialog' title='"+ title +"'>" +
+              "<label bcdTranslate='bcd_widget_filter_condition'></label>" +
+              "<div><bcd-singleselectng required='true' doSortOptions='false' optionsModelRelativeValueXPath='../.' optionsModelXPath='$" + filterOptionsModel.id + "/*/Item/@caption' targetModelXPath='"+targetModelXPathCondition+"'></div>" +
+              "<label bcdTranslate='bcd_widget_filter_value'></label>" +
+              widget +
+              "<div>" +
+              "<bcd-buttonng caption='" + apply + "' onClickAction='bcdui.widget._applyFilter(\"" + dataModel.id + "\", \"" + id + "\")'></bcd-buttonng>" +
+              "<bcd-buttonng caption='" + clear + "' onClickAction='bcdui.widget._clearFilter(\"" + dataModel.id + "\", \"" + id + "\")'></bcd-buttonng>" +
+              "<bcd-buttonng caption='" + cancel + "' onClickAction='bcdui.widget._cancelFilter(\"" + dataModel.id + "\", \"" + id + "\")'></bcd-buttonng>" +
+              "</div>");
+          jQuery("#bcdFilterDialog").dialog({
+              height: "auto"
+            , width: "auto"
+            , minWidth: 200
+            , modal: true
+            , resizable: false
+            , draggable: false
+            , closeText: 'x'
+            , position: { my: 'left', at: 'right', of: event }
+            , close: function(){bcdui.widget._cancelFilter(dataModel.id, id);}
+          });
+        });
+      };
+
+      // static model for filter compare options
+      var opt = [
+          ["bcd_widget_filter_isEqual"   , "isequal"]
+        , ["bcd_widget_filter_isNotEqual", "isnotequal"]
+        , ["bcd_widget_filter_contains"  , "contains"]
+        , ["bcd_widget_filter_startsWith", "startswith"]
+        , ["bcd_widget_filter_endsWith"  , "endswith"]
+        , ["bcd_widget_filter_isEmpty"   , "isempty"]
+        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
+      ].map(function(e) {return [bcdui.i18n.syncTranslateFormatMessage({msgid: e[0]}), e[1]]});
+
+      var data = "<data>";
+      opt.forEach(function(e) {data += "<Item caption='" + e[0] + "'>" + e[1] + "</Item>"});
+      data +=" </data>";
+
+      var filterOptionsModel = new bcdui.core.StaticModel(data);
+      bcdui.factory.objectRegistry.registerObject(filterOptionsModel);
+      filterOptionsModel.execute();
+
+      bcdui.widget._clearFilter = function(dataModelId, columnId) {
+        var dataModel = bcdui.factory.objectRegistry.getObject(dataModelId);
+        var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + columnId + "']";
+        var backupRootPath = "/*/guiStatus:ClientSettings/guiStatus:BackupFilters[@id=\"" + dataModel.id + "\"]/guiStatus:BackupFilter[@bRef=\"" + columnId + "\"]";
+        bcdui.wkModels.guiStatus.remove(rootXPath + "/@condition");
+        bcdui.wkModels.guiStatus.remove(rootXPath + "/.");
+        bcdui.wkModels.guiStatus.remove(backupRootPath + "/@condition");
+        bcdui.wkModels.guiStatus.remove(backupRootPath + "/.");
+        bcdui.wkModels.guiStatus.fire();
+        jQuery("#bcdFilterDialog").dialog("close");
+      };
+      bcdui.widget._applyFilter = function(dataModelId, columnId) {
+        var dataModel = bcdui.factory.objectRegistry.getObject(dataModelId);
+        var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + columnId + "']";
+        var backupRootPath = "/*/guiStatus:ClientSettings/guiStatus:BackupFilters[@id=\"" + dataModel.id + "\"]/guiStatus:BackupFilter[@bRef=\"" + columnId + "\"]";
+        bcdui.wkModels.guiStatus.write(rootXPath + "/.", bcdui.wkModels.guiStatus.read(backupRootPath + "/.", ""));
+        bcdui.wkModels.guiStatus.write(rootXPath + "/@condition", bcdui.wkModels.guiStatus.read(backupRootPath + "/@condition", "contains")); 
+        bcdui.wkModels.guiStatus.fire();
+        jQuery("#bcdFilterDialog").dialog("close");
+      };
+      bcdui.widget._cancelFilter = function(dataModelId, columnId) {
+        var dataModel = bcdui.factory.objectRegistry.getObject(dataModelId);
+        var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + columnId + "']";
+        var backupRootPath = "/*/guiStatus:ClientSettings/guiStatus:BackupFilters[@id=\"" + dataModel.id + "\"]/guiStatus:BackupFilter[@bRef=\"" + columnId + "\"]";
+        bcdui.wkModels.guiStatus.remove(backupRootPath + "/@condition");
+        bcdui.wkModels.guiStatus.remove(backupRootPath + "/.");
+        bcdui.wkModels.guiStatus.fire();
+        jQuery("#bcdFilterDialog").dialog("close");
+      };
+
+      // Decide whether to be called synchronous (for example in case of a just created renderer output in bcdOnLoad)
+      if( args.isSync ) {
+        action( args.rendererId );
+      } else {
+        bcdui.factory.objectRegistry.withReadyObjects( args.rendererId, function() { action( args.rendererId ); } );
+      }
+    },
+
+    /**
      * Create fixed table header by adding a fixed copy of the original
      * Its size is derived from the "original" header, still in place for the table
      * @param {Object}        args                 The parameter map contains the following properties.

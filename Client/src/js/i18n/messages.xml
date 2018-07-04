@@ -210,6 +210,22 @@
       <R id="R201"><C>bcd_widget_universalFilter_valueNull</C><C>is null</C><C>en</C></R>
       <R id="R202"><C>bcd_widget_universalFilter_noFilters</C><C>no filters</C><C>en</C></R>
 
+      <!-- Column Filter -->
+      <R id="R250"><C>bcd_widget_filter_filter</C><C>Filter</C><C>en</C></R>
+      <R id="R251"><C>bcd_widget_filter_filterFor</C><C>Filter For</C><C>en</C></R>
+      <R id="R252"><C>bcd_widget_filter_value</C><C>Filter Value</C><C>en</C></R>
+      <R id="R253"><C>bcd_widget_filter_condition</C><C>Filter By Condition</C><C>en</C></R>
+      <R id="R254"><C>bcd_widget_filter_clear</C><C>Clear Filter</C><C>en</C></R>
+      <R id="R255"><C>bcd_widget_filter_apply</C><C>Apply Filter</C><C>en</C></R>
+      <R id="R256"><C>bcd_widget_filter_cancel</C><C>Cancel</C><C>en</C></R>
+      <R id="R257"><C>bcd_widget_filter_startsWith</C><C>Starts With</C><C>en</C></R>
+      <R id="R258"><C>bcd_widget_filter_endsWith</C><C>Ends With</C><C>en</C></R>
+      <R id="R259"><C>bcd_widget_filter_contains</C><C>Contains</C><C>en</C></R>
+      <R id="R260"><C>bcd_widget_filter_isEqual</C><C>Is Equal</C><C>en</C></R>
+      <R id="R261"><C>bcd_widget_filter_isNotEqual</C><C>Is Not Equal</C><C>en</C></R>
+      <R id="R262"><C>bcd_widget_filter_isEmpty</C><C>Is Empty</C><C>en</C></R>
+      <R id="R263"><C>bcd_widget_filter_isNotEmpty</C><C>Is Not Empty</C><C>en</C></R>
+
       <!-- QuickEdit -->
       <R id="R300"><C>bcd_widget_quickEdit_action_restorerecord</C><C>Restore Record</C><C>en</C></R>
       <R id="R301"><C>bcd_widget_quickEdit_action_close</C><C>Close</C><C>en</C></R>

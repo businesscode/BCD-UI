@@ -39,7 +39,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsl:template match="/">
     <xsl:choose>
-      <xsl:when test="count($filters/*[text() != '']) &gt; 0">
+      <xsl:when test="count($filters/*[@condition='isempty' or @condition='isnotempty' or text() != '']) &gt; 0">
         <xsl:apply-templates/>
       </xsl:when>
       <xsl:otherwise>
@@ -63,8 +63,9 @@
   <xsl:template match="/wrs:Wrs/wrs:Data/*">
     <xsl:variable name="row" select="."/>
     <xsl:variable name="validationRes"><!-- contains validation result of all filters -->
-      <xsl:for-each select="$filters/*[text() != '']"><!-- loop over all filters -->
+      <xsl:for-each select="$filters/*[@condition='isempty' or @condition='isnotempty' or text() != '']"><!-- loop over all filters -->
         <xsl:variable name="bRef" select="@bRef"/>
+        <xsl:variable name="condition" select="@condition"/>
         <xsl:variable name="fValue" select="translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"/>
 
         <xsl:for-each select="$row/../../../*"><!-- Wrs -->
@@ -85,10 +86,17 @@
             </xsl:choose>
           </xsl:variable>
 
+          <xsl:variable name="comparableValueLowValue" select="translate($comparableValue, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"/>
+
           <xsl:choose>
-            <xsl:when test="not(contains(
-              translate($comparableValue, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')
-              ,$fValue))">f</xsl:when>
+            <xsl:when test="$condition='endswith'   and not(substring($comparableValueLowValue, string-length($comparableValueLowValue) - string-length($fValue) + 1) = $fValue)">f</xsl:when>
+            <xsl:when test="$condition='isempty'    and $comparableValueLowValue != ''">f</xsl:when>
+            <xsl:when test="$condition='isnotempty' and not($comparableValueLowValue != '')">f</xsl:when>
+            <xsl:when test="$condition='isequal'    and not($comparableValueLowValue = $fValue)">f</xsl:when>
+            <xsl:when test="$condition='isnotequal' and not($comparableValueLowValue != $fValue)">f</xsl:when>
+            <xsl:when test="$condition='startswith' and not(starts-with($comparableValueLowValue, $fValue))">f</xsl:when>
+            <xsl:when test="$condition='contains'   and not(contains($comparableValueLowValue, $fValue))">f</xsl:when>
+            <xsl:when test="not($condition)         and not(contains($comparableValueLowValue, $fValue))">f</xsl:when>
           </xsl:choose>
         </xsl:for-each>
       </xsl:for-each>
