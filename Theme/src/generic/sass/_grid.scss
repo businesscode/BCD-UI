@@ -191,11 +191,11 @@ input.bcdInputFieldGrid {
 .bcdGrid {
 
   tfoot tr td {
-    text-align: right;
+    text-align: left;
     padding-top: 10px;
     
     .bcdButton {
-      margin-left: 10px;
+      margin-right: 10px;
     }
   }
 
