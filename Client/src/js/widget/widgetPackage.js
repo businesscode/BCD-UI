@@ -2211,11 +2211,11 @@ bcdui.util.namespace("bcdui.widget",
               height: "auto"
             , width: "auto"
             , minWidth: 200
-            , modal: true
+            , modal: false
             , resizable: false
             , draggable: false
             , closeText: 'x'
-            , position: { my: 'left', at: 'right', of: event }
+            , position: { my: 'left top', at: 'left top', of: event }
             , close: function(){bcdui.widget._cancelFilter(dataModel.id, id);}
           });
         });
