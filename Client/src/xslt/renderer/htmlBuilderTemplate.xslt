@@ -177,7 +177,7 @@
     <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', $originalColumnIndex)"/>
   </generator:OnlyIfRowSpan>
   <generator:IfNoRowSpan>
-    <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', position())"/>
+    <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', count(preceding-sibling::wrs:C) + 1)"/>
   </generator:IfNoRowSpan>
 
   <xsl:variable name="tableElement">
@@ -213,7 +213,9 @@
           <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
         </xsl:call-template>
       </xsl:when>
-      <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
+      <xsl:otherwise>
+        <xsl:value-of select="."/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:element>
 </xsl:template>
