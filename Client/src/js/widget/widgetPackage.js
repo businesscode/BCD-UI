@@ -2140,7 +2140,7 @@ bcdui.util.namespace("bcdui.widget",
         // add filter icons and determine filter state for title fly-over
         tableHead.find("th").each(function(i,e) {
           var colId = dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (i + 1) +"']/@id", "");
-          if (colId.indexOf("|") == -1) {
+          if (colId != "" && colId.indexOf("|") == -1) {
             jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
   
             var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + colId + "']";
