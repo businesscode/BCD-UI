@@ -2140,27 +2140,28 @@ bcdui.util.namespace("bcdui.widget",
         // add filter icons and determine filter state for title fly-over
         tableHead.find("th").each(function(i,e) {
           var colId = dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (i + 1) +"']/@id", "");
-
-          jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
-
-          var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + colId + "']";
-          var targetModelXPathCondition = rootXPath + "/@condition";
-          var targetModelXPathValue = rootXPath + "/.";
-          var condition = bcdui.wkModels.guiStatus.read(targetModelXPathCondition, "");
-          var cellValue = bcdui.wkModels.guiStatus.read(targetModelXPathValue, "");
-          if (condition != "") {
-            jQuery(e).find(".bcdFilterButton").addClass("active");
-            var title = "";
-            switch (condition) {
-              case "contains":    title = "= *" + cellValue + "*";   break;
-              case "startswith":  title = "= "  + cellValue + "*";   break;
-              case "endswith":    title = "= *" + cellValue;         break;
-              case "isequal":     title = "= "  + cellValue;         break;
-              case "isnotequal":  title = "≠ "  + cellValue;         break;
-              case "isempty":     title = "= ∅" + cellValue;         break;
-              case "isnotempty":  title = "≠ ∅" + cellValue;          break;
+          if (colId.indexOf("|") == -1) {
+            jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
+  
+            var rootXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + dataModel.id + "']/guiStatus:ColumnFilter[@bRef='" + colId + "']";
+            var targetModelXPathCondition = rootXPath + "/@condition";
+            var targetModelXPathValue = rootXPath + "/.";
+            var condition = bcdui.wkModels.guiStatus.read(targetModelXPathCondition, "");
+            var cellValue = bcdui.wkModels.guiStatus.read(targetModelXPathValue, "");
+            if (condition != "") {
+              jQuery(e).find(".bcdFilterButton").addClass("active");
+              var title = "";
+              switch (condition) {
+                case "contains":    title = "= *" + cellValue + "*";   break;
+                case "startswith":  title = "= "  + cellValue + "*";   break;
+                case "endswith":    title = "= *" + cellValue;         break;
+                case "isequal":     title = "= "  + cellValue;         break;
+                case "isnotequal":  title = "≠ "  + cellValue;         break;
+                case "isempty":     title = "= ∅" + cellValue;         break;
+                case "isnotempty":  title = "≠ ∅" + cellValue;          break;
+              }
+              jQuery(e).find(".bcdFilterButton").attr("title", (bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + ": " + title));
             }
-            jQuery(e).find(".bcdFilterButton").attr("title", (bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filter"}) + ": " + title));
           }
         });
 
