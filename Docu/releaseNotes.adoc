@@ -28,7 +28,7 @@ The Renderer either works directly with the specified element or (in case of spe
 
 . Widgets
 * periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all, showClearButton to allow cleaning of input
-* createFilterTableHeader function to add a filter header on a renderer
+* createFilterTableHeader function to add a filter header on a renderer. Uses createTableHeadFilter function which can be reused for other header filters (like grid) 
 * enableNavPath attribute to turn on/off navPath linkage (default is off (false))
 * New widget: "slider", based on noUiSlider implementation
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
@@ -41,7 +41,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * DataProvider: added support for xpath with placeholders/fill parameters for query/queryNodes/read/write/remove operations. Mainly for handling quote/apostrophe issues when dynamically building up xPath Expressions
     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"]);
 * BindingSet Relation added IsLike condition for joins
-* filterRowsTemplate gets enhancement of condition attributes
+* filterRowsTemplate gets enhancement of condition attributes and filterlists
 
 . Themes
 * new pageEffect bcdEffectPageStickyFooter

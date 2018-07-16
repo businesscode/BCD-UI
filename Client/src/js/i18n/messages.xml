@@ -214,8 +214,6 @@
       <R id="R250"><C>bcd_widget_filter_filter</C><C>Filter</C><C>en</C></R>
       <R id="R251"><C>bcd_widget_filter_filterFor</C><C>Filter For</C><C>en</C></R>
       <R id="R252"><C>bcd_widget_filter_value</C><C>Filter Value</C><C>en</C></R>
-      <R id="R253"><C>bcd_widget_filter_condition</C><C>Filter By Condition</C><C>en</C></R>
-      <R id="R254"><C>bcd_widget_filter_clear</C><C>Clear Filter</C><C>en</C></R>
       <R id="R255"><C>bcd_widget_filter_apply</C><C>Apply Filter</C><C>en</C></R>
       <R id="R256"><C>bcd_widget_filter_cancel</C><C>Cancel</C><C>en</C></R>
       <R id="R257"><C>bcd_widget_filter_startsWith</C><C>Starts With</C><C>en</C></R>
@@ -225,6 +223,14 @@
       <R id="R261"><C>bcd_widget_filter_isNotEqual</C><C>Is Not Equal</C><C>en</C></R>
       <R id="R262"><C>bcd_widget_filter_isEmpty</C><C>Is Empty</C><C>en</C></R>
       <R id="R263"><C>bcd_widget_filter_isNotEmpty</C><C>Is Not Empty</C><C>en</C></R>
+      <R id="R264"><C>bcd_widget_filter_isBigger</C><C>Is Bigger</C><C>en</C></R>
+      <R id="R265"><C>bcd_widget_filter_isSmaller</C><C>Is Smaller</C><C>en</C></R>
+      <R id="R266"><C>bcd_widget_filter_reset</C><C>Reset</C><C>en</C></R>
+      <R id="R267"><C>bcd_widget_filter_clear</C><C>Clear</C><C>en</C></R>
+      <R id="R268"><C>bcd_widget_filter_selectAll</C><C>Select All</C><C>en</C></R>
+      <R id="R269"><C>bcd_widget_filter_itemsSelected</C><C>Selected</C><C>en</C></R>
+      <R id="R270"><C>bcd_widget_filter_remove</C><C>Remove Filter</C><C>en</C></R>
+      <R id="R271"><C>bcd_widget_filter_emptyValue</C><C>&lt;Empty&gt;</C><C>en</C></R>
 
       <!-- QuickEdit -->
       <R id="R300"><C>bcd_widget_quickEdit_action_restorerecord</C><C>Restore Record</C><C>en</C></R>

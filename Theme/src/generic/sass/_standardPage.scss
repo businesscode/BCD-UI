@@ -927,16 +927,44 @@ div.bcdUserMessages {
 }
 .bcdFilterButton:before { content: "▼"; }
 
-#bcdFilterDialog {
+.bcdFilterDialog {
   @include no_shadow();
   border: none;
-  label {
-    text-align: left;
-    font-weight: bold;
-    display:block; 
-  }
+  min-width: 250px; 
   input, select {width: 100%; margin-bottom: 10px;}
 }
+
+.bcdFilterSelection {
+  text-align: right;
+
+  .bcdButton a {
+    color: inherit;
+    background-color: inherit;
+    margin: 0px 0px 3px 5px;
+    padding: 0px;
+  }
+}
+
+.bcdFilterMultiSelect {
+  height: 200px;
+  overflow: auto;
+  text-align: left;
+  border: 1px solid #CCC;
+  padding: 3px;
+  div {margin: 3px 0px 3px 0px;}
+  input {
+    width: auto;
+    margin: 0px;
+    padding: 0px;
+    margin-right: 3px;
+  }
+  .highlight {
+    background-color: #d3f4bf !important; color: #000 !important;
+  }
+}
+
+.bcdFilterTooltip p { font-weight: bold; }
+.bcdFilterTooltip li { padding: 3px; }
 
 
 /* ******************************************************************* */
@@ -1391,7 +1419,7 @@ span.bcd-notification-warn {
 /* ******************************************************************* */
 /* modal box */
 /* ******************************************************************* */
-#bcdFilterDialog, 
+.bcdFilterDialog, 
 #bcdModalBoxDiv {
   @extend .noselect;
   border: 1px solid $corporate-color;
