@@ -95,7 +95,7 @@
     <!-- Scale defines the shown precision.
          If abs(scale) is less than 10, it gives the decimal digits. If positive, trailing 0 are preserved.
          If it is greater it is rounded to the nearest multiple of scale. If positive, trailing 0 are preserved. Negative here is only allowed for 10 pow n.
-         Sample (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5
+         Sample (in US format) for 14990.404: scale 2 -> 14990.40, scale -2 -> 14990.4, scale 1000 -> 15,000, scale -1000 -> 15
          (Implementation note, we cannot use shorter number(@scale|$columnDefinition/@scale) because document order is wrong priority order)
      -->
     <xsl:variable name="effectiveScale">
