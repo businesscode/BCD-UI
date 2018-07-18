@@ -168,6 +168,10 @@
   overflow: hidden !important;
 }
 
+.bcdItalic {
+  font-style: italic;
+}
+
 .bcdDisabled {
   color: $text-disabled-color !important;
   cursor: default !important;
@@ -935,7 +939,14 @@ div.bcdUserMessages {
 }
 
 .bcdFilterSelection {
-  text-align: right;
+  
+  .bcdFilterActions {
+    position: relative;
+    margin-bottom: 3px;
+    input { width: auto; margin: 0px 3px 0px 0px; }
+    > div { position: absolute; right: 0px; top: 0px;}
+    > div:first-child { left: 0px; right: inherit; }
+  }
 
   .bcdButton a {
     color: inherit;

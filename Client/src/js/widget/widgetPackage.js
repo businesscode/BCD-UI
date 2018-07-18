@@ -2171,12 +2171,18 @@ bcdui.util.namespace("bcdui.widget",
         var typeName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@type-name", "");
         var isNumeric = typeName == "INTEGER" || typeName == "NUMERIC" || typeName == "DECIMAL";
 
-        // get set of nodes for the current column. Can be a subset if you use getFilteredValues to limit on prefiltered values
-        var values = (getFilteredValues ? getFilteredValues(index) : jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']"))).map(function(e) {
+        // get set of filtered values
+        var filteredValues = (getFilteredValues ? getFilteredValues(index) : jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']"))).map(function(e) {
+          return e.text;
+        });
+
+        // get caption for values
+        var values = jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']")).map(function(e) {
 
           // caption is either an existing caption attribute or the node value
           var caption = (e.getAttribute("caption") || e.text);
           var value = e.text;
+          var isFiltered = "" + (filteredValues.indexOf(e.text) == -1);
           var isInvalid = isNaN(e.text) || e.text == "Infinity";
 
           if (isNumeric) {
@@ -2210,10 +2216,10 @@ bcdui.util.namespace("bcdui.widget",
           if (getCaptionForColumnValue) {
             caption = getCaptionForColumnValue(index, value);
           }
-          return value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty) : (value + bcdui.core.magicChar.separator + caption);
+          return value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
         });
         values = values.filter(function(e, idx){return values.indexOf(e) == idx}); // make unique
-        values = values.map(function(e) { var q = e.split(bcdui.core.magicChar.separator); return {value: q[0], caption: q[1]}; }); // make value/caption object
+        values = values.map(function(e) { var q = e.split(bcdui.core.magicChar.separator); return {value: q[0], caption: q[1], isFiltered: q[2] == "true"} }); // make value/caption object
 
         // sort either numerical (by value) (in case of reference we can't be sure if it maps to a non numerical value, so use string sort then) or by string
         if (isNumeric && !useRefs)
@@ -2228,8 +2234,9 @@ bcdui.util.namespace("bcdui.widget",
         var i = 1;
         values.forEach(function(e) {
           var isSelected = statusModel.query(rootXPath + "/f:Expression[@op='=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null;
-          var enabled = isSelected ? "enabled='true'" : "";
-          modelData +="<Item caption='" + bcdui.util.escapeHtml(e.caption) + "' " + enabled + " id='R" + (i++) +"'>" + bcdui.util.escapeHtml(e.value) + "</Item>";
+          var enabled = isSelected ? " enabled='true'" : "";
+          var isFiltered = e.isFiltered ? " isFiltered='true'" : "";
+          modelData +="<Item caption='" + bcdui.util.escapeHtml(e.caption) + "'" + enabled + isFiltered + " id='R" + (i++) +"'>" + bcdui.util.escapeHtml(e.value) + "</Item>";
         });
         modelData += "</Data>";
         var multiSelectDataModel = new bcdui.core.StaticModel({data:modelData});
@@ -2271,18 +2278,20 @@ bcdui.util.namespace("bcdui.widget",
 
         // prepare html template
         jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
-          "<div>" +
-            "<select class='bcdFilterSelect'>" + options + "</select>" +
-          "</div>" +
           "<div class='bcdFilterSelection'>" +
+            "<select class='bcdFilterSelect'>" + options + "</select>" +
             "<input class='bcdFilterInput'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
-            "<div>"+
-              "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng>" +
-              "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng>" +
-              "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng>" +
-            "</div>"+
+            "<div class='bcdFilterActions'>" +
+              "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
+              "<p>&nbsp;</p>" +
+              "<div>" +
+                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng>" +
+                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng>" +
+                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng>" +
+              "</div>"+
+            "</div>" +
             "<div class='bcdFilterMultiSelect'></div>"+
-            "<p><span></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'/></p>"+
+            "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
           "</div>"+
           "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng>" +
           "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng>" +
@@ -2323,12 +2332,21 @@ bcdui.util.namespace("bcdui.widget",
         jQuery(".bcdFilterMultiSelect").on("mouseleave", "div", function() {jQuery(this).removeClass("highlight"); });
         // trigger input click when clicking the span
         jQuery(".bcdFilterMultiSelect").on("click", "span", function() { jQuery(this).prev("input").trigger("click"); });
+
+        // trigger input click when clicking the span
+        jQuery(".bcdShowAll").on("click", function() { jQuery(this).prev("input").trigger("click"); });
+        // listener on hide/show all checkbox change
+        jQuery(".bcdFilterActions input").on("change", function() {
+          bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
+          bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+        });
+        
         // listener on checkbox change, mark selected items as enabled/disabled
         jQuery(".bcdFilterMultiSelect").on("change", "input", function() {
           var item = multiSelectDataModel.query("/*/Item[@id='{{=it[0]}}']", [jQuery(this).val()]);
           if (item != null)
             item.setAttribute("enabled", "" + jQuery(this).is(':checked'));
-          jQuery(".bcdFilterSelection p span").first().text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
+          jQuery(".bcdFilterSelection p span.bcdCount").text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
         });
         // listeners on condition change, triggers filtering
         jQuery(".bcdFilterSelect").on("change", function(){
@@ -2364,17 +2382,21 @@ bcdui.util.namespace("bcdui.widget",
     _renderFilterOptions: function(targetHtml, multiSelectDataModel) {
       jQuery(targetHtml).find(".bcdFilterMultiSelect form").remove();
       var multiSelect = "<form>";
-      var values = jQuery.makeArray(multiSelectDataModel.queryNodes("/*/Item[not(@filtered)]"));
+      var showAll = jQuery(targetHtml).find(".bcdFilterActions input").is(':checked');
+      var values = jQuery.makeArray(multiSelectDataModel.queryNodes("/*/Item"));
       values.forEach(function(e) {
-        var isEnabled = e.getAttribute("enabled") === "true"; 
+        var isEnabled = e.getAttribute("enabled") === "true";
+        var isFiltered = e.getAttribute("isFiltered") === "true";
+        var isCurrentlyFiltered = e.getAttribute("filtered") === "true";
         var checkStatus = isEnabled ? " checked" : "";
-        var cssClass = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? " class='bcdDisabled'" : "";
+        var cssClass = isFiltered ? " class='bcdDisabled'" : e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? " class='bcdItalic'" : "";
         var inputText = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) :  e.getAttribute("caption");
-        multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +  inputText + "</span></div>";
+        if ((showAll && ! isCurrentlyFiltered) || (isEnabled && ! isCurrentlyFiltered) || (! showAll && ! isFiltered && ! isCurrentlyFiltered))
+          multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +  inputText + "</span></div>";
       });
       multiSelect += "</form>";
       jQuery(targetHtml).find(".bcdFilterMultiSelect").append(multiSelect);
-      jQuery(targetHtml).find(".bcdFilterSelection p span").first().text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
+      jQuery(targetHtml).find(".bcdFilterSelection p span.bcdCount").text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
     },
 
     /**
@@ -2384,6 +2406,7 @@ bcdui.util.namespace("bcdui.widget",
     _setFilterStatus: function(element, value, reset) {
       var config = jQuery(element).closest(".bcdFilterDialog").data("config");
       if (reset) {
+        jQuery(element).closest(".bcdFilterDialog").find(".bcdFilterActions input").prop('checked', true);
         jQuery.makeArray(config.multiSelectDataModel.queryNodes("/*/Item")).forEach(function(item) { jQuery(item).removeAttr("enabled filtered"); });
         jQuery(".bcdFilterInput").val("");
       }
