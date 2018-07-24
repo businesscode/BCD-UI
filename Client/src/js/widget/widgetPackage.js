@@ -2482,7 +2482,22 @@ bcdui.util.namespace("bcdui.widget",
         // replace renderer input model with filter wrapper
         if (! renderer.replacedPrimaryModel) {
           renderer.replacedPrimaryModel = true;
+
+          // remember original execute function and inputModel
           renderer.originalInputModel = renderer.getPrimaryModel();
+          renderer.originalExecute = renderer.execute;
+
+          // replace renderer's execute with ours, which first re-executes the replaced inputModel (filter) (and so a refresh of original input data is also provided)
+          // and then calls the original renderer execute
+          renderer.execute = function(args) {
+            renderer.getPrimaryModel().onReady({
+                onlyOnce: true
+              , futureOnly: true
+              , executeIfNotReady: false
+              , onSuccess: function() { renderer.originalExecute();}  
+            });
+            renderer.getPrimaryModel().execute(args);
+          };
 
           var paramModel = new bcdui.core.StaticModel("<Root><xp:FilterXPath><xp:Value>$" + statusModel.id + targetModelXPath + "</xp:Value></xp:FilterXPath></Root>");
           paramModel.execute(true);
@@ -2517,10 +2532,7 @@ bcdui.util.namespace("bcdui.widget",
           , getFilteredValues: function(colIdx){return jQuery.makeArray(filteredModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+colIdx+"']"));}
           , statusModel: statusModel
           , targetModelXPath: targetModelXPath
-          , callback: function() {
-            renderer.getPrimaryModel().execute(true);
-            renderer.execute(true);
-          }
+          , callback: function() { renderer.execute(true); } // on filter change, we rerender (replaced execute will refresh the renderer inputModel (filterRows)
         });
       };
 
