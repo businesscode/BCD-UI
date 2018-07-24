@@ -2108,11 +2108,21 @@ bcdui.util.namespace("bcdui.widget",
       var callback = args.callback;
       var inputModel = args.inputModel;
 
-      // add filter icons and determine filter state for title fly-over
+      // add filter icons and determine filter state for title fly-over (or skip when customHeaderRenderer is used)
       if (args.useCustomHeaderRenderer !== "true") {
+
+        var headerRows = tableHead.find("tr").length;
         tableHead.find("th").each(function(i,e) {
-          var colId = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (i + 1) +"']/@id", "");
-          if (colId != "" && colId.indexOf("|") == -1) {
+          // if we have a bcdColIdent value at the column (e.g. by cube standard html builder), refer to this 
+          var colId = jQuery(e).attr("bcdColIdent") || "";
+          // otherwise, take a 1:1 header to column mapping (beware of multiple thead/tr though)
+          colId = colId != "" ? colId : inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (i + 1) +"']/@id", "");
+
+          // in case of a cube column dim/measure combination, we want icons at the lowest tr only but also for row dims (first tr)
+          // so in case of a bcdColIdent/colId with | separator, we skip it when it's not on the last header row   
+          colId = (colId != "" && colId.indexOf("|") != -1 && jQuery(e).closest("tr").index() + 1 != headerRows) ? "" : colId;
+
+          if (colId != "") {
             jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div bcdColIdent='" + colId + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
             if (statusModel.query(targetModelXPath + "/f:Or[@id='" + colId + "']/f:Expression") != null)
               jQuery(e).find(".bcdFilterButton").addClass("active");
