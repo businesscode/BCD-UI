@@ -504,7 +504,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
             this.setStatus(new bcdui.core.status.TransformFailedStatus());
             bcdui.log.error("Transformation "+this.id + " failed " + (stylesheetURL?stylesheetURL:"") );
           }
-          if( result.nodeType ) {
+          else if( result.nodeType ) {
             bcdui.core.xmlLoader._asyncTransformToXMLPostProcess( { processor: processor, sourceDoc: xslt.input,
               stylesheetURL: stylesheetURL, onSuccess: callBack, transformationChain: this, xslt: xslt, params: params },
               result);
