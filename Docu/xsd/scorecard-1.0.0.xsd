@@ -290,7 +290,7 @@
         </xs:complexType>
       </xs:element>
 
-      <xs:element name="Description" minOccurs="0" type="xs:string">
+      <xs:element name="Description" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
             Non-formal text to describe the KPI. Shown by default tooltip.
@@ -404,6 +404,11 @@
       <xs:complexContent>
         <xs:extension base="tns:LevelAbstractBaseType">
           <xs:attribute name="uniquenessNote" use="prohibited"/>
+          <xs:attribute name="caption">
+            <xs:annotation>
+              <xs:documentation>Caption or lookup key for the caption for i18n</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
