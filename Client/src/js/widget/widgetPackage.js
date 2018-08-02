@@ -2109,7 +2109,7 @@ bcdui.util.namespace("bcdui.widget",
       var inputModel = args.inputModel;
 
       // add filter icons and determine filter state for title fly-over (or skip when customHeaderRenderer is used)
-      if (args.useCustomHeaderRenderer !== "true") {
+      if (args.useCustomHeaderRenderer !== true) {
 
         var headerRows = tableHead.find("tr").length;
         tableHead.find("th").each(function(i,e) {
