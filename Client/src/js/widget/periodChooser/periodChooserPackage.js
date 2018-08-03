@@ -960,6 +960,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     {
       var dateNode = doc.selectSingleNode(xPath);
       if (dateNode == null || !dateNode.value) return "";
+      if (!bcdui.util.datetime.isValidDate(dateNode.value))
+        return "";
       return dateNode.value;
     },
 
