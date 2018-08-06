@@ -120,13 +120,14 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       inputModel: this.inputModel,
       targetHtml: args.targetHtml, 
       chain: args.chain,
+      suppressInitialRendering : args.suppressInitialRendering,
       parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
     });
   
     //------------------
     // We also create some convenience objects: tooltip, detail export and WYSIWYG export infrastructure
     // Being lazy
-    this.onReady({ executeIfNotReady: true, onlyOnce: true, onSuccess: function() {
+    this.onReady({ executeIfNotReady: !args.suppressInitialRendering, onlyOnce: true, onSuccess: function() {
 
       //--------------------
       // Create the tooltip
