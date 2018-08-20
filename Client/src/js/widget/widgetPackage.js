@@ -830,7 +830,7 @@ bcdui.util.namespace("bcdui.widget",
           , position: args.position
           , resizable: args.resizeable
           , draggable: true
-          , closeText: 'x'
+          , closeText: "\u2716"
           , title: args.title
           , open: function() {
 
@@ -2330,7 +2330,7 @@ bcdui.util.namespace("bcdui.widget",
           , modal: false
           , resizable: false
           , draggable: true
-          , closeText: '❌'
+          , closeText: "\u2716"
           , position: { my: 'left top', at: 'left top', of: event }
           , close: function(){ bcdui.widget._cancelFilter(inputModel.id, id);}
           , create: function() { jQuery("body").css({ overflow: 'hidden' });}
