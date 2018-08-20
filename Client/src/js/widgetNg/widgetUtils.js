@@ -247,6 +247,10 @@
         // handle non-native placeholder
         guiValue="";
       }
+      // optional trimming
+      if (config.doTrimInput) {
+        guiValue = guiValue.trim();
+      }
       var modelValue = bcdui.widgetNg.utils._readDataFromXML(inputElementId).value||"";
       // tells if current widget value differs from data value
       var hasValueChanged = guiValue != modelValue;

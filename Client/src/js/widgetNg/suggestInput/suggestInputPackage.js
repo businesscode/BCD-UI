@@ -175,6 +175,7 @@
       controlElement.data("_args_", args);
 
       config.isNative = isNative;
+      config.doTrimInput = args.doTrimInput || false;
   
       // dependencies to sync for
       config.dependencies = [config.target.modelId];
