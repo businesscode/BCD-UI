@@ -46,6 +46,9 @@
   font: $font-size-default $font-family-default;
   @include con_color(#FFFFFF);
   @extend .select;
+  
+  thead tr .highlight  { text-decoration: underline; cursor: pointer;}
+
 }
 
 /* Ranking */
@@ -493,7 +496,7 @@
 
   .bcdNoNumber { text-align: left }
 
-  th.bcdVdm, th.bcdVmeas, th.bcdRowCumulate, th.bcdColCumulate, th.bcdRowColCumulate, th.bcdSortAsc, th.bcdSortDesc {
+  th.bcdVdm, th.bcdVmeas, th.bcdRowCumulate, th.bcdColCumulate, th.bcdRowColCumulate {
     padding-left: 18px;
     background-position: left center;
     background-repeat: no-repeat;
@@ -505,8 +508,8 @@
   th.bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
   th.bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
   th.bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
-  th.bcdSortAsc { background-image: url(../images/cube/sortUp.gif); }
-  th.bcdSortDesc { background-image: url(../images/cube/sortDown.gif); }
+  .bcdSortAsc:after { content: "▲"; color: $border-color; padding: 2px; }
+  .bcdSortDesc:after { content: "▼"; color: $border-color; padding: 2px; }
 
   .bcdTrendUp, .bcdTrendDown {
     font: 16px Monospace;

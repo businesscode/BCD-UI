@@ -423,11 +423,11 @@
     <ContextMenuEntryGroup caption="Sorting">
       <TwoColumns>
         <Entry caption="Sort ascending">
-          <xsl:if test="$gotVdm or $wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/@colDimLevelIds"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
+          <xsl:if test="$gotVdm"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setSortMeasure', direction: 'ascending'})</JavaScriptAction>
         </Entry>
         <Entry caption="Sort descending">
-          <xsl:if test="$gotVdm or $wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/@colDimLevelIds"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
+          <xsl:if test="$gotVdm"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setSortMeasure', direction: 'descending'})</JavaScriptAction>
         </Entry>
       </TwoColumns>

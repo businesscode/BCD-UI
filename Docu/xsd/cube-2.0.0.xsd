@@ -216,6 +216,9 @@
       <xs:annotation><xs:documentation>If rowCol, rows and columns not holding any measure data will be removed from the output.</xs:documentation></xs:annotation>
       <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="rowCol"/><xs:enumeration value="false"/></xs:restriction></xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="manualSort" type="xs:boolean">
+      <xs:annotation><xs:documentation>Used by cube header clicks to indicate hard sorting of a single dimension or measure. When a manual sort is active, this flag is set to true.</xs:documentation></xs:annotation>
+    </xs:attribute>
     <xs:attribute name="layoutModel" type="xs:NCName">
       <xs:annotation><xs:documentation>Model id which is used as listener target to refresh the cube's enhanced configuration ('redisplay'). Default is cube configurator's targetModelId.
       </xs:documentation></xs:annotation>

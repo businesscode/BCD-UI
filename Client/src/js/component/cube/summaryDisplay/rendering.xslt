@@ -112,7 +112,10 @@
     <!-- Collect the messages -->
     <xsl:variable name="levelOutput">
        <xsl:if test="@sortBy">
-         <li>Is sorted <xsl:value-of select="@sort"/> by measure <xsl:value-of select="($dndOptionsModel/cube:CubeConfiguration/cube:Measures/dm:MeasureRef[@idRef=current()/@sortBy] | /*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:Measure[@id=current()/@sortBy])/@caption"/></li>
+         <li>Is sorted <xsl:value-of select="@sort"/> by measure <xsl:value-of select="($dndOptionsModel/cube:CubeConfiguration/cube:Measures/dm:MeasureRef[@idRef=current()/@sortBy] | /*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:Measure[@id=current()/@sortBy] | /*/cube:Layout[@cubeId=$objectId]/cube:Measures//dm:MeasureRef[@idRef=current()/@sortBy])/@caption"/></li>
+       </xsl:if>
+       <xsl:if test="not(@sortBy) and @sort">
+         <li>Is sorted <xsl:value-of select="@sort"/></li>
        </xsl:if>
        <xsl:if test="@total!='trailing'">
          <li>has a <xsl:value-of select="@total"/> total</li>

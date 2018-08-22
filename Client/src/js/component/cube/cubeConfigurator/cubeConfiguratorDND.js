@@ -546,12 +546,41 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         doRedisplay = true;
     }
     
-    // remove simple 'sort' when colDimension or a VDM are available
-    if (gotColDimensions || gotVDM) {
+    // remove simple 'sort' when VDM is available
+    if (gotVDM) {
       var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/*/dm:MeasureRef[@sort]");
       for (var n = 0; n < nodes.length; n++) {
         nodes[n].removeAttribute("sort");
         doRedisplay = true;
+      }
+    }
+
+    // remove sortColDims in RowDims
+    var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/cube:RowDims/dm:MeasureRef[@sortColDims]");
+    for (var n = 0; n < nodes.length; n++) {
+      nodes[n].removeAttribute("sort");
+      nodes[n].removeAttribute("sortColDims");
+      nodes[n].removeAttribute("sortColDimsBRefs");
+      var manualSort = (targetModel.read(layoutRoot + "/@manualSort", "false") == "true");
+      if (manualSort)
+        targetModel.query(layoutRoot).removeAttribute("manualSort");
+    }
+    if (nodes.length > 0)
+      doRedisplay = true;
+
+    // remove sortColDims in AllDims when col dimlevels changed
+    var nodes = targetModel.queryNodes(layoutRoot + "/cube:Measures/cube:AllDims/dm:MeasureRef[@sortColDims]");
+    for (var n = 0; n < nodes.length; n++) {
+      var bRefs = jQuery.makeArray(targetModel.queryNodes(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef")).map(function(e) {return e.getAttribute("bRef");});
+      bRefs = bRefs.join("|");
+      if (bRefs != nodes[n].getAttribute("sortColDims")) {
+        nodes[n].removeAttribute("sort");
+        nodes[n].removeAttribute("sortColDims");
+        nodes[n].removeAttribute("sortColDimsBRefs");
+        doRedisplay = true;
+        var manualSort = (targetModel.read(layoutRoot + "/@manualSort", "false") == "true");
+        if (manualSort)
+          targetModel.query(layoutRoot).removeAttribute("manualSort");
       }
     }
 

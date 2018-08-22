@@ -173,17 +173,27 @@
         <xp:OrderRowsAndCols>
           <xp:RowsOrder>
             <wrs:Columns>
-              <!-- special case when sorting is needed: first value of outer most column dimension does not have all values for inner most row dimension -->
-              <xsl:if test="/*/cube:Layout/cube:Dimensions/cube:Rows/*[@sort!='ascending' or @sortBy or @total!='trailing' or cube:VDM]
-                          or (/*/cube:Layout/cube:Dimensions/cube:Columns/* and (/*/cube:Layout/cube:Dimensions//@sort or /*/cube:Layout/cube:Dimensions//@sortBy or /*/cube:Layout/cube:Dimensions//@total))">
-                <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Rows/*">
-                  <wrs:C id="{@bRef}" sort="{concat(@sort,substring('ascending',0,1 div string-length(@sort)))}"
-                         total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}">
-                    <xsl:copy-of select="@sortBy"/>
-                  </wrs:C>
-                </xsl:for-each>
-              </xsl:if>
-
+              <xsl:choose>
+                <xsl:when test="/*/cube:Layout[@manualSort='true']">
+                  <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Rows/*">
+                    <xsl:if test="@sort">
+                      <wrs:C id="{@bRef}" sort="{@sort}" total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}"/>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:when>
+                <xsl:otherwise>
+	              <!-- special case when sorting is needed: first value of outer most column dimension does not have all values for inner most row dimension -->
+                  <xsl:if test="/*/cube:Layout/cube:Dimensions/cube:Rows/*[@sort!='ascending' or @sortBy or @total!='trailing' or cube:VDM]
+                              or (/*/cube:Layout/cube:Dimensions/cube:Columns/* and (/*/cube:Layout/cube:Dimensions//@sort or /*/cube:Layout/cube:Dimensions//@sortBy or /*/cube:Layout/cube:Dimensions//@total))">
+                    <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Rows/*">
+                      <wrs:C id="{@bRef}" sort="{concat(@sort,substring('ascending',0,1 div string-length(@sort)))}"
+                             total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}">
+                        <xsl:copy-of select="@sortBy"/>
+                      </wrs:C>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:otherwise>
+              </xsl:choose>
               <xsl:for-each select="/*/cube:Layout/cube:Measures//*[@sort]">
                 <xsl:element name="C" namespace="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
                   <xsl:attribute name="id">
@@ -278,7 +288,7 @@
             </xsl:choose>
           </xp:EmptyMessage>
           <xp:MakeColSpan>true</xp:MakeColSpan>
-          <xp:MakeRowSpan><xsl:value-of select="boolean(count(/*/cube:Layout/cube:Dimensions/*/dm:LevelRef) &lt;= 10)"/></xp:MakeRowSpan>
+          <xp:MakeRowSpan><xsl:value-of select="boolean(count(/*/cube:Layout/cube:Dimensions/*/dm:LevelRef) &lt;= 10 and not(/*/cube:Layout[@manualSort='true']))"/></xp:MakeRowSpan>
           <xp:SortRows>false</xp:SortRows>
           <xp:SortCols>false</xp:SortCols>
           <xp:HideTotals><xsl:value-of select="/*/cube:Layout/cube:Dimensions/@hideTotals"/></xp:HideTotals>
