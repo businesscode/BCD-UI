@@ -147,7 +147,17 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   // Sort dim by measure
   setSortDimByMeasure: function( targetModelId, cubeId, args )
   {
+
+    bcdui.factory.objectRegistry.getObject(targetModelId).query("//cube:Layout[@cubeId ='"+ cubeId +"']").setAttribute("manualSort", "false");
+
     if (! args.clear) {
+
+      // remove all sorts
+      jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetModelId).queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
+        e.removeAttribute("sort");
+        e.removeAttribute("sortBy");
+      });
+
       bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sort',   args.direction,  args.colDimId );
       bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sortBy', args.sortBy,     args.colDimId );
     }

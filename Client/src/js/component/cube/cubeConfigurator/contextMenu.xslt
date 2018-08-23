@@ -30,6 +30,7 @@
   <xsl:param name="wrsModel" select="/*[0=1]"/>
   <xsl:param name="bcdColIdent" />
   <xsl:param name="bcdRowIdent" />
+  <xsl:param name="headerClickSort"/>
 
   <xsl:variable name="maxRowDimPos" select="count($wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@dimId])"/>
   <xsl:variable name="statusModel" select="/"/>
@@ -280,6 +281,13 @@
         </xsl:if>
       </ContextMenuEntryGroup>
       <ContextMenuEntryGroup caption="General Options" >
+        <xsl:if test="$headerClickSort='true'">
+          <Entry caption="Toggle Column Sort">
+            <JavaScriptAction>
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: <xsl:value-of select="boolean($measureId='')"/>});
+            </JavaScriptAction>
+          </Entry>
+        </xsl:if>
         <Entry caption="Toggle hiding of totals">
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"toggleHideTotals"} )</JavaScriptAction>
         </Entry>
