@@ -226,4 +226,7 @@ input.bcdInputFieldGrid {
 
   .handsontable .columnSorting:hover { text-decoration: none; }
   .handsontable .bcdFilterOriginal:hover { text-decoration: underline; }
+
+  .handsontable .ht_clone_top table thead tr th[bcdColIdent='']  { border-right-width: 0px; }
+  .handsontable thead th .relative { margin-bottom: -1px; }  
 }
