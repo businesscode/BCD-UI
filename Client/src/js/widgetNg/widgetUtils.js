@@ -249,7 +249,7 @@
       }
       // optional trimming
       if (config.doTrimInput) {
-        guiValue = guiValue.trim();
+        inputEl.get(0).value = guiValue = guiValue.trim();
       }
       var modelValue = bcdui.widgetNg.utils._readDataFromXML(inputElementId).value||"";
       // tells if current widget value differs from data value
