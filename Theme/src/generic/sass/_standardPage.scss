@@ -367,7 +367,9 @@ a {
 .bcdComboInputField span:after {
   content: "▼";
   position: relative;
-  @include con_color(#ffffff);
+  color: #000000;
+  background-color: inherit;
+  font-size: 9px;
 }
 
 /* button */
