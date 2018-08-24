@@ -172,10 +172,12 @@
         <xsl:element name="sort" namespace="http://www.w3.org/1999/XSL/Transform">
           <xsl:attribute name="order"><xsl:value-of select="$elem/@sort"/></xsl:attribute>
           <!--
-            Now check for alphanumeric/numeric sorting. @sortBy (order dim-level by measure) is assumes to always be numeric.
-            Otherwise we check for the type of the data itself or - if any - preferred for the type of the @order attribute. -->
+            Now check for alphanumeric/numeric.
+            We check for the type of the data itself or - if any - preferred for the type of the @order or current @sortBy attribute. -->
+          <xsl:variable name="sortBy" select="$elem/@sortBy"/>
+          <xsl:variable name="sortByType" select="$headerCs[@id=$sortBy]/@type-name"/>
           <xsl:variable name="isNumericSorting" select="
-            $elem/@sortBy
+            ($sortBy and $sortByType=$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name)
             or $headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/wrs:A[@name='order']/@type-name=$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name
             or $headerCs[@id=$elem/@id or (contains(@id,'&#xE0F0;1') and translate(@id,'&#xE0F0;1|','')=translate($elem/@id,'1|','') and @valueId=$elem/@id)]/@type-name=$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name
           "/>
