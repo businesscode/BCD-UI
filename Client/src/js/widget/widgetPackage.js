@@ -1606,18 +1606,20 @@ bcdui.util.namespace("bcdui.widget",
           bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( config.event.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
         }
 
-        if (args.refreshMenuModel){
-          renderer.getPrimaryModel().execute();
-        }
+        // mark event target html element with an id
+        var id = bcdui._migPjs._$(config.event.target).get(0).id || bcdui.factory.objectRegistry.generateTemporaryId();
+        bcdui._migPjs._$(config.event.target).get(0).id = id;
+        bcdui._migPjs._$(config.htmlElement).attr("bcdEventSourceElementId", id);
+
         renderer.addDataProvider(new bcdui.core.ConstantDataProvider({
           name: "contextId",
           value: config.event.findAttribute("contextId") || ""
         }));
 
-        var id = bcdui._migPjs._$(config.event.target).get(0).id || bcdui.factory.objectRegistry.generateTemporaryId();
-        bcdui._migPjs._$(config.event.target).get(0).id = id;
+        if (args.refreshMenuModel){
+          renderer.getPrimaryModel().execute();
+        }
 
-        bcdui._migPjs._$(config.htmlElement).attr("bcdEventSourceElementId", id);
         // Context menu wins over tooltip.
         jQuery("#bcdTooltipDiv").hide();
         reDisplay();
