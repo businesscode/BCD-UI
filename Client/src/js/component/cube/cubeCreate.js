@@ -340,7 +340,6 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
-   * @param {boolean}                 [args.headerClickSort=false]                                - Enable hard dimension and measure sort on header cell click.
    *
    * @return null.
    *
@@ -531,7 +530,6 @@ bcdui.util.namespace("bcdui.component",
           , bcdDimension   : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdDimension", name: "bcdDimension", value: ""})
           , bcdMeasure     : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdMeasure", name: "bcdMeasure", value: ""})
           , wrsModel       : { refId: args.cubeId }
-          , headerClickSort: args.headerClickSort
           , cubeId:          args.cubeId
           }
         });
@@ -660,96 +658,6 @@ bcdui.util.namespace("bcdui.component",
         bcdui.component.cube.configurator._dispatchContextMenuCubeClientRefresh( memo.actionId, targetModelId, cubeId, memo );
           }.bind(undefined,targetModelId, args.cubeId)
       );
-
-      // header click handler for brutal sort
-      if (args.headerClickSort) {
-
-        // hover effect
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("mouseenter", "th.bcdDimension", function() {
-          var node = jQuery(this).find(".bcdFilterOriginal").length > 0 ? jQuery(this).find(".bcdFilterOriginal") : jQuery(this);
-          jQuery(node).addClass("highlight");
-        });
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("mouseleave", "th.bcdDimension", function() {
-          var node = jQuery(this).find(".bcdFilterOriginal").length > 0 ? jQuery(this).find(".bcdFilterOriginal") : jQuery(this);
-          jQuery(node).removeClass("highlight");
-        });
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("mouseenter", "th.bcdMeasure", function() {
-          var node = jQuery(this).find(".bcdFilterOriginal").length > 0 ? jQuery(this).find(".bcdFilterOriginal") : jQuery(this);
-          jQuery(node).addClass("highlight");
-        });
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("mouseleave", "th.bcdMeasure", function() {
-          var node = jQuery(this).find(".bcdFilterOriginal").length > 0 ? jQuery(this).find(".bcdFilterOriginal") : jQuery(this);
-          jQuery(node).removeClass("highlight");
-        });
-
-        // click handler
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("click", "th.bcdDimension", function(event){
-          var renderer = bcdui.factory.objectRegistry.getObject(args.cubeRenderer);
-          bcdui.widget._setIdents(event, renderer, this);
-          bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: true});  
-        });
-        bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).on("click", "th.bcdMeasure", function(event){
-          var renderer = bcdui.factory.objectRegistry.getObject(args.cubeRenderer);
-          bcdui.widget._setIdents(event, renderer, this);
-          bcdui._migPjs._$(args.cubeRenderer.targetHTMLElementId).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: false});  
-        });
-
-        // render sorting indicator
-        args.cubeRenderer.onReady(function() {
-          var dims = jQuery("#" + args.cubeRenderer.targetHtml).find("thead .bcdDimension");
-          var meas = jQuery("#" + args.cubeRenderer.targetHtml).find("thead .bcdMeasure");
-
-          var layoutModelId = (typeof cube != "undefined") ? cube.getConfigModel().getData().selectSingleNode("/*/cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel") : null;
-          layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
-          var targetModel = bcdui.factory.objectRegistry.getObject(layoutModelId);
-          var activeManualSort = targetModel.query("/*/cube:Layout[@cubeId ='"+ args.cubeId +"' and @manualSort='true']") != null;
-
-          dims.each(function(i,e) {
-            var htmlNode = jQuery(e).find(".bcdFilterOriginal").length > 0 ? jQuery(e).find(".bcdFilterOriginal") : jQuery(e);
-            var bRef = jQuery(e).attr("bcdColIdent") || "";
-            var node = targetModel.query("/*/cube:Layout[@cubeId ='"+ args.cubeId + "']//dm:LevelRef[@bRef='" + bRef + "']");
-            var sortDirection = (node != null) ? node.getAttribute("sort") : null;
-            if (! activeManualSort) {
-              htmlNode.removeClass("bcdSortAsc");
-              htmlNode.removeClass("bcdSortDesc");
-            }
-            else if (sortDirection == "ascending")
-              htmlNode.addClass("bcdSortAsc");
-            else if (sortDirection == "descending")
-              htmlNode.addClass("bcdSortDesc");
-            else {
-              htmlNode.removeClass("bcdSortAsc");
-              htmlNode.removeClass("bcdSortDesc");
-            }
-          });
-          meas.each(function(i,e) {
-            var htmlNode = jQuery(e).find(".bcdFilterOriginal").length > 0 ? jQuery(e).find(".bcdFilterOriginal") : jQuery(e);
-            var colIdent = jQuery(e).attr("bcdColIdent") || "";
-            var idRef = colIdent || "";
-            var posPipe = idRef.lastIndexOf('|');
-            idRef = (posPipe > 0) ? idRef.slice(posPipe + 1) : idRef;
-            var node = targetModel.query("/*/cube:Layout[@cubeId ='"+ args.cubeId + "']//dm:MeasureRef[@idRef='" + idRef + "']");
-            var sortDirection = (node != null) ? node.getAttribute("sort") : null;
-            var sortColDims = (node != null) ? node.getAttribute("sortColDims") || "" : "";
-            if (colIdent.indexOf("|") != -1) {
-              if ((sortColDims + "|" + idRef) != colIdent)
-                sortDirection = null;
-            }
-            if (! activeManualSort) {
-              htmlNode.removeClass("bcdSortAsc");
-              htmlNode.removeClass("bcdSortDesc");
-            }
-            else if (sortDirection == "ascending")
-              htmlNode.addClass("bcdSortAsc");
-            else if (sortDirection == "descending")
-              htmlNode.addClass("bcdSortDesc");
-            else {
-              htmlNode.removeClass("bcdSortAsc");
-              htmlNode.removeClass("bcdSortDesc");
-            }
-          });
-        });
-      }
     };
 
     if( typeof args.cubeRenderer == "string" || args.cubeRenderer.refId) {

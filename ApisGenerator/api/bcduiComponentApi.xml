@@ -364,11 +364,6 @@
             The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
           </Doc>
         </Param>
-        <Param name="headerClickSort" type="boolean" default="false">
-          <Doc>
-            Enable hard dimension and measure sort on header cell click.
-          </Doc>
-        </Param>
       </Api>
 
       <Api name="farModel" extends="dataProvider">

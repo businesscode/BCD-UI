@@ -33,7 +33,6 @@
   <xsl:param name="bcdMeasure" />
   <xsl:param name="bcdDimension" />
   <xsl:param name="cubeId" />
-  <xsl:param name="headerClickSort"/>
 
   <xsl:variable name="maxRowDimPos" select="count($wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@dimId])"/>
   <xsl:variable name="statusModelLayout" select="/*/cube:Layout[@cubeId=$cubeId]"/>
@@ -285,13 +284,11 @@
         </xsl:if>
       </ContextMenuEntryGroup>
       <ContextMenuEntryGroup caption="General Options" >
-        <xsl:if test="$headerClickSort='true'">
-          <Entry caption="Toggle Column Sort">
-            <JavaScriptAction>
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: <xsl:value-of select="boolean($measureId='')"/>});
-            </JavaScriptAction>
-          </Entry>
-        </xsl:if>
+        <Entry caption="Toggle Column Sort">
+          <JavaScriptAction>
+            bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: <xsl:value-of select="boolean(not($measure))"/>});
+          </JavaScriptAction>
+        </Entry>
         <Entry caption="Toggle hiding of totals">
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"toggleHideTotals"} )</JavaScriptAction>
         </Entry>
@@ -368,7 +365,7 @@
     <xsl:param name="isColDim"/>
     <!-- only available if the inner dim got a total set -->
     <xsl:variable name="innerDim" select="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/following-sibling::dm:LevelRef/@bRef"/>
-    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$innerDim] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$innerDim])">
+    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$innerDim] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$innerDim]) and count($statusModelLayout//cube:Measures/*/*) != 0">
       <ContextMenuEntryGroup caption="Sort Dimension Level By Measure">
         <xsl:call-template name="sortDimByMeasInner">
           <xsl:with-param name="direction">ascending</xsl:with-param>
