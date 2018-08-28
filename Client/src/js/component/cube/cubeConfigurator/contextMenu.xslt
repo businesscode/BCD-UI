@@ -30,12 +30,15 @@
   <xsl:param name="wrsModel" select="/*[0=1]"/>
   <xsl:param name="bcdColIdent" />
   <xsl:param name="bcdRowIdent" />
+  <xsl:param name="bcdMeasure" />
+  <xsl:param name="bcdDimension" />
+  <xsl:param name="cubeId" />
   <xsl:param name="headerClickSort"/>
 
   <xsl:variable name="maxRowDimPos" select="count($wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@dimId])"/>
-  <xsl:variable name="statusModel" select="/"/>
+  <xsl:variable name="statusModelLayout" select="/*/cube:Layout[@cubeId=$cubeId]"/>
   <xsl:variable name="colHead" select="$wrsModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id = $bcdColIdent]"/>
-  <xsl:variable name="measure" select="$statusModel//*/dm:MeasureRef[@idRef=$measureId] | $statusModel//*/dm:Measure[@id=$measureId]"/>
+  <xsl:variable name="measure" select="$statusModelLayout//dm:MeasureRef[@idRef=$measureId] | $statusModelLayout//dm:Measure[@id=$measureId]"/>
   <xsl:variable name="gotVdm" select="$wrsModel/wrs:Wrs/wrs:Data/wrs:R/@bcdVdm"/>
   <xsl:variable name="row" select="$wrsModel/wrs:Wrs/wrs:Data/wrs:R[@id=$bcdRowIdent]"/>
 
@@ -73,6 +76,7 @@
   <!-- Root -->
   <xsl:template match="/*">
     <ContextMenu>
+
       <!-- Options depending on the area of the cube -->
       <xsl:choose>
         <!-- Row dimension header -->
@@ -362,24 +366,28 @@
   <!-- Helper for sortDimByMeas, lists the distinct measures -->
   <xsl:template name="sortDimByMeas">
     <xsl:param name="isColDim"/>
-    <ContextMenuEntryGroup caption="Sort Dimension Level By Measure">
-      <xsl:call-template name="sortDimByMeasInner">
-        <xsl:with-param name="direction">ascending</xsl:with-param>
-        <xsl:with-param name="isColDim" select="$isColDim"/>
-      </xsl:call-template>
-      <xsl:call-template name="sortDimByMeasInner">
-        <xsl:with-param name="direction">descending</xsl:with-param>
-        <xsl:with-param name="isColDim" select="$isColDim"/>
-      </xsl:call-template>
-      <xsl:if test="$statusModel//dm:LevelRef/@sortBy">
-        <ContextMenuSubHeader caption="Clear sorting">
-          <Entry caption="Clear Sorting">
-              <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setSortDimByMeasure", clear: true
-                <xsl:if test="$isColDim">, colDimId: bcdui._migPjs._$(this.eventSrcElement).closest('tr').attr('levelId')</xsl:if> } )</JavaScriptAction>
-          </Entry>
-        </ContextMenuSubHeader>
-      </xsl:if>
-    </ContextMenuEntryGroup>
+    <!-- only available if the inner dim got a total set -->
+    <xsl:variable name="innerDim" select="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/following-sibling::dm:LevelRef/@bRef"/>
+    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$innerDim] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$innerDim])">
+      <ContextMenuEntryGroup caption="Sort Dimension Level By Measure">
+        <xsl:call-template name="sortDimByMeasInner">
+          <xsl:with-param name="direction">ascending</xsl:with-param>
+          <xsl:with-param name="isColDim" select="$isColDim"/>
+        </xsl:call-template>
+        <xsl:call-template name="sortDimByMeasInner">
+          <xsl:with-param name="direction">descending</xsl:with-param>
+          <xsl:with-param name="isColDim" select="$isColDim"/>
+        </xsl:call-template>
+        <xsl:if test="$statusModelLayout//dm:LevelRef/@sortBy">
+          <ContextMenuSubHeader caption="Clear sorting">
+            <Entry caption="Clear Sorting">
+                <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setSortDimByMeasure", clear: true
+                  <xsl:if test="$isColDim">, colDimId: bcdui._migPjs._$(this.eventSrcElement).closest('tr').attr('levelId')</xsl:if> } )</JavaScriptAction>
+            </Entry>
+          </ContextMenuSubHeader>
+        </xsl:if>
+      </ContextMenuEntryGroup>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="sortDimByMeasInner">

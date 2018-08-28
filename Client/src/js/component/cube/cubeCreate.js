@@ -504,24 +504,42 @@ bcdui.util.namespace("bcdui.component",
         bcdui.component.cube.rankingEditor._initRanking(args, targetModelId, bucketModelId);
 
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
-        var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu; 
-        bcdui.factory.createModelWrapper({
-          id: "contextMenu"
-        , chain: ""
-        , url: contextMenuUrl
-        , inputModel: "guiStatus"
-        , dataProviders: []
-        , parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, wrsModel: { refId: args.cubeId }, headerClickSort: args.headerClickSort }
+        var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu;
+
+        // try to attach clicked measure / dimension information which is reused in contextMenu
+        var prepareContextMenu = function(doc, args) {
+          var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
+          var isMeasureHeader = jQuery("#" + target).hasClass("bcdMeasureHeader");
+          if (target != null) {
+            var targetModel = bcdui.factory.objectRegistry.getObject(args.bcdInputModelId);
+            var colIdent = bcdui.wkModels.bcdColIdent.getData() || "";
+            var posPipe = colIdent.lastIndexOf('|');
+            var bRef  = (posPipe > 0) ? (jQuery("#" + target).closest("tr").attr("levelId")) || "" : (bcdui.wkModels.bcdColIdent.getData() || "");
+            var idRef = (posPipe > 0) ? colIdent.slice(posPipe + 1) : (bcdui.wkModels.bcdColIdent.getData() || "");
+            bcdui.factory.objectRegistry.getObject(args.cubeId + "_bcdDimension").value = (targetModel.query("//cube:Layout[@cubeId ='"+ args.cubeId +"']/cube:Dimensions/*/dm:*[@bRef='" + bRef + "' or @id='" + bRef + "']") != null) ? bRef : "";
+            bcdui.factory.objectRegistry.getObject(args.cubeId + "_bcdMeasure").value = (targetModel.query("//cube:Layout[@cubeId ='"+ args.cubeId +"']/cube:Measures/*/dm:*[@idRef='" + idRef + "' or @id='" + idRef + "']") != null) ? idRef : "";
+          }
+          return doc;
+        };
+
+        var contextMenu = bcdui.factory.createModelWrapper({
+          inputModel: targetModel
+        , chain     : [prepareContextMenu, contextMenuUrl]
+        , parameters: {
+            bcdRowIdent    : bcdui.wkModels.bcdRowIdent
+          , bcdColIdent    : bcdui.wkModels.bcdColIdent
+          , bcdDimension   : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdDimension", name: "bcdDimension", value: ""})
+          , bcdMeasure     : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdMeasure", name: "bcdMeasure", value: ""})
+          , wrsModel       : { refId: args.cubeId }
+          , headerClickSort: args.headerClickSort
+          , cubeId:          args.cubeId
+          }
         });
         bcdui.widget.createContextMenu({
             targetRendererId: args.cubeId
-          , inputModel       : ""
-          , chain            : ""
-          , url              : ""
-          , tableMode        : true
-          , refreshMenuModel : true
-          , dataProviders: ["contextMenu"]
-          , parameters      : {  }
+          , inputModel      : contextMenu
+          , tableMode       : true
+          , refreshMenuModel: true
         });
       }
 
