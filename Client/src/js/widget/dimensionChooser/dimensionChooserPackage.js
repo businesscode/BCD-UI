@@ -194,7 +194,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           // in case the event was triggered from outside, we try to set the elements and level
           if (! internalUpdate) {
             var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
-            
+
             var foundLevel =  bcdui.widget.dimensionChooser._guessLevel(targetModel, multiSelectTargetXpath, levelStorage);
 
             // let's remove all choosers first (deregister objects, remove lines etc) without refreshing the filter area
@@ -211,9 +211,12 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
             // copy 1st filter into edit area to make it visible in the input fields (especially needed in single mode) 
             bcdui.core.removeXPath(targetModel.getData(), multiSelectEditXpath);
             var source = targetModel.getData().selectSingleNode(multiSelectTargetXpath + "/f:And[1]");
+            var sourceExclude = targetModel.getData().selectSingleNode(multiSelectTargetXpathExclude + "/f:Or[1]");
             if (source != null) {
               var destination = bcdui.core.createElementWithPrototype(targetModel.getData(), multiSelectEditXpathRoot);
               destination.appendChild(source.cloneNode(true));
+            } else if (sourceExclude != null) { // reset level selection on only-exclude-selection
+              foundLevel = "";
             }
 
             // write calculated level based on 1st filter and recreate the chooser
@@ -287,9 +290,12 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           // copy 1st filter into edit area to make it visible in the input fields (especially needed in single mode) 
           bcdui.core.removeXPath(targetModel.getData(), multiSelectEditXpath);
           var source = targetModel.getData().selectSingleNode(multiSelectTargetXpath + "/f:And[1]");
+          var sourceExclude = targetModel.getData().selectSingleNode(multiSelectTargetXpathExclude + "/f:Or[1]");
           if (source != null) {
             var destination = bcdui.core.createElementWithPrototype(targetModel.getData(), multiSelectEditXpathRoot);
             destination.appendChild(source.cloneNode(true));
+          } else if (sourceExclude != null) {
+            level = null; // reset level selection on only-exclude-selection
           }
 
           // if no level is given, we try to guess it
