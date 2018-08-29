@@ -450,19 +450,18 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    */
   _synchronizedStatusTransition: function(/* Status */ newStatus, /* array */ dependentStatusPublishers, /* Function? */ failureCallback)
     {
-      if (this._areAllReady(dependentStatusPublishers)) {
+      if (this._areAllReady(dependentStatusPublishers)) { // this also sets ready if there are no dependentStatusPublishers at all
         this.setStatus(newStatus);
       } else {
-        var waitingCounter = 0;
+        var waitingCounter = dependentStatusPublishers.length; // every dependentStatusPublisher in ready state decreases this, when reaching 0 we can set new status
         var traceWaitingFor = "";
         var traceExecutedSync = "";  // log messages
-        dependentStatusPublishers.forEach(function(statusPublisher) {
+        dependentStatusPublishers.forEach(function(statusPublisher) { // dependentStatusPublishers array size is frozen before forEach is executed 
           if (!statusPublisher.isReady()) {
-            ++waitingCounter;
 
             statusPublisher.execute(); // Sync status publishers are handled here with low overhead
 
-            if (!statusPublisher.isReady()) {
+            if (!statusPublisher.isReady()) {  // handle async publishers
               traceWaitingFor += statusPublisher.id+", ";
               statusPublisher.addStatusListener({
                 status: statusPublisher.getReadyStatus(),
@@ -487,7 +486,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
                   });
                 }, this);
               }
-            } else {
+            } else {  // handle sync publishers which turned to ready directly
               if (--waitingCounter == 0) {
                 if (this.hasFailed()) {
                   bcdui.log.warn("Skipping further processing, beacuse loading has already failed.");
@@ -496,6 +495,15 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
                 }
               } else
               traceExecutedSync += statusPublisher.id+", ";
+            }
+          }
+          else { // publisher is ready
+            if (--waitingCounter == 0) {
+              if (this.hasFailed()) {
+                bcdui.log.warn("Skipping further processing, beacuse loading has already failed.");
+              } else {
+                this.setStatus(newStatus);
+              }
             }
           }
         }.bind(this));
