@@ -30,10 +30,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 
 import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.log4j.Logger;
@@ -61,7 +59,7 @@ public class WrsServlet extends HttpServlet {
   private final Logger log = Logger.getLogger(getClass());
   private final Map< String, Class<? extends ISqlGenerator> > services = new HashMap< String, Class<? extends ISqlGenerator> >();
 
-  public int maxRows = 4000;
+  protected int maxRowsDefault = 4000;
   /**
    * stores last modified stamps on resources
    */
@@ -106,11 +104,12 @@ public class WrsServlet extends HttpServlet {
   /**
    * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
     if (config.getInitParameter("MaxRows") != null)
-      try { maxRows = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
+      try { maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
 
     // Standard Wrs Servlet: empty serviceName in request
     services.put("", (Class<? extends ISqlGenerator>)Configuration.getClassoption(Configuration.OPT_CLASSES.WRQ2SQL));
@@ -136,7 +135,7 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-	  int maxRows = this.maxRows;
+	  int maxRows = maxRowsDefault;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
         Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdWrs:maxRows");
@@ -155,13 +154,14 @@ public class WrsServlet extends HttpServlet {
     IDataWriter dataWriter = null;
     try {
       IRequestOptions options = new HttpRequestOptions(getServletContext(), request, maxRows);
+      IRequestOptions loaderOptions = new HttpRequestOptions(getServletContext(), request, maxRows + 1); // +1 because we want to define the exceed-attribute in the dataWriter
 
       // We dynamically derive the ISqlGenerator from the serviceName attribute, empty means default
       final String serviceName = options.getRequestDoc() == null || options.getRequestDoc().getDocumentElement() == null ? "" : options.getRequestDoc().getDocumentElement().getAttribute("serviceName");
       ISqlGenerator generator = Configuration.getClassInstance(services.get(serviceName), new Class[]{IRequestOptions.class}, options);
 
       dataWriter = createDataWriter(request, response, options);
-      DataLoader loader = new DataLoader(options, generator, dataWriter);
+      DataLoader loader = new DataLoader(loaderOptions, generator, dataWriter);
       loader.run();
       //
       // log wrs-access
@@ -220,7 +220,7 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	  int maxRows = this.maxRows;
+	  int maxRows = maxRowsDefault;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
         Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdWrs:maxRows");

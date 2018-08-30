@@ -58,7 +58,7 @@ public class ExcelExportServlet extends HttpServlet {
   private Logger log = Logger.getLogger(getClass());
   private final Set<String> templateContainers = new HashSet<>();
   private static AtomicInteger concurrent = new AtomicInteger(0);
-  private int maxRows = 30000; // Default
+  protected int maxRowsDefault = 30000; // Default
   private static final int MAX_MEMORY_GB = 8;
 
   /**
@@ -88,7 +88,7 @@ public class ExcelExportServlet extends HttpServlet {
     log.trace("Template Containers: " + templateContainers);
 
     try {
-      maxRows = Integer.parseInt(config.getInitParameter("MaxRows"));
+      maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows"));
     } catch(Exception e) {
       log.info("For "+getServletName()+" init parameter MaxRows not found, using default.");
     }
@@ -97,8 +97,8 @@ public class ExcelExportServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-    maxRows = ExcelExportServlet.getMaxRows(maxRows);
-    
+    int maxRows = ExcelExportServlet.getMaxRows(maxRowsDefault);
+
     log.trace("exporting Wrs at " + req.getRequestURL().toString());
 
     // Poi is memory intensive. Exporting 30k rows with 32 columns consumes about 1 GB (POI 3.14)

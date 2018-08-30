@@ -243,9 +243,9 @@ public class DataLoader {
         }
         //
         // max rows
-        int maxRows = getGenerator().getMaxRows();
+        int maxRows = getOptions().getMaxRows();
         if (maxRows >= 0) {
-          statement.setMaxRows(maxRows + 1); // +1 because we want to define the exceed-attribute
+          statement.setMaxRows(maxRows);
           log.trace("Max rows:" + maxRows);
         }
         //

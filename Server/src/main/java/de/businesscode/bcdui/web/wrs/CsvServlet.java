@@ -44,7 +44,7 @@ public class CsvServlet extends HttpServlet {
   //
   private final Logger log = Logger.getLogger(getClass());
 
-  public int maxRows = 30000;
+  protected int maxRowsDefault = 30000;
   /**
    * CsvServlet
    */
@@ -59,7 +59,7 @@ public class CsvServlet extends HttpServlet {
     super.init(config);
 
     if (config.getInitParameter("MaxRows") != null)
-      try { maxRows = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
+      try { maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
   }
 
   /**
@@ -68,7 +68,7 @@ public class CsvServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-    maxRows = ExcelExportServlet.getMaxRows(maxRows);
+    int maxRows = ExcelExportServlet.getMaxRows(maxRowsDefault);
 
     if (log.isTraceEnabled()) {
       log.trace(String.format("processing url: %s", ServletUtils.getInstance().reconstructURL(request)));
