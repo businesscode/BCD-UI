@@ -89,40 +89,31 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   },
 
   // manual sort toggle when clicking on header
-  toggleSort: function( targetModelId, cubeId, args ){
+  setColumnSort: function( targetModelId, cubeId, args ){
 
     var targetModel = bcdui.factory.objectRegistry.getObject(targetModelId);
     var colIdent = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
     var idRef = args.isDim ? bcdui.component.cube.configurator._getDimensionId("bcdColIdent") : bcdui.component.cube.configurator._getMeasureId("bcdColIdent");
 
     if (idRef != null) {
-      var node = targetModel.query("//cube:Layout[@cubeId ='" + cubeId + "']/cube:*/cube:*/dm:*[@idRef='" + idRef + "' or @bRef='" + idRef + "' or @id='" + idRef + "']");
-      if (node != null) {
 
-        // sorting toggle
-        var sortDirection = node.getAttribute('sort');
-        if (sortDirection == null)             sortDirection = "ascending";
-        else if (sortDirection == "ascending") sortDirection = "descending";
-        else                                   sortDirection = null;
+      // mark manualSort
+      targetModel.query("//cube:Layout[@cubeId ='"+ cubeId +"']").setAttribute("manualSort", "" + (args.direction != null));
 
-        // mark manualSort
-        targetModel.query("//cube:Layout[@cubeId ='"+ cubeId +"']").setAttribute("manualSort", "" + (sortDirection != null));
+      // remove all sorts
+      jQuery.makeArray(targetModel.queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
+        e.removeAttribute("sort");
+        e.removeAttribute("sortBy");
+      });
 
-        // remove all sorts
-        jQuery.makeArray(targetModel.queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
-          e.removeAttribute("sort");
-          e.removeAttribute("sortBy");
-        });
+      // and set new one
+      bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sort', args.direction );
 
-        // and set new one
-        bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sort', sortDirection );
-
-        // in case of a colDim Measure, we also write sortColDims
-        if (! args.isDim && colIdent.indexOf("|") != -1) {
-          var bRefs = jQuery.makeArray(targetModel.queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Dimensions/cube:Columns/dm:LevelRef")).map(function(e) { return e.getAttribute("bRef"); }).join("|");
-          bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sortColDimsBRefs', bRefs);
-          bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sortColDims', colIdent.substring(0, colIdent.lastIndexOf('|')));
-        }
+      // in case of a colDim Measure, we also write sortColDims
+      if (! args.isDim && colIdent.indexOf("|") != -1) {
+        var bRefs = jQuery.makeArray(targetModel.queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Dimensions/cube:Columns/dm:LevelRef")).map(function(e) { return e.getAttribute("bRef"); }).join("|");
+        bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sortColDimsBRefs', bRefs);
+        bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, args.isDim, 'sortColDims', colIdent.substring(0, colIdent.lastIndexOf('|')));
       }
     }
     return true;

@@ -283,12 +283,30 @@
           </TwoColumns>
         </xsl:if>
       </ContextMenuEntryGroup>
+
+      <ContextMenuEntryGroup caption="Column Sorting" >
+        <TwoColumns>
+          <Entry caption="Sort ascending">
+            <JavaScriptAction>
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "ascending"});
+            </JavaScriptAction>
+          </Entry>
+          <Entry caption="Sort descending">
+            <JavaScriptAction>
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "descending"});
+            </JavaScriptAction>
+          </Entry>
+          <xsl:if test="$statusModelLayout/@manualSort='true'">
+            <Entry caption="Clear sorting">
+              <JavaScriptAction>
+                bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: null});
+              </JavaScriptAction>
+            </Entry>
+          </xsl:if>
+        </TwoColumns>
+      </ContextMenuEntryGroup>
+
       <ContextMenuEntryGroup caption="General Options" >
-        <Entry caption="Toggle Column Sort">
-          <JavaScriptAction>
-            bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'toggleSort', isDim: <xsl:value-of select="boolean(not($measure))"/>});
-          </JavaScriptAction>
-        </Entry>
         <Entry caption="Toggle hiding of totals">
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"toggleHideTotals"} )</JavaScriptAction>
         </Entry>
