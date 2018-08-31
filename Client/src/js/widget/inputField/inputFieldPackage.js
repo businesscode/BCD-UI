@@ -1159,7 +1159,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
       // Move and size the box to the current owner input field
       bcdui.util.clonePosition(valueBox.get(0), htmlElement,
           { setHeight: false,
-            setWidth: true,
+            setWidth: false,
             offsetTop: bcdui._migPjs._$(htmlElement).innerHeight()
           }
       );
