@@ -71,6 +71,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Charts: Moved VML drawer to BCD-UI-DE
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
+** CubeContextMenu, Sort Measre is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort 
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 * New entries for Eclipse injection to support ECMA5 transpiled sources, see Docu/development/eclipseInjected.xml
 * Widgets: navpath generation is turned off by default, use widget's enableNavPath attribute to turn it on

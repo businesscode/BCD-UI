@@ -230,7 +230,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       var caption = obj.caption;
       var layoutNode = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("//cube:Layout[@cubeId ='"+cubeId+"']");
       // standard case for hide all occurrences, just what the affected level, ignore the rest
-      if( value!="1" || ! args.outerLevelId) {
+      if( ! args.total && (value!="1" || ! args.outerLevelId)) {
         var filterNode = bcdui.core.createElementWithPrototype(layoutNode, "/cube:Hide/f:Filter");
         var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode, "f:Expression");
         expressionNode.setAttribute("bRef", args.levelId);
@@ -242,6 +242,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       }
       // This will hide exactly one level of totals. Thus, we must only hide those, where the next outer dim is not total
       else {
+        value = args.total ? "1" : value;
         var filterNode = bcdui.core.createElementWithPrototype(layoutNode, "/cube:Hide/f:Filter");
         var orNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode,"f:Or");
         orNode.setAttribute("bRef", args.levelId);
