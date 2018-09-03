@@ -80,6 +80,7 @@
       <xsl:choose>
         <!-- Row dimension header -->
         <xsl:when test="$contextType='RowDimensionHeader'">
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="sortDimByMeas">
             <xsl:with-param name="isColDim" select="false()"/>
           </xsl:call-template>
@@ -87,6 +88,7 @@
 
         <!-- Col dimension member -->
         <xsl:when test="$contextType='ColTotalHeader'">
+          <xsl:call-template name="columnSort"/>
           <ContextMenuEntryGroup caption="Hide Total" >
             <Entry caption="Hide total for this dimension">
               <JavaScriptAction>
@@ -110,6 +112,7 @@
 
         <!-- Col dimension member -->
         <xsl:when test="$contextType='ColDimensionMember'">
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="sortDimByMeas">
             <xsl:with-param name="isColDim" select="true()"/>
           </xsl:call-template>
@@ -164,12 +167,14 @@
         <!-- Measure header -->
         <xsl:when test="$contextType='ColMeasureHeader'">
           <ContextMenuTitle caption="Actions for '{$measureCaption}'"/>
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="sortAllByMeasure"/>
           <xsl:call-template name="cumulate"/>
         </xsl:when>
 
         <!-- Row total dimension member -->
         <xsl:when test="$contextType='RowDimensionTotalMember'">
+          <xsl:call-template name="columnSort"/>
           <ContextMenuEntryGroup caption="Hide Total" >
             <Entry caption="Hide total for this dimension">
               <JavaScriptAction>
@@ -183,6 +188,7 @@
         </xsl:when>
 
         <xsl:when test="$contextType='RowDimensionMember'">
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="sortDimByMeas">
             <xsl:with-param name="isColDim" select="false()"/>
           </xsl:call-template>
@@ -237,6 +243,7 @@
         <!-- A standard cell with a measure -->
         <xsl:when test="$contextType='MeasureCell'">
           <ContextMenuTitle caption="Actions for '{$measureCaption}'"/>
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="sortAllByMeasure"/>
           <xsl:call-template name="cumulate"/>
           <xsl:call-template name="detailExport"/>
@@ -244,6 +251,7 @@
 
         <!-- A total cell with a measure -->
         <xsl:when test="$contextType='MeasureTotalCell'">
+          <xsl:call-template name="columnSort"/>
           <xsl:call-template name="detailExport"/>
         </xsl:when>
 
@@ -282,28 +290,6 @@
             </Entry>
           </TwoColumns>
         </xsl:if>
-      </ContextMenuEntryGroup>
-
-      <ContextMenuEntryGroup caption="Column Sorting" >
-        <TwoColumns>
-          <Entry caption="Sort ascending">
-            <JavaScriptAction>
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "ascending"});
-            </JavaScriptAction>
-          </Entry>
-          <Entry caption="Sort descending">
-            <JavaScriptAction>
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "descending"});
-            </JavaScriptAction>
-          </Entry>
-          <xsl:if test="$statusModelLayout/@manualSort='true'">
-            <Entry caption="Clear sorting">
-              <JavaScriptAction>
-                bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: null});
-              </JavaScriptAction>
-            </Entry>
-          </xsl:if>
-        </TwoColumns>
       </ContextMenuEntryGroup>
 
       <ContextMenuEntryGroup caption="General Options" >
@@ -378,10 +364,34 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template name="columnSort">
+    <ContextMenuEntryGroup caption="Column Sorting" >
+      <TwoColumns>
+        <Entry caption="Sort ascending">
+          <JavaScriptAction>
+            bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "ascending"});
+          </JavaScriptAction>
+        </Entry>
+        <Entry caption="Sort descending">
+          <JavaScriptAction>
+            bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "descending"});
+          </JavaScriptAction>
+        </Entry>
+        <xsl:if test="$statusModelLayout/@manualSort='true'">
+          <Entry caption="Clear sorting">
+            <JavaScriptAction>
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: null});
+            </JavaScriptAction>
+          </Entry>
+        </xsl:if>
+      </TwoColumns>
+    </ContextMenuEntryGroup>
+  </xsl:template>
+
   <!-- Helper for sortDimByMeas, lists the distinct measures -->
   <xsl:template name="sortDimByMeas">
     <xsl:param name="isColDim"/>
-    <!-- only available if the inner dim got a total set -->
+    <!-- only available if the inner dim got a total set and we actually have measures-->
     <xsl:variable name="innerDim" select="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/following-sibling::dm:LevelRef/@bRef"/>
     <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$innerDim] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$innerDim]) and count($statusModelLayout//cube:Measures/*/*) != 0">
       <ContextMenuEntryGroup caption="Sort Dimension Level By Measure">
@@ -451,7 +461,7 @@
   </xsl:template>
 
   <xsl:template name="sortAllByMeasure">
-    <ContextMenuEntryGroup caption="Sorting">
+    <ContextMenuEntryGroup caption="Grouped Sorting">
       <TwoColumns>
         <Entry caption="Sort ascending">
           <xsl:if test="$gotVdm"><xsl:attribute name="isDisabled">true</xsl:attribute></xsl:if>
