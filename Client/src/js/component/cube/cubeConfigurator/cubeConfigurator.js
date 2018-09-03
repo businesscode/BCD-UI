@@ -250,10 +250,12 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         expressionNode.setAttribute("bRef", args.levelId);
         expressionNode.setAttribute("op", '!=');
         expressionNode.setAttribute("value", value);
-        expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
-        expressionNode.setAttribute("bRef", args.outerLevelId);
-        expressionNode.setAttribute("op", '=');
-        expressionNode.setAttribute("value", value);
+        if (args.outerLevelId) {
+          expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
+          expressionNode.setAttribute("bRef", args.outerLevelId);
+          expressionNode.setAttribute("op", '=');
+          expressionNode.setAttribute("value", value);
+        }
       }
     }
     //-------------------------------------------

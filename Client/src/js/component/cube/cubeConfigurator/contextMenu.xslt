@@ -136,7 +136,7 @@
                 </Entry>
               </TwoColumns>
             </xsl:if>
-            <Entry caption="Show all values of this dimension">
+            <Entry caption="Show all values for this dimension">
               <JavaScriptAction>
                 var levelId = bcdui._migPjs._$(this.eventSrcElement).closest("tr").attr("levelId");
                 bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, showAll: true } )
@@ -200,7 +200,7 @@
                   </JavaScriptAction>
                 </Entry>
               </TwoColumns>
-              <Entry caption="Show all values of this dimension">
+              <Entry caption="Show all values for this dimension">
                 <JavaScriptAction>
                   var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
                   bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, showAll: true} )
@@ -362,7 +362,7 @@
     <xsl:param name="isColDim"/>
     <!-- only available if the dim got a total set and we actually have measures-->
     <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimension] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension]) and count($statusModelLayout//cube:Measures/*/*) != 0">
-      <ContextMenuEntryGroup caption="Sort Dimension Level By Measure">
+      <ContextMenuEntryGroup caption="Sort Level By Measure">
         <xsl:call-template name="sortDimByMeasInner">
           <xsl:with-param name="direction">ascending</xsl:with-param>
           <xsl:with-param name="isColDim" select="$isColDim"/>
@@ -451,7 +451,7 @@
     <xsl:param name="isColDim"/>
     <ContextMenuEntryGroup caption="Totals" >
       <xsl:if test="$statusModelLayout//dm:LevelRef[(@total!='') and @bRef=$bcdDimension] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension and @op='!=' and @value='&#xE0F0;1'])">
-        <Entry caption="Hide total values of this level">
+        <Entry caption="Hide total values for this level">
           <xsl:choose>
             <xsl:when test="$isColDim">
               <JavaScriptAction>
@@ -482,7 +482,7 @@
       <xsl:if test="$statusModelLayout//dm:LevelRef[(not(@total) or @total='') and @bRef=$bcdDimension] or $statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension and @op='!=' and @value='&#xE0F0;1']">
         <xsl:choose>
           <xsl:when test="$isColDim">
-            <Entry caption="Show total values of this level">
+            <Entry caption="Show total values for this level">
               <JavaScriptAction>
                 var levelId = bcdui._migPjs._$(this.eventSrcElement).closest("tr").attr("levelId");
                 bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
@@ -490,7 +490,7 @@
             </Entry>
           </xsl:when>
           <xsl:otherwise>
-            <Entry caption="Show total values of this level">
+            <Entry caption="Show total values for this level">
               <JavaScriptAction>
                 var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
                 bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
@@ -500,10 +500,15 @@
         </xsl:choose>
       </xsl:if>
 
-      <Entry caption="Toggle hiding of totals">
+      <Entry>
+        <xsl:attribute name="caption">
+          <xsl:choose>
+            <xsl:when test="$statusModelLayout//cube:Dimensions/@hideTotals='true'">Enable all totals</xsl:when>
+            <xsl:otherwise>Disable all totals</xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
         <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"toggleHideTotals"} )</JavaScriptAction>
       </Entry>
-
     </ContextMenuEntryGroup>
   </xsl:template>
 
