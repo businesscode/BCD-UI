@@ -152,7 +152,7 @@
 
 .bcdHidden,
 .bcdClosed {
-  display: none;
+  display: none !important;
 }
 
 .bcdInfoBox {
