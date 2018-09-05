@@ -69,7 +69,7 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
         try{
           this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
         }catch(e){
-          throw new Error("Failed parsing data parameter for static model: '"+args.id+"'", e);
+          throw new Error("Failed parsing data parameter for static model. " + e);
         }
       } else {
         this.dataDoc = args.data;
