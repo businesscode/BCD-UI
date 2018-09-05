@@ -486,6 +486,10 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       for (var x in params) {
         if( typeof params[x] === "undefined" || params[x] === null || x.indexOf(":")!==-1 )
           delete params[x];
+        // remove non-xml objects for XSLT processors only
+        else if (xslt.processor.xslt && typeof params[x] == "object" && ! params[x].nodeType) {
+          delete params[x];
+        }
       }
 
       var traceXsltProcTime = Date.now(); // debug code
