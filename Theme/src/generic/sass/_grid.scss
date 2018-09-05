@@ -229,4 +229,6 @@ input.bcdInputFieldGrid {
   .handsontable thead th .relative { margin-bottom: -1px; }  
 
   .handsontable .columnSorting:hover { text-decoration: none; cursor: default; }
+
+  textarea.handsontableInput {box-shadow: none; background-color: transparent;}
 }
