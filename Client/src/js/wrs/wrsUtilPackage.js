@@ -815,6 +815,27 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   },
 
   /**
+   * Generates metadata JS object from a Wrs document
+   *
+   * @param {document} wrsDoc - WRS Document to build a header from
+   * @return {object} with { [column-id] : {object-with-attrs from wrs:Column/wrs:C} }
+   */
+  generateWrsHeaderMeta : function(wrsDoc){
+    var map = {};
+    var nodes = wrsDoc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C");
+
+    for(var i=0,imax=nodes.length; i<imax; i++){
+      var node = nodes.item(i);
+      var attrMap = map[node.getAttribute("id")] = {};
+      for(var a of node.attributes){
+        attrMap[a.name] = a.value;
+      }
+    }
+
+    return map;
+  },
+
+  /**
    * Convenience method to return error count in current document (possibly validated by validateWrs.xml)
    * @param {string|bcdui.core.DataProvider} wrs - Id of a DataProvider or the DataProvider itself (dp must be ready)
    * @return -2: if no validation has been performed, -1: if the data provider is not ready yet, otherwise the number of errors found is returned
