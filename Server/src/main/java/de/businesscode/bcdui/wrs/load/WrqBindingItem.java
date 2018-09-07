@@ -151,6 +151,7 @@ public class WrqBindingItem implements WrsBindingItem
       this.id = elem.getAttribute("id").isEmpty() ? elem.getAttribute("bRef").isEmpty() ? bi.getId() : elem.getAttribute("bRef") : elem.getAttribute("id");
       this.tableAlias = bi.getTableAliasName(); // what in case of wrq:Calc
 
+      // take over all bcdui standard binding attributes for this binding item
       attributes.putAll(bi.getAttributes());
       // User-provided VDM values are strings
       origJdbcDataType = bi.getJDBCDataType();
@@ -182,9 +183,9 @@ public class WrqBindingItem implements WrsBindingItem
       }
     }
 
-    // As part of wrs:C and wrs:A elements in the select list allow the user to provide additional attributes
-    // (here we are talking about plain attributes, not wrs:A),  which are included in the answer
-    // and do even overwrite attributes derived from the BindingSet
+    // As part of wrq:C and wrq:A elements in the select list allow the user to provide additional attributes
+    // (here we are talking about plain attributes, not wrq:A),  which are included in the answer
+    // and do even overwrite attributes derived from the BindingSet with wrq custom attributes
     NamedNodeMap attrs = elem.getAttributes();
     for( int a = 0; a<attrs.getLength(); a++ ) {
       Node attr = attrs.item(a);
@@ -298,9 +299,12 @@ public class WrqBindingItem implements WrsBindingItem
   {
     Map<String,Object> attrs = attributes;
 
-    for (String attrName : attrs.keySet())
-      writer.writeAttribute(attrName, attrs.get(attrName).toString());
-    
+    for (String attrName : attrs.keySet()) {
+      // since we write common wrs elements like Column in standard namespace (see WrsDataWriter), we skip default namespaces which came with the wrq 
+      if (!("xmlns".equals(attrName)))
+        writer.writeAttribute(attrName, attrs.get(attrName).toString());
+    }
+
     if(referenceBindingItem != null){
       Map<String, String> customAtts = referenceBindingItem.getCustomAttributesMap();
       for (String attrName : customAtts.keySet()){
