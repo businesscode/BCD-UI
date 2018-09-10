@@ -60,7 +60,7 @@
   <xsl:variable name="orderRowsAndColsTemplate" select="document('orderRowsAndColsTemplate.xslt')"/>
   <xsl:variable name="headerCs" select="/*/wrs:Header/wrs:Columns/wrs:C"/>
   <xsl:variable name="doc" select="/"/>
-  <xsl:variable name="colFilter" select="$paramSet/f:Filter/*[.//@bRef != $headerCs/@dimId]"/>
+  <xsl:variable name="colFilter" select="$paramSet/f:Filter/*[.//@bRef != $headerCs/@dimId or not($headerCs/@dimId)]"/>
 
   <xsl:template match="/*">
     <xsl:choose>
