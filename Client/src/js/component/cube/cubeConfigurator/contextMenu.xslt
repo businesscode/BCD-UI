@@ -48,6 +48,17 @@
 
   <xsl:variable name="isVdm" select="boolean($colHead/@bcdVdm) or boolean($row/@bcdVdm)"/>
   <xsl:variable name="dimCaption" select="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/@caption"/>
+  <xsl:variable name="bcdDimensionInner">
+    <xsl:choose>
+      <xsl:when test="$statusModelLayout//cube:Columns//dm:LevelRef[@bRef=$bcdDimension]">
+        <xsl:value-of select="$bcdDimension"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/following-sibling::*[1]/@bRef"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="bcdDimensionOuter" select="$statusModelLayout//cube:Rows//dm:LevelRef[1]/@bRef"/>
 
   <xsl:variable name="measureCaption">
     <xsl:call-template name="getMeasureId">
@@ -102,6 +113,9 @@
 
         <!-- Col dimension member -->
         <xsl:when test="$contextType='ColTotalHeader'">
+          <xsl:call-template name="totals">
+            <xsl:with-param name="isColDim" select="true()"/>
+          </xsl:call-template>
         </xsl:when>
 
         <!-- Col dimension member -->
@@ -467,7 +481,7 @@
   <xsl:template name="totals">
     <xsl:param name="isColDim"/>
     <ContextMenuSubHeader caption="Totals"/>
-    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimension] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension and @op='!=' and @value='&#xE0F0;1'])">
+    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimensionInner] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionInner and @op='!=' and @value='&#xE0F0;1'])">
       <Entry caption="Hide total values for this level">
         <xsl:choose>
           <xsl:when test="$isColDim">
@@ -488,33 +502,42 @@
           </xsl:when>
           <xsl:otherwise>
             <JavaScriptAction>
-              var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
-              var outerLevelId = "<xsl:value-of select="$colHead/preceding-sibling::*[1]/@id"/>";
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, outerLevelId: outerLevelId, isColDim: false, all: true, total: true} )
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: '<xsl:value-of select="$bcdDimensionInner"/>', outerLevelId: '<xsl:value-of select="$colHead/@id"/>', isColDim: false, all: true, total: true} )
             </JavaScriptAction>
           </xsl:otherwise>
         </xsl:choose>
       </Entry>
     </xsl:if>
-    <xsl:if test="$statusModelLayout//dm:LevelRef[(not(@total) or @total='') and @bRef=$bcdDimension] or $statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension and @op='!=' and @value='&#xE0F0;1']">
+    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimensionOuter] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionOuter and @op='!=' and @value='&#xE0F0;1'])">
+      <Entry caption="Hide grand total values">
+        <JavaScriptAction>
+          bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: '<xsl:value-of select="$bcdDimensionOuter"/>', outerLevelId: null, isColDim: false, all: true, total: true} )
+        </JavaScriptAction>
+      </Entry>
+    </xsl:if>
+    <xsl:if test="$statusModelLayout//dm:LevelRef[(not(@total) or @total='') and @bRef=$bcdDimensionInner] or $statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionInner and @op='!=' and @value='&#xE0F0;1']">
+      <Entry caption="Show total values for this level">
       <xsl:choose>
         <xsl:when test="$isColDim">
-          <Entry caption="Show total values for this level">
             <JavaScriptAction>
               var levelId = bcdui._migPjs._$(this.eventSrcElement).closest("tr").attr("levelId");
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: '<xsl:value-of select="$bcdDimensionInner"/>'} )
             </JavaScriptAction>
-          </Entry>
         </xsl:when>
         <xsl:otherwise>
-          <Entry caption="Show total values for this level">
             <JavaScriptAction>
-              var levelId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
-              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: levelId} )
+              bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: '<xsl:value-of select="$bcdDimensionInner"/>'} )
             </JavaScriptAction>
-          </Entry>
         </xsl:otherwise>
       </xsl:choose>
+      </Entry>
+    </xsl:if>
+    <xsl:if test="$statusModelLayout//dm:LevelRef[(not(@total) or @total='') and @bRef=$bcdDimensionOuter] or $statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionOuter and @op='!=' and @value='&#xE0F0;1']">
+      <Entry caption="Show grand total values">
+        <JavaScriptAction>
+          bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: '<xsl:value-of select="$bcdDimensionOuter"/>'} )
+        </JavaScriptAction>
+      </Entry>
     </xsl:if>
   </xsl:template>
 

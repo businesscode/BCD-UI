@@ -435,16 +435,18 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     } else {
       // If we have to hide a row dim, we get the value (id) from the Wrs
       var row = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Data/wrs:R[@id='"+bcdui.wkModels.bcdRowIdent.value+"']");
+      if (! row)
+        row = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Data/wrs:R");
       var colPos = dataModel.getData().selectSingleNode("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id='"+args.levelId+"']/@pos").nodeValue;
-      value = row.selectSingleNode("wrs:C["+colPos+"]").text;
-
-      if (row.selectSingleNode("wrs:C["+colPos+"]/@caption") != null)
-        caption = row.selectSingleNode("wrs:C["+colPos+"]/@caption").text;
-
-      if( "1"==row.selectSingleNode("wrs:C["+colPos+"]").getAttribute("bcdGr") )
-        value = "1";
-      else if(value=="")
-        value = "0";
+      if (row) {
+        value = row.selectSingleNode("wrs:C["+colPos+"]").text;
+        if (row.selectSingleNode("wrs:C["+colPos+"]/@caption") != null)
+          caption = row.selectSingleNode("wrs:C["+colPos+"]/@caption").text;
+        if( "1"==row.selectSingleNode("wrs:C["+colPos+"]").getAttribute("bcdGr") )
+          value = "1";
+        else if(value=="")
+          value = "0";
+      }
     }
     return {value: value, caption: caption};
   },
