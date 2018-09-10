@@ -15,12 +15,17 @@
 */
 "use strict";
 /*
- * custom BCD-UI utility functions provided as jQuery Plugins
+ * Custom BCD-UI utility functions provided as jQuery Plugins
  *
  * Common guidelines:
  * - all function start with a 'bcd' prefix
  */
-(function( $ ) {
+(function() {
+  /**
+   * Custom BCD-UI utility functions provided as jQuery Plugins
+   * @namespace jQuery.fn
+   */
+
   /**
    * Scrolls the container to the target, this function must be called on a scrollable
    * container. Implementation is provided by bcdui.util._scrollTo()
@@ -34,7 +39,7 @@
    *
    * @returns {object} jQuery object
    */
-  $.fn.bcdScrollTo = function( target, options ) {
+  jQuery.fn.bcdScrollTo = function( target, options ) {
     return this.each(function(){
       var el=$(this);
       bcdui.util._scrollTo( el, typeof target == "string" ? el.children(target) : $(target), options );
@@ -49,7 +54,7 @@
    *
    * @static
    */
-  $.bcdFindById = function( idOrElement ) {
+  jQuery.bcdFindById = function( idOrElement ) {
     if( !idOrElement ){
       return jQuery();
     }
@@ -90,9 +95,9 @@
    */
   jQuery.fn.bcdRender = function(bcdRendererArgs){
     return this.each(function(){
-      new bcdui.core.Renderer($.extend({}, bcdRendererArgs, {
+      new bcdui.core.Renderer(jQuery.extend({}, bcdRendererArgs, {
         targetHtml : this
       }));
     });
   };
-}( jQuery ));
+}());
