@@ -1,67 +1,59 @@
 "use strict";
 (function(){
   /**
-   * A namespace for the BCDUI GUI widget and utilities.
-   * @namespace bcdui.util.widget
-   */
-  bcdui.util.namespace("bcdui.widget",
-  /** @lends bcdui.widget */
-  {});
-
-  /**
-   * triggers re-validation of visible widgets and focuses on first invalid input
-   * inside the targetHtml
-   *
-   * @param {targetHtmlRef} targetHtml - element to undergo widget validation, selector, element or jQuery object.
-   * @return {Promise} resolving to { isValid : true|false }
-   * @example
-   * const form = jQuery('.form');
-   * bcdui.widget.validate(form).then((validationResult) => {
-   *   if (validationResult.isValid) {
-   *     form.submit();
-   *   }
-   * });
-   */
-  bcdui.widget.validate = function(targetHtml){
-    targetHtml = jQuery(targetHtml);
-    if(!targetHtml.length) throw ".targetHtml invalid";
-
-    return new Promise(function(resolve){
-      // trigger revalidation of widgets
-      targetHtml.find("[data-bcdui-widget]:visible").trigger("bcd-validate");
-      var checkValidity;
-      var intervalMs=100;
-      setTimeout(checkValidity=function(){ // defer
-        // then detect invalid and pending
-        var invalids = targetHtml.find(".bcdInvalid:visible");
-        if(invalids.length > 0){ // invalid found, focus on them
-          invalids.first().focus();
-          resolve({ isValid : false });
-        } else if(targetHtml.find(".bcdValidationPending:visible").length > 0) { // check if we have some pending, then reschedule later
-          setTimeout(checkValidity, intervalMs);
-        } else { // all valid
-          resolve({ isValid : true });
-        }
-      }, intervalMs);
-    })
-    .then(function(args){
-      return Promise.resolve(args);
-    });
-  };
-
-  /**
-   * A namespace for the BCDUI GUI widget utils.
+   * A namespace for the BCDUI GUI widgetNg utils.
    * @namespace bcdui.widgetNg.utils
-   * @private
    */
   bcdui.util.namespace("bcdui.widgetNg.utils",
   /** @lends bcdui.widgetNg.utils */
   {
     /**
+     * Asynchronously triggers re-validation of visible widgets within container and focuses on first invalid input
+     * inside the targetHtml.
+     *
+     * @param {targetHtmlRef} targetHtml - element to undergo widget validation, selector, element or jQuery object.
+     * @return {Promise} resolving to { isValid : true|false }
+     * @example
+     * const form = jQuery('.form');
+     * bcdui.widget.validate(form).then((validationResult) => {
+     *   if (validationResult.isValid) {
+     *     form.submit();
+     *   }
+     * });
+     */
+    validate : function(targetHtml){
+      targetHtml = jQuery(targetHtml);
+      if(!targetHtml.length) throw ".targetHtml invalid";
+
+      return new Promise(function(resolve){
+        // trigger revalidation of widgets
+        targetHtml.find("[data-bcdui-widget]:visible").trigger("bcd-validate");
+        var checkValidity;
+        var intervalMs=100;
+        setTimeout(checkValidity=function(){ // defer
+          // then detect invalid and pending
+          var invalids = targetHtml.find(".bcdInvalid:visible");
+          if(invalids.length > 0){ // invalid found, focus on them
+            invalids.first().focus();
+            resolve({ isValid : false });
+          } else if(targetHtml.find(".bcdValidationPending:visible").length > 0) { // check if we have some pending, then reschedule later
+            setTimeout(checkValidity, intervalMs);
+          } else { // all valid
+            resolve({ isValid : true });
+          }
+        }, intervalMs);
+      })
+      .then(function(args){
+        return Promise.resolve(args);
+      });
+    },
+
+    /**
      * TODO migrate to jQuery Widget Event / Callback API
      * custom events fired on the input element
      *
      * @static
+     * @private
      */
     EVENT: {
       /**
@@ -231,7 +223,7 @@
     /**
      * this function shall be called in order to accept value from GUI control into the model,
      * also we handle a placeholder here, since this is considered to be the API to sync new GUI input
-     *
+     * @private
      */
     updateValue: function(inputElementId){
       bcdui.log.isTraceEnabled() && bcdui.log.trace("updateValue(gui to data)");
