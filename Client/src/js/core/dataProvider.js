@@ -544,7 +544,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    */
   fetchData: function() {
     return new Promise(function(resolve) {
-      var resolve = resolve.bind(undefined, this); // resolve passing 'this' as argument
+      resolve = resolve.bind(undefined, this); // resolve passing 'this' as argument
 
       if (this._uncommitedWrites) { // if has pending writes, wait till .fire() via onChange listener
         this.onChange({
