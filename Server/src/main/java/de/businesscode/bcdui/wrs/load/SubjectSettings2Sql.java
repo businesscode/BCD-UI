@@ -250,42 +250,56 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     Set<String> permissions = SecurityHelper.getPermissions(subject, filterType);
-    if (permissions.size() == 0 && !ft.isIgnoreNullValue()) { // no permissions means we're done, unless filterType was instructed to ignoreNullValue
+    if (permissions.isEmpty() && !ft.isIgnoreNullValue()) { // no permissions means we're done, unless filterType was instructed to ignoreNullValue
       writeCanonicalConnective(subjectSettingsClause, connective, false);
       return;
     }
 
     // Create subselect from subject settings for where clause
-    String col = bindingSet.get(bRef).getQColumnExpression();
     if (subjectSettingsClause.length() > 0) {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
 
+    generateCondition(subjectSettingsClause, subject, ft, preparedStatementParams, filterType, permissions, bindingSet.get(bRef).getQColumnExpression());
+  }
+
+  /**
+   * generates single condition like "col in ('a','b','c')"
+   *
+   * @param subjectSettingsClause - to generate condition into
+   * @param subject - current subject
+   * @param ft - filter type to generate condition from
+   * @param preparedStatementParams - the parameter list
+   * @param filterType - filter type name
+   * @param permissions - permissions granted by subject
+   * @param columnExpression - the column expression to participate in condition
+   */
+  protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, Collection<String> preparedStatementParams, String filterType,
+      Set<String> permissions, String columnExpression) {
     if(permissions.isEmpty() && ft.isIgnoreNullValue()) {
       // no permission, yet select null-values
-      subjectSettingsClause.append(col).append(" IS NULL");
+      subjectSettingsClause.append(columnExpression).append(" IS NULL");
     }else {
       if(ft.isIgnoreNullValue()) {
-        col = "$col$ IS NULL OR $col$".replace("$col$", col);
+        columnExpression = "$col$ IS NULL OR $col$".replace("$col$", columnExpression);
       }
       subjectSettingsClause.append("(");
       if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
         // resolve inline
-        subjectSettingsClause.append(col + " in (");
+        subjectSettingsClause.append(columnExpression + " in (");
         // replace possible ' by space and wrap into ' and enumerate
         subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
         subjectSettingsClause.append(")");
       } else {
         // resolve via subselect
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
-        subjectSettingsClause.append(col + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
+        subjectSettingsClause.append(columnExpression + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
         preparedStatementParams.add(subject.getPrincipal().toString());
         preparedStatementParams.add(filterType);
       }
       subjectSettingsClause.append(")");
     }
-
   }
 
   private void resolveWithValue(Collection<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
