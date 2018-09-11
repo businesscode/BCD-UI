@@ -217,7 +217,13 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
 
         // Run the export wrq, open response in a new window
         var fileType = memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
-        bcdui.component.exports.detailExport( { wrq: modelName, type: fileType } );
+        bcdui.component.exports.detailExport( {
+            wrq: modelName
+          , type: fileType
+          , exportMode: memo.exportMode
+          , allowSave: memo.allowSave
+          , vfsFilename: memo.vfsFilename
+        } );
       }.bind(undefined,args.id, args.inputModel, args.enhancedConfiguration, args.metaDataModel, args.detailExportFilterModel)
     );
 

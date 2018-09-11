@@ -191,7 +191,14 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         }
 
         this.actionDetailExportWrq.execute(true);
-        bcdui.component.exports.detailExport( { wrq: this.actionDetailExportWrq, type:  memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat, fileName: memo.fileName } );
+        bcdui.component.exports.detailExport( {
+            wrq: this.actionDetailExportWrq
+          , type:  memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat
+          , fileName: memo.fileName
+          , exportMode: memo.exportMode
+          , allowSave: memo.allowSave
+          , vfsFilename: memo.vfsFilename
+        } );
 
       }.bind( this, args.id ) );
 

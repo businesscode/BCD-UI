@@ -262,6 +262,177 @@ bcdui.util.namespace("bcdui.component.exports",
     args.fileName = args.fileName || "export."+args.format;
     new bcdui.component.exports.PDFExport( args ).execute();
   },
+
+  /**
+   * prepares selected columns export, optionally saves data to vfs 
+   * @param {HTMLElement} element - html element within the bcdExportColumnsDialog
+   * @param {boolean} doSave      - if true, save current selection to vfs 
+   * @private
+   */
+  _prepareExport: function(element, doSave) {
+
+    var config = jQuery(element).closest(".bcdExportColumnsDialog").data("config");
+
+    // nothing to do?
+    if (config.targetModel.queryNodes("//wrq:C").length == 0) {
+      alert(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_ExportNoColumns"}));
+      return;
+    }
+
+    if (doSave) {
+      // delete old entry
+      bcdui.core.createElementWithPrototype(config.vfsModel.getData(), "/*/wrs:Data/wrs:D[wrs:C[1]='" + config.pathName +"']", true);
+      // insert new entry
+      var insertData = bcdui.core.createElementWithPrototype(config.vfsModel.getData(), "/*/wrs:Data/wrs:I[wrs:C[1]='" + config.pathName +"']", true);
+      insertData.selectSingleNode("wrs:C[2]").text = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' + new XMLSerializer().serializeToString(config.targetModel.getData());
+      config.vfsModel.sendData();
+    }
+
+    // close dialog
+    jQuery(element).closest(".bcdExportColumnsDialog").dialog("close");
+
+    // create modified wrq
+    bcdui.component.exports._buildAndExecuteExportWrq(config);
+  },
+
+  /**
+   * move new column list to wrq and call original export 
+   * @param {Object} config The parameter map contains the following properties:
+   * @param {bcdui.core.DataProvider} config.wrq         - the original wrq
+   * @param {bcdui.core.DataProvider} config.targetModel - model holding the new columns 
+   * @param {function} config.callback                   - original detail export function
+   * @private
+   */
+  _buildAndExecuteExportWrq: function(config) {
+    // build up new column list
+    var newColumnsNode = bcdui.core.createElementWithPrototype(config.wrq.getData(), "/*/wrq:Select/wrq:Columns[@bcd='true']");
+    jQuery.makeArray(config.targetModel.queryNodes("/*/wrq:C")).forEach(function(e) {
+      var origNode = config.wrq.query("/*/wrq:Select/wrq:Columns/wrq:C[@bRef='" + e.getAttribute("bRef") + "']");
+      newColumnsNode.appendChild(origNode ? origNode.cloneNode(true) : e.cloneNode(true)); // prefer original wrq:C since it might contain attribute overwrites (e.g. caption, scope)
+    });
+
+    // remove original node
+    bcdui.core.removeXPath(config.wrq.getData(), "/*/wrq:Select/wrq:Columns[not(@bcd)]");
+
+    // and run the export...
+    config.callback();
+  },
+
+  /**
+   * prepare normalized wrq (to get caption and column list), load stored vfs export list and show column picker dialog optionally 
+   * @param {Object} args The parameter map contains the following properties:
+   * @param {bcdui.core.DataProvider} args.wrq  - Model containing the wrs request according to XSD http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0
+   * @param {string}   args.vfsFilename         - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information 
+   * @param {function} args.callback            - original detail export function
+   * @param {string }  args.exportMode          - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full
+   * @param {boolean}  args.allowSave           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on 
+   * @private
+   */
+  _columChooser: function(args) {
+
+    // build PathName
+    var binding = args.wrq.read("/*/wrq:Select/wrq:From/wrq:BindingSet");
+    var url = window.location.pathname.replace(/\//g, '|').substring(1);
+    var pathName = args.vfsFilename || ("/vfs/export/" + (bcdui.config.userName ? bcdui.config.userName + "/" : "") + (binding ? binding + "/" : "") + url + "/columns.xml");
+
+    // load vfs data
+    var additionalFilterXPath = "/*/guiStatus:ClientSettings/f:Filter/f:And[@id='bcdExport']/f:Expression[@bRef='path' and @op='=']/@value";
+    bcdui.wkModels.guiStatus.write(additionalFilterXPath, pathName, true);
+    var vfsModel = args.allowSave
+      ? new bcdui.core.AutoModel({bRefs: "path resourceClob", bindingSetId: "bcd_virtualFileSystem", additionalFilterXPath: "/*/guiStatus:ClientSettings/f:Filter/f:And[@id='bcdExport']"})
+      : new bcdui.core.StaticModel("<Empty/>");
+
+    vfsModel.onReady( { executeIfNotReady: true, onlyOnce: true, onSuccess: function() {
+
+      // build empty request to get caption information and - in case of no specified columns - column list
+      var normalizedRequest = new bcdui.core.StaticModel(new XMLSerializer().serializeToString(args.wrq.getData()));
+      normalizedRequest.execute();
+      normalizedRequest.query("/*/wrq:Select").setAttribute("rowStart", "0");
+      normalizedRequest.query("/*/wrq:Select").setAttribute("rowEnd", "0");
+      var normalizedModel = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: normalizedRequest})});
+      normalizedModel.onReady( { executeIfNotReady: true, onlyOnce: true, onSuccess: function() {
+
+        // build up id/caption list for optionsModel
+        var options = "<Data>";
+        jQuery.makeArray(normalizedModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
+          var id = e.getAttribute("id");
+          var origC = args.wrq.query("/*/wrq:Select/wrq:Columns/wrq:C[@bRef='" + id + "']");
+          var caption = (origC && origC.getAttribute("caption")) || e.getAttribute("caption"); // prefer wrq caption if available
+          options += "<Item caption='" + bcdui.util.escapeHtml(caption) + "'>" + id + "</Item>";
+        });
+        options += "</Data>";
+        var optionsModel = new bcdui.core.StaticModel(options);
+        bcdui.factory.objectRegistry.registerObject(optionsModel);
+        optionsModel.execute();
+
+        var vfsData = vfsModel.query("/*/wrs:Data/wrs:R[wrs:C[1]='" + pathName + "']/wrs:C[2]");
+        vfsData = new bcdui.core.StaticModel(vfsData ? vfsData.text : "<Empty/>");
+        vfsData.execute();
+
+        // build targetModel, either all from normalizedModel or all valid ones from stored vfs one
+        var data = "<wrq:Columns xmlns:wrq='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'>";
+        var vfsColumns = vfsData.queryNodes("//wrq:C");
+        if (vfsColumns.length > 0) {
+          jQuery.makeArray(vfsColumns).forEach(function(e) {
+            var bRef = e.getAttribute("bRef");
+            // only take over valid ones
+            if (normalizedModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef + "']") != null)
+              data += "<wrq:C bRef='" + e.getAttribute("bRef") + "'/>";
+          });
+        }
+        else {
+          jQuery.makeArray(normalizedModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
+            data += "<wrq:C bRef='" + e.getAttribute("id") + "'/>";
+          });
+        }
+        data += "</wrq:Columns>";
+        var targetModel = new bcdui.core.StaticModel(data);
+        bcdui.factory.objectRegistry.registerObject(targetModel);
+        targetModel.execute();
+
+        var config = {
+            targetModel: targetModel
+          , callback: args.callback 
+          , wrq: args.wrq
+          , vfsModel: vfsModel
+          , pathName: pathName
+          , allowSave: args.allowSave
+        };
+
+        // either show export column pick dialog or use vfs silently
+        if (args.exportMode == "silent") {
+          if (vfsColumns.length > 0)
+            bcdui.component.exports._buildAndExecuteExportWrq(config);
+          else {
+            // if we don't have vfs stored information, run the full export again
+            config.callback();
+          }
+        }
+        else {
+
+          // prepare html template
+          jQuery(".bcdExportColumnsDialog").remove();
+          jQuery("body").append(
+           "<div class='bcdExportColumnsDialog' title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_ExportSelectColumns"}) + "'>" +
+            "<div>" +
+              "<bcd-sideBySideChooserng targetModelXPath='$" + targetModel.id + "/*/wrq:C/@bRef' optionsModelXPath='$" + optionsModel.id + "/*/Item/@caption' optionsModelRelativeValueXPath='../.' sourceCaption='" + bcdui.i18n.TAG + "bcd_ExportAvailableColumns' targetCaption='" + bcdui.i18n.TAG + "bcd_ExportSelectedColumns'></bcd-sideBySideChooserng>" +
+            "</div>"+
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._prepareExport(this)'></bcd-buttonng>" +
+            (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._prepareExport(this, true)'></bcd-buttonng>" : "") +
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportCancelExport' onClickAction='jQuery(this).closest(\".bcdExportColumnsDialog\").dialog(\"close\");'></bcd-buttonng>" +
+           "</div>"
+          );
+
+          // and make it a jQuery dialog
+          jQuery(".bcdExportColumnsDialog").dialog({height: "auto", width: "auto", modal: true, resizable: false, draggable: true, closeText: "\u2716"
+            , create: function() { jQuery("body").css({ overflow: 'hidden' });}
+            , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
+          });
+          jQuery(".bcdExportColumnsDialog").data("config", config);
+        }
+      }});
+    }});
+  },
   
   /**
    * Uses SylkServlet, CsvServlet or ExcelExportServlet export servlets to provide the data of a WrsRequest, the response opens asynchronously in an extra window
@@ -269,15 +440,31 @@ bcdui.util.namespace("bcdui.component.exports",
    * @param {(string|bcdui.core.DataProvider)} args.wrq                         - Model containing the wrs request according to XSD http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0
    * @param {string}                           [args.type=slk]                  - Can be "slk" or "csv" or "xlsx". slk is efficient as csv and preserves numbers, use "xlsx" to preserve non-latin characters in addition
    * @param {string}                           [args.fileName=export_(timestamp).(csv|xls)] - Name of the response file, depending on type, can also be provided via /wrq:WrsRequest/@bcdFileName from within the request
+   * @param {string}                           [args.vfsFilename]               - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information
+   * @param {string}                           [args.exportMode=full]           - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full 
+   * @param {boolean}                          [args.allowSave=false]           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on 
    */
   detailExport: function( args ) 
   {
     args.type = args.type || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
     args.type = args.type === "sylk" ? "slk" : args.type; // Most installations will only understand slk as file extension for Excel. Sylk is for backward compatibility
+    args.exportMode = args.exportMode || "full";
 
-    // We want xlsx and use server-side Excel creation
-    if( args.type === "xlsx" ) {
-      args.wrq.onReady( { executeIfNotReady: true, onSuccess: function() {
+    bcdui.factory.objectRegistry.withReadyObjects([args.wrq], function() {
+      var newArgs = jQuery.extend({}, args);
+      newArgs.wrq = bcdui.factory.objectRegistry.getObject(args.wrq);
+      newArgs.callback = doExport.bind(this, newArgs);
+
+      if (args.exportMode == "full")
+        doExport(newArgs);
+      else
+        bcdui.component.exports._columChooser(newArgs);
+    });
+    
+    var doExport = function(args) {
+
+      // We want xlsx and use server-side Excel creation
+      if( args.type === "xlsx" ) {
         var filNameAttr = null; //bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
         args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
         if (! args.fileName) {
@@ -287,28 +474,23 @@ bcdui.util.namespace("bcdui.component.exports",
         }
         args.fileName = args.fileName ? args.fileName : "export_" + bcdui.component.exports._getExportTimeStamp() + "." + args.type;
         bcdui.component.exports.exportToExcelTemplate( {inputModel: args.wrq, fileName: args.fileName} );
-      }});
-    } 
-    // Export via sylk / csv servlet export by sending the Wrq
-    else {
+      } 
+      // Export via sylk / csv servlet export by sending the Wrq
+      else {
+        // We need a form, if it is not there, create one
+        var exportForm = jQuery("#" + this._bcdExportFormId).get(0);
+        if( ! exportForm ) {
+          exportForm = document.createElement("form");
+          exportForm.setAttribute("id",this._bcdExportFormId);
+          var input = document.createElement("input");
+          input.setAttribute("type","hidden");
+          input.setAttribute("id","bcdExportFormGuiStatusGZ");
+          input.setAttribute("name","guiStatusGZ");
+          exportForm.appendChild(input);
+          document.getElementsByTagName("body")[0].appendChild(exportForm);
+        }
 
-      // We need a form, if it is not there, create one
-      var exportForm = jQuery("#" + this._bcdExportFormId).get(0);
-      if( ! exportForm ) {
-        exportForm = document.createElement("form");
-        exportForm.setAttribute("id",this._bcdExportFormId);
-        var input = document.createElement("input");
-        input.setAttribute("type","hidden");
-        input.setAttribute("id","bcdExportFormGuiStatusGZ");
-        input.setAttribute("name","guiStatusGZ");
-        exportForm.appendChild(input);
-        document.getElementsByTagName("body")[0].appendChild(exportForm);
-      }
-
-      // Make sure, Wrq is ready then send the request
-      jQuery.blockUI({ message : bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Report_ExportStarted"}), timeout: 2000, fadeOut:  1500 });
-      bcdui.factory.objectRegistry.withReadyObjects( args.wrq, function() 
-      {
+        jQuery.blockUI({ message : bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Report_ExportStarted"}), timeout: 2000, fadeOut:  1500 });
         var filNameAttr = bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
         args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
         if (! args.fileName) {
@@ -364,8 +546,8 @@ bcdui.util.namespace("bcdui.component.exports",
             });
           }
         }, false, true);
-      });  
-    }
+      }
+    }.bind(this);
   },
   
   /**

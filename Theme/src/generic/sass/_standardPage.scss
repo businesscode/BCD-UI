@@ -933,11 +933,18 @@ div.bcdUserMessages {
 }
 .bcdFilterButton:before { content: "▼"; }
 
+.bcdExportColumnsDialog,
 .bcdFilterDialog {
   @include no_shadow();
   border: none;
   min-width: 250px; 
   input, select {width: 100%; margin-bottom: 10px;}
+}
+.bcdExportColumnsDialog {
+  .bcdSideBySideChooser {
+    .bcdSbscList { height: 180px; }
+    margin-bottom: 10px;
+  }
 }
 
 .bcdFilterSelection {
@@ -1432,7 +1439,8 @@ span.bcd-notification-warn {
 /* ******************************************************************* */
 /* modal box */
 /* ******************************************************************* */
-.bcdFilterDialog, 
+.bcdFilterDialog,
+.bcdExportColumnsDialog, 
 #bcdModalBoxDiv {
   @extend .noselect;
   border: 1px solid $corporate-color;
