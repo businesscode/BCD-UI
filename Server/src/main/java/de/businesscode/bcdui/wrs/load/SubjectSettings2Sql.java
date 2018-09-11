@@ -250,7 +250,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     Set<String> permissions = SecurityHelper.getPermissions(subject, filterType);
-    if (permissions.size() == 0) {
+    if (permissions.size() == 0 && !ft.isIgnoreNullValue()) { // no permissions means we're done, unless filterType was instructed to ignoreNullValue
       writeCanonicalConnective(subjectSettingsClause, connective, false);
       return;
     }
@@ -261,20 +261,31 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
 
-    if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
-      // resolve inline
-      subjectSettingsClause.append(col + " in (");
-      // replace possible ' by space and wrap into ' and enumerate
-      subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
+    if(permissions.isEmpty() && ft.isIgnoreNullValue()) {
+      // no permission, yet select null-values
+      subjectSettingsClause.append(col).append(" IS NULL");
+    }else {
+      if(ft.isIgnoreNullValue()) {
+        col = "$col$ IS NULL OR $col$".replace("$col$", col);
+      }
+      subjectSettingsClause.append("(");
+      if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
+        // resolve inline
+        subjectSettingsClause.append(col + " in (");
+        // replace possible ' by space and wrap into ' and enumerate
+        subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
+        subjectSettingsClause.append(")");
+      } else {
+        // resolve via subselect
+        BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
+        subjectSettingsClause.append(col + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
+        // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
+        preparedStatementParams.add(subject.getPrincipal().toString());
+        preparedStatementParams.add(filterType);
+      }
       subjectSettingsClause.append(")");
-    } else {
-      // resolve via subselect
-      BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
-      subjectSettingsClause.append(col + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
-      // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
-      preparedStatementParams.add(subject.getPrincipal().toString());
-      preparedStatementParams.add(filterType);
     }
+
   }
 
   private void resolveWithValue(Collection<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,

@@ -51,6 +51,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * client-controlled subject filters
 ** the new servlet-filter de.businesscode.bcdui.web.filters.SubjectSettingsFilter allows setting subject filters from client
 ** client-controlled subject filters can be set from client via bcdui.util.security API
+* Optimized row level security supporting data not requiring filtering: SubjectFilterType in subjectSettings.xml can be tagged to ignore null-values.
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
