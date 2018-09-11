@@ -415,7 +415,7 @@ bcdui.util.namespace("bcdui.component.exports",
           jQuery("body").append(
            "<div class='bcdExportColumnsDialog' title='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_ExportSelectColumns"}) + "'>" +
             "<div>" +
-              "<bcd-sideBySideChooserng targetModelXPath='$" + targetModel.id + "/*/wrq:C/@bRef' optionsModelXPath='$" + optionsModel.id + "/*/Item/@caption' optionsModelRelativeValueXPath='../.' sourceCaption='" + bcdui.i18n.TAG + "bcd_ExportAvailableColumns' targetCaption='" + bcdui.i18n.TAG + "bcd_ExportSelectedColumns'></bcd-sideBySideChooserng>" +
+              "<bcd-sideBySideChooserng doSortOptions='false' targetModelXPath='$" + targetModel.id + "/*/wrq:C/@bRef' optionsModelXPath='$" + optionsModel.id + "/*/Item/@caption' optionsModelRelativeValueXPath='../.' sourceCaption='" + bcdui.i18n.TAG + "bcd_ExportAvailableColumns' targetCaption='" + bcdui.i18n.TAG + "bcd_ExportSelectedColumns'></bcd-sideBySideChooserng>" +
             "</div>"+
             "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._prepareExport(this)'></bcd-buttonng>" +
             (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._prepareExport(this, true)'></bcd-buttonng>" : "") +
