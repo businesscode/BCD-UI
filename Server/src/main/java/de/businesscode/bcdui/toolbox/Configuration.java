@@ -90,7 +90,7 @@ public class Configuration implements ConfigurationProvider {
     optionalClassesPrio.put(OPT_CLASSES.WRQCALC2SQL, new String[]{"de.businesscode.bcdui.wrs.load.WrqCalc2Sql_AnalytFct_Opt", "de.businesscode.bcdui.wrs.load.WrqCalc2Sql"});
     optionalClassesPrio.put(OPT_CLASSES.BINDINGS,    new String[]{"de.businesscode.bcdui.binding.BindingsEnterprise", "de.businesscode.bcdui.binding.Bindings"});
     optionalClassesPrio.put(OPT_CLASSES.DATASOURCEWRAPPER, new String[]{"de.businesscode.util.jdbc.wrapper.BcdDataSourceWrapper"});
-    optionalClassesPrio.put(OPT_CLASSES.SUBJECTSETTINGS2SQL, new String[]{"de.businesscode.bcdui.wrs.load.SubjectSettings2Sql"});
+    optionalClassesPrio.put(OPT_CLASSES.SUBJECTSETTINGS2SQL, new String[]{"de.businesscode.bcdui.wrs.load.SubjectSettings2Sql_Custom", "de.businesscode.bcdui.wrs.load.SubjectSettings2Sql"});
     optionalClassesPrio.put(OPT_CLASSES.VFSRESOURCEPROVIDER, new String[]{"de.businesscode.bcdui.web.servlets.VfsResourceProvider"});
     optionalClassesPrio.put(OPT_CLASSES.DATABASECOMPATIBILITY, new String[]{"de.businesscode.util.jdbc.DatabaseCompatibilityEnterprise", "de.businesscode.util.jdbc.DatabaseCompatibility"});
     
