@@ -65,7 +65,7 @@ bcdui.util.namespace("bcdui.i18n",
       bcdui.wkModels = bcdui.wkModels || {};
       bcdui.wkModels.bcdI18nModel = new bcdui.core.SimpleModel({
         id  : args.modelId,
-        url : this._messagesXmlURL + "?sessionHash=" + bcdui.config.sessionHash
+        url : this._messagesXmlURL + "/" + bcdui.config.i18n.lang + "?sessionHash=" + bcdui.config.sessionHash
       });
     } else {
       if(args.modelId !== this._modelDefaultName){
