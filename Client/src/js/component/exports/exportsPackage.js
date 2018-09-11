@@ -372,12 +372,15 @@ bcdui.util.namespace("bcdui.component.exports",
         // build targetModel, either all from normalizedModel or all valid ones from stored vfs one
         var data = "<wrq:Columns xmlns:wrq='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'>";
         var vfsColumns = vfsData.queryNodes("//wrq:C");
+        var vfsColumnsAdded = 0;
         if (vfsColumns.length > 0) {
           jQuery.makeArray(vfsColumns).forEach(function(e) {
             var bRef = e.getAttribute("bRef");
             // only take over valid ones
-            if (normalizedModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef + "']") != null)
+            if (normalizedModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef + "']") != null) {
               data += "<wrq:C bRef='" + e.getAttribute("bRef") + "'/>";
+              vfsColumnsAdded++;
+            }
           });
         }
         else {
@@ -399,14 +402,9 @@ bcdui.util.namespace("bcdui.component.exports",
           , allowSave: args.allowSave
         };
 
-        // either show export column pick dialog or use vfs silently
-        if (args.exportMode == "silent") {
-          if (vfsColumns.length > 0)
-            bcdui.component.exports._buildAndExecuteExportWrq(config);
-          else {
-            // if we don't have vfs stored information, run the full export again
-            config.callback();
-          }
+        // allow silent custom export mode only if we have at least one valid column from the stored vfs
+        if (args.exportMode == "silent" && vfsColumnsAdded > 0) {
+          bcdui.component.exports._buildAndExecuteExportWrq(config);
         }
         else {
 
