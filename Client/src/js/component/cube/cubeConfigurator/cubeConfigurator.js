@@ -208,10 +208,10 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   hideDimMember: function( targetModelId, cubeId, args )
   {
     //------------------------------------------
-    // showAll clears all hide and exclude(!) settings, affecting the level
+    // showAll clears all hide and exclude(!) settings, affecting the level (without totals)
     if( args.showAll == true ) {
       
-      var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"']";
+      var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"' and f:Expression[@value != '1']]";
       var bRef2 = (args.levelId == "bcdAll") ? "" : "='"+args.levelId+"'";
       
       jQuery.makeArray(["//cube:Layout[@cubeId ='"+cubeId+"']/cube:Hide/f:Filter/*" + bRef1,
@@ -221,6 +221,10 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
            for( var hN=0; hN<nodes.length; hN++ )
              nodes.item(hN).parentNode.removeChild(nodes.item(hN));
          });
+      // and show totals for this level...
+      var newArgs = jQuery.extend({}, args);
+      newArgs.levelId = args.totalId;
+      return this.showThisTotals(targetModelId, cubeId, newArgs);
     }
     //-------------------------------------------
     // all means all occurrences of the value (if it is nested within another dimension, it will appear multiple times)
@@ -304,6 +308,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         }
       }
     }
+    
     return true;
   },
 
