@@ -16,9 +16,9 @@
 -->
 
 <!--
-  This stylesheet creates a webrowset request from a given list of bRefs a bindingSetId and list of guistatus filters.
+  This stylesheet creates a webrowset request from a given list of bRefs a bindingSetId and list of statusModel filters.
   It can create a grouped <bRefs> and order by  <bRefs> request with isDistinct=true
-  In addition to the filter taken from guiStatus other filter nodes at different location, i.e. /*/client-settings/f:Filter can be
+  In addition to the filter taken from statusModel other filter nodes at different location, i.e. /*/client-settings/f:Filter can be
   included as well. If they can be found at additionalFilterXPath.
   The stylesheet is used in autoModel and can be used as include template for custom templates used by autoModel. If the standard behavior
   is not sufficent.
@@ -46,6 +46,7 @@
   <xsl:param name="bRefs" />
   <xsl:param name="filterBRefs" />
   <xsl:param name="orderByBRefs" />
+  <xsl:param name="groupByBRefs" />
   <xsl:param name="initialFilterBRefs" />
   <xsl:param name="mandatoryFilterBRefs" />
   <xsl:param name="isDistinct" />
@@ -55,7 +56,7 @@
   <xsl:param name="additionalFilterXPath" select="/*[1=0]" />
   <!-- type dataProviderWithXPathNodes -->
   <xsl:param name="additionalPassiveFilterXPath" select="/*[1=0]" />
-  <xsl:param name="guiStatus" />
+  <xsl:param name="statusModel" />
 
   <xsl:variable name="boolIsDistinct" select="boolean(translate($isDistinct,'0false',''))"/>
   <xsl:variable name="boolUseCaptions" select="boolean(translate($useCaptions,'0false',''))"/>
@@ -78,6 +79,12 @@
       <xsl:with-param name="delimiter" select="' '" />
     </xsl:call-template>
   </xsl:variable>
+ <xsl:variable name="groupByBRefsIdsStr">
+    <xsl:call-template name="tokenize">
+      <xsl:with-param name="string" select="$groupByBRefs" />
+      <xsl:with-param name="delimiter" select="' '" />
+    </xsl:call-template>
+  </xsl:variable>
  <xsl:variable name="initialFilterRefIdsStr">
     <xsl:call-template name="tokenize">
       <xsl:with-param name="string" select="$initialFilterBRefs" />
@@ -87,6 +94,7 @@
   <xsl:variable name="bRefTokens" select="exslt:node-set($bRefsStr)" />
   <xsl:variable name="filterTokens" select="exslt:node-set($filterRefIdsStr)" />
   <xsl:variable name="orderByTokens" select="exslt:node-set($orderByRefIdsStr)" />
+  <xsl:variable name="groupByTokens" select="exslt:node-set($groupByBRefsIdsStr)" />
   <xsl:variable name="initialFilterTokens" select="exslt:node-set($initialFilterRefIdsStr)" />
   <xsl:variable name="mandatoryfilterRefIdsStr">
     <xsl:call-template name="tokenize">
@@ -131,7 +139,7 @@
           </wrq:BindingSet>
         </wrq:From>
         <xsl:call-template name="createFilters" />
-        <xsl:if test="$boolIsDistinct">
+        <xsl:if test="$boolIsDistinct or count($groupByTokens/wrs:Wrs/wrs:Data/wrs:R) &gt; 0">
           <xsl:comment>isDistinct</xsl:comment>
           <xsl:call-template name="createbRefList">
             <xsl:with-param name="listName">Grouping</xsl:with-param>
@@ -155,6 +163,12 @@
       <xsl:choose>
         <xsl:when test="$listName = 'Ordering' and count($orderByTokens/wrs:Wrs/wrs:Data/wrs:R) &gt; 0">
           <xsl:for-each select="$orderByTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
+            <wrq:C bRef="{./wrs:C}"/>
+          </xsl:for-each>
+        </xsl:when>
+        <!-- explicit groupBy (ignoring .isDistinct) -->
+        <xsl:when test="$listName = 'Grouping' and count($groupByTokens/wrs:Wrs/wrs:Data/wrs:R) &gt; 0">
+          <xsl:for-each select="$groupByTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
             <wrq:C bRef="{./wrs:C}"/>
           </xsl:for-each>
         </xsl:when>
@@ -225,13 +239,13 @@
             <xsl:variable name="bRefName" select="./wrs:C" />
             <xsl:choose>
               <!-- see dimchooser comment below -->
-              <xsl:when test="$guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
-                <xsl:element name="{name($guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
-                  <xsl:apply-templates select="$guiStatus/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+              <xsl:when test="$statusModel/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
+                <xsl:element name="{name($statusModel/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
+                  <xsl:apply-templates select="$statusModel/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
                 </xsl:element>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+                <xsl:apply-templates select="$statusModel/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
               </xsl:otherwise>
             </xsl:choose>
           </xsl:for-each>
@@ -249,13 +263,13 @@
                 combinations which even may belong to different bindings (e.g. via binding set group).
                 For non-mixed mode filter structures, this when part is identical to the otherwise part.
                -->
-              <xsl:when test="$guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
-                <xsl:element name="{name($guiStatus/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
-                  <xsl:apply-templates select="$guiStatus/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+              <xsl:when test="$statusModel/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]]">
+                <xsl:element name="{name($statusModel/*/f:Filter/*[@bcdDimension][descendant-or-self::*[@bRef=$bRefName]])}">
+                  <xsl:apply-templates select="$statusModel/*/f:Filter/*[@bcdDimension]/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
                 </xsl:element>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:apply-templates select="$guiStatus/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
+                <xsl:apply-templates select="$statusModel/*/f:Filter/*[ descendant-or-self::*[@bRef=$bRefName] ]" />
               </xsl:otherwise>
             </xsl:choose>
           </xsl:for-each>
@@ -281,7 +295,7 @@
     <xsl:for-each select="$filterTokens/wrs:Wrs/wrs:Data/wrs:R">
       <xsl:variable name="bRefName" select="./wrs:C" />
       <xsl:choose>
-        <xsl:when test="$guiStatus//f:Filter//f:Expression[@bRef = ($bRefName) ]/@value !='' ">
+        <xsl:when test="$statusModel//f:Filter//f:Expression[@bRef = ($bRefName) ]/@value !='' ">
           <xsl:value-of select="concat($filterValues, '1')" />
         </xsl:when>
         <xsl:when test="$additionalFilterXPath//f:Expression[@bRef = ($bRefName) ]/@value !='' ">

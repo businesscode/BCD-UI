@@ -26,23 +26,29 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-styleshhet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
    * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.
-   * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs in $guiStatus f:Filter to be used as filters.
-   * @param {string}                  [args.orderByBRefs]                 - Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct.
+   * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs in $guiStatus f:Filter to be used as filters. TODO: add static
+   * @param {string}                  [args.orderByBRefs]                 - Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. TODO add desc|asc
    * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in $guiStatus f:Filter to be used as filters for initial, very first request only. Unlike filterBRefs, these filter values are not monitored for changes.
    * @param {string}                  [args.mandatoryfilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the automodel gets data. Until available, no request will be run.
-   * @param {boolean}                 [args.isDistinct=false]             - If true, a group by is generated across all columns by default wrq-stylesheet.
+   * @param {boolean}                 [args.isDistinct=false]             - If true, a group by is generated across all columns by default wrq-stylesheet. Parameter .groupByBRefs is ignored in this case.
    * @param {boolean}                 [args.useCaptions=false]            - If true, caption = bRef+'_caption will be used.
    * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
    * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
    * @param {number}                  [args.maxRows]                      - Optional, Limits the request to n rows. Use distinct if you need a certain order.
    *
-   * @param {string}  [args.id]                   - A globally unique id for use in declarative contexts
-   * @param {boolean} [args.isAutoRefresh=false]  - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
-   * @param {string}  [args.url=WrsServlet]       - Optional, allows overwriting Wrs-servlet as source.
+   * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
+   * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
+   * @param {string}                  [args.url=WrsServlet]               - Optional, allows overwriting Wrs-servlet as source. TODO: remove from doc as we extend SimpleModel
    *
-   * @param {string} [args.reqDocStyleSheetUrl]   - Optional custom wrq-stylesheet URL to generate the request. Most parameters here only apply when using default wrq-styleshhet.
-   * @param {Object} [args.reqDocParameters]      - Optional parameters for a custom request document builder.
-   * @param {Array}  [args.reqDocChain]           - Optional custom chain for request document builder.
+   * @param {string}                  [args.reqDocStyleSheetUrl]          - Optional custom wrq-stylesheet URL to generate the request. Most parameters here only apply when using default wrq-styleshhet.
+   * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
+   * @param {Array}                   [args.reqDocChain]                  - Optional custom chain for request document builder.
+   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
+   *
+   * TODO
+   * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.
+   
+   * 
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
    * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true });
@@ -62,9 +68,11 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
            bRefs:        args.bRefs,
            filterBRefs:  args.filterBRefs ,
            orderByBRefs:  args.orderByBRefs ,
+           groupByBRefs:  args.groupByBRefs,
            mandatoryFilterBRefs: args.mandatoryfilterBRefsSubset,
            isDistinct:   args.isDistinct ,
            useCaptions:  args.useCaptions,
+           statusModel:  args.statusModel||bcdui.wkModels.guiStatus,
            maxRows:      typeof args.maxRows != "undefined" ? args.maxRows : -1 };
        jQuery.extend( params, args.reqDocParameters || {} );
 
