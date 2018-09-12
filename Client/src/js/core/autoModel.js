@@ -44,14 +44,11 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
    * @param {Array}                   [args.reqDocChain]                  - Optional custom chain for request document builder.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
-   *
-   * TODO
-   * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.
-   
-   * 
+   * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
+   * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) which is connected via f:And to other filters
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true });
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement:bcdui.util.xml.parseFilterExpression("country='DE'") });
    */
   initialize: function(args)
     {
@@ -105,7 +102,12 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
        }
 
        var wrapperArgs = {
-         chain: args.reqDocChain || args.reqDocStyleSheetUrl,
+         chain: [args.reqDocChain || args.reqDocStyleSheetUrl, doc => {
+           if(args.filterElement){
+             doc.selectSingleNode("//f:Filter").appendChild(doc.importNode(args.filterElement.selectSingleNode("f:*"), true))
+           }
+           return doc;
+         }],
          inputModel: bcdui.wkModels.guiStatus,
          parameters: params
        };
