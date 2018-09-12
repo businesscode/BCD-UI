@@ -197,10 +197,9 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
             filterModel: bcdui.factory.objectRegistry.getObject(detailExportFilterModel)
           }
           jQuery.extend(parameters, memo.chainParameters);
-          bcdui.factory.createModelWrapper( { id: modelName, inputModel: bcdui.factory.objectRegistry.getObject(cubeGroupedDataModel),
-            url: bcdui.contextPath+"/bcdui/js/component/cube/detailExportWrq.xslt",
-            parameters: parameters
-          } );
+          var chain = memo.chain || bcdui.contextPath + "/bcdui/js/component/cube/detailExportWrq.xslt";
+          new bcdui.core.ModelWrapper({ id: modelName, inputModel: bcdui.factory.objectRegistry.getObject(cubeGroupedDataModel), chain: chain, parameters: parameters });
+
         } else { // On nth>1 call, just re-run it
           var wrq =  bcdui.factory.objectRegistry.getObject(modelName);
           wrq.dataProviders.push(new bcdui.core.ConstantDataProvider({name: "bcdColIdent", value: memo.bcdColIdent}));
@@ -536,7 +535,8 @@ bcdui.util.namespace("bcdui.component",
           , bcdDimension   : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdDimension", name: "bcdDimension", value: ""})
           , bcdMeasure     : new bcdui.core.ConstantDataProvider({id: args.cubeId + "_bcdMeasure", name: "bcdMeasure", value: ""})
           , wrsModel       : { refId: args.cubeId }
-          , cubeId:          args.cubeId
+          , cubeId         : args.cubeId
+          , cubeConfig     : bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         });
         bcdui.widget.createContextMenu({
