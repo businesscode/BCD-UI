@@ -249,5 +249,45 @@ bcdui.util.xml =
     } else {
       return bcdui.core.browserCompatibility.createDOMFromXmlString(new XMLSerializer().serializeToString(doc));
     }
+  },
+
+  /**
+   * @param {object} args The parameter map containing following properties
+   * @param {string} args.expression - the expression to parse
+   * @param {object} [args.params] - the expression to parse
+   * @return {document} containing parsed expression
+   * @example
+   *   
+   *   bcdui.util.xml.parseFilterExpression("country = :country or (revenue >= :revenue or today = :today and allow='true' or string='a and b')",{
+   *     country:"DE",
+   *     revenue:1000,
+   *     today:"2018-12-09"
+   *   });
+   *   
+   *   // yields following result document
+   *   &lt;f:And xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+   *    &lt;f:Or>
+   *      &lt;f:Expression bRef="country" op="=" value="DE"/>
+   *      &lt;f:Or>
+   *        &lt;f:Or>
+   *          &lt;f:Expression bRef="revenue" op="&gt;=" value="1000"/>
+   *          &lt;f:And>
+   *            &lt;f:Expression bRef="today" op="=" value="2018-12-09"/>
+   *            &lt;f:Expression bRef="allow" op="=" value="true"/>
+   *          &lt;/f:And>
+   *        &lt;/f:Or>
+   *        &lt;f:Expression bRef="string" op="=" value="a and b"/>
+   *      &lt;/f:Or>
+   *    &lt;/f:Or>
+   *   &lt;/f:And>
+   */
+  parseFilterExpression : function(expression, params){
+    var parser = new bcdui_util_xml_filterExpressionParser.Parser();
+    parser.yy = {
+      resolveVariable : v => params[parser.yy.escapeHtml(v.substring(1))],
+      escapeHtml : v => bcdui.util.escapeHtml(v)
+    };
+    var str = parser.parse(expression);
+    return bcdui.util.xml.parseDocument(str);
   }
 }; // namespace

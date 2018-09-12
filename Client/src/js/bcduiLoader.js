@@ -67,6 +67,7 @@ bcdui.bcduiCeFiles =
         , "/js/util/clipboardPackage.js"
         , "/js/util/urlPackage.js"
         , "/js/util/xmlPackage.js"
+        , "/js/jison/bcdui_util_xml_filterExpressionParser.js"
         , "/js/util/bcdJQueryPlugins.js"
       ]
     },

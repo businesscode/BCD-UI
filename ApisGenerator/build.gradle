@@ -183,6 +183,21 @@ task bcduiGensrcTld {
   }
 }
 
+//--------------------------
+// Generates JISON artefacts from jison/ folder to js/jison
+// $genSrcOutputDir/js/jison/: target folder for jison generated artefacts
+task bcduiJisonArtefacts ( type: NodeTask ) {
+  file("$genSrcOutputDir/js/jison/").mkdirs()
+
+  inputs.files "jison/bcdui_util_xml_filterExpressionParser.jison"
+  outputs.dir "$genSrcOutputDir/js/jison"
+
+  doFirst {
+    script = file("$nodeModulesDir/jison/lib/cli.js")
+    args   = ["jison/bcdui_util_xml_filterExpressionParser.jison", "-m", "js", "-o", file("$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js") ]
+  }
+}
+
 
 //************************************
 // Clean artifacts, we follow java plugin conventions
@@ -195,5 +210,5 @@ task bcduiClean( type: Delete ) {
 // Do all for what gradle 'ApisGenerator' project is responsible for, we follow java plugin conventions
 task bcduiBuild {
   outputs.dir "$genSrcOutputDir"
-  dependsOn bcduiGensrcJsXsltXapiJspTagApis, bcduiGensrcCustomElements, bcduiGensrcTld
+  dependsOn bcduiGensrcJsXsltXapiJspTagApis, bcduiGensrcCustomElements, bcduiGensrcTld, bcduiJisonArtefacts
 }
