@@ -144,10 +144,10 @@
         or operations as they are inherently insecure.
       </documentation></annotation>
     </attribute>
-    <attribute name="ignoreNullValue" use="optional" type="boolean" default="false">
+    <attribute name="isNullAllowsAccess" use="optional" type="boolean" default="false">
       <annotation><documentation>
       Enables null-value evaluation on data to be filtered. i.e. when using boolish security flags like 'isRestricted' you can set it to null value
-      and set this attribute to true, to supress filtering the data.
+      and set this attribute to true to allow accessing the data.
       </documentation></annotation>
     </attribute>
   </complexType>

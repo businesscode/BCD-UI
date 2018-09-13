@@ -250,7 +250,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     Set<String> permissions = SecurityHelper.getPermissions(subject, filterType);
-    if (permissions.isEmpty() && !ft.isIgnoreNullValue()) { // no permissions means we're done, unless filterType was instructed to ignoreNullValue
+    if (permissions.isEmpty() && !ft.isIsNullAllowsAccess()) { // no permissions means we're done, unless filterType was instructed to ignoreNullValue
       writeCanonicalConnective(subjectSettingsClause, connective, false);
       return;
     }
@@ -276,11 +276,11 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    */
   protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, Collection<String> preparedStatementParams, String filterType,
       Set<String> permissions, String columnExpression) {
-    if(permissions.isEmpty() && ft.isIgnoreNullValue()) {
+    if(permissions.isEmpty() && ft.isIsNullAllowsAccess()) {
       // no permission, yet select null-values
       subjectSettingsClause.append(columnExpression).append(" IS NULL");
     }else {
-      if(ft.isIgnoreNullValue()) {
+      if(ft.isIsNullAllowsAccess()) {
         columnExpression = "$col$ IS NULL OR $col$".replace("$col$", columnExpression);
       }
       subjectSettingsClause.append("(");
