@@ -187,14 +187,17 @@ task bcduiGensrcTld {
 // Generates JISON artefacts from jison/ folder to js/jison
 // $genSrcOutputDir/js/jison/: target folder for jison generated artefacts
 task bcduiJisonArtefacts ( type: NodeTask ) {
+  def jisonFile = "jison/bcdui_util_xml_filterExpressionParser.jison";
+  onlyIf { file(jisonFile).exists() }
+
   file("$genSrcOutputDir/js/jison/").mkdirs()
 
-  inputs.files "jison/bcdui_util_xml_filterExpressionParser.jison"
+  inputs.files jisonFile
   outputs.dir "$genSrcOutputDir/js/jison"
 
   doFirst {
     script = file("$nodeModulesDir/jison/lib/cli.js")
-    args   = ["jison/bcdui_util_xml_filterExpressionParser.jison", "-m", "js", "-o", file("$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js") ]
+    args   = [jisonFile, "-m", "js", "-o", file("$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js") ]
   }
 }
 
