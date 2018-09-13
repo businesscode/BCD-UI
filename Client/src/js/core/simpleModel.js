@@ -43,6 +43,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * The parameter isAutoRefresh=true forces a reload if the DataProvider has changed.
    * @param {string|object}                                 args - A url for the data <p/>or an argument map containing the following elements:
    * @param {string|bcdui.core.RequestDocumentDataProvider} args.url                   - A string with the URL or a RequestDocumentDataProvider providing the request. See {@link bcdui.core.RequestDocumentDataProvider RequestDocumentDataProvider} for an example.
+   * @param {string}                                        [args.uri]                 - uri extension as a suffix to .url to tag requests, must not start with '/'. This parameter is ineffective if .url is provided.
    * @param {string}                                        [args.id]                  - Globally unique id for used in declarative contexts
    * @param {boolean}                                       [args.isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
    * @param {string}                                        [args.mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
@@ -87,6 +88,9 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
         if (typeof args.url == "undefined" || !args.url.trim().length)
           args.url = bcdui.core.webRowSetServletPath;
 
+        if(args.uri){
+          args.url += "/" + args.uri;
+        }
         this.urlProvider = new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
       } else {
         this.urlProvider = args.url;

@@ -38,7 +38,6 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    *
    * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
-   * @param {string}                  [args.url=WrsServlet]               - Optional, allows overwriting Wrs-servlet as source. TODO: remove from doc as we extend SimpleModel
    *
    * @param {string}                  [args.reqDocStyleSheetUrl]          - Optional custom wrq-stylesheet URL to generate the request. Most parameters here only apply when using default wrq-styleshhet.
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
@@ -126,7 +125,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
        var wrapper = new bcdui.core.ModelWrapper(wrapperArgs);
 
        var simpleModelArgs = {
-           url: new bcdui.core.RequestDocumentDataProvider( { requestModel: wrapper, modelUrl: args.url } )
+           url: new bcdui.core.RequestDocumentDataProvider( { requestModel: wrapper, modelUrl: args.url, uri: args.uri } )
          , isAutoRefresh: args.isAutoRefresh
          , debug: args.debug
        };

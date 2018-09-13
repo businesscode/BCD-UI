@@ -702,6 +702,7 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
    * @param {bcdui.core.DataProvider}        [args.requestModel]            - A DataProvider providing a request, for example a wrs:WrsRequest
    * @param {string}                         [args.url]                     - URL to load the data from, use this or args.requestModel.
    * @param {string|bcdui.core.DataProvider} [args.modelUrl=WrsServlet]     - When using args.requestModel, this is a string or string- DataProvider with the URL which to send the requestModel result to
+   * @param {string}                         [args.uri]                     - uri extension as a suffix to .url to tag requests, must not start with '/'. This parameter is ineffective if .modelUrl or .url is provided.
    * @param {id}                             [args.id]                      - Globally unique id for use in declarative contexts
    * @param {boolean}                        [args.isAutoRefresh=false]     - If true, this DataProvider will always update itself when the requestDoc changes (without the need for execute) and fire a data modification event
    *                                                                          If used as a urlProvider from a {@link bcdui.core.SimpleModel SimpleModel}, it inherits its isAutoRefresh
@@ -745,6 +746,7 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
     this.isAutoRefresh = args.isAutoRefresh;
     this.value = "";
     this.url = null;
+    this.uri = args.uri;
     this.requestModel = null;
     if( bcdui.util.isString(args.url) ) {
       this.url = args.url;
@@ -813,6 +815,9 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
       // prio (from hi to low): model url argument, @url binding set attribute, standard
       var binding = this.requestModel.getData().selectSingleNode("//wrq:BindingSet");
       this.modelURL = bcdui.core.webRowSetServletPath;
+      if(this.uri){
+        this.modelURL += "/" + this.uri;
+      }
       if (this.modelURLArg != "")
         this.modelURL = this.modelURLArg;
       else if (binding != null && binding.getAttribute("url"))
