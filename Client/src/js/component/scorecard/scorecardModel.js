@@ -205,7 +205,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
             // 7) Run aggregator wrq, i.e. read measures
             // Load aggregator's data
             bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', aggregator '"+aggrId+"' measures loading ... " );
-            var wrs = bcdui.factory.createModel( { id: this.internalPrefix+"_agg_"+aggrId+"_ColWrs", requestDocument: aggrWrq } );
+            var wrs = bcdui.factory.createModel( { id: this.internalPrefix+"_agg_"+aggrId+"_ColWrs", requestDocument: aggrWrq, url: bcdui.core.webRowSetServletPath + "/sc/aggr/" + aggrId } );
 
             // 7a) We may need to apply a pre-calculation on the aggragator's result
             var toBeTransposed = wrs;
@@ -523,7 +523,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
 
                   // Run the aspect's wrq
                   bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', aspect '"+aspId+"' loading add. data ..." );
-                  var wrsV = bcdui.factory.createModel( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs", requestDocument: aspWrq } );
+                  var wrsV = bcdui.factory.createModel( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs", requestDocument: aspWrq, url: bcdui.core.webRowSetServletPath + "/sc/asp/" + aspId } );
 
                   // 13a) We may need to apply a pre-calculation on the aspects result
                   var preCalcNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspId+"']/scc:PreCalc/xsl:stylesheet");
@@ -650,7 +650,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           var aspWrq = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_asp_"+aspId+"_agg_"+aggrId+"_Wrq", stylesheetModel: bcdui.factory.objectRegistry.getObject(aspWrqModifier), inputModel: aggrWrq } )
 
           // Run the aspects wrq
-          var wrsV = bcdui.factory.createModel( { id: this.internalPrefix+"_asp_"+aspId+"_agg_"+aggrId+"_ModifierColWrs", requestDocument: aspWrq } );
+          var wrsV = bcdui.factory.createModel( { id: this.internalPrefix+"_asp_"+aspId+"_agg_"+aggrId+"_ModifierColWrs", requestDocument: aspWrq, url: bcdui.core.webRowSetServletPath + "/sc/asp_aggr/" + aspId + "/" + aggrId } );
 
           // We may need to apply a pre-calculation on the aggragator's result
           var toBeTransposed = wrsV;
