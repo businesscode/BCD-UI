@@ -101,13 +101,22 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
          params.additionalPassiveFilterXPath = new bcdui.core.DataProviderWithXPathNodes({ source: args.additionalPassiveFilterModel, xPath: args.additionalPassiveFilterXPath });
        }
 
-       var wrapperArgs = {
-         chain: [args.reqDocChain || args.reqDocStyleSheetUrl, doc => {
-           if(args.filterElement){
-             doc.selectSingleNode("//f:Filter").appendChild(doc.importNode(args.filterElement.selectSingleNode("f:*"), true))
-           }
+       // take provided chain (or stylesheet) and append the last step to merge .filterElement, if such was provided
+       var wrapperChain = args.reqDocChain || args.reqDocStyleSheetUrl;
+
+       if(!Array.isArray(wrapperChain)){
+         wrapperChain = [wrapperChain];
+       }
+
+       if(args.filterElement){
+         wrapperChain = wrapperChain.concat(doc => {
+           doc.selectSingleNode("//f:Filter").appendChild(doc.importNode(args.filterElement.selectSingleNode("f:*"), true))
            return doc;
-         }],
+         });
+       }
+
+       var wrapperArgs = {
+         chain: wrapperChain,
          inputModel: bcdui.wkModels.guiStatus,
          parameters: params
        };
