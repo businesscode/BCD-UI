@@ -164,10 +164,10 @@
             </Entry>
           </ContextMenuEntryGroup>
           <ContextMenuEntryGroup caption="Level Actions" >
-            <xsl:call-template name="totals">
+            <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="true()"/>
             </xsl:call-template>
-            <xsl:call-template name="sortDimByMeas">
+            <xsl:call-template name="totals">
               <xsl:with-param name="isColDim" select="true()"/>
             </xsl:call-template>
           </ContextMenuEntryGroup>
@@ -232,10 +232,10 @@
             </xsl:if>
           </ContextMenuEntryGroup>
           <ContextMenuEntryGroup caption="Level Actions" >
-            <xsl:call-template name="totals">
+            <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
-            <xsl:call-template name="sortDimByMeas">
+            <xsl:call-template name="totals">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
           </ContextMenuEntryGroup>
