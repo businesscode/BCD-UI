@@ -114,6 +114,9 @@
         <!-- Col dimension member -->
         <xsl:when test="$contextType='ColTotalHeader'">
           <ContextMenuEntryGroup caption="Level Actions" >
+            <xsl:call-template name="sortDimByMeas">
+              <xsl:with-param name="isColDim" select="true()"/>
+            </xsl:call-template>
             <xsl:call-template name="totals">
               <xsl:with-param name="isColDim" select="true()"/>
             </xsl:call-template>
@@ -183,6 +186,9 @@
         <!-- Row total dimension member -->
         <xsl:when test="$contextType='RowDimensionTotalMember'">
           <ContextMenuEntryGroup caption="Cell Actions" >
+            <xsl:call-template name="sortDimByMeas">
+              <xsl:with-param name="isColDim" select="false()"/>
+            </xsl:call-template>
             <xsl:call-template name="totals">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
@@ -399,7 +405,7 @@
   <xsl:template name="sortDimByMeas">
     <xsl:param name="isColDim"/>
     <!-- only available if the dim got a total set and we actually have measures-->
-    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimension] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimension]) and count($statusModelLayout//cube:Measures/*/*) != 0">
+    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimensionInner] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionInner]) and count($statusModelLayout//cube:Measures/*/*) != 0">
       <xsl:call-template name="sortDimByMeasInner">
         <xsl:with-param name="direction">ascending</xsl:with-param>
         <xsl:with-param name="isColDim" select="$isColDim"/>

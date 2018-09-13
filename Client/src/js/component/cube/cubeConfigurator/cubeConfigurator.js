@@ -153,8 +153,11 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sortBy', args.sortBy,     args.colDimId );
     }
     else{
-      bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sort',   null,  args.colDimId  );
-      bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sortBy', null,  args.colDimId  );
+      // remove all sorts
+      jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetModelId).queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
+        e.removeAttribute("sort");
+        e.removeAttribute("sortBy");
+      });
     }
     return true;
   },
