@@ -56,7 +56,9 @@
   <xsl:param name="additionalFilterXPath" select="/*[1=0]" />
   <!-- type dataProviderWithXPathNodes -->
   <xsl:param name="additionalPassiveFilterXPath" select="/*[1=0]" />
-  <xsl:param name="statusModel" />
+  <xsl:param name="guiStatus"/>
+  <!-- default status model: guiStatus -->
+  <xsl:param name="statusModel" select="$guiStatus" />
 
   <xsl:variable name="boolIsDistinct" select="boolean(translate($isDistinct,'0false',''))"/>
   <xsl:variable name="boolUseCaptions" select="boolean(translate($useCaptions,'0false',''))"/>
