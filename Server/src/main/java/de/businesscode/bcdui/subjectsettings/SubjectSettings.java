@@ -154,27 +154,39 @@ public class SubjectSettings extends SubjectSettingsConfig {
    * setup implicit filters
    */
   private void initImplicitFilters() {
-    // inject well known i18n type and define as client-controlled, if was not defined already
-    SubjectFilterTypes types = getSubjectFilterTypes();
-    if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> I18n.SUBJECT_FILTER_TYPE.equals(f.getName()))) {
-      if (types == null) {
-        types = new SubjectFilterTypes();
-        setSubjectFilterTypes(types);
-      }
-      SubjectFilterType i18nFilter = new SubjectFilterType();
-      i18nFilter.setIsClientControlled(true);
-      i18nFilter.setName(I18n.SUBJECT_FILTER_TYPE);
-      i18nFilter.setOp("=");
-      C c = new C();
-      c.setBRef("bcd_lang");
-      BindingItems bi = new BindingItems();
-      bi.setC(c);
-      i18nFilter.setBindingItems(bi);
 
-      getSubjectFilterTypes().getSubjectFilterType().add(i18nFilter);
-      log.debug("'" + I18n.SUBJECT_FILTER_TYPE + "': implict filter added.");
-    } else {
-      log.debug("'" + I18n.SUBJECT_FILTER_TYPE + "': filter defined in context.");
+    String implicitFilters[][] = {
+         {I18n.SUBJECT_FILTER_TYPE, "bcd_lang"}
+        ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId"}
+    };
+    
+    for (int i = 0; i < implicitFilters.length; i++) {
+
+      String type = implicitFilters[i][0];
+      String column = implicitFilters[i][1];
+
+      // inject well known i18n type and define as client-controlled, if was not defined already
+      SubjectFilterTypes types = getSubjectFilterTypes();
+      if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> type.equals(f.getName()))) {
+        if (types == null) {
+          types = new SubjectFilterTypes();
+          setSubjectFilterTypes(types);
+        }
+        SubjectFilterType implFilter = new SubjectFilterType();
+        implFilter.setIsClientControlled(true);
+        implFilter.setName(type);
+        implFilter.setOp("=");
+        C c = new C();
+        c.setBRef(column);
+        BindingItems bi = new BindingItems();
+        bi.setC(c);
+        implFilter.setBindingItems(bi);
+  
+        getSubjectFilterTypes().getSubjectFilterType().add(implFilter);
+        log.debug("'" + type + "': implict filter added.");
+      } else {
+        log.debug("'" + type + "': filter defined in context.");
+      }
     }
   }
 
@@ -255,7 +267,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
    * @param value
    */
   public void setFilterTypeValue(Session session, String subjectFilterTypeName, String value){
-    session.setAttribute(permissionAttributePrefix + getSubjectFilterTypeByName(subjectFilterTypeName), value);
+    session.setAttribute(permissionAttributePrefix + getFilterType(getSubjectFilterTypeByName(subjectFilterTypeName)), value);
   }
 
   /**

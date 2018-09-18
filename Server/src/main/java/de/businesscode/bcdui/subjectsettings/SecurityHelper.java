@@ -42,6 +42,8 @@ import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
  */
 public class SecurityHelper {
 
+  public static final String SUBJECT_FILTER_TYPE_BCDUSERID = "bcd_userId:userId";
+
   private static Logger log = Logger.getLogger(SecurityHelper.class);
 
   /**
@@ -365,5 +367,11 @@ public class SecurityHelper {
       throw new RuntimeException("failed to retrieve pemissions", e);
     }
     return valueSet;
+  }
+
+  public static void setBcdUserIdSubjectFilterValue(String userId) {
+    Session session = getSession();
+    if (session != null)
+      SubjectSettings.getInstance().setFilterTypeValue(session, SUBJECT_FILTER_TYPE_BCDUSERID, userId);
   }
 }

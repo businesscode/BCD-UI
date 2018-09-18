@@ -27,6 +27,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
+import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 
 /**
  * Support for bcd_log_login logging
@@ -34,8 +35,8 @@ import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
 public class AuthenticationListener implements org.apache.shiro.authc.AuthenticationListener{
 
   @Override
-  public void onFailure(AuthenticationToken arg0, AuthenticationException arg1) {
-    String userName = arg0.getPrincipal().toString();
+  public void onFailure(AuthenticationToken token, AuthenticationException arg1) {
+    String userLogin = token.getPrincipal().toString();
     LOGIN_RESULTS result = LOGIN_RESULTS.FAILED;
     if (arg1 instanceof UnknownAccountException)
       result = LOGIN_RESULTS.ACC_UNKNOWN;
@@ -49,7 +50,7 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
       result = LOGIN_RESULTS.FAILED;
     Session session = SecurityUtils.getSubject().getSession();
     // even create a session for failed login attempt
-    session.setAttribute("BCD_LOGIN_USER", userName);
+    session.setAttribute("BCD_LOGIN_USER", userLogin);
     session.setAttribute("BCD_LOGIN_RESULT", result);
   }
 
@@ -59,11 +60,13 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
   }
 
   @Override
-  public void onSuccess(AuthenticationToken arg0, AuthenticationInfo arg1) {
-    String userName = arg0.getPrincipal().toString();
+  public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
+    String userLogin = token.getPrincipal().toString();
     LOGIN_RESULTS result = LOGIN_RESULTS.OK;
     Session session = SecurityUtils.getSubject().getSession(); 
-    session.setAttribute("BCD_LOGIN_USER", userName);
+    session.setAttribute("BCD_LOGIN_USER", userLogin);
     session.setAttribute("BCD_LOGIN_RESULT", result);
+    String userId = SecurityHelper.getUserId(info);
+    SecurityHelper.setBcdUserIdSubjectFilterValue(userId);
   }
 }
