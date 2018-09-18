@@ -156,16 +156,16 @@ public class SubjectSettings extends SubjectSettingsConfig {
   private void initImplicitFilters() {
 
     String implicitFilters[][] = {
-         {I18n.SUBJECT_FILTER_TYPE, "bcd_lang"}
-        ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId"}
+       {I18n.SUBJECT_FILTER_TYPE, "bcd_lang", "true"}
+      ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId", "false"}
     };
     
     for (int i = 0; i < implicitFilters.length; i++) {
 
       String type = implicitFilters[i][0];
       String column = implicitFilters[i][1];
+      boolean clientControlled = Boolean.parseBoolean(implicitFilters[i][2]);
 
-      // inject well known i18n type and define as client-controlled, if was not defined already
       SubjectFilterTypes types = getSubjectFilterTypes();
       if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> type.equals(f.getName()))) {
         if (types == null) {
@@ -173,7 +173,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
           setSubjectFilterTypes(types);
         }
         SubjectFilterType implFilter = new SubjectFilterType();
-        implFilter.setIsClientControlled(true);
+        implFilter.setIsClientControlled(clientControlled);
         implFilter.setName(type);
         implFilter.setOp("=");
         C c = new C();
