@@ -30,9 +30,9 @@
 "or"                  return 'OR'
 "("                   return '('
 ")"                   return ')'
-"'"[^']+"'"           return 'TEXT'
-":"[a-z_]+\b          return 'VARNAME'
-[a-z_]+\b             return 'BREF'
+"'"[^']*"'"           return 'TEXT'
+":"[a-zA-Z_]+\b       return 'VARNAME'
+[a-zA-Z_]+\b          return 'BREF'
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
 
