@@ -139,13 +139,16 @@ public class Wrq2Sql implements ISqlGenerator
 
 
   /**
-   * Generates 'SELECT ' plus the select list
+   * Generates 'SELECT [DISTINCT] ' plus the select list
    * @return
    */
   protected StringBuffer generateSelectClause( List<Element> boundVariables )
   {
     StringBuffer sql = new StringBuffer();
     sql.append("SELECT ");
+    if(wrqInfo.isSelectDistinct()) {
+      sql.append("DISTINCT ");
+    }
     Iterator<String> it = wrqInfo.getFullSelectListBRefs().iterator();
     String concat="";
     while( it.hasNext() )

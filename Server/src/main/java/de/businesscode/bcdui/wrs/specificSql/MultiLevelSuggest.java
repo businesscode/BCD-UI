@@ -20,17 +20,20 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.wrs.IRequestOptions;
+import de.businesscode.bcdui.wrs.load.BindingItemAttribute;
 import de.businesscode.bcdui.wrs.load.BindingItemWithMetaData;
 import de.businesscode.bcdui.wrs.load.SQLStatementWithParams;
-import de.businesscode.bcdui.wrs.load.BindingItemAttribute;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
@@ -101,6 +104,7 @@ public class MultiLevelSuggest extends AbstractSqlGenerator
     }
     final int numOfSearchLevels = searchLevels.size();
 
+    boolean isSelectDistinct = Boolean.parseBoolean(((Element)wrq.getElementsByTagName("Select").item(0)).getAttribute("isDistinct"));
     String wrqBindingSetId = ((Element)wrq.getElementsByTagName("Dimension").item(0)).getAttribute("bindingSet");
     StringBuffer sqlSB = new StringBuffer( "#set( $k = $bindings."+wrqBindingSetId+" )" );
 
@@ -114,6 +118,10 @@ public class MultiLevelSuggest extends AbstractSqlGenerator
 
       // Select list
       sqlSB.append("\nSELECT ");
+      if(isSelectDistinct) {
+        sqlSB.append("DISTINCT ");
+      }
+      
 
       // Read the data as individual fields
       boolean isFirst = true;
