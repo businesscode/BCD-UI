@@ -37,9 +37,9 @@ CREATE TABLE bcd_virtualFileSystem
    resource_clob  VARCHAR(MAX),
    resource_blob  VARBINARY(MAX),
    is_server      INTEGER NOT NULL,
-   updated_by     VARCHAR2(128),
+   updated_by     VARCHAR(128),
    last_update    DATETIME,
-   bcd_userId     VARCHAR2(64),
+   bcd_userId     VARCHAR(64),
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
 -- PostgreSQL
@@ -49,8 +49,8 @@ CREATE TABLE bcd_virtualFileSystem
    resource_clob  TEXT,
    resource_blob  BYTEA,
    is_server      INTEGER NOT NULL,
-   updated_by     VARCHAR2(128),
+   updated_by     VARCHAR(128),
    last_update    TIMESTAMP,
-   bcd_userId     VARCHAR2(64),
+   bcd_userId     VARCHAR(64),
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
