@@ -16,20 +16,28 @@
 -->
 <BindingSet id="bcd_virtualFileSystem"  table="bcd_virtualFileSystem" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
 
-  <C id="path"         isKey="true">                     <Column>path</Column>          </C>
-  <C id="resourceClob"              type-name="CLOB">    <Column>resource_clob</Column> </C>
-  <C id="resourceBlob"              type-name="BLOB">    <Column>resource_blob</Column> </C>
-  <C id="isServer"                  type-name="INTEGER"> <Column>is_server</Column>     </C>
+  <C id="path"        isKey="true"  type-name="VARCHAR">  <Column>path</Column>          </C>
+  <C id="resourceClob"              type-name="CLOB">     <Column>resource_clob</Column> </C>
+  <C id="resourceBlob"              type-name="BLOB">     <Column>resource_blob</Column> </C>
+  <C id="isServer"                  type-name="INTEGER">  <Column>is_server</Column>     </C>
+  <C id="updatedBy"                 type-name="VARCHAR">  <Column>updated_by</Column>    </C>
+  <C id="lastUpdate"                type-name="TIMESTAMP"><Column>last_update</Column>   </C>
+  <C id="bcd_userId"  isKey="true"  type-name="VARCHAR">  <Column>bcd_userId</Column>    </C>
 
   <SubjectSettings>
     <Security>
       <Operation permission="" name="write"/>
     </Security>
+    <SubjectFilters>
+      <SubjectFilter type="bcd_userId:userId"/>
+    </SubjectFilters>
   </SubjectSettings>
 
   <WriteProcessing>
     <Callbacks>
       <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
+        <Param bindingItemId="lastUpdate" expression="${bcdBean.creationStamp}" isCoalesce="false"/>
+        <Param bindingItemId="updatedBy" expression="${bcdBean.userName}" isCoalesce="false" />
         <Param bindingItemId="isServer" expression="0" isCoalesce="false"/>
       </Callback>
     </Callbacks>

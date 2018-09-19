@@ -91,8 +91,12 @@ bcdui.util.namespace("bcdui.component.exports",
         bcdui.component.exports._doInlineCss( origChild, newChild );
         newParent.appendChild( newChild )
 
-      } else if( nodeType == 3 )
-        newParent.appendChild( origParent.childNodes[c].cloneNode(false) );
+      }
+      else {
+        if( nodeType == 3 ) {
+          newParent.appendChild( origParent.childNodes[c].cloneNode(false) );
+        }
+      }
     }
     return newParent;
   },
@@ -279,20 +283,23 @@ bcdui.util.namespace("bcdui.component.exports",
       return;
     }
 
-    if (doSave) {
-      // delete old entry
-      bcdui.core.createElementWithPrototype(config.vfsModel.getData(), "/*/wrs:Data/wrs:D[wrs:C[1]='" + config.pathName +"']", true);
-      // insert new entry
-      var insertData = bcdui.core.createElementWithPrototype(config.vfsModel.getData(), "/*/wrs:Data/wrs:I[wrs:C[1]='" + config.pathName +"']", true);
-      insertData.selectSingleNode("wrs:C[2]").text = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' + new XMLSerializer().serializeToString(config.targetModel.getData());
-      config.vfsModel.sendData();
-    }
-
     // close dialog
     jQuery(element).closest(".bcdExportColumnsDialog").dialog("close");
 
-    // create modified wrq
-    bcdui.component.exports._buildAndExecuteExportWrq(config);
+    // in case of save, we modify the possibly existing first row with the new data
+    // bcd_userId is set client wise, no security issue since you can only allow your setting for a different user and server sided you are marked as writer
+    if (doSave) {
+      bcdui.wrs.wrsUtil.setCellValue(config.vfsModel, 1, "path", config.pathName);
+      bcdui.wrs.wrsUtil.setCellValue(config.vfsModel, 1, "bcd_userId", bcdui.config.userId);
+      bcdui.wrs.wrsUtil.setCellValue(config.vfsModel, 1, "resourceClob", '<?xml version="1.0" encoding="UTF-8" standalone="no"?>' + new XMLSerializer().serializeToString(config.targetModel.getData()));
+      bcdui.wrs.wrsUtil.postWrs({wrsDoc: config.vfsModel.getData(), onSuccess: function() {
+        bcdui.component.exports._buildAndExecuteExportWrq(config);
+      }});
+    }
+    else {
+      // create modified wrq
+      bcdui.component.exports._buildAndExecuteExportWrq(config);
+    }
   },
 
   /**
@@ -322,7 +329,7 @@ bcdui.util.namespace("bcdui.component.exports",
    * prepare normalized wrq (to get caption and column list), load stored vfs export list and show column picker dialog optionally 
    * @param {Object} args The parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.wrq  - Model containing the wrs request according to XSD http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0
-   * @param {string}   args.vfsFilename         - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information 
+   * @param {string}   args.vfsFilename         - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/binding information 
    * @param {function} args.callback            - original detail export function
    * @param {string }  args.exportMode          - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full
    * @param {boolean}  args.allowSave           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on 
@@ -333,13 +340,13 @@ bcdui.util.namespace("bcdui.component.exports",
     // build PathName
     var binding = args.wrq.read("/*/wrq:Select/wrq:From/wrq:BindingSet");
     var url = window.location.pathname.replace(/\//g, '|').substring(1);
-    var pathName = args.vfsFilename || ("/vfs/export/" + (bcdui.config.userName ? bcdui.config.userName + "/" : "") + (binding ? binding + "/" : "") + url + "/columns.xml");
+    var pathName = args.vfsFilename || ("/vfs/export/" + (binding ? binding + "/" : "") + url + "/columns.xml");
 
-    // load vfs data
-    var additionalFilterXPath = "/*/guiStatus:ClientSettings/f:Filter/f:And[@id='bcdExport']/f:Expression[@bRef='path' and @op='=']/@value";
-    bcdui.wkModels.guiStatus.write(additionalFilterXPath, pathName, true);
+    // load vfs data (bcd_userId filter via subject settings)
+    var addXPathRoot = "/*/guiStatus:ClientSettings/f:Filter/f:And[@id='bcdExport']";
+    bcdui.wkModels.guiStatus.write(addXPathRoot + "/f:Expression[@bRef='path' and @op='=']/@value", pathName);
     var vfsModel = args.allowSave
-      ? new bcdui.core.AutoModel({bRefs: "path resourceClob", bindingSetId: "bcd_virtualFileSystem", additionalFilterXPath: "/*/guiStatus:ClientSettings/f:Filter/f:And[@id='bcdExport']"})
+      ? new bcdui.core.AutoModel({bRefs: "path bcd_userId resourceClob", bindingSetId: "bcd_virtualFileSystem", additionalFilterXPath: addXPathRoot, isAutoRefresh: false})
       : new bcdui.core.StaticModel("<Empty/>");
 
     vfsModel.onReady( { executeIfNotReady: true, onlyOnce: true, onSuccess: function() {
@@ -365,7 +372,9 @@ bcdui.util.namespace("bcdui.component.exports",
         bcdui.factory.objectRegistry.registerObject(optionsModel);
         optionsModel.execute();
 
-        var vfsData = vfsModel.query("/*/wrs:Data/wrs:R[wrs:C[1]='" + pathName + "']/wrs:C[2]");
+        var pathIndex = vfsModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos", "");
+        var clobIndex = vfsModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='resourceClob']/@pos", "");
+        var vfsData = vfsModel.query("/*/wrs:Data/wrs:R[wrs:C[" + pathIndex + "]='" + pathName + "']/wrs:C[" + clobIndex +"]");
         vfsData = new bcdui.core.StaticModel(vfsData ? vfsData.text : "<Empty/>");
         vfsData.execute();
 
@@ -463,8 +472,6 @@ bcdui.util.namespace("bcdui.component.exports",
 
       // We want xlsx and use server-side Excel creation
       if( args.type === "xlsx" ) {
-        var filNameAttr = null; //bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
-        args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
         if (! args.fileName) {
           var fileName = bcdui.component.exports._getFileNameFromNavPath();
           if (fileName)
@@ -492,9 +499,9 @@ bcdui.util.namespace("bcdui.component.exports",
         var filNameAttr = bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
         args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
         if (! args.fileName) {
-          var fileName = bcdui.component.exports._getFileNameFromNavPath();
-          if (fileName)
-            args.fileName = fileName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + (args.type=="csv" ? "csv" : "xls");
+          var fName = bcdui.component.exports._getFileNameFromNavPath();
+          if (fName)
+            args.fileName = fName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + (args.type=="csv" ? "csv" : "xls");
         }
         args.fileName = (args.fileName ? args.fileName : (args.type=="csv" ? "export_" + bcdui.component.exports._getExportTimeStamp() + ".csv" : "export_" + bcdui.component.exports._getExportTimeStamp() + ".xls"));
         exportForm.setAttribute("action", (args.type=="csv" ?   bcdui.contextPath+"/bcdui/servlets/CsvServlet/"+args.fileName
@@ -504,10 +511,11 @@ bcdui.util.namespace("bcdui.component.exports",
         var root = bcdui.wkModels.bcdNavPath.query("/*");
         if (root && root.getAttribute("targetId") != null) {
           var target = root.getAttribute("targetId");
-          if (jQuery("#" + target).length > 0)
+          if (jQuery("#" + target).length > 0) {
             var addInfo = jQuery("#" + target).text();
             addInfo += " - " + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_AddFilters" });
             bcdui.factory.objectRegistry.getObject(args.wrq).write("/wrq:WrsRequest/wrq:Header/wrq:SylkExport/wrq:AddHeaderInfo", addInfo, true);
+          }
         }
 
         if( bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest")==null ) {

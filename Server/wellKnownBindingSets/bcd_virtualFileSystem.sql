@@ -22,7 +22,10 @@ CREATE TABLE bcd_virtualFileSystem
    resource_clob  CLOB,
    resource_blob  BLOB,
    is_server      INTEGER NOT NULL,
-   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server)
+   updated_by     VARCHAR2(128),
+   last_update    TIMESTAMP,
+   bcd_userId     VARCHAR2(64),
+   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
 
 
@@ -34,7 +37,10 @@ CREATE TABLE bcd_virtualFileSystem
    resource_clob  VARCHAR(MAX),
    resource_blob  VARBINARY(MAX),
    is_server      INTEGER NOT NULL,
-   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server)
+   updated_by     VARCHAR2(128),
+   last_update    DATETIME,
+   bcd_userId     VARCHAR2(64),
+   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
 -- PostgreSQL
 CREATE TABLE bcd_virtualFileSystem
@@ -43,5 +49,8 @@ CREATE TABLE bcd_virtualFileSystem
    resource_clob  TEXT,
    resource_blob  BYTEA,
    is_server      INTEGER NOT NULL,
-   CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server)
+   updated_by     VARCHAR2(128),
+   last_update    TIMESTAMP,
+   bcd_userId     VARCHAR2(64),
+   CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
