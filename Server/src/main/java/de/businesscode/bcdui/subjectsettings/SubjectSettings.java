@@ -155,9 +155,10 @@ public class SubjectSettings extends SubjectSettingsConfig {
    */
   private void initImplicitFilters() {
 
+    // Array of implicit filters: type name, binding column, IsClientControlled, IsNullAllowsAccess
     String implicitFilters[][] = {
-       {I18n.SUBJECT_FILTER_TYPE, "bcd_lang", "true"}
-      ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId", "false"}
+       {I18n.SUBJECT_FILTER_TYPE, "bcd_lang", "true", "false"}
+      ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId", "false", "true"}
     };
     
     for (int i = 0; i < implicitFilters.length; i++) {
@@ -165,6 +166,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
       String type = implicitFilters[i][0];
       String column = implicitFilters[i][1];
       boolean clientControlled = Boolean.parseBoolean(implicitFilters[i][2]);
+      boolean nullAllowed = Boolean.parseBoolean(implicitFilters[i][3]);
 
       SubjectFilterTypes types = getSubjectFilterTypes();
       if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> type.equals(f.getName()))) {
@@ -174,6 +176,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
         }
         SubjectFilterType implFilter = new SubjectFilterType();
         implFilter.setIsClientControlled(clientControlled);
+        implFilter.setIsNullAllowsAccess(nullAllowed);
         implFilter.setName(type);
         implFilter.setOp("=");
         C c = new C();

@@ -321,6 +321,11 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
 
+    // in case of implicit value with isIsNullAllowsAccess, we need to construct x is null or x is value 
+    if (ft.isIsNullAllowsAccess()) {
+      subjectSettingsClause.append("($col$ IS NULL OR ".replace("$col$", bindingSet.get(bRef).getQColumnExpression()));
+    }
+
     Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
     e.setAttribute("op", ft.getOp());
     e.setAttribute("bRef", bRef);
@@ -331,6 +336,11 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, elementList, wrqInfo.getOwnerDocument(), false));
+
+    // in case of implicit value with isIsNullAllowsAccess, we have an open bracket, so close it
+    if (ft.isIsNullAllowsAccess()) {
+      subjectSettingsClause.append(")");
+    }
   }
 
   /**
