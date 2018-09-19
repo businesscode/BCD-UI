@@ -109,13 +109,13 @@
       <R id="R67"><C>bcd_I18nTm_dlgSavedTitle</C><C>Saved</C><C>en</C></R>
       <R id="R68"><C>bcd_I18nTm_dlgSavedMessage</C><C>Data successfully saved</C><C>en</C></R>
       <R id="R69"><C>bcd_I18nTm_dlgNotSavedTitle</C><C>Not saved</C><C>en</C></R>
-      <R id="R84"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
-      <R id="R85"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
-      <R id="R86"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
+      <R id="R85"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
+      <R id="R86"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
+      <R id="R87"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
 
       <!-- Scorecard -->
-      <R id="R87"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
-      <R id="R88"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
+      <R id="R88"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
+      <R id="R89"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
 
       <!-- System messages -->
       <R id="R100"><C>bcd_GuiStatusTooLong</C><C>Please reduce the number of filters, browser limit exceeded.</C><C>en</C></R>
@@ -136,10 +136,11 @@
       <R id="R77"><C>bcd_Grid_RowDuplicate</C><C>Duplicate row</C><C>en</C></R>
       <R id="R78"><C>bcd_Grid_CellActionsHdr</C><C>Cell actions</C><C>en</C></R>
       <R id="R79"><C>bcd_Grid_RowActionsHdr</C><C>Row actions</C><C>en</C></R>
-      <R id="R80"><C>bcd_Grid_ActionsGlobalHdr</C><C>General Options</C><C>en</C></R>
-      <R id="R81"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
-      <R id="R82"><C>bcd_Grid_CellRestore</C><C>Restore cell</C><C>en</C></R>
-      <R id="R83"><C>bcd_Grid_Export</C><C>Grid export</C><C>en</C></R>
+      <R id="R80"><C>bcd_Grid_ColumnActionsHdr</C><C>Column actions</C><C>en</C></R>
+      <R id="R81"><C>bcd_Grid_ActionsGlobalHdr</C><C>General Options</C><C>en</C></R>
+      <R id="R82"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
+      <R id="R83"><C>bcd_Grid_CellRestore</C><C>Restore cell</C><C>en</C></R>
+      <R id="R84"><C>bcd_Grid_Export</C><C>Grid export</C><C>en</C></R>
 
       <!-- Editing -->
       <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>

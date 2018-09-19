@@ -102,6 +102,7 @@
         <!-- Row dimension header -->
         <xsl:when test="$contextType='RowDimensionHeader'">
           <ContextMenuEntryGroup caption="Level Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
@@ -114,6 +115,7 @@
         <!-- Col dimension member -->
         <xsl:when test="$contextType='ColTotalHeader'">
           <ContextMenuEntryGroup caption="Level Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="true()"/>
             </xsl:call-template>
@@ -167,6 +169,7 @@
             </Entry>
           </ContextMenuEntryGroup>
           <ContextMenuEntryGroup caption="Level Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="true()"/>
             </xsl:call-template>
@@ -179,6 +182,7 @@
         <!-- Measure header -->
         <xsl:when test="$contextType='ColMeasureHeader'">
           <ContextMenuEntryGroup caption="Measure Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="cumulate"/>
           </ContextMenuEntryGroup>
         </xsl:when>
@@ -189,6 +193,8 @@
             <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
+          </ContextMenuEntryGroup>
+          <ContextMenuEntryGroup caption="Level Actions" >
             <xsl:call-template name="totals">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
@@ -238,6 +244,7 @@
             </xsl:if>
           </ContextMenuEntryGroup>
           <ContextMenuEntryGroup caption="Level Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="sortDimByMeas">
               <xsl:with-param name="isColDim" select="false()"/>
             </xsl:call-template>
@@ -253,6 +260,7 @@
             <xsl:call-template name="detailExport"/>
           </ContextMenuEntryGroup>
           <ContextMenuEntryGroup caption="Measure Actions" >
+            <xsl:call-template name="columnSort"/>
             <xsl:call-template name="cumulate"/>
           </ContextMenuEntryGroup>
         </xsl:when>
@@ -262,14 +270,15 @@
           <ContextMenuEntryGroup caption="Cell Actions" >
             <xsl:call-template name="detailExport"/>
           </ContextMenuEntryGroup>
+          <ContextMenuEntryGroup caption="Measure Actions" >
+            <xsl:call-template name="columnSort"/>
+          </ContextMenuEntryGroup>
         </xsl:when>
 
       </xsl:choose>
 
       <ContextMenuEntryGroup caption="General Options" >
-        <xsl:call-template name="columnSort"/>
-        
-        <ContextMenuSubHeader caption="Create Custom Calculations"/>
+        <xsl:call-template name="customCalcHeader"/>
         <TwoColumns>
           <xsl:call-template name="addRowCalculation"/>
           <Entry caption="Measure (all dim)">
@@ -560,5 +569,9 @@
   <xsl:template name="addRowCalculation"/>
   <xsl:template name="addColumnCalculation"/>
   <xsl:template name="editCalculation"/>
+
+  <xsl:template name="customCalcHeader">
+    <ContextMenuSubHeader caption="Create Custom Measures"/>
+  </xsl:template>
 
 </xsl:stylesheet>
