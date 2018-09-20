@@ -389,7 +389,7 @@
   </xsl:template>
 
   <xsl:template name="columnSort">
-    <ContextMenuSubHeader caption="Sort Columns"/>
+    <ContextMenuSubHeader caption="Sort Column"/>
     <TwoColumns>
       <Entry caption="Ascending">
         <JavaScriptAction>
