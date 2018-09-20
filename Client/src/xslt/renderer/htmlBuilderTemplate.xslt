@@ -139,6 +139,11 @@
           <xsl:when test="@bcdOt='1'"><xsl:attribute name="bcdTranslate">bcd_OtherDimmember</xsl:attribute></xsl:when>
           <xsl:when test="string-length(.)=0 and string-length(@caption)=0"><xsl:attribute name="bcdTranslate">bcd_EmptyDimmember</xsl:attribute></xsl:when>
           <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
+          <xsl:when test="@unit or @scale or contains($numericSQLTypes, concat(' ', @type-name, ' '))">
+            <xsl:call-template name="formatNumber">
+              <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
+            </xsl:call-template>
+          </xsl:when>
           <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
         </xsl:choose>
       </th>
