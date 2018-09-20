@@ -606,6 +606,7 @@
   @include shadow();
   width: 280px;
   z-index: 15000;
+  padding-bottom: 8px;
 }
 
 .bcdMenuitems {
@@ -638,6 +639,11 @@ div.bcdContextMenu .bcdContextMenuTitle {
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 3px;
+}
+
+div.bcdContextMenu .bcdContextGroupHeader ~ .bcdContextGroupHeader {
+  margin-top: 8px;
 }
 
 div.bcdContextMenu .bcdContextGroupHeader {
@@ -651,8 +657,13 @@ div.bcdContextMenu .bcdContextGroupHeader {
   text-overflow: ellipsis;
 }
 
+.bcdContextGroupHeader + .bcdContextSubHeader {
+  margin-top: 2px !important;
+}
+
 div.bcdContextMenu .bcdContextSubHeader {
-  @include con_color(#FFFFFF);
+  color: $cube-color-cell-total;
+  background-color: inherit;
   position: relative; /* IE8 */
   padding: 0px 0px 0px 10px;
   white-space: nowrap;
@@ -660,7 +671,7 @@ div.bcdContextMenu .bcdContextSubHeader {
   text-decoration: none;
   font-weight: bold;
   border: none;
-  margin-top: 2px;
+  margin-top: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
 }

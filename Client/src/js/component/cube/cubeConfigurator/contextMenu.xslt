@@ -59,6 +59,7 @@
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="bcdDimensionOuter" select="$statusModelLayout//cube:Rows//dm:LevelRef[1]/@bRef"/>
+  <xsl:variable name="bcdDimensionMostInner" select="$statusModelLayout//cube:Dimensions/*[dm:LevelRef[@bRef=$bcdDimension]]/dm:LevelRef[position()=last()]/@bRef"/>
 
   <xsl:variable name="measureCaption">
     <xsl:call-template name="getMeasureId">
@@ -388,14 +389,14 @@
   </xsl:template>
 
   <xsl:template name="columnSort">
-    <ContextMenuSubHeader caption="Column sorting"/>
+    <ContextMenuSubHeader caption="Sort Columns"/>
     <TwoColumns>
-      <Entry caption="Sort ascending">
+      <Entry caption="Ascending">
         <JavaScriptAction>
           bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "ascending"});
         </JavaScriptAction>
       </Entry>
-      <Entry caption="Sort descending">
+      <Entry caption="Descending">
         <JavaScriptAction>
           bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: <xsl:value-of select="boolean(not($measure))"/>, direction: "descending"});
         </JavaScriptAction>
@@ -413,8 +414,8 @@
   <!-- Helper for sortDimByMeas, lists the distinct measures -->
   <xsl:template name="sortDimByMeas">
     <xsl:param name="isColDim"/>
-    <!-- only available if the dim got a total set and we actually have measures-->
-    <xsl:if test="$statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimensionInner] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionInner]) and count($statusModelLayout//cube:Measures/*/*) != 0">
+    <!-- only available if the dim got a total set (or are innermost dim) and we actually have measures -->
+    <xsl:if test="($bcdDimensionMostInner = $bcdDimension) or ($statusModelLayout//dm:LevelRef[@total!='' and @bRef=$bcdDimensionInner] and not($statusModelLayout/cube:Hide//f:Expression[@bRef=$bcdDimensionInner])) and count($statusModelLayout//cube:Measures/*/*) != 0">
       <xsl:call-template name="sortDimByMeasInner">
         <xsl:with-param name="direction">ascending</xsl:with-param>
         <xsl:with-param name="isColDim" select="$isColDim"/>
@@ -435,7 +436,7 @@
   <xsl:template name="sortDimByMeasInner">
     <xsl:param name="direction"/>
     <xsl:param name="isColDim"/>
-    <ContextMenuSubHeader><xsl:attribute name="caption"><xsl:value-of select="concat('Sort Level By Measure ', $direction)"/></xsl:attribute></ContextMenuSubHeader>
+    <ContextMenuSubHeader><xsl:attribute name="caption"><xsl:value-of select="concat('Sort By Measure (', $direction, ')')"/></xsl:attribute></ContextMenuSubHeader>
     <!-- Loop over distinct valueIds. We want those, which represent the total as that allows us easily to derive the caption.
       Also, col dimensions can only be sorted by measures where thay apply but row dimensions can be sorted by all measures
     -->
