@@ -209,7 +209,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
 
             // 7a) We may need to apply a pre-calculation on the aggragator's result
             var toBeTransposed = wrs;
-            var preCalcNode = aggrNodes.item(i).selectSingleNode("scc:PreCalc/xsl:stylesheet");
+            var preCalcNode = aggrNodes.item(i).selectSingleNode("scc:PreCalc/*[self::xsl:stylesheet or self::chain:Chain]");
             if( preCalcNode!=null ) {
               var preCalc = bcdui.factory.createStaticModel( { id: this.internalPrefix+"_agg_"+aggrId+"_WrqBuilder_preCalculation", data: new XMLSerializer().serializeToString(preCalcNode) } );
               toBeTransposed = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_agg_"+aggrId+"_ColWrs_preCalced",
@@ -526,7 +526,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
                   var wrsV = bcdui.factory.createModel( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs", requestDocument: aspWrq, url: bcdui.core.webRowSetServletPath + "/sc/asp/" + aspId } );
 
                   // 13a) We may need to apply a pre-calculation on the aspects result
-                  var preCalcNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspId+"']/scc:PreCalc/xsl:stylesheet");
+                  var preCalcNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspId+"']/scc:PreCalc/*[self::xsl:stylesheet or self::chain:Chain]");
                   if( preCalcNode!=null ) {
                       var preCalc = bcdui.factory.createStaticModel( { id: this.internalPrefix+"_asp_"+aspId+"_WrqBuilder_preCalculation", data: new XMLSerializer().serializeToString(preCalcNode) } );
                       wrsV = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs_preCalced",
@@ -657,7 +657,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           
           // This is the precalc inherited from the aggregator request we are modifying
           var aggrNode = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aggregators/*[@id='"+aggrId+"']");
-          var preCalcNode = aggrNode.selectSingleNode("scc:PreCalc/xsl:stylesheet");
+          var preCalcNode = aggrNode.selectSingleNode("scc:PreCalc/*[self::xsl:stylesheet or self::chain:Chain]");
           if( preCalcNode!=null ) {
             var preCalc = bcdui.factory.createStaticModel( { id: this.internalPrefix+"_agg_"+aggrId+"_WrqBuilder_"+aspId+"_preCalculation", data: new XMLSerializer().serializeToString(preCalcNode) } );
             toBeTransposed = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs_agg_"+aggrId+"_preCalced",
@@ -665,7 +665,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           }
 
           // This is the precalc for the current aspect itself
-          var preCalcNodeAsp = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspId+"']/scc:PreCalc/xsl:stylesheet");
+          var preCalcNodeAsp = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Aspects/scc:Aspect[@id='"+aspId+"']/scc:PreCalc/*[self::xsl:stylesheet or self::chain:Chain]");
           if( preCalcNodeAsp!=null ) {
             var preCalcAsp = bcdui.factory.createStaticModel( { id: this.internalPrefix+"_agg_"+aggrId+"_WrqBuilder_"+aspId+"_preCalculationAsp", data: new XMLSerializer().serializeToString(preCalcNodeAsp) } );
             toBeTransposed = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_asp_"+aspId+"_ColWrs_agg_"+aggrId+"_preCalcedAsp",

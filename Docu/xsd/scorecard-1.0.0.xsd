@@ -718,6 +718,7 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element ref="xsl:stylesheet"/>
+            <xs:element ref="chain:Chain" minOccurs="0"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
