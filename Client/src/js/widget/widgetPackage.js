@@ -2235,12 +2235,21 @@ bcdui.util.namespace("bcdui.widget",
 
         // sort either numerical (by value) (in case of reference we can't be sure if it maps to a non numerical value, so use string sort then) or by string
         if (isNumeric && !useRefs)
-          values = values.sort(function(a,b) {
+          values.sort(function(a,b) {
             var aa = isNaN(a.value) ? 0 : parseFloat(a.value);
             var bb = isNaN(b.value) ? 0 : parseFloat(b.value);
             return aa > bb ? 1 : aa < bb ? -1 : 0;});
         else
-          values = values.sort(function(a,b) { return a.caption > b.caption ? 1 : a.caption < b.caption ? -1 : 0;});
+          values.sort(function(a,b) {
+            // sort empty to top
+            if (a.caption != b.caption) {
+              if (a.caption == bcdui.core.magicChar.dimEmpty)
+                return -1;
+              if (b.caption == bcdui.core.magicChar.dimEmpty)
+                return 1;
+            }
+            return a.caption > b.caption ? 1 : a.caption < b.caption ? -1 : 0;
+            });
 
         var modelData = "<Data>";
         var i = 1;
@@ -2278,10 +2287,11 @@ bcdui.util.namespace("bcdui.widget",
         , ["bcd_widget_filter_contains"  , "contains"]
         , ["bcd_widget_filter_startsWith", "startswith"]
         , ["bcd_widget_filter_endsWith"  , "endswith"]
-        , ["bcd_widget_filter_isEmpty"   , "isempty"]
-        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
         , ["bcd_widget_filter_isBigger"  , "isbigger"]
         , ["bcd_widget_filter_isSmaller" , "issmaller"]
+          // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
+//        , ["bcd_widget_filter_isEmpty"   , "isempty"]
+//        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
         ];
         opt.forEach(function(e){
           var selectedStatus = e[1] == selectedCondition ? " selected" : "";
