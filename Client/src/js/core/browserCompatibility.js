@@ -77,8 +77,9 @@ bcdui.core.browserCompatibility = {
         var parser = new DOMParser();
         serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
         var doc = parser.parseFromString(serializedDoc, "text/xml");
-        if( doc.selectSingleNode("//*[local-name()='parsererror']") )
-          throw new Error("Failed parsing"+(msg ? msg : "")+". Content's first 100 characters: '"+serializedDoc.substring(0,100)+"'");
+        var errorNode;
+        if( errorNode = doc.selectSingleNode("//*[local-name()='parsererror']") )
+          throw new Error("Failed parsing"+(msg ? msg : "")+". Content's first 100 characters: '"+serializedDoc.substring(0,100)+"'. Error: (" + errorNode.textContent + ")");
         return doc;
       },
 
