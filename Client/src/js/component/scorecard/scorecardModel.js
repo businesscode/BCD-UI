@@ -90,6 +90,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
    * @param {string}                  [args.id]                    - The id of the new object. If omitted the id is automatically generated
    * @param {bcdui.core.DataProvider} [args.customParameter]       - Custom parameters for usage in the custom aggregator and aspect transformations.</li>
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
+   * @param {object}                  [args.parameters]            - Custom parameters to be shared between all aggregators, aspects, etc.
    */
   initialize: function(/* object */ args )
   {
@@ -101,6 +102,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
     this.scorecardRefDataModelId = args.config || args.metaDataModelId || args.metaDataModel;
     this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    this.customParameters = jQuery.extend({}, args.parameters);
 
     // Internal data
     this.internalPrefix = this.id+"_bcdImpl"; // Prefix for internal models
@@ -109,6 +111,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
     this.aspIdsWithWrq = new Object();  // one entry for each aspect with wrq_builder and one for each with wrq_modifier/aggregator combination
     this.aspCalcIds    = new Object();  // one entry for each aspect with wrq_modifier
     this.kpiData       = null;        // Final model to keep all data and calculated values
+    this.scConfig   = null;        // becomes ready once ehnacned configuration is applied on it
 
     var date = new Date();
     this.startTime = date.getTime();
@@ -145,8 +148,10 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
         refSccDefinitionParameters["bcdAspects"] = new bcdui.core.SimpleModel(this.cp+"bcdAspects.xml");
       if( origSccDef.query("/*/scc:Kpis/scc:Kpi[@id=/*/scc:Layout/scc:KpiRefs/scc:KpiRef/@idRef]/calc:Calc//calc:ValueRef/@aggr[starts-with(.,'bcd')]") || origSccDef.query("/*/scc:Aggregators/scc:Aggregator/scc:BcdAggregator") )
         refSccDefinitionParameters["bcdAggregators"] = new bcdui.core.SimpleModel(this.cp+"bcdAggregators.xml");
-      bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_refSccDefinition", url: this.cp+"configuration.xslt", inputModel: this.scorecardRefDataModelId,
-        parameters: refSccDefinitionParameters } );
+      this.scConfig = new bcdui.core.ModelWrapper({ id: this.internalPrefix+"_refSccDefinition", chain: this.cp+"configuration.xslt", inputModel: origSccDef,
+        parameters: refSccDefinitionParameters });
+
+      this.customParameters.scConfig = this.scConfig;
     }.bind(this) });
     
 
@@ -213,8 +218,8 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
             if( preCalcNode!=null ) {
               var preCalc = bcdui.factory.createStaticModel( { id: this.internalPrefix+"_agg_"+aggrId+"_WrqBuilder_preCalculation", data: new XMLSerializer().serializeToString(preCalcNode) } );
               toBeTransposed = bcdui.factory.createModelWrapper( { id: this.internalPrefix+"_agg_"+aggrId+"_ColWrs_preCalced",
-                stylesheetModel: bcdui.factory.objectRegistry.getObject(preCalc), inputModel: wrs, parameters: { customParameter: this.customParameter,
-                statusModel: this.statusModel } } );
+                stylesheetModel: bcdui.factory.objectRegistry.getObject(preCalc), inputModel: wrs, parameters: jQuery.extend({}, this.customParameters, { customParameter: this.customParameter,
+                statusModel: this.statusModel }) } );
             }
 
             // 8) Transpose measures from this aggregator once loaded
