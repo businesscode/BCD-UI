@@ -138,26 +138,24 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
   // Sort dim by measure
   setSortDimByMeasure: function( targetModelId, cubeId, args )
   {
-
-    bcdui.factory.objectRegistry.getObject(targetModelId).query("//cube:Layout[@cubeId ='"+ cubeId +"']").setAttribute("manualSort", "false");
-
-    if (! args.clear) {
-
+    // full sort clean in case of an active manual (hard column) sort
+    var layoutNode = bcdui.factory.objectRegistry.getObject(targetModelId).query("//cube:Layout[@cubeId ='"+ cubeId +"']");
+    if (layoutNode != null && layoutNode.getAttribute("manualSort") === "true") {
       // remove all sorts
       jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetModelId).queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
         e.removeAttribute("sort");
         e.removeAttribute("sortBy");
       });
+      layoutNode.setAttribute("manualSort", "false");
+    }
 
+    if (! args.clear) {
       bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sort',   args.direction,  args.colDimId );
       bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sortBy', args.sortBy,     args.colDimId );
     }
     else{
-      // remove all sorts
-      jQuery.makeArray(bcdui.factory.objectRegistry.getObject(targetModelId).queryNodes("//cube:Layout[@cubeId ='"+ cubeId +"']/cube:*/cube:*/*[self::dm:LevelRef|self::dm:MeasureRef|self::dm:Measure][@sort]")).forEach(function(e){
-        e.removeAttribute("sort");
-        e.removeAttribute("sortBy");
-      });
+      bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sort',   null,  args.colDimId  );
+      bcdui.component.cube.configurator._setCubeItemAttribute( targetModelId, cubeId, true, 'sortBy', null,  args.colDimId  );
     }
     return true;
   },

@@ -420,14 +420,20 @@
         <xsl:with-param name="direction">ascending</xsl:with-param>
         <xsl:with-param name="isColDim" select="$isColDim"/>
       </xsl:call-template>
+      <xsl:if test="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/@sortBy and $statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/@sort='ascending'">
+        <Entry caption="Clear Sorting">
+          <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setSortDimByMeasure", clear: true
+            <xsl:if test="$isColDim">, colDimId: bcdui._migPjs._$(this.eventSrcElement).closest('tr').attr('levelId')</xsl:if> } )</JavaScriptAction>
+        </Entry>
+      </xsl:if>
       <xsl:call-template name="sortDimByMeasInner">
         <xsl:with-param name="direction">descending</xsl:with-param>
         <xsl:with-param name="isColDim" select="$isColDim"/>
       </xsl:call-template>
-      <xsl:if test="$statusModelLayout//dm:LevelRef/@sortBy">
+      <xsl:if test="$statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/@sortBy and $statusModelLayout//dm:LevelRef[@bRef=$bcdDimension]/@sort='descending'">
         <Entry caption="Clear Sorting">
-            <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setSortDimByMeasure", clear: true
-              <xsl:if test="$isColDim">, colDimId: bcdui._migPjs._$(this.eventSrcElement).closest('tr').attr('levelId')</xsl:if> } )</JavaScriptAction>
+          <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setSortDimByMeasure", clear: true
+            <xsl:if test="$isColDim">, colDimId: bcdui._migPjs._$(this.eventSrcElement).closest('tr').attr('levelId')</xsl:if> } )</JavaScriptAction>
         </Entry>
       </xsl:if>
     </xsl:if>
