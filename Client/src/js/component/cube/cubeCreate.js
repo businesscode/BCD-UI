@@ -216,13 +216,8 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
 
         // Run the export wrq, open response in a new window
         var fileType = memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
-        bcdui.component.exports.detailExport( {
-            wrq: modelName
-          , type: fileType
-          , exportMode: memo.exportMode
-          , allowSave: memo.allowSave
-          , vfsFilename: memo.vfsFilename
-        } );
+        var exportParams = jQuery.extend({wrq: modelName, type: fileType}, memo);
+        bcdui.component.exports.detailExport(exportParams);
       }.bind(undefined,args.id, args.inputModel, args.enhancedConfiguration, args.metaDataModel, args.detailExportFilterModel)
     );
 
@@ -283,7 +278,7 @@ bcdui.util.namespace("bcdui.component",
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cubeModel");
     args.config = args.config || args.metaDataModel;
     bcdui.factory.objectRegistry.withObjects( [args.chain, args.config, args.statusModel, args.enhancedConfiguration ],  function() {
-      var newCubeModel = new bcdui.component.cube.CubeModel( { id: args.id, cubeId: args.cubeId, 
+      new bcdui.component.cube.CubeModel( { id: args.id, cubeId: args.cubeId, 
         config:         			 bcdui.factory.objectRegistry.getObject(args.config),
         chain:                 bcdui.factory.objectRegistry.getObject(args.chain),
         stylesheetUrl:         args.stylesheetUrl,
@@ -308,7 +303,7 @@ bcdui.util.namespace("bcdui.component",
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cube");
     args.config = args.config || args.metaDataModel;
     bcdui.factory.objectRegistry.withObjects( [args.chain, args.config, args.statusModel, args.enhancedConfiguration, args.detailExportFilterModel], function() {
-      var newCube = new bcdui.component.cube.Cube( { id: args.id,
+      new bcdui.component.cube.Cube( { id: args.id,
         targetHtml:              bcdui.util._getTargetHtml(args, "cube_"),
         config:                  bcdui.factory.objectRegistry.getObject(args.config),
         chain:                   bcdui.factory.objectRegistry.getObject(args.chain),
@@ -453,6 +448,9 @@ bcdui.util.namespace("bcdui.component",
 
       var cube = bcdui.factory.objectRegistry.getObject(args.cubeId);
 
+      var layoutModelId = (typeof cube != "undefined") ? cube.getConfigModel().getData().selectSingleNode("//cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel") : null;
+      layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
+
       if (args.isDefaultHtmlLayout) {
 
         var template = "<div class='bcdCubeDNDBlind'>" +
@@ -472,9 +470,6 @@ bcdui.util.namespace("bcdui.component",
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
 
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
-
-        var layoutModelId = (typeof cube != "undefined") ? cube.getConfigModel().getData().selectSingleNode("//cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel") : null;
-        layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
 
         bcdui.widget.createBlindUpDownArea({
           id: "bcdBlindUpDown_" + args.cubeId
@@ -513,7 +508,6 @@ bcdui.util.namespace("bcdui.component",
         // try to attach clicked measure / dimension information which is reused in contextMenu
         var prepareContextMenu = function(doc, args) {
           var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
-          var isMeasureHeader = jQuery("#" + target).hasClass("bcdMeasureHeader");
           if (target != null) {
             var targetModel = bcdui.factory.objectRegistry.getObject(args.bcdInputModelId);
             var colIdent = bcdui.wkModels.bcdColIdent.getData() || "";
@@ -560,7 +554,7 @@ bcdui.util.namespace("bcdui.component",
         }
         
         // template editor requires a registered metaDataModel
-        if (typeof bcdui.factory.objectRegistry.getObject(cube.getConfigModel().id) == "undefined")
+        if (cube != null && typeof bcdui.factory.objectRegistry.getObject(cube.getConfigModel().id) == "undefined")
           bcdui.factory.objectRegistry.registerObject(cube.getConfigModel());
 
         var templateRenderer = new bcdui.core.Renderer({
@@ -620,12 +614,7 @@ bcdui.util.namespace("bcdui.component",
       // cube redisplay listener, greys out cube or triggers enhanced config
       // if client sided refresh is possible (determined by disableClientRefresh flag)
       // either listens to cube configurator targetmodel or given layoutModel
-      var cube = bcdui.factory.objectRegistry.getObject(args.cubeId);
-
       if (typeof cube != "undefined") {
-
-        var layoutModelId = cube.getConfigModel().getData().selectSingleNode("//cube:Layout[@cubeId ='"+ args.cubeId +"']/@layoutModel");
-        layoutModelId = (layoutModelId != null && layoutModelId.text != "") ? layoutModelId.text : targetModelId;
 
         bcdui.factory.addDataListener({
           idRef: layoutModelId,

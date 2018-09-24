@@ -191,14 +191,8 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
         }
 
         this.actionDetailExportWrq.execute(true);
-        bcdui.component.exports.detailExport( {
-            wrq: this.actionDetailExportWrq
-          , type:  memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat
-          , fileName: memo.fileName
-          , exportMode: memo.exportMode
-          , allowSave: memo.allowSave
-          , vfsFilename: memo.vfsFilename
-        } );
+        var exportParams = jQuery.extend({wrq: this.actionDetailExportWrq, type: memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat}, memo);
+        bcdui.component.exports.detailExport(exportParams);
 
       }.bind( this, args.id ) );
 
@@ -345,18 +339,18 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       }
 
       // replace all bRefs postfixes
-      var nodeFtTrw = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PT[@postfix]");
-      if (nodeFtTrw) {
-        var postfix = nodeFtTrw.getAttribute("postfix") || "";
-        for (var x in bcdui.widget.periodChooser._dateRangeBindingItemNames) {
-          jQuery.makeArray(doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and (@bRef='" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "' or starts-with(@bRef, '" + bcdui.widget.periodChooser._dateRangeBindingItemNames[x] + "_'))]")).forEach(function(e) {
+      var nodePT = param.sccDefinition.selectSingleNode("/*/scc:Kpis/scc:Kpi[@id='"+param.kpiId+"']//dm:Translations/dm:PT[@postfix]");
+      if (nodePT) {
+        var pFix = nodePT.getAttribute("postfix") || "";
+        for (var xx in bcdui.widget.periodChooser._dateRangeBindingItemNames) {
+          jQuery.makeArray(doc.selectNodes("//f:Filter//f:Expression[@op and @value!='' and (@bRef='" + bcdui.widget.periodChooser._dateRangeBindingItemNames[xx] + "' or starts-with(@bRef, '" + bcdui.widget.periodChooser._dateRangeBindingItemNames[xx] + "_'))]")).forEach(function(e) {
             var purebRef = e.getAttribute("bRef");
             purebRef = purebRef == null ? "" : (purebRef.indexOf("_") != -1 ? purebRef.substring(0, purebRef.indexOf("_")) : purebRef);
-            e.setAttribute("bRef", purebRef + (postfix != "" ? "_" + postfix : ""));
+            e.setAttribute("bRef", purebRef + (pFix != "" ? "_" + pFix : ""));
           });
         }
         jQuery.makeArray(doc.selectNodes("//f:*[@bcdPostfix]")).forEach(function(e) {
-          e.setAttribute("bcdPostfix", postfix == "" ? "bcdEmpty" : postfix);
+          e.setAttribute("bcdPostfix", pFix == "" ? "bcdEmpty" : pFix);
         });
       }
 
@@ -395,7 +389,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
       });
       args.inputModel = bcdui.factory.objectRegistry.getObject(args.inputModel);
       args.config = bcdui.factory.objectRegistry.getObject(args.config);
-      var sc = new bcdui.component.scorecard.Scorecard(args);
+      new bcdui.component.scorecard.Scorecard(args);
     });
 
     return { refId: args.id, symbolicLink: true };
