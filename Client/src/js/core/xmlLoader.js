@@ -604,7 +604,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
       var matches = serializedDoc.match("<([^:]+:)?\\w+\\s+([^>]+)>");
       if( !matches )
         return {};
-      var attributes = (matches[2] + " ").split(/"( |\n|\/ $)/); // '/ $' happens in case of an empty element <../>, the space between / and $ is the one added in this line
+      var attributes = (matches[2] + " ").split(/["']( |\n|\/ $)/); // '/ $' happens in case of an empty element <../>, the space between / and $ is the one added in this line
       return attributes.reduce( function(map, val) { if (val) { var p = val.indexOf("="); if(p!=-1) map[val.substr(0, p).trim()] = val.substr(p+2); } return map;}, {} );
     },
 
