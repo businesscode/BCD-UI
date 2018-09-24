@@ -333,9 +333,10 @@ bcdui.util.namespace("bcdui.component.exports",
    * @param {function} args.callback            - original detail export function
    * @param {string }  args.exportMode          - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full
    * @param {boolean}  args.allowSave           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on 
+   * @param {boolean}  args.allDeselected       - for the column picjer, all columns are initially selected by default and you can deselect some. Settings this flag to true, you inverse this behaviour   
    * @private
    */
-  _columChooser: function(args) {
+  _columnChooser: function(args) {
 
     // build PathName
     var binding = args.wrq.read("/*/wrq:Select/wrq:From/wrq:BindingSet");
@@ -392,7 +393,7 @@ bcdui.util.namespace("bcdui.component.exports",
             }
           });
         }
-        else {
+        else if (! args.allDeselected) {
           jQuery.makeArray(normalizedModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
             data += "<wrq:C bRef='" + e.getAttribute("id") + "'/>";
           });
@@ -409,6 +410,7 @@ bcdui.util.namespace("bcdui.component.exports",
           , vfsModel: vfsModel
           , pathName: pathName
           , allowSave: args.allowSave
+          , allDeselected: args.allDeselected
         };
 
         // allow silent custom export mode only if we have at least one valid column from the stored vfs
@@ -449,7 +451,8 @@ bcdui.util.namespace("bcdui.component.exports",
    * @param {string}                           [args.fileName=export_(timestamp).(csv|xls)] - Name of the response file, depending on type, can also be provided via /wrq:WrsRequest/@bcdFileName from within the request
    * @param {string}                           [args.vfsFilename]               - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information
    * @param {string}                           [args.exportMode=full]           - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full 
-   * @param {boolean}                          [args.allowSave=false]           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on 
+   * @param {boolean}                          [args.allowSave=false]           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on
+   * @param {boolean}                          [args.allDeselected=false]       - for the column picjer, all columns are initially selected by default and you can deselect some. Settings this flag to true, you inverse this behaviour   
    */
   detailExport: function( args ) 
   {
@@ -465,7 +468,7 @@ bcdui.util.namespace("bcdui.component.exports",
       if (args.exportMode == "full")
         doExport(newArgs);
       else
-        bcdui.component.exports._columChooser(newArgs);
+        bcdui.component.exports._columnChooser(newArgs);
     });
     
     var doExport = function(args) {
