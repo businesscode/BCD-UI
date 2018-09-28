@@ -72,7 +72,7 @@
           var el = jQuery(buttonControl.control);
           if(args.stayPressed){
             el.addClass("bcdClicked");
-            this.element.unbind(); // unbind all
+            this.element.off(); // unbind all
             el.attr({
               href:null,
               onclick:null

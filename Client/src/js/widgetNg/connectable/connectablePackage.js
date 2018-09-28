@@ -907,7 +907,7 @@
             self.lastWord = "";
             self.lastIndex = 0;
 
-            jQuery(document).mousemove(function(event) {
+            jQuery(document).on("mousemove", function(event) {
 
               // drawing lasso
 
@@ -990,7 +990,7 @@
             }
 
             // and our mousemove listener
-            jQuery(document).unbind('mousemove');
+            jQuery(document).off('mousemove');
           }
         });
 
@@ -1010,12 +1010,12 @@
             connectWith: "[bcdScope='" + this.options.scope + "']"
           , scroll: false
           , start: function(){
-            jQuery(document).mousemove(function(event) {
+            jQuery(document).on("mousemove", function(event) {
               if (bcdui.widgetNg.connectable._bcdConnectableScope[self.options.scope].activeBox)
                 self._scrollControl({id: jQuery(bcdui.widgetNg.connectable._bcdConnectableScope[self.options.scope].activeBox), pageY: event.pageY, pageX: event.pageX});
             });
           }
-          , stop: function() {jQuery(document).unbind('mousemove');}
+          , stop: function() {jQuery(document).off('mousemove');}
           , helper: function(event, item) {
 
             // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)

@@ -165,7 +165,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     this.numberOfBars    = 0;
 
     this.isLightBackground = true;
-    var bgColor = jQuery(this.targetHtmlElement).parents().andSelf().filter(function() {
+    var bgColor = jQuery(this.targetHtmlElement).parents().addBack().filter(function() {
       var color = jQuery(this).css('background-color');
       if(color != 'transparent' && color != 'rgba(0, 0, 0, 0)' && color != undefined) 
         return color; 

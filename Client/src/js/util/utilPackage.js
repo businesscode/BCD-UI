@@ -100,7 +100,8 @@ bcdui.util =
 
     if (jQuery(element).css('position') == 'absolute') {
       parent = jQuery(element).offsetParent().get(0);
-      delta = jQuery(parent).offset();
+      if (jQuery(document.documentElement).get(0) != parent)
+        delta = jQuery(parent).offset();
     }
   
     if (parent == document.body) {

@@ -1221,7 +1221,8 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
       var calendar = document.getElementById('bcdCalendar');
       if (bcdui._migPjs._$(calendar).css('position') == 'absolute') {
         parent = bcdui._migPjs._$(calendar).offsetParent().get(0);
-        delta = jQuery(parent).offset();
+        if (jQuery(document.documentElement).get(0) != parent)
+          delta = jQuery(parent).offset();
       }
 
       if (parent == document.body) {
