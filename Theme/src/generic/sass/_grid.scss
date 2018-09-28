@@ -57,10 +57,10 @@
 
     .bcdGridHeader {
       .bcdSorted_ascending div:first-child:before {
-        content:"▲";
+        content: "\25B2";
       }
       .bcdSorted_descending div:first-child:before {
-        content:"▼";
+        content: "\25BC";
       }
       .bcdHover {
         color: inherit !important;
@@ -201,7 +201,7 @@ input.bcdInputFieldGrid {
   }
 
   .bcdGroupAction:after {
-    content: "−";
+    content: "\2212";
     position: absolute;
     left: 3px;
     top: 3px;
@@ -217,7 +217,7 @@ input.bcdInputFieldGrid {
     color: $control-color;
     border: 1px solid $border-color;
   }
-  .bcdCollapsed.bcdGroupAction:after {content: "+";}
+  .bcdCollapsed.bcdGroupAction:after {content: "\002B";}
 
   .bcdGroupAction { cursor: pointer; }
 

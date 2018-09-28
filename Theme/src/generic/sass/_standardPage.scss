@@ -365,7 +365,7 @@ a {
   color: $text-color-dark;
 }
 .bcdComboInputField span:after {
-  content: "▼";
+  content: "\25BC";
   position: relative;
   color: #000000;
   background-color: inherit;
@@ -392,8 +392,8 @@ a {
 #bcdDropDownButton {  position: absolute; z-index: 15000; }
 #bcdDropDownButton span.bcdButton { margin-top: 1px; }
 #bcdDropDownButton span.bcdButton a { text-align: left; }
-.bcdDropDownButton a.opened:after { content: "▲"; padding-left: 3px; }
-.bcdDropDownButton a.closed:after { content: "▼"; padding-left: 3px; }
+.bcdDropDownButton a.opened:after { content: "\25B2"; padding-left: 3px; }
+.bcdDropDownButton a.closed:after { content: "\25BC"; padding-left: 3px; }
 
 /* dim chooser */
 
@@ -571,17 +571,17 @@ a {
    span.calCloseImage { font-width: bold; }
    
    span.changeLeft:after {
-     content: "◄";
+     content: "\25C4";
    }
    span.changeRight:after {
-     content: "►";
+     content: "\25BA";
    }
    span.calCloseImage:after {
      content: "x";
    }
    span.changeYear:after,
    span.changeMonth:after {
-     content: "▼";
+     content: "\25BC";
    }
 
    @extend .noselect;
@@ -687,7 +687,7 @@ a {
   }
 
   .bcdClearButton {cursor: pointer;}
-  .bcdClearButton:after { content: "❌"; }
+  .bcdClearButton:after { content: "\274C"; } 
 
   input { background: #FFFFFF; padding: 3px 0px 3px 0px; }
   span.bcdHint { display: none; }
@@ -707,8 +707,8 @@ a {
   }
   .bcdValue { vertical-align: middle; }
 
-  .bcdPeriodChooserModLeft:after {content: "◄";}
-  .bcdPeriodChooserModRight:after {content: "►";}
+  .bcdPeriodChooserModLeft:after {content: "\25C4";}
+  .bcdPeriodChooserModRight:after {content: "\25BA";}
 }
 
 /* tool tip  */
@@ -757,11 +757,11 @@ a {
   span.bcdBlindUpDownClose { text-align: right; vertical-align: middle; position: absolute; right: 3px;}
   
   .bcdHeadClosed > span.bcdBlindUpDownClose:after {
-    content: "▼";
+    content: "\25BC";
   }
 
   .bcdHeadOpened > span.bcdBlindUpDownClose:after {
-    content: "▲";
+    content: "\25B2";
   }
 
   ul.bcdBlindUpDown {
@@ -931,7 +931,7 @@ div.bcdUserMessages {
   color: $border-color-dark;
   cursor: pointer;
 }
-.bcdFilterButton:before { content: "▼"; }
+.bcdFilterButton:before { content: "\25BC"; }
 
 .bcdExportColumnsDialog,
 .bcdFilterDialog {
@@ -940,6 +940,13 @@ div.bcdUserMessages {
   min-width: 250px; 
   input, select {width: 100%; margin-bottom: 10px;}
 }
+
+.ui-dialog .bcdExportColumnsDialog {
+  width: 552px;
+  height: 240px;
+  overflow: hidden;
+}
+
 .bcdExportColumnsDialog {
   .bcdSideBySideChooser {
     .bcdSbscList { height: 180px; }
@@ -1227,12 +1234,12 @@ body {
     .bcdGripPin > .bcdGripPinChar {display: inline-block; right: 3px; color: $border-color; position: absolute;}
     .bcdGripActive > .bcdGripPinChar { color: $corporate-color;}
     .bcdGripPinChar:after {
-      content: "📌";
+      content: "\1F4CC";
     }
 
     .bcdGripClose > .bcdGripCloseChar {display: inline-block; right: 3px; color: $border-color-dark; position: absolute; bottom: 2px;}
     .bcdGripCloseChar:after {
-      content: "◄";
+      content: "\25C4";
       border: 1px dotted $border-color-dark;
     }
   }
@@ -1360,11 +1367,11 @@ div.objContainer {
 }
 
 .controlExpanded:after {
-  content: "-";
+  content: "\2212";
 }
 
 .controlCollapsed:after {
-  content: "+";
+  content: "\002B";
 }
 
 .recentlyUpdated {
@@ -1439,12 +1446,15 @@ span.bcd-notification-warn {
 /* ******************************************************************* */
 /* modal box */
 /* ******************************************************************* */
+
+.ui-front {
+  z-index: 200;
+}
+
 .bcdFilterDialog,
 .bcdExportColumnsDialog, 
 #bcdModalBoxDiv {
   @extend .noselect;
-  border: 1px solid $corporate-color;
-  @include shadow();
   @include con_color($control-color);
   font: $font-size-default $font-family-default;
   text-align: center;
@@ -1453,6 +1463,14 @@ span.bcd-notification-warn {
     text-decoration: none;
     display: inline-block;
     margin: 5px;
+  }
+
+  a.bcdEmail {
+    color: $select-color;
+  }
+  a.bcdEmail:hover {
+    text-decoration: underline;
+    color: $select-color;
   }
 
   textarea, select, input {

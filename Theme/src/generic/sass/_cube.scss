@@ -81,10 +81,10 @@
   }
   
   span.bcdCubeAddRank:after {
-    content: "+";
+    content: "\002B";
   }
   span.bcdCubeRemoveRank:after {
-    content: "−";
+    content: "\2212";
   }
 
   .bcdCubeAddRank, .bcdCubeRemoveRank {
@@ -209,7 +209,7 @@
   }
 
   span.bcdTemplateIcon:after {
-    content: "►";
+    content: "\25BA";
   }
 
   .bcdTemplateItem {
@@ -415,8 +415,8 @@
   }
 }
 
-.bcdExpand .bcdButton a:after { content: "+"; }
-.bcdCollapse .bcdButton a:after { content: "−";}
+.bcdExpand .bcdButton a:after { content: "\002B"; }
+.bcdCollapse .bcdButton a:after { content: "\2212";}
 
 .bcdReport
 {
@@ -508,18 +508,18 @@
   th.bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
   th.bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
   th.bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
-  .bcdSortAsc:after { content: "▲"; color: $border-color; padding: 2px; }
-  .bcdSortDesc:after { content: "▼"; color: $border-color; padding: 2px; }
+  .bcdSortAsc:after { content: "\25B2"; color: $border-color; padding: 2px; }
+  .bcdSortDesc:after { content: "\25BC"; color: $border-color; padding: 2px; }
 
   .bcdTrendUp, .bcdTrendDown {
     font: 16px Monospace;
     color: #ffffff !important;
     text-align: center;
   }
-  .bcdTrendUp:before       { background-color: $report-color-ok; content: "↑" }
-  .bcdTrendDown:before     { background-color: $report-color-fail; content: "↓" }
-  .bcdTrendUpBad:before    { background-color: $report-color-fail; content: "↑" }
-  .bcdTrendDownGood:before { background-color: $report-color-ok; content: "↓" }
+  .bcdTrendUp:before       { background-color: $report-color-ok; content: "\2191" }
+  .bcdTrendDown:before     { background-color: $report-color-fail; content: "\2193" }
+  .bcdTrendUpBad:before    { background-color: $report-color-fail; content: "\2191" }
+  .bcdTrendDownGood:before { background-color: $report-color-ok; content: "\2193" }
 
 }
 
@@ -781,7 +781,7 @@ div.bcdContextMenu a.bcdMenuitems {
 
 .bcdTargetLocked :after,
 .bcdLocked :after{
-  content: "🔒";
+  content: "\1F512";
   font-size: 8px;
   position: absolute;
   right: -1px;
@@ -789,7 +789,7 @@ div.bcdContextMenu a.bcdMenuitems {
 }
 
 .bcdOptions :after{
-  content: "≡";
+  content: "\2261";
   font-size: 10px;
   position: absolute;
   right: -1px;
@@ -815,7 +815,7 @@ div.bcdContextMenu a.bcdMenuitems {
    right: 0px;
  }
  .bcdClose:after {
-   content: "❌";
+   content: "\274C";
   }
  .bcdGE_level {
    font-weight: bold;
