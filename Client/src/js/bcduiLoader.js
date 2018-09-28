@@ -105,8 +105,8 @@ bcdui.bcduiCeFiles =
         , "/js/wrs/wrsUtilPackage.js"
       ],
       "css": [
-        "/theme/css/allStyles.css",
-        "/js/3rdParty/jquery-ui.css"
+        "/js/3rdParty/jquery-ui.css",
+        "/theme/css/allStyles.css"
       ]
     },
     {
