@@ -207,7 +207,7 @@
      * @private
      */
     _jqmRefresh : function(elId, doForce){
-      if(window.jQuery){
+      if(window.jQuery && window.jQuery.mobile){
         var w = jQuery("select#" + elId);
         // if .selectmenu widget is available
         if(w.selectmenu !== undefined){
