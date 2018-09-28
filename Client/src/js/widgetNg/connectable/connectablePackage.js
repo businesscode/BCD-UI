@@ -147,7 +147,6 @@
       this.lastIndex = 0;             // matchlist index for type-to-select functionality
 
       // init internal config
-      var extendedConfig=null;
       this.config = {
         target: args.targetModelXPath ? bcdui.factory._extractXPathAndModelId(args.targetModelXPath) : null,
         source: args.optionsModelXPath? bcdui.factory._extractXPathAndModelId(args.optionsModelXPath) : null,
@@ -208,7 +207,7 @@
       }
       if (this.config.source) {
         // we a a source, so update (multiple) targets
-        var targets = this._getScopedTargetElements().each(function(){ jQuery(this)._bcduiWidget()._renderItems(true) });
+        this._getScopedTargetElements().each(function(){ jQuery(this)._bcduiWidget()._renderItems(true) });
       }
 
       // register listeners, one for targetmodel changes, one for optionsmodel changes
@@ -323,9 +322,9 @@
       // when the source is also a target box, we of course need to write data to its targetxpath, too
       // we skip an obsolete additional write if we moved an item within the same target box
       if (source.attr("id") != target.attr("id") && source.hasClass("bcdTarget")) {
-        var tInstance = source.parent()._bcduiWidget();
-        this._doWriteXML(source, bcdui.factory._extractXPathAndModelId( tInstance.options.targetModelXPath ));
-        tInstance.onChange();
+        var sInstance = source.parent()._bcduiWidget();
+        this._doWriteXML(source, bcdui.factory._extractXPathAndModelId( sInstance.options.targetModelXPath ));
+        sInstance.onChange();
       }
     },
 
@@ -393,20 +392,19 @@
 
         // we wait for readiness of current target and belonging source
         // and remember source options
-        var models = new Array(this.config.target.modelId);
+        var targetModels = new Array(this.config.target.modelId);
         var sourceOptions = this._getScopedSourceElement()._bcduiWidget().options;
         var sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
-        models.push(sourceConfig.modelId);
+        targetModels.push(sourceConfig.modelId);
         sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
 
-        bcdui.factory.objectRegistry.withReadyObjects(models, function(){
+        bcdui.factory.objectRegistry.withReadyObjects(targetModels, function(){
 
           // build up a value, original position and caption map
           var nodes = bcdui.factory.objectRegistry.getObject(sourceConfig.modelId).getData().selectNodes(sourceConfig.xPath);
           var bcdPosMap = {};
           var captionMap = {};
 
-         var self = this;
           var sortedOptions = jQuery.makeArray(nodes).map(function(node) {
             var caption = node.nodeValue || node.text;
             var value = sourceConfig.optionsModelRelativeValueXPath ? node.selectSingleNode(sourceConfig.optionsModelRelativeValueXPath) : null;
@@ -418,15 +416,15 @@
           });
 
           if (this.options.doSortOptions) {
-            sortedOptions = sortedOptions.sort(function(a,b){
+            sortedOptions.sort(function(a,b){
               return this.options.sortOptionsFunction(a,b,{ instance : this });
             }.bind(this));
           }
 
           for (var i = 0; i < sortedOptions.length; i++) {
-            var idValue = sortedOptions[i].value;
-            bcdPosMap[idValue] = i;
-            captionMap[idValue] = sortedOptions[i].caption;
+            var value = sortedOptions[i].value;
+            bcdPosMap[value] = i;
+            captionMap[value] = sortedOptions[i].caption;
           }
 
           // regenerate items
@@ -436,9 +434,9 @@
           // get array of target item in case of wrs mode
           var targetItems = bcdui.factory.objectRegistry.getObject(this.config.target.modelId).getData().selectSingleNode(this.config.target.xPath);
           targetItems = targetItems == null ? [] : targetItems.text.split(this.wrsInlineValueDelim);
-          var nodes = (this.config.target.xPath.indexOf("wrs:") > -1) ? targetItems : bcdui.factory.objectRegistry.getObject(this.config.target.modelId).getData().selectNodes(this.config.target.xPath);
-          for (var i = 0; i < nodes.length; i++) {
-            var idValue = (this.config.target.xPath.indexOf("wrs:") > -1) ? nodes[i] : nodes[i].text;
+          var targetNodes = (this.config.target.xPath.indexOf("wrs:") > -1) ? targetItems : bcdui.factory.objectRegistry.getObject(this.config.target.modelId).getData().selectNodes(this.config.target.xPath);
+          for (var j = 0; j < targetNodes.length; j++) {
+            var idValue = (this.config.target.xPath.indexOf("wrs:") > -1) ? targetNodes[j] : targetNodes[j].text;
             idValue = bcdui.util.escapeHtml(idValue);
 
             // only render items which are available in the options model and get original position and caption information (unless you allow them)
@@ -462,13 +460,13 @@
       if (this.config.source) {
 
         // we wait for readiness of all belonging targets and source
-        var models = new Array(this.config.source.modelId);
+        var sourceModels = new Array(this.config.source.modelId);
         // collect target model ids into models-array
         this._getScopedTargetElements().each(function(){
-          models.push( bcdui.factory._extractXPathAndModelId( jQuery(this)._bcduiWidget().options.targetModelXPath ).modelId )
+          sourceModels.push( bcdui.factory._extractXPathAndModelId( jQuery(this)._bcduiWidget().options.targetModelXPath ).modelId )
         });
 
-        bcdui.factory.objectRegistry.withReadyObjects(models, function(){
+        bcdui.factory.objectRegistry.withReadyObjects(sourceModels, function(){
           // we need to ensure to always use the *current* target information for filtering out source items here
           var targetConfig = new Array();
 
@@ -508,7 +506,7 @@
 
           // let's optionally sort our optionsmodel by caption
           if (this.options.doSortOptions) {
-            sortedOptions = sortedOptions.sort(function(a,b){
+            sortedOptions.sort(function(a,b){
               return this.options.sortOptionsFunction(a,b,{ instance : this });
             }.bind(this));
           }
@@ -529,15 +527,15 @@
           }
 
           var html = "";
-          for (var i = 0; i < sortedOptions.length; i++) {
+          for (var j = 0; j < sortedOptions.length; j++) {
 
             // remember original positions and captions for value
-            var idValue = sortedOptions[i].value;
+            var value = sortedOptions[j].value;
 
             // render item only if it's part of the filtered values and not in one target
-            var doShow = (this.filteredItems[idValue] == idValue) && targetValues.indexOf(idValue) == -1;
+            var doShow = (this.filteredItems[value] == value) && targetValues.indexOf(value) == -1;
             if (doShow)
-              html += this.generateItemHtml({value: idValue, caption: sortedOptions[i].caption, position: i, id: this.config.elementId, isTarget: false, _widgetInstance: this});
+              html += this.generateItemHtml({value: value, caption: sortedOptions[j].caption, position: j, id: this.config.elementId, isTarget: false, _widgetInstance: this});
           }
           this.container.append(html);
 
@@ -680,7 +678,7 @@
 
       // normalize rectangle since we might move up / left
       if (r1.left > r1.right) { var b = r1.left; r1.left = r1.right; r1.right = b;  }
-      if (r1.top > r1.bottom) { var b = r1.top; r1.top = r1.bottom; r1.bottom = b; }
+      if (r1.top > r1.bottom) { var c = r1.top; r1.top = r1.bottom; r1.bottom = c; }
 
       // mark items as selected (stored positions in 'position data' which are touched by the lasso)
       var items = jQuery(args.id).children(".ui-selectee");
@@ -759,7 +757,7 @@
           self.lastWord = old;
           self.lastIndex++;
         }
-        var items = jQuery(this).find("[bcdLoCase^='" + self.lastWord + "']");
+        items = jQuery(this).find("[bcdLoCase^='" + self.lastWord + "']");
         if (items.length > 0) {
           // if we reached last index, jump back to first
           if (self.lastIndex >= items.length)
@@ -806,7 +804,7 @@
 
         // handle shift + click
         else if(event.shiftKey) {
-          var oTarget = jQuery(event.target);
+          oTarget = jQuery(event.target);
 
           if( ! oTarget.is('.ui-selectee'))
             oTarget = oTarget.parents('.ui-selectee');
@@ -883,14 +881,14 @@
 
         // recalculate relative positions of elements since we need them for later "is item in lasso" check
         var items = jQuery(this).children(".ui-selectee");
-        for (var i = 0; i < items.length; i++) {
-          var pos = jQuery(items[i]).offset();
-          jQuery(items[i]).data({
+        for (var j = 0; j < items.length; j++) {
+          var pos = jQuery(items[j]).offset();
+          jQuery(items[j]).data({
             position: {
               left: pos.left - boxOffset.left + scrollLeft,
               top: pos.top - boxOffset.top + scrollTop,
-              right: pos.left - boxOffset.left + scrollLeft + jQuery(items[i]).outerWidth(),
-              bottom: pos.top - boxOffset.top + scrollTop + jQuery(items[i]).outerHeight()
+              right: pos.left - boxOffset.left + scrollLeft + jQuery(items[j]).outerWidth(),
+              bottom: pos.top - boxOffset.top + scrollTop + jQuery(items[j]).outerHeight()
             }
           })
         }
@@ -928,7 +926,7 @@
 
                 // normalize rectangle since we might move up / left
                 if (q.left > q.right) { var b = q.left; q.left = q.right; q.right = b;  }
-                if (q.top > q.bottom) { var b = q.top; q.top = q.bottom; q.bottom = b; }
+                if (q.top > q.bottom) { var c = q.top; q.top = q.bottom; q.bottom = c; }
 
                 // check if we reach the border
 
@@ -995,13 +993,6 @@
             jQuery(document).unbind('mousemove');
           }
         });
-
-        // prevent jQuery dblclick issue (
-        var _mouseStart = this.container.data('selectable')['_mouseStart'];
-        this.container.data('selectable')['_mouseStart'] = function(e) {
-          _mouseStart.call(this, e);
-          this.helper.css({"top": -1, "left": -1 });
-        };
 
         // prevent IE 8 specific text selection issues
         this.container.on('dragstart, selectstart', function(event) {
@@ -1072,9 +1063,9 @@
           // remove some obsolete jquery styling
           jQuery(items).removeAttr("style").removeClass("bcdConnectableHover");
 
-          // store the container as data and remove them
+          // store the container as data and remove them (by hiding them)
           if (items != null && items.length > 0){
-            ui.item.data('itemContainer', items).siblings('.ui-selected').remove();
+            ui.item.data('itemContainer', items).siblings('.ui-selected').not(".ui-sortable-placeholder").addClass("bcdHidden");
             // store our origin container in case we get detached from DOM
             ui.item.data("bcdSortStartOriginContainer", self.container);
           }
@@ -1082,6 +1073,9 @@
 
         // handle multi-select, add items from container data in destination
         this.container.on("sortstop", function(event, ui) {
+
+          // finally kill original items
+          ui.item.data("bcdSortStartOriginContainer").find(".bcdHidden").remove();
 
           var box = jQuery(ui.item).closest("[bcdScope='" + self.options.scope + "']"); // is empty if ui.item is detached
 
@@ -1366,7 +1360,7 @@
       // build ancestorPath by caption
       var ancestors = jQuery.makeArray(elementInData.selectNodes(this.ancestorSelfXPath)).map(this._funcMapNodeToCaptionAttrName);
       if(bcdui.browserCompatibility.isWebKit){
-        ancestors = ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
+        ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
       }
       return ancestors.join(".");
     },
@@ -1476,7 +1470,6 @@
         })
         // (2) remove level node from html dom
         .remove();
-        ;
       }
       // in either case we have to re-render sourceBox in order to rebuild tree
       sourceBox._bcduiWidget()._renderItems(true);
