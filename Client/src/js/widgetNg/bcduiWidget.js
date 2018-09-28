@@ -17,7 +17,7 @@
        * @member bcdui.widget.inputField.XMLListener
        */
       updateValue: function(){
-        var widgetInstance = $("#" + this.htmlElementId)._bcduiWidget();
+        var widgetInstance = jQuery("#" + this.htmlElementId)._bcduiWidget();
         // check if the instance is still alive
         widgetInstance && !widgetInstance.isDestroyed && this.onUpdateCallback && this.onUpdateCallback();
       }

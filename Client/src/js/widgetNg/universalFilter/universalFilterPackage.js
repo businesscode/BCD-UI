@@ -149,14 +149,14 @@
       // attach and delegate events from the context menu
       this.element
       .on("bcdui:universalFilter:edit", function(event){
-        var anchorElement = _getAnchorElement($(event.target));
+        var anchorElement = _getAnchorElement(jQuery(event.target));
         this._editElement( anchorElement.data("node-id"), anchorElement );
       }.bind(this))
       .on("bcdui:universalFilter:delete", function(event){
         this._deleteElement( jQuery(event.target).closest("[data-node-id]").data("node-id") );
       }.bind(this))
       .on("bcdui:universalFilter:combine", function(event){
-        var anchorElement = _getAnchorElement($(event.target));
+        var anchorElement = _getAnchorElement(jQuery(event.target));
         this._combineElement( anchorElement.data("node-id"), anchorElement );
       }.bind(this));
 
@@ -325,9 +325,9 @@
      * currently does not rebuild from status
      */
     createMultiValueInput : function(targetElement){
-      var widgetElement = $(targetElement); // this is a proxy-widget element
+      var widgetElement = jQuery(targetElement); // this is a proxy-widget element
 
-      targetElement = $(`<div class="${this.options.cssClassPrefix}multi-input-container"/>`).appendTo($(targetElement).empty());
+      targetElement = jQuery(`<div class="${this.options.cssClassPrefix}multi-input-container"/>`).appendTo(jQuery(targetElement).empty());
       var self = this;
 
       let inputItemTemplate = doT.compile(`<div class='${this.options.cssClassPrefix}multi-input-item'>
@@ -365,12 +365,12 @@
       targetElement
       .html(inputItemTemplate(inputItemTemplateArgs))
       .on("click", ".action-add", function(){
-        targetElement.append($(inputItemTemplate($.extend({}, inputItemTemplateArgs, { // retain generic args + override targetModelXPath for a new item
+        targetElement.append(jQuery(inputItemTemplate($.extend({}, inputItemTemplateArgs, { // retain generic args + override targetModelXPath for a new item
           targetModelXPath : context.nextTargetModelXPath()
         }))));
       })
       .on("click", ".action-remove", function(){
-        const inputRow = $(this).closest("div");
+        const inputRow = jQuery(this).closest("div");
         const targetXPath = inputRow.find("[targetModelXPath]").attr("targetModelXPath").substr(self.statusModel.id.length + 1); // $modelId..
         // remove input
         inputRow.remove();

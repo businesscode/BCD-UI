@@ -3152,13 +3152,13 @@ bcdui.util.namespace("bcdui.widget",
          {
            close: function() {
              jQuery("body").removeClass("bcdNoScroll");
-             resolve($(this).prop(dataPropName)); // resolve promise
-             $(this).empty();
+             resolve(jQuery(this).prop(dataPropName)); // resolve promise
+             jQuery(this).empty();
              delegate.close && delegate.close();
            },
            create: function(event, ui){
-             $(this).on("dialog-close", function(event,data){
-               $(this).prop(dataPropName, data).dialog("close");
+             jQuery(this).on("dialog-close", function(event,data){
+               jQuery(this).prop(dataPropName, data).dialog("close");
              });
            },
            open: function() {
@@ -3168,7 +3168,7 @@ bcdui.util.namespace("bcdui.widget",
                jQuery(this).parent().find('.ui-dialog-title').attr("bcdTranslate", args.title).bcdTranslate();
              }
              delegate.open({
-               targetHtml : $("<div/>").appendTo(this)
+               targetHtml : jQuery("<div/>").appendTo(this)
              });
            }
          });

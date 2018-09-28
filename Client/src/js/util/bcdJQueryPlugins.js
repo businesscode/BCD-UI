@@ -41,8 +41,8 @@
    */
   jQuery.fn.bcdScrollTo = function( target, options ) {
     return this.each(function(){
-      var el=$(this);
-      bcdui.util._scrollTo( el, typeof target == "string" ? el.children(target) : $(target), options );
+      var el=jQuery(this);
+      bcdui.util._scrollTo( el, typeof target == "string" ? el.children(target) : jQuery(target), options );
     });
   };
 
@@ -82,7 +82,7 @@
     var self = this;
     return this.load(url, function(){
       self.find("[bcdonload]").each(function(i,e){
-        bcdui.util._execJs($(e).attr("bcdonload"), e, true);
+        bcdui.util._execJs(jQuery(e).attr("bcdonload"), e, true);
       });
       cb&&cb();
     });
