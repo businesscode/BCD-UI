@@ -102,6 +102,8 @@ task bcduiClientCollect3rdParty {
   doLast {
     // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
     def fileList = [ "jquery":         [ fn: "jquery.js",             ofn: "jquery/jquery.js"],
+                     "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js"],
+                                         [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
                      "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
                      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js"],
                      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js"],
@@ -111,9 +113,6 @@ task bcduiClientCollect3rdParty {
                      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
                      "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js"],
                      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"]
-                     /* sample of having multi-file distribution set
-                     "nouislider":     [ [ fn: "nouislider.js",       ofn: "nouislider/distribute/nouislider.js"],
-                                         [ fn: "nouislider.css",      ofn: "nouislider/distribute/nouislider.css"] ]*/
     ]
     // Becomes only part of the assembly, if listed in gradle.properties
     fileList = fileList.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
@@ -132,26 +131,6 @@ task bcduiClientCollect3rdParty {
       }
     }
     fileList.each collectDist
-
-    // Optionally jquery-ui
-    if( project.hasProperty('bcdui.3rdPartyJs.jquery-ui') ) {
-      // Create custom jquery-ui file and copy it to target folder
-      def jqeryuiVersion = project.getProperty('bcdui.3rdPartyJs.jquery-ui')
-      def jqueryUiJs = new File("$taskDestDir/jquery-ui.js")
-      jqueryUiJs.text = "" // clean start
-      def featureListJs = project.properties['bcdui.3rdPartyJs.jquery-ui.js'].split(", |,| ")
-      featureListJs.each {
-        jqueryUiJs.text += file("$buildDir/node_modules/jquery-ui/ui/$it").text.replaceAll("@VERSION", jqeryuiVersion)
-      }
-      jqueryUiJs.text = jqueryUiJs.text.replace("*/", " * contains: " + featureListJs + newLine + " */")
-
-      def jqueryUiCss = new File("$taskDestDir/jquery-ui.css")
-      jqueryUiCss.text = "" // clean start
-      def featureListCss = project.properties['bcdui.3rdPartyJs.jquery-ui.css'].split(", |,| ")
-      featureListCss.each {
-        jqueryUiCss.text += file("$buildDir/node_modules/jquery-ui/themes/base/$it").text.replaceAll("@VERSION", jqeryuiVersion)
-      }
-    }
   }
 }
 
