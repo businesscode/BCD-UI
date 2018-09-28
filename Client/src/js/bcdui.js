@@ -218,7 +218,7 @@ jQuery.extend( bcdui,
             this.emailBodyText       = (args && args.emailBodyText)       ? args.emailBodyText       : "Please copy/paste the detail information content here and give a short description of what you did.";
             this.emailAction         = "bcdui.log._getBCDAppender()._createEmailHref();this.onmouseover=''";
             this.emailMessageLine    = (args && args.emailMessageLine1)   ? args.emailMessageLine1   : "Please provide a short description of what you did prior to the error by clicking the following email link.";
-            this.emailMessageLink    = "<a href='#' onmouseover=\"this.href=" + this.emailAction + "\">" + ((args && args.emailMessageLink) ? args.emailMessageLink : "Send email to technical support team") + "</a>";
+            this.emailMessageLink    = "<a class='bcdEmail' href='#' onmouseover=\"this.href=" + this.emailAction + "\">" + ((args && args.emailMessageLink) ? args.emailMessageLink : "Send email to technical support team") + "</a>";
             this.separator           = (this.emailContact.indexOf("?") >= 0 ? "&" : "?");
           };
 
