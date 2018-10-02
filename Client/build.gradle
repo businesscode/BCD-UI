@@ -101,7 +101,7 @@ task bcduiClientCollect3rdParty {
   // Copy files that can be used 1:1 to target folder
   doLast {
     // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
-    def fileList = [ "jquery":         [ fn: "jquery.js",             ofn: "jquery/jquery.js"],
+    def fileList = [ "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js"],
                      "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js"],
                                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
                      "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],

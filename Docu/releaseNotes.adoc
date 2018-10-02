@@ -14,6 +14,7 @@ Some changes are backward incompatible and may require code change in the projec
 * Introduced Babel to transpile for usage in Internet Explorer
 * Adjusted js loader for IE
 * Using 'strict' mode now in all JS sources
+* updated to jQuery 3.3.1, jQuery-UI 1.12.1
 
 . Components: Scorecard, Cube, Charts, Export
 * reorganized CubeContextMenu and added hard toggle column sort
@@ -70,6 +71,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * HTML Custom Elements for Safari was broken, after Safari switched to Webcomponents API v1
 
 .Backward Incompatibilities:
+* jQueryMobile is not compatible with jQuery 3.x anymore. When using jQueryMobile, you need to build bcdui with a jQuery 2.x  
 * bcd_virtualFileSystem got additional columns updatedBy, last_update, bcd_userId with additional writebacks and security constraints and a new additional key column
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
 * Charts: Moved VML drawer to BCD-UI-DE
