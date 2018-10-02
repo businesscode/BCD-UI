@@ -270,7 +270,9 @@ public class SubjectSettings extends SubjectSettingsConfig {
    * @param value
    */
   public void setFilterTypeValue(Session session, String subjectFilterTypeName, String value){
-    session.setAttribute(permissionAttributePrefix + getFilterType(getSubjectFilterTypeByName(subjectFilterTypeName)), value);
+    SubjectFilterType filterType = getSubjectFilterTypeByName(subjectFilterTypeName);
+    if (filterType != null)
+      session.setAttribute(permissionAttributePrefix + getFilterType(filterType), value);
   }
 
   /**
