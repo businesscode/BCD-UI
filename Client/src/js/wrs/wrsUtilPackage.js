@@ -1251,7 +1251,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       throw "Cannot complete operation, contains not allowed character: '";
     }
 
-    var rowNodes = wrs.selectNodes("/*/wrs:Data/wrs:*[ not(self::D) and contains('" + inset + "', wrs:C["+colPos+"]) ]");
+    var rowNodes = wrs.selectNodes("/*/wrs:Data/wrs:*[ not(self::D) and contains('" + inset + "', concat('"+delim+"', wrs:C["+colPos+"], '"+delim+"')) ]");
 
     for(var i=0,imax=rowNodes.length; i<imax; i++){
       bcdui.wrs.wrsUtil.deleteWrsRow(rowNodes.item(i));
