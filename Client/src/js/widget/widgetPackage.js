@@ -1481,8 +1481,8 @@ bcdui.util.namespace("bcdui.widget",
             baseElement: config.baseElement
           , delay: args.delay
           , onEnter: function(e) {
-              // We do not want get into conflict with the context menu
-              if( jQuery("#bcdContextMenuDiv").is(":visible") ) {
+              // We do not want get into conflict with the context menu or grid input
+              if( jQuery("#bcdContextMenuDiv").is(":visible") || jQuery(".bcdGridEditor").length > 0) {
                 isVisible = false;
                 return;
               }
