@@ -24,15 +24,15 @@
 %%
 
 \s+                   /* skip whitespace */
-([=!<>]+|"like"|"notLike"|"in"|"notIn"|"bitand")	return 'OP'
+("!="|"<>"|">="|"<="|"<"|">"|"="|\blike\b|\bnotLike\b|\bnotIn\b|\bin\b|\bbitand\b)	return 'OP'
 "not"                 return 'NOT'
 "and"                 return 'AND'
 "or"                  return 'OR'
 "("                   return '('
 ")"                   return ')'
 "'"[^']*"'"           return 'TEXT'
-":"[a-zA-Z_]+\b       return 'VARNAME'
-[a-zA-Z_]+\b          return 'BREF'
+":"[a-zA-Z0-9_]+      return 'VARNAME'
+[a-zA-Z0-9_]+         return 'BREF'
 <<EOF>>               return 'EOF'
 .                     return 'INVALID'
 
