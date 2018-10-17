@@ -92,9 +92,9 @@
           <xsl:apply-templates select="@*"/>
           <xsl:apply-templates select="wrs:*[$x1 * 2 - 1 > position()]"/>
           <xsl:for-each select="wrs:O[$x2 >= position() and position() >= $x1]">
-            <C>
+            <wrs:C>
               <xsl:apply-templates select="@*|node()"/>
-            </C>
+            </wrs:C>
             <xsl:apply-templates select="."/>
           </xsl:for-each>
           <xsl:apply-templates select="wrs:*[position() > $x2 * 2]"/>
@@ -103,14 +103,14 @@
 
       <xsl:otherwise>
         <!-- There are no changes in the row anymore so we convert it back to a wrs:R. -->
-        <R>
+        <wrs:R>
           <xsl:apply-templates select="@*"/>
           <xsl:for-each select="wrs:O">
-            <C>
+            <wrs:C>
               <xsl:apply-templates select="@*|node()"/>
-            </C>
+            </wrs:C>
           </xsl:for-each>
-        </R>
+        </wrs:R>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
