@@ -2029,23 +2029,6 @@ bcdui.util.namespace("bcdui.widget",
       }
     },
 
-  /**
-   * Pleade note that in IE6 and some IE8 this must not becalled from code insight body during page load
-   * That's why context menu and tooltip are not using it
-   * @private
-   */
-  _createTopLevelElement: function(args)
-    {
-      var e = bcdui._migPjs._$(args.htmlElementId);
-      if (e.length > 0) return e;
-      e = document.createElement("div");
-      e.id = args.htmlElementId;
-      e.style.display = "none";
-      e.style.position = "absolute";
-      document.body.appendChild(e);
-      return bcdui._migPjs._$(e).get(0);
-    },
-
     /**
      *
      * @param args:

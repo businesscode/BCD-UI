@@ -592,12 +592,17 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
    */
   _updateOptions: function(containerHtmlElement, noFilter)
     {
+      // attach bcdAutoCompletionBox in toplevel bcdSingletonHolder 
+      var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
+
+      // First time we may need to create the singleton #bcdAutoCompletionBox
       var valueBox = jQuery("#bcdAutoCompletionBox");
       if (! valueBox.length > 0) {
-        valueBox = bcdui._migPjs._$(bcdui.widget._createTopLevelElement({ htmlElementId: "bcdAutoCompletionBox" }));
-        /*if (bcdui.browserCompatibility.isIE) {
-          bcdui._migPjs._$(valueBox).on("mouseenter", bcdui.widget.formulaEditor._ieWorkaround_onMouseOverValueBox.bind(undefined,htmlElementId));
-        }*/
+        jQuery(bcdHolder).append("<div id='bcdAutoCompletionBox' style='display:none; position:absolute'></div>");
+        valueBox = jQuery("#bcdAutoCompletionBox");
+//        if (bcdui.browserCompatibility.isIE) {
+//          valueBox.on("mouseenter", bcdui.widget.inputField._ieWorkaround_onMouseOverValueBox.bind(undefined,htmlElementId));
+//        }
       }
 
       var htmlElement = bcdui._migPjs._$(containerHtmlElement).find("input.bcdFormulaEditField")[0];

@@ -485,14 +485,16 @@ bcdui.util =
    * initially the element is set to display:none. Can be used for singleton containers.
    *
    * @param {string}  id  Id of a container to create
+   * @param {boolean} [show=false]  true if element should not be hidden
    * @return jQuery object with craeted (or located) element.
    *
    * @private
    */
-  getSingletonElement : function(id){
+  getSingletonElement : function(id, show){
     var el = document.getElementById(id);
     if(!el){
-      jQuery(document.body).prepend(el = jQuery("<div id='" + id + "' style='display:none'></div>"));
+      var hide = show === true ? "" : " style='display:none'";
+      jQuery(document.body).prepend(el = jQuery("<div id='" + id + "'" + hide + "></div>"));
     }
     return jQuery(el);
   },

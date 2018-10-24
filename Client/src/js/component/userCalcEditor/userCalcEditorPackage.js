@@ -92,10 +92,8 @@ bcdui.util.namespace("bcdui.component.userCalcEditor",
     };
     bcdui.component.userCalcEditor._callbackFunction = args.successCallBack;
 
-    if (! bcdui._migPjs._$(bcdui.component.userCalcEditor._htmlContainerId).length > 0) {
-      bcdui.widget._createTopLevelElement({ htmlElementId: bcdui.component.userCalcEditor._htmlContainerId });
-      // set relative position because bcdui.widget._createTopLevelElement creates element with absolute positioning and then container has a 0 height when element put to it
-      bcdui._migPjs._$("" + bcdui.component.userCalcEditor._htmlContainerId).get(0).style.position = "relative";
+    if (jQuery("#" + bcdui.component.userCalcEditor._htmlContainerId).length == 0) {
+      jQuery("body").append("<div id='" + bcdui.component.userCalcEditor._htmlContainerId + "' style='display:none; position:relative'></div>");
     }
 
     var targetModel = bcdui.factory._extractXPathAndModelId(args.targetModelXPath);

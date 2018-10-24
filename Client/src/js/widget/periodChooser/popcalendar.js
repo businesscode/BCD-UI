@@ -1262,10 +1262,12 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
   }
 
   isFirstAppear = false;
-  
-  // ensure visibility of calendar (might got hidden, e.g. grid date cell edit ending)
-  if( jQuery("#bcdCalendar").parent()[0].nodeName != "BODY" )
-    jQuery("body").prepend(jQuery("#bcdCalendar")); // moves calendar div from head to body
+
+  // move calendar from head to body (if not done yet) and show it
+  if( jQuery("#bcdCalendar").parent()[0].nodeName == "HEAD" ) {
+    var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
+    jQuery(bcdHolder).prepend(jQuery("#bcdCalendar"));
+  }
   jQuery("#bcdCalendar").show();
 }
 

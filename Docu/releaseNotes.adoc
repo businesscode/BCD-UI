@@ -36,6 +36,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * New widget: "slider", based on noUiSlider implementation
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
 * menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
+* introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached 
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
@@ -88,6 +89,7 @@ The Renderer either works directly with the specified element or (in case of spe
 ** Add user_login to bcd_sec_user
 ** If you want to use salted passwords, add password_salt to bcd_sec_user and salt existing passowrds
 ** Also add bcdui/i18n/default/lang if you want another default language than en, see web.xml
+* removed bcdui.widget._createTopLevelElement function, switch to use bcdui.util.getSingletonElement
 
 ==== Release 5_2_0
 

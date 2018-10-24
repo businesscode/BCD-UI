@@ -1141,10 +1141,14 @@ bcdui.util.namespace("bcdui.widget.inputField",
       if( ! htmlElement || ! htmlElement.getAttribute("bcdOptionsModelId") )
         return;
 
+      // attach bcdAutoCompletionBox in toplevel bcdSingletonHolder 
+      var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
+
       // First time we may need to create the singleton #bcdAutoCompletionBox
       var valueBox = jQuery("#bcdAutoCompletionBox");
       if (! valueBox.length > 0) {
-        valueBox = jQuery(bcdui.widget._createTopLevelElement({ htmlElementId: "bcdAutoCompletionBox" }));
+        jQuery(bcdHolder).append("<div id='bcdAutoCompletionBox' style='display:none; position:absolute'></div>");
+        valueBox = jQuery("#bcdAutoCompletionBox");
         if (bcdui.browserCompatibility.isIE) {
           valueBox.on("mouseenter", bcdui.widget.inputField._ieWorkaround_onMouseOverValueBox.bind(undefined,htmlElementId));
         }
