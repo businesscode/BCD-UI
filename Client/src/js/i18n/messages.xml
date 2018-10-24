@@ -185,6 +185,7 @@
       <R id="R145"><C>bcd_Ctrl_Available</C><C>Available</C><C>en</C></R>
       <R id="R146"><C>bcd_Ctrl_Name</C><C>Name</C><C>en</C></R>
       <R id="R147"><C>bcd_Ctrl_Apply</C><C>Apply</C><C>en</C></R>
+      <R id="R148"><C>bcd_Ctrl_Clear</C><C>Clear</C><C>en</C></R>
 
       <!-- Grouping Editor -->
       <R id="R150"><C>bcd_GroupingEditor</C><C>Grouping Editor</C><C>en</C></R>
