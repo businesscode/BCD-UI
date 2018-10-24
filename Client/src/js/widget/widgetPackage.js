@@ -648,7 +648,7 @@ bcdui.util.namespace("bcdui.widget",
         else{
           // If not radio, we also remove the "carrier" element of the targetXPath (for example f:Expression) even if the target node is an attribute
           if(!isRadio){
-            var expressionMatcher = keepEmptyValueExpression ? null : targetModelXPath.match("(.*/f:Expression[^/]*)/@value");
+            var expressionMatcher = keepEmptyValueExpression ? null : targetModelXPath.match("(.*/f:Expression[^/]*)/@\\w+");
             if (expressionMatcher != null && expressionMatcher.length > 1) {
               bcdui.core.removeXPath(targetModel, expressionMatcher[1]);
             } else {
