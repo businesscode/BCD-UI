@@ -15,7 +15,7 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -38,6 +39,8 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.io.IOUtils;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.util.StandardNamespaceContext;
@@ -471,7 +474,17 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
       case Types.CLOB: {
-        String  data = readClob(getResultSet().getClob(colNum));
+        String data = null;
+        Reader cContentReader = null;
+        Clob clob = getResultSet().getClob(colNum);
+        if (clob != null) {
+          cContentReader = clob.getCharacterStream();
+          if (cContentReader != null) {
+            String content = IOUtils.toString(cContentReader);
+            data = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
+            cContentReader.close();
+          }
+        }
         if ( data == null || getResultSet().wasNull()){
           getWriter().writeEmptyElement("null");
         }else if (isEscapeXMLType(colNum)){
@@ -506,20 +519,6 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
     }
-  }
-  private String readClob(Clob clob) throws Exception{
-    if(clob == null) {
-      return null;
-    }
-    final StringBuilder sb  = new StringBuilder();
-    final Reader reader     = clob.getCharacterStream();
-    final BufferedReader br = new BufferedReader(reader);
-    int b;
-    while ( -1 !=  ( b= br.read())){
-      sb.append((char)b);
-    }
-    br.close();
-    return sb.toString();
   }
 
   /**

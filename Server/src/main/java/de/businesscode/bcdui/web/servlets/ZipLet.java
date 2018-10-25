@@ -15,18 +15,18 @@
 */
 package de.businesscode.bcdui.web.servlets;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1066,12 +1066,15 @@ public class ZipLet extends HttpServlet {
       if (rs.next()) {
         i = 1;
 
-        InputStream clob = rs.getAsciiStream(i++);
-        String longUrl = "";
-        BufferedReader br = new BufferedReader(new InputStreamReader(clob, StandardCharsets.UTF_8));
-        String str;
-        while ((str = br.readLine()) != null) {
-          longUrl += str;
+        String longUrl =  "";
+        Clob clob = rs.getClob(i++);
+        if (clob != null) {
+          Reader cContentReader = clob.getCharacterStream();
+          if (cContentReader != null) {
+            String content = IOUtils.toString(cContentReader);
+            longUrl = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
+            cContentReader.close();
+          }
         }
 
         java.util.Date lastUpdate = rs.getDate(i++);
