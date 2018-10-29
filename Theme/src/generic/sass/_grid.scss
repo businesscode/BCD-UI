@@ -237,3 +237,11 @@ input.bcdInputFieldGrid {
     line-height: inherit;
   }
 }
+
+.bcdStatusModelEditor {
+ .bcdControls {
+   text-align: center;
+   .bcdButton { margin: 5px; }
+ }
+ .bcdLoadContainer {max-height: 600px; overflow-y: auto; position: relative; margin: 5px;}
+}
