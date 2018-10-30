@@ -43,7 +43,7 @@ CREATE TABLE bcd_log_page
    SESSION_ID   VARCHAR(64),
    PAGE_HASH    VARCHAR(64),
    REQUEST_URL  VARCHAR(4000),
-   GUI_STATUS   VARCHAR(MAX)
+   GUI_STATUS   NVARCHAR(MAX)
 );
 -- PostgreSQL
 drop table bcd_log_page;

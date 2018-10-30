@@ -22,6 +22,6 @@
   <C id="sessionId"   type-name="VARCHAR"><Column>session_id</Column></C>
   <C id="pageHash"    type-name="VARCHAR"><Column>page_hash</Column></C>
   <C id="requestUrl"  type-name="VARCHAR"><Column>request_url</Column></C>
-  <C id="guiStatus"   type-name="VARCHAR"><Column>gui_status</Column></C>
+  <C id="guiStatus"   type-name="CLOB"><Column>gui_status</Column></C>
 
 </BindingSet>

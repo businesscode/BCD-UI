@@ -24,8 +24,8 @@
   <C id="requestHash" caption="Request Hash" type-name="VARCHAR">  <Column>request_hash</Column></C>
   <C id="logLevel"    caption="Level"        type-name="VARCHAR">  <Column>log_level</Column></C>
   <C id="requestUrl"  caption="Request URL"  type-name="VARCHAR">  <Column>request_url</Column></C>
-  <C id="message"     caption="Message"      type-name="VARCHAR">  <Column>message</Column></C>
-  <C id="stackTrace"  caption="Stack trace"  type-name="VARCHAR">  <Column>stack_trace</Column></C>
+  <C id="message"     caption="Message"      type-name="CLOB">     <Column>message</Column></C>
+  <C id="stackTrace"  caption="Stack trace"  type-name="CLOB">     <Column>stack_trace</Column></C>
   <C id="revision"    caption="Revision"     type-name="VARCHAR">  <Column>revision</Column></C>
 
 </BindingSet>

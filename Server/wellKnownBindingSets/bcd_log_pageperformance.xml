@@ -25,7 +25,7 @@
   <C id="requestUrl"  type-name="VARCHAR"><Column>request_url</Column></C>
   <C id="logName"     type-name="VARCHAR"><Column>log_name</Column></C>
   <C id="duration"    type-name="INTEGER"><Column>duration</Column></C>
-  <C id="guiStatus"   type-name="VARCHAR"><Column>gui_status</Column></C>
+  <C id="guiStatus"   type-name="CLOB"><Column>gui_status</Column></C>
   <C id="addInfo"     type-name="VARCHAR"><Column>add_info</Column></C>
 
   <SubjectSettings>

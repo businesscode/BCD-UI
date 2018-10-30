@@ -34,7 +34,7 @@ CREATE TABLE bcd_virtualFileSystem
 CREATE TABLE bcd_virtualFileSystem
 (
    path           VARCHAR(850) NOT NULL,
-   resource_clob  VARCHAR(MAX),
+   resource_clob  NVARCHAR(MAX),
    resource_blob  VARBINARY(MAX),
    is_server      INTEGER NOT NULL,
    updated_by     VARCHAR(128),
