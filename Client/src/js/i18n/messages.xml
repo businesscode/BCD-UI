@@ -47,7 +47,7 @@
       <R id="R115"><C>bcd_uploadMapping_please_select</C><C>Skip</C><C>en</C></R>
 
       <!-- widgetNg messages -->
-      <R id="R131"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
+      <R id="R132"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
 
       <!-- Wrs data validation messages -->
       <R id="R120"><C>bcd_ValidUniq</C><C>Value must be unique.</C><C>en</C></R>
@@ -61,6 +61,7 @@
       <R id="R128"><C>bcd_ValidTypeName_TIMESTAMP</C><C>Value must be a timestamp.</C><C>en</C></R>
       <R id="R129"><C>bcd_ValidPattern</C><C>Value must match a pattern.</C><C>en</C></R>
       <R id="R130"><C>bcd_ValidEmail</C><C>Value must be an email.</C><C>en</C></R>
+      <R id="R131"><C>bcd_ValidDocument</C><C>Value must be an XML document.</C><C>en</C></R>
 
       <!-- Dimensions and measures in reports -->
       <R id="R11"><C>bcd_PleaseSelectFirst</C><C>Please make your selection and hit apply.</C><C>en</C></R>
