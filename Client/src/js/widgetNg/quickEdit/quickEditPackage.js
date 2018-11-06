@@ -225,7 +225,7 @@
      * @private
      */
     validateAndClose() {
-      bcdui.widget.validate(this.context.targetHtml).then((result) => {
+      bcdui.widgetNg.utils(this.context.targetHtml).then((result) => {
         if (result.isValid) {
           this.dispose();
         }
