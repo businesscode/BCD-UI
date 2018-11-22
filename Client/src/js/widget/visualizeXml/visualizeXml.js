@@ -161,13 +161,18 @@ bcdui.widget.visualizeXml =
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_visualizeModel_args);
 
     var preId = (args.idRef||args.inputModel.id) +"_visualizeModelTargetElementId";
+    var rendererId = preId + "_renderer";
+
+    // do nothing, in case this function was called twice on same model
+    if(bcdui.factory.objectRegistry.getObject(rendererId)){
+      return;
+    }
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
 
     jQuery("#" + args.targetHTMLElementId).append('<pre id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
 
-    var rendererId = preId + "_renderer";
     bcdui.factory.createRenderer({
       id : rendererId
       , targetHtml: preId
