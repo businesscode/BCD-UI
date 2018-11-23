@@ -499,6 +499,16 @@
                           </xs:documentation></xs:annotation>
                         </xs:attribute>
                         <xs:attribute name="caption"/>
+                        <xs:attribute name="visible" type="xs:boolean" default="true">
+                          <xs:annotation><xs:documentation>
+                            If set to false, the level won't be offered in the dimension chooser level selector. Values for this level can still be 
+                            part of a sub selection. For example the level 'Station' requires the the selection of a country and a station value but the level 'Country'
+                            should not be available.
+                          </xs:documentation></xs:annotation>
+                        </xs:attribute>
+                        
+                        
+                        
                       </xs:complexType>
                     </xs:element>
                   </xs:sequence>
