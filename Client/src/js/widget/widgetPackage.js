@@ -3094,6 +3094,8 @@ bcdui.util.namespace("bcdui.widget",
       * @param {function} args.open - function to execute when dialog is opened, it gets args object with properties: targetHtml
       * @param {function} [args.close] - function to execute when dialog is closed
       * @param {string} [args.title] - dialog title
+      * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
+      * @param {number} [args.width=320] - dialog height; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
       * @return {Promise} resolving with value provided from 'dialog-close' event, when dialog is closed.
       * @example
       * bcdui.widget.openDialog({
@@ -3155,6 +3157,12 @@ bcdui.util.namespace("bcdui.widget",
              });
            }
          });
+         
+         // recalc width/height if percentage provided
+         const _recalc = (ref, value) => ref <= 1 ? Math.round(ref * value) : ref;
+         args.width = _recalc(args.width,  document.documentElement.clientWidth);
+         args.height = _recalc(args.height,  document.documentElement.clientHeight);
+         
          jQuery("<div/>").appendTo(bcdui.util.getSingletonElement("bcdui_dialog").empty()).dialog(args);
        });
      }
