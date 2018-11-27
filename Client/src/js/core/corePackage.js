@@ -313,6 +313,16 @@ bcdui.util.namespace("bcdui.core",
     {
       return this.setUrlParameter(url, this._requestDocumentParameterName, unEscapedValue, this._requestDocumentParameterAsAnchor);
     },
+  
+  /**
+   * encode parameters into a query-string
+   * @return {string} the query string, with encoded parameters; this string does not start with '?'
+   */
+  createQueryString: function(params){
+    return Object.keys(params).map(function(k) {
+      return k + "=" + encodeURIComponent(params[k]);
+    }).join("&");
+  },
 
   /**
    * Extracts the value of a parameter definition from the URL. For example if
