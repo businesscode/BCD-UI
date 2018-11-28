@@ -114,7 +114,20 @@ public class BareConfiguration extends JNDIProvider {
    * @throws Exception in case something went wrong. Especially, if the current thread is not bound to a HTTP request.
    */
   public Connection getManagedConnection(String dbSourceName) throws Exception {
-    if(!RequestLifeCycleFilter.isThreadBoundToHttpRequest())
+    return getManagedConnection(dbSourceName, true);
+  }
+
+  /**
+   * This is meant to be used in non-HTTP-requests like batch engines
+   * Returns a managed connections but the caller will explicitly call closeAllConnections() for the current thread
+   * and does not rely on RequestlifecycleFilter to do so.
+   * @param dbSourceName
+   * @param closedByRequestLifeCycleFilter
+   * @return
+   * @throws Exception
+   */
+  public Connection getManagedConnection(String dbSourceName, boolean closedByRequestLifeCycleFilter) throws Exception {
+    if(closedByRequestLifeCycleFilter && !RequestLifeCycleFilter.isThreadBoundToHttpRequest())
       throw new Exception("A managed connection may only be obtained within HttpServletRequest lifecycle. It " +
           "seems like this method was called not called in scope of a HttpServletRequest or the request is not" +
           " managed by BCD-UI RequestLifeCycleFilter. Please check your web.xml and ensure that all URLs are mapped " +

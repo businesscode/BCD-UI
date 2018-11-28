@@ -256,6 +256,16 @@ public class Configuration implements ConfigurationProvider {
   }
 
   /**
+   * see {@link BareConfiguration#getManagedConnection(String)}
+   * @param dbSourceName
+   * @throws Exception
+   * @return
+   */
+  public Connection getManagedConnection(String dbSourceName, boolean closedByRequestLifeCycleFilter) throws Exception{
+    return bareConfig.getManagedConnection(dbSourceName, closedByRequestLifeCycleFilter);
+  }
+  
+  /**
    * see {@link BareConfiguration#getUnmanagedConnection(String)}
    * @param dbSourceName
    * @throws Exception
