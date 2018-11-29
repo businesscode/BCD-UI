@@ -142,12 +142,14 @@
       <R id="R82"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
       <R id="R83"><C>bcd_Grid_CellRestore</C><C>Restore cell</C><C>en</C></R>
       <R id="R84"><C>bcd_Grid_Export</C><C>Grid export</C><C>en</C></R>
+      
 
       <!-- Editing -->
       <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>
       <R id="R221"><C>bcd_Edit_ResetAll</C><C>Reset All</C><C>en</C></R>
       <R id="R222"><C>bcd_Edit_OrigValue</C><C>Original Value</C><C>en</C></R>
-
+      <R id="R223"><C>bcd_Edit_Reload</C><C>Reload</C><C>en</C></R>
+      
       <!-- Reports general -->
       <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
       <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
