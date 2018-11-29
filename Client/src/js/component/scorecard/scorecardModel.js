@@ -176,7 +176,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           // Assure that we find at least one KPI definition, we will crash otherwise. Its ok, if we do not find all, hiding definitions is valid
           var kpiDef = this.refSccDefinition.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef[@idRef=/*/scc:Kpis/scc:Kpi/@id]");
           if( !kpiDef )
-            bcdui.log.error( "Scorecard '"+this.id+"' ERROR: No KPI definitions found." );
+            bcdui.log.warn( "Scorecard '"+this.id+"' No KPI definitions found." );
           // Assure that we find the scc:Aggregator definition for each scc:Kpi/@aggr, otherwise the scorecard will hang waiting for it to be loaded
           var undefinedAggrs = this.refSccDefinition.queryNodes("/*/scc:Kpis//*[@aggr and not(@aggr=/*/scc:Aggregators/scc:Aggregator/@id)]");
           if( undefinedAggrs.length > 0 )
