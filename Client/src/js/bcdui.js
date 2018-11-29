@@ -163,9 +163,11 @@ jQuery.extend( bcdui,
           else if(typeof console != "undefined" && !bcdui.browserCompatibility.isIE){
             appender = new log4javascript.BrowserConsoleAppender();
           }
-          else{
+          else if(bcdui.config.isDebug){ // for IE enable .PopUpAppender only in debug mode
             appender = new log4javascript.PopUpAppender();
             reFormat=false;
+          }else{
+            return null;
           }
 
           if(reFormat){
@@ -298,8 +300,8 @@ jQuery.extend( bcdui,
       log._bcdui_consoleAppender    = log4javascript._bcdui_createConsoleAppender();
       log._bcdui_bcduiPopupAppender = log4javascript._bcdui_createBCDUIPopupAppender();
 
-      // append console appender only in debug case
-      if (bcdui.config && bcdui.config.isDebug)
+      // append console appender if available
+      if (!!log._bcdui_consoleAppender)
         log.addAppender(log._bcdui_consoleAppender);
 
       log.addAppender(log._bcdui_bcduiPopupAppender);

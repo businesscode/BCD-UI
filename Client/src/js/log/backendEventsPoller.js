@@ -34,7 +34,7 @@
   var log = log4javascript.getLogger("bcdui.backendEventLogger");
   log.setAdditivity(false); //dont propagate to parents handlers
   log.setLevel(log4javascript.Level.ALL);
-  log.addAppender(bcdui.log._bcdui_consoleAppender); //use console handler from parent
+  !!bcdui.log._bcdui_consoleAppender && log.addAppender(bcdui.log._bcdui_consoleAppender); //use console handler from parent
 
   /**
    * takes a map of params:
