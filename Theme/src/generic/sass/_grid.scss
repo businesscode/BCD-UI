@@ -252,3 +252,11 @@ input.bcdInputFieldGrid {
   span.bcdStatusBad { color: #cc0000; font-weight: bold; }
   span.bcdStatusBad:after { content: "!"; padding-left: 5px; }
 }
+
+.bcdTooltip.bcdSchedulerHistory {
+  max-width: 300px;
+  padding: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
