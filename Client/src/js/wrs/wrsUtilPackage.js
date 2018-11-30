@@ -827,7 +827,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
     for(var i=0,imax=nodes.length; i<imax; i++){
       var node = nodes.item(i);
       var attrMap = map[node.getAttribute("id")] = {};
-      for(var a of node.attributes){
+      for(var a of Array.from(node.attributes)){
         attrMap[a.name] = a.value;
       }
     }
