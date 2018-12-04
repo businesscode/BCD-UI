@@ -1191,8 +1191,9 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
         node.parentNode.removeChild(node);
       }
     }
-    deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:C[ contains( '"+posString+"' ,concat(position(),'')) ]"));
-    deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:O[ contains( '"+posString+"' ,concat(position(),'')) ]"));
+    var predicate=`[ contains( '${posString}' ,concat('|',position(),'|')) ]`;
+    deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:C" + predicate));
+    deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:O" + predicate));
   },
 
   /**
