@@ -153,9 +153,15 @@
   </complexType>
 
   <complexType name="AuthenticationType">
+    <annotation><documentation>
+    defines authentication method
+    </documentation></annotation>
     <sequence>
       <element name="Ldap" minOccurs="0" maxOccurs="0"/>
       <element name="SubjectSettings" minOccurs="0">
+        <annotation><documentation>
+        enable SubjectSettings for authentication, please set Shiro realm to de.businesscode.bcdui.subjectsettings.JdbcRealm
+        </documentation></annotation>
         <complexType/>
       </element>
     </sequence>
