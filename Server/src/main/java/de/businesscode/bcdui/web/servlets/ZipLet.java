@@ -30,6 +30,7 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -991,6 +992,12 @@ public class ZipLet extends HttpServlet {
       "  , $k.last_used_dt-" +
       "  ) VALUES (?,?,?,?)";
 
+  /**
+   * inserts a new entry for the given pair of long and tiny url in the database
+   * @param tinyUrl The tiny url as string
+   * @param longUrl The long url as string
+   * @throws Exception
+   */
   private static void createFile(String tinyUrl, String longUrl) throws Exception {
     PreparedStatement stmt = null;
     Connection connection = getControlConnection();
@@ -998,19 +1005,16 @@ public class ZipLet extends HttpServlet {
     try{
       String sql = getTransformSQL(createFileSQL);
       stmt = connection.prepareStatement(sql);
-      int i = 1;
-      stmt.setString(i++, tinyUrl);
+      stmt.setString(1, tinyUrl);
       StringReader reader = new StringReader(longUrl);
-      stmt.setCharacterStream(i++, reader, longUrl.length());
+      stmt.setCharacterStream(2, reader, longUrl.length());
       java.util.Date today = new java.util.Date();
-      stmt.setDate(i++, new java.sql.Date(today.getTime()));
-      stmt.setDate(i++, new java.sql.Date(today.getTime()));
+      stmt.setDate(3, new java.sql.Date(today.getTime()));
+      stmt.setDate(4, new java.sql.Date(today.getTime()));
       stmt.execute();
     }finally{
       Closer.closeAllSQLObjects(stmt, connection);
     }
-
-    return;
   }
 
   private static final String updateFileSQL=
@@ -1021,6 +1025,11 @@ public class ZipLet extends HttpServlet {
       " WHERE" +
       "   $k.tiny_url- = ?";
 
+  /**
+   * updates the last used timestamp for a given tiny url in the database
+   * @param tinyUrl The tiny url as string to be touched
+   * @throws Exception
+   */
   private static void updateFile(String tinyUrl) throws Exception {
     PreparedStatement stmt = null;
     Connection connection = getControlConnection();
@@ -1028,16 +1037,13 @@ public class ZipLet extends HttpServlet {
     try{
       String sql = getTransformSQL(updateFileSQL);
       stmt = connection.prepareStatement(sql);
-      int i = 1;
       java.util.Date today = new java.util.Date();
-      stmt.setDate(i++, new java.sql.Date(today.getTime()));
-      stmt.setString(i++, tinyUrl);
+      stmt.setDate(1, new java.sql.Date(today.getTime()));
+      stmt.setString(2, tinyUrl);
       stmt.execute();
     }finally{
       Closer.closeAllSQLObjects(stmt, connection);
     }
-
-    return;
   }
 
   private static final String readFileSQL=
@@ -1049,6 +1055,13 @@ public class ZipLet extends HttpServlet {
       " WHERE" +
       "   $k.tiny_url- = ?";
 
+  /**
+   * Returns the stored longUrl and an indicator if the entry needs an update or not for the given tinyUrl in the database  
+   * If key exists, last update stamp is updated.
+   * @param tinyUrl The tiny url as string to be decoded.
+   * @return The corresponding longURL as String for the given tinyURL or null if no entry is found. The string is prefixed with 0| or 1| indicating that the entry needs to be touched later on or not
+   * @throws Exception
+   */
   private static String readFile(String tinyUrl) throws Exception {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
     PreparedStatement stmt = null;
@@ -1060,24 +1073,31 @@ public class ZipLet extends HttpServlet {
     try{
       String sql = getTransformSQL(readFileSQL);
       stmt = connection.prepareStatement(sql);
-      int i = 1;
-      stmt.setString(i++, tinyUrl);
+      stmt.setString(1, tinyUrl);
       rs = stmt.executeQuery();
       if (rs.next()) {
-        i = 1;
+        String longUrl = null;
+        String content = null;
+        Reader cContentReader = null;
+        Clob clob = null;
 
-        String longUrl =  "";
-        Clob clob = rs.getClob(i++);
+        // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
+        // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
+        try { clob = rs.getClob(1); }
+        catch (SQLException e) {
+          content = rs.getString(1);
+          longUrl = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
+        }
         if (clob != null) {
-          Reader cContentReader = clob.getCharacterStream();
+          cContentReader = clob.getCharacterStream();
           if (cContentReader != null) {
-            String content = IOUtils.toString(cContentReader);
+            content = IOUtils.toString(cContentReader);
             longUrl = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
             cContentReader.close();
           }
         }
 
-        java.util.Date lastUpdate = rs.getDate(i++);
+        java.util.Date lastUpdate = rs.getDate(2);
 
         if (lastUpdate != null) {
           longUrlFromDB = (df.format(lastUpdate).equals(today) ? "0" : "1") + "|" + longUrl;
@@ -1094,6 +1114,11 @@ public class ZipLet extends HttpServlet {
       " #set( $k = $bindings.bcd_tinyurl_control ) " +
       " DELETE FROM $k.getPlainTableName() WHERE $k.last_used_dt- < ?";
 
+  /**
+   * removes outdated stored tiny entries in the database
+   * threshold given by maxTinyUrlAge
+   * @throws Exception
+   */
   private static void deleteFile() throws Exception {
 
     if (maxTinyUrlAge == -1)
@@ -1110,14 +1135,11 @@ public class ZipLet extends HttpServlet {
     try{
       String sql = getTransformSQL(deleteFileSQL);
       stmt = connection.prepareStatement(sql);
-      int i = 1;
-      stmt.setDate(i++, new java.sql.Date(c1.getTimeInMillis()));
+      stmt.setDate(1, new java.sql.Date(c1.getTimeInMillis()));
       stmt.execute();
     }finally{
       Closer.closeAllSQLObjects(stmt, connection);
     }
-
-    return;
   }
 
 }

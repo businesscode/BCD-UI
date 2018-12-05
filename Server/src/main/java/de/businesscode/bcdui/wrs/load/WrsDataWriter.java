@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -475,23 +476,33 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
       }
       case Types.CLOB: {
         String data = null;
+        String content = null;
         Reader cContentReader = null;
-        Clob clob = getResultSet().getClob(colNum);
+        Clob clob = null;
+
+        // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
+        // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
+        try { clob = getResultSet().getClob(colNum); }
+        catch (SQLException e) {
+          content = getResultSet().getString(colNum);
+          data = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
+        }
         if (clob != null) {
           cContentReader = clob.getCharacterStream();
           if (cContentReader != null) {
-            String content = IOUtils.toString(cContentReader);
+            content = IOUtils.toString(cContentReader);
             data = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
             cContentReader.close();
           }
         }
-        if ( data == null || getResultSet().wasNull()){
+        if (data == null || getResultSet().wasNull()) {
           getWriter().writeEmptyElement("null");
-        }else if (isEscapeXMLType(colNum)){
+        }
+        else if (isEscapeXMLType(colNum)){
           getWriter().writeCharacters(data);
-        }else{
-          transformer.transform(
-              new StreamSource(new StringReader(data)), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
+        }
+        else{
+          transformer.transform(new StreamSource(new StringReader(data)), new StAXResult(createXMLStreamWriterWrapper(getWriter())));
         }
         break;
       }

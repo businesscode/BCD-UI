@@ -23,6 +23,7 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -123,12 +124,8 @@ public class DatabaseFileObject extends AbstractFileObject {
         log.trace("isReadable():" + sql + " param: " + this.fileName.getPath());
 
         rs = stmt.executeQuery();
-        if (rs.next()) {
-          Clob clob = rs.getClob(2);
-          Blob blob = rs.getBlob(3);
-          is = ( ( clob != null && clob.getCharacterStream() != null ) || ( blob != null && blob.getBinaryStream() != null));
-        }
         // register readable file in VFS cache
+        is = rs.next();
         if (is)
           CacheFactory.getVFSCache().put(new Element(getName().getPath(), getName().getPath()));
       }
@@ -180,15 +177,24 @@ public class DatabaseFileObject extends AbstractFileObject {
         if (rs.next()) {
           // take clob as 1. if is not null, we always assume UTF-8
           Reader cContentReader = null;
-          Clob clob = rs.getClob(2);
+          Clob clob = null;
+          String content = null;
+
+          // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
+          // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
+          try { clob = rs.getClob(2); }
+          catch (SQLException e) {
+            content = rs.getString(2);
+            iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
+          }
           if(clob != null && (cContentReader=clob.getCharacterStream()) != null) {
-            String content = IOUtils.toString(cContentReader);
+            content = IOUtils.toString(cContentReader);
             iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
             cContentReader.close();
           }
           // Otherwise use the binary content
           // the rs.getBinaryStream() cannot be accessed after the rs/stmt were closed so we read the content and put it in an new Stream
-          else{
+          else if (iStr == null){
             Blob blob = rs.getBlob(3);
             if (blob != null)
               iStr = new ByteArrayInputStream(IOUtils.toByteArray(blob.getBinaryStream()));
