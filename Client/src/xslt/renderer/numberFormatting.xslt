@@ -65,6 +65,7 @@
     <xsl:param name="value" select="."/>
     <xsl:param name="unit"/>
     <xsl:param name="scale"/>
+    <xsl:param name="average" select="false()"/>
 
     <xsl:variable name="effectiveUnit">
       <xsl:choose>
@@ -90,6 +91,34 @@
           <xsl:value-of select="concat(' ',$effectiveUnit)"/>
         </xsl:if>
       </xsl:if>
+    </xsl:variable>
+
+    <xsl:variable name="numberDigits">
+      <xsl:if test="$average">
+        <xsl:variable name="valueNum" select="number($value)"/>
+        <xsl:choose>
+          <xsl:when test="$valueNum >= 1000000000">9</xsl:when>
+          <xsl:when test="$valueNum >= 1000000">6</xsl:when>
+          <xsl:when test="$valueNum >= 1000">3</xsl:when>
+        </xsl:choose>
+      </xsl:if>
+    </xsl:variable>
+
+    <xsl:variable name="numberAbbrev">
+      <xsl:choose>
+        <xsl:when test="$numberDigits = 9">b</xsl:when>
+        <xsl:when test="$numberDigits = 6">m</xsl:when>
+        <xsl:when test="$numberDigits = 3">k</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="downScale">
+      <xsl:choose>
+        <xsl:when test="$numberDigits = 9">1000000000</xsl:when>
+        <xsl:when test="$numberDigits = 6">1000000</xsl:when>
+        <xsl:when test="$numberDigits = 3">1000</xsl:when>
+        <xsl:otherwise>1</xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
 
     <!-- Scale defines the shown precision.
@@ -120,13 +149,13 @@
         <xsl:value-of select="concat(format-number(round($value div $effectiveScale) * -1, concat($defaultFormattingPatternInteger, $percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
       </xsl:when>
       <xsl:when test="$effectiveScale > 0">
-        <xsl:value-of select="concat(format-number($value, concat($defaultFormattingPattern, substring('000000000000000000000000000000000000000', 1, $effectiveScale), $percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
+        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPattern, substring('000000000000000000000000000000000000000', 1, $effectiveScale), $percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
       </xsl:when>
       <xsl:when test="$effectiveScale &lt; 0">
-        <xsl:value-of select="concat(format-number($value, concat($defaultFormattingPattern, substring('#######################################', 1, -1*$effectiveScale), $percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
+        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPattern, substring('#######################################', 1, -1*$effectiveScale), $percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(format-number($value, concat($defaultFormattingPatternInteger,$percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
+        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPatternInteger,$percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
