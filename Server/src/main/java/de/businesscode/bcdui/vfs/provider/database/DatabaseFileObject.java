@@ -17,13 +17,10 @@ package de.businesscode.bcdui.vfs.provider.database;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.Reader;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -47,6 +44,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
 
 
@@ -64,6 +62,8 @@ public class DatabaseFileObject extends AbstractFileObject {
   private DatabaseFileSystemConfigBuilder cfgBuilder;
   private BindingSet bindingSet;
   private Boolean isReadable=null;
+  
+  private static final String BCDVIRTUALFILESYSTEM = "bcd_virtualFileSystem";
 
   /**
    * Constructor
@@ -86,11 +86,11 @@ public class DatabaseFileObject extends AbstractFileObject {
   " ) Q WHERE C=1 AND ($k.isServer- = 1 OR ($k.isServer- = 0 AND UPPER($k.path-) NOT LIKE '/WEB-INF/%'))";
 
   private static final String mainBindingSQL =
-  " #set( $k = $bindings.bcd_virtualFileSystem ) "+
+  " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
   " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM " + innerSQL + " AND $k.path- = ?";
 
   private static final String getChildrenSQL =
-  " #set( $k = $bindings.bcd_virtualFileSystem ) "+
+  " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
   " SELECT $k.path- FROM " + innerSQL + " AND $k.path- like ?";
 
   @Override
@@ -175,26 +175,13 @@ public class DatabaseFileObject extends AbstractFileObject {
         log.trace("doGetInputStream():" + sql + " param: " + this.fileName.getPath());
         rs = stmt.executeQuery();
         if (rs.next()) {
-          // take clob as 1. if is not null, we always assume UTF-8
-          Reader cContentReader = null;
-          Clob clob = null;
-          String content = null;
 
-          // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
-          // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
-          try { clob = rs.getClob(2); }
-          catch (SQLException e) {
-            content = rs.getString(2);
-            iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
-          }
-          if(clob != null && (cContentReader=clob.getCharacterStream()) != null) {
-            content = IOUtils.toString(cContentReader);
-            iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
-            cContentReader.close();
-          }
+          // First, try to use the clob content
+          iStr = DatabaseCompatibility.getInstance().getClobInputStream(BCDVIRTUALFILESYSTEM, rs, 2);
+
           // Otherwise use the binary content
           // the rs.getBinaryStream() cannot be accessed after the rs/stmt were closed so we read the content and put it in an new Stream
-          else if (iStr == null){
+          if (iStr == null){
             Blob blob = rs.getBlob(3);
             if (blob != null)
               iStr = new ByteArrayInputStream(IOUtils.toByteArray(blob.getBinaryStream()));
@@ -316,7 +303,7 @@ public class DatabaseFileObject extends AbstractFileObject {
    * @throws Exception
    */
   protected ConnectionContainer obtainConnection() throws Exception {
-    BindingSet bs  = Bindings.getInstance().get("bcd_virtualFileSystem", new ArrayList<String>());
+    BindingSet bs  = Bindings.getInstance().get(BCDVIRTUALFILESYSTEM, new ArrayList<String>());
     Boolean isManaged = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
     Connection con = isManaged ?
         Configuration.getInstance().getManagedConnection(bs.getDbSourceName()) :

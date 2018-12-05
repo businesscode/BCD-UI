@@ -15,17 +15,25 @@
 */
 package de.businesscode.util.jdbc;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Reader;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingSet;
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
@@ -260,7 +268,51 @@ public class DatabaseCompatibility
     }
     return null;
   }
+  
+  /**
+   * returns the clob column data as a string
+   * @param bindingSetName the name of the currently used binding set
+   * @param rs the current result set
+   * @param column the index of the columns within the result set
+   * @return clob data as a string
+   */
+  public String getClob(String bindingSetName, ResultSet rs, int column) throws Exception {
+    InputStream iStr = getClobInputStream(bindingSetName, rs, column);
+    return IOUtils.toString(iStr, "UTF-8");
+  }
 
+  /**
+   * returns the clob column data as an inputstream
+   * @param bindingSetName the name of the currently used binding set
+   * @param rs the current result set
+   * @param column the index of the columns within the result set
+   * @return clob data as an inputstream
+   */
+  public InputStream getClobInputStream(String bindingSetName, ResultSet rs, int column) throws Exception {
+    BindingSet bs  = Bindings.getInstance().get(bindingSetName, new ArrayList<String>());
+    String content = null;
+    InputStream iStr = null;
+    Clob clob = null;
+    Reader cContentReader = null;
+    // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
+    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+      content = rs.getString(column);
+      iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
+    }
+    else {
+      clob = rs.getClob(column);
+    }
+    if (clob != null) {
+      cContentReader = clob.getCharacterStream();
+      if (cContentReader != null) {
+        content = IOUtils.toString(cContentReader);
+        iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
+        cContentReader.close();
+      }
+    }
+    return iStr;
+  }
+  
   /**
    * Retrieve a singleton via getInstance() to make your SQl database type dependent
    */

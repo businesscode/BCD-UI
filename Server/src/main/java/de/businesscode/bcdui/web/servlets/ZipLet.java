@@ -20,17 +20,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,6 +83,7 @@ import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.Closer;
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
@@ -124,6 +121,8 @@ import de.businesscode.util.xml.SecureXmlFactory;
  */
 public class ZipLet extends HttpServlet {
   private static final long serialVersionUID = 1L;
+  
+  private static final String BCDTINYURLCONTROL = "bcd_tinyurl_control"; 
 
 
   /**
@@ -966,13 +965,13 @@ public class ZipLet extends HttpServlet {
 
   public static boolean testTinyUrlBinding() {
     boolean r = true;
-    try { Bindings.getInstance().get("bcd_tinyurl_control", new ArrayList<String>()); }
+    try { Bindings.getInstance().get(BCDTINYURLCONTROL, new ArrayList<String>()); }
     catch (BindingException e) { r = false; }
     return r;
   }
 
   public static Connection getControlConnection() throws Exception{
-    BindingSet bs  = Bindings.getInstance().get("bcd_tinyurl_control", new ArrayList<String>());
+    BindingSet bs  = Bindings.getInstance().get(BCDTINYURLCONTROL, new ArrayList<String>());
     Connection con = Configuration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
     return con;
   }
@@ -983,7 +982,7 @@ public class ZipLet extends HttpServlet {
   }
 
   private static final String createFileSQL=
-      " #set( $k = $bindings.bcd_tinyurl_control ) " +
+      " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) " +
       " INSERT INTO $k.getPlainTableName()" +
       "  (" +
       "    $k.tiny_url-"  +
@@ -1018,7 +1017,7 @@ public class ZipLet extends HttpServlet {
   }
 
   private static final String updateFileSQL=
-      " #set( $k = $bindings.bcd_tinyurl_control )"+
+      " #set( $k = $bindings." + BCDTINYURLCONTROL + " )"+
       " UPDATE $k.getPlainTableName()"+
       " SET" +
       "   $k.last_used_dt- = ?" +
@@ -1047,7 +1046,7 @@ public class ZipLet extends HttpServlet {
   }
 
   private static final String readFileSQL=
-      " #set( $k = $bindings.bcd_tinyurl_control ) "+
+      " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) "+
       " SELECT" +
       "   $k.long_url-" +
       "   , $k.last_used_dt-" +
@@ -1076,27 +1075,7 @@ public class ZipLet extends HttpServlet {
       stmt.setString(1, tinyUrl);
       rs = stmt.executeQuery();
       if (rs.next()) {
-        String longUrl = null;
-        String content = null;
-        Reader cContentReader = null;
-        Clob clob = null;
-
-        // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
-        // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
-        try { clob = rs.getClob(1); }
-        catch (SQLException e) {
-          content = rs.getString(1);
-          longUrl = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
-        }
-        if (clob != null) {
-          cContentReader = clob.getCharacterStream();
-          if (cContentReader != null) {
-            content = IOUtils.toString(cContentReader);
-            longUrl = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
-            cContentReader.close();
-          }
-        }
-
+        String longUrl = DatabaseCompatibility.getInstance().getClob(BCDTINYURLCONTROL, rs, 1);
         java.util.Date lastUpdate = rs.getDate(2);
 
         if (lastUpdate != null) {
@@ -1111,7 +1090,7 @@ public class ZipLet extends HttpServlet {
   }
 
   private static final String deleteFileSQL=
-      " #set( $k = $bindings.bcd_tinyurl_control ) " +
+      " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) " +
       " DELETE FROM $k.getPlainTableName() WHERE $k.last_used_dt- < ?";
 
   /**

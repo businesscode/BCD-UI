@@ -15,19 +15,14 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.io.ByteArrayInputStream;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -41,11 +36,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.io.IOUtils;
-
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
@@ -475,26 +469,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
       case Types.CLOB: {
-        String data = null;
-        String content = null;
-        Reader cContentReader = null;
-        Clob clob = null;
-
-        // postgres' getClob will throw an exception since TEXT (aka clob) columns would provide a long value
-        // which represents a pointer to the actual data. That's why we try to read the data as a string in exception case
-        try { clob = getResultSet().getClob(colNum); }
-        catch (SQLException e) {
-          content = getResultSet().getString(colNum);
-          data = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
-        }
-        if (clob != null) {
-          cContentReader = clob.getCharacterStream();
-          if (cContentReader != null) {
-            content = IOUtils.toString(cContentReader);
-            data = IOUtils.toString(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), "UTF-8");
-            cContentReader.close();
-          }
-        }
+        BindingSet bs = getGenerator().getSelectedBindingSet();
+        String data = DatabaseCompatibility.getInstance().getClob(bs.getName(), getResultSet(), colNum);
         if (data == null || getResultSet().wasNull()) {
           getWriter().writeEmptyElement("null");
         }
