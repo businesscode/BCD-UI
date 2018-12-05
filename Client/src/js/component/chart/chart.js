@@ -117,12 +117,11 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       bcdui._migPjs._$(this.target).css({width:args.width});
     }
     else{
-      var w =  bcdui._migPjs._$(this.target).outerWidth();
-      if(! w){
-        w =  bcdui._migPjs._$(this.target).css("width") || this.target.getAttribute("width") || this.target.offsetWidth || this.target.style.width || bcdui._migPjs._$(this.target.parentNode).css("width");
-      }
-      w = parseInt(w, 10);
-      if (isFinite(w)) this.width = w;
+      const _determineWidth=(el)=>{
+        if(!el.length || !el.get(0).style)return null;
+        return parseInt(el.attr("width"), 10) || parseInt(el.get(0).style.width, 10) || parseInt(el.css("width"), 10) || _determineWidth(el.parent());
+      };
+      this.width = _determineWidth(bcdui._migPjs._$(this.target));
     }
 
     if(args.height != null){
@@ -130,12 +129,11 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       bcdui._migPjs._$(this.target).css({height:args.height});
     }
     else {
-      var h = bcdui._migPjs._$(this.target).outerHeight();
-      if(! h){
-        h = bcdui._migPjs._$(this.target).css("height") || this.target.getAttribute("height") || this.target.offsetHeight || this.target.style.height || bcdui._migPjs._$(this.target.parentNode).css("height");
-      }
-      h = parseInt(h, 10);
-      if (isFinite(h)) this.height = h;
+      const _determineHeight=(el)=>{
+        if(!el.length || !el.get(0).style)return null;
+        return parseInt(el.attr("height"), 10) || parseInt(el.get(0).style.height, 10) || parseInt(el.css("height"), 10) || _determineHeight(el.parent());
+      };
+      this.height = _determineHeight(bcdui._migPjs._$(this.target));
     }
     if( ! args.suppressInitialRendering )
       this.execute();
