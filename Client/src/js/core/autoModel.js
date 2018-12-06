@@ -43,6 +43,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
    * @param {Array}                   [args.reqDocChain]                  - Optional custom chain for request document builder.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
+   * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
    * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) which is connected via f:And to other filters
    * @example
@@ -119,7 +120,9 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
        var wrapperArgs = {
          chain: wrapperChain,
          inputModel: statusModel,
-         parameters: params
+         parameters: params,
+         statusModel: statusModel,
+         statusModelEstablished: args.statusModelEstablished
        };
        if (args.id)
          jQuery.extend( wrapperArgs, {id: args.id +"Req"} );  // if we have a given Id, we name the requestDoc accordingly
