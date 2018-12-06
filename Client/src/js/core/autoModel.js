@@ -57,6 +57,8 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");
       }
+      
+      var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
        // create the model wrapper that creates web row set request
        var params  = {
@@ -68,7 +70,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
            mandatoryFilterBRefs: args.mandatoryfilterBRefsSubset,
            isDistinct:   args.isDistinct ,
            useCaptions:  args.useCaptions,
-           statusModel:  args.statusModel||bcdui.wkModels.guiStatus,
+           statusModel:  statusModel,
            maxRows:      typeof args.maxRows != "undefined" ? args.maxRows : -1 };
        jQuery.extend( params, args.reqDocParameters || {} );
 
@@ -116,7 +118,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
 
        var wrapperArgs = {
          chain: wrapperChain,
-         inputModel: bcdui.wkModels.guiStatus,
+         inputModel: statusModel,
          parameters: params
        };
        if (args.id)
@@ -149,7 +151,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
          // create listener that updates the model wrapper if filters were changed
          if( args.isAutoRefresh ) {
            bcdui.factory.addDataListener({
-             idRef: bcdui.wkModels.guiStatus.id,
+             idRef: statusModel.id,
              trackingXPath: xpath,
              listener: function() {
                wrapper.execute(true);
