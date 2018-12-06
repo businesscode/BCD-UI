@@ -36,7 +36,8 @@ The Renderer either works directly with the specified element or (in case of spe
 * New widget: "slider", based on noUiSlider implementation
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
 * menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
-* introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached 
+* introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
+* tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas 
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)

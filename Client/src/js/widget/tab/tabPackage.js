@@ -61,6 +61,7 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
         this.doc.appendChild(root);
 
         rElement.children().each(function(i, element) {// all children of idOrElement
+          jQuery(element).addClass("bcdTabItem");
           var e = this.doc.documentElement.appendChild(this.doc.createElement("Item"));
           e.setAttribute("id", "tab_"+element.id);
           e.setAttribute("caption", (element.getAttribute("caption")==null)?"":element.getAttribute("caption"));
@@ -138,147 +139,102 @@ bcdui.util.namespace("bcdui.widget.tab",
      */
     init:function(args)
     {
-      var dataProvider = new bcdui.core.HTML2XMLDataProvider(
-          {
-              id:          args.id + "_innerModel"
-            , name:        args.id + "_innerModel"
-            , idOrElement:  bcdui._migPjs._$(args.idOrElement).get(0)
-          }
-      );
-
+      var dataProvider = new bcdui.core.HTML2XMLDataProvider( {
+        id:          args.id + "_innerModel"
+      , name:        args.id + "_innerModel"
+      , idOrElement:  bcdui._migPjs._$(args.idOrElement).get(0)
+      });
       dataProvider.execute();
+
       // read settings from GUIstatus doc, if exists XPath - takes it, if no - set default to visible
       var tabId = dataProvider.getData().selectSingleNode("/Items/@id").nodeValue;
       var guiStatusTabXPath = "/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + tabId +"']";
 
-      /*
-       * register listener
-       */
-      bcdui.factory.addDataListener({
-        idRef: bcdui.wkModels.guiStatus.id,
-        onlyOnce: false,
-        side: "",
-        trackingXPath: guiStatusTabXPath,
-        listener: bcdui.widget.tab._syncActiveTab.bind(undefined,tabId)
+      // register listener which shows/hides the selected tab
+      bcdui.wkModels.guiStatus.onChange({
+          onlyOnce: false
+        , trackingXPath: guiStatusTabXPath
+        , callback: bcdui.widget.tab._syncActiveTab.bind(undefined, tabId, args.targetHTMLElementId, args.idOrElement)
       });
 
-      var xpath= guiStatusTabXPath + "/Active[text() != '']";
-      var aktiveTab = bcdui.wkModels.guiStatus.getData().selectSingleNode(xpath);
-      aktiveTab = (aktiveTab == null?null:aktiveTab.text);
-      if( ! aktiveTab )
-      {
+      // determine activeTab (either from guiStatus or (initially from model with items defaultVisibleId attribute)
+      var xpath = guiStatusTabXPath + "/Active[text() != '']";
+      var activeTab = bcdui.wkModels.guiStatus.read(xpath, "");
+      if (activeTab == "") {
         var contId = dataProvider.getData().selectSingleNode("/Items/@defaultVisibleId").nodeValue;
-        if(contId && contId == "FIRST")
-        {
+        if(contId && contId == "FIRST") {
           contId = dataProvider.getData().selectSingleNode("/Items/Item[1]/@id").nodeValue;
-          contId = contId.replace('tab_','');// thus we have tabId here
+          contId = contId.replace('tab_',''); // thus we have tabId here
         }
-
-        if( contId){
-          aktiveTab = "tab_"+contId;
-        }
+        if (contId)
+          activeTab = "tab_" + contId;
       }
-
-      if(aktiveTab){
-        var containerids = dataProvider.getData().selectNodes("/Items/Item/@id");
-        for ( var i=0; i<containerids.length; i++) {
-          var container = containerids[i];
-          var conId = container.nodeValue.replace('tab_','');
-          if( container.nodeValue != aktiveTab){
-            bcdui._migPjs._$(conId).hide();
-          }
-          else{
-            bcdui._migPjs._$(conId).show();
-          }
-        }
-      }
-      else
-        bcdui.log.isTraceEnabled() && bcdui.log.trace("aktiveTab:" +aktiveTab + " xpath:" + xpath);
-
-      // create tabs menu render
-      var _rendererUrl = (args.rendererUrl) ? args.rendererUrl : "/bcdui/js/widget/tab/tab.xslt";
-      var _handlerVariableName = (args.handlerJsClassName)?args.handlerJsClassName:"bcdui.widget.tab";
-      var _rendererOrRendererRefId = bcdui.factory.createRenderer({
-        id: ("bcdRenderer_" + args.id)
-        ,url: bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl)
-        ,inputModel: dataProvider
-        ,parameters: {contextPath:bcdui.contextPath
-                    , handlerVariableName:_handlerVariableName
-                    }
-        ,targetHTMLElementId:args.targetHTMLElementId
-      });
-
-      if(aktiveTab){
-        bcdui.factory.objectRegistry.withReadyObjects({
-          ids: [ _rendererOrRendererRefId ],
-          fn: function(){
-            bcdui._migPjs._$(aktiveTab).addClass("bcdActive");
-            bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(),guiStatusTabXPath+"/Active" ).text=aktiveTab;
-            bcdui.wkModels.guiStatus.fire();
-          }
+      // in case we have an active tab, initially show/hide single (not yet initialized) containers and set active Tab in guiStatus
+      if (activeTab != "") {
+        jQuery.makeArray(dataProvider.queryNodes("/Items/Item/@id")).forEach(function(container) {
+          var conId = jQuery("#" + container.nodeValue.replace('tab_', ''));
+          if (container.nodeValue != activeTab)
+            conId.hide();
+          else
+            conId.show();
         });
       }
+
+      // create tabs menu renderer
+      var _rendererUrl = (args.rendererUrl) ? args.rendererUrl : "/bcdui/js/widget/tab/tab.xslt";
+      var _handlerVariableName = (args.handlerJsClassName)?args.handlerJsClassName:"bcdui.widget.tab";
+      var renderer = new bcdui.core.Renderer({
+          id: ("bcdRenderer_" + args.id)
+        , chain: bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl)
+        , inputModel: dataProvider
+        , parameters: { contextPath: bcdui.contextPath, handlerVariableName: _handlerVariableName }
+        , targetHtml: args.targetHTMLElementId
+      });
+      // initially trigger sync
+      renderer.onceReady(function(){
+        bcdui.wkModels.guiStatus.write(guiStatusTabXPath + "/Active", activeTab, true);
+      });
     },
 
     /**
      * displays active tab according to guiStatus setting
      * @private
      */
-    _syncActiveTab : function(tabId){
-      var activeTab = bcdui.wkModels.guiStatus.getData().selectSingleNode("/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + tabId+"']/Active");
-      if(activeTab != null){
-        activeTab = activeTab.text;
-      }else{
-        return;
-      }
-
-      // an existing client settings entry does not necessarily mean the object exists already
-      if (! bcdui._migPjs._$(activeTab).length > 0)
-        return;
-
-      var containerId = activeTab.replace( 'tab_', '' );
-
-      // collect all tabs
-      var tabids = [];
-      var containerids = [];
+    _syncActiveTab : function(tabId, targetHTMLElementId, defTabId){
       
-      jQuery(jQuery(bcdui._migPjs._$(activeTab).parent().get(0)).parent().get(0)).find(" > li a").each(function(i, el) {
-        tabids.push( el.id );
-        containerids.push( el.id.replace( 'tab_', '' ) );
-      }.bind(this));
+      var activeTab = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + tabId+"']/Active", "");
+      // an existing client settings entry does not necessarily mean the object exists already
+      if (jQuery("#" + activeTab).length == 0)
+        return;
 
-      // set active tab menu point
-      tabids.every( function( tab ) {
-        bcdui._migPjs._$(tab).removeClass( 'bcdActive' );
-        return true;
-      } );
+      // set/remove active css class
+      var tabs = jQuery("#" + activeTab).closest("ul").find(" > li a");
+      tabs.removeClass("bcdActive");
+      jQuery("#" + activeTab).addClass("bcdActive");
 
-
-      bcdui._migPjs._$(activeTab).addClass( 'bcdActive' );
-      // set active tab content container
-      containerids.every( function( container ) {
-        bcdui._migPjs._$(container).hide();
-        return true;
-      } );
-
-      bcdui._migPjs._$(containerId).show();
+      tabs.each(function(i,e) {
+        var conId = e.id.replace('tab_','');
+        if (jQuery(e).hasClass("bcdActive")) {
+          jQuery("#" + conId).show();
+          jQuery("#" + conId).trigger("bcd:widget.tab.show");
+        }
+        else {
+          jQuery("#" + conId).hide();
+          jQuery("#" + conId).trigger("bcd:widget.tab.hide");
+        }
+      });
     },
 
     /**
-     * A click on a tab happened
+     * A click on a tab happened, remember id in guiStatus 
      */
-    handleTabAction:function(event){
-      // get container id
-      var element = event.target;
-      var elId = element.getAttribute("id");
-      var parentId = element.getAttribute("parentId");
-      var xpath= "/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + parentId+"']/Active";
-      var curValue = bcdui.wkModels.guiStatus.getData().selectSingleNode(xpath);
-      if( curValue && curValue.text == elId )
+    handleTabAction:function(event) {
+      var e = jQuery(event.target);
+      var elId = e.attr("id");
+      var xpath= "/*/guiStatus:ClientSettings/Selected/Tab[@id='" + e.attr("parentId") + "']/Active";
+      if (bcdui.wkModels.guiStatus.read(xpath, elId) == elId)
         return null;// clicked on the same tab
-
-      bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), xpath).text=elId;
-      bcdui.wkModels.guiStatus.fire();// after event
+      bcdui.wkModels.guiStatus.write(xpath, elId, true);
     },
 
     /**
@@ -286,8 +242,6 @@ bcdui.util.namespace("bcdui.widget.tab",
      * @param {HTMLElement} htmlElement The element the tab is based on.
      * @private
      */
-    _adjustDefaultParameters: function(HTMLElement) {
-
-    }
+    _adjustDefaultParameters: function(HTMLElement) {}
   }
 );// end of namespace
