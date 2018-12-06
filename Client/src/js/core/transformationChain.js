@@ -39,6 +39,8 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
   initialize: function(args)
     {
       bcdui.core.DataProvider.call(this,args);
+      
+      var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
       /**
        * The list of dataProviders passed to the transformations. One of them must
@@ -62,7 +64,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       }
       
       if (typeof this.dataProviders == "undefined" ) {
-        this.dataProviders = [bcdui.wkModels.guiStatus];
+        this.dataProviders = [statusModel];
       }
       if (typeof args.chain == "undefined") {
         throw Error("Must specify \"chain\" property (id='"+this.id+"').");
@@ -82,9 +84,9 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
        * Only transformations producing one of the implicit models do not get these, to prevent circular ready-state dependencies
        */
       var implicitParamModels = [
-          ["guiStatus", bcdui.wkModels.guiStatus]
+          ["guiStatus", statusModel]
         , [bcdui.i18n._modelDefaultName, bcdui.wkModels.bcdI18nModel]
-        , ["guiStatusEstablished", bcdui.wkModels.guiStatusEstablished]
+        , ["guiStatusEstablished", args.statusModelEstablished||bcdui.wkModels.guiStatusEstablished]
       ];
 
       // 'this' is an implicitModel on our own...
@@ -1089,6 +1091,8 @@ bcdui.core.ModelWrapper = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
   * @param {Object}     [args.parameters]            - An object, where each property holds a DataProvideras a transformation parameter
   * Once this ModelWapper is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it, if it is not {@link bcdui.core.AbstractExecutable .isReady()}
   * @param {string}     [args.id]                    - Globally unique id for use in declarative contexts
+  * @param {bcdui.core.DataProvider}    [args.statusModel=bcdui.wkModels.guiStatus]                       - custom model to use as 'guiStatus' parameter
+  * @param {bcdui.core.DataProvider}    [args.statusModelEstablished=bcdui.wkModels.guiStatusEstablished] - custom model to use as 'guiStatusEstablished' parameter
   */
   initialize: function(args)
   {
