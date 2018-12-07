@@ -278,7 +278,7 @@ public class DatabaseCompatibility
    */
   public String getClob(String bindingSetName, ResultSet rs, int column) throws Exception {
     InputStream iStr = getClobInputStream(bindingSetName, rs, column);
-    return IOUtils.toString(iStr, "UTF-8");
+    return iStr != null ? IOUtils.toString(iStr, "UTF-8") : "";
   }
 
   /**
