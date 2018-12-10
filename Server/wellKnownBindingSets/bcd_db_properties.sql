@@ -21,19 +21,21 @@ CREATE TABLE bcd_db_properties
   scope VARCHAR2(32) NOT NULL,
   name VARCHAR2(255) NOT NULL,
   "type" VARCHAR2(64) NULL,
-  "value" VARCHAR2(255) NOT NULL
+  "value" VARCHAR2(255) NOT NULL,
+  PRIMARY KEY(scope, name)
 );
 
 
 -- MS SQL Server
 
-DROP TABLE bcd_db_properties CASCADE CONSTRAINTS;
+DROP TABLE bcd_db_properties;
 CREATE TABLE bcd_db_properties
 (
   scope VARCHAR(32) NOT NULL,
   name VARCHAR(255) NOT NULL,
   "type" VARCHAR(64) NULL,
-  "value" VARCHAR(255) NOT NULL
+  "value" VARCHAR(255) NOT NULL,
+  PRIMARY KEY(scope, name)
 );
 -- PostgreSQL
 DROP TABLE bcd_db_properties CASCADE CONSTRAINTS;
@@ -42,5 +44,6 @@ CREATE TABLE bcd_db_properties
   scope VARCHAR(32) NOT NULL,
   name VARCHAR(255) NOT NULL,
   type VARCHAR(64) NULL,
-  value VARCHAR(255) NOT NULL
+  value VARCHAR(255) NOT NULL,
+  PRIMARY KEY(scope, name)
 );
