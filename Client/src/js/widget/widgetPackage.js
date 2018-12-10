@@ -878,7 +878,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.modelId]              xml model id, can be used for menues defined in folder '/WEB-INF/bcdui/menu/'.
    * @param {string}        [args.modelUrl]             Optional: URL where model get data from, allows reading a random xml file from the server.
    * @param {string}        [args.parameters]           Own action handler.
-   * @param {string}        [args.rendererUrl]          URL to XSLT stylesheet that renders the model.
+   * @param {string|chainDef}        [args.rendererUrl]          URL to XSLT stylesheet that renders the model or chain definition; default is "/bcdui/js/widget/menu/menu.xslt"
    * 
    */
   createMenu: function(args)
@@ -930,7 +930,7 @@ bcdui.util.namespace("bcdui.widget",
 
         var _rendererOrRendererRefId = bcdui.factory.createRenderer({
           id: _rendererRefId
-          ,url: bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl)
+          ,chain: typeof _rendererUrl == "string" ? bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl) : _rendererUrl
           ,inputModel: _modelIdOrModelRef
           ,parameters: args.parameters
           ,targetHTMLElementId: args.targetHTMLElementId
