@@ -112,7 +112,9 @@ task bcduiClientCollect3rdParty {
                                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
                      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
                      "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js"],
-                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"]
+                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"],
+                     "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js"],
+                     "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts-en.js"]
     ]
     // Becomes only part of the assembly, if listed in gradle.properties
     fileList = fileList.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
@@ -198,7 +200,7 @@ task bcduiClientJsFileGroups {
 
   // For each api package "core, "chart", "cube" etc (see bcduiLoader.js), we create a "bcduiClientBabelJs-chart[-es5]" etc task
   // and add them to the dependency chain in our configuration. If we are later executed, we just run them.
-  // We do this also for each individual 3dParty file bit leave them separated
+  // We do this also for each individual 3dParty file but leave them separated
   bcduiFiles.groups.each { fileSet ->
 
     // All non-3rdParty files of a group are translated with Babel, merged into one and minified
@@ -302,7 +304,9 @@ task bcduiClientEcma5One2One (type: NodeTask) {
     //--------
     fileTree(dir: taskDestDir).each { source ->
       if( source.name.endsWith('.js') ) {
-        source.text = source.text.replaceAll(/sourceMappingURL=(.*)\.js\.map/, { full, fn -> "sourceMappingURL=$fn${es5Postfix}.js.map" } )
+        String content = source.getText("UTF-8")
+        content = content.replaceAll(/sourceMappingURL=(.*)\.js\.map/, { full, fn -> "sourceMappingURL=$fn${es5Postfix}.js.map" } )
+        source.write(content, "UTF-8")
       }
       source.renameTo( source.path.replace('.js', "${es5Postfix}.js") )
     }

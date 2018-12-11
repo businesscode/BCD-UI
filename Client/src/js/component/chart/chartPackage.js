@@ -76,10 +76,11 @@ bcdui.util.namespace("bcdui.component.chart",
     bcdui.factory.objectRegistry.withReadyObjects({
       ids: [metaDataModel],
       fn: function() {
-        var chart = new bcdui.component.chart.XmlChart(
+        let constr = typeof bcdui.component.chart.ChartEchart === "undefined" ? bcdui.component.chart.XmlChart : bcdui.component.chart.ChartEchart;
+        var chart = new constr(
             { id: targetHTMLElement.getAttribute("id"),
-              targetHTMLElementId: targetHTMLElement.getAttribute("targetHTMLElementId"),
-              metaDataModel: bcdui.factory.objectRegistry.getObject(metaDataModel)
+              targetHtml: targetHTMLElement.getAttribute("targetHTMLElementId"),
+              config: bcdui.factory.objectRegistry.getObject(metaDataModel)
             }
         );
         jQuery("#" + targetHTMLElement.getAttribute("targetHTMLElementId")).removeClass("statusNotReady").addClass("statusReady");

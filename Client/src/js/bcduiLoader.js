@@ -56,6 +56,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
         , "/js/3rdParty/nouislider.js"
+        , "/js/3rdParty/d3-format.js"
       ]
     },
     {
@@ -184,6 +185,18 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiChart2",
+      "required": "optional",
+      "files": [
+          "/js/component/chart/chartPackage.js"
+        , "/js/3rdParty/echarts.js"
+        , "/js/component/chart/chartEchart.js"
+      ],
+      "buildFolders": [
+        "/js/component/chart"
+      ]
+    },
+    {
       "id": "bcduiCube",
       "required": "default",
       "files": [
@@ -289,7 +302,7 @@ bcdui.bcduiCeFiles =
       ]
     }
   ]
-}
+};
 // JSON-PART-FOR-BUILD
 
 // build browser compatibility matrix

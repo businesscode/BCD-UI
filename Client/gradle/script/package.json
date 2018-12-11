@@ -2,13 +2,14 @@
   "name":        "bcd-ui",
   "description": "Client for BCD-UI",
   "author":      "BusinessCode GmbH, Germany",
-  "license":     "Proprietory license, please contact BusinessCode GmbH, Germany",
+  "license":     "Apache V2.0",
 
   "dependencies": {
     "block-ui":           "@version",
     "dot":                "git+https://github.com/olado/doT#@version",
     "log4javascript":     "git+https://github.com/DECK36/log4javascript#@version",
     "modernizr":          "@version",
+    "d3-format":          "@version",
     "jquery":             "git+https://github.com/jquery/jquery#@version",
     "jquery-ui-dist":     "@version",
     "jquery-mobile":      "git+https://github.com/jquery/jquery-mobile#@version",
@@ -16,7 +17,8 @@
     "handsontable":       "@version",
     "nouislider":         "@version",
     "babel-polyfill":     "@version",
-    "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version"
+    "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version",
+    "echarts":            "@version"
   }
 
 }
