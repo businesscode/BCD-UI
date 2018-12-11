@@ -19,7 +19,8 @@ CREATE TABLE bcd_sec_user_settings
 (
    user_id         VARCHAR2(128) NOT NULL,
    right_type      VARCHAR2(64)  NOT NULL,
-   right_value     VARCHAR2(64)  NOT NULL
+   right_value     VARCHAR2(64)  NOT NULL,
+   PRIMARY KEY (user_id, right_type, right_value)
 );
 
 -- SQLServer
@@ -28,7 +29,8 @@ CREATE TABLE bcd_sec_user_settings
 (
    user_id         VARCHAR(128) NOT NULL,
    right_type      VARCHAR(64)  NOT NULL,
-   right_value     VARCHAR(64)  NOT NULL
+   right_value     VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id, right_type, right_value)
 );
 -- PostgreSQL
 DROP TABLE bcd_sec_user_settings;
@@ -36,7 +38,8 @@ CREATE TABLE bcd_sec_user_settings
 (
    user_id         VARCHAR(128) NOT NULL,
    right_type      VARCHAR(64)  NOT NULL,
-   right_value     VARCHAR(64)  NOT NULL
+   right_value     VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id, right_type, right_value)
 );
 
 -- PostgreSQL
@@ -45,5 +48,6 @@ CREATE TABLE bcd_sec_user_settings
 (
    user_id         VARCHAR(128) NOT NULL,
    right_type      VARCHAR(64)  NOT NULL,
-   right_value     VARCHAR(64)  NOT NULL
+   right_value     VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id, right_type, right_value)
 );
