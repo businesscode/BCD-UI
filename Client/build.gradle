@@ -48,6 +48,27 @@ def clientCombinedDir = "$buildDir/tmp/clientCombined"
 def jsDistDir         = 'jsDist'
 def es5Postfix        = '-es5'
 
+// This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
+// This list is filtered by the entries in gradle.properties so that a user can remove them to get another version manually for example
+def js3rdParty= [
+      "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js",                         ofnm: "jquery/dist/jquery.min.js"],
+      "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js",                   ofnm: "jquery-ui-dist/jquery-ui.min.js"],
+                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
+      "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
+      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
+      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
+      "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js",        ofnm: "webcomponents.js/webcomponents-lite.min.js"],
+      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js",        ofnm: "handsontable/dist/handsontable.full.min.js"],
+                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
+      "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
+      "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js",               ofnm: "babel-polyfill/dist/polyfill.min.js"],
+      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.js",                       ofnm: "file-saver/FileSaver.min.js"],
+      "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
+      "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts-en.js",                    ofnm: "echarts/dist/echarts-en.min.js"]
+    ]
+js3rdParty = js3rdParty.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
+
+
 //**********************************
 // Load 3rdParty js libraries to build/node_modules with the help of package.json, which we copy to build and execute npm install there
 task bcduiClient3rdPartyNpm {
@@ -61,7 +82,9 @@ task bcduiClient3rdPartyNpm {
 task bcduiClientCollect3rdPartyModernizr( type: NodeTask ) {
   dependsOn bcduiClient3rdPartyNpm
 
-  def taskDestDir = "$src3rdParty/js/3rdParty"
+  ext {
+    taskDestDir = "$src3rdParty/js/3rdParty"
+  }
 
   onlyIf { project.hasProperty('bcdui.3rdPartyJs.modernizr') && project.hasProperty('bcdui.3rdPartyJs.modernizr.feature-detects') }
 
@@ -88,7 +111,7 @@ task bcduiClientCollect3rdPartyModernizr( type: NodeTask ) {
 
 
 //**********************************
-// Copy the 3rdParty js libs from their node_modules to build/src/3rdParty
+// Copy unminified the 3rdParty js libs from their node_modules to build/src/3rdParty
 task bcduiClientCollect3rdParty {
 
   dependsOn bcduiClient3rdPartyNpm, bcduiClientCollect3rdPartyModernizr
@@ -100,30 +123,12 @@ task bcduiClientCollect3rdParty {
 
   // Copy files that can be used 1:1 to target folder
   doLast {
-    // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
-    def fileList = [ "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js"],
-                     "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js"],
-                                         [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
-                     "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
-                     "dot":            [ fn: "doT.js",                ofn: "dot/doT.js"],
-                     "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js"],
-                     "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js"],
-                     "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js"],
-                                         [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
-                     "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
-                     "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js"],
-                     "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.min.js"],
-                     "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js"],
-                     "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts-en.js"]
-    ]
-    // Becomes only part of the assembly, if listed in gradle.properties
-    fileList = fileList.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
     // collect distributables, allow recursion
     def collectDist
-    collectDist = { key, value ->
+    collectDist = { keyOrParentKey, value ->
       // if is array, go recursive
       if (value[0]) {
-        value.each { collectDist(key, it) }
+        value.each { collectDist(keyOrParentKey, it) }
       } else { // or map
         copy {
           into taskDestDir
@@ -132,7 +137,7 @@ task bcduiClientCollect3rdParty {
         }
       }
     }
-    fileList.each collectDist
+    js3rdParty.each collectDist
   }
 }
 
@@ -188,7 +193,7 @@ task bcduiClientCollectAll( type: Copy ) {
 //   c) source code map: docs/ <name>.sourcemap.json
 // Keep the folder structure so that the sources in the maps point virtually to the original sources
 task bcduiClientJsFileGroups {
-  dependsOn bcduiClientCollectAll
+  dependsOn bcduiClientCollectAll, bcduiClientCollect3rdPartyModernizr
 
   // bcduiFiles.json knows which files go into which bundle
   def origBcduiLoaderJsonSplit = file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")
@@ -198,30 +203,27 @@ task bcduiClientJsFileGroups {
   def taskPrefix = 'bcduiClientBabelJs'
   file("$clientCombinedDir/js/3rdParty").mkdirs()
 
-  // For each api package "core, "chart", "cube" etc (see bcduiLoader.js), we create a "bcduiClientBabelJs-chart[-es5]" etc task
-  // and add them to the dependency chain in our configuration. If we are later executed, we just run them.
-  // We do this also for each individual 3dParty file but leave them separated
-  bcduiFiles.groups.each { fileSet ->
+  // A babel task for combining multiple files, minifying and optional ecma6-transpiling
+  def createBabelTask = { newTaskName, inputFiles, outFileName, ecma5, is3rdParty ->
+    task(newTaskName, type: NodeTask) {
+      mustRunAfter 'bcduiClientCollectAll'
+      inputs.files inputFiles + "./src/js/$jsBcduiLoader"
+      outputs.file file(outFileName)
+      script = file("$nodeModulesDir/babel-cli/bin/babel")
+      def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/babel-preset-es2015" : "")
+      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
 
-    // All non-3rdParty files of a group are translated with Babel, merged into one and minified
-    // We skip the 3rdParty files of a group as we keep them separate
-    // Any missing file (bcduiLoader vs folder) will be reported as an error from babel
-    def createBabelTask = { newTaskName, inputFiles, outFileName, ecma5, is3rdParty ->
-      task(newTaskName, type: NodeTask) {
-        mustRunAfter 'bcduiClientCollectAll'
-        inputs.files inputFiles + "./src/js/$jsBcduiLoader"
-        outputs.file file(outFileName)
-        script = file("$nodeModulesDir/babel-cli/bin/babel")
-        def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/babel-preset-es2015" : "")
-        args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
-
-        // Postpend copy right. We do not prepend it to keep the source map indices intact
-        doLast {
-          def outFile = file(outFileName)
-          outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
-        }
+      // Postpend copy right. We do not prepend it to keep the source map indices intact
+      doLast {
+        def outFile = file(outFileName)
+        outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
       }
     }
+  }
+
+  // All non 3rd-party files are handled here
+  // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
+  bcduiFiles.groups.each { fileSet ->
 
     // Create a task for combining, minifying and ECMA5 transpiling all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
@@ -230,16 +232,44 @@ task bcduiClientJsFileGroups {
     })
     if( ! inputFiles.isEmpty() ) {
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName$es5Postfix", inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}${es5Postfix}.js", true, false )
-      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js",               false,  false )
+      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js",              false, false )
     }
+  }
 
-    // Create a task for minifying and ECMA5 transpiling each single 3rdParty js in this file group
-    fileSet.files.findAll{ it.contains("3rdParty") && it.endsWith('.js') }.each { fEntry ->
-      def f = file(fEntry)
+  // All 3rdparty files are handled here
+  // Where possible we take the minified file from the node.js dist, otherwise we minify ourselfs. We do not ECMA5 transpile 3rdParty files.
+  def collectMinified
+  collectMinified = { keyOrParentKey, value ->
+    if (value[0]) {
+      // If is array, go recursive
+      value.each { collectMinified( keyOrParentKey, it ) }
+    }
+    else if( ! value.fn.endsWith(".js") ) {
+      return
+    }
+    else if( value.ofnm ) {
+      // If the dist contains a min file, use that one, plus create a 1:1 copy with es5 postfixed file name
+      // doLast: Don't actually apply this now (during gradle dependency setup), but only once this task is actually executed and all it depends on finished
+      bcduiClientJsFileGroups.doLast {
+        copy {
+          from "$clientNodeModulesDir/${value.ofnm}"
+          into "$clientCombinedDir/$jsDistDir/3rdParty/"
+          rename { value.fn }
+        }
+        copy {
+          from "$clientNodeModulesDir/${value.ofnm}"
+          into "$clientCombinedDir/$jsDistDir/3rdParty/"
+          rename { value.fn.replace('.js', "${es5Postfix}.js") }
+        }
+      }
+    }
+    // Otherwise we create a minified version ourselfs with the help from babel
+    else {
+      def f = file(value.fn)
       def fPathNameWoExt= f.name.lastIndexOf('.').with {it != -1 ? f.name[0..<it] : f.name}
       def outFileName = "$clientCombinedDir/$jsDistDir/3rdParty/${fPathNameWoExt}.js"
+      // We do not ECMA5 transpile 3dParty sources, we just create a minified version
       dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, false, true )
-      // We do not ECMA5 transpile 3dParty sources yet, so we just copy the minified version
       doLast {
         copy {
           from outFileName
@@ -251,6 +281,10 @@ task bcduiClientJsFileGroups {
       }
     }
   }
+  // Handle 3rdParty files coming via node.js
+  js3rdParty.each collectMinified
+  // We need a special handling here, as modernizr comes a different way then our or all other 3rdParty files
+  collectMinified( "modernizr", [ fn: "modernizr.js", ofn: "../tmp/src3rdParty/modernizr.js"] )
 
   doLast {
     //--------
@@ -288,9 +322,10 @@ task bcduiClientEcma5One2One (type: NodeTask) {
     delete taskDestDir
   }
 
-  // Job itself: Call babel
+  // Job itself: Call babel and put individual ecma6 files to taskDestDir (excluding 3rdParty, they are copyied below)
   script = file("$nodeModulesDir/babel-cli/bin/babel")
-  args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/babel-preset-es2015" + "--source-maps" + "--plugins" + "$nodeModulesDir/babel-plugin-transform-async-to-generator"
+  args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/babel-preset-es2015" + "--source-maps" +
+              "--plugins" + "$nodeModulesDir/babel-plugin-transform-async-to-generator" + "--ignore" + "./3rdParty/*.js"
 
   // 1. We do not apply ECMA5 babel to 3rdParty resources (also has issues with ecma6Polyfills and webcomponent), so we overwrite them here with the originals
   // 2. We do neet to add es5Postfix to js, map and change the map entry in js
