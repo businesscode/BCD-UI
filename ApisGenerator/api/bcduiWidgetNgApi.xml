@@ -548,7 +548,7 @@
         <Param name="doAutoSelectSolelyOption" type="boolean" default="false">
           <Doc>If enabled, and there is only one option available, the widget will switch to that value.</Doc>
         </Param>
-        <Param name="placeholder" type="i18nToken" default="bcd_singleSelect_please_select">
+        <Param name="placeholder" type="i18nToken">
           <Doc>A default text displayed if no content was entered, this is i18n key or true for default. May be empty to display nothing.</Doc>
         </Param>
       </Api>

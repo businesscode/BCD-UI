@@ -77,6 +77,7 @@
       var rootContainer = bcdui._migPjs._$(this.element[0]);
       var args = this.options;
       var self = this;
+      this.options.placeholder = this.options.placeholder || bcdui.i18n.TAG + "bcd_singleSelect_please_select";
 
       // handle empty placeholder as no placeholder
       if (this.options.placeholder && this.options.placeholder == "")
@@ -257,7 +258,7 @@
 
       // used within forEachFunc loop to detect the first run for the "please select" option
       var optionContextScope = {
-          captionNode : jQuery("<option value='' bcdTranslate='" + this.options.placeholder + "'></option>"),
+          captionNode : bcdui.i18n.isI18nKey(this.options.placeholder) ? jQuery("<option value=''/>").attr("bcdTranslate", this.options.placeholder) : jQuery("<option value=''/>").text(this.options.placeholder),
           isFirst: true,
           hasSelectedValue: false
       }
