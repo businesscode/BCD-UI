@@ -50,7 +50,7 @@ def es5Postfix        = '-es5'
 
 // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
 // This list is filtered by the entries in gradle.properties so that a user can remove them to get another version manually for example
-def js3rdParty= [
+def js3rdPartyNpm = [
       "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js",                         ofnm: "jquery/dist/jquery.min.js"],
       "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js",                   ofnm: "jquery-ui-dist/jquery-ui.min.js"],
                           [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
@@ -66,7 +66,7 @@ def js3rdParty= [
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts-en.js",                    ofnm: "echarts/dist/echarts-en.min.js"]
     ]
-js3rdParty = js3rdParty.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
+js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
 
 
 //**********************************
@@ -137,7 +137,7 @@ task bcduiClientCollect3rdParty {
         }
       }
     }
-    js3rdParty.each collectDist
+    js3rdPartyNpm.each collectDist
   }
 }
 
@@ -281,10 +281,24 @@ task bcduiClientJsFileGroups {
       }
     }
   }
-  // Handle 3rdParty files coming via node.js
-  js3rdParty.each collectMinified
+
+  // Handle 3rdParty files of the project
+  bcduiFiles.groups.each { fileSet ->
+    fileSet.files.findAll { it.contains("3rdParty") && it.endsWith('.js') }.each { fName ->
+      def fPathNameWoExt = fName.lastIndexOf('.').with {it != -1 ? fName[0..<it] : fName}
+      if( fPathNameWoExt in js3rdPartyNpm )
+        collectMinified( js3rdPartyNpm[fPathNameWoExt] )
+      else {
+        // For files not in js3rdPartyNpm we simulate an entry with the appropriate structure
+        collectMinified( fPathNameWoExt, [ fn: "${fPathNameWoExt}.js", ofn: "${fPathNameWoExt}.js"] )
+      }
+    }
+  }
+
+  //js3rdParty = fileTree("$taskDestDir/3rdParty") { include '**/*.js.map' }
+  //js3rdParty.each collectMinified
   // We need a special handling here, as modernizr comes a different way then our or all other 3rdParty files
-  collectMinified( "modernizr", [ fn: "modernizr.js", ofn: "../tmp/src3rdParty/modernizr.js"] )
+  //collectMinified( "modernizr", [ fn: "modernizr.js", ofn: "../tmp/src3rdParty/modernizr.js"] )
 
   doLast {
     //--------
@@ -335,7 +349,7 @@ task bcduiClientEcma5One2One (type: NodeTask) {
       from "$src3rdParty/js/3rdParty"
       into "$taskDestDir/3rdParty"
     }
-    delete  fileTree("$taskDestDir/3rdParty") { include '**/*.js.map' }
+    delete fileTree("$taskDestDir/3rdParty") { include '**/*.js.map' }
     //--------
     fileTree(dir: taskDestDir).each { source ->
       if( source.name.endsWith('.js') ) {
