@@ -34,6 +34,7 @@
   - makeRowSpan=false leads to wrong number format (% stay 0.93)
 -->
 <xsl:stylesheet version="1.0"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"

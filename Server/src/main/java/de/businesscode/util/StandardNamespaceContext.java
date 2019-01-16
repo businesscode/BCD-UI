@@ -101,6 +101,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String XSLTPARAMS_NAMESPACE   = "http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0";
   public static final String EXSLTDATE_PREFIX       = "date";
   public static final String EXSLTDATE_NAMESPACE    = "http://exslt.org/dates-and-times";
+  public static final String HTML_PREFIX            = "html";
+  public static final String HTML_NAMESPACE         = "http://www.w3.org/1999/xhtml";
 
   /**
    * Constructor for singelton
@@ -137,6 +139,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
     mapping.put(EXSLTDATE_PREFIX,    EXSLTDATE_NAMESPACE);
     mapping.put(FAR_PREFIX,          FAR_NAMESPACE);
+    mapping.put(HTML_PREFIX,         HTML_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();

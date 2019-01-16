@@ -15,6 +15,7 @@
   limitations under the License.
 -->
 <xsl:stylesheet version="1.0"
+  xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -196,17 +197,29 @@
 
     <xsl:variable name="isNoNumber" select="@caption !='' or (not(contains($numericSQLTypes, concat(' ', $columnDefinition/@type-name, ' '))) and not(contains($numericSQLTypes, concat(' ', @type-name, ' '))))"/>
 
-    <xsl:if test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
-      <xsl:attribute name="class">
-        <xsl:choose>
-          <xsl:when test="$tableElement='th' and @bcdGr='1'">
-            <xsl:apply-templates select="../wrs:*[1]" mode="determineCssClassTotal"/> 
-          </xsl:when>
-          <xsl:when test="contains($columnDefinition/@id,'&#xE0F0;1')">bcdTotal</xsl:when>
-        </xsl:choose>                      
-        <xsl:if test="$isNoNumber"> bcdNoNumber</xsl:if>
-      </xsl:attribute>
-    </xsl:if>
+    <!-- @class handling, merge @class with exlicit html:class provided -->
+    <xsl:choose>
+      <xsl:when test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
+        <xsl:attribute name="class">
+          <xsl:choose>
+            <xsl:when test="$tableElement='th' and @bcdGr='1'">
+              <xsl:apply-templates select="../wrs:*[1]" mode="determineCssClassTotal"/> 
+            </xsl:when>
+            <xsl:when test="contains($columnDefinition/@id,'&#xE0F0;1')">bcdTotal</xsl:when>
+          </xsl:choose>                      
+          <xsl:if test="$isNoNumber"> bcdNoNumber</xsl:if>
+          <xsl:value-of select="concat(' ', @html:class)"/>
+        </xsl:attribute>
+      </xsl:when>
+      <xsl:when test="@html:class">
+        <xsl:attribute name="class"><xsl:value-of select="@html:class"/></xsl:attribute>
+      </xsl:when>
+    </xsl:choose>
+
+    <!-- rewrite html atts all but @class handled above -->
+    <xsl:for-each select="@html:*[local-name() != 'class']">
+      <xsl:attribute name="{local-name()}"><xsl:value-of select="."/></xsl:attribute>
+    </xsl:for-each>
 
     <xsl:choose>
       <xsl:when test="@bcdGr='1'"><xsl:attribute name="bcdTranslate">bcd_Total</xsl:attribute></xsl:when>
