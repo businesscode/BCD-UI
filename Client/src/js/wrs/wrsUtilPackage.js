@@ -1191,7 +1191,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
         node.parentNode.removeChild(node);
       }
     }
-    var predicate=`[ contains( '${posString}' ,concat('|',position(),'|')) ]`;
+    var predicate=`[ contains( '${posString}' ,concat('|',position(),'|') ) and position()=position() ]`; // BUI-890
     deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:C" + predicate));
     deleteNodes(wrs.selectNodes("wrs:Data/wrs:*/wrs:O" + predicate));
   },
