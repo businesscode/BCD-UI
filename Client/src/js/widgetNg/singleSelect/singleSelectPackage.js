@@ -423,7 +423,7 @@
      * @private
      */
     _ntv_createInputControl: function(args, config){
-      var el = jQuery("<select></select>");
+      var el = jQuery("<select class='form-control' />");
       el.attr("id", config.htmlElementId);
       // the hints are handled by balloons
       el.attr("bcdHint", args.hint);

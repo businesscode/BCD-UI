@@ -178,7 +178,7 @@
      */
     _createInputControl: function(){
 
-      var el = jQuery("<input/>");
+      var el = jQuery("<input class='form-check-input'/>");
 
       var opts = this.options;
       el.attr("tabindex", opts.tabindex);

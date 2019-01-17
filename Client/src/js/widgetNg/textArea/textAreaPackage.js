@@ -41,7 +41,7 @@
      * @private
      */
     _createInputControl: function(args, config){
-      var el = jQuery("<textarea></textarea>");
+      var el = jQuery("<textarea class='form-control' />");
 
       el.attr("id", config.inputElementId);
       // the hints are handled by balloons
