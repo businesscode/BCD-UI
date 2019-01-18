@@ -1318,8 +1318,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    *
    * @param {(Object|XMLDocument|XMLDocument[])} args - Document(s) or a parameter object with the following properties
    * @param {document}                           args.wrsDoc                   - Document(s) or a parameter object with the following properties
-   * @param {function}                           [args.onSuccess]              - Callback on succcess
-   * @param {function}                           [args.onFailure]              - Callback on failure
+   * @param {function}                           [args.onSuccess]              - Callback on success, is called after successful POST or if POST was not issued due to to changes in the document 
+   * @param {function}                           [args.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {string}                             [args.uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
    *
@@ -1355,10 +1355,11 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
     }
     // remove waste
     bcdui.core.removeXPath(args.wrsDoc, "//wrs:Wrs/wrs:Data/wrs:R", false);
+    bcdui.core.removeXPath(args.wrsDoc, "//wrs:Wrs[not(wrs:Data/wrs:*)]", false);
 
     // dont do roundtrip in case we have no write operations (wrs:R were removed in step before)
     if(!args.wrsDoc.selectSingleNode("//wrs:Wrs[wrs:Data/wrs:*]")){
-      setTimeout(args.onSuccessCb); // defer to keep compatibility
+      setTimeout(args.onSuccess); // defer to keep compatibility
       return;
     }
     if(!args.onWrsValidationFailure){
