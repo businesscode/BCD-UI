@@ -3080,7 +3080,8 @@ bcdui.util.namespace("bcdui.widget",
       * 
       * @param {object} args - arguments
       * @param {function} args.open - function to execute when dialog is opened, it gets args object with properties: targetHtml
-      * @param {function} [args.close] - function to execute when dialog is closed
+      * @param {function} [args.close] - function to execute after dialog is closed
+      * @param {function} [args.beforeClose] - function to execute before dialog is closed - it gets args object with properties: targetHtml; if this function returns false, the dialog is not closed.
       * @param {string} [args.title] - dialog title
       * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
       * @param {number} [args.width=320] - dialog height; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
@@ -3099,7 +3100,8 @@ bcdui.util.namespace("bcdui.widget",
        args = args||{};
        var delegate = {
          open : args.open,
-         close : args.close
+         close : args.close,
+         beforeClose: args.beforeClose
        }
 
        if(!args.open)throw ".open required";
@@ -3128,6 +3130,14 @@ bcdui.util.namespace("bcdui.widget",
              resolve(jQuery(this).prop(dataPropName)); // resolve promise
              jQuery(this).empty();
              delegate.close && delegate.close();
+           },
+           beforeClose: function(event){
+             if(delegate.beforeClose && delegate.beforeClose({
+               targetHtml : jQuery(this).find("div").first()
+             }) === false){
+               event.stopImmediatePropagation();
+               return false;
+             }
            },
            create: function(event, ui){
              jQuery(this).on("dialog-close", function(event,data){
