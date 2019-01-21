@@ -42,7 +42,7 @@
 // functions, mixins and base classes
 
 @function text-contrast($color) {
-  @return if(lightness($color) < 50, $text-color-bright, $text-color-dark);
+  @return if(lightness($color) < $text-contrast-break, $text-color-bright, $text-color-dark);
 }
 
 %clearfix {
