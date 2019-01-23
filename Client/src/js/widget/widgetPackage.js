@@ -2720,18 +2720,6 @@ bcdui.util.namespace("bcdui.widget",
      },
 
      /**
-      * since IE8 does not support nth-child selectors, this functions adds classes to even/odd rows 
-      * @param htmlElement
-      * @private
-      */
-     createEvenOdd: function(htmlElement) {
-       if (bcdui.browserCompatibility.isIE8) {
-         jQuery(htmlElement).find("tr:nth-child(2n+0)").addClass("bcdIE8Even");
-         jQuery(htmlElement).find("tr:nth-child(2n+1)").addClass("bcdIE8Odd");
-       }
-     },
-
-     /**
       * shows a js alert box with the given message
       * @param msgKey
       * @param defaultValue

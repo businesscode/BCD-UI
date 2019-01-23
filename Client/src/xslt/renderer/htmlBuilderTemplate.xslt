@@ -48,8 +48,7 @@
  -->
 <xsl:template match="/*">
   <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
-    <xsl:attribute name="bcdOnLoad">bcdui.widget.createEvenOdd(this);<xsl:if test="$isCreateFixHeader">bcdui.widget.createFixedTableHeader({rendererId:'<xsl:value-of select="$bcdControllerVariableName"/>', isSync: true});</xsl:if>
-    </xsl:attribute>
+    <xsl:attribute name="bcdOnLoad"><xsl:if test="$isCreateFixHeader">bcdui.widget.createFixedTableHeader({rendererId:'<xsl:value-of select="$bcdControllerVariableName"/>', isSync: true});</xsl:if></xsl:attribute>
     <xsl:apply-templates select="wrs:Header/wrs:Columns"/>
     <xsl:apply-templates select="wrs:Data"/>
   </table>
