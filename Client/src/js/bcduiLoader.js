@@ -163,7 +163,6 @@ bcdui.bcduiCeFiles =
         "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"
         , "/js/component/cube/summaryDisplay/summaryDisplay.js"
-        , "/js/component/cube/expandCollapseCells.js"
       ],
       "buildFolders": [
         "/js/component/cube/templateManager"
@@ -204,6 +203,7 @@ bcdui.bcduiCeFiles =
           "/js/component/cube/cubeCreate.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
+        , "/js/component/cube/expandCollapseCells.js"
       ],
       "buildFolders": [
         "/js/component/cube"
