@@ -278,6 +278,7 @@
         </xsl:if>
 
         <xp:RemoveEmptyCells apply="{/*/cube:Layout/@removeEmptyCells}"/>
+        <xp:ExpandCollapseCells apply="{/*/cube:Layout/@expandCollapseCells}"/>
 
         <!-- Default renderer options -->
         <xp:HtmlBuilder>
@@ -299,6 +300,9 @@
           <xp:OnlyMeasureForTotal>
             <xsl:value-of select="count(/*/cube:Layout/cube:Dimensions/cube:Rows/*)=0 and count(/*/cube:Layout/cube:Dimensions/cube:Columns/*)=1"/>
           </xp:OnlyMeasureForTotal>
+          <xsl:if test="/*/cube:Layout/@expandCollapseCells">
+            <xp:ExpandCollapseCells>true</xp:ExpandCollapseCells>
+          </xsl:if>
         </xp:HtmlBuilder>
 
       </xp:XSLTParameters>

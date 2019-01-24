@@ -27,6 +27,9 @@
     <!-- calculation does measure, custom measure and row/col calculation, i.e. it applies all client side calculations -->
     <Stylesheet url="calculation.xslt"/>
 
+    <!-- optional filtering of cells for cube expand/collapse feature -->
+    <Stylesheet url="expandCollapseCells.xslt"/>
+
     <!-- colDims, optional creates col dimensions and sorts columns to give them a reasonable order even if not all col-dim appear for all row-dims
       Also this is the last place where we know the col-dims @order value and can apply it. This later ordering will leave our col-ordering
       untouched unless order col-dim-by-measure is requested, overwriting the @order -->

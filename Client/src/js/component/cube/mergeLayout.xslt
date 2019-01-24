@@ -49,6 +49,8 @@
       <cube:Layout>
         <xsl:attribute name="removeEmptyCells">rowCol</xsl:attribute>
         <xsl:copy-of select="/*/cube:Layout/@removeEmptyCells"/>
+        <xsl:attribute name="expandCollapseCells">false</xsl:attribute>
+        <xsl:copy-of select="/*/cube:Layout/@expandCollapseCells"/>
          <xsl:choose>
           <xsl:when test="$statusModel//cube:Layout[@cubeId=$cubeId]/* and (not($statusModel//cube:Layout[@cubeId=$cubeId]/@merge) or $statusModel//cube:Layout[@cubeId=$cubeId]/@merge='true')">
             <xsl:copy-of select="$statusModel//cube:Layout[@cubeId=$cubeId]/@*" />

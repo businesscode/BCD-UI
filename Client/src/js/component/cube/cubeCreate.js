@@ -340,6 +340,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
+   * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse'), cube turns on the expand/collapse mode.
    *
    * @return null.
    *
@@ -495,6 +496,23 @@ bcdui.util.namespace("bcdui.component",
           onClickAction: bcdui.util._toJsFunction(args.applyFunction),
           targetHtml: "#bcdDNDApplyButton_" + args.cubeId
         });
+      }
+
+      // optional expandCollapseCells activation, either add new value to layout or clean it
+      var layoutRoot = bcdui.factory.objectRegistry.getObject(layoutModelId).query("//cube:Layout[@cubeId ='"+ args.cubeId +"']");
+      if (args.expandCollapseCells) {
+        if (layoutRoot == null)
+          layoutRoot = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(layoutModelId).getData(), "/*/cube:Layout[@cubeId ='"+ args.cubeId +"']");
+        var oldValue = layoutRoot.getAttribute("expandCollapseCells");
+        layoutRoot.setAttribute("expandCollapseCells", args.expandCollapseCells);
+        if (oldValue != args.expandCollapseCells && cube != null) {
+          cube.getEnhancedConfiguration().write("//xp:ExpandCollapseCells/@apply", args.expandCollapseCells, true);
+        }
+      }
+      else if (layoutRoot != null && layoutRoot.getAttribute("expandCollapseCells") != null) {
+        layoutRoot.removeAttribute("expandCollapseCells");
+        if (cube != null)
+          cube.getEnhancedConfiguration().write("//xp:ExpandCollapseCells/@apply", "false", true);
       }
 
       var bucketModelId = bcdui.component.cube.configuratorDND.init(args);

@@ -343,6 +343,11 @@
             Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
           </Doc>
         </Param>
+        <Param name="expandCollapseCells" type="string">
+          <Doc>
+            When specified (with 'expand' or 'collapse'), cube turns on the expand/collapse mode.
+          </Doc>
+        </Param>
         <Param name="contextMenu" type="string">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.

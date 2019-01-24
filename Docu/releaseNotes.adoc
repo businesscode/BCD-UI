@@ -17,6 +17,7 @@ Some changes are backward incompatible and may require code change in the projec
 * updated to jQuery 3.3.1, jQuery-UI 1.12.1
 
 . Components: Scorecard, Cube, Charts, Export
+* added collapse/expand functionaly to cubes
 * reorganized CubeContextMenu and added hard toggle column sort
 * Charts support for dark themes
 * Charts removed some chart background grid elements for less crowded charts

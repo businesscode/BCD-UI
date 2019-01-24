@@ -319,6 +319,21 @@
 .bcdReportEven { @include con_color($cube-color-cell-even); }
 .bcdReportOdd { @include con_color($cube-color-cell-odd); }
 
+.bcdReport {
+  .bcdExpandCollapseButton {
+    cursor: pointer;
+    padding: 3px;
+    @include con_color($cube-color-dimension);
+    line-height: 8px;
+    border: 1px solid $border-color;
+  }
+  .bcdExpandContainer { display:flex; align-items: center;}
+  .bcdExpandOriginal { width: 100%; }
+ 
+ .bcdExpand:after { content: "\002B"; }
+ .bcdCollapse:after { content: "\2212";}
+ }
+
 /* treeview specific*/
 
 .bcdReport.bcdTreeReportPi {
@@ -447,9 +462,6 @@
     text-align: center;
     padding: 1px 5px 1px 5px;
     vertical-align: middle;
-  }
-
-  tbody th {
     white-space: nowrap;
   }
 
