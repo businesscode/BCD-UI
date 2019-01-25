@@ -322,10 +322,11 @@
 .bcdReport {
   .bcdExpandCollapseButton {
     cursor: pointer;
-    padding: 3px;
+    padding: 2px 3px;
     @include con_color($cube-color-dimension);
     line-height: 8px;
     border: 1px solid $border-color;
+    margin: 2px 0px;
   }
   .bcdExpandContainer { display:flex; align-items: center;}
   .bcdExpandOriginal { width: 100%; }

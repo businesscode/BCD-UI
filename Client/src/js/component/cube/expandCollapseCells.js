@@ -20,7 +20,7 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
 {
   _init: function(htmlElement) {
   
-    var outer = jQuery(htmlElement).closest("div[bcdrendererid]");
+    var outer = jQuery(htmlElement).closest("*[bcdrendererid]");
     var cubeId = outer.attr("bcdRendererId") || "";
     var cube = bcdui.factory.objectRegistry.getObject(cubeId);
   
@@ -38,13 +38,15 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
       return;
     }
     var initialCollapsed = (mode === "collapse");
-    
+
     // reset some flicker-avoiding styles
     outer.get(0).style.width = outer.attr("widthBak") || "";
     outer.get(0).style.height = outer.attr("heightBak") || "";
+    outer.get(0).style.display = outer.attr("displayBak") || "";
     outer.removeAttr("heightBak");
     outer.removeAttr("widthBak");
-  
+    outer.removeAttr("displayBak");
+
     // set clickable buttons on col and row dimensions
     jQuery(htmlElement).find("th").each(function(i,e) {
       var el = jQuery(e);
@@ -105,13 +107,16 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
       var config = el.closest("th").data("config");
       
       // avoid some flickering
-      var outer = el.closest("div[bcdrendererid]");
+      var outer = el.closest("*[bcdrendererid]");
       if (outer.get(0).style.width != "")
         outer.attr("widthBak", outer.get(0).style.width);
       if (outer.get(0).style.height != "")
         outer.attr("heightBak", outer.get(0).style.height);
-      outer.css("height", el.closest("table").height());
-      outer.css("width", el.closest("table").width());
+      if (outer.get(0).style.display != "")
+        outer.attr("displayBak", outer.get(0).style.display);
+      outer.css("height", outer.outerHeight());
+      outer.css("width", outer.outerWidth());
+      outer.css("display", "block");
   
       if (typeof config == "undefined")
         return;
