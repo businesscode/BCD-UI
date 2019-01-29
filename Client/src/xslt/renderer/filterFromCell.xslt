@@ -225,6 +225,26 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+      <!-- cell filter does not have any mo/cw/qr but only a (cw)yr value and the sidebarfilter is a multi year range.
+           In this case we take over the cellfilter year and copy over the matching bigger or lower part from the sidebar. If the year
+           is the year in the middle (>2 years) then only the yr survives       
+       -->
+      <xsl:when test="$cellFilter/f:Filter//*[not(@bRef='mo') and not(@bRef='cw') and not(@bRef='qr')]">
+        <xsl:variable name="expGreater" select=".//*[f:Expression[@op='&gt;=']]"/>
+        <xsl:variable name="expSmaller" select=".//*[f:Expression[@op='&lt;=']]"/>
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:choose>
+            <xsl:when test="$cellFilter/f:Filter//*[@bRef='yr']/@value = $expGreater/f:Expression[@bRef='yr']/@value"><xsl:copy-of select="$expGreater"/></xsl:when>
+            <xsl:when test="$cellFilter/f:Filter//*[@bRef='yr']/@value = $expSmaller/f:Expression[@bRef='yr']/@value"><xsl:copy-of select="$expSmaller"/></xsl:when>
+            <xsl:when test="$cellFilter/f:Filter//*[@bRef='cwyr']/@value = $expGreater/f:Expression[@bRef='cwyr']/@value"><xsl:copy-of select="$expGreater"/></xsl:when>
+            <xsl:when test="$cellFilter/f:Filter//*[@bRef='cwyr']/@value = $expSmaller/f:Expression[@bRef='cwyr']/@value"><xsl:copy-of select="$expSmaller"/></xsl:when>
+            <xsl:otherwise>
+              <xsl:copy-of select="$cellFilter/f:Filter//*[@bRef='yr' or @bRef='cwyr']"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:copy>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/></xsl:copy>
       </xsl:otherwise>
