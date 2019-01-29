@@ -53,7 +53,9 @@ def es5Postfix        = '-es5'
 def js3rdPartyNpm = [
       "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js",                         ofnm: "jquery/dist/jquery.min.js"],
       "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js",                   ofnm: "jquery-ui-dist/jquery-ui.min.js"],
-                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"] ],
+                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"],
+                          [ fn: "images",              ofn: "jquery-ui-dist/images"]
+                        ],
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
       "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
@@ -129,11 +131,21 @@ task bcduiClientCollect3rdParty {
       // if is array, go recursive
       if (value[0]) {
         value.each { collectDist(keyOrParentKey, it) }
-      } else { // or map
-        copy {
-          into taskDestDir
-          from "$clientNodeModulesDir/${value.ofn}"
-          rename { value.fn }
+      } else {
+        // if we specified a folder, copy it
+        if (new File("$clientNodeModulesDir/${value.ofn}").isDirectory()) {
+		  copy {
+		    from  "$clientNodeModulesDir/${value.ofn}"
+		    into "$taskDestDir/${value.fn}"
+		  }
+        }
+        // otherwise map files
+        else {
+          copy {
+            into taskDestDir
+            from "$clientNodeModulesDir/${value.ofn}"
+            rename { value.fn }
+          }
         }
       }
     }
