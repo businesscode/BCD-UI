@@ -17,8 +17,7 @@
   font: $font-size-default $font-family-default;
   table {
     border: 1px solid $border-color;
-    margin-bottom: 10px;
-    tbody td {
+    tbody tr td {
       vertical-align: middle;
       text-align: right;
       padding: 0px 3px;
@@ -27,19 +26,19 @@
       select { border: none; }
     }
 
-    td.bcdPagingButtonActive,
-    td.bcdPagingCoutOfElements,
-    td.bcdPagingButton {
+    .bcdPagingButtonActive,
+    .bcdPagingCoutOfElements,
+    .bcdPagingButton {
       border: 1px solid $border-color;
     }
-    td.bcdPagingButtonActive,
-    td.bcdPagingButton {
+    .bcdPagingButtonActive,
+    .bcdPagingButton {
       cursor: pointer;
     }
-    td.bcdPagingButtonActive {
+    .bcdPagingButtonActive {
       @include con_color($grid-hover-color-body);
     }
-    td.bcdPagingSelectAction select { width: auto !important; font: $font-size-default $font-family-default; }
+    .bcdPagingSelectAction select { width: auto !important; font: $font-size-default $font-family-default; }
   }
 }
 
@@ -191,13 +190,12 @@ input.bcdInputFieldGrid {
 
 .bcdGrid {
 
-  tfoot tr td {
+  > thead tr td,
+  > tfoot tr td {
     text-align: left;
     padding-top: 10px;
-    
-    .bcdButton {
-      margin-right: 10px;
-    }
+    padding-bottom: 10px;
+    .bcdButton { margin-right: 10px; }
   }
 
   .bcdGroupAction:after {
