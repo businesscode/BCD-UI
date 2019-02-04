@@ -1286,38 +1286,38 @@ body {
   border-bottom: 1px solid $border-color-dark;
   border-right:  1px solid $border-color-dark;
   border-radius: $border-radius-default;
+}
 
-  .bcdMenu {
-    position: relative;
-    ul {
-      background: $menuBarArea-background;
-      margin:     0px;
-      z-index:    201;
-      list-style: none;
+.bcdMenu {
+  position: relative;
+  ul {
+    background: $menuBarArea-background;
+    margin:     0px;
+    z-index:    201;
+    list-style: none;
 
-      .bcdActivePath,
-      .bcdActive {
-        font-style: italic;
-      }
+    .bcdActivePath,
+    .bcdActive {
+      font-style: italic;
+    }
 
-      li {
+    li {
+      display: inline-block;
+      height:  $menuBarArea-height;
+      a {
         display: inline-block;
-        height:  $menuBarArea-height;
-        a {
-          display: inline-block;
-          padding: 10px;
-          text-decoration: none;
-          color: #000000;
-          font-weight: bold;
-          width: 100%;
-        }
+        padding: 10px;
+        text-decoration: none;
+        color: #000000;
+        font-weight: bold;
+        width: 100%;
       }
     }
-    ul.bcdLevel2, ul.bcdLevel3 {
-      width: 170px;
-      border: 1px solid $border-color;
-      li { width: 170px; }
-    }
+  }
+  ul.bcdLevel2, ul.bcdLevel3 {
+    width: 170px;
+    border: 1px solid $border-color;
+    li { width: 170px; }
   }
 }
 
