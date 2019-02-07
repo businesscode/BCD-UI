@@ -229,7 +229,7 @@
            In this case we take over the cellfilter year and copy over the matching bigger or lower part from the sidebar. If the year
            is the year in the middle (>2 years) then only the yr survives       
        -->
-      <xsl:when test="$cellFilter/f:Filter//*[not(@bRef='mo') and not(@bRef='cw') and not(@bRef='qr')]">
+      <xsl:when test="$cellFilter/f:Filter//*[not(@bRef='mo') and not(@bRef='cw') and not(@bRef='qr') and (@bRef='cwyr' or @bRef='yr')]">
         <xsl:variable name="expGreater" select=".//*[f:Expression[@op='&gt;=']]"/>
         <xsl:variable name="expSmaller" select=".//*[f:Expression[@op='&lt;=']]"/>
         <xsl:copy>
