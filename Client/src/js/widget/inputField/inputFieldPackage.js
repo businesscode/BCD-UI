@@ -76,7 +76,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
       + bcdui.widget._domFromBcdAttribute(e, "bcdTabIndex", "tabindex")
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
       + "/>"
-    ).addClass(e.getAttribute("bcdOptionsModelXPath") ? "bcdInputField bcdComboInputField" : "bcdInputField");
+    ).addClass(e.getAttribute("bcdOptionsModelXPath") ? "bcdInputField bcdComboInputField" : "bcdInputField").addClass("form-control");
     var htmlElement = jQuery(e).children().last().get(0);
     bcdui.widget._moveBcdAttributes(e, htmlElement);
     bcdui.widget._bcdIdToDomId(htmlElement);
