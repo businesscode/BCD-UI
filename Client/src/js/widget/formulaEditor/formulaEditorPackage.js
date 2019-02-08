@@ -36,7 +36,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         "<div style='zoom:0;overflow:hidden;clear:both;height:0px;width:0px;'/>"
       + "<label" + bcdui.widget._domFromBcdAttribute(containerHtmlElement, "bcdCaption", "bcdTranslate") + ">"
       + bcdui.widget._getBcdAttributeValue(containerHtmlElement, "bcdCaption")
-      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField form-control' /></span>"
+      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField' /></span>"
       + "<div class='bcdFormulaSkipValidationDiv'"
       + (! doValCheckbox ? " style='display:none'" : "")
       + "><input type='checkbox' class='bcdFormulaSkipValidation checkboxes'"
