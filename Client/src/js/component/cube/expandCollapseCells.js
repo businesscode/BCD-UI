@@ -62,14 +62,17 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
           for (var y = 0; y <= idx; y++) {
             if (y > 0)
               value += bcdui.core.magicChar.separator;
-            value += c[y];
+            value += c[y].indexOf(bcdui.core.magicChar.dimEmpty) == 0 ? bcdui.core.magicChar.dimEmpty : c[y] // map possible dimEmpty or dimNull to dimEmpty (this is used in concatCells (expandCollapseCells.xslt)
           }
         }
         else {
           for (var x = 1; x <= idx; x++) {
             if (x > 1)
               value += bcdui.core.magicChar.separator;
-            value += cubeModel.read("/*/wrs:Data/wrs:R[@id='" + idents.bcdRowIdent + "']/wrs:C[position()='" + x + "']");
+            if (cubeModel.query("/*/wrs:Data/wrs:R[@id='" + idents.bcdRowIdent + "']/wrs:C[position()='" + x + "']/wrs:null") != null) // map wrs:C/wrs:null to dimEmpty (this is used in concatCells (expandCollapseCells.xslt)
+              value += bcdui.core.magicChar.dimEmpty;
+            else
+              value += cubeModel.read("/*/wrs:Data/wrs:R[@id='" + idents.bcdRowIdent + "']/wrs:C[position()='" + x + "']", ""); 
           }
         }
       }

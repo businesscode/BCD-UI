@@ -104,18 +104,28 @@
     <xsl:param name="init" select="number(1)"/>
     <xsl:param name="R" select="."/>
     <xsl:variable name="separator"><xsl:if test="$init != '1'">&#xE0F2;</xsl:if></xsl:variable>
+    <xsl:variable name="dimEmpty">&#xE0F0;</xsl:variable>
     <xsl:choose>
       <xsl:when test="$idx &lt;= $max">
+        <xsl:variable name="theValue">
+        <xsl:choose>
+          <xsl:when test="$R/wrs:C[position()=$idx]/wrs:null"><xsl:value-of select="$dimEmpty"/></xsl:when>
+          <xsl:otherwise><xsl:value-of select="$R/wrs:C[position()=$idx]"/></xsl:otherwise>
+        </xsl:choose>
+        </xsl:variable>
         <xsl:call-template name="concatCells">
           <xsl:with-param name="R" select="$R"/>
           <xsl:with-param name="idx" select="number($idx) + 1"/>
-          <xsl:with-param name="value" select="concat($value, $separator, $R/wrs:C[position()=$idx])"/>
+          <xsl:with-param name="value" select="concat($value, $separator, $theValue)"/>
           <xsl:with-param name="max" select="$max"/>
           <xsl:with-param name="init" select="number(0)"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="$value"/>
+        <xsl:choose>
+          <xsl:when test="./wrs:null"><xsl:value-of select="$dimEmpty"/></xsl:when>
+          <xsl:otherwise><xsl:value-of select="$value"/></xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
