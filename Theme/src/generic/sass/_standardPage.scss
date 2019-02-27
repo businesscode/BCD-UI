@@ -1133,6 +1133,7 @@ body {
   overflow: visible;
   width: $sideBar-width;
   position: relative;
+  z-index: 10000;
 }
 
 #bcdSideBarContainer {
