@@ -2128,7 +2128,10 @@ bcdui.util.namespace("bcdui.widget",
             if (values.length > 20)
               values.splice(20, values.length, '...');
             var tooltip = "<div class='bcdFilterTooltip'><p bcdTranslate='bcd_widget_filter_filter'></p><ul>";
-            values.forEach(function(e) { tooltip += "<li>" + (e == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) : e) + "</li>" });
+            values.forEach(function(e) {
+              var inputText = (e == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) : e);
+              tooltip += "<li>" + bcdui.widget._getTooltipFilterOption(inputText) + "</li>";
+            });
             tooltip += "</ul></div>";
             jQuery("#bcdTooltipDiv").append(values.length == 0 ? "" : tooltip);
             bcdui.i18n.syncTranslateHTMLElement({elementOrId: "bcdTooltipDiv"});
@@ -2397,11 +2400,27 @@ bcdui.util.namespace("bcdui.widget",
         var cssClass = isFiltered ? " class='bcdDisabled'" : e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? " class='bcdItalic'" : "";
         var inputText = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) :  e.getAttribute("caption");
         if ((showAll && ! isCurrentlyFiltered) || (isEnabled && ! isCurrentlyFiltered) || (! showAll && ! isFiltered && ! isCurrentlyFiltered))
-          multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +  inputText + "</span></div>";
+          multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +   bcdui.widget._getSingleFilterOption(inputText) + "</span></div>";
       });
       multiSelect += "</form>";
       jQuery(targetHtml).find(".bcdFilterMultiSelect").append(multiSelect);
       jQuery(targetHtml).find(".bcdFilterSelection p span.bcdCount").text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
+    },
+    
+    /**
+     * text to be shown in the filterOption, customize by overwriting this function
+     * @private
+     */
+    _getSingleFilterOption: function(inputText) {
+      return inputText;
+    },
+    
+    /**
+     * text to be shown in the tooltip, customize by overwriting this function
+     * @private
+     */
+    _getTooltipFilterOption: function(inputText) {
+      return inputText;
     },
 
     /**
