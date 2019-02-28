@@ -404,12 +404,6 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
     }
 
-    // Manually overwritten ECharts options
-    //jQuery.extend(opts, this.userOptions);
-    //Object.assign(opts, this.userOptions);
-    //opts = deepmerge(opts, this.userOptions);
-    
-
     // Merge a `source` object to a `target` recursively
     const merge = (target, source) => {
       // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
@@ -418,9 +412,9 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
 
       // Join `target` and modified `source`
-      Object.assign(target || {}, source)
-      return target
-    }
+      Object.assign(target || {}, source);
+      return target;
+    };
     opts = merge(opts, this.userOptions);
     
     // Go

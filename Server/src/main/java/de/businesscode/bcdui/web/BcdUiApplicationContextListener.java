@@ -78,7 +78,7 @@ public class BcdUiApplicationContextListener implements ServletContextListener
 
   /**
    * Bootstrap for BCD-UI in an web-environment. This method is final as the bootstrapping
-   * must keep certain order of initialization, therefore this class offers API to beimplemented
+   * must keep certain order of initialization, therefore this class offers API to be implemented
    * by extended subclasses:
    * <ul>
    *  <li>{@link #initBeforeBindings(BareConfiguration)}</li>

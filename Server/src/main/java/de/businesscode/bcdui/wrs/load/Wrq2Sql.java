@@ -225,7 +225,7 @@ public class Wrq2Sql implements ISqlGenerator
       }
     }
 
-    // Now combine the two restrictions (Filter and SubjectSettins) into one WHERE clause
+    // Now combine the two restrictions (Filter and SubjectSettings) into one WHERE clause
     if( ! filterClause.isEmpty() || ! subjectSettingsClause.isEmpty() )
       sql.append(" WHERE ");
     if( ! filterClause.isEmpty() )

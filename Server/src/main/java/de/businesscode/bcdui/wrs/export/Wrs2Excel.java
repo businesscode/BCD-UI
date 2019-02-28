@@ -231,7 +231,7 @@ public class Wrs2Excel {
   }
 
   /**
-   * sets template resolver to resolve tempates by name
+   * sets template resolver to resolve templates by name
    * 
    * @param templateResolver
    */

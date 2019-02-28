@@ -29,7 +29,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs in $guiStatus f:Filter to be used as filters. TODO: add static
    * @param {string}                  [args.orderByBRefs]                 - Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. TODO add desc|asc
    * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in $guiStatus f:Filter to be used as filters for initial, very first request only. Unlike filterBRefs, these filter values are not monitored for changes.
-   * @param {string}                  [args.mandatoryfilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the automodel gets data. Until available, no request will be run.
+   * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the automodel gets data. Until available, no request will be run.
    * @param {boolean}                 [args.isDistinct=false]             - If true, a group by is generated across all columns by default wrq-stylesheet. Parameter .groupByBRefs is ignored in this case.
    * @param {boolean}                 [args.useCaptions=false]            - If true, caption = bRef+'_caption will be used.
    * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
@@ -68,7 +68,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
            filterBRefs:  args.filterBRefs ,
            orderByBRefs:  args.orderByBRefs ,
            groupByBRefs:  args.groupByBRefs,
-           mandatoryFilterBRefs: args.mandatoryfilterBRefsSubset,
+           mandatoryFilterBRefs: args.mandatoryfilterBRefsSubset || args.mandatoryFilterBRefsSubset,
            isDistinct:   args.isDistinct ,
            useCaptions:  args.useCaptions,
            statusModel:  statusModel,

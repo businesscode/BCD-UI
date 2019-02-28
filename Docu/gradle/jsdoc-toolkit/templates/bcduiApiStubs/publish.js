@@ -405,7 +405,7 @@ function printNamespaces( taffyData, opts )
   var result = "";
   allNamespaces.forEach( function( namespace ) {
 
-    // Check fo conflicting @namespace definitions
+    // Check for conflicting @namespace definitions
     var sameNsDefs = taffyData( { kind: "namespace", longname: namespace.longname } ).get();
     if( sameNsDefs.length > 1 ) {
       var errorMsg = namespace.longname + " was found at: ";

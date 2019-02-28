@@ -40,6 +40,8 @@ public class I18nServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     logger.debug("i18n catalog request");
     try {
+      response.setContentType("text/xml");
+      response.setCharacterEncoding("UTF-8");
       resourcesToCatalog(I18n.getUserBundle(request), response);
     } catch (XMLStreamException e) {
       throw new IOException("Failed to write bundle", e);
