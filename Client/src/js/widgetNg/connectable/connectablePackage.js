@@ -284,20 +284,24 @@
       // write values to target (wrs or non wrs mode)
 
       var values = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get(); // get values from source as array
+      var targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
 
       if (targetConfig.xPath.indexOf("wrs:") > -1) {
         var inlineValue = (values||[]).join(this.wrsInlineValueDelim);
-        bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetConfig.modelId).getData(), targetConfig.xPath).text = inlineValue;
+        bcdui.core.createElementWithPrototype(targetModel.getData(), targetConfig.xPath).text = inlineValue;
       } else {
         var tMXP = (targetConfig.xPath.match(/.*\/@\w+$/) === null ) ? targetConfig.xPath : targetConfig.xPath.substring(0,targetConfig.xPath.lastIndexOf("@")-1);
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(targetConfig.modelId).getData(), tMXP, true, true);
-        var updateTemplate = doT.template(targetConfig.xPath + "[. = {{=it.value}}]");
+        bcdui.core.removeXPath(targetModel.getData(), tMXP, true, true);
         for (var i = 0; i < values.length; ++i) {
-          var updateXPath = updateTemplate({value: bcdui.core.quoteXPathString(values[i]) });
-          bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetConfig.modelId).getData(), updateXPath);
+          bcdui.core.createElementWithPrototype(targetModel.getData(), targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
+          var n = targetModel.query(targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
+          if (n.nodeType === 2)
+            (n.ownerElement || n.selectSingleNode("parent::*")).setAttribute(n.nodeName, values[i]);
+          else
+            n.text = values[i];
         }
       }
-      bcdui.factory.objectRegistry.getObject(targetConfig.modelId).fire();
+      targetModel.fire();
     },
 
     /**
