@@ -297,9 +297,10 @@ task bcduiClientJsFileGroups {
   // Handle 3rdParty files of the project
   bcduiFiles.groups.each { fileSet ->
     fileSet.files.findAll { it.contains("3rdParty") && it.endsWith('.js') }.each { fName ->
+      fName = fName.lastIndexOf('/').with {it != -1 ? fName[it+1..<fName.length()] : fName}
       def fPathNameWoExt = fName.lastIndexOf('.').with {it != -1 ? fName[0..<it] : fName}
       if( fPathNameWoExt in js3rdPartyNpm )
-        collectMinified( js3rdPartyNpm[fPathNameWoExt] )
+        collectMinified( fPathNameWoExt, js3rdPartyNpm[fPathNameWoExt] )
       else {
         // For files not in js3rdPartyNpm we simulate an entry with the appropriate structure
         collectMinified( fPathNameWoExt, [ fn: "${fPathNameWoExt}.js", ofn: "${fPathNameWoExt}.js"] )
