@@ -59,6 +59,10 @@ The Renderer either works directly with the specified element or (in case of spe
 ** the new servlet-filter de.businesscode.bcdui.web.filters.SubjectSettingsFilter allows setting subject filters from client
 ** client-controlled subject filters can be set from client via bcdui.util.security API
 * Optimized row level security supporting data not requiring filtering: SubjectFilterType in subjectSettings.xml can be tagged to say null-values can be accessed by everyone in reading
+* SubjectFilters sare now also applied during write.
+** All values must be in the values that are also allowed on reading
+** Missing values are added if the are in SubjectFilters but not in the Wrs as long as they are unambiguous
+** Allowed are a single SubjectFilter, a flat bnd:And or a flat bnd:Or, but no nested expressions
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
@@ -75,7 +79,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * HTML Custom Elements for Safari was broken, after Safari switched to Webcomponents API v1
 
 .Backward Incompatibilities:
-* jQueryMobile is not compatible with jQuery 3.x anymore. When using jQueryMobile, you need to build bcdui with a jQuery 2.x  
+* jQueryMobile is not compatible with jQuery 3.x anymore. When using jQueryMobile, you need to build bcdui with a jQuery 2.x
 * bcd_virtualFileSystem got additional columns updatedBy, last_update, bcd_userId with additional writebacks and security constraints and a new additional key column
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)
 * Charts: Moved VML drawer to BCD-UI-DE
@@ -93,6 +97,9 @@ The Renderer either works directly with the specified element or (in case of spe
 ** If you want to use salted passwords, add password_salt to bcd_sec_user and salt existing passowrds
 ** Also add bcdui/i18n/default/lang if you want another default language than en, see web.xml
 * removed bcdui.widget._createTopLevelElement function, switch to use bcdui.util.getSingletonElement
+* SubjectFilters are now also applied on writing, details see above
+* bcd_user_sec writing is now secured if using the new BindingSet xml
+* Signiture of WriteProcessingCallback#processEndRow changed
 
 ==== Release 5_2_0
 

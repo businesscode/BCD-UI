@@ -34,6 +34,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
+import de.businesscode.bcdui.binding.subjectFilter.Connective;
+import de.businesscode.bcdui.binding.write.SubjectFilterOnWriteCallback;
 import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingItem;
@@ -253,12 +255,26 @@ public class XMLToDataBase implements XMLEventConsumer {
    * the header has been read, the bindingset and columns initialized,
    * here we check for WriteProcessing Callbacks, instatiate and initialize them and let process the header
    */
-  private void processEndHeader() {
+  private void processEndHeader() throws Exception {
     this.writeProcessingCallbacks.clear();
 
     if(bindingSet.getWriteProcessing().hasCallbacks()){
       logger.info("write processing callbacks found, delegating processEndHeader.");
 
+      // We derive the standard writing filter from SubjectSettings
+      if( bindingSet.getSubjectFilters() != null ) {
+        Connective con = bindingSet.getSubjectFilters().getConnective();
+        if( con.getElements().size() > 0 ) {
+          WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);
+          this.writeProcessingCallbacks.add(cb);
+          cb.setValueBean(columnValueBean);
+          cb.setBindingSet(bindingSet);
+          cb.initialize();
+          cb.endHeader(columns, columnTypes, keyColumnNames);
+        }
+      }
+
+      // These are the explicitly declared write callbacks
       for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacks()){
         WriteProcessingCallback cb = cbf.createInstance();
 
@@ -270,7 +286,7 @@ public class XMLToDataBase implements XMLEventConsumer {
         cb.endHeader(columns, columnTypes, keyColumnNames);
       }
 
-    }else{
+    } else {
       logger.info("NO write processing callbacks found");
     }
   }
@@ -279,7 +295,7 @@ public class XMLToDataBase implements XMLEventConsumer {
    * the row has been read and values parsed, here we check if binding has defined
    * WriteProcessing and apply them
    */
-  private void processEndRow(String rowElementName) {
+  private void processEndRow(String rowElementName) throws Exception {
     if(bindingSet.getWriteProcessing().hasCallbacks()){
       logger.info("write processing callbacks found, delegating processEndRow.");
 

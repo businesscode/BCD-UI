@@ -17,6 +17,7 @@ package de.businesscode.bcdui.binding.write;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
@@ -81,8 +82,9 @@ abstract public class WriteProcessingCallback {
    * @param columns
    * @param columnTypes
    * @param keyColumnNames
+   * @throws Exception  
    */
-  public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames){
+  public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames) throws Exception {
 
   }
 
@@ -93,8 +95,22 @@ abstract public class WriteProcessingCallback {
    * @param rowType depending on the rowtype cValues and oValues change semantics, i.e: wrs:C in wrs:I vs wrs:C in wrs:M
    * @param cValues list of values of wrs:C columns
    * @param oValues list of values of wrs:O columns
+   * @throws Exception  
    */
-  public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues){
+  public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues)  throws Exception {
 
+  }
+
+  /**
+   * Get pos of a BindingItem in the list of columns
+   * @param columns
+   * @param bindingItemId
+   * @return
+   */
+  protected int indexOf(List<BindingItem> columns, String bindingItemId ) {
+    return IntStream.range(0, columns.size())
+        .filter(idx -> columns.get(idx).getId().equals(bindingItemId) )
+        .findFirst()
+        .orElse(-1);
   }
 }
