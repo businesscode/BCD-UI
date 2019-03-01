@@ -439,7 +439,7 @@ public class DatabaseCompatibility
     sqlKeyWordsSqlServer.addAll(
         Arrays.asList( new String[]
           {
-            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK",
+            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK", "GETUTCDATE",
             "ISO_WEEK", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
             "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS", "LEN"
           }
