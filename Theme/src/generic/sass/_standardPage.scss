@@ -1296,7 +1296,7 @@ body {
   ul {
     background: $menuBarArea-background;
     margin:     0px;
-    z-index:    201;
+    z-index:    10001;
     list-style: none;
 
     .bcdActivePath,
@@ -1451,7 +1451,7 @@ span.bcd-notification-warn {
 /* ******************************************************************* */
 
 .ui-front {
-  z-index: 200;
+  z-index: 20000;
 }
 
 .bcdFilterDialog,
@@ -1520,8 +1520,11 @@ span.bcd-notification-warn {
   }
 }
 
+.blockMsg {
+  z-index: 20001 !important;
+} 
 .blockOverlay {
-  z-index: 2000 !important;
+  z-index: 20000 !important;
 }
 .bcdModalBoxOverlay {
   background-color: #000000;
