@@ -565,6 +565,8 @@ a {
 
 #bcdCalendar {
 
+   z-index: 100001 !important;
+
    img {
      display: none;
    }
