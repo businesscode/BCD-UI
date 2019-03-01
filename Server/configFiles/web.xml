@@ -62,7 +62,11 @@
         ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization supporting salted passwords, etc.
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
         realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
-        # to disable salted passwords (discouraged) and for backwards compatbility set this flag, password is considered plaintext then
+        # For security reasons BindingItems of password and salt are blind in BindingSet. They are assumed to have columns name password/password_salt. Here you can overwrite that.
+        # realmBcdJdbc.passwordColumnName     = password
+        # realmBcdJdbc.passwordSaltColumnName = password_salt
+        # realmBcdJdbc.hashIterations         = 1024
+        # to disable salted passwords (discouraged) and for backwards compatibility set this flag, password is considered plain text then
         # realmBcdJdbc.hashSalted = false
 
         ## Support for bcd_log_login logging

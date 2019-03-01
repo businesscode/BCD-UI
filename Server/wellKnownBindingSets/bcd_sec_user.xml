@@ -19,8 +19,23 @@
   <C id="user_id"     isKey="true" caption="User Id"><Column>user_id</Column></C>
   <C id="user_login"  caption="User Login"><Column>user_login</Column></C>
   <C id="name"        caption="Name"><Column>name</Column></C>
-  <C id="password"    caption="Password"><Column>password</Column></C>
-  <C id="password_salt"    caption="Password Salt"><Column>password_salt</Column></C>
   <C id="is_disabled" caption="Is disabled"><Column>is_disabled</Column></C>
+
+  <!-- We do not have the column names here for security reasons, defaults are 'password' and 'password_salt'.
+      can be overwritten in web.xml in shiro as realmBcdJdbc.bcdSecUserPasswordColumnName/.bcdSecUserPasswordSaltColumnName
+      &#x2026; is a marker and considered as "do not change" by SecUserTableWriteCallback if used in password writing  -->
+  <C id="password"      caption="Password"><Column>'&#x2026;'</Column></C>
+  <C id="password_salt" caption="Password Salt"><Column>'&#x2026;'</Column></C>
+
+  <WriteProcessing>
+    <Callbacks>
+      <!-- This does add the real column names for password and password_salt and limits write access to
+           users having @adminRight, which can be empty to allow it to everybody
+           and wrs:M cases, where the old pwd is provided correctly -->
+      <Callback class="de.businesscode.bcdui.subjectsettings.SecUserTableWriteCallback">
+        <Param adminRight="bcdAdmin:Users"/>
+      </Callback>
+    </Callbacks>
+  </WriteProcessing>
 
 </BindingSet>

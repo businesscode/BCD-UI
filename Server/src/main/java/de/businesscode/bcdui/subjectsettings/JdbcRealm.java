@@ -55,6 +55,7 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingSetNotFoundException;
+import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.util.jdbc.Closer;
 import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
@@ -68,16 +69,26 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  * method of this class.
  */
 public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
+
+  // These default column names can be overwritten in web.xml or shiro.ini by setting realmBcdJdbc.passwordColumnName/.passwordSaltColumnName
+  // They are not in BindingSet for security reasons
+  final static public String BCD_SEC_USER_PASSWORD_BINDINGITEM      = "password";
+  final static public String BCD_SEC_USER_PASSWORD_SALT_BINDINGITEM = "password_salt";
+  final static public String BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT      = "password";
+  final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT = "password_salt";
+  final static public String BCD_SEC_USER_PASSWORD_COLUMN_CONFIG_NAME       = "bcdSecUserPasswordColumnsName";
+  final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME  = "bcdSecUserPasswordSaltColumnsName";
+  private String passwordColumnName     = BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT;
+  private String passwordSaltColumnName = BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT;
+
   private static final String BS_USER = "bcd_sec_user";
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
   private static final String BS_USER_ROLES = "bcd_sec_user_roles";
-  private static final int DEFAULT_HASH_ITERATIONS = 1024;
+  public static final int DEFAULT_HASH_ITERATIONS = 1024;
   private final Logger log = Logger.getLogger(getClass());
   final private String u_table;
   final private String u_userid;
   final private String u_login;
-  final private String u_password;
-  final private String u_password_salt;
 
   private String ur_table;
   private String ur_userid;
@@ -91,7 +102,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private String uro_userrole;
   
   private boolean hashSalted = true; // Depends on whether password_salt exists as a bRef in BS_USER
-  private int hashIterations = DEFAULT_HASH_ITERATIONS;
+  private static int hashIterations = DEFAULT_HASH_ITERATIONS;
   
   public JdbcRealm() {
     super();
@@ -105,9 +116,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       BindingItem biUserId = bs.get("user_id");
       u_userid   = biUserId.getColumnExpression();
       u_login    = bs.get("user_login").getColumnExpression();
-      u_password = bs.get("password").getColumnExpression();
       hashSalted = bs.hasItem("password_salt");
-      u_password_salt = hashSalted ? bs.get("password_salt").getColumnExpression() : null;
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
         ur_table  = bs.getTableName();
@@ -133,22 +142,6 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     } catch (Exception e) {
       throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
     }
-  }
-  
-  public int getHashIterations() {
-    return hashIterations;
-  }
-  
-  public boolean isHashSalted() {
-    return hashSalted;
-  }
-  
-  public void setHashIterations(int hashIterations) {
-    this.hashIterations = hashIterations;
-  }
-  
-  public void setHashSalted(boolean hashSalted) {
-    this.hashSalted = hashSalted;
   }
 
   /**
@@ -215,7 +208,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
-    String stmt = "select "+u_userid+", "+u_password + (hashSalted?", "+u_password_salt:"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
+    String stmt = "select "+u_userid+", "+ passwordColumnName + (hashSalted?", "+ passwordSaltColumnName :"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
     return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
       if(rs.next()){
         ArrayList<String> result = new ArrayList<>();
@@ -341,7 +334,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       rs = ps.executeQuery();
       while( rs.next() ) {
         String permission = rs.getString(1);
-        if( rs.getString(2)!=null || rs.getString(2).length()!=0 )
+        if( rs.getString(2)!=null && rs.getString(2).length()!=0 )
           permission = permission+":"+rs.getString(2);
         permissions.add(permission);
       }
@@ -389,6 +382,16 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
   
   /**
+   * Convenience method using default number of iterations
+   * @param plainTextPassword
+   * @param iterations
+   * @return
+   */
+  public static String[] generatePasswordHashSalt(String plainTextPassword) {
+    return generatePasswordHashSalt(plainTextPassword, DEFAULT_HASH_ITERATIONS);
+  }
+  
+  /**
    * main helper to create passwords interactively or by argument
    * @param args
    * @throws Throwable
@@ -404,4 +407,36 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     String salted[]=generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
     System.out.println(String.format("passwd hash:%s\nsalt:%s\n", salted[0], salted[1]));
   }
+
+  /**
+   * These setters are called from Shiro if realmBcdJdbc.#propertyname# are set in web.xml
+   * @return
+   */
+  public void setPasswordColumnName(String passwordColumnsName) {
+    Configuration.getInstance().addConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_COLUMN_CONFIG_NAME, passwordColumnsName);
+    this.passwordColumnName = passwordColumnsName;
+  }
+  public String getPasswordColumnName() {
+    return passwordColumnName;
+  }
+  public void setPasswordSaltColumnName(String passwordSaltColumnName) {
+    Configuration.getInstance().addConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME, passwordSaltColumnName);
+    this.passwordSaltColumnName = passwordSaltColumnName;
+  }
+  public String getPasswordSaltColumnName() {
+    return passwordSaltColumnName;
+  }
+  public void setHashIterations(int hashIterations) {
+    JdbcRealm.hashIterations = hashIterations;
+  }
+  static public int getHashIterations() {
+    return JdbcRealm.hashIterations;
+  }
+  public void setHashSalted(boolean hashSalted) {
+    this.hashSalted = hashSalted;
+  }
+  public boolean isHashSalted() {
+    return hashSalted;
+  }
+
 }

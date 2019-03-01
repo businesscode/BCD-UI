@@ -53,11 +53,12 @@ The Renderer either works directly with the specified element or (in case of spe
 * new pageEffect bcdEffectPageStickyFooter
 
 . Security
+* Server writing passwords is now secured and salt is added automatically
 * added implicit subjectFilter bcd_userId:userId with fixed filter value
 * client-controlled subject filters
 ** the new servlet-filter de.businesscode.bcdui.web.filters.SubjectSettingsFilter allows setting subject filters from client
 ** client-controlled subject filters can be set from client via bcdui.util.security API
-* Optimized row level security supporting data not requiring filtering: SubjectFilterType in subjectSettings.xml can be tagged to ignore null-values.
+* Optimized row level security supporting data not requiring filtering: SubjectFilterType in subjectSettings.xml can be tagged to say null-values can be accessed by everyone in reading
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
