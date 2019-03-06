@@ -211,6 +211,16 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       let unit = this.config.read("/*/chart:Stacked[@axis='"+axis1or2+"']/@asPercent") === 'true' ? '%' : this.config.read("/*/chart:YAxis"+axis1or2+"/@unit",'');
       series.bcdAttrs.unit = unit; // echarts does not know the concept of units
       let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType");
+
+      // If we detect BARCHARTHORIZONTAL, we make some adjustments to the axis, but treet it as BARCHART otherwise
+      if(chartType == "BARCHARTHORIZONTAL") {
+        chartType = "BARCHART";
+        opts.yAxis[0].data = xCategories;
+        opts.yAxis[0].type = "category";
+        opts.yAxis[0].axisLabel.formatter = null;
+        opts.xAxis.type = "value";
+      }
+
       series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").toLowerCase();
       series.name = this.config.read("/*/chart:Series/chart:Series["+s+"]/@caption");
 

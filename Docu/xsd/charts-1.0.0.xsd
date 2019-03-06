@@ -228,6 +228,7 @@
       <xs:enumeration value="LINECHART"/>
       <xs:enumeration value="AREACHART"/>
       <xs:enumeration value="BARCHART"/>
+      <xs:enumeration value="BARCHARTHORIZONTAL"/>
       <xs:enumeration value="PIECHART"/>
       <xs:enumeration value="SCATTEREDCHART"/>
       <xs:enumeration value="POINTCHART"/>
@@ -270,7 +271,7 @@
 
     <xs:attribute name="chartType" use="optional" type="tns:chartType" default="LINECHART">
       <xs:annotation>
-        <xs:documentation>One of the well-known chart types, if not set - LINECHART.</xs:documentation>
+        <xs:documentation>One of the well-known chart types, if not set - LINECHART. BARCHARTHORIZONTAL is only available in echarts implementation.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
 
