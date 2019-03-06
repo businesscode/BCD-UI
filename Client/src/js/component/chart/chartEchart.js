@@ -225,8 +225,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       series.name = this.config.read("/*/chart:Series/chart:Series["+s+"]/@caption");
 
       // Set series' color. Can be local @rgb or from seriesColorList
-      let seriesColor = this.config.read("/*/chart:Series/chart:Series["+s+"]/@rgb") || seriesColorList[s-1] || 'auto';
-      series.itemStyle = { color: seriesColorList[s-1] };
+      let seriesColor = this.config.read("/*/chart:Series/chart:Series["+s+"]/@rgb") || seriesColorList[s-1] || null;
+      series.itemStyle = { color: seriesColor };
 
       // Read data as an array.
       // Either nodes from a model given by id or in-lined. Also limit it to the number of x-axis values/categories and remove infinity values
@@ -391,8 +391,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
         // We want the axis always be 0-100% in this case
         let sAxis12 = parseInt( this.config.read("/*/chart:Stacked[@asPercent='true']/@axis", '1') );
-        opts.yAxis[sAxis12 - 1].min = 0;
-        opts.yAxis[sAxis12 - 1].max = 1;
+        if( this.config.read("/*/chart:Stacked/@chartType") != "BARCHARTHORIZONTAL" ) {
+          opts.yAxis[sAxis12 - 1].min = 0;
+          opts.yAxis[sAxis12 - 1].max = 1;
+        }
       }
       // For backward compatibility, we turn the stack upside-down
       for(var s=0, maxIdx = stackedSeriesIdxs.length - 1; s < maxIdx / 2; s++ ) {
