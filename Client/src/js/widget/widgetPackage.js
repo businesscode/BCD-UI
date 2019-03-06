@@ -1486,6 +1486,12 @@ bcdui.util.namespace("bcdui.widget",
                 isVisible = false;
                 return;
               }
+              // don't show tooltip if a table header filter tooltip is currently displayed (unless we show another table header filter)
+              if (! jQuery(e.target).parent().hasClass("bcdFilterContainer") && jQuery("#bcdTooltipDiv").is(":visible") && jQuery(".bcdFilterTooltip").length > 0) {
+                isVisible = false;
+                return;
+              }
+
               config.event = e;
               var renderer = bcdui.factory.objectRegistry.getObject(args.tooltipRendererId);
               if (args.tableMode)
