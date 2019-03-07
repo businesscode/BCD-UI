@@ -192,6 +192,7 @@ bcdui.util.namespace("bcdui.widget.tab",
       });
       // initially sync
       renderer.onceReady(function(){
+        bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;
         bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement);
       });
     },
