@@ -91,7 +91,7 @@
           <xs:attribute name="idRef" type="xs:NCName" use="required">
             <xs:annotation><xs:documentation>
               Id of the referenced data item, which is usually references a binding-item ( bRef ).
-              In scc:Kpi/calc:Calc the format is [myMeasureId].[myMeasurePropertyId].
+              In scc:Kpi/calc:Calc the format is [myMeasureId].[myMeasurePropertyId]. This attribute is omitted if @dmRef is used.
             </xs:documentation></xs:annotation>
           </xs:attribute>
           <xs:attribute name="aggr">
@@ -103,7 +103,7 @@
           </xs:attribute>
           <xs:attribute name="dmRef" type="xs:string">
             <xs:annotation><xs:documentation>
-              Only used in cube:VDM/calc:Calc// virtual dimension members, for naming dimension member's value, kind of replaces @id in that case.
+              Only used in cube:VDM/calc:Calc// virtual dimension members, for naming dimension member's value, kind of replaces @idRef in that case.
             </xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>
