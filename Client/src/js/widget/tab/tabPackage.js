@@ -190,9 +190,9 @@ bcdui.util.namespace("bcdui.widget.tab",
         , parameters: { contextPath: bcdui.contextPath, handlerVariableName: _handlerVariableName }
         , targetHtml: args.targetHTMLElementId
       });
-      // initially trigger sync
+      // initially sync
       renderer.onceReady(function(){
-        bcdui.wkModels.guiStatus.write(guiStatusTabXPath + "/Active", activeTab, true);
+        bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement);
       });
     },
 
