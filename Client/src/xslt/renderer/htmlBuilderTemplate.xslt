@@ -120,11 +120,13 @@
     <xsl:param name="rowSpan"/>
     <xsl:variable name="originalColumnIndex" select="substring-before(substring-after($columnOrderingList, concat('|', position() + $headerOffsetValue, ':')), '|')"/>
     <xsl:variable name="columnDefinition" select="key('columnDefinitionLookup', $originalColumnIndex)"/>
+    <xsl:variable name="isNumber" select="@unit or @scale or contains($numericSQLTypes, concat(' ', @type-name, ' '))"/>
     <xsl:if test="$rowSpan != 0">
       <th>
         <xsl:attribute name="class">
           <xsl:if test="@bcdGr='1'"><xsl:value-of select="$rowTotalCss"/></xsl:if>
           <xsl:if test="$isInnerMostDim and ../@bcdVdm"> bcdVdm</xsl:if>
+          <xsl:if test="$isNumber and . &lt; 0"> bcdNegNumber</xsl:if>
         </xsl:attribute>
         <xsl:apply-templates select="@*"/>
         <xsl:if test="$rowSpan > 1">
@@ -139,7 +141,7 @@
           <xsl:when test="@bcdOt='1'"><xsl:attribute name="bcdTranslate">bcd_OtherDimmember</xsl:attribute></xsl:when>
           <xsl:when test="string-length(.)=0 and string-length(@caption)=0"><xsl:attribute name="bcdTranslate">bcd_EmptyDimmember</xsl:attribute></xsl:when>
           <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
-          <xsl:when test="@unit or @scale or contains($numericSQLTypes, concat(' ', @type-name, ' '))">
+          <xsl:when test="$isNumber">
             <xsl:call-template name="formatNumber">
               <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
             </xsl:call-template>
@@ -196,10 +198,10 @@
 
     <xsl:variable name="isNoNumber" select="@caption !='' or (not(contains($numericSQLTypes, concat(' ', $columnDefinition/@type-name, ' '))) and not(contains($numericSQLTypes, concat(' ', @type-name, ' '))))"/>
 
-    <!-- @class handling, merge @class with exlicit html:class provided -->
-    <xsl:choose>
-      <xsl:when test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
-        <xsl:attribute name="class">
+    <!-- @className handling -->
+    <xsl:variable name="className">
+      <xsl:choose>
+        <xsl:when test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
           <xsl:choose>
             <xsl:when test="$tableElement='th' and @bcdGr='1'">
               <xsl:apply-templates select="../wrs:*[1]" mode="determineCssClassTotal"/> 
@@ -207,13 +209,15 @@
             <xsl:when test="contains($columnDefinition/@id,'&#xE0F0;1')">bcdTotal</xsl:when>
           </xsl:choose>                      
           <xsl:if test="$isNoNumber"> bcdNoNumber</xsl:if>
-          <xsl:value-of select="concat(' ', @html:class)"/>
-        </xsl:attribute>
-      </xsl:when>
-      <xsl:when test="@html:class">
-        <xsl:attribute name="class"><xsl:value-of select="@html:class"/></xsl:attribute>
-      </xsl:when>
-    </xsl:choose>
+        </xsl:when>
+        <xsl:when test="not($isNoNumber) and . &lt; 0">bcdNegNumber</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <!-- write @class , merge with @html:class -->
+    <xsl:if test="$className != '' or @html:class">
+      <xsl:attribute name="class"><xsl:value-of select="concat(@html:class, ' ', $className)"/></xsl:attribute>
+    </xsl:if>
 
     <!-- rewrite html atts all but @class handled above -->
     <xsl:for-each select="@html:*[local-name() != 'class']">
