@@ -67,6 +67,16 @@
  -->
 <xsl:param name="sortTotalsFirst" select="$sortTotalsFirstDefault"/>
 
+<!-- standard or accounting -->
+<xsl:param name="numberFormattingOption">
+  <xsl:choose>
+    <xsl:when test="string-length($paramSet/xp:NumberFormattingOption) = 0">standard</xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="$paramSet/xp:NumberFormattingOption"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:param>
+
 <!--
   (Boolean) This can be set to 'false' if the columns are already sorted
   correctly and do not need to be sorted anymore. The default value is 'true'.
@@ -344,6 +354,11 @@
   </xsl:if>
 
   <xsl:call-template name="numericColumnDimensionBooleanVariables"/>
+  
+  <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+    <xsl:attribute name="name">numberFormattingOption</xsl:attribute>
+    <xsl:value-of select="$numberFormattingOption"/>
+  </xsl:element>
 
 </xsl:template>
 

@@ -144,6 +144,7 @@
           <xsl:when test="$isNumber">
             <xsl:call-template name="formatNumber">
               <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
+              <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise><xsl:value-of select="."/></xsl:otherwise>
@@ -232,6 +233,7 @@
       <xsl:when test="not($isNoNumber)">
         <xsl:call-template name="formatNumber">
           <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

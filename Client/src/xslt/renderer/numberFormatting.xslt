@@ -66,6 +66,8 @@
     <xsl:param name="unit"/>
     <xsl:param name="scale"/>
     <xsl:param name="average" select="false()"/>
+    <!-- standard or accounting -->
+    <xsl:param name="numberFormattingOption" select="'standard'"/>
 
     <xsl:variable name="effectiveUnit">
       <xsl:choose>
@@ -143,21 +145,63 @@
 
     <xsl:choose>
       <xsl:when test="$effectiveScale > 10">
-        <xsl:value-of select="concat(format-number(round($value div $effectiveScale) * $effectiveScale, concat($defaultFormattingPatternInteger, $percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
+        <xsl:call-template name="formatNumberImpl">
+          <xsl:with-param name="value" select="round($value div $effectiveScale) * $effectiveScale"/>
+          <xsl:with-param name="pattern" select="concat($defaultFormattingPatternInteger, $percentUnit)"/>
+          <xsl:with-param name="suffix" select="$nonPercentUnit"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:when test="$effectiveScale &lt; -10">
-        <xsl:value-of select="concat(format-number(round($value div $effectiveScale) * -1, concat($defaultFormattingPatternInteger, $percentUnit), $defaultDecimalFormatName), $nonPercentUnit)"/>
+        <xsl:call-template name="formatNumberImpl">
+          <xsl:with-param name="value" select="round($value div $effectiveScale) * -1"/>
+          <xsl:with-param name="pattern" select="concat($defaultFormattingPatternInteger, $percentUnit)"/>
+          <xsl:with-param name="suffix" select="$nonPercentUnit"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:when test="$effectiveScale > 0">
-        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPattern, substring('000000000000000000000000000000000000000', 1, $effectiveScale), $percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
+        <xsl:call-template name="formatNumberImpl">
+          <xsl:with-param name="value" select="$value div $downScale"/>
+          <xsl:with-param name="pattern" select="concat($defaultFormattingPattern, substring('000000000000000000000000000000000000000', 1, $effectiveScale), $percentUnit)"/>
+          <xsl:with-param name="suffix" select="concat($numberAbbrev, $nonPercentUnit)"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:when test="$effectiveScale &lt; 0">
-        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPattern, substring('#######################################', 1, -1*$effectiveScale), $percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
+        <xsl:call-template name="formatNumberImpl">
+          <xsl:with-param name="value" select="$value div $downScale"/>
+          <xsl:with-param name="pattern" select="concat($defaultFormattingPattern, substring('#######################################', 1, -1*$effectiveScale), $percentUnit)"/>
+          <xsl:with-param name="suffix" select="concat($numberAbbrev, $nonPercentUnit)"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(format-number($value div $downScale, concat($defaultFormattingPatternInteger,$percentUnit), $defaultDecimalFormatName), $numberAbbrev, $nonPercentUnit)"/>
+        <xsl:call-template name="formatNumberImpl">
+          <xsl:with-param name="value" select="$value div $downScale"/>
+          <xsl:with-param name="pattern" select="concat($defaultFormattingPatternInteger,$percentUnit)"/>
+          <xsl:with-param name="suffix" select="concat($numberAbbrev, $nonPercentUnit)"/>
+          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <!-- implementation of number formatting including negative format option -->
+  <xsl:template name="formatNumberImpl">
+  <xsl:param name="value"/>
+  <xsl:param name="pattern"/>
+  <xsl:param name="suffix"/>
+  <xsl:param name="numberFormattingOption"/>
+  <xsl:param name="formatName" select="$defaultDecimalFormatName"/>
+  <xsl:choose>
+    <xsl:when test="$numberFormattingOption = 'accounting'">
+      <xsl:value-of select="concat(format-number($value, concat($pattern,'|(',$pattern,')'), $formatName), $suffix)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(format-number($value, $pattern, $formatName), $suffix)"/>
+    </xsl:otherwise>
+  </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
