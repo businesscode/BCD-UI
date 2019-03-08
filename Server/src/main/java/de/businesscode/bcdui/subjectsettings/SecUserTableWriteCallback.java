@@ -130,7 +130,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     //-----------------------------------------------------------
     // If the password is empty, i.e. it is not to be changed
     // Switch to header without password columns and remove the values
-    int wrqPasswordColIdx = indexOf(columnsOfCaller, JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_BINDINGITEM);
+    int wrqPasswordColIdx = indexOf(columnsOfCaller, JdbcRealm.BCD_SEC_USER_PASSWORD_BINDINGITEM);
     int wrqPasswordSaltColIdx = indexOf(columnsOfCaller, JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT);
     if( cValues.get(wrqPasswordColIdx) == null
         || cValues.get(wrqPasswordColIdx).isEmpty()
