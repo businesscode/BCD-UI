@@ -117,6 +117,7 @@ bcdui.core.lifecycle =
    * @param {boolean} [args.cleanXPath]            - Additional XPath to be cleaned from the guiStatus
    * @param {boolean} [args.validateFilters=false] - True or false whether or not to check IsValid flags of guiStatus filters
    * @param {document} [args.statusDocument=bcdui.wkModels.guiStatus] - optionally, other statusDocument than guiStatus
+   * @param {boolean} [args.removeAllParams=false] - True or false whether or not to remove all url parameters first
    */
   applyAction: function(args)
     {
@@ -141,7 +142,11 @@ bcdui.core.lifecycle =
         }
       }
 
-      bcdui.core.lifecycle.jumpTo(location.href, args.statusDocument);
+      var loc = location.href.toString();
+      if (args.removeAllParams === true)
+        loc = loc.indexOf("?") != -1 ? loc.substring(0, loc.indexOf("?")) : loc;
+
+      bcdui.core.lifecycle.jumpTo(loc, args.statusDocument);
     },
 
     /**
