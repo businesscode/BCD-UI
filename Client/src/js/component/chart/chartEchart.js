@@ -54,7 +54,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
   {
     // Update or brand new chart?
     let existInstance = echarts.getInstanceByDom( document.getElementById(this.targetHtml) );
-    let myChart = existInstance || echarts.init(document.getElementById(this.targetHtml), null, {renderer: "svg"});
+    let myChart = existInstance || echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
 
     if( this.config.read("/*/chart:Series/chart:Series[@chartType='SUNBURSTCHART']") === null )
       this._nonSunburst(myChart);
