@@ -181,10 +181,11 @@ input.bcdInputFieldGrid {
 
 #bcdBodyContainer .bcdGridEditor,
 .bcdGridEditor {
-  input {
-    padding: 0px 5px 1px 5px;
+  textarea, input {
+    padding: 1px 5px 1px 5px;
     margin: 0px;
     display: inline-block;
+    line-height: 21px;
   }
 }
 
