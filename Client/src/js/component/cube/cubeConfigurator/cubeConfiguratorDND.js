@@ -633,6 +633,25 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         }
       }
     }
+    // and the single "exclude all"
+    var nodes = targetModel.queryNodes("/*/f:Filter/f:Expression[@type='bcdCubeExclude_" + cubeId + "']");
+    for (var n = 0; n < nodes.length; n++) {
+      var node = nodes[n];
+      var exclBRef = node.getAttribute("exclBRef") || "";
+      var bRef = node.getAttribute("bRef") || "";
+      var isColumnExclusion = (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef[@bRef='" + exclBRef + "']") != null);
+      // remove it when it doesn't appear in the selected dimensions at all
+      if (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/*/dm:LevelRef[@bRef='" + bRef + "']") == null)
+        bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Expression[@type='bcdCubeExclude_" + cubeId + "' and @bRef='" + bRef + "']");
+      else {
+        // or if we got a column dimension exclusion and you moved them to a row (or vice versa), we remove the full OR-node if it contains
+        // invalid row/col combinations
+        var dimIsColumn = (targetModel.getData().selectSingleNode(layoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef[@bRef='" + bRef + "']") != null);
+        if ((dimIsColumn && ! isColumnExclusion) || (!dimIsColumn && isColumnExclusion))
+          bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Expression[@type='bcdCubeExclude_" + cubeId + "' and @bRef='" + bRef + "']");
+      }
+    }
+
     // remove empty excludes
     bcdui.core.removeXPath(targetModel.getData(), "/*/f:Filter/f:Or[@type='bcdCubeExclude_" + cubeId + "' and not(f:Expression)]");
 
