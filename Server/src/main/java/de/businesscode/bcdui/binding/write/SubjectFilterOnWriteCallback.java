@@ -128,7 +128,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
           throw new SecurityException("Ambiguous value for enforced " + eBi.biId );
       }
       // We have a value, is it allowed?
-      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*") ) {
+      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null) {
         foundMissMatch = true;
         if( conIsAnd )
           break;
