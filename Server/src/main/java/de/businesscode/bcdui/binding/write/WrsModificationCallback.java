@@ -18,7 +18,6 @@ package de.businesscode.bcdui.binding.write;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,11 +57,7 @@ public class WrsModificationCallback extends WriteProcessingCallback {
   protected final  Logger log = Logger.getLogger(getClass());
 
   private Set<BindingItemConfig> bindingItemConfig;
-
-  /*
-   * this set contains ordered binding-items which are missing in original WRS and are appended
-   */
-  protected final List<BindingItemConfig> itemsToAppend = new LinkedList<BindingItemConfig>();
+  protected List<BindingItem> columns;
   /*
    * the index map of already available binding-items in WRS
    */
@@ -96,7 +91,7 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    */
   private void initializeBindingItemWrs(BindingSet bindingSet, List<BindingItem> columns, List<Integer> columnTypes, BindingItemConfig itemConfig){
     int idx = getBindingItemIdx(columns, itemConfig.bindingItemId);
-    // item not found in WRS - append it internally and to WRS
+    // item not found in WRS - append it internally and to WRS and to the map via index
     if(idx < 0){
       if(log.isTraceEnabled()){
         log.trace("binding item to append: " + itemConfig.bindingItemId);
@@ -106,8 +101,7 @@ public class WrsModificationCallback extends WriteProcessingCallback {
 
         columns.add(bItem);
         columnTypes.add(bItem.getJDBCDataType());
-
-        itemsToAppend.add(itemConfig);
+        bindingItemIdxMap.put(columns.size() - 1, itemConfig);
 
       } catch (BindingNotFoundException e) {
         throw new RuntimeException("missing binding item '"+itemConfig.bindingItemId+"'",e);
@@ -123,8 +117,8 @@ public class WrsModificationCallback extends WriteProcessingCallback {
 
   @Override
   public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames) {
-    itemsToAppend.clear();
     bindingItemIdxMap.clear();
+    this.columns = columns;
 
     /*
      * initialize binding items from given WRS according to bindingItem parameters
@@ -134,7 +128,6 @@ public class WrsModificationCallback extends WriteProcessingCallback {
     }
 
     if(log.isTraceEnabled()){
-      log.trace("items to append: " + itemsToAppend.toString());
       log.trace("items mapped in WRS: " + bindingItemIdxMap.toString());
     }
   }
@@ -145,13 +138,19 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    * if binding items are not located in WRS we augment it
    */
   @Override
-  public void endDataRow(ROW_TYPE rowType, List<String> cColumns, List<String> oColumns) {
+  public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
     if(rowType == ROW_TYPE.D){
       return;
     }
 
+    // Make sure we have room for all added values
+    while (columns.size() > cValues.size()) {
+      cValues.add(null);
+      oValues.add(null);
+    }
+
     // overwrite values according to header, for already existing items
-    for(int colIdxCnt=0, len=cColumns.size(); colIdxCnt < len; colIdxCnt++){
+    for(int colIdxCnt=0, len=cValues.size(); colIdxCnt < len; colIdxCnt++){
       BindingItemConfig item = bindingItemIdxMap.get(colIdxCnt);
       if(item == null)continue;
 
@@ -166,26 +165,9 @@ public class WrsModificationCallback extends WriteProcessingCallback {
         continue;
       }
 
-      if(item.isCoalesce == false || cColumns.get(colIdxCnt) == null){
-        cColumns.set(colIdxCnt, evalValue(item));
+      if(item.isCoalesce == false || cValues.get(colIdxCnt) == null){
+        cValues.set(colIdxCnt, evalValue(item));
       }
-    }
-
-
-    // append values according to order defined in header for non existing items
-    // wrs:I|wrs:M handled same way
-    for(BindingItemConfig item : itemsToAppend){
-      if (item.ignore == BindingItemConfig.CONFIG_IGNORE.update && rowType == ROW_TYPE.M){
-        // skip update
-        if(log.isTraceEnabled()){
-          log.trace("skip item to append: " + item.bindingItemId + " because of ignore=" + item.ignore.name() + " and row type = " + rowType.name());
-        }
-        continue;
-      }
-      final String value = evalValue(item);
-      // append wrs:C only, but wrs:O required to be same length
-      cColumns.add(value);
-      oColumns.add(null);
     }
   }
 
