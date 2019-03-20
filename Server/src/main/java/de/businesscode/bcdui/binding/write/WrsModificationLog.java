@@ -46,27 +46,24 @@ public class WrsModificationLog extends WrsModificationCallback {
    * because we treat the create items (classified as ignore=update) in a different way
    */
   @Override
-  public void endDataRow(ROW_TYPE rowType, List<String> cColumns, List<String> oColumns) {
+  public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
     if(rowType == ROW_TYPE.D){
       return;
     }
 
-    // overwrite values according to header, for already existing items
-    // wrs:I|wrs:M handled same way
-    for(int colIdxCnt=0, len=cColumns.size(); colIdxCnt < len; colIdxCnt++){
-      BindingItemConfig item = bindingItemIdxMap.get(colIdxCnt);
-      if(item != null && !(rowType == ROW_TYPE.M && item.ignore == BindingItemConfig.CONFIG_IGNORE.update)){
-        cColumns.set(colIdxCnt, evalValue(item));
-      }
+    // Make sure we have room for all added values
+    while (columns.size() > cValues.size()) {
+      cValues.add(null);
+      oValues.add(null);
     }
 
-    // append values according to header for non existing items
+    // overwrite values according to header, for already existing items
     // wrs:I|wrs:M handled same way
-    for(BindingItemConfig item : itemsToAppend){
-      String value = evalValue(item);
-      // append wrs:C only, but wrs:O required to be same length
-      cColumns.add(value);
-      oColumns.add(null);
+    for(int colIdxCnt=0, len=cValues.size(); colIdxCnt < len; colIdxCnt++){
+      BindingItemConfig item = bindingItemIdxMap.get(colIdxCnt);
+      if(item != null && !(rowType == ROW_TYPE.M && item.ignore == BindingItemConfig.CONFIG_IGNORE.update)){
+        cValues.set(colIdxCnt, evalValue(item));
+      }
     }
   }
 
