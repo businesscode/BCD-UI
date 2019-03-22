@@ -110,13 +110,13 @@
       <R id="R67"><C>bcd_I18nTm_dlgSavedTitle</C><C>Saved</C><C>en</C></R>
       <R id="R68"><C>bcd_I18nTm_dlgSavedMessage</C><C>Data successfully saved</C><C>en</C></R>
       <R id="R69"><C>bcd_I18nTm_dlgNotSavedTitle</C><C>Not saved</C><C>en</C></R>
-      <R id="R85"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
-      <R id="R86"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
-      <R id="R87"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
+      <R id="R89"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
+      <R id="R90"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
+      <R id="R91"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
 
       <!-- Scorecard -->
-      <R id="R88"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
-      <R id="R89"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
+      <R id="R92"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
+      <R id="R93"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
 
       <!-- System messages -->
       <R id="R100"><C>bcd_GuiStatusTooLong</C><C>Please reduce the number of filters, browser limit exceeded.</C><C>en</C></R>
@@ -142,7 +142,10 @@
       <R id="R82"><C>bcd_Grid_SaveError</C><C>Cannot save - Please correct errors first</C><C>en</C></R>
       <R id="R83"><C>bcd_Grid_CellRestore</C><C>Restore cell</C><C>en</C></R>
       <R id="R84"><C>bcd_Grid_Export</C><C>Grid export</C><C>en</C></R>
-      
+      <R id="R85"><C>bcd_Grid_RowAdd_Above</C><C>Add row above</C><C>en</C></R>
+      <R id="R86"><C>bcd_Grid_RowAdd_Below</C><C>Add row below</C><C>en</C></R>
+      <R id="R87"><C>bcd_Grid_RowAdd_Top</C><C>Add row at top</C><C>en</C></R>
+      <R id="R88"><C>bcd_Grid_RowAdd_Bottom</C><C>Add row at bottom</C><C>en</C></R>
 
       <!-- Editing -->
       <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>
@@ -151,10 +154,10 @@
       <R id="R223"><C>bcd_Edit_Reload</C><C>Reload</C><C>en</C></R>
       
       <!-- Reports general -->
-      <R id="R90"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
-      <R id="R91"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
-      <R id="R92"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
-      <R id="R93"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
+      <R id="R94"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
+      <R id="R95"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
+      <R id="R96"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
+      <R id="R97"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
 
       <!-- Export general -->
       <R id="R230"><C>bcd_Export_WYSIWYG</C><C>Export WYSIWYG</C><C>en</C></R>
