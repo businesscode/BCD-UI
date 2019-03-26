@@ -77,7 +77,7 @@
       var rootContainer = bcdui._migPjs._$(this.element[0]);
       var args = this.options;
       var self = this;
-      this.options.placeholder = this.options.placeholder || bcdui.i18n.TAG + "bcd_singleSelect_please_select";
+      this.options.placeholder = typeof this.options.placeholder != "undefined" ? this.options.placeholder : bcdui.i18n.TAG + "bcd_singleSelect_please_select";
 
       // handle empty placeholder as no placeholder
       if (this.options.placeholder && this.options.placeholder == "")
