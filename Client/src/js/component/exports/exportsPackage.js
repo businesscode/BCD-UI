@@ -355,6 +355,8 @@ bcdui.util.namespace("bcdui.component.exports",
       // build empty request to get caption information and - in case of no specified columns - column list
       var normalizedRequest = new bcdui.core.StaticModel(new XMLSerializer().serializeToString(args.wrq.getData()));
       normalizedRequest.execute();
+      // remove all filter to make request smaller, we use rowStart/rowEnd instead
+      bcdui.core.removeXPath(normalizedRequest.getData(), "/*/wrq:Select/f:Filter"); 
       normalizedRequest.query("/*/wrq:Select").setAttribute("rowStart", "0");
       normalizedRequest.query("/*/wrq:Select").setAttribute("rowEnd", "0");
       var normalizedModel = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: normalizedRequest})});
