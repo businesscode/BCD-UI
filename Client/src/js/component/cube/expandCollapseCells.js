@@ -62,7 +62,8 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
           for (var y = 0; y <= idx; y++) {
             if (y > 0)
               value += bcdui.core.magicChar.separator;
-            value += c[y].indexOf(bcdui.core.magicChar.dimEmpty) == 0 ? bcdui.core.magicChar.dimEmpty : c[y] // map possible dimEmpty or dimNull to dimEmpty (this is used in concatCells (expandCollapseCells.xslt)
+            var isEmptyOrNull = (c[y] == bcdui.core.magicChar.dimEmpty) || (c[y] == bcdui.core.magicChar.dimNull);
+            value += isEmptyOrNull ? bcdui.core.magicChar.dimEmpty : c[y] // map possible dimEmpty or dimNull to dimEmpty (this is used in concatCells (expandCollapseCells.xslt)
           }
         }
         else {
