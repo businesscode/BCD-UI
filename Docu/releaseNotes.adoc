@@ -65,6 +65,8 @@ The Renderer either works directly with the specified element or (in case of spe
 ** All values must be in the values that are also allowed on reading
 ** Missing values are added if the are in SubjectFilters but not in the Wrs as long as they are unambiguous
 ** Allowed are a single SubjectFilter, a flat bnd:And or a flat bnd:Or, but no nested expressions
+* OAuth2: add general support with Shiro integration for authentication.
+** Add OAuth2 authentication modules for Microsoft Azure / Graph and Google
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
