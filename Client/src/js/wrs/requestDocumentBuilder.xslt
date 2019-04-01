@@ -163,9 +163,18 @@
     <xsl:param name="useAttributes" select="false()"/>
     <xsl:element name="{$listName}" namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
       <xsl:choose>
+        <!-- a minus(-) at the end of the bRef value for ordering indicates descending sorting -->
         <xsl:when test="$listName = 'Ordering' and count($orderByTokens/wrs:Wrs/wrs:Data/wrs:R) &gt; 0">
           <xsl:for-each select="$orderByTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
-            <wrq:C bRef="{./wrs:C}"/>
+            <xsl:variable name="col" select="./wrs:C" /> 
+            <xsl:choose>
+              <xsl:when test="substring($col, string-length($col) - string-length('-') + 1) = '-'">
+                <wrq:C bRef="{substring-before($col, '-')}" order="desc"/>
+              </xsl:when> 
+              <xsl:otherwise>
+                <wrq:C bRef="{./wrs:C}"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:for-each>
         </xsl:when>
         <!-- explicit groupBy (ignoring .isDistinct) -->
@@ -179,13 +188,24 @@
             <wrq:C>
               <xsl:choose>
                 <xsl:when test="$listName = 'Ordering' and $boolUseCaptions"> <!--  we sort by caption if captions are used -->
+                  <xsl:variable name="col" select="./wrs:C" /> 
                   <xsl:attribute name="bRef">
                     <xsl:call-template name="createCaptionbRef">
                       <xsl:with-param name="bRef">
-                        <xsl:value-of select="./wrs:C" />
+                        <xsl:choose>
+                          <xsl:when test="substring($col, string-length($col) - string-length('-') + 1) = '-'">
+                            <xsl:value-of select="substring-before($col, '-')" />
+                          </xsl:when>
+                          <xsl:otherwise>
+                          <xsl:value-of select="./wrs:C" />
+                        </xsl:otherwise>
+                        </xsl:choose>
                       </xsl:with-param>
                     </xsl:call-template>
                   </xsl:attribute>
+				  <xsl:if test="substring($col, string-length($col) - string-length('-') + 1) = '-'">
+                    <xsl:attribute name="order">desc</xsl:attribute>
+                  </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:attribute name="bRef">

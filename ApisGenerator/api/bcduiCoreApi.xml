@@ -584,7 +584,7 @@
         </Param>
         <Param name="orderByBRefs" type="stringList">
           <Doc>
-            Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct.
+            Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. A minus(-) sign at the end indicates descending sorting.
           </Doc>
         </Param>
         <Param name="mandatoryfilterBRefsSubset" type="stringList">
