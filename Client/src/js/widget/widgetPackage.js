@@ -1231,12 +1231,14 @@ bcdui.util.namespace("bcdui.widget",
            args.id += "0";
          }
        }
-       var defElement = document.getElementById(args.defElementId);
-       if (defElement) {
-         bcdui._migPjs._$(defElement).addClass("bcdTabDefinition");
-       }
-       args.idOrElement = args.defElementId;
-       bcdui.widget.tab.init(args);
+       setTimeout(function() {
+         var defElement = document.getElementById(args.defElementId);
+         if (defElement) {
+           bcdui._migPjs._$(defElement).addClass("bcdTabDefinition");
+         }
+         args.idOrElement = args.defElementId;
+         bcdui.widget.tab.init(args);
+       });
      },
 
    /**
