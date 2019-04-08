@@ -360,7 +360,7 @@ a {
   cursor: pointer;
   padding: 3px 3px 3px 3px;
   border: none;
-  margin: 0px 0px 0px ((-1 * $font-size-default) - 3 - 3 - 1); /* move box over input (1 char) - padding left - padding right - (pseudo) border right */
+  margin: 0px 0px 0px -1.6em;
   vertical-align: middle !important;
   color: $text-color-dark;
 }
@@ -756,7 +756,7 @@ a {
 
 .bcdBlindUpDown {
 
-  span.bcdBlindUpDownClose { text-align: right; vertical-align: middle; position: absolute; right: 3px;}
+  span.bcdBlindUpDownClose { text-align: right; vertical-align: middle; position: absolute; right: 0.2em;}
   
   .bcdHeadClosed > span.bcdBlindUpDownClose:after {
     content: "\25BC";
@@ -801,7 +801,7 @@ a {
    li {
      display: inline-block;
      margin-right: 3px;
-     padding: 4px 0px 4px 0px;
+     padding: 4px 0px 3px 0px;
      a {
        border: 1px solid $border-color;
        border-radius: $border-radius-small $border-radius-small 0 0;
