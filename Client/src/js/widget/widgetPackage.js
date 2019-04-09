@@ -2148,8 +2148,11 @@ bcdui.util.namespace("bcdui.widget",
       });
 
       // and a listener on column change which triggers re-rendering by executing the wrapper and the renderer
-      if (callback)
-        statusModel.onChange({trackingXPath: targetModelXPath, callback: callback});
+      if (callback) {
+        var listenerId = args.inputModel.id + "_listener";
+        statusModel.removeDataListener({id: listenerId});
+        statusModel.onChange({id: listenerId, trackingXPath: targetModelXPath, callback: callback});
+      }
       
       // add click handler to the inserted items
       tableHead.on("click", ".bcdFilterButton", {inputModel: inputModel, getFilteredValues: args.getFilteredValues, statusModel: statusModel, targetModelXPath: targetModelXPath, getCaptionForColumnValue: args.getCaptionForColumnValue}, function(event) {
@@ -2165,6 +2168,11 @@ bcdui.util.namespace("bcdui.widget",
         var scale   = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@scale", "0");
         var unit    = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@unit", "");
         var useRefs = inputModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/wrs:References/wrs:Wrs/wrs:Data/wrs:R") != null;
+
+        // if we got an i18n caption, translate it
+        if (caption.indexOf(bcdui.i18n.TAG) == 0) {
+          caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption});
+        }
 
         var rootXPath         = targetModelXPath + "/f:Or[@id='" + id + "']";
         var selectedCondition = statusModel.read(rootXPath + "/@condition", "contains");
@@ -2494,14 +2502,13 @@ bcdui.util.namespace("bcdui.widget",
     /**
      * Create filter table header
      * @param {Object}        args                 The parameter map contains the following properties.
-     * @param {string}        args.rendererId      Id of the renderer to work on
+     * @param {string|object} args.renderer        Id of the registered renderer to work on or the render itself
      * @param {boolean}       [args.isSync=false]  Decide whether the action is to be called synchronous or not
      * @param {boolean}       [args.alwaysShowHeader=true] If filtering leads to no rows to be displayed, this flag will show the table header to allow removal of filters 
     */
     createFilterTableHeader: function(args) {
-      var action = function( rendererId ) {
+      var action = function( renderer ) {
 
-        var renderer = bcdui.factory.objectRegistry.getObject(rendererId);
         var tableHead = jQuery(renderer.getTargetHtml()).find("table thead").first();
         if ((tableHead.length == 0 && ! renderer.backupHeader) || renderer.getPrimaryModel().query("/*/wrs:Header/wrs:Columns/wrs:C") == null) {
           return; // no table found or not using a wrs model, so do nothing
@@ -2569,10 +2576,14 @@ bcdui.util.namespace("bcdui.widget",
       };
 
       // Decide whether to be called synchronous (for example in case of a just created renderer output in bcdOnLoad)
+      var renderer = args.renderer || args.rendererId;
+      if (typeof renderer == "string")
+        renderer = bcdui.factory.objectRegistry.getObject(renderer);
+      
       if( args.isSync ) {
-        action( args.rendererId );
+        action( renderer );
       } else {
-        bcdui.factory.objectRegistry.withReadyObjects( args.rendererId, function() { action( args.rendererId ); } );
+        bcdui.factory.objectRegistry.withReadyObjects( args.rendererId, function() { action( renderer ); } );
       }
     },
 
