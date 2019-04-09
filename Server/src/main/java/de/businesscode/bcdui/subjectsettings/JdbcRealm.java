@@ -89,6 +89,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   final private String u_table;
   final private String u_userid;
   final private String u_login;
+  final private String u_isdisabled;
 
   private String ur_table;
   private String ur_userid;
@@ -116,6 +117,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       BindingItem biUserId = bs.get("user_id");
       u_userid   = biUserId.getColumnExpression();
       u_login    = bs.get("user_login").getColumnExpression();
+      u_isdisabled = bs.get("is_disabled").getColumnExpression();
       hashSalted = bs.hasItem("password_salt");
       try {
         bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
@@ -208,7 +210,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
-    String stmt = "select "+u_userid+", "+ passwordColumnName + (hashSalted?", "+ passwordSaltColumnName :"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and (is_disabled is null or is_disabled<>'1')";
+    String stmt = "select "+u_userid+", "+ passwordColumnName + (hashSalted?", "+ passwordSaltColumnName :"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and ("+u_isdisabled+" is null or "+u_isdisabled+"<>'1')";
     return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
       if(rs.next()){
         ArrayList<String> result = new ArrayList<>();
