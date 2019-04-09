@@ -467,7 +467,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     var x2 = parseInt(jQuery("#bcdSideBarArea .bcdSection").css("borderRightWidth"), 10);
     x1 = isNaN(x1) ? 0 : x1;
     x2 = isNaN(x2) ? 0 : x2;
-    jQuery(".bcdSideBarGrip").css("right", (bcdui.widget.pageEffects._bcdGripRight + 2) + "px");
+    jQuery(".bcdSideBarGrip").css("right", (bcdui.widget.pageEffects._bcdGripRight - x1 - x2) + "px");
 
     // find first open section
     var openSection = jQuery("*.bcdSection").find("*.bcdSectionCaption:not(.bcdHeadClosed)").first();
