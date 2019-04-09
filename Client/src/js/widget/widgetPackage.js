@@ -2179,6 +2179,8 @@ bcdui.util.namespace("bcdui.widget",
         var selectedInput     = " value='" + statusModel.read(rootXPath + "/@value", "") + "'";
 
         // i18n key translate
+        if (caption.indexOf(bcdui.i18n.TAG) == 0)
+          caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption});
         var title     = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_filterFor"}) + ": " + caption;
 
         // build multi select options
