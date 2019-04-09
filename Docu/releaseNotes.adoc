@@ -29,6 +29,7 @@ The Renderer either works directly with the specified element or (in case of spe
     <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId: 'exportWysiwygAsExcel'})</JavaScriptAction>
     to
     <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:reportExport")</JavaScriptAction>
+* Added support for voice and free-text control
 
 . Widgets
 * periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all, showClearButton to allow cleaning of input

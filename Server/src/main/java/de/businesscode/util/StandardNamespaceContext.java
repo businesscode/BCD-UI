@@ -73,6 +73,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String GML_NAMESPACE          = "http://www.opengis.net/gml";
   public static final String GUISTATUS_PREFIX       = "guiStatus";
   public static final String GUISTATUS_NAMESPACE    = "http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0";
+  public static final String HTML_PREFIX            = "html";
+  public static final String HTML_NAMESPACE         = "http://www.w3.org/1999/xhtml";
   public static final String MENU_PREFIX            = "menu";
   public static final String MENU_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/menu-1.0.0";
   public static final String MSXSL_PREFIX           = "msxsl";
@@ -85,6 +87,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String SECURITY_NAMESPACE     = "http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0";
   public static final String SOAPENV_PREFIX         = "env";
   public static final String SOAPENV_NAMESPACE      = "http://www.w3.org/2003/05/soap-envelope";
+  public static final String TEXTNAV_PREFIX         = "txtnav";
+  public static final String TEXTNAV_NAMESPACE      = "http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0";
   public static final String WRS_PREFIX             = "wrs";
   public static final String WRS_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/wrs-1.0.0";
   public static final String WRSREQUEST_PREFIX      = "wrq";
@@ -101,8 +105,6 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String XSLTPARAMS_NAMESPACE   = "http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0";
   public static final String EXSLTDATE_PREFIX       = "date";
   public static final String EXSLTDATE_NAMESPACE    = "http://exslt.org/dates-and-times";
-  public static final String HTML_PREFIX            = "html";
-  public static final String HTML_NAMESPACE         = "http://www.w3.org/1999/xhtml";
 
   /**
    * Constructor for singelton
@@ -119,17 +121,21 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(CUBE_PREFIX,         CUBE_NAMESPACE);
     mapping.put(GRID_PREFIX,         GRID_NAMESPACE);
     mapping.put(CUST_PREFIX,         CUST_NAMESPACE);
-    mapping.put(EXSLT_PREFIX,        EXSLT_NAMESPACE);
     mapping.put(DM_PREFIX,           DM_NAMESPACE);
+    mapping.put(EXSLT_PREFIX,        EXSLT_NAMESPACE);
+    mapping.put(EXSLTDATE_PREFIX,    EXSLTDATE_NAMESPACE);
+    mapping.put(FAR_PREFIX,          FAR_NAMESPACE);
     mapping.put(FILTER_PREFIX,       FILTER_NAMESPACE);
     mapping.put(GML_PREFIX,          GML_NAMESPACE);
     mapping.put(GUISTATUS_PREFIX,    GUISTATUS_NAMESPACE);
+    mapping.put(HTML_PREFIX,         HTML_NAMESPACE);
     mapping.put(MENU_PREFIX,         MENU_NAMESPACE);
     mapping.put(MSXSL_PREFIX,        MSXSL_NAMESPACE);
     mapping.put(RENDERER_PREFIX,     RENDERER_NAMESPACE);
     mapping.put(SCORECARD_PREFIX,    SCORECARD_NAMESPACE);
     mapping.put(SECURITY_PREFIX,     SECURITY_NAMESPACE);
     mapping.put(SOAPENV_PREFIX,      SOAPENV_NAMESPACE);
+    mapping.put(TEXTNAV_PREFIX,      TEXTNAV_NAMESPACE);
     mapping.put(WRSREQUEST_PREFIX,   WRSREQUEST_NAMESPACE);
     mapping.put(WRS_PREFIX,          WRS_NAMESPACE);
     mapping.put(XAPI_PREFIX,         XAPI_NAMESPACE);
@@ -137,9 +143,6 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XI_PREFIX,           XI_NAMESPACE);
     mapping.put(XSLTFORMULAR_PREFIX, XSLTFORMULAR_NAMESPACE);
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
-    mapping.put(EXSLTDATE_PREFIX,    EXSLTDATE_NAMESPACE);
-    mapping.put(FAR_PREFIX,          FAR_NAMESPACE);
-    mapping.put(HTML_PREFIX,         HTML_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();
