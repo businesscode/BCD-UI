@@ -275,6 +275,13 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiTextNavigation",
+      "required": "default",
+      "files": [
+        "/js/component/textNavigation/textNavigation.js"
+      ]
+    },
+    {
       "id": "_webComponentsLitePolyfill",
       "required": "mandatory",
       "browserCompatibility" : {
