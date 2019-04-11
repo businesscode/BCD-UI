@@ -434,9 +434,6 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   static public int getHashIterations() {
     return JdbcRealm.hashIterations;
   }
-  public void setHashSalted(boolean hashSalted) {
-    this.hashSalted = hashSalted;
-  }
   public boolean isHashSalted() {
     return hashSalted;
   }
