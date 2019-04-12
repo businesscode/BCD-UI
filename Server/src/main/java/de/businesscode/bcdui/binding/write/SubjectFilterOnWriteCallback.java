@@ -120,7 +120,8 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
       String value = cValues.get(eBi.getIdx());
 
       // We have no value, set it
-      if( value == null || value.isEmpty() ) {
+      SubjectFilterType st = SubjectSettings.getInstance().getSubjectFilterTypeByName(eBi.permissionType);
+      if ((value == null || value.isEmpty()) && (st != null && ! st.isIsNullAllowsAccess())) {
         if( eBi.permissions.size() == 1 && ! eBi.permissions.contains("*") ) {
           cValues.set(eBi.getIdx(), eBi.permissions.iterator().next() );
         }
