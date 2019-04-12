@@ -250,6 +250,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
 
   @Override
+  protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo authInfo) throws AuthenticationException {
+    // for ImplicitAuthenticationToken we do not match credentials
+    if(!(token instanceof ImplicitAuthenticationToken)) {
+      super.assertCredentialsMatch(token, authInfo);
+    }
+  }
+
+  @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
     // If SubjectSettings are not to be used for authentication, do not try to authorize
     if (SubjectSettings.getInstance().getAuthentication().getSubjectSettings() == null)
