@@ -239,8 +239,8 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
       this.customPostEvaluator(words);
 
     // Apply the settings and load a new page?
-    if( words.indexOf("apply") !== -1 )
-      bcdui.core.lifecycle.applyAction()
+    if( words.indexOf("apply") !== -1 || this.config.read("/*/txtnav:VoiceInput/@autoApply") === "true" )
+      bcdui.core.lifecycle.applyAction();
 
   }
 
