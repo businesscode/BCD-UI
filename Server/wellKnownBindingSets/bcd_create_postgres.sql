@@ -15,7 +15,7 @@
 */
 
 -- db properties
-DROP TABLE bcd_db_properties CASCADE CONSTRAINTS;
+DROP TABLE bcd_db_properties CASCADE;
 CREATE TABLE bcd_db_properties
 (
   scope VARCHAR(32) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE bcd_db_properties
 );
 
 -- i18n
-DROP TABLE BCD_I18N CASCADE CONSTRAINTS;
+DROP TABLE BCD_I18N CASCADE;
 CREATE TABLE BCD_I18N
 (
    I18N_KEY    VARCHAR(255),
@@ -42,7 +42,7 @@ CREATE TABLE BCD_IDENTIFIER (
 );
 
 -- logging
-DROP TABLE bcd_log_access CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_access;
 CREATE TABLE bcd_log_access
 (
    LOG_TIME         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -60,7 +60,7 @@ CREATE TABLE bcd_log_access
    EXECUTE_DURATION INTEGER
 );
 
-DROP TABLE bcd_log_error CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_error;
 CREATE TABLE bcd_log_error
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +74,7 @@ CREATE TABLE bcd_log_error
    REVISION     VARCHAR(30)    NULL
 );
 
-DROP TABLE bcd_log_login CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_login;
 CREATE TABLE bcd_log_login
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -86,7 +86,7 @@ CREATE TABLE bcd_log_login
    SESSION_EXP_TIME  TIMESTAMP DEFAULT NULL
 );
 
-DROP TABLE bcd_log_page CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_page;
 CREATE TABLE bcd_log_page
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,7 +96,7 @@ CREATE TABLE bcd_log_page
    GUI_STATUS   VARCHAR(27000)
 );
 
-DROP TABLE bcd_log_pageperformance CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_pageperformance;
 CREATE TABLE bcd_log_pageperformance
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -110,7 +110,7 @@ CREATE TABLE bcd_log_pageperformance
    LOG_NAME     VARCHAR(64)
 );
 
-DROP TABLE bcd_log_session CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_session;
 CREATE TABLE bcd_log_session
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -120,7 +120,7 @@ CREATE TABLE bcd_log_session
    SESSION_EXP_TIME TIMESTAMP DEFAULT NULL
 );
 
-DROP TABLE bcd_log_sql CASCADE CONSTRAINTS;
+DROP TABLE bcd_log_sql;
 CREATE TABLE bcd_log_sql
 (
    LOG_TIME       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -134,13 +134,14 @@ CREATE TABLE bcd_log_sql
 );
 
 -- security
+DROP TABLE bcd_sec_user;
 CREATE TABLE bcd_sec_user
 (
-  user_id     VARCHAR(128),
-  user_login  VARCHAR(128),
-  name        VARCHAR(128),
-  password    VARCHAR(128),
-  password_salt    VARCHAR(64),
+  user_id     VARCHAR(128) NOT NULL,
+  user_login  VARCHAR(128) NOT NULL,
+  name        VARCHAR(128) NOT NULL,
+  password    VARCHAR(128) NOT NULL,
+  password_salt    VARCHAR(64) NOT NULL,
   is_disabled VARCHAR(64),
   PRIMARY KEY (user_id),
   UNIQUE(user_login)
@@ -164,7 +165,7 @@ CREATE TABLE bcd_sec_user_settings
 );
 
 -- tiny url
-DROP TABLE bcd_tinyurl_control;
+DROP TABLE bcd_tinyurl_control CASCADE;
 CREATE TABLE bcd_tinyurl_control
 (
   tiny_url VARCHAR(33) NOT NULL PRIMARY KEY,
@@ -175,7 +176,7 @@ CREATE TABLE bcd_tinyurl_control
 ALTER TABLE bcd_tinyurl_control ADD CONSTRAINT PK_bcd_TINYURL_CONTROL PRIMARY KEY (tiny_url);
 
 -- vfs
-DROP TABLE bcd_virtualFileSystem CASCADE CONSTRAINTS;
+DROP TABLE bcd_virtualFileSystem CASCADE;
 CREATE TABLE bcd_virtualFileSystem
 (
    path           VARCHAR(1024) NOT NULL,
