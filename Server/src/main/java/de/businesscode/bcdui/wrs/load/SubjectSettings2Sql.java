@@ -15,7 +15,6 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -51,12 +50,12 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   private static final int THRESHOLD_PERMS_COUNT_INLINE = 20;
   private final BindingSet bindingSet;
   private final WrqInfo wrqInfo;
-  private final Collection<Element> boundVariables;
+  private final List<Element> boundVariables;
   private Logger logger = Logger.getLogger(getClass());
   // TODO: add depedency on isDebug? or introduce custom new flag
   private boolean applySqlOptimization = true;
 
-  public SubjectSettings2Sql(BindingSet bindingSet, WrqInfo wrqInfo, Collection<Element> boundVariables) {
+  public SubjectSettings2Sql(BindingSet bindingSet, WrqInfo wrqInfo, List<Element> boundVariables) {
     this.bindingSet = bindingSet;
     this.wrqInfo = wrqInfo;
     this.boundVariables = boundVariables;
@@ -88,7 +87,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     return hasAccess ? whereClause.toString() : " 1=0 ";
   }
 
-  private void writeParams(Collection<String> psValues, Collection<Element> elementList) {
+  private void writeParams(List<String> psValues, List<Element> elementList) {
     psValues.forEach(p -> {
       Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
       e.setAttribute("value", p);
@@ -96,12 +95,12 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     });
   }
 
-  private boolean build(StringBuilder connectiveSb, Connective connective, Collection<Element> boundVariables, SubjectSettings settings, Subject subject,
+  private boolean build(StringBuilder connectiveSb, Connective connective, List<Element> boundVariables, SubjectSettings settings, Subject subject,
       StringBuilder loggingSb, int level) throws BindingNotFoundException, BindingException {
     String padding = loggingSb != null ? StringUtils.leftPad("", level * 4) : null;
 
-    Collection<String> nestedPsValues = new LinkedList<>();
-    Collection<Element> nestedElementList = new LinkedList<>();
+    List<String> nestedPsValues = new LinkedList<>();
+    List<Element> nestedElementList = new LinkedList<>();
 
     StringBuilder innerSb = new StringBuilder();
 
@@ -221,8 +220,8 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @throws BindingNotFoundException
    * @throws BindingException
    */
-  private boolean resolveSubjectFilter(Collection<Element> elementList, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
-      Connective connective, Collection<String> preparedStatementParams) throws BindingNotFoundException, BindingException {
+  private boolean resolveSubjectFilter(List<Element> elementList, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
+      Connective connective, List<String> preparedStatementParams) throws BindingNotFoundException, BindingException {
     SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
@@ -242,7 +241,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   }
 
   private void resolveByUserRightsTable(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective,
-      Collection<String> preparedStatementParams, String filterType) throws BindingException, BindingNotFoundException {
+      List<String> preparedStatementParams, String filterType) throws BindingException, BindingNotFoundException {
     if (subject.isPermitted(filterType + ":*")) {
       // If the subjects has all rights for this SubjectFilterType
       writeCanonicalConnective(subjectSettingsClause, connective, true);
@@ -274,7 +273,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param permissions - permissions granted by subject
    * @param columnExpression - the column expression to participate in condition
    */
-  protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, Collection<String> preparedStatementParams, String filterType,
+  protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, List<String> preparedStatementParams, String filterType,
       Set<String> permissions, String columnExpression) {
     if(permissions.isEmpty() && ft.isIsNullAllowsAccess()) {
       // no permission, yet select null-values
@@ -302,7 +301,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
   }
 
-  private void resolveWithValue(Collection<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
+  private void resolveWithValue(List<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
       Connective connective) throws BindingNotFoundException {
     String value = sessionFilterValue.toString();
 

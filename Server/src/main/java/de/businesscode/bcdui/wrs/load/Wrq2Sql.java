@@ -15,7 +15,6 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -218,7 +217,7 @@ public class Wrq2Sql implements ISqlGenerator
 
     // Now we determine the where-clause part driven by the SubjectSettings
     if(sqlConditionGeneratorClass != null && resultingBindingSet.hasSubjectFilters()){
-      SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, new Class<?>[]{BindingSet.class, WrqInfo.class, Collection.class}, resultingBindingSet, wrqInfo, boundVariables);
+      SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, new Class<?>[]{BindingSet.class, WrqInfo.class, List.class}, resultingBindingSet, wrqInfo, boundVariables);
       subjectSettingsClause = sqlConditionGen.getCondition();
       if (subjectSettingsClause == null){
         subjectSettingsClause = "";
