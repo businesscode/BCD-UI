@@ -102,7 +102,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   }
 
   private boolean build(StringBuilder connectiveSb, Connective connective, List<Element> boundVariables, SubjectSettings settings, Subject subject,
-      StringBuilder loggingSb, int level) throws BindingNotFoundException, BindingException {
+      StringBuilder loggingSb, int level) throws BindingException {
     String padding = loggingSb != null ? StringUtils.leftPad("", level * 4) : null;
 
     final List<Element> nestedBoundVariables = new LinkedList<>();
@@ -166,8 +166,9 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         connectiveSb.append("1=1");
       } else if (connective.getSymbol() == Connective.SYMBOL.OR) {
         connectiveSb.append("1=0");
-      } else
+      } else {
         throw new RuntimeException("unsupported symbol here: " + connective.getSymbol());
+      }
     } else {
       boolean isOptimized = false;
 
@@ -220,11 +221,10 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param connective
    * @param preparedStatementParams
    * @return false in case user has no access to the binding-set at all, true otherwise
-   * @throws BindingNotFoundException
    * @throws BindingException
    */
   private boolean resolveSubjectFilter(List<Element> boundVariables, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
-      Connective connective) throws BindingNotFoundException, BindingException {
+      Connective connective) throws BindingException {
     SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
@@ -243,7 +243,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
   }
 
-  private void resolveByUserRightsTable(List<Element> boundVariables, StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective, String filterType) throws BindingException, BindingNotFoundException {
+  private void resolveByUserRightsTable(List<Element> boundVariables, StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective, String filterType) throws BindingException {
     if (subject.isPermitted(filterType + ":*")) {
       // If the subjects has all rights for this SubjectFilterType
       writeCanonicalConnective(subjectSettingsClause, connective, true);
@@ -304,14 +304,13 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
 
   private void resolveWithValue(List<Element> boundVariables, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
       Connective connective) throws BindingNotFoundException {
-    String value = sessionFilterValue.toString();
 
-    if (value == null || value.isEmpty()) {
+    if (sessionFilterValue == null || sessionFilterValue.isEmpty()) {
       throw new RuntimeException("value must not be empty or null");
     }
 
     // Compliant with shiro, '*' means no restriction
-    if ("*".equals(value)) {
+    if ("*".equals(sessionFilterValue)) {
       writeCanonicalConnective(subjectSettingsClause, connective, true);
       return;
     }
@@ -334,7 +333,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
     e.setAttribute("op", ft.getOp());
     e.setAttribute("bRef", bRef);
-    e.setAttribute("value", value);
+    e.setAttribute("value", sessionFilterValue);
     subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, boundVariables, wrqInfo.getOwnerDocument(), false));
 
     // in case of implicit value with isIsNullAllowsAccess, we have an open bracket, so close it
@@ -366,16 +365,19 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
   }
 
-  static class BindingSetUserRights {
-    static class Holder {
+  private static class BindingSetUserRights {
+    private static class Holder {
       static BindingSetUserRights instance = new BindingSetUserRights();
     }
 
-    String table, userid, righttype, rightvalue;
+    String table;
+    String userid;
+    String righttype;
+    String rightvalue;
 
     public BindingSetUserRights() {
       BindingSet bsUr = null;
-      List<String> c = new LinkedList<String>();
+      List<String> c = new LinkedList<>();
       c.add("user_id");
 
       try {
