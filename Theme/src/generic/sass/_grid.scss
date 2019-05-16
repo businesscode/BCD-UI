@@ -199,6 +199,10 @@ input.bcdInputFieldGrid {
     .bcdButton { margin-right: 10px; }
   }
 
+  .col-sm-auto {
+    display: inline-block;
+  }
+
   .bcdGroupAction:after {
     content: "\2212";
     position: absolute;
