@@ -57,7 +57,11 @@
         # Shiro core settings
         [main]
         authc.loginUrl      = /login.html
+        authc.successUrl    = /index.html
         logout.redirectUrl  = /index.html
+
+        ## You can either work with static uses and roles via [users] and [roles] section in this file and have realmBcdJdbc commented out
+        ## Or use bcd_sec_xxx BindingSets together with realmBcdJdbc for a dynamic user administration
 
         ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization supporting salted passwords, etc.
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
@@ -81,21 +85,30 @@
         #sessionManager = org.apache.shiro.web.session.mgt.ServletContainerSessionManager
         #securityManager.sessionManager = $sessionManager
 
-        # Users and their roles
+        # Static users and their roles, needed when realmBcdJdbc is not used
         # format: username = password, role1, role2, ..., roleN
-        # Needed when realmBcdJdbc is not used
         [users]
 
-        # Rules and their permissions
+        # Static roles and their permissions, needed when realmBcdJdbc is not used
         # format: roleName = permission1, permission2, ..., permissionN
-        # Needed when realmBcdJdbc is not used
         [roles]
 
-        # URLs which require login, users not logged in will be sent to login
+        # Which URLs are pulic ('anon') and which require the user to be logged in ('authc') and possibly specific roles or permissions
         # format: /reports/budget/** = authc, perms["pages:budget"]
         [urls]
+        /logout               = logout
+
+        # Anon access to at least all resources need by the login page
+        # If anything is missing here, you will be redirected there after login
+        # If here is too much, it will be insecure
+        /login.html           = authc
+        /bcdui/bcdui.js       = anon
+        # you can omit /bcdui/js/**, if you load ./bcdui/bcdui.js?bcduiConfigOnly=true on login page
+        /bcdui/js/**          = anon
         /bcdui/theme/**       = anon
-        /login.html           = anon
+        /favicon.ico          = anon
+
+        # protected
         /**                   = authc
       </param-value>
     </init-param>
@@ -179,14 +192,17 @@
     </init-param>
     <init-param>
       <param-name>ExcludeExtensions</param-name>
-      <param-value>.jsp</param-value>
+      <param-value>.jsp .html</param-value> <!-- Let deep links lead to a server request, which may in turn redirect to login -->
     </init-param>
   </filter>
   <filter-mapping>
     <filter-name>bcdui4.ClientCachingFilter</filter-name>
 
-    <!-- For development environment: -->
-    <url-pattern>/bcdui/*</url-pattern>
+    <!-- Because we need at least one child here -->
+    <url-pattern>/bcdui/dummycaching.none</url-pattern>
+
+    <!-- For production and project development environment, unless also developing for BCD-UI itself: -->
+    <!-- url-pattern>/bcdui/*</url-pattern -->
 
     <!-- For production environment:
       Do not cache all /* unless we are sure that *.jsp can be cached and row-level security is not used,
@@ -199,7 +215,6 @@
     <url-pattern>*.jpg</url-pattern>
     <url-pattern>*.gif</url-pattern>
     <url-pattern>*.css</url-pattern>
-    <url-pattern>*.html</url-pattern>
     -->
     <!-- Cache only content, which is not user dependent (for example no row-level security) -->
     <!--
