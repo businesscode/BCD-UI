@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -87,11 +88,16 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     return hasAccess ? whereClause.toString() : " 1=0 ";
   }
 
-  private void writeParams(List<String> psValues, List<Element> elementList) {
+  /**
+   * helper to create SubjectSettings element carrying value attribute from plain values which are used for prepared statement parameterization
+   * @param psValues
+   * @param boundVariables
+   */
+  private void writeParams(List<String> psValues, List<Element> boundVariables) {
     psValues.forEach(p -> {
       Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
       e.setAttribute("value", p);
-      elementList.add(e);
+      boundVariables.add(e);
     });
   }
 
@@ -99,8 +105,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       StringBuilder loggingSb, int level) throws BindingNotFoundException, BindingException {
     String padding = loggingSb != null ? StringUtils.leftPad("", level * 4) : null;
 
-    List<String> nestedPsValues = new LinkedList<>();
-    List<Element> nestedElementList = new LinkedList<>();
+    final List<Element> nestedBoundVariables = new LinkedList<>();
 
     StringBuilder innerSb = new StringBuilder();
 
@@ -111,7 +116,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       if (sfNode instanceof SubjectFilter) { // SubjectFilter
         if (loggingSb != null)
           loggingSb.append(padding).append("| resolve filter: ").append(((SubjectFilter) sfNode).getType()).append("\n");
-        if (!resolveSubjectFilter(nestedElementList, settings, subject, innerSb, (SubjectFilter) sfNode, connective, nestedPsValues)) {
+        if (!resolveSubjectFilter(nestedBoundVariables, settings, subject, innerSb, (SubjectFilter) sfNode, connective)) {
           // in case one filter failed to resolve due to not available permissions, we stop
           return false;
         }
@@ -121,7 +126,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         // use new builder for scoping so undelying logic detects when to omit leading AND/OR symbols also
         // the scope might be empty i.e. due to * permit
         StringBuilder scopeSb = new StringBuilder();
-        if (!build(scopeSb, (Connective) sfNode, nestedElementList, settings, subject, loggingSb, level + 1)) {
+        if (!build(scopeSb, (Connective) sfNode, nestedBoundVariables, settings, subject, loggingSb, level + 1)) {
           return false;
         } else if (scopeSb.length() > 0) {
           // drop inner supportive operands
@@ -187,9 +192,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       }
 
       if (!isOptimized) {
-        // persist parameters for prepared-statement
-        writeParams(nestedPsValues, nestedElementList);
-        boundVariables.addAll(nestedElementList);
+        boundVariables.addAll(nestedBoundVariables);
         // in case we have canonical 1=0, 1=1 dont wrap then into parenthesis, this will ensure SQL optimization will to its job
         if ("|1=1|1=0|".contains(innerSb)) {
           connectiveSb.append(innerSb);
@@ -208,7 +211,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   /**
    * resolves subject filter to a value
    * 
-   * @param elementList
+   * @param boundVariables
    * @param settings
    * @param subject
    * @param session
@@ -220,8 +223,8 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @throws BindingNotFoundException
    * @throws BindingException
    */
-  private boolean resolveSubjectFilter(List<Element> elementList, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
-      Connective connective, List<String> preparedStatementParams) throws BindingNotFoundException, BindingException {
+  private boolean resolveSubjectFilter(List<Element> boundVariables, SubjectSettings settings, Subject subject, final StringBuilder sqlClause, SubjectFilter sf,
+      Connective connective) throws BindingNotFoundException, BindingException {
     SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
@@ -229,10 +232,10 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     final String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
 
     if (sessionFilterValue != null) {
-      resolveWithValue(elementList, sqlClause, ft, bRef, sessionFilterValue, connective);
+      resolveWithValue(boundVariables, sqlClause, ft, bRef, sessionFilterValue, connective);
       return true;
     } else if (SubjectSettings.rightsInDbAvailable()) {
-      resolveByUserRightsTable(sqlClause, subject, ft, bRef, connective, preparedStatementParams, settings.getFilterType(ft));
+      resolveByUserRightsTable(boundVariables, sqlClause, subject, ft, bRef, connective, settings.getFilterType(ft));
       return true;
     } else {
       // Otherwise the user has no rights at all
@@ -240,8 +243,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
   }
 
-  private void resolveByUserRightsTable(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective,
-      List<String> preparedStatementParams, String filterType) throws BindingException, BindingNotFoundException {
+  private void resolveByUserRightsTable(List<Element> boundVariables, StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, String bRef, Connective connective, String filterType) throws BindingException, BindingNotFoundException {
     if (subject.isPermitted(filterType + ":*")) {
       // If the subjects has all rights for this SubjectFilterType
       writeCanonicalConnective(subjectSettingsClause, connective, true);
@@ -259,7 +261,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
 
-    generateCondition(subjectSettingsClause, subject, ft, preparedStatementParams, filterType, permissions, bindingSet.get(bRef).getQColumnExpression());
+    generateCondition(subjectSettingsClause, subject, ft, boundVariables, filterType, permissions, bindingSet.get(bRef).getQColumnExpression());
   }
 
   /**
@@ -273,7 +275,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param permissions - permissions granted by subject
    * @param columnExpression - the column expression to participate in condition
    */
-  protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, List<String> preparedStatementParams, String filterType,
+  protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, List<Element> boundVariables, String filterType,
       Set<String> permissions, String columnExpression) {
     if(permissions.isEmpty() && ft.isIsNullAllowsAccess()) {
       // no permission, yet select null-values
@@ -294,14 +296,13 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
         subjectSettingsClause.append(columnExpression + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
-        preparedStatementParams.add(subject.getPrincipal().toString());
-        preparedStatementParams.add(filterType);
+        writeParams(Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }
       subjectSettingsClause.append(")");
     }
   }
 
-  private void resolveWithValue(List<Element> elementList, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
+  private void resolveWithValue(List<Element> boundVariables, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
       Connective connective) throws BindingNotFoundException {
     String value = sessionFilterValue.toString();
 
@@ -325,16 +326,16 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append("($col$ IS NULL OR ".replace("$col$", bindingSet.get(bRef).getQColumnExpression()));
     }
 
-    Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
-    e.setAttribute("op", ft.getOp());
-    e.setAttribute("bRef", bRef);
-    e.setAttribute("value", value);
     // Make sure the bRef we are working on is known, even if it did not appear elsewhere so far
     if (!wrqInfo.getAllBRefs().containsKey(bRef)) {
       wrqInfo.getAllBRefs().put(bRef, new WrqBindingItem(wrqInfo, wrqInfo.getResultingBindingSet().get(bRef), "v" + (wrqInfo.aliasCounter++), false));
     }
 
-    subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, elementList, wrqInfo.getOwnerDocument(), false));
+    Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
+    e.setAttribute("op", ft.getOp());
+    e.setAttribute("bRef", bRef);
+    e.setAttribute("value", value);
+    subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, boundVariables, wrqInfo.getOwnerDocument(), false));
 
     // in case of implicit value with isIsNullAllowsAccess, we have an open bracket, so close it
     if (ft.isIsNullAllowsAccess()) {
