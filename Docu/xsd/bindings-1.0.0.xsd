@@ -233,6 +233,12 @@
       <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
       <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
     </xs:choice>
+    <xs:attribute name="skipWriteCheck" default="false" type="xs:boolean">
+      <xs:annotation><xs:documentation>
+        When writing to a Binding-Set usually the subject filters are applied the way that user can only write values he would be also able to read.
+        You can suppress this check in case there are incompatible cases, by setting this flag to true
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="TypeSubjectFilterConnective">

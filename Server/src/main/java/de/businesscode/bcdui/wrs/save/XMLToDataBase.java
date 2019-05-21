@@ -34,14 +34,14 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
-import de.businesscode.bcdui.binding.subjectFilter.Connective;
-import de.businesscode.bcdui.binding.write.SubjectFilterOnWriteCallback;
 import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.subjectFilter.Connective;
+import de.businesscode.bcdui.binding.write.SubjectFilterOnWriteCallback;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallback;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallbackFactory;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
@@ -262,7 +262,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       logger.info("write processing callbacks found, delegating processEndHeader.");
 
       // We derive the standard writing filter from SubjectSettings
-      if( bindingSet.getSubjectFilters() != null ) {
+      if( bindingSet.getSubjectFilters() != null && !bindingSet.getSubjectFilters().isSkipWriteCheck() ) {
         Connective con = bindingSet.getSubjectFilters().getConnective();
         if( con.getElements().size() > 0 ) {
           WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);
