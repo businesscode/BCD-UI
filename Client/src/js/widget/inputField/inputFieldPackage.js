@@ -364,6 +364,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
 
         el.attr("title", newText);
         el.get(0).value = newText;
+        el.attr("bcdPos", pos);
         bcdui.widget.inputField._setCursorPosition( el.get(0), pos );
         el.removeClass("bcdInputEmptyValue");
       }
@@ -695,7 +696,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
         } else {
           htmlElement.title = htmlElement.value = "";
         }
-        bcdui.wkModels.guiStatus.fire();
+        targetModel.fire();
       } else if( htmlElement.getAttribute("bcdOptionsModelIsSuggestionOnly")=="true" ) {
         isWritten=bcdui.widget._copyDataFromHTMLElementToTargetModel(targetModel, targetModelXPath, htmlElement.value , keepEmptyValueExpression );
       } else if (bcdui.widget.inputField._useCaptions(htmlElement)){
@@ -886,7 +887,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
         clearTimeout(bcdui.widget.inputField._additionalFilterTimer[htmlElementId]);
       bcdui.widget.inputField._additionalFilterTimer[htmlElementId] =
         setTimeout(
-            function( additionalFilterModelId, additionalFilterXPath, newValue, wildcard, optionsModelId ) {
+            function( additionalFilterModelId, additionalFilterXPath, newValue, wildcard, optionsModelId, targetModelId ) {
               var aFXNode = bcdui.core.createElementWithPrototype( bcdui.factory.objectRegistry.getObject(additionalFilterModelId).getData(), additionalFilterXPath );
 
               // We avoid loading the data from the server, if we only further restrict the data and have loaded all data fitting the search expression last time
@@ -899,10 +900,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
                 bcdui.widget.inputField._moveSelection( {htmlElementId: htmlElementId, direction: 1, forceFirst: true } ); // Allow to select the top one by enter
               } else {
                 aFXNode.nodeValue = newValue;
-                bcdui.wkModels.guiStatus.fire();
+                bcdui.factory.objectRegistry.getObject(targetModelId).fire();
               }
             }.bind( undefined, htmlElement.attr("bcdAdditionalFilterModelId"), htmlElement.attr("bcdAdditionalFilterXPath"),
-                htmlElement.prop("value"), htmlElement.attr("bcdWildcard"), htmlElement.attr("bcdOptionsModelId") ),
+                htmlElement.prop("value"), htmlElement.attr("bcdWildcard"), htmlElement.attr("bcdOptionsModelId") , htmlElement.attr("bcdTargetModelId") ),
             minInactivityTime );
     },
 
@@ -1075,7 +1076,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
           var selectedElement = bcdui.widget.inputField._getSelectedElement(htmlElementId);
           if (selectedElement != null) {
             if(htmlElement){
-	            htmlElement.removeAttribute( "bcdSelectedRowId" );
+              htmlElement.removeAttribute( "bcdSelectedRowId" );
               if (selectedElement.getAttribute("bcd_autoCompletionBox_emptyValue") == "true") {
                 if ( htmlElement.getAttribute("bcdOptionsModelId") ){
                   var text = "";
@@ -1354,8 +1355,14 @@ bcdui.util.namespace("bcdui.widget.inputField",
       // register event listener that closes the popup if the user clicks somewhere outside of the popup
       jQuery(document).on('mousedown',bcdui.widget.inputField._hideOnClickListener);
 
-      //set focus to input field so the user can start typing
-      try{bcdui._migPjs._$(htmlElementId).focus();}catch(e){bcdui.log.warn("onfocus failed in _updateDropDownList: "+e.message);}
+      //set focus to input field so the user can start typing, set the cursor position only once (it gets lost due to the autocompletion box and refocusing)
+      // but only once to not reset the cursor over and over again
+      jQuery(htmlElement).focus();
+      var pos = jQuery(htmlElement).attr("bcdPos") || "";
+      jQuery(htmlElement).removeAttr("bcdPos");
+      if (pos != "")
+        bcdui.widget.inputField._setCursorPosition( htmlElement, pos );
+
     },
 
   /**
@@ -1367,7 +1374,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
     {
       var item = valueBox.appendChild(document.createElement("div"));
       if( rowId )
-      	item.setAttribute( "rowId", rowId );
+        item.setAttribute( "rowId", rowId );
       item.appendChild(value);
       if(isSelected){
         bcdui._migPjs._$(item).addClass("bcdSelected");
