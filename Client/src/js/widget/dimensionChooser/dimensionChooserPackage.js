@@ -713,7 +713,8 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
         isDistinct: true,
         isAutoRefresh: true,
         useCaptions: config.useCaptions,
-        url: config.url
+        url: config.url,
+        statusModel: bcdui.factory.objectRegistry.getObject(config.targetModelId) // use the model where we write our filters (i.e. server sided optionModels, additionalFilterXPath) to as statusModel
       };
 
       var optionsModelPrefix = "$" + autoModel +"/*/wrs:Data/";
@@ -779,9 +780,9 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
             // handle Required
             if(required){
               var requiredBRef = dimensionNode.selectSingleNode("./*/dm:Level[@id = '"+required.text+"']/@bRef").text;
-              autoModelArgs.additionalPassiveFilterXPath = "$guiStatus/*/guiStatus:ClientSettings/guiStatus:MultiSelect[@bcdDimension = '"+config.dimensionName+"']/f:Filter/f:And/f:Expression[@bRef='"+requiredBRef+"']";
+              autoModelArgs.additionalPassiveFilterXPath = "$" + config.targetModelId + "/*/guiStatus:ClientSettings/guiStatus:MultiSelect[@bcdDimension = '"+config.dimensionName+"']/f:Filter/f:And/f:Expression[@bRef='"+requiredBRef+"']";
             }
-            autoModelArgs.additionalFilterXPath = "$guiStatus/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"']";
+            autoModelArgs.additionalFilterXPath = "$" + config.targetModelId + "/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"']";
             autoModelArgs.maxRows = bcdui.widget.dimensionChooser.ServerSideOptionsModelFilterMaxRows;
           }
           var additionalFilterXPath =levelConfiguration.getAttribute("additionalFilterXPath");
@@ -856,7 +857,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           inputArgs.optionsModelIsSuggestionOnly = "true";
         }
         if(  levelConfiguration && levelConfiguration.getAttribute("serverSideOptionsModelFilter")=="true" ) {
-          inputArgs.additionalFilterXPath = "$guiStatus/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"' and @op='like' and @bRef='"+e.getAttribute('bRef') +"' and @ic='true']/@value";
+          inputArgs.additionalFilterXPath = "$" + config.targetModelId + "/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"' and @op='like' and @bRef='"+e.getAttribute('bRef') +"' and @ic='true']/@value";
           inputArgs.wildcard = "contains";
         }
 
