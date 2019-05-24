@@ -51,6 +51,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * filterRowsTemplate gets enhancement of condition attributes and filterlists
 
 . Themes
+* theme update: the new bcd-ui theme is based on Bootstrap v4.3.1, with FontAwesome 5.8.1 included
 * new pageEffect bcdEffectPageStickyFooter
 * HtmlBuilderTemplate passes-through any attribute on wrs:C in {http://www.w3.org/1999/xhtml} namespace - prefixed by 'html' - and merges html:class appropriately
 * HtmlBuilderTemplate sets bcdNegNumber class on an element in case number's value is negative
@@ -84,6 +85,9 @@ The Renderer either works directly with the specified element or (in case of spe
 * HTML Custom Elements for Safari was broken, after Safari switched to Webcomponents API v1
 
 .Backward Incompatibilities:
+
+* Menu: when using old scss themes, you need to specify bcdui.config.settings.bcdui.legacyTheme === true (settings.json)
+
 * jQueryMobile is not compatible with jQuery 3.x anymore. When using jQueryMobile, you need to build bcdui with a jQuery 2.x
 * bcd_virtualFileSystem got additional columns updatedBy, last_update, bcd_userId with additional writebacks and security constraints and a new additional key column
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)

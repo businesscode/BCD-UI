@@ -44,7 +44,7 @@
               root template
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsl:template match="/*">
-    <div class="bcdMenu" style="display:none">
+    <nav class="bcdMenu">
       <ul id="{$rootElementId}" class="bcdLevel1" db="{count(//menu:Entry)}">
         <xsl:for-each select="menu:Entry">
           <xsl:call-template name="getEntry">
@@ -53,7 +53,7 @@
           </xsl:call-template>
         </xsl:for-each>
       </ul>
-    </div>
+    </nav>
   </xsl:template>
 
 
@@ -67,15 +67,21 @@
     <xsl:for-each select="$entry">
       <xsl:variable name="node" select="."/>
       <li>
+        <xsl:variable name="activeClassName">
+          <xsl:call-template name="determineActiveClass">
+            <xsl:with-param name="node" select="$node"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:attribute name="class">
-          <xsl:if test="$node[@disable = 'true' or @hide = 'true']">
-            <xsl:value-of select="substring(' bcdDisabled', 1 + 12 * number( boolean($node/@disable = 'false' or not($node/@disable)) ) )"></xsl:value-of>
-            <xsl:value-of select="substring(' bcdHidden', 1 + 10 * number( boolean($node/@hide = 'false' or not($node/@hide)) ) )"></xsl:value-of>
-          </xsl:if>
+          <xsl:if test="$activeClassName!=''"> bcd__active-item</xsl:if>
+          <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
+          <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         </xsl:attribute>
 
         <xsl:call-template name="getLink">
           <xsl:with-param name="node" select="$node"/>
+          <xsl:with-param name="activeClassName" select="$activeClassName"/>
         </xsl:call-template>
 
         <xsl:if test="$node/menu:Entry">
@@ -91,6 +97,44 @@
     </xsl:for-each>
   </xsl:template>
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <xsl:template name="determineActiveClass">
+    <xsl:param name="node"/>
+    <xsl:choose>
+      <xsl:when test="$selectedMenuItemId != ''">
+        <xsl:if test="$selectedMenuItemId = $node/@id"> bcdActive</xsl:if>
+        <xsl:if test="$node//*[@id=$selectedMenuItemId]"> bcdActivePath</xsl:if>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="locationCheck">
+          <xsl:choose>
+            <xsl:when test="substring($location, string-length($location) - string-length('/') + 1) = '/'">
+              <xsl:value-of select="concat($location, 'index.')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$location"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:if test="$locationCheck != ''">
+          <xsl:choose>
+            <xsl:when test="$bcdPageIdParam != ''">
+              <xsl:if test="starts-with($node/@href, $locationCheck) and contains($node/@href, $bcdPageIdParam)"> bcdActive</xsl:if>
+              <xsl:if test="$node//*[starts-with(@href, $locationCheck) and contains(@href, $bcdPageIdParam)]"> bcdActivePath</xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:if test="starts-with($node/@href, $locationCheck)"> bcdActive</xsl:if>
+              <xsl:if test="$node//*[starts-with(@href, $locationCheck)]"> bcdActivePath</xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -98,7 +142,9 @@
   <xsl:template name="getLink">
     <xsl:param name="node"/>
     <xsl:param name="hasSubMenu" select="$node/menu:Entry"/>
+    <xsl:param name="activeClassName"/>
     <xsl:variable name="isClickable" select="not($node[@disable = 'true' or @hide = 'true'])"/>
+
     <xsl:variable name="hRef">
       <xsl:choose>
         <xsl:when test="starts-with($node/@href,'/')"><xsl:value-of select="concat($contextPath,$node/@href)"/></xsl:when>
@@ -108,52 +154,14 @@
     <a>
       <xsl:if test="$isClickable">
         <xsl:attribute name="href">
-          <xsl:value-of select="substring(concat('#', $hRef)
-                      ,1 + 1 * number(boolean(string-length($hRef) &gt; 0))
-                      )"/>
+          <xsl:value-of select="substring(concat('#', $hRef), 1 + 1 * number(boolean(string-length($hRef) &gt; 0)))"/>
         </xsl:attribute>
       </xsl:if>
 
       <xsl:attribute name="class">
-        <xsl:choose>
-          <xsl:when test="$selectedMenuItemId != ''">
-            <xsl:if test="$selectedMenuItemId = $node/@id"> bcdActive </xsl:if>
-            <xsl:if test="$node//*[@id=$selectedMenuItemId]"> bcdActivePath </xsl:if>
-          </xsl:when>
-          <xsl:otherwise>
-
-            <xsl:variable name="locationCheck">
-              <xsl:choose>
-                <xsl:when test="substring($location, string-length($location) - string-length('/') + 1) = '/'">
-                  <xsl:value-of select="concat($location, 'index.')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="$location"/>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:variable>
-
-            <xsl:if test="$locationCheck != ''">
-              <xsl:choose>
-                <xsl:when test="$bcdPageIdParam != ''">
-                  <xsl:if test="starts-with($node/@href, $locationCheck) and contains($node/@href, $bcdPageIdParam)"> bcdActive </xsl:if>
-                  <xsl:if test="$node//*[starts-with(@href, $locationCheck) and contains(@href, $bcdPageIdParam)]"> bcdActivePath </xsl:if>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:if test="starts-with($node/@href, $locationCheck)"> bcdActive </xsl:if>
-                  <xsl:if test="$node//*[starts-with(@href, $locationCheck)]"> bcdActivePath </xsl:if>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:if>
-
-          </xsl:otherwise>
-
-        </xsl:choose>
-        
-        <xsl:if test="$node[@disable = 'true' or @hide = 'true']">
-          <xsl:value-of select="substring(' bcdDisabled', 1 + 12 * number( boolean($node/@disable = 'false' or not($node/@disable)) ) )"></xsl:value-of>
-          <xsl:value-of select="substring(' bcdHidden', 1 + 10 * number( boolean($node/@hide = 'false' or not($node/@hide)) ) )"></xsl:value-of>
-        </xsl:if>
+        <xsl:value-of select="$activeClassName"/>
+        <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
+        <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         <xsl:if test="$hasSubMenu"> bcdSubMenuContainer</xsl:if>
       </xsl:attribute>
 

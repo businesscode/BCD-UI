@@ -1,0 +1,180 @@
+// Login Frame
+
+// Glass wall backdrop
+.bcd__login-upper {
+  flex:1 1 auto;
+  display:flex;
+  align-items:center;
+}
+
+.bcd__login-wrapper {
+  width:100%;
+  height:100%;
+  background:$bcd_background-gray-light;
+  display:flex;
+  flex-direction: column;
+  justify-items:center;
+  overflow:auto;
+
+  .bcd__login-lower {
+    flex:0 0 auto;
+  
+    p {
+      font-size:.9em;
+      text-align: center;
+  
+      a {
+        display:inline-block;
+        padding-left:1em;
+        color:$bcd_headline-color;
+      }
+    }
+  }
+  
+  // optional two backdrops:
+
+  &--light-gray {
+    &:after {
+      content:"";
+      display:block;
+      height:50vh;
+      width:50vw;
+      position:absolute;
+      right:-5vw;
+      bottom:3vh;
+      background-image: url(../images/big-logo.svg);
+      background-repeat: no-repeat;
+      background-position:bottom right;
+      background-size:contain;
+      opacity:.2;
+      overflow:hidden;
+    }
+  }
+
+  &--dark-blue {
+    background:url(../images/full-image.png);
+    background-repeat: no-repeat; 
+    background-size:cover;
+    &:after {
+      content:"";
+      display:block;
+      height:50vh;
+      width:50vw;
+      position:absolute;
+      right:-5vw;
+      bottom:3vh;
+      background-image: url(../images/big-logo.svg);
+      background-repeat: no-repeat;
+      background-position:bottom right;
+      background-size:contain;
+      opacity:.2;
+      overflow:hidden;
+    }
+  
+    .bcd__login-lower {
+        p ,p a {
+          color:#fff;
+        }
+      }
+    }
+  }
+
+
+// modal-style login-window
+// shall be outsourced as modal soon
+
+.bcd__login-window {
+  flex: 0 1 19em;
+  min-width: 15em;
+  max-width: 100%;
+  margin: auto;
+  background:#fff;
+  box-shadow: $bcd_modal_dropshadow;
+  padding:0.8em 0.2em 0.8em;
+  z-index:1;
+
+  &__header {
+    padding:1em;
+    img {
+      max-width:100%;
+      height:auto;
+    }
+  }  
+  section {
+    border:none;
+  }
+  .bcd__text-link {
+    color:$bcd_headline-color;
+    font-size:.9em;
+  }
+  .bcd__btn {
+    width:100%;
+    display:flex;
+    justify-content: center;
+    position: relative;
+
+    &--google-login,
+    &--microsoft-login {
+      color:#fff;
+      font-weight:400;
+
+      &:after {
+        @extend %fa-icon;
+        @extend .fab;  
+        content: "";
+        font-size:1em;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 2.2em;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+    &--google-login {
+      background:#D40404;
+     
+      &:after {
+        content: fa-content($fa-var-google);
+      }
+    }
+    &--microsoft-login {
+      background:#329FFC;      
+    
+      &:after {
+        content: fa-content($fa-var-microsoft);
+      }
+    }
+  }  
+
+  .bcd__form-group {
+    margin-bottom:.6em;
+  }
+  .bcd__login-divider {
+    position: relative;
+    text-align:center;
+    margin-bottom:1em;
+    span {
+      display:inline-block;
+      background:#fff;
+      position: relative;
+      z-index:20;
+      padding:0 .5em;
+      color:$bcd_headline-color;
+      font-size:0.9em;
+    }
+    &:before {
+      content:"";
+      position: absolute;
+      left:0;
+      top:.6em;
+      width:100%;
+      height:1px;
+      background:transparent;
+      border-bottom:1px solid $bcd_border-color;
+    }
+  }
+}

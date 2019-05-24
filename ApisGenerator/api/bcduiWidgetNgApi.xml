@@ -186,7 +186,7 @@
       </Api>
 
 
-      <Api name="dateInput" extends="baseInput">
+      <Api name="dateInput" extends="baseInput hasLabel">
         <Doc>
           Date picker for temporal types supports native html5 widget and fallsback to custom implementation in case browser
           does not support it.
@@ -259,6 +259,15 @@
         </Param>
       </Api>
 
+      <Api name="hasLabel">
+        <Doc>
+          This API provides .label parameter enabling form-group and placing label binding with an input of a widget
+        </Doc>
+        <Param name="label" type="i18nToken">
+          <Doc>If provided, enables widget to render a label element</Doc>
+        </Param>
+      </Api>
+
       <Api name="hasValidator">
         <Doc>
           This API provides general RegExp validation and provides support to attach custom validators
@@ -313,7 +322,7 @@
         </Param>
       </Api>
 
-      <Api name="input" extends="textInput hasValidator hasHtmlEvents">
+      <Api name="input" extends="textInput hasValidator hasHtmlEvents hasLabel">
         <ApiChange since="4.3.3">
           @emptyValue renemaed to @placeholder
           removed:
@@ -362,7 +371,7 @@
       </Api>
 
 
-      <Api name="textArea" extends="textInput hasValidator">
+      <Api name="textArea" extends="textInput hasValidator hasLabel">
         <Doc>Free Text input, standard HTML textarea</Doc>
         <Param name="cols" type="integer" required="true" default="5">
           <Doc>HTML Parameter on the textarea to set number of columns</Doc>
@@ -455,7 +464,7 @@
         </Param>
       </Api>
 
-      <Api name="suggestInput" extends="hasOptionsFilter hasOptions textInput hasHtml5Support hasValidator">
+      <Api name="suggestInput" extends="hasOptionsFilter hasOptions textInput hasHtml5Support hasValidator hasLabel">
         <Doc>
           Allowing to either depict certain value from a list or accepting new value not in list.
           This input type always offers an input prompt which either acts as pre-filter for the list or also
@@ -532,13 +541,13 @@
         </Doc>
       </Api>
 
-      <Api name="checkbox" extends="baseInput hasHtmlEvents">
+      <Api name="checkbox" extends="baseInput hasHtmlEvents hasLabel">
         <Doc>
-          Basic checkbox which implements a 1/0 switch.
+          Basic checkbox which implements a 1/0 switch. The label (if used) is placed right to the checkbox
         </Doc>
       </Api>
 
-      <Api name="singleSelect" extends="hasCaptions baseInput">
+      <Api name="singleSelect" extends="hasCaptions baseInput hasLabel">
         <Doc>
           Renders a browser does natively for select or radio.
         </Doc>

@@ -137,6 +137,9 @@
         }
       }.bind(this));
 
+      // handle label creation before appending control
+      this._createLabel(uiControl.widget.getAttribute("id"));
+
       // attach to DOM
       rootContainer.append(uiControl.widget);
 

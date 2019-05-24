@@ -132,16 +132,16 @@
       bcdui.widgetNg.createConnectable(targetArgs);
 
       // click handler for buttons movement moving selected entries from source to target or vice versa
-      jQuery("#" + this.options.id + " .bcd-sbs-controls a").click(function(event) {
+      jQuery("#" + this.options.id + " .bcd-sbs-controls").on("click", ".bcdToMainTarget, .bcdToSource", function(event){
 
         var from = "";
         var to = "";
 
-        if (jQuery(event.target).parent().hasClass("bcdToMainTarget")) {
+        if (jQuery(event.target).hasClass("bcdToMainTarget")) {
           from = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();
           to = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdTarget").first();
         }
-        if (jQuery(event.target).parent().hasClass("bcdToSource")) {
+        if (jQuery(event.target).hasClass("bcdToSource")) {
           from = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdTarget").first();
           to = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();
         }

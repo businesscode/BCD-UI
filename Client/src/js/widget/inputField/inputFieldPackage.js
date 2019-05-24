@@ -70,6 +70,11 @@ bcdui.util.namespace("bcdui.widget.inputField",
     // Please note: for IE8 compatibility it is required to render input fields
     // as self closing elements with jQuery.
 
+    if (e.getAttribute("bcdLabel")){
+      var labelEl = jQuery("<label/>").appendTo(e);
+      bcdui.widget._initLabel(labelEl, e.getAttribute("bcdid"), e.getAttribute("bcdLabel"));
+    }
+
     jQuery(e).append(
       "<input"
       + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='new-password'" : "")

@@ -90,7 +90,7 @@
       this.element.hide();
 
       var checkboxEl = this._createInputControl();
-
+      
       this.element.data("_config_", config);
 
       // sync the bound model value once
@@ -110,6 +110,9 @@
 
       // attach to DOM
       this.element.append(checkboxEl);
+
+      // handle label creation after appending control
+      this._createLabel(checkboxEl.attr("id"));
 
       // add listeners
       if(!this.options.readonly){
@@ -178,9 +181,10 @@
      */
     _createInputControl: function(){
 
-      var el = jQuery("<input class='form-check-input'/>");
+      var el = jQuery("<input />"); // do not attach .form-check-input since our parent must be .form-check which we cant force here
 
       var opts = this.options;
+      el.attr("id","inputchk_" + opts.id);
       el.attr("tabindex", opts.tabindex);
       el.attr("autofocus", opts.autofocus);
       el.attr("readonly", opts.readonly);

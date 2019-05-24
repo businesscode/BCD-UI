@@ -394,7 +394,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         var hiddens = bcdui._migPjs._$(containerHtmlElement).find("input.bcdHidden");
         hiddens[0].isFrom = values[0].isFrom = true;
         hiddens[0].onchange = bcdui.widget.periodChooser._onPeriodSelected.bind(undefined,hiddens[0]);
-        var buttons = bcdui._migPjs._$(containerHtmlElement).find("span.bcdButton a");
+        var buttons = bcdui._migPjs._$(containerHtmlElement).find("span.bcdButton");
         buttons[0].onclick = bcdui.widget.periodChooser._showPopup.bind(undefined,values[0], hiddens[0], "from");
         if (containerHtmlElement.getAttribute("bcdIsFreeRangeSelectable") === "true") {
           hiddens[1].isFrom = values[1].isFrom = false;

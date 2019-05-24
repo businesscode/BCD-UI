@@ -109,8 +109,6 @@
         return;
       }
 
-      controlEl = bcdui._migPjs._$(controlEl);
-
       // in case of jQM - install refresher and some workarounds
       if(typeof jQuery != "undefined"){
         controlEl.on(bcdui.widgetNg.utils.EVENT.SYNC_READ, bcdui.widgetNg.utils._jqmRefresh.bind(undefined,controlEl.get(0).id));
@@ -124,6 +122,9 @@
         this.setVisible(false);
         rootContainer.parent().get(0).appendChild(_loadingDiv.get(0));
       }
+
+      // handle label creation before appending control
+      this._createLabel(controlEl.attr("id"));
 
       rootContainer.append(controlEl);
 
@@ -446,7 +447,7 @@
         ;
       }
 
-      return el.get(0);
+      return el;
     },
 
     /**

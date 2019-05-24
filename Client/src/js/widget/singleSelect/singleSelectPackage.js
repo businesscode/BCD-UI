@@ -27,6 +27,10 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
    */
   init: function(htmlElement){
 
+    if (htmlElement.getAttribute("bcdLabel")){
+      bcdui.widget._initLabel(jQuery("<label/>").appendTo(htmlElement), null, htmlElement.getAttribute("bcdLabel"));
+    }
+
     jQuery(htmlElement).addClass("bcdSingleSelect");
     bcdui.widget._bcdIdToDomId(htmlElement);
 
@@ -148,7 +152,8 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
       formName: htmlElementId + "_bcdui_radio_form",
       itemName: htmlElementId + "_bcdui_radio",
       optionsModelRelativeValueXPath: htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath"),
-      targetModelXPath : htmlElement.getAttribute("bcdTargetModelXPath")
+      targetModelXPath : htmlElement.getAttribute("bcdTargetModelXPath"),
+      labelElement :htmlElement.querySelector("label")
     };
     if( args.optionsModel.getData()==null )
       return;
@@ -187,7 +192,6 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
   _createOptionsElement: function(args, nodes){
     var radioForm = document.createElement("form");
     radioForm.setAttribute("name", args.formName);
-    bcdui._migPjs._$(radioForm).css( {display:"inline"} );
 
     var rootModelNode = args.targetModel.dataDoc.selectSingleNode(args.targetModelXPath);
     var captionValueArr = bcdui.widget._getCaptionValueArray(args.htmlElement.id);
@@ -233,6 +237,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
       ++i;
     });
     args.htmlElement.innerHTML = "";
+    args.labelElement && args.htmlElement.appendChild(args.labelElement);
     args.htmlElement.appendChild(radioForm);
   },
 

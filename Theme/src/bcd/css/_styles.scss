@@ -1,0 +1,1523 @@
+/*********************************************************************************************************************/
+/* general classes */
+/*********************************************************************************************************************/
+
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.select {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.bcdClosed,
+.bcdHidden {
+  display: none !important;
+}
+
+.bcdDisabled {
+  text-decoration: none !important;
+  color: $text-disabled-color !important;
+  cursor: default !important;
+}
+
+.bcdInvalid {
+  background-color: $invalid-color !important;
+  color: text-contrast($invalid-color) !important;
+}
+
+.bcdSelected {
+  @include con_color( $select-color );
+}
+
+.bcdPlaceholder,
+.bcdClearOption,
+.bcdInputEmptyValue {
+  color: lighten($text-color-dark, 50%) !important;
+}
+
+.statusNotReady,
+.bcdLoading {
+  background: url("../images/loading.gif") top left no-repeat;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+/* indicating a component is busy and not ready to receive a user input */
+.bcdIsBusy {
+  cursor: wait;
+}
+
+/* deprecated; remove this since h1 is defined to be the ultimate title (html best practices) */
+.bcdTitle {}
+
+/*********************************************************************************************************************/
+/* buttons */
+/*********************************************************************************************************************/
+
+.bcdButton {
+  @extend .btn; // extend BS-default button
+  font-weight: 600;
+  padding: .4em 1.4em;
+  cursor: pointer;
+}
+
+#bcdDropDownButton {
+  position: absolute;
+  z-index:  $z-index-flyover;
+  
+  .bcdButton {
+     @extend .btn-secondary;
+  }
+}
+#bcdDropDownButton {
+  ul {
+    padding: 0;
+    margin: .4em 0 0 -1.4em;
+    list-style-type: none;
+    li {
+      margin-bottom: 0.1em;
+    }
+  }
+}
+#bcdDropDownButton,
+.bcdDropDownButton {
+  a {
+    color: inherit;
+    text-decoration: none;
+    .opened:after { content: "\25B2"; }
+    .closed:after { content: "\25BC"; }
+  }
+}
+
+
+/*********************************************************************************************************************/
+/* Flyovers */
+/*********************************************************************************************************************/
+
+#bcdAutoCompletionBox,
+#bcd_widget_suggestInput_dataList,
+#bcdChartToolTip,
+#bcdTooltipDiv {
+  position: absolute;
+
+  /* from bcd__form-control */
+  background-color: #fff;
+  color: #495057;
+  padding: .3em .7em;
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.5;
+  border: 1px solid $border-color;
+}
+
+#bcdWidgetBalloon {
+  @include con_color($flyover-color);
+  border: 1px solid $border-color;
+  z-index: $z-index-balloon;
+  position: fixed;
+  padding: .5em;
+  @include alpha(0.95);
+  @include shadow();
+}
+
+
+#bcd_widget_suggestInput_dataList,
+#bcdAutoCompletionBox {
+  z-index: $z-index-autocomplete;
+  height: 10em;
+  overflow: hidden;
+}
+
+#bcdChartToolTip,
+#bcdTooltipDiv,
+.ui-dialog {
+  z-index: $z-index-flyover;
+}
+
+#bcd_widget_suggestInput_dataList {
+  overflow-y: auto;
+  div {
+    white-space: nowrap;
+    .bcdOptionIsHovered,
+    .bcdOptionIsSelected {
+      @include con_color( $select-color );
+    }
+  }
+}
+
+/*********************************************************************************************************************/
+/* inputField Widget */
+/*********************************************************************************************************************/
+
+.bcdSuggestMatchPart {
+  font-weight: bold;
+}
+
+.bcdComboInputField {
+  position: relative;
+
+  .form-control {
+    padding-right: 2.5em;
+    font:400 1em/1.5 $font-family-default;
+  }
+
+  @extend %fa-icon;
+  @extend .fas;
+
+  span {
+    &:after {
+      content: "\25BC";
+      font-size:.5em;
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 2.2em;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+/*********************************************************************************************************************/
+/* single / multiSelect Widget */
+/*********************************************************************************************************************/
+
+.bcdMultiSelect select {
+  height: inherit;
+  padding: 0 0 0 .6em;
+}
+
+.bcdSingleSelect,
+.bcdMultiSelect {
+  display: block;
+  input[type='radio'],
+  input[type='checkbox'] {
+    margin: 0.2em;
+  }
+}
+
+/*********************************************************************************************************************/
+/* dim chooser */
+/*********************************************************************************************************************/
+
+.bcdDimensionChooser {
+  table {
+    border-collapse: separate;
+   tbody tr td  {border: none; padding: 0; margin: 0; } 
+  }
+
+  div.bcdChooserCaption, div.bcdChooserCaptionFixed { display: none; }
+
+  .bcdAdd { margin-right: 0.2em; }
+  .bcdRemove { margin-left: 0.2em; }
+
+  .bcdButton {
+    @extend .btn-secondary;
+    padding: .187em .38em;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+  select {
+    overflow-y: auto;
+  }
+}
+
+/*********************************************************************************************************************/
+/* Period chooser */
+/*********************************************************************************************************************/
+
+.bcdPeriodChooser {
+  
+  display: block;
+
+  input {
+    @extend .form-control;
+  }
+
+  .bcdValue {
+    font:400 1em/1.5 $font-family-default;
+    margin: 0 0 0 .375em;
+    input { display: inline; text-align: center; padding-left: 0; padding-right: 0; margin: 0 0 0 -.375em; }
+  }
+ 
+  .bcdPostfix {
+    display: block;
+    margin-bottom: 0.2em;
+  }
+
+  .bcdButton {
+    @extend .btn-secondary;
+    padding: .375em .75em;
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      &:after {
+        @extend %fa-icon;
+        @extend .fas;
+        content: fa-content($fa-var-calendar);
+        background-color: $text-color;
+        margin: 0 0.25em; /* need this margin to an optional caption */
+      }
+    }
+  }
+  
+  .bcdPeriodChooserModLeft {
+    margin-top: 0.2em;
+    @extend .btn;
+    @extend .btn-secondary;
+    &:after { content: fa-content($fa-var-chevron-left); text-decoration: none; cursor: pointer; }
+  }
+  .bcdPeriodChooserModRight {
+    margin-top: 0.2em;
+    @extend .btn;
+    @extend .btn-secondary;
+    &:after { content: fa-content($fa-var-chevron-right); text-decoration: none; cursor: pointer; }
+  }
+
+  .bcdHint { display: none; }
+  .bcdHr {
+    margin: 0.2em; 
+    hr { display: none; }
+  }
+
+  .bcdClearButton {
+    margin-left: 0.2em;
+    @extend .btn;
+    @extend .btn-secondary;
+    &:after {
+      content: fa-content($fa-var-times);
+      cursor: pointer;
+    }
+  }
+  
+  .bcdHour { width: 1.5em; border-right-style: none; text-align: center; }
+  .bcdTimeMiddle { border-right-style: none; }
+  .bcdMinute, .bcdSecond { width: 1.5em; border-left-style: none; text-align: center; }
+  .bcdDateTimeDelimiter  { width: 0.5em; border-style: none; text-align: center; background-color: #fff; display:inline;}
+
+  .bcdDateTimeDelimiter, .bcdDateDelimiter { width: 0.5em; border-right-style: none;  border-left-style: none; border-radius: 0; background-color: inherit !important;}
+  .bcdHour, .bcdDay { width: 2em; border-left-style: none; border-radius: 0 .25em .25em 0; }
+  .bcdHour, .bcdMonth { width: 2em; border-right-style: none; border-left-style: none; border-radius: 0; }
+  .bcdYear { width: 3.2em; border-right-style: none; border-radius: .25em 0 0 .25em;  }
+
+  .bcdInvalid {
+    background-color: inherit !important;
+    input { background-color: $invalid-color !important; color: text-contrast($invalid-color) !important;}
+  }
+}
+
+#bcdCalendar {
+
+   z-index: $z-index-flyover !important;
+
+   img {
+     display: none;
+   }
+   
+   span.changeLeft:after { content: "\25C4"; }
+   span.changeRight:after { content: "\25BA"; }
+   td.calCloseImage {
+     text-align: right;
+   }
+   span.calCloseImage {
+     &:after { content: "x"; cursor: pointer; }
+   }
+   span.changeYear:after, span.changeMonth:after { content: "\25BC"; }
+   
+   @extend .noselect;
+   
+   .popupContentTable {
+     font-family: inherit !important;
+     font-size: inherit !important;
+     td { text-align: right; text-decoration: none; }
+     .popupToday {
+      color: #CC0000 !important;
+      font-weight: bold !important;
+    }
+   }
+   
+  .weekListSelectionHover,
+  .weekListSelectionHover a,
+  .popupSelectBoxHover {
+    color: text-contrast($select-color) !important;
+    background-color: $select-color !important;
+  }
+   
+  tr.popupBaseColor {
+    table {
+      width: 100%; 
+      td span {
+        color: $text-color;
+      }
+    }
+  }
+
+   #selectMonth, #selectYear,
+  .popupBaseColor {
+    background-color: #f6f6f6;
+    font-family: inherit !important;
+    font-size: inherit !important;
+  }
+
+  .popupBaseColor {
+    table td {
+      font-family: inherit !important;
+      font-size: inherit !important;
+    }
+  }
+}
+
+/*********************************************************************************************************************/
+/* tabs */
+/*********************************************************************************************************************/
+
+.bcdTab {
+   ul {
+     padding: 0;
+     margin: 0 0 0.1em 0;
+   }
+   li {
+     display: inline-block;
+     a {
+       border: 1px solid $border-color;
+       border-radius: $border-radius-small $border-radius-small 0 0;
+       border-bottom-style: none !important;
+       @include con_color($control-color);
+       padding: 0 .75em;
+     }
+     a:hover {
+       @include con_color($border-color);
+     }
+     a.bcdActive {
+       @include con_color(#FFFFFF);
+       font-weight: bold;
+       padding-bottom: 0.1em;
+     }
+   }
+}
+
+.bcdTabItem {
+  margin: 1em;
+}
+
+.bcdTabDefinition {
+  border: 1px solid $border-color;
+  border-radius: 0 $border-radius-small 0 0;
+  @include con_color(#FFFFFF);
+}
+
+
+/*********************************************************************************************************************/
+/* cube dnd */
+/*********************************************************************************************************************/
+
+.bcdScorecardDndMatrix,
+.bcdCubeDndMatrix {
+
+  background-color: #fff;
+
+  .grid_24 {
+     @extend .row;
+     @extend .no-gutters;
+   }
+  .grid_5, .grid_3 { @extend .col; height: 20em; border: 1px solid $border-color;}
+
+  .bcdDimensionList, .bcdMeasureList, .bcdKpiList {
+    height: 90%;
+  }
+
+  .bcdScDimensionList, .bcdAspectList {
+    height: 40%;
+  }
+
+  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentScColDimensionList, .bcdCurrentAspectList {
+    height: 50%;
+  }
+  .bcdCurrentColDimensionList, .bcdCurrentScColDimensionList {
+    border-bottom: 1px solid $border-color;
+  }
+  .bcdCurrentMeasureList, .bcdCurrentAspectList {
+    border-top: 1px solid $border-color;
+  }
+  
+  .bcdHeader {
+    height: 10%;
+    padding: .3em;
+    @include con_color($corporate-color-alt);
+  }
+
+  div {
+    position: relative;
+  }
+  
+  ul {
+    &:after {
+      font-size: 0.8em;
+      bottom: 0;
+      left: 0.3em;
+      position: absolute;
+      @include alpha(0.75);
+      color: $corporate-color-alt;
+      z-index: 0;
+    }
+  }
+
+  .bcdConnectable {
+    .bcdItem { display: inline-block; width: 100%; }
+  }
+
+  .bcdDropTarget { background-color: $border-color; }
+
+  .ui-sortable-placeholder, .ui-selectee {
+    padding: .3em;
+    margin: .1em 0 .1em 0;
+    list-style-type: none;
+  }
+  .ui-selectee {
+    @include con_color($cube-color-item);
+    z-index: 1;
+  }
+  .ui-sortable-placeholder {
+    height: 1em + .3em + .3em;
+  }
+  
+  .ui-sortable-helper {
+    &:after { content: ""; }
+  }
+}
+
+.bcdReport {
+  thead .bcdTotal {
+    @extend .table-primary;
+  }
+
+  tbody {
+    .bcdTL1, .bcdTL1 td,
+    .bcdTL2, .bcdTL2 td,
+    .bcdTL3, .bcdTL3 td,
+    .bcdTLGe4, .bcdTLGe4 td,
+    .bcdTotal {
+      @extend .table-primary;
+    }
+  }
+  
+  th.bcdVdm, th.bcdVmeas, th.bcdRowCumulate, th.bcdColCumulate, th.bcdRowColCumulate {
+    padding-left: 18px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th.bcdVdm,  th.bcdVmeas { background-image: url(../images/cube/calc.gif); }
+  th.bcdRowCumulate { background-image: url(../images/cube/cum_row.gif); }
+  th.bcdColCumulate { background-image: url(../images/cube/cum_column.gif); }
+  th.bcdRowColCumulate { background-image: url(../images/cube/cum_row_column.gif); }
+  .bcdSortAsc:after { content: "\25B2"; color: $border-color; padding: 2px; }
+  .bcdSortDesc:after { content: "\25BC"; color: $border-color; padding: 2px; }
+
+  .bcdTrendUp, .bcdTrendDown {
+    font: 16px Monospace;
+    color: #ffffff !important;
+    text-align: center;
+  }
+  .bcdTrendUp:before       { background-color: $report-color-ok; content: "\2191" }
+  .bcdTrendDown:before     { background-color: $report-color-fail; content: "\2193" }
+  .bcdTrendUpBad:before    { background-color: $report-color-fail; content: "\2191" }
+  .bcdTrendDownGood:before { background-color: $report-color-ok; content: "\2193" }
+
+  .bcdExpandCollapseButton {
+    cursor: pointer;
+    padding: 0 .375em 0 .3em;
+    @extend .btn-secondary;
+    margin-right: .3em;
+  }
+
+  .bcdExpandContainer { display:flex; align-items: center;}
+  .bcdExpandOriginal { width: 100%; }
+  .bcdExpand:after { content: "\002B"; }
+  .bcdCollapse:after { content: "\2212";}
+}
+
+/* treeview specific*/
+
+.bcdReport.bcdTreeReportPi {
+  .bcdPlusSpan {
+    margin-right: 13px;
+  }
+  .bcdExpandCollapseButton {
+    padding: 0px  !important;
+    width: 14px !important;
+    display: inline-block;
+  }
+  .bcdIndent1 { padding-left: 24px !important; }
+  .bcdIndent2 { padding-left: 43px !important; }
+  .bcdIndent3 { padding-left: 62px !important; }
+  .bcdIndent4 { padding-left: 81px !important; }
+  .bcdIndent5 { padding-left: 100px !important; }
+  .bcdIndent6 { padding-left: 119px !important; }
+  .bcdIndent7 { padding-left: 138px !important; }
+  .bcdIndent8 { padding-left: 157px !important; }
+  .bcdIndent9 { padding-left: 176px !important; }
+  .bcdIndent10 { padding-left: 195px !important; }
+  .bcdIndent11 { padding-left: 214px !important; }
+}
+
+.bcdReport.bcdTreeReportPi,
+.bcdReport.bcdTreeReport {
+  
+  .bcdExpandCollapseButton {
+    padding: inherit;
+    background-color: inherit;
+    color: inherit;
+    line-height: inherit;
+    border: none;
+    margin: inherit;
+  }
+  
+  .bcdExpand:after { content: ""; }
+  .bcdCollapse:after { content: ""; }
+  
+  border-spacing: 0px 6px;
+  border-collapse: separate;
+  border: none;
+  min-width: 600px;
+
+  thead th {
+    background-color: inherit;
+    color: inherit;
+  }
+  
+  tr {
+    height: 25px;
+    vertical-align: middle;
+  }
+  
+  .bcdCaption {
+    text-align: left;
+  }
+
+  .bcdExpandCollapseButton {
+    width: 6px;
+    padding: 2px 0px 2px 5px;
+  }
+
+  .bcdButton {
+    @extend .btn-sm;
+  }
+  
+  .bcdLeaf.bcdReportParentOdd td,
+  .bcdLeaf.bcdReportParentEven td {
+    @include con_color($tree-color-cell-leaf);
+    border-color: $tree-color-cell-leaf;
+    border-top: 1px solid $tree-color-cell-border;
+    border-bottom: 1px solid $tree-color-cell-border;
+    border-right-style: none;
+    border-left-style: none;
+  }
+  
+  .bcdNoLeaf.bcdReportParentOdd td,
+  .bcdNoLeaf.bcdReportParentOdd td,
+  .bcdNoLeaf.bcdReportParentEven td,
+  .bcdNoLeaf.bcdReportParentEven td {
+    border-top: 1px solid $tree-color-cell-border;
+    border-bottom: 1px solid $tree-color-cell-border;
+    border-right-style: none;
+    border-left-style: none;
+  }
+  .bcdLevel0.bcdNoLeaf td {
+    @include con_color($tree-color-cell);
+   }
+  .bcdLevel1.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l1);
+   }
+  .bcdLevel2.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l2);
+   }
+  .bcdLevel3.bcdNoLeaf td {
+    @include con_color($tree-color-cell_l3);
+  }
+}
+
+.bcdExpand .bcdButton a:after {
+  content: "\002B";
+}
+.bcdCollapse .bcdButton a:after {
+  content: "\2212";
+}
+
+.bcdTargetLocked :after,
+.bcdLocked :after{
+  content: "\1F512";
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.bcdOptions :after{
+  content: "\2261";
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.bcdOptionsActive :after{
+  color: $select-color;
+}
+
+/*********************************************************************************************************************/
+/* blind up dpwn */
+/*********************************************************************************************************************/
+
+/* blind up down */
+
+.bcdBlindUpDown {
+  @extend .noselect;
+  > ul {
+    list-style: none;
+    padding: 0;
+    > li {
+      padding: 0.3em;
+      border: 1px solid $border-color;
+    }
+  }
+
+  .bcdBlindUpDownHead {
+    @include con_color($control-color);
+    position: relative;
+    cursor: pointer;
+    .bcdBlindUpDownClose {
+      position: absolute;
+      @extend %fa-icon;
+      @extend .fas;
+      padding-right: 0.3em;
+      right: 0;
+    }
+  }
+
+  .bcdHeadClosed > span.bcdBlindUpDownClose:after {
+    content: fa-content($fa-var-caret-down);
+  }
+
+  .bcdHeadOpened > span.bcdBlindUpDownClose:after {
+    content: fa-content($fa-var-caret-up);
+  }
+}
+
+
+/*********************************************************************************************************************/
+/* connectable */
+/*********************************************************************************************************************/
+
+.bcdConnectable {
+  overflow: auto;
+  list-style-type: none;
+  height: 100%;
+  width: 100%;
+  li { position: relative; cursor: default;}
+  .bcdItem { cursor: pointer; }
+  .ui-selected { @include con_color($select-color); }
+  .bcdConnectableHover, .ui-selecting { @include con_color($border-color); }
+  li.ui-node-expanded > .ui-node-handle:after {
+    content: url(../images/tree/tree_minus.gif)
+  }
+  li.ui-node-collapsed > .ui-node-handle:after {
+    content: url(../images/tree/tree_plus.gif)
+  }
+  li.ui-node {
+    font-style: italic;
+  }
+  li.ui-leaf {
+
+  }
+  .ui-node-handle {
+    margin: .2em;
+  }
+}
+.ui-sortable-helper {
+  padding: .3em;
+  margin: .1em 0 .1em 0;
+  width: auto !important;
+  height: auto !important;
+  border: 1px dotted $border-color-dark;
+  @include con_color($border-color);
+  cursor: move;
+  list-style-type: none;
+}
+.ui-selectable-helper {
+  @include alpha(0.25);
+  background-color: lighten($select-color, 10%);
+  border: 1px dotted $select-color;
+}
+.bcdNoTop { border-top: none !important; }
+.bcdNoLeft { border-left: none !important; }
+.bcdNoBottom { border-bottom: none !important; }
+.bcdNoRight { border-right: none !important; }
+
+
+/*********************************************************************************************************************/
+/* side by side chooser */
+/*********************************************************************************************************************/
+
+.bcdSideBySideChooser {
+
+  table {
+    border-collapse: separate;
+    td, th {border: none; padding: 0; margin: 0; } 
+  }
+
+  @extend .noselect;
+
+  .bcdSbscTargetItemsHeader,
+  .bcdSbscSourceItemsHeader {
+    font-weight: bold;
+  }
+  .bcdSbscList {
+    @include con_color(#ffffff);
+    border: 1px solid $border-color;
+    height: 10em;
+    width: 20em;
+    padding: .375em .75em;
+    overflow: auto;
+    list-style-type: none;
+
+    div:hover {
+      @include con_color($border-color);
+    }
+
+    li { padding: 1px 0; position: relative; cursor: default;}
+    .bcdItem { cursor: pointer; white-space: normal; }
+    .ui-selected { @include con_color($select-color); }
+    .bcdSbscHover, .ui-selecting { @include con_color($border-color); }
+  }
+
+  .bcd-sbs-controls {
+     @extend %fa-icon;
+     @extend .fas;
+    .bcdToSource a:after { content: fa-content($fa-var-angle-double-left);}
+    .bcdToMainTarget a:after {content: fa-content($fa-var-angle-double-right); }
+    .bcdMoveUp a:after { content: fa-content($fa-var-caret-up); }
+    .bcdMoveDown a:after { content: fa-content($fa-var-caret-down); }
+    .bcdButton {
+      display: block;
+      margin: .2em;
+      @extend .btn-secondary;
+      padding: .375em .75em;
+      display: block;
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+/* context menu */
+#bcdContextMenuDiv {
+  @extend .noselect;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+  border: 1px solid $border-color;
+  @include con_color(#FFFFFF);
+  cursor: default;
+  font-size: 0.75em;
+  padding: 3px;
+  @include alpha(0.95);
+  @include shadow();
+  width: 280px;
+  z-index: $z-index-flyover;
+  padding-bottom: 8px;
+  
+  .bcdMenuitems {
+    @include con_color(#FFFFFF);
+    position: relative; /* IE8 */
+    padding: 2px 15px;
+    white-space: nowrap;
+    display: block;
+    text-decoration: none;
+  }
+  
+  .bcdMenuitemsDisabled {
+    position: relative; /* IE8 */
+    padding: 2px 15px;
+    white-space: nowrap;
+    display: block;
+    text-decoration: none;
+    color: $text-disabled-color;
+  }
+  
+  .bcdMenuitems:hover {
+    position: relative; /* IE8 */
+    @include con_color($select-color);
+  }
+  
+  div.bcdContextMenu .bcdContextMenuTitle {
+    @include con_color($select-color);
+    font-weight: bold;
+    border: 1px solid $border-color;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 3px;
+  }
+  
+  div.bcdContextMenu .bcdContextGroupHeader ~ .bcdContextGroupHeader {
+    margin-top: 8px;
+  }
+  
+  div.bcdContextMenu .bcdContextGroupHeader {
+    background-color: $control-color;
+    border: 1px solid $border-color;
+    font-weight: bold;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .bcdContextGroupHeader + .bcdContextSubHeader {
+    margin-top: 2px;
+  }
+  
+  div.bcdContextMenu .bcdContextSubHeader {
+    color: $select-color;
+    background-color: inherit;
+    position: relative; /* IE8 */
+    padding: 0px 0px 0px 10px;
+    white-space: nowrap;
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+    margin-top: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  div.bcdContextMenu hr { border-style: solid; border-width: 1px; color: #000000; height: 1px; }
+  
+  
+  div.bcdContextMenu a.bcdMenuitems {
+    white-space: normal;
+  }
+}
+
+/* login-form */
+
+.bcd-login-form {
+  .input-group-prepend {
+   .input-group-text {
+     background-color: #fff;
+     border-right: none;
+   }
+  }
+}
+
+/* BlockUI */
+.blockUI.blockMsg.blockPage {
+  font-size: 1.25em;
+}
+
+
+/* column filter */
+
+.bcdFilterContainer { display: flex; align-items: center;}
+.bcdFilterOriginal { width: 100%;}
+.bcdFilterButton {
+  background: inherit;
+  border-radius: 2px;
+  border: 1px solid $border-color;
+  color: $border-color;
+  font-size: 9px;
+  padding: 2px;
+  height: 10px;
+  margin-left: 5px;
+  line-height: normal;
+}
+.bcdFilterButton.active {
+  border: 1px solid $select-color;
+  color: $select-color;
+  background-color: inherit;
+}
+.bcdFilterButton:hover {
+  border: 1px solid $border-color-dark;
+  color: $border-color-dark;
+  cursor: pointer;
+}
+.bcdFilterButton:before { content: "\25BC"; }
+
+.bcdExportColumnsDialog,
+.bcdFilterDialog {
+  @include no_shadow();
+  border: none;
+  min-width: 250px; 
+  input, select {width: 100%; margin-bottom: 10px;}
+}
+
+.ui-dialog .bcdExportColumnsDialog {
+  width: 552px;
+  height: 240px;
+  overflow: hidden;
+}
+
+.bcdExportColumnsDialog {
+  .bcdSideBySideChooser {
+    .bcdSbscList { height: 180px; }
+    margin-bottom: 10px;
+  }
+}
+
+.bcdFilterSelection {
+  
+  .bcdFilterActions {
+    position: relative;
+    margin-bottom: 3px;
+    input { width: auto; margin: 0px 3px 0px 0px; }
+    > div { position: absolute; right: 0px; top: 0px;}
+    > div:first-child { left: 0px; right: inherit; }
+  }
+
+  .bcdButton {
+    @extend .btn-secondary;
+    padding: .187em .38em;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+}
+
+.bcdFilterMultiSelect {
+  height: 200px;
+  overflow: auto;
+  text-align: left;
+  border: 1px solid $border-color;
+  padding: 3px;
+  div {margin: 3px 0px 3px 0px;}
+  input {
+    width: auto;
+    margin: 0px;
+    padding: 0px;
+    margin-right: 3px;
+  }
+  .highlight {
+    @include con_color($border-color);
+  }
+}
+
+.bcdFilterTooltip {
+  p { font-weight: bold; }
+  ul { list-style-type: none; padding: 0;}
+  li { padding: .3em .7em; }
+}
+
+
+/* ******************************************************************* */
+/* FAR component, FAR configurator                                     */
+/* ******************************************************************* */
+table.bcd-far-configurator {
+  > thead > tr {
+    th {
+      text-align: center;
+      /* color: $headerArea-color; */
+      padding: 3px 0px;
+    }
+
+    th.bcd-far-dims  {
+      @include con_color($corporate-color-alt);
+    }
+
+    th.bcd-far-sort {
+      @include con_color($corporate-color-alt);
+    }
+
+    th.bcd-far-meas {
+      @include con_color($corporate-color-alt);
+    }
+  }
+
+  .bcdSideBySideChooser {
+    padding: 3px 0px;
+  }
+
+  td.bcd-far-sort {
+    .bcdSideBySideChooser .bcdSbscList {
+      height : 7em; /* todo: use grid to layout */
+    }
+    .bcd-singleselect-empty {
+      visibility: hidden;
+    }
+  }
+}
+
+/* universalFilter */
+.bcd-unifilter-widget {
+  .bcd-unifilter-empty { /* displays empty message */
+     text-transform: uppercase;
+  }
+  .bcd-unifilter-conj-container {
+    display: flex;
+    flex-direction: row;
+    margin: 5px 0px;
+
+    .bcd-unifilter-conj-header {
+      align-self: center;
+      text-transform: uppercase;
+      -webkit-transform: rotate(270deg); 
+      -moz-transform: rotate(270deg);
+      -ms-transform: rotate(270deg);
+      -o-transform: rotate(270deg);
+      transform: rotate(270deg);
+      width: 22px;
+      text-align:right;
+      padding-right: 3px;
+    }
+
+    .bcd-unifilter-conj-spacer {
+      align-self: stretch;
+      background-color: #ccc;
+    }
+  }
+
+  .bcd-unifilter-operator-container {
+    /* dont display '-' for first item */
+    .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:first-child .action-remove {
+      display: none;
+    }
+    /* display '+' for last item only */
+    .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:not(:last-child) .action-add {
+      display: none
+    }
+  }
+
+  .bcd-unifilter-expression {
+    margin-left: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    > span {
+      padding-left: 3px;
+      padding-right: 3px;
+    }
+    .bcd-unifilter-expression-name {
+    }
+    .bcd-unifilter-expression-name-nomapping {
+      font-style: italic;
+      color: $text-disabled-color;
+    }
+    .bcd-unifilter-expression-type-empty,
+    .bcd-unifilter-expression-type-notempty {
+      text-transform: uppercase;
+    }
+    .bcd-unifilter-expression-op {
+    }
+    .bcd-unifilter-expression-value {
+    }
+  }
+
+  .bcd-unifilter-creator-container {
+    margin-left: 25px;
+    padding: 5px;
+    border: 1px dashed #ccc;
+
+    .bcd-unifilter-creator-container-closer:hover {
+      cursor: pointer;
+    }
+
+    .bcd-unifilter-creator-container-closer:after {
+      content: "\274C";
+    }
+  }
+}
+
+
+/* Paging Panel */
+.bcdPagingPanel {
+  table {
+    border: 1px solid $border-color;
+    tbody tr td {
+      vertical-align: middle;
+      text-align: right;
+      padding: 0px 3px;
+      height: 14px;
+      @include con_color(#FFFFFF);
+      select { border: none; }
+    }
+
+    .bcdPagingButtonActive,
+    .bcdPagingCoutOfElements,
+    .bcdPagingButton {
+      border: 1px solid $border-color;
+    }
+    .bcdPagingButtonActive,
+    .bcdPagingButton {
+      cursor: pointer;
+    }
+    .bcdPagingButtonActive {
+      @include con_color($select-color);
+    }
+    .bcdPagingSelectAction select { width: auto; }
+  }
+}
+
+/* Grid and Scheduler */
+
+.bcdGrid {
+  
+  > thead tr td,
+  > tfoot tr td {
+    text-align: left;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+  .bcdGroupAction:after {
+    padding: 0 .375em 0 .3em;
+    @extend .btn-secondary;
+    margin-right: .3em;
+    content: "\2212";
+    position: absolute;
+    border: 1px solid;
+    left: 0;
+    top: 0;
+  }
+
+  .bcdCollapsed.bcdGroupAction:after {content: "\002B";}
+
+  .bcdGroupAction { cursor: pointer; }
+
+  .handsontable th.bcdClosed, .handsontable td.bcdClosed {border: 0px; padding: 0px; margin: 0px; overflow:hidden;}
+
+  td.bcdKey {}
+  th.bcdKey { font-weight: bold; }
+  th.bcdKey.ht__highlight { }
+
+  .bcdReadOnly  {
+    color: $text-disabled-color;
+  }
+  .bcdDeleted {
+    text-decoration: line-through;
+    color: $grid-action-color;
+  }
+  .bcdInserted, .bcdModified {
+    text-decoration: underline;
+    color: $grid-action-color;
+  }
+  
+  ul { list-style-type: none; padding: 0;}
+  
+}
+
+.bcdStatusModelEditor {
+ .bcdControls {
+   text-align: center;
+   .bcdButton { margin: 5px; }
+ }
+ .bcdLoadContainer {max-height: 600px; overflow-y: auto; position: relative; margin: 5px;}
+}
+
+.bcdSchedulerHistory {
+  span.bcdStatusOk { color: #00cc00; font-weight: bold; }
+  span.bcdStatusOk:after { content: "\2713"; padding-left: 5px; } 
+  span.bcdStatusBad { color: #cc0000; font-weight: bold; }
+  span.bcdStatusBad:after { content: "!"; padding-left: 5px; }
+}
+
+.bcdTooltip.bcdSchedulerHistory {
+  max-width: 300px;
+  padding: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+/* cube grouping editor */
+
+#bcdGroupingEditor {
+ 
+ table {
+   margin-bottom: 1em;
+ }
+ 
+ .bcdClose {
+   cursor: pointer;
+   position: absolute;
+   right: 0;
+   top: 0;
+ }
+ .bcdClose:after {
+   content: "\274C";
+  }
+ .bcdGE_level {
+   font-weight: bold;
+ }
+
+ .bcdGE_remove .bcdButton, .bcdGE_add .bcdButton {
+    @extend .btn-secondary;
+  }
+  
+  .bcdGE_ok {
+    margin-right: .3em; 
+  }
+  .bcdGE_add {
+    margin-left: .3em;
+  }
+
+  .bcdSideBySideChooser,
+  .bcdGroupingEditorList {
+    width: 100%;
+
+    li:hover {
+      @include con_color($border-color);
+    }
+  }
+  div {text-align: left; }
+
+  .bcdCol4 {
+    display: none;
+  }
+  
+  #groupName {
+    display:flex;
+    .bcdGE_name { width: 100%;
+      input { width: 100%; }
+    }
+    
+  }
+}
+
+/* Ranking */
+
+.bcdCubeRanking {
+  padding: 0px;
+  border-collapse: separate;
+  border-spacing: 2px;
+  table-layout: fixed;
+  th {
+    @include con_color($cube-sections-color-head);
+    font-weight: bold;
+    padding: 3px;
+  }
+  td {
+    vertical-align: top;
+  }
+  .bcdCubeRankStatus {
+    background-color: transparent;
+    width: 12px;
+  }
+  .bcdCubeRankBad {
+    width: 12px;
+    background: url(../images/cube/warning.png) center center no-repeat;
+  }
+  .bcdCubeRankGood {
+    width: 12px;
+  }
+  
+  span.bcdCubeAddRank:after {
+    content: "\002B";
+  }
+  span.bcdCubeRemoveRank:after {
+    content: "\2212";
+  }
+
+  .bcdCubeAddRank, .bcdCubeRemoveRank {
+    color: text-contrast($cube-sections-color-head);
+    width: 12px;
+    cursor: pointer;
+    font-weight: bolder;
+  }
+  
+  .bcdCubeRankShow, .bcdCubeRankRows {width: 80px;}
+  .bcdCubeRankDimension, .bcdCubeRankMeasure {min-width: 200px;}
+
+  .bcdCubeAddRank,
+  .bcdCubeRemoveRank {
+    @include con_color($cube-sections-color-head);
+    text-align: center;
+    vertical-align: middle;
+    span {font-weight: bold;}
+  }
+  select , input {
+    height: 22px;
+    width: 100%;
+  }
+}
+
+/* Summary */
+
+.bcdDnDSummary {
+  ul {
+    list-style: initial;
+    border: none;
+    li {
+      padding-left: 5px;
+      list-style-position: inside;
+      list-style-type: disc;
+      li {
+        list-style-type: circle;
+      }
+    }
+  }
+}
+
+/* Templates */
+
+.bcdReportTemplateList {
+  margin-bottom: 5px;
+}
+
+.bcdReportTemplates {
+
+  max-width: 777px;
+
+  a {
+    @include con_color(#FFFFFF);
+    border: 1px solid #FFFFFF;
+    padding: 2px 5px 2px 5px;
+    text-decoration: none;
+    cursor: pointer;
+    width: 45%;
+    display: inline-block;
+    position: relative;
+  }
+
+  .bcdReportTemplateButtons {
+    border-bottom: 1px solid $border-color;
+    padding-bottom: 5px;
+  }
+  
+  .bcdReportTemplatesItemsReadOnly,
+  .bcdReportTemplatesItems {
+    padding-top: 5px;
+  }
+  
+  .bcdReportTemplateList a.bcdSelected {
+    @include con_color($flyover-color);
+    border: 1px dotted $corporate-color-alt;
+  }
+
+  .bcdReportTemplatesItemsReadOnly {
+    .bcdTemplateItem { color: $text-disabled-color !important; }
+  }
+  
+  .bcdTemplateButton:hover,
+  a:hover {
+    text-decoration: none;
+    @include con_color($cube-hover-color-body);
+    border: 1px solid $cube-hover-color-border;
+  }
+  
+  .bcdReportTemplatesSaveArea {
+    border-bottom: 1px solid $border-color;
+    padding: 5px;
+    
+    input, textarea {
+      width: 400px;
+    }
+    
+    .bcdTemplateButton {
+      display: inline-block;
+      padding: 3px;
+      cursor: pointer;
+      border: 1px solid $border-color;
+      margin-right: 5px;
+    }
+    table {
+      border-collapse: separate;
+      border-spacing: 2px;
+      margin: 5px;
+    }
+  }
+
+  .bcdTemplateRemove {
+    font-weight: bold;
+    position: absolute;
+    right: 3px;
+    top: 1px;
+  }
+  
+  span.bcdTemplateRemove:after {
+    content: "x";
+  }
+
+  span.bcdTemplateIcon:after {
+    content: "\25BA";
+  }
+
+  .bcdTemplateItem {
+    padding-right: 3px;
+  }
+}
+
+/* jQuery Ui Widget */
+.ui-widget {
+  font-family: $bcd_font;
+}
+
+.ui-widget-overlay {
+  background: #ccc;
+  opacity: .75;
+  filter: Alpha(Opacity=.75);
+}
+
+/* override jquery-ui dialog styles */
+
+.ui-dialog {
+  border: 1px solid $bcd_border-color;
+  box-shadow: $bcd_modal_dropshadow;
+  padding: 1em;
+  
+  .ui-widget-header {
+    border: 0;
+    border-bottom: 2px solid $bcd_border-color;
+    background: #fff;
+  }
+  .ui-corner-all {
+    border-radius: 0;
+  }
+  .ui-dialog-titlebar-close {
+    position: absolute;
+    right: .3em;
+    top: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    margin: -0.75em 0 0 0;
+    padding: 1px;
+  }
+  .ui-dialog-title {
+    float: left;
+    margin: .1em 0;
+    white-space: nowrap;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.2em;
+  }
+  .ui-button {
+    border: 0;
+    background: none;
+  }
+}
+
+// extend from bootstrap table, table-striped and small-table
+.bcdReport {
+  @extend .table, .table-striped, .table-sm;
+}

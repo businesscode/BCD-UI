@@ -15,7 +15,7 @@
      * @return {Promise} resolving to { isValid : true|false }
      * @example
      * const form = jQuery('.form');
-     * bcdui.widgetNg.utils(form).then((validationResult) => {
+     * bcdui.widgetNg.utils.validate(form).then((validationResult) => {
      *   if (validationResult.isValid) {
      *     form.submit();
      *   }

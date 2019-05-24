@@ -142,7 +142,7 @@
      * @private
      */
     _create : function(){
-      var rootContainer = this.element;
+      var rootContainer = this.element.css({position:"relative"}); // force relative position as wraps an absolute dropdown
       var args = this.options;
   
       if(args.filterFunction && bcdui.util.isString(args.filterFunction)){
@@ -757,7 +757,7 @@
       var el = bcdui._migPjs._$(elId);
   
       if(! el.length > 0){
-        el = jQuery("<div id='" + elId + "'></div>").css({position: "absolute"}).hide();
+        el = jQuery("<div id='" + elId + "' class='bcd-datalist'></div>").css({position: "absolute"}).hide();
         document.body.appendChild(el.get(0));
   
         /*

@@ -28,6 +28,11 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
    */
   init: function( htmlElement ){
 
+    if (htmlElement.getAttribute("bcdLabel")){
+      var labelEl = jQuery("<label/>").appendTo(htmlElement);
+      bcdui.widget._initLabel(labelEl, null, htmlElement.getAttribute("bcdLabel"));
+    }
+
     bcdui.widget._bcdIdToDomId(htmlElement);
     bcdui.widget._cleanupHTMLElementId(htmlElement);
     this._adjustDefaultParameters(htmlElement);

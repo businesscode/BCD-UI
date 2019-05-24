@@ -1,0 +1,392 @@
+// General frame: Frame-Wrapper, Header, Header-Nav, Footer 
+
+// Wrapper
+// ====================================================================
+
+.bcd {
+  &__outer-wrapper {
+    position:absolute;
+    top:0;
+    left:0;
+    right: 0;
+    bottom:0;
+    overflow-x:hidden;
+    background:#fff;
+  }
+  &__wrapper {
+    display:block;
+    position: relative;
+    height:100vh;
+    width:100%;
+  }
+  &__horizontal-split {
+    display:flex;
+    flex-direction: column;
+    height:100%;
+    position: relative; 
+  }
+  &__header {
+    position: relative;
+    flex: 0 0 auto;
+    border-bottom:2px solid $bcd_border-color;
+  }
+  &__vertical-split {
+    flex-grow:1;
+    flex-shrink:1;
+    display:flex;
+    flex-direction:row;
+    height:100%;
+    overflow:hidden;
+    position: relative;
+    background:$bcd_bg-content-container;
+  }
+  &__sidebar-left {
+    overflow: visible;
+    height:100%;
+    position:absolute;
+    transition: all .4s ease-in-out;
+    transform:translateX(0em);
+    width:$bcd_sidebar-width;
+    z-index: $z-index-base + 1;
+    padding-right:2em;
+
+    .bcd__sidebar-left__inner {
+      padding-top:1.3em;
+      background: $bcd_bg-sidebar;
+      border-right: 1px solid $bcd_border-color;
+      height:100%;
+      overflow-y: auto;
+    }
+  }
+
+  &__content-container {
+    background: transparent;
+    flex: 1 1 auto;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+    transition: all .4s ease-in-out;
+    padding:.6em 2em;
+      
+    .table-wrapper {
+      width:100%;
+      overflow-x:auto;
+      margin-bottom:2em;
+    }
+  }
+
+  &__form-container {
+    section {
+      padding:1em 1em 0.1em 1em;
+      border-bottom:1px solid $bcd_border-color;
+  
+      &:last-of-type {
+        border-bottom:0;
+      }
+    }
+  }
+
+  // button wrapper
+  &__sidebar-left-collaps-toggle-wrapper {
+    position: absolute;
+    top: 1.1em;
+    right: 0.58em;
+    width: 1.5em;
+    height: 3.6em;
+    display: flex;
+    background: $bcd_bg-sidebar;
+    border-style:solid;
+    border-width:1px 1px 1px 0;
+    border-color:$bcd_border-color;
+    border-radius:0 4px 4px 0;
+  }
+
+  // the toggle himself
+  &__sidebar-left-collaps-toggle {
+    flex: 0 0 auto;
+    width: 1.5em;
+    height: 3.6em;
+    border:none;
+    background:transparent;
+    outline:none !important;
+
+    i {
+      transform: rotate(0);
+      transition:transform .4s ease-in-out;
+    }
+  }
+
+
+  // change state from / to pinned sidebar
+  &__vertical-split.bcd__vertical-split--sidebar-collapsed {
+
+    .bcd {
+      &__sidebar-left {
+        position: absolute;
+        transition: all .4s ease-in-out;
+        transform: translateX($bcd_sidebar-width-offset);
+
+        .bcd__sidebar-left__inner {
+          box-shadow: 3px 0 12px rgba(0, 0, 0, .2);
+        }
+        &:hover {
+          transform: translateX(0em);
+        }
+      }
+      &__sidebar-left-collaps-toggle-wrapper {
+        box-shadow: 3px 1px 3px rgba(0, 0, 0, .1);
+      }
+      &__sidebar-left-collaps-toggle {
+        i {
+          transform:rotate(180deg);
+        }
+      }
+    }
+  }
+}
+
+
+// no Sidebar:
+.bcd__vertical-split {
+  .bcd__sidebar-left + .bcd__content-container {
+    margin-left: ($bcd_sidebar-width - 1em);
+  }
+}
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed {
+  .bcd__sidebar-left + .bcd__content-container {
+    margin-left: 2em;
+  }
+}
+
+// Header
+// ====================================================================
+
+.bcd__header {
+  &__upper {
+    display:flex;
+    flex-direction:row;
+    align-items: space-between; 
+    justify-content: space-between; 
+  }
+  &__logo {
+    padding: 0 1em;
+    flex: 1 0 15em;
+    min-height: 4em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    img {
+      width:260px;
+      max-width:100%;
+      height:auto;
+    }
+  }
+  &__navigation {
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:row;
+    //justify-content: center;
+    align-items:center;
+  }
+
+  &__crendetials-widget {
+    flex:1 0 15em;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    padding-left:1em;
+    padding-right:1em;
+
+    i {
+      margin-left:.5em;
+    }
+    a {
+      align-items: center;
+      margin:0;
+      padding:0;
+      display: flex;
+      text-decoration:none;
+      color:$bcd_text-color;
+    }
+    .initials {
+      display:flex;
+      height:2.5em;
+      width:2.5em;
+      border-radius:50em;
+      background:$bcd_blue-light;
+      color:#fff;
+      align-items: center;
+      justify-content:center;
+      margin-right:.5em;
+    }
+  }
+}
+
+// header navigation with pull-down
+// ================================================================
+
+.bcd__header__navigation {
+  border-top: 1px solid $bcd_border-color;
+
+  nav {
+    height: 100%;
+    padding:0 .5em;
+
+    ul {
+      height: 100%;
+      list-style: none;
+      display: flex;
+      margin:0;
+      padding:0;
+
+      li {
+        display: flex;
+        padding-left: .6em;
+        padding-right: .6em;
+        height: 100%;
+        cursor: pointer;
+        position: relative;
+        white-space: nowrap;
+
+        a {
+          transition: color 0.2s linear, border-color 0.2s linear;
+          color: #555;
+          font-weight: 300;
+          font-size: 1em;
+          line-height: 1.1;
+          white-space: nowrap;
+          display: inline-block;
+          text-align: center;
+          border-bottom: 4px solid transparent;
+          padding-top: 1em;
+          padding-bottom: 0.6em;
+          text-decoration:none;
+
+          &:hover {
+            color: $bcd_blue-light;
+          }
+        }
+        &.bcd__active-item > a {
+          margin-right: 1px;
+          color: $bcd_blue-light;
+          font-weight: bold;
+          border-bottom: 4px solid $bcd_blue-light;
+        }
+
+        li {
+          display: block;
+          float: left;
+          padding: 0;
+        }
+      }
+    }
+
+
+    /* Drop-Down Navigation */
+    ul li:hover > ul {
+      visibility: visible;
+      opacity: 1;
+      // delaying the display of the submenu
+      transition-delay: .1s;
+    }
+    ul ul {
+      display:flex;
+      flex-direction: column;
+      top: 3.0em;
+      left: 0.6em;
+      height: auto;
+      width: 12em;
+      visibility: hidden;
+      position: absolute;
+      z-index: 99999;
+      background: #f8f8f8;
+      box-shadow: 3px 0px 12px rgba(0, 0, 0, .2);
+      opacity: 0;
+      transition: opacity 0.2s linear, visibility 0.2s linear;
+      // we're delaying the transition BACK a little more... this does the magic of NOT loosing focus that easy.
+      transition-delay: .2s;
+
+      li {
+        clear: both;
+        width: 100%;
+        border: 0 none;
+        background: #fff;
+        border-bottom: 1px solid #c9c9c9;
+
+        a {
+          background: none;
+          padding: .8em .8em;
+          text-decoration: none;
+          display: block;
+          border: 0 none;
+          clear: both;
+          font-size: .9em;
+          text-align: left;
+          text-transform: none;
+          white-space: normal;
+
+          &:hover {
+            //background: #fff;
+            text-decoration: underline;
+          }
+        }
+        &.bcd__active-item > a {
+          background: $bcd_blue-light;
+          color: #fff;
+        }
+        ul {
+          left:12em;
+          top:0;
+        }
+      }
+    }
+  }
+}
+
+// the footer is not mandotory and my be omitted where not neccassary.
+// ====================================================================
+
+footer {
+  flex:0 0 auto;
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding:0.8em 1em;
+  font-size:.9em;
+  border-top:1px solid $bcd_border-color;
+
+  p {
+    flex:0 1 auto;
+    margin:0;
+  }
+  nav {
+    flex:0 1 auto;
+    text-align:right;
+
+    ul {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      list-style: none;
+      margin:0;
+      padding:0;
+
+      li {
+        margin-left:1em;
+        a {
+          text-decoration:none;
+          color:$bcd_text-color;
+
+          &:hover {
+            color:$bcd_blue-light;
+          }
+        }
+      }
+    }
+  }
+}

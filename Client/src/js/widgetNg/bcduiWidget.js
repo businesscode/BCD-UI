@@ -114,6 +114,28 @@
     },
 
     /**
+     * creates a label element for given controlId appends the element as a child into a current layout flow when this function is called
+     * @param controlId to bind the label with, must not be empty 
+     */
+    _createLabel: function(controlId){
+      // handle .label
+      if(this.options.label !== undefined){
+        if(!controlId)throw ".controlId undefined";
+        
+        this.element.addClass("form-group");
+        
+        const labelElement = $("<label />").attr("for", controlId);
+        if(this.options.label && this.options.label.startsWith(bcdui.i18n.TAG)){
+          labelElement.attr("bcdTranslate", this.options.label);
+        } else {
+          labelElement.text(this.options.label);
+        }
+
+        labelElement.appendTo(this.element);
+      }
+    },
+
+    /**
      * delegates to this.element.show()/.hide() only in case this.element
      * is not detached, otherwise does nothing (see BUI-876)
      * 

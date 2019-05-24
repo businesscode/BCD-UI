@@ -1,0 +1,83 @@
+// Variables 
+
+// the Font:
+// =======================================
+
+$bcd_font:                      'Titillium Web', sans-serif;
+
+
+// Vars 
+// =======================================
+
+$bcd_sidebar-width:             17em;
+$bcd_sidebar-width-offset:      -($bcd_sidebar-width - 3em);
+
+// Colors 
+// ========================================
+$bcd_border-color:              #d8d8d8;
+$bcd_background-gray-light:     #f6f6f6;
+$bcd-headline-color:            #999999;
+$bcd_blue-light:                #369AFB;
+$bcd_blue-dark:                 #161669;
+
+$bcd_text-color:                #555;
+$bcd_bg-content-container:      #f6f6f6;
+$bcd_bg-sidebar:                #fff;
+
+$bcd_modal_dropshadow:          0 3px 30px rgba(0,0,0,.2);
+
+$z-index-base:                  101; // handsontable grid uses 101, so we start there
+$corporate-color:               $bcd_blue-light !default;
+$corporate-color-alt:           $bcd_blue-dark  !default;
+
+$text-color:                    $bcd_text-color !default
+$text-color-dark:               $bcd_text-color !default
+$text-color-bright:             #FFFFFF !default;
+$text-contrast-break:           50 !default;
+$text-disabled-color:           #888888 !default;
+
+$invalid-color:                 #F0A0A0 !default;
+$select-color:                  #007DFA !default;
+$control-color:                 #F8F8F8 !default;
+$calendar-color:                $bcd_border-color !default;
+$button-color:                  $corporate-color !default;
+$flyover-color:                 #E8E8E8 !default;
+
+$report-color-ok:               #008000 !default;
+$report-color-warn:             #00FF00 !default;
+$report-color-fail:             #FF0000 !default;
+
+$border-color:                  $bcd_border-color !default;
+$border-color-dark:             darken($border-color, 10%) !default;
+$border-color-bright:           lighten($border-color, 10%) !default;
+$border-radius-default:         .25em !default;
+$border-radius-small:           $border-radius-default;
+
+$font-family-default:           $bcd_font !default;
+
+$font-size-small:               0.5em !default; // TODO: use this one, instead of any other inividual absolute sizes
+
+$cube-color-item:               #f6f6f6 !default;
+
+$grid-action-color:             $corporate-color-alt !default;
+
+$z-index-flyover:               $z-index-base + 10;
+$z-index-autocomplete:          $z-index-flyover + 10; // calc editor in cube got an autocompletion box in a modal flyover
+$z-index-balloon:               $z-index-base + 10;    // widget balloons
+
+$cube-sections-color-head:      $corporate-color !default;
+$cube-hover-color-body:         $cube-sections-color-head !default;
+$cube-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
+
+$cube-color-cell:               #D9D9D9 !default;
+$cube-color-cell-total:         $corporate-color-alt !default;
+$cube-color-cell-even:          lighten($cube-color-cell, 8%) !default;
+$cube-color-cell-odd:           lighten($cube-color-cell, 15%) !default;
+
+// some tree constants
+$tree-color-cell:               $cube-color-cell-total !default;
+$tree-color-cell-leaf:          $cube-color-cell-odd !default;
+$tree-color-cell_l1:            lighten($tree-color-cell, 25%) !default;
+$tree-color-cell_l2:            lighten($tree-color-cell, 35%) !default;
+$tree-color-cell_l3:            lighten($tree-color-cell, 45%) !default;
+$tree-color-cell-border:        darken($tree-color-cell, 25%) !default;

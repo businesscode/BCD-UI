@@ -114,7 +114,7 @@
           Auto ZeroIfNull on Operands
         </label>
       </div>
-      <div style="padding-left:5px;">
+      <div>
         <input type="checkbox" class="bcdSuppressZero checkboxes"/>
         <label class="bcdUserCalcEditorLabel"><xsl:attribute name="bcdTranslate">Suppress Zero</xsl:attribute>
           Suppress Zero
@@ -122,15 +122,19 @@
       </div>
     </div>
     <br style="clear:both"/>
-    <div class="bcdUserCalcEditorButtons">
-    <xsl:call-template name="buttonNg">
-      <xsl:with-param name="caption">Ok</xsl:with-param>
-      <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:with-param>
-    </xsl:call-template>
-    <xsl:call-template name="buttonNg">
-      <xsl:with-param name="caption">Cancel</xsl:with-param>
-      <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:with-param>
-    </xsl:call-template>
+    <div class="bcdUserCalcEditorButtons form-row">
+      <div class="col-sm-auto">
+        <xsl:call-template name="buttonNg">
+          <xsl:with-param name="caption">Ok</xsl:with-param>
+          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:with-param>
+        </xsl:call-template>
+      </div>
+      <div class="col-sm-auto">
+        <xsl:call-template name="buttonNg">
+          <xsl:with-param name="caption">Cancel</xsl:with-param>
+          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:with-param>
+        </xsl:call-template>
+      </div>
     </div>
   </span>
 </xsl:template>

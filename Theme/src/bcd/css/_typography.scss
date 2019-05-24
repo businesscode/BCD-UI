@@ -1,0 +1,27 @@
+// Typografic Elements
+
+html, body {
+  font:300 17px/1.4 $bcd_font;
+  color:$bcd_text-color;
+}
+
+
+.padded {
+  margin:1rem;
+}
+
+h1 {
+  font:600 1.6em/1.4 $bcd_font;
+  color:$bcd-blue-light;
+  border-bottom:2px solid $bcd_border-color;
+  margin-bottom:2em;
+  strong {
+    font-weight:600;
+    color:$bcd_blue-dark;
+  }
+}
+h2 {
+  font-size:1.2em;
+  font-weight:400;
+  border-bottom:1px solid $bcd_border-color;
+}

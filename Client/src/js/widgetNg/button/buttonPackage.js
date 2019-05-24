@@ -126,7 +126,7 @@
       el.attr("tabindex", this.options.tabindex);
       el.attr("autofocus", this.options.autofocus);
 
-      var elWrap = jQuery("<span></span>").addClass("bcdButton");
+      var elWrap = jQuery("<span></span>").addClass("bcdButton btn-primary");
       if (this.options.optionsModelXPath) {
         elWrap.addClass("bcdDropDownButton");
         el.addClass("closed");

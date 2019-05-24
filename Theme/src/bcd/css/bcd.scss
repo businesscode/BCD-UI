@@ -1,70 +1,26 @@
-/*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+// global variables
+@import "_variables.scss";
+@import "_mixins.scss";
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+// Overrides
+$primary:                         $bcd_blue-light;
+$fa-font-path:                    "../vendor/fontawesome-free-5.8.1-web/webfonts";
 
-  http://www.apache.org/licenses/LICENSE-2.0
+// BootStrap
+@import "../vendor/bootstrap-4.3.1/scss/bootstrap.scss";
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
-/* ******************************************************************* */
-/* custom variable definition */
-/* ******************************************************************* */
+// FontAwesome Basic
+@import "../vendor/fontawesome-free-5.8.1-web/scss/fontawesome.scss";
+@import "../vendor/fontawesome-free-5.8.1-web/scss/solid.scss";
+// FontAwesome For Login buttons
+@import "../vendor/fontawesome-free-5.8.1-web/scss/brands.scss";
 
-$body-background:          #F1F1F1 url("../images/bg.jpg") no-repeat center 0 fixed;
-$menuBarArea-background:   #F1F1F1 url("../images/menu.gif") 0 0 repeat-x;
-$logoImageArea-background: #FFFFFE url("../images/logo_businesscode.png") 30px 15px no-repeat;
-$logoImageArea-width:      1170px;
-$logoImageArea-height:     100px;
+// Theme components
+@import "_fonts.scss";
+@import "_typography.scss";
+@import "_frame.scss";
+@import "_frame_login.scss";
+@import '_slider.scss';
+@import '_slider_time.scss';
 
-/* ******************************************************************* */
-/* default imports */
-/* ******************************************************************* */
-
-@import '../../generic/sass/_standardPage.scss';
-@import '../../generic/sass/_menuAlternative.scss';
-
-/* ******************************************************************* */
-/* css overwrites */
-/* ******************************************************************* */
-
-#bcdMenuBarArea {
-  min-width: 1170px;
-  width: auto !important;
-}
-
-#bcdBodyContainer > .bcdCaption { color: $corporate-color-alt; font-size: 25px;}
-
-#bcdHeaderArea {
-  background: none;
-  span {
-    left: 1110px;
-    right: inherit;
-    bottom: 25px;
-    z-index: 99;
-    a { color: $corporate-color; }
-  }
-}
-
-#bcdLogoImageArea {
-  border-left: 2px solid #dcdcdc;
-  border-right: 2px solid #dcdcdc;
-  border-bottom: 2px solid #dcdcdc;
-  border-top: none;
-  border-radius: 2px;
-
-  a {
-    display: block;
-    width:  187px;
-    height: 60px;
-    position: relative;
-    top: 15px;
-    left: 31px;
-  }
-}
+@import "_styles.scss";

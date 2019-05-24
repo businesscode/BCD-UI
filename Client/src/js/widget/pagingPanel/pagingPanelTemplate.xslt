@@ -73,7 +73,7 @@
           </xsl:call-template>
 
           <td class="bcdPagingSelectAction">
-            <select
+            <select class='form-control'
               id="{$elId}"
               >
               <xsl:attribute name="onchange">

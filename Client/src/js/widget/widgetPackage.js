@@ -69,6 +69,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.isPassword]                     If true, input element type will be 'password'.
+   * @param {string}        [args.label]                          If provided, renders label element to this input
    */
   createInputField: function(args)
     {
@@ -105,7 +106,8 @@ bcdui.util.namespace("bcdui.widget",
           id: args.id,
           widgetCaption: args.widgetCaption,
           enableNavPath: args.enableNavPath,
-          isPassword: args.isPassword
+          isPassword: args.isPassword,
+          label: args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -144,6 +146,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.configurationModelId]           ModelId of chooser configuration xml file. This model can hold a per-level configuration which allows additional filtering.
    * @param {string}        [args.limitLevels]                    Space separated list of levelIds. The available levels from the dimensions model get limited to this subset.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
+   * @param {string}        [args.label]                          If provided, renders label element to this input
    * 
    * @example <Caption>Configuration Model</Caption>
    * 
@@ -233,7 +236,8 @@ bcdui.util.namespace("bcdui.widget",
           mandatory: args.mandatory,
           widgetCaption: args.widgetCaption,
           limitLevels: args.limitLevels,
-          enableNavPath: args.enableNavPath
+          enableNavPath: args.enableNavPath,
+          label: args.label
       };
 
       jQuery("#" + args.targetHTMLElementId).empty().append("<div></div>");
@@ -253,6 +257,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
+   * @param {string}        [args.label]                          If provided, renders label element to this widget
    */
   createSingleSelect: function(args)
     {
@@ -275,7 +280,8 @@ bcdui.util.namespace("bcdui.widget",
           bcdInputType:args.inputType,
           id:args.id,
           widgetCaption: args.widgetCaption,
-          enableNavPath: args.enableNavPath
+          enableNavPath: args.enableNavPath,
+          label :args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -305,6 +311,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
+   * @param {string}        [args.label]                          If provided, renders label element to this input, unless args.isCheckBox = true
    */
   createMultiSelect: function(args)
     {
@@ -329,7 +336,8 @@ bcdui.util.namespace("bcdui.widget",
           delimiter:                args.delimiter||"",
           widgetCaption:            args.widgetCaption,
           enableNavPath:           args.enableNavPath,
-          doSortOptions:            args.doSortOptions || "false"
+          doSortOptions:            args.doSortOptions || "false",
+          label :                   !args.isCheckBox ? args.label : null
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -887,70 +895,71 @@ bcdui.util.namespace("bcdui.widget",
       args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "menu_");
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.widget._schema_createMenu_args);
 
-        // Set default parametrs
-        if(!args.menuHandlerClassName ||args.menuHandlerClassName == ""){
-            args.menuHandlerClassName = "bcdui.widget.menu.Menu";
-        }
-        if(!args.modelUrl ||args.modelUrl == ""){
-            args.modelUrl = bcdui.contextPath+"/bcdui/servlets/Menu";
-        }
+      // Set default parametrs
+      if((!args.menuHandlerClassName || args.menuHandlerClassName == "") && bcdui.config.settings.bcdui.legacyTheme === true){
+          args.menuHandlerClassName = "bcdui.widget.menu.Menu";
+      }
+      if(!args.modelUrl ||args.modelUrl == ""){
+          args.modelUrl = bcdui.contextPath+"/bcdui/servlets/Menu";
+      }
 
-        var _modelIdOrModelRef = (typeof args.modelId != "undefined" && args.modelId != null) ? args.modelId : bcdui.factory.createModel({url:args.modelUrl});
-        var actualIdPrefix = typeof args.id == "undefined" || args.id == null ? bcdui.factory.objectRegistry.generateTemporaryIdInScope("menu_") : args.id;
-        var _rendererUrl = (typeof args.rendererUrl != "undefined" && args.rendererUrl != null && args.rendererUrl != "") ? args.rendererUrl : "/bcdui/js/widget/menu/menu.xslt";
-        var menuRootElementId = (actualIdPrefix + "RendererMenuRoot");
+      var _modelIdOrModelRef = (typeof args.modelId != "undefined" && args.modelId != null) ? args.modelId : bcdui.factory.createModel({url:args.modelUrl});
+      var actualIdPrefix = typeof args.id == "undefined" || args.id == null ? bcdui.factory.objectRegistry.generateTemporaryIdInScope("menu_") : args.id;
+      var _rendererUrl = (typeof args.rendererUrl != "undefined" && args.rendererUrl != null && args.rendererUrl != "") ? args.rendererUrl : "/bcdui/js/widget/menu/menu.xslt";
+      var menuRootElementId = (actualIdPrefix + "RendererMenuRoot");
 
-        var _rendererRefId = "bcdRenderer_" + actualIdPrefix;
-        var _menuHandlerClassName = (typeof args.menuHandlerClassName != "undefined" && args.menuHandlerClassName != null)? args.menuHandlerClassName : "bcdui.widget.menu.Menu";
-        var _menuRootElementId = (args.menuRootElementId)?args.menuRootElementId:menuRootElementId;
-        var _menuHandlerVarName = (args.id) ? args.id : _rendererRefId + "MenuHandler";
+      var _rendererRefId = "bcdRenderer_" + actualIdPrefix;
+      var _menuHandlerClassName = args.menuHandlerClassName;
+      var _menuRootElementId = (args.menuRootElementId)?args.menuRootElementId:menuRootElementId;
+      var _menuHandlerVarName = (args.id) ? args.id : _rendererRefId + "MenuHandler";
 
-        if (!args.parameters) {
-          args.parameters = {};
-        }
-        args.parameters.contextPath=bcdui.contextPath;
-        args.parameters.rootElementId=menuRootElementId;
-        
-        // provide the cleaned current location to the renderer to path-find and highlight the currently used menu item
-        // it automatically includes the url parameter bcdPageId in the comparism
-        // renderer attribute "bcdPageId" can be used to overwrite the default value of "bcdPageId"
-        var loc = window.location.href.substring(window.location.href.indexOf(bcdui.contextPath) + bcdui.contextPath.length);
-        var cleanLoc = loc.indexOf("?") != -1 ? loc.substring(0, loc.indexOf("?")) : loc;
-        
-        var tokenName = args.parameters.bcdPageId || "bcdPageId";
-        var bcdPageIdParam = "";
-        var paramPos = loc.indexOf(tokenName + "=")
-        if (paramPos > 0 && (loc[paramPos - 1] == "&" || loc[paramPos - 1] == "?")) {
-          bcdPageIdParam = loc.substring(paramPos);
-          var endPos = bcdPageIdParam.indexOf("&");
-          bcdPageIdParam = bcdPageIdParam.substring(0, endPos < 0 ? bcdPageIdParam.length : endPos);
-        }
-        args.parameters.location = cleanLoc;
-        args.parameters.bcdPageIdParam = bcdPageIdParam;
+      if (!args.parameters) {
+        args.parameters = {};
+      }
+      args.parameters.contextPath=bcdui.contextPath;
+      args.parameters.rootElementId=menuRootElementId;
+      
+      // provide the cleaned current location to the renderer to path-find and highlight the currently used menu item
+      // it automatically includes the url parameter bcdPageId in the comparism
+      // renderer attribute "bcdPageId" can be used to overwrite the default value of "bcdPageId"
+      var loc = window.location.href.substring(window.location.href.indexOf(bcdui.contextPath) + bcdui.contextPath.length);
+      var cleanLoc = loc.indexOf("?") != -1 ? loc.substring(0, loc.indexOf("?")) : loc;
+      
+      var tokenName = args.parameters.bcdPageId || "bcdPageId";
+      var bcdPageIdParam = "";
+      var paramPos = loc.indexOf(tokenName + "=")
+      if (paramPos > 0 && (loc[paramPos - 1] == "&" || loc[paramPos - 1] == "?")) {
+        bcdPageIdParam = loc.substring(paramPos);
+        var endPos = bcdPageIdParam.indexOf("&");
+        bcdPageIdParam = bcdPageIdParam.substring(0, endPos < 0 ? bcdPageIdParam.length : endPos);
+      }
+      args.parameters.location = cleanLoc;
+      args.parameters.bcdPageIdParam = bcdPageIdParam;
 
-        var _rendererOrRendererRefId = bcdui.factory.createRenderer({
-          id: _rendererRefId
-          ,chain: typeof _rendererUrl == "string" ? bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl) : _rendererUrl
-          ,inputModel: _modelIdOrModelRef
-          ,parameters: args.parameters
-          ,targetHTMLElementId: args.targetHTMLElementId
-        });
+      var _rendererOrRendererRefId = bcdui.factory.createRenderer({
+        id: _rendererRefId
+        ,chain: typeof _rendererUrl == "string" ? bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl) : _rendererUrl
+        ,inputModel: _modelIdOrModelRef
+        ,parameters: args.parameters
+        ,targetHTMLElementId: args.targetHTMLElementId
+      });
 
-        // show the menu (which should be initially hidden)
+      if (_menuHandlerClassName) {
         bcdui.factory.objectRegistry.withReadyObjects(_rendererOrRendererRefId, function(optionsModelId) {
-
+  
           bcdui.log.isTraceEnabled() && bcdui.log.trace('call TransformedStatus listener on: ' + _rendererRefId);
           // _menuHandlerVarName is later accesed from the generated menu
           var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'"
           +", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}"
           +",rootIdOrElement:'"+_menuRootElementId+"'});";
-
+  
           bcdui.log.isTraceEnabled() && bcdui.log.trace(strVal);
           eval(strVal);
-
+  
           if (bcdui._migPjs._$(args.targetHTMLElementId).children().length > 0)
             bcdui._migPjs._$(args.targetHTMLElementId).children()[0].style.display="block";
         });
+      }
     },
 
     /**
@@ -1292,7 +1301,6 @@ bcdui.util.namespace("bcdui.widget",
       args.targetModelXPath = args.targetModelXPath || "$guiStatus/*/guiStatus:ClientSettings/BlindUpDown[@id='"+ (actualId + "_bcduiBlindBody") +"']";
       var targetModelParams = bcdui.factory._extractXPathAndModelId(args.targetModelXPath);
 
-      jQuery(bcdui._migPjs._$(args.targetHTMLElementId)).css("min-width", jQuery(bcdui._migPjs._$(args.bodyIdOrElement)).width() + "px");
       bcdui._migPjs._$(args.targetHTMLElementId).append(root);
 
       var state = null;
@@ -2305,23 +2313,25 @@ bcdui.util.namespace("bcdui.widget",
         // prepare html template
         jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
           "<div class='bcdFilterSelection'>" +
-            "<select class='bcdFilterSelect'>" + options + "</select>" +
-            "<input class='bcdFilterInput'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
+            "<select class='bcdFilterSelect form-control'>" + options + "</select>" +
+            "<input class='bcdFilterInput form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
             "<div class='bcdFilterActions'>" +
               "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
               "<p>&nbsp;</p>" +
-              "<div>" +
-                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng>" +
-                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng>" +
-                "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng>" +
+              "<div class='form-row'>" +
+                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng></div>" +
+                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng></div>" +
+                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng></div>" +
               "</div>"+
             "</div>" +
             "<div class='bcdFilterMultiSelect'></div>"+
             "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
           "</div>"+
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng>" +
+          "<div class='form-row'>" +
+            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng></div>" +
+            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng></div>" +
+            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng></div>" +
+      		"</div>" +
         "</div>");
         bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
 
@@ -2757,6 +2767,30 @@ bcdui.util.namespace("bcdui.widget",
          htmlElement.setAttribute("id", htmlElement.getAttribute("bcdId"));
        }
        htmlElement.removeAttribute("bcdId");
+     },
+
+     /**
+      * initiatialises a label element for given control with given contents
+      *
+      * @param {element} labelElement - the label element to modify
+      * @param {string} controlId - the id of control this label is for, can be null, then no for-attribute is created on a label
+      * @param {string} label - as text or i18n key
+      *
+      * @private
+      */
+     _initLabel: function(labelElement, controlId, label){
+       // handle .label
+       if(label){
+         labelElement.parent().addClass("form-group");
+         if(controlId){
+           labelElement.attr("for", controlId);
+         }
+         if(label.startsWith(bcdui.i18n.TAG)){
+           labelElement.attr("bcdTranslate", label);
+         } else {
+           labelElement.text(label);
+         }
+       }
      },
 
      /**

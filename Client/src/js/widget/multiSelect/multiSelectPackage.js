@@ -30,10 +30,15 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
    */
   init: function(e)
     {
+      if (e.getAttribute("bcdLabel")){
+        var labelEl = jQuery("<label/>").appendTo(e);
+        bcdui.widget._initLabel(labelEl, e.getAttribute("bcdid"), e.getAttribute("bcdLabel"));
+      }
+
       jQuery(e).append(
         e.getAttribute("bcdIsCheckBox") == "true"
           ? "<span class='radio'></span>"
-          : "<select multiple='multiple'"
+          : "<select multiple='multiple' class='form-control' "
             + bcdui.widget._domFromBcdAttribute(e, "bcdVisibleSize", "size")
             + "></select>"
         ).addClass("bcdMultiSelect");
