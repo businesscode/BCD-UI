@@ -389,6 +389,8 @@ a {
   a:hover { text-decoration: underline; }
 }
 
+.ui-widget-content .defaultButton { @extend .defaultButton; }
+
 #bcdDropDownButton {  position: absolute; z-index: 15000; }
 #bcdDropDownButton span.bcdButton { margin-top: 1px; }
 #bcdDropDownButton span.bcdButton a { text-align: left; }
