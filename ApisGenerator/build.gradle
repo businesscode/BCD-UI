@@ -63,7 +63,7 @@ task bcduiGensrcJsXsltXapiJspTagApis {
               out:      file("$taskTempDirName/${apiGroup}s.xml")
       )
 
-      ant.taskdef(name: 'xmltask', classname: 'com.oopsconsultancy.xmltask.ant.XmlTask', classpath: configurations.antlibs.asPath )
+      ant.taskdef(name: 'xmltask', classname: 'com.oopsconsultancy.xmltask.ant.XmlTask', classpath: "../lib/xmltask-1.16.1.jar" )
       ant.xmltask(source: "$taskTempDirName/${apiGroup}s.xml") {
 
         // Here we separate the api group file into individual files like core.xslt and coreValidate.js
