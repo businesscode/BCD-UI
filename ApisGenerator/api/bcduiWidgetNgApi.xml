@@ -513,6 +513,14 @@
             function name of filtering function receiving keystrokes; it gets { value, onComplete } and must call onComplete() callback once its done
           </Doc>
         </Param>
+        <Param name="applyListItemSelectionFunction" type="function">
+          <Doc>
+            this function is called when applying value from a dropdown selection (custom rendering mode only), it gets following parameters:
+            (instance, htmlElementId, bcdCaption, bcdId)
+            the bcdCaption is the string provided by options model and the bcdId is the value, in case provided by options model, too. The default
+            implementation is executing { instance._syncWrite(htmlElementId, bcdCaption); }
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="hasCaptions" extends="hasOptions">

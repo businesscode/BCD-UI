@@ -526,13 +526,34 @@
     _cst_applyValueFromOptionsOrControl: function(htmlElementId){
       var selectedElement = bcdui._migPjs._$(this._cst_getSelectedOptionElement());
       if(selectedElement.length > 0){
-        this._syncWrite(htmlElementId, selectedElement.attr("bcdCaption"));
+        this._applyValueFromDropDown(htmlElementId, selectedElement.attr("bcdCaption"), selectedElement.attr("bcdId")); // sync from dropdown selection
       }else{
-        this._syncWrite(htmlElementId);
+        this._syncWrite(htmlElementId); // sync widgets value
       }
       this._cst_hideOptions();
     },
-  
+
+    /**
+     * applies a value from dropdown: delegate to either a custom or a default implementation
+     * @private
+     * @static
+     */
+    _applyValueFromDropDown : function(htmlElementId, bcdCaption, bcdId){
+      try{
+        (bcdui._migPjs._$(htmlElementId).data("_args_").applyListItemSelectionFunction || this._applyValueFromDropDown_default)(this, htmlElementId, bcdCaption, bcdId);
+      } catch (e) {
+        window.console && window.console.warn("ignored caught exception", e);
+      }
+    },
+
+    /**
+     * @private
+     * @static
+     */
+    _applyValueFromDropDown_default : function(instance, htmlElementId, bcdCaption, bcdId){
+      instance._syncWrite(htmlElementId, bcdCaption);
+    },
+
     /**
      * @return currently selected element from the optionsbox or NULL or no selected element found OR box is not visible
      * @private
@@ -788,7 +809,7 @@
           // write options value to the widget and sync it
           var optionsBoxEl = bcdui._migPjs._$(this._CST_DATALIST_ELEMENT_ID);
           var htmlElementId = optionsBoxEl.attr("bcdBoundTo");
-          this._syncWrite(htmlElementId, currentEl.attr("bcdCaption"));
+          this._applyValueFromDropDown(htmlElementId, currentEl.attr("bcdCaption"), currentEl.attr("bcdId")); // apply selection from dropdown
           // hide box
           this._cst_hideOptions();
         }.bind(this));
