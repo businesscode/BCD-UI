@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2019 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.SocketException;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,28 +34,16 @@ import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 import de.businesscode.bcdui.wrs.load.Wrq2Sql;
 
 
-public class SylkServlet extends HttpServlet {
+public class SylkServlet extends ExportServlet {
 
   private static final long serialVersionUID = 4633486737694422869L;
   //
   private final Logger log = Logger.getLogger(getClass());
 
-  protected int maxRowsDefault = 30000;
   /**
    * SylkServlet
    */
   public SylkServlet() {
-  }
-
-  /**
-   * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
-   */
-  @Override
-  public void init(ServletConfig config) throws ServletException {
-    super.init(config);
-
-    if (config.getInitParameter("MaxRows") != null)
-      try { maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
   }
 
   /**
@@ -66,7 +52,7 @@ public class SylkServlet extends HttpServlet {
   @Override
   protected void service(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-    int maxRows = ExcelExportServlet.getMaxRows( maxRowsDefault);
+    int maxRows = getMaxRows( maxRowsDefault);
 
     if (log.isTraceEnabled()) {
       log.trace(String.format("processing url: %s", ServletUtils.getInstance().reconstructURL(request)));

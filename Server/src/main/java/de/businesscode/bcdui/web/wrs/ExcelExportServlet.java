@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2019 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,16 +25,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
-import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
@@ -51,32 +47,14 @@ import de.businesscode.util.Utils;
  * in both cases, WrsRequest are executed on server side
  * It is possible to define an Excel file ('template') in templateLocationInWar or templateLocationInVfs and sheet name as target into which to fill the data in
  */
-public class ExcelExportServlet extends HttpServlet {
+public class ExcelExportServlet extends ExportServlet {
   private static final String templateLocationInWar = "/excelExportTemplates";
   private static final String templateLocationInVfs = "/bcdui/vfs/excelExportTemplates";
   private static final long serialVersionUID = 1L;
   private Logger log = Logger.getLogger(getClass());
   private final Set<String> templateContainers = new HashSet<>();
   private static AtomicInteger concurrent = new AtomicInteger(0);
-  protected int maxRowsDefault = 30000; // Default
   private static final int MAX_MEMORY_GB = 8;
-
-  /**
-   * Returns the maxRows value from subject setting bcdExport:maxRows
-   * @param defValue fallback default value
-   * @return either the given default value or the value coming from subjectSettings (if it's a valid integer)
-   */
-  static public int getMaxRows(int defValue) {
-    int maxRows = defValue;
-    try {
-      if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
-        Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdExport:maxRows");
-        try { maxRows = perms.iterator().hasNext() ? Integer.parseInt(perms.iterator().next()) : defValue; } catch (Exception e) {}
-      }
-    }
-    catch (UnavailableSecurityManagerException e) {}
-    return maxRows;
-  }
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -86,18 +64,12 @@ public class ExcelExportServlet extends HttpServlet {
     templateContainers.add(templateLocationInWar);
     templateContainers.add(templateLocationInVfs);
     log.trace("Template Containers: " + templateContainers);
-
-    try {
-      maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows"));
-    } catch(Exception e) {
-      log.info("For "+getServletName()+" init parameter MaxRows not found, using default.");
-    }
   }
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-    int maxRows = ExcelExportServlet.getMaxRows(maxRowsDefault);
+    int maxRows = getMaxRows(maxRowsDefault);
 
     log.trace("exporting Wrs at " + req.getRequestURL().toString());
 
