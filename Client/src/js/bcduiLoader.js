@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2019 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -261,7 +261,15 @@ bcdui.bcduiCeFiles =
       "id": "bcduiGrid",
       "required": "optional",
       "files": [
-        "/js/3rdParty/handsontable.js"
+          "/js/3rdParty/handsontable.js"
+        , "/js/component/grid/gridCreate.js"
+        , "/js/component/grid/gridEditor.js"
+      ],
+      "css": [
+        "/js/3rdParty/handsontable.css"
+      ],
+      "buildFolders": [
+        "/js/component/grid"
       ]
     },
     {
