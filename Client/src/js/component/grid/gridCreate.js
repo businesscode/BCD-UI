@@ -117,6 +117,7 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
  * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
  * @param {boolean}                 [args.topMode=false]                                   - add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+ * @param {String}                  [args.ignoreTrimmingContainerClasses]                  - space separated list of css classes. They will be ignored during handsontable's trimming container determination 
  *  
 */
 bcdui.component.grid.Grid = function(args)
@@ -124,6 +125,9 @@ bcdui.component.grid.Grid = function(args)
   this.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
   bcdui.factory.objectRegistry.registerObject( this );
   this.targetHtml = bcdui.util._getTargetHtml(args, "grid_");
+
+  this.ignoreTrimmingContainerClasses = args.ignoreTrimmingContainerClasses || "";
+  this.ignoreTrimmingContainerClasses += " bcd__content-container bcd__vertical-split bcd__outer-wrapper",
 
   this.config = args.config;
   if (! this.config) {
@@ -2169,7 +2173,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @private
    */
   _createHtmlStructure: { writable: true, configurable: true, enumerable: true, value: function( args ) {
-    var table = jQuery("<table class='bcdGrid'/>");
+    var table = jQuery("<table class='bcdGrid' ignoreContainerCss='" + this.ignoreTrimmingContainerClasses + "'/>");
     table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
     table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
     table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");
@@ -2614,6 +2618,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
    * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)   * @private
    * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
+   * @param {String}                  [args.ignoreTrimmingContainerClasses]                  - space separated list of css classes. They will be ignored during handsontable's trimming container determination 
    * @private
    */
   createGrid: function( args )
@@ -2641,7 +2646,8 @@ bcdui.util.namespace("bcdui.component",
         allowNewRows:         args.allowNewRows || args.allowNewCells,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
-        isReadOnly:           args.isReadOnly
+        isReadOnly:           args.isReadOnly,
+        ignoreTrimmingContainerClasses: args.ignoreTrimmingContainerClasses
       });
     });
     return { refId: args.id, symbolicLink: true };

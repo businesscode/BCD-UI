@@ -25,6 +25,12 @@
  * 
  * Version: 6.2.2
  * Release date: 19/12/2018 (built at 18/12/2018 14:40:17)
+ * 
+ * 
+ * Modification Business Code 2019-06-06
+ * 
+ *  - getTrimmingContainer function, ignore container with class listed in .bcdGrid @ignoreContainerCss  
+ * 
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -904,21 +910,31 @@ function getScrollableElement(element) {
 
 
 function getTrimmingContainer(base) {
+  var bcdGrid = jQuery(base).closest(".bcdGrid");
+  var ignoreClasses = bcdGrid.attr("ignoreContainerCss") || "";
+  ignoreClasses = ignoreClasses.split(" ");
+
   var el = base.parentNode;
 
   while (el && el.style && document.body !== el) {
-    if (el.style.overflow !== 'visible' && el.style.overflow !== '') {
-      return el;
-    }
-
-    var computedStyle = getComputedStyle(el);
-    var allowedProperties = ['scroll', 'hidden', 'auto'];
-    var property = computedStyle.getPropertyValue('overflow');
-    var propertyY = computedStyle.getPropertyValue('overflow-y');
-    var propertyX = computedStyle.getPropertyValue('overflow-x');
-
-    if (allowedProperties.includes(property) || allowedProperties.includes(propertyY) || allowedProperties.includes(propertyX)) {
-      return el;
+    var doIgnore = false;
+    ignoreClasses.forEach(function(e) {
+      doIgnore |= jQuery(el).hasClass(e)
+    })
+    if (! doIgnore) {
+      if (el.style.overflow !== 'visible' && el.style.overflow !== '') {
+        return el;
+      }
+  
+      var computedStyle = getComputedStyle(el);
+      var allowedProperties = ['scroll', 'hidden', 'auto'];
+      var property = computedStyle.getPropertyValue('overflow');
+      var propertyY = computedStyle.getPropertyValue('overflow-y');
+      var propertyX = computedStyle.getPropertyValue('overflow-x');
+  
+      if (allowedProperties.includes(property) || allowedProperties.includes(propertyY) || allowedProperties.includes(propertyX)) {
+        return el;
+      }
     }
 
     el = el.parentNode;
