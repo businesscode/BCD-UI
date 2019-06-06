@@ -60,8 +60,6 @@ def js3rdPartyNpm = [
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
       "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
       "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents.js/webcomponents-lite.js",        ofnm: "webcomponents.js/webcomponents-lite.min.js"],
-      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js",        ofnm: "handsontable/dist/handsontable.full.min.js"],
-                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
       "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js",               ofnm: "babel-polyfill/dist/polyfill.min.js"],
       "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.js",                       ofnm: "file-saver/FileSaver.min.js"],

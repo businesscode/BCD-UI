@@ -14,7 +14,6 @@
     "jquery-ui-dist":     "@version",
     "jquery-mobile":      "git+https://github.com/jquery/jquery-mobile#@version",
     "webcomponents":      "git+https://github.com/webcomponents/webcomponentsjs#@version",
-    "handsontable":       "@version",
     "nouislider":         "@version",
     "babel-polyfill":     "@version",
     "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version",
