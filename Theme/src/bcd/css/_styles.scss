@@ -312,7 +312,7 @@
   .bcdMinute, .bcdSecond { width: 1.5em; border-left-style: none; text-align: center; }
   .bcdDateTimeDelimiter  { width: 0.5em; border-style: none; text-align: center; background-color: #fff; display:inline;}
 
-  .bcdDateTimeDelimiter, .bcdDateDelimiter { width: 0.5em; border-right-style: none;  border-left-style: none; border-radius: 0; background-color: inherit !important;}
+  .bcdDateTimeDelimiter, .bcdDateDelimiter { width: 0.8em; border-right-style: none;  border-left-style: none; border-radius: 0; background-color: inherit !important;}
   .bcdHour, .bcdDay { width: 2em; border-left-style: none; border-radius: 0 .25em .25em 0; }
   .bcdHour, .bcdMonth { width: 2em; border-right-style: none; border-left-style: none; border-radius: 0; }
   .bcdYear { width: 3.2em; border-right-style: none; border-radius: .25em 0 0 .25em;  }
