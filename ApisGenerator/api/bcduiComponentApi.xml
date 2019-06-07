@@ -538,6 +538,123 @@
         </Examples>
       </Api>
 
+	  <Api name="gridModel" extends="dataProvider config statusModel">
+        <Doc>
+          Creates a grid model.
+        </Doc>
+        <Examples>
+        </Examples>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the grid configuration data.
+            If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+          </Doc>
+        </Param>
+        <Param name="statusModel" type="dataProvider" isJSPChild="paramBag.statusModel">
+          <Doc>
+            The model containing the current cube layout together with the filters. This is the guiStatus model by default.
+          </Doc>
+        </Param>
+        <Param name="saveChain" type="dataProvider" isJSPChild="paramBag.saveChain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="loadChain" type="dataProvider" isJSPChild="paramBag.loadChain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="validationChain" type="dataProvider" isJSPChild="paramBag.validationChain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+      <!--    
+        <Param name="saveParameters"></Param>
+        <Param name="loadParameters"></Param>
+        <Param name="validationParameters"></Param>
+       -->        
+      </Api>
+      
+      <Api name="grid" extends="gridModel hasInputModel">
+        <Doc>
+          Creates a grid front end based on given data or a configuration.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:inputModel" doc="The DataProvider instance that becomes the input of the transformation chain. If omitted a bcdui:model tag (or a derived) must be present instead." />
+              <Child name="cmp:config" doc="The model containing the grid configuration data." />
+              <Child name="cmp:statusModel" doc="The model containing the current filters." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+        </Examples>
+      <!--
+        <Param name="hotArgs"></Param>
+      -->
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+        <Param name="tooltipChain" type="dataProvider" isJSPChild="paramBag.tooltipChain">
+          <Doc>
+            To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
+          </Doc>
+        </Param>
+        <Param name="contextMenu" type="string">
+          <Doc>
+            'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="customSave" type="function">
+          <Doc>
+            Custom save function
+          </Doc>
+        </Param>
+        <Param name="afterAddRow" type="function">
+          <Doc>
+            Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
+          </Doc>
+        </Param>
+        <Param name="allowNewRows" type="boolean" default="true">
+          <Doc>
+            Allows inserting new rows via default contextMenu or drag/paste
+          </Doc>
+        </Param>
+        <Param name="columnFilters" type="boolean" default="false">
+          <Doc>
+            Enable basic column filter input fields
+          </Doc>
+        </Param>
+        <Param name="maxHeight" type="integer">
+          <Doc>
+            set a maximum vertical size in pixel (only used when no handsontable height is set)
+          </Doc>
+        </Param>
+        <Param name="isReadOnly" type="boolean" default="false">
+          <Doc>
+            Turn on viewer-only mode
+          </Doc>
+        </Param>
+        <Param name="topMode" type="boolean" default="false">
+          <Doc>
+            add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+          </Doc>
+        </Param>
+        <Param name="ignoreTrimmingContainerClasses" type="string">
+          <Doc>
+            space separated list of css classes. They will be ignored during handsontable's trimming container determination
+          </Doc>
+        </Param>
+      </Api>
     </BcdAPI>
 
     <BcdObjects>
@@ -553,6 +670,9 @@
       <BcdObject name="metaData" implements="metaData" implementationFunction="" tagFolder="component"/>
       <BcdObject name="config" implements="config" implementationFunction="" tagFolder="component"/>
       <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="component"/>
+      <BcdObject name="gridModel" implements="gridModel" implementationPackage="bcdui.component." tagFolder="component"/>
+      <BcdObject name="grid" implements="grid" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
+
     </BcdObjects>
   </WorkingDraft>
 
