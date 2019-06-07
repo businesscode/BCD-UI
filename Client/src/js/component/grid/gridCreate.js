@@ -104,8 +104,8 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
  * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
  * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
- * @param {function}                [args.customSave]                                      - custom save function
- * @param {function}                [args.afterAddRow]                                     - custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
+ * @param {function}                [args.customSave]                                      - Custom save function
+ * @param {function}                [args.afterAddRow]                                     - Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
  * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
  * @param {Object}                  [args.saveParameters]                                  - Parameters for the saving chain
  * @param {chainDef}                [args.loadChain]                                       - A chain definition which is used for the grid loading operation 
@@ -114,10 +114,10 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
  * @param {boolean}                 [args.allowNewRows=true]                               - Allows inserting new rows via default contextMenu or drag/paste 
  * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
- * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
- * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
- * @param {boolean}                 [args.topMode=false]                                   - add/save/restore buttons appear at the top, pagination at bottom, insert row at top
- * @param {String}                  [args.ignoreTrimmingContainerClasses]                  - space separated list of css classes. They will be ignored during handsontable's trimming container determination 
+ * @param {integer}                 [args.maxHeight]                                       - Set a maximum vertical size in pixel (only used when no handsontable height is set)
+ * @param {boolean}                 [args.isReadOnly=false]                                - Turn on viewer-only mode
+ * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+ * @param {String}                  [args.ignoreTrimmingContainerClasses]                  - Space separated list of css classes. They will be ignored during handsontable's trimming container determination 
  *  
 */
 bcdui.component.grid.Grid = function(args)
