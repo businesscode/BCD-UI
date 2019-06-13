@@ -53,7 +53,7 @@ public class CsvServlet extends ExportServlet {
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 
-    int maxRows = getMaxRows(maxRowsDefault);
+    int maxRows = getMaxRows(request, maxRowsDefault);
 
     if (log.isTraceEnabled()) {
       log.trace(String.format("processing url: %s", ServletUtils.getInstance().reconstructURL(request)));

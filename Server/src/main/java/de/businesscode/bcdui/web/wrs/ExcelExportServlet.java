@@ -69,7 +69,7 @@ public class ExcelExportServlet extends ExportServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-    int maxRows = getMaxRows(maxRowsDefault);
+    int maxRows = getMaxRows(req, maxRowsDefault);
 
     log.trace("exporting Wrs at " + req.getRequestURL().toString());
 

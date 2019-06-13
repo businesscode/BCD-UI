@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -53,7 +54,7 @@ public class ExportServlet extends HttpServlet {
    * @param defValue fallback default value
    * @return either the given default value or the value coming from subjectSettings (if it's a valid integer)
    */
-  public int getMaxRows(int defValue) {
+  public int getMaxRows( HttpServletRequest request, int defValue) {
     int maxRows = defValue;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
