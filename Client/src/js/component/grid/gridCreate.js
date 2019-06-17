@@ -931,13 +931,15 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     this.htOptions.columns = [];
     Array.prototype.forEach.call( this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C"), function(hc, idx) {
       // Create header captions
-      var id      = hc.getAttribute("id");
+      var id      = hc.getAttribute("id") || "";
+      var caption = hc.getAttribute("caption") || id;
+      caption = caption.indexOf(bcdui.i18n.TAG) == 0 ? bcdui.i18n.syncTranslateFormatMessage({msgid:caption}) : caption;
       this.htOptions.colHeaders.push(
           hc.getAttribute("isHidden") == "true"
             ? "<div class='colHeader'></div>"
             : (this.columnFilters && hc.getAttribute("columnFilter") !== "false")
-              ? ("<div class='bcdFilterContainer colHeader'><div class='bcdFilterOriginal'>" + (hc.getAttribute("caption") || hc.getAttribute("id")) + "</div><div class='bcdFilterButton' colId='"+id+"'></div></div>")
-              : ("<div class='colHeader'>" + (hc.getAttribute("caption") || hc.getAttribute("id")) + "</div>")
+              ? ("<div class='bcdFilterContainer colHeader'><div class='bcdFilterOriginal'>" + caption + "</div><div class='bcdFilterButton' colId='"+id+"'></div></div>")
+              : ("<div class='colHeader'>" + caption + "</div>")
       );
 
       // Create column type information
@@ -2021,7 +2023,9 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           x++;
         }
         if ((nodes[n].localName||nodes[n].baseName) == "Group") {
-          matrix[y][x] = {type: "G", caption: nodes[n].getAttribute("caption") || "", cssClass: nodes[n].getAttribute("class") || ""};
+          var caption = nodes[n].getAttribute("caption") || "";
+          caption = caption.indexOf(bcdui.i18n.TAG) == 0 ? bcdui.i18n.syncTranslateFormatMessage({msgid:caption}) : caption;
+          matrix[y][x] = {type: "G", caption: caption, cssClass: nodes[n].getAttribute("class") || ""};
           matrix[y][x].collapsable = (nodes[n].getAttribute("collapsed") != null);
           matrix[y][x].isCollapsed = (nodes[n].getAttribute("collapsed") === "true"); // take initial value from config
           x = buildMatrix(matrix, x, y + 1, nodes[n], columns)
