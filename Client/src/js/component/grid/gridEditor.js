@@ -14,8 +14,6 @@
   limitations under the License.
 */
 
-"use strict";
-
 var widgetBaseEditor = Handsontable.editors.TextEditor.prototype.extend();
 
 // init is called on handsontable creation, we mainly only generate a targetModel here  and provide two standard functions
