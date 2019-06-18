@@ -25,6 +25,7 @@
   <!-- application context path -->
   <xsl:param name="contextPath" select="'/'"/>
   <xsl:param name="bcdControllerVariableName" select="'root_'"/>
+  <xsl:param name="legacyTheme" select='false'/>
   <!-- menu Id -->
   <xsl:param name="menuId"
     select="
@@ -45,6 +46,9 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <xsl:template match="/*">
     <nav class="bcdMenu">
+      <xsl:if test="$legacyTheme='true'">
+        <xsl:attribute name="style">display:none</xsl:attribute>
+      </xsl:if>
       <ul id="{$rootElementId}" class="bcdLevel1" db="{count(//menu:Entry)}">
         <xsl:for-each select="menu:Entry">
           <xsl:call-template name="getEntry">

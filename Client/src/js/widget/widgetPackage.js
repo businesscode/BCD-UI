@@ -935,6 +935,7 @@ bcdui.util.namespace("bcdui.widget",
       }
       args.parameters.location = cleanLoc;
       args.parameters.bcdPageIdParam = bcdPageIdParam;
+      args.parameters.legacyTheme = "" + (bcdui.config.settings.bcdui.legacyTheme === true);
 
       var _rendererOrRendererRefId = bcdui.factory.createRenderer({
         id: _rendererRefId
