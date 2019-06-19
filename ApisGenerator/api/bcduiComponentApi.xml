@@ -649,11 +649,6 @@
             add/save/restore buttons appear at the top, pagination at bottom, insert row at top
           </Doc>
         </Param>
-        <Param name="ignoreTrimmingContainerClasses" type="string">
-          <Doc>
-            space separated list of css classes. They will be ignored during handsontable's trimming container determination
-          </Doc>
-        </Param>
       </Api>
     </BcdAPI>
 
