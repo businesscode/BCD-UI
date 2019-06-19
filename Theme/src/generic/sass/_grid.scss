@@ -263,3 +263,11 @@ input.bcdInputFieldGrid {
   overflow: hidden;
   word-break: break-all;
 }
+
+/* handsontable adds a span.autoResize temporarily when an editor opens to determine max widths.
+   If the body holds display:flex, the width is way too big and the Editor input is not correctly sized.
+   using display: none will reset the width to 'auto'.
+*/   
+body > span.autoResize {
+  display: none !important;
+}
