@@ -167,12 +167,18 @@ public class WrqFilter2Sql
    * @return
    * @throws BindingNotFoundException
    */
-  static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> elementList, Document ownerDocument, boolean useAggr)
+  static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> boundVariables, Document ownerDocument, boolean useAggr)
       throws BindingNotFoundException
   {
     // If the binding item appears twice, we don't know which one to use and here we get the last one returned
     // This does impact the aggr being used below
-    WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(item.getAttribute("bRef"));
+    String bRef = item.getAttribute("bRef");
+    // Take care for binding items which where replaced vy virtual binding item by giving them a wrc:Calc in the select clause
+    if( wrqInfo.getVirtualBRefs().containsKey(bRef) )
+      bRef = wrqInfo.getVirtualBRefs().get(bRef);
+    WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(bRef);
+    boundVariables.addAll( bindingItem.getBoundVariables() );
+
     String op = item.getAttribute("op");
     String operator = "=";
 
@@ -226,7 +232,7 @@ public class WrqFilter2Sql
         Element e = ownerDocument.createElement("InElement");
         e.setAttribute("bRef",  bindingItem.getId());
         e.setAttribute("value", ignoreCase ? values[i].toLowerCase() : values[i]);
-        elementList.add(e);
+        boundVariables.add(e);
       }
       return colExpr + " "+operator+" " + qm.toString() + ")";
     }
@@ -245,12 +251,12 @@ public class WrqFilter2Sql
       String value = valueElement.getAttribute("value");
       Element e = ownerDocument.createElement("BitAndValue");
       e.setAttribute("value", value );
-      elementList.add(e);
+      boundVariables.add(e);
       return operator+"(" + colExpr + ",? ) > 0 ";
     }
 
     // Add the element containing the comparison value for usage after the prepare and return the sql text fragment
-    elementList.add(valueElement);
+    boundVariables.add(valueElement);
     return colExpr + " " + operator + CustomJdbcTypeSupport.wrapTypeCast(bindingItem, " ?") + colExprPostfix;
   }
 

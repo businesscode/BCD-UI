@@ -74,6 +74,7 @@ The Renderer either works directly with the specified element or (in case of spe
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Add notLike and notIn operators to f:Filter, including universal filter widget
+* Wrq where and having clause does now understand virual binding items: f:Expression/@bRef referencing a wrq:Columns/wrq:C which is having a wrq:Calc expressing, are now using that wrq:Calc expression
 
 . Build / Dev / Docu
 * In Eclipse, sub-projects Client, Server, Theme etc now have names BCD-UI--SubProjectName to keep them together in the navigation tree
@@ -87,8 +88,7 @@ The Renderer either works directly with the specified element or (in case of spe
 
 .Backward Incompatibilities:
 
-* Menu: when using old scss themes, you need to specify bcdui.config.settings.bcdui.legacyTheme === true (settings.json)
-
+* Menu: when using old scss themes, you need to specify '{ bcdui: { legacyTheme: true } }' in bcdui/conf/settings.json
 * jQueryMobile is not compatible with jQuery 3.x anymore. When using jQueryMobile, you need to build bcdui with a jQuery 2.x
 * bcd_virtualFileSystem got additional columns updatedBy, last_update, bcd_userId with additional writebacks and security constraints and a new additional key column
 * Component: cube/scorecard blindUpDowns, ranking require new i18n keys (bcd_Rank_, bcd_Sc_Blind_, bcd_Cb_Blind_)

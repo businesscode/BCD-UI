@@ -86,6 +86,8 @@ public class WrqInfo
   private Map<String,Map<String,Set<String>>> vdms = new HashMap<>();
   // This indicates whether this request uses a Grouping Function, for example grouping sets
   private boolean reqHasGroupingFunction = false;
+  // If a bRef from select clause was mapped to a virtual binding item due to wrq:Calc, we note the mapping here
+  private Map<String,String> virtualBRefs;
   private boolean reqHasGroupBy = false;
   private boolean isSelectDistinct = false;
 
@@ -230,6 +232,7 @@ public class WrqInfo
     wrsCOnlySelectListBRefs = new LinkedList<WrqBindingItem>();
     groupingBRefs = new HashSet<String>();
     havingBRefs = new HashSet<String>();
+    virtualBRefs = new HashMap<String, String>();
 
     // Let's check, whether we have a filter modifiers attached to the BindingSet (/Group) and apply them
     // Note, we have a chicken and egg problem here. To ask a BindingSet for its modifiers, 
@@ -329,6 +332,11 @@ public class WrqInfo
           Element cAElem = (Element)selectedNl.item(i);
 
           WrqBindingItem wrqBi = new WrqBindingItem(this, cAElem, "v"+(aliasCounter++), false, lastWrqC);
+
+          // If we just created a virtual binding item, for example by having a wrq:Calc clause instead of a bRef, we keep track of it here for later use
+          // because in filter expressions (where and having), we can only refer to bRef and not use wrq:Calc, we then take the definition from the select clause, if given
+          if( ! wrqBi.getId().equals(cAElem.getAttribute("bRef")) )
+            virtualBRefs.put(cAElem.getAttribute("bRef"), wrqBi.getId());
 
           String bRef_Aggr = wrqBi.getId()+(wrqBi.getAggr()==null ? "":" "+wrqBi.getAggr());
 
@@ -479,6 +487,9 @@ public class WrqInfo
   }
   public Map<String, WrqBindingItem> getAllBRefs() {
     return allBRefs;
+  }
+  public Map<String, String> getVirtualBRefs() {
+    return virtualBRefs;
   }
 
   public Set<String> getAllRawBRefs() {
