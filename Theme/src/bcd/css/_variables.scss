@@ -26,7 +26,7 @@ $bcd_bg-sidebar:                #fff;
 
 $bcd_modal_dropshadow:          0 3px 30px rgba(0,0,0,.2);
 
-$z-index-base:                  101; // handsontable grid uses 101, so we start there
+$z-index-base:                  110; // handsontable grid starts at 101 (and uses some for higher ones for differnt layers), so we start a bit higher
 $corporate-color:               $bcd_blue-light !default;
 $corporate-color-alt:           $bcd_blue-dark  !default;
 
