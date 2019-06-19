@@ -1736,7 +1736,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       , afterGetColHeader: afterGetColHeader.bind(this)
       , beforeRender:      beforeRender.bind(this)
       , afterColumnResize: afterColumnResize.bind(this)
-      , afterInit: function() { this.render(); } // one initial refresh to correctly set width/height
+      , afterInit: function() { setTimeout(function(){this.render();}.bind(this)); } // one initial refresh to correctly set width/height
     };
 
 		// add code/caption handling for copy/paste
@@ -2174,7 +2174,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @private
    */
   _createHtmlStructure: { writable: true, configurable: true, enumerable: true, value: function( args ) {
-    var table = jQuery("<table class='bcdGrid' style='overflow: auto; width: auto; height: auto;'/>");
+    var table = jQuery("<table class='bcdGrid'/>");
     table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
     table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
     table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");
@@ -2189,6 +2189,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       buttonCell.find("td").append("<div class='col-sm-auto'><bcd-buttonNg caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").saveRoutine();'></bcd-buttonNg></div>");
 
     table.append(buttonCell);
+    jQuery("#"+this.targetHtml).css({overflow: "auto", width: "auto", height: "auto"});
     jQuery("#"+this.targetHtml).append(table);
 
     // pagination renderer, model and listener to rerender on page change
