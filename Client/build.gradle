@@ -68,6 +68,7 @@ def js3rdPartyNpm = [
     ]
 js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
 
+def copyUnmodified = [ "handsontable.js" : [fn: "handsontable.js", ofn: "src/js/3rdParty/handsontable.js" ] ]
 
 //**********************************
 // Load 3rdParty js libraries to build/node_modules with the help of package.json, which we copy to build and execute npm install there
@@ -273,6 +274,19 @@ task bcduiClientJsFileGroups {
         }
       }
     }
+    else if (copyUnmodified[value.fn]) {
+      // in case we want to explictly keep a file 1:1 (no minimize, no ECMA5 transpile, we copy it
+      copy {
+        from "${copyUnmodified[value.fn].ofn}"
+        into "$clientCombinedDir/$jsDistDir/3rdParty/"
+        rename { value.fn }
+      }
+      copy {
+        from "${copyUnmodified[value.fn].ofn}"
+        into "$clientCombinedDir/$jsDistDir/3rdParty/"
+        rename { value.fn.replace('.js', "${es5Postfix}.js") }
+      }
+    }
     // Otherwise we create a minified version ourselfs with the help from babel
     else {
       def f = file(value.fn)
@@ -297,10 +311,28 @@ task bcduiClientJsFileGroups {
     fileSet.files.findAll { it.contains("3rdParty") && it.endsWith('.js') }.each { fName ->
       fName = fName.lastIndexOf('/').with {it != -1 ? fName[it+1..<fName.length()] : fName}
       def fPathNameWoExt = fName.lastIndexOf('.').with {it != -1 ? fName[0..<it] : fName}
-      if( fPathNameWoExt in js3rdPartyNpm )
-        collectMinified( fPathNameWoExt, js3rdPartyNpm[fPathNameWoExt] )
-      else {
-        // For files not in js3rdPartyNpm we simulate an entry with the appropriate structure
+      def found = false;
+
+      // compare loader filename against  js3rdPartyNpm fn names to determine key of to-be-minified packages
+      for (js3rdParty in js3rdPartyNpm) {
+
+        if (js3rdParty.value[0]) {
+          // we're assuming that we only have 1 level deep arrays
+          for (inner in js3rdParty.value) {
+            if (inner.fn == fName) {
+              collectMinified( js3rdParty.key, inner )
+              found = true;
+            }
+          }
+        }
+        else if (js3rdParty.value.fn == fName) {
+          collectMinified( js3rdParty.key, js3rdParty.value )
+          found = true;
+        }
+      }
+
+      // not in js3rdPartyNpm array, so add a dummy 1:1 one in the array for later use
+      if (!found) {
         collectMinified( fPathNameWoExt, [ fn: "${fPathNameWoExt}.js", ofn: "${fPathNameWoExt}.js"] )
       }
     }
