@@ -1650,7 +1650,8 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       }
     }
 
-    this.paginationRenderer.execute();
+    if (this.paginationRenderer)
+      this.paginationRenderer.execute();
 
     // Create Handsontable
     jQuery("#"+this.htTargetHtmlId).replaceWith("<div id='"+this.htTargetHtmlId+"'><div>");
@@ -2189,19 +2190,23 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       buttonCell.find("td").append("<div class='col-sm-auto'><bcd-buttonNg caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").saveRoutine();'></bcd-buttonNg></div>");
 
     table.append(buttonCell);
-    jQuery("#"+this.targetHtml).css({overflow: "auto", width: "auto", height: "auto"});
     jQuery("#"+this.targetHtml).append(table);
+    
+    // set trimming container to current table in case we're rendering ourself in an overflow container to prevent handsontable to make the grid too big 
+    var trimmingContainer = this._getTrimmingContainer(jQuery("#"+this.targetHtml).get(0));
+    if (trimmingContainer !== window)
+      jQuery("#"+this.targetHtml).find("table").css({overflow: "auto", width: "auto", height: "auto"});
 
     // pagination renderer, model and listener to rerender on page change
     this.pager = new bcdui.core.StaticModel("<Data><xp:Paginate xmlns:xp='http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0'><xp:PageNumber>" + this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageNumber", "1") + "</xp:PageNumber></xp:Paginate></Data>");
     bcdui.factory.objectRegistry.registerObject(this.pager);
+    var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     this.pager.onceReady(function() {
       this.pager.onChange(function() {
         // reset/set maxRows
         var createArgs = {maxRows: Infinity};
         if (! this.allowNewRows)
           createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length;
-        var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
         var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
         curPage = isNaN(curPage) ? -1 : curPage;
         var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
@@ -2225,12 +2230,14 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     this.pager.execute();
     var headOrFoot = this.topMode ? "tfoot" : "thead";
-    this.paginationRenderer = new bcdui.core.Renderer({
+    this.paginationRenderer = gotPagination
+    ? new bcdui.core.Renderer({
         targetHtml: "#" + this.targetHtml + " " + headOrFoot + " td"
       , chain: bcdui.contextPath + "/bcdui/js/component/grid/pagination.xslt"
       , inputModel : this.getEnhancedConfiguration()
       , parameters:{ targetModel: this.pager, gridModel: this.gridModel, targetModelId: this.pager.id }
-    });
+      })
+    : null;
 
     // we might use custom optionsModels, so we need to provide the correct caption value for the old value
     // to the tooltip renderer (which by default only knows wrs/reference captions and the actual gridModel values
@@ -2427,6 +2434,33 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     }.bind(this));
 
+  }},
+
+  /**
+   * @private
+   */
+  _getTrimmingContainer: { writable: true, configurable: true, enumerable: true, value: function(base) {
+    var el = base.parentNode;
+
+    while (el && el.style && document.body !== el) {
+      if (el.style.overflow !== 'visible' && el.style.overflow !== '') {
+        return el;
+      }
+
+      var computedStyle = getComputedStyle(el);
+      var allowedProperties = ['scroll', 'hidden', 'auto'];
+      var property = computedStyle.getPropertyValue('overflow');
+      var propertyY = computedStyle.getPropertyValue('overflow-y');
+      var propertyX = computedStyle.getPropertyValue('overflow-x');
+
+      if (allowedProperties.includes(property) || allowedProperties.includes(propertyY) || allowedProperties.includes(propertyX)) {
+        return el;
+      }
+
+      el = el.parentNode;
+    }
+
+    return window;
   }},
 
   /**
