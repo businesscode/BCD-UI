@@ -382,6 +382,10 @@
       font-size: inherit !important;
     }
   }
+
+  .popupStyle, .popupStyleOver, .calCloseImage {
+    cursor: pointer;
+  }
 }
 
 /*********************************************************************************************************************/
@@ -1212,6 +1216,7 @@ table.bcd-far-configurator {
 
   .bcdReadOnly  {
     color: $text-disabled-color;
+    font-style: italic;
   }
   .bcdDeleted {
     text-decoration: line-through;
