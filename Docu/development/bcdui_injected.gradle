@@ -1,0 +1,214 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/*--------------------------------------------
+ * Gradle file building Eclipse .project and .classpath with BCD-UI injected and rename BCD-UI *.jar to *.injected
+ * To use
+ * 1. Make sure BCD-UI is checked next to your project
+ * 2. Copy bcdui_project_template_build.gradle found here to your project and read its instructions
+ * 3. Add "apply from: '../../BCD-UI/Docu/development/bcdui_injected.gradle'" after apply 'bcdui_dependencies.gradle'
+ * 4. Make these settings in gradle.properties
+      bcdui.inject.Ce     = true
+      bcdui.inject.Ee     = false
+      bcdui.inject.De     = false
+      bcdui.inject.Jsp    = false
+      bcdui.inject.Theme  = false
+      bcdui.ThemeName     = bcd
+ * 5. Run gradle task "IDE->Eclipse" and refresh project
+ *
+ * 6. Wehenever you changed the settings in gradle.properties, run gradle task "IDE->Eclipse" and refresh project
+ ------------------------------------------------*/
+
+apply plugin: 'eclipse'
+import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
+configurations {
+  // Needed this to compile but it will not be part of packaging as it is found in the target environment by other means
+  provided
+}
+
+// Read from gradle.properies and chek whether it is set to tue
+def isProp(name) {
+  return hasProperty(name) && getProperty(name) == "true"
+}
+
+// Files compiled from injected sources go to webAppDirName/WEB-INF/classes
+dependencies {
+  implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
+  implementation files("$webAppDirName/WEB-INF/classes")
+}
+
+//------------------------------------------------------------
+// Eclipse .classpath and .project file
+eclipse {
+
+  wtp {
+    component {
+      // Make side content of WEB-INF/lib is also copied to Tomcat runtime when Tomcat is started from Ecplise
+      libConfigurations += [configurations.runtimeClasspath]
+    }
+  }
+
+  //---------------------------------------------------
+  // Generate Eclipse .project
+  // Depending on bcdui.inject.(Ce|Ee|De|Jsp|Theme) in gradle.properties, create Eclipse links for injection
+  project {
+    file {
+      beforeMerged { project ->
+        // Clean up and previous settings
+        linkedResources.removeAll { it.name.contains("bcdui") }
+      }
+    }
+
+    //------------------------------------------------------------
+    // Create Eclipse links to BCD-UI
+    // BCD-UI-CE
+    if( isProp('bcdui.inject.Ce') ) {
+      linkedResource name: 'bcdui_inject/genjava', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Server/build/gensrc/main/java'
+      linkedResource name: 'bcdui_inject/genjs', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/ApisGenerator/build/gensrc/js'
+      linkedResource name: 'bcdui_inject/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Server/src/main/java'
+      linkedResource name: 'bcdui_inject/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/src/js'
+      linkedResource name: 'bcdui_inject/js3rdParty', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/build/tmp/src3rdParty/js'
+      linkedResource name: 'bcdui_inject/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/build/jsEcma5One2One'
+      linkedResource name: 'bcdui_inject/resources', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Server/src/main/resources'
+      linkedResource name: 'bcdui_inject/xslt', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/src/xslt'
+
+      if( isProp('bcdui.inject.Jsp') ) {
+        linkedResource name: 'bcdui_inject/gentags', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/ApisGenerator/build/gensrc/taglib/tags'
+        linkedResource name: 'bcdui_inject/gentlds', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/ApisGenerator/build/gensrc/taglib/WEB-INF/tags/bcdui'
+        linkedResource name: 'bcdui_inject/taglibjava', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/JspTaglib/src/main/java'
+        linkedResource name: 'bcdui_inject/tlds/tld', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/JspTaglib/src/WEB-INF'
+      }
+    }
+
+    // BCD-UI-Theme
+    if( isProp('bcdui.inject.Theme') ) {
+      def injectTheme = getProperty('bcdui.ThemeName')
+      linkedResource name: 'bcdui_inject/theme', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Theme/build/themes/' + injectTheme + "/$webAppDirName/bcdui/theme"
+    }
+
+    // BCD-UI-EE
+    if( isProp('bcdui.inject.Ee') ) {
+      linkedResource name: 'bcdui_inject_ee/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Server/src/main/java'
+      linkedResource name: 'bcdui_inject_ee/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/src/js'
+      linkedResource name: 'bcdui_inject_ee/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/build/jsEcma5One2One'
+      linkedResource name: 'bcdui_inject_ee/xslt', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/src/xslt'
+    }
+
+    // BCD-UI-DE
+    if( isProp('bcdui.inject.De') ) {
+      linkedResource name: 'bcdui_inject_de/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Client/src/js'
+      linkedResource name: 'bcdui_inject_de/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Client/build/jsEcma5One2One'
+      linkedResource name: 'bcdui_inject_de/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Server/src/main/java'
+
+      if( isProp('bcdui.inject.Jsp') ) {
+        linkedResource name: 'bcdui_inject_de/taglib', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/JspTaglib/src/main/taglib'
+        linkedResource name: 'bcdui_inject_de/tlds', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/JspTaglib/src/WEB-INF/tags/bcdui'
+      }
+    }
+  }
+
+  //---------------------------------------------------
+  // Generate Eclipse .classpath
+  // Depending on bcdui.inject.(Ce|Ee|De|Jsp|Theme) in gradle.properties, create Eclipse .classpath entries
+  classpath {
+    file {
+      beforeMerged {
+        // En/disable BCD-UI jar files by switching extension between .jar and .injected
+        def libJars = ['bcdui.inject.Ce': 'bcd-ui-core.*', 'bcdui.inject.Ee': 'bcd-ui-ee-core.*', 'bcdui.inject.De': 'bcd-ui-de-core.*', 'bcdui.inject.Theme' : 'bcd-ui-theme.*', 'bcdui.inject.Jsp': 'bcd-ui-jsptaglib.*' ]
+        libJars.each { switchName, jarName ->
+          file("$webAppDirName/WEB-INF/lib/").eachFileMatch(~/${jarName}/) {
+            it.renameTo( it.absolutePath[0..<it.absolutePath.lastIndexOf('.')] + (isProp(switchName) ? '.injected' : '.jar') )
+          }
+        }
+
+        // Cleanup result from previous setting
+        delete file("$webAppDirName/WEB-INF/classes")
+        mkdir file("$webAppDirName/WEB-INF/classes")
+        delete file("$webAppDirName/WEB-INF/tags/bcdui")
+        delete file("$webAppDirName/bcdui/js")
+        delete file("$webAppDirName/bcdui/xslt")
+        delete file("$webAppDirName/bcdui/theme")
+
+        entries.clear()
+      }
+
+      // Create classpath entries for injecttion, basically this
+      // 1. Copies static resources like js, xslt from the Eclipse links into the web folder
+      // 2. Adds the java sources from the Eclipse links as sources
+      whenMerged { classpath ->
+
+        //------------------------------------------------------------
+        // Create classpath entries to copy BCD-UI js, class etc from Eclipse links into WebContent
+        // BCD-UI-CE
+        if( isProp('bcdui.inject.Ce') ) {
+
+          classpath.configure( classpath.entries +
+                  [ new SourceFolder('bcdui_inject/java', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject/genjava', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject/genjs', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject/java', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject/js', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject/jsecma5', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject/js3rdParty', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject/resources', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject/xslt', "$webAppDirName/bcdui/xslt") ] )
+
+          if( isProp('bcdui.inject.Jsp') ) {
+            classpath.configure( classpath.entries +
+                    [ new SourceFolder('bcdui_inject/gentags', "$webAppDirName/WEB-INF/tags/bcdui"),
+                      new SourceFolder('bcdui_inject/gentlds', "$webAppDirName/WEB-INF/tags/bcdui"),
+                      new SourceFolder('bcdui_inject/taglibjava', "$webAppDirName/WEB-INF/classes"),
+                      new SourceFolder('bcdui_inject/tlds', "$webAppDirName/WEB-INF/tags/bcdui") ] )
+          }
+        }
+
+
+        // BCD-UI-Theme
+        if( isProp('bcdui.inject.Theme') ) {
+          classpath.configure( classpath.entries + [ new SourceFolder('bcdui_inject/theme', "$webAppDirName/bcdui/theme") ] )
+        }
+
+        // BCD-UI-EE
+        if( isProp('bcdui.inject.Ee') ) {
+          classpath.configure( classpath.entries +
+                  [ new SourceFolder('bcdui_inject_ee/java', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject_ee/js', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject_ee/jsecma5', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject_ee/xslt', "$webAppDirName/bcdui/xslt") ] )
+        }
+
+        // BCD-UI-DE
+        if( isProp('bcdui.inject.De') ) {
+          classpath.configure( classpath.entries +
+                  [ new SourceFolder('bcdui_inject_de/java', "$webAppDirName/WEB-INF/classes"),
+                    new SourceFolder('bcdui_inject_de/js', "$webAppDirName/bcdui/js"),
+                    new SourceFolder('bcdui_inject_de/jsecma5', "$webAppDirName/bcdui/js") ] )
+
+          if( isProp('bcdui.inject.Jsp') ) {
+            classpath.configure( classpath.entries +
+                    [ new SourceFolder('bcdui_inject_de/taglib', "$webAppDirName/WEB-INF/tags/bcdui"),
+                      new SourceFolder('bcdui_inject_de/tlds', "$webAppDirName/WEB-INF/tags/bcdui") ] )
+          }
+        }
+
+      } // Merge classpath
+
+    }
+    defaultOutputDir = file("$webAppDirName/WEB-INF/classes")
+  }
+
+}

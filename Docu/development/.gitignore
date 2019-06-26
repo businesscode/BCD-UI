@@ -1,0 +1,12 @@
+/.gradle/
+/build/
+/bin/
+
+/.classpath
+/.project
+
+/WebContent/bcdui/js/
+/WebContent/bcdui/theme/
+/WebContent/bcdui/xslt/
+/WebContent/WEB-INF/classes/
+/WebContent/WEB-INF/tags/bcdui/

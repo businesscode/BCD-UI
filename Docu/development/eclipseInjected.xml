@@ -19,6 +19,7 @@
         This technique allows embedding BCD-UI into multiple projects and test changes of BCD-UI in multiple projects before committing.
         It only needs to be applied if developing in BCD-UI.
         These 4 steps embed a BCD-UI project via links into another Eclipse project.
+        As an alternative you can leave the job to gradle and use the gradle files in this folder
 
         Doing these steps will add resources via Eclipse links which are normally in
              1. bcdui.jar (links for java, js, xslt)

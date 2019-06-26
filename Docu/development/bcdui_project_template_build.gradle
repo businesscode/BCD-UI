@@ -1,0 +1,73 @@
+/*
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/*--------------------------------------------
+ * Gradle file building Eclipse .project
+ * To use
+ * 1. Copy this file as build.gradle to your project
+ *  - Ajust webAppDirName if necessary
+ *  - Add any dependencies beside BCDUI to "dependencies { ... }"
+ * 2. Copy bcdui_dependencies.gradle found here to your project
+ * 3. Do not add .classpath and .project to git and do not manually or via Eclipse dialogs change them
+ *  - Add .gitignore found here to your project
+ * 4. Commit bcd-ui-core|theme*.jar in into WEB-INF/lib
+ * 5. Import project into Eclipse as gradle project
+ * 6. Run gradle task "IDE->Eclipse" and refresh project
+ ------------------------------------------------*/
+
+apply plugin: 'war'
+apply plugin: 'eclipse'
+
+// webApp folder in Eclipse is usually WebContent
+// To work with a Tomcat started from Eclipse, we put all java .class files where they would be in a normal web app
+webAppDirName = 'WebContent'
+
+// We collect all classes in WEB-INF/classes
+sourceSets.main.java.outputDir      = file("$webAppDirName/WEB-INF/classes")
+sourceSets.main.output.resourcesDir = file("$webAppDirName/WEB-INF/classes")
+
+// Import dependencies of BCD-UI lib
+apply from: 'bcdui_dependencies.gradle'
+
+// Your project's dependencies
+dependencies {
+  repositories {
+    mavenCentral()
+  }
+
+  // Local files from WEB-INF/lib and WEB-INF/classes
+  // Commit bcd-ui-core|theme*.jar, into WEB-INF/lib
+  implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
+  implementation files("$webAppDirName/WEB-INF/classes")
+
+  // Project dependencies, dependencies of BCD-UI are in bcdui_dependencies.gradle
+  // implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+}
+
+// Workaround gradle >= 4.6 to produce classes into WEB-INF/classes
+eclipse {
+  classpath {
+    defaultOutputDir = file("$webAppDirName/WEB-INF/classes")
+    file.whenMerged {
+      entries.each { source ->
+        // This seems kludgy.  If the second test is omitted, it fails processing a 'Project Dependency' entry
+        if (source.kind == 'src' && ( source.path.contains('main/resources') || source.path.contains('java') ) && source.toString().contains('output')) {
+          source.output = "$webAppDirName/WEB-INF/classes"
+        }
+      }
+    }
+  }
+}
