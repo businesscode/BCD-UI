@@ -189,6 +189,10 @@ input.bcdInputFieldGrid {
   }
 }
 
+.col-sm-auto {
+  display: inline-block;
+}
+
 .bcdGrid {
 
   > thead tr td,
@@ -197,10 +201,6 @@ input.bcdInputFieldGrid {
     padding-top: 10px;
     padding-bottom: 10px;
     .bcdButton { margin-right: 10px; }
-  }
-
-  .col-sm-auto {
-    display: inline-block;
   }
 
   .bcdGroupAction:after {
