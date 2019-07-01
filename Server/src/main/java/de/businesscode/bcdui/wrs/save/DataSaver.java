@@ -17,10 +17,11 @@ package de.businesscode.bcdui.wrs.save;
 
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.xml.stream.EventFilter;
-import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -59,44 +60,32 @@ public class DataSaver {
 
   public void run() throws Exception {
 
+    // allow skipping of listed Elements
     EventFilter eventFilter = new EventFilter() {
-      private boolean isIgnore=false;
-      private String elementName;
-      int currentPos = -1;
-      boolean process = true;
-      private String ignoreTags[] = {"References", "ValidationResult", "RequestDocument"};
+      private int ignoreLevel = 0;
+      private List<String> ignoreTags = (List<String>) Arrays.asList("References", "ValidationResult", "RequestDocument");
 
       @Override
       public boolean accept(XMLEvent event) {
-        int pos = event.getLocation().getCharacterOffset();
-        if( pos == currentPos)
-          return process;
-
-        currentPos = pos;
-
         if (event.isStartElement()) {
-          StartElement evt = event.asStartElement();
-          elementName = evt.getName().getLocalPart();
-          for (int i = 0; i < ignoreTags.length; i++) {
-            if(elementName.equals(ignoreTags[i])){
-              isIgnore = true;
-              process=false;
-            }
-            else if(isIgnore)
-              process = false;
+          StartElement startEl = event.asStartElement();
+          if (ignoreTags.contains(startEl.getName().getLocalPart())) {
+            ignoreLevel++;
           }
         }
         else if(event.isEndElement()){
           EndElement endEl = event.asEndElement();
-          elementName = endEl.getName().getLocalPart();
-          for (int i = 0; i < ignoreTags.length; i++) {
-            if(elementName.equals(ignoreTags[i])){
-              isIgnore = false;
-              process = true;
-            }
+          if (ignoreTags.contains(endEl.getName().getLocalPart())) {
+            ignoreLevel--;
+
+            // do not process most outer ignored closing element either
+            if (ignoreLevel == 0)
+              return false;
           }
         }
-        return process;
+
+        // process only if we're not inside an ignore element
+        return ignoreLevel < 1;
       }
     };
 
