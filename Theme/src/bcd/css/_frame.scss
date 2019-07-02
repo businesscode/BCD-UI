@@ -228,7 +228,8 @@
 // header navigation with pull-down
 // ================================================================
 
-.bcd__header__navigation {
+.bcd__header__navigation,
+.bcd__header__crendetials-widget {
   border-top: 1px solid $bcd_border-color;
 
   nav {
@@ -343,6 +344,17 @@
         }
       }
     }
+  }
+}
+
+.bcd__header__crendetials-widget nav ul {
+  li a {
+    display: inherit;
+  }
+
+  ul {
+  	left: auto;
+    right: 0;
   }
 }
 

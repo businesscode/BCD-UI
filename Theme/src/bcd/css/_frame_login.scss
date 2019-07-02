@@ -93,6 +93,15 @@
   padding:0.8em 0.2em 0.8em;
   z-index:1;
 
+  .bcd__login-form {
+    .input-group-prepend {
+     .input-group-text {
+       background-color: #fff;
+       border-right: none;
+     }
+    }
+  }
+
   &__header {
     padding:1em;
     img {
@@ -107,16 +116,19 @@
     color:$bcd_headline-color;
     font-size:.9em;
   }
-  .bcd__btn {
-    width:100%;
-    display:flex;
-    justify-content: center;
-    position: relative;
+  .btn {
+    padding: .4em 1.4em;
+    border: 1px solid transparent;
+    border-radius: 4px;
 
     &--google-login,
     &--microsoft-login {
       color:#fff;
       font-weight:400;
+      width:100%;
+      display:flex;
+      justify-content: center;
+      position: relative;
 
       &:after {
         @extend %fa-icon;
@@ -150,7 +162,7 @@
     }
   }  
 
-  .bcd__form-group {
+  .form-group {
     margin-bottom:.6em;
   }
   .bcd__login-divider {

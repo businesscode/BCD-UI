@@ -64,11 +64,48 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse")
       , sideBarMinimizeOnClick: jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
       , pageStickyFooter: jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageStickyFooter")
+      , sidebarLeft: jQuery('.bcd__vertical-split').has(".bcd__sidebar-left").length ? true : false
+      , userNameWidget: jQuery('.bcd__header').has('.bcd__header__upper').length ? true : false
     };
+
+    /*
+     * Side bar toggle function
+     */
+    if (args.sidebarLeft) {
+      jQuery('.bcd__sidebar-left-collaps-toggle').click(function() {
+        jQuery('.bcd__vertical-split').toggleClass('bcd__vertical-split--sidebar-collapsed');
+      });
+    }
+
+    /*
+     * User name Widget on header
+     */
+    if (args.userNameWidget) {
+  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true ){
+    	  jQuery('.bcd__header__upper').append(`
+          <div class="bcd__header__crendetials-widget">
+            <nav>
+              <ul>
+                <li>
+                  <a href="#" class="bcd__header_crendetials_toggle">
+                    <span class="initials">${bcdui.config.userName.charAt(0).toUpperCase()}</span>
+                    <span>${bcdui.config.userName}</span>
+                    <i class="fas fa-caret-down"></i>
+                  </a>
+                  <ul>
+                    <li><a href="${bcdui.config.contextPath}/logout">Logout</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </nav>
+          </div>
+    	  `);
+  	  }
+    }
 
     // nothing to do?
     if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick && ! args.pageStickyFooter)
-      return
+      return;
     
     if (jQuery("#bcdSideBarEffect").length == 0)
       jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarEffect'></div>");
