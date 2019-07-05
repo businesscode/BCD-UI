@@ -35,6 +35,7 @@ dependencies {
   // BCD-UI dependencies
   // For BCD-UI we list all jars we need during compile and runtime explicitly here
   // We do not want any additionally declared transitive dependencies
+  // these dependencies are also used to build BCD-UI
   implementation ('commons-codec:commons-codec:1.10') { transitive = false }
   implementation ('commons-collections:commons-collections:3.2.2') { transitive = false }
   implementation ('org.apache.commons:commons-collections4:4.1') { transitive = false } // collections:3.2.2 and 4-4.1 do not conflict. 3 is used by lib, 4 by poi
@@ -45,6 +46,9 @@ dependencies {
   implementation ('commons-lang:commons-lang:2.6') { transitive = false }
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
+  implementation ('javax.xml.bind:jaxb-api:2.3.1') { transitive = false }
+  implementation ('javax.xml.bind:activation:1.0.2') { transitive = false }
+  implementation ('javax.xml.soap:javax.xml.soap-api:1.4.0') { transitive = false }
   implementation ('jstl:jstl:1.1.0') { transitive = false }
   implementation ('log4j:log4j:1.2.17') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
