@@ -45,7 +45,7 @@ task bcduiCleanCss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
   // We keep the original level of nesting to let any relative urls in @import outside survive
   def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CleanCss"
-  inputs.file   bcduiThemeCompileScss
+  inputs.files   bcduiThemeCompileScss.outputs.files
   outputs.files "$taskDestDirName/css/allStyles-min.css"
 
   // Take all user-provided css, those being generated from scss are already there from bcduiThemeCompileScss

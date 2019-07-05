@@ -123,7 +123,8 @@ task bcduiGensrcTld {
 
   // For up-to-date check
   inputs.dir  tagFilesGenSrcFolder
-  inputs.dir  tagFilesSrcFolder
+  if(file(tagFilesSrcFolder).exists() )
+  	inputs.dir  tagFilesSrcFolder
   outputs.dir "$genSrcOutputDir/taglib"
 
   // We enforce creation if the target folder is not there, otherwise we let the standard mechanism decide

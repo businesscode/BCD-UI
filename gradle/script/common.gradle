@@ -35,7 +35,7 @@ ext {
 
 // Helper providing information about git status and possible un-committed changes going into the current dist
 task bcduiMetaInf {
-  outputs.files("$buildDir/META-INF")
+  outputs.dirs("$buildDir/META-INF")
   outputs.upToDateWhen { false }
 
   doLast {

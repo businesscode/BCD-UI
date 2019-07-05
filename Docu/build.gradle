@@ -110,9 +110,9 @@ task bcduiJavadoc(type: Javadoc) {
   title       = 'BCD-UI Api'
   options.windowTitle = 'BCD-UI Api'
   options.header      = "<b style=\"font-size: 20pt; color: #fff\">BCD-UI</b>"
-  options.addStringOption('Xdoclint:none',  'quiet')
+  options.addBooleanOption('Xdoclint:none', true)
+  options.addStringOption('Xmaxwarns', '1')
   options.addStringOption('stylesheetfile', 'gradle/static/javadoc/stylesheet.css')
-  options.addStringOption('notimestamp', 'true')
   options.noTimestamp = true
   doLast {
     copy{ from "gradle/static/javadoc" into destinationDir }
