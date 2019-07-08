@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<!-- 
   Copyright 2010-2017 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,8 @@
   <xsl:param name="from"/>
   <xsl:param name="to"/>
   <xsl:param name="mandatory" select="'false'"/>
-
+  <xsl:param name="firstSelectableDay" select="''"/>
+  <xsl:param name="lastSelectableDay" select="''"/>
   <xsl:template match="/*">
     <xsl:variable name="result_from">
       <xsl:call-template name="validateDate">
@@ -31,9 +32,15 @@
         <xsl:with-param name="mandatory" select="$mandatory"/>
       </xsl:call-template>
     </xsl:variable>
+    
+    <xsl:variable name="cleanFrom" select="(translate(substring($from, 1, 10), '-', ''))"/>
+    <xsl:variable name="cleanTo" select="(translate(substring($to, 1, 10), '-', ''))"/>
+    <xsl:variable name="cleanFirst" select="(translate(substring($firstSelectableDay, 1, 10), '-', ''))"/>
+    <xsl:variable name="cleanLast" select="(translate(substring($lastSelectableDay, 1, 10), '-', ''))"/>
 
     <xsl:variable name="result">
       <xsl:choose>
+        <xsl:when test="$cleanFirst &gt; $cleanFrom">Date is too early</xsl:when>
         <xsl:when test="normalize-space($result_from)"><xsl:value-of select="$result_from"/></xsl:when>
         <xsl:otherwise>
           <xsl:variable name="result_to">
@@ -43,6 +50,7 @@
             </xsl:call-template>
           </xsl:variable>
           <xsl:choose>
+            <xsl:when test="$cleanLast &lt; $cleanTo">Date is too late</xsl:when>
             <xsl:when test="normalize-space($result_to)"><xsl:value-of select="$result_to"/></xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="validateTwoDates">
@@ -55,7 +63,7 @@
       </xsl:choose>
     </xsl:variable>
 
-    <validation-result><xsl:value-of select="normalize-space($result)"/></validation-result>
+  <validation-result><xsl:value-of select="normalize-space($result)"/></validation-result>
   </xsl:template>
 
 </xsl:stylesheet>

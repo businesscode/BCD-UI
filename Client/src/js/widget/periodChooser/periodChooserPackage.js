@@ -530,6 +530,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
       t.validateMethod = bcdui.widget.periodChooser._validateValue;
       t.validateWrapperUrl = bcdui.contextPath + "/bcdui/js/widget/periodChooser/periodChooserValidate.xslt";
       t.validateWrapperParameters = {
+        firstSelectableDay: t.firstSelectableDay,
+        lastSelectableDay: t.lastSelectableDay,
         from: new bcdui.core.DataProviderWithXPath({
           name: fromId + "_name",
           source: t.targetModel,
@@ -631,7 +633,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           optionsModelId: containerHtmlElement.getAttribute("bcdOptionsModelId"),
           optionsModelXPath: containerHtmlElement.getAttribute("bcdOptionsModelXPath"),
           optionsModelRelativeValueXPath: containerHtmlElement.getAttribute("bcdOptionsModelRelativeValueXPath"),
-          postfix: containerHtmlElement.getAttribute("bcdPostfix")
+          postfix: containerHtmlElement.getAttribute("bcdPostfix"),
+          firstSelectableDay: containerHtmlElement.getAttribute("bcdFirstSelectableDay"),
+          lastSelectableDay: containerHtmlElement.getAttribute("bcdLastSelectableDay")
       };
     },
 
