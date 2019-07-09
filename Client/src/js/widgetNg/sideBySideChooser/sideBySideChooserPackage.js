@@ -136,12 +136,13 @@
 
         var from = "";
         var to = "";
+        var element = jQuery(event.target).closest(".bcdButton");
 
-        if (jQuery(event.target).hasClass("bcdToMainTarget")) {
+        if (jQuery(element).hasClass("bcdToMainTarget")) {
           from = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();
           to = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdTarget").first();
         }
-        if (jQuery(event.target).hasClass("bcdToSource")) {
+        if (jQuery(element).hasClass("bcdToSource")) {
           from = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdTarget").first();
           to = jQuery(event.target).closest(".bcdSideBySideChooser").find(".bcdSource").first();
         }
