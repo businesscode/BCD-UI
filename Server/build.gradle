@@ -35,7 +35,7 @@ configurations.all {
 }
 
 // Import dependencies of BCD-UI lib
-apply from: '../Docu/development/bcdui_dependencies.gradle'
+apply from: '../../BCD-UI/Docu/development/bcdui_dependencies.gradle'
 
 dependencies {
   repositories {
