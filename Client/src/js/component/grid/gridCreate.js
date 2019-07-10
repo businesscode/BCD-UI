@@ -1751,7 +1751,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     // optionally limit cells (disable create-rows-on-drag)
     if (! this.allowNewRows) {
       createArgs["maxCols"] = this.htOptions.colHeaders.length;
-      createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length;
+      createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
       this.lastMaxRows = createArgs["maxRows"];
     }
 
@@ -1760,9 +1760,17 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
     curPage = isNaN(curPage) ? -1 : curPage;
     var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-    if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length) {
+    if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length) {
       createArgs["maxRows"] = parseInt(pageSize, 10);
       this.lastMaxRows = createArgs["maxRows"];
+
+      // if page contains less rows, update value accordingly
+      var wrsStart = ((curPage - 1) * pageSize) + 1;
+      var wrsStop = wrsStart + pageSize - 1;
+      if (wrsStop > this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length)
+        wrsStop = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
+      if (wrsStop - wrsStart + 1 < createArgs["maxRows"])
+        createArgs["maxRows"] = wrsStop - wrsStart + 1;
     }
 
     // turn off columnSorting if you got pagination, this might be a future improvement (see top of file)
@@ -2206,12 +2214,21 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         // reset/set maxRows
         var createArgs = {maxRows: Infinity};
         if (! this.allowNewRows)
-          createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length;
+          createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
         var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
         curPage = isNaN(curPage) ? -1 : curPage;
         var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-        if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length)
+        if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length) {
           createArgs["maxRows"] = parseInt(pageSize, 10);
+
+          // if page contains less rows, update value accordingly
+          var wrsStart = ((curPage - 1) * pageSize) + 1;
+          var wrsStop = wrsStart + pageSize - 1;
+          if (wrsStop > this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length)
+            wrsStop = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
+          if (wrsStop - wrsStart + 1 < createArgs["maxRows"])
+            createArgs["maxRows"] = wrsStop - wrsStart + 1;
+        }
 
         if (this.lastMaxRows != createArgs["maxRows"])
           this.hotInstance.updateSettings(createArgs);
