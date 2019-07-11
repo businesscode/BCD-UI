@@ -337,7 +337,7 @@
      text-align: right;
    }
    span.calCloseImage {
-     &:after { content: "x"; cursor: pointer; }
+     &:after { content: "\2716"; cursor: pointer; padding: 0.3em}
    }
    span.changeYear:after, span.changeMonth:after { content: "\25BC"; }
    
@@ -374,12 +374,14 @@
     background-color: #f6f6f6;
     font-family: inherit !important;
     font-size: inherit !important;
+    border: 1px solid $border-color;
   }
 
   .popupBaseColor {
     table td {
       font-family: inherit !important;
       font-size: inherit !important;
+      padding: 0 0.3em;
     }
   }
 
