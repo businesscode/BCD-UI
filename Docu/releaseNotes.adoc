@@ -14,7 +14,7 @@ Some changes are backward incompatible and may require code change in the projec
 * Introduced Babel to transpile for usage in Internet Explorer
 * Adjusted js loader for IE
 * Using 'strict' mode now in all JS sources
-* updated to jQuery 3.3.1, jQuery-UI 1.12.1
+* updated to jQuery 3.4.1, jQuery-UI 1.12.1
 
 . Components: Scorecard, Cube, Charts, Export
 * added Grid Component
