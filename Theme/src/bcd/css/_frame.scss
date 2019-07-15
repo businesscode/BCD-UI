@@ -163,6 +163,7 @@
 // ====================================================================
 
 .bcd__header {
+  .statusNotReady, .bcdLoading { width: inherit; height: inherit; background: inherit; display: inherit; }
   &__upper {
     display:flex;
     flex-direction:row;
@@ -189,6 +190,7 @@
     flex-direction:row;
     //justify-content: center;
     align-items:center;
+    min-height: 3em;
   }
 
   &__crendetials-widget {
@@ -350,6 +352,7 @@
 .bcd__header__crendetials-widget nav ul {
   li a {
     display: inherit;
+    padding-bottom: 0;
   }
 
   ul {
