@@ -2325,6 +2325,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           , allowNewRows: "" + this.allowNewRows
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined")
           }
         });
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });

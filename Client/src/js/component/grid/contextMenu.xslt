@@ -39,6 +39,7 @@
   <xsl:param name="allowSorting" select="'false'"/>
   <xsl:param name="bcdPageAccess" select="''"/>
   <xsl:param name="gridModel" select="/*[0=1]"/>
+  <xsl:param name="gotExport" select="'false'"/>
 
   <xsl:variable name="colHead" select="$gridModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id = $bcdColIdent]"/>
   <xsl:variable name="row" select="$gridModel/*/wrs:Data/wrs:*[@id=$bcdRowIdent]"/>
@@ -132,13 +133,13 @@
           </xsl:if>
         </ContextMenuEntryGroup>
       </xsl:if>
-
-      <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
-        <Entry caption="{$bcdI18nModel/*/bcd_Grid_Export}">
-          <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:fullDataExport")</JavaScriptAction>
-        </Entry>
-      </ContextMenuEntryGroup>
-
+      <xsl:if test="$gotExport='true'">
+        <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
+          <Entry caption="{$bcdI18nModel/*/bcd_Grid_Export}">
+            <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:fullDataExport")</JavaScriptAction>
+          </Entry>
+        </ContextMenuEntryGroup>
+      </xsl:if>
     </ContextMenu>
   </xsl:template>
 
