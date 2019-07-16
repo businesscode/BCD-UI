@@ -848,6 +848,22 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     }
     return refValue;
   }},
+  /**
+   * function which is put in front of a renderer
+   * @return object with colId, colIdx, rowId and the gridModel value at that position or null in case of not available
+   * @private
+   */
+  _getGridModelValues: { writable: true, configurable: true, enumerable: true, value: function(rowIdx, col, value) {
+    rowIdx = this.hotInstance.toPhysicalRow(rowIdx);
+    var row = this.hotInstance.getSourceDataAtRow(rowIdx);
+    if (row && row.r && this.gridModel) {
+      var colIdx = this.hotInstance.toPhysicalColumn(col);
+      var colId = this.wrsHeaderIdByPos["" + (colIdx + 1)] || "";
+      var rowId = row.r.getAttribute("id");
+      return {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: this.gridModel.read("/*/wrs:Data/wrs:*[@id='" + rowId + "']/wrs:C[position()='"+(colIdx+1)+"']", "")};
+    }
+    return null;
+  }},
 
   /**
    * transforms the wrs data into a js array which handsontable understands. Also prepares data types and formats.
@@ -1000,7 +1016,15 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       if (renderer && renderer.selectSingleNode("..").getAttribute("gotReferences") === "true") {
         colHeader["renderer"] = function(instance, td, row, col, prop, value, cellProperties) {
           var newValue = this._renderByReference(row, col, value);
-          return colHeader["rendererX"](instance, td, row, col, prop, newValue, cellProperties);
+          var gridValues = this._getGridModelValues(row, col, value);
+          return colHeader["rendererX"](instance, td, row, col, prop, newValue, cellProperties, gridValues);
+        }.bind(this);
+      }
+      // for custom renderers, we also add the gridValues helper
+      else if (renderer) {
+        colHeader["renderer"] = function(instance, td, row, col, prop, value, cellProperties) {
+          var gridValues = this._getGridModelValues(row, col, value);
+          return colHeader["rendererX"](instance, td, row, col, prop, value, cellProperties, gridValues);
         }.bind(this);
       }
       else
