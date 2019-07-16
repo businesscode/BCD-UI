@@ -216,11 +216,14 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
     var timeClass = isSecondSelectable ? "bcdTimeMiddle bcdMinute" : "bcdMinute";
     
+    caption1 = caption1 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption1 + "</a>" : "";
+    caption2 = caption2 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption2 + "</a>" : "";
+
     var buttoStyle = (containerHtmlElement.getAttribute("bcdSuppressButtons") == "true" ? "style='display:none'" : "");
-    
+
     jQuery(containerHtmlElement).append(
           "<input class='bcdHidden'/>"
-        + "<span class='bcdButton' " + buttoStyle + "><a href='javascript:void(0)'>" + caption1 + "</a></span>"
+        + "<span class='bcdButton' " + buttoStyle + ">" + caption1 + "</span>"
         + ("<span class='bcdValue'>"
             + (textInput ?
               ( " <input type='text' class='bcdYear' maxLength='4'/>"
@@ -244,7 +247,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         + (isFreeRange ?
             ("<div class='bcdHr'><hr/></div>"
             + "<input class='bcdHidden'/>"
-            + "<span class='bcdButton' " + buttoStyle + "><a href='javascript:void(0)'>" + caption2 + "</a></span>"
+            + "<span class='bcdButton' " + buttoStyle + ">" + caption2 + "</span>"
             + ("<span class='bcdValue'>"
               + (textInput ?
                 ( " <input type='text' class='bcdYear' maxLength='4'/>"

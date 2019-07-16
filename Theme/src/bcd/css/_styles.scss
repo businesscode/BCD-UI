@@ -258,8 +258,9 @@
 
   .bcdValue {
     font:400 1em/1.5 $font-family-default;
-    margin: 0 0 0 .375em;
+    margin: 0 .375em 0 .375em;
     input { display: inline; text-align: center; padding-left: 0; padding-right: 0; margin: 0 0 0 -.375em; }
+    cursor: pointer;
   }
  
   .bcdPostfix {
@@ -273,14 +274,13 @@
     a {
       color: inherit;
       text-decoration: none;
-
-      &:after {
-        @extend %fa-icon;
-        @extend .fas;
-        content: fa-content($fa-var-calendar);
-        background-color: $text-color;
-        margin: 0 0.25em; /* need this margin to an optional caption */
-      }
+      margin-right: .375em;
+    }
+    &:after {
+      @extend %fa-icon;
+      @extend .fas;
+      content: fa-content($fa-var-calendar);
+      background-color: $text-color;
     }
   }
   
@@ -304,24 +304,24 @@
   }
 
   .bcdClearButton {
-    margin-left: 0.2em;
     @extend .btn;
     @extend .btn-secondary;
+    cursor: pointer;
     &:after {
+      @extend %fa-icon;
+      @extend .fas;
       content: fa-content($fa-var-times);
-      cursor: pointer;
     }
   }
   
-  .bcdHour { width: 1.5em; border-right-style: none; text-align: center; }
+  .bcdHour { width: 1.7em; border-right-style: none; text-align: center; }
   .bcdTimeMiddle { border-right-style: none; }
-  .bcdMinute, .bcdSecond { width: 1.5em; border-left-style: none; text-align: center; }
-  .bcdDateTimeDelimiter  { width: 0.5em; border-style: none; text-align: center; background-color: #fff; display:inline;}
-
+  .bcdMinute, .bcdSecond { width: 1.7em; border-left-style: none; text-align: center; }
+  .bcdDateTimeDelimiter  { width: 0.8em; border-style: none; text-align: center; background-color: #fff; display:inline;}
   .bcdDateTimeDelimiter, .bcdDateDelimiter { width: 0.8em; border-right-style: none;  border-left-style: none; border-radius: 0; background-color: inherit !important;}
-  .bcdHour, .bcdDay { width: 2em; border-left-style: none; border-radius: 0 .25em .25em 0; }
-  .bcdHour, .bcdMonth { width: 2em; border-right-style: none; border-left-style: none; border-radius: 0; }
-  .bcdYear { width: 3.2em; border-right-style: none; border-radius: .25em 0 0 .25em;  }
+  .bcdHour, .bcdDay { width: 1.7em; border-left-style: none; border-radius: 0 .25em .25em 0; }
+  .bcdHour, .bcdMonth { width: 1.7em; border-right-style: none; border-left-style: none; border-radius: 0; }
+  .bcdYear { width: 2.9em; border-right-style: none; border-radius: .25em 0 0 .25em;  }
 
   .bcdInvalid {
     background-color: inherit !important;
