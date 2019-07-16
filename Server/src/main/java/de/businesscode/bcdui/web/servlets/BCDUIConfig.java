@@ -15,14 +15,17 @@
 */
 package de.businesscode.bcdui.web.servlets;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +90,11 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("bcdui.config = {");
     writeClientParams(writer);
     writer.println("    contextPath: \"" + getServletContext().getContextPath() + "\"");
+
+    // write version info
+    writer.println("  , ceVersion: \"" + getVersion("BCD-UI") + "\"");
+    writer.println("  , eeVersion: \"" + getVersion("BCD-UI-EE") + "\"");
+    writer.println("  , deVersion:: \"" + getVersion("BCD-UI-DE") + "\"");
 
     // IIS has a limit also for http request URLs, i.e. data requests
     writer.println("  , serverHasRequestUrlLimit: " + environmentValue.toString());
@@ -257,5 +265,34 @@ public class BCDUIConfig extends HttpServlet {
         throw new ServletException(e);
       }
     }
+  }
+
+  private static String getVersion(String moduleName) {
+    try {
+      Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("META-INF/gitInformation/" + moduleName + "_info.txt");
+      if (resources.hasMoreElements()) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(resources.nextElement().openStream()));
+        String commitHash = "";
+        String branchName = "";
+        String versionName = "";
+        final String branch = "Branch:";
+        final String commit = "Commit:";
+        final String version = "Version:";
+        String line =  br.readLine();
+        while (line != null) {
+          if (line.contains(branch))
+            branchName = line.substring(branch.length() + line.indexOf(branch)).trim();
+          if (line.contains(commit))
+            commitHash = line.substring(commit.length() + line.indexOf(commit)).trim();
+          if (line.contains(version))
+            versionName = line.substring(version.length() + line.indexOf(version)).trim();
+          line =  br.readLine(); 
+        }
+        br.close();
+        return versionName + " " + branchName + " [" + commitHash + "]";
+      }
+    }
+    catch (Exception e) { /* ignore */ }
+    return "";
   }
 }
