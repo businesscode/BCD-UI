@@ -94,7 +94,7 @@ public class BCDUIConfig extends HttpServlet {
     // write version info
     writer.println("  , ceVersion: \"" + getVersion("BCD-UI") + "\"");
     writer.println("  , eeVersion: \"" + getVersion("BCD-UI-EE") + "\"");
-    writer.println("  , deVersion:: \"" + getVersion("BCD-UI-DE") + "\"");
+    writer.println("  , deVersion: \"" + getVersion("BCD-UI-DE") + "\"");
 
     // IIS has a limit also for http request URLs, i.e. data requests
     writer.println("  , serverHasRequestUrlLimit: " + environmentValue.toString());
