@@ -110,6 +110,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * SubjectFilters are now also applied on writing, details see above
 * bcd_user_sec writing is now secured if using the new BindingSet xml
 * Signiture of WriteProcessingCallback#processEndRow changed
+* FAR module is optional, specify it in your bcduiLoadFiles attribute
 
 ==== Release 5_2_0
 

@@ -158,7 +158,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiComponent",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
         "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"
@@ -172,7 +172,7 @@ bcdui.bcduiCeFiles =
       },
     {
       "id": "bcduiChart",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
           "/js/component/chart/chartPackage.js"
         , "/js/component/chart/chart.js"
@@ -198,7 +198,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiCube",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
           "/js/component/cube/cubeCreate.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
@@ -211,7 +211,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiFar",
-      "required": "default",
+      "required": "optional",
       "files": [              
         "/js/component/far/configurator/farConfigurator.js"
         ,"/js/component/far/farModel.js"
@@ -224,7 +224,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiExport",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
           "/js/component/exports/pdfExport.js"
         , "/js/component/exports/exportsPackage.js"
@@ -236,7 +236,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiScorecard",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
           "/js/component/scorecard/scorecardModel.js"
         , "/js/component/scorecard/scorecardCreate.js"
@@ -249,7 +249,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiTreeView",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
         "/js/component/treeView/treeViewPackage.js"
       ],
@@ -274,7 +274,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiUserCalcEditor",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
         "/js/component/userCalcEditor/userCalcEditorPackage.js"
       ],
@@ -284,7 +284,7 @@ bcdui.bcduiCeFiles =
     },
     {
       "id": "bcduiTextNavigation",
-      "required": "default",
+      "required": "backCompatibility",
       "files": [
         "/js/component/textNavigation/textNavigation.js"
       ]
@@ -372,7 +372,7 @@ else
 })();
 
 // Let's load all the js requested files. May come from a parameter bcduiLoadFiles when loading bcdui.js
-// If bcdui.config.loadFiles is not set: All mandatory plus default
+// If bcdui.config.loadFiles is not set: All mandatory plus backCompatibility
 // If bcdui.config.loadFiles is set: All mandatory plus listed ones 
 bcdui.config.loadFiles = bcdui.config.loadFiles || [];
 (function(){
@@ -409,7 +409,7 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
 
     if( (group.required === "mandatory"
         || indexOf !== -1
-        || ( bcdui.config.loadFiles.length === 0 && group.required === "default" )
+        || ( bcdui.config.loadFiles.length === 0 && group.required === "backCompatibility" )
         ) && isBrowserCompatible(group) ) {
       for (var f = 0; f < group.files.length; f++) {
         if( switchEs5 )
