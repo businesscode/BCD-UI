@@ -396,6 +396,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         hiddens[0].onchange = bcdui.widget.periodChooser._onPeriodSelected.bind(undefined,hiddens[0]);
         var buttons = bcdui._migPjs._$(containerHtmlElement).find("span.bcdButton");
         buttons[0].onclick = bcdui.widget.periodChooser._showPopup.bind(undefined,values[0], hiddens[0], "from");
+        var textInput = containerHtmlElement.getAttribute("bcdTextInput") == "true";
+        if (!textInput) {
+          values[0].onclick = bcdui.widget.periodChooser._showPopup.bind(undefined,values[0], hiddens[0], "from");
+          if (containerHtmlElement.getAttribute("bcdIsFreeRangeSelectable") === "true")
+            values[1].onclick = bcdui.widget.periodChooser._showPopup.bind(undefined,values[1], hiddens[1], "to");
+        }
         if (containerHtmlElement.getAttribute("bcdIsFreeRangeSelectable") === "true") {
           hiddens[1].isFrom = values[1].isFrom = false;
           // expose opposites value getters
