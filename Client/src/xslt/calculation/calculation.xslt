@@ -50,7 +50,7 @@
     <Functions>
       <Max>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1div(<V p="1"/>><V p="2"/>)),' ',<V p="1"/>)),' '),' ')</Max>
       <Min>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1div(<V p="2"/>><V p="1"/>)),' ',<V p="1"/>)),' '),' ')</Min>
-      <Coa>concat(translate(number(<V p="1"/>),'aN',''),substring(<V p="2"/>, 0,1div(string(number(V p="1"))!='NaN'))</Coa>
+      <Coa>concat(translate(number(<V p="1"/>),'aN',''),substring(<V p="2"/>, 0,1div(string(number(<V p="1"/>))!='NaN')))</Coa>
       <Zin>translate(number(<V p="1"/>),'aN','0')</Zin>
       <Niz>substring(<V p="1"/>,0,1div(<V p="1"/>=0))</Niz>
       <Abs>translate(<V p="1"/>,'-','')</Abs>
