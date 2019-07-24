@@ -46,6 +46,14 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
    * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) which is connected via f:And to other filters
+   * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
+   * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
+   * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @param {boolean}                                       [args.saveOptions.reload=false]           - Useful especially for models of type SimpleModel for refreshing from server after save
+   * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
+   * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
+   * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
+   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url (by default taken from the underlying simple model url)
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
    * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement:bcdui.util.xml.parseFilterExpression("country='DE'") });
@@ -133,6 +141,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
            url: new bcdui.core.RequestDocumentDataProvider( { requestModel: wrapper, modelUrl: args.url, uri: args.uri } )
          , isAutoRefresh: args.isAutoRefresh
          , debug: args.debug
+         , saveOptions: args.saveOptions
        };
        if (args.id)
          jQuery.extend( simpleModelArgs, {id: args.id} );  // if we have a given Id, use it 

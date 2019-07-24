@@ -50,6 +50,7 @@ The Renderer either works directly with the specified element or (in case of spe
     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"]);
 * BindingSet Relation added IsLike condition for joins
 * filterRowsTemplate gets enhancement of condition attributes and filterlists
+* moved save handling from simpple model to data provider
 
 . Themes
 * theme update: the new bcd-ui theme is based on Bootstrap v4.3.1, with FontAwesome 5.8.1 included

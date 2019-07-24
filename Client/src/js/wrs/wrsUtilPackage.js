@@ -96,41 +96,10 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
     if (typeof(model) == "undefined")
       throw new Error("Model is required parameter");
 
-    // Transform and clean Wrs before post, limit to wrs:D, wrs:M, wrs:I and bring them in that order
-    var cleanupMw = new bcdui.core.ModelWrapper({
-      chain: this._wrsPrepareToPostTransformationURL,
-      inputModel: model
-    });
-
-    // Once the ModelWrapper with the cleaned, use a temporary SimpleModel for saving
-    cleanupMw.onceReady({ executeIfNotReady: true, onSuccess: function() {
-
-      // Create a temp model for sending the data, we do not touch our input
-      var sendModel = new bcdui.core.SimpleModel({ url: args.url || model.urlProvider });
-      sendModel.saveChain = model.saveChain;
-      sendModel.saveParameters = model.saveParameters;
-      sendModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument( cleanupMw.getData() );
-      sendModel.setStatus( sendModel.getReadyStatus() );
-
-      // In case we want a reload our input, prepare the handler here
-      if( args.reload === true ) {
-        // With reload: call onSuccess after reloading input model
-        sendModel.addStatusListener({
-          status: new bcdui.core.status.SavedStatus(),
-          onlyOnce: true,
-          listener: function () {
-            model.onReady({ onSuccess: args.onSuccess, onlyFuture: true, onlyOnce: true });
-            model.execute(true);
-          }
-        });
-      } else {
-        // No reload: call onSuccess after saving
-        sendModel.onReady({ onSuccess: args.onSuccess, onlyFuture: true, onlyOnce: true });
-      }
-
-      // Save the data with the help of the temp model
-      sendModel.sendData();
-    }});
+    model.saveOptions = model.saveOptions || {};
+    model.saveOptions.reload = args.reload || model.saveOptions.reload;
+    model.saveOptions.onSuccess = args.onSuccess || model.saveOptions.onSuccess;
+    model.sendData();
   },
 
   /**
@@ -1316,8 +1285,8 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * POSTs one or mode WRS documents to well known WrsServlet URL
    * Multiple document are handled by WrsServlet in one transaction,
    *
-   * @param {(Object|XMLDocument|XMLDocument[])} args - Document(s) or a parameter object with the following properties
-   * @param {document}                           args.wrsDoc                   - Document(s) or a parameter object with the following properties
+   * @param {(Object|XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[])} args        - DataProvider(s), Document(s) or a parameter object with the following properties
+   * @param {XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[]}          args.wrsDoc - Document(s) / DataProvider
    * @param {function}                           [args.onSuccess]              - Callback on success, is called after successful POST or if POST was not issued due to to changes in the document 
    * @param {function}                           [args.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
@@ -1326,26 +1295,23 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * you can also simply provide one argument: wrsDoc or array thereof, which is then POSTed
    */
   postWrs : function(args){
-    if(args.documentElement || Array.isArray(args)){ // shorthand handling
-      args = {
-        wrsDoc : args
-      }
-    }
-    args = jQuery.extend({
-      uri : "",
-      onFailure : function(msg){
-        bcdui.log.fatal("failed to POST wrs: " + msg);
-      },
-      onSuccess : function(){}
-    }, args);
-    var url = bcdui.core.webRowSetServletPath + (args.uri ? "/" + args.uri : "");
 
-    // handle array of docs
+    if(args.documentElement || Array.isArray(args)) // shorthand handling for a document
+      args = { wrsDoc : args }
+    else if (typeof args.getData != "undefined")    // shorthand handling for a dataprovider
+      args = { wrsDoc : args.getData() }
+
+    args = jQuery.extend({ uri : "", onFailure : function(msg){ bcdui.log.fatal("failed to POST wrs: " + msg); }, onSuccess : function(){} }, args);
+
+    // handle array of docs/dataproviders
     if(Array.isArray(args.wrsDoc)){
       var docs = args.wrsDoc;
       args.wrsDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<MultiWrs/>");
-      docs.forEach(function(doc){
-        var targetWrsDoc = doc.selectSingleNode("/wrs:Wrs[wrs:Data/wrs:*[not(wrs:R)]]");
+      docs.forEach(function(doc) {
+        var d = doc;
+        if (typeof doc.getData != "undefined")
+          d = doc.getData();
+        var targetWrsDoc = d.selectSingleNode("/wrs:Wrs[wrs:Data/wrs:*[not(wrs:R)]]");
         if(targetWrsDoc){
           args.wrsDoc.documentElement.appendChild(
             args.wrsDoc.importNode(targetWrsDoc, true)
@@ -1353,25 +1319,18 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
         }
       });
     }
-    // remove waste
-    bcdui.core.removeXPath(args.wrsDoc, "//wrs:Wrs/wrs:Data/wrs:R", false);
-    bcdui.core.removeXPath(args.wrsDoc, "//wrs:Wrs[not(wrs:Data/wrs:*)]", false);
 
-    // dont do roundtrip in case we have no write operations (wrs:R were removed in step before)
-    if(!args.wrsDoc.selectSingleNode("//wrs:Wrs[wrs:Data/wrs:*]")){
-      setTimeout(args.onSuccess); // defer to keep compatibility
-      return;
-    }
-    if(!args.onWrsValidationFailure){
-      args.onWrsValidationFailure = args.onFailure;
-    }
-    bcdui.core.xmlLoader.post({
-      url: url,
-      doc: args.wrsDoc,
-      onSuccess: args.onSuccess,
-      onFailure: args.onFailure,
-      onWrsValidationFailure: args.onWrsValidationFailure
+    var sendModel = new bcdui.core.StaticModel({
+      data: new XMLSerializer().serializeToString(args.wrsDoc)
+    , saveOptions: {
+        onSuccess: args.onSuccess
+      , onFailure: args.onFailure
+      , onWrsValidationFailure: args.onWrsValidationFailure || args.onFailure
+      , urlProvider: new bcdui.core.ConstantDataProvider({ name: "url", value: bcdui.core.webRowSetServletPath + (args.uri ? "/" + args.uri : "") })
+      }
     });
+    sendModel.execute(true);
+    sendModel.sendData();
   },
 
   /**

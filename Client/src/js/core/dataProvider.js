@@ -69,6 +69,8 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProvider" ): "") != "";    
       
+      this.saveOptions = args.saveOptions;
+
       bcdui.core.AbstractExecutable.call( this, args );
 
       /**
@@ -101,10 +103,158 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
        * @private
        */
       this._currentGeneratedListenerId = 0;
+      
+      /**
+       * @constant
+       * @private
+       */
+      this.savingStatus = new bcdui.core.status.SavingStatus();
+      /**
+       * @constant
+       * @example
+       * if( model.getStatus() === model.savedStatus )
+       *   ...
+       */
+      this.savedStatus = new bcdui.core.status.SavedStatus();
+      /**
+       * @constant
+       */
+      this.saveFailedStatus = new bcdui.core.status.SaveFailedStatus();
+
+      this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
 
       if (isLeaf)
         this._checkAutoRegister();
     },
+    
+    _statusTransitionHandlerDp: function(/* StatusEvent */ statusEvent)
+    {
+      if (statusEvent.getStatus().equals(this.savingStatus)) {
+        /*
+         * Start the save operation. At the present time we allow saving only to the
+         * same URL we loaded data from.
+         */
+        this._save();
+      } else if (statusEvent.getStatus().equals(this.savedStatus)) {
+        /*
+         * When the data has been successfully saved we can return to the
+         * model's ready state again.
+         */
+        var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
+        this.setStatus(newStatus);
+      }
+    },
+
+    /**
+     * Sends the current data to the original URL
+     */
+    sendData: function()
+      {
+        if (this.status.equals(this.savingStatus)) {
+          bcdui.log.warn("sendData skipped, because the model is already in saving state.");
+          return;
+        }
+        if (!this.status.equals(this.getReadyStatus())) {
+          throw Error("Cannot send data when the model is not in ready state.");
+        }
+        this.setStatus(this.savingStatus);
+      },
+
+    /**
+     * @private
+     */
+    _save: function()
+      {
+        if (! this.saveOptions || !this.saveOptions.urlProvider)
+          throw Error("Cannot send data due to missing save options.");
+
+        var saveUrl = this.saveOptions.urlProvider.getData();
+        /*
+         * Remove unnecessary parameters from URL.
+         */
+        saveUrl = saveUrl.replace(/^([^?]+).*$/, "$1");
+        var p = {
+          url: saveUrl,
+          doc: this.dataDoc,
+          onSuccess: function(domDocument) {
+
+            // a customn onSuccess call will be triggered on the next ready state (either reload or saved -> ready)
+            if (this.saveOptions.onSuccess) 
+              this.onReady({ onSuccess: this.saveOptions.onSuccess.bind(this), onlyFuture: true, onlyOnce: true });
+
+            // dirty model will become clean by saving it (and so we reach ready state)
+            this._uncommitedWrites = false;
+
+            // in case of a reload we only want to generate 1 ready status event
+            // this.setStatus(this.savedStatus); would generate one and the reload finish will generate another one
+            // to avoid this, we set the initializedStatus directly (without the event firing in the function).
+            //  We need to set it since execute requires it to change into loading state
+            if (this.saveOptions.reload) {
+              this.status = this.initializedStatus;
+              this.execute(true);
+            }
+            else
+              this.setStatus(this.savedStatus); // otherwise we set it 'normally' with firing events
+
+          }.bind(this),
+          onFailure: function(msg) {
+            bcdui.log.error("BCD-UI: Failed saving model: '"+this.id+"', '"+msg+"'");
+            this.setStatus(this.saveFailedStatus);
+            if (this.saveOptions.onFailure)
+              this.saveOptions.onFailure();
+          }.bind(this),
+          onWrsValidationFailure: function(rwsValidationResult) {
+            bcdui.log.warn("wrs validation failure");
+            this.dataDoc.selectSingleNode("wrs:Wrs/wrs:Header").appendChild(this.dataDoc.importNode(rwsValidationResult, true));
+            var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
+            this.setStatus(newStatus);
+            if (this.saveOptions.onWrsValidationFailure)
+              this.saveOptions.onWrsValidationFailure();
+          }.bind(this)
+        };
+
+        // transform model if saveChain is provided or wrs model is used or dp is not a simple model
+        var mw = null;
+        var saveChain = [];
+        // if wrs dp, we add a cleanup chain step
+        if (this.saveOptions && this.saveOptions.saveChain)
+          saveChain.push(this.saveOptions.saveChain);
+        if (this.query("/*/wrs:Data") != null)
+          saveChain.push(bcdui.config.libPath + "xslt/wrs/prepareToPost.xslt");
+        // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
+        if (saveChain.length > 0) {
+          var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+          mw = new bcdui.core.ModelWrapper({chain: saveChain, parameters: this.saveOptions.saveParameters, inputModel: sendModel});
+        }
+        else if (this.type != "bcdui.core.SimpleModel")
+          mw = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+
+        // if we use a wrapper, we need to wait for readiness
+        if (mw) {
+          mw.onceReady({
+            executeIfNotReady: true
+          , onSuccess: function() {
+              p.doc = mw.getData();  // do not forget to use the new document
+
+              // if we got a WRS model but nothing to post, skip posting
+              if (p.doc.selectSingleNode("/*/wrs:Data") != null && p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null) {
+                p.onSuccess(p.doc);
+                return;
+              }
+              else {
+                bcdui.core.xmlLoader.post(p);
+              }
+            }.bind(this)
+          , onFailure: function() {
+              bcdui.log.error("BCD-UI: Failed transforming save model: '" + this.id);
+              this.setStatus(this.saveFailedStatus);
+            }.bind(this)
+          });
+        }
+        // otherwise we can post the data directly
+        else
+          bcdui.core.xmlLoader.post(p);
+      },
 
   /**
    * @private

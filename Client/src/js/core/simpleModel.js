@@ -47,8 +47,14 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * @param {string}                                        [args.id]                  - Globally unique id for used in declarative contexts
    * @param {boolean}                                       [args.isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
    * @param {string}                                        [args.mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
-   * @param {chainDef}                                      [args.saveChain]           - The definition of the transformation chain
-   * @param {Object}                                        [args.saveParameters]      - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
+   * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
+   * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @param {boolean}                                       [args.saveOptions.reload=false]           - Useful especially for models of type SimpleModel for refreshing from server after save
+   * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
+   * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
+   * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
+   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url (by default taken from the args.url)
    *  If not text/plain, (derived or via mimeType), the data is parsed.
    *  <table>
    *    <tr><th>"auto"</th><th>mimeType</th><th>Result</th></tr>
@@ -71,15 +77,16 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.SimpleModel" ): "") != "";
 
-      this.saveChain = args.saveChain;
-      this.saveParameters = args.saveParameters;
+      this.saveOptions = args.saveOptions || {};
+      this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
+      this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
+      args.saveOptions = this.saveOptions;
 
       if( typeof args === "string" ) {
         args = { url: args };
       }
-      bcdui.core.AbstractUpdatableModel.call(this,args);
 
-      // User defined (enforced) mimeType. I not given, it will be derived before loading via best-guess from the then-known url
+      // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
       this.mimeType = !!args.mimeType ? args.mimeType : undefined;
       
       this.urlProvider = null;
@@ -91,9 +98,11 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
         if(args.uri){
           args.url += "/" + args.uri;
         }
-        this.urlProvider = new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
+        this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
+        bcdui.core.AbstractUpdatableModel.call(this,args);
       } else {
-        this.urlProvider = args.url;
+        this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
+        bcdui.core.AbstractUpdatableModel.call(this,args);
         // in case of isAutoRefresh listen to changes of urlProvider and
         // reload model
         if ( args.isAutoRefresh ){
@@ -145,22 +154,6 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
        * @constant
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
-      /**
-       * @constant
-       * @private
-       */
-      this.savingStatus = new bcdui.core.status.SavingStatus();
-      /**
-       * @constant
-       * @example
-       * if( model.getStatus() === model.savedStatus )
-       *   ...
-       */
-      this.savedStatus = new bcdui.core.status.SavedStatus();
-      /**
-       * @constant
-       */
-      this.saveFailedStatus = new bcdui.core.status.SaveFailedStatus();
 
       /* These stati are considered as ready stati for modelUpdaters running on this model. */
       this._readyStatiForModelUpdates = [ this.loadedStatus,
@@ -218,76 +211,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
          * non-auto-updating modelUpdaters are skipped if they have been executed once.
          */
         this._applyModelUpdaters(false);
-      } else if (statusEvent.getStatus().equals(this.savingStatus)) {
-        /*
-         * Start the save operation. At the present time we allow saving only to the
-         * same URL we loaded data from.
-         */
-        this._save();
-      } else if (statusEvent.getStatus().equals(this.savedStatus)) {
-        /*
-         * When the data has been successfully saved we can return to the
-         * model's ready state again.
-         */
-        var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
-        this.setStatus(newStatus);
       }
-    },
-
-  /**
-   * @private
-   */
-  _save: function()
-    {
-      var saveUrl = this.urlProvider.getData();
-      /*
-       * Remove unnecessary parameters from URL.
-       */
-      saveUrl = saveUrl.replace(/^([^?]+).*$/, "$1");
-      var p = {
-        url: saveUrl,
-        doc: this.dataDoc,
-        onSuccess: function(domDocument) {
-          this.setStatus(this.savedStatus);
-        }.bind(this),
-        onFailure: function(msg) {
-          bcdui.log.error("BCD-UI: Failed saving model: '"+this.id+"', '"+msg+"'");
-          this.setStatus(this.saveFailedStatus);
-        }.bind(this),
-        onWrsValidationFailure: function(rwsValidationResult) {
-          bcdui.log.warn("wrs validation failure");
-          this.dataDoc.selectSingleNode("wrs:Wrs/wrs:Header").appendChild(this.dataDoc.importNode(rwsValidationResult, true));
-          var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
-          this.setStatus(newStatus);
-        }.bind(this)
-      };
-
-      // transform model if saveChain is provided
-      var mw = null;
-      if (this.saveChain) {
-        // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
-        var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
-        sendModel.execute();
-        mw = new bcdui.core.ModelWrapper({chain: this.saveChain, parameters: this.saveParameters, inputModel: sendModel});
-      }
-
-      // if we use a wrapper, we need to wait for readiness
-      if (mw) {
-        mw.onceReady({
-          executeIfNotReady: true
-        , onSuccess: function() {
-            p.doc = mw.getData();  // do not forget to use the new document
-            bcdui.core.xmlLoader.post(p);
-          }.bind(this)
-        , onFailure: function() {
-            bcdui.log.error("BCD-UI: Failed transforming save model: '" + this.id);
-            this.setStatus(this.saveFailedStatus);
-          }.bind(this)
-        });
-      }
-      // otherwise we can post the data directly
-      else
-        bcdui.core.xmlLoader.post(p);
     },
 
   /**
@@ -468,21 +392,6 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
   getData: function()
     {
       return this.dataDoc;
-    },
-
-  /**
-   * Sends the current data to the original URL
-   */
-  sendData: function()
-    {
-      if (this.status.equals(this.savingStatus)) {
-        bcdui.log.warn("sendData skipped, because the model is already in saving state.");
-        return;
-      }
-      if (!this.status.equals(this.getReadyStatus())) {
-        throw Error("Cannot send data when the model is not in ready state.");
-      }
-      this.setStatus(this.savingStatus);
     },
 
   /**

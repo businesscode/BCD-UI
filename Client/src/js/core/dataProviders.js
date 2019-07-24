@@ -39,10 +39,7 @@ bcdui.core.PromptDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvid
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.PromptDataProvider" ): "") != "";
 
-      bcdui.core.DataProvider.call( this, {
-        id: args.id,
-        name: args.name
-      });
+      bcdui.core.DataProvider.call( this, args);
       this.value = "";
       this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -105,10 +102,7 @@ bcdui.core.ConstantDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
       if (typeof args.value == "undefined") {
         throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
       }
-      bcdui.core.DataProvider.call( this, {
-        id: args.id,
-        name: args.name
-      });
+      bcdui.core.DataProvider.call( this, args);
       /**
        * The value provided by the "getData" function.
        * @type String|Number|Boolean
@@ -177,9 +171,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderHolder" ): "") != "";
 
       args = args || {};
-      bcdui.core.DataProvider.call( this, {
-        id: args.id,
-        name: args.name });
+      bcdui.core.DataProvider.call( this, args);
       /**
        * The status the provider is in before it has loaded its data.
        * @type Status
@@ -739,10 +731,8 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
     
     this.method = (args.method != "GET" && args.method != "POST") ? "GET" : args.method;
 
-    bcdui.core.DataProvider.call( this, {
-      id: args.id
-      ,name: args.name || args.id
-    });
+    args["name"] = args.name || args.id;
+    bcdui.core.DataProvider.call( this, args);
     this.isAutoRefresh = args.isAutoRefresh;
     this.value = "";
     this.url = null;
@@ -1068,10 +1058,7 @@ bcdui.core.JsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.JsDataProvider" ): "") != "";
 
-      bcdui.core.DataProvider.call( this, {
-        id: args.id,
-        name: args.name
-      });
+      bcdui.core.DataProvider.call( this, args);
       this.callback = args.callback;
       this.doAllwaysRefresh = typeof args.doAllwaysRefresh == "undefined" ? false : true;
       this.value = "";
@@ -1137,10 +1124,7 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       {
         var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AsyncJsDataProvider" ): "") != "";
 
-        bcdui.core.DataProvider.call( this, {
-          id: args.id,
-          name: args.name
-        });
+        bcdui.core.DataProvider.call( this, args);
         this.callback = args.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();

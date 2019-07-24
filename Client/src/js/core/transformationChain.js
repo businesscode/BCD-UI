@@ -1093,6 +1093,14 @@ bcdui.core.ModelWrapper = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
   * @param {string}     [args.id]                    - Globally unique id for use in declarative contexts
   * @param {bcdui.core.DataProvider}    [args.statusModel=bcdui.wkModels.guiStatus]                       - custom model to use as 'guiStatus' parameter
   * @param {bcdui.core.DataProvider}    [args.statusModelEstablished=bcdui.wkModels.guiStatusEstablished] - custom model to use as 'guiStatusEstablished' parameter
+  * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
+  * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
+  * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
+  * @param {boolean}                                       [args.saveOptions.reload=false]           - Useful especially for models of type SimpleModel for refreshing from server after save
+  * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
+  * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
+  * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
+  * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url, this is mandatory for saving
   */
   initialize: function(args)
   {
