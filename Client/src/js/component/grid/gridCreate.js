@@ -273,7 +273,8 @@ bcdui.component.grid.Grid = function(args)
         throw new Error("GridModel holds column which isn't in GridConfiguration (or wrong position): " + this.id + " " + e.getAttribute("id"));
     }.bind(this));
 
-    this.getEnhancedConfiguration().onChange( { callback: function() {this.gridModel.execute(true);}.bind(this) } );    this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
+    this.getEnhancedConfiguration().onChange( { callback: function() {this.gridModel.execute(true);}.bind(this) } );
+    this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
 
     this.optionsModelInfo = {};
     var optionsModels = new Array();
