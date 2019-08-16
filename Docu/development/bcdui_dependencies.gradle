@@ -64,7 +64,7 @@ dependencies {
 
   // Additionally needed only during runtime
   runtime ('commons-beanutils:commons-beanutils:1.9.3') { transitive = false }
-  runtime ('org.slf4j:slf4j-api:1.6.1') { transitive = false }
+  runtime ('org.slf4j:slf4j-api:1.7.25') { transitive = false }
   runtime ('org.slf4j:slf4j-log4j12:1.7.25') { transitive = false }
 
   // Add database drivers as you need them to you local WEB-INF/lib/ folder or elsewhere
