@@ -80,11 +80,12 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
       this.saveOptions = args.saveOptions || {};
       this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
       this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
-      args.saveOptions = this.saveOptions;
 
       if( typeof args === "string" ) {
         args = { url: args };
       }
+
+      args.saveOptions = this.saveOptions;
 
       // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
       this.mimeType = !!args.mimeType ? args.mimeType : undefined;
