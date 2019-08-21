@@ -721,7 +721,7 @@ a {
 #bcdTooltipDiv {
   @include con_color($flyover-color);
   border: 1px solid $border-color;
-  z-index: 14999;
+  z-index: 20002;
   top: 0px;
   left: 0px;
   position: absolute;
