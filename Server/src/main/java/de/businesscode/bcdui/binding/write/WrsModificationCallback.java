@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.binding.write;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,10 +59,17 @@ public class WrsModificationCallback extends WriteProcessingCallback {
 
   private Set<BindingItemConfig> bindingItemConfig;
   protected List<BindingItem> columns;
+  protected List<Integer> columnTypes;
+  protected ArrayList<BindingItem> columnsRD = null;
+  protected ArrayList<Integer> columnTypesRD = null;
+  protected ArrayList<BindingItem> columnsI = null;
+  protected ArrayList<Integer> columnTypesI = null;
+  protected ArrayList<BindingItem> columnsM = null;
+  protected ArrayList<Integer> columnTypesM = null;
   /*
    * the index map of already available binding-items in WRS
    */
-  protected final HashMap<Integer, BindingItemConfig> bindingItemIdxMap = new HashMap<Integer, BindingItemConfig>();
+  protected final HashMap<String, BindingItemConfig> bindingItemIdMap = new HashMap<>();
 
   /**
    *
@@ -98,17 +106,15 @@ public class WrsModificationCallback extends WriteProcessingCallback {
       }
       try {
         BindingItem bItem = bindingSet.get(itemConfig.bindingItemId);
-
         columns.add(bItem);
         columnTypes.add(bItem.getJDBCDataType());
-        bindingItemIdxMap.put(columns.size() - 1, itemConfig);
-
+        bindingItemIdMap.put(bItem.getId(), itemConfig);
       } catch (BindingNotFoundException e) {
         throw new RuntimeException("missing binding item '"+itemConfig.bindingItemId+"'",e);
       }
     }else{
       // item located in WRS - map it via index
-      bindingItemIdxMap.put(idx, itemConfig);
+      bindingItemIdMap.put(itemConfig.bindingItemId, itemConfig);
       if(log.isTraceEnabled()){
         log.trace("found binding item to map " + itemConfig.bindingItemId + " at index " + idx);
       }
@@ -117,8 +123,9 @@ public class WrsModificationCallback extends WriteProcessingCallback {
 
   @Override
   public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames) {
-    bindingItemIdxMap.clear();
+    bindingItemIdMap.clear();
     this.columns = columns;
+    this.columnTypes = columnTypes;
 
     /*
      * initialize binding items from given WRS according to bindingItem parameters
@@ -127,8 +134,25 @@ public class WrsModificationCallback extends WriteProcessingCallback {
       initializeBindingItemWrs(bindingSet, columns, columnTypes, itemConfig);
     }
 
-    if(log.isTraceEnabled()){
-      log.trace("items mapped in WRS: " + bindingItemIdxMap.toString());
+    // prepare column and columnType lists for wrs:M and wrs:I and keep a copy of the original one (for wrs:R/D)
+    this.columnsI = new ArrayList<>();
+    this.columnTypesI = new ArrayList<>();
+    this.columnsM = new ArrayList<>();
+    this.columnTypesM = new ArrayList<>();
+    this.columnsRD= new ArrayList<>();
+    this.columnTypesRD = new ArrayList<>();
+
+    for(int c = 0; c < this.columns.size(); c++){
+      BindingItem b = this.columns.get(c);
+      Integer i = this.columnTypes.get(c);
+      this.columnsI.add(b);
+      this.columnTypesI.add(i);
+      this.columnsRD.add(b);
+      this.columnTypesRD.add(i);
+      if (this.bindingItemIdMap.get(b.getId()) != null && this.bindingItemIdMap.get(b.getId()).ignore == BindingItemConfig.CONFIG_IGNORE.update)
+        continue;
+      this.columnsM.add(b);
+      this.columnTypesM.add(i);
     }
   }
 
@@ -139,35 +163,33 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    */
   @Override
   public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
-    if(rowType == ROW_TYPE.D){
+    if (rowType == ROW_TYPE.M) {
+      this.columns.clear(); for (BindingItem b : this.columnsM) this.columns.add(b);
+      this.columnTypes.clear(); for (Integer i : this.columnTypesM) this.columnTypes.add(i);
+    }
+    else if(rowType == ROW_TYPE.I){
+      this.columns.clear(); for (BindingItem b : this.columnsI) this.columns.add(b);
+      this.columnTypes.clear(); for (Integer i : this.columnTypesI) this.columnTypes.add(i);
+    }
+    else {
+      this.columns.clear(); for (BindingItem b : this.columnsRD) this.columns.add(b);
+      this.columnTypes.clear(); for (Integer i : this.columnTypesRD) this.columnTypes.add(i);
       return;
     }
 
-    // Make sure we have room for all added values
+    // ensure completeness of C/O for all columns
     while (columns.size() > cValues.size()) {
       cValues.add(null);
       oValues.add(null);
     }
 
-    // overwrite values according to header, for already existing items
-    for(int colIdxCnt=0, len=cValues.size(); colIdxCnt < len; colIdxCnt++){
-      BindingItemConfig item = bindingItemIdxMap.get(colIdxCnt);
-      if(item == null)continue;
-
-      if (item.ignore == BindingItemConfig.CONFIG_IGNORE.update && rowType == ROW_TYPE.M){
-        // skip update
-        if(log.isTraceEnabled()){
-          log.trace("skip item value to update: " + item.bindingItemId + " because of ignore=" + item.ignore.name() + " and row type = " + rowType.name());
-        }
-
-        // TODO in this case
-        // we rather should remove the columns entirely from update instruction, but WRS implementation does not support this currently
-        continue;
-      }
-
-      if(item.isCoalesce == false || cValues.get(colIdxCnt) == null){
-        cValues.set(colIdxCnt, evalValue(item));
-      }
+    // overwrite server sided values
+    int i = 0;
+    for (BindingItem b : this.columns) {
+      BindingItemConfig item = this.bindingItemIdMap.get(b.getId());
+      if (item != null && (item.isCoalesce == false || cValues.get(i) == null))
+        cValues.set(i, evalValue(item));
+      i++;
     }
   }
 

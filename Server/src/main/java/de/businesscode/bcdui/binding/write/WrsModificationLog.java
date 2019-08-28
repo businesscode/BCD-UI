@@ -42,32 +42,6 @@ import java.util.Set;
  */
 public class WrsModificationLog extends WrsModificationCallback {
   /**
-   * our value assignment logic is slightly different from the original one,
-   * because we treat the create items (classified as ignore=update) in a different way
-   */
-  @Override
-  public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
-    if(rowType == ROW_TYPE.D){
-      return;
-    }
-
-    // Make sure we have room for all added values
-    while (columns.size() > cValues.size()) {
-      cValues.add(null);
-      oValues.add(null);
-    }
-
-    // overwrite values according to header, for already existing items
-    // wrs:I|wrs:M handled same way
-    for(int colIdxCnt=0, len=cValues.size(); colIdxCnt < len; colIdxCnt++){
-      BindingItemConfig item = bindingItemIdxMap.get(colIdxCnt);
-      if(item != null && !(rowType == ROW_TYPE.M && item.ignore == BindingItemConfig.CONFIG_IGNORE.update)){
-        cValues.set(colIdxCnt, evalValue(item));
-      }
-    }
-  }
-
-  /**
    * set up our custom parameters according to binding-set availability
    */
   @Override

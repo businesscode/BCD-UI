@@ -331,6 +331,12 @@ public class XMLToDataBase implements XMLEventConsumer {
         listener.actionPerformed(new SaveEvent(con, SaveEventState.StartSaving));
       }
     }
+    else {
+      // columns and columnTypes might have changed (e.g. wrs:I versus wrs:M), so we need to set the new ones
+      // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type 
+      databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]));
+    }
+
     if (rowElementNameParam.equals("I")) {
       modifiedRowCount++;
 

@@ -98,6 +98,11 @@ public class DatabaseWriter {
     ensureAllKeysAvailable(bindingSetPr, keyColumnNames);
   }
 
+  public void updateColumnsAndTypes(BindingItem[] columnsPr, Integer[] columnTypesPr) {
+    this.columns = columnsPr;
+    this.columnTypes = columnTypesPr;
+  }
+
   /**
    * ensures that all key items of a bindingSet are contained in keyColumnNames 
    * @param bindingSet
