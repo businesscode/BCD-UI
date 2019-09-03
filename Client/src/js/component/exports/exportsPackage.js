@@ -322,7 +322,7 @@ bcdui.util.namespace("bcdui.component.exports",
     bcdui.core.removeXPath(config.wrq.getData(), "/*/wrq:Select/wrq:Columns[not(@bcd)]");
 
     // and run the export...
-    config.callback();
+    config.callback(config);
   },
 
   /**
@@ -413,6 +413,8 @@ bcdui.util.namespace("bcdui.component.exports",
           , pathName: pathName
           , allowSave: args.allowSave
           , allDeselected: args.allDeselected
+          , type: args.type
+          , fileName: args.fileName
         };
 
         // allow silent custom export mode only if we have at least one valid column from the stored vfs
@@ -454,7 +456,8 @@ bcdui.util.namespace("bcdui.component.exports",
    * @param {string}                           [args.vfsFilename]               - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information
    * @param {string}                           [args.exportMode=full]           - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full 
    * @param {boolean}                          [args.allowSave=false]           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on
-   * @param {boolean}                          [args.allDeselected=false]       - for the column picjer, all columns are initially selected by default and you can deselect some. Settings this flag to true, you inverse this behaviour   
+   * @param {boolean}                          [args.allDeselected=false]       - for the column picjer, all columns are initially selected by default and you can deselect some. Settings this flag to true, you inverse this behaviour
+   * @param {function}                         [args.wrqModify]                 - function to do post wrq processing just before sending the request   
    */
   detailExport: function( args ) 
   {
@@ -465,100 +468,107 @@ bcdui.util.namespace("bcdui.component.exports",
     bcdui.factory.objectRegistry.withReadyObjects([args.wrq], function() {
       var newArgs = jQuery.extend({}, args);
       newArgs.wrq = bcdui.factory.objectRegistry.getObject(args.wrq);
-      newArgs.callback = doExport.bind(this, newArgs);
+      newArgs.callback = bcdui.component.exports._doExport;
+
+      if (args.wrqModify) {
+        newArgs.callback = function(a) {
+          newArgs.wrqModify(a);
+          bcdui.component.exports._doExport(a);
+        };
+      }
 
       if (args.exportMode == "full")
-        doExport(newArgs);
+        newArgs.callback(newArgs);
       else
         bcdui.component.exports._columnChooser(newArgs);
     });
-    
-    var doExport = function(args) {
+  },
 
-      // We want xlsx and use server-side Excel creation
-      if( args.type === "xlsx" ) {
-        if (! args.fileName) {
-          var fileName = bcdui.component.exports._getFileNameFromNavPath();
-          if (fileName)
-            args.fileName = fileName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + args.type;
-        }
-        args.fileName = args.fileName ? args.fileName : "export_" + bcdui.component.exports._getExportTimeStamp() + "." + args.type;
-        bcdui.component.exports.exportToExcelTemplate( {inputModel: args.wrq, fileName: args.fileName} );
-      } 
-      // Export via sylk / csv servlet export by sending the Wrq
-      else {
-        // We need a form, if it is not there, create one
-        var exportForm = jQuery("#" + this._bcdExportFormId).get(0);
-        if( ! exportForm ) {
-          exportForm = document.createElement("form");
-          exportForm.setAttribute("id",this._bcdExportFormId);
-          var input = document.createElement("input");
-          input.setAttribute("type","hidden");
-          input.setAttribute("id","bcdExportFormGuiStatusGZ");
-          input.setAttribute("name","guiStatusGZ");
-          exportForm.appendChild(input);
-          document.getElementsByTagName("body")[0].appendChild(exportForm);
-        }
+  _doExport: function(args) {
 
-        jQuery.blockUI({ message : bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Report_ExportStarted"}), timeout: 2000, fadeOut:  1500 });
-        var filNameAttr = bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
-        args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
-        if (! args.fileName) {
-          var fName = bcdui.component.exports._getFileNameFromNavPath();
-          if (fName)
-            args.fileName = fName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + (args.type=="csv" ? "csv" : "xls");
-        }
-        args.fileName = (args.fileName ? args.fileName : (args.type=="csv" ? "export_" + bcdui.component.exports._getExportTimeStamp() + ".csv" : "export_" + bcdui.component.exports._getExportTimeStamp() + ".xls"));
-        exportForm.setAttribute("action", (args.type=="csv" ?   bcdui.contextPath+"/bcdui/servlets/CsvServlet/"+args.fileName
-            : bcdui.contextPath+"/bcdui/servlets/SylkServlet/"+args.fileName) );
-
-        // write navPath information as AddHeaderInfo if available 
-        var root = bcdui.wkModels.bcdNavPath.query("/*");
-        if (root && root.getAttribute("targetId") != null) {
-          var target = root.getAttribute("targetId");
-          if (jQuery("#" + target).length > 0) {
-            var addInfo = jQuery("#" + target).text();
-            addInfo += " - " + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_AddFilters" });
-            bcdui.factory.objectRegistry.getObject(args.wrq).write("/wrq:WrsRequest/wrq:Header/wrq:SylkExport/wrq:AddHeaderInfo", addInfo, true);
-          }
-        }
-
-        if( bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest")==null ) {
-          var messageGeneric = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_NoExport" });
-          var message;
-          var messageNode = bcdui.factory.objectRegistry.getObject(args.wrq).query("//@message");
-          if( messageNode ) {
-            message = bcdui.i18n.syncTranslateFormatMessage({msgid: messageNode.nodeValue });
-            var messageArg1 = bcdui.factory.objectRegistry.getObject(args.wrq).query("//@messageArg1");
-            message = bcdui.i18n.formatMessage( message, [messageArg1 ? messageArg1.nodeValue : null] );
-          }
-          bcdui.widget.showModalBox({
-            title: messageGeneric,
-            message: message ? message : messageGeneric,
-            modalBoxType: bcdui.widget.modalBoxTypes.warning
-          });
-          return;
-        }
-
-        bcdui.core.compression.compressDOMDocument(bcdui.factory.objectRegistry.getObject(args.wrq).getData(), function(modelObjectGZ) {
-          if (modelObjectGZ != null) {
-            document.getElementById("bcdExportFormGuiStatusGZ").value = modelObjectGZ;
-            exportForm.submit();
-          }
-        }, function(modelObjectGZ, message){
-          // although failed, try to recover if compression succeeded with warning
-          if (modelObjectGZ) {
-            document.getElementById("bcdExportFormGuiStatusGZ").value = modelObjectGZ;
-            exportForm.submit();
-          } else {
-            bcdui.isDebug&&window["console"]&&console.error("failed to compress guiStatus",{
-              modelObjectGZ : modelObjectGZ,
-              message       : message
-            });
-          }
-        }, false, true);
+    // We want xlsx and use server-side Excel creation
+    if( args.type === "xlsx" ) {
+      if (! args.fileName) {
+        var fileName = bcdui.component.exports._getFileNameFromNavPath();
+        if (fileName)
+          args.fileName = fileName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + args.type;
       }
-    }.bind(this);
+      args.fileName = args.fileName ? args.fileName : "export_" + bcdui.component.exports._getExportTimeStamp() + "." + args.type;
+      bcdui.component.exports.exportToExcelTemplate( {inputModel: args.wrq, fileName: args.fileName} );
+    } 
+    // Export via sylk / csv servlet export by sending the Wrq
+    else {
+      // We need a form, if it is not there, create one
+      var exportForm = jQuery("#" + bcdui.component.exports._bcdExportFormId).get(0);
+      if( ! exportForm ) {
+        exportForm = document.createElement("form");
+        exportForm.setAttribute("id",bcdui.component.exports._bcdExportFormId);
+        var input = document.createElement("input");
+        input.setAttribute("type","hidden");
+        input.setAttribute("id","bcdExportFormGuiStatusGZ");
+        input.setAttribute("name","guiStatusGZ");
+        exportForm.appendChild(input);
+        document.getElementsByTagName("body")[0].appendChild(exportForm);
+      }
+
+      jQuery.blockUI({ message : bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Report_ExportStarted"}), timeout: 2000, fadeOut:  1500 });
+      var filNameAttr = bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest/@bcdFileName");
+      args.fileName = args.fileName || ( filNameAttr ? filNameAttr.nodeValue : null );
+      if (! args.fileName) {
+        var fName = bcdui.component.exports._getFileNameFromNavPath();
+        if (fName)
+          args.fileName = fName + "_" + bcdui.component.exports._getExportTimeStamp() + "." + (args.type=="csv" ? "csv" : "xls");
+      }
+      args.fileName = (args.fileName ? args.fileName : (args.type=="csv" ? "export_" + bcdui.component.exports._getExportTimeStamp() + ".csv" : "export_" + bcdui.component.exports._getExportTimeStamp() + ".xls"));
+      exportForm.setAttribute("action", (args.type=="csv" ?   bcdui.contextPath+"/bcdui/servlets/CsvServlet/"+args.fileName
+          : bcdui.contextPath+"/bcdui/servlets/SylkServlet/"+args.fileName) );
+
+      // write navPath information as AddHeaderInfo if available 
+      var root = bcdui.wkModels.bcdNavPath.query("/*");
+      if (root && root.getAttribute("targetId") != null) {
+        var target = root.getAttribute("targetId");
+        if (jQuery("#" + target).length > 0) {
+          var addInfo = jQuery("#" + target).text();
+          addInfo += " - " + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_AddFilters" });
+          bcdui.factory.objectRegistry.getObject(args.wrq).write("/wrq:WrsRequest/wrq:Header/wrq:SylkExport/wrq:AddHeaderInfo", addInfo, true);
+        }
+      }
+
+      if( bcdui.factory.objectRegistry.getObject(args.wrq).getData().selectSingleNode("/wrq:WrsRequest")==null ) {
+        var messageGeneric = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Report_NoExport" });
+        var message;
+        var messageNode = bcdui.factory.objectRegistry.getObject(args.wrq).query("//@message");
+        if( messageNode ) {
+          message = bcdui.i18n.syncTranslateFormatMessage({msgid: messageNode.nodeValue });
+          var messageArg1 = bcdui.factory.objectRegistry.getObject(args.wrq).query("//@messageArg1");
+          message = bcdui.i18n.formatMessage( message, [messageArg1 ? messageArg1.nodeValue : null] );
+        }
+        bcdui.widget.showModalBox({
+          title: messageGeneric,
+          message: message ? message : messageGeneric,
+          modalBoxType: bcdui.widget.modalBoxTypes.warning
+        });
+        return;
+      }
+
+      bcdui.core.compression.compressDOMDocument(bcdui.factory.objectRegistry.getObject(args.wrq).getData(), function(modelObjectGZ) {
+        if (modelObjectGZ != null) {
+          document.getElementById("bcdExportFormGuiStatusGZ").value = modelObjectGZ;
+          exportForm.submit();
+        }
+      }, function(modelObjectGZ, message){
+        // although failed, try to recover if compression succeeded with warning
+        if (modelObjectGZ) {
+          document.getElementById("bcdExportFormGuiStatusGZ").value = modelObjectGZ;
+          exportForm.submit();
+        } else {
+          bcdui.isDebug&&window["console"]&&console.error("failed to compress guiStatus",{
+            modelObjectGZ : modelObjectGZ,
+            message       : message
+          });
+        }
+      }, false, true);
+    }
   },
   
   /**
