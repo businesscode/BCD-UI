@@ -186,7 +186,7 @@ bcdui.util.namespace("bcdui.widget",
    * @example
    * 
    *   &lt;Configuration xmlns="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"&gt;
-   *   &lt;Level id="group" wildcard="startswith" serverSideOptionsModelFilter="true"/&gt;
+   *   &lt;Level id="group" wildcard="startswith" serverSideOptionsModelFilter="true" hideWildcardChar="true"/&gt;
    * &lt;/Configuration&gt;
    *   
    * Group level information is generated while typing.

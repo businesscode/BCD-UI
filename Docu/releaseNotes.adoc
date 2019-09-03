@@ -25,7 +25,7 @@ Some changes are backward incompatible and may require code change in the projec
 * Renderer doesn't need an existing targetHtml nor defining one at all on creation. Member function setTargetHtml can be used to set and change target.
 The Renderer either works directly with the specified element or (in case of specified via id) does an element lookup by id.
 * Excel Report export moved to client side using FileSaver.js
-* Detail Export got column chooser options, check exportMode attribute for a customized column export/save selection 
+* Detail Export got column chooser options, check exportMode attribute for a customized column export/save selection and a wrqModify callback function
 * Remove client refresh on detail export which is not needed. Change context menu action from
     <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId: 'exportWysiwygAsExcel'})</JavaScriptAction>
     to
@@ -40,7 +40,8 @@ The Renderer either works directly with the specified element or (in case of spe
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
 * menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
 * introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
-* tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas 
+* tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas
+* inputField gets hideWildcardChar option to not attach asterisk characters (dimchooser supports it via dimconfig)
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)
