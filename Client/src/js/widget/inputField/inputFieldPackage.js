@@ -75,8 +75,9 @@ bcdui.util.namespace("bcdui.widget.inputField",
       bcdui.widget._initLabel(labelEl, e.getAttribute("bcdid"), e.getAttribute("bcdLabel"));
     }
 
+    var placeholder = (e.getAttribute("bcdOptionsModelXPath") || "") != "" ? " placeholder='" + (bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_autoCompletionBox_loading"}) || "Loading...") + "'" : "";
     jQuery(e).append(
-      "<input"
+      "<input" + placeholder
       + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='new-password'" : "")
       + bcdui.widget._domFromBcdAttribute(e, "bcdTabIndex", "tabindex")
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
@@ -135,6 +136,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
             ? [config.targetModelId, config.optionsModelId]
             : config.targetModelId,
       fn : function(){
+        
+        if (isOptionsModelPresented)
+          htmlElement.removeAttribute("placeholder");
+        
         var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
         var listener = new bcdui.widget.inputField.XMLListener({
           idRef: config.targetModelId,
@@ -196,11 +201,20 @@ bcdui.util.namespace("bcdui.widget.inputField",
                   return;
 
                 var loadingText = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_autoCompletionBox_loading"}) || "Loading...";
+
+                // set loading placeholder in case we're not ready yet
+                if (optionsModel.getStatus() != optionsModel.getReadyStatus())
+                    htmlElement.attr("placeholder", loadingText);
+
                 // If the value box exists and we are the owner, show "loading"
                 // Could be that bcdAutoCompletionBox has never been opened but still dependent options model are being reloaded
                 var valueBox = bcdui._migPjs._$("bcdAutoCompletionBox");
-                if ( optionsModel.getStatus() != optionsModel.getReadyStatus() && valueBox.length > 0 && valueBox.attr("bcdHtmlElementId")==htmlElementId )
+                if ( optionsModel.getStatus() != optionsModel.getReadyStatus() && valueBox.length > 0 && valueBox.attr("bcdHtmlElementId")==htmlElementId ) {
+
+                  // remember current input value to ensure that we monitor new chars during load
+                  htmlElement.data("oldValue", htmlElement.val());
                   valueBox.html(loadingText);
+                }
 
                 // When only values from the optionsmodel are allowed, we need to disable input during load of the optionsmodel
                 // Because the order of model-events is not strict, we only depend on the actual state here, not on the event
@@ -213,11 +227,20 @@ bcdui.util.namespace("bcdui.widget.inputField",
                 }
 
                 // For working with the models, we just want to depend on the status event send, because that one only comes ones
-                if( statusEvent.status.equals( optionsModel.getReadyStatus() ) ) {
-                  // remove old values from input field if they don't fit to the options model
-                  bcdui.widget.inputField._readDataFromXML(htmlElementId,true);
-                  bcdui.widget.inputField._updateDropDownList(htmlElementId,true,false);
-                  bcdui.widget.inputField._moveSelection( {htmlElementId: htmlElementId, direction: 1, forceFirst: true } ); // Allow to select the top one by enter
+                if (statusEvent.status.equals( optionsModel.getReadyStatus())) {
+
+                  // remove loading placeholder
+                  htmlElement.removeAttr("placeholder");
+
+                  // in case someone typed in between loading we only refresh the additional filter
+                  if (! htmlElement.data("oldValue") || htmlElement.data("oldValue") == htmlElement.val()) {
+                    // remove old values from input field if they don't fit to the options model
+                    bcdui.widget.inputField._readDataFromXML(htmlElementId,true);
+                    bcdui.widget.inputField._updateDropDownList(htmlElementId,true,false);
+                    bcdui.widget.inputField._moveSelection( {htmlElementId: htmlElementId, direction: 1, forceFirst: true } ); // Allow to select the top one by enter
+                  }
+                  else
+                    bcdui.widget.inputField._writeAdditionalFilter(htmlElementId);
                 }
 
               }.bind(undefined, config.optionsModelId, htmlElement.id )
@@ -351,21 +374,25 @@ bcdui.util.namespace("bcdui.widget.inputField",
         newText = newText || "";
         var pos = 0;
 
-        var presetWithWc = el.attr("bcdWildcard") || "";
-        if( presetWithWc=="startswith" ) {
-          newText = newText + (newText.endsWith("*") ? "" : "*");
-          pos = selStart ? selStart : 0;
-        } else if( presetWithWc=="endswith" ) {
-          var offset = newText.startsWith("*") ? 0 : 1;
-          newText = (newText.startsWith("*") ? "" : "*") + newText;
-          pos = selStart ? selStart+offset : 1;
-        } else if(presetWithWc=="contains") {
-          var offset = newText.startsWith("*") ? 0 : 1;
-          newText = (newText.startsWith("*") ? "" : "*") + newText + (newText.endsWith("*") ? "" : "*");
-          pos = selStart ? selStart+offset : 1;
-        } else {
-          pos = newText.length;
+        if (! (el.attr("bcdHideWildcardChar") == "true")) {
+          var presetWithWc = el.attr("bcdWildcard") || "";
+          if( presetWithWc=="startswith" ) {
+            newText = newText + (newText.endsWith("*") ? "" : "*");
+            pos = selStart ? selStart : 0;
+          } else if( presetWithWc=="endswith" ) {
+            var offset = newText.startsWith("*") ? 0 : 1;
+            newText = (newText.startsWith("*") ? "" : "*") + newText;
+            pos = selStart ? selStart+offset : 1;
+          } else if(presetWithWc=="contains") {
+            var offset = newText.startsWith("*") ? 0 : 1;
+            newText = (newText.startsWith("*") ? "" : "*") + newText + (newText.endsWith("*") ? "" : "*");
+            pos = selStart ? selStart+offset : 1;
+          } else {
+            pos = newText.length;
+          }
         }
+        else
+          pos = newText.length;
 
         el.attr("title", newText);
         el.get(0).value = newText;
@@ -549,7 +576,8 @@ bcdui.util.namespace("bcdui.widget.inputField",
           var targetModelXPath = htmlElement.getAttribute("bcdTargetModelXPath");
           var result = bcdui.widget._getDataAndCaptionFromXML(targetModel, targetModelXPath);
           var newV = null;
-  
+          var wildcardCheck = htmlElement.getAttribute("bcdHideWildcardChar") == "true" || (! (htmlElement.getAttribute("bcdHideWildcardChar") == "true") && htmlElement.value.indexOf("*")!=-1 );
+
           // Which value to use.
           var multilevelRequestNode = optionsModel ? optionsModel.getData().selectSingleNode("/*/wrs:RequestDocument/wrq:WrsService[@serviceName='BcdMultiLevelSuggest']") : null;
           if( multilevelRequestNode ) { // Multilevel select
@@ -568,7 +596,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
                   newV += " "+(levelSeparator.nodeValue ? levelSeparator.nodeValue+" " : "");
               }
             }
-          } else if( (isTriggeredByOptionsModel && htmlElement.getAttribute("bcdWildcard") && htmlElement.value.indexOf("*")!=-1)
+          } else if( (isTriggeredByOptionsModel && htmlElement.getAttribute("bcdWildcard") && wildcardCheck)
               || (htmlElement.value && htmlElement.getAttribute("bcdOptionsModelIsSuggestionOnly")=="true") ) {
             newV = htmlElement.value; // While editing or if suggestion only (and we are not empty, which is initializing), the value in the field is always ok
           } else if( !result.value ) {
@@ -897,6 +925,25 @@ bcdui.util.namespace("bcdui.widget.inputField",
       bcdui.widget.inputField._additionalFilterTimer[htmlElementId] =
         setTimeout(
             function( additionalFilterModelId, additionalFilterXPath, newValue, wildcard, optionsModelId, targetModelId ) {
+
+              // add * based on wildcard type for additional filter writing in case we hide it
+              if (htmlElement.attr("bcdHideWildcardChar") == "true") {
+                if (wildcard === "startswith") {
+                  if (!newValue.endsWith("*"))
+                    newValue += "*";
+                }
+                else if (wildcard === "endswith") {
+                  if (!newValue.startsWith("*"))
+                    newValue = "*" + newValue
+                }
+                else if (wildcard === "contains") {
+                  if (!newValue.startsWith("*"))
+                    newValue = "*" + newValue
+                  if (!newValue.endsWith("*"))
+                    newValue += "*";
+                }
+              }
+
               var aFXNode = bcdui.core.createElementWithPrototype( bcdui.factory.objectRegistry.getObject(additionalFilterModelId).getData(), additionalFilterXPath );
 
               // We avoid loading the data from the server, if we only further restrict the data and have loaded all data fitting the search expression last time

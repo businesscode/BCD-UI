@@ -70,6 +70,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.isPassword]                     If true, input element type will be 'password'.
    * @param {string}        [args.label]                          If provided, renders label element to this input
+   * @param {boolean}       [args.hideWildcardChar]               If true, no asterisk characters are shown
    */
   createInputField: function(args)
     {
@@ -107,7 +108,8 @@ bcdui.util.namespace("bcdui.widget",
           widgetCaption: args.widgetCaption,
           enableNavPath: args.enableNavPath,
           isPassword: args.isPassword,
-          label: args.label
+          label: args.label,
+          hideWildcardChar: args.hideWildcardChar
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);

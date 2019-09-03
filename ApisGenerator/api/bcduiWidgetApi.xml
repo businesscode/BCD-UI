@@ -537,6 +537,12 @@
             If true, the cursor is automatically positioned at the end of the input box. 
           </Doc>
         </Param>
+        <Param name="hideWildcardChar" type="boolean">
+          <Doc>
+            If true, no asterisk characters are shown
+          </Doc>
+        </Param>
+        
       </Api>
 
       <Api name="loginForm" extends="">
