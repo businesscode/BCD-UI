@@ -663,6 +663,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
    */
   _writeDataToXML: function(htmlElementId, isUpdatedByClick)
     {
+      // IE sends a blur/change when clicked on the autocompletionbox scrollbar which is not intended, so we quit instead of writing an illegal value
+      if (jQuery("#bcdAutoCompletionBox").is(":visible") && jQuery("#bcdAutoCompletionBox").attr("bcdScrollBarClick") == "true")
+        return;
+
       var htmlElement = document.getElementById(htmlElementId);
       if(htmlElement.getAttribute("bcdIsDestroyed") == "true"){
         return;
