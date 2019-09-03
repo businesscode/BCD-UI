@@ -849,12 +849,14 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
           inputArgs.optionsModelXPath = optionsModelXpath;
         }
         var wildcard = (levelConfiguration && levelConfiguration.getAttribute("wildcard")) ? levelConfiguration.getAttribute("wildcard") : "";
+        var hideWildcardChar = (levelConfiguration && levelConfiguration.getAttribute("hideWildcardChar")) ? levelConfiguration.getAttribute("hideWildcardChar") : ""; 
         var op = (levelConfiguration && levelConfiguration.getAttribute("op")) ? levelConfiguration.getAttribute("op") : "=";
         var ic = (levelConfiguration && levelConfiguration.getAttribute("ic")=="true" ) ? " and @ic='true' " : "";
         var targetModelXpath = "/*/guiStatus:ClientSettings/guiStatus:MultiSelect[@bcdDimension='"+config.dimensionName+"']/f:Filter/f:And/f:Expression[@bRef='"+e.getAttribute('bRef') +"' and @op='"+op+"' "+ic+"]/@value";
         newdiv.setAttribute("bcdTargetModelXPath",targetModelXpath);
 
-        if (wildcard != ""){ inputArgs.wildcard = wildcard;}
+        if (wildcard != "") {inputArgs.wildcard = wildcard;}
+        if (hideWildcardChar != ""){inputArgs.hideWildcardChar = (hideWildcardChar == "true");}
 
         inputArgs.targetModelXPath = "$" + config.targetModelId + targetModelXpath;
 
@@ -863,7 +865,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
         }
         if(  levelConfiguration && levelConfiguration.getAttribute("serverSideOptionsModelFilter")=="true" ) {
           inputArgs.additionalFilterXPath = "$" + config.targetModelId + "/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"' and @op='like' and @bRef='"+e.getAttribute('bRef') +"' and @ic='true']/@value";
-          inputArgs.wildcard = "contains";
+          inputArgs.wildcard = inputArgs.wildcard || "contains";
         }
 
         bcdui.widget.createInputField(inputArgs);
