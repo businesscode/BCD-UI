@@ -74,6 +74,11 @@ public class XMLToDataBase implements XMLEventConsumer {
   protected Collection<String> keyColumnNames = null;
   protected final ArrayList<String> columnValues = new ArrayList<String>();
   protected final ArrayList<String> updateValues = new ArrayList<String>();
+  protected final ArrayList<String> columnValuesBackup = new ArrayList<String>();
+  protected final ArrayList<String> updateValuesBackup = new ArrayList<String>();
+  protected final ArrayList<BindingItem> columnsBackup = new ArrayList<BindingItem>();
+  protected final ArrayList<Integer> columnTypesBackup = new ArrayList<Integer>();
+
   private DatabaseWriter databaseWriter = null;
 
   private TableNameSetter tableNameSetter = new TableNameSetter();
@@ -296,12 +301,9 @@ public class XMLToDataBase implements XMLEventConsumer {
    * WriteProcessing and apply them
    */
   private void processEndRow(String rowElementName) throws Exception {
-    if(bindingSet.getWriteProcessing().hasCallbacks()){
-      logger.info("write processing callbacks found, delegating processEndRow.");
-
-      for(WriteProcessingCallback cb : this.writeProcessingCallbacks){
-        cb.endDataRow(WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName), updateValues, columnValues);
-      }
+    logger.info("write processing callbacks found, delegating processEndRow.");
+    for(WriteProcessingCallback cb : this.writeProcessingCallbacks){
+      cb.endDataRow(WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName), updateValues, columnValues);
     }
   }
 
@@ -317,7 +319,18 @@ public class XMLToDataBase implements XMLEventConsumer {
    *
    */
   private void endRow(String rowElementNameParam) throws Exception {
-    processEndRow(rowElementNameParam);
+
+    // backup current arrays if we got callbacks
+    if(bindingSet.getWriteProcessing().hasCallbacks()) {
+      this.columnValuesBackup.clear(); for (String s : this.columnValues) this.columnValuesBackup.add(s);
+      this.updateValuesBackup.clear(); for (String s : this.updateValues) this.updateValuesBackup.add(s);
+      this.columnsBackup.clear();      for (BindingItem b : this.columns) this.columnsBackup.add(b);
+      this.columnTypesBackup.clear();  for (Integer i : this.columnTypes) this.columnTypesBackup.add(i);
+
+      // this will modify columns, columnTypes, columnValues and updateValues
+      processEndRow(rowElementNameParam);
+    }
+
 
     if (databaseWriter == null) {
       String dbSourceName = bindingSet.getDbSourceName();
@@ -331,8 +344,8 @@ public class XMLToDataBase implements XMLEventConsumer {
         listener.actionPerformed(new SaveEvent(con, SaveEventState.StartSaving));
       }
     }
-    else {
-      // columns and columnTypes might have changed (e.g. wrs:I versus wrs:M), so we need to set the new ones
+    else if(bindingSet.getWriteProcessing().hasCallbacks()) {
+      // columns and columnTypes might have changed in the callback (e.g. wrs:I versus wrs:M), so we need to set the new ones
       // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type 
       databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]));
     }
@@ -354,6 +367,14 @@ public class XMLToDataBase implements XMLEventConsumer {
 
       databaseWriter.deleteRow(updateValues.toArray(new String[updateValues.size()]));
 
+    }
+
+    // restore arrays if we got callbacks
+    if(bindingSet.getWriteProcessing().hasCallbacks()) {
+      this.columnValues.clear(); for (String s : columnValuesBackup) this.columnValues.add(s);
+      this.updateValues.clear(); for (String s : updateValuesBackup) this.updateValues.add(s);
+      this.columns.clear();      for (BindingItem b : columnsBackup) this.columns.add(b);
+      this.columnTypes.clear(); for (Integer i : columnTypesBackup) this.columnTypes.add(i);
     }
   }
 

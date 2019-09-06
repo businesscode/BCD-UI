@@ -163,6 +163,8 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    */
   @Override
   public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
+
+    // switch to new set of columns and types based on row type
     if (rowType == ROW_TYPE.M) {
       this.columns.clear(); for (BindingItem b : this.columnsM) this.columns.add(b);
       this.columnTypes.clear(); for (Integer i : this.columnTypesM) this.columnTypes.add(i);
@@ -180,17 +182,23 @@ public class WrsModificationCallback extends WriteProcessingCallback {
     // ensure completeness of C/O for all columns
     while (columns.size() > cValues.size()) {
       cValues.add(null);
-      oValues.add(null);
+      if (rowType == ROW_TYPE.M)
+        oValues.add(null);
     }
 
-    // overwrite server sided values
-    int i = 0;
-    for (BindingItem b : this.columns) {
-      BindingItemConfig item = this.bindingItemIdMap.get(b.getId());
+    // overwrite server sided values and build up new o/c values list
+    List<String> newOValues = new ArrayList<>();
+    List<String> newCValues = new ArrayList<>();
+    for (int i = 0; i < this.columns.size(); i++) {
+      BindingItemConfig item = this.bindingItemIdMap.get(this.columns.get(i).getId());
       if (item != null && (item.isCoalesce == false || cValues.get(i) == null))
         cValues.set(i, evalValue(item));
-      i++;
+      newCValues.add(cValues.get(i));
+      if (rowType == ROW_TYPE.M)
+        newOValues.add(oValues.get(i));
     }
+    cValues.clear(); for (String s : newCValues) cValues.add(s);
+    oValues.clear(); for (String s : newOValues) oValues.add(s);
   }
 
   /**
