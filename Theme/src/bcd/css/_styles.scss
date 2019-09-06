@@ -815,7 +815,7 @@
     }
 
     li { padding: 1px 0; position: relative; cursor: default;}
-    .bcdItem { cursor: pointer; white-space: normal; }
+    .bcdItem { display: inline-block; width: 100%; cursor: pointer; white-space: normal;}
     .ui-selected { @include con_color($select-color); }
     .bcdSbscHover, .ui-selecting { @include con_color($border-color); }
   }
