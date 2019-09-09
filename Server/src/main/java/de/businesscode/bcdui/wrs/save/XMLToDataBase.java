@@ -74,10 +74,6 @@ public class XMLToDataBase implements XMLEventConsumer {
   protected Collection<String> keyColumnNames = null;
   protected final ArrayList<String> columnValues = new ArrayList<String>();
   protected final ArrayList<String> updateValues = new ArrayList<String>();
-  protected final ArrayList<String> columnValuesBackup = new ArrayList<String>();
-  protected final ArrayList<String> updateValuesBackup = new ArrayList<String>();
-  protected final ArrayList<BindingItem> columnsBackup = new ArrayList<BindingItem>();
-  protected final ArrayList<Integer> columnTypesBackup = new ArrayList<Integer>();
 
   private DatabaseWriter databaseWriter = null;
 
@@ -320,13 +316,7 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void endRow(String rowElementNameParam) throws Exception {
 
-    // backup current arrays if we got callbacks
     if(bindingSet.getWriteProcessing().hasCallbacks()) {
-      this.columnValuesBackup.clear(); for (String s : this.columnValues) this.columnValuesBackup.add(s);
-      this.updateValuesBackup.clear(); for (String s : this.updateValues) this.updateValuesBackup.add(s);
-      this.columnsBackup.clear();      for (BindingItem b : this.columns) this.columnsBackup.add(b);
-      this.columnTypesBackup.clear();  for (Integer i : this.columnTypes) this.columnTypesBackup.add(i);
-
       // this will modify columns, columnTypes, columnValues and updateValues
       processEndRow(rowElementNameParam);
     }
@@ -367,14 +357,6 @@ public class XMLToDataBase implements XMLEventConsumer {
 
       databaseWriter.deleteRow(updateValues.toArray(new String[updateValues.size()]));
 
-    }
-
-    // restore arrays if we got callbacks
-    if(bindingSet.getWriteProcessing().hasCallbacks()) {
-      this.columnValues.clear(); for (String s : columnValuesBackup) this.columnValues.add(s);
-      this.updateValues.clear(); for (String s : updateValuesBackup) this.updateValues.add(s);
-      this.columns.clear();      for (BindingItem b : columnsBackup) this.columns.add(b);
-      this.columnTypes.clear(); for (Integer i : columnTypesBackup) this.columnTypes.add(i);
     }
   }
 

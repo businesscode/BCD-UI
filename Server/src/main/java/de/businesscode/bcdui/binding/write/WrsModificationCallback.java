@@ -62,10 +62,13 @@ public class WrsModificationCallback extends WriteProcessingCallback {
   protected List<Integer> columnTypes;
   protected ArrayList<BindingItem> columnsRD = null;
   protected ArrayList<Integer> columnTypesRD = null;
+  protected ArrayList<Integer> columnIndexRD = null;
   protected ArrayList<BindingItem> columnsI = null;
   protected ArrayList<Integer> columnTypesI = null;
+  protected ArrayList<Integer> columnIndexI = null;
   protected ArrayList<BindingItem> columnsM = null;
   protected ArrayList<Integer> columnTypesM = null;
+  protected ArrayList<Integer> columnIndexM = null;
   /*
    * the index map of already available binding-items in WRS
    */
@@ -141,6 +144,9 @@ public class WrsModificationCallback extends WriteProcessingCallback {
     this.columnTypesM = new ArrayList<>();
     this.columnsRD= new ArrayList<>();
     this.columnTypesRD = new ArrayList<>();
+    this.columnIndexI = new ArrayList<>();
+    this.columnIndexM = new ArrayList<>();
+    this.columnIndexRD  = new ArrayList<>();
 
     for(int c = 0; c < this.columns.size(); c++){
       BindingItem b = this.columns.get(c);
@@ -149,10 +155,13 @@ public class WrsModificationCallback extends WriteProcessingCallback {
       this.columnTypesI.add(i);
       this.columnsRD.add(b);
       this.columnTypesRD.add(i);
+      this.columnIndexI.add(c);
+      this.columnIndexRD.add(c);
       if (this.bindingItemIdMap.get(b.getId()) != null && this.bindingItemIdMap.get(b.getId()).ignore == BindingItemConfig.CONFIG_IGNORE.update)
         continue;
       this.columnsM.add(b);
       this.columnTypesM.add(i);
+      this.columnIndexM.add(c);
     }
   }
 
@@ -163,19 +172,24 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    */
   @Override
   public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) {
+    
+    ArrayList<Integer> columIndexList = null;
 
     // switch to new set of columns and types based on row type
     if (rowType == ROW_TYPE.M) {
       this.columns.clear(); for (BindingItem b : this.columnsM) this.columns.add(b);
       this.columnTypes.clear(); for (Integer i : this.columnTypesM) this.columnTypes.add(i);
+      columIndexList = this.columnIndexM;
     }
     else if(rowType == ROW_TYPE.I){
       this.columns.clear(); for (BindingItem b : this.columnsI) this.columns.add(b);
       this.columnTypes.clear(); for (Integer i : this.columnTypesI) this.columnTypes.add(i);
+      columIndexList = this.columnIndexI;
     }
     else {
       this.columns.clear(); for (BindingItem b : this.columnsRD) this.columns.add(b);
       this.columnTypes.clear(); for (Integer i : this.columnTypesRD) this.columnTypes.add(i);
+      columIndexList = this.columnIndexRD;
       return;
     }
 
@@ -191,12 +205,21 @@ public class WrsModificationCallback extends WriteProcessingCallback {
     List<String> newCValues = new ArrayList<>();
     for (int i = 0; i < this.columns.size(); i++) {
       BindingItemConfig item = this.bindingItemIdMap.get(this.columns.get(i).getId());
-      if (item != null && (item.isCoalesce == false || cValues.get(i) == null))
-        cValues.set(i, evalValue(item));
-      newCValues.add(cValues.get(i));
+
+      // get real column index
+      int index = columIndexList.get(i);
+
+      // set serversided value if needed
+      if (item != null && (item.isCoalesce == false || cValues.get(index) == null))
+        cValues.set(index, evalValue(item));
+
+      // build up temporary cleaned up values
+      newCValues.add(cValues.get(index));
       if (rowType == ROW_TYPE.M)
-        newOValues.add(oValues.get(i));
+        newOValues.add(oValues.get(index));
     }
+
+    // takeover values
     cValues.clear(); for (String s : newCValues) cValues.add(s);
     oValues.clear(); for (String s : newOValues) oValues.add(s);
   }
