@@ -360,6 +360,12 @@ bcdui.util.namespace("bcdui.widget.inputField",
         return; // no element - no action
       }
 
+      if (el.attr("bcdHideWildcardChar") == "true") {
+        el.attr("title", newText);
+        el.removeClass("bcdInputEmptyValue");
+        return;
+      }
+
       // Wildcards: We may want to preset the empty field with wildcards (which the user can later edit)
       var selStart;
       if( typeof el.get(0).selectionStart != "undefined" ) {
@@ -374,25 +380,21 @@ bcdui.util.namespace("bcdui.widget.inputField",
         newText = newText || "";
         var pos = 0;
 
-        if (! (el.attr("bcdHideWildcardChar") == "true")) {
-          var presetWithWc = el.attr("bcdWildcard") || "";
-          if( presetWithWc=="startswith" ) {
-            newText = newText + (newText.endsWith("*") ? "" : "*");
-            pos = selStart ? selStart : 0;
-          } else if( presetWithWc=="endswith" ) {
-            var offset = newText.startsWith("*") ? 0 : 1;
-            newText = (newText.startsWith("*") ? "" : "*") + newText;
-            pos = selStart ? selStart+offset : 1;
-          } else if(presetWithWc=="contains") {
-            var offset = newText.startsWith("*") ? 0 : 1;
-            newText = (newText.startsWith("*") ? "" : "*") + newText + (newText.endsWith("*") ? "" : "*");
-            pos = selStart ? selStart+offset : 1;
-          } else {
-            pos = newText.length;
-          }
-        }
-        else
+        var presetWithWc = el.attr("bcdWildcard") || "";
+        if( presetWithWc=="startswith" ) {
+          newText = newText + (newText.endsWith("*") ? "" : "*");
+          pos = selStart ? selStart : 0;
+        } else if( presetWithWc=="endswith" ) {
+          var offset = newText.startsWith("*") ? 0 : 1;
+          newText = (newText.startsWith("*") ? "" : "*") + newText;
+          pos = selStart ? selStart+offset : 1;
+        } else if(presetWithWc=="contains") {
+          var offset = newText.startsWith("*") ? 0 : 1;
+          newText = (newText.startsWith("*") ? "" : "*") + newText + (newText.endsWith("*") ? "" : "*");
+          pos = selStart ? selStart+offset : 1;
+        } else {
           pos = newText.length;
+        }
 
         el.attr("title", newText);
         el.get(0).value = newText;
