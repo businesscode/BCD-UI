@@ -2724,7 +2724,7 @@ bcdui.util.namespace("bcdui.component",
         allowNewRows:         args.allowNewRows || args.allowNewCells,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
-        isReadOnly:           args.isReadOnly,
+        isReadOnly:           args.isReadOnly
       });
     });
     return { refId: args.id, symbolicLink: true };
