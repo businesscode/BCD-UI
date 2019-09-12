@@ -386,7 +386,7 @@ bcdui.util.namespace("bcdui.component",
     if(args.config){
       if(args.config.id){ // reference -> ensure is known to registry
         if(!bcdui.factory.objectRegistry.getObject(args.config.id)){
-          throw "Please, assign explicit 'id' to DataProvider referenced as .config";
+          bcdui.factory.objectRegistry.registerObject(args.config);
         }
         args.metaDataModelId = args.config.id;
       }else if(args.config.refId){ // SymLink
