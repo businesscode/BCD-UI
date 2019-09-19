@@ -142,7 +142,7 @@
 #bcdAutoCompletionBox {
   z-index: $z-index-autocomplete;
   height: 10em;
-  overflow: hidden;
+  overflow: auto;
 }
 
 #bcdChartToolTip,
