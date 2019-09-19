@@ -790,6 +790,9 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
             autoModelArgs.additionalFilterXPath = "$" + config.targetModelId + "/*/guiStatus:ClientSettings/rnd:InputFieldTemp/f:Expression[@bcdAmId='"+autoModel+"']";
             autoModelArgs.maxRows = bcdui.widget.dimensionChooser.ServerSideOptionsModelFilterMaxRows;
           }
+          if (levelConfiguration.getAttribute("orderByBRefs") != null) {
+            autoModelArgs.orderByBRefs = levelConfiguration.getAttribute("orderByBRefs");
+          }
           var additionalFilterXPath =levelConfiguration.getAttribute("additionalFilterXPath");
           if (additionalFilterXPath){
             autoModelArgs.additionalFilterXPath = (! autoModelArgs.additionalFilterXPath ? '' : autoModelArgs.additionalFilterXPath +"|")  + additionalFilterXPath;

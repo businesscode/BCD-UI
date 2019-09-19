@@ -69,10 +69,13 @@
           <xs:attribute type="xs:boolean" default="false" name="serverSideOptionsModelFilter">
             <xs:annotation><xs:documentation>Turns on server sided mode. Data is retrieved while typing.</xs:documentation></xs:annotation>
           </xs:attribute>
-          <xs:attribute type="xs:boolean" default="false" name="optionsModelIsSuggestionOnly">
-            <xs:annotation><xs:documentation>If true, values different from the options model can are allowed. See bcdui.widget.InputField for details.</xs:documentation></xs:annotation>
+          <xs:attribute type="xs:boolean" default="false" name="hideWildcardChar">
+            <xs:annotation><xs:documentation>If true, no asterisk characters are shown</xs:documentation></xs:annotation>
           </xs:attribute>
-                    <xs:attribute type="xs:boolean" default="true" name="visible">
+          <xs:attribute type="xs:string" name="orderByBRefs">
+            <xs:annotation><xs:documentation>Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. A minus(-) sign at the end indicates descending sorting.</xs:documentation></xs:annotation>
+          </xs:attribute>
+	      <xs:attribute type="xs:boolean" default="true" name="visible">
             <xs:annotation><xs:documentation>If false, level does not appear in the drop down list but can be used as a dependency for a different level.</xs:documentation></xs:annotation>
           </xs:attribute>
                 </xs:complexType>
