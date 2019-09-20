@@ -998,6 +998,11 @@
             have to trigger the rendering manually by calling .execute()
           </Doc>
         </Param>
+        <Param name="postHtmlAttachProcess" type="function">
+          <Doc>
+           Optional synchronous js function called after attaching html fragment to dom (either partitially or fully)
+          </Doc>
+        </Param>
         <Impl>
           <Jsp allowsChildren="true">
             <AllowedChildren>

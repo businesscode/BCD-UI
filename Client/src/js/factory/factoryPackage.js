@@ -468,6 +468,7 @@ bcdui.util.namespace("bcdui.factory",
             dataProviders: bcdui.factory._mapDataProviders(o.dataProviders),
             targetHtml: args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId, // map all possible options to targetHtml for simplification
             suppressInitialRendering: args.suppressInitialRendering,
+            postHtmlAttachProcess: args.postHtmlAttachProcess,
             debug: args.debug
           });
     };

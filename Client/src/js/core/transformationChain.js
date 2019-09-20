@@ -232,6 +232,12 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
        * @private
        */
       this.suppressInitialRendering = !!args.suppressInitialRendering;
+      
+      /**
+       * optional synchronous js function called after attaching html fragment to dom (either partitially or fully)
+       * @private
+       */
+      this.postHtmlAttachProcess = args.postHtmlAttachProcess;
 
       this.setStatus(this.initializedStatus);
 
@@ -460,6 +466,8 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
                     if( node && newContent ) {
                       bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
                       jQuery(node).replaceWith( newContent );
+                      if (typeof this.postHtmlAttachProcess == "function")
+                        this.postHtmlAttachProcess(node, ids[i]);
                     } else if( node )
                       jQuery(node).remove();
                   }
@@ -470,6 +478,9 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
                   // Browser takes care that the fragment itself is treated as a container and only its children are appended to the HTML DOM
                   jQuery(targetElement).empty();  // to support .destroy() mechanism of jQuery Widgets
                   targetElement.appendChild(result);
+                  if (typeof this.postHtmlAttachProcess == "function") {
+                    this.postHtmlAttachProcess(targetElement.lastChild, null);
+                  }
                 }
               }
   
@@ -972,6 +983,7 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    * Once this Renderer is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it if it is not {@link bcdui.core.AbstractExecutable .isReady()} before executing itself.
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
+   * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
    */
   initialize: function(args)
   {
