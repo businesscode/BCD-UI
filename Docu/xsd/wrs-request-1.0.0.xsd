@@ -106,11 +106,6 @@
         <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with filled a header will be returned, no SQL will be performed.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="isDistinct" type="xs:boolean" default="false">
-      <xs:annotation>
-        <xs:documentation>If set to true, enables SELECT DISTINCT statement. Usually, you want to use 'Grouping' for a unique result but in some situations i.e. when using window-functions you may need to use this flag.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="TopNDimMembers">

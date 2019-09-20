@@ -16,13 +16,7 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -89,7 +83,6 @@ public class WrqInfo
   // If a bRef from select clause was mapped to a virtual binding item due to wrq:Calc, we note the mapping here
   private Map<String,String> virtualBRefs;
   private boolean reqHasGroupBy = false;
-  private boolean isSelectDistinct = false;
 
   int aliasCounter     = 1;
   int virtualBiCounter = 1;
@@ -107,7 +100,6 @@ public class WrqInfo
       xp = XPathUtils.newXPathFactory().newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
       xp.setNamespaceContext(nsContext);
-      selectXpathExpr =           xp.compile("/wrq:WrsRequest/wrq:Select");
       fromBindingSetXpathExpr =   xp.compile("/wrq:WrsRequest/wrq:Select/wrq:From/wrq:BindingSet");
       filterXpathExpr =           xp.compile("/wrq:WrsRequest/wrq:Select/f:Filter");
       groupByRootXpathExpr =      xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping");     // grouping columns or functions
@@ -221,7 +213,6 @@ public class WrqInfo
    */
   protected void initMetaData() throws Exception
   {
-    this.isSelectDistinct = Boolean.parseBoolean( ((Element)selectXpathExpr.evaluate(wrq, XPathConstants.NODE)).getAttribute("isDistinct") );
     wrqBindingSetId = (String) fromBindingSetXpathExpr.evaluate(wrq, XPathConstants.STRING);
 
     allBRefAggrs = new HashMap<String, WrqBindingItem>();
@@ -529,9 +520,6 @@ public class WrqInfo
   public boolean reqHasGroupBy() {
     return reqHasGroupBy;
   }
-  public boolean isSelectDistinct() {
-    return isSelectDistinct;
-  }
 
   /**
    * Return the virtual dimension members for a bRef
@@ -544,7 +532,6 @@ public class WrqInfo
 
   private static final Map<String, String> aggregationMapping;
   private final XPath xp;
-  private final XPathExpression selectXpathExpr;
   private final XPathExpression fromBindingSetXpathExpr;
   private final XPathExpression filterXpathExpr;
   private final XPathExpression groupByRootXpathExpr;
