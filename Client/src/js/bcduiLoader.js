@@ -273,6 +273,16 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiTree",
+      "required": "optional",
+      "files": [
+        "/js/component/tree/treeCreate.js"
+      ],
+      "buildFolders": [
+        "/js/component/tree"
+      ]
+    },
+    {
       "id": "bcduiUserCalcEditor",
       "required": "backCompatibility",
       "files": [

@@ -564,6 +564,8 @@
 
   .bcdExpandContainer { display:flex; align-items: center;}
   .bcdExpandOriginal { width: 100%; }
+}
+.bcdReport:not(.bcdTree) {
   .bcdExpand:after { content: "\002B"; }
   .bcdCollapse:after { content: "\2212";}
 }
@@ -1523,4 +1525,63 @@ table.bcd-far-configurator {
 // extend from bootstrap table, table-striped and small-table
 .bcdReport {
   @extend .table, .table-striped, .table-sm;
+}
+
+
+/* tree */
+
+
+.bcdTree {
+  
+  .bcdTreeInner {
+    margin: 0 0 0 1.2em;
+  }
+
+ .highlight {
+    background-color: #eeeeee !important;
+    color: #000 !important;
+  }
+
+  .bcdExpand {
+    @extend .fas;
+    @extend .fa-plus-square;
+    padding-right: 0.3em;
+    cursor: pointer;
+  }
+
+  .bcdCollapse {
+    @extend .fas;
+    @extend .fa-minus-square;
+    padding-right: 0.3em;
+    cursor: pointer;
+  } 
+
+  tbody tr,
+  tbody tr:nth-of-type(odd),
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #ffffff;
+  }
+  
+  thead tr th {
+    background-color: #ffffff;
+    color: #000000;
+    border-bottom: 1px solid #000;
+    font-weight: bold;
+  }
+  
+  tbody th,
+  .bcdTree tbody td {
+    font-weight: normal;
+    border: none;
+  }
+  
+  thead th.bcdMeasure,
+  tbody td {
+    text-align: right;
+  }
+  
+  .bcdTreeRow > th {
+    background-color: #ffffff;
+    padding: 0;
+  }
 }

@@ -650,6 +650,37 @@
           </Doc>
         </Param>
       </Api>
+
+      <Api name="tree">
+        <Doc>
+          Creates a tree front end based on configuration.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the tree configuration data." />
+              <Child name="cmp:statusModel" doc="The model containing the current filters." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+        </Examples>
+
+        <Param name="targetHtml" type="targetHtmlRef">
+          <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
+        </Param>
+        <Param name="contextMenu" type="string">
+          <Doc>
+            'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="persistent" type="boolean" default="true">
+          <Doc>
+            'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -667,6 +698,7 @@
       <BcdObject name="statusModel" implements="statusModel" implementationFunction="" tagFolder="component"/>
       <BcdObject name="gridModel" implements="gridModel" implementationPackage="bcdui.component." tagFolder="component"/>
       <BcdObject name="grid" implements="grid" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="tree" implements="tree" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
 
     </BcdObjects>
   </WorkingDraft>

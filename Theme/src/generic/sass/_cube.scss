@@ -330,10 +330,12 @@
   }
   .bcdExpandContainer { display:flex; align-items: center;}
   .bcdExpandOriginal { width: 100%; }
- 
- .bcdExpand:after { content: "\002B"; }
- .bcdCollapse:after { content: "\2212";}
 }
+.bcdReport:not(.bcdTree) {
+  .bcdExpand:after { content: "\002B"; }
+  .bcdCollapse:after { content: "\2212";}
+}
+
  
 /* treeview specific*/
 
@@ -872,4 +874,79 @@ div.bcdContextMenu a.bcdMenuitems {
 
 .bcdScTooltip thead tr:first-child th {
   white-space: nowrap;
+}
+
+
+/* tree */
+
+
+.bcdTree {
+  
+  width: 100%;
+  border: none;
+  margin-bottom: 10px;
+  
+  .bcdTreeInner {
+    margin: 0 0 0 10px;
+  }
+
+ .highlight {
+    background-color: #eeeeee !important;
+    color: #000 !important;
+  }
+  .highlight:not(bcdTreeRow) > td, .highlight:not(.bcdTreeRow) > th {
+    background-color: #eeeeee !important;
+    color: #000 !important;
+  }
+
+  .bcdExpand:before {
+    content: "\229E";
+    padding-right: 3px;
+    cursor: pointer;
+    font-style: normal;
+  }
+
+  .bcdCollapse:before {
+    content: "\229F";
+    padding-right: 3px;
+    cursor: pointer;
+    font-style: normal;
+  } 
+
+  tbody tr {
+    background-color: #ffffff;
+  }
+  
+  thead tr th {
+    background-color: #ffffff;
+    color: #000000;
+    border-bottom: 1px solid #000;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  tbody tr:nth-child(2n+0) td {
+    background-color: #fff;
+  } 
+
+  tbody th,
+  .bcdTree tbody td {
+    font-weight: normal;
+    border: none;
+    background-color: #fff;
+    border: none;
+  }
+  tbody th {
+    text-align: left;
+  }
+  
+  thead th.bcdMeasure,
+  tbody td {
+    text-align: right;
+  }
+  
+  .bcdTreeRow > th {
+    background-color: #ffffff;
+    padding: 0;
+  }
 }

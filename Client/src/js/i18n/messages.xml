@@ -254,5 +254,10 @@
       <!-- QuickEdit -->
       <R id="R300"><C>bcd_widget_quickEdit_action_restorerecord</C><C>Restore Record</C><C>en</C></R>
       <R id="R301"><C>bcd_widget_quickEdit_action_close</C><C>Close</C><C>en</C></R>
+
+      <!-- Tree -->
+      <R id="R310"><C>bcd_Tree_ActionsGlobalHdr</C><C>General Options</C><C>en</C></R>
+      <R id="R311"><C>bcd_Tree_Export</C><C>Tree export</C><C>en</C></R>
+      
     </Data>
 </Wrs>

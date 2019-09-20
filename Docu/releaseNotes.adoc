@@ -16,8 +16,9 @@ Some changes are backward incompatible and may require code change in the projec
 * Using 'strict' mode now in all JS sources
 * updated to jQuery 3.4.1, jQuery-UI 1.12.1
 
-. Components: Scorecard, Cube, Charts, Export
+. Components: Scorecard, Cube, Charts, Export, Grid, Tree
 * added Grid Component
+* added Tree Component
 * added collapse/expand functionaly to cubes
 * reorganized CubeContextMenu and added hard toggle column sort
 * Charts support for dark themes
