@@ -157,20 +157,6 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
-      "id": "bcduiComponent",
-      "required": "backCompatibility",
-      "files": [
-        "/js/component/cube/templateManager/templateManager.js"
-        , "/js/component/cube/rankingEditor/rankingEditor.js"
-        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
-      ],
-      "buildFolders": [
-        "/js/component/cube/templateManager"
-        , "/js/component/cube/rankingEditor"
-        , "/js/component/cube/summaryDisplay"
-      ]
-      },
-    {
       "id": "bcduiChart",
       "required": "backCompatibility",
       "files": [
@@ -204,9 +190,15 @@ bcdui.bcduiCeFiles =
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
         , "/js/component/cube/expandCollapseCells.js"
+        , "/js/component/cube/templateManager/templateManager.js"
+        , "/js/component/cube/rankingEditor/rankingEditor.js"
+        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
       ],
       "buildFolders": [
-        "/js/component/cube"
+          "/js/component/cube"
+        , "/js/component/cube/templateManager"
+        , "/js/component/cube/rankingEditor"
+        , "/js/component/cube/summaryDisplay"
       ]
     },
     {
@@ -242,9 +234,16 @@ bcdui.bcduiCeFiles =
         , "/js/component/scorecard/scorecardCreate.js"
         , "/js/component/scorecard/scorecardConfigurator.js"
         , "/js/component/scorecard/bcdAspects.js"
+        , "/js/component/cube/templateManager/templateManager.js"
+        , "/js/component/cube/rankingEditor/rankingEditor.js"
+        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
       ],
       "buildFolders": [
         "/js/component/scorecard"
+        , "/js/component/cube"
+        , "/js/component/cube/templateManager"
+        , "/js/component/cube/rankingEditor"
+        , "/js/component/cube/summaryDisplay"
       ]
     },
     {
