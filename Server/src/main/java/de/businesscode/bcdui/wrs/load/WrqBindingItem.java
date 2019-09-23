@@ -216,7 +216,7 @@ public class WrqBindingItem implements WrsBindingItem
     this.parentWrsC = parentC;
     this.jdbcDataType = origJdbcDataType = Types.VARCHAR;
     this.tableAlias = parentC.getTableAlias();
-    this.columnQuoting = false;
+    this.columnQuoting = parentC.columnQuoting;
     isEscapeXml = new Boolean(true);
     setColumnExpression( columnExpression );
   }
