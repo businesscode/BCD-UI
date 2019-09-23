@@ -21,7 +21,7 @@
  *  - Ajust webAppDirName if necessary
  *  - Add any dependencies beside BCDUI to "dependencies { ... }"
  * 2. Copy bcdui_dependencies.gradle found here to your project
- * 3. Do not add .classpath and .project to git and do not manually or via Eclipse dialogs change them
+ * 3. Do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
  *  - Add .gitignore found here to your project
  * 4. Commit bcd-ui-core|theme*.jar in into WEB-INF/lib
  * 5. Import project into Eclipse as gradle project

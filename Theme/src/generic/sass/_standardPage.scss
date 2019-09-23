@@ -611,12 +611,12 @@ a {
     }
 
     .popupStyle, .popupStyleOver {
-    @include con_color($calendar-color);
+      @include con_color($calendar-color);
       cursor: pointer;
       border: 1px solid text-contrast($calendar-color);
     }
     .calCloseImage {
-    @include con_color($calendar-color);
+      @include con_color($calendar-color);
       cursor: pointer;
       border: none;
     }

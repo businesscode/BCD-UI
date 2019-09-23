@@ -297,7 +297,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       else if( chartType==="RADARCHART" ) {
         if( typeof opts.radar == "undefined" || typeof opts.radar.indicator == "undefined" ) {
           opts.radar = opts.radar || {};
-          opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: "abc "+v}));
+          opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: ""+v}));
         }
         let seriesData = {value: nodes.map( (n, idx) => { return n } ), name: series.name};
         opts.series[0] = opts.series[0] || { type: "radar", data: [], bcdAttrs: { unit: series.unit } };
