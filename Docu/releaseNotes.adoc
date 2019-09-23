@@ -34,7 +34,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Added support for voice and free-text control
 
 . Widgets
-* periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all, showClearButton to allow cleaning of input
+* periodChooser got new options: useSimpleXPath to use a straight forward xpath, autoPopup to directly show the popup calendar and suppressButtons to not show any buttons at all, showClearButton (default on for non mandatory) to allow cleaning of input
 * createFilterTableHeader function to add a filter header on a renderer. Uses createTableHeadFilter function which can be reused for other header filters (like grid) 
 * enableNavPath attribute to turn on/off navPath linkage (default is off (false))
 * New widget: "slider", based on noUiSlider implementation

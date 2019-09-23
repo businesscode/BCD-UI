@@ -201,6 +201,10 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var isHourSelectable    = containerHtmlElement.getAttribute("bcdIsHourSelectable") == "true";
     var useSimpleXPath      = containerHtmlElement.getAttribute("bcdUseSimpleXPath") == "true";
     var showClearButton     = containerHtmlElement.getAttribute("bcdShowClearButton") == "true";
+    // show clear button if periodChooser is not mandatory and show clear button is not explicitly turned off 
+    var isMandatory         = containerHtmlElement.getAttribute("bcdMandatory") == "true";
+    if (! isMandatory && ! (containerHtmlElement.getAttribute("bcdShowClearButton") == "false"))
+      showClearButton = true;
 
     var hint = "yyyy-mm-dd";
          if (isSecondSelectable) hint = "yyyy-mm-dd hh:mm:ss";
