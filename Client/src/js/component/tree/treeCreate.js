@@ -57,7 +57,7 @@ bcdui.component.tree.Tree = function(args)
     , chain: function(doc, args){
       // add some identifier to the single node
       var q = 0;
-      jQuery.makeArray(doc.selectNodes("/*//tree:Node")).forEach(function(e){
+      jQuery.makeArray(doc.selectNodes("//*[local-name()='Node' or local-name()='Root']")).forEach(function(e){
         e.setAttribute("bcdNodeId", "L" + (q++));
       });
       return doc;
@@ -136,7 +136,7 @@ bcdui.component.tree.Tree = function(args)
         else {
           // otherwise render (and load) next nodes
           var colspan = row.find("th,td").length;
-          var subNodes = tree.enhancedConfiguration.queryNodes("//tree:Node[@bcdNodeId='"+nodeId+"']/tree:Node");
+          var subNodes = tree.enhancedConfiguration.queryNodes("//*[@bcdNodeId='"+nodeId+"']/tree:Node");
           for (var n = 0; n < subNodes.length; n++) {
 
             // insert a new row into parent tree for our sub elements
@@ -190,27 +190,6 @@ bcdui.component.tree.Tree = function(args)
   this.enhancedConfiguration.execute();
 }
 
-/**
- * htmlbuilder post processing function.add a button class if nodes are available
- * also remember tree id, node id and nodeModel id
- * @private
- */
-bcdui.component.tree._AddButton = function(element, nodeModelId, nodeId, treeId) {
-
-  // add nodeModelId and nodeId to element so we can reuse it in the click handler
-  jQuery(element).attr("bcdNodeModelId", nodeModelId);
-  jQuery(element).attr("bcdNodeId", nodeId);
-
-  // add buttons if the current node got a subnode
-  var tree = bcdui.factory.objectRegistry.getObject(treeId);
-  var gotSubNodes = tree.enhancedConfiguration.query("//tree:Node[@bcdNodeId='"+nodeId+"']/tree:Node") != null;
-  if (gotSubNodes) {
-    jQuery(element).find("tbody > tr").each(function(i, e) {
-      jQuery(e).find("th").first().prepend("<i class='bcdExpand'></i>");
-    });
-  }
-}
-
 bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototype,
 /** @lends bcdui.component.tree.Tree.prototype */
 {
@@ -223,17 +202,24 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
   },
   _renderNextNode: { writable: true, configurable: true, enumerable: true, value: function(args)
     {
-      var root = args.root || this.enhancedConfiguration.query("/*/tree:Node");
+      var root = args.root || this.enhancedConfiguration.query("/*/tree:Root");
       var nodeId = root.getAttribute("bcdNodeId")
       
       var wrqNode = root.selectSingleNode("wrq:WrsRequest");
       if (wrqNode != null) {
 
-        // construct node filters for current node by taking the WrsRequest filter attribute into account
+        // construct node filters for current node by taking the node's filter translation into account
         var nodeFilters = {};
         if (args.parentNodeModel) {
-          var addFilters = root.getAttribute("filter");
-          addFilters = addFilters == null ? "" : addFilters;
+
+          var addFilters = "";
+          jQuery.makeArray(root.selectNodes("dm:TypeTranslations/dm:FT")).forEach(function(f) {
+            if (addFilters != "")
+              addFilters += " ";
+            addFilters += f.getAttribute("from") || "";
+            if (f.getAttribute("to") != null)
+              addFilters += "|" + f.getAttribute("to");
+          });
           var row = args.parentNodeModel.query("/*/wrs:Data/wrs:R[@id='" + args.rowId + "']");
           if (addFilters != "" && row != null) {
             var bRefs = addFilters.trim().split(" ");
@@ -250,21 +236,19 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
           }
         }
 
-        // and add inherited filters from the parent node which are stored at the upper node's bcdTreeRow
-        var inheritFilters = jQuery(args.targetHtml).parent().parent().closest(".bcdTreeRow").data("nodeFilters");
+        // and add inherited filters
+        var inheritFilters = jQuery(args.targetHtml).closest(".bcdTree").closest(".bcdTreeRow").data("nodeFilters")
         if (inheritFilters)
           nodeFilters = jQuery.extend(nodeFilters, inheritFilters);
 
         // store node filters (current and inherited ones)
         jQuery(args.targetHtml).closest(".bcdTreeRow").data("nodeFilters", nodeFilters);
 
-        // take over and clean node's wrq (remove sub Node elements)
-        var  wrq = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(wrqNode)});
-        bcdui.core.removeXPath(wrq.getData(), "/*/tree:Node", false);
+        // take over node's wrq
         var nodeModel = new bcdui.core.SimpleModel({
           url: new bcdui.core.RequestDocumentDataProvider({
             requestModel: new bcdui.core.ModelWrapper({
-              inputModel: wrq
+              inputModel: new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(wrqNode)})
             , chain: this._addRequestFilters
             , parameters: {statusModel: this.statusModel, targetHtml: args.targetHtml}
             })
@@ -292,7 +276,7 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
   
               // add buttons if the current node got a subnode
               var tree = bcdui.factory.objectRegistry.getObject(treeId);
-              var gotSubNodes = tree.enhancedConfiguration.query("//tree:Node[@bcdNodeId='"+nodeId+"']/tree:Node") != null;
+              var gotSubNodes = tree.enhancedConfiguration.query("//*[@bcdNodeId='"+nodeId+"']/tree:Node") != null;
               if (gotSubNodes) {
                 table.find("tbody > tr").each(function(i, e) {
                   jQuery(e).find("th").first().prepend("<i class='bcdExpand'></i>");
