@@ -97,7 +97,7 @@ eclipse {
     // BCD-UI-Theme
     if( isProp('bcdui.inject.Theme') ) {
       def injectTheme = getProperty('bcdui.ThemeName')
-      linkedResource name: 'bcdui_inject/theme', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Theme/build/themes/' + injectTheme + "/$webAppDirName/bcdui/theme"
+      linkedResource name: 'bcdui_inject/theme', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Theme/build/themes/' + injectTheme + "/WebContent/bcdui/theme"
     }
 
     // BCD-UI-EE

@@ -627,6 +627,14 @@
       </element>
 
     </sequence>
+    <attribute name="paramSetId" type="string" use="optional">
+      <annotation><documentation>
+        Optional. Per default the stylesheet finds its parameter in the paramModel by element name.
+        For example [orderCols.xslt] will use the [OrderCols] element.
+        Use this attribute if multiple [OrderCols] steps share the same paramModel, which then contains multiple [OrderCols] elements.
+        If [OrderCols] has an attribute paramSetId, it must match the optional paramSetId parameter of the stylesheet.
+      </documentation></annotation>
+    </attribute>
   </complexType>
 
   <!-- RemoveEmptyCells param Type -->

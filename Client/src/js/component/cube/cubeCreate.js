@@ -326,9 +326,9 @@ bcdui.util.namespace("bcdui.component",
    * @param {Object} args - The parameter map contains the following properties:
    * @param {string}                  args.id                                                     - Id of the created object
    * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix.
-   * @param {xpath}                   [args.targetModelXPath=$guiStatus/guiStatus:Status/cube:Layout]  - Where to write the result
-   * @param {string}                  [args.config=./dimensionsAndMeasures.xml]                   - Model containing the configuration for the cube configurator
-   * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Id of the cube we belong to or cube instance
+   * @param {writableModelXPath}      [args.targetModelXPath=$guiStatus/guiStatus:Status/cube:Layout]  - Where to write the result
+   * @param {string|bcdui.core.DataProvider}  [args.config=./dimensionsAndMeasures.xml]           - DataProvider containing the configuration for the cube configurator, per defaulz ./dimensionsAndMeasures.xml is loaded
+   * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Cube we belong to
    * @param {boolean}                 [args.isRanking=false]                                      - Show ranking editor. This is an Enterprise Edition only feature.
    * @param {boolean}                 [args.isTemplate=false]                                     - Show template Editor true/false. This is an Enterprise Edition only feature.
    * @param {boolean}                 [args.showSummary=false]                                    - Show summary of cube settings

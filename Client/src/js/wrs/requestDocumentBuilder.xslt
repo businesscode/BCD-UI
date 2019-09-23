@@ -203,7 +203,7 @@
                       </xsl:with-param>
                     </xsl:call-template>
                   </xsl:attribute>
-				  <xsl:if test="substring($col, string-length($col) - string-length('-') + 1) = '-'">
+				          <xsl:if test="substring($col, string-length($col) - string-length('-') + 1) = '-'">
                     <xsl:attribute name="order">desc</xsl:attribute>
                   </xsl:if>
                 </xsl:when>

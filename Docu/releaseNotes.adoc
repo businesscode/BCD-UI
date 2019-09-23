@@ -17,12 +17,14 @@ Some changes are backward incompatible and may require code change in the projec
 * updated to jQuery 3.4.1, jQuery-UI 1.12.1
 
 . Components: Scorecard, Cube, Charts, Export, Grid, Tree
-* added Grid Component
-* added Tree Component
-* added collapse/expand functionaly to cubes
-* reorganized CubeContextMenu and added hard toggle column sort
+* Added Grid Component
+* Added Tree Component
+* Added collapse/expand functionaly to cubes
+* Reorganized CubeContextMenu and added hard toggle column sort
 * Charts support for dark themes
 * Charts removed some chart background grid elements for less crowded charts
+* Charts add support for echarts when loading bcduiChart2, image export and some chart types are limitted
+* Add support for radar chart when using it
 * Renderer doesn't need an existing targetHtml nor defining one at all on creation. Member function setTargetHtml can be used to set and change target.
 The Renderer either works directly with the specified element or (in case of specified via id) does an element lookup by id.
 * Excel Report export moved to client side using FileSaver.js
@@ -230,7 +232,7 @@ Major new features:
 * New extension points renderHeaderColumnToken and createHeaderRow in htmlHeaderBuilder to customize add specific renderer to a header
 * bcdui.config.clientRights object holds "bcdClient" security settings as array
 * New bnd:WrqModifiers element for BindingSets allowing last-menu server-only WrsRequest modifications, for example to add or modify a f:Filter to fit table partitioning.
-* wrsUtils do now accept DataPovider instead of DOM
+* wrsUtils do now accept DataProvider instead of DOM
 
 . Security / Bindings / WebRowSet
 * SubjectFilter in a BindingSet/SubjectSettings/SubjectFilters can be nested within And, Or elements. Top level default connective is AND.

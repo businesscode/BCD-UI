@@ -16,6 +16,8 @@
 -->
 <!--
   Sample context xml for tomcat
+  - for 8.5 and default data source see https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html
+  - for 8.5 and org.apache.tomcat.jdbc.pool.DataSourceFactory see https://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html
 -->
 <Context seeAttributesBelow="">
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
@@ -30,36 +32,40 @@
    <!-- IIS has a limit also for http request URLs, i.e. data requests, set this flag to true to compress all data request -->
   <Environment name="bcdui/serverHasRequestUrlLimit" type="java.lang.Boolean" value="false"/>
 
-  <!-- Some sample DB connections. Replace all values with XX in their name -->
+  <!-- Some sample DB connections. Replace all values with XX in their name
+    Some options are mentioned with different names to fit to Tomcat 7 and 8 and to BasicDataSource and org.apache.tomcat.jdbc.pool.DataSourceFactory -->
 
   <!-- Sample for Oracle
-  <Resource name="jdbc/connectionXX"
+  <Resource name="jdbc/connectionOracle"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="200"
+    maxActive="15" maxTotal="15"
     maxIdle ="-1"
-    maxWait="200"
+    maxWait="15000" maxWaitMillis="15000"
     logAbandoned="true"
-    removeAbandoned="true"
-    validationQuery="select sysdate from dual"
+    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    validationQuery="select 1 from dual"
     testOnBorrow="true"
     driverClassName="oracle.jdbc.OracleDriver"
     connectionProperties="defaultRowPrefetch=100;"
-    initConnectionSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
+    initSQL="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
+    connectionInitSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
     url="jdbc:oracle:thin:@serverXX:1521:dbInstanceXX"
     username="XX"
     password="XX" />
   -->
 
   <!-- Sample for MSSqlServer
-  <Resource name="jdbc/connectionXX"
+  <Resource name="jdbc/connectionMSSqlserver"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="10"
+    maxActive="15" maxTotal="15"
     maxIdle ="5"
-    maxWait="15000"
+    maxWait="15000" maxWaitMillis="15000"
     logAbandoned="true"
-    removeAbandoned="true"
+    removeAbandoned="true" removeAbandonedOnBorrow="true"
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="net.sourceforge.jtds.jdbc.Driver"
@@ -69,12 +75,16 @@
   -->
 
   <!-- Sample for PostgreSQL
-  <Resource name="jdbc/bcduitestpostgres"
+  <Resource name="jdbc/connectionPostgres"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="10"
+    maxActive="15" maxTotal="15"
     maxIdle ="5"
-    maxWait="15000"
+    maxWait="15000" maxWaitMillis="15000"
+    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    validationQuery="select 1"
+    testOnBorrow="true"
     driverClassName="org.postgresql.Driver"
     url="jdbc:postgresql://postgresserver:5432/dbNameXX"
     username="XX"
@@ -84,12 +94,16 @@
   <!-- Sample for MySql
      Not fully supported, for example no col-totals in cube due to missing grouping sets
      and no partitioning (row-from-to reading) due to missing ranking functionality
-  <Resource name="jdbc/connectionXX"
+  <Resource name="jdbc/connectionMySql"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="10"
+    maxActive="15" maxTotal="15"
     maxIdle ="5"
-    maxWait="15000"
+    maxWait="15000" maxWaitMillis="15000"
+    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    validationQuery="select 1"
+    testOnBorrow="true"
     driverClassName="com.mysql.jdbc.Driver"
     url="jdbc:mysql://serverXX:3306/dbnameXX?sessionVariables=sql_mode='NO_BACKSLASH_ESCAPES,ANSI'"
     username="XX"
