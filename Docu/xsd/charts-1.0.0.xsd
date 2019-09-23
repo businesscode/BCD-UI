@@ -222,7 +222,7 @@
   <!-- ===================================================================== -->
   <xs:simpleType name="chartType">
     <xs:annotation>
-      <xs:documentation>well-known chart types</xs:documentation>
+      <xs:documentation>Well-known chart types. 'radar' is only available by bcdChart2</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="LINECHART"/>
@@ -235,6 +235,7 @@
       <xs:enumeration value="MARIMEKKOCHART"/>
       <xs:enumeration value="GAUGECHART"/>
       <xs:enumeration value="SUNBURSTCHART"/>
+      <xs:enumeration value="RADARCHART"/>
     </xs:restriction>
   </xs:simpleType>
 

@@ -292,6 +292,21 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
       }
 
+      // Special handling radar chart
+      // radar series are treated as one series with multiple data arrays by echarts, this also influences the tooltip
+      else if( chartType==="RADARCHART" ) {
+        if( typeof opts.radar == "undefined" || typeof opts.radar.indicator == "undefined" ) {
+          opts.radar = opts.radar || {};
+          opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: "abc "+v}));
+        }
+        let seriesData = {value: nodes.map( (n, idx) => { return n } ), name: series.name};
+        opts.series[0] = opts.series[0] || { type: "radar", data: [], bcdAttrs: { unit: series.unit } };
+        opts.series[0].data.push( seriesData );
+        opts.xAxis = null;
+        opts.yAxis = null;
+      }
+
+
       // All other known chart types
       else {
         series.data = nodes.map( function(n) { return {value: n} } );
@@ -326,12 +341,16 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     // Tooltip
     // Several enhancements in terms of number formatting and including support for original values in case of stacked-as-percent charts
     opts.tooltip.formatter = function (paramsIn, ticket, callback) {
-      let params = Array.isArray(paramsIn) ? paramsIn : [paramsIn];
+      var params = Array.isArray(paramsIn) ? paramsIn : [paramsIn];
+      var seriesName = params[0].name;
+      if( paramsIn.seriesType === "radar" ) {
+        params = paramsIn.data.value.map((v,i)=>({value: v, seriesName: opts.radar.indicator[i].name, data: {}}));
+      }
       var res = "<table>";
-      if( params[0].name )
-        res += "<tr><th colspan='100' style='text-align:center'>- " + params[0].name + " -</th></tr>";
+      if( seriesName )
+        res += "<tr><th colspan='100' style='text-align:center'>- " + seriesName + " -</th></tr>";
       for (var s = 0; s <params.length; s++) {
-        let unit = opts.series[params[s].seriesIndex].bcdAttrs.unit;
+        let unit = paramsIn.seriesType === "radar" ? opts.series[0].bcdAttrs.unit : opts.series[params[s].seriesIndex].bcdAttrs.unit;
         res += "<tr><td><span style='font-size: 250%; vertical-align: text-bottom; color:"+(params[s].color)+"'>&#x2022;</span>" + params[s].seriesName + "</td>";
         let values = Array.isArray(params[s].value) ? params[s].value : [params[s].value];
         for( var v=0; v< values.length; v++ ) {
