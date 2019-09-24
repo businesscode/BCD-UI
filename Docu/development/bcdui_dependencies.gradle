@@ -46,10 +46,7 @@ dependencies {
   implementation ('commons-lang:commons-lang:2.6') { transitive = false }
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
-  implementation ('javax.xml.bind:jaxb-api:2.3.1') { transitive = false }
-  implementation ('javax.xml.bind:activation:1.0.2') { transitive = false }
-  implementation ('javax.xml.soap:javax.xml.soap-api:1.4.0') { transitive = false }
-  implementation ('jstl:jstl:1.1.0') { transitive = false }
+  implementation ('javax.servlet:jstl:1.2') { transitive = false }
   implementation ('log4j:log4j:1.2.17') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
   implementation ('net.sf.opencsv:opencsv:2.3') { transitive = false }
@@ -61,6 +58,12 @@ dependencies {
   implementation ('org.apache.xmlbeans:xmlbeans:2.6.0') { transitive = false }
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
   implementation ('com.google.code.gson:gson:2.8.5') { transitive = false }
+  // These moved from Java to Java EE with Java 11:
+  if(JavaVersion.current() >= JavaVersion.VERSION_11) {
+    implementation('javax.xml.bind:jaxb-api:2.3.1') { transitive = false }
+    implementation('javax.xml.bind:activation:1.0.2') { transitive = false }
+    implementation('javax.xml.soap:javax.xml.soap-api:1.4.0') { transitive = false }
+  }
 
   // Additionally needed only during runtime
   runtime ('commons-beanutils:commons-beanutils:1.9.3') { transitive = false }
