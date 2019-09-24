@@ -16,16 +16,22 @@
 
 /*--------------------------------------------
  * Gradle file building Eclipse .project
- * To use
- * 1. Copy this file as build.gradle to your project
- *  - Ajust webAppDirName if necessary
- *  - Add any dependencies beside BCDUI to "dependencies { ... }"
- * 2. Copy bcdui_dependencies.gradle found here to your project
- * 3. Do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
- *  - Add .gitignore found here to your project
- * 4. Commit bcd-ui-core|theme*.jar in into WEB-INF/lib
- * 5. Import project into Eclipse as gradle project
- * 6. Run gradle task "IDE->Eclipse" and refresh project
+ * 1.  Create an "Dynamic Web Project"
+ *   - Eclipse recommends to keep git projects outside of wokspace, so create your project maybe next to it
+ * 2a. Copy this file and bcdui_dependencies.gradle into your front-end project root
+ *   - Rename this file to build.gradle
+ * 2b. Copy .gitignore found here to your project root
+ *    - Later, do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
+ * 2c. Cooy gradle-wrapper.properties into /gradle/wrapper/
+ * 2d. Copy context.xml and web.xml from Server/configFiles/ into your project
+ * 2e. Copy bcd-ui-core|theme*.jar in into WEB-INF/lib/
+ * 2f. Copy log4j.properties to src/main/resources/
+ *    - Also create src/main/java/, this will be your source folder
+ * 3. Import the project into Eclipse as "Existing Gradle Project"
+ *    - Then run "Gradle->Refresh Gradle Project" from context menu and refresh "Gradle Task" view
+ * 8. Run gradle task "wrapper" and refresh project with F5
+ * --
+ * 10. If you later add more libs, for example the database driver, to WEB-INF/lib, always run "Gradle->Refresh Gradle Project"
  ------------------------------------------------*/
 
 apply plugin: 'war'

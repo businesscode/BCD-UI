@@ -19,7 +19,7 @@
  * To use
  * 1. Make sure BCD-UI is checked next to your project
  * 2. Copy bcdui_project_template_build.gradle found here to your project and read its instructions
- * 3. Add "apply from: '../../BCD-UI/Docu/development/bcdui_injected.gradle'" after apply 'bcdui_dependencies.gradle'
+ * 3. Insert "apply from: '../../BCD-UI/Docu/development/bcdui_injected.gradle'" after apply 'bcdui_dependencies.gradle'
  * 4. Make these settings in gradle.properties
       bcdui.inject.Ce     = true
       bcdui.inject.Ee     = false
@@ -137,7 +137,7 @@ eclipse {
 
         // Cleanup result from previous setting
         delete file("$webAppDirName/WEB-INF/classes")
-        mkdir file("$webAppDirName/WEB-INF/classes")
+        file("$webAppDirName/WEB-INF/classes").mkdirs()
         delete file("$webAppDirName/WEB-INF/tags/bcdui")
         delete file("$webAppDirName/bcdui/js")
         delete file("$webAppDirName/bcdui/xslt")
