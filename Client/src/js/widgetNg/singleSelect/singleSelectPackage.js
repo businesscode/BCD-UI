@@ -340,12 +340,12 @@
             // enable first option when doAutoSelectSolelyOption is enabled (only if you also got only one option at all)
             // or in case of no placeholder use, then the first item is used directly and we need to make sure the value is written to the target initially
             if (
-                (widgetInstance.options.doAutoSelectSolelyOption && options.length == 2)
+                (widgetInstance.options.doAutoSelectSolelyOption && options.length == 2 && widgetInstance.options.placeholder)
                 ||
                 (! widgetInstance.options.placeholder && options.length > 0)
                 ) { 
 
-              var solelyValue = options[0].getAttribute("value");
+              var solelyValue = options[widgetInstance.options.placeholder ? 1 : 0].getAttribute("value");
               // escape stack
               setTimeout( widgetInstance._syncWrite.bind(undefined,el, solelyValue) );
             }
