@@ -37,6 +37,7 @@ def genSrcOutputDir = "$buildDir/gensrc"
 // $genSrcOutputDir/js:          XSLT-api, XAPI and js argument validators _schema_xx_args
 // $genSrcOutputDir/taglib/tags: JSP Tag files
 task bcduiGensrcJsXsltXapiJspTagApis {
+  onlyIf { !inputs.files.files.empty }
   def taskTempDirName = "$buildDir/tmp/$name"
 
   // For up-to-date check
@@ -114,6 +115,7 @@ task bcduiGensrcCustomElements ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' 
 // $genSrcOutputDir/taglib/META-INF:     tlds for usage in a bcdui.jar
 // $genSrcOutputDir/taglib/WEB-INF:      tlds for usage when BCD-UI "exploded" into a project
 task bcduiGensrcTld {
+  onlyIf { !inputs.files.files.empty }
 
   // We need the tags as input
   dependsOn bcduiGensrcJsXsltXapiJspTagApis
