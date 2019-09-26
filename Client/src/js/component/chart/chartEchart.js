@@ -212,7 +212,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       series.bcdAttrs.unit = unit; // echarts does not know the concept of units
       let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType");
 
-      // If we detect BARCHARTHORIZONTAL, we make some adjustments to the axis, but treet it as BARCHART otherwise
+      // If we detect BARCHARTHORIZONTAL, we make some adjustments to the axis, but treat it as BARCHART otherwise
       if(chartType == "BARCHARTHORIZONTAL") {
         chartType = "BARCHART";
         opts.yAxis[0].data = xCategories;
@@ -295,21 +295,81 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       // Special handling radar chart
       // radar series are treated as one series with multiple data arrays by echarts, this also influences the tooltip
       else if( chartType==="RADARCHART" ) {
+        let seriesData = {value: nodes.map( (n, idx) => { return n } ), name: series.name};
+        let max = seriesData.value.reduce((a,v)=>Math.max(a,v),0) * 1.15;
         if( typeof opts.radar == "undefined" || typeof opts.radar.indicator == "undefined" ) {
           opts.radar = opts.radar || {};
-          opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: ""+v}));
+          opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: ""+v, max: max}));
+        } else if( !!opts.radar.indicator && max > opts.radar.indicator[0].max ) {
+          for( var i = 0; i < opts.radar.indicator.length; i++ ) opts.radar.indicator[i].max = max; 
         }
-        let seriesData = {value: nodes.map( (n, idx) => { return n } ), name: series.name};
         opts.series[0] = opts.series[0] || { type: "radar", data: [], bcdAttrs: { unit: series.unit } };
         opts.series[0].data.push( seriesData );
         opts.xAxis = null;
         opts.yAxis = null;
       }
 
+      // For a waterfall bar chart, we simulate that with 3 stacked BARCHRT series
+      else if( chartType==="BARCHART" && this.config.query("/*/chart:Series/chart:Series["+s+"]/chart:BarWaterfall") ) {
+        let seriesData = nodes.map( function(n) { return {value: n} } );
+        series.stack = "stacked";
+        let bottom = [0];
+        // Create the three series, that define the layout
+        // bottomSeries defines the bottom (how high the bar starts) and is invisible
+        // upSeries represents all values >= 0 and is only visible for positive values
+        // downSeries represents all values < 0 and is only visible for negative values
+        let bottomSeries = JSON.parse(JSON.stringify(series));
+        let upSeries = JSON.parse(JSON.stringify(series));
+        let downSeries = JSON.parse(JSON.stringify(series));
+        bottomSeries.data = [{value: 0, bcdTooltipSkip: true}];
+        bottomSeries.itemStyle = { color: "rgb(0,0,0,0)" };
+        upSeries.data = [{value: seriesData[0].value}];
+        upSeries.itemStyle = { color: seriesColor };
+        upSeries.label = { normal: { show: true, position: 'top'} };
+        downSeries.data   = [{value: '-', bcdTooltipSkip: true}];
+        let downColor = this.config.read("/*/chart:Series/chart:Series["+s+"]/chart:BarWaterfall/@downRgb");
+        downSeries.itemStyle = { color: downColor || "rgb(200,0,0,255)" };
+        downSeries.label = { normal: { show: true, position: 'bottom'} };
+        var max = seriesData[0].value;
+        let seriesUnit = opts.yAxis[0].bcdUnit;
+        
+        // For each value in our series, set the corresponding value in the three virual ones
+        for(var i=1; i<seriesData.length; i++) {
+          bottom.push( bottom[i-1] + seriesData[i-1].value );
+          if( seriesData[i].value >= 0 ) {
+            bottomSeries.data.push( {value: bottom[i], bcdTooltipSkip: true } );
+            upSeries.data.push({value: seriesData[i].value, bcdLabelValues: [getNumFormatter(3,seriesUnit)(seriesData[i].value), getNumFormatter(3,seriesUnit)(bottom[i] + seriesData[i].value)]});
+            downSeries.data.push( {value: '-', bcdTooltipSkip: true } );
+            max = Math.max(max, bottom[i] + upSeries.data[i].value );
+          } else {
+            // If we have a negative value, we need to draw it as a positive one because otherwise it would be shown doen the x-axis.
+            // But we make sure the negative one is shown in the tooltip
+            bottomSeries.data.push( {value: bottom[i] + seriesData[i].value, bcdTooltipSkip:true } );
+            upSeries.data.push( {value: '-', bcdTooltipSkip: true } );
+            downSeries.data.push({value: -seriesData[i].value, bcdLabelValues: [getNumFormatter(3,seriesUnit)(seriesData[i].value), getNumFormatter(3,seriesUnit)(bottom[i] + seriesData[i].value)]});
+            max = Math.max(max, bottom[i] );
+          }
+        }
+
+        // maybe th user wants to add a "total" bar with the result at the end
+        if( this.config.read("/*/chart:Series/chart:Series["+s+"]/chart:BarWaterfall/@showTotal") === "true" ) {
+          bottomSeries.data.push( {value: 0, bcdTooltipSkip:true } );
+          upSeries.data.push({value: bottom[i-1] + seriesData[i-1].value, bcdLabelValues: [getNumFormatter(3,seriesUnit)(seriesData[i-1].value), getNumFormatter(3,seriesUnit)(bottom[i-1] + seriesData[i-1].value)]});
+          downSeries.data.push( {value: '-', bcdTooltipSkip: true } );
+          opts.xAxis.data.push(bcdui.i18n.syncTranslateFormatMessage("bcd_Total"));
+        }
+
+        // Adjust the y axis height and add the 3 series
+        opts.yAxis[0].max = max * 1.1;
+        opts.series.push(bottomSeries);
+        opts.series.push(upSeries);
+        opts.series.push(downSeries);
+      }
 
       // All other known chart types
       else {
         series.data = nodes.map( function(n) { return {value: n} } );
+        
         opts.series.push(series);
 
         // Some special styling
@@ -350,6 +410,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       if( seriesName )
         res += "<tr><th colspan='100' style='text-align:center'>- " + seriesName + " -</th></tr>";
       for (var s = 0; s <params.length; s++) {
+        if( !!params[s].data.bcdTooltipSkip ) continue;
         let unit = paramsIn.seriesType === "radar" ? opts.series[0].bcdAttrs.unit : opts.series[params[s].seriesIndex].bcdAttrs.unit;
         res += "<tr><td><span style='font-size: 250%; vertical-align: text-bottom; color:"+(params[s].color)+"'>&#x2022;</span>" + params[s].seriesName + "</td>";
         let values = Array.isArray(params[s].value) ? params[s].value : [params[s].value];
@@ -360,7 +421,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             res += "<td style='text-align: right'>" + getNumFormatter(3, '')(params[s].percent) + "%</td>";
           }
           res += "<td>&nbsp;</td>";
-          res += "<td style='text-align: right'>" + getNumFormatter(3, thisUnit)(values[v]) + "</td>";
+          if( params[s].data.bcdLabelValues ) {
+            for( var lv = 0; lv < params[s].data.bcdLabelValues.length; lv++ ) {
+              res += "<td style='text-align: right'>" + params[s].data.bcdLabelValues[lv] + "</td>";
+              res += "<td>&nbsp;</td>";
+            }
+          } else {
+            res += "<td style='text-align: right'>" + getNumFormatter(3, thisUnit)(values[v]) + "</td>";
+          }
           if( params[s].data.bcdOrig ) {
             res += "<td>&nbsp;</td>";
             res += "<td style='text-align: right'>" + params[s].data.bcdOrig + "</td>";

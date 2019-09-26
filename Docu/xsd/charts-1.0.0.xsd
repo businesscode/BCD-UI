@@ -85,7 +85,7 @@
         <xs:documentation>Title shown at the top of the chart</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="showLegend" use="optional" default="">
+    <xs:attribute name="showLegend" use="optional">
       <xs:annotation>
         <xs:documentation>Position of where to show legend, if not set, no legend is shown.</xs:documentation>
       </xs:annotation>
@@ -262,6 +262,23 @@
     <xs:sequence maxOccurs="unbounded" minOccurs="1">
       <xs:element name="YData" type="tns:YData"></xs:element>
       <xs:element name="Colors" type="tns:Colors" minOccurs="0"></xs:element>
+      <xs:element name="BarWaterfall" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>If the series is a BARCHART, turn it into a waterfall bar chart.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="downRgb" type="tns:colorValue">
+            <xs:annotation>
+              <xs:documentation>Color of bars with negative values. The ones with positive values get the normal series color.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="showTotal" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Add an artificial category 'Total' at the end.</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
 
     <xs:attribute name="id" type="xs:ID">
