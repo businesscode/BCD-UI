@@ -406,7 +406,7 @@ public class DatabaseCompatibility
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",
             "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "ISOYEAR", "QUARTER", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
-            "FLOAT", "REAL", "DECIMAL",
+            "FLOAT", "REAL", "DECIMAL", "NUMERIC",
             "EXTRACT", "FROM",
             "CHAR", "CHARACTER", "NVARCHAR2", "NCHAR", "VARCHAR2", "VARCHAR",
             "NUMBER", "LONG", "INTEGER", "SMALLINT", "INT",
