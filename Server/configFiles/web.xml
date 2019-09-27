@@ -106,6 +106,9 @@
         # you can omit /bcdui/js/**, if you load ./bcdui/bcdui.js?bcduiConfigOnly=true on login page
         /bcdui/js/**          = anon
         /bcdui/theme/**       = anon
+        /bcdui/servlets/I18nServlet/**              = anon
+        /bcdui/servletsCached/I18nServlet/**        = anon
+        /bcdui/servletsSessionCached/I18nServlet/** = anon
         /favicon.ico          = anon
 
         # protected
