@@ -126,8 +126,8 @@
         <xsl:if test="$locationCheck != ''">
           <xsl:choose>
             <xsl:when test="$bcdPageIdParam != ''">
-              <xsl:if test="starts-with($node/@href, $locationCheck) and contains($node/@href, $bcdPageIdParam)"> bcdActive</xsl:if>
-              <xsl:if test="$node//*[starts-with(@href, $locationCheck) and contains(@href, $bcdPageIdParam)]"> bcdActivePath</xsl:if>
+              <xsl:if test="contains($node/@href, $locationCheck) and contains($node/@href, $bcdPageIdParam)"> bcdActive</xsl:if>
+              <xsl:if test="$node//*[contains(@href, $locationCheck) and contains(@href, $bcdPageIdParam)]"> bcdActivePath</xsl:if>
             </xsl:when>
             <xsl:otherwise>
               <xsl:if test="starts-with($node/@href, $locationCheck)"> bcdActive</xsl:if>
