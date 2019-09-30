@@ -97,7 +97,7 @@
       <!-- Context menu -->
       <R id="R40"><C>bcd_ctxEdit_Copy</C><C>Copy content</C><C>en</C></R>
 
-      <R id="R50"><C>bcd_EmptyChart</C><C>Please note, no data is found for the current settings.</C><C>en</C></R>
+      <R id="R50"><C>bcd_EmptyChart</C><C>No data was found for the current settings.</C><C>en</C></R>
 
       <!-- i18n editor -->
       <R id="R60"><C>bcd_I18nTm_pageTitle</C><C>Translation Management</C><C>en</C></R>
@@ -258,6 +258,6 @@
       <!-- Tree -->
       <R id="R310"><C>bcd_Tree_ActionsGlobalHdr</C><C>General Options</C><C>en</C></R>
       <R id="R311"><C>bcd_Tree_Export</C><C>Tree export</C><C>en</C></R>
-      
+
     </Data>
 </Wrs>

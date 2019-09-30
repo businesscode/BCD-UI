@@ -294,7 +294,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
       // Special handling radar chart
       // radar series are treated as one series with multiple data arrays by echarts, this also influences the tooltip
-      else if( chartType==="RADARCHART" ) {
+      else if( chartType==="RADARCHART" && nodes.length > 0 ) {
         let seriesData = {value: nodes.map( (n, idx) => { return n } ), name: series.name};
         let max = seriesData.value.reduce((a,v)=>Math.max(a,v),0) * 1.15;
         if( typeof opts.radar == "undefined" || typeof opts.radar.indicator == "undefined" ) {
@@ -310,7 +310,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
 
       // For a waterfall bar chart, we simulate that with 3 stacked BARCHRT series
-      else if( chartType==="BARCHART" && this.config.query("/*/chart:Series/chart:Series["+s+"]/chart:BarWaterfall") ) {
+      else if( chartType==="BARCHART" && this.config.query("/*/chart:Series/chart:Series["+s+"]/chart:BarWaterfall")  && nodes.length > 0 ) {
         let seriesData = nodes.map( function(n) { return {value: n} } );
         series.stack = "stacked";
         let bottom = [0];
@@ -518,7 +518,18 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     opts = merge(opts, this.userOptions);
     
     // Go
-    myChart.setOption(opts, true);
+    var foundData = false;
+    for( var s = 0; !foundData && s < opts.series.length; s++ ) {
+      if( opts.series[s].data.length > 0 )
+        foundData = true;
+    }
+    if( foundData ) {
+      myChart.setOption(opts, true);
+    }
+    else {
+      let msg = bcdui.i18n.syncTranslateFormatMessage("bcd_EmptyChart");
+      jQuery("#"+this.targetHtml).html("<div>"+opts.title.text+"</div><div style='margin-top:0.75em;font-size:0.75em'>"+msg+"</div>");
+    }
   }
 
   /**
