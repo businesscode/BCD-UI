@@ -29,9 +29,9 @@
  *    - Also create src/main/java/, this will be your source folder
  * 3. Import the project into Eclipse as "Existing Gradle Project"
  *    - Then run "Gradle->Refresh Gradle Project" from context menu and refresh "Gradle Task" view
- * 8. Run gradle task "wrapper" and refresh project with F5
+ * 4. Run gradle task "wrapper" and refresh project with F5
  * --
- * 10. If you later add more libs always run "Gradle->Refresh Gradle Project"
+ * 5. If you later add more libs always run "Gradle->Refresh Gradle Project"
  ------------------------------------------------*/
 
 apply plugin: 'war'
@@ -40,6 +40,10 @@ apply plugin: 'eclipse'
 // webApp folder in Eclipse is usually WebContent
 // To work with a Tomcat started from Eclipse, we put all java .class files where they would be in a normal web app
 webAppDirName = 'WebContent'
+
+// If you are working with maybe JDK 13 but have a 1.8 runtime target, enable this
+//sourceCompatibility = 1.8
+//targetCompatibility = 1.8
 
 // We collect all classes in WEB-INF/classes
 sourceSets.main.java.outputDir      = file("$webAppDirName/WEB-INF/classes")
@@ -55,7 +59,7 @@ dependencies {
   }
 
   // Local files from WEB-INF/lib
-  // Commit bcd-ui-core|theme*.jar, into WEB-INF/lib, and database driver 
+  // Commit bcd-ui-core|theme*.jar and the database driver into WEB-INF/lib
   implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
 
   // If necessary, any additional project dependencies like this
