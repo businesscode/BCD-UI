@@ -45,11 +45,6 @@ def isProp(name) {
   return hasProperty(name) && getProperty(name) == "true"
 }
 
-// Files compiled from injected sources go to webAppDirName/WEB-INF/classes
-dependencies {
-  implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
-  implementation files("$webAppDirName/WEB-INF/classes")
-}
 
 //------------------------------------------------------------
 // Eclipse .classpath and .project file

@@ -70,12 +70,6 @@ dependencies {
   runtime ('org.slf4j:slf4j-api:1.7.25') { transitive = false }
   runtime ('org.slf4j:slf4j-log4j12:1.7.25') { transitive = false }
 
-  // Add database drivers as you need them to you local WEB-INF/lib/ folder or elsewhere
-  //(runtime files("$webAppDirName/WEB-INF/lib/sqljdbc42.jar")) { transitive = false }
-  //(runtime files("$webAppDirName/WEB-INF/lib/ojdbc6_g.jar")) { transitive = false }
-  //(runtime files("$webAppDirName/WEB-INF/lib/postgresql-42.2.2.jar")) { transitive = false }
-  //(runtime files("$webAppDirName/WEB-INF/lib/terajdbc4.jar")) { transitive = false }
-
   // Provided during runtime by servlet container
   compileOnly ('javax.el:javax.el-api:2.2.5') { transitive = false }
   compileOnly ('javax.servlet.jsp:jsp-api:2.2') { transitive = false }

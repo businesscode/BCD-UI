@@ -22,16 +22,16 @@
  *   - Rename this file to build.gradle
  * 2b. Copy .gitignore found here to your project root
  *    - Later, do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
- * 2c. Cooy gradle-wrapper.properties into /gradle/wrapper/
+ * 2c. Copy gradle-wrapper.properties into /gradle/wrapper/
  * 2d. Copy context.xml and web.xml from Server/configFiles/ into your project
- * 2e. Copy bcd-ui-core|theme*.jar in into WEB-INF/lib/
+ * 2e. Copy bcd-ui-core|theme*.jar and the database driver in into WEB-INF/lib/
  * 2f. Copy log4j.properties to src/main/resources/
  *    - Also create src/main/java/, this will be your source folder
  * 3. Import the project into Eclipse as "Existing Gradle Project"
  *    - Then run "Gradle->Refresh Gradle Project" from context menu and refresh "Gradle Task" view
  * 8. Run gradle task "wrapper" and refresh project with F5
  * --
- * 10. If you later add more libs, for example the database driver, to WEB-INF/lib, always run "Gradle->Refresh Gradle Project"
+ * 10. If you later add more libs always run "Gradle->Refresh Gradle Project"
  ------------------------------------------------*/
 
 apply plugin: 'war'
@@ -54,13 +54,18 @@ dependencies {
     mavenCentral()
   }
 
-  // Local files from WEB-INF/lib and WEB-INF/classes
-  // Commit bcd-ui-core|theme*.jar, into WEB-INF/lib
+  // Local files from WEB-INF/lib
+  // Commit bcd-ui-core|theme*.jar, into WEB-INF/lib, and database driver 
   implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
-  implementation files("$webAppDirName/WEB-INF/classes")
 
-  // Project dependencies, dependencies of BCD-UI are in bcdui_dependencies.gradle
+  // If necessary, any additional project dependencies like this
   // implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+}
+
+// We need WEB-INF/lib and WEB-INF/classes as compile dependencies
+// war task will add them that way and per default. So here we prevent to have them twice in the war file.
+war {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 // Workaround gradle >= 4.6 to produce classes into WEB-INF/classes
