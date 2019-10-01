@@ -18,13 +18,18 @@
   Sample context xml for tomcat
   - for 8.5 and default data source see https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html
   - for 8.5 and org.apache.tomcat.jdbc.pool.DataSourceFactory see https://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html
+  - Values in ${} need to be set. Either replace them with their values or set system properties to Tomcat's runtime like
+     -Dmyproj_bcdui_disableCache=false
+     -Dmyproj_db_url=SomeDbJdbcUrl
+     -Dmyproj_db_username=SomeUsername
+     -Dmyproj_db_password=SomePassword
 -->
 <Context seeAttributesBelow="">
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 
-  <!-- Disable cache means, configuration files keep being read every time  -->
-  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="false"/>
+  <!-- Disabling cache means: Client files and configuration files keep being read every time, true is usefull for development, false for production -->
+  <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="${myproj_bcdui_disableCache}"/>
 
   <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one is used -->
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
@@ -36,6 +41,7 @@
     Some options are mentioned with different names to fit to Tomcat 7 and 8 and to BasicDataSource and org.apache.tomcat.jdbc.pool.DataSourceFactory -->
 
   <!-- Sample for Oracle
+       -Dmyproj_db_url=jdbc:oracle:thin:@serverXX:1521:dbInstanceXX
   <Resource name="jdbc/connectionOracle"
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
@@ -51,12 +57,13 @@
     connectionProperties="defaultRowPrefetch=100;"
     initSQL="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
     connectionInitSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
-    url="jdbc:oracle:thin:@serverXX:1521:dbInstanceXX"
-    username="XX"
-    password="XX" />
+    url="${myproj_db_url}"
+    username="${myproj_db_username}"
+    password="${myproj_db_password}" />
   -->
 
-  <!-- Sample for MSSqlServer
+  <!-- Sample for MSSqlServer JDBC Driver 7
+       -Dmyproj_db_url=jdbc:sqlserver://sqlserverXX:1433;databaseName=dbNameXX
   <Resource name="jdbc/connectionMSSqlserver"
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
@@ -68,13 +75,14 @@
     removeAbandoned="true" removeAbandonedOnBorrow="true"
     validationQuery="select 1"
     testOnBorrow="true"
-    driverClassName="net.sourceforge.jtds.jdbc.Driver"
-    url="jdbc:jtds:sqlserver://serverXX:1433/dbnameXX"
-    username="XX"
-    password="XX" />
+    driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+    url="${myproj_db_url}"
+    username="${myproj_db_username}"
+    password="${myproj_db_password}" />
   -->
 
   <!-- Sample for PostgreSQL
+       -Dmyproj_db_url=jdbc:postgresql://postgresserver:5432/dbNameXX
   <Resource name="jdbc/connectionPostgres"
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
@@ -86,12 +94,13 @@
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://postgresserver:5432/dbNameXX"
-    username="XX"
-    password="XX" />
+    url="${myproj_db_url}"
+    username="${myproj_db_username}"
+    password="${myproj_db_password}" />
   -->
 
   <!-- Sample for MySql
+     -Dmyproj_db_url=jdbc:mysql://serverXX:3306/dbnameXX?sessionVariables=sql_mode='NO_BACKSLASH_ESCAPES,ANSI'
      Not fully supported, for example no col-totals in cube due to missing grouping sets
      and no partitioning (row-from-to reading) due to missing ranking functionality
   <Resource name="jdbc/connectionMySql"
@@ -105,9 +114,9 @@
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="com.mysql.jdbc.Driver"
-    url="jdbc:mysql://serverXX:3306/dbnameXX?sessionVariables=sql_mode='NO_BACKSLASH_ESCAPES,ANSI'"
-    username="XX"
-    password="XX" />
+    url="${myproj_db_url}"
+    username="${myproj_db_username}"
+    password="${myproj_db_password}" />
   -->
 
   <WatchedResource>WEB-INF/web.xml</WatchedResource>
