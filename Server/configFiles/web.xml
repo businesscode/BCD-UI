@@ -171,7 +171,8 @@
   </filter-mapping>
 
   <!--
-   Client-side caching for development, caching library content and cached servlet data only till midnight
+    Client-side caching
+    Per default until midnight. For development, set bcdui/disableCache=true in context.xml
     Expiry samples: ExpiresAbsTime 00:00:00 (every day midnight) / ExpiresAbsDow Sun-20 (every Sunday 20:00) / ExpiresRelDays 2 (always after 2 *24h)
     ExcludeUrls: Space separated 'starts-with' of the path like /bcdui/bcdui.js. End folders with a /: /myFolder/
     ExcludeExtensions: Space separated extensions ('ends-with') like .vfsxml.
@@ -201,30 +202,21 @@
   <filter-mapping>
     <filter-name>bcdui4.ClientCachingFilter</filter-name>
 
-    <!-- Because we need at least one child here -->
-    <url-pattern>/bcdui/dummycaching.none</url-pattern>
-
-    <!-- For production and project development environment, unless also developing for BCD-UI itself: -->
-    <!-- url-pattern>/bcdui/*</url-pattern -->
-
     <!-- For production environment:
-      Do not cache all /* unless we are sure that *.jsp can be cached and row-level security is not used,
-      always exclude /bcdui/servlets/ and /bcdui/bcdui.js -->
-    <!--
+      Do not cache all /* unless we are sure that *.jsp can be cached and row-level security is not used, always exclude /bcdui/servlets/ and /bcdui/bcdui.js (done above) -->
     <url-pattern>*.js</url-pattern>
     <url-pattern>*.xslt</url-pattern>
     <url-pattern>*.xml</url-pattern>
     <url-pattern>*.png</url-pattern>
     <url-pattern>*.jpg</url-pattern>
     <url-pattern>*.gif</url-pattern>
+    <url-pattern>*.svg</url-pattern>
     <url-pattern>*.css</url-pattern>
-    -->
+    <url-pattern>*.woff2</url-pattern>
+
     <!-- Cache only content, which is not user dependent (for example no row-level security) -->
-    <!--
-    <url-pattern>*.jsp</url-pattern>
     <url-pattern>/bcdui/servletsCached/*</url-pattern>
     <url-pattern>/bcdui/servletsSessionCached/*</url-pattern>
-    -->
   </filter-mapping>
 
   <!--
