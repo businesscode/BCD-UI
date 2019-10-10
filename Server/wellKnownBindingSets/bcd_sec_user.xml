@@ -26,6 +26,14 @@
       &#x2026; is a marker and considered as "do not change" by SecUserTableWriteCallback if used in password writing  -->
   <C id="password"      caption="Password"><Column>'&#x2026;'</Column></C>
   <C id="password_salt" caption="Password Salt"><Column>'&#x2026;'</Column></C>
+  
+  <!-- the user can access only his own records -->
+  <C id="bcd_userId"><Column>user_id</Column></C>
+  <SubjectSettings>
+    <SubjectFilters>
+      <SubjectFilter type="bcd_userId:userId"/>
+    </SubjectFilters>
+  </SubjectSettings>
 
   <WriteProcessing>
     <Callbacks>
