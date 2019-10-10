@@ -220,6 +220,9 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         if(salt != null && salt.trim().isEmpty()){
           salt = null;
         }
+        if(hashSalted && salt == null) {
+          throw new RuntimeException("salt required but missing.");
+        }
         result.add(salt);
         return result.toArray(new String[]{});
       } else {
