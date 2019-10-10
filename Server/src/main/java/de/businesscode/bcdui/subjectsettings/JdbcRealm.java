@@ -415,7 +415,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       }
     }
     String salted[]=generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
-    System.out.println(String.format("passwd hash:%s\nsalt:%s\n", salted[0], salted[1]));
+    System.out.println(String.format("hash-iterations:%s\npasswd hash:%s\nsalt:%s\n", DEFAULT_HASH_ITERATIONS, salted[0], salted[1]));
   }
 
   /**
