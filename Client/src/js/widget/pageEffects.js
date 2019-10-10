@@ -78,27 +78,25 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     }
 
     /*
-     * User name Widget on header
+     * attach User name Widget to well known 'bcd__header__crendetials-widget' element
      */
     if (args.userNameWidget) {
-  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true ){
-    	  jQuery('.bcd__header__upper').append(`
-          <div class="bcd__header__crendetials-widget">
-            <nav>
-              <ul>
-                <li>
-                  <a href="#" class="bcd__header_crendetials_toggle">
-                    <span class="initials">${bcdui.config.userName.charAt(0).toUpperCase()}</span>
-                    <span>${bcdui.config.userName}</span>
-                    <i class="fas fa-caret-down"></i>
-                  </a>
-                  <ul>
-                    <li><a href="${bcdui.config.contextPath}/logout">Logout</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
-          </div>
+  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true && jQuery(".bcd__header__crendetials-widget").length > 0 ){
+    	  jQuery('.bcd__header__crendetials-widget').append(`
+          <nav>
+            <ul>
+              <li>
+                <a href="#" class="bcd__header_crendetials_toggle">
+                  <span class="initials">${bcdui.config.userName.charAt(0).toUpperCase()}</span>
+                  <span>${bcdui.config.userName}</span>
+                  <i class="fas fa-caret-down"></i>
+                </a>
+                <ul>
+                  <li><a href="${bcdui.config.contextPath}/logout">Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
     	  `);
   	  }
     }
