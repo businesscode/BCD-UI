@@ -55,9 +55,9 @@ expressions
   ;
 
 e	: BREF OP VARNAME
-		{ $$ = "<f:Expression bRef='" + $1 + "' op='" + $2 + "' value='" + yy.resolveVariable($3) + "'/>";  }
+		{ $$ = "<f:Expression bRef='" + $1 + "' op='" + yy.escapeHtml($2) + "' value='" + yy.resolveVariable($3) + "'/>";  }
 	| BREF OP TEXT
-		{ var len=$3.length; $$ = "<f:Expression bRef='" + $1 + "' op='" + $2 + "' value='" + yy.escapeHtml($3.substring(1,len-1)) + "'/>";  }
+		{ var len=$3.length; $$ = "<f:Expression bRef='" + $1 + "' op='" + yy.escapeHtml($2) + "' value='" + yy.escapeHtml($3.substring(1,len-1)) + "'/>";  }
 	| NOT '(' e ')'
 		{ $$ = "<f:Not>"+ $3 +"</f:Not>"; }
 	| e 'AND' e
