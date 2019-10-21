@@ -459,6 +459,20 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           opts.series[s -1].stack = "stacked";
         }
       }
+
+      // fill up missing data for stacked bars
+      var maxData = 0;
+      opts.series.forEach(function(s) {
+        if (s.data.length > maxData)
+          maxData = s.data.length;
+      });
+      opts.series.forEach(function(s) {
+        for (var d = 0; d < maxData; d++) {
+          if (! s.data[d] || isNaN(s.data[d].value))
+            s.data[d] = {value: 0.0};
+        }
+      });
+
       // Maybe we want them to be stacked and turned into % of all values for a category
       if( this.config.read("/*/chart:Stacked/@asPercent") === 'true' ) {
         // Lets find the original unit of the stacked axis, later it will be %
