@@ -72,8 +72,38 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
      * Side bar toggle function
      */
     if (args.sidebarLeft) {
+
+      // collapse sidebar depending on PersistentSetting
+      var pinnedClass = bcdui.wkModels.guiStatus.read("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin", "0") == "1" ? " is-active bcd__sidebar-left-collaps-toggle--collapsed " : "";
+      if (pinnedClass == "") {
+        jQuery('.bcd__vertical-split').addClass('bcd__vertical-split--sidebar-collapsed');
+      }
+
+      // add hamburger animation
+      var finalClass = pinnedClass + "hamburger " + (jQuery('.bcd__sidebar-left').attr("hamburger-style") || "hamburger--spin");
+      jQuery('.bcd__sidebar-left-collaps-toggle-wrapper button i').replaceWith("<span class='hamburger-box'><span class='hamburger-inner'></span></span>");
+      jQuery('.bcd__sidebar-left-collaps-toggle-wrapper button').addClass(finalClass);
+
+      // show sidebar in case we hit it (but not when we enter via pin button
+      jQuery(".bcd__sidebar-left").on("mouseenter", function(event) {
+        if (jQuery(event.target).closest(".bcd__sidebar-left").lenght == 0 || jQuery(event.target).hasClass("bcd__sidebar-left") )
+          jQuery('.bcd__sidebar-left').addClass("hover");
+      });
+      // hide sidebar when we leave it
+      jQuery('.bcd__sidebar-left').on("mouseleave", function(event) { jQuery('.bcd__sidebar-left').removeClass("hover"); });
+
+      // click event
       jQuery('.bcd__sidebar-left-collaps-toggle').click(function() {
+        // toggle show/hide classes (hamburger and standard)
+        jQuery(this).toggleClass('is-active');
         jQuery('.bcd__vertical-split').toggleClass('bcd__vertical-split--sidebar-collapsed');
+
+        // remove hover class, too
+        if (jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed"))
+          jQuery('.bcd__sidebar-left').removeClass("hover");
+
+        // write new status 
+        bcdui.wkModels.guiStatus.write("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin", jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed") ? "0" : "1", true);
       });
     }
 

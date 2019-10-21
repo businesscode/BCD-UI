@@ -23,4 +23,16 @@ $fa-font-path:                    "../vendor/fontawesome-free-5.8.1-web/webfonts
 @import '_slider.scss';
 @import '_slider_time.scss';
 
+// animated hamburger support
+$hamburger-padding-x           : .195em .2em;
+$hamburger-padding-y           : .4em .195em;
+$hamburger-layer-width         : 1em;
+$hamburger-layer-height        : .25em;
+$hamburger-layer-spacing       : .18em;
+$hamburger-layer-color         : #6c757d;
+$hamburger-layer-border-radius : .15em;
+$hamburger-hover-opacity       : 1;
+@import "../vendor/hamburgers/hamburgers.scss";
+
+// widgets, components, etc
 @import "_styles.scss";

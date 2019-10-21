@@ -48,7 +48,7 @@
     transform:translateX(0em);
     width:$bcd_sidebar-width;
     z-index: $z-index-base + 1;
-    padding-right:2em;
+    padding-right:1.5em;
 
     .bcd__sidebar-left__inner {
       padding-top:1.3em;
@@ -91,7 +91,7 @@
   &__sidebar-left-collaps-toggle-wrapper {
     position: absolute;
     top: 1.1em;
-    right: 0.58em;
+    right: 0.1em;
     width: 1.5em;
     height: 3.6em;
     display: flex;
@@ -130,7 +130,7 @@
         .bcd__sidebar-left__inner {
           box-shadow: 3px 0 12px rgba(0, 0, 0, .2);
         }
-        &:hover {
+        &.hover {
           transform: translateX(0em);
         }
       }
