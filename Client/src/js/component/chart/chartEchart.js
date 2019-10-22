@@ -44,7 +44,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     args = jQuery.extend({parameters: {paramModel: args.config}}, args);
     super(args);
     this.config = args.config;
-    this.userOptions = args.options || {};
+    this.userOptions = jQuery.extend(true, {}, bcdui.component.chart.ChartEchart.OPTIONS, args.options);
   }
 
   /**
