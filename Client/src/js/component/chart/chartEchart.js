@@ -48,13 +48,32 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
   }
 
   /**
+   * creates a new instance bound to current targetHtml, any one-time inits are performed here.
+   * @private
+   */
+  _createInstance(){
+    const instance = echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
+
+    // bind event handling, here we may want to extend the params with more valuable information like direct data link
+    this.userOptions.on && Object.keys(this.userOptions.on).forEach(k => {
+      instance.on(k, params => {
+        this.userOptions.on[k](params);
+        params.event.event.preventDefault();
+        return false;
+      });
+    });
+
+    return instance;
+  }
+
+  /**
    * @private
    */
   _refresh()
   {
     // Update or brand new chart?
     let existInstance = echarts.getInstanceByDom( document.getElementById(this.targetHtml) );
-    let myChart = existInstance || echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
+    let myChart = existInstance || this._createInstance();
 
     if( this.config.read("/*/chart:Series/chart:Series[@chartType='SUNBURSTCHART']") === null )
       this._nonSunburst(myChart);
