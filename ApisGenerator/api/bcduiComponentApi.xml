@@ -369,6 +369,11 @@
             The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
           </Doc>
         </Param>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>
+            When setting this to true, dimensions and measures lists are sorted by caption.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="farModel" extends="dataProvider">

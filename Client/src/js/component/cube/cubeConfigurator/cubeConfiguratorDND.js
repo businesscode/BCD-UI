@@ -63,6 +63,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetHtml: "#" + args.targetHtml + " .bcdDimensionList"
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
+    , doSortOptions: args.doSortOptions
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
@@ -91,6 +92,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , targetHtml: "#" + args.targetHtml + " .bcdMeasureList"
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
+    , doSortOptions: args.doSortOptions
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);

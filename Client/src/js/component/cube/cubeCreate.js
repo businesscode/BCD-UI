@@ -341,6 +341,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse'), cube turns on the expand/collapse mode.
+   * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
    *
    * @return null.
    *
@@ -434,6 +435,7 @@ bcdui.util.namespace("bcdui.component",
     args.isTemplate = bcdui.component._trueFalse(args.isTemplate);
     args.showSummary  = bcdui.component._trueFalse(args.showSummary);
     args.isDefaultHtmlLayout = bcdui.component._trueFalse(args.isDefaultHtmlLayout);
+    args.doSortOptions = bcdui.component._trueFalse(args.doSortOptions);
     
     // remember url parameter on target (so it can be accessed through e.g. grouping editor
     jQuery("#" + args.targetHTMLElementId).data("url", args.url);    
