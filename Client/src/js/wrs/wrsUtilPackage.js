@@ -1413,6 +1413,26 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
       },
       error : args.onErrorCb
     });
+  },
+
+  /**
+   * applies number rounding at defined wrs:Header/wrs:Columns/wrs:C/@scale
+   * @param {document} wrsDoc - the Wrs document to apply changes on
+   * @return wrsDoc
+   */
+  applyScale : wrsDoc => {
+    Array.from(wrsDoc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C[@scale]")).forEach(function(headerCol) {
+      var scale = +headerCol.getAttribute("scale");
+      if(scale){
+        scale = Math.pow(10, scale);
+      }
+      var pos = +headerCol.getAttribute("pos");
+
+      Array.from(wrsDoc.selectNodes("/*/wrs:Data/wrs:*/wrs:C["+ pos +"]")).forEach(function(col) {
+        col.text = scale == 0 ? Math.round(+col.text) : Math.round( +col.text * scale + Number.EPSILON ) / scale;
+      });
+    });
+    return wrsDoc;
   }
 });// end of package bcdui.wrs.wrsUtil
 
