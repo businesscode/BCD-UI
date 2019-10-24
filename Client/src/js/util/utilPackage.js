@@ -537,6 +537,22 @@ bcdui.util =
       document.registerElement(elementName, {prototype: newTag.prototype});
     }
 
+  },
+  math : {
+    /**
+     * rounds a number to given scale
+     *
+     * @param {number} num - the number
+     * @param {number} [scale=0] - the scale
+     */
+    round : (num, scale) => {
+      if((scale = scale || 0) > 0){
+        scale = Math.pow(10, scale);
+      } else {
+        scale = 1;
+      }
+      return Math.round( num * scale + Number.EPSILON ) / scale;
+    } 
   }
 }
 
