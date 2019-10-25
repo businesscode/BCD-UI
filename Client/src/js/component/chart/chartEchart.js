@@ -270,7 +270,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         series.splitNumber = 4;
         series.axisTick = { length: 0 };
         series.splitLine = { lineStyle: { color: "auto" } };
-        series.detail = { formatter: getNumFormatter(3, unit), fontSize: "200%", offsetCenter: [0, '20%'] };
+        series.detail = { formatter: getNumFormatter(3, unit), fontSize: "200%", offsetCenter: [0, '40%'] };
         opts.series.push(series);
         opts.axisLabel = { formatter: getNumFormatter(2, unit) };
         opts.xAxis = null;
