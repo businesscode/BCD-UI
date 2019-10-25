@@ -553,7 +553,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     // Go
     var foundData = false;
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
-      if( opts.series[s].data.length > 0 )
+      if( opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0 )
         foundData = true;
     }
     if( foundData ) {
