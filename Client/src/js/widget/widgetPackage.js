@@ -1134,10 +1134,17 @@ bcdui.util.namespace("bcdui.widget",
                optionsModelRelativeValueXPath == null || !optionsModelRelativeValueXPath.trim())
              return caption;
        var v = caption.replace(/\"/g,"");
-       var xPath = optionsModelXPath + "[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\"', 'abcdefghijklmnopqrstuvwxyz')) = normalize-space(translate(\"" + v + "\", 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))]/" + optionsModelRelativeValueXPath;
        var optionsModel = bcdui.factory.objectRegistry.getObject(optionsModelId);
-       var result = bcdui.widget._getDataFromXML(optionsModel, xPath);
-       return result;
+
+       // case insensitive/trim check
+       var xPath1 = optionsModelXPath + "[normalize-space(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\"', 'abcdefghijklmnopqrstuvwxyz')) = normalize-space(translate(\"" + v + "\", 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))]/" + optionsModelRelativeValueXPath;
+       var result1 = bcdui.widget._getDataFromXML(optionsModel, xPath1);
+       // exact match
+       var xPath2 = optionsModelXPath + "[. = \"" + v + "\"]/" + optionsModelRelativeValueXPath;
+       var result2 = bcdui.widget._getDataFromXML(optionsModel, xPath2);
+
+       // prefer perfect match
+       return result2 || result1;
      },
 
      /**
