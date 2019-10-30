@@ -413,9 +413,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           axis.max = Math.round(axisMax[a] * 50 * (axisMax[a] > 0 ? 1.05 : 0.95)) / 50;
         }
       }
-      opts.toolbox.feature.dataZoom = {};
+      if(this.config.query("/*//chart:DataZoom[1]") != null){
+        opts.toolbox.feature.dataZoom = {};
+      }
     }
-  
+
 
     // Tooltip
     // Several enhancements in terms of number formatting and including support for original values in case of stacked-as-percent charts
