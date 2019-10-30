@@ -515,6 +515,12 @@
   }
 }
 
+.bcdCubeDNDBlind {
+  .bcdButton { 
+    margin-top: .3em;
+  }
+}
+
 .bcdReport {
   thead .bcdTotal {
     @extend .table-primary;
@@ -727,10 +733,14 @@
   }
 
   .bcdHeadClosed > span.bcdBlindUpDownClose:after {
+    @extend %fa-icon;
+    @extend .fas;
     content: fa-content($fa-var-caret-down);
   }
 
   .bcdHeadOpened > span.bcdBlindUpDownClose:after {
+    @extend %fa-icon;
+    @extend .fas;
     content: fa-content($fa-var-caret-up);
   }
 }
@@ -1584,4 +1594,24 @@ table.bcd-far-configurator {
     background-color: #ffffff;
     padding: 0;
   }
+}
+
+/* .bcdBlindUpDown .bcdHeadClosed > span.bcdBlindUpDownClose:after {
+  content: "\25BC";
+}
+.bcdBlindUpDown .bcdHeadOpened > span.bcdBlindUpDownClose:after {
+  content: "\25B2";
+}
+ */
+.bcdSectionCaption {
+  padding: 0;
+  margin: 1em 1rem 0 1em;
+  position: relative;
+  font-size:1.2em;
+  font-weight:400;
+  border-bottom:1px solid $bcd_border-color;
+}
+.bcdBlindUpDownClose {
+  position: absolute;
+  right: 0;
 }

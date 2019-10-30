@@ -56,22 +56,25 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     if (bcdui.config.userName && jQuery("#bcdUserName").length > 0)
       jQuery("#bcdUserName").text(bcdui.config.userName);
 
+    var newCssLayoutSidebar = jQuery('.bcd__vertical-split').find(".bcd__sidebar-left");
     var args = {
         sideBarSizeAdjust:  jQuery("#bcdSideBarContainer").hasClass("bcdEffectSizeAdjust")
       , sideBarAutoScroll:  jQuery("#bcdSideBarContainer").hasClass("bcdEffectAutoScroll")
       , pageSizeAdjust:     jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageSizeAdjust")
       , sideBarDraggable:   jQuery("#bcdSideBarContainer").hasClass("bcdEffectDraggable")
-      , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse")
+      , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse") || newCssLayoutSidebar.hasClass("bcdEffectCollapse")
       , sideBarMinimizeOnClick: jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
       , pageStickyFooter: jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageStickyFooter")
-      , sidebarLeft: jQuery('.bcd__vertical-split').has(".bcd__sidebar-left").length ? true : false
+      , sidebarLeft: newCssLayoutSidebar.length > 0
       , userNameWidget: jQuery('.bcd__header').has('.bcd__header__upper').length ? true : false
     };
 
     /*
      * Side bar toggle function
      */
-    if (args.sidebarLeft) {
+    if (args.sidebarLeft && ! jQuery('.bcd__vertical-split').hasClass("bcdActivated")) {
+      
+      jQuery('.bcd__vertical-split').addClass("bcdActivated");
 
       // collapse sidebar depending on PersistentSetting
       var pinnedClass = bcdui.wkModels.guiStatus.read("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin", "0") == "1" ? " is-active bcd__sidebar-left-collaps-toggle--collapsed " : "";
@@ -137,10 +140,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     
     if (jQuery("#bcdSideBarEffect").length == 0)
       jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarEffect'></div>");
+    
+    bcdui.widget.pageEffects._bcdIsNewCssLayout    = newCssLayoutSidebar.length > 0; 
+    bcdui.widget.pageEffects._bcdSidebarRooElement = newCssLayoutSidebar.length > 0 ? newCssLayoutSidebar : jQuery("#bcdSideBarArea");
 
-    bcdui.widget.pageEffects._bcdSideBarMinWidth  = parseInt(jQuery("#bcdSideBarEffect").css("minWidth").replace("px", ""), 10);
-    bcdui.widget.pageEffects._bcdSideBarMaxWidth  = parseInt(jQuery("#bcdSideBarEffect").css("maxWidth").replace("px", ""), 10);
-    bcdui.widget.pageEffects._bcdSideBarWidth     = parseInt(jQuery("#bcdSideBarEffect").css("width").replace("px", ""), 10);
+    bcdui.widget.pageEffects._bcdSideBarMinWidth  = jQuery("#bcdSideBarEffect").length > 0 ? parseInt(jQuery("#bcdSideBarEffect").css("minWidth").replace("px", ""), 10) : 0;
+    bcdui.widget.pageEffects._bcdSideBarMaxWidth  = jQuery("#bcdSideBarEffect").length > 0 ? parseInt(jQuery("#bcdSideBarEffect").css("maxWidth").replace("px", ""), 10) : 0;
+    bcdui.widget.pageEffects._bcdSideBarWidth     = jQuery("#bcdSideBarEffect").length > 0 ? parseInt(jQuery("#bcdSideBarEffect").css("width").replace("px", ""), 10) : 0;
 
     bcdui.widget.pageEffects._bcdSideBarMinWidth  = isNaN(bcdui.widget.pageEffects._bcdSideBarMinWidth) ? 0 : bcdui.widget.pageEffects._bcdSideBarMinWidth;
     bcdui.widget.pageEffects._bcdSideBarMaxWidth  = isNaN(bcdui.widget.pageEffects._bcdSideBarMaxWidth) ? 0 : bcdui.widget.pageEffects._bcdSideBarMaxWidth;
@@ -374,7 +380,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     
     if (args.sideBarDraggable || args.sideBarCollapsable) {
 
-      jQuery("#bcdSideBarArea .bcdSection").each(function(i,e) {
+      bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSection").each(function(i,e) {
 
         // add bcdIds to bcdSection if not given
         if (! jQuery(e).attr("bcdId"))
@@ -400,12 +406,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         }
       });
 
-      bcdui.widget.pageEffects._findGripPosition(args.sideBarSizeAdjust, args.sideBarCollapsable);
+      if (! bcdui.widget.pageEffects._bcdIsNewCssLayout)
+        bcdui.widget.pageEffects._findGripPosition(args.sideBarSizeAdjust, args.sideBarCollapsable);
 
       // final initialization for sideBarCollapsable effect
       if (args.sideBarCollapsable) {
-        jQuery("#bcdSideBarArea .bcdBlindUpDownClose").css({cursor: "pointer"});
-        jQuery("#bcdSideBarArea .bcdBlindUpDownClose").on("click", function() {
+        bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSectionCaption").css({cursor: "pointer"});
+        bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSectionCaption").on("click", function() {
           var sItem = jQuery(this).closest(".bcdSection");
           var sBody = sItem.find("> *:not(.bcdSectionCaption, script)");
           var sHeader = sItem.find("> .bcdSectionCaption");
@@ -413,7 +420,10 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           var value = sBody.stop().is(":visible") ? 0 : 1;
           sHeader.toggleClass("bcdHeadOpened bcdHeadClosed");
           jQuery(".bcdSideBarGrip").hide();
-          sBody.toggle("blind", 250, bcdui.widget.pageEffects._findGripPosition.bind(null, args.sideBarSizeAdjust, args.sideBarCollapsable));
+          if (! bcdui.widget.pageEffects._bcdIsNewCssLayout)
+            sBody.toggle("blind", 250, bcdui.widget.pageEffects._findGripPosition.bind(null, args.sideBarSizeAdjust, args.sideBarCollapsable));
+          else
+            sBody.toggle();
           bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarVisible/guiStatus:Item[@id='" + id + "']").text = value;
         });
       }
