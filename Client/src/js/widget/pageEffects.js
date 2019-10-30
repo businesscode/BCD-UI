@@ -380,7 +380,9 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     
     if (args.sideBarDraggable || args.sideBarCollapsable) {
 
-      bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSection").each(function(i,e) {
+      var sectionElement = ! bcdui.widget.pageEffects._bcdIsNewCssLayout ? ".bcdSection" : "section";
+
+      bcdui.widget.pageEffects._bcdSidebarRooElement.find(sectionElement).each(function(i,e) {
 
         // add bcdIds to bcdSection if not given
         if (! jQuery(e).attr("bcdId"))
@@ -394,8 +396,9 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           sHeader.prepend( "<span class='bcdBlindUpDownClose'></span>");
           sHeader.parent().addClass("bcdBlindUpDown");
           var id = sItem.attr("bcdId");
-          var value = bcdui.wkModels.guiStatus.getData().selectSingleNode("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarVisible/guiStatus:Item[@id='" + id + "']");
-          if (value != null && value.text == "0") {
+          var initiallyHidden = jQuery(e).hasClass("bcdHeadClosed");
+          var value = bcdui.wkModels.guiStatus.read("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarVisible/guiStatus:Item[@id='" + id + "']", "");
+          if ((value == "" && initiallyHidden) || value == "0") {
             jQuery(e).find("> *:not(.bcdSectionCaption, script)").hide();
             jQuery(e).find("> .bcdSectionCaption").addClass("bcdHeadClosed");
           }
@@ -413,7 +416,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       if (args.sideBarCollapsable) {
         bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSectionCaption").css({cursor: "pointer"});
         bcdui.widget.pageEffects._bcdSidebarRooElement.find(".bcdSectionCaption").on("click", function() {
-          var sItem = jQuery(this).closest(".bcdSection");
+          var sItem = jQuery(this).closest(sectionElement);
           var sBody = sItem.find("> *:not(.bcdSectionCaption, script)");
           var sHeader = sItem.find("> .bcdSectionCaption");
           var id = sItem.attr("bcdId");
