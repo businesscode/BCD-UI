@@ -193,7 +193,7 @@
     min-height: 3em;
   }
 
-  &__crendetials-widget {
+  &__credentials-widget {
     flex:1 0 15em;
     display: flex;
     flex-direction: row;
@@ -231,7 +231,7 @@
 // ================================================================
 
 .bcd__header__navigation,
-.bcd__header__crendetials-widget {
+.bcd__header__credentials-widget {
   border-top: 1px solid $bcd_border-color;
 
   nav {
@@ -349,7 +349,7 @@
   }
 }
 
-.bcd__header__crendetials-widget nav ul {
+.bcd__header__credentials-widget nav ul {
   li a {
     display: inherit;
     padding-bottom: 0;

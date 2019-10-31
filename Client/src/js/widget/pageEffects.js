@@ -111,15 +111,18 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     }
 
     /*
-     * attach User name Widget to well known 'bcd__header__crendetials-widget' element
+     * attach User name Widget to well known 'bcd__header__credentials-widget' element
      */
-    if (args.userNameWidget) {
-  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true && jQuery(".bcd__header__crendetials-widget").length > 0 ){
-    	  jQuery('.bcd__header__crendetials-widget').append(`
+    if (args.userNameWidget && ! jQuery('.bcd__header__credentials-widget').hasClass("bcdActivated")) {
+
+      jQuery('.bcd__header__credentials-widget').addClass("bcdActivated");
+      
+  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true && jQuery(".bcd__header__credentials-widget").length > 0 ){
+    	  jQuery('.bcd__header__credentials-widget').append(`
           <nav>
             <ul>
               <li>
-                <a href="#" class="bcd__header_crendetials_toggle">
+                <a href="#" class="bcd__header_credentials_toggle">
                   <span class="initials">${bcdui.config.userName.charAt(0).toUpperCase()}</span>
                   <span>${bcdui.config.userName}</span>
                   <i class="fas fa-caret-down"></i>
