@@ -410,10 +410,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           if ((value == "" && initiallyHidden) || value == "0") {
             jQuery(e).find("> *:not(.bcdSectionCaption, script)").hide();
             jQuery(e).find("> .bcdSectionCaption").addClass("bcdHeadClosed");
+            if (bcdui.widget.pageEffects._gotActiveFilter(sItem))
+              jQuery(e).addClass("bcdActiveFilter");                
           }
           else {
             jQuery(e).find("> *:not(.bcdSectionCaption, script)").show();
             jQuery(e).find("> .bcdSectionCaption").addClass("bcdHeadOpened");
+            jQuery(e).removeClass("bcdActiveFilter");
           }
         }
       });
@@ -436,6 +439,13 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
             sBody.toggle("blind", 250, bcdui.widget.pageEffects._findGripPosition.bind(null, args.sideBarSizeAdjust, args.sideBarCollapsable));
           else
             sBody.toggle();
+
+          // set active filter indicator on closed sections
+          if (value == 0 && bcdui.widget.pageEffects._gotActiveFilter(sItem))
+            jQuery(sItem).addClass("bcdActiveFilter");                
+          else
+            jQuery(sItem).removeClass("bcdActiveFilter");
+
           bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarVisible/guiStatus:Item[@id='" + id + "']").text = value;
         });
       }
@@ -462,7 +472,38 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
     if (args.pageStickyFooter)
       bcdui.widget.pageEffects._repositionFooter();
   },
-   
+
+  /**
+   * @private
+   */
+  _gotActiveFilter: function(sItem) {
+    var gotFilter = false;
+    jQuery(sItem).find("*[bcdTargetModelXPath]").each(function(i, t) {
+      var targetModelXPath = jQuery(t).attr("bcdTargetModelXPath") || "";
+      var targetModelId = jQuery(t).attr("bcdTargetModelId") || "";
+      var targetModelParams = bcdui.factory._extractXPathAndModelId(targetModelXPath);
+      targetModelParams.modelId = targetModelId || targetModelParams.modelId;
+      var targetModel = bcdui.factory.objectRegistry.getObject(targetModelParams.modelId);
+      // special case for periodChooser
+      if (typeof targetModel != "undefined") {
+        if (jQuery(t).hasClass("bcdPeriodChooser")) {
+          var targetNode = targetModel.query(targetModelParams.xPath);
+          var value = "";
+          if (targetNode != null) {
+             value = targetNode.nodeType == 2 ? targetModel.read(targetModelParams.xPath + "/..//f:Expression/@value", "") : targetModel.read(targetModelParams.xPath + "//f:Expression/@value", "");
+             if (jQuery(t).attr("bcdUseSimpleXpath") == "true")
+               value = targetModel.read(targetModelParams.xPath, "");
+             if (value != "")
+               gotFilter = true;
+          }
+        }
+        else if (targetModel.read(targetModelParams.xPath, "") != "")
+          gotFilter = true;                
+      }
+    });
+    return gotFilter;
+  },
+
   /**
    * @private
    */

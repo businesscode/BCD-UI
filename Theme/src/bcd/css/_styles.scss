@@ -1615,3 +1615,7 @@ table.bcd-far-configurator {
   position: absolute;
   right: 0;
 }
+
+.bcdActiveFilter .bcdSectionCaption:after {
+  content: "*";
+}
