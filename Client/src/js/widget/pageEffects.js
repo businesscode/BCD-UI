@@ -82,6 +82,12 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
         jQuery('.bcd__vertical-split').addClass('bcd__vertical-split--sidebar-collapsed');
       }
 
+      //set transition effect after rendering to avoid initial effect
+      setTimeout(function() {
+        jQuery(".bcd__content-container").addClass("bcdSidebarEffect");
+        jQuery(".bcd__sidebar-left").addClass("bcdSidebarEffect").show();
+      });
+
       // add hamburger animation
       var finalClass = pinnedClass + "hamburger " + (jQuery('.bcd__sidebar-left').attr("hamburger-style") || "hamburger--spin");
       jQuery('.bcd__sidebar-left-collaps-toggle-wrapper button i').replaceWith("<span class='hamburger-box'><span class='hamburger-inner'></span></span>");

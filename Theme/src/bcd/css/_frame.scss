@@ -405,3 +405,15 @@ footer {
     }
   }
 }
+
+// avoid initial transition on page load, bcdSidebarEffect is set via pageEffects
+.bcd__sidebar-left {
+  display: none;
+}
+.bcd__sidebar-left,
+.bcd__content-container {
+ transition: none;
+}
+.bcdSidebarEffect {
+  transition: all .4s ease-in-out !important;
+}
