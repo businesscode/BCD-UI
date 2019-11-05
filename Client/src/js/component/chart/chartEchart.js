@@ -229,7 +229,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       series.yAxisIndex = axis1or2 - 1;
       let unit = this.config.read("/*/chart:Stacked[@axis='"+axis1or2+"']/@asPercent") === 'true' ? '%' : this.config.read("/*/chart:YAxis"+axis1or2+"/@unit",'');
       series.bcdAttrs.unit = unit; // echarts does not know the concept of units
-      let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType");
+      let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType") || (unit == "%" ? "LINECHART" : "BARCHART");
 
       // If we detect BARCHARTHORIZONTAL, we make some adjustments to the axis, but treat it as BARCHART otherwise
       if(chartType == "BARCHARTHORIZONTAL") {
