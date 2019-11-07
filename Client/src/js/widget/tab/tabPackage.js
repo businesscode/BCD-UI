@@ -141,7 +141,7 @@ bcdui.util.namespace("bcdui.widget.tab",
     init:function(args)
     {
 
-      var settingsNode = args.isPersistent ? "PersistenSettings" : "ClientSettings";
+      var settingsNode = args.isPersistent ? "PersistentSettings" : "ClientSettings";
       
       var dataProvider = new bcdui.core.HTML2XMLDataProvider( {
         id:          args.id + "_innerModel"
