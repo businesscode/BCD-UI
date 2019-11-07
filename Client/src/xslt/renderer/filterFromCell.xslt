@@ -137,11 +137,23 @@
   <xsl:variable name="cellAndGuiStatusFilterVar">
     <guiStatus:Status>
       <f:Filter>
+
+        <!-- take over all cell filters which don't appear in filterModel, but not exclBRef and not the special ones yrqr/cwyrcw and yrmo -->
         <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression[not(./ancestor::*[@exclBRef])]/@bRef)
         and not(@bRef='yrqr' or @bRef='cwyrcw' or @bRef='yrmo')
         ]"/>
+
+        <!-- merge filterModel filters with call filter -->
         <xsl:apply-templates select="$filterModel/*/f:Filter/*[not(@exclBRef)]" mode="merge"/>
+
+        <!-- take over exclBRef -->
         <xsl:apply-templates select="$filterModel/*/f:Filter/*[@exclBRef]"/>
+
+        <!-- take over special ones from cell filter in case they were not part of the upper applies, this is the case if the filter model does not have a cwyr/yr or dy bRef -->
+        <xsl:if test="not($filterModel/*/f:Filter/f:*[f:Expression[@bRef='cwyr' or @bRef='yr' or @bRef='dy']])">
+          <xsl:apply-templates select="$cellFilter/f:Filter/f:Expression[not(@bRef=$filterModel/*/f:Filter//f:Expression[not(./ancestor::*[@exclBRef])]/@bRef)
+          and (@bRef='yrqr' or @bRef='cwyrcw' or @bRef='yrmo')]"/>
+        </xsl:if>        
       </f:Filter>
     </guiStatus:Status>
   </xsl:variable>
@@ -390,7 +402,7 @@
   </xsl:template>
 
   <!-- match on outer simple period node and -if a cell filter with year info is present, use this -->
-  <xsl:template match="f:*[f:Expression[@bRef='cwyr' or @bRef='yr']]" mode="merge">
+  <xsl:template match="f:*[f:Expression[@bRef='cwyr' or @bRef='yr' or @bRef='dy']]" mode="merge">
     <xsl:choose>
       <xsl:when test="$cellFilter/f:Filter//*[@bRef='yrmo' or @bRef='yrqr' or @bRef='cwyrcw']">
         <!-- do not combine these into one since you may have more than one type of such brefs (e.g. yrmo and yrcw) -->
@@ -417,8 +429,7 @@
           </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/>
-        </xsl:copy>
+        <xsl:copy><xsl:apply-templates select="@*|node()" mode="merge"/></xsl:copy>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
