@@ -45,6 +45,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
 * tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas
 * inputField gets hideWildcardChar option to not attach asterisk characters (dimchooser supports it via dimconfig)
+* tabMenu can be persisten
 
 . Core
 * Promise polyfill: ecma6-promise (used for IE)

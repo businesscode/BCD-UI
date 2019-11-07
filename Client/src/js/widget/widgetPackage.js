@@ -1235,8 +1235,9 @@ bcdui.util.namespace("bcdui.widget",
     * @param {targetHtmlRef} args.targetHtml            An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
     * @param {string}        args.defElementId          Html element id where tabs are defined.
     * @param {string}        [args.args.id]             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
-    * @param {string}        [args.handlerJsClassName]  own JS class name to handler click action on tab
-    * @param {string}        [args.rendererUrl]         URL to own renderer
+    * @param {string}        [args.handlerJsClassName]  Own JS class name to handler click action on tab.
+    * @param {string}        [args.rendererUrl]         URL to own renderer.
+    * @param {boolean}       [args.isPersistent=false]  Set this to true to make the tab selection persistent.
     */
    createTabMenu:function(args)
      {

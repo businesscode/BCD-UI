@@ -23,6 +23,7 @@
 
   <!-- application context path -->
   <xsl:param name="contextPath" select="'/'"/>
+  <xsl:param name="settingsNode" select="'ClientSettings'"/>
   <xsl:param name="handlerVariableName">bcdui.widget.tab</xsl:param>
   <!-- menu Id -->
   <xsl:param name="tabElementId"
@@ -89,7 +90,7 @@
       <xsl:if test="$isClickable">
         <xsl:attribute name="onclick">
         <!-- extra check for pre-IE8 browser which add onclick as a function and not as a string. In this case, the function needs to be called -->
-          <xsl:if test="$node/@onclick"><xsl:value-of select="$node/@onclick"/></xsl:if> <xsl:if test="starts-with($node/@onclick, 'function onclick()')">onclick();</xsl:if> <xsl:value-of select="$handlerVariableName"/>.handleTabAction(jQuery.event.fix(event));
+          <xsl:if test="$node/@onclick"><xsl:value-of select="$node/@onclick"/></xsl:if> <xsl:if test="starts-with($node/@onclick, 'function onclick()')">onclick();</xsl:if> <xsl:value-of select="$handlerVariableName"/>.handleTabAction(jQuery.event.fix(event), '<xsl:value-of select="$settingsNode"/>');
         </xsl:attribute>
       </xsl:if>
 

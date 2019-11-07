@@ -832,12 +832,17 @@
         </Param>
         <Param name="rendererUrl" type="url">
           <Doc>
-            URL to own renderer
+            URL to own renderer.
           </Doc>
         </Param>
         <Param name="handlerJsClassName" type="string">
           <Doc>
-            own JS class name to handler click action on tab
+            Own JS class name to handler click action on tab.
+          </Doc>
+        </Param>
+        <Param name="isPersistent" type="boolean" default="false">
+          <Doc>
+            Set this to true to make the tab selection persistent.
           </Doc>
         </Param>
       </Api>

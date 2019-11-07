@@ -134,11 +134,15 @@ bcdui.util.namespace("bcdui.widget.tab",
      * @param {Object} args.handlerJsClassName   - Tab menu handler variable name, default bcdui.widget.tab
      * @param {Object} args.targetHTMLElementId  - target where HTML content to paste to
      * @param {Object} args.idOrElement          - id of/or HTML element where tabs are defined
+     * @param {Object} args.isPersistent         - use guiStatus:PersistentSettings or guiStatus:ClientSettings
      * @private
      *
      */
     init:function(args)
     {
+
+      var settingsNode = args.isPersistent ? "PersistenSettings" : "ClientSettings";
+      
       var dataProvider = new bcdui.core.HTML2XMLDataProvider( {
         id:          args.id + "_innerModel"
       , name:        args.id + "_innerModel"
@@ -148,13 +152,13 @@ bcdui.util.namespace("bcdui.widget.tab",
 
       // read settings from GUIstatus doc, if exists XPath - takes it, if no - set default to visible
       var tabId = dataProvider.getData().selectSingleNode("/Items/@id").nodeValue;
-      var guiStatusTabXPath = "/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + tabId +"']";
+      var guiStatusTabXPath = "/*/guiStatus:" + settingsNode + "/Selected/Tab[@id = '" + tabId +"']";
 
       // register listener which shows/hides the selected tab
       bcdui.wkModels.guiStatus.onChange({
           onlyOnce: false
         , trackingXPath: guiStatusTabXPath
-        , callback: bcdui.widget.tab._syncActiveTab.bind(undefined, tabId, args.targetHTMLElementId, args.idOrElement)
+        , callback: bcdui.widget.tab._syncActiveTab.bind(undefined, tabId, args.targetHTMLElementId, args.idOrElement, settingsNode)
       });
 
       // determine activeTab (either from guiStatus or (initially from model with items defaultVisibleId attribute)
@@ -187,13 +191,13 @@ bcdui.util.namespace("bcdui.widget.tab",
           id: ("bcdRenderer_" + args.id)
         , chain: bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl)
         , inputModel: dataProvider
-        , parameters: { contextPath: bcdui.contextPath, handlerVariableName: _handlerVariableName }
+        , parameters: { contextPath: bcdui.contextPath, handlerVariableName: _handlerVariableName, settingsNode: settingsNode }
         , targetHtml: args.targetHTMLElementId
       });
       // initially sync
       renderer.onceReady(function(){
         bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;
-        bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement);
+        bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement, settingsNode);
       });
     },
 
@@ -201,9 +205,9 @@ bcdui.util.namespace("bcdui.widget.tab",
      * displays active tab according to guiStatus setting
      * @private
      */
-    _syncActiveTab : function(tabId, targetHTMLElementId, defTabId){
+    _syncActiveTab : function(tabId, targetHTMLElementId, defTabId, settingsNode){
       
-      var activeTab = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/Selected/Tab[@id = '" + tabId+"']/Active", "");
+      var activeTab = bcdui.wkModels.guiStatus.read("/*/guiStatus:"+settingsNode+"/Selected/Tab[@id = '" + tabId+"']/Active", "");
       // an existing client settings entry does not necessarily mean the object exists already
       if (jQuery("#" + activeTab).length == 0)
         return;
@@ -229,10 +233,10 @@ bcdui.util.namespace("bcdui.widget.tab",
     /**
      * A click on a tab happened, remember id in guiStatus 
      */
-    handleTabAction:function(event) {
+    handleTabAction:function(event, settingsNode) {
       var e = jQuery(event.target);
       var elId = e.attr("id");
-      var xpath= "/*/guiStatus:ClientSettings/Selected/Tab[@id='" + e.attr("parentId") + "']/Active";
+      var xpath= "/*/guiStatus:"+settingsNode+"/Selected/Tab[@id='" + e.attr("parentId") + "']/Active";
       if (bcdui.wkModels.guiStatus.read(xpath, elId) == elId)
         return null;// clicked on the same tab
       bcdui.wkModels.guiStatus.write(xpath, elId, true);
