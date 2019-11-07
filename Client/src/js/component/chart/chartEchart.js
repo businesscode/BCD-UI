@@ -555,8 +555,15 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     // Go
     var foundData = false;
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
-      if( opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0 )
-        foundData = true;
+      if( opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
+        // we need to look for a real value entry since you might prepared the series data with just meta data while you don't have real value data
+        for (var d = 0; d < opts.series[s].data.length; d++) {
+          if (opts.series[s].data[d].value) {
+            foundData = true;
+            break;
+          }
+        }
+      }
     }
     if( foundData ) {
       myChart.setOption(opts, true);
