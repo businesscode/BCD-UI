@@ -318,6 +318,16 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         let max = seriesData.value.reduce((a,v)=>Math.max(a,v),0) * 1.15;
         if( typeof opts.radar == "undefined" || typeof opts.radar.indicator == "undefined" ) {
           opts.radar = opts.radar || {};
+
+          // enable radar scale labels
+          this.scaleCount = 0;
+          var self = this;
+          opts.radar.axisLabel = { show: true
+            , formatter: function(value, index) {
+              return (index == self.scaleCount++ ? parseFloat(value).toFixed(1) : "");
+            }
+          };
+
           opts.radar.indicator = opts.xAxis.data.map((v,i)=>({name: ""+v, max: max}));
         } else if( !!opts.radar.indicator && max > opts.radar.indicator[0].max ) {
           for( var i = 0; i < opts.radar.indicator.length; i++ ) opts.radar.indicator[i].max = max; 
@@ -542,7 +552,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     const merge = (target, source) => {
       // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
       for (let key of Object.keys(source)) {
-        if( target[key] === undefined ) target[key] = source[key];
+        if (target[key] !== undefined && source[key] !== undefined && 
+            (    (   source[key] instanceof String && ! target[key] instanceof String)
+              || (! (source[key] instanceof String) &&   target[key] instanceof String)
+              || (   source[key] instanceof Array  && ! target[key] instanceof Array)
+              || (! (source[key] instanceof Array)  &&   target[key] instanceof Array)
+            ))
+            throw new Error("Merging invalid types: " + key);
+        if (target[key] === undefined) target[key] = source[key];
         if (source[key] instanceof Object && !(source[key] instanceof Function)) Object.assign(source[key], merge(target[key], source[key]));
       }
 
@@ -550,6 +567,33 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       Object.assign(target || {}, source);
       return target;
     };
+
+    // echarts support multiple xAxis, so convert it an array now  
+    var xAxis = opts.xAxis;
+    opts.xAxis = new Array();
+    opts.xAxis.push(xAxis);
+
+    // take over 2nd, 3rd etc categories as additional xaxis
+    var addCategories = this.config.queryNodes("/*/chart:XAxis/chart:Categories[position() > 1]");
+    for (var x = 0; x < addCategories.length; x++) {
+      let catModelId = addCategories[x].getAttribute("modelId");
+      let catModel = bcdui.factory.objectRegistry.getObject( catModelId );
+      var nodes;
+      if( !!catModel )
+        nodes = catModel.queryNodes(addCategories[x].getAttribute("nodes"));
+      else
+        nodes = this.config.queryNodes("/*/chart:XAxis/chart:Categories/chart:Value");
+      var data = [];
+      jQuery.makeArray(nodes).forEach(function(e) {
+        data.push(e.text);
+      });
+      if (addCategories[x].getAttribute("distinct") === "true") {
+        data = data.filter(function(e, idx){return data.indexOf(e) == idx});s
+      }
+      opts.xAxis.push({data: data});
+    }
+
+    // merge user options
     opts = merge(opts, this.userOptions);
     
     // Go
