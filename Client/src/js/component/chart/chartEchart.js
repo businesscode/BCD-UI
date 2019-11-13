@@ -573,7 +573,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     opts.xAxis = new Array();
     opts.xAxis.push(xAxis);
 
-    // take over 2nd, 3rd etc categories as additional xaxis
+    // take over 2nd, 3rd etc categories as additional xaxis (or in case of BARCHARTHORIZONTAL yaxis)
     var addCategories = this.config.queryNodes("/*/chart:XAxis/chart:Categories[position() > 1]");
     for (var x = 0; x < addCategories.length; x++) {
       let catModelId = addCategories[x].getAttribute("modelId");
@@ -590,7 +590,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       if (addCategories[x].getAttribute("distinct") === "true") {
         data = data.filter(function(e, idx){return data.indexOf(e) == idx});s
       }
-      opts.xAxis.push({data: data});
+      if (this.config.query("//chart:Series[@chartType='BARCHARTHORIZONTAL']") != null)
+        opts.yAxis.push({data: data});
+      else
+        opts.xAxis.push({data: data});
     }
 
     // merge user options
