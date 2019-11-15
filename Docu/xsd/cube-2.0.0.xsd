@@ -212,6 +212,10 @@
         Id of the cube object on the page his belongs to.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    
+    <xs:attribute name="skipAggForNoDim" type="xs:boolean" default="false">
+      <xs:annotation><xs:documentation>If no dimension is selected you can choose if the aggregation of measures should be skipped or not.</xs:documentation></xs:annotation>
+    </xs:attribute>
     <xs:attribute name="removeEmptyCells" default="rowCol">
       <xs:annotation><xs:documentation>If rowCol, rows and columns not holding any measure data will be removed from the output.</xs:documentation></xs:annotation>
       <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="rowCol"/><xs:enumeration value="false"/></xs:restriction></xs:simpleType>
