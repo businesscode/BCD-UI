@@ -361,7 +361,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             nodes.push(nodes[0]);
         }
 
-        opts.series.push({ coordinateSystem: 'polar', type: "line", data: nodes, bcdAttrs: { unit: series.unit } });
+        var caption = this.config.read("/*/chart:Series/chart:Series["+s+"]/@caption");
+        opts.series.push({ name: caption, coordinateSystem: 'polar', type: "line", data: nodes, bcdAttrs: { unit: series.unit } });
         opts.xAxis = null;
         opts.yAxis = null;
       }
