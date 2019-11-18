@@ -164,12 +164,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       xCategories = Array.prototype.slice.call( nodes ).map( n => n.text );
     }
 
-    // X-axis in case of continuous numeric values
+    // X-axis in case of continuous numeric values (also allow xValues on any series, e.g. polar chart here to see if data is available)
     let xValues = null;
-    if( this.config.read("/*/chart:XAxis/chart:XValues") !== null ) {
-      let xValuesModelId = this.config.read("/*/chart:XAxis/chart:XValues/@modelId");
+    if( this.config.read("/*//chart:XValues") !== null ) {
+      let xValuesModelId = this.config.read("/*//chart:XValues/@modelId");
       let xValuesModel = bcdui.factory.objectRegistry.getObject( xValuesModelId );
-      let nodes = xValuesModel.queryNodes( this.config.read("/*/chart:XAxis/chart:XValues/@nodes") );
+      let nodes = xValuesModel.queryNodes( this.config.read("/*//chart:XValues/@nodes") );
       xValues = Array.prototype.slice.call( nodes ).map((n)=>parseFloat(n.text));
     }
     opts.xAxis.name = this.config.read("/*/chart:XAxis/@caption", "");
@@ -309,6 +309,61 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         opts.tooltip.trigger = "item";
         opts.toolbox.feature.dataZoom = {};
 
+      }
+
+      // polar chart handling
+      else if (chartType === "POLARCHART" && nodes.length > 0) {
+        
+        let noGap = this.config.read("/*/chart:Series/chart:Series["+s+"]/@polarNoGap",'true') == "true";
+        
+        if( typeof opts.polar == "undefined" ) {
+          opts.polar = opts.polar || {};
+          opts.angleAxis = opts.angleAxis || {};
+          opts.radiusAxis = opts.radiusAxis || {};
+          opts.series = opts.series || [];
+          opts.angleAxis.splitLine = opts.angleAxis.splitLine || {},
+          opts.angleAxis.splitLine.show = true;
+          opts.angleAxis.interval = 1;
+          // either categories or x/y values
+          if (this.config.read("/*/chart:XAxis/chart:Categories") !== null) {
+            opts.angleAxis.type = "category";
+            opts.angleAxis.data = opts.xAxis.data;
+            opts.angleAxis.clockwise = false;
+          }
+          else
+            opts.angleAxis.type = "value";
+        }
+        if (this.config.query("/*//chart:XValues") !== null) {
+          // xValues per series
+          if (this.config.query("/*/chart:Series/chart:Series["+s+"]/chart:XValues") != null) {
+            let xValuesModelId = this.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XValues/@modelId");
+            let xValuesModel = bcdui.factory.objectRegistry.getObject( xValuesModelId );
+            let xNodes = xValuesModel.queryNodes( this.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XValues/@nodes") );
+            let xValuesNew = Array.prototype.slice.call( xNodes ).map((n)=>parseFloat(n.text));
+            if (noGap) {
+              xValuesNew.push(xValuesNew[0]);
+              nodes.push(nodes[0]);
+            }
+            nodes = nodes.map(function(e,i) { return [nodes[i], xValuesNew[i]]; });
+          }
+          // xValues via xAxis
+          else {
+            if (noGap) {
+              xValues.push(xValues[0]);
+              nodes.push(nodes[0]);
+            }
+            nodes = nodes.map(function(e,i) { return [nodes[i], xValues[i]]; });
+          }
+        }
+        // we got categories
+        else {
+          if (noGap)
+            nodes.push(nodes[0]);
+        }
+
+        opts.series.push({ coordinateSystem: 'polar', type: "line", data: nodes, bcdAttrs: { unit: series.unit } });
+        opts.xAxis = null;
+        opts.yAxis = null;
       }
 
       // Special handling radar chart
@@ -475,7 +530,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     if( xValues !== null ) {
       if( this.config.read("/*/chart:Series/chart:Series[@chartType='SCATTEREDCHART']") !== null )
         opts.series[0].data.forEach( (d, idx) => d.unshift(xValues[idx]) );
-      else if( this.config.read("/*/chart:Series/chart:Series[@chartType='GAUGECHART']") === null )
+      else if( this.config.read("/*/chart:Series/chart:Series[@chartType='GAUGECHART']") === null && this.config.read("/*/chart:Series/chart:Series[@chartType='POLARCHART']") === null )
         opts.series[0].data = opts.series[0].data.map( function(d, idx) { return {value: [ xValues[idx], d.value ] }; } );
     }
 
@@ -568,10 +623,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       return target;
     };
 
-    // echarts support multiple xAxis, so convert it an array now  
-    var xAxis = opts.xAxis;
-    opts.xAxis = new Array();
-    opts.xAxis.push(xAxis);
+    // echarts support multiple xAxis, so convert it an array now
+    if (opts.xAxis) {
+      var xAxis = opts.xAxis;
+      opts.xAxis = new Array();
+      opts.xAxis.push(xAxis);
+    }
 
     // take over 2nd, 3rd etc categories as additional xaxis (or in case of BARCHARTHORIZONTAL yaxis)
     var addCategories = this.config.queryNodes("/*/chart:XAxis/chart:Categories[position() > 1]");
@@ -604,8 +661,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
       if( opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
         // we need to look for a real value entry since you might prepared the series data with just meta data while you don't have real value data
+        let axis1or2 = parseInt(this.config.read("/*/chart:Series/chart:Series["+s+"]/@yAxis1Or2",'1'));
+        let unit = this.config.read("/*/chart:Stacked[@axis='"+axis1or2+"']/@asPercent") === 'true' ? '%' : this.config.read("/*/chart:YAxis"+axis1or2+"/@unit",'');
+        let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType") || (unit == "%" ? "LINECHART" : "BARCHART");
         for (var d = 0; d < opts.series[s].data.length; d++) {
-          if (opts.series[s].data[d].value) {
+          if (chartType != "RADARCHART" || (chartType=="RADARCHART" && opts.series[s].data[d].value)) {
             foundData = true;
             break;
           }

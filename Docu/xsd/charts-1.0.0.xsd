@@ -37,7 +37,7 @@
   <xs:complexType name="Chart">
     <xs:sequence>
       <xs:annotation><xs:documentation>content of Chart Node</xs:documentation></xs:annotation>
-      <xs:element name="XAxis" type="tns:XAxis"></xs:element>
+      <xs:element name="XAxis" type="tns:XAxis" minOccurs="0"></xs:element>
       <xs:element name="YAxis1" type="tns:YAxis1"></xs:element>
       <xs:element name="YAxis2" type="tns:YAxis2" minOccurs="0" maxOccurs="1"></xs:element>
 
@@ -186,7 +186,7 @@
   <xs:complexType name="XAxis">
     <xs:annotation><xs:documentation>Element defines the x-axis</xs:documentation></xs:annotation>
     <xs:choice>
-      <xs:element name="Categories" type="tns:Categories"></xs:element>
+      <xs:element name="Categories" type="tns:Categories" maxOccurs="unbounded"></xs:element>
       <xs:element name="XValues" type="tns:XValues"></xs:element>
     </xs:choice>
     <xs:attributeGroup ref="tns:AxisAttrs"></xs:attributeGroup>
@@ -236,6 +236,7 @@
       <xs:enumeration value="GAUGECHART"/>
       <xs:enumeration value="SUNBURSTCHART"/>
       <xs:enumeration value="RADARCHART"/>
+      <xs:enumeration value="POLARCHART"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -260,6 +261,11 @@
     </xs:annotation>
 
     <xs:sequence maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="XValues" type="tns:XValues" minOccurs="0">
+      <xs:annotation>
+        <xs:documentation>XValues per series. This is currently only available for polar charts.</xs:documentation>
+      </xs:annotation>
+      </xs:element>
       <xs:element name="YData" type="tns:YData"></xs:element>
       <xs:element name="Colors" type="tns:Colors" minOccurs="0"></xs:element>
       <xs:element name="BarWaterfall" minOccurs="0" maxOccurs="1">
@@ -332,6 +338,10 @@
       <xs:annotation><xs:documentation>If false, for line charts no points are shown</xs:documentation></xs:annotation>
     </xs:attribute>
 
+    <xs:attribute name="polarNoGap" type="xs:boolean" use="optional" default="true">
+      <xs:annotation><xs:documentation>When set to false, Polarchart does not close the drawn lines/areas.</xs:documentation></xs:annotation>
+    </xs:attribute>
+
     <xs:attribute name="width" type="xs:decimal">
       <xs:annotation>
         <xs:documentation>Set the stroke width, default 1px or for a point series the width of a point as a fraction of the category width or if @alignWithBarSeries is given, as a fraction of the bar size.</xs:documentation>
@@ -379,6 +389,11 @@
         <xs:documentation>An JS expression returing the source data doc</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+
+    <xs:attribute name="distinct" type="xs:boolean" use="optional" default="false">
+      <xs:annotation><xs:documentation>For handling more categories > 1 (Grouped XAxis). Set this to true if the values should be made distinct</xs:documentation></xs:annotation>
+    </xs:attribute>
+
     <xs:attribute name="nodes" use="optional">
       <xs:annotation>
         <xs:documentation>An XPath expression applied to the source data returning the values</xs:documentation>
