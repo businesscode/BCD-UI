@@ -658,9 +658,9 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     opts = merge(opts, this.userOptions);
     
     // Go
-    var foundData = nodes.length > 0;
+    var foundData = false;
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
-      if(nodes.length > 0 &&  opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
+      if(nodes && nodes.length > 0 &&  opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
         // we need to look for a real value entry since you might prepared the series data with just meta data while you don't have real value data
         let axis1or2 = parseInt(this.config.read("/*/chart:Series/chart:Series["+s+"]/@yAxis1Or2",'1'));
         let unit = this.config.read("/*/chart:Stacked[@axis='"+axis1or2+"']/@asPercent") === 'true' ? '%' : this.config.read("/*/chart:YAxis"+axis1or2+"/@unit",'');
