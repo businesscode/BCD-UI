@@ -316,14 +316,22 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         var numberOfDimensions = dimensions.filter(function(e, idx){return dimensions.indexOf(e) == idx}).length
         var numberOfMeasures = measures.filter(function(e, idx){return measures.indexOf(e) == idx}).length
 
-        // dimensions limit only if we also got coldims
-        if (targetModelDoc.selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef").length == 0)
+        // sql server only allows 32 dimensions in grouping. If a limit is specified in settings, we use this (as long as we don't have coldims, this is limited either way by chrome)
+        var errMessage = "bcd_MaxDimensions";
+        var maxRowDims = bcdui.config.settings.bcdui.component.dnd.maxRowDims || -1;
+        if (maxRowDims != -1 && targetModelDoc.selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef").length == 0) {
+          maxDimensions = maxRowDims;
+          errMessage = "bcd_MaxRowDimensions";
+        }
+
+        // dimensions limit only if we also got coldims and we did not specify maxRowDims
+        if (maxRowDims == -1 && targetModelDoc.selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef").length == 0)
           dimOk = true
         else if (maxDimensions != -1 && numberOfDimensions > maxDimensions) {
           doRedisplay = true;
           if (! promptDim) {
             alert(
-              bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_MaxDimensions"}) +
+              bcdui.i18n.syncTranslateFormatMessage({msgid:errMessage}) +
               " " + maxDimensions + "\n" +
               bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_MaxReduce"})
             );

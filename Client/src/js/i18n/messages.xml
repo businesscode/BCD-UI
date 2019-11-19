@@ -73,9 +73,10 @@
 
       <R id="R17"><C>bcd_MaxMeasures</C><C>You've reached the maximum number of measures for this report:</C><C>en</C></R>
       <R id="R18"><C>bcd_MaxDimensions</C><C>When using column dimensions, your report is limited to a maximum dimension number of:</C><C>en</C></R>
-      <R id="R19"><C>bcd_MaxReduce</C><C>Your selection will be reduced to match this limit.</C><C>en</C></R>
+      <R id="R19"><C>bcd_MaxRowDimensions</C><C>When not using column dimensions, your report is limited to a maximum dimension number of:</C><C>en</C></R>
+      <R id="R20"><C>bcd_MaxReduce</C><C>Your selection will be reduced to match this limit.</C><C>en</C></R>
 
-      <R id="R20"><C>bcd_DecimalFormat</C><C>enDecimalFormat</C><C>en</C></R>
+      <R id="R21"><C>bcd_DecimalFormat</C><C>enDecimalFormat</C><C>en</C></R>
 
       <R id="R30"><C>bcd_ApplyDenyTitle</C><C>Invalid choosers</C><C>en</C></R>
       <R id="R31"><C>bcd_ApplyDenyMessage</C><C>Please fill out all required chooser</C><C>en</C></R>
