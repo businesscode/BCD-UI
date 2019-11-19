@@ -107,16 +107,21 @@
             <xsl:if test="not(starts-with(., '&#xE0F0;')) or not(key('meaBRefs',concat($bRef,'&#xE0F0;',../@aggr)))">
               <wrq:C>
                 <!-- in case of no dimensions, measures won't get an aggr attribute if skipAggForNoDim is true, otherwise ensure (at least default sum) aggregation -->
-                <xsl:if test="not(/*/cube:Layout/cube:Dimensions//@bRef) and not(/*/cube:Layout/@skipAggForNoDim) or /*/cube:Layout/@skipAggForNoDim='false'">
-                  <xsl:choose>
-                    <xsl:when test="@aggr!=''">
-                      <xsl:attribute name="aggr"><xsl:value-of select="@aggr"/></xsl:attribute>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:attribute name="aggr">sum</xsl:attribute>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </xsl:if>
+                <xsl:choose>
+                  <xsl:when test="not(/*/cube:Layout/cube:Dimensions//@bRef) and (not(/*/cube:Layout/@skipAggForNoDim) or /*/cube:Layout/@skipAggForNoDim='false')">
+                    <xsl:choose>
+                      <xsl:when test="../@aggr!=''">
+                        <xsl:attribute name="aggr"><xsl:value-of select="../@aggr"/></xsl:attribute>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:attribute name="aggr">sum</xsl:attribute>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:attribute name="aggr"><xsl:value-of select="../@aggr"/></xsl:attribute>
+                  </xsl:otherwise>
+                </xsl:choose>
                 <xsl:attribute name="bRef"><xsl:value-of select="$bRef"/></xsl:attribute>
                 <xsl:if test="/*/dm:Measures/dm:Measure[@id=$bRef]/wrq:Calc">
                   <xsl:apply-templates select="/*/dm:Measures/dm:Measure[@id=$bRef]/wrq:Calc"/>
