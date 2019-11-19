@@ -26,6 +26,7 @@ Some changes are backward incompatible and may require code change in the projec
 * Charts add support for echarts when loading bcduiChart2, image export and some chart types are limitted
 * Add support for radar chart when using it
 * Cube allows dims-only and measure-only reports, for measure only, you can decide if the data should be aggregated or not
+* Cube DND flyover when specifying @description on LevelRef and Measure nodes
 * Renderer doesn't need an existing targetHtml nor defining one at all on creation. Member function setTargetHtml can be used to set and change target.
 The Renderer either works directly with the specified element or (in case of specified via id) does an element lookup by id.
 * Excel Report export moved to client side using FileSaver.js

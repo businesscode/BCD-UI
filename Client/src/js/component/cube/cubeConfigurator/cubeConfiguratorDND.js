@@ -64,6 +64,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_dims"
     , unselectAfterMove: true
     , doSortOptions: args.doSortOptions
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
@@ -93,6 +94,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , scope: args.cubeId + "_meas"
     , unselectAfterMove: true
     , doSortOptions: args.doSortOptions
+    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
@@ -115,6 +117,17 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     , extendedConfig: {noTooltip: true }
     };
     bcdui.widgetNg.createConnectable(inputArgs);
+
+    // tooltip when using descriptions
+    if (bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Dimensions/dm:LevelRef/@description") != null || bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Measures/dm:Measure/@description") != null) {
+      bcdui.widget.createTooltip({
+        targetHtml: args.targetHtml
+      , url: bcdui.contextPath + "/bcdui/js/component/cube/dndTooltip.xslt"
+      , inputModel: bcdui.wkModels.guiStatus
+      , identsWithin: args.targetHtml
+      , parameters: { cubeId: args.cubeId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, cubeConfig: args.config }
+      });
+    }
 
     // initially mark the dimensions for GroupManager
     setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(args.cubeId);});
@@ -520,7 +533,8 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       if (mes.getAttribute("cumulateRow") != null && mes.getAttribute("cumulateCol") != null) customClass = "bcdRowColCumulate";
     }
 
-    return "<li class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";
+    var title =  bcdui.factory.objectRegistry.getObject(cubeBucketModelId).query("//@description") != null ? "" : " title='" + args.caption + "'";
+    return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'" + title + "><span class='bcdItem'>" + args.caption + "</span></li>";
   },
 
   // some special rules to remove cube attributes like sort, cumulate, exclude, hides or not inner vdms

@@ -1619,3 +1619,6 @@ table.bcd-far-configurator {
 .bcdActiveFilter .bcdSectionCaption:after {
   content: "*";
 }
+
+#bcdTooltipDiv .bcdScTooltip, .bcdScDndTooltip { max-width: 25em; table-layout: fixed;}
+#bcdTooltipDiv .bcdCubeTooltip, .bcdCubeDndTooltip { max-width: 25em; table-layout: fixed;}
