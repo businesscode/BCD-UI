@@ -237,6 +237,7 @@
       <xs:enumeration value="SUNBURSTCHART"/>
       <xs:enumeration value="RADARCHART"/>
       <xs:enumeration value="POLARCHART"/>
+      <xs:enumeration value="BOXPLOT"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -336,6 +337,10 @@
 
     <xs:attribute name="showPoints" type="xs:boolean" use="optional">
       <xs:annotation><xs:documentation>If false, for line charts no points are shown</xs:documentation></xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="boxPlotOutliers" type="xs:boolean" use="optional" default="false">
+      <xs:annotation><xs:documentation>When set to true, BoxPlotChart shows outliners, too.</xs:documentation></xs:annotation>
     </xs:attribute>
 
     <xs:attribute name="polarNoGap" type="xs:boolean" use="optional" default="true">

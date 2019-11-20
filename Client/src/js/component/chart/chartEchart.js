@@ -221,6 +221,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     // Loop over series
     var axisMin = [Infinity, Infinity];
     var axisMax = [-Infinity, -Infinity];
+    var boxplotData = [];
     for( var s = 1, len = this.config.queryNodes("/*/chart:Series/chart:Series").length; s <= len; s++ )
     {
       // Read series properties
@@ -256,7 +257,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       else
         nodes = this.config.queryNodes("/*/chart:Series/chart:Series["+s+"]/chart:YData/chart:Value");
       nodes = Array.prototype.slice.call( nodes );
-      nodes = nodes.slice(0, xCategories ? xCategories.length : xValues.length );
+
+      // cut down series to x/category values (except for boxplot)
+      if (chartType != "BOXPLOT")
+        nodes = nodes.slice(0, xCategories ? xCategories.length : xValues.length );
       nodes = nodes.map( n => { let v = parseFloat(n.text); return isFinite(v) ? v : undefined } ); // echarts do not handle Infinity values well
 
       // Special handling gauge chart
@@ -310,10 +314,32 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         opts.toolbox.feature.dataZoom = {};
 
       }
+      else if (chartType == "BOXPLOT" && nodes.length > 0) {
+
+        let showOutliers = this.config.read("/*/chart:Series/chart:Series[@chartType='BOXPLOT']/@boxPlotOutliers",'false') == "true";
+        
+        // collect all series data before processing the chart via _prepareBoxplotData
+        boxplotData.push(nodes);
+        if (this.config.queryNodes("/*/chart:Series/chart:Series").length == s) {
+          var data = this._prepareBoxplotData(boxplotData);
+          opts.series = opts.series || [];
+          opts.tooltip = opts.tooltip || {};
+          while (opts.series.length < (showOutliers ? 2 : 1)) {
+            opts.series.push({bcdAttrs: { unit: series.unit }});
+          }
+          opts.series[0].type = opts.series[0].type || "boxplot";
+          opts.series[0].data = data.boxData;
+
+          if (showOutliers) {
+            opts.series[1].data = data.outliers;
+            opts.series[1].type = opts.series[1].type || "scatter";
+          }
+        }
+      }
 
       // polar chart handling
       else if (chartType === "POLARCHART" && nodes.length > 0) {
-        
+
         let noGap = this.config.read("/*/chart:Series/chart:Series["+s+"]/@polarNoGap",'true') == "true";
         
         if( typeof opts.polar == "undefined" ) {
@@ -498,7 +524,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         res += "<tr><th colspan='100' style='text-align:center'>- " + seriesName + " -</th></tr>";
       for (var s = 0; s <params.length; s++) {
         if( !!params[s].data.bcdTooltipSkip ) continue;
-        let unit = paramsIn.seriesType === "radar" ? opts.series[0].bcdAttrs.unit : opts.series[params[s].seriesIndex].bcdAttrs.unit;
+        let unit = (paramsIn.seriesType === "radar" || paramsIn.seriesType === "boxplot" ) ? opts.series[0].bcdAttrs.unit : opts.series[params[s].seriesIndex].bcdAttrs.unit;
         res += "<tr><td><span style='font-size: 250%; vertical-align: text-bottom; color:"+(params[s].color)+"'>&#x2022;</span>" + params[s].seriesName + "</td>";
         let values = Array.isArray(params[s].value) ? params[s].value : [params[s].value];
         for( var v=0; v< values.length; v++ ) {
@@ -660,13 +686,15 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     // Go
     var foundData = false;
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
-      if(nodes && nodes.length > 0 &&  opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
-        // we need to look for a real value entry since you might prepared the series data with just meta data while you don't have real value data
-        let axis1or2 = parseInt(this.config.read("/*/chart:Series/chart:Series["+s+"]/@yAxis1Or2",'1'));
-        let unit = this.config.read("/*/chart:Stacked[@axis='"+axis1or2+"']/@asPercent") === 'true' ? '%' : this.config.read("/*/chart:YAxis"+axis1or2+"/@unit",'');
-        let chartType = this.config.read("/*/chart:Series/chart:Series["+s+"]/@chartType") || (unit == "%" ? "LINECHART" : "BARCHART");
+      if(opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
         for (var d = 0; d < opts.series[s].data.length; d++) {
-          if (chartType != "RADARCHART" || (chartType=="RADARCHART" && opts.series[s].data[d].value)) {
+           var thisData = opts.series[s].data[d];
+           if (
+                  (typeof thisData.value != "undefined")
+               || (thisData instanceof Array && thisData.length == 2)
+               || (typeof thisData == "number")
+              )
+           {
             foundData = true;
             break;
           }
@@ -821,5 +849,67 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     };
 
   }
+  
+  /**
+   * @private
+   */
+  _prepareBoxplotData (rawData, opt) {
+    opt = opt || [];
+    var boxData = [];
+    var outliers = [];
+    var axisData = [];
+    var boundIQR = opt.boundIQR || 1.5;
+    var useExtreme = boundIQR === 'none' || boundIQR === 0;
+    opt.layout = opt.layout || 'horizontal';
 
+    for (var i = 0; i < rawData.length; i++) {
+        axisData.push(i + '');
+        
+        rawData[i] = rawData[i].map(function(e) { return (e == null ? 0 : e);});
+        
+        var ascList = rawData[i].slice().sort(function (a, b) {return a - b;});
+
+        var Q1 = this._quantile(ascList, 0.25);
+        var Q2 = this._quantile(ascList, 0.5);
+        var Q3 = this._quantile(ascList, 0.75);
+        var min = ascList[0];
+        var max = ascList[ascList.length - 1];
+
+        var bound = (boundIQR == null ? 1.5 : boundIQR) * (Q3 - Q1);
+
+        var low = useExtreme
+            ? min
+            : Math.max(min, Q1 - bound);
+        var high = useExtreme
+            ? max
+            : Math.min(max, Q3 + bound);
+
+        boxData.push([low, Q1, Q2, Q3, high]);
+
+        for (var j = 0; j < ascList.length; j++) {
+            var dataItem = ascList[j];
+            if (dataItem < low || dataItem > high) {
+                var outlier = [i, dataItem];
+                opt.layout === 'vertical' && outlier.reverse();
+                outliers.push(outlier);
+            }
+        }
+    }
+    return {
+        boxData: boxData,
+        outliers: outliers,
+        axisData: axisData
+    };
+  }
+
+  /**
+   * @private
+   */
+  _quantile(ascArr, p) {
+      var H = (ascArr.length - 1) * p + 1,
+          h = Math.floor(H),
+          v = +ascArr[h - 1],
+          e = H - h;
+      return e ? v + e * (ascArr[h] - v) : v;
+  }
 };
