@@ -22,7 +22,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import de.businesscode.bcdui.binding.rel.impl.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,6 +30,11 @@ import de.businesscode.bcdui.binding.BindingAliasMap;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
+import de.businesscode.bcdui.binding.rel.impl.AbstractColumn;
+import de.businesscode.bcdui.binding.rel.impl.AbstractConstrain;
+import de.businesscode.bcdui.binding.rel.impl.BooleanConstraintImpl;
+import de.businesscode.bcdui.binding.rel.impl.CombinedConstraintImpl;
+import de.businesscode.bcdui.binding.rel.impl.IsLikeConstraintImpl;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
@@ -40,7 +44,7 @@ import de.businesscode.util.XPathUtils;
 public class Relation {
 
   public static enum TYPE {
-    inner, leftOuter
+    inner, leftOuter, rightOuter
   }
   private BindingSet rightBindingSet;
   private String rightBindingSetName;
@@ -473,6 +477,16 @@ public class Relation {
   }
 
   /**
+   *
+   * Method isRightOuter
+   *
+   * @return
+   */
+  public boolean isRightOuter() {
+    return (this.type.equals(TYPE.rightOuter));
+  }
+
+  /**
    * returns statement created by own condition
    *
    * @return
@@ -490,6 +504,8 @@ public class Relation {
     String str;
     if (isLeftOuter())
       str = " LEFT OUTER JOIN ";
+    else if (isRightOuter()) 
+      str = " RIGHT OUTER JOIN ";
     else
       str = " INNER JOIN ";
     return str;

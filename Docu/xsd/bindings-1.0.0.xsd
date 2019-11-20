@@ -524,6 +524,11 @@
                 <xs:documentation>A 1:[0..1] relationship.</xs:documentation>
               </xs:annotation>
             </xs:enumeration>
+            <xs:enumeration value="rightOuter">
+              <xs:annotation>
+                <xs:documentation>A [0..1]:1 relationship.</xs:documentation>
+              </xs:annotation>
+            </xs:enumeration>
             <xs:enumeration value="inner">
               <xs:annotation>
                 <xs:documentation>

@@ -84,7 +84,7 @@ public class CaseWhenFromRel extends ReadBindingSet {
           Relation rel = new Relation( (Element) relations.item( i), bindingDoc.getDocumentElement().getAttribute( "id"));
           if ( ( (Element) relations.item( i)).getAttribute( "toCaseExpression").equals( "true")) {
             // A Relation node can only be replaced when it is no 'inner join'.
-            if ( rel.isLeftOuter()) {
+            if ( rel.isLeftOuter() || rel.isRightOuter() ) {
               // If NULL, the configured default database will be used later.
               String dbSourceName = bindingDoc.getDocumentElement().getAttribute( "dbSourceName");
 
