@@ -58,7 +58,7 @@ public class ExportServlet extends HttpServlet {
     int maxRows = defValue;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
-        Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), "bcdExport:maxRows");
+        Set<String> perms = SecurityHelper.getPermissions(SecurityUtils.getSubject(), getMaxRowsUserPermissionType());
         maxRows = perms.iterator().hasNext() ? Integer.parseInt(perms.iterator().next()) : defValue;
       }
     } catch (Exception e) {
@@ -66,4 +66,9 @@ public class ExportServlet extends HttpServlet {
     }
     return maxRows;
   }
+
+  protected String getMaxRowsUserPermissionType() {
+    return "bcdExport:maxRows";
+  }
+
 }

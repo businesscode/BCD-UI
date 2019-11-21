@@ -66,6 +66,10 @@ public class ExcelExportServlet extends ExportServlet {
     log.trace("Template Containers: " + templateContainers);
   }
 
+  protected String getMaxRowsUserPermissionType() {
+    return "bcdExport:maxRowsExcelExport";
+  }
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
