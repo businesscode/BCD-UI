@@ -475,6 +475,10 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       }
     }
 
+    // avoid taking over description into layout
+    jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
+    jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+
     return cubeBucketModelId;
   },
 
