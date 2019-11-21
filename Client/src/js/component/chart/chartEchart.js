@@ -691,7 +691,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
            var thisData = opts.series[s].data[d];
            if (
                   (typeof thisData.value != "undefined")
-               || (thisData instanceof Array && thisData.length == 2)
+               || (thisData instanceof Array && thisData.length > 0 && typeof thisData[0] == "number")
                || (typeof thisData == "number")
               )
            {
