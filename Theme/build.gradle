@@ -21,6 +21,7 @@ apply plugin: "com.moowork.node"
 
 def themeName         = project.properties['bcdui.theme.name']
 def themeFullLocation = project.properties['bcdui.theme.location'] + '/' + themeName
+def rootFolder = file(new File("$themeFullLocation/.genericBased")).exists() ? "generic" : "bcd"
 
 
 //*********************************************
@@ -30,7 +31,7 @@ task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CompileCss"
 
   inputs.dir  file(themeFullLocation)
-  inputs.dir  file('src/generic')
+  inputs.dir  file("src/" + rootFolder)
   outputs.dir file(taskDestDirName)
 
   script = file("$nodeModulesDir/node-sass/bin/node-sass")
@@ -92,7 +93,7 @@ task bcduiThemeDistCollect ( type: Copy ) {
 
   // First generic part, then the specific part. Then add the css generated from sass
   duplicatesStrategy = 'include'
-  from( "./src/generic" ) {
+  from( "./src/" + rootFolder ) {
     into 'bcdui/theme'
     exclude '**/*.css'
   }

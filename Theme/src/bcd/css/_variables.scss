@@ -3,30 +3,30 @@
 // the Font:
 // =======================================
 
-$bcd_font:                      'Titillium Web', sans-serif;
+$bcd_font:                      'Titillium Web', sans-serif !default;
 
 
 // Vars 
 // =======================================
 
-$bcd_sidebar-width:             17em;
-$bcd_sidebar-width-offset:      -($bcd_sidebar-width - 2.5em);
+$bcd_sidebar-width:             17em !default;
+$bcd_sidebar-width-offset:      -($bcd_sidebar-width - 2.5em) !default;
 
 // Colors 
 // ========================================
-$bcd_border-color:              #d8d8d8;
-$bcd_background-gray-light:     #f6f6f6;
-$bcd-headline-color:            #999999;
-$bcd_blue-light:                #369AFB;
-$bcd_blue-dark:                 #161669;
+$bcd_border-color:              #d8d8d8 !default;
+$bcd_background-gray-light:     #f6f6f6 !default;
+$bcd-headline-color:            #999999 !default;
+$bcd_blue-light:                #369AFB !default;
+$bcd_blue-dark:                 #161669 !default;
 
-$bcd_text-color:                #555;
-$bcd_bg-content-container:      #f6f6f6;
-$bcd_bg-sidebar:                #fff;
+$bcd_text-color:                #555 !default;
+$bcd_bg-content-container:      #f6f6f6 !default;
+$bcd_bg-sidebar:                #fff !default;
 
-$bcd_modal_dropshadow:          0 3px 30px rgba(0,0,0,.2);
+$bcd_modal_dropshadow:          0 3px 30px rgba(0,0,0,.2) !default;
 
-$z-index-base:                  110; // handsontable grid starts at 101 (and uses some for higher ones for differnt layers), so we start a bit higher
+$z-index-base:                  110 !default; // handsontable grid starts at 101 (and uses some for higher ones for differnt layers), so we start a bit higher
 $corporate-color:               $bcd_blue-light !default;
 $corporate-color-alt:           $bcd_blue-dark  !default;
 
@@ -51,7 +51,7 @@ $border-color:                  $bcd_border-color !default;
 $border-color-dark:             darken($border-color, 10%) !default;
 $border-color-bright:           lighten($border-color, 10%) !default;
 $border-radius-default:         .25em !default;
-$border-radius-small:           $border-radius-default;
+$border-radius-small:           $border-radius-default !default;
 
 $font-family-default:           $bcd_font !default;
 
@@ -61,9 +61,9 @@ $cube-color-item:               #f6f6f6 !default;
 
 $grid-action-color:             $corporate-color-alt !default;
 
-$z-index-flyover:               $z-index-base + 10;
-$z-index-autocomplete:          $z-index-flyover + 10; // calc editor in cube got an autocompletion box in a modal flyover
-$z-index-balloon:               $z-index-base + 10;    // widget balloons
+$z-index-flyover:               $z-index-base + 10 !default;
+$z-index-autocomplete:          $z-index-flyover + 10 !default; // calc editor in cube got an autocompletion box in a modal flyover
+$z-index-balloon:               $z-index-base + 10 !default;    // widget balloons
 
 $cube-sections-color-head:      $corporate-color !default;
 $cube-hover-color-body:         $cube-sections-color-head !default;
