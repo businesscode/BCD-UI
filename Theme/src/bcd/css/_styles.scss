@@ -1622,3 +1622,9 @@ table.bcd-far-configurator {
 
 #bcdTooltipDiv .bcdScTooltip, .bcdScDndTooltip { max-width: 25em; table-layout: fixed;}
 #bcdTooltipDiv .bcdCubeTooltip, .bcdCubeDndTooltip { max-width: 25em; table-layout: fixed;}
+
+.bcdCubeHide {
+  background-color: $text-disabled-color;
+  z-index: $z-index-flyover;
+  @include alpha(0.75);
+}
