@@ -537,7 +537,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       if (mes.getAttribute("cumulateRow") != null && mes.getAttribute("cumulateCol") != null) customClass = "bcdRowColCumulate";
     }
 
-    var title =  bcdui.factory.objectRegistry.getObject(cubeBucketModelId).query("//@description") != null ? "" : " title='" + args.caption + "'";
+    var title =  bcdui.factory.objectRegistry.getObject(cubeId).getConfigModel().query("//cube:Layout//@description") != null ? "" : " title='" + args.caption + "'";
     return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'" + title + "><span class='bcdItem'>" + args.caption + "</span></li>";
   },
 
