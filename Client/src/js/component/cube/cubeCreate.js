@@ -645,18 +645,20 @@ bcdui.util.namespace("bcdui.component",
             // enhancedConfig's input model is the cube metadata model, we need to ensure
             // that both are ready, otherwise you get a refresh which is one step out of sync
             var targetHtmlElement = bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHTMLElement();
-            if (targetHtmlElement.firstChild && ! bcdui._migPjs._$("bcdCubeHide" + args.cubeId).length > 0) {
-              // Indicate that the cube is currently working and disable context menu as it would work on vanishing HTML elements (producing errors)
-              var div = document.createElement("div");
-              div.setAttribute("id", "bcdCubeHide" + args.cubeId);
-              div.setAttribute("class", "bcdCubeHide");
-              div.setAttribute("title", bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_PressApplyFirst"}));
-              var child = targetHtmlElement.children.length > 0 ? targetHtmlElement.children[0] : targetHtmlElement.firstChild;
-              bcdui._migPjs._$(div).css({position: "absolute", width: child.offsetWidth + "px", height: child.offsetHeight + "px"});
-              div.oncontextmenu = function(event) {event = event || window.event; event.stopPropagation(); return false;};
-              targetHtmlElement.insertBefore(div, targetHtmlElement.firstChild);
+            if (jQuery(targetHtmlElement).find(".bcdInfoBox").length == 0) {
+              if (targetHtmlElement.firstChild && ! bcdui._migPjs._$("bcdCubeHide" + args.cubeId).length > 0) {
+                // Indicate that the cube is currently working and disable context menu as it would work on vanishing HTML elements (producing errors)
+                var div = document.createElement("div");
+                div.setAttribute("id", "bcdCubeHide" + args.cubeId);
+                div.setAttribute("class", "bcdCubeHide");
+                div.setAttribute("title", bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_PressApplyFirst"}));
+                var child = targetHtmlElement.children.length > 0 ? targetHtmlElement.children[0] : targetHtmlElement.firstChild;
+                bcdui._migPjs._$(div).css({position: "absolute", width: child.offsetWidth + "px", height: child.offsetHeight + "px"});
+                div.oncontextmenu = function(event) {event = event || window.event; event.stopPropagation(); return false;};
+                targetHtmlElement.insertBefore(div, targetHtmlElement.firstChild);
+              }
             }
-  
+
             var clientSettingsDisableNode = bcdui.wkModels.guiStatus.getData().selectSingleNode("/*/guiStatus:ClientSettings//cube:ClientLayout[@cubeId ='" + args.cubeId + "']");
             var doDisable = (clientSettingsDisableNode != null && clientSettingsDisableNode.getAttribute("disableClientRefresh") == "true");
             // only run renderer if clientlayout node is set to false i.e. a direct rerender is actually allowed and possible
