@@ -1399,8 +1399,12 @@ bcdui.util.namespace("bcdui.widget.inputField",
       });
 
       // Show
-      if (!valueBox.is(":visible"))
+      if (!valueBox.is(":visible")) {
+        // take over font-size of inputfield
+        jQuery(valueBox).css("font-size", jQuery(htmlElement).css("font-size"));
+
         valueBox.show();
+      }
 
       if(_scrollToTarget){
         // position the selected item into the center of the box

@@ -668,8 +668,12 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         bcdui.widget.formulaEditor._addOption(containerHtmlElement, val, isSep);
       }
 
-      if (!valueBox.is(":visible"))
+      if (!valueBox.is(":visible")) {
+        // take over font-size of inputfield
+        jQuery(valueBox).css("font-size", jQuery(htmlElement).css("font-size"));
+
         valueBox.show();
+      }
       // scroll to Top
       bcdui._migPjs._$('bcdAutoCompletionBox').get(0).scrollTop = 0;
       bcdui._migPjs._$('bcdAutoCompletionBox').get(0).style.width = 'auto';
