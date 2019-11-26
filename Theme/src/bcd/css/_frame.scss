@@ -169,7 +169,7 @@
     flex-direction:row;
     align-items: space-between; 
     justify-content: space-between;
-    border-top: 1px solid $menu-border-color;
+    border-bottom: 1px solid $menu-border-color;
   }
   &__logo {
     padding: 0 1em;
