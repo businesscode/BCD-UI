@@ -41,8 +41,21 @@
   color: text-contrast($invalid-color) !important;
 }
 
+@mixin bcdSelected($important:false) {
+  @if $important == true {
+    background-color: $select-color !important;
+    color: $text-color-bright !important;
+    border-color: $corporate-color-alt !important;
+  }
+  @else {
+    background-color: $select-color;
+    color: $text-color-bright;
+    border-color: $corporate-color-alt !important;
+  }
+}
+
 .bcdSelected {
-  @include con_color( $select-color );
+  @include bcdSelected();
 }
 
 .bcdPlaceholder,
@@ -73,6 +86,8 @@
 
 .bcdButton {
   @extend .btn; // extend BS-default button
+  background-color: $corporate-color;
+  border-color: $corporate-color;
   font-weight: 600;
   padding: .4em 1.4em;
   cursor: pointer;
@@ -83,7 +98,9 @@
   z-index:  $z-index-flyover;
   
   .bcdButton {
-     @extend .btn-secondary;
+    @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
   }
 }
 #bcdDropDownButton {
@@ -155,9 +172,8 @@
   overflow-y: auto;
   div {
     white-space: nowrap;
-    .bcdOptionIsHovered,
-    .bcdOptionIsSelected {
-      @include con_color( $select-color );
+    .bcdOptionIsHovered, .bcdOptionIsSelected {
+      @include bcdSelected();
     }
   }
 }
@@ -233,6 +249,8 @@
 
   .bcdButton {
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     padding: .187em .38em;
     a {
       color: inherit;
@@ -270,6 +288,9 @@
 
   .bcdButton {
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
+
     padding: .375em .75em;
     a {
       color: inherit;
@@ -282,18 +303,26 @@
       content: fa-content($fa-var-calendar);
       background-color: $text-color;
     }
+    &:hover {
+      background-color: $secondary-button-color-hover;
+      border-color: $secondary-button-color-hover;
+    }
   }
   
   .bcdPeriodChooserModLeft {
     margin-top: 0.2em;
     @extend .btn;
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     &:after { content: fa-content($fa-var-chevron-left); text-decoration: none; cursor: pointer; }
   }
   .bcdPeriodChooserModRight {
     margin-top: 0.2em;
     @extend .btn;
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     &:after { content: fa-content($fa-var-chevron-right); text-decoration: none; cursor: pointer; }
   }
 
@@ -306,6 +335,8 @@
   .bcdClearButton {
     @extend .btn;
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     cursor: pointer;
     &:after {
       @extend %fa-icon;
@@ -362,8 +393,7 @@
   .weekListSelectionHover,
   .weekListSelectionHover a,
   .popupSelectBoxHover {
-    color: text-contrast($select-color) !important;
-    background-color: $select-color !important;
+ 	  @include bcdSelected();
   }
    
   tr.popupBaseColor {
@@ -458,7 +488,9 @@
   .bcdScDimensionList, .bcdAspectList {
     height: 40%;
   }
-
+  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentRowDimensionList, .bcdCurrentColMeasureList, bcdCurrentKpiList, bcdCurrentAspectList {
+    padding-bottom: 1em;
+  }
   .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentScColDimensionList, .bcdCurrentAspectList {
     height: 50%;
   }
@@ -472,7 +504,10 @@
   .bcdHeader {
     height: 10%;
     padding: .3em;
-    @include con_color($corporate-color-alt);
+    background-color: #ffffff;
+    color: $text-color;
+    border: none;
+    font-size: .8em
   }
 
   div {
@@ -486,7 +521,7 @@
       left: 0.3em;
       position: absolute;
       @include alpha(0.75);
-      color: $corporate-color-alt;
+      color: $text-color;
       z-index: 0;
     }
   }
@@ -521,9 +556,31 @@
   }
 }
 
+.total {
+  background-color: #ffffff;
+  color: $corporate-color-alt;
+  font-weight: bold;
+  border-color:$corporate-color-alt;
+}
+
 .bcdReport {
+  td {
+    text-align: right;
+  }
+  th {
+    white-space: nowrap;
+  }
+  thead {
+    th {
+      text-align: right;
+    }
+    th.bcdDimension {
+      text-align: left;
+    }
+  }
+
   thead .bcdTotal {
-    @extend .table-primary;
+    @extend .total;
   }
 
   tbody {
@@ -532,7 +589,7 @@
     .bcdTL3, .bcdTL3 td,
     .bcdTLGe4, .bcdTLGe4 td,
     .bcdTotal {
-      @extend .table-primary;
+      @extend .total;
     }
   }
   
@@ -565,6 +622,8 @@
     cursor: pointer;
     padding: 0 .375em 0 .3em;
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     margin-right: .3em;
   }
 
@@ -751,14 +810,22 @@
 /*********************************************************************************************************************/
 
 .bcdConnectable {
+  &:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
   overflow: auto;
   list-style-type: none;
   height: 100%;
   width: 100%;
   li { position: relative; cursor: default;}
   .bcdItem { cursor: pointer; }
-  .ui-selected { @include con_color($select-color); }
-  .bcdConnectableHover, .ui-selecting { @include con_color($border-color); }
+  .ui-selected {
+    @include bcdSelected();
+  }
+  .bcdConnectableHover, .ui-selecting {
+    @include bcdSelected(true);
+  }
   li.ui-node-expanded > .ui-node-handle:after {
     content: url(../images/tree/tree_minus.gif)
   }
@@ -829,7 +896,9 @@
 
     li { padding: 1px 0; position: relative; cursor: default;}
     .bcdItem { display: inline-block; width: 100%; cursor: pointer; white-space: normal;}
-    .ui-selected { @include con_color($select-color); }
+    .ui-selected {
+      @include bcdSelected();
+    }
     .bcdSbscHover, .ui-selecting { @include con_color($border-color); }
   }
 
@@ -844,6 +913,8 @@
       display: block;
       margin: .2em;
       @extend .btn-secondary;
+      background-color: $secondary-button-color;
+      border-color: $secondary-button-color;
       padding: .375em .75em;
       display: block;
       a {
@@ -891,11 +962,11 @@
   
   .bcdMenuitems:hover {
     position: relative; /* IE8 */
-    @include con_color($select-color);
+    @include bcdSelected();
   }
   
   div.bcdContextMenu .bcdContextMenuTitle {
-    @include con_color($select-color);
+ 	  @include bcdSelected();
     font-weight: bold;
     border: 1px solid $border-color;
     text-align: center;
@@ -1012,6 +1083,8 @@
 
   .bcdButton {
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     padding: .187em .38em;
     a {
       color: inherit;
@@ -1034,7 +1107,7 @@
     margin-right: 3px;
   }
   .highlight {
-    @include con_color($border-color);
+ 	  @include bcdSelected();
   }
 }
 
@@ -1186,7 +1259,7 @@ table.bcd-far-configurator {
       cursor: pointer;
     }
     .bcdPagingButtonActive {
-      @include con_color($select-color);
+ 	    @include bcdSelected();
     }
     .bcdPagingSelectAction select { width: auto; }
   }
@@ -1206,6 +1279,8 @@ table.bcd-far-configurator {
   .bcdGroupAction:after {
     padding: 0 .375em 0 .3em;
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
     margin-right: .3em;
     content: "\2212";
     position: absolute;
@@ -1287,6 +1362,8 @@ table.bcd-far-configurator {
 
  .bcdGE_remove .bcdButton, .bcdGE_add .bcdButton {
     @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
   }
   
   .bcdGE_ok {
@@ -1425,7 +1502,7 @@ table.bcd-far-configurator {
   }
   
   .bcdReportTemplateList a.bcdSelected {
-    @include con_color($flyover-color);
+ 	  @include bcdSelected();
     border: 1px dotted $corporate-color-alt;
   }
 
@@ -1436,10 +1513,9 @@ table.bcd-far-configurator {
   .bcdTemplateButton:hover,
   a:hover {
     text-decoration: none;
-    @include con_color($cube-hover-color-body);
-    border: 1px solid $cube-hover-color-border;
+    @include bcdSelected();
   }
-  
+
   .bcdReportTemplatesSaveArea {
     border-bottom: 1px solid $border-color;
     padding: 5px;
@@ -1484,7 +1560,7 @@ table.bcd-far-configurator {
 
 /* jQuery Ui Widget */
 .ui-widget {
-  font-family: $bcd_font;
+  font-family: $font-family-default;
 }
 
 .ui-widget-overlay {
@@ -1496,13 +1572,13 @@ table.bcd-far-configurator {
 /* override jquery-ui dialog styles */
 
 .ui-dialog {
-  border: 1px solid $bcd_border-color;
-  box-shadow: $bcd_modal_dropshadow;
+  border: 1px solid $border-color;
+  box-shadow: $modal_dropshadow;
   padding: 1em;
   
   .ui-widget-header {
     border: 0;
-    border-bottom: 2px solid $bcd_border-color;
+    border-bottom: 2px solid $border-color;
     background: #fff;
   }
   .ui-corner-all {
@@ -1609,7 +1685,8 @@ table.bcd-far-configurator {
   position: relative;
   font-size:1.2em;
   font-weight:400;
-  border-bottom:1px solid $bcd_border-color;
+  border-bottom:1px solid $sidebar-header-border-color;
+  color: $sidebar-header-color 
 }
 .bcdBlindUpDownClose {
   position: absolute;
@@ -1625,6 +1702,63 @@ table.bcd-far-configurator {
 
 .bcdCubeHide {
   background-color: $text-disabled-color;
-  z-index: $z-index-flyover;
-  @include alpha(0.75);
+  z-index: $z-index-base;
+  @include alpha(0.5);
+}
+
+/* ******************************************************************* */
+/* select/button outline/selection coloring                            */
+/* ******************************************************************* */
+.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+  background-color: $corporate-color-alt;
+  border-color: $corporate-color-alt;
+}
+
+select:focus option:checked {
+  @include bcdSelected();
+  background-image:  linear-gradient(0deg, $select-color 100%, $select-color 100%);
+}
+
+::selection {
+  @include bcdSelected();
+}
+::-moz-selection {
+  @include bcdSelected();
+}
+::selected {
+  @include bcdSelected();
+}
+
+.bcdPeriodChooser input:focus,
+.form-control:focus {
+  box-shadow: $select-color 25% 0px 0px 0px 0.2rem !important;
+  border-color: $corporate-color-alt;
+  outline: 0px;
+}
+
+/* ******************************************************************* */
+/* sidebar font size                            */
+/* ******************************************************************* */
+
+.bcd__sidebar-left {
+  .bcd__form-container {
+    font-size: $sidebar-font-size;
+    .bcdButton, .bcdClearButton,
+    input, select {
+      font-size: $sidebar-font-size;
+    }
+  }
+
+  label {
+   margin-bottom: 0;
+   color: $sidebar-header-color;
+  }
+
+  h1, h2 {
+    border-bottom-color: $sidebar-header-border-color;
+  }
+}
+
+.home-card a:hover {
+  text-decoration: none;
 }

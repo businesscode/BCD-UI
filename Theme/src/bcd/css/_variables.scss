@@ -1,73 +1,76 @@
-// Variables 
-
-// the Font:
+// Font
 // =======================================
 
-$bcd_font:                      'Titillium Web', sans-serif !default;
-
-
-// Vars 
-// =======================================
-
-$bcd_sidebar-width:             17em !default;
-$bcd_sidebar-width-offset:      -($bcd_sidebar-width - 2.5em) !default;
-
-// Colors 
-// ========================================
-$bcd_border-color:              #d8d8d8 !default;
-$bcd_background-gray-light:     #f6f6f6 !default;
-$bcd-headline-color:            #999999 !default;
-$bcd_blue-light:                #369AFB !default;
-$bcd_blue-dark:                 #161669 !default;
-
-$bcd_text-color:                #555 !default;
-$bcd_bg-content-container:      #f6f6f6 !default;
-$bcd_bg-sidebar:                #fff !default;
-
-$bcd_modal_dropshadow:          0 3px 30px rgba(0,0,0,.2) !default;
-
-$z-index-base:                  110 !default; // handsontable grid starts at 101 (and uses some for higher ones for differnt layers), so we start a bit higher
-$corporate-color:               $bcd_blue-light !default;
-$corporate-color-alt:           $bcd_blue-dark  !default;
-
-$text-color:                    $bcd_text-color !default
-$text-color-dark:               $bcd_text-color !default
+$font-family-default:           'Titillium Web', sans-serif !default;
+$font-size-small:               0.5em !default; // TODO: use this one, instead of any other inividual absolute sizes
+$text-color:                    #555 !default;
+$text-color-dark:               #555 !default;
 $text-color-bright:             #FFFFFF !default;
 $text-contrast-break:           50 !default;
 $text-disabled-color:           #888888 !default;
 
-$invalid-color:                 #F0A0A0 !default;
-$select-color:                  #007DFA !default;
-$control-color:                 #F8F8F8 !default;
-$calendar-color:                $bcd_border-color !default;
-$button-color:                  $corporate-color !default;
-$flyover-color:                 #E8E8E8 !default;
+// zIndex
+// =======================================
 
-$report-color-ok:               #008000 !default;
-$report-color-warn:             #00FF00 !default;
-$report-color-fail:             #FF0000 !default;
+$z-index-base:                  110 !default; // handsontable grid starts at 101 (and uses some for higher ones for differnt layers), so we start a bit higher
+$z-index-flyover:               $z-index-base + 10 !default;
+$z-index-autocomplete:          $z-index-flyover + 10 !default; // calc editor in cube got an autocompletion box in a modal flyover
+$z-index-balloon:               $z-index-base + 10 !default;    // widget balloons
 
-$border-color:                  $bcd_border-color !default;
+// Border 
+// ========================================
+
+$border-color:                  #d8d8d8 !default;
 $border-color-dark:             darken($border-color, 10%) !default;
 $border-color-bright:           lighten($border-color, 10%) !default;
 $border-radius-default:         .25em !default;
 $border-radius-small:           $border-radius-default !default;
 
-$font-family-default:           $bcd_font !default;
+// Sidebar
+// =======================================
 
-$font-size-small:               0.5em !default; // TODO: use this one, instead of any other inividual absolute sizes
+$sidebar-width:                 17em !default;
+$sidebar-width-offset:          -($sidebar-width - 2.5em) !default;
+$sidebar_background:            #fff !default;
+$sidebar-font-size:             0.9em !default;
+$sidebar-header-color:          $text-color-dark !default;
+$sidebar-header-border-color:   $border-color !default;
 
-$cube-color-item:               #f6f6f6 !default;
+// Colors 
+// ========================================
+
+$corporate-color:               #369AFB !default;
+$corporate-color-alt:           #161669 !default;
+
+$menu-text-color:               $text-color-dark !default;
+$menu-border-color:             $border-color !default;
+
+$content-background-color:      #f6f6f6 !default;
+$login-background-color:        #f6f6f6 !default;
+$headline-color:                #999999 !default;
+
+$modal_dropshadow:              0 3px 30px rgba(0,0,0,.2) !default;
+
+$invalid-color:                 #F0A0A0 !default;
+$select-color:                  $corporate-color !default;
+$control-color:                 #F8F8F8 !default;
+$calendar-color:                $border-color !default;
+$button-color:                  $corporate-color !default;
+$secondary-button-color:        #6c757d !default;
+$secondary-button-color-hover:  #212529 !default;
+
+$flyover-color:                 #E8E8E8 !default;
 
 $grid-action-color:             $corporate-color-alt !default;
 
-$z-index-flyover:               $z-index-base + 10 !default;
-$z-index-autocomplete:          $z-index-flyover + 10 !default; // calc editor in cube got an autocompletion box in a modal flyover
-$z-index-balloon:               $z-index-base + 10 !default;    // widget balloons
+// report and cube constants
 
+$report-color-ok:               #008000 !default;
+$report-color-warn:             #00FF00 !default;
+$report-color-fail:             #FF0000 !default;
+
+$cube-color-item:               #f6f6f6 !default;
 $cube-sections-color-head:      $corporate-color !default;
-$cube-hover-color-body:         $cube-sections-color-head !default;
-$cube-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
 
 $cube-color-cell:               #D9D9D9 !default;
 $cube-color-cell-total:         $corporate-color-alt !default;

@@ -10,7 +10,7 @@
 .bcd__login-wrapper {
   width:100%;
   height:100%;
-  background:$bcd_background-gray-light;
+  background:$login-background-color;
   display:flex;
   flex-direction: column;
   justify-items:center;
@@ -26,7 +26,7 @@
       a {
         display:inline-block;
         padding-left:1em;
-        color:$bcd_headline-color;
+        color:$headline-color;
       }
     }
   }
@@ -89,7 +89,7 @@
   max-width: 100%;
   margin: auto;
   background:#fff;
-  box-shadow: $bcd_modal_dropshadow;
+  box-shadow: $modal_dropshadow;
   padding:0.8em 0.2em 0.8em;
   z-index:1;
 
@@ -113,7 +113,7 @@
     border:none;
   }
   .bcd__text-link {
-    color:$bcd_headline-color;
+    color:$headline-color;
     font-size:.9em;
   }
   .btn {
@@ -175,7 +175,7 @@
       position: relative;
       z-index:20;
       padding:0 .5em;
-      color:$bcd_headline-color;
+      color:$headline-color;
       font-size:0.9em;
     }
     &:before {
@@ -186,7 +186,7 @@
       width:100%;
       height:1px;
       background:transparent;
-      border-bottom:1px solid $bcd_border-color;
+      border-bottom:1px solid $border-color;
     }
   }
 }

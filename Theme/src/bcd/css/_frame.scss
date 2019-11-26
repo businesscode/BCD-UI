@@ -28,7 +28,7 @@
   &__header {
     position: relative;
     flex: 0 0 auto;
-    border-bottom:2px solid $bcd_border-color;
+    border-bottom:1px solid $menu-border-color;
   }
   &__vertical-split {
     flex-grow:1;
@@ -38,7 +38,7 @@
     height:100%;
     overflow:hidden;
     position: relative;
-    background:$bcd_bg-content-container;
+    background:$content-background-color;
   }
   &__sidebar-left {
     overflow: visible;
@@ -46,21 +46,21 @@
     position:absolute;
     transition: all .4s ease-in-out;
     transform:translateX(0em);
-    width:$bcd_sidebar-width;
+    width:$sidebar-width;
     z-index: $z-index-base + 1;
     padding-right:1.5em;
 
     .bcd__sidebar-left__inner {
-      padding-top:1.3em;
-      background: $bcd_bg-sidebar;
-      border-right: 1px solid $bcd_border-color;
+      padding-top:0.3em;
+      background: $sidebar_background;
+      border-right: 1px solid $border-color;
       height:100%;
       overflow-y: auto;
     }
   }
 
   &__content-container {
-    background: transparent;
+    background: $content-background-color;
     flex: 1 1 auto;
     max-width: 100%;
     overflow-x: auto;
@@ -79,8 +79,8 @@
   &__form-container {
     section {
       padding:1em 1em 0.1em 1em;
-      border-bottom:1px solid $bcd_border-color;
-  
+      border-bottom:1px solid $border-color;
+
       &:last-of-type {
         border-bottom:0;
       }
@@ -95,10 +95,10 @@
     width: 1.6em;
     height: 3.6em;
     display: flex;
-    background: $bcd_bg-sidebar;
+    background: $sidebar_background;
     border-style:solid;
     border-width:1px 1px 1px 0;
-    border-color:$bcd_border-color;
+    border-color:$border-color;
     border-radius:0 4px 4px 0;
   }
 
@@ -125,7 +125,7 @@
       &__sidebar-left {
         position: absolute;
         transition: all .4s ease-in-out;
-        transform: translateX($bcd_sidebar-width-offset);
+        transform: translateX($sidebar-width-offset);
 
         .bcd__sidebar-left__inner {
           box-shadow: 3px 0 12px rgba(0, 0, 0, .2);
@@ -150,7 +150,7 @@
 // no Sidebar:
 .bcd__vertical-split {
   .bcd__sidebar-left + .bcd__content-container {
-    margin-left: ($bcd_sidebar-width - 1em);
+    margin-left: ($sidebar-width - 1em);
   }
 }
 .bcd__vertical-split.bcd__vertical-split--sidebar-collapsed {
@@ -211,14 +211,14 @@
       padding:0;
       display: flex;
       text-decoration:none;
-      color:$bcd_text-color;
+      color:$menu-text-color;
     }
     .initials {
       display:flex;
       height:2.5em;
       width:2.5em;
       border-radius:50em;
-      background:$bcd_blue-light;
+      background:$corporate-color;
       color:#fff;
       align-items: center;
       justify-content:center;
@@ -230,9 +230,11 @@
 // header navigation with pull-down
 // ================================================================
 
+.bcd__header__navigation {
+  border-top: 1px solid $menu-border-color;
+}
 .bcd__header__navigation,
 .bcd__header__credentials-widget {
-  border-top: 1px solid $bcd_border-color;
 
   nav {
     height: 100%;
@@ -256,7 +258,7 @@
 
         a {
           transition: color 0.2s linear, border-color 0.2s linear;
-          color: #555;
+          color: $menu-text-color;
           font-weight: 300;
           font-size: 1em;
           line-height: 1.1;
@@ -269,14 +271,14 @@
           text-decoration:none;
 
           &:hover {
-            color: $bcd_blue-light;
+            color: $text-color;
           }
         }
         &.bcd__active-item > a {
           margin-right: 1px;
-          color: $bcd_blue-light;
+          color: $corporate-color;
           font-weight: bold;
-          border-bottom: 4px solid $bcd_blue-light;
+          border-bottom: 4px solid $corporate-color;
         }
 
         li {
@@ -332,12 +334,12 @@
           white-space: normal;
 
           &:hover {
-            //background: #fff;
+            color: $text-color;
             text-decoration: underline;
           }
         }
         &.bcd__active-item > a {
-          background: $bcd_blue-light;
+          background: $corporate-color;
           color: #fff;
         }
         ul {
@@ -372,7 +374,15 @@ footer {
   justify-content: space-between;
   padding:0.8em 1em;
   font-size:.9em;
-  border-top:1px solid $bcd_border-color;
+  border-top:1px solid $border-color;
+
+  a {
+    color: $menu-text-color;
+    text-decoration:none;
+    &:hover {
+      color: $text-color;
+    }
+  }
 
   p {
     flex:0 1 auto;
@@ -395,10 +405,10 @@ footer {
         margin-left:1em;
         a {
           text-decoration:none;
-          color:$bcd_text-color;
+          color:$text-color;
 
           &:hover {
-            color:$bcd_blue-light;
+            color: $text-color;
           }
         }
       }
@@ -416,4 +426,15 @@ footer {
 }
 .bcdSidebarEffect {
   transition: all .4s ease-in-out !important;
+}
+
+.bcd__sidebar-left__inner {
+  .hamburger-inner,
+  .hamburger-inner::after,
+  .hamburger-inner::before,
+  .hamburger.is-active .hamburger-inner,
+  .hamburger.is-active .hamburger-inner::after,
+  .hamburger.is-active .hamburger-inner::before {
+    background-color:$corporate-color-alt;
+  }
 }
