@@ -3,7 +3,7 @@
 @import "_mixins.scss";
 
 // Overrides
-$primary:                         $corporate-color;
+$primary:                         $corporate-color !default;
 $fa-font-path:                    "../vendor/fontawesome-free-5.8.1-web/webfonts";
 
 // BootStrap
