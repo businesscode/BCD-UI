@@ -26,6 +26,8 @@
   <xsl:param name="contextPath" select="'/'"/>
   <xsl:param name="bcdControllerVariableName" select="'root_'"/>
   <xsl:param name="legacyTheme" select='false'/>
+  <xsl:param name="isCredentialMenu" select='false'/>
+  <xsl:param name="userName" select='User'/>
   <!-- menu Id -->
   <xsl:param name="menuId"
     select="
@@ -54,6 +56,7 @@
           <xsl:call-template name="getEntry">
             <xsl:with-param name="entry" select="."/>
             <xsl:with-param name="depth" select="number('2')"/>
+            <xsl:with-param name="pos" select="position()"/>
           </xsl:call-template>
         </xsl:for-each>
       </ul>
@@ -67,6 +70,7 @@
   <xsl:template name="getEntry">
     <xsl:param name="entry"/>
     <xsl:param name="depth" select="number('1')"/>
+    <xsl:param name="pos"/>
 
     <xsl:for-each select="$entry">
       <xsl:variable name="node" select="."/>
@@ -83,10 +87,21 @@
           <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         </xsl:attribute>
 
-        <xsl:call-template name="getLink">
-          <xsl:with-param name="node" select="$node"/>
-          <xsl:with-param name="activeClassName" select="$activeClassName"/>
-        </xsl:call-template>
+        <xsl:choose>
+          <xsl:when test="$isCredentialMenu='true' and $depth=2 and $pos=1">
+            <a href="#" class="bcd__header_credentials_toggle">
+              <span class="initials"><xsl:value-of select="substring(translate($userName, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 1)"/></span>
+              <span><xsl:value-of select="$userName"/></span>
+              <i class="fas fa-caret-down"></i>
+            </a>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="getLink">
+            <xsl:with-param name="node" select="$node"/>
+            <xsl:with-param name="activeClassName" select="$activeClassName"/>
+          </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
 
         <xsl:if test="$node/menu:Entry">
           <ul class="bcdLevel{$depth}">

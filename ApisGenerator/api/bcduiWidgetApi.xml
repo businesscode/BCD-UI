@@ -592,6 +592,17 @@
         </Impl>
       </Api>
 
+      <Api name="credentialsMenu" extends="widget">
+        <Doc>
+          Creates credential menu.
+        </Doc>
+        <Param name="modelId" type="string">
+          <Doc>
+            id of model holding custom model definition. If not provided, a standard one with just logout is created.
+          </Doc>
+        </Param>
+      </Api>
+
       <Api name="menu" extends="widget">
         <Doc>
           Creates menu with default renderer an default menu js handler.
@@ -935,6 +946,7 @@
       <BcdObject name="inputField" implements="inputField" implementationPackage="bcdui.widget." tagFolder="widget"/>
       <BcdObject name="loginForm" implements="loginForm" implementationPackage="" tagFolder="widget" generateXSLT="false"/>
       <BcdObject name="menu" implements="menu" implementationPackage="bcdui.widget." tagFolder="widget" isBlockContainer="true" generateXSLT="false"/>
+      <BcdObject name="credentialsMenu" implements="credentialsMenu" implementationPackage="bcdui.widget." tagFolder="widget" isBlockContainer="true" generateXSLT="false"/>
       <BcdObject name="multiSelect" implements="multiSelect" implementationPackage="bcdui.widget." tagFolder="widget"/>
       <BcdObject name="periodChooser" implements="periodChooser" implementationPackage="bcdui.widget." tagFolder="widget"/>
       <BcdObject name="singleSelect" implements="singleSelect" implementationPackage="bcdui.widget." tagFolder="widget"/>

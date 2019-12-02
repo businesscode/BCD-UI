@@ -116,33 +116,6 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
       });
     }
 
-    /*
-     * attach User name Widget to well known 'bcd__header__credentials-widget' element
-     */
-    if (args.userNameWidget && ! jQuery('.bcd__header__credentials-widget').hasClass("bcdActivated")) {
-
-      jQuery('.bcd__header__credentials-widget').addClass("bcdActivated");
-      
-  	  if ( bcdui && bcdui.config && bcdui.config.isAuthenticated === true && jQuery(".bcd__header__credentials-widget").length > 0 ){
-    	  jQuery('.bcd__header__credentials-widget').append(`
-          <nav>
-            <ul>
-              <li>
-                <a href="#" class="bcd__header_credentials_toggle">
-                  <span class="initials">${bcdui.config.userName.charAt(0).toUpperCase()}</span>
-                  <span>${bcdui.config.userName}</span>
-                  <i class="fas fa-caret-down"></i>
-                </a>
-                <ul>
-                  <li><a href="${bcdui.config.contextPath}/logout">Logout</a></li>
-                </ul>
-              </li>
-            </ul>
-          </nav>
-    	  `);
-  	  }
-    }
-
     // nothing to do?
     if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick && ! args.pageStickyFooter)
       return;

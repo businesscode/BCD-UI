@@ -966,6 +966,33 @@ bcdui.util.namespace("bcdui.widget",
     },
 
     /**
+     * Creates credential menu
+     * @param {Object}        args                      The parameter map contains the following properties.
+     * @param {targetHtmlRef} args.targetHtml           An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
+     * @param {string}        [args.modelId]            id of model holding custom model definition. If not provided, a standard one with just logout is created.
+     * 
+     */
+    createCredentialsMenu: function(args)
+      {
+        jQuery(args.targetHtml).addClass("bcd__header__credentials-widget");
+        var modelId = args.modelId;
+        if (!modelId) {
+          var model = new bcdui.core.StaticModel("<Menu xmlns='http://www.businesscode.de/schema/bcdui/menu-1.0.0'><Entry caption='User'><Entry id='logout' caption='Logout' href='/logout'/></Entry></Menu>");
+          bcdui.factory.objectRegistry.registerObject(model);
+          modelId = model.id;
+        }
+        var menuArgs = {
+          targetHtml: args.targetHtml
+        , modelId: modelId
+          , parameters: {
+            isCredentialMenu: true
+          , userName: bcdui.config.userName
+          }
+        }
+        bcdui.widget.createMenu(menuArgs);
+      },
+
+    /**
      * extracts unique model names from modelXPath, including $ tokens
      *
      * @return Array with models or null
