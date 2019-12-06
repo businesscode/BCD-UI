@@ -2323,8 +2323,16 @@ bcdui.util.namespace("bcdui.widget",
         bcdui.widget._bcdFilter.isnotequal = function(cellValue, value) { return cellValue.toLowerCase() != value.toLowerCase();};
         bcdui.widget._bcdFilter.isempty = function(cellValue, value)    { return cellValue == bcdui.core.magicChar.dimEmpty;};
         bcdui.widget._bcdFilter.isnotempty = function(cellValue, value) { return cellValue != bcdui.core.magicChar.dimEmpty};
-        bcdui.widget._bcdFilter.isbigger = function(cellValue, value)   {return (isNaN(parseFloat(cellValue)) || isNaN(parseFloat(value)) ? (cellValue > value) : (parseFloat(cellValue) > parseFloat(value)));};
-        bcdui.widget._bcdFilter.issmaller = function(cellValue, value)  {return (isNaN(parseFloat(cellValue)) || isNaN(parseFloat(value)) ? (cellValue < value) : (parseFloat(cellValue) < parseFloat(value)));};
+        bcdui.widget._bcdFilter.isbigger = function(cellValue, value)   {
+          var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+          var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+          return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) > parseFloat(value)) : (cellValue > value);
+        };
+        bcdui.widget._bcdFilter.issmaller = function(cellValue, value)  {
+          var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+          var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+          return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) < parseFloat(value)) : (cellValue < value);
+        };
 
         // build dialog template
         jQuery(".bcdFilterDialog").remove();
