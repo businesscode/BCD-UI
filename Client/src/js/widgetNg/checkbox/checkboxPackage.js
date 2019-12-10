@@ -114,6 +114,9 @@
       // handle label creation after appending control
       this._createLabel(checkboxEl.attr("id"));
 
+      // flag checkbox
+      this.options.isCheckbox = true;
+
       // add listeners
       if(!this.options.readonly){
         bcdui.log.isTraceEnabled() && bcdui.log.trace("checkbox NOT read-only, set up handlers.");
@@ -167,6 +170,11 @@
      * @private
      */
     _syncValue: function(){
+
+      // element still alive?
+      if (! this.element.data("_config_"))
+        return;
+
       var value = this._readDataFromXML().value||"";
       this.element.children("input").prop("checked", (value != null && ! !value.trim() && value != "0"))
       this.element.trigger(this.EVENT.SYNC_READ, {isValueEmpty : false});
@@ -226,6 +234,10 @@
     updateValue: function(){
       bcdui.log.isTraceEnabled() && bcdui.log.trace("updateValue(gui to data)");
       var config = this.element.data("_config_");
+
+      // element still alive?
+      if (! config)
+        return;
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: update via xpath : " + config.target.xPath + ", modelId: " + config.target.modelId);
 
