@@ -451,14 +451,21 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
    */
   _gotActiveFilter: function(sItem) {
     var gotFilter = false;
-    jQuery(sItem).find("*[bcdTargetModelXPath]").each(function(i, t) {
+    jQuery(sItem).find("*[bcdTargetModelXPath], *[data-bcdui-widget]").each(function(i, t) {
       var targetModelXPath = jQuery(t).attr("bcdTargetModelXPath") || "";
       var targetModelId = jQuery(t).attr("bcdTargetModelId") || "";
+      var isCheckbox = false;
+      if (jQuery(t).is(jQuery.bcdui.bcduiWidget.SELECTOR)){
+        var widget = jQuery(t)._bcduiWidget();
+        targetModelXPath = widget.options.targetModelXPath || "";
+        targetModelId = widget.options.targetModelId || "";
+        isCheckbox = widget.options.isCheckbox === true;
+      }
       var targetModelParams = bcdui.factory._extractXPathAndModelId(targetModelXPath);
       targetModelParams.modelId = targetModelId || targetModelParams.modelId;
       var targetModel = bcdui.factory.objectRegistry.getObject(targetModelParams.modelId);
       // special case for periodChooser
-      if (typeof targetModel != "undefined") {
+      if (typeof targetModel != "undefined" && targetModelParams.xPath) {
         if (jQuery(t).hasClass("bcdPeriodChooser")) {
           var targetNode = targetModel.query(targetModelParams.xPath);
           var value = "";
@@ -470,8 +477,12 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
                gotFilter = true;
           }
         }
+        else if (isCheckbox) {
+          if (targetModel.read(targetModelParams.xPath, "0") == "1")
+            gotFilter = true;
+        }
         else if (targetModel.read(targetModelParams.xPath, "") != "")
-          gotFilter = true;                
+          gotFilter = true;
       }
     });
     return gotFilter;
