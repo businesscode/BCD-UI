@@ -296,14 +296,19 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         if( s===1 ) {
           series.data = nodes.map( n => [n] );
           opts.series.push(series);
-          opts.yAxis[0].min = series.data.reduce( (agg, v) => agg < v ? agg : v, Infinity ) * 0.9;
-          opts.yAxis[0].max = series.data.reduce( (agg, v) => agg > v ? agg : v, -Infinity ) * 1.1;
+          opts.yAxis[0].min = series.data.reduce( (agg, v) => agg < v ? agg : v[0], Infinity ) * 0.9;
+          opts.yAxis[0].max = series.data.reduce( (agg, v) => agg > v ? agg : v[0], -Infinity ) * 1.1;
         } else {
           let sizes = nodes;
           opts.series[0].data.forEach( (v, idx) => v.push(sizes[idx]) );
           let max = sizes.reduce( (agg, v) => agg > v ? agg : v );
           let fact = 50/(max*max);
-          opts.series[0].symbolSize = function (data) { return data[2]*data[2] * fact; };
+          opts.series[0].symbolSize = function (data) {
+            var size = (data[2]*data[2] * fact);
+            if (size != 0)
+              size += 2;
+            return size;
+          };
         }
         series.bcdAttrs.unit = [
           this.config.read("/*/chart:XAxis/@unit",''),
