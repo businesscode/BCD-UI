@@ -98,7 +98,7 @@
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">
       <xs:annotation>
-        <xs:documentation>If not set and rowEnd is set > 0 , rowEnd is used as max rows </xs:documentation>
+        <xs:documentation>First row == 1. If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart=1.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rowEnd" type="xs:int">
