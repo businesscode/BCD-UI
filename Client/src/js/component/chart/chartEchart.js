@@ -316,8 +316,9 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           this.config.read("/*/chart:YAxis2/@unit",'')
         ];
         opts.tooltip.trigger = "item";
-        opts.toolbox.feature.dataZoom = {};
-
+        if(this.config.query("/*//chart:DataZoom[1]") != null){
+          opts.toolbox.feature.dataZoom = {};
+        }
       }
       else if (chartType == "BOXPLOT" && nodes.length > 0) {
 
