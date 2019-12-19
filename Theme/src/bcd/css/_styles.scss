@@ -84,6 +84,11 @@
 /* buttons */
 /*********************************************************************************************************************/
 
+.form-control,
+.btn {
+  font-size: 1em;
+}
+
 .bcdButton {
   @extend .btn; // extend BS-default button
   background-color: $corporate-color;
@@ -315,7 +320,11 @@
     @extend .btn-secondary;
     background-color: $secondary-button-color;
     border-color: $secondary-button-color;
-    &:after { content: fa-content($fa-var-chevron-left); text-decoration: none; cursor: pointer; }
+    &:after {
+      @extend %fa-icon;
+      @extend .fas;
+      content: fa-content($fa-var-chevron-left); text-decoration: none; cursor: pointer;
+    }
   }
   .bcdPeriodChooserModRight {
     margin-top: 0.2em;
@@ -323,7 +332,11 @@
     @extend .btn-secondary;
     background-color: $secondary-button-color;
     border-color: $secondary-button-color;
-    &:after { content: fa-content($fa-var-chevron-right); text-decoration: none; cursor: pointer; }
+    &:after {
+      @extend %fa-icon;
+      @extend .fas;
+      content: fa-content($fa-var-chevron-right); text-decoration: none; cursor: pointer;
+    }
   }
 
   .bcdHint { display: none; }
@@ -642,7 +655,7 @@
     margin-right: 13px;
   }
   .bcdExpandCollapseButton {
-    padding: 0px  !important;
+    padding: 0  !important;
     width: 14px !important;
     display: inline-block;
   }
@@ -674,7 +687,7 @@
   .bcdExpand:after { content: ""; }
   .bcdCollapse:after { content: ""; }
   
-  border-spacing: 0px 6px;
+  border-spacing: 0 6px;
   border-collapse: separate;
   border: none;
   min-width: 600px;
@@ -695,7 +708,7 @@
 
   .bcdExpandCollapseButton {
     width: 6px;
-    padding: 2px 0px 2px 5px;
+    padding: 2px 0 2px 5px;
   }
 
   .bcdButton {
@@ -928,8 +941,8 @@
 /* context menu */
 #bcdContextMenuDiv {
   @extend .noselect;
-  left: 0px;
-  top: 0px;
+  left: 0;
+  top: 0;
   position: absolute;
   border: 1px solid $border-color;
   @include con_color(#FFFFFF);
@@ -998,7 +1011,7 @@
     color: $select-color;
     background-color: inherit;
     position: relative; /* IE8 */
-    padding: 0px 0px 0px 10px;
+    padding: 0 0 0 10px;
     white-space: nowrap;
     display: block;
     text-decoration: none;
@@ -1076,9 +1089,9 @@
   .bcdFilterActions {
     position: relative;
     margin-bottom: 3px;
-    input { width: auto; margin: 0px 3px 0px 0px; }
-    > div { position: absolute; right: 0px; top: 0px;}
-    > div:first-child { left: 0px; right: inherit; }
+    input { width: auto; margin: 0 3px 0 0; }
+    > div { position: absolute; right: 0; top: 0;}
+    > div:first-child { left: 0; right: inherit; }
   }
 
   .bcdButton {
@@ -1099,11 +1112,11 @@
   text-align: left;
   border: 1px solid $border-color;
   padding: 3px;
-  div {margin: 3px 0px 3px 0px;}
+  div {margin: 3px 0 3px 0;}
   input {
     width: auto;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     margin-right: 3px;
   }
   .highlight {
@@ -1126,7 +1139,7 @@ table.bcd-far-configurator {
     th {
       text-align: center;
       /* color: $headerArea-color; */
-      padding: 3px 0px;
+      padding: 3px 0;
     }
 
     th.bcd-far-dims  {
@@ -1143,7 +1156,7 @@ table.bcd-far-configurator {
   }
 
   .bcdSideBySideChooser {
-    padding: 3px 0px;
+    padding: 3px 0;
   }
 
   td.bcd-far-sort {
@@ -1164,7 +1177,7 @@ table.bcd-far-configurator {
   .bcd-unifilter-conj-container {
     display: flex;
     flex-direction: row;
-    margin: 5px 0px;
+    margin: 5px 0;
 
     .bcd-unifilter-conj-header {
       align-self: center;
@@ -1243,8 +1256,7 @@ table.bcd-far-configurator {
     tbody tr td {
       vertical-align: middle;
       text-align: right;
-      padding: 0px 3px;
-      height: 14px;
+      padding: 0 .375em;
       @include con_color(#FFFFFF);
       select { border: none; }
     }
@@ -1293,7 +1305,7 @@ table.bcd-far-configurator {
 
   .bcdGroupAction { cursor: pointer; }
 
-  .handsontable th.bcdClosed, .handsontable td.bcdClosed {border: 0px; padding: 0px; margin: 0px; overflow:hidden;}
+  .handsontable th.bcdClosed, .handsontable td.bcdClosed {border: 0; padding: 0; margin: 0; overflow:hidden;}
 
   td.bcdKey {}
   th.bcdKey { font-weight: bold; }
@@ -1399,7 +1411,7 @@ table.bcd-far-configurator {
 /* Ranking */
 
 .bcdCubeRanking {
-  padding: 0px;
+  padding: 0;
   border-collapse: separate;
   border-spacing: 2px;
   table-layout: fixed;
@@ -1731,9 +1743,9 @@ select:focus option:checked {
 
 .bcdPeriodChooser input:focus,
 .form-control:focus {
-  box-shadow: $select-color 25% 0px 0px 0px 0.2rem !important;
+  box-shadow: $select-color 25% 0 0 0 0.2em !important;
   border-color: $corporate-color-alt;
-  outline: 0px;
+  outline: 0;
 }
 
 /* ******************************************************************* */
