@@ -362,6 +362,7 @@ $h6-font-size:                $bcd-font-size-base !default;
     @extend .btn-secondary;
     background-color: $secondary-button-color;
     border-color: $secondary-button-color;
+    padding: .375em .75em;
     cursor: pointer;
     &:after {
       @extend %fa-icon;
@@ -960,17 +961,17 @@ $h6-font-size:                $bcd-font-size-base !default;
   @include con_color(#FFFFFF);
   cursor: default;
   font-size: 0.75em;
-  padding: 3px;
+  padding: .2em;
   @include alpha(0.95);
   @include shadow();
-  width: 280px;
+  width: 22em;
   z-index: $z-index-flyover;
-  padding-bottom: 8px;
+  padding-bottom: .5em;
   
   .bcdMenuitems {
     @include con_color(#FFFFFF);
     position: relative; /* IE8 */
-    padding: 2px 15px;
+    padding: .125em 1em;
     white-space: nowrap;
     display: block;
     text-decoration: none;
@@ -978,7 +979,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   
   .bcdMenuitemsDisabled {
     position: relative; /* IE8 */
-    padding: 2px 15px;
+    padding: .125em 1em;
     white-space: nowrap;
     display: block;
     text-decoration: none;
@@ -997,39 +998,39 @@ $h6-font-size:                $bcd-font-size-base !default;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 3px;
+    padding: .2em;
   }
   
   div.bcdContextMenu .bcdContextGroupHeader ~ .bcdContextGroupHeader {
-    margin-top: 8px;
+    margin-top: .5em;
   }
   
   div.bcdContextMenu .bcdContextGroupHeader {
     background-color: $control-color;
     border: 1px solid $border-color;
     font-weight: bold;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    padding-left: 2px;
+    margin-top: .125em;
+    margin-bottom: .125em;
+    padding-left: .125em;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   
   .bcdContextGroupHeader + .bcdContextSubHeader {
-    margin-top: 2px;
+    margin-top: .125em;
   }
   
   div.bcdContextMenu .bcdContextSubHeader {
     color: $select-color;
     background-color: inherit;
     position: relative; /* IE8 */
-    padding: 0 0 0 10px;
+    padding: 0 0 0 .8em;
     white-space: nowrap;
     display: block;
     text-decoration: none;
     font-weight: bold;
     border: none;
-    margin-top: 8px;
+    margin-top: .5em;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -1082,14 +1083,17 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 .ui-dialog .bcdExportColumnsDialog {
-  width: 552px;
-  height: 240px;
   overflow: hidden;
 }
 
 .bcdExportColumnsDialog {
+
+  .bcdButton {
+    margin-right: .375em;
+  }
+
   .bcdSideBySideChooser {
-    .bcdSbscList { height: 180px; }
+    .bcdSbscList { height: 10em; }
     margin-bottom: .625em;
   }
 }
@@ -1422,58 +1426,22 @@ table.bcd-far-configurator {
 /* Ranking */
 
 .bcdCubeRanking {
-  padding: 0;
-  border-collapse: separate;
-  border-spacing: 2px;
-  table-layout: fixed;
-  th {
-    @include con_color($cube-sections-color-head);
-    font-weight: bold;
-    padding: 3px;
-  }
-  td {
-    vertical-align: top;
-  }
-  .bcdCubeRankStatus {
-    background-color: transparent;
-    width: 12px;
-  }
+
   .bcdCubeRankBad {
     width: 12px;
     background: url(../images/cube/warning.png) center center no-repeat;
   }
-  .bcdCubeRankGood {
-    width: 12px;
-  }
-  
-  span.bcdCubeAddRank:after {
-    content: "\002B";
-  }
-  span.bcdCubeRemoveRank:after {
-    content: "\2212";
-  }
 
-  .bcdCubeAddRank, .bcdCubeRemoveRank {
-    color: text-contrast($cube-sections-color-head);
-    width: 12px;
-    cursor: pointer;
-    font-weight: bolder;
+  span.bcdCubeRemoveRank,
+  span.bcdCubeAddRank {
+    @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
+    padding: .375em .75em;
+    display: inline-block;
   }
-  
-  .bcdCubeRankShow, .bcdCubeRankRows {width: 80px;}
-  .bcdCubeRankDimension, .bcdCubeRankMeasure {min-width: 200px;}
-
-  .bcdCubeAddRank,
-  .bcdCubeRemoveRank {
-    @include con_color($cube-sections-color-head);
-    text-align: center;
-    vertical-align: middle;
-    span {font-weight: bold;}
-  }
-  select , input {
-    height: 22px;
-    width: 100%;
-  }
+  span.bcdCubeAddRank:after { content: "\002B"; }
+  span.bcdCubeRemoveRank:after { content: "\2212"; }
 }
 
 /* Summary */
@@ -1483,7 +1451,7 @@ table.bcd-far-configurator {
     list-style: initial;
     border: none;
     li {
-      padding-left: 5px;
+      padding-left: .375em;
       list-style-position: inside;
       list-style-type: disc;
       li {
@@ -1496,36 +1464,36 @@ table.bcd-far-configurator {
 /* Templates */
 
 .bcdReportTemplateList {
-  margin-bottom: 5px;
+  margin-bottom: 0 .375em;
 }
 
 .bcdReportTemplates {
 
-  max-width: 777px;
+  max-width: 48em;
 
   a {
     @include con_color(#FFFFFF);
     border: 1px solid #FFFFFF;
-    padding: 2px 5px 2px 5px;
+    padding: .125em;
     text-decoration: none;
     cursor: pointer;
-    width: 45%;
+    width: 50%;
     display: inline-block;
     position: relative;
   }
 
   .bcdReportTemplateButtons {
     border-bottom: 1px solid $border-color;
-    padding-bottom: 5px;
+    padding-bottom: .375em;
   }
   
   .bcdReportTemplatesItemsReadOnly,
   .bcdReportTemplatesItems {
-    padding-top: 5px;
+    padding-top: .375em;
   }
   
   .bcdReportTemplateList a.bcdSelected {
- 	  @include bcdSelected();
+ 	@include bcdSelected();
     border: 1px dotted $corporate-color-alt;
   }
 
@@ -1533,7 +1501,16 @@ table.bcd-far-configurator {
     .bcdTemplateItem { color: $text-disabled-color !important; }
   }
   
-  .bcdTemplateButton:hover,
+  .bcdTemplateButton {
+    @extend .btn-secondary;
+    background-color: $secondary-button-color;
+    border-color: $secondary-button-color;
+    padding: .375em .75em;
+    margin-right: .375em;
+    border-radius: 0.25rem;
+    display: inline-block;
+  }
+ .bcdTemplateButton:hover,
   a:hover {
     text-decoration: none;
     @include bcdSelected();
@@ -1541,31 +1518,25 @@ table.bcd-far-configurator {
 
   .bcdReportTemplatesSaveArea {
     border-bottom: 1px solid $border-color;
-    padding: 5px;
+    padding: .375em;
     
     input, textarea {
-      width: 400px;
+      width: 100%;
     }
-    
-    .bcdTemplateButton {
-      display: inline-block;
-      padding: 3px;
-      cursor: pointer;
-      border: 1px solid $border-color;
-      margin-right: 5px;
-    }
+
     table {
       border-collapse: separate;
-      border-spacing: 2px;
-      margin: 5px;
+      border-spacing: .375em;
+      margin: .375em;
+      width: 100%;
     }
   }
 
   .bcdTemplateRemove {
     font-weight: bold;
     position: absolute;
-    right: 3px;
-    top: 1px;
+    right: .375em;
+    top: 0;
   }
   
   span.bcdTemplateRemove:after {
@@ -1577,7 +1548,7 @@ table.bcd-far-configurator {
   }
 
   .bcdTemplateItem {
-    padding-right: 3px;
+    padding-right: .125em;
   }
 }
 
