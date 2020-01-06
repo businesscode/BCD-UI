@@ -1,4 +1,21 @@
 /*********************************************************************************************************************/
+/* bootstrap switch from rem to em
+/*********************************************************************************************************************/
+
+$bcd-font-size-base:          1em !default;
+$h1-font-size:                $bcd-font-size-base * 2.5 !default;
+$h2-font-size:                $bcd-font-size-base * 2 !default;
+$h3-font-size:                $bcd-font-size-base * 1.75 !default;
+$h4-font-size:                $bcd-font-size-base * 1.5 !default;
+$h5-font-size:                $bcd-font-size-base * 1.25 !default;
+$h6-font-size:                $bcd-font-size-base !default;
+
+.form-control,
+.btn {
+  font-size: $bcd-font-size-base;
+}
+
+/*********************************************************************************************************************/
 /* general classes */
 /*********************************************************************************************************************/
 
@@ -83,11 +100,6 @@
 /*********************************************************************************************************************/
 /* buttons */
 /*********************************************************************************************************************/
-
-.form-control,
-.btn {
-  font-size: 1em;
-}
 
 .bcdButton {
   @extend .btn; // extend BS-default button
@@ -622,7 +634,7 @@
   .bcdSortDesc:after { content: "\25BC"; color: $border-color; padding: 2px; }
 
   .bcdTrendUp, .bcdTrendDown {
-    font: 16px Monospace;
+    font: 1em Monospace;
     color: #ffffff !important;
     text-align: center;
   }
@@ -907,7 +919,7 @@
       @include con_color($border-color);
     }
 
-    li { padding: 1px 0; position: relative; cursor: default;}
+    li { padding: 0; position: relative; cursor: default;}
     .bcdItem { display: inline-block; width: 100%; cursor: pointer; white-space: normal;}
     .ui-selected {
       @include bcdSelected();
@@ -1045,11 +1057,9 @@
   border-radius: 2px;
   border: 1px solid $border-color;
   color: $border-color;
-  font-size: 9px;
-  padding: 2px;
-  height: 10px;
-  margin-left: 5px;
-  line-height: normal;
+  font-size: 1em;
+  margin-left: .375em;
+  padding: .2em;
 }
 .bcdFilterButton.active {
   border: 1px solid $select-color;
@@ -1067,8 +1077,8 @@
 .bcdFilterDialog {
   @include no_shadow();
   border: none;
-  min-width: 250px; 
-  input, select {width: 100%; margin-bottom: 10px;}
+  min-width: 20em; 
+  input, select {width: 100%; margin-bottom: .625em;}
 }
 
 .ui-dialog .bcdExportColumnsDialog {
@@ -1080,7 +1090,7 @@
 .bcdExportColumnsDialog {
   .bcdSideBySideChooser {
     .bcdSbscList { height: 180px; }
-    margin-bottom: 10px;
+    margin-bottom: .625em;
   }
 }
 
@@ -1107,20 +1117,21 @@
 }
 
 .bcdFilterMultiSelect {
-  height: 200px;
+  height: 15em;
   overflow: auto;
   text-align: left;
   border: 1px solid $border-color;
-  padding: 3px;
-  div {margin: 3px 0 3px 0;}
+  padding: .375em;
+  div {margin: .375em 0 .375em 0;}
   input {
     width: auto;
     margin: 0;
     padding: 0;
-    margin-right: 3px;
+    margin-right: .375em;
   }
   .highlight {
  	  @include bcdSelected();
+ 	  cursor: pointer;
   }
 }
 
@@ -1214,7 +1225,7 @@ table.bcd-far-configurator {
     margin-top: 5px;
     margin-bottom: 5px;
     > span {
-      padding-left: 3px;
+      padding-left: 3;
       padding-right: 3px;
     }
     .bcd-unifilter-expression-name {
