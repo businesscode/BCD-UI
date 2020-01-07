@@ -1280,6 +1280,7 @@ table.bcd-far-configurator {
     .bcdPagingCoutOfElements,
     .bcdPagingButton {
       border: 1px solid $border-color;
+      white-space: nowrap;
     }
     .bcdPagingButtonActive,
     .bcdPagingButton {
