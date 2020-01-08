@@ -192,6 +192,23 @@
     //justify-content: center;
     align-items:center;
     min-height: 3em;
+
+    .bcdLevel1 {
+      >li >a.bcdSubMenuContainer:after {
+        @extend %fa-icon;
+        @extend .fas;
+        content: fa-content($fa-var-caret-down);
+        margin-left: .5em
+      }
+    }
+    .bcdLevel2 {
+      >li >a.bcdSubMenuContainer:after {
+        @extend %fa-icon;
+        @extend .fas;
+        content: fa-content($fa-var-caret-right);
+        margin-left: .5em
+      }
+    }
   }
 
   &__credentials-widget {
