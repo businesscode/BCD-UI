@@ -52,18 +52,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * @private
    */
   _createInstance(){
-    const instance = echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
-
-    // bind event handling, here we may want to extend the params with more valuable information like direct data link
-    this.userOptions.on && Object.keys(this.userOptions.on).forEach(k => {
-      instance.on(k, params => {
-        this.userOptions.on[k](params);
-        params.event.event.preventDefault();
-        return false;
-      });
-    });
-
-    return instance;
+    this.instance = echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
+    return this.instance;
   }
 
   /**
@@ -648,6 +638,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             ))
             throw new Error("Merging invalid types: " + key);
         if (target[key] === undefined) target[key] = source[key];
+
+        // do not merge possible dataproviders (contextMenu)
+        if (source[key] instanceof Object && source[key].dataDoc)
+          continue;
+
         if (source[key] instanceof Object && !(source[key] instanceof Function)) Object.assign(source[key], merge(target[key], source[key]));
       }
 
@@ -688,7 +683,184 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
     // merge user options
     opts = merge(opts, this.userOptions);
+
+    // link contextMenu
+    var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? opts.on.detailsmenu : null;
+
+    if (customOnContextMenu != null) {
+
+      var bcdChartGotDetails = bcdui.factory.objectRegistry.getObject("bcdChartGotDetails");
+      if (bcdChartGotDetails == null)
+        bcdChartGotDetails = new bcdui.core.ConstantDataProvider({ id : "bcdChartGotDetails", name : "bcdChartGotDetails", value : "false" });
+
+      var finalChain = [ function(doc, args) {
+        if (args.targetHtml) {
+          bcdui.factory.objectRegistry.getObject("bcdChartGotDetails").value = (""  + (typeof jQuery("#" + args.targetHtml).data("bcdChartGotDetails") != "undefined"));
+          jQuery("#" + args.targetHtml).removeData("bcdChartGotDetails");
+        }
+        return doc;
+      }];
+      if (Array.isArray(customOnContextMenu.chain))
+        finalChain = validationChain.concat(customOnContextMenu.chain);
+      else
+        finalChain.push(customOnContextMenu.chain);
+
+      bcdui.widget.createContextMenu({
+        targetRendererId : this
+      , refreshMenuModel : true
+      , tableMode : false
+      , inputModel : new bcdui.core.ModelWrapper({
+          chain : finalChain
+        , parameters : jQuery.extend(customOnContextMenu.parameters, {bcdChartGotDetails: bcdChartGotDetails, targetHtml: this.targetHtml})
+        })
+      });
+      
+      jQuery("#" + this.targetHtml).on("chart:contextMenu", function(evt, args) {
+        var chartDetails = jQuery("#" + this.targetHtml).data("bcdChartdetails");
+        customOnContextMenu.callback(chartDetails, args);
+      }.bind(this));
+
+      opts.on = { contextmenu : function(param, chart) {
+        // collect models and xPaths
+        var categoryModels = [];
+        for( var s = 1, len = chart.config.queryNodes("/*/chart:XAxis/chart:Categories").length; s <= len; s++ ) {
+          var xPath  = chart.config.read("/*/chart:XAxis/chart:Categories["+s+"]/@nodes", "");
+          var modelId = chart.config.read("/*/chart:XAxis/chart:Categories["+s+"]/@modelId", "");
+          if (chart.config.query("/*/chart:XAxis/chart:Categories["+s+"]/chart:Value") != null) {
+            xPath = "/*/chart:XAxis/chart:Categories["+s+"]/chart:Value";
+            modelId = chart.config.id;
+          }
+          if (modelId != "" && xPath != "")
+            categoryModels[categoryModels.length] = {modelId: modelId, xPath: xPath}
+        }
+        var xAxisModels = [];
+        for( var s = 1, len = chart.config.queryNodes("/*/chart:XAxis/chart:XValues").length; s <= len; s++ ) {
+          var xPath  = chart.config.read("/*/chart:XAxis/chart:XValues["+s+"]/@nodes", "");
+          var modelId = chart.config.read("/*/chart:XAxis/chart:XValues["+s+"]/@modelId", "");
+          if (chart.config.query("/*/chart:XAxis/chart:XValues["+s+"]/chart:Value") != null) {
+            xPath = "/*/chart:XAxis/chart:XValues["+s+"]/chart:Value";
+            modelId = chart.config.id;
+          }
+          if (modelId != "" && xPath != "")
+            xAxisModels[categoryModels.length] = {modelId: modelId, xPath: xPath}
+        }
+        var seriesXModels = [];
+        var seriesYModels = [];
+        for( var s = 1, len = chart.config.queryNodes("/*/chart:Series/chart:Series").length; s <= len; s++ ) {
+          var xPath  = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XData/@nodes", "");
+          var modelId = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XData/@modelId", "")
+          if (chart.config.query("/*/chart:Series/chart:Series["+s+"]/chart:XData/chart:Value") != null) {
+            xPath = "/*/chart:Series/chart:Series["+s+"]/chart:XData/chart:Value";
+            modelId = chart.config.id;
+          }
+          if (modelId != "" && xPath != "")
+            seriesXModels[seriesXModels.length] = {modelId: modelId, xPath: xPath}
+  
+          var xPath  = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:YData/@nodes", "");
+          var modelId = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:YData/@modelId", "")
+          if (chart.config.query("/*/chart:Series/chart:Series["+s+"]/chart:YData/chart:Value") != null) {
+            xPath = "/*/chart:Series/chart:Series["+s+"]/chart:YData/chart:Value";
+            modelId = chart.config.id;
+          }
+          if (modelId != "" && xPath != "")
+            seriesYModels[seriesYModels.length] = {modelId: modelId, xPath: xPath}
+        }
+        
+        // we either have categories or xValues and either xseries or yseries values
+        var args = {
+            rendererId: chart.id
+          , targetHtml: chart.targetHtml
+          , categories: categoryModels.length > 0 ? categoryModels : xAxisModels
+          , series: seriesXModels.length > 0 ? seriesXModels : seriesYModels
+          , seriesName: param.seriesName
+          , x: []
+          , y: []
+        };
+  
+        // stacked bars funnily have a reverse ordering
+        if (chart.config.query("//chart:Stacked") != null) {
+          args.series = args.series.reverse();
+        }
+  
+        // let's find the values
+        // y is easy....
+        var series = args.series[param.seriesIndex];
+        var yModel = null;
+        var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+        if (y != null) {
+          var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
+          yModel = {
+              colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
+            , rowIdent: y.parentNode.getAttribute("id")
+            , modelId: series.modelId
+            , value: y.text
+          }
+        }
+        if (yModel.value != null)
+          args.y.push(yModel);
+  
+        // collect x values
+        for (var x = 0; x < args.categories.length; x++) {
+          var xAxis = args.categories[x];
+          var xModel = {};
     
+          // when xAxis model matches current series model and we we have a wrs, we try to access the x value via rowId from the yValue
+          if (xAxis.modelId == series.modelId) {
+            var yNode = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+            if (yNode != null && yNode.parentNode != null && yNode.parentNode.getAttribute("id") != "") {
+              var rowId = yNode.parentNode.getAttribute("id");
+              jQuery.makeArray(bcdui.factory.objectRegistry.getObject(xAxis.modelId).queryNodes(xAxis.xPath)).forEach(function(e) {
+                if (e.parentNode.getAttribute("id") == rowId) {
+                  var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
+                  xModel = {
+                      colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
+                    , rowIdent: e.parentNode.getAttribute("id")
+                    , modelId: xAxis.modelId
+                    , value: e.text
+                  }
+                }
+              });
+            }
+          }
+          // otherwise we try param.name match or (e.g. for polar, param.data[1] match)
+          if (xModel.value == null) {
+            if (param.name || param.data.length == 2 ) {
+              var e = bcdui.factory.objectRegistry.getObject(xAxis.modelId).query(xAxis.xPath + "[.='{{=it[0]}}']", [("" + (param.name || param.data[1]))]);
+              if (e != null) {
+                var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
+                xModel = {
+                    colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
+                  , rowIdent: e.parentNode.getAttribute("id")
+                  , modelId: xAxis.modelId
+                  , value: e.text
+                }
+              }
+            }
+          }
+          if (xModel.value != null)
+            args.x.push(xModel);
+        }
+
+        if (customOnContextMenu && args.x.length > 0 && args.y.length > 0) {
+          jQuery("#" + chart.targetHtml).data("bcdChartdetails", args);
+          jQuery("#" + chart.targetHtml).data("bcdChartGotDetails", "true");
+        }
+        else {
+          jQuery("#" + chart.targetHtml).removeData("bcdChartdetails");
+          jQuery("#" + chart.targetHtml).removeData("bcdChartGotDetails");
+        }
+      }};
+    }
+    
+    // bind event handling, here we may want to extend the params with more valuable information like direct data link
+    opts.on && Object.keys(opts.on).forEach(k => {
+      this.instance.on(k, params => {
+        opts.on[k](params, this);
+        params.event.event.preventDefault();
+        return false;
+      });
+    });
+
     // Go
     var foundData = false;
     for( var s = 0; !foundData && s < opts.series.length; s++ ) {
