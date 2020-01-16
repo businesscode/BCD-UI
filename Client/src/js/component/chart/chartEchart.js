@@ -685,9 +685,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     opts = merge(opts, this.userOptions);
 
     // link contextMenu
-    var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? opts.on.detailsmenu : null;
+    var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? jQuery.extend({}, opts.on.detailsmenu) : null;
 
     if (customOnContextMenu != null) {
+      delete opts.on.detailsmenu; // remove it to avoid event calling issues
 
       var bcdChartGotDetails = bcdui.factory.objectRegistry.getObject("bcdChartGotDetails");
       if (bcdChartGotDetails == null)
@@ -717,10 +718,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       
       jQuery("#" + this.targetHtml).on("chart:contextMenu", function(evt, args) {
         var chartDetails = jQuery("#" + this.targetHtml).data("bcdChartdetails");
-        customOnContextMenu.callback(chartDetails, args);
+        if (typeof chartDetails != "undefined")
+          customOnContextMenu.callback(chartDetails, args);
       }.bind(this));
 
-      opts.on = { contextmenu : function(param, chart) {
+      // add our detailsmapper as contextMenu
+      opts.on.contextmenu = function(param, chart) {
         // collect models and xPaths
         var categoryModels = [];
         for( var s = 1, len = chart.config.queryNodes("/*/chart:XAxis/chart:Categories").length; s <= len; s++ ) {
@@ -795,15 +798,15 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             , modelId: series.modelId
             , value: y.text
           }
+          if (yModel.value != null)
+            args.y.push(yModel);
         }
-        if (yModel.value != null)
-          args.y.push(yModel);
-  
+
         // collect x values
         for (var x = 0; x < args.categories.length; x++) {
           var xAxis = args.categories[x];
           var xModel = {};
-    
+
           // when xAxis model matches current series model and we we have a wrs, we try to access the x value via rowId from the yValue
           if (xAxis.modelId == series.modelId) {
             var yNode = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
@@ -849,7 +852,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           jQuery("#" + chart.targetHtml).removeData("bcdChartdetails");
           jQuery("#" + chart.targetHtml).removeData("bcdChartGotDetails");
         }
-      }};
+      };
     }
     
     // bind event handling, here we may want to extend the params with more valuable information like direct data link
