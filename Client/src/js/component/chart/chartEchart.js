@@ -784,22 +784,49 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         if (chart.config.query("//chart:Stacked") != null) {
           args.series = args.series.reverse();
         }
-  
-        // let's find the values
-        // y is easy....
+
         var series = args.series[param.seriesIndex];
         var yModel = null;
-        var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
-        if (y != null) {
-          var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
-          yModel = {
+        var gotTotal = chart.config.read("//chart:BarWaterfall/@showTotal", "") == "true";
+        var isBoxPlot = chart.config.query("//chart:Series[@chartType='BOXPLOT']") != null;
+
+        if (isBoxPlot) {
+          throw "boxplot contextmenu is currently not supported";
+        }
+
+        // waterfall has built up 3 series, so we take the y information from the param data value of the first series
+        if (chart.config.query("//chart:BarWaterfall") != null) {
+          series = args.series[0];
+          var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+          var clickedTotal = (y == null && gotTotal);
+          y = clickedTotal ? bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[0] : y // take 1st entry (total column, which can't be found by index)
+          if (y != null) {
+            var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
+            yModel = {
               colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-            , rowIdent: y.parentNode.getAttribute("id")
+            , rowIdent: clickedTotal ? null : y.parentNode.getAttribute("id")
             , modelId: series.modelId
-            , value: y.text
+            , value: param.data.value
+            }
+            if (yModel.value != null)
+              args.y.push(yModel);
           }
-          if (yModel.value != null)
-            args.y.push(yModel);
+        }
+        else {
+          // let's find the values
+          // y is easy....
+          var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+          if (y != null) {
+            var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
+            yModel = {
+                colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
+              , rowIdent: y.parentNode.getAttribute("id")
+              , modelId: series.modelId
+              , value: y.text
+            }
+            if (yModel.value != null)
+              args.y.push(yModel);
+          }
         }
 
         // collect x values
@@ -810,6 +837,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           // when xAxis model matches current series model and we we have a wrs, we try to access the x value via rowId from the yValue
           if (xAxis.modelId == series.modelId) {
             var yNode = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+            var clickedTotal = (yNode == null && gotTotal);
+            yNode = clickedTotal ? bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[0] : yNode // take 1st entry (total column, which can't be found by index)
             if (yNode != null && yNode.parentNode != null && yNode.parentNode.getAttribute("id") != "") {
               var rowId = yNode.parentNode.getAttribute("id");
               jQuery.makeArray(bcdui.factory.objectRegistry.getObject(xAxis.modelId).queryNodes(xAxis.xPath)).forEach(function(e) {
@@ -817,7 +846,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
                   var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
                   xModel = {
                       colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-                    , rowIdent: e.parentNode.getAttribute("id")
+                    , rowIdent: clickedTotal ? null : e.parentNode.getAttribute("id")
                     , modelId: xAxis.modelId
                     , value: e.text
                   }
