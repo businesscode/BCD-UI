@@ -732,6 +732,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           if (chart.config.query("/*/chart:XAxis/chart:Categories["+s+"]/chart:Value") != null) {
             xPath = "/*/chart:XAxis/chart:Categories["+s+"]/chart:Value";
             modelId = chart.config.id;
+            if (typeof bcdui.factory.objectRegistry.getObject(chart.config.id) == "undefined")
+              bcdui.factory.objectRegistry.registerObject(chart.config);
           }
           if (modelId != "" && xPath != "")
             categoryModels[categoryModels.length] = {modelId: modelId, xPath: xPath}
@@ -743,6 +745,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           if (chart.config.query("/*/chart:XAxis/chart:XValues["+s+"]/chart:Value") != null) {
             xPath = "/*/chart:XAxis/chart:XValues["+s+"]/chart:Value";
             modelId = chart.config.id;
+            if (typeof bcdui.factory.objectRegistry.getObject(chart.config.id) == "undefined")
+              bcdui.factory.objectRegistry.registerObject(chart.config);
           }
           if (modelId != "" && xPath != "")
             xAxisModels[categoryModels.length] = {modelId: modelId, xPath: xPath}
@@ -750,23 +754,29 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         var seriesXModels = [];
         var seriesYModels = [];
         for( var s = 1, len = chart.config.queryNodes("/*/chart:Series/chart:Series").length; s <= len; s++ ) {
+          var caption = chart.config.read("/*/chart:Series/chart:Series["+s+"]/@caption", "");
+
           var xPath  = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XData/@nodes", "");
-          var modelId = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XData/@modelId", "")
+          var modelId = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:XData/@modelId", "");
           if (chart.config.query("/*/chart:Series/chart:Series["+s+"]/chart:XData/chart:Value") != null) {
             xPath = "/*/chart:Series/chart:Series["+s+"]/chart:XData/chart:Value";
             modelId = chart.config.id;
+            if (typeof bcdui.factory.objectRegistry.getObject(chart.config.id) == "undefined")
+              bcdui.factory.objectRegistry.registerObject(chart.config);
           }
           if (modelId != "" && xPath != "")
-            seriesXModels[seriesXModels.length] = {modelId: modelId, xPath: xPath}
-  
+            seriesXModels[seriesXModels.length] = {modelId: modelId, xPath: xPath, caption: caption}
+
           var xPath  = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:YData/@nodes", "");
           var modelId = chart.config.read("/*/chart:Series/chart:Series["+s+"]/chart:YData/@modelId", "")
           if (chart.config.query("/*/chart:Series/chart:Series["+s+"]/chart:YData/chart:Value") != null) {
             xPath = "/*/chart:Series/chart:Series["+s+"]/chart:YData/chart:Value";
             modelId = chart.config.id;
+            if (typeof bcdui.factory.objectRegistry.getObject(chart.config.id) == "undefined")
+              bcdui.factory.objectRegistry.registerObject(chart.config);
           }
           if (modelId != "" && xPath != "")
-            seriesYModels[seriesYModels.length] = {modelId: modelId, xPath: xPath}
+            seriesYModels[seriesYModels.length] = {modelId: modelId, xPath: xPath, caption: caption}
         }
         
         // we either have categories or xValues and either xseries or yseries values
@@ -779,7 +789,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           , x: []
           , y: []
         };
-  
+
         // stacked bars funnily have a reverse ordering
         if (chart.config.query("//chart:Stacked") != null) {
           args.series = args.series.reverse();
@@ -790,12 +800,49 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         var gotTotal = chart.config.read("//chart:BarWaterfall/@showTotal", "") == "true";
         var isBoxPlot = chart.config.query("//chart:Series[@chartType='BOXPLOT']") != null;
 
+        // collect y values
+        // boxplot is special since it combines all series into one with a dataarray (min,max, etc)
         if (isBoxPlot) {
-          throw "boxplot contextmenu is currently not supported";
-        }
 
+          // outliners
+          if (param.seriesIndex == 1) {
+            series = args.series[param.data[0]];
+            var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
+            if (y != null) {
+              var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
+              yModel = {
+                colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+              , rowIdent: y.parentNode ? y.parentNode.getAttribute("id") : null
+              , modelId: series.modelId
+              , value: param.data[1]
+              }
+              if (yModel.value != null) {
+                args.y.push(yModel);
+                args.seriesName = series.caption;  // take over series name from chose series
+              }
+            }
+          }
+          // non outliners
+          else {
+            series = args.series[param.dataIndex];
+            var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[0];
+            if (y != null) {
+              var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
+              yModel = {
+                colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+              , rowIdent: null
+              , modelId: series.modelId
+              , value: param.data
+              }
+              if (yModel.value != null) {
+                args.y.push(yModel);
+                args.seriesName = series.caption;  // take over series name from chose series
+              }
+            }
+          }
+        }
         // waterfall has built up 3 series, so we take the y information from the param data value of the first series
-        if (chart.config.query("//chart:BarWaterfall") != null) {
+        else if (chart.config.query("//chart:BarWaterfall") != null) {
           series = args.series[0];
           var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
           var clickedTotal = (y == null && gotTotal);
@@ -803,8 +850,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           if (y != null) {
             var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
             yModel = {
-              colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-            , rowIdent: clickedTotal ? null : y.parentNode.getAttribute("id")
+              colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+            , rowIdent: clickedTotal ? null : y.parentNode ? y.parentNode.getAttribute("id") : null
             , modelId: series.modelId
             , value: param.data.value
             }
@@ -812,15 +859,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
               args.y.push(yModel);
           }
         }
+        // let's take the standard...
         else {
-          // let's find the values
-          // y is easy....
           var y = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
           if (y != null) {
             var columnIndex = 1 + y.selectNodes("./preceding-sibling::wrs:C").length;
             yModel = {
-                colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-              , rowIdent: y.parentNode.getAttribute("id")
+                colIdent: bcdui.factory.objectRegistry.getObject(series.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+              , rowIdent: y.parentNode ? y.parentNode.getAttribute("id") : null
               , modelId: series.modelId
               , value: y.text
             }
@@ -833,9 +879,19 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         for (var x = 0; x < args.categories.length; x++) {
           var xAxis = args.categories[x];
           var xModel = {};
-
+          
+          if (isBoxPlot) {
+            var e = bcdui.factory.objectRegistry.getObject(xAxis.modelId).queryNodes(xAxis.xPath)[param.seriesIndex == 1 ? param.data[0] : param.dataIndex];
+            var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
+            xModel = {
+                colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+              , rowIdent: e.parentNode ? e.parentNode.getAttribute("id") : null
+              , modelId: xAxis.modelId
+              , value: e.text
+            }
+          }
           // when xAxis model matches current series model and we we have a wrs, we try to access the x value via rowId from the yValue
-          if (xAxis.modelId == series.modelId) {
+          else if (xAxis.modelId == series.modelId) {
             var yNode = bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[param.dataIndex];
             var clickedTotal = (yNode == null && gotTotal);
             yNode = clickedTotal ? bcdui.factory.objectRegistry.getObject(series.modelId).queryNodes(series.xPath)[0] : yNode // take 1st entry (total column, which can't be found by index)
@@ -845,8 +901,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
                 if (e.parentNode.getAttribute("id") == rowId) {
                   var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
                   xModel = {
-                      colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-                    , rowIdent: clickedTotal ? null : e.parentNode.getAttribute("id")
+                      colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+                    , rowIdent: clickedTotal ? null : e.parentNode ? e.parentNode.getAttribute("id") : null
                     , modelId: xAxis.modelId
                     , value: e.text
                   }
@@ -861,8 +917,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
               if (e != null) {
                 var columnIndex = 1 + e.selectNodes("./preceding-sibling::wrs:C").length;
                 xModel = {
-                    colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", "")
-                  , rowIdent: e.parentNode.getAttribute("id")
+                    colIdent: bcdui.factory.objectRegistry.getObject(xAxis.modelId).read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+columnIndex+"']/@id", null)
+                  , rowIdent: e.parentNode ? e.parentNode.getAttribute("id") : null
                   , modelId: xAxis.modelId
                   , value: e.text
                 }
