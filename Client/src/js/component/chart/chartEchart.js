@@ -291,7 +291,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         } else {
           let sizes = nodes;
           opts.series[0].data.forEach( (v, idx) => v.push(sizes[idx]) );
-          let max = sizes.reduce( (agg, v) => agg > v ? agg : v );
+          let max = sizes.reduce( (agg, v) => agg > v ? agg : v, -Infinity );
           let fact = 50/(max*max);
           opts.series[0].symbolSize = function (data) {
             var size = (data[2]*data[2] * fact);
