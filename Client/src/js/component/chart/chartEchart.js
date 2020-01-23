@@ -724,6 +724,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
       // add our detailsmapper as contextMenu
       opts.on.contextmenu = function(param, chart) {
+
+        var xAxisUnit = chart.config.read("/*/chart:XAxis/@unit", "");
+        var yAxis1Unit = chart.config.read("/*/chart:YAxis1/@unit", "");
+        var yAxis2Unit = chart.config.read("/*/chart:YAxis2/@unit", "");
+        var xAxisCaption = chart.config.read("/*/chart:XAxis/@caption", "");
+        var yAxis1Caption = chart.config.read("/*/chart:YAxis1/@caption", "");
+        var yAxis2Caption = chart.config.read("/*/chart:YAxis2/@caption", "");
+
         // collect models and xPaths
         var categoryModels = [];
         for( var s = 1, len = chart.config.queryNodes("/*/chart:XAxis/chart:Categories").length; s <= len; s++ ) {
@@ -778,7 +786,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           if (modelId != "" && xPath != "")
             seriesYModels[seriesYModels.length] = {modelId: modelId, xPath: xPath, caption: caption}
         }
-        
+
         // we either have categories or xValues and either xseries or yseries values
         var args = {
             rendererId: chart.id
@@ -927,6 +935,19 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           }
           if (xModel.value != null)
             args.x.push(xModel);
+        }
+
+        if (args.x.length > 0) {
+          args.x[0].xAxisUnit = xAxisUnit;
+          args.x[0].xAxisCaption = xAxisCaption;
+        }
+        if (args.y.length > 0) {
+          args.y[0].yAxisUnit = yAxis1Unit;
+          args.y[0].yAxisCaption = yAxis1Caption;
+        }
+        if (args.y.length > 1) {
+          args.y[1].yAxisUnit = yAxis2Unit;
+          args.y[1].yAxisCaption = yAxis2Caption;
         }
 
         if (customOnContextMenu && args.x.length > 0 && args.y.length > 0) {
