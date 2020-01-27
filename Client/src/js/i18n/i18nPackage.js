@@ -149,6 +149,7 @@ bcdui.util.namespace("bcdui.i18n",
    *  the method is asynchronous and "schedules" the translation
    *
    * @param {Object} args - Parameter object
+   * @param {targetHtmlRef} args.targetHtml          - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
    * @param {(HTMLElement|string)} args.elementOrId  - ID or HTML element to translate, default "document"
    * @param {string} [args.i18nModelId=bcdI18nModel] - model with i18n entries, default "bcdI18nModel"
    * @param {string} [args.display]                  - original css 'display' value of the HTML element to be set after translation
@@ -170,8 +171,10 @@ bcdui.util.namespace("bcdui.i18n",
    */
   _translateHTMLElementImpl : function(args){
     var model=bcdui.factory.objectRegistry.getObject(args.i18nModelId);
-    if(model && model.getData()){
-      if(!args.elementOrId){
+    if(model && model.getData()) {
+      if (args.targetHtml)
+        args.element = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "translate_", true);
+      else if (!args.elementOrId){
         args.element=document.documentElement;
       }else{
         args.element = bcdui._migPjs._$(args.elementOrId).get(0);
@@ -192,6 +195,7 @@ bcdui.util.namespace("bcdui.i18n",
    * when the catalog is loaded.
    *
    * @param {Object} args - Parameter object
+   * @param {targetHtmlRef}        args.targetHtml   - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
    * @param {(HTMLElement|string)} args.elementOrId  - ID or HTML element to translate, default "document"
    * @param {Object}             [args.catalog]      - Catalog with i18n entries
    * @param {boolean}            [args.doDefer=true] - If true, in case at time of syncTranslateHTMLElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
@@ -216,7 +220,9 @@ bcdui.util.namespace("bcdui.i18n",
         return null;
       }
 
-      if(!args.elementOrId){
+      if (args.targetHtml)
+        args.element = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "translate_", true);
+      else if(!args.elementOrId){
         args.element=document.documentElement;
       }else{
         args.element = typeof args.elementOrId === "string" ? document.getElementById(args.elementOrId) : args.elementOrId;
