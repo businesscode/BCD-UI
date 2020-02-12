@@ -250,7 +250,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
       // cut down series to x/category values (except for boxplot)
       if (chartType != "BOXPLOT")
-        nodes = nodes.slice(0, xCategories ? xCategories.length : xValues.length );
+        nodes = nodes.slice(0, xCategories ? xCategories.length : xValues ? xValues.length : 0 );
       nodes = nodes.map( n => { let v = parseFloat(n.text); return isFinite(v) ? v : undefined } ); // echarts do not handle Infinity values well
 
       // Special handling gauge chart
