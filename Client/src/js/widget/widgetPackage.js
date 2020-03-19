@@ -1296,7 +1296,7 @@ bcdui.util.namespace("bcdui.widget",
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
     * @param {string}        [args.defaultState=closed]   'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
-    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:Status/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
+    * @param {writableModelXPath} [args.targetModelXPath]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
     */
    createBlindUpDownArea:function(args){
