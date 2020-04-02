@@ -500,7 +500,8 @@ bcdui.util.namespace("bcdui.component",
         });
       }
 
-      // optional expandCollapseCells activation, either add new value to layout or clean it
+      // either we have a cubeConfigurator with expandCollapseCells, then we use that mode
+      // or the layout may have expandCollapseCells mode set, then we allow it
       var layoutRoot = bcdui.factory.objectRegistry.getObject(layoutModelId).query("//cube:Layout[@cubeId ='"+ args.cubeId +"']");
       if (args.expandCollapseCells) {
         if (layoutRoot == null)
@@ -510,11 +511,6 @@ bcdui.util.namespace("bcdui.component",
         if (oldValue != args.expandCollapseCells && cube != null) {
           cube.getEnhancedConfiguration().write("//xp:ExpandCollapseCells/@apply", args.expandCollapseCells, true);
         }
-      }
-      else if (layoutRoot != null && layoutRoot.getAttribute("expandCollapseCells") != null) {
-        layoutRoot.removeAttribute("expandCollapseCells");
-        if (cube != null)
-          cube.getEnhancedConfiguration().write("//xp:ExpandCollapseCells/@apply", "false", true);
       }
 
       var bucketModelId = bcdui.component.cube.configuratorDND.init(args);
