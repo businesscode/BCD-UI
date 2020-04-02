@@ -93,11 +93,13 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
       if (addButton) {
         var rowCol = el.closest("thead").length > 0 ? "xp:Col" : "xp:Row";
         var xPath = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[.='" + value + "']";
+        var xPathDeeperLevels = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[starts-with(., '" + value + bcdui.core.magicChar.separator+"')]";
+        var xPathDeeperLevelsLookUp = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[starts-with(., '" + bcdui.core.magicChar.nonWord + value + bcdui.core.magicChar.separator+"')]";
         var status = (targetModel.query(xPath) == null) ? (initialCollapsed ? "bcdExpand" : "bcdCollapse") : (initialCollapsed ? "bcdCollapse" : "bcdExpand");
         var data = el.text();
         el.html("<div class='bcdExpandContainer'><div class='bcdExpandCollapseButton " + status + "'></div><div class='bcdExpandOriginal'>" + data + "</div></div>");
         // remember xpath and value
-        el.data("config", {value: value, xPath: xPath, targetModel: targetModel});
+        el.data("config", {value: value, xPath: xPath, targetModel: targetModel, xPathDeeperLevels: xPathDeeperLevels, xPathDeeperLevelsLookUp: xPathDeeperLevelsLookUp});
       }
     });
   
@@ -130,9 +132,16 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
         var node = bcdui.core.createElementWithPrototype(config.targetModel.getData(), config.xPath + "[@bcdHelper='true']");
         node.text = config.value;
         node.removeAttribute("bcdHelper");
+        jQuery.makeArray(config.targetModel.queryNodes(config.xPathDeeperLevelsLookUp)).forEach(function(e){
+          e.text = e.text.substring(1,e.text.length);
+        });
       }
-      else
+      else {
         bcdui.core.removeXPath(config.targetModel.getData(), config.xPath)
+        jQuery.makeArray(config.targetModel.queryNodes(config.xPathDeeperLevels)).forEach(function(e){
+          e.text = bcdui.core.magicChar.nonWord + e.text;
+        });
+      }
   
       config.targetModel.fire(); // fire on cube configuration triggers rerender
     });
