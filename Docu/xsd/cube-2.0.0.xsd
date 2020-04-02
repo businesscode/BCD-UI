@@ -221,8 +221,12 @@
       <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="rowCol"/><xs:enumeration value="false"/></xs:restriction></xs:simpleType>
     </xs:attribute>
     <xs:attribute name="expandCollapseCells">
-      <xs:annotation><xs:documentation>Turn on collapse/expand functionality to cube dimension levels, use collapse or expanded to define the initial mode</xs:documentation></xs:annotation>
-      <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="expand"/><xs:enumeration value="collapse"/><xs:enumeration value="false"/></xs:restriction></xs:simpleType>
+      <xs:annotation><xs:documentation>Turn on collapse/expand functionality to cube dimension levels, use collapse or expand to define the initial mode</xs:documentation></xs:annotation>
+      <xs:simpleType><xs:restriction base="xs:string">
+        <xs:enumeration value="expand"/>
+        <xs:enumeration value="collapse"/>
+        <xs:enumeration value="collapse2nd"/>
+        <xs:enumeration value="false"/></xs:restriction></xs:simpleType>
     </xs:attribute>
     <xs:attribute name="manualSort" type="xs:boolean">
       <xs:annotation><xs:documentation>Used by cube header clicks to indicate hard sorting of a single dimension or measure. When a manual sort is active, this flag is set to true.</xs:documentation></xs:annotation>

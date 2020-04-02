@@ -345,7 +345,7 @@
         </Param>
         <Param name="expandCollapseCells" type="string">
           <Doc>
-            When specified (with 'expand' or 'collapse'), cube turns on the expand/collapse mode.
+            When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
           </Doc>
         </Param>
         <Param name="contextMenu" type="string">

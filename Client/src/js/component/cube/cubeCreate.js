@@ -340,7 +340,7 @@ bcdui.util.namespace("bcdui.component",
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
-   * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse'), cube turns on the expand/collapse mode.
+   * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
    *
    * @return null.

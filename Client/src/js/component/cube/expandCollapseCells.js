@@ -33,11 +33,11 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
   
     // get mode
     var mode = cube.getEnhancedConfiguration().read("//xp:ExpandCollapseCells/@apply", "false");
-    if (mode != "collapse" && mode != "expand") {
+    if (mode != "collapse" && mode != "expand" && mode != "collapse2nd" ) {
       jQuery(htmlElement).show();
       return;
     }
-    var initialCollapsed = (mode === "collapse");
+    var initialCollapsed = (mode === "collapse" || mode === "collapse2nd");
 
     // reset some flicker-avoiding styles
     outer.get(0).style.width = outer.attr("widthBak") || "";
@@ -46,6 +46,13 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
     outer.removeAttr("heightBak");
     outer.removeAttr("widthBak");
     outer.removeAttr("displayBak");
+
+    var xPathRoot = "/*/xp:XSLTParameters/xp:ExpandCollapseCells";
+    var firstLevelMode = (mode == "collapse2nd" && "true" != targetModel.query(xPathRoot).getAttribute("init"));
+
+    // in case of collapse2nd mode, we need a rerender since we open the 1st level, so we hide the cube vor now
+    if (firstLevelMode)
+      jQuery(htmlElement).hide();
 
     // set clickable buttons on col and row dimensions
     jQuery(htmlElement).find("th").each(function(i,e) {
@@ -92,16 +99,29 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
       }
       if (addButton) {
         var rowCol = el.closest("thead").length > 0 ? "xp:Col" : "xp:Row";
-        var xPath = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[.='" + value + "']";
-        var xPathDeeperLevels = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[starts-with(., '" + value + bcdui.core.magicChar.separator+"')]";
-        var xPathDeeperLevelsLookUp = "/*/xp:XSLTParameters/xp:ExpandCollapseCells/" + rowCol + "[starts-with(., '" + bcdui.core.magicChar.nonWord + value + bcdui.core.magicChar.separator+"')]";
+        var xPath = xPathRoot + "/" + rowCol + "[.='" + value + "']";
+        var xPathDeeperLevels = xPathRoot + "/" + rowCol + "[starts-with(., '" + value + bcdui.core.magicChar.separator+"')]";
+        var xPathDeeperLevelsLookUp = xPathRoot + "/" + rowCol + "[starts-with(., '" + bcdui.core.magicChar.nonWord + value + bcdui.core.magicChar.separator+"')]";
         var status = (targetModel.query(xPath) == null) ? (initialCollapsed ? "bcdExpand" : "bcdCollapse") : (initialCollapsed ? "bcdCollapse" : "bcdExpand");
         var data = el.text();
         el.html("<div class='bcdExpandContainer'><div class='bcdExpandCollapseButton " + status + "'></div><div class='bcdExpandOriginal'>" + data + "</div></div>");
         // remember xpath and value
         el.data("config", {value: value, xPath: xPath, targetModel: targetModel, xPathDeeperLevels: xPathDeeperLevels, xPathDeeperLevelsLookUp: xPathDeeperLevelsLookUp});
+
+        // optionally collapse 1st Level on init
+        if (value.indexOf(bcdui.core.magicChar.separator) == -1 && firstLevelMode) {
+          bcdui.core.createElementWithPrototype(targetModel.getData(), xPath).text = value;
+        }
       }
     });
+
+    // one initial rerender in case we opened 1st level already
+    if (firstLevelMode)
+      setTimeout(function(){targetModel.fire();});
+
+    // mark that init is done
+    targetModel.query(xPathRoot).setAttribute("init", "true");
+
   
     // the actual click handler on the added buttons
     jQuery(htmlElement).find("th").on("click", ".bcdExpandCollapseButton", function(event) {

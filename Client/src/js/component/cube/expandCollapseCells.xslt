@@ -32,7 +32,7 @@
   <xsl:param name="paramSet" select="$paramModel//xp:CubeCalculation[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
   <xsl:param name="paramSetExpandCollapse" select="$paramModel//xp:ExpandCollapseCells[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
 
-  <xsl:variable name="isInitiallyCollapsed" select="$paramSetExpandCollapse/@apply='collapse'"/>
+  <xsl:variable name="isInitiallyCollapsed" select="starts-with($paramSetExpandCollapse/@apply,'collapse')"/>
 
   <xsl:variable name="maxRowDimPosRaw" select="number(/*/wrs:Header/wrs:Columns/wrs:C[@bRef=$paramSet/@lastRowDim]/@pos)"/>
   <xsl:variable name="maxColDimPosRaw" select="number(/*/wrs:Header/wrs:Columns/wrs:C[@bRef=$paramSet/@lastColDim]/@pos)"/>
@@ -49,7 +49,7 @@
     <!-- We only run if requested, otherwise we create a XsltNop to indicate that our input is to be used as out output -->
   <xsl:template match="/*">
     <xsl:choose>
-      <xsl:when test="$paramSetExpandCollapse/@apply='collapse' or $paramSetExpandCollapse/@apply='expand'">
+      <xsl:when test="starts-with($paramSetExpandCollapse/@apply, 'collapse') or $paramSetExpandCollapse/@apply='expand'">
         <xsl:copy>
           <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
