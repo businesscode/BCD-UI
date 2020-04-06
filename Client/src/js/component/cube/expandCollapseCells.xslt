@@ -28,9 +28,11 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
   <xsl:param name="paramModel" select="/*[0=1]"/>
+  <xsl:param name="statusModel" select="/*[0=1]"/>
   <xsl:param name="paramSetId"/>
   <xsl:param name="paramSet" select="$paramModel//xp:CubeCalculation[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
   <xsl:param name="paramSetExpandCollapse" select="$paramModel//xp:ExpandCollapseCells[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
+  <xsl:param name="statusModelExpandCollapse" select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ExpandCollapseCells"/>
 
   <xsl:variable name="isInitiallyCollapsed" select="starts-with($paramSetExpandCollapse/@apply,'collapse')"/>
 
@@ -138,7 +140,7 @@
       <xsl:choose>
         <xsl:when test="$gotRowDims">
           <xsl:call-template name="testRow">
-            <xsl:with-param name="filterList" select="$paramSetExpandCollapse/xp:Row"/>
+            <xsl:with-param name="filterList" select="$statusModelExpandCollapse/guiStatus:Row"/>
             <xsl:with-param name="start" select="$firstRowDimIndex"/>
             <xsl:with-param name="stop" select="$maxRowDimPos"/>
           </xsl:call-template>
@@ -152,7 +154,7 @@
       <xsl:choose>
         <xsl:when test="$gotColDims">
           <xsl:call-template name="testRow">
-            <xsl:with-param name="filterList" select="$paramSetExpandCollapse/xp:Col"/>
+            <xsl:with-param name="filterList" select="$statusModelExpandCollapse/guiStatus:Col"/>
             <xsl:with-param name="start" select="$firstColDimIndex"/>
             <xsl:with-param name="stop" select="$maxColDimPos"/>
           </xsl:call-template>

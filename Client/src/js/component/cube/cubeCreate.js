@@ -59,7 +59,7 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
     // We start with an empty DataProviderHolder until we known, whether a server request is to be done, which we only know once enhancedConfiguration is ready
     var reqHolder = new bcdui.core.DataProviderHolder();
     var inputModel = new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_inputModel", url: new bcdui.core.RequestDocumentDataProvider( { uri: "cube_" + args.id, requestModel: reqHolder } ) } );
-    bcdui.core.ModelWrapper.call( this, { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration } } );
+    bcdui.core.ModelWrapper.call( this, { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 

@@ -30,6 +30,7 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
   
     var targetModel = cube.getEnhancedConfiguration();
     var cubeModel = cube.getPrimaryModel();
+    var statusModel = cube.statusModel;
   
     // get mode
     var mode = cube.getEnhancedConfiguration().read("//xp:ExpandCollapseCells/@apply", "false");
@@ -48,6 +49,7 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
     outer.removeAttr("displayBak");
 
     var xPathRoot = "/*/xp:XSLTParameters/xp:ExpandCollapseCells";
+    var xPathStatusModel = "/*/guiStatus:ClientSettings/guiStatus:ExpandCollapseCells"; 
     var firstLevelMode = (mode == "collapse2nd" && "true" != targetModel.query(xPathRoot).getAttribute("init"));
 
     // in case of collapse2nd mode, we need a rerender since we open the 1st level, so we hide the cube vor now
@@ -98,19 +100,19 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
         }
       }
       if (addButton) {
-        var rowCol = el.closest("thead").length > 0 ? "xp:Col" : "xp:Row";
-        var xPath = xPathRoot + "/" + rowCol + "[.='" + value + "']";
-        var xPathDeeperLevels = xPathRoot + "/" + rowCol + "[starts-with(., '" + value + bcdui.core.magicChar.separator+"')]";
-        var xPathDeeperLevelsLookUp = xPathRoot + "/" + rowCol + "[starts-with(., '" + bcdui.core.magicChar.nonWord + value + bcdui.core.magicChar.separator+"')]";
-        var status = (targetModel.query(xPath) == null) ? (initialCollapsed ? "bcdExpand" : "bcdCollapse") : (initialCollapsed ? "bcdCollapse" : "bcdExpand");
+        var rowCol = el.closest("thead").length > 0 ? "guiStatus:Col" : "guiStatus:Row";
+        var xPath = xPathStatusModel + "/" + rowCol + "[.='" + value + "']";
+        var xPathDeeperLevels = xPathStatusModel + "/" + rowCol + "[starts-with(., '" + value + bcdui.core.magicChar.separator+"')]";
+        var xPathDeeperLevelsLookUp = xPathStatusModel + "/" + rowCol + "[starts-with(., '" + bcdui.core.magicChar.nonWord + value + bcdui.core.magicChar.separator+"')]";
+        var status = (statusModel.query(xPath) == null) ? (initialCollapsed ? "bcdExpand" : "bcdCollapse") : (initialCollapsed ? "bcdCollapse" : "bcdExpand");
         var data = el.text();
         el.html("<div class='bcdExpandContainer'><div class='bcdExpandCollapseButton " + status + "'></div><div class='bcdExpandOriginal'>" + data + "</div></div>");
         // remember xpath and value
-        el.data("config", {value: value, xPath: xPath, targetModel: targetModel, xPathDeeperLevels: xPathDeeperLevels, xPathDeeperLevelsLookUp: xPathDeeperLevelsLookUp});
+        el.data("config", {value: value, xPath: xPath, targetModel: targetModel, statusModel: statusModel, xPathDeeperLevels: xPathDeeperLevels, xPathDeeperLevelsLookUp: xPathDeeperLevelsLookUp});
 
         // optionally collapse 1st Level on init (but only for rows, for cols it is either unlikely that you want to open the first level by default)
         if (value.indexOf(bcdui.core.magicChar.separator) == -1 && firstLevelMode && rowCol == "xp:Row") {
-          bcdui.core.createElementWithPrototype(targetModel.getData(), xPath).text = value;
+          bcdui.core.createElementWithPrototype(statusModel.getData(), xPath).text = value;
         }
       }
     });
@@ -148,17 +150,17 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
         return;
       
       // either add or remove the key value in the statusmodel
-      if (config.targetModel.query(config.xPath) == null) {
-        var node = bcdui.core.createElementWithPrototype(config.targetModel.getData(), config.xPath + "[@bcdHelper='true']");
+      if (config.statusModel.query(config.xPath) == null) {
+        var node = bcdui.core.createElementWithPrototype(config.statusModel.getData(), config.xPath + "[@bcdHelper='true']");
         node.text = config.value;
         node.removeAttribute("bcdHelper");
-        jQuery.makeArray(config.targetModel.queryNodes(config.xPathDeeperLevelsLookUp)).forEach(function(e){
+        jQuery.makeArray(config.statusModel.queryNodes(config.xPathDeeperLevelsLookUp)).forEach(function(e){
           e.text = e.text.substring(1,e.text.length);
         });
       }
       else {
-        bcdui.core.removeXPath(config.targetModel.getData(), config.xPath)
-        jQuery.makeArray(config.targetModel.queryNodes(config.xPathDeeperLevels)).forEach(function(e){
+        bcdui.core.removeXPath(config.statusModel.getData(), config.xPath)
+        jQuery.makeArray(config.statusModel.queryNodes(config.xPathDeeperLevels)).forEach(function(e){
           e.text = bcdui.core.magicChar.nonWord + e.text;
         });
       }
