@@ -94,11 +94,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         if( prec===2 && unit==='%' )
           return d3Format2p(val);
         else if ( prec===2 )
-          return (val>=1||val<0.0001 ? d3Format2s(val) : d3Format2f(val)) + (unit||'');
+          return (Math.abs(val)>=1||Math.abs(val)<0.0001 ? d3Format2s(val) : d3Format2f(val)) + (unit||'');
         else if( prec===3 && unit==='%' )
           return d3Format3p(val);
         else
-          return (val>=1||val<0.0001 ? d3Format3s(val) : d3Format3f(val)) + (unit||'');
+          return (Math.abs(val)>=1||Math.abs(val)<0.0001 ? d3Format3s(val) : d3Format3f(val)) + (unit||'');
       };
     };
 
