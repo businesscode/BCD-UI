@@ -111,7 +111,7 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
         el.data("config", {value: value, xPath: xPath, targetModel: targetModel, statusModel: statusModel, xPathDeeperLevels: xPathDeeperLevels, xPathDeeperLevelsLookUp: xPathDeeperLevelsLookUp});
 
         // optionally collapse 1st Level on init (but only for rows, for cols it is either unlikely that you want to open the first level by default)
-        if (value.indexOf(bcdui.core.magicChar.separator) == -1 && firstLevelMode && rowCol == "xp:Row") {
+        if (value.indexOf(bcdui.core.magicChar.separator) == -1 && firstLevelMode && rowCol == "guiStatus:Row") {
           bcdui.core.createElementWithPrototype(statusModel.getData(), xPath).text = value;
         }
       }
