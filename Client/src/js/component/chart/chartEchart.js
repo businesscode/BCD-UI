@@ -189,7 +189,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         let yAxisIsStackedPerc = this.config.read("/*/chart:Stacked[@axis='"+a+"']/@asPercent") === 'true';
         let yAxisUnit =  yAxisIsStackedPerc ? '%' : this.config.read("/*/chart:YAxis"+a+"/@unit","");
         if(yAxisLabel!==null)
-          axis.name = yAxisLabel + (yAxisUnit!==""?' ['+yAxisUnit+']':"");
+          axis.name = yAxisLabel + (yAxisLabel != "" && yAxisUnit!==""?' ['+yAxisUnit+']':"");
         axis.axisLabel = { formatter: getNumFormatter(2, yAxisUnit) };
         axis.nameGap = 20;
         axis.bcdUnit = yAxisUnit;
