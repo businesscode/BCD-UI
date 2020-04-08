@@ -23,6 +23,7 @@
   xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
+  xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
   xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0">
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
