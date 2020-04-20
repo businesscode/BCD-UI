@@ -278,7 +278,12 @@
         <Param name="refreshMenuModel" type="boolean">
           <Doc>
             This flag can be set to 'true' if the menu model needs to be executed always. I.e. if the menu depends
-            on bcdColIdent and bcdRowIdent
+            on bcdColIdent and bcdRowIdent.
+          </Doc>
+        </Param>
+        <Param name="offset" type="int">
+          <Doc>
+            Offset value which is used to position the contextMenu relatively to the mouse pointer, if not given it's determined automatically. 
           </Doc>
         </Param>
         <Impl>
@@ -926,7 +931,11 @@
             Existing HTML Element Id which is used for the tooltip. By default this is 'bcdTooltipDiv'.
           </Doc>
         </Param>
-        
+        <Param name="offset" type="int">
+          <Doc>
+            Offset value which is used to position the contextMenu relatively to the mouse pointer, if not given it's determined automatically. 
+          </Doc>
+        </Param>
         <Impl>
           <Jsp allowsChildren="true"><AddCode><![CDATA[<webpage:paramBag.add key="parentDataProvider" value="${id}"/>]]></AddCode></Jsp>
         </Impl>

@@ -1500,6 +1500,8 @@ bcdui.util.namespace("bcdui.widget",
    *          as parameters on the tooltipRenderer.</li>
    *      <li>delay: {Integer?} The delay in Miliseconds that the tooltip should wait
    *          before it appears.</li>
+   *      <li>offset: {Integer?} Offset value which is used to position the tooltip
+   *          relatively to the mouse pointer, if not given it's determined automatically 
    *    </ul>
    * @private
    */
@@ -1512,6 +1514,7 @@ bcdui.util.namespace("bcdui.widget",
         , htmlElement: bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.tooltipRendererId).targetHTMLElementId).get(0)
         , rendererId: args.tooltipRendererId
         , event: null
+        , offset: args.offset
       };
 
       bcdui._migPjs._$(config.baseElement).on("mousedown", function() {
@@ -1601,6 +1604,8 @@ bcdui.util.namespace("bcdui.widget",
    *      <li>targetHtmlElement: {String|DataProvider} The renderer the context menu is to be attached to. (or give targetRendererId)</li>
    *      <li>tableMode: {Boolean?} This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML.</li>
+   *      <li>offset: {Integer?} Offset value which is used to position the contextMenu
+   *          relatively to the mouse pointer, if not given it's determined automatically 
    *    </ul>
    * @private
    */
@@ -1612,6 +1617,7 @@ bcdui.util.namespace("bcdui.widget",
             , rendererId: args.contextMenuRendererId
             , event: null
             , positionUnderMouse: true
+            , offset: args.offset
       };
 
       var reDisplay = bcdui.factory.reDisplay.bind(undefined,{
@@ -1760,6 +1766,7 @@ bcdui.util.namespace("bcdui.widget",
           , tableMode            : args.tableMode
           , identsWithin         : args.identsWithin
           , refreshMenuModel     : args.refreshMenuModel
+          , offset               : args.offset
         });
       }
     });
@@ -1858,6 +1865,7 @@ bcdui.util.namespace("bcdui.widget",
           , tableMode         : args.tableMode
           , identsWithin      : args.identsWithin
           , delay             : delay
+          , offset            : args.offset
         });
       }
     });
@@ -2065,7 +2073,7 @@ bcdui.util.namespace("bcdui.widget",
           return;
         var ctWidth = ctDivFd.outerWidth();
         var ctHeight = ctDivFd.outerHeight();
-        var offset = (args.positionUnderMouse ? -10 : 3);
+        var offset = args.offset || (args.positionUnderMouse ? -10 : 3);
         var ctX = args.event.pageX + offset;
         if( ctX+ctWidth > jQuery(window).outerWidth() + jQuery(window).scrollLeft() )
           ctX -= (ctWidth + offset*2);
