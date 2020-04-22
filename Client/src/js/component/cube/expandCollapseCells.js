@@ -124,7 +124,10 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
     // mark that init is done
     targetModel.query(xPathRoot).setAttribute("init", "true");
 
-  
+    // reset scrollPos
+    var scrollPos = statusModel.read(xPathStatusModel + "/@scrollPos", "0");
+    setTimeout(function() {jQuery(htmlElement).parent().scrollTop(scrollPos)});
+
     // the actual click handler on the added buttons
     jQuery(htmlElement).find("th").on("click", ".bcdExpandCollapseButton", function(event) {
       
@@ -164,6 +167,8 @@ bcdui.util.namespace("bcdui.component.cube.expandCollapse",
           e.text = bcdui.core.magicChar.nonWord + e.text;
         });
       }
+      // remember scrollpos of table parent
+      config.statusModel.query("/*/guiStatus:ClientSettings/guiStatus:ExpandCollapseCells").setAttribute("scrollPos", jQuery(htmlElement).parent().scrollTop());
   
       config.targetModel.fire(); // fire on cube configuration triggers rerender
     });
