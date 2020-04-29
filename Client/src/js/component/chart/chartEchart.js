@@ -972,7 +972,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
     // Go
     var foundData = false;
-    for( var s = 0; !foundData && s < opts.series.length; s++ ) {
+    for( var s = 0; s < opts.series.length; s++ ) {
+      var seriesGotData = false;
       if(opts.series[s] && opts.series[s].data && opts.series[s].data.length > 0) {
         for (var d = 0; d < opts.series[s].data.length; d++) {
            var thisData = opts.series[s].data[d];
@@ -982,12 +983,18 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
                || (typeof thisData == "number")
               )
            {
+             seriesGotData = true;
             foundData = true;
-            break;
           }
         }
       }
+      if (! seriesGotData)
+        opts.series[s].removeMe = true;
     }
+
+    // remove series which don't have data
+    opts.series = opts.series.filter(function(e) { return typeof e.removeMe == "undefined"; });
+
     if( foundData ) {
       myChart.setOption(opts, true);
     }
