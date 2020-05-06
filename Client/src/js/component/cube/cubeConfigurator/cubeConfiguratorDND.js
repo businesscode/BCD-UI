@@ -135,7 +135,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId);
       bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
       // and clear current Layout completely
-      bcdui.factory.objectRegistry.getObject(args.targetModelId).remove("/*/cube:Layout[@cubeId='" + args.cubeId + "']/*", true);
+      bcdui.factory.objectRegistry.getObject(args.targetModelId).remove("/*/cube:Layout[@cubeId='" + args.cubeId + "']", true);
     });
 
     // initially mark the dimensions for GroupManager
