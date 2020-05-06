@@ -129,6 +129,15 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       });
     }
 
+    // refresh on cubeConfig change
+    bcdui.factory.objectRegistry.getObject(args.metaDataModelId).onChange(function(){
+      // refill cubebucket with possibly changed data
+      bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId);
+      bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
+      // and clear current Layout completely
+      bcdui.factory.objectRegistry.getObject(args.targetModelId).remove("/*/cube:Layout[@cubeId='" + args.cubeId + "']/*", true);
+    });
+
     // initially mark the dimensions for GroupManager
     setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(args.cubeId);});
     
@@ -473,11 +482,11 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
         if (caption != "")
           meas[m].setAttribute("caption", caption);
       }
-    }
 
-    // avoid taking over description into layout
-    jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
-    jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+      // avoid taking over description into layout
+      jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
+      jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+    }
 
     return cubeBucketModelId;
   },
