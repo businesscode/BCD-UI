@@ -72,6 +72,8 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
       if (targetModel.id != refreshTargetModelId)
         targetModel.fire();
 
+      jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:settemplate");
+
       if (idAttr == "@cubeId")
         bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
       else
@@ -112,6 +114,8 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
     // fire template Target only if it's handled automatically by reDisplay
     if (targetModel.id != refreshTargetModelId)
       targetModel.fire();
+
+    jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:cleartemplate");
 
     if (idAttr == "@cubeId")
       bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
