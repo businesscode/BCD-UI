@@ -129,13 +129,11 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       });
     }
 
-    // refresh on cubeConfig change
-    bcdui.factory.objectRegistry.getObject(args.metaDataModelId).onChange(function(){
+    // optional refresh (e.g. to update dimensionsAndMeasures
+    jQuery(bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHtml()).on("bcdui:cubeConfigurator:refresh", function(e, noClear) {
       // refill cubebucket with possibly changed data
-      bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId);
+      bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId, noClear);
       bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
-      // and clear current Layout completely
-      bcdui.factory.objectRegistry.getObject(args.targetModelId).remove("/*/cube:Layout[@cubeId='" + args.cubeId + "']", true);
     });
 
     // initially mark the dimensions for GroupManager
@@ -433,13 +431,19 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
    * Used for initial filling but can also be used to reinitialize bucket model (e.g. after hiding selectable measures)
    * @param {string}  cubeBucketModelId  The id of the cubeBucketModel
    * @param {string}  configId           The id of the used configuration
+   * @param {boolean} [noClear=false]    true if current selection should not get changed
    */
-  fillBucketModel : function(cubeBucketModelId, configId) {
+  fillBucketModel : function(cubeBucketModelId, configId, noClear) {
 
     if (typeof bcdui.factory.objectRegistry.getObject(cubeBucketModelId) != "undefined") {
 
       // clean possibly existing nodes first
-      bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/*");
+      if (noClear) {
+        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/cube:Dimensions");
+        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/cube:Measures");
+      } else {
+        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/*");
+      }
 
       var dimensionParent = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeBucketModelId), "/*/cube:Dimensions");
       var measureParent = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeBucketModelId), "/*/cube:Measures");
