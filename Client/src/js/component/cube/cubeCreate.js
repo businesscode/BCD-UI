@@ -589,8 +589,17 @@ bcdui.util.namespace("bcdui.component",
             objectId:        args.cubeId
           }
         });
-        templateRenderer.onReady(function(){jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")});
-        bcdui.factory.objectRegistry.getObject(args.metaDataModelId).onChange(function() {templateRenderer.execute()}, "/*/cube:Layouts");
+
+        // send custom events when rendering is done
+        templateRenderer.onReady(function(){
+          jQuery(cube.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered");
+          jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")
+        });
+        cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
+
+        // also allow external refreshs
+        jQuery(cube.getTargetHtml()).on("bcdui:cubeConfigurator:refreshTemplateManager", function(e) { templateRenderer.execute(); });
+
       }
       if ( args.showSummary ){
         

@@ -57,7 +57,7 @@
 
         <!-- readOnly layouts -->
 
-        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true']) &gt; 0">
+        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true' and (not(@isHidden) or @isHidden='false')]) &gt; 0">
           <div class="bcdReportTemplatesItemsReadOnly">
             <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true']">
              <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
@@ -75,9 +75,9 @@
 
         <!-- not readOnly layouts -->
 
-        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false')]) &gt; 0">
+        <xsl:if test="count($metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false') and (not(@isHidden) or @isHidden='false')]) &gt; 0">
           <div class="bcdReportTemplatesItems">
-            <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false')]">
+            <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false') and (not(@isHidden) or @isHidden='false')]">
               <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
               <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
               <a href="javascript:void(0);" onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$objectId}', '{@id}', this)">

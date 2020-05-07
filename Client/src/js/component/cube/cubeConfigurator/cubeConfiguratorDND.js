@@ -130,10 +130,9 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     }
 
     // optional refresh (e.g. to update dimensionsAndMeasures
-    jQuery(bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHtml()).on("bcdui:cubeConfigurator:refresh", function(e, noClear) {
+    jQuery(bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHtml()).on("bcdui:cubeConfigurator:refreshDND", function(e, noClear) {
       // refill cubebucket with possibly changed data
       bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId, noClear);
-      bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
     });
 
     // initially mark the dimensions for GroupManager
@@ -490,6 +489,8 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
       // avoid taking over description into layout
       jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
       jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+
+      bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
     }
 
     return cubeBucketModelId;

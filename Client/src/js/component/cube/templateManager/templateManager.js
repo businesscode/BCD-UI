@@ -72,7 +72,7 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
       if (targetModel.id != refreshTargetModelId)
         targetModel.fire();
 
-      jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:settemplate");
+      jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:setTemplate");
 
       if (idAttr == "@cubeId")
         bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
@@ -115,7 +115,7 @@ bcdui.util.namespace("bcdui.component.cube.templateManager",
     if (targetModel.id != refreshTargetModelId)
       targetModel.fire();
 
-    jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:cleartemplate");
+    jQuery(bcdui.factory.objectRegistry.getObject(objectId).getTargetHtml()).trigger("bcdui:cubeConfigurator:clearTemplate");
 
     if (idAttr == "@cubeId")
       bcdui.component.cube.configuratorDND.reDisplay(objectId, true); // fires refreshTargetModelId
