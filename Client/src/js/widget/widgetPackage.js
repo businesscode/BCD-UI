@@ -313,7 +313,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
-   * @param {string}        [args.label]                          If provided, renders label element to this input, unless args.isCheckBox = true
+   * @param {string}        [args.label]                          If provided, renders label element to this input
    */
   createMultiSelect: function(args)
     {
@@ -339,7 +339,7 @@ bcdui.util.namespace("bcdui.widget",
           widgetCaption:            args.widgetCaption,
           enableNavPath:           args.enableNavPath,
           doSortOptions:            args.doSortOptions || "false",
-          label :                   !args.isCheckBox ? args.label : null
+          label :                   args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -393,6 +393,7 @@ bcdui.util.namespace("bcdui.widget",
    * @param {string}        [args.suppressButtons=false]        Set this to true if from and to buttons should be hidden. Default is false.
    * @param {boolean}       [args.enableNavPath]                Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.showClearButton]              Set this to true if you need one clear button which removes the currently set date.
+   * @param {string}        [args.label]                        If provided, renders label element to this periodchooser.
    */
   createPeriodChooser: function(args)
     {
@@ -436,6 +437,7 @@ bcdui.util.namespace("bcdui.widget",
         , suppressButtons:        args.suppressButtons
         , enableNavPath:          args.enableNavPath
         , showClearButton:        args.showClearButton
+        , label:                  args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);

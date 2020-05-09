@@ -324,6 +324,9 @@
       }
       el.get(0).value = value;
       var isValueEmpty = value == null || !value.trim();
+
+      ! isValueEmpty ? jQuery(el).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(el).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+
       // validate
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validate after sync, value read from model is: " + value + ", is value empty: " + isValueEmpty);
       bcdui.widgetNg.utils._validateElement(inputElementId, true);

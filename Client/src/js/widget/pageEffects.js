@@ -383,7 +383,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
           if ((value == "" && initiallyHidden) || value == "0") {
             jQuery(e).find("> *:not(.bcdSectionCaption, script)").hide();
             jQuery(e).find("> .bcdSectionCaption").addClass("bcdHeadClosed");
-            if (bcdui.widget.pageEffects._gotActiveFilter(sItem))
+            if (sItem.find(".bcdActiveFilter").length > 0)
               jQuery(e).addClass("bcdActiveFilter");                
           }
           else {
@@ -414,7 +414,7 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
             sBody.toggle();
 
           // set active filter indicator on closed sections
-          if (value == 0 && bcdui.widget.pageEffects._gotActiveFilter(sItem))
+          if (value == 0 && sItem.find(".bcdActiveFilter").length > 0)
             jQuery(sItem).addClass("bcdActiveFilter");                
           else
             jQuery(sItem).removeClass("bcdActiveFilter");
@@ -444,48 +444,6 @@ bcdui.util.namespace("bcdui.widget.pageEffects",
 
     if (args.pageStickyFooter)
       bcdui.widget.pageEffects._repositionFooter();
-  },
-
-  /**
-   * @private
-   */
-  _gotActiveFilter: function(sItem) {
-    var gotFilter = false;
-    jQuery(sItem).find("*[bcdTargetModelXPath], *[data-bcdui-widget]").each(function(i, t) {
-      var targetModelXPath = jQuery(t).attr("bcdTargetModelXPath") || "";
-      var targetModelId = jQuery(t).attr("bcdTargetModelId") || "";
-      var isCheckbox = false;
-      if (jQuery(t).is(jQuery.bcdui.bcduiWidget.SELECTOR)){
-        var widget = jQuery(t)._bcduiWidget();
-        targetModelXPath = widget.options.targetModelXPath || "";
-        targetModelId = widget.options.targetModelId || "";
-        isCheckbox = widget.options.isCheckbox === true;
-      }
-      var targetModelParams = bcdui.factory._extractXPathAndModelId(targetModelXPath);
-      targetModelParams.modelId = targetModelId || targetModelParams.modelId;
-      var targetModel = bcdui.factory.objectRegistry.getObject(targetModelParams.modelId);
-      // special case for periodChooser
-      if (typeof targetModel != "undefined" && targetModelParams.xPath) {
-        if (jQuery(t).hasClass("bcdPeriodChooser")) {
-          var targetNode = targetModel.query(targetModelParams.xPath);
-          var value = "";
-          if (targetNode != null) {
-             value = targetNode.nodeType == 2 ? targetModel.read(targetModelParams.xPath + "/..//f:Expression/@value", "") : targetModel.read(targetModelParams.xPath + "//f:Expression/@value", "");
-             if (jQuery(t).attr("bcdUseSimpleXpath") == "true")
-               value = targetModel.read(targetModelParams.xPath, "");
-             if (value != "")
-               gotFilter = true;
-          }
-        }
-        else if (isCheckbox) {
-          if (targetModel.read(targetModelParams.xPath, "0") == "1")
-            gotFilter = true;
-        }
-        else if (targetModel.read(targetModelParams.xPath, "") != "")
-          gotFilter = true;
-      }
-    });
-    return gotFilter;
   },
 
   /**

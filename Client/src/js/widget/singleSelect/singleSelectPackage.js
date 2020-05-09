@@ -119,7 +119,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
     var targetModelXPath = htmlElement.getAttribute("bcdTargetModelXPath");
     var value = bcdui.widget._getDataFromXML(targetModel, targetModelXPath);
     if (evtSrc && evtSrc.id == htmlElement.getAttribute("bcdOptionsModelId")) {
-      var value = bcdui.widget._getDataFromXML(targetModel, targetModelXPath);
+      value = bcdui.widget._getDataFromXML(targetModel, targetModelXPath);
       bcdui.widget.singleSelect._updateOptions(htmlElementId);
       var caption = bcdui.widget._getCaptionOfValue(htmlElementId, value);
       if(caption == null ){
@@ -130,7 +130,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
         }
       }
     } else {
-      var value = bcdui.widget._getDataFromXML(targetModel, targetModelXPath);
+      value ? jQuery("#" + htmlElementId).closest(".bcdSingleSelect").addClass("bcdActiveFilter") : jQuery("#" + htmlElementId).closest(".bcdSingleSelect").removeClass("bcdActiveFilter");
 
       jQuery(bcdui._migPjs._$(htmlElement).find("form input")).each(function(i, optionElement) {
         optionElement.checked = optionElement.value == value;

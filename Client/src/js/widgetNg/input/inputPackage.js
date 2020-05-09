@@ -265,6 +265,9 @@
       }
       el.get(0).value = value;
       var isValueEmpty = value == null || !value.trim();
+
+      ! isValueEmpty ? jQuery(el).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(el).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+
       // validate
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validate after sync, value read from model is: " + value + ", is value empty: " + isValueEmpty);
       if (this.options.isSync){
@@ -595,6 +598,9 @@
       }
 
       var triggerWrite = (hasWritten) => {
+
+        guiValue ? jQuery("#" + inputElementId).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery("#" + inputElementId).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+
         inputEl.trigger(this.EVENT.SYNC_WRITE,{
           isValueEmpty : guiValue == "",
           value : guiValue,
@@ -677,7 +683,6 @@
       var el = bcdui._migPjs._$(params.inputElementId);
       var args = el.data("_args_");
       var config = el.data("_config_");
-
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.bcduiInputNg._writeDataToXML: writing data...");
       // tag that we're writing data ourself so that XMLUpdateListener
       // ignores and does not propagate this update.

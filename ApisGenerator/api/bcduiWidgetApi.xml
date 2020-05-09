@@ -172,7 +172,7 @@
 
       <Api name="hasLabel">
         <Doc>
-          This API provides .label parameter enabling form-group and placing label binding with an input of a widget
+          This API provides .label parameter enabling form-group and placing label binding with an input of a widget.
         </Doc>
         <Param name="label" type="string">
           <Doc>If provided, enables widget to render a label element</Doc>
@@ -682,7 +682,7 @@
         </Param>
       </Api>
 
-      <Api name="periodChooser" extends="widget hasTarget hasCaptionsNotRequired">
+      <Api name="periodChooser" extends="widget hasTarget hasCaptionsNotRequired hasLabel">
         <Doc>
           Shows a period chooser consisting of a button to change the period and a
           label showing the currently selected period. It writes the selected period

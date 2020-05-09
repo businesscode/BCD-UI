@@ -378,6 +378,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     var targetModel             = bcdui.factory.objectRegistry.getObject(targetHtmlElement.attr("bcdTargetModelId"));
     var multiSelectEditXpath    = targetHtmlElement.attr("bcdMultiSelectEditXpath");
     var multiSelectTargetXpath  = targetHtmlElement.attr("bcdMultiSelectTargetXpath");
+    var multiSelectTargetXpathExclude  = targetHtmlElement.attr("bcdMultiSelectTargetXpathExclude");
     var selectedMulti           = targetHtmlElement.attr("bcdSelectedMultiPath");
     var values = targetModel.getData().selectNodes(selectedMulti);
     if(values.length > 0){
@@ -399,6 +400,10 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
         e.parentNode.removeChild(e);
       });
       targetModel.fire();
+
+      var activeNodes = targetModel.getData().selectNodes(multiSelectTargetXpath + "//f:Expression").length + targetModel.getData().selectNodes(multiSelectTargetXpathExclude + "//f:Expression").length;
+      activeNodes > 0 ? jQuery(targetHtmlElement).closest(".bcdDimensionChooser").addClass("bcdActiveFilter") : jQuery(targetHtmlElement).closest(".bcdDimensionChooser").removeClass("bcdActiveFilter");
+
     }
     // enable/disable level selector if needed
     bcdui.widget.dimensionChooser._checkLevelLock(dimChooserId, targetModel, multiSelectTargetXpath)
@@ -429,6 +434,8 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     // needs to be defered. Otherwise input field validation keeps field untouched (bcdInvalid) 
     var fkt = function() {
       bcdui.widget.dimensionChooser._copyTargetElements(targetModel, multiSelectTargetXpath , values,  numberOfExpressionsPerValue , replace, dimChooserId, config.dimensionName, exclude, multiSelectTargetXpathExclude);
+
+      values.length > 0 ? jQuery(targetHtmlElement).closest(".bcdDimensionChooser").addClass("bcdActiveFilter") : jQuery(targetHtmlElement).closest(".bcdDimensionChooser").removeClass("bcdActiveFilter");
 
       // also check if adding needs to turn off level selection
       if (targetModel.read(config.multiExpandXpath +"/@value", "false") == "true")      

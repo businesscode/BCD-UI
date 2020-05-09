@@ -246,6 +246,8 @@
       // tells if current widget value differs from data value
       var hasValueChanged = guiValue != modelValue;
 
+      guiValue != "0" ? jQuery(this.element).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(this.element).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: modelValue: " + modelValue + ", guiValue: " + guiValue);
 
       var hasWritten = false;

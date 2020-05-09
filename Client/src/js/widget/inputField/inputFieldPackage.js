@@ -654,7 +654,9 @@ bcdui.util.namespace("bcdui.widget.inputField",
               htmlElement.size=newV.length;
             }
           }
-  
+
+          newV ? jQuery(htmlElement).closest(".bcdInputField").addClass("bcdActiveFilter") : jQuery(htmlElement).closest(".bcdInputField").removeClass("bcdActiveFilter");
+
           // Do not change if value is still valid.
           // Would re-position the cursor (after refresh of options model for example)
           if( htmlElement.value != newV ) {

@@ -396,6 +396,11 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           targetModel.onChange(bcdui.widget.periodChooser._validateAndSwithPostfix.bind(this, config), config.targetModelXPath + "/@bcdPostfix");
         }
 
+        if (containerHtmlElement.getAttribute("bcdLabel")){
+          jQuery(containerHtmlElement).prepend("<label/>");
+          bcdui.widget._initLabel(jQuery(containerHtmlElement).find("label"), containerHtmlElement.getAttribute("bcdid"), containerHtmlElement.getAttribute("bcdLabel"));
+        }
+
         // default periodChooser init
         var values = bcdui._migPjs._$(containerHtmlElement).find("span.bcdValue");
         var hiddens = bcdui._migPjs._$(containerHtmlElement).find("input.bcdHidden");
@@ -505,6 +510,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
               node.removeAttribute("dateTo");
               jQuery(containerHtmlElement).find(".bcdValue > input").each(function(i,e){jQuery(e).val("");});
               targetModel.remove(targetModelXPath + (isAttr ? "/.." : "") + (bcdui.widget.periodChooser._isWrs(targetModel.getData()) ? "" : "/*"), true);
+
+              jQuery(containerHtmlElement).closest(".bcdPeriodChooser").removeClass("bcdActiveFilter");
+
               setTimeout(function(){bcdui.widget.periodChooser._validateValue(containerHtmlElement);});
             }
           }
@@ -709,6 +717,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
           toDate = dates[dates[0]==dates[1] ? 0 : 1]; // incase of different times we assign toDate from dates[1]
         }
       }
+      
+      (fromDate != "" || toDate != "") ? jQuery(containerHtmlElement).closest(".bcdPeriodChooser").addClass("bcdActiveFilter") : jQuery(containerHtmlElement).closest(".bcdPeriodChooser").removeClass("bcdActiveFilter");
+      
       var t = bcdui.widget.periodChooser._getTargetData(containerHtmlElement);
       if (bcdui.widget.periodChooser._isWrs(t.doc)) {
         bcdui.widget.periodChooser._updateWrsXMLDoc(fromDate, t.targetModel, t.targetModelXPath);

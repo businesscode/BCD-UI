@@ -226,7 +226,12 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
           }
           return map;
         }:function(map, e) { var v = e.nodeValue || e.text; map[v] = v; return map; };
+
+        var values = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath));
         var selectedValues = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath)).reduce(mapFunc, {});
+
+        values.length > 0 ? jQuery(args.htmlElement).closest(".bcdMultiSelect").addClass("bcdActiveFilter") : jQuery(args.htmlElement).closest(".bcdMultiSelect").removeClass("bcdActiveFilter");
+
         if (args.isCheckBox === 'true'){
           var options = bcdui._migPjs._$(htmlElement).find("input[type='checkbox']");
           jQuery.makeArray(options).forEach(function(optionElement) {
@@ -277,7 +282,10 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
         return map;
       }:function(map, e) { var v = e.nodeValue || e.text; map[v] = v; return map; };
 
-      var selectedValues = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath)).reduce(mapFunc, {});
+      var values = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath));
+      var selectedValues = values.reduce(mapFunc, {});
+
+      values.length > 0 ? jQuery(args.htmlElement).closest(".bcdMultiSelect").addClass("bcdActiveFilter") : jQuery(args.htmlElement).closest(".bcdMultiSelect").removeClass("bcdActiveFilter");
 
       if ( args.isCheckBox === 'true'){
         var checkBoxForm = null;
