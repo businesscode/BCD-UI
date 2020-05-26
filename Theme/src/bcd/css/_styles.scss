@@ -52,6 +52,10 @@ $h6-font-size:                $bcd-font-size-base !default;
   user-select: text;
 }
 
+.bcdItalic {
+  font-style: italic;
+}
+
 .bcdClosed,
 .bcdHidden {
   display: none !important;
@@ -1141,7 +1145,7 @@ $h6-font-size:                $bcd-font-size-base !default;
     width: auto;
     margin: 0;
     padding: 0;
-    margin-right: .375em;
+    margin: 0 .375em;
   }
   .highlight {
  	  @include bcdSelected();

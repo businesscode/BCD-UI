@@ -2194,6 +2194,7 @@ bcdui.util.namespace("bcdui.widget",
             var tooltip = "<div class='bcdFilterTooltip'><p bcdTranslate='bcd_widget_filter_filter'></p><ul>";
             values.forEach(function(e) {
               var inputText = (e == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) : e);
+              inputText = (e == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : inputText);
               tooltip += "<li>" + bcdui.widget._getTooltipFilterOption(inputText) + "</li>";
             });
             tooltip += "</ul></div>";
@@ -2245,7 +2246,8 @@ bcdui.util.namespace("bcdui.widget",
 
         // get set of filtered values
         var filteredValues = (getFilteredValues ? getFilteredValues(index) : jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']"))).map(function(e) {
-          return e.text;
+          var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
+          return isTotal? "\uE0F1" : e.text;
         });
 
         // get caption for values
@@ -2253,8 +2255,10 @@ bcdui.util.namespace("bcdui.widget",
 
           // caption is either an existing caption attribute or the node value
           var caption = (e.getAttribute("caption") || e.text);
+          var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
           var value = e.text;
           var isFiltered = "" + (filteredValues.indexOf(e.text) == -1);
+          isFiltered = isTotal ? "" + (filteredValues.indexOf("\uE0F1") == -1) : isFiltered;
           var isInvalid = isNaN(e.text) || e.text == "Infinity";
 
           if (isNumeric) {
@@ -2288,7 +2292,9 @@ bcdui.util.namespace("bcdui.widget",
           if (getCaptionForColumnValue) {
             caption = getCaptionForColumnValue(index, value);
           }
-          return value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
+          var rt = value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
+          rt =  value == "" && isTotal ? ("\uE0F1" + bcdui.core.magicChar.separator + "\uE0F1" + bcdui.core.magicChar.separator + isFiltered) : rt;
+          return rt;
         });
         values = values.filter(function(e, idx){return values.indexOf(e) == idx}); // make unique
         values = values.map(function(e) { var q = e.split(bcdui.core.magicChar.separator); return {value: q[0], caption: q[1], isFiltered: q[2] == "true"} }); // make value/caption object
@@ -2301,14 +2307,20 @@ bcdui.util.namespace("bcdui.widget",
             return aa > bb ? 1 : aa < bb ? -1 : 0;});
         else
           values.sort(function(a,b) {
+            var aa = a.caption.toLowerCase();
+            var bb = b.caption.toLowerCase();
             // sort empty to top
-            if (a.caption != b.caption) {
-              if (a.caption == bcdui.core.magicChar.dimEmpty)
+            if (aa != bb) {
+              if (aa == "\uE0F1")
                 return -1;
-              if (b.caption == bcdui.core.magicChar.dimEmpty)
+              if (bb == "\uE0F1")
+                return 1;
+              if (aa == bcdui.core.magicChar.dimEmpty)
+                return -1;
+              if (bb == bcdui.core.magicChar.dimEmpty)
                 return 1;
             }
-            return a.caption > b.caption ? 1 : a.caption < b.caption ? -1 : 0;
+            return aa > bb ? 1 : aa < bb ? -1 : 0;
             });
 
         var modelData = "<Data>";
@@ -2326,19 +2338,27 @@ bcdui.util.namespace("bcdui.widget",
 
         // filter functions
         bcdui.widget._bcdFilter = {}
-        bcdui.widget._bcdFilter.contains = function(cellValue, value)   { return cellValue.toLowerCase().indexOf(value.toLowerCase()) != -1;};
-        bcdui.widget._bcdFilter.endswith = function(cellValue, value)   { return  cellValue.toLowerCase().endsWith(value.toLowerCase());};
-        bcdui.widget._bcdFilter.startswith = function(cellValue, value) { return cellValue.toLowerCase().startsWith(value.toLowerCase());};
-        bcdui.widget._bcdFilter.isequal = function(cellValue, value)    { return cellValue.toLowerCase() == value.toLowerCase();};
-        bcdui.widget._bcdFilter.isnotequal = function(cellValue, value) { return cellValue.toLowerCase() != value.toLowerCase();};
-        bcdui.widget._bcdFilter.isempty = function(cellValue, value)    { return cellValue == bcdui.core.magicChar.dimEmpty;};
-        bcdui.widget._bcdFilter.isnotempty = function(cellValue, value) { return cellValue != bcdui.core.magicChar.dimEmpty};
+        bcdui.widget._bcdFilter.contains = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().indexOf(value.toLowerCase()) != -1;};
+        bcdui.widget._bcdFilter.endswith = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().endsWith(value.toLowerCase());};
+        bcdui.widget._bcdFilter.startswith = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase().startsWith(value.toLowerCase());};
+        bcdui.widget._bcdFilter.isequal = function(cellValue, value)    { return value == "" ? true : cellValue.toLowerCase() == value.toLowerCase();};
+        bcdui.widget._bcdFilter.isnotequal = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase() != value.toLowerCase();};
+        bcdui.widget._bcdFilter.isempty = function(cellValue, value)    { return value == "" ? true : cellValue == bcdui.core.magicChar.dimEmpty;};
+        bcdui.widget._bcdFilter.isnotempty = function(cellValue, value) { return value == "" ? true : cellValue != bcdui.core.magicChar.dimEmpty;};
         bcdui.widget._bcdFilter.isbigger = function(cellValue, value)   {
+          if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+            return false;
+          if (value == "")
+            return true;
           var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
           var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
           return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) > parseFloat(value)) : (cellValue > value);
         };
         bcdui.widget._bcdFilter.issmaller = function(cellValue, value)  {
+          if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+            return false;
+          if (value == "")
+            return true;
           var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
           var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
           return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) < parseFloat(value)) : (cellValue < value);
@@ -2481,8 +2501,9 @@ bcdui.util.namespace("bcdui.widget",
         var isFiltered = e.getAttribute("isFiltered") === "true";
         var isCurrentlyFiltered = e.getAttribute("filtered") === "true";
         var checkStatus = isEnabled ? " checked" : "";
-        var cssClass = isFiltered ? " class='bcdDisabled'" : e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? " class='bcdItalic'" : "";
+        var cssClass = isFiltered ? " class='bcdDisabled'" : (e.getAttribute("caption") == "\uE0F1" || e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty) ? " class='bcdItalic'" : "";
         var inputText = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) :  e.getAttribute("caption");
+        inputText = e.getAttribute("caption") == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : inputText;  
         if ((showAll && ! isCurrentlyFiltered) || (isEnabled && ! isCurrentlyFiltered) || (! showAll && ! isFiltered && ! isCurrentlyFiltered))
           multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +   bcdui.widget._getSingleFilterOption(inputText) + "</span></div>";
       });

@@ -84,7 +84,12 @@
         <xsl:for-each select="$row/../../../*"><!-- Wrs -->
           <xsl:variable name="wrsPos"><xsl:value-of select="key('getHeaderColById',$bRef)/@pos"/></xsl:variable>
 
-          <xsl:variable name="value" select="$row/wrs:C[number($wrsPos)][not(null)]"/>
+          <xsl:variable name="value">
+            <xsl:choose>
+              <xsl:when test="$row/wrs:C[number($wrsPos)][not(null)]/@bcdGr='1'">&#xE0F1;</xsl:when> <!-- write special char for a total cell -->
+              <xsl:otherwise><xsl:value-of select="$row/wrs:C[number($wrsPos)][not(null)]"/></xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
           <xsl:variable name="comparableValue">
             <xsl:choose>
               <xsl:when test="key('columnsWithCaptionValueReferences', $wrsPos)">
