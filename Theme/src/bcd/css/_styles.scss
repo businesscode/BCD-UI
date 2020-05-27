@@ -1154,9 +1154,9 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 .bcdFilterTooltip {
-  p { font-weight: bold; }
-  ul { list-style-type: none; padding: 0;}
-  li { padding: .3em .7em; }
+  p { font-weight: bold; padding: 0; margin: 0; }
+  ul { list-style-type: none; padding: 0; margin: 0;}
+  li { padding: .3em 0 0 .7em; }
 }
 
 

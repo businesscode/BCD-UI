@@ -2198,7 +2198,7 @@ bcdui.util.namespace("bcdui.widget",
               tooltip += "<li>" + bcdui.widget._getTooltipFilterOption(inputText) + "</li>";
             });
             tooltip += "</ul></div>";
-            jQuery("#bcdTooltipDiv").append(values.length == 0 ? "" : tooltip);
+            jQuery("#bcdTooltipDiv").append(tooltip);
             bcdui.i18n.syncTranslateHTMLElement({elementOrId: "bcdTooltipDiv"});
             return doc;
           }
