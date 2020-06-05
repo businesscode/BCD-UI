@@ -32,8 +32,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.shiro.codec.Base64;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
@@ -345,6 +345,14 @@ public class DatabaseWriter {
               stm.setNull(paramNo, Types.DECIMAL);
             else
               stm.setBigDecimal(paramNo, new BigDecimal(value));
+            break;
+          case Types.BLOB:
+            if (isNull)
+              stm.setNull(paramNo, Types.CLOB);
+            else {
+              byte decodeBytes[] = Base64.decode(value.getBytes(StandardCharsets.UTF_8));
+              stm.setBinaryStream(paramNo, new ByteArrayInputStream(decodeBytes));
+            }
             break;
           case Types.CLOB:
             if (isNull)

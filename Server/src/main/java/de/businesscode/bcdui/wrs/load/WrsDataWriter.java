@@ -28,6 +28,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -463,8 +464,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         if (data == null || data.length() == 0 || getResultSet().wasNull()){
           getWriter().writeEmptyElement("null");
         }else{
-          byte[] blob = data.getBytes(1,  (int) data.length());
-          getWriter().writeCData(new String(blob));
+          String b64 = Base64.getEncoder().encodeToString(data.getBytes(1,  (int) data.length()));
+          getWriter().writeCharacters(b64);
         }
         break;
       }
