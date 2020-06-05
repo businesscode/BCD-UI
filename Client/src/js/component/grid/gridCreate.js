@@ -1375,7 +1375,9 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           if (e.getAttribute("readOnly") === "true") {
             cssClass += " bcdReadOnly";
           }
-          this.hotInstance.headerCss.push(cssClass + (e.getAttribute("class") || ""));
+          var c = e.getAttribute("class") || "";
+          c = c != "" ? " " + c : "";
+          this.hotInstance.headerCss.push(cssClass + c);
         }
       }
 
