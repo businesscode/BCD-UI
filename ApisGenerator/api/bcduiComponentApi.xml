@@ -654,6 +654,11 @@
             add/save/restore buttons appear at the top, pagination at bottom, insert row at top
           </Doc>
         </Param>
+        <Param name="forceAddAtBottom" type="boolean" default="false">
+          <Doc>
+            Always add a new row at the bottom, no matter if topMode or pagination
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">

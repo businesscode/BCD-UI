@@ -117,6 +117,7 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {integer}                 [args.maxHeight]                                       - Set a maximum vertical size in pixel (only used when no handsontable height is set)
  * @param {boolean}                 [args.isReadOnly=false]                                - Turn on viewer-only mode
  * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+ * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
  *  
 */
 bcdui.component.grid.Grid = function(args)
@@ -130,6 +131,7 @@ bcdui.component.grid.Grid = function(args)
     this.config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
   }
 
+  this.forceAddAtBottom = args.forceAddAtBottom || false;
   this.topMode = args.topMode || false;
   this.isReadOnly = args.isReadOnly || false;
   this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
@@ -2378,8 +2380,12 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         var insertBeforeSelection = false;
         // clicked on AddRow button, then - depending on topMode - chooser top or bottom row
         if (rowId == "") {
-          // for pagination, always add at top or current page
-          if (gotPagination) {
+          if (this.forceAddAtBottom) {
+            var thisPageLastRowId = q > 0 ? this.hotInstance.getSourceDataAtRow(q - 1).r.getAttribute("id") : null
+            rowId = (thisPageLastRowId == null) ? "R1" : thisPageLastRowId;
+          }
+          // for pagination, always add at top of current page
+          else if (gotPagination) {
             var topRow = q > 0 ? this.hotInstance.getSourceDataAtRow(0).r.getAttribute("id") : null
             rowId = (topRow == null) ? "R1" : topRow;
             insertBeforeSelection = true;
