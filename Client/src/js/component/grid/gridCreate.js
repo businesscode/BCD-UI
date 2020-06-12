@@ -981,7 +981,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
       var colHeader = {
           data:       domProperty(this, id)
-        , type:       type
+        , type:       (hc.getAttribute("isCheckbox") || "").length > 0 ? "checkbox" : type
         , readOnly:   this.isReadOnly || hc.getAttribute("readOnly") == "true" || hc.getAttribute("isHidden") == "true" // hidden columns will be readonly to avoid copy/paste overwrites
         , format:     format
         , allowEmpty: hc.getAttribute("nullable") != "0" // nullable is an xs:Bit
@@ -1030,6 +1030,17 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       }
       else
         colHeader["renderer"] = colHeader["rendererX"];
+
+      if (colHeader["type"] == "checkbox") {
+        delete colHeader["editor"];
+        delete colHeader["renderer"];
+        colHeader.checkedTemplate = '1';
+        colHeader.uncheckedTemplate = '0';
+        if ((hc.getAttribute("isCheckbox")||"").indexOf("|") != -1) {
+          colHeader.checkedTemplate = (hc.getAttribute("isCheckbox")||"").split("|")[0];
+          colHeader.uncheckedTemplate = (hc.getAttribute("isCheckbox")||"").split("|")[1];
+        }
+      }
 
       // hidden cells get a dummy renderer
       if (colHeader.isHidden)
