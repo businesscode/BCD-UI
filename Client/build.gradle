@@ -224,7 +224,8 @@ task bcduiClientJsFileGroups {
       outputs.file file(outFileName)
       script = file("$nodeModulesDir/babel-cli/bin/babel")
       def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/babel-preset-es2015" : "")
-      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
+      def plugins = "--plugins=$nodeModulesDir/babel-plugin-transform-class-properties"
+      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets + plugins
 
       // Postpend copy right. We do not prepend it to keep the source map indices intact
       doLast {
@@ -384,7 +385,8 @@ task bcduiClientEcma5One2One (type: NodeTask) {
   // Job itself: Call babel and put individual ecma6 files to taskDestDir (excluding 3rdParty, they are copyied below)
   script = file("$nodeModulesDir/babel-cli/bin/babel")
   args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/babel-preset-es2015" + "--source-maps" +
-              "--plugins" + "$nodeModulesDir/babel-plugin-transform-async-to-generator" + "--ignore" + "./3rdParty/*.js"
+              "--plugins=$nodeModulesDir/babel-plugin-transform-async-to-generator,$nodeModulesDir/babel-plugin-transform-class-properties" +
+              "--ignore" + "./3rdParty/*.js"
 
   // 1. We do not apply ECMA5 babel to 3rdParty resources (also has issues with ecma6Polyfills and webcomponent), so we overwrite them here with the originals
   // 2. We do neet to add es5Postfix to js, map and change the map entry in js
