@@ -29,6 +29,7 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.time.Instant;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -202,6 +203,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
    */
   protected void writeWrs() throws Exception {
     getWriter().writeStartElement("Wrs");
+    // Write milliseconds since 1.1.1970 UTC
+    getWriter().writeAttribute("ts", Long.toUnsignedString(Instant.now().toEpochMilli()));
     getWriter().writeDefaultNamespace(WRS_XML_NAMESPACE);
     
     {

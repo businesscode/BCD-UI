@@ -98,6 +98,11 @@
       </xs:element>
       <xs:element name="Footer" type="tns:FooterType" minOccurs="0"/>
     </xs:sequence>
+    <xs:attribute name="ts" type="xs:long">
+      <xs:annotation><xs:documentation>
+        Timestamp when this Wrs was created at the server in milliseconds since 01.01.1970 UTC.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
     <xs:anyAttribute namespace="##other" processContents="lax" />
   </xs:complexType>
 
