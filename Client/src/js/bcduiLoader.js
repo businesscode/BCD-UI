@@ -103,6 +103,7 @@ bcdui.bcduiCeFiles =
         , "/js/i18n/i18n.js"
         , "/js/i18n/i18nPackage.js"
         , "/js/core/lifecycle/lifecyclePackage.js"
+        , "/js/core/lifecycle/autoRefresh.js"
         , "/js/wrs/wrsUtilPackage.js"
       ],
       "css": [
