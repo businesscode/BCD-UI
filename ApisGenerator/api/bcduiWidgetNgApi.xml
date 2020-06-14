@@ -384,6 +384,22 @@
         </Impl>
       </Api>
 
+      <Api name="pasteList" extends="textArea">
+        <Doc>Text area to paste list of elements for an in-clause</Doc>
+        <Param name="toUpper" type="boolean" required="false" default="false">
+          <Doc>If true, all values are translated to uppercase.</Doc>
+        </Param>
+        <Param name="pasteSeps" type="string" required="false" default=",; \\|\\t\\n">
+          <Doc>
+            Letters treated as separators between values when pasting.
+            Defaults: comma, semicolon, space, pipe, tab, newline.
+          </Doc>
+        </Param>
+        <Param name="outSep" type="string" required="false" default=",">
+          <Doc>Letter treated as separators in the targetModel and also expected when reading in values from there, defaults to comma.</Doc>
+        </Param>
+      </Api>
+
 
       <Api name="rtfTextArea" extends="textArea">
         <Doc>Free WYSIWYG text input, allowing rich text input /  editor. Writes CDATA with plain HTML in it. Make sure to write into a XML binding item.</Doc>
@@ -1019,6 +1035,7 @@ the data that is actually placed in XML.
       <BcdObject name="singleSelect" implements="singleSelect" implementationPackage="bcdui.widgetNg.singleSelect"/>
       <BcdObject name="suggestInput" implements="suggestInput" implementationPackage="bcdui.widgetNg.suggestInput"/>
       <BcdObject name="textArea" implements="textArea" implementationPackage="bcdui.widgetNg.textArea"/>
+      <BcdObject name="pasteList" implements="pasteList" implementationPackage="bcdui.widgetNg.pasteList"/>
       <BcdObject name="sideBySideChooser" implements="sideBySideChooser" implementationPackage="bcdui.widgetNg.sideBySideChooser"/>
       <BcdObject name="connectable" implements="connectable" implementationPackage="bcdui.widgetNg.connectable"/>
       <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component.scorecard.scorecardConfigurator"/>
@@ -1135,6 +1152,15 @@ the data that is actually placed in XML.
         <param name="tabIndex"/>
         <param name="mandatory"/>
       </TextArea>
+      <PasteList>
+        <param name="id"/>
+        <param name="targetModelId"/>
+        <param name="targetModelXPath"/>
+        <param name="tabIndex"/>
+        <param name="mandatory"/>
+        <param name="toUpper"/>
+        <param name="separators"/>
+      </PasteList>
       <DimensionChooser>
         <param name="id"/>
         <param name="targetModelId"/>

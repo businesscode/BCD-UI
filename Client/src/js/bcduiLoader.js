@@ -145,6 +145,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/input/inputPackage.js"
         , "/js/widgetNg/dateInput/dateInputPackage.js"
         , "/js/widgetNg/textArea/textAreaPackage.js"
+        , "/js/widgetNg/pasteList/pasteListPackage.js"
         , "/js/widgetNg/checkbox/checkboxPackage.js"
         , "/js/widgetNg/suggestInput/suggestInputPackage.js"
         , "/js/widgetNg/singleSelect/singleSelectPackage.js"
