@@ -132,3 +132,13 @@ CREATE SET TABLE bcd_tinyurl_control, FALLBACK, NO BEFORE JOURNAL, NO AFTER JOUR
   last_used_dt DATE NOT NULL
 )
 UNIQUE PRIMARY INDEX ( tiny_url );
+
+-- cache
+DROP TABLE bcd_cache_scope;
+CREATE  TABLE bcd_cache_scope
+(
+  scope                  VARCHAR(256) NOT NULL UNIQUE,
+  scope_last_modified    TIMESTAMP,
+  earliest_next_modified TIMESTAMP,
+  expires_min_offset_sec INTEGER
+);

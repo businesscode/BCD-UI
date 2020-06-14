@@ -190,3 +190,13 @@ CREATE TABLE bcd_virtualFileSystem
    bcd_userId     VARCHAR(64),
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
+
+-- cache
+DROP TABLE bcd_cache_scope;
+CREATE  TABLE bcd_cache_scope
+(
+  scope                  VARCHAR(256) NOT NULL UNIQUE,
+  scope_last_modified    TIMESTAMP,
+  earliest_next_modified TIMESTAMP,
+  expires_min_offset_sec INTEGER
+);

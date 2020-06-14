@@ -188,3 +188,21 @@ CREATE TABLE bcd_virtualFileSystem
    bcd_userId     VARCHAR(64),
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
+
+-- cache
+DROP TABLE bcd_cache_scope;
+CREATE  TABLE bcd_cache_scope
+(
+  scope                  VARCHAR(256) NOT NULL UNIQUE,
+  scope_last_modified    TIMESTAMP,
+  earliest_next_modified TIMESTAMP,
+  expires_min_offset_sec INTEGER
+);
+
+
+-- geo
+-- As admin login to right database; creates postgis in public schema, make sure publich is ih user's search path
+-- CREATE EXTENSION postgis;
+-- SHOW search_path;
+-- ALTER USER "KEPDEMOGUI" SET search_path = "KEPDEMOGUI",public;
+-- SELECT postgis_full_version();
