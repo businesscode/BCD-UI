@@ -121,7 +121,10 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
        */
       this.saveFailedStatus = new bcdui.core.status.SaveFailedStatus();
 
-      this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
+      // attach save handling only when we really have a dp which is able to save (simpleModel, autoModel, etc.)
+      // especially NOT bcdui.core._ModelBeingUpdated
+      if (this.saveOptions)
+        this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
 
       if (isLeaf)
         this._checkAutoRegister();
