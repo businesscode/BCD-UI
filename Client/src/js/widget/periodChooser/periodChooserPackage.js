@@ -508,7 +508,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
               node = isAttr ? targetModel.query(targetModelXPath + "/..") : node;
               node.removeAttribute("dateFrom");
               node.removeAttribute("dateTo");
-              jQuery(containerHtmlElement).find(".bcdValue > input").each(function(i,e){jQuery(e).val("");});
+              jQuery(containerHtmlElement).find(".bcdValue > input").each(function(i,e){if (!jQuery(e).hasClass("bcdDateDelimiter"))jQuery(e).val("");});
               targetModel.remove(targetModelXPath + (isAttr ? "/.." : "") + (bcdui.widget.periodChooser._isWrs(targetModel.getData()) ? "" : "/*"), true);
 
               jQuery(containerHtmlElement).closest(".bcdPeriodChooser").removeClass("bcdActiveFilter");
