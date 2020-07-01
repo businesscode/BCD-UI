@@ -145,8 +145,9 @@ public class DataModifiedFilter implements Filter {
     }
 
     // The data the client is out-dated, make sure it is send new (by returning false)
+    // If-Modified-Since is sec only with all ms=0, so we need to compare on sec level here 
     // and set earliestNextModified if given as expires header
-    if(reqLamo < scopeLamo) {
+    if(reqLamo+1000 < scopeLamo) {
       httpRes.setDateHeader("Last-Modified", scopeLamo);
       return false;
     }
@@ -201,7 +202,7 @@ public class DataModifiedFilter implements Filter {
   }
   
   /**
-   * Read all sopes' information fresh from bcd_cache_scope
+   * Read all scopes' information fresh from bcd_cache_scope
    */
   protected void refreshScopes() {
 
