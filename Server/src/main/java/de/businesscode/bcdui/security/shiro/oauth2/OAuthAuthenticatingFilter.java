@@ -56,6 +56,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
   public static final String SESSION_ATTR_KEY_AUTH_STATE = "OAuthAuthenticatingFilter.authState";
   public static final String SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID = "OAuthAuthenticatingFilter.instanceId";
+  public static final String SESSION_ATTR_KEY_ORIG_URL = "OAuthAuthenticatingFilter.origUrl";
 
   /**
    * we need to differentiate between provider instances (singletons, though) to handle redirectUrls by same instance implementation
@@ -264,7 +265,14 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected final boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
     final String successUrl = getSuccessUrl();
     if (StringUtils.isEmpty(successUrl)) { // if not defined, we navigate to previously saved url
-      issueSuccessRedirect(request, response);
+      if( SecurityUtils.getSubject().getSession(false) != null && SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL) != null ) {
+        String origUrl = SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL).toString();
+        final int ctl = getServletContext().getContextPath().length();
+        origUrl = origUrl.substring(ctl);
+        WebUtils.issueRedirect(request, response, origUrl);
+      } else {
+        issueSuccessRedirect(request, response);
+      }
     } else {
       WebUtils.issueRedirect(request, response, successUrl);
     }
@@ -329,6 +337,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
       saveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, createStateValue());
       saveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, this.providerInstanceId);
+      saveSessionProperty(request, SESSION_ATTR_KEY_ORIG_URL, WebUtils.getSavedRequest(request).getRequestUrl());
 
       /*
        * redirect to login-url (which is authorization server)
