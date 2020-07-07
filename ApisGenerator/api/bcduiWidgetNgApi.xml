@@ -398,6 +398,9 @@
         <Param name="outSep" type="string" required="false" default=",">
           <Doc>Letter treated as separators in the targetModel and also expected when reading in values from there, defaults to comma.</Doc>
         </Param>
+        <Param name="maxVals" type="integer" required="false" default="1000">
+          <Doc>Only the first maxVals distinct values are used.</Doc>
+        </Param>
       </Api>
 
 

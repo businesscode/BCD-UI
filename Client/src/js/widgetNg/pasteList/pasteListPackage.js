@@ -57,7 +57,8 @@
       var value = inputEl.val();
       // Here we accept only ',' as separator
       if( args["toUpper"] ) value = value.toUpperCase();
-      let uniqueValues = value.split(args["outSep"] || ",").filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+      var uniqueValues = value.split(args["outSep"] || ",").filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+      uniqueValues = uniqueValues.slice(0, args["maxVals"]);
       value = uniqueValues.join("\n");
       inputEl.val( value );
     },
@@ -76,6 +77,7 @@
       el.attr("pasteSeps", args.pasteSeps);
       el.attr("outSep", args.outSep);
       el.attr("toUpper", args.toUpper);
+      el.attr("maxVals", args.maxVals);
 
       return ret;
     },
@@ -94,12 +96,13 @@
         var re = new RegExp(separators,"g");
         let value = guiValue.trim().replace(re," ").split(" ");
 
-        // Make values unique
-        let uniqueValues = value.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
-        
+        // Make values unique, limit to first maxVals values
+        var uniqueValues = value.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+        uniqueValues = uniqueValues.slice(0, args["maxVals"]);
+
         // Filter wants it , separated
         var filterValues = uniqueValues.join(args["outSep"] || ",");
-        
+
         // Should it be case-insensitive?
         if( args["toUpper"] ) filterValues = filterValues.toUpperCase();
 
