@@ -235,8 +235,14 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
     var destination = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot);
     //copy source layout to temp if it exists
     var source = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("/*" + cubeLayoutRoot);
-    if (source != null)
+    if (source != null) {
       destination.appendChild(source.cloneNode(true));
+      let modifiedPostfix = " - " + (bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Edit_Modified"}) || "Modified");
+      let descNode = destination.selectSingleNode("//cube:Layout/@description[not(contains(.,'"+modifiedPostfix+"'))]");
+      if( descNode ) descNode.nodeValue += modifiedPostfix;
+      let nameNode = destination.selectSingleNode("//cube:Layout/@name[not(contains(.,'"+modifiedPostfix+"'))]");
+      if( nameNode ) nameNode.nodeValue += modifiedPostfix;
+    }
     // since we only want a skeleton (but with possible hideAllTotal, TopN, hide/exclude etc attributes, we remove dims and measureRefs (user defined dm:Measure survive)
     bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot + cubeLayoutRoot + "/cube:Dimensions/*");
     bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(tempModel).getData(), tempModelXPathRoot + cubeLayoutRoot + "/cube:Measures/*/*[name()!='dm:Measure']");

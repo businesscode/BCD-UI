@@ -153,7 +153,8 @@
       <R id="R221"><C>bcd_Edit_ResetAll</C><C>Reset All</C><C>en</C></R>
       <R id="R222"><C>bcd_Edit_OrigValue</C><C>Original Value</C><C>en</C></R>
       <R id="R223"><C>bcd_Edit_Reload</C><C>Reload</C><C>en</C></R>
-      
+      <R id="R224"><C>bcd_Edit_Modified</C><C>Modified</C><C>en</C></R>
+
       <!-- Reports general -->
       <R id="R94"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
       <R id="R95"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>

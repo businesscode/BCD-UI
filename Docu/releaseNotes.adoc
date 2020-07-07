@@ -44,7 +44,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * New widget: "slider", based on noUiSlider implementation
 * Context menu: added support for multi-context, i.e. <div contextId="is-editable is-removable"></div>
 * menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
-* introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
+* Introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
 * tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas
 * inputField gets hideWildcardChar option to not attach asterisk characters (dimchooser supports it via dimconfig)
 * tabMenu can be persisten
@@ -59,7 +59,8 @@ The Renderer either works directly with the specified element or (in case of spe
     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"]);
 * BindingSet Relation added IsLike condition for joins
 * filterRowsTemplate gets enhancement of condition attributes and filterlists
-* moved save handling from simpple model to data provider
+* moved save handling from SimpleModel to DataProvider
+* New bnd:BindingSet/bnd:C/@skipStartupRead attribute. If set to true, this BindingItem is not read on startup
 
 . Themes
 * theme update: the new bcd-ui theme is based on Bootstrap v4.3.1, with FontAwesome 5.8.1 included
@@ -105,7 +106,8 @@ The Renderer either works directly with the specified element or (in case of spe
 * Charts: Moved VML drawer to BCD-UI-DE
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
-** CubeContextMenu, Sort Measre is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort 
+** CubeContextMenu, Sort Measre is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort
+** If a template is selected and then maually modified later, cube:Layout/@name and @description attributes are appeded with ' - '+bcd_Edit_Modified
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 * New entries for Eclipse injection to support ECMA5 transpiled sources, see Docu/development/eclipseInjected.xml
 * Widgets: navpath generation is turned off by default, use widget's enableNavPath attribute to turn it on
