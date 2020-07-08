@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.logging;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -116,7 +117,13 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
    * @throws SQLException
    */
   protected int[] executeStatement(Object[][] params) throws SQLException {
-    return new QueryRunner(getDataSource()).batch(sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, params);
+    Connection con = getDataSource().getConnection();
+    boolean isAc = con.getAutoCommit();
+    con.setAutoCommit(true); // Required by QueryRunner
+    int[] res = new QueryRunner().batch(con, sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, params);
+    con.setAutoCommit(isAc);
+    con.close();
+    return res;
   }
 
   /**
