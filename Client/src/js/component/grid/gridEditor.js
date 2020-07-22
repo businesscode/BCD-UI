@@ -407,9 +407,12 @@ var bcduiSimpleDropDown= widgetBaseEditor.prototype.extend();
 
 bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
+  var params = cellProperties.editorParameter;
+
   this.objectId = "bcduiSimpleDropDown";
   this.cssPath  = "#" + this.objectId + " select";
   this.value = "";
+  this.filterOptionsFunct = params.filterOptionsFunct ? params.filterOptionsFunct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
 
   this.createWidget = function(widgetParams) {
     var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
@@ -439,11 +442,22 @@ bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalVal
 
     // support filtered values so only not-used values are shown
     var usedIds = (args.filterOptions === "true") ? jQuery.makeArray(this.instance.getBCDUIGrid().gridModel.queryNodes("/*/wrs:Data/wrs:*[local-name()!='D']/wrs:C[position()=" + (col + 1) + "]")).map(function(e){ return e.text; }) : [];
+    
+    // support filtered values via user filterFunction, function is called with optionsArray for current column and has to return an array with valid ids
+    if (this.filterOptionsFunct && this.instance.getBCDUIGrid()) {
+      var gridArgs = this.instance.getBCDUIGrid()._getGridModelValues(row, col, originalValue);
+      usedIds = this.filterOptionsFunct(this.instance, td, row, col, prop, originalValue, cellProperties, gridArgs, this.optionsArray[col]);
+    }
 
     // build select and options
     var html = "<select>";
     this.optionsArray[col].forEach(function(e) {
-      if (args.filterOptions === "true") {
+      if (this.filterOptionsFunct) {
+        if (usedIds.indexOf(e[1]) != -1) { // show only ids which the filter function returned
+          html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
+        }
+      }
+      else if (args.filterOptions === "true") {
         if (usedIds.indexOf(e[1]) == -1 || this.value == e[1] || (e[1] == "" && args.allowEmpty === "true")) { // show only not usedIds and current value
           html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
         }
