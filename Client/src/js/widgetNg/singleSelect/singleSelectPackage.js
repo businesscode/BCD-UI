@@ -195,6 +195,19 @@
 
                 // add validator
                 bcdui.widgetNg.utils._addValidator(controlElement.id, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
+
+                // check for optional validationFunction
+                if(args.validationFunction){
+                  var func = bcdui.util.isString(args.validationFunction) ? eval(args.validationFunction) : args.validationFunction;
+                  if(!func){
+                    throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
+                  }
+                  bcdui.widgetNg.utils._addValidator(config.htmlElementId, func);
+                }
+
+                // attach balloon displaying fly-over + ballon for the widget to display hints and validation
+                bcdui.widgetNg.commons.balloon.attach(config.htmlElementId, {noBalloon:!args.displayBalloon});
+                
                 // reset loadings status
                 bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement.id, false);
                 // run explicit validation
