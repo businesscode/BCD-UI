@@ -204,9 +204,11 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
     {
       var root = args.root || this.enhancedConfiguration.query("/*/tree:Root");
       var nodeId = root.getAttribute("bcdNodeId")
-      
+
       var wrqNode = root.selectSingleNode("wrq:WrsRequest");
       if (wrqNode != null) {
+
+        var remFilters = "";
 
         // construct node filters for current node by taking the node's filter translation into account
         var nodeFilters = {};
@@ -214,11 +216,18 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
 
           var addFilters = "";
           jQuery.makeArray(root.selectNodes("dm:TypeTranslations/dm:FT")).forEach(function(f) {
-            if (addFilters != "")
-              addFilters += " ";
-            addFilters += f.getAttribute("from") || "";
-            if (f.getAttribute("to") != null)
-              addFilters += "|" + f.getAttribute("to");
+            if ((f.getAttribute("remove") || "") != "") {
+              if (remFilters != "")
+                remFilters += " ";
+              remFilters += f.getAttribute("remove") || "";
+            }
+            else {
+              if (addFilters != "")
+                addFilters += " ";
+              addFilters += f.getAttribute("from") || "";
+              if (f.getAttribute("to") != null)
+                addFilters += "|" + f.getAttribute("to");
+            }
           });
           var row = args.parentNodeModel.query("/*/wrs:Data/wrs:R[@id='" + args.rowId + "']");
           if (addFilters != "" && row != null) {
@@ -238,8 +247,17 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
 
         // and add inherited filters
         var inheritFilters = jQuery(args.targetHtml).closest(".bcdTree").closest(".bcdTreeRow").data("nodeFilters")
-        if (inheritFilters)
+
+        if (inheritFilters) {
+
+          // kill requested remove filters from FT
+          var bRefs = remFilters.trim().split(" ");
+          bRefs.forEach(function(b) {
+            delete inheritFilters[b];
+          });
+
           nodeFilters = jQuery.extend(nodeFilters, inheritFilters);
+        }
 
         // store node filters (current and inherited ones)
         jQuery(args.targetHtml).closest(".bcdTreeRow").data("nodeFilters", nodeFilters);
