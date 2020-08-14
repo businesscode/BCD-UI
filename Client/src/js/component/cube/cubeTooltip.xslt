@@ -255,7 +255,7 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:choose>
-      <xsl:when test="$rowKeyValue and $rowKeyValue != '' and $rowKey and $rowKeyValue != ''">
+      <xsl:when test="$rowKeyValue and $rowKeyValue != '' and $rowKey and $rowKeyValue != '' and count(/*/wrs:Header/wrs:Columns/wrs:C[@dimId]) &lt;= 10">
         <xsl:value-of select="key($rowKey,$rowKeyValue)/@id"/>
       </xsl:when>
       <xsl:otherwise>-1</xsl:otherwise>
