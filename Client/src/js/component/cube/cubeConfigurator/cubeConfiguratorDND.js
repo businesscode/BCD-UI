@@ -472,7 +472,7 @@ bcdui.util.namespace("bcdui.component.cube.configuratorDND",
           var idRef = measureList[m].getAttribute("id");
           var caption = measureList[m].getAttribute("caption");
           caption = caption == null ? "" : caption;
-          bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeBucketModelId), "/*/cube:Measures/dm:MeasureRef[@idRef='" + idRef + "' and @caption='" + caption + "']");
+          bcdui.factory.objectRegistry.getObject(cubeBucketModelId).write("/*/cube:Measures/dm:MeasureRef[@idRef='" + idRef + "' and @caption='{{=it[0]}}']",[caption]);
         }
       }
 

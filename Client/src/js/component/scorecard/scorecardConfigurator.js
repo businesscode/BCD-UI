@@ -416,7 +416,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         bcdui.core.removeXPath(scTargetModel.getData(), scTargetXPathRoot + "/Categories");
         if (scTargetModel.read(scTargetXPathRoot + "/Category", "0") == "1") {
           jQuery.makeArray(scBucket.queryNodes("//scc:CategoryTypeRef")).forEach(function(e) {
-            bcdui.core.createElementWithPrototype(scTargetModel.getData(), scTargetXPathRoot + "/Categories[@id='" + e.getAttribute("idRef") + "|" + e.getAttribute("caption") + "']");
+            var id = (e.getAttribute("idRef") || "") + "|" + (e.getAttribute("caption") || "");
+            scTargetModel.write(scTargetXPathRoot + "/Categories[@id='{{=it[0]}}']", [id]);
           });
         };
 
@@ -432,7 +433,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
             var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
             if (i.nodeName == o.kpiObject)
               idArray.push("bcdKpi|KPI" + o.dndObject);
-            else if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
+            else if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='{{=it[0]}}']", [id]) != null)
               idArray.push(id + o.dndObject);
           });
 
@@ -495,8 +496,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     bcdui.component.scorecardConfigurator._DND_OBJECTS.forEach(function(o) {
       jQuery.makeArray(scTargetModel.queryNodes(scTargetXPathRoot + "/" + o.dndObject + "/@id")).forEach(function(i) {
         var split = i.text.split("|");
-        var item = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='" + split[1] + "']");
-        item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + i.text + "']");
+        var item = targetModel.query("/*" + scLayoutRoot + "/" + o.configParent + "//" + o.bucketItem + "[@" + o.bucketId + "='" + split[0] + "' and @caption='{{=it[0]}}']", [split[1]]);
+        item = item != null ? item : scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='{{=it[0]}}']", [i.text]);
         if (item != null) {
           var destination = tempModel.query(tempModelXPathRoot + scLayoutRoot + "/" + o.parent);
           // if destination does not yet exist, create it
@@ -664,8 +665,8 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
         // ignore AspectRef in AspectRefs which also appear in rowAspectRefs
         var id = (i.getAttribute(o.bucketId) || "") + "|" + (i.getAttribute("caption") || "");
         // generate entry as long as it is part of the bucket
-        if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='" + id + "']") != null)
-          scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='" + id + "']");
+        if (scBucket.query("/*/" + o.fullBucketItem + "[@bcdId='{{=it[0]}}']", [id]) != null)
+          scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='{{=it[0]}}']", [id]);
         // special translation for kpi related notes
         if (i.nodeName == o.kpiObject)
           scTargetModel.write(scTargetXPathRoot + "/" + o.dndObject + "[@id='bcdKpi|KPI']");
@@ -744,7 +745,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
               var idRef = d.getAttribute("id");
               var caption = d.getAttribute("caption");
               caption = caption == null ? "" : caption;
-              scBucket.write("/*/" + o.fullBucketItem + "[@idRef='" + idRef + "' and @caption='" + caption + "']");
+              scBucket.write("/*/" + o.fullBucketItem + "[@idRef='" + idRef + "' and @caption='{{=it[0]}}']", [caption]);
             });
           }
         }
@@ -923,7 +924,7 @@ bcdui.util.namespace("bcdui.component.scorecardConfigurator",
     if (clean)
       nodes = nodes.concat(jQuery.makeArray(scBucketModel.queryNodes("/*/" + pre + "/*")));
     else
-      nodes.push(scBucketModel.query("/*/" + pre + "/*[@bcdId='" + id + "']"));
+      nodes.push(scBucketModel.query("/*/" + pre + "/*[@bcdId='{{=it[0]}}']", [id]));
 
     nodes.forEach(function(e) {
       var bucketNode = e;
