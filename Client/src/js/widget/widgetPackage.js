@@ -920,15 +920,15 @@ bcdui.util.namespace("bcdui.widget",
       if (!args.parameters) {
         args.parameters = {};
       }
-      args.parameters.contextPath=bcdui.contextPath;
-      args.parameters.rootElementId=menuRootElementId;
+      args.parameters.contextPath = bcdui.contextPath;
+      args.parameters.rootElementId = menuRootElementId;
       
       // provide the cleaned current location to the renderer to path-find and highlight the currently used menu item
       // it automatically includes the url parameter bcdPageId in the comparism
       // renderer attribute "bcdPageId" can be used to overwrite the default value of "bcdPageId"
       var loc = window.location.href.substring(window.location.href.indexOf(bcdui.contextPath) + bcdui.contextPath.length);
       var cleanLoc = loc.indexOf("?") != -1 ? loc.substring(0, loc.indexOf("?")) : loc;
-      
+
       var tokenName = args.parameters.bcdPageId || "bcdPageId";
       var bcdPageIdParam = "";
       var paramPos = loc.indexOf(tokenName + "=")
@@ -941,30 +941,21 @@ bcdui.util.namespace("bcdui.widget",
       args.parameters.bcdPageIdParam = bcdPageIdParam;
       args.parameters.legacyTheme = "" + (bcdui.config.settings.bcdui.legacyTheme === true);
 
-      var _rendererOrRendererRefId = bcdui.factory.createRenderer({
-        id: _rendererRefId
-        ,chain: typeof _rendererUrl == "string" ? bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl) : _rendererUrl
-        ,inputModel: _modelIdOrModelRef
-        ,parameters: args.parameters
-        ,targetHTMLElementId: args.targetHTMLElementId
-      });
-
-      if (_menuHandlerClassName) {
-        bcdui.factory.objectRegistry.withReadyObjects(_rendererOrRendererRefId, function(optionsModelId) {
-  
-          bcdui.log.isTraceEnabled() && bcdui.log.trace('call TransformedStatus listener on: ' + _rendererRefId);
-          // _menuHandlerVarName is later accesed from the generated menu
-          var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'"
-          +", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}"
-          +",rootIdOrElement:'"+_menuRootElementId+"'});";
-  
-          bcdui.log.isTraceEnabled() && bcdui.log.trace(strVal);
-          eval(strVal);
-  
-          if (bcdui._migPjs._$(args.targetHTMLElementId).children().length > 0)
-            bcdui._migPjs._$(args.targetHTMLElementId).children()[0].style.display="block";
+      bcdui.factory.objectRegistry.withReadyObjects(_modelIdOrModelRef, function() {
+        var renderer = new bcdui.core.Renderer({
+            chain: typeof _rendererUrl == "string" ? bcdui.util.url.resolveToFullURLPathWithCurrentURL(_rendererUrl) : _rendererUrl
+          , inputModel: bcdui.factory.objectRegistry.getObject(_modelIdOrModelRef)
+          , parameters: args.parameters
+          , targetHtml: args.targetHtml
         });
-      }
+        renderer.onceReady(function() {
+          jQuery("#" + args.targetHtml + " .bcdMenu").show();
+          if (_menuHandlerClassName) {
+            var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'" + ", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}" + ",rootIdOrElement:'"+_menuRootElementId+"'});";
+            eval(strVal);
+          }
+        });
+      });
     },
 
     /**
