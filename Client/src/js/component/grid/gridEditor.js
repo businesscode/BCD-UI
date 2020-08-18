@@ -413,6 +413,7 @@ bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalVal
   this.cssPath  = "#" + this.objectId + " select";
   this.value = "";
   this.filterOptionsFunct = params.filterOptionsFunct ? params.filterOptionsFunct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
+  this.distinctOptions = params.distinctOptions === "true";
 
   this.createWidget = function(widgetParams) {
     var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
@@ -449,21 +450,31 @@ bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalVal
       usedIds = this.filterOptionsFunct(this.instance, td, row, col, prop, originalValue, cellProperties, gridArgs, this.optionsArray[col]);
     }
 
+    var distinctKeys = {};
     // build select and options
     var html = "<select>";
     this.optionsArray[col].forEach(function(e) {
-      if (this.filterOptionsFunct) {
-        if (usedIds.indexOf(e[1]) != -1) { // show only ids which the filter function returned
+      var key = e[1] + bcdui.core.magicChar.separator + e[0];
+
+      if (!this.distinctOptions || (this.distinctOptions && typeof distinctKeys[key] == "undefined")) {
+  
+        if (this.filterOptionsFunct) {
+          if (usedIds.indexOf(e[1]) != -1) { // show only ids which the filter function returned
+            html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
+            distinctKeys[key]=1;
+          }
+        }
+        else if (args.filterOptions === "true") {
+          if (usedIds.indexOf(e[1]) == -1 || this.value == e[1] || (e[1] == "" && args.allowEmpty === "true")) { // show only not usedIds and current value
+            html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
+            distinctKeys[key]=1;
+          }
+        }
+        else {
           html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
+          distinctKeys[key]=1;
         }
       }
-      else if (args.filterOptions === "true") {
-        if (usedIds.indexOf(e[1]) == -1 || this.value == e[1] || (e[1] == "" && args.allowEmpty === "true")) { // show only not usedIds and current value
-          html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>";
-        }
-      }
-      else
-        html += "<option value='" + e[1] + "'" + (this.value == e[1] ? " selected" : "") + ">" + e[0] + "</option>"; 
     }.bind(this));
     html += "</select>"
 
