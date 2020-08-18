@@ -118,7 +118,8 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {boolean}                 [args.isReadOnly=false]                                - Turn on viewer-only mode
  * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
  * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
- *  
+ * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+ *
 */
 bcdui.component.grid.Grid = function(args)
 {
@@ -253,6 +254,11 @@ bcdui.component.grid.Grid = function(args)
 
     // if gridModel got filter, we enable the deep key check and prebuild request xml
     this.enableDeepKeyCheck = this.gridModel.query("/*//wrq:WrsRequest//f:Filter//f:Expression") != null;
+
+    // optional force to disable it. Be sure what you're doing. 
+    if (args.disableDeepKeyCheck)
+      this.enableDeepKeyCheck = false;
+
     var keyColumns = "";
     this.keyColumns = new Array();
     jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));

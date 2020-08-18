@@ -659,6 +659,11 @@
             Always add a new row at the bottom, no matter if topMode or pagination
           </Doc>
         </Param>
+        <Param name="disableDeepKeyCheck" type="boolean" default="false">
+          <Doc>
+            Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">
