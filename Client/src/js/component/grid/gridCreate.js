@@ -1859,7 +1859,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           var q0 = f[1].bind(this, p1, p2, p3, p4, p5, p6);
           var q1 = this.hotArgs[f[0]].bind(this, p1, p2, p3, p4, p5, p6);
           q0();
-          q1();
+          return q1();
         }.bind(this);
       }
     }.bind(this));
