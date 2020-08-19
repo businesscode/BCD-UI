@@ -119,6 +119,7 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
  * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
  * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+ * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
  *
 */
 bcdui.component.grid.Grid = function(args)
@@ -201,6 +202,7 @@ bcdui.component.grid.Grid = function(args)
   }
 
   // init custom callbacks for save and afterAddRow
+  this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
   this.saveRoutine = args.customSave || this.save;
   this.customAfterAddRow = args.afterAddRow;
   this.afterAddRow = function(args) {
@@ -1544,6 +1546,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           td.classList.add("bcdInserted");
         }
         cellProperties.instance.headerCss[colIdx].split(" ").forEach(function(e) {if (e != '') td.classList.add(e);});
+        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), coldId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
 
         if (this.scrollToBottom) {
           delete this.scrollToBottom;
@@ -2360,9 +2363,22 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       //--------------------
       // Create the context menu
       if( !!args.contextMenu && args.contextMenu !== 'false' && args.contextMenu !== false ) {
+
+        // little contextMenu preprocessor which checks if the row is fully readonly 
+        var prepareContextMenu = function(doc, args) {
+          var grid = bcdui.factory.objectRegistry.getObject(args.gridId);
+          if (typeof grid != "undefined" && typeof grid.rowIdMap != "undefined") {
+            var row = grid.rowIdMap[args.bcdRowIdent];
+            if (typeof row != "undefined") {
+              var cellProperties = grid.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
+              bcdui.factory.objectRegistry.getObject(grid.id + "_rowIsDisabled").value = "" + (cellProperties.indexOf("false") == -1);
+            }
+          }
+          return doc;
+        };
         var contextMenuUrl = args.contextMenu === true || args.contextMenu === 'true' ? bcdui.config.jsLibPath+"component/grid/contextMenu.xslt" : args.contextMenu;
         var bcdPageAccess = " " + ((bcdui.config.clientRights && bcdui.config.clientRights.bcdPageAccess) || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
-        this.contextMenu = new bcdui.core.ModelWrapper({ chain: contextMenuUrl, inputModel: this.statusModel,
+        this.contextMenu = new bcdui.core.ModelWrapper({ chain: [prepareContextMenu, contextMenuUrl], inputModel: this.statusModel,
           parameters: {
             bcdRowIdent: bcdui.wkModels.bcdRowIdent
           , bcdColIdent: bcdui.wkModels.bcdColIdent
@@ -2371,7 +2387,9 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           , allowNewRows: "" + this.allowNewRows
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
+          , gridId: this.id
           , gotExport: "" + (typeof bcdui.component.exports != "undefined")
+          , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
           }
         });
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
@@ -2379,6 +2397,10 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
       // context menu actions
       jQuery("#" + this.targetHtml).on("gridActions:rowAdd", function(evt, memo){
+
+        if (! this.allowNewRows)
+          return;
+        
         var rowId = memo ? memo.rowId : "";
         var q = this.hotInstance.countRows();
         var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
@@ -2452,14 +2474,21 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
       jQuery("#" + this.targetHtml).on("gridActions:rowDelete", function(evt, memo){
         if (memo.rowId) {
-          bcdui.wrs.wrsUtil.deleteRow(this.gridModel, memo.rowId, false);
 
-          // remove possible existing errors for removed row, important for previously inserted and removed rows
-          // which then don't appear at all in the gridModel (and not as wrs:D)
-          if (this.wrsErrors)
-            delete this.wrsErrors[memo.rowId];
-
-          this._refreshGridData(memo.rowId);
+          // don't allow deletion of a read-only rows
+          var row = this.rowIdMap[memo.rowId];
+          var cellProperties = this.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
+          if (cellProperties.indexOf("false") != -1) {
+  
+            bcdui.wrs.wrsUtil.deleteRow(this.gridModel, memo.rowId, false);
+  
+            // remove possible existing errors for removed row, important for previously inserted and removed rows
+            // which then don't appear at all in the gridModel (and not as wrs:D)
+            if (this.wrsErrors)
+              delete this.wrsErrors[memo.rowId];
+  
+            this._refreshGridData(memo.rowId);
+          }
         }
       }.bind(this));
 
@@ -2479,16 +2508,23 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
       jQuery("#" + this.targetHtml).on("gridActions:rowDuplicate", function(evt, memo){
         if (memo.rowId) {
-          var newRowId = "D_" + bcdui.wrs.wrsUtil._transactionsNumber + "_" + memo.rowId;
-          bcdui.wrs.wrsUtil.duplicateRow( this.gridModel, memo.rowId, false, function(){
-            this.afterAddRow({rowNode: this.gridModel.query("/*/wrs:Data/wrs:*[@id='" + newRowId + "']"), headerMeta: this.wrsHeaderMeta});
-            this._refreshGridData(newRowId);
-          }.bind(this));
+
+          // don't allow duplication of a read-only rows
+          var row = this.rowIdMap[memo.rowId];
+          var cellProperties = this.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
+          if (cellProperties.indexOf("false") != -1) {
+            var newRowId = "D_" + bcdui.wrs.wrsUtil._transactionsNumber + "_" + memo.rowId;
+            bcdui.wrs.wrsUtil.duplicateRow( this.gridModel, memo.rowId, false, function(){
+              this.afterAddRow({rowNode: this.gridModel.query("/*/wrs:Data/wrs:*[@id='" + newRowId + "']"), headerMeta: this.wrsHeaderMeta});
+              this._refreshGridData(newRowId);
+            }.bind(this));
+          }
         }
       }.bind(this));
 
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
-        bcdui.component.exports.exportToExcelTemplate({ inputModel: this.gridModel });
+        if (typeof bcdui.component.exports != "undefined")
+          bcdui.component.exports.exportToExcelTemplate({ inputModel: this.gridModel });
       }.bind(this));
       
       jQuery("#" + this.targetHtml).on("gridActions:columnSort", function(evt, memo){

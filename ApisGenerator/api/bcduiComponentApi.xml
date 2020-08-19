@@ -664,6 +664,11 @@
             Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
           </Doc>
         </Param>
+        <Param name="isReadOnlyCell" type="function">
+          <Doc>
+            Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">

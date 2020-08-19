@@ -40,6 +40,7 @@
   <xsl:param name="bcdPageAccess" select="''"/>
   <xsl:param name="gridModel" select="/*[0=1]"/>
   <xsl:param name="gotExport" select="'false'"/>
+  <xsl:param name="rowIsDisabled" select="'false'"/>
 
   <xsl:variable name="colHead" select="$gridModel/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[@id = $bcdColIdent]"/>
   <xsl:variable name="row" select="$gridModel/*/wrs:Data/wrs:*[@id=$bcdRowIdent]"/>
@@ -49,7 +50,6 @@
   <!-- Root -->
   <xsl:template match="/*">
     <ContextMenu>
-
       <xsl:if test="$bcdRowIdent and $bcdColIdent and local-name($row)='M' and $cell!=$ocell">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_CellActionsHdr}" >
           <Entry caption="{$bcdI18nModel/*/bcd_Grid_CellRestore}">
@@ -103,7 +103,7 @@
                 </JavaScriptAction>
               </Entry>
             </TwoColumns>
-            <xsl:if test="$bcdRowIdent">
+            <xsl:if test="$bcdRowIdent and $rowIsDisabled!='true'">
               <Entry caption="{$bcdI18nModel/*/bcd_Grid_RowDuplicate}">
                 <JavaScriptAction>
                   var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
@@ -123,13 +123,15 @@
                 </JavaScriptAction>
               </Entry>
             </xsl:if>
-            <Entry caption="{$bcdI18nModel/*/bcd_Grid_RowDelete}">
-              <JavaScriptAction>
-                var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
-                var rowId = bcdui.factory.objectRegistry.getObject("bcdRowIdent").value;
-                jQuery("#" + this.eventSrcElement).trigger("gridActions:rowDelete", {columnId: columnId, rowId: rowId } );
-              </JavaScriptAction>
-            </Entry>
+            <xsl:if test="$rowIsDisabled!='true'">
+              <Entry caption="{$bcdI18nModel/*/bcd_Grid_RowDelete}">
+                <JavaScriptAction>
+                  var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
+                  var rowId = bcdui.factory.objectRegistry.getObject("bcdRowIdent").value;
+                  jQuery("#" + this.eventSrcElement).trigger("gridActions:rowDelete", {columnId: columnId, rowId: rowId } );
+                </JavaScriptAction>
+              </Entry>
+            </xsl:if>
           </xsl:if>
         </ContextMenuEntryGroup>
       </xsl:if>
