@@ -35,7 +35,7 @@
   <xsl:param name="bcdRowIdent" />
   <xsl:param name="bcdI18nModel"/>
   <xsl:param name="gridDefinition" />
-  <xsl:param name="allowNewCells" select="'true'"/>
+  <xsl:param name="allowNewRows" select="'true'"/>
   <xsl:param name="allowSorting" select="'false'"/>
   <xsl:param name="bcdPageAccess" select="''"/>
   <xsl:param name="gridModel" select="/*[0=1]"/>
@@ -68,9 +68,9 @@
         </ContextMenuEntryGroup>
       </xsl:if>
 
-      <xsl:if test="$allowNewCells='true' or $bcdRowIdent">
+      <xsl:if test="$allowNewRows='true' or $bcdRowIdent">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_RowActionsHdr}" >
-          <xsl:if test="$allowNewCells='true'">
+          <xsl:if test="$allowNewRows='true'">
             <TwoColumns>
               <Entry caption="{$bcdI18nModel/*/bcd_Grid_RowAdd_Above}">
                 <JavaScriptAction>
