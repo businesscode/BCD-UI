@@ -1357,6 +1357,18 @@ table.bcd-far-configurator {
   ul { list-style-type: none; padding: 0;}
   
 }
+.bcdGridEditor {
+  .bcdPeriodChooser .bcdValue {
+    width: 100%;
+    display: inline-block;
+  }
+  textarea, input {
+    padding: 0 .3em;
+  }
+  select {
+   padding: 0em .3em 0 .1em;
+  }
+}
 
 .bcdStatusModelEditor {
  .bcdControls {
