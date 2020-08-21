@@ -1341,7 +1341,6 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
         // handle hidden/collapsed columns initially
         if (this.initiallyCollapsedOrHidden || (this.hiddenColumns && this.hiddenColumns.length > 0)) {
-          delete this.initiallyCollapsedOrHidden;
           this._handleCollapsedHeader();
         }
       }
@@ -1546,8 +1545,6 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           td.classList.add("bcdInserted");
         }
         cellProperties.instance.headerCss[colIdx].split(" ").forEach(function(e) {if (e != '') td.classList.add(e);});
-        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), colId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
-
         if (this.scrollToBottom) {
           delete this.scrollToBottom;
           setTimeout(function(){this.hotInstance.scrollViewportTo(this.hotInstance.countRows() - 1, 0, true, false);}.bind(this));
@@ -1555,6 +1552,24 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       }
     }
 
+    /**
+     * Marks modified and invalid cells
+     * @param td
+     * @param rowIdx
+     * @param colIdx
+     * @param souproprce
+     * @param value
+     * @param cellProperties
+     * @private
+     */
+    function beforeRenderer(td, rowIdx, colIdx, prop, value, cellProperties) {
+      rowIdx = this.hotInstance.toPhysicalRow(rowIdx);
+      var row = this.hotInstance.getSourceDataAtRow(rowIdx);
+      if (row) {
+        colIdx = this.hotInstance.toPhysicalColumn(colIdx);
+        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), colId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
+      }
+    }
 
     /**
      * After a set of changes, we update the row-has-errors array errors here
@@ -1781,6 +1796,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       , fillHandle: {autoInsertRow: true} 
       , afterRender:       afterRender.bind(this)
       , afterRenderer:     afterRenderer.bind(this)
+      , beforeRenderer:    beforeRenderer.bind(this)
       , afterChange:       afterChange.bind(this)
       , afterCreateRow:    afterCreateRow.bind(this)
       , afterGetColHeader: afterGetColHeader.bind(this)
@@ -1844,6 +1860,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     [ ["afterChange", afterChange]
     , ["afterRender", afterRender]
     , ["afterRenderer", afterRenderer]
+    , ["beforeRenderer", beforeRenderer]
     , ["afterCreateRow", afterCreateRow]
     , ["afterGetColHeader", afterGetColHeader]
     , ["beforeRender", beforeRender]
@@ -1940,6 +1957,10 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     var offset = this.hotInstance.hasRowHeaders() ? 2 : 1; // nth child starts with 1, and an additional +1 for rowheaders
     var range = this._getRenderedColumnsRange();
+    
+    // delete initiallyCollapsedOrHidden flag as soon as we got something rendered
+    if (this.initiallyCollapsedOrHidden && range.start +  range.stop > 0)
+      delete this.initiallyCollapsedOrHidden;
 
     // collect hidden and visible columns
     var matrix = this.headerMatrix || [];

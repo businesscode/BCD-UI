@@ -1310,6 +1310,9 @@ table.bcd-far-configurator {
 /* Grid and Scheduler */
 
 .bcdGrid {
+  .handsontable .htDimmed {
+    color: #ccc;
+  }
   
   > thead tr td,
   > tfoot tr td {
@@ -1319,16 +1322,17 @@ table.bcd-far-configurator {
   }
 
   .bcdGroupAction:after {
-    padding: 0 .375em 0 .3em;
+    padding: 0 .375em;
     @extend .btn-secondary;
     background-color: $secondary-button-color;
     border-color: $secondary-button-color;
     margin-right: .3em;
     content: "\2212";
     position: absolute;
-    border: 1px solid;
+    border: none;
     left: 0;
     top: 0;
+    line-height: 1.5em;
   }
 
   .bcdCollapsed.bcdGroupAction:after {content: "\002B";}
@@ -1357,6 +1361,7 @@ table.bcd-far-configurator {
   ul { list-style-type: none; padding: 0;}
   
 }
+
 .bcdGridEditor {
   .bcdPeriodChooser .bcdValue {
     width: 100%;
