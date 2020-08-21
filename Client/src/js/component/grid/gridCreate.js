@@ -1546,7 +1546,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           td.classList.add("bcdInserted");
         }
         cellProperties.instance.headerCss[colIdx].split(" ").forEach(function(e) {if (e != '') td.classList.add(e);});
-        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), coldId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
+        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), colId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
 
         if (this.scrollToBottom) {
           delete this.scrollToBottom;
