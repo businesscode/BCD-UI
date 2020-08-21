@@ -98,6 +98,7 @@
             <grid:Param name="useSimpleXPath" value="true"/>
             <grid:Param name="autoPopup" value="true"/>
             <grid:Param name="suppressButtons" value="true"/>
+            <grid:Param name="showClearButton" value="false"/>
           </xsl:if>
 
           <!-- set default suggestInput parameter -->              
