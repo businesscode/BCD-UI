@@ -385,8 +385,9 @@ bcdui.component.grid.Grid = function(args)
           for (var deepKey in this.deepKeyCheckKeys) {
             filter += "<f:And>";
             var keyValues = deepKey.split(bcdui.core.magicChar.separator);
+            var keyColumnValues = this.deepKeyCheckKeyColumns[deepKey].split(bcdui.core.magicChar.separator);
             for (var f = 0; f < keyValues.length; f++)
-              filter += "<f:Expression " + (keyValues[f] == "" ? "" : "value='" + keyValues[f] + "'") + " op='=' bRef='" + this.keyColumns[f] + "'/>";
+              filter += "<f:Expression " + (keyValues[f] == "" ? "" : "value='" + keyValues[f] + "'") + " op='=' bRef='" + keyColumnValues[f] + "'/>";
             filter += "</f:And>";
           }
           var keyCheckModel = new bcdui.core.SimpleModel({ url : new bcdui.core.RequestDocumentDataProvider({ requestModel: new bcdui.core.StaticModel(this.keyRequestPre + filter + this.keyRequestPost)}) });
@@ -679,6 +680,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     bcdui.core.removeXPath(doc, "/*/wrs:Wrs/wrs:Data");
 
     this.deepKeyCheckKeys = {};
+    this.deepKeyCheckKeyColumns = {};
     this.doDeepKeyCheck = false;
     this.wrsErrors = this.wrsErrors || {};
     var needKeyCheck = (args.source == "loadData" || args.changes.length == 0);
@@ -740,14 +742,17 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         if (rowElement != "D") {
           var x = 0;
           var key = "";
+          var keyColumn = "";
           // we got single cell changes, only check these cells
           if (columns.length > 0) {
             // a paste with identical data would cause a change event but with no wrs:M data while a standard change does create a wrs:M, that's why we have to get the factor
             var factor = (rowElement == "M" ? 2 : 1);
             for (var c = 0; c < columns.length; c++) {
               var value = row.childNodes[columns[c] * factor].text || "";
-              if (this.wrsValidateInfo[columns[c]].isKey)
+              if (this.wrsValidateInfo[columns[c]].isKey) {
                 key += (key != "" ? bcdui.core.magicChar.separator + value : value);
+                keyColumn += (keyColumn != "" ? bcdui.core.magicChar.separator + this.wrsValidateInfo[columns[c]].id : this.wrsValidateInfo[columns[c]].id);
+              }
               this._validateCell(rowId, this.wrsValidateInfo[columns[c]], value);
             }
           }
@@ -758,8 +763,10 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
               if ((column.localName||column.baseName) == "C") {
                 var columnValue = column.text || "";
                 // build Key
-                if (this.wrsValidateInfo[x].isKey)
+                if (this.wrsValidateInfo[x].isKey) {
                   key += (key != "" ? bcdui.core.magicChar.separator + columnValue : columnValue);
+                  keyColumn += (keyColumn != "" ? bcdui.core.magicChar.separator + this.wrsValidateInfo[x].id : this.wrsValidateInfo[x].id);
+                }
                 this._validateCell(rowId, this.wrsValidateInfo[x], columnValue);
                 x++;
               }
@@ -790,14 +797,17 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
                     break;
                   }
                 }
-                if (! alreadyBad)
+                if (! alreadyBad) {
                   this.deepKeyCheckKeys[key] = rowId;
+                  this.deepKeyCheckKeyColumns[key] = keyColumn;
+                }
               }
             }
             // (client sided) key constraint, mark all key cells for found key row and current row
             else {
               // no need for a server lookup when we already have a client unique key constraint
               delete this.deepKeyCheckKeys[key];
+              delete this.deepKeyCheckKeyColumns[key];
 
               for (var k = 0; k < this.wrsValidateKeyColumns.length; k++) {
                 var col = this.wrsValidateKeyColumns[k];
