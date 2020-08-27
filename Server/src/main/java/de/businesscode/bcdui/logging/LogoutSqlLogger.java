@@ -89,7 +89,7 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
     // check and report when no updates done
     for(int i=0; i<updates.length; i++){
       if(updates[i] == 0){
-        logger.warn("Failed to log session expiry, no hit for session: " + params[i][0]);
+        logger.warn("Failed to log session expiry, no hit for session: " + params[i][1]);
       }
     }
     return updates;
