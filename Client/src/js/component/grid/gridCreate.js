@@ -1577,7 +1577,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       var row = this.hotInstance.getSourceDataAtRow(rowIdx);
       if (row) {
         colIdx = this.hotInstance.toPhysicalColumn(colIdx);
-        cellProperties.readOnly = this.isReadOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), colId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
+        cellProperties.readOnly = this.isReadOnly || this.htOptions.columns[colIdx].readOnly || this.isReadOnlyCell({headerMeta: this.wrsHeaderMeta, gridModel: this.gridModel, rowId: row.r.getAttribute("id"), colId: this.wrsHeaderIdByPos["" + (colIdx + 1)], value: value});
       }
     }
 
