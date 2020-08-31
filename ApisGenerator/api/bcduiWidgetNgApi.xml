@@ -338,12 +338,12 @@
           The input can be generally validated using 'pattern' paramter (html5 compliant) containing the JS regular expression, in such
           a case a built-in validation for WRS binding is overridden by provided validator and effectively disabled.
         </Doc>
-        <Param name="min" type="numeric">
+        <Param name="min" type="number">
           <Doc>
             Sets the minimum value for an integer or numeric type input field (HTML5 only).
           </Doc>
         </Param>
-        <Param name="max" type="numeric">
+        <Param name="max" type="number">
           <Doc>
             Sets the maximum value for an integer or numeric type input field (HTML5 only).
           </Doc>
