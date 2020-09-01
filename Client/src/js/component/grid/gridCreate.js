@@ -2028,6 +2028,10 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
             // otherwise initially remember current width
             else if (typeof this.storedWidths[colId] == "undefined" || this.storedWidths[colId] == -1)
               this.storedWidths[colId] = outerWidth;
+            // when we don't have collapsableHeaderGroups we need to update the column width
+            // since it might be initialized with defaultColumnWidth only due to Handsontable initial rendering
+            else if (! this.collapsableHeaderGroups)
+              this.storedWidths[colId] = outerWidth;
             // and finally set it as style width
             jQuery(e).css("width", this.storedWidths[colId]);
           }
