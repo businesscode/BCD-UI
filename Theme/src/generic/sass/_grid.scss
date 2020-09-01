@@ -204,16 +204,17 @@ input.bcdInputFieldGrid {
   }
 
   .bcdGroupAction:after {
-    content: "\2212";
-    position: absolute;
-    left: 3px;
-    top: 3px;
-    width: 16px;
-    height: 16px;
+    padding: 0 .375em;
     background-color: $control-color;
     color: $border-color-dark;
     border: 1px solid $border-color-dark;
-    line-height: 1.5;
+    content: "\2212";
+    position: absolute;
+    border: none;
+    left: 0;
+    top: 0;
+    line-height: 1.5em;
+    margin-top: .375em;
   }
   .bcdGroupAction:hover:after {
     background-color: $border-color-dark;
@@ -222,7 +223,7 @@ input.bcdInputFieldGrid {
   }
   .bcdCollapsed.bcdGroupAction:after {content: "\002B";}
 
-  .bcdGroupAction { cursor: pointer; }
+  .bcdGroupAction { cursor: pointer; display: inline-block; width: 1.25em;}
 
   td.bcdKey {}
   th.bcdKey { font-weight: bold; }

@@ -120,6 +120,7 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
  * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
  * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
+ * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
  *
 */
 bcdui.component.grid.Grid = function(args)
@@ -132,6 +133,8 @@ bcdui.component.grid.Grid = function(args)
   if (! this.config) {
     this.config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
   }
+
+  this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
 
   this.forceAddAtBottom = args.forceAddAtBottom || false;
   this.topMode = args.topMode || false;
@@ -1250,10 +1253,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
           , targetModelXPath: targetModelXPath
           , useCustomHeaderRenderer: true
           , getFilteredValues: function(colIdx) { return jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]/wrs:C[" + colIdx + "]"));}.bind(this)
-          , getCaptionForColumnValue: function(index, value) {
-              var x = this.colsWithReferences.indexOf("" + index);
-              return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value);
-            }.bind(this)
+          , getCaptionForColumnValue: this.columnFiltersGetCaptionForColumnValue
           , callback: function() {
   
               // build array of columns which got a filter
@@ -2028,9 +2028,8 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
             // otherwise initially remember current width
             else if (typeof this.storedWidths[colId] == "undefined" || this.storedWidths[colId] == -1)
               this.storedWidths[colId] = outerWidth;
-            // when we don't have collapsableHeaderGroups we need to update the column width
-            // since it might be initialized with defaultColumnWidth only due to Handsontable initial rendering
-            else if (! this.collapsableHeaderGroups)
+            // update width according to handsontables recalcs but don't write 0 width (hidden) columns
+            else if (outerWidth != 0)
               this.storedWidths[colId] = outerWidth;
             // and finally set it as style width
             jQuery(e).css("width", this.storedWidths[colId]);

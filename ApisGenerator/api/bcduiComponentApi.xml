@@ -669,6 +669,11 @@
             Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
           </Doc>
         </Param>
+        <Param name="columnFiltersGetCaptionForColumnValue" type="function">
+          <Doc>
+            Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.
+          </Doc>
+        </Param>        
       </Api>
 
       <Api name="tree">
