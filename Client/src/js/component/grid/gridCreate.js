@@ -1967,10 +1967,6 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     var offset = this.hotInstance.hasRowHeaders() ? 2 : 1; // nth child starts with 1, and an additional +1 for rowheaders
     var range = this._getRenderedColumnsRange();
-    
-    // delete initiallyCollapsedOrHidden flag as soon as we got something rendered
-    if (this.initiallyCollapsedOrHidden && range.start +  range.stop > 0)
-      delete this.initiallyCollapsedOrHidden;
 
     // collect hidden and visible columns
     var matrix = this.headerMatrix || [];
@@ -2001,6 +1997,11 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         }
       }
     }
+
+    // delete initiallyCollapsedOrHidden flag as soon as we got something in our hiddenlsit
+    if (this.initiallyCollapsedOrHidden && this.hiddenColumns.length > 0)
+      delete this.initiallyCollapsedOrHidden;
+
     this.htOptions.columns.forEach(function(e, i){ if (e.isHidden) this.hiddenColumns.push(i); }.bind(this));
 
     // show all
