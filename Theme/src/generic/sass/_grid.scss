@@ -203,27 +203,25 @@ input.bcdInputFieldGrid {
     .bcdButton { margin-right: 10px; }
   }
 
-  .bcdGroupAction:after {
-    padding: 0 .375em;
-    background-color: $control-color;
-    color: $border-color-dark;
-    border: 1px solid $border-color-dark;
-    content: "\2212";
-    position: absolute;
-    border: none;
-    left: 0;
-    top: 0;
-    line-height: 1.5em;
-    margin-top: .375em;
-  }
-  .bcdGroupAction:hover:after {
-    background-color: $border-color-dark;
-    color: $control-color;
-    border: 1px solid $border-color;
-  }
+  .bcdGroupAction:after { content: "\2212"; }
   .bcdCollapsed.bcdGroupAction:after {content: "\002B";}
 
-  .bcdGroupAction { cursor: pointer; display: inline-block; width: 1.25em;}
+  .bcdGroupAction {
+    background: inherit;
+    border-radius: 2px;
+    border: 1px solid $border-color;
+    color: $border-color;
+    font-size: 1em;
+    margin-right: .375em;
+    padding: 0 .375em;
+    display: inline-block;    
+    line-height: 1.3em;
+  }
+  .bcdGroupAction:hover {
+    border: 1px solid $border-color-dark;
+    color: $border-color-dark;
+    cursor: pointer;
+  }
 
   td.bcdKey {}
   th.bcdKey { font-weight: bold; }
@@ -255,9 +253,21 @@ input.bcdInputFieldGrid {
   span.bcdStatusOk:after { content: "\2713"; padding-left: 5px; } 
   span.bcdStatusBad { color: #cc0000; font-weight: bold; }
   span.bcdStatusBad:after { content: "!"; padding-left: 5px; }
-  tfoot tr { display: none; }
-  
-  .bcdHr {display: inline;}
+  .bcdPeriodChooser {
+    span a { width: auto; text-decoration: none; }
+    span.bcdButton a:after { content: "\1F4C5"; }
+    .bcdHr { display: inline; }
+    .bcdValue { margin-right: 1em; }
+  } 
+  .bcdHistoryApply { margin-top: 1em; }
+}
+.bcdSchedulerJobs { 
+  .openReport {
+    font-style: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #2A3AF0;
+  }
 }
 
 .bcdTooltip.bcdSchedulerHistory {
