@@ -71,7 +71,7 @@ bcdui.component.grid.GridModel = function(args)
 
   // optional load chain
   if (args.loadChain)
-    new bcdui.core.ModelUpdater({targetModel: this, chain: args.loadChain, autoUpdate: true, parameters: args.loadParameters || {} });
+    this.loadChain = new bcdui.core.ModelUpdater({targetModel: this, chain: args.loadChain, autoUpdate: true, parameters: args.loadParameters || {} });
   
   // validation wrapper, grid renderer adds basic wrs and reference validation
   this.validationChain = args.validationChain || [];
