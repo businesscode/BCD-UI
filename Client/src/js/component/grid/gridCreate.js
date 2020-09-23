@@ -26,8 +26,6 @@
  * Future Improvements:
  *  - support optionModels which reference a different model ($), keep in mind that a code/caption map is built up on startup and is used for reference validation, too
  *    If dynamic/dependent optionsmodels are supported, the map needs to cover all possible code/captions to avoid validation problems 
- *  - Support column sorting with pagination. Currently handsontable's sort is used (which sorts by caption) on the current data window only, a gridModel sort which spans over all pages needs to check code/caption.
- *    Editing the grid should retrigger sorting after updating a cell
  *  - Customize the currently in tfoot stored action buttons to own rendering
  */
 
@@ -135,7 +133,8 @@ bcdui.component.grid.Grid = function(args)
   }
 
   this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
-
+  this.sortColumn = null;
+  this.sortDirection = null;
   this.forceAddAtBottom = args.forceAddAtBottom || false;
   this.topMode = args.topMode || false;
   this.isReadOnly = args.isReadOnly || false;
@@ -234,8 +233,6 @@ bcdui.component.grid.Grid = function(args)
       this.customAfterAddRow(args);
   } 
     
-    args.afterAddRow || function(args){};
-
   // modelupdater for wrs header changes like exchanging reference information 
   new bcdui.core.ModelUpdater({ targetModel: this.gridModel , chain: bcdui.contextPath+"/bcdui/js/component/grid/updateWrsHeader.xslt" , autoUpdate: false, parameters: {config: this.config} });
 
@@ -463,7 +460,7 @@ bcdui.component.grid.Grid = function(args)
         var optionRows = bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).queryNodes(valueXPath);
         for (var o = 0; o < optionRows.length; o++ ){
           var option = optionRows[o].nodeType == 3 ? optionRows[o].nodeValue : optionRows[o].text;
-          var caption = this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).read(captionXPath, [option]) : [option];
+          var caption = this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).read(captionXPath, [option]) : option;
           this.optionsModelInfo[m].codeCaptionMap[bcdui.util.escapeHtml(option)] = caption;
           this.optionsModelInfo[m].captionCodeMap[bcdui.util.escapeHtml(caption)] = option;
         }
@@ -1089,6 +1086,40 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    */
   _refreshDataCompletely: { writable: true, configurable: true, enumerable: true, value: function(doc, args) {
 
+    // in case of sorting, sort data by column value
+    var sortedValues = null;
+    if (this.sortDirection != null && this.sortColumn != null) {
+
+      var type = this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@pos='" + this.sortColumn + "']/@type-name", "");
+      var isNumeric = ("DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL|INTEGER").indexOf(type) != -1;
+      var references = this.optionsModelInfo[this.wrsHeaderIdByPos["" + this.sortColumn] || ""];
+
+      sortedValues = jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]")).sort(function(a,b){
+        var ax = (a.selectSingleNode("wrs:C[position()='"+this.sortColumn+"']").text);
+        var bx = (b.selectSingleNode("wrs:C[position()='"+this.sortColumn+"']").text);
+        // numerical search (in case of references on a numeric cell, do it by references and not here)
+        if (isNumeric && references == null) {
+          var aValue = isNaN(ax) ? 0 : parseFloat(ax);
+          var bValue = isNaN(bx) ? 0 : parseFloat(bx);
+          if (this.sortDirection == "ascending")
+            return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+          else
+            return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+        else {
+          // in case of reference use, take the caption from the code (reuse filterGetCaption, so you automatically also handle possible customized code to caption handlings)
+          var aValue = this.columnFiltersGetCaptionForColumnValue(this.sortColumn, ax).toLowerCase();
+          var bValue = this.columnFiltersGetCaptionForColumnValue(this.sortColumn, bx).toLowerCase();
+
+          // and finally sort (standard not case sensitive string sort)
+          if (this.sortDirection == "ascending")
+            return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+          else
+            return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+        }
+      }.bind(this));
+    }
+
     // reset remembered width since new data means new width calculation, so we don't want to reuse stored values (for visible columns only though) 
     for (var x in this.storedWidths) {
       if (this.hiddenColumns.indexOf(parseInt(this.wrsHeaderMeta[x].pos, 10) - 1) == -1)
@@ -1109,10 +1140,25 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     var xPath = (gotPagination && curPage != -1 && pageSize != -1) ? "[position() >= " + wrsStart + " and position() <= " + wrsStop + "]" : "";
     var index = 0;
     this.rowIdMap = {};
-    Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]" + xPath), function(e){
-      this.htOptions.data.push({ r: e, c: jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";}) })
-      this.rowIdMap[e.getAttribute("id")] = index++;
-    }.bind(this));
+
+    // in case of sorted values, take values from sorted array (and take pagination into account if needed) 
+    if (sortedValues != null) {
+      var start = (gotPagination && curPage != -1 && pageSize != -1) ? wrsStart - 1 : 0;
+      var stop = (gotPagination && curPage != -1 && pageSize != -1) ? wrsStop : sortedValues.length;
+      if (stop > sortedValues.length)
+        stop = sortedValues.length;
+      for (var s = start; s < stop; s++) {
+        var e = sortedValues[s];
+        this.htOptions.data.push({ r: e, c: jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";}) })
+        this.rowIdMap[e.getAttribute("id")] = index++;
+      }
+    }
+    else {
+      Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]" + xPath), function(e){
+        this.htOptions.data.push({ r: e, c: jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";}) })
+        this.rowIdMap[e.getAttribute("id")] = index++;
+      }.bind(this));
+    }
   }},
 
   /**
@@ -1848,13 +1894,6 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         createArgs["maxRows"] = wrsStop - wrsStart + 1;
     }
 
-    // turn off columnSorting if you got pagination, this might be a future improvement (see top of file)
-    if (gotPagination) {
-      this.columnSorting = false;
-      if (this.hotArgs && this.hotArgs.columnSorting === true)
-        delete this.hotArgs.columnSorting;
-    }
-
     // highlight column groups
     if (this.hasHeaderGroups) {
       createArgs["beforeOnCellMouseDown"] = beforeOnCellMouseDown.bind(this);
@@ -2566,9 +2605,10 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         var configColumn = this.getEnhancedConfiguration().query("/*/grid:Columns");
         if (configColumn != null)
           configColumn.setAttribute("manualSort", memo.direction != null);
-        var column = parseInt(this.wrsHeaderMeta[memo.columnId].pos, 10) -1;
-        var createArgs = memo.direction == null ? {columnSorting: false} : {columnSorting: {indicator: false, initialConfig: {column: column, sortOrder: (memo.direction == "ascending" ? "asc" : "desc")} }};
-        this.hotInstance.updateSettings(createArgs);
+        this.sortColumn = parseInt(this.wrsHeaderMeta[memo.columnId].pos, 10);
+        this.sortDirection = memo.direction;
+        this._refreshDataCompletely();
+        this.hotInstance.render();
       }.bind(this));
 
     }.bind(this));

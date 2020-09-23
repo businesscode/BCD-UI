@@ -62,7 +62,7 @@
         </ContextMenuEntryGroup>
       </xsl:if>
 
-      <xsl:if test="$allowSorting='true' and not($gridDefinition//xp:Paginate)">
+      <xsl:if test="$allowSorting='true'">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ColumnActionsHdr}" >
           <xsl:call-template name="columnSort"/>
         </ContextMenuEntryGroup>
