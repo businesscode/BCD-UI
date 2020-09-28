@@ -250,7 +250,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   }
 
   /**
-   * @return authencitation token which is used by {@link #executeLogin(ServletRequest, ServletResponse)} method
+   * @return authentication token which is used by {@link #executeLogin(ServletRequest, ServletResponse)} method
    */
   @Override
   protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
@@ -267,8 +267,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     if (StringUtils.isEmpty(successUrl)) { // if not defined, we navigate to previously saved url
       if( SecurityUtils.getSubject().getSession(false) != null && SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL) != null ) {
         String origUrl = SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL).toString();
-        final int ctl = getServletContext().getContextPath().length();
-        origUrl = origUrl.substring(ctl);
+        if( origUrl.startsWith(getServletContext().getContextPath()) ) origUrl = origUrl.substring(getServletContext().getContextPath().length());
         WebUtils.issueRedirect(request, response, origUrl);
       } else {
         issueSuccessRedirect(request, response);
@@ -337,7 +336,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
       saveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, createStateValue());
       saveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, this.providerInstanceId);
-      saveSessionProperty(request, SESSION_ATTR_KEY_ORIG_URL, WebUtils.getSavedRequest(request).getRequestUrl());
+      saveSessionProperty(request, SESSION_ATTR_KEY_ORIG_URL, WebUtils.getSavedRequest(request)!=null ? WebUtils.getSavedRequest(request).getRequestUrl() : "/");
 
       /*
        * redirect to login-url (which is authorization server)

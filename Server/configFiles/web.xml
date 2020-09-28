@@ -60,8 +60,11 @@
         authc.successUrl    = /index.html
         logout.redirectUrl  = /index.html
 
-        ## You can either work with static uses and roles via [users] and [roles] section in this file and have realmBcdJdbc commented out
-        ## Or use bcd_sec_xxx BindingSets together with realmBcdJdbc for a dynamic user administration
+        #### You can either work with
+        ## 1 Setup static users and roles via [users] and [roles] section in this file below
+        ## 2 or use BCD-UI's bcd_sec_xxx BindingSets together with realmBcdJdbc below for a dynamic user administration
+        ## 2.1 or combine Windows SPNEGO SSO authentification with authorization by realmBcdJdbc
+        ## 2.2 or combine authentification by OAuth with authorization by realmBcdJdbc
 
         ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization supporting salted passwords, etc.
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
@@ -72,6 +75,45 @@
         # realmBcdJdbc.hashIterations         = 1024
         # to disable salted passwords (discouraged) and for backwards compatibility set this flag, password is considered plain text then
         # realmBcdJdbc.hashSalted = false
+
+        ## Use the following for Windows SPNEGO SSO mechanism (named option 2.1 above)
+        # authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
+
+        #### OAuth start (named option 2.2 above)
+        ## Use this to OAuth authenticate against Azure / Google. Make sure to enable /oauth in [url] section.
+        ## Some information is provided by OAuth provider when setting up ypur application there
+        ## Azure
+        # oauthcAzure                             = de.businesscode.bcdui.security.shiro.oauth2.OAuthAuthenticatingFilter
+        # oauthcAzure.optionalProviderId          = azure
+        # oauthcAzure.authorizeEndpoint           =     # provided by Azure
+        # oauthcAzure.authScope                   = openid https://graph.microsoft.com/user.read
+        # oauthcAzure.clientId                    =     # provided by Azure
+        # oauthcAzure.redirectUrl                 = http://myapp.com/oauth  # Adjust and tell this Azure
+        # oauthcAzureRealm                        = de.businesscode.bcdui.security.shiro.oauth2.OAuthRealm
+        # oauthcAzureRealm.authenticator          = $oauthcAzure
+        # oauthcAzureRealm.apiEndpoint            = https://graph.microsoft.com/v1.0/me/
+        # oauthcAzureRealm.clientSecret           =     # provided by Azure
+        # oauthcAzureRealm.tokenEndpoint          =     # provided by Azure
+        # oauthcAzureRealm.principalPropertyName  = userPrincipalName
+        ## Google
+        # oauthcGoogle                            = de.businesscode.bcdui.security.shiro.oauth2.OAuthAuthenticatingFilter
+        # oauthcGoogle.optionalProviderId         = google
+        # oauthcGoogle.authorizeEndpoint          = https://accounts.google.com/o/oauth2/v2/auth
+        # oauthcGoogle.authScope                  = email
+        # oauthcGoogle.clientId                   =     # provided by Google
+        # oauthcGoogle.redirectUrl                = http://myapp.com/oauth  # Adjust and tell this Google
+        # oauthcGoogleRealm                       = de.businesscode.bcdui.security.shiro.oauth2.OAuthRealm
+        # oauthcGoogleRealm.authenticator         = $oauthcGoogle
+        # oauthcGoogleRealm.apiEndpoint           = https://www.googleapis.com/oauth2/v3/userinfo
+        # oauthcGoogleRealm.clientSecret          =     # provided by Goole
+        # oauthcGoogleRealm.tokenEndpoint         = https://www.googleapis.com/oauth2/v4/token
+        # oauthcGoogleRealm.principalPropertyName = email
+
+        ## To use OAuth authentication along with BCD-UI authorization, add this
+        # authcStrategy = org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy
+        # securityManager.authenticator.authenticationStrategy = $authcStrategy
+        # securityManager.realms = $oauthcAzureRealm, $oauthcGoogleRealm, $realmBcdJdbc
+        #### OAuth end
 
         ## Support for bcd_log_login logging
         bcdAuthListener = de.businesscode.bcdui.web.AuthenticationListener
@@ -98,9 +140,14 @@
         [urls]
         /logout               = logout
 
-        # Anon access to at least all resources need by the login page
-        # If anything is missing here, you will be redirected there after login
-        # If here is too much, it will be insecure
+        ## For all OAuth we listen here.
+        ## Login is triggered via calling /oauth?oauth-provider-id=azure or google in [url] section.
+        ## OAuth response from provider also goes to here (but without that parameter)
+        # /oauth                = oauthcAzure, oauthcGoogle
+
+        ## Anon access to at least all resources need by the login page
+        ## If anything is missing here, you will be redirected there after login
+        ## If here is too much, it will be insecure
         /login.html           = authc
         /bcdui/bcdui.js       = anon
         # you can omit /bcdui/js/**, if you load ./bcdui/bcdui.js?bcduiConfigOnly=true on login page
