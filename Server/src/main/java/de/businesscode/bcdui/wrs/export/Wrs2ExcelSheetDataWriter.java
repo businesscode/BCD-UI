@@ -76,7 +76,7 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
     {
       if( event.isStartElement() ) {
 
-        // Let's collection information about the columns of the current data set
+        // Let's collect information about the columns of the current data set
         // We fill wrsHeaderCols and colTypes for later use
         if ("WrsContainer/Wrs/Header/Columns".equals(getPath()) || "Wrs/Header/Columns".equals(getPath()) ) 
         {
@@ -84,7 +84,7 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
           // inner loop of wrs:Columns/wrs:C, collect atts
           while (true) {
             event = track( eventReader.nextEvent() );
-            if (event.isEndElement() && NS_WRS_COLUMNS.equals(event.asEndElement().getName())) {
+            if (event.isEndElement() && NS_WRS_COLUMNS.equals(event.asEndElement().getName()) && ! "Wrs/Header/Columns/C/References/Wrs/Header".equals(getPath())) {
               break;
             } else if (event.isStartElement() && ( "WrsContainer/Wrs/Header/Columns/C".equals(getPath()) || "Wrs/Header/Columns/C".equals(getPath()) ) ) {
               StartElement el = event.asStartElement();
