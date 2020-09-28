@@ -129,7 +129,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         ur_rightvalue = bs.get("right_value").getColumnExpression();
         this.setPermissionsLookupEnabled(true);
       } catch (BindingSetNotFoundException bsnf) {
-        log.warn("JDBC Authorization not available due to missing binding set " + BS_USER_RIGHTS);
+        log.info("JDBC Authorization not available due to missing binding set " + BS_USER_RIGHTS);
       } 
       try {
         bs = Bindings.getInstance().get(BS_USER_ROLES, c);
@@ -139,7 +139,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         uro_userid = biUserId.getColumnExpression();
         uro_userrole  = bs.get("user_role").getColumnExpression();
       } catch (BindingSetNotFoundException bsnf) {
-        log.warn("JDBC User Roles not available due to missing binding set " + BS_USER_ROLES);
+        log.info("JDBC User Roles not available due to missing binding set " + BS_USER_ROLES);
       } 
     } catch (Exception e) {
       throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
@@ -232,30 +232,32 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
 
   /**
-   * extend support to our implicit authentication token
+   * ExternalAuthenticationToken indicates that the authentication has already happened externally
+   * We let the user through here.
    */
   @Override
   public boolean supports(AuthenticationToken token) {
-    return token instanceof ImplicitAuthenticationToken ?  true : super.supports(token);
+    return token instanceof ExternalAuthenticationToken ?  true : super.supports(token);
   }
 
   /**
-   * we return technical user identifier here so {@link #getPermissions(Connection, String, Collection)} and {@link #getRoleNamesForUser(Connection, String)}
-   * work on technical identifier, too.
+   * Return the user-id to be used with  {@link #getPermissions(Connection, String, Collection)} and {@link #getRoleNamesForUser(Connection, String)}
+   * If available, we return the technical user id here, we know it exists if we find a PrimaryPrincipal. Otherwise we use the plain user name
    */
   @Override
   protected String getAvailablePrincipal(PrincipalCollection pc) {
-    Object princ = pc.getPrimaryPrincipal();
-    if(princ instanceof PrimaryPrincipal){
-      return ((PrimaryPrincipal)princ).getId();
-    }
-    return princ.toString();
+    PrimaryPrincipal pp = pc.oneByType(PrimaryPrincipal.class);
+    if( pp != null ) return pp.getId();
+    else return pc.getPrimaryPrincipal().toString();
   }
 
+  /**
+   * Asserts that the submitted AuthenticationToken's credentials match the stored account AuthenticationInfo's credentials, and if not, throws an AuthenticationException.
+   * In our case we do not need to verify credentials if it is Windows-SSQ or OAuth, because they are responsible
+   */
   @Override
   protected void assertCredentialsMatch(AuthenticationToken token, AuthenticationInfo authInfo) throws AuthenticationException {
-    // for ImplicitAuthenticationToken we do not match credentials
-    if(!(token instanceof ImplicitAuthenticationToken)) {
+    if(!(token instanceof ExternalAuthenticationToken)) {
       super.assertCredentialsMatch(token, authInfo);
     }
   }
@@ -268,12 +270,19 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
     // Otherwise try to verify credentials
     try {
-      // we dont want to log our JDBC activity
+      // we don't want to log our JDBC activity
       BcdSqlLogger.setLevel(Level.OFF);
 
-      if (token instanceof ImplicitAuthenticationToken) {
-        // in case of SSO we do not verify if user exists in local table
-        return new SimpleAccount(token.getPrincipal(), token.getCredentials(), getClass().getName());
+      // For externally authenticated users (SPNEGO or OAuth for example) we still check for the login_name to be translated
+      // into a BCD-UI technical id. If not there, we accept the login name as user id
+      // getAvailablePrincipal() will prefer the id but will return the login_name otherwise for later role and permission lookup
+      if (token instanceof ExternalAuthenticationToken) {
+        String[] credentialInfo = getAccountCredentials(token.getPrincipal().toString());
+        if(credentialInfo != null){
+          return new SimpleAccount(new PrimaryPrincipal(credentialInfo[0]), null, getName());
+        } else {
+          return new SimpleAccount(token.getPrincipal(), null, getName());
+        }
       } else if (token instanceof UsernamePasswordToken) {
         UsernamePasswordToken upassToken = (UsernamePasswordToken) token;
 
@@ -339,7 +348,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     ResultSet rs = null;
 
     try {
-      // we dont want to log our JDBC activity
+      // we don't want to log our JDBC activity
       BcdSqlLogger.setLevel(Level.OFF);
 
       ps = con.prepareStatement(stmt);
@@ -362,14 +371,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
 
   /**
-   * the super imlementation relies here on dataSource
+   * the super implementation relies here on dataSource
    */
   @Override
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
     getDataSource();
     return super.doGetAuthorizationInfo(arg0);
   }
-  
+
   /**
    * Generates a password hash + salt with {@link #DEFAULT_HASH_ITERATIONS} iterations, for use with
    * {@link org.apache.shiro.authc.credential.Sha256CredentialsMatcher}

@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package de.businesscode.bcdui.security.shiro.oauth2;
+package de.businesscode.bcdui.subjectsettings.oauth2;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -63,16 +63,16 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    */
   private final String providerInstanceId = UUID.randomUUID().toString();
 
-  private Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = Logger.getLogger(getClass());
 
-  private String clientId;
-  private String redirectUrl;
-  private String authorizeEndpoint;
-  private String urlParameterName = "oauth-provider-id";
-  private String optionalProviderId;
-  private String authScope;
+  protected String clientId;
+  protected String redirectUrl;
+  protected String authorizeEndpoint;
+  protected String urlParameterName = "oauth-provider-id";
+  protected String optionalProviderId;
+  protected String authScope;
   // we override this one
-  private String successUrl;
+  protected String successUrl;
 
   /**
    * override successUrl and dont set a default one, since successUrl is usually a redirectUrl in our case, but in case we provide successUrl this will be

@@ -13,22 +13,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package de.businesscode.bcdui.security.shiro.oauth2;
+package de.businesscode.bcdui.subjectsettings.oauth2;
 
-import org.apache.shiro.authc.AuthenticationToken;
+import de.businesscode.bcdui.subjectsettings.ExternalAuthenticationToken;
 
 /**
  * OAuth authentication token which is supported by {@link OAuthRealm} instances. This token carries information about authorization code which is required by a
  * realm to create access tokens to query the resource server.
+ * If you want to do authorization with JdbcRealm, enable the following in web.xml:
+ *    authcStrategy = org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy
+ *    securityManager.authenticator.authenticationStrategy = $authcStrategy
+ *    securityManager.realms = $oauthcMyRealm, $realmBcdJdbc
  */
-public class OAuthToken implements AuthenticationToken {
+public class OAuthToken extends ExternalAuthenticationToken {
   private static final long serialVersionUID = 1L;
 
-  private final String authCode;
-  private final String clientId;
-  private final String redirectUrl;
-  private Object principal;
-  private final OAuthAuthenticatingFilter authenticator;
+  protected final String authCode;
+  protected final String clientId;
+  protected final String redirectUrl;
+  protected final OAuthAuthenticatingFilter authenticator;
 
   public String getClientId() {
     return clientId;

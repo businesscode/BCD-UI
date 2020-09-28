@@ -80,7 +80,8 @@ The Renderer either works directly with the specified element or (in case of spe
 ** Missing values are added if the are in SubjectFilters but not in the Wrs as long as they are unambiguous
 ** Allowed are a single SubjectFilter, a flat bnd:And or a flat bnd:Or, but no nested expressions
 * OAuth2: add general support with Shiro integration for authentication.
-** Add OAuth2 authentication modules for Microsoft Azure / Graph and Google
+** Add OAuth2 authentication modules for Microsoft Azure / Graph and Google and allow combining with bcd_sec_ authorization
+* Default timeout for bcd_sec_usersettings changed from 2 min to 1 hour in shiro settings to decrease database reads
 
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
@@ -92,10 +93,11 @@ The Renderer either works directly with the specified element or (in case of spe
 * Switched to gradle 4.2, added gradle wrapper, updated nodeJs to 6.11
 * Updated bcduiApiStubs.js to fit Eclipse Oxygen+Tern and IDEA 2017.2
 * HTML JS API docu is now showing source names and lines
+* Updated web.xml to reflect an improved default setup
 
 .Major bug fixes:
 * I18n: local messages.xml catalog file can contain multi language enabling full i18n support w/o database
-* HTML Custom Elements for Safari was broken, after Safari switched to Webcomponents API v1
+* HTML Custom Elements for Safari broke after Safari switched to Webcomponents API v1
 
 .Backward Incompatibilities:
 
@@ -123,6 +125,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * bcd_user_sec writing is now secured if using the new BindingSet xml
 * Signiture of WriteProcessingCallback#processEndRow changed
 * FAR module is optional, specify it in your bcduiLoadFiles attribute
+* Increased timeout for bcd_sec_usersettings is now 1 hour, was 2 min
 
 ==== Release 5_2_0
 

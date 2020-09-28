@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-package de.businesscode.bcdui.security.shiro.oauth2;
+package de.businesscode.bcdui.subjectsettings.oauth2;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -38,9 +38,9 @@ import com.google.gson.JsonParser;
  * This one is an authenticating realm only as such we obtain identity from resource server and let other realms obtain authorization data from elsewhere
  */
 public class OAuthRealm extends AuthenticatingRealm {
-  private static final String UTF8 = "UTF-8";
+  private static final String UTF8 = StandardCharsets.UTF_8.name();
 
-  private Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = Logger.getLogger(getClass());
 
   private String clientSecret;
   private String principalPropertyName;

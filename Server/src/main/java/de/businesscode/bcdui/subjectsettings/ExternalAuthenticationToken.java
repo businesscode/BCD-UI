@@ -21,23 +21,26 @@ import org.apache.shiro.authc.AuthenticationToken;
  * this token is used in conjuction to {@link AuthenticationFilter} which
  * authenticates a subject by any different scheme, i.e. SPNEGO
  */
-public class ImplicitAuthenticationToken implements AuthenticationToken {
+public class ExternalAuthenticationToken implements AuthenticationToken {
   private static final long serialVersionUID = 1L;
 
   // TODO: we should probably use java.security.Principal here for full flexibility
-  private final String principal;
+  protected Object principal;
 
-  public ImplicitAuthenticationToken(String principal) {
+  public ExternalAuthenticationToken(String principal) {
     this.principal = principal;
   }
 
+  public ExternalAuthenticationToken() {
+  }
+
   @Override
-  public String getCredentials() {
+  public Object getCredentials() {
     return principal;
   }
 
   @Override
-  public String getPrincipal() {
+  public Object getPrincipal() {
     return principal;
   }
 }

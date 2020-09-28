@@ -34,7 +34,7 @@ import org.apache.shiro.subject.Subject;
  * </p>
  * 
  * <p>
- * uses {@link ImplicitAuthenticationToken} which shall be supported by any of registered realm,
+ * uses {@link ExternalAuthenticationToken} which shall be supported by any of registered realm,
  * the default {@link JdbcRealm} supports such token. To enable SPNEGO you have also to attach
  * de.businesscode.bcdui.security.SpnegoValve to your context, i.e in context.xml:
  * <pre>
@@ -57,7 +57,7 @@ import org.apache.shiro.subject.Subject;
  * </p>
  */
 public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.FormAuthenticationFilter {
-  private Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = Logger.getLogger(getClass());
 
   @Override
   public void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -69,7 +69,7 @@ public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.Form
         if (!subj.isAuthenticated()) {
           logger.trace("implicitely authenticating:" + spnegoPrincipal);
           try {
-            subj.login(new ImplicitAuthenticationToken(spnegoPrincipal));
+            subj.login(new ExternalAuthenticationToken(spnegoPrincipal));
           } catch (Exception e) {
             logger.warn("failed to implicitely authenticate user", e);
           }

@@ -44,21 +44,15 @@
   </filter-mapping>
   -->
 
-  <!-- Security filter, enable if needed -->
-  <!--
+  <!-- Security filter for authentication and authorization, see https://shiro.apache.org/configuration.html -->
   <filter>
     <filter-name>bcdui4.ShiroFilter</filter-name>
     <filter-class>org.apache.shiro.web.servlet.IniShiroFilter</filter-class>
     <init-param>
       <param-name>config</param-name>
       <param-value>
-        #See Shiro API http://shiro.apache.org/static/current/apidocs/org/apache/shiro/web/servlet/IniShiroFilter.html
-
         # Shiro core settings
         [main]
-        authc.loginUrl      = /login.html
-        authc.successUrl    = /index.html
-        logout.redirectUrl  = /index.html
 
         #### You can either work with
         ## 1 Setup static users and roles via [users] and [roles] section in this file below
@@ -66,9 +60,10 @@
         ## 2.1 or combine Windows SPNEGO SSO authentification with authorization by realmBcdJdbc
         ## 2.2 or combine authentification by OAuth with authorization by realmBcdJdbc
 
-        ## Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings]) for authentication and authorization supporting salted passwords, etc.
+        #### Switch to BCD-UI well known BindingSets (bcd_sec_user[_settings|_roles])
+        ## for authentication and authorization supporting salted passwords, etc. (named option 2. above)
         ## make sure you created an appropriate WEB-INF/bcdui/subjectSettings.xml as well if enabling
-        realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
+        # realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm
         # For security reasons BindingItems of password and salt are blind in BindingSet. They are assumed to have columns name password/password_salt. Here you can overwrite that.
         # realmBcdJdbc.passwordColumnName     = password
         # realmBcdJdbc.passwordSaltColumnName = password_salt
@@ -83,26 +78,26 @@
         ## Use this to OAuth authenticate against Azure / Google. Make sure to enable /oauth in [url] section.
         ## Some information is provided by OAuth provider when setting up ypur application there
         ## Azure
-        # oauthcAzure                             = de.businesscode.bcdui.security.shiro.oauth2.OAuthAuthenticatingFilter
+        # oauthcAzure                             = de.businesscode.bcdui.subjectsettings.oauth2.OAuthAuthenticatingFilter
         # oauthcAzure.optionalProviderId          = azure
         # oauthcAzure.authorizeEndpoint           =     # provided by Azure
         # oauthcAzure.authScope                   = openid https://graph.microsoft.com/user.read
         # oauthcAzure.clientId                    =     # provided by Azure
         # oauthcAzure.redirectUrl                 = http://myapp.com/oauth  # Adjust and tell this Azure
-        # oauthcAzureRealm                        = de.businesscode.bcdui.security.shiro.oauth2.OAuthRealm
+        # oauthcAzureRealm                        = de.businesscode.bcdui.subjectsettings.oauth2.OAuthRealm
         # oauthcAzureRealm.authenticator          = $oauthcAzure
         # oauthcAzureRealm.apiEndpoint            = https://graph.microsoft.com/v1.0/me/
         # oauthcAzureRealm.clientSecret           =     # provided by Azure
         # oauthcAzureRealm.tokenEndpoint          =     # provided by Azure
         # oauthcAzureRealm.principalPropertyName  = userPrincipalName
         ## Google
-        # oauthcGoogle                            = de.businesscode.bcdui.security.shiro.oauth2.OAuthAuthenticatingFilter
+        # oauthcGoogle                            = de.businesscode.bcdui.subjectsettings.oauth2.OAuthAuthenticatingFilter
         # oauthcGoogle.optionalProviderId         = google
         # oauthcGoogle.authorizeEndpoint          = https://accounts.google.com/o/oauth2/v2/auth
         # oauthcGoogle.authScope                  = email
         # oauthcGoogle.clientId                   =     # provided by Google
         # oauthcGoogle.redirectUrl                = http://myapp.com/oauth  # Adjust and tell this Google
-        # oauthcGoogleRealm                       = de.businesscode.bcdui.security.shiro.oauth2.OAuthRealm
+        # oauthcGoogleRealm                       =de.businesscode.bcdui.subjectsettings.oauth2.OAuthRealm
         # oauthcGoogleRealm.authenticator         = $oauthcGoogle
         # oauthcGoogleRealm.apiEndpoint           = https://www.googleapis.com/oauth2/v3/userinfo
         # oauthcGoogleRealm.clientSecret          =     # provided by Goole
@@ -118,27 +113,30 @@
         ## Support for bcd_log_login logging
         bcdAuthListener = de.businesscode.bcdui.web.AuthenticationListener
         securityManager.authenticator.authenticationListeners = $bcdAuthListener
-        ## Switch Shiro caching to ehcache, make sure to also enable ShutdownListener below and make sure temp directory is writable
-        # cacheManager = org.apache.shiro.cache.ehcache.EhCacheManager
-        # securityManager.cacheManager = $cacheManager
-        ## Use this only with Windows SSO mechanism
-        # authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
-        ## Enable delegating session manager to use containers session management
-        #sessionManager = org.apache.shiro.web.session.mgt.ServletContainerSessionManager
-        #securityManager.sessionManager = $sessionManager
+        ## Switch on Shiro caching and and use ehcache, make sure to also enable ShutdownListener below and make sure temp directory is writable
+        ## Default ttl of authorization is set to 1h and defined by cache/@name="realmBcdJdbc.authorizationCache" in ehcache.xml. If needed overwrite with a local ehcache.xml.
+        cacheManager = org.apache.shiro.cache.ehcache.EhCacheManager
+        securityManager.cacheManager = $cacheManager
 
-        # Static users and their roles, needed when realmBcdJdbc is not used
-        # format: username = password, role1, role2, ..., roleN
+        ## Some links
+        authc.loginUrl      = /login.html
+        # /oauth?oauth-provider-id=azure   use this if there is only an Azure login
+        authc.successUrl    = /index.html
+        logout.redirectUrl  = /index.html
+
+        #### Static users and their roles, needed when realmBcdJdbc is not used (named option 1. above), but can also be combined if needed
+        ## format: username = password, role1, role2, ..., roleN
         [users]
 
-        # Static roles and their permissions, needed when realmBcdJdbc is not used
-        # format: roleName = permission1, permission2, ..., permissionN
+        ## format: roleName = permission1, permission2, ..., permissionN
         [roles]
+        #### Static users and roles end
 
-        # Which URLs are pulic ('anon') and which require the user to be logged in ('authc') and possibly specific roles or permissions
-        # format: /reports/budget/** = authc, perms["pages:budget"]
+        ## Which URLs are public ('anon') and which require the user to be logged in ('authc') and possibly specific roles or permissions
+        ## format: /reports/budget/** = authc, perms["pages:budget"]
         [urls]
-        /logout               = logout
+        # Following one  line is a workaround for a FireFox bug Q2 2020. Obviously FF is not sending session cookies along with included xml/xslt
+        /**/*.xslt              = anon
 
         ## For all OAuth we listen here.
         ## Login is triggered via calling /oauth?oauth-provider-id=azure or google in [url] section.
@@ -149,8 +147,9 @@
         ## If anything is missing here, you will be redirected there after login
         ## If here is too much, it will be insecure
         /login.html           = authc
+        /logout               = logout
         /bcdui/bcdui.js       = anon
-        # you can omit /bcdui/js/**, if you load ./bcdui/bcdui.js?bcduiConfigOnly=true on login page
+        ## you can even omit /bcdui/js/**, if you use ./bcdui/bcdui.js?bcduiConfigOnly=true on login page
         /bcdui/js/**          = anon
         /bcdui/theme/**       = anon
         /bcdui/servlets/I18nServlet/**              = anon
@@ -158,7 +157,7 @@
         /bcdui/servletsSessionCached/I18nServlet/** = anon
         /favicon.ico          = anon
 
-        # protected
+        ## protected
         /**                   = authc
       </param-value>
     </init-param>
@@ -167,7 +166,6 @@
     <filter-name>bcdui4.ShiroFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-  -->
 
   <!-- Overall BCD-UI request lifecycle handling -->
   <filter>
@@ -461,11 +459,10 @@
   <!-- This listener must be present when EHCache is used, because EHCache registers
        a thread which keeps the application from shutting down
        EHcache is for example used by shiro, check your web.xml -->
-  <!--
   <listener>
     <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
   </listener>
-  -->
+
   <!-- i18n configuration -->
 
   <!-- default context entries  -->
@@ -475,5 +472,10 @@
     <env-entry-type>java.lang.String</env-entry-type>
     <env-entry-value>en</env-entry-value>
   </env-entry>
+
+  <!-- This is also used by shiro's default web session manager -->
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
 
 </web-app>
