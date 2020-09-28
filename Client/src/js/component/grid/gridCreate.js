@@ -2596,11 +2596,37 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         }
       }.bind(this));
 
+      var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
-        if (typeof bcdui.component.exports != "undefined")
-          bcdui.component.exports.exportToExcelTemplate({ inputModel: this.gridModel });
+        if (typeof bcdui.component.exports != "undefined") {
+          bcdui.component.exports.exportToExcelTemplate({inputModel: 
+            new bcdui.core.ModelWrapper({
+              inputModel: this.gridModel
+            , chain: function(doc) {
+
+                // get rid of hidden ones
+                var hiddenOnes = jQuery.makeArray(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
+                if (hiddenOnes.length > 0) {
+                  var firstHidden = hiddenOnes.sort()[0];
+                  bcdui.core.removeXPath(doc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);
+                  bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:C[position() >= '" + firstHidden + "']", false);
+                  bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:O[position() >= '" + firstHidden + "']", false);
+                }
+
+                // take caption instead of code                
+                jQuery.makeArray(doc.selectNodes("/*/wrs:Data/wrs:*")).forEach(function(e){
+                  jQuery.makeArray(e.selectNodes("wrs:C")).forEach(function(c, i) {
+                    c.text = theGrid.columnFiltersGetCaptionForColumnValue(i + 1, c.text);
+                  });
+                });
+
+                return doc;
+              }
+            })
+          });
+        }
       }.bind(this));
-      
+
       jQuery("#" + this.targetHtml).on("gridActions:columnSort", function(evt, memo){
         var configColumn = this.getEnhancedConfiguration().query("/*/grid:Columns");
         if (configColumn != null)
