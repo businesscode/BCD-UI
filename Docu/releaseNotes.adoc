@@ -98,6 +98,7 @@ The Renderer either works directly with the specified element or (in case of spe
 .Major bug fixes:
 * I18n: local messages.xml catalog file can contain multi language enabling full i18n support w/o database
 * HTML Custom Elements for Safari broke after Safari switched to Webcomponents API v1
+* DBProperties did not close its db connection correctly
 
 .Backward Incompatibilities:
 

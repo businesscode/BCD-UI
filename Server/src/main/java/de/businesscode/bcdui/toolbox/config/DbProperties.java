@@ -15,13 +15,12 @@
 */
 package de.businesscode.bcdui.toolbox.config;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -75,7 +74,7 @@ public class DbProperties {
    */
   private final HashMap<String, HashMap<String, Object>> scopes = new HashMap<String, HashMap<String,Object>>();
   private final String TPL_SQL_SELECT;
-  private final DataSource dataSource;
+  private final String dataSourceName;
 
   private long lastRefreshTime;
   private final long refreshCycleSec;
@@ -100,14 +99,14 @@ public class DbProperties {
    * @param refreshCycleSec to refresh the properties, may be 0 to disable auto-refresh cycle
    *
    * @throws BindingException if binding-set could not be obtained or was not found
-   * @throws RuntimeException in case DataSource could not be obtained
+   * @throws RuntimeException in case name of DataSource could not be obtained
    */
   @SuppressWarnings("deprecation")
   public DbProperties(String bindingSetId, int refreshCycleSec) throws BindingException {
     super();
     this.bindingSetId = bindingSetId;
     try {
-      this.dataSource = BareConfiguration.getInstance().getUnmanagedDataSource(Bindings.getInstance().get(bindingSetId).getDbSourceName());
+      this.dataSourceName = Bindings.getInstance().get(bindingSetId).getDbSourceName();
     } catch (BindingException be) {
       throw be;
     } catch (Exception e) {
@@ -283,9 +282,10 @@ public class DbProperties {
 
   private HashMap<String, HashMap<String, Object>> readFromDatabase() throws Exception {
     final HashMap<String, HashMap<String, Object>> scopes = new HashMap<String, HashMap<String,Object>>();
+    Connection con = BareConfiguration.getInstance().getUnmanagedConnection(dataSourceName);
     try{
-      BcdSqlLogger.setLevel(Level.TRACE);
-      new QueryRunner(dataSource).query(new SQLEngine().transform(TPL_SQL_SELECT), new ResultSetHandler<Void>() {
+      BcdSqlLogger.setLevel(Level.ALL); // Execute from normal log as it adds no value
+      new QueryRunner(true).query(con, new SQLEngine().transform(TPL_SQL_SELECT), new ResultSetHandler<Void>() {
         @Override
         public Void handle(ResultSet rs) throws SQLException {
 
@@ -303,6 +303,7 @@ public class DbProperties {
       return scopes;
     }finally{
       BcdSqlLogger.reset();
+      if( con != null ) con.close();
     }
   }
 
