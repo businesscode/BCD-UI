@@ -38,7 +38,7 @@
   <Environment name="bcdui/serverHasRequestUrlLimit" type="java.lang.Boolean" value="false"/>
 
   <!-- Some sample DB connections. Replace all values with XX in their name
-    Some options are mentioned with different names to fit to Tomcat 7 and 8 and to BasicDataSource and org.apache.tomcat.jdbc.pool.DataSourceFactory -->
+    maxTotal, maxWaitMillis, removeAbandonedOnBorrow, connectionInitSqls are names only needed for 7,8 installations not using the recommended org.apache.tomcat.jdbc.pool.DataSourceFactory -->
 
   <!-- Sample for Oracle
        -Dmyproj_db_url=jdbc:oracle:thin:@serverXX:1521:dbInstanceXX
@@ -51,6 +51,7 @@
     maxWait="15000" maxWaitMillis="15000"
     logAbandoned="true"
     removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="300"
     validationQuery="select 1 from dual"
     testOnBorrow="true"
     driverClassName="oracle.jdbc.OracleDriver"
@@ -73,6 +74,7 @@
     maxWait="15000" maxWaitMillis="15000"
     logAbandoned="true"
     removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
@@ -91,6 +93,7 @@
     maxIdle ="5"
     maxWait="15000" maxWaitMillis="15000"
     removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="org.postgresql.Driver"
@@ -111,6 +114,7 @@
     maxIdle ="5"
     maxWait="15000" maxWaitMillis="15000"
     removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="com.mysql.jdbc.Driver"

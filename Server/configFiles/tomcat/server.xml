@@ -14,7 +14,7 @@
   limitations under the License.
 -->
 <!--
-  Recommended changes to standard Tomcat 7
+  Recommended changes to standard Tomcat configuration
   1) Increase memory for tomcat CATALINA_OPTS=-Xms512M -Xmx1024M -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled
   2) Connector 8080 settings:
    For Tomcat to enable compression, add the following to non-ssl connection HTTP1:
@@ -24,6 +24,7 @@
 <Connector
   port="80"
   maxPostSize="8388608"
+  maxHttpHeaderSize="12000"
   compression="on"
   compressionMinSize="2048"
   nocompressionUserAgents="gozilla, traviata"

@@ -17,16 +17,12 @@
 <!--
   Standard web.xml for BCD-UI 4 applications.
   -->
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://java.sun.com/xml/ns/javaee"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-  id="WebApp_ID" version="3.0">
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
 
   <display-name>ProjectName</display-name>
-
-  <!--
-    Please put project settings here
-    -->
 
   <!--
     BCD-UI 4 Filters
@@ -104,9 +100,7 @@
         # oauthcGoogleRealm.tokenEndpoint         = https://www.googleapis.com/oauth2/v4/token
         # oauthcGoogleRealm.principalPropertyName = email
 
-        ## To use OAuth authentication along with BCD-UI authorization, add this
-        # authcStrategy = org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy
-        # securityManager.authenticator.authenticationStrategy = $authcStrategy
+        ## To use OAuth authentication along with BCD-UI authorization, add this. If the login found in bcd_sec_user, the id of the user is used for authorization, otherwise the login
         # securityManager.realms = $oauthcAzureRealm, $oauthcGoogleRealm, $realmBcdJdbc
         #### OAuth end
 
@@ -252,10 +246,12 @@
     <url-pattern>*.js</url-pattern>
     <url-pattern>*.xslt</url-pattern>
     <url-pattern>*.xml</url-pattern>
+    <url-pattern>*.dott</url-pattern>
     <url-pattern>*.png</url-pattern>
     <url-pattern>*.jpg</url-pattern>
     <url-pattern>*.gif</url-pattern>
     <url-pattern>*.svg</url-pattern>
+    <url-pattern>*.ico</url-pattern>
     <url-pattern>*.css</url-pattern>
     <url-pattern>*.woff2</url-pattern>
 
@@ -264,7 +260,7 @@
     <url-pattern>/bcdui/servletsSessionCached/*</url-pattern>
   </filter-mapping>
 
-  <!-- Allows for caching depending on scopes maintained in bcd_cache_scope -->
+  <!-- Allows for client-side caching depending on scopes maintained in bcd_cache_scope -->
   <filter>
     <filter-name>bcdui4.DataModifiedFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.cacheControl.DataModifiedFilter</filter-class>
@@ -464,8 +460,6 @@
   </listener>
 
   <!-- i18n configuration -->
-
-  <!-- default context entries  -->
   <env-entry>
     <description>Default context language</description>
     <env-entry-name>bcdui/i18n/default/lang</env-entry-name>
