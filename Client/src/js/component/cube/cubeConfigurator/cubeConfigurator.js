@@ -76,7 +76,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     // also remove all hidden single totals (remove parent if it's within a and or or)
     bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/*[f:Expression[@value='"+bcdui.core.magicChar.dimTotal+"']]");
     // remove single ones
-    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/f:Expression[@value='"+bcdui.core.magicChar.dimTotal+""']");
+    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/f:Expression[@value='"+bcdui.core.magicChar.dimTotal+"']");
     return true;
   },
 
