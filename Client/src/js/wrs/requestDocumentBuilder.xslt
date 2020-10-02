@@ -110,6 +110,7 @@
       <xsl:with-param name="filterTokens" select="$mandatoryfilterTokens" />
     </xsl:call-template>
   </xsl:variable>
+  <xsl:variable name="allFilterBRefs" select="$filterTokens/wrs:Wrs/wrs:Data/wrs:R/wrs:C | $mandatoryfilterTokens/wrs:Wrs/wrs:Data/wrs:R/wrs:C | $initialFilterTokens/wrs:Wrs/wrs:Data/wrs:R/wrs:C"/>
 
 
   <!--  create a standard wrs request, the group by and order by is enabled/disabled by isDistinct -->
@@ -298,6 +299,15 @@
         </f:And>
       </xsl:if>
     </f:Filter>
+  </xsl:template>
+
+  <!-- Only use such filter expressions, who's bRef is in one of the 3 filter lists -->
+  <xsl:template match="f:Expression">
+    <xsl:if test="@bRef=$allFilterBRefs">
+      <xsl:copy>
+        <xsl:apply-templates select="@*|node()"/>
+      </xsl:copy>
+    </xsl:if>
   </xsl:template>
 
   <!-- standard copy template -->

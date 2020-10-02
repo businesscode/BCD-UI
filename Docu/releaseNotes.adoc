@@ -126,6 +126,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Signiture of WriteProcessingCallback#processEndRow changed
 * FAR module is optional, specify it in your bcduiLoadFiles attribute
 * Increased timeout for bcd_sec_usersettings is now 1 hour, was 2 min
+* In some cases requestDocumentBuilder.xslt, also used in AutoModel, did not limit the bRefs from filters to those given in the list, no it does. If setup incorrectly before, they are missing now.
 
 ==== Release 5_2_0
 
