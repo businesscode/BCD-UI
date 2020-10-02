@@ -322,12 +322,17 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     if (uro_table == null) {
       roles.add("default");
     } else {
-      new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE " + getDefineJdbcParameter(uro_userid, uro_userid_jdbcType), (rs) -> {
-        while(rs.next()){
-          roles.add(rs.getString(1));
-        }
-        return null;
-      }, userId);
+      try {
+        BcdSqlLogger.setLevel(Level.OFF);
+        new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE " + getDefineJdbcParameter(uro_userid, uro_userid_jdbcType), (rs) -> {
+          while(rs.next()){
+            roles.add(rs.getString(1));
+          }
+          return null;
+        }, userId);
+      } finally {
+        BcdSqlLogger.reset();
+      }
     }
     return roles;
   }
