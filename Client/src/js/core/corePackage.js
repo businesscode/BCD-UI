@@ -159,7 +159,7 @@ bcdui.util.namespace("bcdui.core",
   },
 
   /**
-   * These are named magic UTF-8 constants, defined by BCD-UI
+   * These are named magic UTF-8 constants, defined by BCD-UI. When referring to it in xml, use &#xE0F0;
    * @namespace
    */
   magicChar: {

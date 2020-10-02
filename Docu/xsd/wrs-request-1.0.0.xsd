@@ -453,6 +453,7 @@
 
   <!-- 2 arguments -->
   <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Max" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
 

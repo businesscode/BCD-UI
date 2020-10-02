@@ -174,7 +174,7 @@ public class SecurityHelper {
     if(subject == null || !subject.isAuthenticated()){
       return null;
     }
-    // our Jdbc prinpical sets the login as string and any other realms set prinipals as string, too.
+    // our Jdbc principal sets the login as string and any other realms set principals as string, too.
     PrincipalCollection pc = subject.getPrincipals();
     String princ;
     if(pc == null){

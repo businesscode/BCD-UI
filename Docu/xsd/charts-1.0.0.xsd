@@ -271,7 +271,7 @@
       <xs:element name="Colors" type="tns:Colors" minOccurs="0"></xs:element>
       <xs:element name="BarWaterfall" minOccurs="0" maxOccurs="1">
         <xs:annotation>
-          <xs:documentation>If the series is a BARCHART, turn it into a waterfall bar chart.</xs:documentation>
+          <xs:documentation>If the series is a BARCHART, turn it into a waterfall bar chart (bcduiChart2 only).</xs:documentation>
         </xs:annotation>
         <xs:complexType>
           <xs:attribute name="downRgb" type="tns:colorValue">
@@ -407,7 +407,7 @@
     <xs:attribute name="modelId" use="optional">
       <xs:annotation>
         <xs:documentation>
-          A model which contain the source data doc. in this case we don´t need
+          A model which contain the source data doc. in this case we don't need
           to provide a JS Expression like sourceDocJS="myModel.dataDoc". However
           modelId="myModel" should be sufficient
         </xs:documentation>
@@ -449,7 +449,7 @@
     <xs:attribute name="modelId" use="optional">
       <xs:annotation>
         <xs:documentation>
-          A model which contain the source data doc. in this case we don´t need
+          A model which contain the source data doc. in this case we don't need
           to provide a JS Expression like sourceDocJS="myModel.dataDoc". However
           modelId="myModel" is sufficient
         </xs:documentation>

@@ -400,11 +400,11 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     },
 
   /**
-   * Reads value from a given xPath (or optionally return default value)
+   * Reads the string value from a given xPath (or optionally return default value).
    * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {string} [defaultValue] - default value in case xPath value does not exist
-   * @return text value stored at xPath (or null if nothing found and no defaultValue supplied)
+   * @return text value stored at xPath (or null if no text was found and no defaultValue supplied)
    */
   read: function(xPath, fillParams, defaultValue) {
     var def = (typeof fillParams == "string") ? fillParams : defaultValue;

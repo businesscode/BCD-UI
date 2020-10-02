@@ -177,7 +177,7 @@ public abstract class AbstractDataWriter implements IDataWriter {
    /**
    * isXMLType
    * @param colNo
-   * @return
+   * @return true if colNo should be XML escaped
    */
   protected boolean isEscapeXMLType(int colNo) {
     return Boolean.TRUE.equals(escapeXmlColumns.get(colNo));

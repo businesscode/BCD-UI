@@ -50,7 +50,7 @@ import de.businesscode.bcdui.el.ELEnvironment;
  *  <dt>isCoalesce</dt>
  *  <dd>
  *    <b>true*</b>: the value written to database is evaluated from given expression on the server in following cases: either wrs:C for this bindingItemId is wrs:null OR this bindingItemId is entirely missing in processing WRS<br>
- *    <b>false</b>: always writes value from expression evaluated on the server, even though it has not been sent along with WRS<br>
+ *    <b>false</b>: always writes value from expression evaluated on the server, no matter whether it been sent along with WRS or not<br>
  *  </dd>
  * </dl>
  */
