@@ -14,6 +14,17 @@
   limitations under the License.
 */
 
+-- db properties
+DROP TABLE bcd_db_properties;
+CREATE TABLE bcd_db_properties
+(
+  scope   VARCHAR(32) NOT NULL,
+  name    VARCHAR(255) NOT NULL,
+  "type"  VARCHAR(64) NULL,
+  "value" VARCHAR(255) NOT NULL,
+  PRIMARY KEY(scope, name)
+);
+
 -- i18n
 DROP TABLE BCD_I18N CASCADE CONSTRAINTS;
 CREATE TABLE BCD_I18N
@@ -120,6 +131,37 @@ CREATE MULTISET TABLE bcd_log_sql
    ROWS_AFFECTED  INTEGER DEFAULT NULL,
    JDBC_METHOD    VARCHAR(32),
    "SQL"          CLOB
+);
+
+-- security
+DROP TABLE bcd_sec_user;
+CREATE TABLE bcd_sec_user
+(
+  user_id     VARCHAR(128) NOT NULL,
+  user_login  VARCHAR(128) NOT NULL,
+  name        VARCHAR(128) NOT NULL,
+  "password"  VARCHAR(128) NOT NULL,
+  password_salt    VARCHAR(64) NOT NULL,
+  is_disabled VARCHAR(64),
+  PRIMARY KEY (user_id),
+  UNIQUE(user_login)
+);
+
+DROP TABLE bcd_sec_user_roles;
+CREATE TABLE bcd_sec_user_roles
+(
+   user_id         VARCHAR(128) NOT NULL,
+   user_role       VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id,  user_role)
+);
+
+DROP TABLE bcd_sec_user_settings;
+CREATE TABLE bcd_sec_user_settings
+(
+   user_id         VARCHAR(128) NOT NULL,
+   right_type      VARCHAR(64)  NOT NULL,
+   right_value     VARCHAR(64)  NOT NULL,
+   PRIMARY KEY (user_id, right_type, right_value)
 );
 
 -- tiny url
