@@ -187,10 +187,11 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
             bcdui.widget.multiSelect._createOptionsElement(args, optionsModelNodes, defaultValue);
           }
 
-          //  test if we have the values from target model still in options modell, if not and if the target model
+          //  test if we have the values from target model still in options model, if not and if the target model
           // isn't a wrs remove it. (This removes filter expressions in case of updated optionsmodel)
           var isWrsModel = (args.targetModel.getData().selectSingleNode("/wrs:Wrs") != null ? true:false);
           if(!isWrsModel){
+            var found = false;
             jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath))
             .forEach(
               function( node ){
@@ -200,14 +201,15 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
                  // remove the value attribute or the complete f:Expression
                  var expressionMatcher = args.keepEmptyValueExpression == 'true' ? null : args.targetModelXPath.match("(.*/f:Expression[^/]*)/@value");
                  if (expressionMatcher != null && expressionMatcher.length > 1) {
-                   bcdui.core.removeXPath(args.targetModel, expressionMatcher[1]);
+                   bcdui.core.removeXPath(args.targetModel, expressionMatcher[1]+"[@value=\""+value+"\"]");
                  } else {
-                   bcdui.core.removeXPath(args.targetModel, args.targetModelXPath);
+                   bcdui.core.removeXPath(args.targetModel, args.targetModelXPath+"[.=\""+value+"\"]");
                  }
-                 args.targetModel.fire();
+                 found = true;
                }
              } // function()
             ) // each
+            if(found) args.targetModel.fire();
           }
         }.bind(this));
       }else{

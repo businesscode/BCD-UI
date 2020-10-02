@@ -1203,12 +1203,14 @@ bcdui.util.namespace("bcdui.widget",
        var optionsModelRelativeValueXPath = htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath");
 
        if (optionsModelId == null || !optionsModelId.trim() ||
-           optionsModelXPath == null || !optionsModelXPath.trim() ||
-           optionsModelRelativeValueXPath == null || !optionsModelRelativeValueXPath.trim())
+           optionsModelXPath == null || !optionsModelXPath.trim() )
          return value;
 
+       // The caption can be the value or an explicit caption.
+       // result is null, if value is not found at all in the options model
+       var searchXPath = optionsModelRelativeValueXPath || ".";
        var optionsModel = bcdui.factory.objectRegistry.getObject(optionsModelId);
-       var xPath = optionsModelXPath + "[" + optionsModelRelativeValueXPath + " = \"" + value + "\"]";
+       var xPath = optionsModelXPath + "[" + searchXPath + " = \"" + value + "\"]";
        var result = bcdui.widget._getDataFromXML(optionsModel, xPath);
        return result;
      },
