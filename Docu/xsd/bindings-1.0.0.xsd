@@ -172,6 +172,12 @@
         Note that 'none' is also allowed: When reading the BindingItem in an aggregation, the aggregation function must be hard-coded in b:BindingItem/b:Column.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="skipStartupRead" type="xs:boolean" default="false">
+      <xs:annotation><xs:documentation>
+        Skip reading this column on startup with a dummy request.
+        All other items are read on startup. Attributes like type-name are set from this reading if they are not given in the BindingSet document.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
     <xs:anyAttribute namespace="http://www.businesscode.de/schema/bcdui/customization-1.0.0" processContents="skip">
       <xs:annotation><xs:documentation>
         this namespace, with well-known prefix 'cust' may be used to define custom attributes to access them on the client

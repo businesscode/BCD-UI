@@ -154,28 +154,35 @@ public class ReadBindingSet implements Runnable {
       StringBuffer stmtStr = new StringBuffer("SELECT ");
       StringBuffer gbStmtStr = new StringBuffer();
       boolean groupByNeeded = false;
+      String sep = " ";
       ArrayList<BindingItem> bItems = new ArrayList<BindingItem>();
       for (int bi = 0; bi < biSet.getLength(); bi++) {
         Element bindingItemElem = (Element) biSet.item(bi);
         BindingItem bindingItem = createBindingItem(bindingItemElem, bs);
         bs.putItem(bindingItem);
-        if(bi>0)
-          stmtStr.append(", ");
-        stmtStr.append(bindingItem.getQColumnExpression());
+        
+        // Set bnd:BindingSet/bnd:C/@skipStartupRead=true to skip the reading here. All values are default then (like VARCHAR), except given in bs:BindingSet/bs:C 
+        if( !"true".equals(bindingItemElem.getAttribute("skipStartupRead") )) {
 
-        // In the special case of @aggr="none", there is an aggregation expected in the BindingItem's column expression
-        // For these, we need a dummy group by over all other columns. When there is no @aggr="none", we can drop this.
-        if( ! "none".equals(bindingItem.getAggr()) ) {
-          // Pure constant expressions (i.e. such that do not refer to a column) must not be part of group by (in sqlserver)
-          if( BindingUtils.splitColumnExpression(bindingItem.getQColumnExpression(), bindingItem.isColumnQuoting(), bs).size()>1 ) {
-            if( gbStmtStr.length() > 0 )
-              gbStmtStr.append(", ");
-            gbStmtStr.append(bindingItem.getQColumnExpression());
+          stmtStr.append(sep).append(bindingItem.getQColumnExpression());
+          sep = ", ";
+  
+          // In the special case of @aggr="none", there is an aggregation expected in the BindingItem's column expression
+          // For these, we need a dummy group by over all other columns. When there is no @aggr="none", we can drop this.
+          if( ! "none".equals(bindingItem.getAggr()) ) {
+            // Pure constant expressions (i.e. such that do not refer to a column) must not be part of group by (in sqlserver)
+            if( BindingUtils.splitColumnExpression(bindingItem.getQColumnExpression(), bindingItem.isColumnQuoting(), bs).size()>1 ) {
+              if( gbStmtStr.length() > 0 )
+                gbStmtStr.append(", ");
+              gbStmtStr.append(bindingItem.getQColumnExpression());
+            }
+          } else {
+            groupByNeeded = true;
           }
-        } else {
-          groupByNeeded = true;
+
+          bItems.add(bindingItem);
         }
-        bItems.add(bindingItem);
+        
       }
 
       // We do a select on the table with all binding items to get their data types and also to check correctness
@@ -203,7 +210,9 @@ public class ReadBindingSet implements Runnable {
           rsmd = rs.getMetaData();
         };
 
-        for (int pos = 1; pos <= biSet.getLength(); pos++) {
+        // Loop over the BindingItems we just test-loaded from the database and set yet undefined attributes
+        for (int pos= 1; pos <= bItems.size(); pos++) {
+
           BindingItem bi = bItems.get(pos-1);
           if(!bi.isDefinedJDBCDataType())
             bi.setJDBCDataType(rsmd.getColumnType(pos));

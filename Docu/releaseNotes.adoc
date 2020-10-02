@@ -87,7 +87,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Add notLike and notIn operators to f:Filter, including universal filter widget
 * Wrq where and having clause does now understand virual binding items: f:Expression/@bRef referencing a wrq:Columns/wrq:C which is having a wrq:Calc expressing, are now using that wrq:Calc expression
-
+* New /bnd:BindingSet/bnd:C/@skipStartupRead to allow skipping an binding item at inital read on startup
 . Build / Dev / Docu
 * In Eclipse, sub-projects Client, Server, Theme etc now have names BCD-UI--SubProjectName to keep them together in the navigation tree
 * Switched to gradle 4.2, added gradle wrapper, updated nodeJs to 6.11
