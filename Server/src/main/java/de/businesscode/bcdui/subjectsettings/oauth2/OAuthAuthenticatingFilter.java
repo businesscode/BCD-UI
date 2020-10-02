@@ -292,8 +292,8 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     final String stateValue = request.getParameter("state");
 
     return "post".equalsIgnoreCase(httpRequest.getMethod()) && httpRequest.getParameter("code") != null
-        && retrieveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, "void").equals(stateValue)
-        && retrieveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, "void").equals(this.providerInstanceId);
+        && stateValue != null && stateValue.equals(retrieveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, "void"))
+        && this.providerInstanceId != null && this.providerInstanceId.equals(retrieveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, "void"));
   }
 
   @SuppressWarnings("unchecked")
