@@ -74,9 +74,9 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     dims.setAttribute("hideTotals","false");
 
     // also remove all hidden single totals (remove parent if it's within a and or or)
-    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/*[f:Expression[@value='1']]");
+    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/*[f:Expression[@value='"+bcdui.core.magicChar.dimTotal+"']]");
     // remove single ones
-    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/f:Expression[@value='1']");
+    bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject( targetModelId ).getData(), "//cube:Layout[@cubeId ='"+ cubeId +"']/cube:Hide/f:Filter/f:Expression[@value='"+bcdui.core.magicChar.dimTotal+""']");
     return true;
   },
 
@@ -184,7 +184,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
      function(xpath){
        var nodes = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes(xpath);
        for( var hN=0; hN<nodes.length; hN++ ) {
-         if (nodes.item(hN).selectNodes("./f:Expression/@value[contains(., '')]").length == nodes.item(hN).selectNodes("./f:Expression/@value").length)
+         if (nodes.item(hN).selectNodes("./f:Expression[contains(@value, '\uE0F0')]").length == nodes.item(hN).selectNodes("./f:Expression/@value").length)
            nodes.item(hN).parentNode.removeChild(nodes.item(hN));
        }
      });
@@ -212,7 +212,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     // showAll clears all hide and exclude(!) settings, affecting the level (without totals)
     if( args.showAll == true ) {
       
-      var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"' and f:Expression[@value != '1']]";
+      var bRef1 = (args.levelId == "bcdAll") ? "" : "[@bRef='"+args.levelId+"' and f:Expression[@value != '"+bcdui.core.magicChar.dimTotal+"']]";
       var bRef2 = (args.levelId == "bcdAll") ? "" : "='"+args.levelId+"'";
       
       jQuery.makeArray(["//cube:Layout[@cubeId ='"+cubeId+"']/cube:Hide/f:Filter/*" + bRef1,
@@ -235,7 +235,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       var caption = obj.caption;
       var layoutNode = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode("//cube:Layout[@cubeId ='"+cubeId+"']");
       // standard case for hide all occurrences, just what the affected level, ignore the rest
-      if( ! args.total && (value!="1" || ! args.outerLevelId)) {
+      if( ! args.total && (value!=bcdui.core.magicChar.dimTotal || ! args.outerLevelId)) {
         var filterNode = bcdui.core.createElementWithPrototype(layoutNode, "/cube:Hide/f:Filter");
         var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode, "f:Expression");
         expressionNode.setAttribute("bRef", args.levelId);
@@ -247,7 +247,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       }
       // This will hide exactly one level of totals. Thus, we must only hide those, where the next outer dim is not total
       else {
-        value = args.total ? "1" : value;
+        value = args.total ? bcdui.core.magicChar.dimTotal : value;
         var filterNode = bcdui.core.createElementWithPrototype(layoutNode, "/cube:Hide/f:Filter");
         var orNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode,"f:Or");
         orNode.setAttribute("bRef", args.levelId);
@@ -301,7 +301,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
           if(value)
             expressionNode.setAttribute("value", value);
           else
-            expressionNode.setAttribute("value", "0");
+            expressionNode.setAttribute("value", bcdui.core.magicChar.dimNull);
           if (row.selectSingleNode("wrs:C["+(l+1)+"]/@caption") != null)
             expressionNode.setAttribute("caption", row.selectSingleNode("wrs:C["+(l+1)+"]/@caption").text);
           if( rowDims.item(l).getAttribute("id")==args.levelId ) // Ignore more inner levels
@@ -327,7 +327,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
     // Exclude all occurrences of the value (if it is nested within another dimension, it will appear multiple times)
     if( args.all==true ) {
       // To exclude null ([Empty]), simple leave the @value in the Expression empty
-      if( value == "0" || value==null ) { // Careful, the first is UTF-= character &#xE0F0;
+      if( value == bcdui.core.magicChar.dimNull || value==null ) {
         var filterNode = bcdui.core.createElementWithPrototype( bcdui.factory.objectRegistry.getObject(targetModelId), "/*/f:Filter");
         var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(filterNode, "f:Expression");
         expressionNode.setAttribute("bRef", args.levelId);
@@ -369,7 +369,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
           var expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
           expressionNode.setAttribute("bRef", colDimLevelIds[l]);
           expressionNode.setAttribute("op", '!=');
-          if(colDims[l]!="0")
+          if(colDims[l]!=bcdui.core.magicChar.dimNull)
             expressionNode.setAttribute("value", colDims[l]);
           if (captionNode != null) {
             var caption = captionNode.text.split("|");
@@ -377,7 +377,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
           }
           // To exclude a value, we say "<> the value" but do explicitly allow null, otherwise they disappear as well
           // Exception, if we should include null (value==null), we do not allow null
-          if(colDims[l]!="0") {
+          if(colDims[l]!=bcdui.core.magicChar.dimNull) {
             expressionNode = bcdui.core.browserCompatibility.appendElementWithPrefix(orNode, "f:Expression");
             expressionNode.setAttribute("bRef", colDimLevelIds[l]);
             expressionNode.setAttribute("op", '=');
@@ -449,9 +449,9 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
         if (row.selectSingleNode("wrs:C["+colPos+"]/@caption") != null)
           caption = row.selectSingleNode("wrs:C["+colPos+"]/@caption").text;
         if( "1"==row.selectSingleNode("wrs:C["+colPos+"]").getAttribute("bcdGr") )
-          value = "1";
+          value = bcdui.core.magicChar.dimTotal;
         else if(value=="")
-          value = "0";
+          value = bcdui.core.magicChar.dimNull;
       }
     }
     return {value: value, caption: caption};
@@ -703,7 +703,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
       var idRef = layoutNodes[i].getAttribute("idRef");
       if (idRef != null){
         // in case of a 'total' we look for the idRef stored behind the pipe
-        if (idRef.indexOf('') != -1)
+        if (idRef.indexOf('\uE0F0') != -1)
           idRef = idRef.substring(idRef.indexOf('|') + 1);
         var refNode = targetModel.getData().selectSingleNode(layoutModelXPath + "*/*[@idRef='" + idRef + "']");
         if (refNode == null)
