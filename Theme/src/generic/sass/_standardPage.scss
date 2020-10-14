@@ -1541,7 +1541,7 @@ span.bcd-notification-warn {
 }
 
 .bcd-detailview-titlebar {
-  font: 12px Arial;
+  font: 12px $font-family-default;
   font-weight: bold;
   text-align: left;
   @include con_color($corporate-color);

@@ -95,7 +95,7 @@ $report-color-warn:             #00FF00 !default;
 $report-color-fail:             #FF0000 !default;
 
 $sc-color-dimension:            $cube-color-cell !default;
-$sc-color-aspect:               lighten($cube-color-cell-total, 15%) !default
+$sc-color-aspect:               lighten($cube-color-cell-total, 15%) !default;
 $sc-color-kpi:                  lighten($cube-color-cell-total, 35%) !default;
 
 $cubeDNDWidth:                  756px !default;
