@@ -82,7 +82,7 @@
         </xsl:variable>
 
         <xsl:attribute name="class">
-          <xsl:if test="$activeClassName!=''"> bcd__active-item</xsl:if>
+          <xsl:if test="$activeClassName!='' and not($isCredentialMenu)"> bcd__active-item</xsl:if>
           <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
           <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         </xsl:attribute>
