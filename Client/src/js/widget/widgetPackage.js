@@ -963,6 +963,7 @@ bcdui.util.namespace("bcdui.widget",
      * @param {Object}        args                      The parameter map contains the following properties.
      * @param {targetHtmlRef} args.targetHtml           An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
      * @param {string}        [args.modelId]            id of model holding custom model definition. If not provided, a standard one with just logout is created.
+     * @param {string}        [args.userName]           string to use as the username, by default it takes bcdui.config.userName
      * 
      */
     createCredentialsMenu: function(args)
@@ -979,7 +980,7 @@ bcdui.util.namespace("bcdui.widget",
         , modelId: modelId
           , parameters: {
             isCredentialMenu: true
-          , userName: bcdui.config.userName
+          , userName: args.userName || bcdui.config.userName
           }
         }
         bcdui.widget.createMenu(menuArgs);
