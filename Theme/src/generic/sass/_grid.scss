@@ -179,6 +179,12 @@ input.bcdInputFieldGrid {
   border: 1px solid $grid-hover-color-border !important;
 }
 
+.bcdGrid tbody .bcdHover td,
+.bcdGrid tbody .bcdHover th {
+  color: text-contrast($flyover-color) !important;
+  background-color: $flyover-color !important;
+}
+
 #bcdBodyContainer .bcdGridEditor,
 .bcdGridEditor {
   textarea, input {
