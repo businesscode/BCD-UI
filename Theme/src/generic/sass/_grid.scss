@@ -43,6 +43,8 @@
 }
 
 .bcdGrid {
+  display: block;
+  position: relative;
   font: $font-size-default $font-family-default;
   color: $text-color-dark;
   background-color: inherit;
