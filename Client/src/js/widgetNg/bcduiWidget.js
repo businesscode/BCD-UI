@@ -347,11 +347,10 @@
       if("disabled" == option){
         value = (value+"")=="true";
         var elements = jQuery(this.element).find("input, textarea, select, button");
+        elements.prop("disabled", value);
         if(value){
-          elements.prop("disabled", value);
           elements.addClass("bcdDisabled");
         }else{
-          elements.removeProp("disabled");
           elements.removeClass("bcdDisabled");
         }
       }
