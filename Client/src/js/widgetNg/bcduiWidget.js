@@ -345,10 +345,11 @@
     _setOption : function(option, value){
       this._superApply(arguments);
       if("disabled" == option){
-        value = (value+"")=="true";
+        var vStr = "" + value;
+        var isDisabled = (vStr === "true");
         var elements = jQuery(this.element).find("input, textarea, select, button");
-        elements.prop("disabled", value);
-        if(value){
+        elements.prop("disabled", isDisabled);
+        if(isDisabled){
           elements.addClass("bcdDisabled");
         }else{
           elements.removeClass("bcdDisabled");
