@@ -147,7 +147,7 @@
           </xsla:variable>
 
           <xsla:variable name="optionsRaw" select="exslt:node-set($optionsRawString)/Values/*"/>
-          <xsla:key name="distinctOptions" match="/Values/Value" use="."/>
+          <xsla:key name="distinctOptions" match="/Values/Value" use="concat(., '|', @caption)"/>
         </xsl:otherwise>
       </xsl:choose>
 
@@ -184,7 +184,7 @@
             <!-- default handling -->
             <Values>
               <xsla:for-each select="$optionsRaw">
-                <xsla:if test="generate-id(.)=generate-id(key('distinctOptions',.))">
+                <xsla:if test="generate-id(.)=generate-id(key('distinctOptions',concat(., '|', @caption)))">
                   <xsla:copy-of select="."/>
                 </xsla:if>
               </xsla:for-each>
