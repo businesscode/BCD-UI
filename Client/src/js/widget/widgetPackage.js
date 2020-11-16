@@ -2556,9 +2556,11 @@ bcdui.util.namespace("bcdui.widget",
       config.statusModel.write(config.rootXPath + "/@condition", condition);
       var i = 0;
       jQuery.makeArray(config.multiSelectDataModel.queryNodes("/*/Item[@enabled='true']")).forEach(function(e) {
-        var caption = e.getAttribute("caption");
-        caption = (e.text == caption ? "" : " and @caption='" + caption + "'");
-        config.statusModel.write(config.rootXPath + "/f:Expression[@i='" + i++ + "' and @bRef='" + config.id +"' and @op='='" + caption + "]/@value", e.text);
+        var caption = e.getAttribute("caption") || "";
+        if (caption != "")
+          config.statusModel.write(config.rootXPath + "/f:Expression[@i='" + i++ + "' and @bRef='" + config.id +"' and @op='=' and @caption='{{=it[0]}}']/@value", [caption], e.text);
+        else
+          config.statusModel.write(config.rootXPath + "/f:Expression[@i='" + i++ + "' and @bRef='" + config.id +"' and @op='=']/@value", e.text);
       });
       config.statusModel.fire();
       jQuery(element).closest(".bcdFilterDialog").dialog("close");
