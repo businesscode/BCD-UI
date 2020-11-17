@@ -348,7 +348,7 @@ public class DatabaseWriter {
             break;
           case Types.BLOB:
             if (isNull)
-              stm.setNull(paramNo, Types.CLOB);
+              stm.setNull(paramNo, Types.BLOB);
             else {
               byte decodeBytes[] = Base64.decode(value.getBytes(StandardCharsets.UTF_8));
               stm.setBinaryStream(paramNo, new ByteArrayInputStream(decodeBytes));
