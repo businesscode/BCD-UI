@@ -182,6 +182,13 @@
         References the id of a dimension in the global dimensions model. Can be used for e.g. binding set lookup for a given LevelRef.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="topNPartitionBy" type="xs:boolean">
+      <xs:annotation><xs:documentation>
+        Only available in Enterprise Edition and only of relavence if used within TopNDimMember.
+        If true the Rank() of the measure is determined partitioned by this level.
+        Use this for example to create partitioned top-n, like all top 2 products for each country individually.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:attributeGroup name="measureLayoutInformtion">

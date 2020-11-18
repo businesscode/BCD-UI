@@ -121,6 +121,13 @@
               <xs:complexType>
                 <xs:attribute name="bRef"/>
                 <xs:attribute name="caption"/>
+                <xs:attribute name="topNPartitionBy" type="xs:boolean" default="false">
+                  <xs:annotation><xs:documentation>
+                    Only available in Enterprise Edition and only of relevance if used within TopNDimMember.
+                    If true the Rank() of the measure is determined partitioned by the level.
+                    Use this for example to create partioned top-n, like all top 2 products for each country individually.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
               </xs:complexType>
             </xs:element>
             <xs:element name="Measure">
