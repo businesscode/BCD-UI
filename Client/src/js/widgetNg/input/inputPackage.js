@@ -280,10 +280,13 @@
       else {
         this._validateElement(inputElementId, true)
         .then(() => {
-          if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
-            this._setUnsetPlaceholder(inputElementId, isValueEmpty);
+          // check if widget still exists
+          if (jQuery("#" + inputElementId).length > 0) {
+            if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
+              this._setUnsetPlaceholder(inputElementId, isValueEmpty);
+            }
+            el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
           }
-          el.trigger(this.EVENT.SYNC_READ, {isValueEmpty : isValueEmpty});
         });
       }
     },
