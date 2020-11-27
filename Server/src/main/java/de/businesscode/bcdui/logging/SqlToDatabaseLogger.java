@@ -100,7 +100,7 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   /**
    * record being logged into db
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase{
     final private String jdbcMethod;
     final private String sql;
     final Date stamp = new Date();

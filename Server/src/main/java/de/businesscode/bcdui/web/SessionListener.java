@@ -36,10 +36,10 @@ public class SessionListener implements HttpSessionListener{
   public void sessionDestroyed(HttpSessionEvent se) {
     HttpSession session = se.getSession();
 
-    // we use logging on RequestLifeCycleFilter
-    Logger logger = Logger.getLogger(de.businesscode.bcdui.web.filters.RequestLifeCycleFilter.class);
+    Logger virtLoggerSession = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+    Logger virtLoggerLogin = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
 
-    logger.debug(new SessionExpiredSqlLogger.LogRecord(session.getId()));
-    logger.debug(new LogoutSqlLogger.LogRecord(session.getId()));
+    virtLoggerSession.info(new SessionExpiredSqlLogger.LogRecord(session.getId()));
+    virtLoggerLogin.info(new LogoutSqlLogger.LogRecord(session.getId()));
   }
 }

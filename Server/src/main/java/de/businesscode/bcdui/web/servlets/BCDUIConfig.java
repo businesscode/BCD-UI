@@ -62,6 +62,8 @@ public class BCDUIConfig extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final String clientConfigFilePath="/WEB-INF/clientLog.properties";
   private Logger log = Logger.getLogger(this.getClass());
+  private final Logger virtLoggerPage = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
+  
 
   private String configJson;
 
@@ -203,7 +205,7 @@ public class BCDUIConfig extends HttpServlet {
     // log page
     if(PageSqlLogger.getInstance().isEnabled()) {
       final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(sessionId, request.getHeader("Referer"), pageHash);
-      log.debug(logRecord);
+      virtLoggerPage.info(logRecord);
     }
   }
 

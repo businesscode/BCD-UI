@@ -18,16 +18,21 @@ package de.businesscode.bcdui.web.errorLogging;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import de.businesscode.bcdui.logging.LogEventBase;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 
 /**
- * The error-logEvent for usage with the BuiErrorLogAppender. <br>
+ * The error-logEvent for usage with the ErrorLogAppender. <br>
  * Example:
- *
- * log.error(new ErrorLogEvent("Error", request), exception);
+ * 
+ * ...
+ * private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+ * ...
+ * virtLoggerError.info(new ErrorLogEvent("Error", request), exception);
+ * ...
  *
  */
-public class ErrorLogEvent {
+public class ErrorLogEvent extends LogEventBase{
 
   private String message;
   private String data;

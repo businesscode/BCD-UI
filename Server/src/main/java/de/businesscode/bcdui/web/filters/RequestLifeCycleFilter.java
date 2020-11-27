@@ -68,6 +68,8 @@ public class RequestLifeCycleFilter implements Filter {
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
   private Logger log = getLogger();
+  private final Logger virtLoggerSession = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+  private final Logger virtLoggerLogin = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
 
   /**
    * tells if given request is issued for logging transceiver
@@ -186,7 +188,7 @@ public class RequestLifeCycleFilter implements Filter {
       if (sessionCreated != null) {
         session.removeAttribute(SESSION_KEY_BCD_SESSIONCREATED);
         final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost());
-        log.debug(record);
+        virtLoggerSession.info(record);
       }
     }
 
@@ -201,7 +203,7 @@ public class RequestLifeCycleFilter implements Filter {
             shiroSession.removeAttribute("BCD_LOGIN_USER");
             shiroSession.removeAttribute("BCD_LOGIN_RESULT");
             final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
-            log.debug(record);
+            virtLoggerLogin.info(record);
           }
         }
       }

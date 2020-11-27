@@ -17,27 +17,25 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
+import de.businesscode.bcdui.logging.PageSqlLogger;
+import de.businesscode.bcdui.logging.PageSqlLogger.LogRecord;
 
-import de.businesscode.bcdui.logging.LoginSqlLogger;
-import de.businesscode.bcdui.logging.LogoutSqlLogger;
+public class PageLogAppender extends AppenderSkeleton {
 
-public class BuiLoginLogAppender extends AppenderSkeleton {
-
-  public BuiLoginLogAppender() {
+  public PageLogAppender() {
   }
 
-  public BuiLoginLogAppender(boolean isActive) {
+  public PageLogAppender(boolean isActive) {
     super(isActive);
   }
 
   @Override
   protected void append(LoggingEvent event) {
-    if (event.getMessage() instanceof LoginSqlLogger.LogRecord && LoginSqlLogger.getInstance().isEnabled()) {
-      // Login event
-      LoginSqlLogger.getInstance().process( (LoginSqlLogger.LogRecord) event.getMessage() );
-    } else if (event.getMessage() instanceof LogoutSqlLogger.LogRecord && LogoutSqlLogger.getInstance().isEnabled()) {
-      // Session expire event
-      LogoutSqlLogger.getInstance().process( (LogoutSqlLogger.LogRecord) event.getMessage() );
+    // It is assumed that every LoggingEvent passed to the appender is an PageSqlLogger.LogRecord.
+    // If this is not the case, there is a programming error, which should lead to an uncaught exception.
+    LogRecord pageLogEvent = (PageSqlLogger.LogRecord) event.getMessage();
+    if(PageSqlLogger.getInstance().isEnabled()) {
+      PageSqlLogger.getInstance().process(pageLogEvent);
     }
   }
 

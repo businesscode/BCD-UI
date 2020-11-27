@@ -21,12 +21,12 @@ import org.apache.log4j.spi.LoggingEvent;
 import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
 import de.businesscode.bcdui.logging.SessionSqlLogger;
 
-public class BuiSessionLogAppender extends AppenderSkeleton {
+public class SessionLogAppender extends AppenderSkeleton {
 
-  public BuiSessionLogAppender() {
+  public SessionLogAppender() {
   }
 
-  public BuiSessionLogAppender(boolean isActive) {
+  public SessionLogAppender(boolean isActive) {
     super(isActive);
   }
 

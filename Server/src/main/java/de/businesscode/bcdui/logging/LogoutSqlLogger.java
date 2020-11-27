@@ -42,7 +42,7 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
    * the result to log into database
    *
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase{
     final String sessionId;
     final Date stamp = new Date();
 

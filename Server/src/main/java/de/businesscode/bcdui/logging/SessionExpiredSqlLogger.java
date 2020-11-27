@@ -41,7 +41,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
   /**
    * Log for expired session
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase{
     final String sessionId;
     final Date stamp = new Date();
 

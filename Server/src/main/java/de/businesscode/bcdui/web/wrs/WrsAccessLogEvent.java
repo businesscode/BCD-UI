@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.w3c.dom.Document;
 
+import de.businesscode.bcdui.logging.LogEventBase;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.DataLoader;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
@@ -27,7 +28,7 @@ import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 /**
  * This bean contains all information about the log-event
  */
-public class WrsAccessLogEvent {
+public class WrsAccessLogEvent extends LogEventBase{
 
   public static final String ACCESS_TYPE_WRS = "WRS";
   public static final String ACCESS_TYPE_SYLK = "SYLK";

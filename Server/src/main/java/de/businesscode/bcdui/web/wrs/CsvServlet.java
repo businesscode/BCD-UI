@@ -40,6 +40,8 @@ public class CsvServlet extends ExportServlet {
   private static final long serialVersionUID = 4633486737694422869L;
   //
   private final Logger log = Logger.getLogger(getClass());
+  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+  private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
 
   /**
    * CsvServlet
@@ -81,16 +83,16 @@ public class CsvServlet extends ExportServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_CVS, request, options, generator, loader, dataWriter);
-      log.debug(logEvent);
+      virtLoggerAccess.info(logEvent);
     }
     catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
       if (e.getMessage().indexOf("Connection reset by peer") < 0){
-        log.error(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
+        virtLoggerError.info(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
       }
     }
     catch (Exception e) {
-      log.error(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
+      virtLoggerError.info(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
       throw new ServletException(e);
     }
     finally {

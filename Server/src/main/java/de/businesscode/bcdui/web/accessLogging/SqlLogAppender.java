@@ -17,25 +17,23 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
-import de.businesscode.bcdui.logging.PageSqlLogger;
-import de.businesscode.bcdui.logging.PageSqlLogger.LogRecord;
+import de.businesscode.bcdui.logging.SqlToDatabaseLogger;
+import de.businesscode.bcdui.logging.SqlToDatabaseLogger.LogRecord;
 
-public class BuiPageLogAppender extends AppenderSkeleton {
+public class SqlLogAppender extends AppenderSkeleton {
 
-  public BuiPageLogAppender() {
+  public SqlLogAppender() {
   }
 
-  public BuiPageLogAppender(boolean isActive) {
+  public SqlLogAppender(boolean isActive) {
     super(isActive);
   }
 
   @Override
   protected void append(LoggingEvent event) {
-    if (event.getMessage() instanceof PageSqlLogger.LogRecord) {
-      LogRecord pageLogEvent = (PageSqlLogger.LogRecord) event.getMessage();
-      if(PageSqlLogger.getInstance().isEnabled()) {
-        PageSqlLogger.getInstance().process(pageLogEvent);
-      }
+    LogRecord sqlLogEvent = (SqlToDatabaseLogger.LogRecord) event.getMessage();
+    if(SqlToDatabaseLogger.getInstance().isEnabled()) {
+      SqlToDatabaseLogger.getInstance().process(sqlLogEvent);
     }
   }
 

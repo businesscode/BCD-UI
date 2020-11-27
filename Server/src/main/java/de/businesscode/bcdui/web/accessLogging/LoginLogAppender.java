@@ -17,25 +17,27 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
-import de.businesscode.bcdui.logging.SqlToDatabaseLogger;
-import de.businesscode.bcdui.logging.SqlToDatabaseLogger.LogRecord;
 
-public class BuiSqlLogAppender extends AppenderSkeleton {
+import de.businesscode.bcdui.logging.LoginSqlLogger;
+import de.businesscode.bcdui.logging.LogoutSqlLogger;
 
-  public BuiSqlLogAppender() {
+public class LoginLogAppender extends AppenderSkeleton {
+
+  public LoginLogAppender() {
   }
 
-  public BuiSqlLogAppender(boolean isActive) {
+  public LoginLogAppender(boolean isActive) {
     super(isActive);
   }
 
   @Override
   protected void append(LoggingEvent event) {
-    if (event.getMessage() instanceof SqlToDatabaseLogger.LogRecord) {
-      LogRecord sqlLogEvent = (SqlToDatabaseLogger.LogRecord) event.getMessage();
-      if(SqlToDatabaseLogger.getInstance().isEnabled()) {
-        SqlToDatabaseLogger.getInstance().process(sqlLogEvent);
-      }
+    if (event.getMessage() instanceof LoginSqlLogger.LogRecord && LoginSqlLogger.getInstance().isEnabled()) {
+      // Login event
+      LoginSqlLogger.getInstance().process( (LoginSqlLogger.LogRecord) event.getMessage() );
+    } else if (event.getMessage() instanceof LogoutSqlLogger.LogRecord && LogoutSqlLogger.getInstance().isEnabled()) {
+      // Session expire event
+      LogoutSqlLogger.getInstance().process( (LogoutSqlLogger.LogRecord) event.getMessage() );
     }
   }
 

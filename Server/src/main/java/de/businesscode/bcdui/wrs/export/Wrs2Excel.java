@@ -75,6 +75,7 @@ public class Wrs2Excel {
   private class WrsContainerParser {
     private Stack<String> pathStack = new Stack<>(); // for path tracking
     private Logger log = Logger.getLogger(Wrs2Excel.class.getName().concat(".WrsContainerParser"));
+    private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
     private final OutputStream excelOutputStream;
     private final IRequestOptions options;
     private XMLEvent event;
@@ -133,7 +134,7 @@ public class Wrs2Excel {
 
             // log wrs-access
             WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_XLS, request, options, writer.getGenerator(), writer.getLoader(), writer);
-            log.debug(logEvent);
+            virtLoggerAccess.info(logEvent);
           }
 
           // Client did send a Wrs with data

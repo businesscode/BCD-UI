@@ -45,7 +45,7 @@ import de.businesscode.util.xml.SecureXmlFactory;
  *
  */
 public class FrontendLogTransceiver extends HttpServlet {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   private static final long serialVersionUID = 1L;
   private FrontendLogRecordPublisher proc = new FrontendLogRecordPublisher();
 
@@ -76,7 +76,7 @@ public class FrontendLogTransceiver extends HttpServlet {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Writer sw = new OutputStreamWriter(bos,  Charset.forName("UTF-8"));// set fix UTF, thus otherwise could not work with XML doc as parameter
       sw.write("<?xml version=\"1.0\"?>"); sw.write(req.getParameter("data"));sw.flush();
-      log.error(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
+      virtLoggerError.info(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
 
       SecureXmlFactory.newSaxParserFactory().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
         private String level;

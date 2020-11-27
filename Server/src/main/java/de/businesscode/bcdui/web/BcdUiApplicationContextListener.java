@@ -32,12 +32,12 @@ import de.businesscode.bcdui.toolbox.AWorkerQueue;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.vfs.provider.database.VFSManagerFactory;
-import de.businesscode.bcdui.web.accessLogging.BuiAccessLogAppender;
-import de.businesscode.bcdui.web.accessLogging.BuiLoginLogAppender;
-import de.businesscode.bcdui.web.accessLogging.BuiPageLogAppender;
-import de.businesscode.bcdui.web.accessLogging.BuiSessionLogAppender;
-import de.businesscode.bcdui.web.accessLogging.BuiSqlLogAppender;
-import de.businesscode.bcdui.web.errorLogging.BuiErrorLogAppender;
+import de.businesscode.bcdui.web.accessLogging.AccessLogAppender;
+import de.businesscode.bcdui.web.accessLogging.LoginLogAppender;
+import de.businesscode.bcdui.web.accessLogging.PageLogAppender;
+import de.businesscode.bcdui.web.accessLogging.SessionLogAppender;
+import de.businesscode.bcdui.web.accessLogging.SqlLogAppender;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogAppender;
 import de.businesscode.bcdui.web.i18n.I18n;
 import de.businesscode.util.SingletonHolder;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -108,87 +108,59 @@ public class BcdUiApplicationContextListener implements ServletContextListener
     } catch (BindingException e) {
       log.error(e.getMessage(), e);
     }finally{
-
+      // In the following "virtloggers" are used to decouple the logging of
+      // frontend events into the database from the class loggers.
+      
       // add frontend error logging when bcd_log_error binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_error")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.clientLogging.FrontendLogTransceiver"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
-            logger.setLevel(Level.ERROR);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.CsvServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
-            logger.setLevel(Level.ERROR);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.SylkServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
-            logger.setLevel(Level.ERROR);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.WrsServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.ERROR))
-            logger.setLevel(Level.ERROR);
-          Logger.getRootLogger().addAppender(new BuiErrorLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new ErrorLogAppender());
         }
       } catch (Exception e) {}
 
       // add access logging when bcd_log_access binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_access")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
-            logger.setLevel(Level.DEBUG);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.CsvServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.SylkServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.WrsServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.wrs.export.Wrs2Excel"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          Logger.getRootLogger().addAppender(new BuiAccessLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new AccessLogAppender());
         }
       } catch (Exception e) {}
 
       // add page logging when bcd_log_page binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_page")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          logger        = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.wrs.ExcelExportServlet"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          Logger.getRootLogger().addAppender(new BuiPageLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new PageLogAppender());
         }
       } catch (Exception e) {}
 
       // add session logging when bcd_log_session binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_session")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
-            logger.setLevel(Level.DEBUG);
-          Logger.getRootLogger().addAppender(new BuiSessionLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new SessionLogAppender());
         }
       } catch (Exception e) {}
 
       // add login logging when bcd_log_login binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_login")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.bcdui.web.filters.RequestLifeCycleFilter"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
-            logger.setLevel(Level.DEBUG);
-          Logger.getRootLogger().addAppender(new BuiLoginLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new LoginLogAppender());
         }
       } catch (Exception e) {}
       // set sql logging when bcd_log_sql binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_sql")) {
-          Logger logger = Logger.getLogger(Class.forName("de.businesscode.util.jdbc.wrapper.BcdStatementWrapper"));
-          if (logger.getEffectiveLevel() == null || logger.getEffectiveLevel().isGreaterOrEqual(Level.TRACE))
-            logger.setLevel(Level.TRACE);
-          Logger.getRootLogger().addAppender(new BuiSqlLogAppender());
+          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.sql");
+          logger.setLevel(Level.INFO);
+          logger.addAppender(new SqlLogAppender());
         }
       } catch (Exception e) {}
 
