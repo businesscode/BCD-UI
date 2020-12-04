@@ -258,11 +258,7 @@ public class DataLoader {
           log.trace("SQL executed.");
         }
         catch (SQLException e) { // Wrap the SQLException - add SQL to the exception message
-          if (getOptions().isDebugMode()){
-            throw new Exception("Couldn't execute statement:\n" + sql, e);
-          }else{
-            throw new Exception("Couldn't execute statement", e);
-          }
+          throw new Exception("Couldn't execute statement:\n" + sql, e);
         }
         setExecuteDuration(System.currentTimeMillis() - timeBefore);
         //

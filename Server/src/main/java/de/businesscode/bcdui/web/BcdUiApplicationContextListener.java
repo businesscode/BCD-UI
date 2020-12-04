@@ -116,6 +116,16 @@ public class BcdUiApplicationContextListener implements ServletContextListener
         if (Bindings.getInstance().hasBindingSet("bcd_log_error")) {
           Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
           logger.setLevel(Level.INFO);
+          
+          // setAdditivity(false) ensures that the logged messages are not
+          // propagated to the ancestors of the logger.
+          // The goal here is that the messages are not passed to the appenders
+          // of the root logger. Otherwise errors would occur twice in the 
+          // appenders of the root logger, because the error logging is already
+          // done by the class loggers. Nevertheless the error virtlogger is 
+          // necessary, because it ensures that errors are logged by the 
+          // ErrorLogAppender into the database.
+          logger.setAdditivity(false);
           logger.addAppender(new ErrorLogAppender());
         }
       } catch (Exception e) {}
