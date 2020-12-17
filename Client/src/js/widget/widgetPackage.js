@@ -2589,7 +2589,8 @@ bcdui.util.namespace("bcdui.widget",
      * @param {Object}        args                 The parameter map contains the following properties.
      * @param {string|object} args.renderer        Id of the registered renderer to work on or the render itself
      * @param {boolean}       [args.isSync=false]  Decide whether the action is to be called synchronous or not
-     * @param {boolean}       [args.alwaysShowHeader=true] If filtering leads to no rows to be displayed, this flag will show the table header to allow removal of filters 
+     * @param {boolean}       [args.alwaysShowHeader=true] If filtering leads to no rows to be displayed, this flag will show the table header to allow removal of filters
+     * @param {function}      [args.getFilteredValues] Function (colIdx) which needs to return a wrs:C array which holds the valid values for the current column. Use this to e.g. only show prefiltered values 
     */
     createFilterTableHeader: function(args) {
       var action = function( renderer ) {
@@ -2653,7 +2654,7 @@ bcdui.util.namespace("bcdui.widget",
         bcdui.widget.createTableHeadFilter({
             tableElement: jQuery(tableHead).closest("table").get(0)
           , inputModel: inputModel
-          , getFilteredValues: function(colIdx){return jQuery.makeArray(filteredModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+colIdx+"']"));}
+          , getFilteredValues: args.getFilteredValues || function(colIdx){return jQuery.makeArray(filteredModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+colIdx+"']"));}
           , statusModel: statusModel
           , targetModelXPath: targetModelXPath
           , callback: function() { renderer.execute(true); } // on filter change, we rerender (replaced execute will refresh the renderer inputModel (filterRows)
