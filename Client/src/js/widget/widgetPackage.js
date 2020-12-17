@@ -2284,7 +2284,7 @@ bcdui.util.namespace("bcdui.widget",
               caption = refNode.text;
           }
           if (getCaptionForColumnValue) {
-            caption = getCaptionForColumnValue(index, value);
+            caption = getCaptionForColumnValue(index, value, e.selectSingleNode("..").getAttribute("id"));
           }
           var rt = value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
           rt =  value == "" && isTotal ? ("\uE0F1" + bcdui.core.magicChar.separator + "\uE0F1" + bcdui.core.magicChar.separator + isFiltered) : rt;
