@@ -209,7 +209,7 @@ bcdui.util.namespace("bcdui.widget.tab",
       
       var activeTab = bcdui.wkModels.guiStatus.read("/*/guiStatus:"+settingsNode+"/Selected/Tab[@id = '" + tabId+"']/Active", "");
       // an existing client settings entry does not necessarily mean the object exists already
-      if (jQuery("#" + activeTab).length == 0)
+      if (activeTab == "" || jQuery("#" + activeTab).length == 0)
         return;
 
       // set/remove active css class
