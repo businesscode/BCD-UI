@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -255,6 +256,22 @@ public class WrqFilter2Sql
       return operator+"(" + colExpr + ",? ) > 0 ";
     }
 
+    // Spatial operators. parameter is expected as WKT.
+    // Implementation differences are handled by DatabaseCompatibility
+    else if ("SpatContains".equals(operator) || "SpatContained".equals(operator) || "SpatIntersects".equals(operator)) {
+      final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(wrqInfo.getResultingBindingSet());
+      StringBuffer param = new StringBuffer().append(fctMapping.get("GeoFromWkt")[0]).append(" ? ").append(fctMapping.get("GeoFromWkt")[2]);
+      StringBuffer sql = new StringBuffer();
+      sql.append(fctMapping.get(operator)[0])
+          // Contains means, bRef value contains param, Contained means, bRef is contained in param value
+         .append("SpatContained".equals(operator) ? param : colExpr  )
+         .append(fctMapping.get(operator)[1])
+         .append("SpatContained".equals(operator) ? colExpr : param )
+         .append(fctMapping.get(operator)[2]);
+      boundVariables.add(valueElement);
+      return sql.toString();
+    }
+
     // Add the element containing the comparison value for usage after the prepare and return the sql text fragment
     boundVariables.add(valueElement);
     return colExpr + " " + operator + CustomJdbcTypeSupport.wrapTypeCast(bindingItem, " ?") + colExprPostfix;
@@ -276,6 +293,9 @@ public class WrqFilter2Sql
     operatorMapping.put("in", "IN");
     operatorMapping.put("notin", "NOT IN");
     operatorMapping.put("bitand", "BITAND");
+    operatorMapping.put("spatcontains", "SpatContains");
+    operatorMapping.put("spatcontained", "SpatContained");
+    operatorMapping.put("spatintersects", "SpatIntersects");
     connectiveMapping = new HashMap<String, String>();
     connectiveMapping.put("and", "AND");
     connectiveMapping.put("or", "OR");

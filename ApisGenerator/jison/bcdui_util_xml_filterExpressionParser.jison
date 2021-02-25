@@ -24,7 +24,7 @@
 %%
 
 \s+                   /* skip whitespace */
-("!="|"<>"|">="|"<="|"<"|">"|"="|\blike\b|\bnotLike\b|\bnotIn\b|\bin\b|\bbitand\b)	return 'OP'
+("!="|"<>"|">="|"<="|"<"|">"|"="|\blike\b|\bnotLike\b|\bnotIn\b|\bin\b|\bbitand\bgeoContains\bgeoContained\bgeoIntersect\b)	return 'OP'
 "not"                 return 'NOT'
 "and"                 return 'AND'
 "or"                  return 'OR'
