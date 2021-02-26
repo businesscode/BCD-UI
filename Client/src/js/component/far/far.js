@@ -15,7 +15,7 @@
 */
 "use strict";
 bcdui.util.namespace("bcdui.component.far",{});
-bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
+bcdui.component.far.Far = class
 /** @lends bcdui.component.far.Far.prototype */
 {
   /**
@@ -23,12 +23,12 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
    *
    * @public
    */
-  events : {
+  events = {
     /**
      * is fired on the element containing far grid everytime the FAR renderer has finished rendering
      */
     rendered : "bcdui.component.far.rendered"
-  },
+  }
   /**
    * @classdesc
    * A FAR component
@@ -41,7 +41,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
-  initialize : function(args){
+  constructor(args){
     const self = this;
     // enhance arguments
     this.options = jQuery.extend(true,{},args);
@@ -86,16 +86,16 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
 
     // create far renderer
     this._initRenderer();
-  },
+  }
 
   /**
    * runs a excel export on currently rendered grid
    * 
    * @private
    */
-  reportExport : function(){
+  reportExport(){
     bcdui.component.exports.exportWysiwygAsExcel({rootElement: this.gridRenderingTarget});
-  },
+  }
 
   /**
    * Prepare layout for UI components, convention for class is : bcd-far- + [component], containers:
@@ -106,16 +106,16 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
    *
    * @private
    */
-  _createLayout : function(){
+  _createLayout(){
     var tpl = doT.compile("<div class='bcd-far-configurator'></div><div class='bcd-far-filter'></div><div class='bcd-far-paginate'></div><div class='bcd-far-grid'></div>");
     this.options.targetHtml.html(tpl);
-  },
+  }
 
   /**
    * initializes Renderer, assumes that this.farModel is constructed
    * @private
    */
-  _initRenderer : function(){
+  _initRenderer(){
     // paginate control, only if configured
     this.enhancedConfig.onceReady(function(){
       if(!this.enhancedConfig.getData().selectSingleNode("/*/far:Layout//far:Paginate")){
@@ -157,13 +157,13 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
 
     // trigger rendering everytime UI pagination updates $config/xp:Paginate
     this.enhancedConfig.onChange(gridRendering.execute.bind(gridRendering), "/*/xp:Paginate");
-  },
+  }
 
   /**
    * Initilizes component from enhanced configuration, this.enhancedConfig is considered ready at this point
    * @private
    */
-  _configLoaded : function(){
+  _configLoaded(){
     // check if to render the configurator
     var configuratorElement = this.enhancedConfig.getData().selectSingleNode("/*/far:Configurator");
     if(configuratorElement){
@@ -331,7 +331,7 @@ bcdui.component.far.Far = bcdui._migPjs._classCreate(null,
       bcdui.wkModels.guiStatus.onChange(syncReportAndFilter.bind(this, true), "/*/far:Far[@id='"+this.options.componentId+"']");  // remove missing from filter
     }
   }
-});
+};
 
 /**
  * enhancement DSL adapter utility : far-config to enhanced configuration
