@@ -48,7 +48,7 @@ bcdui.util.namespace("bcdui.component",
   }
 });
 
-bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Renderer,
+bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
 /** @lends bcdui.component.scorecard.Scorecard.prototype */
 {
   /**
@@ -75,7 +75,7 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
    * @param {Object}                  [args.parameters]                       - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    * @param {(boolean|string)}        [args.contextMenu=false]                - If true, scorecard's default context menu is used, otherwise provide the url to your context menu xslt here.
    */
-  initialize: function(args) 
+  constructor(args) 
   {
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.scorecard.Scorecard" ): "") != "";
 
@@ -253,23 +253,23 @@ bcdui.component.scorecard.Scorecard = bcdui._migPjs._classCreate( bcdui.core.Ren
     // Now we finished our constructor, we can check whether we need to register ourselves
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
 
   /**
    * @returns {bcdui.core.DataProvider} configuration model of the scorecard
    */
-  getConfigModel: function() {
+  getConfigModel() {
     return this.metaDataModel;
-  },
+  }
   /**
    * Only for backward compatibility. If needed in future, should be part of Renderer
    * @private
    * @returns {targetHtmlref} Target element in HTML of the scorecard
    */
-  getTargetHTMLElement: function() { 
+  getTargetHTMLElement() { 
     return jQuery("#"+this.targetHtml).get(0);
   }
-});
+};
 
   /**
    * Period filterTranslation handling
