@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
+bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 /**  @lends bcdui.core.AutoModel.prototype */
 {
   /**
@@ -58,7 +58,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
    * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement:bcdui.util.xml.parseFilterExpression("country='DE'") });
    */
-  initialize: function(args)
+  constructor(args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AutoModel" ): "") != "";
 
@@ -147,7 +147,7 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
          jQuery.extend( simpleModelArgs, {id: args.id} );  // if we have a given Id, use it 
 
        // create the desired model and inject the model wrapper as request document
-       bcdui.core.SimpleModel.call(this, simpleModelArgs);
+       super.call(this, simpleModelArgs);
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
@@ -191,4 +191,4 @@ bcdui.core.AutoModel = bcdui._migPjs._classCreate(bcdui.core.SimpleModel,
 
        return this;
     }
-});
+};

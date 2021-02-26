@@ -972,7 +972,7 @@ bcdui.util.namespace("bcdui.factory",
 }); // namespace  bcdui.factory
 
 
-bcdui.factory.SymLink = bcdui._migPjs._classCreate( null,
+bcdui.factory.SymLink = class
 /**
  * @lends bcdui.factory.SymLink.prototype
  */
@@ -988,7 +988,7 @@ bcdui.factory.SymLink = bcdui._migPjs._classCreate( null,
    * used with $getObject to get the actual object as soon as it exists.
    * @private
    */
-  initialize: function(obj)
+  constructor(obj)
     {
       this.refId = ""; // For Eclipse (3.6), because @type is not supported and the auto-detection is wrong
       if (bcdui.util.isString(obj)) {
@@ -999,13 +999,13 @@ bcdui.factory.SymLink = bcdui._migPjs._classCreate( null,
         this.refId = obj.refId || obj.id;
         this.symbolicLink = true;
       }
-    },
+    }
 
   /**
    * @return {String} A string representation of the symbolic link.
    */
-   toString: function()
+   toString()
     {
       return "[ref: " + this.refId + "]";
     }
-});
+};

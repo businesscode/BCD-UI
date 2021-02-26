@@ -21,7 +21,7 @@
  * or make an alias for a model.
  */
 
-bcdui.core.PromptDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.PromptDataProvider.prototype
  */
@@ -35,48 +35,48 @@ bcdui.core.PromptDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {string=} args.name - Title provided to the user when the input box pops up.
    * @param {id=}     args.id   - Globally unique id for use in declarative contexts
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.PromptDataProvider" ): "") != "";
 
-      bcdui.core.DataProvider.call( this, args);
+      super.call( this, args);
       this.value = "";
       this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
 
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
   /**
    * Shows a pop-up input box where the user can enter a value. This value
    * is then returned by "getData".
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       this.value = prompt(this.name, "")
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.initializedStatus;
       this.setStatus(newStatus);
-    },
+    }
   /**
    * @return {NullStatus} The null status because since the value is provided in
    * the constructor and is therefore always ready.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.initializedStatus;
-    },
+    }
   /**
    * @return {string} The text the user has entered in the input dialog.
    */
-  getData: function()
+  getData()
     {
       return this.value;
     }
-});
+};
 
 
-bcdui.core.ConstantDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.ConstantDataProvider.prototype
  */
@@ -92,7 +92,7 @@ bcdui.core.ConstantDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
    * @param {string=} args.name  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
    * @param {(string|number|boolean|object)} args.value - The data
    */
-  initialize: function(/* object */ args)
+  initialize(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ConstantDataProvider" ): "") != "";
 
@@ -112,42 +112,41 @@ bcdui.core.ConstantDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
       
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
   /**
    * This class is not calculating or loading its value in any sense so this
    * method is doing nothing.
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
-    },
+    }
   /**
    * @return {bcdui.core.NullStatus} The null status because since the value is provided in
    * the constructor and is therefore always ready.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.nullStatus;
-    },
+    }
   /**
    * Getter for the value passed to the constructor.
    * @return {*} The data provided in the constructor of this instance.
    */
-  getData: function()
+  getData()
     {
       return this.value;
-    },
+    }
   /**
    * @return {String} A summary of this class showing the key and value.
    */
-  toString: function()
+  toString()
     {
       return "[bcdui.core.ConstantDataProvider: " + this.id + ", name=" + this.name + ", value=" + this.value + " ]";
     }
-}); // Create class: bcdui.core.ConstantDataProvider
+}; // Create class: bcdui.core.ConstantDataProvider
 
-
-bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.DataProviderHolder.prototype
  */
@@ -166,12 +165,12 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {bcdui.core.DataProvider} [args.source] - The data provider to be wrapped, unless set later via {@link bcdui.core.DataProviderHolder#setSource}
    * @param {string}                  [id]          - id
    */
-  initialize: function(/* object */ args)
+  initialize(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderHolder" ): "") != "";
 
       args = args || {};
-      bcdui.core.DataProvider.call( this, args);
+      super.call( this, args);
       /**
        * The status the provider is in before it has loaded its data.
        * @type Status
@@ -191,38 +190,38 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
 
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
   /**
    * @private
    */
-  _isSourceReadyStatus: function(/* Status */ status)
+  _isSourceReadyStatus(/* Status */ status)
     {
       return status.equals(this.source.getReadyStatus());
-    },
+    }
   /**
    * @private
    */
-  _isSourceReady: function()
+  _isSourceReady()
     {
       return this._isSourceReadyStatus(this.source.getStatus());
-    },
+    }
   /**
    * Helper allowing us to register ourselves as a listener. Cannot be prefixed by _ because onChange requires this method name
    * A callback method forwarding the source data provider's modification
    * events to the listeners of this object.
    * @private
    */
-  callback: function(evtSrc, causedByReadyStatus)
+  callback(evtSrc, causedByReadyStatus)
     {
       if (!causedByReadyStatus)
         bcdui.core.DataProvider.prototype.fire.call(this);
-    },
+    }
 
-  fire: function()
+  fire()
     {
       if (this.source)
         this.source.fire();
-    },
+    }
     
   /**
    * Reads value from a given xPath (or optionally return default value)
@@ -231,7 +230,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {string} [defaultValue] - default value in case xPath value does not exist
    * @return text value stored at xPath (or null if nothing found and no defaultValue supplied or when source isn't set yet)
    */
-  read: function(xPath, fillParams, defaultValue)
+  read(xPath, fillParams, defaultValue)
     {
       if (this.source)
         return this.source.read(xPath, fillParams, defaultValue);
@@ -239,7 +238,7 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
         var def = (typeof fillParams == "string") ? fillParams : defaultValue;
         return (defaultValue === undefined ? null : def);
       }
-    },
+    }
     
   /**
    * Set a value to on a certain xPath and create the xPath where necessary. 
@@ -258,13 +257,13 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return The xPath's node (can be null if source isn't set yet or dataProvider isn't ready)
    */
-  write: function(xPath, fillParams, value, fire)
+  write(xPath, fillParams, value, fire)
     {
       if (this.source)
         return this.source.write(xPath, fillParams, value, fire);
       else
         return null;
-    },
+    }
 
   /**
    * removes given xPath
@@ -272,43 +271,43 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
    */
-  remove: function(xPath, fillParams, fire)
+  remove(xPath, fillParams, fire)
     {
       if (this.source)
         this.source.remove(xPath, fillParams, fire);
-    },
+    }
 
   /**
    * Reads a single node from a given xPath
    * @param {string} xPath - xPath to query 
    * @return single node or null if query fails or source isn't set yet
    */
-  query: function(xPath)
+  query(xPath)
     {
       if (this.source)
         return this.source.query(xPath);
       else
         return null;
-    },
+    }
 
   /**
    * Get node list from a given xPath
    * @param {string} xPath - xPath to query 
    * @return node list or empty list if query fails or source isn't set yet
    */
-  queryNodes: function(xPath)
+  queryNodes(xPath)
     {
       if (this.source)
         return this.source.queryNodes(xPath);
       else
         return [];
-    },
+    }
 
   /**
    * Executes the source DataProvider if it is not ready yet.
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       if( !this.source ) {
         this.pendingExecute = true;
@@ -320,34 +319,34 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
       } else {
         this.source.execute(false);
       }
-    },
+    }
   /**
    * @return {bcdui.core.Status} Returns the final state indicating the the value is available.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.loadedStatus;
-    },
+    }
   /**
    * @inheritdoc
    */
-  getData: function()
+  getData()
     {
     // in case of a not yet set source we simulate a not-ready source by returning null. Use case: add listener on holder, set source later.
     return this.source ? this.source.getData() : null;
-    },
+    }
   /**
    * @return {string} Human readable summary of this class.
    */
-  toString: function()
+  toString()
     {
       return "[bcdui.core.DataProviderHolder: " + this.id + ", name = "+ this.name + " for " + this.source.id + " ]";
-    },
+    }
   /**
    * Set the underlying source delayed instead of via the constructor.
    * The DataProviderHolder does only become ready after the source was set and is or becomes ready.
    */
-  setSource: function( newSource )
+  setSource( newSource )
   {
     this.setStatus(this.initializedStatus);
 
@@ -393,11 +392,11 @@ bcdui.core.DataProviderHolder = bcdui._migPjs._classCreate(bcdui.core.DataProvid
     if( this.pendingExecute )
       this.source.execute(false);
   }
-}); // Create class: bcdui.core.DataProviderHolder
+}; // Create class: bcdui.core.DataProviderHolder
 
 
 
-bcdui.core.DataProviderAlias = bcdui._migPjs._classCreate(bcdui.core.DataProviderHolder,
+bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
 /**
  * @lends bcdui.core.DataProviderAlias.prototype
  */
@@ -416,22 +415,22 @@ bcdui.core.DataProviderAlias = bcdui._migPjs._classCreate(bcdui.core.DataProvide
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped
    * @param {string}                  args.name - The new name of the data provider
    */
-  initialize: function(/* object */ args)
+  initialize(/* object */ args)
   {
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderAlias" ): "") != "";
     
     if (typeof args.name == "undefined") {
       throw Error("Must specify a \"name\" property in the parameter map.");
     }
-    bcdui.core.DataProviderHolder.call(this, args );
+    super.call(this, args );
 
     if (isLeaf)
       this._checkAutoRegister();
   }
-});
+};
 
 
-bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataProviderHolder,
+bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
 /**
  * @lends bcdui.core.DataProviderWithXPath.prototype
  */
@@ -439,7 +438,7 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
   /**
    * @private
    */
-  _nullValue : null,
+  static _nullValue= null
   /**
    * @classdesc
    * Reading a single data item from an XPath on getData() as string.
@@ -451,7 +450,7 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
    * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
    * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  initialize: function(/* object */ args)
+  initialize(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderWithXPath" ): "") != "";
 
@@ -467,15 +466,15 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
       this._xPath = args.xPath;
       if (typeof args.nullValue != undefined)
         this._nullValue = args.nullValue;
-      bcdui.core.DataProviderHolder.call( this, args);
+      super.call( this, args);
 
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
   /**
    * @private
    */
-  _getDataElement: function()
+  _getDataElement()
     {
       if (this.source == null) return null;
       var data = this.source.getData();
@@ -487,11 +486,11 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
         return data.item(0);
       }
       return null;
-    },
+    }
   /**
    * @inheritdoc
    */
-  getData: function()
+  getData()
     {
       var dataElement = this._getDataElement();
       if (dataElement == null) return this._nullValue;
@@ -501,18 +500,18 @@ bcdui.core.DataProviderWithXPath = bcdui._migPjs._classCreate(bcdui.core.DataPro
       if (result.nodeType == 2) return result.value;
       // else returning full node
       return result;
-    },
+    }
   /**
    * @return {string}
    */
-  getXPath: function()
+  getXPath()
     {
       return this._xPath;
     }
-});
+};
 
 
-bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.DataProviderHolder,
+bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
     /**
      * @lends bcdui.core.DataProviderWithXPathNodes.prototype
      */
@@ -530,7 +529,7 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
        * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
        * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
        */
-      initialize: function(/* object */ args)
+      initialize(/* object */ args)
         {
           var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderWithXPathNodes" ): "") != "";
 
@@ -544,16 +543,16 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
           args.xPath = modelParams.xPath;
 
           this._xPath = args.xPath;
-          bcdui.core.DataProviderHolder.call( this, args);
+          super.call( this, args);
 
           if (isLeaf)
             this._checkAutoRegister();
-        },
+        }
       /**
        * returns the root-element of the document
        * @private
        */
-      _getDataElement: function()
+      _getDataElement()
         {
           if (this.source == null) return null;
           var data = this.source.getData();
@@ -565,12 +564,12 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
             return data.item(0);
           }
           return null;
-        },
+        }
       /**
        * The xpath is applied to dataElement with selectSingleNode, selectNodes doesnt work in firefox 
        * @inheritdoc
        */
-      getData: function()
+      getData()
         {
           var dataElement = this._getDataElement();
           var nodes = null;
@@ -589,17 +588,17 @@ bcdui.core.DataProviderWithXPathNodes = bcdui._migPjs._classCreate(bcdui.core.Da
             })
           }
           return newDoc;
-        },
+        }
       /**
        * @return {string}
        */
-      getXPath: function()
+      getXPath()
         {
           return this._xPath;
         }
-    });
+    };
 
-bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProviderHolder,
+bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
 /**
  * @lends bcdui.core.OptionsDataProvider.prototype
  */
@@ -619,7 +618,7 @@ bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * @param {xPath}                   [args.optionsModelRelativeValueXPath] - optional xPath relative to args.optionsModelXPath
    * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  initialize: function(/* object */ args){
+  initialize(/* object */ args){
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.OptionsDataProvider" ): "") != "";
 
     if (!args.optionsModelXPath) {
@@ -630,16 +629,16 @@ bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
     });
     this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);
-    bcdui.core.DataProviderHolder.call( this, args);
+    super.call( this, args);
     
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
   /**
    * returns the root-element of the document
    * @private
    */
-  _getDataElement: function(){
+  _getDataElement(){
     if (this.args.source == null) return null;
     var data = this.args.source.getData();
     if (data == null) return null;
@@ -650,11 +649,11 @@ bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       return data.item(0);
     }
     return null;
-  },
+  }
   /**
    * @inheritdoc
    */
-  getData: function(){
+  getData(){
     var dataElement = this._getDataElement();
     var nodes = null;
     if (dataElement != null) {
@@ -674,9 +673,9 @@ bcdui.core.OptionsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
     }
     return newDoc;
   }
-});
+};
 
-bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.RequestDocumentDataProvider.prototype
  */
@@ -723,7 +722,7 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
    * myRequestModel.fire();
    * // It will auto-reload and once geoModel.isReady() === true, it will hold region data for 'FR'
    */
-  initialize:function(args){
+  constructor(args){
 
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.RequestDocumentDataProvider" ): "") != "";
     
@@ -732,7 +731,7 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
     this.method = (args.method != "GET" && args.method != "POST") ? "GET" : args.method;
 
     args["name"] = args.name || args.id;
-    bcdui.core.DataProvider.call( this, args);
+    super.call( this, args);
     this.isAutoRefresh = args.isAutoRefresh;
     this.value = "";
     this.url = null;
@@ -781,23 +780,23 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
     
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
   /**
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(/* StatusEvent */ statusEvent)
   {
 
     if (statusEvent.getStatus().equals(this.transformingStatus)) {
       this._retrieveCompressedValue();
     }
-  },
+  }
 
   /**
    * Here we rely that the requestModel is ready, we get its value, compress it and mark ourself as ready
    * @private
    */
-  _retrieveCompressedValue: function()
+  _retrieveCompressedValue()
   {
     bcdui.core.compression.compressDOMDocument(this.requestModel.getData(), function(compressedString)
     {
@@ -821,12 +820,12 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
       this.setStatus(newStatus);
     }.bind(this));
-  },
+  }
 
   /**
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
   {
     if(this.requestModel.isClear())
       this.setStatus(this.transformingStatus);
@@ -834,54 +833,54 @@ bcdui.core.RequestDocumentDataProvider = bcdui._migPjs._classCreate(bcdui.core.D
       this.setStatus(this.waitingForParameterStatus);
       this.requestModel.execute(false);
     }
-  },
+  }
   /**
    * @inheritdoc
    */
-  getData: function()
+  getData()
   {
     return this.value;
-  },
+  }
   /**
    * @inheritdoc
    */
-  getReadyStatus: function()
+  getReadyStatus()
   {
     return this.transformedStatus;
-  },
+  }
   /**
    * @inheritdoc
    */
-  getStatus: function()
+  getStatus()
   {
     // Quick check: Can be that our input model became invalid and we have not heard about it yet in the listener -> dirty-flag ourselves and refresh
     if(this.requestModel && !this.requestModel.isReady() )
       this.markAsDirty();
     return this.status;
-  },
+  }
   /**
    * @inheritdoc
    */
-  isReady: function() {
+  isReady() {
     return this.getStatus().equals(this.transformedStatus);
-  },
-  setIsAutoRefresh: function(isAutoRefresh) {
+  }
+  setIsAutoRefresh(isAutoRefresh) {
     this.isAutoRefresh = isAutoRefresh;
-  },
+  }
   // Our input model changed.
   // We will either just become initialized and wait until we are executed again
   // Or we are autoRefresh or anyway "actively" waiting for the model to become ready again, then we go to (or continue to be) waitingForParameter
-  markAsDirty: function()
+  markAsDirty()
   {
     if( this.isAutoRefresh )
       this.setStatus(this.waitingForParameterStatus);
     else if( !this.status.equals(this.waitingForParameterStatus) )
       this.setStatus(this.initializedStatus);
   }
-});// end RequestDocumentDataProvider
+};// end RequestDocumentDataProvider
 
 
-bcdui.core.DataProviderHtmlAttribute = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
 /**
  * Retrieves its value from an HTML element attribute
  * @lends bcdui.core.DataProviderHtmlAttribute.prototype
@@ -903,38 +902,38 @@ bcdui.core.DataProviderHtmlAttribute = bcdui._migPjs._classCreate(bcdui.core.Dat
    *   console.log(dp.getData());
    * &lt;/script>
    */
-  initialize: function(/* object */ args)
+  initialize(/* object */ args)
   {
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderHtmlAttribute" ): "") != "";
 
-    bcdui.core.DataProvider.call( this, args);
+    super.call( this, args);
     this.htmlElementId = args.htmlElementId;
     this.attributeName = args.attributeName;
 
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
   /**
    * @inheritsdoc
    */
-  getData: function()
+  getData()
   {
     var element = document.getElementById(this.htmlElementId);
     if( !element )
       return null;
     return element.getAttribute(this.attributeName);
-  },
+  }
   /**
    * @inheritsdoc
    */
-  getReadyStatus: function()
+  getReadyStatus()
   {
     return this.nullStatus;
   }
-});
+};
 
 
-bcdui.core.StringDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
 /** @lends bcdui.core.StringDataProvider.prototype */
 {
   /**
@@ -948,10 +947,10 @@ bcdui.core.StringDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {id}     [args.id]   - Globally unique id for use in declarative contexts
    * @param {string} [args.name] - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
-  initialize: function(args){
+  constructor(args){
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.StringDataProvider" ): "") != "";
 
-    bcdui.core.DataProvider.call( this, args);
+    super.call( this, args);
 
     /*
      * Verification of the "value" parameter.
@@ -984,23 +983,23 @@ bcdui.core.StringDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvid
 
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
   /**
    * @inheritdoc
    */
-  getReadyStatus: function(){
+  getReadyStatus(){
     return this.transformedStatus;
-  },
+  }
   /**
    * @private
    */
-  _executeImpl: function(){
+  _executeImpl(){
     // nothing to be done
-  },
+  }
   /**
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent){
+  _statusTransitionHandler(/* StatusEvent */ statusEvent){
     if (statusEvent.getStatus().equals(this.initializedStatus)) {
       /*
        * The StringDataProvider has only one simple transition, which is performed
@@ -1009,35 +1008,35 @@ bcdui.core.StringDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvid
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();  
       this.setStatus(newStatus);
     }
-  },
+  }
   /**
    * @inheritdoc
    */
-  getData: function(){
+  getData(){
     return this.value;
-  },
+  }
   /**
    * Assign a new value
    * @param {string} value - The new value
    */
-  setData: function(value){
+  setData(value){
     if ( this.value != value){
       this.value = value;
       this.setStatus(this.initializedStatus);
     }
-  },
+  }
   /**
    * Debugging function showing a text for this model.
    * @return {string} A summary of the model.
    */
-  toString: function(){
+  toString(){
     return "[bcdui.core.StringDataProvider: " + this.id + "]";
   }
 
-});
+};
 
 
-bcdui.core.JsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.JsDataProvider.prototype
  */
@@ -1054,11 +1053,11 @@ bcdui.core.JsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
    * @param {id}       [args.id]                     - Globally unique id for use in declarative contexts
    * @param {string}   [args.name]                   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.JsDataProvider" ): "") != "";
 
-      bcdui.core.DataProvider.call( this, args);
+      super.call( this, args);
       this.callback = args.callback;
       this.doAllwaysRefresh = typeof args.doAllwaysRefresh == "undefined" ? false : true;
       this.value = "";
@@ -1071,38 +1070,38 @@ bcdui.core.JsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
 
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
   /**
    * Calls the provided function
    * is then returned by "getData".
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       this.value = this.callback();
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
       this.setStatus(newStatus);
-    },
+    }
   /**
    * @inheritdoc
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.transformedStatus;
-    },
+    }
   /**
    * @return {string} The text returned by the callback function
    */
-  getData: function()
+  getData()
     {
       if( this.doAllwaysRefresh )
         this.value = this.callback();
       return this.value;
     }
-});
+};
 
 
-bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
   /**
    * @lends bcdui.core.AsyncJsDataProvider.prototype
    */
@@ -1120,11 +1119,11 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
      * @param {id}       [args.id]     - A globally unique id for use in declarative contexts
      * @param {string}   [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
      */
-    initialize: function(/* object */ args)
+    initialize(/* object */ args)
       {
         var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AsyncJsDataProvider" ): "") != "";
 
-        bcdui.core.DataProvider.call( this, args);
+        super.call( this, args);
         this.callback = args.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
@@ -1138,14 +1137,14 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
 
         if (isLeaf)
           this._checkAutoRegister();
-      },
+      }
     /**
      * Calls the provided function which in turn set to .setData()
      *
      * @private
      * @member bcdui.core.AsyncJsDataProvider
      */
-    _executeImpl: function()
+    _executeImpl()
       {
         // we are still transforming, dont trigger callback
         if(this.getStatus() === this.transformingStatus){
@@ -1157,12 +1156,12 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         }catch(e){
           bcdui.log.warn("error occurred while executing JS callback", e);
         }
-      },
+      }
     /**
      * To be called by the callback once data is available. Sets data and transits this dataproviders state to .getReadyStatus() and fires data updated event
      * @param {*} data
      */
-    setData: function(data)
+    setData(data)
     {
       // first set data
       this.value = data;
@@ -1170,20 +1169,20 @@ bcdui.core.AsyncJsDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       // now switch state
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
       this.setStatus(newStatus);
-    },
+    }
     /**
      * @inheritdoc
      */
-    getReadyStatus: function(){
+    getReadyStatus(){
       return this.transformedStatus;
-    },
+    }
     /**
      * @inheritdoc
      */
-    getData: function(){
+    getData(){
       if(bcdui.config.isDeubg && !this.isReady()){
         bcdui.log.warn("called .getData() although the model is not is ready state", this);
       }
       return this.value;
     }
-});
+};

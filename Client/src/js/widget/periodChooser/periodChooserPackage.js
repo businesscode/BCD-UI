@@ -2107,18 +2107,19 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLListener: bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+    XMLListener: class extends bcdui.widget.XMLDataUpdateListener
         {
+          constructor(){}
           /**
            * @lends bcdui.widget.periodChooser.XMLListener.prototype
            */        
-          updateValue: function()
+          updateValue()
             {
               var containerHtmlElement = bcdui._migPjs._$(this.htmlElementId).get(0);
               bcdui.widget.periodChooser._updateViewFromXMLData(containerHtmlElement);
               bcdui.widget.periodChooser._validateValue(containerHtmlElement);
             }
-    }),
+    },
 
     /**
      * Get the Date from a combination of yr/qr, yr/mo or cwyr/cw

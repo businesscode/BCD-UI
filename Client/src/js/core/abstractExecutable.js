@@ -19,7 +19,7 @@
  * Container file for the AbstractExecutable class.
  */
 
-bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
+bcdui.core.AbstractExecutable = class
 /**
  * @lends bcdui.core.AbstractExecutable.prototype
  */
@@ -44,7 +44,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @param {string} [args.id] A unique id for declarative contexts
    * @throws Error An Error is thrown if id is not unique, i.e. an object with the same id is already registered.
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractExecutable" ): "") != "";
     
@@ -124,16 +124,16 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
 
     /**
      * Register object in case an id was given at initialization
      * @private
      */
-    _checkAutoRegister: function() {
+    _checkAutoRegister() {
      if (this._doRegister)
        bcdui.factory.objectRegistry.registerObject(this);
-   },
+   }
 
   /**
    * Auxiliary function for the status listener functions. This function extracts
@@ -144,7 +144,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @return Array An array of status objects extracted from the argument map.
    * @private
    */
-  _extractStatusListFromArgs: function(/* object */ args)
+  _extractStatusListFromArgs(/* object */ args)
     {
       if (typeof args == "object") {
         if (args instanceof bcdui.core.Status) {
@@ -163,7 +163,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       } else {
         return [ this.nullStatus ];
       }
-    },
+    }
 
   /**
    * Counter-part of the "_extractStatusListFromArgs" function which is responsible
@@ -175,7 +175,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @throws Error An error is thrown when no status listener can be extracted.
    * @private
    */
-  _extractListenerObjectOrFunctionFromArgs: function(/* object */ args)
+  _extractListenerObjectOrFunctionFromArgs(/* object */ args)
     {
       var listener = args;
       if (typeof args == "object") {
@@ -189,7 +189,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         throw Error("Argument must be of type bcdui.core.StatusListener");
       }
       return listener;
-    },
+    }
 
   /**
    * Removes the specified listener from the listeners map.
@@ -198,13 +198,13 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @param statusCode The status code the listener is assigned to.
    * @private
    */
-  _removeStatusListenerFromCodeMapping: function(/* StatusListener|function */ listener, /* Status */ statusCode)
+  _removeStatusListenerFromCodeMapping(/* StatusListener|function */ listener, /* Status */ statusCode)
     {
       if (typeof this.listeners[statusCode] == "undefined") return;
       this.listeners[statusCode] = this.listeners[statusCode].filter(function(item) {
         return item.listener !== listener;
       });
-    },
+    }
 
   /**
    * Adds a status listener to this object which will be informed in case of status
@@ -217,7 +217,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    *   If it is missing the listener is executed on all status transitions, otherwise it is executed when the status is set to the specified status.
    * @param {boolean} [args.onlyOnce=false] - A boolean variable indicating that the listener should be automatically removed after it has been executed. 
    */
-  addStatusListener: function(/* function|StatusListener|object */ args)
+  addStatusListener(/* function|StatusListener|object */ args)
     {
       var listener = this._extractListenerObjectOrFunctionFromArgs(args);
       this._extractStatusListFromArgs(args).forEach(function(status) {
@@ -226,7 +226,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         }
         this.listeners[status.getCode()].push({ "listener": listener, "status": status, "onlyOnce": args["onlyOnce"] == true } );
       }, this);
-    },
+    }
 
   /**
    * Removes the provided status listener from this instance, added via {@link bcdui.core.AbstractExecutable#addStatusListener addStatusListener()} before.
@@ -236,7 +236,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @param {bcdui.core.Status}                  args.status   - The status this listener is listening to. 
    *   If it is missing the it is assumed that the listener belongs to the global scope.
    */
-  removeStatusListener: function(/* function|StatusListener|object */ args)
+  removeStatusListener(/* function|StatusListener|object */ args)
     {
       var listener = this._extractListenerObjectOrFunctionFromArgs(args);
       this._extractStatusListFromArgs(args).forEach(function(status) {
@@ -248,7 +248,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
           this._removeStatusListenerFromCodeMapping(listener, status.getCode());
         }
       }, this);
-    },
+    }
 
   /**
    * Fires a status event to the responsible listeners.
@@ -257,7 +257,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * a Status object.
    * @private
    */
-  _fireStatusEvent: function(/* Status */ args)
+  _fireStatusEvent(/* Status */ args)
     {
       if (typeof args == "object") {
         var status = null;
@@ -333,7 +333,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       } else {
         throw Error("Argument must be of type bcdui.core.Status");
       }
-    },
+    }
 
   /**
    * Makes a transition from the current status to the new status if they
@@ -343,7 +343,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @param {bcdui.core.Status} args Either a Status object or a parameter map with a property
    * "status" holding a Status object.
    */
-  setStatus: function(/* Status */ args)
+  setStatus(/* Status */ args)
     {
       var oldStatus = this.status;
       var status = this._extractStatusListFromArgs(args)[0];
@@ -367,38 +367,38 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         }
       }
       return {oldStatus: oldStatus, newStatus: status};
-    },
+    }
 
   /**
    * Getter for the status of this object. See {@link bcdui.core.status} for possible return values.
    * @return {bcdui.core.Status} The current status.
    */
-  getStatus: function()
+  getStatus()
     {
       return this.status;
-    },
+    }
 
   /**
    * Tests if the current state is the readyStatus. This status is the same
    * status as returned by "getReadyStatus".
    * @return {boolean} True, if the object is ready.
    */
-  isReady: function()
+  isReady()
     {
       return this.status.equals(this.getReadyStatus());
-    },
+    }
 
   /**
    * Tests if the object has reached a failure status. These status codes are
    * returned by the "getFailedStatus" method.
    * @return {boolean} True, if the object's process has failed.
    */
-  hasFailed: function()
+  hasFailed()
     {
       var failedStati = this.getFailedStatus();
       if (!Array.isArray(failedStati)) failedStati = [ failedStati ];
       return failedStati.some(function(failedStatus) { return this.status.equals(failedStatus); }, this);
-    },
+    }
 
   /**
    * Getter for the ready status of the instance. This status is a final state
@@ -408,10 +408,10 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * to this class is finished.
    * @abstract
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       throw Error("Abstract method: bcdui.core.AbstractExecutable.getReadyStatus");
-    },
+    }
 
   /**
    * Getter for the list of error statuses of this class. This implementation returns an
@@ -420,10 +420,10 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @return {bcdui.core.Status[]} The status objects corresponding to failures in the object's
    * process.
    */
-  getFailedStatus: function()
+  getFailedStatus()
     {
       return [];
-    },
+    }
 
   /**
    * Loops over all status publishers and tests if the isReady function returns
@@ -431,12 +431,12 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @return {boolean} True, if all statusPublishers are ready.
    * @private
    */
-  _areAllReady: function(/* array */ statusPublishers)
+  _areAllReady(/* array */ statusPublishers)
     {
       return statusPublishers.every(function(statusPublisher) {
         return statusPublisher.isReady();
       });
-    },
+    }
 
   /**
    * A utility function potentially asynchronously waiting until all
@@ -448,7 +448,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * are required to be ready before the status change happens.
    * @private
    */
-  _synchronizedStatusTransition: function(/* Status */ newStatus, /* array */ dependentStatusPublishers, /* Function? */ failureCallback)
+  _synchronizedStatusTransition(/* Status */ newStatus, /* array */ dependentStatusPublishers, /* Function? */ failureCallback)
     {
       if (this._areAllReady(dependentStatusPublishers)) { // this also sets ready if there are no dependentStatusPublishers at all
         this.setStatus(newStatus);
@@ -510,16 +510,16 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         if( bcdui.log.isTraceEnabled() && traceWaitingFor || traceExecutedSync )
           bcdui.log.isTraceEnabled() && bcdui.log.trace(this.toString() + (traceWaitingFor ? "; is waiting for "+traceWaitingFor : "") + (traceExecutedSync? "; did execute sync "+traceExecutedSync : "") );
       }
-    },
+    }
 
   /**
    * @abstract
    * @return {string} Debug string with this class and its id.
    */
-  toString: function()
+  toString()
     {
       return "[Abstract Executable: " + this.id + "]";
-    },
+    }
 
   /**
    * Executes the process implemented by the concrete sub-class.
@@ -527,7 +527,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * nothing when the object is already in the ready status. The default is "true"
    * meaning that the process is re-started when it is currently ready.
    */
-  execute: function(/* boolean? */ doesRefresh)
+  execute(/* boolean? */ doesRefresh)
     {
       // The actual process is implemented in the "_executeImpl" method so that the "execute" method should normally not be overridden in sub-classes.
       if (doesRefresh == false && this.getStatus().equals(this.getReadyStatus())) {
@@ -538,7 +538,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
         this.statusTransitionTiming.push(obj);
         this._executeImpl();
       }
-    },
+    }
     
     /**
      * Add callback to AbstractExecutable which is triggered exactly once when ready state is reached
@@ -550,7 +550,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
      * @param {boolean}  [listenerObject.executeIfNotReady=false] - do execute {@link bcdui.core.AbstractExecutable} if it's not ready
      * 
      */
-    onceReady: function(listenerObject)
+    onceReady(listenerObject)
      {
        var onSuccess = function(){};
        if (bcdui.util.isFunction(listenerObject))
@@ -565,7 +565,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
          , onFailure        : listenerObject.onFailure || null
          , onSuccess        : onSuccess
        });
-     },
+     }
     
   /**
    * Add callback for AbstractExecutables, which is triggered when ready state is reached
@@ -579,7 +579,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * @param {boolean}  [listenerObject.executeIfNotReady=false] - do execute {@link bcdui.core.AbstractExecutable} if it's not ready
    * 
    */
-  onReady: function(listenerObject)
+  onReady(listenerObject)
     {
       var executeIfNotReady = false;
       var onlyOnce = false;
@@ -628,7 +628,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       // on request, execute
       if (executeIfNotReady)
         this.execute();
-    },
+    }
 
   /**
    * The implementation of the process represented by the class (e.g. loading a model
@@ -636,10 +636,10 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
    * in sub-classes. Usually it should be asynchronous.
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       throw Error("Abstract method: bcdui.core.AbstractExecutable._executeImpl");
-    },
+    }
 
     /**
      * Prepares this instance for disposal. Particularly, following tasks are done:
@@ -647,7 +647,7 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
      * - all listeners are removed
      * @private
      */
-    destroy: function(){
+    destroy(){
       // de-register from object registry
       if(this._doRegister){
         bcdui.factory.objectRegistry.deRegisterObject(this);
@@ -655,4 +655,4 @@ bcdui.core.AbstractExecutable = bcdui._migPjs._classCreate( null,
       // remove all listeners
       this.listeners = {};
     }
-}); // Create class: bcdui.core.AbstractExecutable
+}; // Create class: bcdui.core.AbstractExecutable

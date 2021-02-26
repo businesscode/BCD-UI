@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreate( null,
+bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
 /**
  * @lends bcdui.factory.ObjectRegistry.prototype
  */
@@ -33,7 +33,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * singleton instance at {@link bcdui.factory.objectRegistry} which is used by
    * the factory methods.
    */
-  initialize: function()
+  constructor()
     {
       // Collects all registered objects
       this.objectMap = {};
@@ -56,7 +56,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
        * @private
        */
       this._listeners = {};
-    },
+    }
 
   /**
    * Retrieves a DataProvider from the ObjectRegistry by the provided id.
@@ -65,7 +65,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * @param {string|bcdui.factory.SymLink} id - The object to be resolved from the registry.
    * @return {bcdui.core.DataProvider} The object registered under the id or null if no such object exists.
    */
-  getObject: function(id) {
+  getObject(id) {
     if( !id )
       return undefined; // Will not work for the caller, but makes it easier to locate the error
     if (id.refId && bcdui.util.isString(id.refId)) {
@@ -74,23 +74,23 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
     if (bcdui.util.isString(id))
       return this.objectMap[id] || undefined;
     return id;
-  },
+  }
 
   /**
    * Get a new page-unique id. Use this if you don't car about the id's value but need a unique one.
    * @static
    */
-  generateTemporaryId: function( givenId ) {
+  generateTemporaryId( givenId ) {
     return bcdui.core._generateTemporaryId(givenId);
-  },
+  }
 
   /**
    * Get a new page-unique id for a certain scope, i.e. prefix. The prefix makes it easier to debug.
    * @static
    */
-  generateTemporaryIdInScope: function(scope) {
+  generateTemporaryIdInScope(scope) {
     return bcdui.core._generateTemporaryIdInScope(scope);
-  },
+  }
 
   /**
    * Helper, allowing to call functions getting object ids and a callback function in two ways
@@ -99,7 +99,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * Each reference in turn can be a string id, or a reference object
    * @private
    */
-  _extractFunctionAndIdsFromArgs: function(args, argsX, keepObjects) {
+  _extractFunctionAndIdsFromArgs(args, argsX, keepObjects) {
     var ids = null;
     var fn = null;
     if (bcdui.util.isFunction(argsX)) {
@@ -120,7 +120,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
       else if (bcdui.util.isString(ids[i].refId)) ids[i] = ids[i].refId;
     }
     return { ids: ids, fn: fn };
-  },
+  }
 
   /**
    * Waits until one or more ids are registered (but not necessarily ready) and then calls a JavaScript function. If they
@@ -140,7 +140,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * @param {function} fn - If the first parameter is not a parameter object, then
    * this is the callback function that is called as soon as the requested ids are registered.
    */
-  withObjects: function(args1, args2) {
+  withObjects(args1, args2) {
     var args = this._extractFunctionAndIdsFromArgs(args1, args2);
     // If a model is given more than once, we still only need to wait once for it
     // This is especially important since there will only be one entry for this id and this listener combination in _objectIdToListenerIdMap
@@ -167,7 +167,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
       }
       listenerIdMap[newListenerId] = newListenerId;
     }, this);
-  },
+  }
 
   /**
    * Removes a DataProvider from the object registry.
@@ -176,13 +176,13 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * 
    * @param {bcdui.core.DataProvider} obj The DataProvider to be removed from the registry.
    */
-  deRegisterObject: function(obj) {
+  deRegisterObject(obj) {
     var objId = bcdui.util.isString(obj) ? obj : obj.id;
     if (objId == ""){
       throw new Error("An object's mandatory id is empty");
     }
     delete this.objectMap[objId];
-  },
+  }
 
   /**
    * Registers a new object in the object registry by its unique id property.
@@ -194,7 +194,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * 
    * @param {bcdui.core.DataProvider} obj The DataProvider to be registered.
    */
-  registerObject: function(obj) {
+  registerObject(obj) {
     var objId = obj.id;
     if (objId == "")
       throw new Error("An object's mandatory id is empty");
@@ -217,7 +217,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
       readyListenerIds.forEach(function(listenerId) { delete this._listeners[listenerId]; }, this);
       setTimeout(function() { readyListenerFunctions.forEach(function(rlf){rlf()}); });
     }
-  },
+  }
 
   /**
    * Waits until the specified DataProvider ids are registered and reach their ready states.
@@ -230,7 +230,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * @param {function}               fn        - The callback function if argsOrIds is an array.
    * @static
    */
-  withReadyObjects: function(args1, args2, skipExecute) {
+  withReadyObjects(args1, args2, skipExecute) {
     var args = bcdui.factory.objectRegistry._extractFunctionAndIdsFromArgs(args1, args2, true);
     args.ids = args.ids.reduce(function(a, b) { return typeof b !== "undefined" && b !== null && a.indexOf(b) === -1 ? a.concat(b) : a; }, []);  // Even for objects provided here twice, we only need to wait once
     var ids = args.ids;
@@ -269,7 +269,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
         }
       }.bind( undefined, args, skipExecute )
     });
-  },
+  }
 
   /**
    * Waits until the specified DataProvider ids are registered and reach their ready states.
@@ -281,38 +281,38 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = bcdui._migPjs._classCreat
    * @param {Object|string[]|string} argsOrIds - The parameter object or the object ids.
    * @param {function}               fn        - The callback function if argsOrIds is an array.
    */
-  withReadyObjectsNoExecute: function(args1, args2) {
+  withReadyObjectsNoExecute(args1, args2) {
     bcdui.factory.objectRegistry.withReadyObjects(args1, args2, true);
-  },
+  }
 
   /**
    * @return {Array} The array of ids some listeners are waiting for, but which are
    * not yet registered.
    * @private
    */
-  _getWaitingIds: function() {
+  _getWaitingIds() {
     return Object.keys(this._objectIdToListenerIdMap).sort();
-  },
+  }
 
   /**
    * @return {Array} The array of ids which are currently registered at this object
    * registry.
    * @private
    */
-  _getRegisteredIds: function() {
+  _getRegisteredIds() {
     return Object.keys(this.objectMap).sort();
-  },
+  }
 
   /**
    * @return {String} A string describing the current state of the object registry.
    */
-  toString: function() {
+  toString() {
     return "[ObjectRegistry. Waiting IDs: [" +
         this._getWaitingIds().join(", ") + "], Registered IDs: [" +
         this._getRegisteredIds().join(", ") + "] ]";
   }
 
-});
+};
 
 /**
  * This is a singleton object of type ({@link bcdui.factory.ObjectRegistry}) where instances of {@link bcdui.core.DataProvider}

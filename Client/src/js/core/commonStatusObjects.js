@@ -33,7 +33,7 @@
  */
 bcdui.core.status = bcdui.core.status || {};
 
-bcdui.core.status.NullStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.NullStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.NullStatus.prototype
  */
@@ -46,13 +46,13 @@ bcdui.core.status.NullStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "NULL"; },
-  getDescription: function() { return "[NullStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.NullStatus; }
-});
+  constructor() {}
+  getCode() { return "NULL"; }
+  getDescription() { return "[NullStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.NullStatus; }
+};
 
-bcdui.core.status.InitializedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.InitializedStatus.prototype
  */
@@ -65,13 +65,13 @@ bcdui.core.status.InitializedStatus = bcdui._migPjs._classCreate(bcdui.core.Stat
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "L0"; },
-  getDescription: function() { return "[InitializedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.InitializedStatus; }
-});
+  constructor() {}
+  getCode() { return "L0"; }
+  getDescription() { return "[InitializedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.InitializedStatus; }
+};
 
-bcdui.core.status.LoadingStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.LoadingStatus.prototype
  */
@@ -84,13 +84,13 @@ bcdui.core.status.LoadingStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "L1"; },
-  getDescription: function() { return "[LoadingStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.LoadingStatus; }
-});
+  constructor() {}
+  getCode() { return "L1"; }
+  getDescription() { return "[LoadingStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.LoadingStatus; }
+};
 
-bcdui.core.status.URLAvailableStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.URLAvailableStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.URLAvailableStatus.prototype
  */
@@ -102,13 +102,13 @@ bcdui.core.status.URLAvailableStatus = bcdui._migPjs._classCreate(bcdui.core.Sta
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "L2"; },
-  getDescription: function() { return "[URLAvailableStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.URLAvailableStatus; }
-});
+  constructor() {}
+  getCode() { return "L2"; }
+  getDescription() { return "[URLAvailableStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.URLAvailableStatus; }
+};
 
-bcdui.core.status.LoadedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.LoadedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.LoadedStatus.prototype
  */
@@ -120,13 +120,13 @@ bcdui.core.status.LoadedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "L3"; },
-  getDescription: function() { return "[LoadedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.LoadedStatus; }
-});
+  constructor() {}
+  getCode() { return "L3"; }
+  getDescription() { return "[LoadedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.LoadedStatus; }
+};
 
-bcdui.core.status.LoadFailedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.LoadFailedStatus.prototype
  */
@@ -138,13 +138,13 @@ bcdui.core.status.LoadFailedStatus = bcdui._migPjs._classCreate(bcdui.core.Statu
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "F0"; },
-  getDescription: function() { return "[LoadFailedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.LoadFailedStatus; }
-});
+  initialize() {}
+  getCode() { return "F0"; }
+  getDescription() { return "[LoadFailedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.LoadFailedStatus; }
+};
 
-bcdui.core.status.SavingStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.SavingStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.SavingStatus.prototype
  */
@@ -156,14 +156,14 @@ bcdui.core.status.SavingStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "S0"; },
-  getDescription: function() { return "[SavingStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.SavingStatus; }
-});
+  constructor() {}
+  getCode() { return "S0"; }
+  getDescription() { return "[SavingStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.SavingStatus; }
+};
 
 
-bcdui.core.status.SavedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.SavedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.SavedStatus.prototype
  */
@@ -175,13 +175,13 @@ bcdui.core.status.SavedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "S1"; },
-  getDescription: function() { return "[SavedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.SavedStatus; }
-});
+  constructor() {}
+  getCode() { return "S1"; }
+  getDescription() { return "[SavedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.SavedStatus; }
+};
 
-bcdui.core.status.SaveFailedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.SaveFailedStatus.prototype
  */
@@ -193,14 +193,14 @@ bcdui.core.status.SaveFailedStatus = bcdui._migPjs._classCreate(bcdui.core.Statu
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "SF0"; },
-  getDescription: function() { return "[SaveFailedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.SaveFailedStatus; }
-});
+  constructor() {}
+  getCode() { return "SF0"; }
+  getDescription() { return "[SaveFailedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.SaveFailedStatus; }
+};
 
 
-bcdui.core.status.ChainLoadedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.ChainLoadedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.ChainLoadedStatus.prototype
  */
@@ -212,14 +212,14 @@ bcdui.core.status.ChainLoadedStatus = bcdui._migPjs._classCreate(bcdui.core.Stat
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MW-1"; },
-  getDescription: function() { return "[ChainLoadedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.ChainLoadedStatus; }
-});
+  constructor() {}
+  getCode() { return "MW-1"; }
+  getDescription() { return "[ChainLoadedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.ChainLoadedStatus; }
+};
 
 
-bcdui.core.status.WaitingForParametersStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.WaitingForParametersStatus =class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.WaitingForParametersStatus.prototype
  */
@@ -232,14 +232,14 @@ bcdui.core.status.WaitingForParametersStatus = bcdui._migPjs._classCreate(bcdui.
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MW-2"; },
-  getDescription: function() { return "[WaitingForParametersStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.WaitingForParametersStatus; }
-});
+  constructor() {}
+  getCode() { return "MW-2"; }
+  getDescription() { return "[WaitingForParametersStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.WaitingForParametersStatus; }
+};
 
 
-bcdui.core.status.TransformingStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.TransformingStatus.prototype
  */
@@ -251,14 +251,14 @@ bcdui.core.status.TransformingStatus = bcdui._migPjs._classCreate(bcdui.core.Sta
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MW-3"; },
-  getDescription: function() { return "[TransformingStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.TransformingStatus; }
-});
+  initialize() {}
+  getCode() { return "MW-3"; }
+  getDescription() { return "[TransformingStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.TransformingStatus; }
+};
 
 
-bcdui.core.status.TransformFailedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.TransformFailedStatus.prototype
  */
@@ -270,14 +270,14 @@ bcdui.core.status.TransformFailedStatus = bcdui._migPjs._classCreate(bcdui.core.
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MW-8"; },
-  getDescription: function() { return "[TransformFailedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.TransformFailedStatus; }
-});
+  constructor() {}
+  getCode() { return "MW-8"; }
+  getDescription() { return "[TransformFailedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.TransformFailedStatus; }
+};
 
 
-bcdui.core.status.TransformedStatus = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.TransformedStatus.prototype
  */
@@ -289,14 +289,14 @@ bcdui.core.status.TransformedStatus = bcdui._migPjs._classCreate(bcdui.core.Stat
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MW-4"; },
-  getDescription: function() { return "[TransformedStatus]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.TransformedStatus; }
-});
+  constructor() {}
+  getCode() { return "MW-4"; }
+  getDescription() { return "[TransformedStatus]"; }
+  equals(status) { return status instanceof bcdui.core.status.TransformedStatus; }
+};
 
 
-bcdui.core.status.ChainLoadingFailed = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.ChainLoadingFailed.prototype
  */
@@ -308,14 +308,14 @@ bcdui.core.status.ChainLoadingFailed = bcdui._migPjs._classCreate(bcdui.core.Sta
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "F1"; },
-  getDescription: function() { return "[ChainLoadingFailed]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.ChainLoadingFailed; }
-});
+  initialize() {}
+  getCode() { return "F1"; }
+  getDescription() { return "[ChainLoadingFailed]"; }
+  equals(status) { return status instanceof bcdui.core.status.ChainLoadingFailed; }
+};
 
 
-bcdui.core.status.ChainStylesheetLoadingFailed = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.ChainStylesheetLoadingFailed.prototype
  */
@@ -327,14 +327,14 @@ bcdui.core.status.ChainStylesheetLoadingFailed = bcdui._migPjs._classCreate(bcdu
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "F2"; },
-  getDescription: function() { return "[ChainStylesheetLoadingFailed]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.ChainStylesheetLoadingFailed; }
-});
+  constructor() {}
+  getCode() { return "F2"; }
+  getDescription() { return "[ChainStylesheetLoadingFailed]"; }
+  equals(status) { return status instanceof bcdui.core.status.ChainStylesheetLoadingFailed; }
+};
 
 
-bcdui.core.status.RefreshingModelUpdaters = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
 /**
  * @lends bcdui.core.status.RefreshingModelUpdaters.prototype
  */
@@ -347,13 +347,13 @@ bcdui.core.status.RefreshingModelUpdaters = bcdui._migPjs._classCreate(bcdui.cor
    * 
    * @constructs
    */
-  initialize: function() {},
-  getCode: function() { return "MU-1"; },
-  getDescription: function() { return "[RefreshingModelUpdaters]"; },
-  equals: function(status) { return status instanceof bcdui.core.status.RefreshingModelUpdaters; }
-});
+  initialize() {}
+  getCode() { return "MU-1"; }
+  getDescription() { return "[RefreshingModelUpdaters]"; }
+  equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdaters; }
+};
 
-bcdui.core.status.RefreshingModelUpdatersCausedByExecute = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.RefreshingModelUpdatersCausedByExecute = class extends bcdui.core.Status
     /**
      * @lends bcdui.core.status.RefreshingModelUpdatersCausedByExecute.prototype
      */
@@ -366,14 +366,14 @@ bcdui.core.status.RefreshingModelUpdatersCausedByExecute = bcdui._migPjs._classC
        * 
        * @constructs
        */
-      initialize: function() {},
-      getCode: function() { return "MU-2"; },
-      getDescription: function() { return "[RefreshingModelUpdatersCausedByExecute]"; },
-      equals: function(status) { return status instanceof bcdui.core.status.RefreshingModelUpdatersCausedByExecute; }
-    });
+      constructor() {}
+      getCode() { return "MU-2"; }
+      getDescription() { return "[RefreshingModelUpdatersCausedByExecute]"; }
+      equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdatersCausedByExecute; }
+    };
 
 
-bcdui.core.status.WaitingForUncomittedChanges = bcdui._migPjs._classCreate(bcdui.core.Status,
+bcdui.core.status.WaitingForUncomittedChanges = class extends bcdui.core.Status
     /**
      * @lends bcdui.core.status.WaitingForUncomittedChanges.prototype
      */
@@ -385,8 +385,8 @@ bcdui.core.status.WaitingForUncomittedChanges = bcdui._migPjs._classCreate(bcdui
        * 
        * @constructs
        */
-      initialize: function() {},
-      getCode: function() { return "MW-5"; },
-      getDescription: function() { return "[WaitingForUncomittedChanges]"; },
-      equals: function(status) { return status instanceof bcdui.core.status.WaitingForUncomittedChanges; }
-    });
+      constructor() {}
+      getCode() { return "MW-5"; }
+      getDescription() { return "[WaitingForUncomittedChanges]"; }
+      equals(status) { return status instanceof bcdui.core.status.WaitingForUncomittedChanges; }
+    };

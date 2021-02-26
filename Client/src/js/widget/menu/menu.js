@@ -22,7 +22,7 @@
 /**
  * @namespace bcdui.widget.menu
  */
-bcdui.util.namespace("bcdui.widget.menu").Menu = bcdui._migPjs._classCreate( null,
+bcdui.util.namespace("bcdui.widget.menu").Menu = class
 /**
  * @lends bcdui.widget.menu.Menu.prototype
  */
@@ -36,7 +36,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = bcdui._migPjs._classCreate( nul
    *                                                  for an example see Menu.prototype.config
    * @constructs
    */
-  initialize: function(args) {
+  constructor(args) {
 
     this.name = (args.name != null && args.name != "") ? args.name : "$menu";
     this.rootId = (args.rootIdOrElement != null && args.rootIdOrElement != "") ? args.rootIdOrElement : "root_bcdDefault";
@@ -50,7 +50,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = bcdui._migPjs._classCreate( nul
       this.customConfig();
     }
     this.rootContainer = this._createMenuContainer(this.rootId, this);
-  },
+  }
 
   /**
    * these two create methods make it possible to extend MenuContainer and MenuItem without
@@ -58,32 +58,32 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = bcdui._migPjs._classCreate( nul
    * what the client wants to have for those classes.
    * @private
    */
-  _createMenuItem: function( node, menuContainer ) {
+  _createMenuItem( node, menuContainer ) {
     return new bcdui.widget.menu.MenuItem( node, menuContainer );
-  },
+  }
 
   /**
    * @private
    */
-  _createMenuContainer: function( node, menuContainer ) {
+  _createMenuContainer( node, menuContainer ) {
     return new bcdui.widget.menu.MenuContainer( node, menuContainer );
-  },
+  }
 
   /**
    * @private
    */
-  _config: function() {
+  _config() {
     this.collapseBorders = true;
     this.quickCollapse = true;
     this.closeDelayTime = 500;
   }
 
-});
+};
 
 /*
  *  MenuContainer
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCreate( null,
+bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
 /**
  * @lends bcdui.widget.menu.MenuContainer.prototype
  */
@@ -91,16 +91,16 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCr
   /**
    * @constructs
    */
-  initialize: function(idOrElement, parent) {
+  constructor(idOrElement, parent) {
     this.type = "menuContainer";
     this.menuItems = [];
     this.init(idOrElement, parent);
-  },
+  }
 
   /**
    * @private
    */
-  init: function(idOrElement, parent) {
+  init(idOrElement, parent) {
     this.element = bcdui._migPjs._$(idOrElement).get(0);
     this.parent = parent;
     this.parentMenu = (this.type == "menuContainer") ? ((parent) ? parent.parent : null) : parent;
@@ -144,11 +144,11 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCr
         }
       }
     }
-  },
+  }
   /**
    * @private
    */
-  _getBorders: function(element) {
+  _getBorders(element) {
     var ltrb = ["Left","Top","Right","Bottom"];
     var result = {};
     for (var i = 0; i < ltrb.length; ++i) {
@@ -161,12 +161,12 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCr
       result[ltrb[i].toLowerCase()] = isNaN(value) ? 0 : value;
     }
     return result;
-  },
+  }
   /**
    * open function
    * @private
    */
-  _open: function() {
+  _open() {
     if (this.root.closeDelayTimer) window.clearTimeout(this.root.closeDelayTimer);
     this.parentMenu._closeAll(this);
     this.isOpen = true;
@@ -197,34 +197,34 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = bcdui._migPjs._classCr
 
     }
     bcdui._migPjs._$(this.element).css({visibility: "visible"});
-  },
+  }
 
   /**
    * Close the menu
    * @private
    */
-  _close: function() {
+  _close() {
     bcdui._migPjs._$(this.element).css({visibility: "hidden"});
     this.isOpen = false;
     this._closeAll();
-  },
+  }
 
   /**
    * Close all menu items
    * @private
    */
-  _closeAll: function(trigger) {
+  _closeAll(trigger) {
     for (var i = 0; i < this.menuItems.length; ++i) {
       this.menuItems[i]._closeItem(trigger);
     }
   }
 
-});
+};
 
 /*
  * Menu
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuItem = bcdui._migPjs._classCreate( bcdui.widget.menu.MenuContainer,
+bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.menu.MenuContainer
   /**
    * @lends bcdui.widget.menu.MenuItem.prototype
    */
@@ -233,7 +233,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = bcdui._migPjs._classCreate(
    * @constructs
    * @extends bcdui.widget.menu.MenuContainer
    */
-  initialize: function(idOrElement, parent) {
+  constructor(idOrElement, parent) {
     /**
      * @ignore
      */
@@ -266,25 +266,25 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = bcdui._migPjs._classCreate(
         menuItem.root.closeDelayTimer = window.setTimeout(menuItem.root.name + ".closingMenuItem.subMenu._close()", menuItem.root.closeDelayTime);
       }
     }
-  },
+  }
 
   /**
    * Open the item
    * @private
    */
-  _openItem: function() {
+  _openItem() {
     this.isOpen = true;
     if (this.subMenu) { this.subMenu._open(); }
-  },
+  }
 
   /**
    * Close the item
    * @private
    */
-  _closeItem: function(trigger) {
+  _closeItem(trigger) {
     this.isOpen = false;
     if (this.subMenu) {
       if (this.subMenu != trigger) this.subMenu._close();
     }
   }
-});
+};

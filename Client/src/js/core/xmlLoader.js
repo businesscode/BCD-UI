@@ -21,7 +21,7 @@
  *
  */
 
-bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
+bcdui.core.XMLLoader = class
 /**
  * @lends bcdui.core.XMLLoader.prototype
  */
@@ -34,9 +34,9 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @constructs
    * @private
    */
-  initialize: function()
+  constructor()
   {
-  },
+  }
 
   /**
    * Sets the xml:base attribute of the document element of the doc provided as
@@ -45,11 +45,11 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @param base The value of the xml:base attribute.
    * @private
    */
-  _setXMLBase: function(/* XMLDocument */ doc, /* string */ base)
+  _setXMLBase(/* XMLDocument */ doc, /* string */ base)
     {
       if (doc == null || doc.documentElement == null) return;
       doc.documentElement.setAttribute("xml:base", bcdui.util.url.extractFolderFromURL(base));
-    },
+    }
 
   /**
    * This function returns an XPointer with the "xpointer()" scheme if the passed
@@ -60,7 +60,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * xpointer() scheme.
    * @private
    */
-  _translateXIncludeElementSchemeToXPointer: function(/* string */ xPointer)
+  _translateXIncludeElementSchemeToXPointer(/* string */ xPointer)
     {
       if (xPointer == null) return xPointer;
       xPointer.trim();
@@ -73,7 +73,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
         ptr = "id('" + ptr.substr(0, pos) + "')" + ptr.substr(pos);
       }
       return "xpointer(" + ptr.replace(new RegExp("/(\\d+)", "g"), "/*[$1]") + ")";
-    },
+    }
 
   /**
    * Finds the elements identified by a specific XPointer within the provided
@@ -85,7 +85,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @return {Array} The list of elements matching the xPointer.
    * @private
    */
-  _getDataFromXPointer: function(/* XMLDocument */ doc, /* string? */ xPointer)
+  _getDataFromXPointer(/* XMLDocument */ doc, /* string? */ xPointer)
     {
       if (xPointer == null || !xPointer.trim()) return jQuery.makeArray(doc.selectNodes("/*"));
       xPointer = this._translateXIncludeElementSchemeToXPointer(xPointer);
@@ -96,7 +96,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
         xPointer = "/*";
       }
       return jQuery.makeArray(doc.selectNodes(xPointer));
-    },
+    }
 
   /**
    * A function that is called when an XInclude has been loaded an needs to be inserted into
@@ -113,7 +113,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @param {Function?} preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
    * @private
    */
-  _replaceXIncludeWithResult: function( /* object */ args )
+  _replaceXIncludeWithResult( /* object */ args )
     {
       var xinclude = args.xinclude;
       var xincludeDoc = args.xincludeDoc;
@@ -155,12 +155,12 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
         });
         xinclude.parentNode.removeChild(xinclude);
       }
-    },
+    }
 
   /**
    * @private
    */
-  _processSingleBcdIncludeWithNestedRequestDoc: function(/* XMLElement */ bcdInclude, /* Function */ fn)
+  _processSingleBcdIncludeWithNestedRequestDoc(/* XMLElement */ bcdInclude, /* Function */ fn)
     {
       var firstElementChild = bcdInclude.selectSingleNode("*");
       var nestedStatusDoc = bcdui.core.browserCompatibility.newDOMDocument();
@@ -175,12 +175,12 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
           }.bind(this));
         }.bind(this)
       } );
-    },
+    }
 
   /**
    * @private
    */
-  _processBcdIncludesWithNestedRequestDoc: function(/* NodeList */ bcdIncludes, /* Function */ fn)
+  _processBcdIncludesWithNestedRequestDoc(/* NodeList */ bcdIncludes, /* Function */ fn)
     {
       var counter = bcdIncludes.length;
       for (var i = 0; i < bcdIncludes.length; ++i) {
@@ -190,7 +190,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
           }
         });
       }
-    },
+    }
 
   /**
    * @private
@@ -199,7 +199,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @param {function}    onSuccess
    * @param {function?}   onFailure Optional, called with a message as param, otherwise, an exception is thrown
    */
-  _processAllBcdIncludes: function( /* Object */ args )
+  _processAllBcdIncludes( /* Object */ args )
     {
       var bcdIncludesWithNestedRequestDoc = args.doc.selectNodes(args.xPath);
       if (bcdIncludesWithNestedRequestDoc.length == 0) return false;
@@ -207,7 +207,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
         this._processAllIncludes( {doc: args.doc, onSuccess: args.onSuccess, onFailure: args.onFailure} );
       }.bind(this));
       return true;
-    },
+    }
 
   /**
    * This function (recursively) resolves all XIncludes and bcdxml:includes found in
@@ -222,7 +222,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * and inserted into the "doc". It gets the document as parameter.
    * @private
    */
-  _processAllIncludes: function( /* object */ args )
+  _processAllIncludes( /* object */ args )
     {
       var doc = args.doc;
       var preProcessFkt = args.preProcessFkt;
@@ -270,14 +270,14 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
       } else {
         args.onSuccess(doc);
       }
-    },
+    }
 
   /**
    * @param xmlElement
    * @returns {string}
    * @private
    */
-  _getText: function(xmlElement)
+  _getText(xmlElement)
     {
       if (xmlElement == null) return "";
       var textNodes = xmlElement.selectNodes(".//text()");
@@ -287,7 +287,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
         if (value != null) result += value;
       }
       return result;
-    },
+    }
 
   /**
    * checks the given document for a SOAP Fault envelope and returns
@@ -307,7 +307,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @return null or result object (read above)
    * @private
    */
-  _checkForSOAPFault: function( /* Object */ args )
+  _checkForSOAPFault( /* Object */ args )
     {
       if (args.doc == null) return null;
       var faultElements = args.doc.selectNodes("/env:Envelope/env:Body/env:Fault");
@@ -319,8 +319,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
       result.wrsValidationResultNode = args.doc.selectSingleNode("/env:Envelope/env:Body/env:Fault/env:Detail/*/wrs:ValidationResult");
 
       return result;
-    },
-
+    }
 
   /**
    * Asynchronously loads an XML document from a URL and executes a function when
@@ -337,7 +336,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    *     <li>skipSoapFault: {boolean?} An optional, if true, no default Soap fault handling is done
    *   </ul>
    */
-  load: function(/* object */ args)
+  load(/* object */ args)
     {
       var traceLoadStart = bcdui.log.isTraceEnabled() ? (new Date().getTime()-bcdui.log.applicationStartTs) : 0;
 
@@ -424,7 +423,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
               }
             }
           });
-    },
+    }
 
   /**
    * Asynchronous post operation sending an XML document to the server and getting
@@ -444,7 +443,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    *     <li>skipSoapFault: {boolean?} An optional, if true, no default Soap fault handling is done
    *   </ul>
    */
-  post: function(/* object */ args)
+  post(/* object */ args)
     {
       var xhr = bcdui.core.browserCompatibility.jQueryXhr();
       var xhrFactory = function() { return xhr };
@@ -517,7 +516,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
               }
             }
           });
-    },
+    }
 
 
   /**
@@ -536,7 +535,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    *  <li>onFailure TODO handling</li>
    * </ul>
    */
-  _asyncTransformToXMLPostProcess: function( /* Object */ args, /* Document */ resultDoc )
+  _asyncTransformToXMLPostProcess( /* Object */ args, /* Document */ resultDoc )
     {
       // We do not care about XML featues if this is a html document
       if( args.processor.outputFormat==="html" ) {
@@ -593,20 +592,20 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
 
         }.bind(this) 
       } );
-    },
+    }
 
     /**
      * @return {Hashmap} The array of top-level attributes (incl namespace declarations).
      * @private
      */
-    _getDocumentElementAttributes: function(/* String */ serializedDoc)
+    _getDocumentElementAttributes(/* String */ serializedDoc)
     {
       var matches = serializedDoc.match("<([^:]+:)?\\w+\\s+([^>]+)>");
       if( !matches )
         return {};
       var attributes = (matches[2] + " ").split(/["']( |\n|\/ $)/); // '/ $' happens in case of an empty element <../>, the space between / and $ is the one added in this line
       return attributes.reduce( function(map, val) { if (val) { var p = val.indexOf("="); if(p!=-1) map[val.substr(0, p).trim()] = val.substr(p+2); } return map;}, {} );
-    },
+    }
 
 
   /**
@@ -619,7 +618,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * @param (String) baseUrl, the new base URL to which all relative href in the doc should be calculated.
    * @private
    */
-  _translateRelativeXSLImportUrlsToAbsolute: function(/* XMLDocument */ doc, /* String */ baseURL)
+  _translateRelativeXSLImportUrlsToAbsolute(/* XMLDocument */ doc, /* String */ baseURL)
     {
       var imports = doc.selectNodes("/*/xsl:import | /*/xsl:include");
       baseURL = bcdui.util.url.resolveToFullURLPathWithCurrentURL(baseURL);
@@ -638,7 +637,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
           docFktVar.setAttribute("select",select);
         }
       } );
-    },
+    }
 
   /**
    * Executes an XSLT transformation until it either produces HTML or an XML or any other type
@@ -657,7 +656,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
    * </ul>
    * @private
    */
-    _handleGeneratedXslt: function( doc, args ) 
+    _handleGeneratedXslt( doc, args ) 
     {
       if( !doc.selectSingleNode("/*[local-name()='stylesheet']") )
         throw Error("Mediatype 'xslt' for non-stylesheet given in a genereated document by '"+args.stylesheetURL+"'");
@@ -700,7 +699,7 @@ bcdui.core.XMLLoader = bcdui._migPjs._classCreate( null,
       return;
     }
     
-});  // Create class: bcdui.core.XMLLoader
+};  // Create class: bcdui.core.XMLLoader
 
 /**
  * The singleton xmlLoader instance.

@@ -26,7 +26,7 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * =====================================================================
  * ColorProvider
  */
-bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
+bcdui.component.chart.ColorProvider = class
 /**
  * @lends bcdui.component.chart.ColorProvider.prototype
  */
@@ -39,7 +39,7 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
    * @constructs
    * @private
    */
-  initialize: function()
+  constructor()
   {
     this.colors = new Array();
     this.baseColors = new String();
@@ -52,7 +52,7 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
     this.wellKnownRgbColors.purple = "#800080";
     this.wellKnownRgbColors.teal = "#008080";
     this.wellKnownRgbColors.gray = "#808080";
-  },
+  }
 
   /**
    *  appends computed/existed colors as Color nodes into defDoc under "\/*\/Computed/Colors/Color",
@@ -63,28 +63,28 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
    *     <li>targetNode, node in definition document</li>
    *   </ul>
    */
-  appendColors: function(args){
+  appendColors(args){
     for(var c=0; c<this.colors.length; c++)
     {
       var colNode = bcdui.core.browserCompatibility.appendElementWithPrefix(args.targetNode, "chart:Color", false);
       colNode.appendChild(args.doc.createTextNode( this.getColor(c)));
       colNode.setAttribute("rgb", this.getColorAsRGB(c));
     }
-  },
+  }
 
 
   /**
    * @param index
    */
-  getColor: function( index )
+  getColor( index )
   {
     return this.colors[index] != null ? this.colors[index] : "#000000";
-  },
+  }
 
   /**
    * @param index
    */
-  getColorAsRGB: function( index )
+  getColorAsRGB( index )
   {
     index = ((index*1) % Math.round(this.colors.length)); // can be used to scamble colors
     var resColStr = "rgb(";
@@ -109,13 +109,13 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
       resColStr += (col + ")");
     }
     return resColStr;
-  },
+  }
 
   /**
    * @param index
    * @private
    */
-  _toDecimal: function(hexSub)
+  _toDecimal(hexSub)
   {
      var res=null;
      if(hexSub == "A")
@@ -138,14 +138,14 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
      else
         res = eval(hexSub);
      return res;
-  },
+  }
 
   /**
    * translate hexadecimal color to RGB array
    * @param hexDigits
    * @return {Object} \{red: red, green: green, blue: blue\}
    */
-  hexColorToRgb: function (hexDigits)
+  hexColorToRgb(hexDigits)
   {
     if( hexDigits.substring(0,1) == '#')// delete #
       hexDigits = hexDigits.substring(1, hexDigits.length);
@@ -162,13 +162,13 @@ bcdui.component.chart.ColorProvider = bcdui._migPjs._classCreate( null,
     return {red: red, green: green, blue: blue};
   }
 
-} ); // ColorProvider
+}; // ColorProvider
 
 /*
  * =====================================================================
  * SeriesColorProvider
  */
-bcdui.component.chart.SeriesColorProvider = bcdui._migPjs._classCreate(bcdui.component.chart.ColorProvider,
+bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.ColorProvider
 /**
  * @lends bcdui.component.chart.SeriesColorProvider.prototype
  */
@@ -183,19 +183,19 @@ bcdui.component.chart.SeriesColorProvider = bcdui._migPjs._classCreate(bcdui.com
    * @param colorsAsRgb
    * @private
    */
-  initialize: function(colorsAsRgb)
+  constructor(colorsAsRgb)
   {
-    bcdui.component.chart.ColorProvider.call(this);
+    super.call(this);
     this.colors = colorsAsRgb;
-  },
+  }
 
   /**
    * @param index
    */
-  getColorAsRGB: function( index ) {
+  getColorAsRGB( index ) {
     return this.getColor(index);
   }
-} ); // SeriesColorProvider
+}; // SeriesColorProvider
 
 
 
@@ -203,7 +203,7 @@ bcdui.component.chart.SeriesColorProvider = bcdui._migPjs._classCreate(bcdui.com
  * =====================================================================
  * TypeColorProviderFixedList
  */
-bcdui.component.chart.TypeColorProviderFixedList = bcdui._migPjs._classCreate(bcdui.component.chart.ColorProvider,
+bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component.chart.ColorProvider
 /**
  * @lends bcdui.component.chart.TypeColorProviderFixedList.prototype
  */
@@ -219,18 +219,18 @@ bcdui.component.chart.TypeColorProviderFixedList = bcdui._migPjs._classCreate(bc
    * @param colorArray
    * @private
    */
-  initialize: function(colorArray)
+  constructor(colorArray)
   {
-    bcdui.component.chart.ColorProvider.call(this);
+    super.call(this);
     this.colors = colorArray;
   }
-} ); // TypeColorProviderFixedList
+}; // TypeColorProviderFixedList
 
 /*
  * =====================================================================
  * TypeColorProviderBaseColors
  */
-bcdui.component.chart.TypeColorProviderBaseColors = bcdui._migPjs._classCreate(bcdui.component.chart.ColorProvider,
+bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.component.chart.ColorProvider
 /**
  * @lends bcdui.component.chart.TypeColorProviderBaseColors.prototype
  */
@@ -249,8 +249,8 @@ bcdui.component.chart.TypeColorProviderBaseColors = bcdui._migPjs._classCreate(b
    *   </ul>
    * @private
    */
-  initialize: function(args) {
-    bcdui.component.chart.ColorProvider.call(this);
+  constructor(args) {
+    super.call(this);
 
     if( args.baseColors ) {
       this.baseColors = args.baseColors;
@@ -290,4 +290,4 @@ bcdui.component.chart.TypeColorProviderBaseColors = bcdui._migPjs._classCreate(b
       }
     }
   }
-} ); // TypeColorProviderBaseColors
+}; // TypeColorProviderBaseColors
