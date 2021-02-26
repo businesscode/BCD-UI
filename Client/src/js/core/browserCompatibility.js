@@ -517,7 +517,7 @@ if (bcdui.browserCompatibility.isIE) {
    */
   bcdui.core.browserCompatibility.appendElementWithPrefix = bcdui.core.browserCompatibility.ie.appendElementWithPrefix;
 
-  bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = bcdui._migPjs._classCreate( null,
+  bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
   /**
    * @lends bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments.prototype
    */
@@ -537,7 +537,7 @@ if (bcdui.browserCompatibility.isIE) {
      * but the version then is only IXMLDomDocument2, which is incompatible with Msxml2.XSLTemplate.6.0 (being IXMLDomDocument3),
      * XSLTProcessor will complain when using it as a parameter to a stylesheet.
      */
-    initialize: function(args)
+    constructor(args)
       {
         this.domDocument = null;
         this.xhr = null;
@@ -547,9 +547,9 @@ if (bcdui.browserCompatibility.isIE) {
         this.readyState = -1;
         this.isHTML = false;
         this.xhr_reqHeaders = {};
-      },
+      }
 
-    _doReadyStateChange_xml: function()
+    _doReadyStateChange_xml()
       {
         this.readyState = this.domDocument.msxmlImpl.readyState;
         if (this.readyState == 4) {
@@ -567,9 +567,9 @@ if (bcdui.browserCompatibility.isIE) {
         if (typeof this.onreadystatechange == "function") {
           this.onreadystatechange();
         }
-      },
+      }
 
-    _doReadyStateChange_noXML: function()
+    _doReadyStateChange_noXML()
       {
         this.readyState = this.xhr.readyState;
         if (this.readyState == 4) {
@@ -583,29 +583,29 @@ if (bcdui.browserCompatibility.isIE) {
         if (typeof this.onreadystatechange == "function") {
           this.onreadystatechange();
         }
-      },
+      }
 
-    open: function(method, url, async)
+    open(method, url, async)
       {
         this.url = url;
         this.method = method || "GET";
         this.async = typeof async == "undefined" ? true : async;
-      },
+      }
 
-    setRequestHeader: function(key, value)
+    setRequestHeader(key, value)
       {
         if (key != null && value != null && key.toLowerCase() == "accept") {
           this.isHTML = value.split(",").every(function(mimeType) { return mimeType.trim() in bcdui.core.browserCompatibility.ie.nonXMLMimeTypes });
         }
         this.xhr_reqHeaders[key] = value;
-      },
+      }
 
-    getAllResponseHeaders: function()
+    getAllResponseHeaders()
     {
       return this.responseHeaders;
-    },
+    }
       
-    send: function(postData)
+    send(postData)
       {
         /*
          * NON-xml data is processed with the normal XHR. Additionally the DOMDocument can only
@@ -626,7 +626,7 @@ if (bcdui.browserCompatibility.isIE) {
           this.domDocument.load(this.url);
         }
       }
-  });
+  };
 
   bcdui.core.browserCompatibility.jQueryXhr = function() { return new bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments(); };
 }

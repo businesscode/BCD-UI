@@ -26,7 +26,7 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * ========================================================
  * Chart
  */
-bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.component.chart.Chart.prototype
  */
@@ -36,40 +36,40 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
   /**
    * @constant
    */
-  LINECHART: 1,
+  LINECHART= 1;
   /**
    * @constant
    */
-  AREACHART: 2,
+  AREACHART= 2;
   /**
    * @constant
    */
-  BARCHART:  3,
+  BARCHART=  3;
   /**
    * @constant
    */
-  PIECHART:  4,
+  PIECHART=  4;
   /**
    * @constant
    */
-  SCATTEREDCHART: 5,
+  SCATTEREDCHART= 5;
   /**
    * @constant
    */
-  POINTCHART: 6,
+  POINTCHART= 6;
   /**
    * @constant
    */
-  GAUGECHART: 7,
+  GAUGECHART= 7;
   /**
    * @constant
    */
-  MARIMEKKOCHART: 8,
+  MARIMEKKOCHART= 8;
   /**
    * @private
    * @constant
    */
-  TYPEMAXINDEX: 8,
+  TYPEMAXINDEX= 8;
 
   /**
    * @classdesc
@@ -87,11 +87,9 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {number}        [args.width]                          - Overwrite the chart's auto-width derived from targetHtml
    * @param {number}        [args.height]                         - Overwrite the chart's auto-height derived from targetHtml
    */
-  initialize: function(args)
+  constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.chart.Chart" ): "") != "";
-
-    bcdui.core.DataProvider.call( this, args);
+    super(args);
 
     this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
     this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -138,16 +136,16 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     if( ! args.suppressInitialRendering )
       this.execute();
     
-    if (isLeaf)
-      this._checkAutoRegister();
-  },
+  }
+
+  getClassName() {return "bcdui.component.chart.Chart";}
 
   /**
    * initializes/computes some values
    * @param none
    * @private
    */
-  _initValues: function(){
+  _initValues(){
     // defaults
     this.barWidth       = 20;  // default, may scale with number of bars
     this.offset         = 25;  // space for axes
@@ -194,7 +192,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     this.maxBottomMarginPercentage = 33;
 
     this.has2ndYAxis = false;
-  },
+  }
 
   /**
    * Defines x (horizontal) axis
@@ -205,7 +203,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {string}   [args.unit]       - Unit like € or sec. If '%', values are shown as percent. Use '% ' to show percent without dividing by 100
    * @param {string}   [args.layoutFlow] - css value
    */
-  setXAxis: function( args )
+  setXAxis( args )
   {
     if( args.categories ) {
       this.xAxis.categories = this._nodeSetOrArray2Array( {data:args.categories} ).dataAsArray;
@@ -228,7 +226,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       for( var i=0; i<this.xAxis.xValues.length; i++ )
         this.xAxis.xValues[i] = Math.round(this.xAxis.xValues[i]*100*10)/10; // 1 decimal digit precision
     this.xAxis.showGrid = args.showGrid==false ? false : true;
-  },
+  }
 
   /**
    * Defines left y axis
@@ -240,11 +238,11 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {numberic} [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    * @param {boolean}  [args.showGrid=true] - If false, no horizontal grid is shown but only small lines next to the y-axis values
    */
-  setYAxis1: function( args )
+  setYAxis1( args )
   {
     this._setYAxis( this.yAxis1, args );
     this.yAxis1.showGrid = args.showGrid==false ? false : true;
-  },
+  }
 
   /**
    * Defines right y axis
@@ -255,16 +253,16 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {numberic} [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
    * @param {numberic} [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    */
-  setYAxis2: function( args )
+  setYAxis2( args )
   {
     this._setYAxis( this.yAxis2, args );
-  },
+  }
 
   /**
    * Internal helper for the two functions above
    * @private
    */
-  _setYAxis: function( axis, args )
+  _setYAxis( axis, args )
   {
     if(args.caption)     axis.caption      = args.caption;
     if(args.unit)        axis.unit         = args.unit;
@@ -272,7 +270,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     if(args.layoutFlow)  axis.layoutFlow   = args.layoutFlow;
     if(typeof args.minValue != "undefined") axis.minValueUser = args.minValue;
     if(typeof args.maxValue != "undefined") axis.maxValueUser = args.maxValue;
-  },
+  }
 
   /**
    * Adds a data series to the chart
@@ -292,7 +290,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {boolean}           [args.toSeriesPercentage=false] - If true, each value is represented by its percentage value of the full series.
    *  </ul>
    */
-  addSeries: function( args )
+  addSeries( args )
   {
     var series = new Array();
     series.id = args.id;
@@ -334,7 +332,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       series.toSeriesPercentage = false;
 
     this.seriesArray.push(series);
-  },
+  }
 
   /**
    * Define series as being stacked
@@ -344,7 +342,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    * @param {boolean}          [args.asPercent]      - Each series is calculated to its percentage of the sum if all series and shown as *100'%'
    * @param {boolean}          [args.isStacked=true] - Whether to stack or not
    */
-  setStacked: function( args )
+  setStacked( args )
   {
     if( args.isStacked && args.isStacked==false )
       return;
@@ -360,7 +358,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
         this.numberOfBars += 1;
     }
     return;
-  },
+  }
 
 
   /**
@@ -374,7 +372,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *  </ul>
    * @private
    */
-  _draw: function( targetHtmlElement )
+  _draw( targetHtmlElement )
   {
     bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': drawing of all "+this.seriesArray.length+" series started");
 
@@ -462,7 +460,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
     bcdui.log.isDebugEnabled() && bcdui.log.debug("Chart '"+this.id+"': done");
     return 1;// state is OK
-  },
+  }
 
   /**
    * While the "big" calc method is only to be called once per chart instance,
@@ -470,7 +468,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *
    * @private
    */
-  _drawCalc: function() {
+  _drawCalc() {
     for( var i=0; i< this.seriesArray.length; i++ ) {
       var series = this.seriesArray[i];
       var stackedInfo = this.stackedInfo[series.chartType*2+series.yAxis1Or2-1];
@@ -478,13 +476,13 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
         for( var s=0; s<series.yData.length; s++ )
           stackedInfo.sumSoFar[s] = stackedInfo.sum[s];
     }
-  },
+  }
 
   /**
    * Helper for number formatting
    * @private
    */
-  _formatNumber1000S: function (nStr,scale){
+  _formatNumber1000S(nStr,scale){
     nStr += '';
     var x = nStr.split('.');
     var x1 = x[0];
@@ -496,12 +494,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     while (rgx.test(x1))
         x1 = x1.replace(rgx, '$1' + ',' + '$2');
     return x1 + x2;
-  },
+  }
 
   /**
    * @private
    */
-  _getMaxXScaledValue: function()
+  _getMaxXScaledValue()
   {
     var xGrid;
     if( this.hasMarimekkoChart )
@@ -533,12 +531,12 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     }
 
     return maxScale;
-  },
+  }
 
   /**
    * @private
    */
-  _getMaxYScaledValue: function(axis, chartType)
+  _getMaxYScaledValue(axis, chartType)
   {
     var plotAreaHeight = this.height-this.plotArea.margin.bottom-this.plotArea.margin.top;
     if( plotAreaHeight < 1 ){
@@ -565,13 +563,13 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
     }
 
     return maxScale;
-  },
+  }
 
   /**
    * Adjust values based on series information
    * @private
    */
-  _calc: function()
+  _calc()
   {
     // Some checks whether we can draw a chart
     if( this.seriesArray.length==0 )
@@ -922,7 +920,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       this.yAxis2.transScale.scale.x = this.yAxis2.transScale.scale.y *= 0.5;
 
     return true;
-  },
+  }
 
   /**
    * return will hold
@@ -937,7 +935,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *  </ul>
    * @private
    */
-  _autoGrid: function( args )
+  _autoGrid( args )
   {
     var gridWidth = 1;
     var magnitude = Math.floor(Math.log(args.axisLength)/Math.log(10));
@@ -976,13 +974,13 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
 
     var autoGrid = { width: gridWidth, minValue: minValue, maxValue: args.maxValue, readMag: readMag, cutNumberCaptionAt: cutNumberCaptionAt };
     return autoGrid;
-  },
+  }
 
   /**
    * Draw the background grid
    * @private
    */
-  _drawGrid: function()
+  _drawGrid()
   {
     // title
     if( this.title!=null ) {
@@ -1164,7 +1162,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                             cssClass: this.id+"XAxisCaption "+this.defaultLabelClass });
       }
     }
-  },
+  }
 
 
   /**
@@ -1178,20 +1176,20 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *  </ul>
    * @private
    */
-  _getCssClass: function(args)
+  _getCssClass(args)
   {
     var cssClass = "chart" + args.axisName;
     if( args.axisCssClass != null && args.axisCssClass != '') cssClass += " " + args.axisCssClass;
     cssClass += " chart" + args.axisName + (args.suff ? "_"+args.suff : "");
     return cssClass;
-  },
+  }
 
   /**
    * @member bcdui.component.Chart
    * @private
    * @param none
    */
-  _drawGridMainAxes: function()
+  _drawGridMainAxes()
   {
     if( !this.showAxes )
       return;
@@ -1218,14 +1216,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
         });
       }
     }
-  },
+  }
 
   /**
    * Draw a line or area for a data series
    * @param series
    * @private
    */
-  _drawLineSeries: function( series )
+  _drawLineSeries( series )
   {
     var isArea = series.chartType==this.AREACHART;
     var points = new Array();
@@ -1320,14 +1318,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                                      valueY: this._formatNumber1000S(series.yData[i],series.yAxis.scale), yAxis1Or2: series.yAxis1Or2,
                                      asPercent: (!series.disableSeriesPercent && stackedInfo!=null ? (series.yData[i]/stackedInfo.sum[i]) : "") } } );
     }
-  },
+  }
 
   /**
    * Draw a bar series (including marimekko)
    * @param series
    * @private
    */
-  _drawBarSeries: function( series )
+  _drawBarSeries( series )
   {
     var points = "";
     var barGroupLeft = (this.xAxis.scale-this.barWidth*this.numberOfBars)/2;
@@ -1374,14 +1372,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                                      valueY: this._formatNumber1000S(series.yData[i],series.yAxis.scale), yAxis1Or2: series.yAxis1Or2,
                                      asPercent: (!series.disableSeriesPercent && stackedInfo!=null ? (series.yData[i]/stackedInfo.sum[i]) : "") } } );
     }
-  },
+  }
 
   /**
    * Draw a pie chart
    * @param series
    * @private
    */
-  _drawPie: function( series )
+  _drawPie( series )
   {
     var angle  = 0;
     var radius = this.plotArea.width < this.plotArea.height ? (this.plotArea.width)/2-this.plotArea.margin.left : (this.plotArea.height)/2-this.plotArea.margin.bottom;
@@ -1413,14 +1411,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       }
       angle += angleDelta;
     }
-  },
+  }
 
   /**
    * Draw a gauge chart
    * @param series
    * @private
    */
-  _drawGauge: function( series )
+  _drawGauge( series )
   {
     var angle  = -Math.PI/2;
     var range = this.xAxis.maxValue-this.xAxis.minValue;
@@ -1467,14 +1465,14 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                         } );
     }
     this.drawer.circle( { x:0, y:0, radius: 2, rgb: this.gridColor } );
-  },
+  }
 
   /**
    * Draw a scattered chart
    * @param series
    * @private
    */
-  _drawScatteredSeries: function( y, size )
+  _drawScatteredSeries( y, size )
   {
     var radiusFactor = size.yAxis.transScale.scale.y / y.yAxis.transScale.scale.y; // drawer uses yAxis1.scale, but for size we need yAxis2.scale
     for( var i=0; i < y.xValues.length; i++ ) {
@@ -1491,7 +1489,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
                                        valueSize: this._formatNumber1000S(size.yData[i]) } } );
 
     }
-  },
+  }
 
   /**
    * Convert an XML doc to a js array
@@ -1503,7 +1501,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *  </ul>
    * @private
    */
-  _nodeSetOrArray2Array: function( args )
+  _nodeSetOrArray2Array( args )
   {
     var doParse = typeof args.doParseValues == "undefined" ? true : ("" + args.doParseValues) == "true";
 
@@ -1539,7 +1537,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       dataInfoAsArray.push( dataInfo );
     }
     return {dataAsArray: dataAsArray, dataInfoAsArray: dataInfoAsArray} ;
-  },
+  }
 
   
   /**
@@ -1551,7 +1549,7 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
    *  </ul>
    * @private
    */
-  _createToolTipCb: function(target,src)
+  _createToolTipCb(target,src)
   {
     if( ! src.getAttribute("series") && ! src.getAttribute("axisX12") )
       return null;
@@ -1595,47 +1593,48 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       toolTip += "</table>";
     }
     return toolTip;
-  },
+  }
 
   /**
    * Debugging function showing a text for this class.
    * @return {string} A summary of the class.
    */
-  toString: function()
+  toString()
   {
     return "[bcdui.component.Chart: " + this.id + "]";
-  },
+  }
 
   /**
    * impl of execute method
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
   {
     this.setStatus(this.loadingStatus);
-  },
+  }
   /**
    * Not implemented for Chart
    * @return null
    */
-  getData: function()
+  getData()
   {
     return null;
-  },
+  }
 
   /**
    * @inheritdoc
    */
-  getReadyStatus: function()
+  getReadyStatus()
   {
     return this.transformedStatus;
-  },
+  }
 
   /**
    * @param statusEvent
    * @private
    */
- _statusTransitionHandler : function(/* StatusEvent */statusEvent) {
+ _statusTransitionHandler(/* StatusEvent */statusEvent) 
+ {
     if (statusEvent.getStatus().equals(this.loadingStatus)) {
       this._initValues();
       var doDraw = this._calc();
@@ -1649,31 +1648,36 @@ bcdui.component.chart.Chart = bcdui._migPjs._classCreate(bcdui.core.DataProvider
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
       this.setStatus(newStatus);
     }
-  },
+  }
 
   /**
    * Not implemented for Chart
    * @return null
    */
-  getPrimaryModel: function(){
+  getPrimaryModel(){
     return null;
-  },
+  }
 
   /*
    These are inherited from DataProvider but do not apply to Renderer and its children
    Cleanest would be a mixin instead for optionally XML providing DataProviders only
    */
   /** @private */
-  read: function(){},
+  read()
+  {}
   /** @private */
-  query: function(){},
+  query()
+  {}
   /** @private */
-  queryNodes: function(){},
+  queryNodes()
+  {}
   /** @private */
-  remove: function(){},
+  remove()
+  {}
   /** @private */
-  write: function(){}
+  write()
+  {}
 
-} ); // Create class: bcdui.component.Chart
+}; // Create class: bcdui.component.Chart
 
 

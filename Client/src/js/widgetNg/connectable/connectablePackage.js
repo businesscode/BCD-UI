@@ -21,7 +21,7 @@
    * @method
    * @private
    */
-  var XMLListener = bcdui._migPjs._classCreate( bcdui.widget.XMLDataUpdateListener,
+  var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     /**
      * @lends XMLListener.prototype
      */
@@ -29,7 +29,7 @@
       /**
        * @member bcdui.widget.inputField.XMLListener
        */
-      updateValue: function(){
+      updateValue(){
         var identical = (this.listenerType == "target");
         var widgetEl = jQuery("#" + this.htmlElementId);
         var widgetInstance = widgetEl._bcduiWidget();
@@ -50,7 +50,7 @@
         if (! identical)
           widgetInstance._readDataFromXML(this.listenerType);
       }
-  });
+  };
 
   /**
    * internal parameters (not in the public API):
@@ -397,10 +397,8 @@
         // we wait for readiness of current target and belonging source
         // and remember source options
         var targetModels = new Array(this.config.target.modelId);
-        var sourceOptions = this._getScopedSourceElement()._bcduiWidget().options;
-        var sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
+        var sourceConfig = this._getScopedSourceElement()._bcduiWidget().config.source;
         targetModels.push(sourceConfig.modelId);
-        sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
 
         bcdui.factory.objectRegistry.withReadyObjects(targetModels, function(){
 
@@ -1290,7 +1288,7 @@
   });
 
   bcdui.util.namespace("bcdui.widgetNg.connectable");
-  bcdui.widgetNg.connectable.TreeSupport = bcdui._migPjs._classCreate(null,
+  bcdui.widgetNg.connectable.TreeSupport = class
   /**
    * @lends bcdui.widgetNg.connectable.TreeSupport
    * */ 
@@ -1309,7 +1307,7 @@
      * @param {string}  config.captionAttrName            Attribute name of caption attribute, i.e. "caption"
      * @param {number}  [config.leftPaddingLevel=14]      Left padding in pixels per level depth
      */
-    initialize : function(container, config){
+    constructor(container, config){
       config = config || {};
       if(!config.levelNodeName){
         throw ".levelNodeName property undefined";
@@ -1357,9 +1355,9 @@
       }.bind(null, this.config.captionAttrName);
 
       this.cache={selector:{}};
-    },
+    }
 
-    _buildAncestorPath : function(widgetInstance, value){
+    _buildAncestorPath(widgetInstance, value){
       var elementInData = this._getOptionSelector(widgetInstance).valueNode(value);
       elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;
       // build ancestorPath by caption
@@ -1368,7 +1366,7 @@
         ancestors.reverse(); // in web-kit ancestor-or-self::* returns bottom-up order
       }
       return ancestors.join(".");
-    },
+    }
 
     /**
      * our default options sorting function uses alphabetical sorting on captions but
@@ -1376,16 +1374,16 @@
      *
      * @private
      */
-    _optionsSortingFunction : function(a, b, args){
+    _optionsSortingFunction(a, b, args){
       var x = this._buildAncestorPath(args.instance, a.value), y = this._buildAncestorPath(args.instance, b.value);
       return x < y ? -1 : x > y ? 1 : 0;
-    },
+    }
 
     /**
      * @return {boolean}  true, if given level is collapsed
      * @private
      */
-    isLevelCollapsed : function(levelId){
+    isLevelCollapsed(levelId){
       // try prefix lookup (assume the id on leaf prefixed by parent id)
       var levelState = (function(levelStateMap, isDefaultCollapsed){
         for(var key in levelStateMap){
@@ -1409,7 +1407,7 @@
       } else {
         return levelState == false;
       }
-    },
+    }
 
     /**
      * Context: widget's instace
@@ -1419,7 +1417,7 @@
      * @param {string}  dir   Direction: src2dst, dst2src
      * @private
      */
-    onItemMoved : function(args) {
+    onItemMoved(args) {
       var self = this;
       var sourceBox = args.dir == "src2dst" ? args.from : args.to;
       var targetBox = args.dir == "dst2src" ? args.from : args.to;
@@ -1478,15 +1476,15 @@
       }
       // in either case we have to re-render sourceBox in order to rebuild tree
       sourceBox._bcduiWidget()._renderItems(true);
-    },
+    }
 
     /**
      * returns cached option selector of given widgetInstance
      * @private
      */
-    _getOptionSelector : function(widgetInstance){
+    _getOptionSelector(widgetInstance){
       return this.cache.selector[widgetInstance.id] = this.cache.selector[widgetInstance.id] || widgetInstance._getOptionSelector({ enableCaching: true });
-    },
+    }
 
     /**
      * item html renderer for tree structure
@@ -1497,7 +1495,7 @@
      * @param {object}  args._widgetInstance  The instance of the connectable
      * @private
      */
-    generateItemHtml : function(args){
+    generateItemHtml(args){
       var elementInData = this._getOptionSelector(args._widgetInstance).valueNode(args.value);
       // normalize to Element (i.e. value node is mapped to attribute)
       elementInData = elementInData.nodeType === 2 ? elementInData.ownerElement || elementInData.selectSingleNode("parent::*") : elementInData;
@@ -1550,7 +1548,7 @@
 
       return this.templates.item(args);
     }
-  });
+  };
 }());
 
 /*

@@ -20,7 +20,7 @@
  *
  */
 
-bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatableModel,
+bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 /**
  * @lends bcdui.core.StaticModel.prototype
  */
@@ -54,14 +54,12 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * myModel.execute();
    * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
    */
-  initialize: function(args)
+  constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.StaticModel" ): "") != "";
-
       if( args && !args.data ) {
         args = { data: args };
       }
-      bcdui.core.AbstractUpdatableModel.call(this,args);
+      super(args);
       if (typeof args.data == "undefined" || (typeof args.data == "string" && !args.data.trim())) {
         args.data = "<Empty/>";
       }
@@ -118,14 +116,14 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
        */
       bcdui.core.ready(this._deferredInitialization.bind(this));
 
-      if (isLeaf)
-        this._checkAutoRegister();
-    },
+    }
+
+    getClassName() {return "bcdui.core.StaticModel";}
 
   /**
    * @private
    */
-  _deferredInitialization: function()
+  _deferredInitialization()
     {
       if (this.getStatus().equals(this.nullStatus)) {
         var waitingKeys = Object.keys(this._modelUpdatersThatWillBeAddedSoon);
@@ -133,31 +131,31 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
           this.setStatus(this.initializedStatus);
         }
       }
-    },
+    }
 
   /**
    * @private
    */
-  _modelUpdaterAdded: function()
+  _modelUpdaterAdded()
     {
       var waitingKeys = Object.keys(this._modelUpdatersThatWillBeAddedSoon);
       if (this.getStatus().equals(this.nullStatus) && waitingKeys.length == 0) {
         this.setStatus(this.initializedStatus);
       }
-    },
+    }
 
   /**
    * @private
    */
-  _getTheStateBeforeRefreshingModelUpdatersStatus: function()
+  _getTheStateBeforeRefreshingModelUpdatersStatus()
     {
       return this.initializedStatus;
-    },
+    }
 
   /**
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(/* StatusEvent */ statusEvent)
     {
       if (statusEvent.getStatus().equals(this.initializedStatus)) {
         /*
@@ -173,7 +171,7 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
       if (statusEvent.getStatus().equals(this._refreshingModelUpdatersStatus)) {
         this._applyModelUpdaters(false); // This makes the model sync ready if there are no model updaters
       }
-    },
+    }
 
   /**
    * <p>
@@ -193,17 +191,17 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * </td></tr></table></p>
    * @return {bcdui.core.Status} The ready state of the document.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.transformedStatus;
-    },
+    }
 
   /**
    * The executing does nothing, because there is nothing to be loaded or read.
    * This method is guaranteed the be sync for static model, when there are no model updaters
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       if (this.status.equals(this.nullStatus)) {
         /*
@@ -216,25 +214,25 @@ bcdui.core.StaticModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
 				// We know _refreshingModelUpdatersStatus -> ready is sync if there are no ModelUpdaters, so StaticModel becomes ready sync if there are none
         this.setStatus(this._refreshingModelUpdatersStatus); // This makes the model sync ready if there are no model updaters
       }
-    },
+    }
 
   /**
    * @return {XMLDocument} The data document provided in the constructor.
    */
-  getData: function()
+  getData()
     {
       return this.dataDoc;
-    },
+    }
 
   /**
    * Debugging function showing a text for this model.
    * @return {string} A summary of the model.
    */
-  toString: function()
+  toString()
     {
       return "[bcdui.core.StaticModel: " + this.id + "]";
     }
-}); // Create class: bcdui.core.StaticModel
+}; // Create class: bcdui.core.StaticModel
 
 /**
  * A fixed empty model which can be used in various cases when the real model is not

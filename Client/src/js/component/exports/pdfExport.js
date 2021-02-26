@@ -21,7 +21,7 @@
 
 bcdui.util.namespace("bcdui.component.exports");
 
-bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
+bcdui.component.exports.PDFExport = class
 /**
  * @lends bcdui.component.exports.PDFExport.prototype
  */
@@ -32,14 +32,14 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * @constant
    * @private
    */
-  _defaultFormId: "defaultPDFExportForm",
+  _defaultFormId = "defaultPDFExportForm";
 
   /**
    * The content of the dynamically created export form.
    * @constant
    * @private
    */
-  _defaultFormContent:
+  _defaultFormContent =
       '<input type="hidden" name="htmlString"/>' +
       '<input type="hidden" name="orientation"/>' +
       '<input type="hidden" name="dimension"/>' +
@@ -47,23 +47,23 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       '<input type="hidden" name="basePath" value="."/>' +
       '<input type="hidden" name="pageHash"/>' +
       '<input type="hidden" name="fileName"/>' +
-      '<input type="hidden" name="htmlWidth"/>',
+      '<input type="hidden" name="htmlWidth"/>';
 
   /**
    * The HTML template for CSS includes.
    * @constant
    * @private
    */
-  _cssIncludeTemplate: doT.template(
-      '<link rel="stylesheet" type="text/css" href="{{=it.cssUrl}}"> </link>\n'),
+  _cssIncludeTemplate =  doT.template(
+      '<link rel="stylesheet" type="text/css" href="{{=it.cssUrl}}"> </link>\n');
 
   /**
    * The template for the whole HTML page sent to the conversion Servlet.
    * @constant
    * @private
    */
-  _htmlPageTemplate: doT.template(
-      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>'),
+  _htmlPageTemplate= doT.template(
+      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>');
 
   /**
    * Creates a new PDFExport instance.
@@ -101,7 +101,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    *   </ul>
    * @private
    */
-  initialize: function(/* Object */ args)
+  constructor(/* Object */ args)
     {
       args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.core._schema_PDFExport_args);
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_PDFExport_args);
@@ -177,7 +177,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       } else {
         this._createForm(this._defaultFormId);
       }
-    },
+    }
 
   /**
    * Dynamically creates an HTML Form to send the request for the PDF document to
@@ -188,7 +188,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * @param formId The ID of the new form. If there is already an element with this
    * ID this element is taken.
    */
-  _createForm: function(/* String */ formId)
+  _createForm(/* String */ formId)
     {
       // Take already existing form if possible
       if (this.form = bcdui._migPjs._$(formId).get(0)) return;
@@ -202,7 +202,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       this.form.target = "_blank";
       document.body.appendChild(this.form);
       this.form.innerHTML = this._defaultFormContent;
-    },
+    }
 
   /**
    * Converts the array of CSS file URLs (in this.css) into one string that can be
@@ -210,13 +210,13 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * @return {String} An HTML fragment containing Link elements for all CSS files.
    * @private
    */
-  _generateCSSLinkElements: function()
+  _generateCSSLinkElements()
     {
       return jQuery.makeArray(this.css).reduce(
         function(str, cssUrl) {
           return str + this._cssIncludeTemplate({cssUrl: cssUrl});
         }.bind(this), "");
-    },
+    }
 
   /**
    * Executes the export by putting the appropriate content in the Export HTML Form.
@@ -224,7 +224,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * and "onAfterSend" in the respective places so that the user can extend this class
    * to provide some custom logic on these events.
    */
-  execute: function()
+  execute()
     {
       var formElement = bcdui._migPjs._$(this.form).get(0);
       if (formElement == null)
@@ -262,7 +262,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
       this.onBeforeSend();
       formElement.submit();
       this.onAfterSend();
-    },
+    }
 
   /**
    * An event handler function which can be used in sub-classes to intercept the
@@ -270,9 +270,9 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * in this class does not do anything.
    * @event
    */
-  onBeforeSend: function()
+  onBeforeSend()
     {
-    },
+    }
 
   /**
    * An event handler function which can be used in sub-classes to do some cleanup
@@ -280,7 +280,7 @@ bcdui.component.exports.PDFExport = bcdui._migPjs._classCreate( null,
    * does not do anything.
    * @event
    */
-  onAfterSend: function()
+  onAfterSend()
     {
     }
-});
+};

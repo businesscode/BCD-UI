@@ -19,7 +19,7 @@
  * This file contains all basic classes for status handling.
  */
 
-bcdui.core.Status = bcdui._migPjs._classCreate( null,
+bcdui.core.Status = class
 /**
  * @lends bcdui.core.Status.prototype
  */
@@ -33,23 +33,23 @@ bcdui.core.Status = bcdui._migPjs._classCreate( null,
    *
    * @constructs
    */
-  initialize: function() {},
+  constructor() {}
 
   /**
    * @return {String} A short code for the Status which can be used for debugging.
    */
-  getCode: function()
+  getCode()
     {
       throw Error("Abstract method: bcdui.core.Status.getCode");
-    },
+    }
 
   /**
    * @return {String} A longer description of the Status.
    */
-  getDescription: function()
+  getDescription()
     {
       throw Error("Abstract method: bcdui.core.Status.getDescription");
-    },
+    }
 
   /**
    * Test the status for logical equivalence to another status object. Usually
@@ -58,21 +58,21 @@ bcdui.core.Status = bcdui._migPjs._classCreate( null,
    * @return {boolean} True, if the specified status object represents the same
    * logical status as the current one.
    */
-  equals: function(/* Status */ status)
+  equals(/* Status */ status)
     {
       throw Error("Abstract method: bcdui.core.Status.equals");
-    },
+    }
 
   /**
    * @return {String} A debug string summarizing this status object.
    */
-  toString: function() {
+  toString() {
       return "[Status (" + this.getCode() + "): " + this.getDescription() + "]";
     }
-}); // Create class: bcdui.core.Status
+}; // Create class: bcdui.core.Status
 
 
-bcdui.core.StatusEvent = bcdui._migPjs._classCreate( null,
+bcdui.core.StatusEvent = class
 /**
  * @lends bcdui.core.StatusEvent.prototype
  */
@@ -90,7 +90,7 @@ bcdui.core.StatusEvent = bcdui._migPjs._classCreate( null,
    * @param {Object}            args.source   - The object the status transition happened
    * @param {bcdui.core.Status} argsnewStatus - The new status of the source object
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
     {
       if (typeof args.status == "undefined")
         throw Error("Parameter Map must contain \"status\" attribute");
@@ -110,34 +110,34 @@ bcdui.core.StatusEvent = bcdui._migPjs._classCreate( null,
       } else {
         throw Error("Attribute \"source\" must be of type bcdui.core.AbstractExecutable");
       }
-    },
+    }
 
   /**
    * Getter for the object that made the status transition.
    * @return {object} The causer of the event.
    */
-  getSource: function() {
+  getSource() {
       return this.source;
-    },
+    }
 
   /**
    * @return {Status} The new status of the source object.
    */
-  getStatus: function() {
+  getStatus() {
       return this.status;
-    },
+    }
 
   /**
    * @return {String} A summary of the status event.
    */
-  toString: function()
+  toString()
     {
       return "[Status Event: " + this.status.getDescription() + " on Source: " + this.source + "]";
     }
-}); // Create class: bcdui.core.StatusEvent
+}; // Create class: bcdui.core.StatusEvent
 
 
-bcdui.core.StatusListener = bcdui._migPjs._classCreate( null,
+bcdui.core.StatusListener = class
 /**
  * @lends bcdui.core.StatusListener.prototype
  */
@@ -149,7 +149,7 @@ bcdui.core.StatusListener = bcdui._migPjs._classCreate( null,
    * 
    * @constructs
    */
-  initialize: function() {},
+  constructor() {}
 
   /**
    * This method is called when the status transition the listener is registered
@@ -157,9 +157,9 @@ bcdui.core.StatusListener = bcdui._migPjs._classCreate( null,
    * @param statusEvent The status event belonging to the status transition. This
    * object must not be modified, because it is shared among all listeners.
    */
-  handleStatusEvent: function(/* StatusEvent */ statusEvent)
+  handleStatusEvent(/* StatusEvent */ statusEvent)
     {
       throw Error("Abstract method: bcdui.core.StatusListener.handleStatusEvent");
     }
 
-}); // Create class: bcdui.core.StatusListener
+}; // Create class: bcdui.core.StatusListener

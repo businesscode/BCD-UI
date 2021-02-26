@@ -26,7 +26,7 @@ if (typeof bcdui.widget == "undefined") {
   bcdui.widget = {};
 }
 
-bcdui.widget.DetachedEvent = bcdui._migPjs._classCreate( null,
+bcdui.widget.DetachedEvent = class
 /**
  * @lends bcdui.widget.DetachedEvent.prototype
  */
@@ -53,7 +53,7 @@ bcdui.widget.DetachedEvent = bcdui._migPjs._classCreate( null,
    * method. No attribute on of an ancestor of this element is returned by
    * findAttribute.
    */
-  initialize: function(event, element, endElement, memo) {
+  constructor(event, element, endElement, memo) {
     /**
      * @private
      */
@@ -84,50 +84,50 @@ bcdui.widget.DetachedEvent = bcdui._migPjs._classCreate( null,
       }catch(e){ continue; }
 
     }
-  },
+  }
 
   /**
    * Getter for the event origin element.
    * @return {HTMLElenet} The element that caused the event.
    */
-  element: function()
+  element()
     {
       return this._element;
-    },
+    }
 
   /**
    * Getter for the coordinates the event has been triggered at.
    * @return An object in the form \{ x: ##, y: ## \} holding the x and y position
    * where the event has been triggered.
    */
-  pointer: function()
+  pointer()
     {
       return this._pointer;
-    },
+    }
 
   /**
    * Getter for the X coordinate of the event.
    * @return The X coordinate where the event has been triggered.
    */
-  pointerX: function()
+  pointerX()
     {
       return this._pointerX;
-    },
+    }
 
   /**
    * Getter for the Y coordinate of the event.
    * @return The Y coordinate where the event has been triggered.
    */
-  pointerY: function()
+  pointerY()
     {
       return this._pointerY;
-    },
+    }
 
   /**
    * A convenience wrapper for {@link bcdui.widget._findAttribute}.
    */
-  findAttribute: function(/* String */ attrName)
+  findAttribute(/* String */ attrName)
     {
       return bcdui.widget._findAttribute(this.target, attrName, this._endElement);
     }
-});
+};

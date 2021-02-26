@@ -26,7 +26,7 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * =====================================================================
  * SVGVMLDrawer
  */
-bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
+bcdui.component.chart.SVGVMLDrawer = class
 /**
  * @lends bcdui.component.chart.SVGVMLDrawer.prototype
  */
@@ -36,13 +36,13 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @constant
    * @private
    */
-  VML: 0,
+  VML= 0;
 
   /**
    * @constant
    * @private
    */
-  SVG: 1,
+  SVG= 1;
 
   /**
    * @classdesc
@@ -57,7 +57,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param {Object} [args.transform]     - Default is no shifting \{ x: 0, y: 0 \}
    * @private
    */
-  initialize: function(args)
+  constructor(args)
   {
     if( args.scale )
       this.scale = args.scale;
@@ -67,7 +67,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
       this.transform = args.transform;
     else
       this.transform = { x: 0, y: 0 };
-  },
+  }
 
   /**
    * Set transform and scale
@@ -75,7 +75,7 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
    * @param {Object} [args.scale=x:1,y:1] - Default is no scaling \{ x: 1, y: 1\}
    * @param {Object} [args.transform]     - Default is no shifting \{ x: 0, y: 0 \}
    */
-  setTransScale: function(args)
+  setTransScale(args)
   {
     if( args.scale )
       this.scale = args.scale;
@@ -85,35 +85,35 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
       this.transform = args.transform;
     else
       this.transform = { x: 0, y: 0 };
-  },
+  }
 
   /**
    * _hideToolTip
    * @private
    */
-  _hideToolTip : function (element, event) {
+  _hideToolTip (element, event) {
     jQuery("#bcdChartToolTip").hide();
-  },
+  }
 
   /**
    * The function moves the tooltip if it exist
    * @param event
    * @private
    */
-  _moveToolTip: function (element, event) {
+  _moveToolTip (element, event) {
     var div = document.getElementById("bcdChartToolTip");
     if (! div)
       return;
     if (jQuery(div).is(":visible"))
       bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
-  },
+  }
 
   /**
    * The function shows the tooltip if it exist
    * @param {Event} event
    * @private
    */
-  _showToolTip: function (element, event) {
+  _showToolTip (element, event) {
     var root = jQuery(element).closest("svg").get(0);
     var text = (root && root.createToolTipCb != null) ? root.createToolTipCb(root, window.event ? window.event.srcElement : event.target) : null;
     if (text == null) {
@@ -123,69 +123,69 @@ bcdui.component.chart.SVGVMLDrawer = bcdui._migPjs._classCreate( null,
     var div = bcdui.util.getSingletonElement("bcdChartToolTip").get(0);
     div.innerHTML = text;
     bcdui.widget._flyOverPositioning({event: event, htmlElement: div, positionUnderMouse: false});
-  },
+  }
 
   /**
    * Calculate the physical x pos from a logical one
    * @param xLogical
    * @private
    */
-  _xPx: function( xLogical ) {
+  _xPx( xLogical ) {
     var val = this.transform.x+xLogical*this.scale.x;
     return !isFinite(val) ? 0+this.transform.x : val;
-  },
+  }
 
   /**
    * Calculate the physical y pos from a logical one
    * @param yLogical
    * @private
    */
-  _yPx: function( yLogical ) {
+  _yPx( yLogical ) {
     var val = yLogical*this.scale.y+this.transform.y;
     return !isFinite(val) ? 0+this.transform.y : val;
-  },
+  }
 
   /**
    * Sets cursor to 'pointer', is used as listener pointer
    * @private
    */
-  _setCursorToPointer: function() {
+  _setCursorToPointer() {
     document.body.style.cursor = 'pointer';
-  },
+  }
 
   /**
    * Sets cursor to 'default', is used as listener pointer
    * @private
    */
-  _setCursorToDefault: function() {
+  _setCursorToDefault() {
     document.body.style.cursor = 'default';
-  },
+  }
 
   /**
    * wrapped the function because of PDF export in IE with VML
    * @private
    */
-  _addEventListener: function(args) {
+  _addEventListener(args) {
     !!(window.SVGSVGElement) ? bcdui._migPjs._$(args.element).on(args.type, args.listener) : args.element.attachEvent(args.type, args.listener);
-  },
+  }
 
   /**
    * Returns the a DOM element containing the SVG drawing
    * @returns {Element} Returns the a DOM element containing the VML or SVG drawing
    */
-  getResult: function()
+  getResult()
   {
     return this.rootElem;
   }
 
-}); // End SVGVMLDrawer
+}; // End SVGVMLDrawer
 
 
 /*
  * =====================================================================
  * SVGDrawer
  */
-bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.chart.SVGVMLDrawer,
+bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDrawer
 /**
  * @lends bcdui.component.chart.SVGDrawer.prototype
  */
@@ -205,9 +205,9 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function} [args.createToolTipCb] - Call back getting the source element, returning the tool tip HTML</li>
    * @param {Object}   [args.addAttr]         - A set of additional string attributes to be attached to the root element</li>
    */
-  initialize: function( args )
+  constructor( args )
   {
-    bcdui.component.chart.SVGVMLDrawer.call( this, args );
+    super( args );
 
     this.doc = args.doc;
     this.rootElem = this._createElementNS("svg");
@@ -225,7 +225,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
 
     // To keep track of reusable effect definitions
     this.knownEffects = new Object();
-  },
+  }
 
   /**
    * Draw a SVG line
@@ -239,7 +239,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
    */
-  line: function( args )
+  line( args )
   {
     if( !args.rgb )
       args.rgb = "rgb(0,0,0)";
@@ -268,7 +268,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     for( var attr in args.addAttr )
       elem.setAttribute(attr,args.addAttr[attr]);
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * Draw a SVG box
@@ -283,7 +283,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
    */
-  box: function( args )
+  box( args )
   {
     if( !args.rgb )
       args.rgb = "rgb(0,0,0)";
@@ -303,7 +303,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     for( var attr in args.addAttr )
       elem.setAttribute(attr,args.addAttr[attr]);
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * Draw a SVG arc
@@ -321,7 +321,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
    */
-  arc: function( args )
+  arc( args )
   {
     if( Math.cos(args.end)==Math.cos(args.start) )
       args.end *= 0.99999; // Otherwise SVG will not render an (almost) full circle
@@ -359,7 +359,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     for( var attr in args.addAttr )
       elem.setAttribute(attr,args.addAttr[attr]);
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * Draw a SVG circle
@@ -373,7 +373,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
    */
-  circle: function( args )
+  circle( args )
   {
     if( !args.rgb )
       args.rgb = "rgb(0,0,0)";
@@ -391,7 +391,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     for( var attr in args.addAttr )
       elem.setAttribute(attr,args.addAttr[attr]);
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * Draw a SVG text
@@ -403,7 +403,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {string}      [args.align]          - Possible values middle, end
    * @param {string}      [args.layoutFlow]     - A css value lie vertical-ideographic
    */
-  text: function( args )
+  text( args )
   {
     var elem = this._createElementNS("text");
     elem.appendChild( this.doc.createTextNode(args.text) );
@@ -439,7 +439,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     elem.setAttribute("x" , x+"" );
     elem.setAttribute("y" , y+"" );
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * Draw an SVG image element
@@ -452,7 +452,7 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
    */
-  image: function( args )
+  image( args )
   {
     if( typeof args.href == "undefined" )
       return;
@@ -472,24 +472,24 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     for( var attr in args.addAttr )
       elem.setAttribute(attr,args.addAttr[attr]);
     this.rootElem.appendChild(elem);
-  },
+  }
 
   /**
    * The function is usefull to create a SVG in IE to create PDF from it.
    * creates an element, depends on User client registers svg Namespace(Firefox) or not(IE).
    * @private
    */
-  _createElementNS: function(elementName){
+  _createElementNS(elementName){
     var elem =  typeof this.doc.createElementNS == "function" ? this.doc.createElementNS("http://www.w3.org/2000/svg",elementName) : this.doc.createElement(elementName);
     return elem;
-  },
+  }
 
   /**
    * The function adds some named effects to the SVG drawer
    * These effects are implemented in form of painting a white area with a gradient
    * @private
    */
-  _addEffect: function(effect, color)
+  _addEffect(effect, color)
   {
     // SVG can define an effect once and just keep linking to it per use
     // If for this color and effect that is already the case return its id
@@ -605,4 +605,4 @@ bcdui.component.chart.SVGDrawer = bcdui._migPjs._classCreate(bcdui.component.cha
     return id;
   }
 
-} ); // bcdui.component.chart.SVGDrawer
+}; // bcdui.component.chart.SVGDrawer

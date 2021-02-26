@@ -20,7 +20,7 @@
  */
 bcdui.util.namespace("bcdui.i18n");
 
-bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
+bcdui.i18n.MessageCatalog = class
 /**
  * @lends bcdui.i18n.MessageCatalog.prototype
  */
@@ -58,7 +58,7 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
    * entries.
    * @private
    */
-  initialize : function(args) {
+  constructor(args) {
     this.catalog = (!args)?null:args.document;
     if(this.catalog==null){
       throw new Error("bcdui.i18n.MessageCatalog initialized with no document");
@@ -76,7 +76,7 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
     }else{
       this._getMsgId = this._msgIdProxy_asis;
     }
-  },
+  }
 
   /**
    *
@@ -84,7 +84,7 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
    * @param interpolations
    * @return translated message or empty String if did not find
    */
-  translate:function(args) {
+  translate(args) {
     // in debug mode the default translation is the message so in case no key is available the developer knows whats missing
     var translated = bcdui.config.isDebug ? args.msgid : "";
     if(!args.msgid){
@@ -104,38 +104,38 @@ bcdui.i18n.MessageCatalog = bcdui._migPjs._classCreate( null,
       };
     };
     return translated;
-  },
+  }
 
   /**
    * @private
    */
-  _msgIdProxy_normalized : function(msgid){
+  _msgIdProxy_normalized(msgid){
     return this._normalizeKey(msgid);
-  },
+  }
 
   /**
    * @private
    */
-  _msgIdProxy_asis : function(msgid){
+  _msgIdProxy_asis(msgid){
     if(msgid && msgid.startsWith(bcdui.i18n.TAG)){
       return msgid.substring(1);
     }
     return msgid;
-  },
+  }
 
   /**
    * normalizes the key, that is all chars except alphanumeric, _ and - are stripped off
    * @private
    */
-  _normalizeKey:function(/*String*/ key){
+  _normalizeKey(/*String*/ key){
     if(key.startsWith(bcdui.i18n.TAG)){
       key = key.substring(1);
     }
     return key.replace(/[^a-zA-Z_0-9-]/g, "");
   }
-});
+};
 
-bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( null,
+bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
 /**
  * @lends bcdui.i18n.HTMLTranslator.prototype
  */
@@ -149,7 +149,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
    * @param {String} translateAttrsAttrName (optional)
    * @private
    */
-  initialize:function(args) {
+  constructor(args) {
     if(!args||!args.catalog){
       throw new Error("bcdui.i18n.HTMLTranslator() not initialized properly: catalog not defined");
     }
@@ -158,7 +158,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
     this.formatAttrName= "bcdFormat";
     this.translateAttrName= args.translateAttrName || "bcdTranslate";
     this.translateAttrsAttrName= args.translateAttrsAttrName || "bcdTranslateAttrs";
-  },
+  }
   /**
    * translates the element and all its children having the translate attribute
    * @private
@@ -166,7 +166,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
    *         element  - element to translate
    *         catalog  - catalog with i18n entries
    */
-  translate:function(args) {
+  translate(args) {
     var docel = typeof args.element === "string" ? document.getElementById(args.element) : args.element;
     if(docel && docel.nodeType===1 ){// because of TEXT_NODE, COMMENT_NODE and so on
       if (docel.nodeName.toUpperCase() == 'INPUT'){  // input field have a 'select' method that is different than prototype:select function
@@ -183,12 +183,12 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
         }
       }
     }
-  },
+  }
 
   /**
    * @private
    */
-  _handleNode:function(node) {
+  _handleNode(node) {
     if (node.nodeType != 1) {
       return;
     }
@@ -207,7 +207,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
       }
     } catch(e) {};
 
-  },
+  }
 
   /**
    * translates HTML content of given over HTML node
@@ -216,7 +216,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
    * @param midstring
    * @private
    */
-  _handle_i18ntranslate:function(node, midstring) {
+  _handle_i18ntranslate(node, midstring) {
     var mid;
     if (midstring.trim() != '') {
       mid = midstring;
@@ -230,12 +230,12 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
       node.innerHTML = formatted;
     // clean up
     node.removeAttribute(this.translateAttrName);
-  },
+  }
 
   /**
    * translates and formats if needed the given over message id
    */
-  translateFormatMessage:function(msgid){
+  translateFormatMessage(msgid){
     if(!msgid) return msgid;
     var oMsgId = msgid;// original message id
     msgid = msgid.trim();
@@ -263,7 +263,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
     }
 
     return formatted;
-  },
+  }
 
   /**
    * translates attributes
@@ -272,7 +272,7 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
    * @param attrstring
    * @private
    */
-  _handle_i18n_attributes:function(node, attrstring) {
+  _handle_i18n_attributes(node, attrstring) {
     var attrnames = attrstring.split(';');
     for (var i=0; i < attrnames.length; i++) {
       node.setAttribute(attrnames[i], this.catalog.translate({msgid:node.getAttribute(attrnames[i]).trim()}));
@@ -280,4 +280,4 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = bcdui._migPjs._classCreate( 
     // clean up
     node.removeAttribute(this.translateAttrsAttrName);
   }
-});// end of Class scope
+};// end of Class scope
