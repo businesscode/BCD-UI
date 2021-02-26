@@ -19,7 +19,7 @@
  * @namespace bcdui.component.cube
  */
 bcdui.util.namespace("bcdui.component.cube");
-bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWrapper,
+bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
 /**
  * @lends bcdui.component.cube.CubeModel.prototype
  */
@@ -36,7 +36,7 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
    * @param {string}                  [args.id]     - The object's id, needed only when later accessing via id. If given the CubeModel registers itself at {@link bcdui.factory.objectRegistry}
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
    */
-  initialize: function(args) {
+  constructor(args) {
     
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.cube.CubeModel" ): "") != "";
     
@@ -80,7 +80,7 @@ bcdui.component.cube.CubeModel = bcdui._migPjs._classCreate( bcdui.core.ModelWra
     if (isLeaf)
       this._checkAutoRegister();
   }
-});
+};
 
 //default layout renderer
 
@@ -114,7 +114,7 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
 
 // cube
 
-bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
+bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 /**
  * @lends bcdui.component.cube.Cube.prototype
  */
@@ -134,7 +134,7 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
    * @param {chainDef}                [args.chain]                                           - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
    * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    */
-  initialize: function(args) {
+  constructor(args) {
 
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.cube.Cube" ): "") != "";
 
@@ -230,41 +230,41 @@ bcdui.component.cube.Cube = bcdui._migPjs._classCreate( bcdui.core.Renderer,
     
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
 
   /**
    * @deprecated, use getConfigModel instead
    * @private
    * @returns {bcdui.core.DataProvider} MetaData model of the cube
    */
-  getMetaDataModel: function() { 
+  getMetaDataModel() { 
     return this.metaDataModel;
-  },
+  }
 
   /**
    * @returns {bcdui.core.DataProvider} configuration model of the cube
    */
-  getConfigModel: function() { 
+  getConfigModel() { 
     return this.metaDataModel;
-  },
+  }
 
   /**
    * @returns {bcdui.core.DataProvider} Enhanced configuration model of the cube
    */
-  getEnhancedConfiguration: function() { 
+  getEnhancedConfiguration() { 
     return this.enhancedConfiguration 
-  },
+  }
   
   /**
    * Only for backward compatibility. If needed in future, should be part of Renderer
    * @private
    * @returns {targetHtmlref} Target element in HTML of the cube
    */
-  getTargetHTMLElement: function() { 
+  getTargetHTMLElement() { 
     return jQuery("#"+this.targetHtml).get(0);
   }
 
-});
+};
 
 bcdui.util.namespace("bcdui.component",
 /** @lends bcdui.component */
