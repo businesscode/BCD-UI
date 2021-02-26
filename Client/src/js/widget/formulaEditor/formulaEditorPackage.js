@@ -834,19 +834,19 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLListener: bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+    XMLListener: class extends bcdui.widget.XMLDataUpdateListener
         /**
          * @lends bcdui.widget.formulaEditor.XMLListener.prototype
          */        
         {
-          updateValue: function()
+          updateValue()
             {
               var containerHtmlElement = bcdui._migPjs._$(this.htmlElementId);
               bcdui.widget.formulaEditor._updateViewFromXMLData(containerHtmlElement.get(0));
               // formula JS validation
               bcdui.widget.formulaEditor._validateValue(containerHtmlElement.get(0));
             }
-        }),
+        },
 
     /**
      * @classdesc
@@ -854,15 +854,17 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLVariablesListener: bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+    XMLVariablesListener: class extends bcdui.widget.XMLDataUpdateListener
         /**
          * @lends bcdui.widget.formulaEditor.XMLVariablesListener.prototype
          */        
         {
-          updateValue: function()
+          constructor(){}
+
+          updateValue()
             {
               var containerHtmlElement = bcdui._migPjs._$(this.htmlElementId);
               bcdui.widget.formulaEditor._insertVariableFromModel(containerHtmlElement.get(0), this._targetModelId);
             }
-        })
+        }
 }); // namespace

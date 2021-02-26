@@ -20,7 +20,7 @@
  */
 
 
-bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecutable,
+bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 /**
  * @lends bcdui.core.DataProvider.prototype
  */
@@ -65,13 +65,18 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    *   be unique for within this TransformationChain object.
    * </p>
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProvider" ): "") != "";    
-      
-      this.saveOptions = args.saveOptions;
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
 
-      bcdui.core.AbstractExecutable.call( this, args );
+            this.saveOptions = args.saveOptions;
+      }}))
+
+
 
       /**
        * flag to monitor write/remove operations after last fire
@@ -125,12 +130,11 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       // especially NOT bcdui.core._ModelBeingUpdated
       if (this.saveOptions)
         this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
+    }
 
-      if (isLeaf)
-        this._checkAutoRegister();
-    },
+    getClassName() {return "bcdui.core.DataProvider";}
     
-    _statusTransitionHandlerDp: function(/* StatusEvent */ statusEvent)
+    _statusTransitionHandlerDp(/* StatusEvent */ statusEvent)
     {
       if (statusEvent.getStatus().equals(this.savingStatus)) {
         /*
@@ -146,12 +150,12 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
         var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
         this.setStatus(newStatus);
       }
-    },
+    }
 
     /**
      * Sends the current data to the original URL
      */
-    sendData: function()
+    sendData()
       {
         if (this.status.equals(this.savingStatus)) {
           bcdui.log.warn("sendData skipped, because the model is already in saving state.");
@@ -161,12 +165,12 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
           throw Error("Cannot send data when the model is not in ready state.");
         }
         this.setStatus(this.savingStatus);
-      },
+      }
 
     /**
      * @private
      */
-    _save: function()
+    _save()
       {
         if (! this.saveOptions || !this.saveOptions.urlProvider)
           throw Error("Cannot send data due to missing save options.");
@@ -257,20 +261,20 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
         // otherwise we can post the data directly
         else
           bcdui.core.xmlLoader.post(p);
-      },
+      }
 
   /**
    * @private
    */
-  _generateModificationListenerId: function()
+  _generateModificationListenerId()
     {
       return "listener" + this._currentGeneratedListenerId++;
-    },
+    }
 
   /**
    * @private
    */
-  _extractIdFromModificationListener: function(/* Function|Object */ listener)
+  _extractIdFromModificationListener(/* Function|Object */ listener)
     {
       if (listener.getId && bcdui.util.isFunction(listener.getId)) {
         return listener.getId();
@@ -278,7 +282,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
         return listener.id;
       }
       return null;
-    },
+    }
 
   /**
    * This informs modification listeners, registered via {@link bcdui.core.DataProvider#onChange onChange(args)}, that a change set was completed
@@ -293,10 +297,10 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * model.getData().value ++;
    * model.fire(); // console prints '4'
    */
-    fire: function() {
+    fire() {
       this._uncommitedWrites = false;
       this._fire(false);
-    },
+    }
 
   /**
    * Getter for the name of the data provider. This name is for example used
@@ -304,26 +308,26 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @return {string} The name of the data provider. This name should be unique
    * within the scope it is used and is usually not globally unique (as the id).
    */
-  getName: function()
+  getName()
     {
       return this.name;
-    },
+    }
 
   /**
    * Access to the data of this DataProvider for read and modification access
    * @return {*} The data provided by the specific sub-class.
    * @abstract
    */
-  getData: function()
+  getData()
     {
       // To be overwritten by the concrete subclass
       throw Error("Abstract method: bcdui.core.DataProvider.getData");
-    },
+    }
 
   /**
    * Convenience method for debugging showing data in a prompt for copy-and-paste
    */
-  promptData: function()
+  promptData()
   {
     if(this.getReadyStatus()!=this.getStatus())
       prompt(this.id,"Data provider is not yet ready");
@@ -333,21 +337,21 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       prompt(this.id, JSON.stringify(this.getData()) );
     else
       prompt(this.id,this.getData());
-  },
+  }
 
   /**
    * Useful for debugging.
    * @return {string} A short string summary of this object.
    */
-  toString: function()
+  toString()
     {
       return "[bcdui.core.DataProvider: id = " + this.id + ", name = " + this.name + "]";
-    },
+    }
 
   /**
    * @return {string} Human readable message, which DataProviders, this DataProvider depends on, are not currently in ready state
    */
-  debugIsWaitingFor: function()
+  debugIsWaitingFor()
     {
       var message = "Dataprovider '"+this.id+"' is waitig for ";
       if( this.dataproviders )
@@ -355,12 +359,12 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       else
         message += "no data provider";
       return message + " to become ready.";
-    },
+    }
 
   /**
    * @return {string} Human readable message about the current state state
    */
-  debugStatus: function()
+  debugStatus()
     {
       var message = "Dataprovider '"+this.id+"' is in state '"+this.getStatus().toString()+"'";
       if( this.getStatus().equals( this.getReadyStatus() ) )
@@ -368,7 +372,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       else
         message += ". ReadyState would be '"+this.getReadyStatus().toString()+"'";
       return message;
-    },
+    }
 
   /**
    * transforms a xpath string with placeholders. A value with an apostrophe gets translated into a concat statement.
@@ -377,7 +381,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @return {string} final xPath with filled in values for possibly existing placeholders 
    * @private
    */
-  _getFillParams: function(fillParams, xPath)
+  _getFillParams(fillParams, xPath)
     {
       var x = xPath;
       var concat = false;
@@ -397,7 +401,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       if (concat)
         x = x.replace(/('|\")*(\s)*Xconcat\('/g, "concat('").replace(/, ''X\)(\s)*('|\")*/g, ", '')");
       return x;
-    },
+    }
 
   /**
    * Reads the string value from a given xPath (or optionally return default value).
@@ -406,13 +410,13 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {string} [defaultValue] - default value in case xPath value does not exist
    * @return text value stored at xPath (or null if no text was found and no defaultValue supplied)
    */
-  read: function(xPath, fillParams, defaultValue) {
+  read(xPath, fillParams, defaultValue) {
     var def = (typeof fillParams == "string") ? fillParams : defaultValue;
     if (this.getData() == null) return (def === undefined ? null : def);
     var x = this._getFillParams(fillParams, xPath);
     var node = this.getData().selectSingleNode(x);
     return node != null ? node.text : (def === undefined ? null : def);
-  },
+  }
 
   /**
    * Set a value to on a certain xPath and create the xPath where necessary. 
@@ -433,7 +437,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return The xPath's node or null if dataProvider isn't ready
    */
-  write: function(xPath, fillParams, value, fire) {
+  write(xPath, fillParams, value, fire) {
     if (this.getData() == null)
       return null;
     this._uncommitedWrites = true;
@@ -449,7 +453,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     if (f) 
       this.fire();
     return newPath;
-  },
+  }
 
   /**
    * removes given xPath
@@ -457,7 +461,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
    */
-  remove: function(xPath, fillParams, fire) {
+  remove(xPath, fillParams, fire) {
     if (this.getData() == null) return;
 
     this._uncommitedWrites = true;
@@ -467,7 +471,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
 
     bcdui.core.removeXPath(this.getData(), x);
     if (f) this.fire();
-  },
+  }
 
   /**
    * Reads a single node from a given xPath
@@ -475,11 +479,11 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @return single node or null if query fails
    */
-  query: function(xPath, fillParams) {
+  query(xPath, fillParams) {
     if (this.getData() == null) return null;
     var x = this._getFillParams(fillParams, xPath);
     return this.getData().selectSingleNode(x);
-  },
+  }
   
   /**
    * Get node list from a given xPath
@@ -487,19 +491,19 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @return node list or empty list if query fails
    */
-  queryNodes: function(xPath, fillParams) {
+  queryNodes(xPath, fillParams) {
     if (this.getData() == null) return [];
     var x = this._getFillParams(fillParams, xPath);
     return this.getData().selectNodes(x);
-  },
+  }
 
   /**
    * Serialize dataprovider's data if available
    * @return String containing the serialized data
    */
-  serialize: function() {
+  serialize() {
     return (this.getData() == null ? null : new XMLSerializer().serializeToString(this.getData()));
-  },
+  }
 
   /**
    * Removes a data listener via its id or listener object / function.
@@ -507,7 +511,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {string} [listenerObject.id] - listener id
    * @param {string} [listenerObject.callback] - listener function
   */
-  removeDataListener: function(listenerObject) {
+  removeDataListener(listenerObject) {
 
     if (bcdui.util.isFunction(listenerObject)) {
       this.removeDataListener({ callback: listenerObject });
@@ -526,7 +530,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       }
       return (this._extractIdFromModificationListener(item) !== extractedId && (item !== listenerObject));
     }, this);
-  },
+  }
 
   /**
    * Adds a data listener to the DataProvider which can be triggered when the data (XML
@@ -541,7 +545,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @param {string}   [listenerObject.id] - listener id (only needed for removeDataListener usability)
    * @param {string}   [trackingXPath] - xPath to monitor to monitor for changes
   */
-  onChange: function(listenerObject, trackingXPath) {
+  onChange(listenerObject, trackingXPath) {
 
     // if we got a function, build up a listenerObject with the given values
     if( bcdui.util.isFunction(listenerObject)) {
@@ -568,12 +572,12 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
 
     // and finally add it
     this.dataModificationListeners.push(listenerObject);
-  },
+  }
 
   /**
    * @private
    */
-  _fire: function(causedByReadyStatus) {
+  _fire(causedByReadyStatus) {
 
     if (this.getStatus() instanceof bcdui.core.status.WaitingForUncomittedChanges) {
       this.setStatus(this.getReadyStatus());
@@ -597,21 +601,21 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
         listener.callback(this, causedByReadyStatus);
     }.bind(this));
 
-  },
+  }
 
   /**
    * this function is executed on .fireBeforeModelUpdate
    * @private
    */
-  _initTrackingXPathListener: function(listener) {
+  _initTrackingXPathListener(listener) {
     listener.oldData = this._hashValueForListener(listener.trackingXPath);
-  },
+  }
   
   /**
    * this function is executed on .fireAfterModelUpdate
    * @private
    */
-  _trackingXPathListener: function(listener, target) {
+  _trackingXPathListener(listener, target) {
     var newData = this._hashValueForListener(listener.trackingXPath);
 
     // .oldData is initialized in _initTrackingXPathListener()
@@ -623,7 +627,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
         (window["console"]?console:bcdui.log).warn("error occurred while executing listener-function:" + e.message, e);
       }
     }
-  },
+  }
 
   /**
    * creates a simple hash of given xPath value (as string) using following algorithm:
@@ -634,7 +638,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @return string hash value, null in case stringValue was null or empty string in case stringValue was empty
    * @private
    */
-  _hashValueForListener : function(xPath){
+  _hashValueForListener(xPath){
 
     if (this.getData() == null)
       return null;
@@ -668,7 +672,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     return "" + hash;
   }
   
-  , setStatus: function(/* Status */ args) {
+  setStatus(/* Status */ args) {
     var stat = bcdui.core.AbstractExecutable.prototype.setStatus.call(this, args);
 
     // we do send a fire in case we reached a ready status
@@ -677,16 +681,16 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
     if (stat.oldStatus != stat.newStatus && stat.newStatus == this.getReadyStatus()) {
       this._fire(true); 
     }
-  },
+  }
 
   /**
    * True, if DataProvider is ready and there are no uncomitted write transactions,
    * see {@link bcdui.core.AbstractExecutable#isReady isReady()} and {@link bcdui.core.DataProvider#onChange fire()}.
    * @returns {boolean}
    */
-  isClear: function() {
+  isClear() {
     return (! this._uncommitedWrites && this.isReady());
-  },
+  }
 
   /**
    * asynchronously fetch data for this data provider.
@@ -695,7 +699,7 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
    * @example
    * new bcdui.core.SimpleModel("data.xml").fetchData().then((dp)=>{ console.info(dp.getData()); })
    */
-  fetchData: function() {
+  fetchData() {
     return new Promise(function(resolve) {
       resolve = resolve.bind(undefined, this); // resolve passing 'this' as argument
 
@@ -714,4 +718,4 @@ bcdui.core.DataProvider = bcdui._migPjs._classCreate( bcdui.core.AbstractExecuta
       }
     }.bind(this));
   }
-}); // Create class: bcdui.core.DataProvider
+}; // Create class: bcdui.core.DataProvider

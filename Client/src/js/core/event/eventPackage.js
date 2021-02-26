@@ -18,21 +18,21 @@
  * @namespace bcdui.core.event
  */
 bcdui.util.namespace("bcdui.core.event", {
-  EventType : bcdui._migPjs._classCreate( null, {
-    initialize: function(typeId){
+  EventType : class {
+    constructor(typeId){
       this.typeId = typeId;
     }
-  })
+  }
   ,
-  Observable : bcdui._migPjs._classCreate( null, {
-    initialize: function(){
+  Observable : class {
+    constructor(){
       /*
        * a map of array of callback functions (listeners)
        */
       this.typeListenerMap = {GLOBAL:[]};
-    },
+    }
 
-    fire: function(eventType){
+    fire(eventType){
       var targetTypes = ["GLOBAL", eventType.typeId];
       for(var k=0;k<targetTypes.length;k++){
         var targetTypeListeners = this.typeListenerMap[targetTypes[k]];
@@ -46,12 +46,12 @@ bcdui.util.namespace("bcdui.core.event", {
           }
         }
       }
-    },
+    }
 
     /*
      * use eventType = null for global event listeners or a concrete one
      */
-    addListener : function(eventType, listenerFn){
+    addListener(eventType, listenerFn){
       if(eventType == null){
         this.typeListenerMap["GLOBAL"].push(listenerFn);
       }else{
@@ -62,5 +62,5 @@ bcdui.util.namespace("bcdui.core.event", {
         eventTypeListeners.push(listenerFn);
       }
     }
-  })
+  }
 }); //namespace

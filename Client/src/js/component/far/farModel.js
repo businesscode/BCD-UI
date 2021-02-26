@@ -15,7 +15,7 @@
 */
 "use strict";
 bcdui.util.namespace("bcdui.component.far",{});
-bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsDataProvider,
+bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
 /** @lends bcdui.component.far.FarModel.prototype */
 {
   /**
@@ -31,17 +31,22 @@ bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsData
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
-  initialize : function(args){ // takes .config or .enhancedConfig
-    // checks
-    args = jQuery.extend({}, args, {
-      callback : this._execute.bind(this)
-    });
-    if(!(args.config || args.enhancedConfig)){
-      throw "Requires either .config or .enhancedConfig parameter to be provided.";
-    }
-    args.componentId = args.componentId || "far";
+  constructor(args){ // takes .config or .enhancedConfig
     // call super-constructor
-    bcdui.core.AsyncJsDataProvider.call( this, args );
+    var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          // checks
+          args = jQuery.extend({}, args, {
+            callback : this._execute.bind(this)
+          });
+          if(!(args.config || args.enhancedConfig)){
+            throw "Requires either .config or .enhancedConfig parameter to be provided.";
+          }
+          args.componentId = args.componentId || "far";
+    }}))
 
     // normalize defaults
     args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
@@ -67,13 +72,13 @@ bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsData
     this.dataModel = new bcdui.core.SimpleModel({
       url : new bcdui.core.RequestDocumentDataProvider({ requestModel : this.requestModel })
     });
-  },
+  }
 
   /**
    * @return data provider returning /Root/TotalRows yielding the total rows count for current request
    * @private
    */
-  _getTotalRowsCountProvider : function(){
+  _getTotalRowsCountProvider(){
     if(!this.totalRowsCountProvider){
       var totalRowsModel = new bcdui.core.SimpleModel({
         url : new bcdui.core.RequestDocumentDataProvider({
@@ -92,16 +97,16 @@ bcdui.component.far.FarModel = bcdui._migPjs._classCreate(bcdui.core.AsyncJsData
       this.requestModel.onChange(totalRowsModel.execute.bind(totalRowsModel));
     }
     return this.totalRowsCountProvider;
-  },
+  }
 
   /**
    * trggered by .execute()
    * @private
    */
-  _execute : function(args){
+  _execute(args){
     this.dataModel.onceReady(function(){
       args.setData(this.getData());
     });
     this.dataModel.execute();
   }
-});
+};

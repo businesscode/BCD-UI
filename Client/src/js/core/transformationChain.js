@@ -19,7 +19,7 @@
  * This file contains the implementation of the TransformationChain class.
  */
 
-bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.TransformationChain.prototype
  */
@@ -36,9 +36,9 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * @description
    * The constructor for the TransformationChain class.
    */
-  initialize: function(args)
+  constructor(args)
     {
-      bcdui.core.DataProvider.call(this,args);
+      super(args);
       
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
@@ -255,14 +255,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
           this.execute();
         }
       }
-    },
+    }
 
   /**
    * The global state transition listener. This listener is responsible for
    * executing the appropriate action based on a state transition.
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(/* StatusEvent */ statusEvent)
     {
       if (statusEvent.getStatus().equals(this.loadingStatus)) {
         /*
@@ -293,7 +293,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
          */
         this._refresh();
       }
-    },
+    }
 
   /**
    * The ready status for the transformation chain is reached as soon as all
@@ -324,29 +324,29 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * </td></tr></table></p>
    * @return {Status} The transformed status.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.transformedStatus;
-    },
+    }
 
   /**
    * A getter for the document produced by the transformation chain.
    * @return {*} The output of the last transfomration in the chain if it does
    * not produce HTML (output="html").
    */
-  getData: function()
+  getData()
     {
       return this.dataDoc;
-    },
+    }
 
   /**
    * Start the loading process of the stylesheets and executes the transformations
    * again.
    */
-  reloadStylesheets: function()
+  reloadStylesheets()
     {
       this.setStatus(this.chainLoadedStatus);
-    },
+    }
 
   /**
    * Gets the data providers attached to this object as hash map. This map can
@@ -355,7 +355,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    *                 if not given, all dataproviders given to any stylesheet are included
    * @private
    */
-  _getDataProviderValues: function(/* Array? */ stylesheetParams)
+  _getDataProviderValues(/* Array? */ stylesheetParams)
     {
       // Data providers for all stylesheets
       var dPs = this.dataProviders.slice(0);
@@ -375,15 +375,15 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         map[bcdui.util.isFunction(x.getName) ? x.getName() : x.id] = x.getData();
         return map;
       }, {});
-    },
+    }
 
   /**
    * @returns {bcdui.core.DataProvider} returns the parameter of the given name
    */
-  getDataProviderByName: function(/* String */ name)
+  getDataProviderByName(/* String */ name)
     {
       return this._getDataProviderValues()[name];
-    },
+    }
 
   /**
    * Loops over all elements inside the targetHTMLElement with an "bcdOnLoad" attribute and
@@ -396,7 +396,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    *
    * @private
    */
-  _executeOnXAttributes: function( targetElement, attribute )
+  _executeOnXAttributes( targetElement, attribute )
     {
       jQuery(targetElement).find(" *["+attribute+"]").each(function(idx,onLoadElement) {
         var initCode = onLoadElement.getAttribute( attribute );
@@ -405,7 +405,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         }
         onLoadElement.removeAttribute( attribute );
       });
-    },
+    }
     
   /**
    * Executes the specified transformation on the inputDoc and (recursively) starts
@@ -417,7 +417,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * @param {(XMLDocument|Object)} Input to be transformed
    * @private
    */
-  _runTransformation: function(/* object */ xslt, /* object */ input )
+  _runTransformation(/* object */ xslt, /* object */ input )
     {
       xslt.running = true;
       xslt.input = input;
@@ -531,7 +531,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         }.bind(this)
       });
       return;
-    },
+    }
 
   /**
    * Adds a new data provider to the transformation chain. If there is already a data provider
@@ -541,7 +541,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * @return {bcdui.core.DataProvider} The old data provider registered under the name or
    * null if there has not been any.
    */
-  addDataProvider: function(/* DataProvider */ newDataProvider, newName)
+  addDataProvider(/* DataProvider */ newDataProvider, newName)
     {
       var name = bcdui.util.isFunction(newDataProvider.getName) ? newDataProvider.getName() : newDataProvider.id;
 
@@ -561,7 +561,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       }
       this.dataProviders.push(newDataProvider);
       return null;
-    },
+    }
 
   /**
    * Getter for the primary model of the chain. The first transformation of
@@ -570,23 +570,23 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * @return {bcdui.core.DataProvider} The model the first transformation in
    * the chain is running on.
    */
-  getPrimaryModel: function()
+  getPrimaryModel()
     {
       return this.dataProviders.find(function(dataProvider) {
         return dataProvider.id == this.modelParameterId;
       }.bind(this));
-    },
+    }
 
   /**
    * Adds a new data provider to the list which becomes the new primary model
    * of the transformation chain.
    * @param primaryModel the new primary model of the transformation chain.
    */
-  setPrimaryModel: function(/* DataProvider */ primaryModel)
+  setPrimaryModel(/* DataProvider */ primaryModel)
     {
       this.dataProviders.unshift(primaryModel);
       this.modelParameterId = primaryModel.id;
-    },
+    }
 
   /**
    * A function executing the next transformation in the chain. If there is no transformation
@@ -594,7 +594,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * it places the result either in the target HTML element or in the dataDoc.
    * @private
    */
-  _transformNext: function()
+  _transformNext()
     {
       var currentXslt = null;
       var nextXslt = null;
@@ -647,53 +647,53 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       } else {
         this._runTransformation(nextXslt, lastNotNullOutput );
       }
-    },
+    }
 
   /**
    * Tests if the transformation chain is currently processing its XSLTs.
    * @return {boolean} True, if the transformation chain is currently running.
    * @private
    */
-  _isCurrentlyTransforming: function()
+  _isCurrentlyTransforming()
     {
       return this.chain.phases.some(function(phase) {
         return phase.xslts.some(function(xslt) {
           return xslt.running ? true : false;
         });
       });
-    },
+    }
 
   /**
    * Processes the XSLTs in the transformation chain and produces the result.
    * @private
    */
-  _refresh: function()
+  _refresh()
     {
       if (!this._isCurrentlyTransforming()) {
         this._transformNext();
       }
-    },
+    }
 
   /**
    * Runs the transformation chain process.
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       if (this.status.equals(this.transformedStatus)) {
         this.setStatus(this.waitingForParametersStatus);
       } else if (this.status.equals(this.initializedStatus)) {
         this.setStatus(this.loadingStatus);
       }
-    },
+    }
 
   /**
    * @return {String} String representation of the chain.
    */
-  toString: function()
+  toString()
     {
       return "[TransformationChain: " + this.id + "]";
-    },
+    }
 
   /**
    * Tests if all transformation models (phase.xslt.model) are ready and
@@ -701,7 +701,7 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
    * are ready.
    * @private
    */
-  _checkAllTransformationsLoaded: function() {
+  _checkAllTransformationsLoaded() {
       var ready =
         this.chain.phases.every(function(phase) {
           return phase.xslts.every(function(xslt) {
@@ -711,35 +711,35 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       if (ready) {
         this.setStatus(this.waitingForParametersStatus);
       }
-    },
+    }
 
   /**
    * @returns {bcdui.core.Status[]} Returns all statuses indicating a failure
    */
-  getFailedStatus: function()
+  getFailedStatus()
     {
       return [ this.chainLoadingFailed, this.chainStylesheetLoadingFailed ];
-    },
+    }
 
   /**
    * This callback function is executed when the loading of a chain model
    * has failed. It sets the failed status for this transformationChain.
    * @private
    */
-  _chainLoadingFailed: function()
+  _chainLoadingFailed()
     {
       if (!this.hasFailed()) {
         this.setStatus(this.chainLoadingFailed);
         bcdui.log.error("Chain loading has failed");
       }
-    },
+    }
 
   /**
    * This callback function is executed when the loading of a chain stylesheet
    * has failed. It sets the failed status for this transformationChain.
    * @private
    */
-  _chainStylesheetLoadingFailed: function(/* object */ xsltInfo)
+  _chainStylesheetLoadingFailed(/* object */ xsltInfo)
     {
       if (!this.hasFailed()) {
         this.setStatus(this.chainStylesheetLoadingFailed);
@@ -748,14 +748,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
           url = xsltInfo.model.urlProvider.getData();
         bcdui.log.error("Chain stylesheet loading has failed: " + url);
       }
-    },
+    }
 
   /**
    * A callback function executed whenever an XSLT stylesheet of the chain
    * has finished loading.
    * @private
    */
-  _singleChainTransformerLoaded: function(/* object */ phase, /* object */ xsltInfo)
+  _singleChainTransformerLoaded(/* object */ phase, /* object */ xsltInfo)
     {
       if (this.hasFailed()) {
         bcdui.log.warn("Aborting further processor creation, because chain stylesheet loading has already failed");
@@ -765,14 +765,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
         xsltInfo.processor = proc;
         this._checkAllTransformationsLoaded();
       }.bind(this) });
-    },
+    }
 
   /**
    * This function is called as soon as the chain model has finished loading. It
    * parses the chain document and starts loading the referenced style sheets.
    * @private
    */
-  _parseChain: function()
+  _parseChain()
     {
       //-------------------------------------
       // If this is a not a js-chain, but just a single or a collection of rules, build a js chain
@@ -933,14 +933,14 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
 
       // Mark last transformation in past phase as the very last of the chain
       this.chain.phases[p-1].xslts[stylesheetNo-1].isLastOfChain = true;
-    },
+    }
 
   /**
    * Intercepts status changes and sets the CSS class of the target HTML element either
    * to "statusReady" or "statusNotReady" dependent on which status the class is currently in.
    * @private
    */
-  _fireStatusEvent: function(/* Object */ args)
+  _fireStatusEvent(/* Object */ args)
     {
       if (this.targetHTMLElementId) {
         var targetElement = this.targetHtmlElement || (this.targetHTMLElementId ? document.getElementById(this.targetHTMLElementId) : null);
@@ -954,11 +954,11 @@ bcdui.core.TransformationChain = bcdui._migPjs._classCreate(bcdui.core.DataProvi
       }
       bcdui.core.DataProvider.prototype._fireStatusEvent.call(this, args);
     }
-}); // Create class: bcdui.core.TransformationChain
+}; // Create class: bcdui.core.TransformationChain
 
 
 
-bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain, 
+bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.Renderer.prototype */
 {
   /**
@@ -985,19 +985,19 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
    */
-  initialize: function(args)
+  constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.Renderer" ): "") != "";
-    
-    args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-
-    // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
-    // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
-    this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
-    bcdui.core.TransformationChain.call(this, args);
-    if (isLeaf)
-      this._checkAutoRegister();
-  },
+     var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          args.chain = args.chain || this.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+          // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
+          // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
+          this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
+    }}))
+  }
 
   /**
    * Overwrites inherited execute(forced)
@@ -1010,7 +1010,7 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
    *     <li>shouldRefresh: {boolean?} "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".</li>
    *   </ul>
    */
-  execute: function( /* object */ args)
+  execute( /* object */ args)
   {
     // set targetHTMLElementId/targetHtmlElement on first execute
     if (! this.targetHTMLElementId) {
@@ -1052,21 +1052,21 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
       // Default transformation chain behaviour
       bcdui.core.TransformationChain.prototype.execute.call( this, args.shouldRefresh );
     }
-  },
+  }
 
   /**
    * Return the target html element where the renderer places its output
    */
-  getTargetHtml: function()
+  getTargetHtml()
   {
     return this.targetHtmlElement || jQuery("#" + this.targetHTMLElementId).get(0);
-  },
+  }
 
   /**
    * Sets the target html element where the renderer places its output
    * @param targetHtmlElement {HtmlElement} target html element
    */
-  setTargetHtml: function(targetHtmlElement)
+  setTargetHtml(targetHtmlElement)
   {
     this.targetHtmlElement = null;
     this.targetHTMLElementId = null;
@@ -1080,9 +1080,9 @@ bcdui.core.Renderer = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
       this.targetHTMLElementId = bcdui.util._getTargetHtml({targetHtml: targetHtmlElement}, "renderer_");
     }
   }
-});
+};
 
-bcdui.core.ModelWrapper = bcdui._migPjs._classCreate(bcdui.core.TransformationChain, 
+bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.ModelWrapper.prototype */
 {
   /**
@@ -1114,18 +1114,14 @@ bcdui.core.ModelWrapper = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
   * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url, this is mandatory for saving
   */
-  initialize: function(args)
+ constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ModelWapper" ): "") != "";
-    
-    bcdui.core.TransformationChain.call(this, args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
+    super(args);
   }
-});
+  getClassName() {return "bcdui.core.ModelWapper";}
+};
 
-bcdui.core.ModelUpdater = bcdui._migPjs._classCreate(bcdui.core.TransformationChain,
+bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.ModelUpdater.prototype */
 {
   /**
@@ -1150,24 +1146,28 @@ bcdui.core.ModelUpdater = bcdui._migPjs._classCreate(bcdui.core.TransformationCh
    * @param {boolean}                 [args.autoUpdate=true] - A boolean value indicating if the ModelUpdater should run on every change in the targetModel. Can be a data modification event or if targetModel again reaches the ready status. If autoUpdate is false a model updater only runs when the targetModel is (re)executed. 
    * @param {string}                  [args.id]               - Globally unique id for use in declarative contexts
    */
-  initialize: function(args)
+  constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ModelUpdater" ): "") != "";
-    
-    if (typeof args.inputModel != "undefined") {
-      throw Error("Must not define input model on model updater");
-    }
-    /*
-     * Set a dummy model as input model because it is anyway exchanged by the target model
-     * when the modelUpdater is executed. If we omit it we would cause a parameter validation
-     * exception.
-     */
-    args.inputModel = bcdui.core.emptyModel;
-    this.modelUpdaterTargetModel = args.targetModel;
-    bcdui.core.TransformationChain.call(this, args);
-    args.targetModel._addModelUpdater(this, args.autoUpdate);
+    var bcdPreInit = args ? args.bcdPreInit: null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
 
-    if (isLeaf)
-      this._checkAutoRegister();
+        if (typeof args.inputModel != "undefined") {
+          throw Error("Must not define input model on model updater");
+        }
+        /*
+         * Set a dummy model as input model because it is anyway exchanged by the target model
+         * when the modelUpdater is executed. If we omit it we would cause a parameter validation
+         * exception.
+         */
+        args.inputModel = bcdui.core.emptyModel;
+        this.modelUpdaterTargetModel = args.targetModel;
+      }
+    }));
+
+    args.targetModel._addModelUpdater(this, args.autoUpdate);
   }
-});
+  getClassName() {return "bcdui.core.ModelUpdater";}
+};

@@ -25,7 +25,7 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * ========================================================
  * XmlChart
  */
-bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.chart.Chart,
+bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 /**
  * @lends bcdui.component.chart.XmlChart.prototype
  */
@@ -50,33 +50,35 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    * @param {number}                  [args.width]                          - Overwrite the chart's auto-width derived from targetHtml
    * @param {number}                  [args.height]                         - Overwrite the chart's auto-height derived from targetHtml
    */
-  initialize: function(args)
-  {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.chart.XmlChart" ): "") != "";
+  constructor(args)
+  { 
+     var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+            this.chartDefModel = args.config || args.metaDataModel;
+    }}))
+  }
 
-    this.chartDefModel = args.config || args.metaDataModel;
-    bcdui.component.chart.Chart.call(this,args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
-  },
+  getClassName() {return "bcdui.component.chart.XmlChart";}
 
   /**
    * @private
    */
-  _getAttributeOrDefault: function(element, attributeName, defaultValue) {
+  _getAttributeOrDefault(element, attributeName, defaultValue) {
     if (element == null) return defaultValue;
     var value = element.getAttribute(attributeName);
     if (value == null) return defaultValue;
     if (typeof(defaultValue) == "number") return parseFloat(value);
     return value;
-  },
+  }
 
   /**
    * Interpret the xml definition document and initialize all values
    * @private
    */
-  _initValues: function()
+  _initValues()
   {
     bcdui.component.chart.Chart.prototype._initValues.call(this);
 
@@ -243,13 +245,13 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
     if( width ) this.width = width.text;
     var height = this.defDoc.selectSingleNode("/*/@height");
     if( height ) this.height = height.text;
-  },
+  }
 
   /**
    * redisplays the chart with the same values
    * @private
    */
-  _draw: function(overwriteTarget )
+  _draw(overwriteTarget )
   {
     var rVal = bcdui.component.chart.Chart.prototype._draw.call(this, overwriteTarget);
     if ( rVal < 0)// the chart was not drawn
@@ -260,33 +262,33 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
     // for legend
     var tn = bcdui.core.createElementWithPrototype( this.defDoc, "/*/chart:Computed/chart:ChartsDrawn");
     tn.text = ""+this.chartsDrawn;
-  },
+  }
 
   /**
    * Deletes color nodes from defDoc
    * @private
    */
-  _cleanColors: function() {
+  _cleanColors() {
     var targetNode = this.defDoc.selectSingleNode("/*/chart:Computed/chart:Colors");
     if( targetNode == null) targetNode = bcdui.core.createElementWithPrototype( this.defDoc, "/*/chart:Computed/chart:Colors");
     else bcdui.core.removeXPath(this.defDoc, "/*/chart:Computed/chart:Colors/chart:Color"); // clean model
     return targetNode;
-  },
+  }
 
   /**
    * Setter for chart definition document
    * @param doc
    * @private
    */
-  _setDefDoc: function(doc) {
+  _setDefDoc(doc) {
     this.defDoc = doc;
-  },
+  }
 
   /**
    * Appends Value nodes into defDoc, if another model contains the data
    * @private
    */
-  _appendXAxisValues: function(){
+  _appendXAxisValues(){
     if( this.defDoc != null ){
       var targetNode = null;
       var xpath = "/*/chart:XAxis/"
@@ -298,14 +300,14 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
         targetNode.appendChild( this.defDoc.createElement("Value")).appendChild(this.defDoc.createTextNode(values[val]));
       }
     }
-  },
+  }
 
   /**
    * Cleans XAxis Node, deletes children Value nodes
    * @return count of removed nodes or null
    * @private
    */
-  _cleanXAxisValues: function(){
+  _cleanXAxisValues(){
     if( this.defDoc != null ){
       var xpath = "/*/chart:XAxis/"
         + ( this.xAxis.categoriesGiven == true ? "chart:Categories" : "chart:XValues") + "/chart:Value";
@@ -313,7 +315,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
       return ;//bcdui.core.removeXPath(this.defDoc, xpath);
     }
     return null;
-  },
+  }
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
@@ -324,13 +326,13 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    * @return count of removed nodes or null
    * @private
    */
-  _cleanSeriesYDataValues: function(args){
+  _cleanSeriesYDataValues(args){
     if( this.defDoc != null ){
       var xpath = "/*/chart:Series/chart:Series[" + args.seriesInd + "]/chart:YData/chart:Value";
       return; // bcdui.core.removeXPath(this.defDoc, xpath);
     }
     return null;
-  },
+  }
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
@@ -342,7 +344,7 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
    * @return count of removed nodes or null
    * @private
    */
-  _appendSeriesYDataValues: function(args){
+  _appendSeriesYDataValues(args){
     if( this.defDoc != null ){
       var targetNode = null;
       var xpath = "/*/chart:Series/chart:Series[" + args.seriesInd + "]/chart:YData";
@@ -351,13 +353,13 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
         targetNode.appendChild( this.defDoc.createElement("chart:Value")).appendChild(this.defDoc.createTextNode(args.yData.item(val).text));
       }
     }
-  },
+  }
 
   /**
    * Converts each attribute name-value pair into a property with the name and value at the result Array
    * @private
    */
-  _attrToArray: function ( result, elem ) {
+  _attrToArray ( result, elem ) {
     if( !elem ) return;
     for( var a=0; a<elem.attributes.length; a++ ) {
       var argName = this._xmlElemNameToArgName(elem.attributes[a].nodeName);
@@ -372,12 +374,12 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
         result[argName] = arg;
     }
     return result;
-  },
+  }
 
   /**
    * @private
    */
-  _dataToArray: function ( result, elem ) {
+  _dataToArray ( result, elem ) {
     if( !elem ) return;
     var argName = this._xmlElemNameToArgName(elem.nodeName);
     if( elem!=null && elem.getAttribute("sourceDoc")!=null && elem.getAttribute("nodes")!=null )
@@ -391,25 +393,25 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
     } else if( elem!=null )
       result[argName] = elem.selectNodes("chart:Value");
     return;
-  },
+  }
 
   /**
    * @private
    */
-  _xmlElemNameToArgName: function (name) {
+  _xmlElemNameToArgName (name) {
     var withoutPrefix = name.split(":");
     if( withoutPrefix.length==2 )
       withoutPrefix = withoutPrefix[1];
     else
       withoutPrefix = withoutPrefix[0];
     return withoutPrefix.substring(0,1).toLowerCase()+withoutPrefix.substring(1);
-  },
+  }
 
   /**
    * @param statusEvent
    * @private
    */
- _statusTransitionHandler : function(/* StatusEvent */statusEvent) {
+ _statusTransitionHandler(/* StatusEvent */statusEvent) {
 
     // We need to wait for the metadata model and all models it refers to
     if (statusEvent.getStatus().equals(this.loadingStatus)) {
@@ -443,21 +445,21 @@ bcdui.component.chart.XmlChart = bcdui._migPjs._classCreate(bcdui.component.char
         }.bind( this )
       })
     }
-  },
+  }
 
   
   /**
    * @return definition DOM document
    */
-  getData: function(){
+  getData(){
     return this.defDoc;
-  },
+  }
 
   /**
    * @return model that render to
    */
-  getPrimaryModel: function(){
+  getPrimaryModel(){
     return this.chartDefModel;
   }
 
-} ); // Create class: bcdui.component.chart.XmlChart
+} ; // Create class: bcdui.component.chart.XmlChart

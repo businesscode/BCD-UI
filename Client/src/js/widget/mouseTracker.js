@@ -26,7 +26,7 @@ if (typeof bcdui.widget == "undefined") {
   bcdui.widget = {};
 }
 
-bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
+bcdui.widget.MouseTracker = class
 /**
  * @lends bcdui.widget.MouseTracker.prototype
  */
@@ -34,7 +34,7 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
   /**
    * @private
    */
-  _schema_constructor_args:
+  static _schema_constructor_args=
     {
       name: "_schema_constructor_args",
       properties: {
@@ -45,7 +45,7 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
         onMove:      { type: "function",     required: false },
         filter:      { type: "string",       required: false }
       }
-    },
+    }
 
   /**
    * Creates a new mouse tracker instance. This instance is inactive until the
@@ -103,7 +103,7 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
    *         default value is 200.</li>
    *   </ul>
    */
-  initialize: function(args)
+  constructor(args)
     {
       bcdui.factory.validate.jsvalidation._validateArgs(args, this._schema_constructor_args);
       this.baseElement = bcdui._migPjs._$(args.baseElement).get(0);
@@ -136,36 +136,36 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
        * @private
        */
       this._handlers = {};
-    },
+    }
 
   /**
    * Starts the observation of the base element. New instances of the MouseTracker
    * object do not automatically start tracking so the start() method should be
    * called on them.
    */
-  start: function()
+  start()
     {
       this.stop();
       this._handlers.mousemove = this._mouseMoveHandler.bind(this);
       this._handlers.mouseleave = this._mouseLeaveHandler.bind(this);
       for (var eventName in this._handlers)
         bcdui._migPjs._$(this.baseElement).on(eventName, this._handlers[eventName]);
-    },
+    }
 
   /**
    * Stops observing the base element for mouse enter / leave.
    */
-  stop: function()
+  stop()
     {
       for (var eventName in this._handlers)
         bcdui._migPjs._$(this.baseElement).off(eventName, this._handlers[eventName]);
       this._handlers = {};
-    },
+    }
 
   /**
    * @private
    */
-  _mouseMoveHandler: function(/* Event */ event)
+  _mouseMoveHandler(/* Event */ event)
     {
       if(event.target === document){
         return;
@@ -193,12 +193,12 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
       }
       if( this.onMove )
         this.onMove(event);
-    },
+    }
 
   /**
    * @private
    */
-  _mouseLeaveHandler: function()
+  _mouseLeaveHandler()
     {
       //this.stop();
       if (this._fnTimeout != null) {
@@ -209,12 +209,12 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
         if (this.onLeave)
           this.onLeave();
       }
-    },
+    }
 
   /**
    * @private
    */
-  _getFilteredElement: function()
+  _getFilteredElement()
     {
       if (typeof this.filter == "undefined" || (bcdui.util.isString(this.filter) && !this.filter.trim()) ||
           this.filter == null)
@@ -228,4 +228,4 @@ bcdui.widget.MouseTracker = bcdui._migPjs._classCreate( null,
       } while (startElement != null);
       return null;
     }
-});
+};

@@ -261,12 +261,12 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
    * @extends bcdui.widget.XMLDataUpdateListener
    * @private
    */
-  XMLListener: bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+  XMLListener: class extends bcdui.widget.XMLDataUpdateListener
       /**
        * @lends bcdui.widget.singleSeelct.XMLListener.prototype
        */   {
-   updateValue: function(evtSrc){
+   updateValue(evtSrc){
        bcdui.widget.singleSelect._readDataFromXML(this.htmlElementId, evtSrc);
      }
-   })
+   }
 })

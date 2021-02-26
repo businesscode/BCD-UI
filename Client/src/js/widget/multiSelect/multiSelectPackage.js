@@ -437,14 +437,14 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLListener: bcdui._migPjs._classCreate( bcdui.widget.XMLDataUpdateListener,
+    XMLListener: class extends bcdui.widget.XMLDataUpdateListener
     /**
      * @lends bcdui.widget.multiSelect.XMLListener.prototype
      */
     {
-      updateValue: function(evtSrc)
+      updateValue(evtSrc)
         {
           bcdui.widget.multiSelect._readDataFromXML(this.htmlElementId, evtSrc);
         }
-    })
+    }
 }); // namespace

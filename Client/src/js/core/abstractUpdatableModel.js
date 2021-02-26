@@ -19,7 +19,7 @@
  * Declares bcdui.core.AbstractUpdatableModel and some private helpers
  */
 
-bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.AbstractUpdatableModel.prototype
  */
@@ -36,58 +36,60 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
    * @description 
    * This class is abstract and not meant to be instantiated directly
    */
-  initialize: function(args)
+  constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractUpdatableModel" ): "") != "";
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this); 
 
-      /**
-       * The modelUpdaters attached to this class. The elements of the array are of the
-       * type "ModelUpdaterReference".
-       * @type Array
-       * @private
-       */
-      this._modelUpdaters = [];
+          /**
+           * The modelUpdaters attached to this class. The elements of the array are of the
+           * type "ModelUpdaterReference".
+           * @type Array
+           * @private
+           */
+          this._modelUpdaters = [];
 
-      /**
-       * @private
-       */
-      this._modelUpdatersThatWillBeAddedSoon = {};
+          /**
+           * @private
+           */
+          this._modelUpdatersThatWillBeAddedSoon = {};
 
-      /**
-       * A boolean value that becomes "true" as soon as there is a modelUpdate which
-       * can make an auto update.
-       * @type Boolean
-       * @private
-       */
-      this._hasAutoUpdateModelUpdater = false;
-      
-      this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
+          /**
+           * A boolean value that becomes "true" as soon as there is a modelUpdate which
+           * can make an auto update.
+           * @type Boolean
+           * @private
+           */
+          this._hasAutoUpdateModelUpdater = false;
+          
+          this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
 
-      /**
-       * A status object representing the status when the modelUpdaters are executed (via fire).
-       * @constant
-       * @private
-       */
-      this._refreshingModelUpdatersStatus = new bcdui.core.status.RefreshingModelUpdaters();
-      /**
-       * A status object representing the status when the modelUpdaters are executed (via execute).
-       * @constant
-       * @private
-       */
-      this._refreshingModelUpdatersStatusCausedByExecute = new bcdui.core.status.RefreshingModelUpdatersCausedByExecute();
+          /**
+           * A status object representing the status when the modelUpdaters are executed (via fire).
+           * @constant
+           * @private
+           */
+          this._refreshingModelUpdatersStatus = new bcdui.core.status.RefreshingModelUpdaters();
+          /**
+           * A status object representing the status when the modelUpdaters are executed (via execute).
+           * @constant
+           * @private
+           */
+          this._refreshingModelUpdatersStatusCausedByExecute = new bcdui.core.status.RefreshingModelUpdatersCausedByExecute();
 
-      /**
-       * Must be set by sub-classes to the list of status objects that are considered to be
-       * ready states for model updaters.
-       * @private
-       */
-      this._readyStatiForModelUpdates = [];
+          /**
+           * Must be set by sub-classes to the list of status objects that are considered to be
+           * ready states for model updaters.
+           * @private
+           */
+          this._readyStatiForModelUpdates = [];
+      }}))
+    }
 
-      bcdui.core.DataProvider.call( this, args);
-
-      if (isLeaf)
-        this._checkAutoRegister();
-    },
+    getClassName() {return "bcdui.core.AbstractUpdatableModel";}
 
   /**
    * This function can be called directly to announce that a model updater will be added
@@ -98,15 +100,15 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
    * @param {String} id The model updated id that will be added later with _addModelUpdater.
    * @private
    */
-  _waitForModelUpdaterToBeAdded: function(/* String */ id)
+  _waitForModelUpdaterToBeAdded(/* String */ id)
     {
       this._modelUpdatersThatWillBeAddedSoon[id] = true;
-    },
+    }
 
   /**
    * @private
    */
-  _applyModelUpdaters: function(fromExecute, /* Integer? */ currentUpdaterNo)
+  _applyModelUpdaters(fromExecute, /* Integer? */ currentUpdaterNo)
     {
       if (this._modelUpdaters.length == 0) {
         /*
@@ -149,19 +151,19 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
         });
         updater.execute();
       }
-    },
+    }
 
   /**
    * Must be provided by implementing class to help it deciding when the model can be executed.
    * @abstract
    * @private
    */
-  _getTheStateBeforeRefreshingModelUpdatersStatus: function()
+  _getTheStateBeforeRefreshingModelUpdatersStatus()
     {
       return null;
-    },
+    }
 
-  _fire: function(causedByReadyStatus)
+  _fire(causedByReadyStatus)
     {
       if (! causedByReadyStatus) {
         if (this.isReady() || this.status instanceof bcdui.core.status.WaitingForUncomittedChanges) {
@@ -173,7 +175,7 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
           bcdui.core.DataProvider.prototype._fire.call(this, true);
         }
       }
-    },
+    }
 
   /**
    * This event function is called each time a modelUpdater is added. It
@@ -181,10 +183,10 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
    * updaters to be added.
    * @private
    */
-  _modelUpdaterAdded: function()
+  _modelUpdaterAdded()
     {
       // To be implemented by sub-classes
-    },
+    }
 
   /**
    * Adds a transformation to the list of model updaters which transform the model
@@ -193,7 +195,7 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
    * reaches its ready state.
    * @private
    */
-  _addModelUpdater: function(/* TransformationChain */ updater, /* Boolean? */ autoUpdate)
+  _addModelUpdater(/* TransformationChain */ updater, /* Boolean? */ autoUpdate)
     {
       if (typeof updater == "undefined" || updater == null)
         throw Error("Must provide an updater for _addModelUpdater");
@@ -212,13 +214,13 @@ bcdui.core.AbstractUpdatableModel = bcdui._migPjs._classCreate(bcdui.core.DataPr
       this._modelUpdaterAdded();
     }
 
-}); // Create class: bcdui.core.AbstractUpdatableModel
+}; // Create class: bcdui.core.AbstractUpdatableModel
 
 
 /**
  * @private
  */
-bcdui.core.ModelUpdaterReference = bcdui._migPjs._classCreate( null,
+bcdui.core.ModelUpdaterReference = class
 /**
  * @lends bcdui.core.ModelUpdaterReference.prototype
  */
@@ -238,7 +240,7 @@ bcdui.core.ModelUpdaterReference = bcdui._migPjs._classCreate( null,
    * @constructs
    * @private
    */
-  initialize: function(/* TransformationChain */ updater, /* Boolean? */ autoUpdate)
+  constructor(/* TransformationChain */ updater, /* Boolean? */ autoUpdate)
     {
       /**
        * The model updater object (transformation chain) being referenced by
@@ -262,9 +264,9 @@ bcdui.core.ModelUpdaterReference = bcdui._migPjs._classCreate( null,
        */
       this.autoUpdate = (typeof autoUpdate == "undefined" || autoUpdate);
     }
-});
+};
 
-bcdui.core._ModelBeingUpdated = bcdui._migPjs._classCreate(bcdui.core.DataProviderAlias,
+bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
 /**
  * @lends bcdui.core._ModelBeingUpdated.prototype
  */
@@ -287,28 +289,30 @@ bcdui.core._ModelBeingUpdated = bcdui._migPjs._classCreate(bcdui.core.DataProvid
    * @param {string}                  args.name:  - The new name of the data provider
    * @private
    */
-  initialize: function(args)
+  constructor(args)
     {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core._ModelBeingUpdated" ): "") != "";
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+        this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
+    }}));
+  }
 
-    this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
-    bcdui.core.DataProviderAlias.call( this, args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
-  },
+  getClassName() {return "bcdui.core._ModelBeingUpdated";}
 
   /**
    * @private
    */
-  _isSourceReadyStatus: function(/* Status */ status)
+  _isSourceReadyStatus(/* Status */ status)
     {
       return this._readyStatiForModelUpdates.some(
           function(readyStatus) { return status.equals(readyStatus) });
-    },
+    }
 
-  toString: function()
+  toString()
     {
       return "[_ModelBeingUpdated for Model: " + this.source.id + "]";
     }
-}); // Create class: bcdui.core._ModelBeingUpdated
+}; // Create class: bcdui.core._ModelBeingUpdated

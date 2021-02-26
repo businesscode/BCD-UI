@@ -48,42 +48,37 @@ bcdui.util.namespace("bcdui.component.grid");
  * @param {chainDef}                [args.loadChain]                                       - The definition of the transformation chain
  * @param {Object}                  [args.loadParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
 */
-bcdui.component.grid.GridModel = function(args)
+bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
-  var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.grid.GridModel" ): "") != "";
-
-  // Evaluate default parameters
-  this.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("gridModel");
-  this.config      = args.config || new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
-  this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-
-  // Create our RequestDocumentDataProvider from configuration
-  var reqMw = new bcdui.core.ModelWrapper({
-    inputModel: this.config,
-    parameters: {statusModel: this.statusModel },
-    chain: bcdui.contextPath+"/bcdui/js/component/grid/request.xslt"
-  });
+  constructor(args) {
+    // Evaluate default parameters
+    var id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("gridModel");
+    var config      = args.config || new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
+    var statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
   
-  // Load our data
-  bcdui.core.SimpleModel.call( this, {saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw}), id: this.id });
+    // Create our RequestDocumentDataProvider from configuration
+    var reqMw = new bcdui.core.ModelWrapper({
+      inputModel: config,
+      parameters: {statusModel: statusModel },
+      chain: bcdui.contextPath+"/bcdui/js/component/grid/request.xslt"
+    });
+    
+    // Load our data
+    super({saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw}), id: id });
+    this.id = id;
+    this.config = config;
+    this.statusModel = statusModel;
 
-  // optional load chain
-  if (args.loadChain)
-    this.loadChain = new bcdui.core.ModelUpdater({targetModel: this, chain: args.loadChain, autoUpdate: true, parameters: args.loadParameters || {} });
-  
-  // validation wrapper, grid renderer adds basic wrs and reference validation
-  this.validationChain = args.validationChain;
-  this.validationParameters = args.validationParameters;
-
-  if (isLeaf)
-    this._checkAutoRegister();
-};
-
-bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel.prototype,
-/** @lends bcdui.component.grid.GridModel.prototype */
-{
-});
-
+    // optional load chain
+    if (args.loadChain)
+      this.loadChain = new bcdui.core.ModelUpdater({targetModel: this, chain: args.loadChain, autoUpdate: true, parameters: args.loadParameters || {} });
+    
+    // validation wrapper, grid renderer adds basic wrs and reference validation
+    this.validationChain = args.validationChain;
+    this.validationParameters = args.validationParameters;
+  }
+  getClassName() {return "bcdui.component.grid.GridModel";}
+}
 
 /**
  * @classdesc
@@ -119,389 +114,402 @@ bcdui.component.grid.GridModel.prototype = Object.create( bcdui.core.SimpleModel
  * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
  *
 */
-bcdui.component.grid.Grid = function(args)
+bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 {
-  this.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
-  bcdui.factory.objectRegistry.registerObject( this );
-  this.targetHtml = bcdui.util._getTargetHtml(args, "grid_");
-  this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-  this.config = args.config;
-  if (! this.config)
-    this.config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
+  constructor(args) {
+    var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
+    var targetHtml = bcdui.util._getTargetHtml(args, "grid_");
+    var statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    var config = args.config;
+    if (! config)
+      config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
 
-  // If we do not have an explicit input model, we create our own here from the metadata, otherwise use it
-  if( ! args.inputModel ) {
-    this.gridModel = new bcdui.component.grid.GridModel({
-        id: this.id +"_bcdImpl_model"
-      , config: args.config
-      , statusModel: args.statusModel
-      , saveChain: args.saveChain
-      , saveParameters: args.saveParameters
-      , loadChain: args.loadChain
-      , loadParameters: args.loadParameters
-    });
-  }
-  else
-    this.gridModel = args.inputModel;
-
-  // Now we have a gridModel
-  // Create enhancedConfiguration from user-provided configuration
-  // since we want to take information from enhancedConfiguration, we need to make sure the renderer does not start until
-  // we got the information. For this, we use a dp holder for the renderer. Its source is set as soon as we're done
-  this.enhancedConfiguration = new bcdui.core.ModelWrapper({
-    inputModel: this.config,
-    chain: [ bcdui.contextPath+"/bcdui/js/component/grid/configurationRenderer.xslt"],
-    parameters: {gridModel: this.gridModel, statusModel: this.statusModel, gridModelId: this.gridModel.id }
-  });
-
-  // Initialize out parent class, by calling the methods in the chain, we guarantee to dataProviders are ready
-  // Grid rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this grid
-  this.gridModelHolder = new bcdui.core.DataProviderHolder();
-  bcdui.core.Renderer.call( this, {
-      id: this.id,
-      inputModel: this.gridModelHolder,
-      targetHtml: this.targetHtml,
-      parameters: { paramModel: this.getEnhancedConfiguration() },
-      chain: [ this._prepareHtOptions.bind(this), this._renderData.bind(this) ]
+    // If we do not have an explicit input model, we create our own here from the metadata, otherwise use it
+    var gridModel = null;
+    if( ! args.inputModel ) {
+      gridModel = new bcdui.component.grid.GridModel({
+          id: id +"_bcdImpl_model"
+        , config: args.config
+        , statusModel: statusModel
+        , saveChain: args.saveChain
+        , saveParameters: args.saveParameters
+        , loadChain: args.loadChain
+        , loadParameters: args.loadParameters
+        , validationChain: validationChain
+        , validationParameters: validationParameters
+      });
     }
-  );
+    else  
+      gridModel = args.inputModel;
 
-  var validationParameters = {
-      source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
-    , changes: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_changes", name: "changes", value: []})
-  }
-  var validationChain = [this._validateWrs.bind(this)];
+    // Now we have a gridModel
+    // Create enhancedConfiguration from user-provided configuration
+    // since we want to take information from enhancedConfiguration, we need to make sure the renderer does not start until
+    // we got the information. For this, we use a dp holder for the renderer. Its source is set as soon as we're done
+    var enhancedConfiguration = new bcdui.core.ModelWrapper({
+      inputModel: config,
+      chain: [ bcdui.contextPath+"/bcdui/js/component/grid/configurationRenderer.xslt"],
+      parameters: {gridModel: gridModel, statusModel: statusModel, gridModelId: gridModel.id }
+    });
 
-  if (args.validationChain) {
-    if (Array.isArray(args.validationChain))
-      validationChain = validationChain.concat(args.validationChain);
-    else
-      validationChain.push(args.validationChain);
-  }
-  if (args.validationParameters)
-    validationParameters = jQuery.extend(validationParameters, args.validationParameters);
-
-  validationParameters["bcdGridModel"] = this.gridModel;
-
-  // merge in possible existing validationChains/Parameters from gridModel
-  if (this.gridModel.validationChain) {
-    if (Array.isArray(this.gridModel.validationChain))
-      validationChain= validationChain.concat(this.gridModel.validationChain);
-    else
-      validationChain.push(this.gridModel.validationChain);
-  }
-  if (this.gridModel.validationParameters)
-    validationParameters = jQuery.extend(validationParameters, this.gridModel.validationParameters);
-
-  // finally setup the validation model wrapper
-  this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
-
-  this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
-  this.sortColumn = null;
-  this.sortDirection = null;
-  this.forceAddAtBottom = args.forceAddAtBottom || false;
-  this.topMode = args.topMode || false;
-  this.isReadOnly = args.isReadOnly || false;
-  this.htTargetHtmlId = this.targetHtml+"_ht";
-  this.hotArgs = args.hotArgs;
-  this.allowNewRows = !(args.allowNewRows === false || args.allowNewCells === false);
-  if (this.isReadOnly)
-    this.allowNewRows = false;
-
-  this.rowDependencyRegEx = /\$grid\.([A-Za-z0-9_]+)/g;
-
-  this.columnFilters = args.columnFilters || false;
-  this.maxHeight = args.hotArgs && args.hotArgs.height ? undefined : args.maxHeight;
-  this.columnSorting = true;
-
-  // takeover set columnSorting
-  if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined")
-    this.columnSorting = this.hotArgs.columnSorting;
-
-
-  // for singleSelect widget use via wrs:References, we need to have the id registered
-  if (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id) == "undefined")
-    bcdui.factory.objectRegistry.registerObject(this.gridModel);
-
-  // modelupdater for wrs header changes like exchanging reference information 
-  new bcdui.core.ModelUpdater({ targetModel: this.gridModel , chain: bcdui.contextPath+"/bcdui/js/component/grid/updateWrsHeader.xslt" , autoUpdate: false, parameters: {config: this.config} });
-
-  // init custom callbacks for save and afterAddRow
-  this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
-  this.saveRoutine = args.customSave || this.save;
-  this.customAfterAddRow = args.afterAddRow;
-  this.afterAddRow = function(args) {
-
-    // fill new cell with value if column is mandatory and the optionsmodel only got one value
-    var nodes = args.rowNode.selectNodes("wrs:C");
-    for (var n = 0; n < nodes.length; n++) {
-      if (this.colsWithReferences.indexOf("" + (n + 1)) != -1) {
-        var colId = this.wrsHeaderIdByPos["" + (n + 1)];
-        if (this.wrsHeaderMeta[colId].nullable === "0") {
-          var i = 0;
-          var oneAndOnly = null;
-          for (var e in this.optionsModelInfo[colId].codeCaptionMap) {
-            oneAndOnly = e;
-            if (i++ > 0) {
-              oneAndOnly = null;
-              break;
-            }
-          }
-          if (oneAndOnly != null)
-            nodes[n].text = oneAndOnly;
+    // Initialize out parent class, by calling the methods in the chain, we guarantee to dataProviders are ready
+    // Grid rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this grid
+    var gridModelHolder = new bcdui.core.DataProviderHolder();
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super({
+        id: id,
+        inputModel: gridModelHolder,
+        targetHtml: targetHtml,
+        parameters: { paramModel: enhancedConfiguration },
+        bcdPreInit: function(){
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          this.chain = [ this._prepareHtOptions.bind(this), this._renderData.bind(this) ]
         }
       }
+    );
+    this.id = id
+    this.targetHtml = targetHtml;
+    this.statusModel = statusModel;
+    this.config = config;
+    this.gridModel = gridModel;
+    this.enhancedConfiguration = enhancedConfiguration;
+    this.gridModelHolder = gridModelHolder;
+
+    var validationParameters = {
+        source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
+      , changes: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_changes", name: "changes", value: []})
     }
-    if (this.customAfterAddRow)
-      this.customAfterAddRow(args);
-  } 
+    var validationChain = [this._validateWrs.bind(this)];
+  
+    if (args.validationChain) {
+      if (Array.isArray(args.validationChain))
+        validationChain = validationChain.concat(args.validationChain);
+      else
+        validationChain.push(args.validationChain);
+    }
+    if (args.validationParameters)
+      validationParameters = jQuery.extend(validationParameters, args.validationParameters);
 
-  // add onChange listener on enhancedConfiguration and collect optionsModel information
-  this.getEnhancedConfiguration().onceReady(function(){
+    validationParameters["bcdGridModel"] = this.gridModel;
 
-    // if gridModel got filter, we enable the deep key check and prebuild request xml
-    this.enableDeepKeyCheck = this.gridModel.query("/*//wrq:WrsRequest//f:Filter//f:Expression") != null;
+    // merge in possible existing validationChains/Parameters from gridModel
+    if (this.gridModel.validationChain) {
+      if (Array.isArray(this.gridModel.validationChain))
+        validationChain= validationChain.concat(this.gridModel.validationChain);
+      else
+        validationChain.push(this.gridModel.validationChain);
+    }
+    if (this.gridModel.validationParameters)
+      validationParameters = jQuery.extend(validationParameters, this.gridModel.validationParameters);
 
-    // optional force to disable it. Be sure what you're doing. 
-    if (args.disableDeepKeyCheck)
-      this.enableDeepKeyCheck = false;
+    // finally setup the validation model wrapper
+    this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
 
-    var keyColumns = "";
-    this.keyColumns = new Array();
-    jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
-    var binding = this.gridModel.read("/*//wrq:WrsRequest//wrq:BindingSet", "");
-    this.keyRequestPre = "<WrsRequest xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0' xmlns:f='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><Select><Columns>" + keyColumns + "</Columns><From><BindingSet>" + binding + "</BindingSet></From><f:Filter><f:Or>";
-    this.keyRequestPost = "</f:Or></f:Filter><Grouping>" + keyColumns + "</Grouping></Select></WrsRequest>"
-
-    // early init of wrsHeaderMeta since it's used by collect rowDependency Columns
-    this.wrsHeaderMeta = bcdui.wrs.wrsUtil.generateWrsHeaderMeta(this.gridModel.getData());
-    
-    // validate GridModel against GridConfig (problems can only occur if you provide a gridModel yourself and an own config)
-    var j = 1;
-    jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(e) {
-      if (this.gridModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + j++ + "' and @id='" + e.getAttribute("bRef") + "']") == null)
-        throw new Error("GridConfiguration holds column which isn't in GridModel (or wrong position): " + this.id + " " + e.getAttribute("bRef"));
-    }.bind(this));
-    j = 1;
-    jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
-      if (this.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + j++ + "' and @bRef='" + e.getAttribute("id") + "']") == null)
-        throw new Error("GridModel holds column which isn't in GridConfiguration (or wrong position): " + this.id + " " + e.getAttribute("id"));
-    }.bind(this));
-
-    this.getEnhancedConfiguration().onChange( { callback: function() {this.gridModel.execute(true);}.bind(this) } );
-    this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
-
-    this.optionsModelInfo = {};
-    var optionsModels = new Array();
-
-    this.colsWithReferences = new Array();
-    this.colsWithReferencesInfo = new Array();
-    var cNodes = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]");
-    for (var i = 0; i < cNodes.length; i++) {
-
-      var optionsModelXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelXPath']");
-      optionsModelXPath = optionsModelXPath == null ? null : optionsModelXPath.getAttribute("value");
-      var optionsModelRelativeValueXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelRelativeValueXPath']");
-      optionsModelRelativeValueXPath = optionsModelRelativeValueXPath == null ? null : optionsModelRelativeValueXPath.getAttribute("value");
-
-      if (optionsModelXPath != null) {
-
-        // collect rowDependency Columns
-        var dependendOnCols = [];
-        var regEx = new RegExp(this.rowDependencyRegEx);
-        var match = regEx.exec(optionsModelXPath);
-        while (match != null) {
-          var v = match[1];
-          if (v != null) {
-            var vc = parseInt(v.substring(1), 10);
-            // either we reference an id
-            if (typeof this.wrsHeaderMeta[v] != "undefined")
-              dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+this.wrsHeaderMeta[v].pos+"']/@id", ""));
-            // or an index (c1, c2,...)
-            else if (v.length > 1 & v[0] == "c" && ! isNaN(vc))
-              dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+vc+"']/@id", ""));
-            else
-              throw "illegal row dependency value " + this.id + " " + v;
+    this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
+    this.sortColumn = null;
+    this.sortDirection = null;
+    this.forceAddAtBottom = args.forceAddAtBottom || false;
+    this.topMode = args.topMode || false;
+    this.isReadOnly = args.isReadOnly || false;
+    this.htTargetHtmlId = this.targetHtml+"_ht";
+    this.hotArgs = args.hotArgs;
+    this.allowNewRows = !(args.allowNewRows === false || args.allowNewCells === false);
+    if (this.isReadOnly)
+      this.allowNewRows = false;
+  
+    this.rowDependencyRegEx = /\$grid\.([A-Za-z0-9_]+)/g;
+  
+    this.columnFilters = args.columnFilters || false;
+    this.maxHeight = args.hotArgs && args.hotArgs.height ? undefined : args.maxHeight;
+    this.columnSorting = true;
+  
+    // takeover set columnSorting
+    if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined")
+      this.columnSorting = this.hotArgs.columnSorting;
+  
+  
+    // for singleSelect widget use via wrs:References, we need to have the id registered
+    if (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id) == "undefined")
+      bcdui.factory.objectRegistry.registerObject(this.gridModel);
+  
+    // modelupdater for wrs header changes like exchanging reference information 
+    new bcdui.core.ModelUpdater({ targetModel: this.gridModel , chain: bcdui.contextPath+"/bcdui/js/component/grid/updateWrsHeader.xslt" , autoUpdate: false, parameters: {config: this.config} });
+  
+    // init custom callbacks for save and afterAddRow
+    this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
+    this.saveRoutine = args.customSave || this.save;
+    this.customAfterAddRow = args.afterAddRow;
+    this.afterAddRow = function(args) {
+  
+      // fill new cell with value if column is mandatory and the optionsmodel only got one value
+      var nodes = args.rowNode.selectNodes("wrs:C");
+      for (var n = 0; n < nodes.length; n++) {
+        if (this.colsWithReferences.indexOf("" + (n + 1)) != -1) {
+          var colId = this.wrsHeaderIdByPos["" + (n + 1)];
+          if (this.wrsHeaderMeta[colId].nullable === "0") {
+            var i = 0;
+            var oneAndOnly = null;
+            for (var e in this.optionsModelInfo[colId].codeCaptionMap) {
+              oneAndOnly = e;
+              if (i++ > 0) {
+                oneAndOnly = null;
+                break;
+              }
+            }
+            if (oneAndOnly != null)
+              nodes[n].text = oneAndOnly;
           }
-          match = regEx.exec(optionsModelXPath);
         }
-
-        var testXPath = optionsModelXPath.substring(1).replace(this.rowDependencyRegEx, "");
-        if (testXPath.indexOf("$") == -1) {
-          var info = bcdui.factory._extractXPathAndModelId(optionsModelXPath);
-          optionsModels.push(info.modelId);
-          this.optionsModelInfo[cNodes[i].getAttribute("bRef")] = {
-              optionsModelId: info.modelId
-            , optionsModelXPath: info.xPath
-            , optionsModelRelativeValueXPath: optionsModelRelativeValueXPath
-            , codeCaptionMap : {}
-            , captionCodeMap : {}
-            , gotRowDependency: info.xPath.indexOf("$grid") != -1
-            , isSuggestInput: cNodes[i].selectSingleNode("./grid:Editor[@type='bcduiSuggestInput']") != null
-            , dependendOnCols: dependendOnCols.filter(function(e, idx){return dependendOnCols.indexOf(e) == idx})
-            , referencedByCols: []
+      }
+      if (this.customAfterAddRow)
+        this.customAfterAddRow(args);
+    } 
+  
+    // add onChange listener on enhancedConfiguration and collect optionsModel information
+    this.getEnhancedConfiguration().onceReady(function(){
+  
+      // if gridModel got filter, we enable the deep key check and prebuild request xml
+      this.enableDeepKeyCheck = this.gridModel.query("/*//wrq:WrsRequest//f:Filter//f:Expression") != null;
+  
+      // optional force to disable it. Be sure what you're doing. 
+      if (args.disableDeepKeyCheck)
+        this.enableDeepKeyCheck = false;
+  
+      var keyColumns = "";
+      this.keyColumns = new Array();
+      jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
+      var binding = this.gridModel.read("/*//wrq:WrsRequest//wrq:BindingSet", "");
+      this.keyRequestPre = "<WrsRequest xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0' xmlns:f='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><Select><Columns>" + keyColumns + "</Columns><From><BindingSet>" + binding + "</BindingSet></From><f:Filter><f:Or>";
+      this.keyRequestPost = "</f:Or></f:Filter><Grouping>" + keyColumns + "</Grouping></Select></WrsRequest>"
+  
+      // early init of wrsHeaderMeta since it's used by collect rowDependency Columns
+      this.wrsHeaderMeta = bcdui.wrs.wrsUtil.generateWrsHeaderMeta(this.gridModel.getData());
+      
+      // validate GridModel against GridConfig (problems can only occur if you provide a gridModel yourself and an own config)
+      var j = 1;
+      jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(e) {
+        if (this.gridModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + j++ + "' and @id='" + e.getAttribute("bRef") + "']") == null)
+          throw new Error("GridConfiguration holds column which isn't in GridModel (or wrong position): " + this.id + " " + e.getAttribute("bRef"));
+      }.bind(this));
+      j = 1;
+      jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
+        if (this.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + j++ + "' and @bRef='" + e.getAttribute("id") + "']") == null)
+          throw new Error("GridModel holds column which isn't in GridConfiguration (or wrong position): " + this.id + " " + e.getAttribute("id"));
+      }.bind(this));
+  
+      this.getEnhancedConfiguration().onChange( { callback: function() {this.gridModel.execute(true);}.bind(this) } );
+      this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
+  
+      this.optionsModelInfo = {};
+      var optionsModels = new Array();
+  
+      this.colsWithReferences = new Array();
+      this.colsWithReferencesInfo = new Array();
+      var cNodes = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]");
+      for (var i = 0; i < cNodes.length; i++) {
+  
+        var optionsModelXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelXPath']");
+        optionsModelXPath = optionsModelXPath == null ? null : optionsModelXPath.getAttribute("value");
+        var optionsModelRelativeValueXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelRelativeValueXPath']");
+        optionsModelRelativeValueXPath = optionsModelRelativeValueXPath == null ? null : optionsModelRelativeValueXPath.getAttribute("value");
+  
+        if (optionsModelXPath != null) {
+  
+          // collect rowDependency Columns
+          var dependendOnCols = [];
+          var regEx = new RegExp(this.rowDependencyRegEx);
+          var match = regEx.exec(optionsModelXPath);
+          while (match != null) {
+            var v = match[1];
+            if (v != null) {
+              var vc = parseInt(v.substring(1), 10);
+              // either we reference an id
+              if (typeof this.wrsHeaderMeta[v] != "undefined")
+                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+this.wrsHeaderMeta[v].pos+"']/@id", ""));
+              // or an index (c1, c2,...)
+              else if (v.length > 1 & v[0] == "c" && ! isNaN(vc))
+                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+vc+"']/@id", ""));
+              else
+                throw "illegal row dependency value " + this.id + " " + v;
+            }
+            match = regEx.exec(optionsModelXPath);
           }
   
-          this.colsWithReferences.push(cNodes[i].getAttribute("pos"));
-          this.colsWithReferencesInfo.push(cNodes[i].getAttribute("bRef"));
+          var testXPath = optionsModelXPath.substring(1).replace(this.rowDependencyRegEx, "");
+          if (testXPath.indexOf("$") == -1) {
+            var info = bcdui.factory._extractXPathAndModelId(optionsModelXPath);
+            optionsModels.push(info.modelId);
+            this.optionsModelInfo[cNodes[i].getAttribute("bRef")] = {
+                optionsModelId: info.modelId
+              , optionsModelXPath: info.xPath
+              , optionsModelRelativeValueXPath: optionsModelRelativeValueXPath
+              , codeCaptionMap : {}
+              , captionCodeMap : {}
+              , gotRowDependency: info.xPath.indexOf("$grid") != -1
+              , isSuggestInput: cNodes[i].selectSingleNode("./grid:Editor[@type='bcduiSuggestInput']") != null
+              , dependendOnCols: dependendOnCols.filter(function(e, idx){return dependendOnCols.indexOf(e) == idx})
+              , referencedByCols: []
+            }
+    
+            this.colsWithReferences.push(cNodes[i].getAttribute("pos"));
+            this.colsWithReferencesInfo.push(cNodes[i].getAttribute("bRef"));
+          }
         }
       }
-    }
-    var dependendToReference = function(x) {
-      this.optionsModelInfo[x].dependendOnCols.forEach(function(e) {
-        if (this.optionsModelInfo[e].referencedByCols.indexOf(x) == -1) {
-          var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@id='"+x+"']/@pos", "0"), 10);
-          if (this.colsWithReferences.indexOf("" + colIdx))
-            this.optionsModelInfo[e].referencedByCols.push(colIdx);
-        }
-      }.bind(this));
-    }.bind(this);
-
-    // build referencedByCols from dependendOnCols
-    for (var x in this.optionsModelInfo)
-      dependendToReference(x);
-
-    // attach validation modelwrapper listener to map errors
-    if (this.gridModel.validationResult) {
-      this.gridModel.validationResult.onReady({onlyFuture: true, onlyOnce: false, onSuccess: function() {
-
-        var renderErrors = function() {
-          this.errors = {};
-          var gotOldErrors = this.gotErrors || 0;
-          var errorEntries = this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*[local-name()!='D']");
-          // Collect the error cells in errors. Each row with an error has a errors property with an array for the error columns
-          for (var e = 0; e < errorEntries.length; e++) {
-            var errorCs = errorEntries[e].getElementsByTagName("*");
-            var factor = (errorEntries[e].localName||errorEntries[e].baseName) === "M" ? 2 : 1;
-            var rowId = errorCs[0].text;
-            this.errors[rowId] = this.errors[rowId] || [];
-            this.errors[rowId][this.hotInstance.propToCol(errorCs[factor].text)] = 1;
+      var dependendToReference = function(x) {
+        this.optionsModelInfo[x].dependendOnCols.forEach(function(e) {
+          if (this.optionsModelInfo[e].referencedByCols.indexOf(x) == -1) {
+            var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@id='"+x+"']/@pos", "0"), 10);
+            if (this.colsWithReferences.indexOf("" + colIdx))
+              this.optionsModelInfo[e].referencedByCols.push(colIdx);
           }
-          this.gotErrors = errorEntries.length > 0;
-
-          // refresh table to show errors
-          if (errorEntries.length > 0 || gotOldErrors != this.gotErrors)
-            this.hotInstance.render(); 
-        }.bind(this);
-
-        // deepKeyCheck runs a request on the database looking if the keys do exist
-        if (this.doDeepKeyCheck) {
-          var filter = "";
-          for (var deepKey in this.deepKeyCheckKeys) {
-            filter += "<f:And>";
-            var keyValues = deepKey.split(bcdui.core.magicChar.separator);
-            var keyColumnValues = this.deepKeyCheckKeyColumns[deepKey].split(bcdui.core.magicChar.separator);
-            for (var f = 0; f < keyValues.length; f++)
-              filter += "<f:Expression " + (keyValues[f] == "" ? "" : "value='" + keyValues[f] + "'") + " op='=' bRef='" + keyColumnValues[f] + "'/>";
-            filter += "</f:And>";
-          }
-          var keyCheckModel = new bcdui.core.SimpleModel({ url : new bcdui.core.RequestDocumentDataProvider({ requestModel: new bcdui.core.StaticModel(this.keyRequestPre + filter + this.keyRequestPost)}) });
-          keyCheckModel.onceReady(function() {
-
-            // get old modified or deleted keys so we can exclude them from the check
-            var oldKeys = {};
-            jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:M")).forEach(function(modRow) {
-              var key = "";
-              var oldNodes = modRow.selectNodes("wrs:O");
-              for (var i = 0; i < oldNodes.length; i++)
-                if (this.wrsValidateKeyColumnsPos.indexOf(i) != -1)
-                  key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
-              oldKeys[key] = 1;
-            }.bind(this));
-            jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:D")).forEach(function(modRow) {
-              var key = "";
-              var oldNodes = modRow.selectNodes("wrs:C");
-              for (var i = 0; i < oldNodes.length; i++)
-                if (this.wrsValidateKeyColumnsPos.indexOf(i) != -1)
-                  key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
-              oldKeys[key] = 1;
-            }.bind(this));
-
-            jQuery.makeArray(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
-              // let's rebuild the concatenated key
-              var key = "";
-              jQuery.makeArray(row.selectNodes("wrs:C")).forEach(function(column) {
-                key += (key != "" ? bcdui.core.magicChar.separator + (column.text || "") : (column.text || ""));
+        }.bind(this));
+      }.bind(this);
+  
+      // build referencedByCols from dependendOnCols
+      for (var x in this.optionsModelInfo)
+        dependendToReference(x);
+  
+      // attach validation modelwrapper listener to map errors
+      if (this.gridModel.validationResult) {
+        this.gridModel.validationResult.onReady({onlyFuture: true, onlyOnce: false, onSuccess: function() {
+  
+          var renderErrors = function() {
+            this.errors = {};
+            var gotOldErrors = this.gotErrors || 0;
+            var errorEntries = this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*[local-name()!='D']");
+            // Collect the error cells in errors. Each row with an error has a errors property with an array for the error columns
+            for (var e = 0; e < errorEntries.length; e++) {
+              var errorCs = errorEntries[e].getElementsByTagName("*");
+              var factor = (errorEntries[e].localName||errorEntries[e].baseName) === "M" ? 2 : 1;
+              var rowId = errorCs[0].text;
+              this.errors[rowId] = this.errors[rowId] || [];
+              this.errors[rowId][this.hotInstance.propToCol(errorCs[factor].text)] = 1;
+            }
+            this.gotErrors = errorEntries.length > 0;
+  
+            // refresh table to show errors
+            if (errorEntries.length > 0 || gotOldErrors != this.gotErrors)
+              this.hotInstance.render(); 
+          }.bind(this);
+  
+          // deepKeyCheck runs a request on the database looking if the keys do exist
+          if (this.doDeepKeyCheck) {
+            var filter = "";
+            for (var deepKey in this.deepKeyCheckKeys) {
+              filter += "<f:And>";
+              var keyValues = deepKey.split(bcdui.core.magicChar.separator);
+              var keyColumnValues = this.deepKeyCheckKeyColumns[deepKey].split(bcdui.core.magicChar.separator);
+              for (var f = 0; f < keyValues.length; f++)
+                filter += "<f:Expression " + (keyValues[f] == "" ? "" : "value='" + keyValues[f] + "'") + " op='=' bRef='" + keyColumnValues[f] + "'/>";
+              filter += "</f:And>";
+            }
+            var keyCheckModel = new bcdui.core.SimpleModel({ url : new bcdui.core.RequestDocumentDataProvider({ requestModel: new bcdui.core.StaticModel(this.keyRequestPre + filter + this.keyRequestPost)}) });
+            keyCheckModel.onceReady(function() {
+  
+              // get old modified or deleted keys so we can exclude them from the check
+              var oldKeys = {};
+              jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:M")).forEach(function(modRow) {
+                var key = "";
+                var oldNodes = modRow.selectNodes("wrs:O");
+                for (var i = 0; i < oldNodes.length; i++)
+                  if (this.wrsValidateKeyColumnsPos.indexOf(i) != -1)
+                    key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
+                oldKeys[key] = 1;
+              }.bind(this));
+              jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:D")).forEach(function(modRow) {
+                var key = "";
+                var oldNodes = modRow.selectNodes("wrs:C");
+                for (var i = 0; i < oldNodes.length; i++)
+                  if (this.wrsValidateKeyColumnsPos.indexOf(i) != -1)
+                    key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
+                oldKeys[key] = 1;
               }.bind(this));
   
-              // if found key is not part of the modfied (client) ones, add unique key constraint error
-              if (!(oldKeys[key] == 1)) {
-                // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
-                var rowId = this.deepKeyCheckKeys[key];
-                this.foundServerSidedKeys[key] = rowId;
-                for (var k = 0; k < this.wrsValidateKeyColumns.length; k++) {
-                  var col = this.wrsValidateKeyColumns[k];
-                  this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
-                  this.wrsErrors[rowId][col] |= 128;
-                  bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
+              jQuery.makeArray(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
+                // let's rebuild the concatenated key
+                var key = "";
+                jQuery.makeArray(row.selectNodes("wrs:C")).forEach(function(column) {
+                  key += (key != "" ? bcdui.core.magicChar.separator + (column.text || "") : (column.text || ""));
+                }.bind(this));
+    
+                // if found key is not part of the modfied (client) ones, add unique key constraint error
+                if (!(oldKeys[key] == 1)) {
+                  // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
+                  var rowId = this.deepKeyCheckKeys[key];
+                  this.foundServerSidedKeys[key] = rowId;
+                  for (var k = 0; k < this.wrsValidateKeyColumns.length; k++) {
+                    var col = this.wrsValidateKeyColumns[k];
+                    this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
+                    this.wrsErrors[rowId][col] |= 128;
+                    bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
+                  }
                 }
-              }
-            }.bind(this));
-
-            // refresh grid to show errors
-            renderErrors();
-            
-          }.bind(this));
-          keyCheckModel.execute(true);
-        }
-        else
-          renderErrors(); // refresh grid to show errors
-
-        return;
-
-      }.bind(this)});
-    }
-
-    // wait for optionsmodel readiness 
-    optionsModels = optionsModels.filter(function(e, idx){return optionsModels.indexOf(e) == idx});
-    bcdui.factory.objectRegistry.withReadyObjects(optionsModels, function() {
-
-      // build up a code / caption map for faster access
-      // actually it only makes sense if the optionsModel got a optionsModelRelativeValueXPath, otherwise the shown value IS the value which is written
-      // the gridModel read operation is costy
-      for (var m in this.optionsModelInfo) {
-        var captionXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? ("[" + this.optionsModelInfo[m].optionsModelRelativeValueXPath) : "") + "[.='{{=it[0]}}']" + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "]" : "")).replace(this.rowDependencyRegEx, "");
-        var valueXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "/" + this.optionsModelInfo[m].optionsModelRelativeValueXPath : "")).replace(this.rowDependencyRegEx, "");
-        var optionRows = bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).queryNodes(valueXPath);
-        for (var o = 0; o < optionRows.length; o++ ){
-          var option = optionRows[o].nodeType == 3 ? optionRows[o].nodeValue : optionRows[o].text;
-          var caption = this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).read(captionXPath, [option]) : option;
-          this.optionsModelInfo[m].codeCaptionMap[bcdui.util.escapeHtml(option)] = caption;
-          this.optionsModelInfo[m].captionCodeMap[bcdui.util.escapeHtml(caption)] = option;
-        }
-      }
-
-      this.gridModelHolder.setSource(this.gridModel);
-
-    }.bind(this));
-
-    this._createHtmlStructure(args);
-
-  }.bind(this));
-
-
-  // show common buttons and pagination when rendering is done
-  this.onceReady(function() {
-    jQuery("#" + this.htTargetHtmlId).closest("table").find("thead").show();
-    jQuery("#" + this.htTargetHtmlId).closest("table").find("tfoot").show();
-  });
-
-  // Listen on future changes
-  this.gridModel.onceReady( function() {
-    this.gridModel.onChange( this.execute.bind(this) );
-  }.bind(this) );
-};
-
-bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototype,
-/** @lends bcdui.component.grid.Grid.prototype */
-{
+              }.bind(this));
   
+              // refresh grid to show errors
+              renderErrors();
+              
+            }.bind(this));
+            keyCheckModel.execute(true);
+          }
+          else
+            renderErrors(); // refresh grid to show errors
+  
+          return;
+  
+        }.bind(this)});
+      }
+  
+      // wait for optionsmodel readiness 
+      optionsModels = optionsModels.filter(function(e, idx){return optionsModels.indexOf(e) == idx});
+      bcdui.factory.objectRegistry.withReadyObjects(optionsModels, function() {
+  
+        // build up a code / caption map for faster access
+        // actually it only makes sense if the optionsModel got a optionsModelRelativeValueXPath, otherwise the shown value IS the value which is written
+        // the gridModel read operation is costy
+        for (var m in this.optionsModelInfo) {
+          var captionXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? ("[" + this.optionsModelInfo[m].optionsModelRelativeValueXPath) : "") + "[.='{{=it[0]}}']" + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "]" : "")).replace(this.rowDependencyRegEx, "");
+          var valueXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "/" + this.optionsModelInfo[m].optionsModelRelativeValueXPath : "")).replace(this.rowDependencyRegEx, "");
+          var optionRows = bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).queryNodes(valueXPath);
+          for (var o = 0; o < optionRows.length; o++ ){
+            var option = optionRows[o].nodeType == 3 ? optionRows[o].nodeValue : optionRows[o].text;
+            var caption = this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).read(captionXPath, [option]) : option;
+            this.optionsModelInfo[m].codeCaptionMap[bcdui.util.escapeHtml(option)] = caption;
+            this.optionsModelInfo[m].captionCodeMap[bcdui.util.escapeHtml(caption)] = option;
+          }
+        }
+  
+        this.gridModelHolder.setSource(this.gridModel);
+  
+      }.bind(this));
+  
+      this._createHtmlStructure(args);
+  
+    }.bind(this));
+  
+  
+    // show common buttons and pagination when rendering is done
+    this.onceReady(function() {
+      jQuery("#" + this.htTargetHtmlId).closest("table").find("thead").show();
+      jQuery("#" + this.htTargetHtmlId).closest("table").find("tfoot").show();
+    });
+  
+    // Listen on future changes
+    this.gridModel.onceReady( function() {
+      this.gridModel.onChange( this.execute.bind(this) );
+    }.bind(this) );
+  }
+  
+  getClassName() {return "bcdui.component.grid.Grid";}
+
   /**
    *  helper function for codeCaption mapping and rowDependencies
    * @return object
    * @private
    */
-  _getRefValue: { writable: true, configurable: true, enumerable: true, value: function(references, rowId, lookUp) {
+  _getRefValue(references, rowId, lookUp) {
     var refValue = null;
     if (references.gotRowDependency) {
       var xPath = references.optionsModelXPath + (references.optionsModelRelativeValueXPath != null ? ("[" + references.optionsModelRelativeValueXPath) : "") + "[.='" + lookUp + "']" + (references.optionsModelRelativeValueXPath != null ? "]" : "");
@@ -513,13 +521,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     if (references.isSuggestInput && refValue == null)
       refValue = lookUp;  // suggestInput with a suggested value
     return refValue;
-  }},
+  }
 
   /**
    * helper function for grid validation. Depending on the provided colInfo it checks what to check and does the type specific validation
    * @private
    */
-  _validateCell: { writable: true, configurable: true, enumerable: true, value: function(rowId, colInfo, value) {
+  _validateCell(rowId, colInfo, value) {
     var colId = colInfo.id;
     var cellError = 0;
     if ((!colInfo.isReadyOnly && !colInfo.isHidden) || colInfo.isKey) {
@@ -606,13 +614,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     // no error for cell found, replace current error with old one 
     else if (typeof this.wrsErrors[rowId] != "undefined" && this.wrsErrors[rowId][colId] > 0)
       this.wrsErrors[rowId][colId] = cellError;
-  }},
+  }
 
   /**
    * wrs type/scale/nullabla/key/reference validator 
    * @private
    */
-  _validateWrs: { writable: true, configurable: true, enumerable: true, value: function(doc, args) {
+  _validateWrs(doc, args) {
 
     // initially build up wrsValidateInfo etc and remember which columns needs which checks
     if (! this.wrsValidateInfo) {
@@ -838,7 +846,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     this.doDeepKeyCheck = Object.entries(this.deepKeyCheckKeys).length > 0;
 
     return doc;
-  }},
+  }
 
   /**
    * function which is put in front of a renderer which renders a cell with references
@@ -846,7 +854,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @return code from caption
    * @private
    */
-  _renderByReference: { writable: true, configurable: true, enumerable: true, value: function(rowIdx, col, value) {
+  _renderByReference(rowIdx, col, value) {
     rowIdx = this.hotInstance.toPhysicalRow(rowIdx);
     var row = this.hotInstance.getSourceDataAtRow(rowIdx);
     var refValue = null;
@@ -863,13 +871,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       }
     }
     return refValue;
-  }},
+  }
   /**
    * function which is put in front of a renderer
    * @return object with colId, colIdx, rowId and the gridModel value at that position or null in case of not available
    * @private
    */
-  _getGridModelValues: { writable: true, configurable: true, enumerable: true, value: function(rowIdx, col, value) {
+  _getGridModelValues(rowIdx, col, value) {
     rowIdx = this.hotInstance.toPhysicalRow(rowIdx);
     var row = this.hotInstance.getSourceDataAtRow(rowIdx);
     if (row && row.r && this.gridModel) {
@@ -879,7 +887,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       return {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: this.gridModel.read("/*/wrs:Data/wrs:*[@id='" + rowId + "']/wrs:C[position()='"+(colIdx+1)+"']", "")};
     }
     return null;
-  }},
+  }
 
   /**
    * transforms the wrs data into a js array which handsontable understands. Also prepares data types and formats.
@@ -887,7 +895,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @return doc chain output document
    * @private
    */
-  _prepareHtOptions: { writable: true, configurable: true, enumerable: true, value: function()
+  _prepareHtOptions()
   {
     // domProperty() handles access from handsontable to Wrs
     function domProperty(instance, prop) {
@@ -1073,13 +1081,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     if (this.hotArgs && this.hotArgs.columns)
       delete this.hotArgs.columns;
 
-  }},
+  }
   
   /**
    * rebuild grid data (filtered and/or paginated ... or plain)
    * @private
    */
-  _refreshDataCompletely: { writable: true, configurable: true, enumerable: true, value: function(doc, args) {
+  _refreshDataCompletely(doc, args) {
 
     // in case of sorting, sort data by column value
     var sortedValues = null;
@@ -1154,7 +1162,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         this.rowIdMap[e.getAttribute("id")] = index++;
       }.bind(this));
     }
-  }},
+  }
 
   /**
    * A transformator to render grid via handsontable call
@@ -1165,7 +1173,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @return doc chain output document
    * @private
    */
-  _renderData: { writable: true, configurable: true, enumerable: true, value: function(doc, args) {
+  _renderData(doc, args) {
     
     /**
      * handle drawing of grouped Headers, collapsed headers and headerCss styling
@@ -1940,13 +1948,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     jQuery("#"+this.htTargetHtmlId).handsontable("getInstance").hotPropToCol = jQuery("#"+this.htTargetHtmlId).handsontable("getInstance").propToCol;
     jQuery("#"+this.htTargetHtmlId).handsontable("getInstance").propToCol = _propToColFactory( this.htOptions.columns );
     return doc;
-  }},
+  }
 
   /**
    * handle grid row dependencies (find belonging cell in gridModel and update xPath accordingly)
    * @private
    */
-  _resolveRowDependency: { writable: true, configurable: true, enumerable: true, value: function( args ) {
+  _resolveRowDependency( args ) {
     var xPathFinal = args.xPath;
     var regEx = new RegExp(this.rowDependencyRegEx);
     var match = regEx.exec(args.xPath);
@@ -1971,33 +1979,33 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       match = regEx.exec(args.xPath);
     }
     return xPathFinal;
-  }},
+  }
 
   /**
    * get handsontable's virtual horizontal column offsets
    * @private
    */
-  _getRenderedColumnsRange: { writable: true, configurable: true, enumerable: true, value: function( args ) {
+  _getRenderedColumnsRange( args ) {
     var start = this.hotInstance.view.wt.wtTable.getFirstRenderedColumn();
     var stop = this.hotInstance.view.wt.wtTable.getLastRenderedColumn();
     return {start: start, stop: stop};
-  }},
+  }
 
   /**
    * get handsontable's virtual vertical row offsets
    * @private
    */
-  _getRenderedRowRange: { writable: true, configurable: true, enumerable: true, value: function( args ) {
+  _getRenderedRowRange( args ) {
     var start = this.hotInstance.view.wt.wtTable.getFirstRenderedRow();
     var stop = this.hotInstance.view.wt.wtTable.getLastRenderedRow();
     return {start: start, stop: stop};
-  }},
+  }
 
   /**
    * hide/show grouped columns depending on its state, fix colspans etc, also used for explicitly hidden columns
    * @private
    */
-  _handleCollapsedHeader: { writable: true, configurable: true, enumerable: true, value: function() {
+  _handleCollapsedHeader() {
 
     var offset = this.hotInstance.hasRowHeaders() ? 2 : 1; // nth child starts with 1, and an additional +1 for rowheaders
     var range = this._getRenderedColumnsRange();
@@ -2124,13 +2132,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     // let handsontable recalculate width of all wider elements
     this.hotInstance.view.wt.wtOverlays.adjustElementsSize(true);
-  }},
+  }
 
   /**
    * builds up a tr/th html which is based on the grid:Group definitions in the configuration
    * @private
    */
-  _createGroupedHeader: { writable: true, configurable: true, enumerable: true, value: function( args ) {
+  _createGroupedHeader( args ) {
 
     /**
      * recursively builds up a helper matrix for cells and grouped cells
@@ -2214,7 +2222,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       rows.push(rowElements);
     }
     return rows;
-  }},
+  }
   
   /**
    * since a gridModel fire would reconstruct the full handsontable, we avoid firing the model (e.g. when adding new rows)
@@ -2226,7 +2234,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @param {string} [colIdx] - the currently modified colum index (gridModel) , 0 based
    * @private
    */
-  _refreshGridData: { writable: true, configurable: true, enumerable: true, value: function( rowId, colIdx ) {
+  _refreshGridData( rowId, colIdx ) {
 
     var rebuildIndexList = false;
     var e = this.gridModel.query("/*/wrs:Data/wrs:*[@id='" + rowId + "']");
@@ -2295,13 +2303,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     // populate rowpos, and trigger validation
     changes.forEach(function(c) { c[0] = this.rowIdMap[rowId]; }.bind(this));
     this.afterChange(changes, "edit");  // trigger partial validation (can be full for a deleted row)
-  }},
+  }
 
   /**
    * @private
    */
-  _createHtmlStructure: { writable: true, configurable: true, enumerable: true, value: function( args ) {
-    var table = jQuery("<table class='bcdGrid'></table>");
+  _createHtmlStructure( args ) {
+    var table = jQuery("<table class='bcdGrid'/>");
     table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
     table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
     table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");
@@ -2634,12 +2642,12 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
 
     }.bind(this));
 
-  }},
+  }
 
   /**
    * @private
    */
-  _getTrimmingContainer: { writable: true, configurable: true, enumerable: true, value: function(base) {
+  _getTrimmingContainer(base) {
     var el = base.parentNode;
 
     while (el && el.style && document.body !== el) {
@@ -2661,27 +2669,27 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     }
 
     return window;
-  }},
+  }
 
   /**
    * @private
    */
-  _blindGrid: { writable: true, configurable: true, enumerable: true, value: function() {
+  _blindGrid() {
     setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
-  }},
+  }
 
   /**
    * @private
    */
-  _unBlindGrid: { writable: true, configurable: true, enumerable: true, value: function() {
+  _unBlindGrid() {
     setTimeout(jQuery.unblockUI);
-  }},
+  }
   
   /**
    * Jumps to the first error
    * @method
    */
-  jumpToError: { writable: true, configurable: true, enumerable: true, value: function() {
+  jumpToError() {
     // try to jump to first error
     var firstErrorColumn = this.gridModel.validationResult.query("/*/wrs:Wrs/wrs:Data/wrs:*[1]/wrs:C[2]");
     firstErrorColumn = firstErrorColumn != null ? firstErrorColumn.text : null
@@ -2696,13 +2704,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
     firstErrorRow = firstErrorRow != null ? firstErrorRow.text : jQuery("#" + this.targetHtml + " .bcdInvalid").closest("tr").attr("bcdRowIdent") || "";
 
     this.jumpToRow(firstErrorRow, firstErrorColumnPos);
-  }},
+  }
 
   /**
    * Jumps to given row/col
    * @method
    */
-  jumpToRow:  { writable: true, configurable: true, enumerable: true, value: function(rowId, colPos) {
+  jumpToRow(rowId, colPos) {
     // in case of pagination, we calc the needed page numer and jump to it if necessary
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
@@ -2737,13 +2745,13 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
         jQuery("#" + this.htTargetHtmlId + " .handsontableInput").first().focus();
       }
     }.bind(this));
-  }},
+  }
 
   /**
    * Save the modified data to the database
    * @method
    */
-  save: { writable: true, configurable: true, enumerable: true, value: function() {
+  save() {
 
     var doSave = function() {
       if ((this.gridModel.validationResult && this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*").length > 0) || jQuery("#" + this.targetHtml + " .bcdInvalid").length > 0) {
@@ -2759,38 +2767,38 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
       this.gridModel.validationResult.onceReady({executeIfNotReady: true, onSuccess: doSave}); 
     else
       doSave();
-  }},
+  }
 
   /**
    * Drop all changes and load fresh data
    * @method
    */
-  reset: { writable: true, configurable: true, enumerable: true, value: function() {
+  reset() {
     this._blindGrid();
     this.gridModel.execute(true);
     this.gridModel.onceReady(this._unBlindGrid);
-  }},
+  }
 
-  addRow: { writable: true, configurable: true, enumerable: true, value: function() {
+  addRow() {
     jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd");
-	}},
+	}
 
   /**
    * @method
    * @returns {bcdui.core.DataProvider} configuration model of the grid
    */
-  getConfigModel: { writable: true, configurable: true, enumerable: true, value: function() {
+  getConfigModel() {
     return this.metaDataModel;
-  }},
+  }
 
   /**
    * @method
    * @returns {bcdui.core.DataProvider} Enhanced configuration model of the grid
    */
-  getEnhancedConfiguration: { writable: true, configurable: true, enumerable: true, value: function() {
+  getEnhancedConfiguration() {
     return this.enhancedConfiguration; 
-  }}
-});
+  }
+}
 
 
 /************************

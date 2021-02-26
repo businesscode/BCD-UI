@@ -19,7 +19,7 @@
  * The file containing the implementation of the SimpleModel class.
  *
  */
-bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatableModel,
+bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 /**
  * @lends bcdui.core.SimpleModel.prototype
  */
@@ -73,37 +73,47 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * myModel.execute();
    *
    */
-  initialize: function(args)
+  constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.SimpleModel" ): "") != "";
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
 
-      this.saveOptions = args.saveOptions || {};
-      this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
-      this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
-
-      if( typeof args === "string" ) {
-        args = { url: args };
-      }
-
-      args.saveOptions = this.saveOptions;
-
-      // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
-      this.mimeType = !!args.mimeType ? args.mimeType : undefined;
-      
-      this.urlProvider = null;
-      if (typeof args.url == "string" || typeof args.url == "undefined") {
-
-        if (typeof args.url == "undefined" || !args.url.trim().length)
-          args.url = bcdui.core.webRowSetServletPath;
-
-        if(args.uri){
-          args.url += "/" + args.uri;
+          this.saveOptions = args.saveOptions || {};
+          this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
+          this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
+    
+          if( typeof args === "string" ) {
+            args = { url: args };
+          }
+    
+          args.saveOptions = this.saveOptions;
+    
+          // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
+          this.mimeType = !!args.mimeType ? args.mimeType : undefined;
+          
+          this.urlProvider = null;
+          if (typeof args.url == "string" || typeof args.url == "undefined") {
+    
+            if (typeof args.url == "undefined" || !args.url.trim().length)
+              args.url = bcdui.core.webRowSetServletPath;
+    
+            if(args.uri){
+              args.url += "/" + args.uri;
+            }
+            this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
+          } else {
+            this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
+            this.checkAutoRefresh = true;
+          }
         }
-        this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
-        bcdui.core.AbstractUpdatableModel.call(this,args);
-      } else {
+      }));
+
+      if (this.checkAutoRefresh) {
         this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
-        bcdui.core.AbstractUpdatableModel.call(this,args);
+
         // in case of isAutoRefresh listen to changes of urlProvider and
         // reload model
         if ( args.isAutoRefresh ){
@@ -166,23 +176,22 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
       this.addStatusListener(this._statusTransitionHandler.bind(this));
 
       this.setStatus(this.initializedStatus);
+    }
 
-      if (isLeaf)
-        this._checkAutoRegister();
-    },
+    getClassName() {return "bcdui.core.SimpleModel";}
 
   /**
    * @private
    */
-  _getTheStateBeforeRefreshingModelUpdatersStatus: function()
+  _getTheStateBeforeRefreshingModelUpdatersStatus()
     {
       return this.loadedStatus;
-    },
+    }
 
   /**
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(/* StatusEvent */ statusEvent)
     {
       if (statusEvent.getStatus().equals(this.loadingStatus)) {
         /*
@@ -213,14 +222,14 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
          */
         this._applyModelUpdaters(false);
       }
-    },
+    }
 
   /**
    * Helper to derive via best-guess the mimetype from a url
    * Later this could be derived from the mime-type of the HTTP response header, but for now we need to know the loader upfront
    * @private
    */
-  _deriveMimeType: function( args )
+  _deriveMimeType( args )
   {
     var pathParts = args.url.split(/\#|\?|;/)[0].split("/");
     var pathEnd = pathParts[pathParts.length-1];
@@ -242,12 +251,12 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
     else
       mimeType = "text/plain";
     return mimeType + "; charset=UTF-8";
-  },
+  }
     
   /**
    * @private
    */
-  _load: function()
+  _load()
     {
       var loadUrl = this.urlProvider.getData();
 
@@ -324,7 +333,7 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
           }.bind(this)
         });
       }
-    },
+    }
 
   /**
    * The SimpleModel reaches its ready status when the XML document has been
@@ -361,49 +370,49 @@ bcdui.core.SimpleModel = bcdui._migPjs._classCreate(bcdui.core.AbstractUpdatable
    * </td></tr></table></p>
    * @return {bcdui.core.Status} The ready state of the document.
    */
-  getReadyStatus: function()
+  getReadyStatus()
     {
       return this.transformedStatus;
-    },
+    }
 
   /**
    * Returns the list of status objects indicating that something has failed.
    * @return {Array} The array of failure {@link bcdui.core.Status} objects.
    */
-  getFailedStatus: function()
+  getFailedStatus()
     {
       return [ this.loadFailedStatus, this.saveFailedStatus ];
-    },
+    }
 
   /**
    * The implementation of the model loading process. It just sets the status,
    * because the actual loading is done in the _statusTransitionHandler function.
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
     {
       if (this.status.equals(this.initializedStatus) || this.status.equals(this.getReadyStatus()) || this.status.equals(this.savedStatus)) {
         this.setStatus(this.loadingStatus);
       }
-    },
+    }
 
   /**
    * @inheritdoc
    */
-  getData: function()
+  getData()
     {
       return this.dataDoc;
-    },
+    }
 
   /**
    * Debugging function showing a text for this model.
    * @return {string} A summary of the model.
    */
-  toString: function(args)
+  toString(args)
     {
       var msg = "[bcdui.core.SimpleModel: " + this.id;
       if( args && args.verbosity > 0 )
         msg += (this._modelUpdaters.length?(this._modelUpdaters.length/1000).toFixed(1)+"k, model updaters ":"") + ", url: " + (this.urlProvider.isReady()?this.urlProvider.getData():"");
       return msg + "]";
     }
-}); // Create class: bcdui.core.SimpleModel
+}; // Create class: bcdui.core.SimpleModel
