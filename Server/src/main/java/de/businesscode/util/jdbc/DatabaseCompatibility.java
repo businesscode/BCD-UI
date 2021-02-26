@@ -65,6 +65,10 @@ public class DatabaseCompatibility
   protected final Map<String, String> aggregationMappingGeneric;
   protected final Map<String, String> aggregationMappingMySql;
 
+  protected final Map<String, String[]> spatialFktMapping;
+  protected final Map<String, String[]> oracleSpatialFktMapping;
+  protected final Map<String, String[]> sqlServerSpatialFktMapping;
+
   // When casting to VARCHAR, we use this size, should be long enough and not hurt on the other side
   private int LENGTH_FOR_CAST_TO_VARCHAR = 1024;
 
@@ -235,6 +239,19 @@ public class DatabaseCompatibility
   }
 
   /**
+   * Geo spatial operators differ significantly from database to database
+   */
+  public Map<String, String[]> getSpatialFktMapping(BindingSet resultingBindingSet)
+  {
+    String product = getDatabaseProductNameLC(resultingBindingSet);
+    if( product.contains("oracle") )
+      return oracleSpatialFktMapping;
+    else if( product.contains("microsoft sql server") )
+      return sqlServerSpatialFktMapping;
+    return spatialFktMapping;
+  }
+
+  /**
    * Does not do much checking, but as all BindingSets are tested on start, the risk is low
    * @param bs
    * @return
@@ -374,6 +391,35 @@ public class DatabaseCompatibility
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
     aggregationMappingMySql.put("grouping",  "ISNULL");
 
+
+    //---------------------------------------
+    // Spatial operators
+    spatialFktMapping = new HashMap<String,String[]>();
+
+    // Open Geospatial Consortium Inc.
+    spatialFktMapping.put("GeoFromWkt", new String[]{"ST_WktToSQL(",     "",  ")"});
+    spatialFktMapping.put("SpatContains", new String[]{"ST_Contains(",     ",",  ") = 1"});
+    spatialFktMapping.put("SpatContained", new String[]{"ST_Contains(",     ",",  ") = 1"});
+    spatialFktMapping.put("SpatIntersects", new String[]{"ST_Intersects(",     ",",  ") = 1"});
+
+    // Database specific
+    oracleSpatialFktMapping = new HashMap<String, String[]>(spatialFktMapping);
+    oracleSpatialFktMapping.put("GeoFromWkt", new String[]{"SDO_UTIL.FROM_WKTGEOMETRY(",     "",  ")"});
+    oracleSpatialFktMapping.put("SpatContains", new String[]{"SDO_CONTAINS(",     ",",  ") = 1"});
+    oracleSpatialFktMapping.put("SpatContained", new String[]{"SDO_CONTAINS(",     ",",  ") = 1"});
+    oracleSpatialFktMapping.put("SpatIntersects", new String[]{"SDO_INTERSECTION(",     ",",  ") = 1"});
+
+    // Type EPSG. =WGS84, this is the most common coordinate reference system, also used for GPS.    
+    // We use it for parsing WKT. Mandatory only for SQL-Server. As long as this is hard-coded here. the bRef's value must also be EPSG4326 for operators to work
+    // We use geography:: and not geometry:: because we assume working with geo-spatial data here, not with a plain Euclidean space.
+    final String DEFAULT_SRID = "4326";
+    sqlServerSpatialFktMapping = new HashMap<String, String[]>(spatialFktMapping);
+    sqlServerSpatialFktMapping.put("GeoFromWkt", new String[]{"geography::STGeomFromText(",     "",  ", "+DEFAULT_SRID+")"});
+    sqlServerSpatialFktMapping.put("SpatContains", new String[]{"",  ".STContains(", ") = 1"});
+    sqlServerSpatialFktMapping.put("SpatContained", new String[]{"",  ".STContains(", ") = 1"});
+    sqlServerSpatialFktMapping.put("SpatIntersects", new String[]{"",  ".STIntersects(", ") = 1"});
+
+
     sqlKeyWordsOracle = new HashSet<String>(
         Arrays.asList( new String[]
           {
@@ -416,6 +462,8 @@ public class DatabaseCompatibility
             // CASE and conditions
             "CASE", "WHEN", "THEN", "ELSE", "END",
             "NOT", "AND", "OR", "IS", "NULL", "BETWEEN", "IN", "LIKE", "ESCAPE",
+            // Spatial functions according to OGC
+            "ST_CONTAINS", "ST_INTERSECTS", "ST_ASTEXT",
             // Other
             "DISTINCT", "COUNT"
           }
@@ -441,7 +489,8 @@ public class DatabaseCompatibility
           {
             "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK", "GETUTCDATE",
             "ISO_WEEK", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
-            "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS", "LEN"
+            "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS", "LEN",
+            "GEOMETRY", "GEOGRAPHY", "POINT", "STGEOMFROMTEXT", "STCONTAINS", "STINTERSECTS", "ENVELOPEAGGREGATE", "TOSTRING", "CURVETOLINEWITHTOLERANCE"
           }
         )
       );
