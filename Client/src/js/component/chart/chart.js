@@ -1621,7 +1621,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   getData()
   {
     return null;
-  },
+  }
 
   /**
    * @inheritdoc
