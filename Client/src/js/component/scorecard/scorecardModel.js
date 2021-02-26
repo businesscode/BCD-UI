@@ -32,7 +32,7 @@ bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namesp
  * ========================================================
  * Scorecard
  */
-bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.component.scorecard.ScorecardModel.prototype
  */
@@ -92,11 +92,11 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
    * @param {object}                  [args.parameters]            - Custom parameters to be shared between all aggregators, aspects, etc.
    */
-  initialize: function(/* object */ args )
+  constructor(/* object */ args )
   {
     var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.scorecard.Scorecard" ): "") != "";
 
-    bcdui.core.DataProvider.call( this, args );
+    super.call( this, args );
 
     // Arguments
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
@@ -128,12 +128,12 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
 
     if (isLeaf)
       this._checkAutoRegister();
-  },
+  }
 
   /**
    * @private
    */
-  _calculate: function()
+  _calculate()
   {
     bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', starting calculating ... " );
 
@@ -628,14 +628,14 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           this.setStatus(this.transformingStatus);
         }.bind( this )
     );
-  },
+  }
 
   // 15) Read additional measure data for aspects, per aggr
 
   /**
    * @private
    */
-  _applyAspWrqModToAggr: function( aggrWrq, aggrId )
+  _applyAspWrqModToAggr( aggrWrq, aggrId )
   {
     bcdui.factory.objectRegistry.withReadyObjects( [ this.internalPrefix+"_refAspects" ],
       function( aggrWrq, aggrId ) {
@@ -683,13 +683,13 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
         }
       }.bind( this, aggrWrq, aggrId )
     );
-  },
+  }
 
   /**
    * Gets a model where the measures (for kpi data) or kpis (for aspects) are per row and returns a model where they are columnwise
    * @private
    */
-  _createMeasuresInColumnsModel: function( args )
+  _createMeasuresInColumnsModel( args )
   {
     bcdui.factory.objectRegistry.withReadyObjects( args.input, function( args )
     {
@@ -709,14 +709,14 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
           inputModel: input, parameters: { groupingColumnCount: dimCount, transposedColumnNo: dimCount } } );
       }
     }.bind(this, args));
-  },
+  }
 
   /**
    * All calculations are now finished. We do apply the layout requsts here
    * Maybe turn KPIs into rows, model aspects as wrs:A attributes, do column dimensions
    * @private
    */
-  _finalizeScorecard: function()
+  _finalizeScorecard()
   {
     bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', calculating "+this.scAspIdArray.length+" aspects ..." );
     bcdui.factory.objectRegistry.withReadyObjects( this.internalPrefix+"_completed_kpiAsp",
@@ -792,38 +792,38 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
       this.setStatus(newStatus);
     }.bind(this) );
-  },
+  }
 
   /**
    * @inheritdoc
    */
-  getReadyStatus: function()
+  getReadyStatus()
   {
     return this.transformedStatus;
-  },
+  }
 
   /**
    * 22) Final data is in internal mode and passed on getData()
    */
-  getData: function()
+  getData()
   {
     return bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_final").getData();
-  },
+  }
 
   /**
    * @private
    */
-  _executeImpl: function()
+  _executeImpl()
   {
     if (this.status.equals(this.initializedStatus) || this.status.equals(this.getReadyStatus()) ) {
       this.setStatus(this.loadingStatus);
     }
-  },
+  }
 
   /**
    * @private
    */
-  _statusTransitionHandler: function(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(/* StatusEvent */ statusEvent)
   {
     if (statusEvent.getStatus().equals(this.loadingStatus)) {
       this._calculate();
@@ -834,4 +834,4 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
     }
   }
 
-} );
+} ;
