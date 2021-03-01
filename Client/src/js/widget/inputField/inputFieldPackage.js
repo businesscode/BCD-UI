@@ -1536,15 +1536,15 @@ bcdui.util.namespace("bcdui.widget.inputField",
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-  XMLListener: bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+  XMLListener: class extends bcdui.widget.XMLDataUpdateListener
     /**
      * @lends bcdui.widget.inputField.XMLListener.prototype
      */
     {
-      updateValue: function()
+      updateValue()
         {
           bcdui.widget.inputField._readDataFromXML(this.htmlElementId);
         }
 
-    })
+    }
 }); // namespace
