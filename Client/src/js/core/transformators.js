@@ -70,7 +70,7 @@ bcdui.core.transformators =
 };
 
 
-bcdui.core.transformators.IdentityTransformator = bcdui._migPjs._classCreate( null,
+bcdui.core.transformators.IdentityTransformator = class
 /** @lends bcdui.core.transformators.IdentityTransformator.prototype */
 {
 
@@ -83,13 +83,13 @@ bcdui.core.transformators.IdentityTransformator = bcdui._migPjs._classCreate( nu
    * @param {*} [template] Dummy only, not deeded:
    * @private
    */
-  initialize: function(/* object */ template)
+  constructor(/* object */ template)
   {
     this.params = {};
     this.template = null;
     if( typeof template !== "undefined" )
       this.template = template;
-  },
+  }
 
   /**
    * For usage by TransformationChain
@@ -97,16 +97,16 @@ bcdui.core.transformators.IdentityTransformator = bcdui._migPjs._classCreate( nu
    * @param {*}      value - Parameter value, can be anything that is understood by the template
    * @private
    */
-  addParameter: function( /* String */ name, /* object */ value)
+  addParameter( /* String */ name, /* object */ value)
   {
     this.params[name] = value;
-  },
+  }
   
   /**
    * For usage by TransformationChain
    * @private
    */
-  transform: function( args )
+  transform( args )
   {      
     for (var x in args.parameters)
       this.addParameter(x, args.parameters[x]);
@@ -115,29 +115,29 @@ bcdui.core.transformators.IdentityTransformator = bcdui._migPjs._classCreate( nu
       this.transformToFragment( args.input, args.outputOwner, args.callBack );
     else
       this.transformToDocument( args.input, args.callBack );    
-  },
+  }
 
   /**
    * For usage by TransformationChain
    * @private
    */
-  transformToFragment: function( /* XMLDocument */ sourceDoc, /* XMLDocument */ ownerDocument, fn )
+  transformToFragment( /* XMLDocument */ sourceDoc, /* XMLDocument */ ownerDocument, fn )
   {
     this.transformToDocument(sourceDoc, fn);
-  },
+  }
   
   /**
    * For usage by TransformationChain
    * @private
    */
-  transformToDocument: function( /* XMLDocument */ sourceDoc, /* function */ fn )
+  transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
   {
     fn(sourceDoc);
   }
-});
+};
 
 
-bcdui.core.transformators.JsTransformator = bcdui._migPjs._classCreate( bcdui.core.transformators.IdentityTransformator,
+bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 /**
  * @lends bcdui.core.transformators.JsTransformator.prototype
  */
@@ -152,28 +152,28 @@ bcdui.core.transformators.JsTransformator = bcdui._migPjs._classCreate( bcdui.co
    * @param {(string|function)} prokFunc - The js function to be used for processing. Either a real function or a string with JS code for eval.
    * @private
    */
-  initialize: function(/* object */ procFkt)
+  initialize(/* object */ procFkt)
   {
-    bcdui.core.transformators.IdentityTransformator.call(this, procFkt);
+    super.call(this, procFkt);
     if( typeof procFkt == "string" ) {
       procFkt = eval(procFkt);
     }
     this.procFkt = procFkt;
-  },
+  }
 
   /**
    * For usage by TransformationChain
    * @private
    */
-  transformToDocument: function( /* XMLDocument */ domToBeTransformed, /* function */ fn )
+  transformToDocument( /* XMLDocument */ domToBeTransformed, /* function */ fn )
   {
     var ret = this.procFkt( domToBeTransformed, this.params );
     fn( typeof ret !== "undefined" ? ret : domToBeTransformed );
   }
-});
+};
 
 
-bcdui.core.transformators.WebworkerTransformator = bcdui._migPjs._classCreate( bcdui.core.transformators.IdentityTransformator,
+bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
 /** @lends bcdui.core.transformators.WebworkerTransformator.prototype */
 {  
   /**
@@ -191,7 +191,7 @@ bcdui.core.transformators.WebworkerTransformator = bcdui._migPjs._classCreate( b
    *    </ul>
    * @private
    */
-  initialize: function(/* object */ args)
+  constructor(/* object */ args)
   {
     bcdui.core.transformators.IdentityTransformator.call(this, args);
     this.worker = new Worker("webWorkerProc.js");
@@ -199,13 +199,13 @@ bcdui.core.transformators.WebworkerTransformator = bcdui._migPjs._classCreate( b
         var response = JSON.parse( oEvent.data );
         this.fn( response.result );
       }.bind(this), false);
-  },
+  }
 
   /**
    * For usage by TransformationChain
    * @private
    */
-  transformToDocument: function( /* XMLDocument */ sourceDoc, /* function */ fn )
+  transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
   {
     this.fn = fn; // TODO issue, when fn changes for next call, when first exec is not finished
     var parameters = {};
@@ -214,10 +214,10 @@ bcdui.core.transformators.WebworkerTransformator = bcdui._migPjs._classCreate( b
     });
     this.worker.postMessage( JSON.stringify( { input: sourceDoc, parameters: parameters } ) );
   }
-});
+};
 
 
-bcdui.core.transformators.DotJsTransformator = bcdui._migPjs._classCreate( bcdui.core.transformators.IdentityTransformator,
+bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 /**
  * @lends bcdui.core.transformators.DotJsTransformator.prototype
  */
@@ -230,19 +230,19 @@ bcdui.core.transformators.DotJsTransformator = bcdui._migPjs._classCreate( bcdui
    * @constructs
    * @private
    */
-  initialize: function(/* object */ procFkt)
+  initialize(/* object */ procFkt)
   {
-    bcdui.core.transformators.IdentityTransformator.call(this, procFkt);
-  },
+    super.call(this, procFkt);
+  }
 
   /**
    * For usage by TransformationChain
    * @private
    */
-  transformToDocument: function( /* XMLDocument */ sourceDoc, /* function */ fn )
+  transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
   {
     if( !this.transFkt )
       this.transFkt = doT.template(this.template);
     fn( this.transFkt( { input:sourceDoc, params:this.params } ) );
   }
-});
+};
