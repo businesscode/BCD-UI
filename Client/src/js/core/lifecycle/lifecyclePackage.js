@@ -25,9 +25,9 @@ bcdui.wkModels = bcdui.wkModels || new Object();
  * Gets only ready if you force it from outside, i.e. when cloning the guiStatus dataDoc
  * @private
  */
-bcdui.core._GuiEstDataProvider = bcdui._migPjs._classCreate(bcdui.core.StaticModel, {
+bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
-    initialize: function(args) {
+    constructor(args) {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core._GuiEstDataProvider" ): "") != "";
       /** @private */
       this._lockedReadiness = true;
@@ -38,24 +38,23 @@ bcdui.core._GuiEstDataProvider = bcdui._migPjs._classCreate(bcdui.core.StaticMod
       
       if (isLeaf)
         this._checkAutoRegister();
-    },
+    }
     
     /** @private */
-    _unlock: function() {
+    _unlock() {
       this._lockedReadiness = false;
       if (this._setReady)
         this._executeImpl();
-    },
+    }
 
     /** @private */
-    _executeImpl: function() {
+    _executeImpl() {
       if (! this._lockedReadiness)
         bcdui.core.StaticModel.prototype._executeImpl.call(this);
       else
         this._setReady = true;
     }
-  }
-);
+  };
 
 /**
  * <p>
