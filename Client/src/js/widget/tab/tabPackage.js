@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProvider,
+bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
     /**
      * @lends bcdui.core.HTML2XMLDataProvider.prototype
      */
@@ -29,10 +29,10 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
        * @param {(String|HTMLElement)} args.idOrElement
        *
        */
-      initialize: function(/* object */ args)
+      constructor(/* object */ args)
       {
           bcdui.log.isTraceEnabled() && bcdui.log.trace("HTML2XMLDataProvider init");
-          bcdui.core.DataProvider.call( this, {
+          super.call( this, {
             id: args.id,
             name: args.name
           });
@@ -42,12 +42,12 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
 
           this.doc = null;
           this.idOrElement = args.idOrElement;
-      },
+      }
 
       /**
        * @private
        */
-      _createModelDocument:function()
+      _createModelDocument()
       {
         bcdui.log.isTraceEnabled() && bcdui.log.trace("this.idOrElement:"+this.idOrElement);
         var rElement = bcdui._migPjs._$(this.idOrElement);
@@ -70,32 +70,31 @@ bcdui.core.HTML2XMLDataProvider = bcdui._migPjs._classCreate(bcdui.core.DataProv
           e.setAttribute("onclick", (element.getAttribute("onclick")==null)?"":element.getAttribute("onclick"));
         }.bind(this));
 
-      },
+      }
 
       /**
        * @private
        */
-      _executeImpl: function()
+      _executeImpl()
         {
           this._createModelDocument();
           var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
           this.setStatus(newStatus);
-        },
+        }
 
-      getData: function()
+      getData()
         {
           return this.doc;
-        },
+        }
 
       /**
        * @return {status}
        */
-      getReadyStatus: function()
+      getReadyStatus()
         {
           return this.transformedStatus;
         }
-    }
-);
+    };
 
 
 /**
