@@ -3316,12 +3316,12 @@ bcdui.util.namespace("bcdui.widget",
      }
 }); // namespace
 
-bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
+bcdui.widget.validationToolTip = class
 /**
  * @lends bcdui.widget.validationToolTip.prototype
  */
 {
-  _schema_validationToolTip_args: !(bcdui.factory.validate.jsvalidation._patterns) ? {} : {
+  _schema_validationToolTip_args= !(bcdui.factory.validate.jsvalidation._patterns) ? {} : {
     name: "_schema_validationToolTip_args",
     properties: {
       id:                         { type: "string",  required: false, pattern: bcdui.factory.validate.jsvalidation._patterns.dataProviderId },
@@ -3331,7 +3331,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
       validateWrapperUrl:         { type: "string",  required: false },
       validateWrapperParameters:  { type: "object",  required: false }
     }
-  },
+  }
 
   /*
    * @constructs
@@ -3344,7 +3344,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
    *    validateWrapperUrl - xstl transformation which implement concrete validation logic
    *    validateWrapperParameters - parameters that should be passed to validateWrapper
    * */
-  initialize: function(args)
+  constructor(args)
   {
 //    args = bcdui.factory._xmlArgs( args, this._schema_validationToolTip_args );
 //    bcdui.factory.validate.jsvalidation._validateArgs(args, this._schema_validation"ip_args);
@@ -3414,7 +3414,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
       // initial validation
       currentObject.validateMethod(t.containerHtmlElement);
     });
-  },
+  }
 
   /**
    * Tool tip listener initialization and registering.
@@ -3422,7 +3422,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
    * @returns {Function} Listener which controls the tool tip.
    * @private
    */
-  _initTooltip: function(t)
+  _initTooltip(t)
     {
       var xpath, xpathMessage;
       if (bcdui.widget._isWrs(t.doc)) {
@@ -3472,7 +3472,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
      *        validateValue {boolean} result of validation true\false
      * @private
      */
-    _visualizeValidationResult: function(containerHtmlElement, targetModelId, xpath){
+    _visualizeValidationResult(containerHtmlElement, targetModelId, xpath){
       var doc=bcdui.factory.objectRegistry.getObject(targetModelId).getData();
       var node = doc.selectSingleNode(xpath);
       var value;
@@ -3490,13 +3490,13 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
           if (!jQuery(span).hasClass("bcdInvalid")) jQuery(span).addClass("bcdInvalid");
         });
       }
-    },
+    }
     /**
      * Runs widget validation (which passed to validateWrapperUrl) and copy validation info from wrapper to the model.
      * @param containerHtmlElement
      * @private
      */
-    _validateValue: function(containerHtmlElement){
+    _validateValue(containerHtmlElement){
       if (containerHtmlElement.getAttribute("bcdValidate") == "true") {
         var validateWrapper = bcdui.factory.objectRegistry.getObject(containerHtmlElement.getAttribute("bcdValidateWrapperId"));
         validateWrapper.execute(true);
@@ -3552,7 +3552,7 @@ bcdui.widget.validationToolTip = bcdui._migPjs._classCreate( null,
         bcdui.factory.objectRegistry.getObject(this.targetModelId).fire();
       }
     }
-});
+};
 
 // initialize pageEffects (if used)
 bcdui.core.ready(function(){
