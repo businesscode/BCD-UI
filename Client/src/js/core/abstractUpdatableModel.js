@@ -38,7 +38,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
    */
   constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractUpdatableModel" ): "") != "";
+      super( args);
 
       /**
        * The modelUpdaters attached to this class. The elements of the array are of the
@@ -82,11 +82,6 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
        * @private
        */
       this._readyStatiForModelUpdates = [];
-
-      bcdui.core.DataProvider.call( this, args);
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
 
   /**
@@ -289,13 +284,8 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
    */
   constructor(args)
     {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core._ModelBeingUpdated" ): "") != "";
-
+    super(args);
     this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
-    super.call( this, args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 
   /**

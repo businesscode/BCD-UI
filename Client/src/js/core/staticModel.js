@@ -54,14 +54,12 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
    * myModel.execute();
    * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
    */
-  initialize(args)
+  constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.StaticModel" ): "") != "";
-
       if( args && !args.data ) {
         args = { data: args };
       }
-      super.call(this,args);
+      super(args);
       if (typeof args.data == "undefined" || (typeof args.data == "string" && !args.data.trim())) {
         args.data = "<Empty/>";
       }
@@ -118,8 +116,6 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
        */
       bcdui.core.ready(this._deferredInitialization.bind(this));
 
-      if (isLeaf)
-        this._checkAutoRegister();
     }
 
   /**

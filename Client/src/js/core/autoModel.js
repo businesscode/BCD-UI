@@ -60,8 +60,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    */
   constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AutoModel" ): "") != "";
-
       if( !args.reqDocChain && (typeof args.reqDocStyleSheetUrl == "undefined" || args.reqDocStyleSheetUrl == null || !args.reqDocStyleSheetUrl.trim() )) {
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");
@@ -147,7 +145,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
          jQuery.extend( simpleModelArgs, {id: args.id} );  // if we have a given Id, use it 
 
        // create the desired model and inject the model wrapper as request document
-       super.call(this, simpleModelArgs);
+       super(simpleModelArgs);
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
@@ -185,10 +183,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
            });
          }
        }
-
-       if (isLeaf)
-         this._checkAutoRegister();
-
        return this;
     }
 };

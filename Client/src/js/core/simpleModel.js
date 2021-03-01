@@ -75,7 +75,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
    */
   constructor(args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.SimpleModel" ): "") != "";
+      super(args);
 
       this.saveOptions = args.saveOptions || {};
       this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
@@ -100,10 +100,10 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
           args.url += "/" + args.uri;
         }
         this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
-        bcdui.core.AbstractUpdatableModel.call(this,args);
+
       } else {
         this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
-        bcdui.core.AbstractUpdatableModel.call(this,args);
+
         // in case of isAutoRefresh listen to changes of urlProvider and
         // reload model
         if ( args.isAutoRefresh ){
@@ -166,9 +166,6 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       this.addStatusListener(this._statusTransitionHandler.bind(this));
 
       this.setStatus(this.initializedStatus);
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
 
   /**

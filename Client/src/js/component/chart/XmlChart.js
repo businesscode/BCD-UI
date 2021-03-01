@@ -51,14 +51,9 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
    * @param {number}                  [args.height]                         - Overwrite the chart's auto-height derived from targetHtml
    */
   constructor(args)
-  {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.chart.XmlChart" ): "") != "";
-
+  { 
+    super(args);
     this.chartDefModel = args.config || args.metaDataModel;
-    super.call(this,args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 
   /**

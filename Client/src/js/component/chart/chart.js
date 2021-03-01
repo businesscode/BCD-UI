@@ -89,9 +89,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    */
   constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.chart.Chart" ): "") != "";
-
-    super.call( this, args);
+    super(args);
 
     this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
     this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -138,8 +136,6 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
     if( ! args.suppressInitialRendering )
       this.execute();
     
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 
   /**

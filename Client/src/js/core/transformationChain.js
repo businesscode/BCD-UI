@@ -38,7 +38,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    */
   constructor(args)
     {
-      super.call(this,args);
+      super(args);
       
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
@@ -987,16 +987,11 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    */
   constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.Renderer" ): "") != "";
-    
     args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-
+    super(args);
     // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
     // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
     this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
-    super.call(this, args);
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 
   /**
@@ -1114,14 +1109,9 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url, this is mandatory for saving
   */
-  initialize(args)
+ constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ModelWapper" ): "") != "";
-    
-    super.call(this, args);
-
-    if (isLeaf)
-      this._checkAutoRegister();
+    super(args);
   }
 };
 
@@ -1150,10 +1140,9 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
    * @param {boolean}                 [args.autoUpdate=true] - A boolean value indicating if the ModelUpdater should run on every change in the targetModel. Can be a data modification event or if targetModel again reaches the ready status. If autoUpdate is false a model updater only runs when the targetModel is (re)executed. 
    * @param {string}                  [args.id]               - Globally unique id for use in declarative contexts
    */
-  initialize(args)
+  constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ModelUpdater" ): "") != "";
-    
+    super(args);
     if (typeof args.inputModel != "undefined") {
       throw Error("Must not define input model on model updater");
     }
@@ -1164,10 +1153,7 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
      */
     args.inputModel = bcdui.core.emptyModel;
     this.modelUpdaterTargetModel = args.targetModel;
-    super.call(this, args);
+    
     args.targetModel._addModelUpdater(this, args.autoUpdate);
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 };

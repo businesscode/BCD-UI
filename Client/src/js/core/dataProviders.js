@@ -37,15 +37,10 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
    */
   constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.PromptDataProvider" ): "") != "";
-
-      super.call( this, args);
+      super(args);
       this.value = "";
       this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
   /**
    * Shows a pop-up input box where the user can enter a value. This value
@@ -92,26 +87,22 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
    * @param {string=} args.name  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
    * @param {(string|number|boolean|object)} args.value - The data
    */
-  initialize(/* object */ args)
+  constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.ConstantDataProvider" ): "") != "";
-
+      super(args);
       /*
        * Validate if the name and value parameters are present.
        */
       if (typeof args.value == "undefined") {
         throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
       }
-      bcdui.core.DataProvider.call( this, args);
       /**
        * The value provided by the "getData" function.
        * @type String|Number|Boolean
        * @private
        */
       this.value = args.value;
-      
-      if (isLeaf)
-        this._checkAutoRegister();
+
     }
   /**
    * This class is not calculating or loading its value in any sense so this
@@ -165,12 +156,11 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
    * @param {bcdui.core.DataProvider} [args.source] - The data provider to be wrapped, unless set later via {@link bcdui.core.DataProviderHolder#setSource}
    * @param {string}                  [id]          - id
    */
-  initialize(/* object */ args)
+  constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderHolder" ): "") != "";
 
       args = args || {};
-      super.call( this, args);
+      super( args);
       /**
        * The status the provider is in before it has loaded its data.
        * @type Status
@@ -187,9 +177,6 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
       // pendingExecute: If execute is called on us and we have no source yet, we execute the source once it is added later
       this.pendingExecute = false;
       this.setSource(args.source);
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
   /**
    * @private
@@ -415,17 +402,14 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped
    * @param {string}                  args.name - The new name of the data provider
    */
-  initialize(/* object */ args)
+  constructor(/* object */ args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderAlias" ): "") != "";
-    
+
     if (typeof args.name == "undefined") {
       throw Error("Must specify a \"name\" property in the parameter map.");
     }
-    super.call(this, args );
+    super(args );
 
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 };
 
@@ -450,9 +434,8 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
    * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
    * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  initialize(/* object */ args)
+  constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderWithXPath" ): "") != "";
 
       if (typeof args.xPath == "undefined") {
         throw Error("Must specify an \"xPath\" property in the parameter map.");
@@ -466,10 +449,8 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
       this._xPath = args.xPath;
       if (typeof args.nullValue != undefined)
         this._nullValue = args.nullValue;
-      super.call( this, args);
+      super(args);
 
-      if (isLeaf)
-        this._checkAutoRegister();
     }
   /**
    * @private
@@ -529,10 +510,8 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
        * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
        * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
        */
-      initialize(/* object */ args)
+      constructor(/* object */ args)
         {
-          var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderWithXPathNodes" ): "") != "";
-
           if (typeof args.xPath == "undefined") {
             throw Error("Must specify an \"xPath\" property in the parameter map.");
           }
@@ -542,11 +521,10 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
             args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
           args.xPath = modelParams.xPath;
 
+         
+          super( args);
           this._xPath = args.xPath;
-          super.call( this, args);
 
-          if (isLeaf)
-            this._checkAutoRegister();
         }
       /**
        * returns the root-element of the document
@@ -618,8 +596,8 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
    * @param {xPath}                   [args.optionsModelRelativeValueXPath] - optional xPath relative to args.optionsModelXPath
    * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  initialize(/* object */ args){
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.OptionsDataProvider" ): "") != "";
+  constructor(/* object */ args){
+    super( args);
 
     if (!args.optionsModelXPath) {
       throw Error('Must specify an "optionsModelXPath" property in the parameter map.');
@@ -629,10 +607,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
       options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
     });
     this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);
-    super.call( this, args);
-    
-    if (isLeaf)
-      this._checkAutoRegister();
+
   }
   /**
    * returns the root-element of the document
@@ -723,15 +698,13 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
    * // It will auto-reload and once geoModel.isReady() === true, it will hold region data for 'FR'
    */
   constructor(args){
-
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.RequestDocumentDataProvider" ): "") != "";
-    
+    super(args);    
     args.modelURL = args.modelURL || args.modelUrl;
     
     this.method = (args.method != "GET" && args.method != "POST") ? "GET" : args.method;
 
     args["name"] = args.name || args.id;
-    super.call( this, args);
+    
     this.isAutoRefresh = args.isAutoRefresh;
     this.value = "";
     this.url = null;
@@ -778,8 +751,6 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 
     this.addStatusListener(this._statusTransitionHandler.bind(this));
     
-    if (isLeaf)
-      this._checkAutoRegister();
   }
   /**
    * @private
@@ -902,16 +873,11 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
    *   console.log(dp.getData());
    * &lt;/script>
    */
-  initialize(/* object */ args)
+  constructor(/* object */ args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProviderHtmlAttribute" ): "") != "";
-
-    super.call( this, args);
+    super( args);
     this.htmlElementId = args.htmlElementId;
     this.attributeName = args.attributeName;
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
   /**
    * @inheritsdoc
@@ -948,9 +914,7 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
    * @param {string} [args.name] - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
   constructor(args){
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.StringDataProvider" ): "") != "";
-
-    super.call( this, args);
+    super( args);
 
     /*
      * Verification of the "value" parameter.
@@ -980,9 +944,6 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
     this.addStatusListener(this._statusTransitionHandler.bind(this));
 
     this.setStatus(this.initializedStatus);
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
   /**
    * @inheritdoc
@@ -1055,9 +1016,7 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
    */
   constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.JsDataProvider" ): "") != "";
-
-      super.call( this, args);
+      super(args);
       this.callback = args.callback;
       this.doAllwaysRefresh = typeof args.doAllwaysRefresh == "undefined" ? false : true;
       this.value = "";
@@ -1067,9 +1026,6 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
 
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
       this.setStatus( this.doAllwaysRefresh ? newStatus : this.initializedStatus );
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
   /**
    * Calls the provided function
@@ -1119,11 +1075,9 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
      * @param {id}       [args.id]     - A globally unique id for use in declarative contexts
      * @param {string}   [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
      */
-    initialize(/* object */ args)
+    constructor(/* object */ args)
       {
-        var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AsyncJsDataProvider" ): "") != "";
-
-        super.call( this, args);
+        super( args);
         this.callback = args.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
@@ -1134,9 +1088,6 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
         // we are ready
         this.transformedStatus = new bcdui.core.status.TransformedStatus();
         this.setStatus( this.initializedStatus );
-
-        if (isLeaf)
-          this._checkAutoRegister();
       }
     /**
      * Calls the provided function which in turn set to .setData()

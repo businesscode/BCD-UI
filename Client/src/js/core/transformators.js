@@ -152,9 +152,9 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
    * @param {(string|function)} prokFunc - The js function to be used for processing. Either a real function or a string with JS code for eval.
    * @private
    */
-  initialize(/* object */ procFkt)
+  constructor(/* object */ procFkt)
   {
-    super.call(this, procFkt);
+    super( procFkt);
     if( typeof procFkt == "string" ) {
       procFkt = eval(procFkt);
     }
@@ -230,9 +230,9 @@ bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transfor
    * @constructs
    * @private
    */
-  initialize(/* object */ procFkt)
+  constructor(/* object */ procFkt)
   {
-    super.call(this, procFkt);
+    super(procFkt);
   }
 
   /**

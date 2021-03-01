@@ -37,9 +37,7 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
    */
   constructor(args) {
-    
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.cube.CubeModel" ): "") != "";
-    
+     
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createCubeModel_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createCubeModel_args);
 
@@ -76,9 +74,6 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
       reqHolder.setSource(rqModel);
       reqHolder.execute();
     }.bind(this) );
-    
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 };
 
@@ -135,8 +130,6 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
    * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    */
   constructor(args) {
-
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.cube.Cube" ): "") != "";
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createCube_args );
     this.targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
@@ -228,8 +221,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
       }.bind(undefined,this.targetHtml)
     );
     
-    if (isLeaf)
-      this._checkAutoRegister();
+
   }
 
   /**

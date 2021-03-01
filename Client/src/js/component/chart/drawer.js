@@ -207,7 +207,7 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
    */
   constructor( args )
   {
-    super.call( this, args );
+    super( args );
 
     this.doc = args.doc;
     this.rootElem = this._createElementNS("svg");

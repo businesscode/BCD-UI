@@ -47,7 +47,7 @@ bcdui.core.AbstractExecutable = class
   constructor(/* object */ args)
     {
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractExecutable" ): "") != "";
-    
+
       /**
        * A globally unique id of the object. DataProviders do also register themselves at {@link bcdui.factory.objectRegistry} when an id is provided to the constructor. 
        * This id is only needed in declarative contexts, like jsp or, when a DataProvider is accessed in a xPath like <bcd-input targetModelId="$myModelId/ns:Root/ns:MyValue"/>.
@@ -133,7 +133,7 @@ bcdui.core.AbstractExecutable = class
     _checkAutoRegister() {
      if (this._doRegister)
        bcdui.factory.objectRegistry.registerObject(this);
-   }
+    }
 
   /**
    * Auxiliary function for the status listener functions. This function extracts

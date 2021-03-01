@@ -28,16 +28,11 @@ bcdui.wkModels = bcdui.wkModels || new Object();
 bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
     constructor(args) {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core._GuiEstDataProvider" ): "") != "";
+      super(args);
       /** @private */
       this._lockedReadiness = true;
       /** @private */
       this._setReady = false;
-
-      bcdui.core.StaticModel.call(this, args);
-      
-      if (isLeaf)
-        this._checkAutoRegister();
     }
     
     /** @private */

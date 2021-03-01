@@ -77,8 +77,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
    */
   constructor(args) 
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.scorecard.Scorecard" ): "") != "";
-
+    super()
     // As long as ScorecardModel internally relies on the registry to find its sub- or helper models, we have to enforce an id here
     // also context menu needs it
     this.id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_");
@@ -249,10 +248,6 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
       });
 
     }.bind(this)});
-
-    // Now we finished our constructor, we can check whether we need to register ourselves
-    if (isLeaf)
-      this._checkAutoRegister();
   }
 
   /**
