@@ -438,7 +438,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   /**
    * @private
    */
-  _nullValue : null,
+  static _nullValue= null
   /**
    * @classdesc
    * Reading a single data item from an XPath on getData() as string.
@@ -466,7 +466,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
       this._xPath = args.xPath;
       if (typeof args.nullValue != undefined)
         this._nullValue = args.nullValue;
-      bcdui.core.DataProviderHolder.call( this, args);
+      super.call( this, args);
 
       if (isLeaf)
         this._checkAutoRegister();

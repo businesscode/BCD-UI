@@ -583,7 +583,7 @@ if (bcdui.browserCompatibility.isIE) {
         if (typeof this.onreadystatechange == "function") {
           this.onreadystatechange();
         }
-      },
+      }
 
     open(method, url, async)
       {

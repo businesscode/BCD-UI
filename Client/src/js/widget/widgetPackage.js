@@ -3464,7 +3464,7 @@ bcdui.widget.validationToolTip = class
       };
       bcdui.factory.addDataListener(listener);
       return listener;
-    },
+    }
 
     /**
      * Validation visualiser (adding bcdInvalid class to source html container if validation failed)

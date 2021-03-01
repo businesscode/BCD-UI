@@ -2109,6 +2109,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
      */
     XMLListener: class extends bcdui.widget.XMLDataUpdateListener
         {
+          constructor(){}
           /**
            * @lends bcdui.widget.periodChooser.XMLListener.prototype
            */        

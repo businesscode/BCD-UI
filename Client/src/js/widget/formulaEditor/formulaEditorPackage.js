@@ -859,6 +859,8 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
          * @lends bcdui.widget.formulaEditor.XMLVariablesListener.prototype
          */        
         {
+          constructor(){}
+          
           updateValue()
             {
               var containerHtmlElement = bcdui._migPjs._$(this.htmlElementId);

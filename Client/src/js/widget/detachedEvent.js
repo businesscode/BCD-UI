@@ -84,7 +84,7 @@ bcdui.widget.DetachedEvent = class
       }catch(e){ continue; }
 
     }
-  },
+  }
 
   /**
    * Getter for the event origin element.

@@ -136,7 +136,7 @@ bcdui.widget.MouseTracker = class
        * @private
        */
       this._handlers = {};
-    },
+    }
 
   /**
    * Starts the observation of the base element. New instances of the MouseTracker
