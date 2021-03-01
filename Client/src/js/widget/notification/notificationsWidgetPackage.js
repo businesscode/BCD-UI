@@ -22,7 +22,7 @@ bcdui.util.namespace("bcdui.widget.notifications",
 /** @lends bcdui.widget.notifications */
 {});
 
-bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
+bcdui.widget.notifications.Notificator = class
 /** @lends bcdui.widget.notifications.Notificator.prototype */
 {
   /**
@@ -34,7 +34,7 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
    * @param {boolean} [args.attachMouseHandler=false] if true, the mousehover/unhover will close the box
    * @param {integer} [args.autoHideMs=0]             if greater 0, the box will autohide after that amount of ms, otherwise the box has to be closed manually
    */
-   initialize : function(args) {
+   constructor(args) {
     //console.info("init", args);
     this.options = jQuery.extend({
       retainMessagesNumber : 5,
@@ -64,7 +64,7 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
       }.bind(this));
     }
     this.container.find(".bcd-widget-notificator-container-closer").click(this.hideNotificationBar.bind(this));
-  },
+  }
 
   /**
    * adds a message to notificator and displays notificator if appropriate
@@ -73,7 +73,7 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
    * @param {string} [type=INFO]   The type of the message, use WARN or INFO
    * @param {string} [anchorId]    If given the message will contain a link to that anchor)
    */
-  addMessage : function(message, type, anchorId) {
+  addMessage(message, type, anchorId) {
     //console.info("add message", {message:message, type:type});
 
     // queue message
@@ -91,20 +91,20 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
 
     // render
     this.displayNotificationBar();
-  },
+  }
 
   /**
    * removes all messages and hides notification window
    */
-   removeAllMessages : function() {
+   removeAllMessages() {
     this.messageQueue = [];
     this.hideNotificationBar();
-  },
+  }
 
   /**
    * displays notification bar rendering messages in the queue
    */
-  displayNotificationBar : function(){
+  displayNotificationBar(){
     //console.info("displayNoficiationBar", this.messageQueue);
 
     // clear previous timeout
@@ -138,21 +138,21 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
       this.contentContainer.html( html );
       this.showNotificationBar(deployAutoHide);
     }
-  },
+  }
 
   /**
    * hides notification bar
    */
-  hideNotificationBar : function(cbFunc){
+  hideNotificationBar(cbFunc){
     this.container.fadeOut({ duration:500, complete:cbFunc });
-  },
+  }
 
   /**
    * shows notification bar
    */
-  showNotificationBar : function(cbFunc){
+  showNotificationBar(cbFunc){
     // clear previous timeout
     window.clearTimeout( this.barTimeout );
     this.container.fadeIn({ duration:200, complete:cbFunc });
   }
-});
+};
