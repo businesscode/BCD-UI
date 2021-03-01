@@ -8,7 +8,7 @@
    * Listens to updates on the target model and syncs the value back to the widget
    * @private
    */
-  var XMLListener = bcdui._migPjs._classCreate(bcdui.widget.XMLDataUpdateListener,
+  var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     /**
      * @lends XMLListener.prototype
      */
@@ -16,12 +16,12 @@
       /**
        * @member bcdui.widget.inputField.XMLListener
        */
-      updateValue: function(){
+      updateValue(){
         var widgetInstance = jQuery("#" + this.htmlElementId)._bcduiWidget();
         // check if the instance is still alive
         widgetInstance && !widgetInstance.isDestroyed && this.onUpdateCallback && this.onUpdateCallback();
       }
-  });
+  };
 
   /**
    * the abstract, base widget for all widgets, providing basic functionality.
