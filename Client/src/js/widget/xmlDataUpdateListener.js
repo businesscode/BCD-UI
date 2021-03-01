@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
+bcdui.widget.XMLDataUpdateListener = class
 /**
  * @lends bcdui.widget.XMLDataUpdateListener.prototype
  */
@@ -27,7 +27,7 @@ bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
    * @abstract
    * @constructs
    */
-  initialize: function(args)
+  constructor(args)
     {
       /**
        * The ID of the HTML element to be watched.
@@ -72,22 +72,22 @@ bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
        * @type Boolean
        */
       this.isUnRegistered = false;
-    },
+    }
 
   /**
    * @return {String} The generated id of this listener.
    * @private
    */
-  getId: function()
+  getId()
     {
       return this.id;
-    },
+    }
 
   /**
    * This overridden method implements the behaviour provided by this class.
    * @private
    */
-  _callback: function(evtSrc)
+  _callback(evtSrc)
     {
       var htmlElement = document.getElementById(this.htmlElementId);
       if (htmlElement == null) {
@@ -95,15 +95,15 @@ bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
       } else {
         this.updateValue(evtSrc);
       }
-    },
+    }
 
     /**
      * This method called from factory when data changed.
      * @private
      */
-    listener: function(evtSrc){
+    listener(evtSrc){
       this._callback(evtSrc);
-    },
+    }
 
   /**
    * This method needs to be implemented by sub-classes to provide the functionality
@@ -111,10 +111,10 @@ bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
    * @event
    * @abstract
    */
-  updateValue: function(evtSrc)
+  updateValue(evtSrc)
     {
       bcdui.log.warn("not implemented");
-    },
+    }
 
   /**
    * Tests, if the class has already unregistered itself from its target model. This
@@ -122,19 +122,19 @@ bcdui.widget.XMLDataUpdateListener = bcdui._migPjs._classCreate( null,
    * disappeared.
    * @return {Boolean} True, if the class is unregistered.
    */
-  hasBeenUnRegistered: function()
+  hasBeenUnRegistered()
     {
       return this.isUnRegistered;
-    },
+    }
 
   /**
    * This method removes this listener from the targetModel. It is called by the
    * {@link #callback} method when the listener is triggered and the HTML
    * element has disappeared.
    */
-  unregister: function()
+  unregister()
     {
       bcdui.factory.objectRegistry.getObject(this._targetModelId).removeDataListener(this);
       this.isUnRegistered = true;
     }
-});
+};
