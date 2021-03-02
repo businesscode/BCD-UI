@@ -69,6 +69,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     {
       super( args );
 
+      this.type = "bcdui.core.DataProvider";
+
       this.saveOptions = args.saveOptions;
 
       /**

@@ -57,7 +57,8 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
     // We start with an empty DataProviderHolder until we known, whether a server request is to be done, which we only know once enhancedConfiguration is ready
     var reqHolder = new bcdui.core.DataProviderHolder();
     var inputModel = new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_inputModel", url: new bcdui.core.RequestDocumentDataProvider( { uri: "cube_" + args.id, requestModel: reqHolder } ) } );
-    bcdui.core.ModelWrapper.call( this, { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
+    super( { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
+    this.type = "bcdui.component.cube.CubeModel";
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 
@@ -132,14 +133,24 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
   constructor(args) {
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createCube_args );
-    this.targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createCube_args);
 
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cube");
+        args.detailExportFilterModel = args.detailExportFilterModel || args.statusModel;
+
+    super( {
+      id: args.id,
+      inputModel: args.inputModel,
+      targetHtml: args.targetHtml, 
+      parameters: jQuery.extend({paramModel: args.enhancedConfiguration, cubeId: args.id}, args.parameters ),
+      chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
+    }
+    );
+
     this.metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
     this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    args.detailExportFilterModel = args.detailExportFilterModel || args.statusModel;
-
+    this.targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
+    this.type = "bcdui.component.cube.Cube";
     //-----------------------------------------------------------
     // Enhanced configuration translates the input into parameters for the XSLTs out chain
     this.enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
@@ -159,14 +170,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
       args.inputModel = new bcdui.component.cube.CubeModel( modelArgs );
     }
 
-    bcdui.core.Renderer.call( this, {
-        id: args.id,
-        inputModel: args.inputModel,
-        targetHtml: args.targetHtml, 
-        parameters: jQuery.extend({paramModel: args.enhancedConfiguration, cubeId: args.id}, args.parameters ),
-        chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
-      }
-    );
+    
     
     // cube rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this cube
     args.enhancedConfiguration.onChange( { callback: args.inputModel.execute.bind(args.inputModel) } );

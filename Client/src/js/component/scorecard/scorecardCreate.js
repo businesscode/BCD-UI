@@ -75,12 +75,26 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
    * @param {Object}                  [args.parameters]                       - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    * @param {(boolean|string)}        [args.contextMenu=false]                - If true, scorecard's default context menu is used, otherwise provide the url to your context menu xslt here.
    */
-  constructor(args) 
+  constructor(args)
   {
-    super()
+
+    var id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_")
+    var inputModel = new bcdui.core.DataProviderHolder();
+
+    super( {
+      id: id ,
+      inputModel: inputModel,
+      targetHtml: args.targetHtml, 
+      chain: args.chain,
+      suppressInitialRendering : args.suppressInitialRendering,
+      parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
+    });
+
+    this.type = "bcdui.component.scorecard.Scorecard";
+
     // As long as ScorecardModel internally relies on the registry to find its sub- or helper models, we have to enforce an id here
     // also context menu needs it
-    this.id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_");
+    this.id = id;
 
     // Argument defaults
     args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
@@ -98,7 +112,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
     if (args.config)
       args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
 
-    this.inputModel = new bcdui.core.DataProviderHolder();
+    this.inputModel = inputModel;
 
     // if we got an input model, we can directly proceed
     if (!!args.inputModel)
@@ -113,15 +127,6 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
         );
       }.bind(this));
     }
-
-    bcdui.core.Renderer.call( this, {
-      id: this.id,
-      inputModel: this.inputModel,
-      targetHtml: args.targetHtml, 
-      chain: args.chain,
-      suppressInitialRendering : args.suppressInitialRendering,
-      parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
-    });
   
     //------------------
     // We also create some convenience objects: tooltip, detail export and WYSIWYG export infrastructure

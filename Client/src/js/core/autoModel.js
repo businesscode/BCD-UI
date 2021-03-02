@@ -60,6 +60,8 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    */
   constructor(args)
     {
+      super();
+      this.type = "bcdui.core.AutoModel";
       if( !args.reqDocChain && (typeof args.reqDocStyleSheetUrl == "undefined" || args.reqDocStyleSheetUrl == null || !args.reqDocStyleSheetUrl.trim() )) {
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");

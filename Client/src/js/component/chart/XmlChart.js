@@ -53,6 +53,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   constructor(args)
   { 
     super(args);
+    this.type = "bcdui.component.chart.XmlChart";
     this.chartDefModel = args.config || args.metaDataModel;
   }
 

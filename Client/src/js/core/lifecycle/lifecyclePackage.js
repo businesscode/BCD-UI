@@ -29,6 +29,7 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
     constructor(args) {
       super(args);
+      this.type = "bcdui.core._GuiEstDataProvider";
       /** @private */
       this._lockedReadiness = true;
       /** @private */
