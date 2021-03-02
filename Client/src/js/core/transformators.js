@@ -193,7 +193,7 @@ bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.tran
    */
   constructor(/* object */ args)
   {
-    bcdui.core.transformators.IdentityTransformator.call(this, args);
+    super(args);
     this.worker = new Worker("webWorkerProc.js");
     this.worker.addEventListener("message", function ( oEvent ) {
         var response = JSON.parse( oEvent.data );

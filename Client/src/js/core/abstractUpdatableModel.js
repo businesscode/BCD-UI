@@ -39,7 +39,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
   constructor(args)
     {
       super( args);
-      this.type = this._getClassName();
+      this.type = this.getClassName();
 
       /**
        * The modelUpdaters attached to this class. The elements of the array are of the
@@ -84,6 +84,8 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
        */
       this._readyStatiForModelUpdates = [];
     }
+
+    getClassName() {return "bcdui.core.AbstractUpdatableModel";}
 
   /**
    * This function can be called directly to announce that a model updater will be added
@@ -286,9 +288,11 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
   constructor(args)
     {
     super(args);
-    this.type = this._getClassName();
+    this.type = this.getClassName();
     this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
   }
+
+  getClassName() {return "bcdui.core._ModelBeingUpdated";}
 
   /**
    * @private

@@ -91,7 +91,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   {
     super(args);
 
-    this.type = this._getClassName();
+    this.type = this.getClassName();
 
     this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
     this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -139,6 +139,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
       this.execute();
     
   }
+
+  getClassName() {return "bcdui.component.chart.Chart";}
 
   /**
    * initializes/computes some values

@@ -69,7 +69,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     {
       super( args );
 
-      this.type = this._getClassName();
+      this.type = this.getClassName();
 
       this.saveOptions = args.saveOptions;
 
@@ -126,6 +126,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       if (this.saveOptions)
         this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
     }
+
+    getClassName() {return "bcdui.core.DataProvider";}
     
     _statusTransitionHandlerDp(/* StatusEvent */ statusEvent)
     {

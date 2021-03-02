@@ -38,11 +38,13 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
   constructor(/* object */ args)
     {
       super(args);
-      this.type = this._getClassName();
+      this.type = this.getClassName();
       this.value = "";
       this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
     }
+
+  getClassName() {return "bcdui.core.PromptDataProvider";}
   /**
    * Shows a pop-up input box where the user can enter a value. This value
    * is then returned by "getData".
@@ -103,9 +105,11 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
        * @private
        */
       this.value = args.value;
-      this.type = this._getClassName();
+      this.type = this.getClassName();
 
     }
+
+    getClassName() {return "bcdui.core.ConstantDataProvider";}
   /**
    * This class is not calculating or loading its value in any sense so this
    * method is doing nothing.
@@ -438,7 +442,6 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
    */
   constructor(/* object */ args)
     {
-
       if (typeof args.xPath == "undefined") {
         throw Error("Must specify an \"xPath\" property in the parameter map.");
       }
@@ -448,10 +451,12 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
         args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
       args.xPath = modelParams.xPath;
 
+      super(args);
+
       this._xPath = args.xPath;
       if (typeof args.nullValue != undefined)
         this._nullValue = args.nullValue;
-      super(args);
+      
 
     }
   /**
@@ -523,7 +528,6 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
             args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
           args.xPath = modelParams.xPath;
 
-         
           super( args);
           this._xPath = args.xPath;
 
@@ -1080,7 +1084,7 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
     constructor(/* object */ args)
       {
         super( args);
-        this._getClassName();
+        this.type = this.getClassName();
         this.callback = args.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();

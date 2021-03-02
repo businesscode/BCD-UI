@@ -32,6 +32,9 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
   constructor(args){ // takes .config or .enhancedConfig
+    // call super-constructor
+    super(args);
+
     // checks
     args = jQuery.extend({}, args, {
       callback : this._execute.bind(this)
@@ -40,9 +43,6 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
       throw "Requires either .config or .enhancedConfig parameter to be provided.";
     }
     args.componentId = args.componentId || "far";
-    // call super-constructor
-    bcdui.core.AsyncJsDataProvider.call( this, args );
-
     // normalize defaults
     args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
     if(!args.enhancedConfig){

@@ -1112,8 +1112,9 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
  constructor(args)
   {
     super(args);
-    this.type = this._getClassName();
+    this.type = this.getClassName();
   }
+  getClassName() {return "bcdui.core.ModelWapper";}
 };
 
 bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
@@ -1144,7 +1145,7 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
   constructor(args)
   {
     super(args);
-    this.type = this._getClassName();
+    this.type = this.getClassName();
     if (typeof args.inputModel != "undefined") {
       throw Error("Must not define input model on model updater");
     }
@@ -1158,4 +1159,5 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
     
     args.targetModel._addModelUpdater(this, args.autoUpdate);
   }
+  getClassName() {return "bcdui.core.ModelUpdater";}
 };

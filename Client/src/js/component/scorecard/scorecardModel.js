@@ -95,7 +95,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
   constructor(/* object */ args )
   {
     super(args);
-    this.type = this._getClassName();
+    this.type = this.getClassName();
 
     // Arguments
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
@@ -125,6 +125,8 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
     this.addStatusListener(this._statusTransitionHandler.bind(this));
     this.setStatus(this.initializedStatus);
   }
+
+  getClassName() {return "bcdui.component.scorecard.Scorecard";}
 
   /**
    * @private
