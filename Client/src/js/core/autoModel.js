@@ -60,8 +60,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    */
   constructor(args)
     {
-      super();
-      this.type = this.getClassName();
       if( !args.reqDocChain && (typeof args.reqDocStyleSheetUrl == "undefined" || args.reqDocStyleSheetUrl == null || !args.reqDocStyleSheetUrl.trim() )) {
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");
@@ -82,20 +80,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
            statusModel:  statusModel,
            maxRows:      typeof args.maxRows != "undefined" ? args.maxRows : -1 };
        jQuery.extend( params, args.reqDocParameters || {} );
-
-       // handle initialFilterBRefs via JSDataProvider
-       if(args.initialFilterBRefs){
-         var dataLink = new bcdui.core.JsDataProvider({
-           doAllwaysRefresh : true,
-           callback : function(initialFilterBRefs){
-             // reset value once we have been used once
-             if(this.hasBeenRun)return "";
-             this.hasBeenRun = true;
-             return initialFilterBRefs;
-           }.bind(this,args.initialFilterBRefs)
-         });
-         params.initialFilterBRefs = dataLink;
-       }
 
        if (typeof args.additionalFilterXPath != "undefined" && args.additionalFilterXPath != null && ! !args.additionalFilterXPath.trim()) {
          var modelParams = bcdui.factory._extractXPathAndModelId(args.additionalFilterXPath);
@@ -148,6 +132,22 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 
        // create the desired model and inject the model wrapper as request document
        super(simpleModelArgs);
+
+       this.type = this.getClassName();
+
+        // handle initialFilterBRefs via JSDataProvider
+        if(args.initialFilterBRefs){
+          var dataLink = new bcdui.core.JsDataProvider({
+            doAllwaysRefresh : true,
+            callback : function(initialFilterBRefs){
+              // reset value once we have been used once
+              if(this.hasBeenRun)return "";
+              this.hasBeenRun = true;
+              return initialFilterBRefs;
+            }.bind(this,args.initialFilterBRefs)
+          });
+          params.initialFilterBRefs = dataLink;
+        }
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
