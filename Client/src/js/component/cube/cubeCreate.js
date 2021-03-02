@@ -58,7 +58,7 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
     var reqHolder = new bcdui.core.DataProviderHolder();
     var inputModel = new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_inputModel", url: new bcdui.core.RequestDocumentDataProvider( { uri: "cube_" + args.id, requestModel: reqHolder } ) } );
     super( { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
-    this.type = "bcdui.component.cube.CubeModel";
+    this.type = this._getClassName();
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 
@@ -150,7 +150,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     this.metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
     this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
     this.targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
-    this.type = "bcdui.component.cube.Cube";
+    this.type = this._getClassName();
     //-----------------------------------------------------------
     // Enhanced configuration translates the input into parameters for the XSLTs out chain
     this.enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {

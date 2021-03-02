@@ -40,7 +40,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
 
     this.name = (args.name != null && args.name != "") ? args.name : "$menu";
     this.rootId = (args.rootIdOrElement != null && args.rootIdOrElement != "") ? args.rootIdOrElement : "root_bcdDefault";
-    this.type = "menu";
+    this.type = this._getClassName();
     this.closeDelayTimer = null;
     this.closingMenuItem = null;
 
@@ -92,7 +92,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
    * @constructs
    */
   constructor(idOrElement, parent) {
-    this.type = "menuContainer";
+    this.type = this._getClassName();
     this.menuItems = [];
     this.init(idOrElement, parent);
   }
@@ -238,7 +238,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.
      * @ignore
      */
     var menuItem = this;
-    this.type = "menuItem";
+    this.type = this._getClassName();
     this.subMenu = null;
     this.init(idOrElement, parent);
     if (this.subMenu) {

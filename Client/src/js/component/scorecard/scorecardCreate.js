@@ -90,7 +90,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
       parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
     });
 
-    this.type = "bcdui.component.scorecard.Scorecard";
+    this.type = this._getClassName();
 
     // As long as ScorecardModel internally relies on the registry to find its sub- or helper models, we have to enforce an id here
     // also context menu needs it

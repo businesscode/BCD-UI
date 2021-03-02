@@ -60,7 +60,7 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
         args = { data: args };
       }
       super(args);
-      this.type = "bcdui.core.StaticModel"
+      this.type = this._getClassName();
       if (typeof args.data == "undefined" || (typeof args.data == "string" && !args.data.trim())) {
         args.data = "<Empty/>";
       }
