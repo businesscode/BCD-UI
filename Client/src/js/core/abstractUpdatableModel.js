@@ -287,9 +287,10 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
    */
   constructor(args)
     {
-    super(args);
+    super(jQuery.extend(args, {bcdPreInit: function() {
+      this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
+    }}));
     this.type = this.getClassName();
-    this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
   }
 
   getClassName() {return "bcdui.core._ModelBeingUpdated";}

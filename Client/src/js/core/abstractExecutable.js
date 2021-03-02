@@ -42,10 +42,14 @@ bcdui.core.AbstractExecutable = class
    * This class is abstract and not meant to be instantiated directly
    * @param {Object} [args] Parameter object
    * @param {string} [args.id] A unique id for declarative contexts
+   * @param {function} [args.bcdPreInit] a function which can be used to execute code before any super code of derived classes
    * @throws Error An Error is thrown if id is not unique, i.e. an object with the same id is already registered.
    */
   constructor(/* object */ args)
     {
+      if (args.bcdPreInit)
+        args.bcdPreInit.call(this);
+
       var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractExecutable" ): "") != "";
 
       /**
