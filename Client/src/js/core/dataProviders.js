@@ -432,7 +432,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   /**
    * @private
    */
-  static _nullValue= null
+  _nullValue= null
   /**
    * @classdesc
    * Reading a single data item from an XPath on getData() as string.

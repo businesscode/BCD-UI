@@ -32,14 +32,14 @@ bcdui.component.exports.PDFExport = class
    * @constant
    * @private
    */
-  static _defaultFormId = "defaultPDFExportForm";
+  _defaultFormId = "defaultPDFExportForm";
 
   /**
    * The content of the dynamically created export form.
    * @constant
    * @private
    */
-  static _defaultFormContent =
+  _defaultFormContent =
       '<input type="hidden" name="htmlString"/>' +
       '<input type="hidden" name="orientation"/>' +
       '<input type="hidden" name="dimension"/>' +
@@ -54,7 +54,7 @@ bcdui.component.exports.PDFExport = class
    * @constant
    * @private
    */
-  static _cssIncludeTemplate =  doT.template(
+  _cssIncludeTemplate =  doT.template(
       '<link rel="stylesheet" type="text/css" href="{{=it.cssUrl}}"> </link>\n');
 
   /**
@@ -62,7 +62,7 @@ bcdui.component.exports.PDFExport = class
    * @constant
    * @private
    */
-  static _htmlPageTemplate= doT.template(
+  _htmlPageTemplate= doT.template(
       '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>');
 
   /**
