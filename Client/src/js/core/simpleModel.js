@@ -77,8 +77,6 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
     {
       super(args);
 
-      this.type = this.getClassName();
-
       this.saveOptions = args.saveOptions || {};
       this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
       this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility

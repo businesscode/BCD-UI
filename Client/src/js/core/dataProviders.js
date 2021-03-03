@@ -38,7 +38,6 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
   constructor(/* object */ args)
     {
       super(args);
-      this.type = this.getClassName();
       this.value = "";
       this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -105,7 +104,6 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
        * @private
        */
       this.value = args.value;
-      this.type = this.getClassName();
 
     }
 
@@ -1084,7 +1082,6 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
     constructor(/* object */ args)
       {
         super( args);
-        this.type = this.getClassName();
         this.callback = args.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();

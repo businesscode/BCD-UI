@@ -72,7 +72,6 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-            this.type = this.getClassName();
 
             this.saveOptions = args.saveOptions;
       }}))

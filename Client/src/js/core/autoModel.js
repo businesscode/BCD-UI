@@ -136,7 +136,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-            this.type = this.getClassName();
 
             // handle initialFilterBRefs via JSDataProvider
             if(args.initialFilterBRefs){

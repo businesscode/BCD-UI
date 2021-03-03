@@ -44,8 +44,6 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
           if (bcdPreInit)
             bcdPreInit.call(this); 
 
-          this.type = this.getClassName();
-
           /**
            * The modelUpdaters attached to this class. The elements of the array are of the
            * type "ModelUpdaterReference".
@@ -296,7 +294,6 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
     super(jQuery.extend(args, {bcdPreInit: function() {
       this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
     }}));
-    this.type = this.getClassName();
   }
 
   getClassName() {return "bcdui.core._ModelBeingUpdated";}

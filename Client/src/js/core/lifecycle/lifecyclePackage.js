@@ -33,7 +33,6 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-          this.type = this.getClassName();
           /** @private */
           this._lockedReadiness = true;
           /** @private */

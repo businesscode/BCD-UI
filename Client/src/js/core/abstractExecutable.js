@@ -50,7 +50,7 @@ bcdui.core.AbstractExecutable = class
       if (args.bcdPreInit)
         args.bcdPreInit.call(this);
 
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.AbstractExecutable" ): "") != "";
+      this.type = this.getClassName();
 
       /**
        * A globally unique id of the object. DataProviders do also register themselves at {@link bcdui.factory.objectRegistry} when an id is provided to the constructor. 
@@ -126,15 +126,6 @@ bcdui.core.AbstractExecutable = class
        */
       this.hasBeenExecutedBefore = false;
       
-      if (isLeaf)
-        this._checkAutoRegister();
-    }
-
-    /**
-     * Register object in case an id was given at initialization
-     * @private
-     */
-    _checkAutoRegister() {
      if (this._doRegister)
        bcdui.factory.objectRegistry.registerObject(this);
     }
