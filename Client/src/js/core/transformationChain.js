@@ -1148,18 +1148,25 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
    */
   constructor(args)
   {
-    super(args);
-    if (typeof args.inputModel != "undefined") {
-      throw Error("Must not define input model on model updater");
-    }
-    /*
-     * Set a dummy model as input model because it is anyway exchanged by the target model
-     * when the modelUpdater is executed. If we omit it we would cause a parameter validation
-     * exception.
-     */
-    args.inputModel = bcdui.core.emptyModel;
-    this.modelUpdaterTargetModel = args.targetModel;
-    
+    var bcdPreInit = args ? args.bcdPreInit: null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+
+        if (typeof args.inputModel != "undefined") {
+          throw Error("Must not define input model on model updater");
+        }
+        /*
+         * Set a dummy model as input model because it is anyway exchanged by the target model
+         * when the modelUpdater is executed. If we omit it we would cause a parameter validation
+         * exception.
+         */
+        args.inputModel = bcdui.core.emptyModel;
+        this.modelUpdaterTargetModel = args.targetModel;
+      }
+    }));
+
     args.targetModel._addModelUpdater(this, args.autoUpdate);
   }
   getClassName() {return "bcdui.core.ModelUpdater";}
