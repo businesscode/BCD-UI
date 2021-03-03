@@ -59,7 +59,6 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
             bcdPreInit.call(this);
             this.type = this.getClassName();
             this.chartDefModel = args.config || args.metaDataModel;
-          // urspruenglicher this krempel vor super
     }}))
   }
 

@@ -75,8 +75,6 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
             this.type = this.getClassName();
 
             this.saveOptions = args.saveOptions;
-   
-          // urspruenglicher this krempel vor super
       }}))
 
 

@@ -43,7 +43,6 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this); 
-          // urspruenglicher this krempel vor super
 
           this.type = this.getClassName();
 

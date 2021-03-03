@@ -33,7 +33,6 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-          // urspruenglicher this krempel vor super
           this.type = this.getClassName();
           /** @private */
           this._lockedReadiness = true;
