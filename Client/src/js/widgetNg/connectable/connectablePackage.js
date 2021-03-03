@@ -397,10 +397,8 @@
         // we wait for readiness of current target and belonging source
         // and remember source options
         var targetModels = new Array(this.config.target.modelId);
-        var sourceOptions = this._getScopedSourceElement()._bcduiWidget().options;
-        var sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
+        var sourceConfig = this._getScopedSourceElement()._bcduiWidget().config.source;
         targetModels.push(sourceConfig.modelId);
-        sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
 
         bcdui.factory.objectRegistry.withReadyObjects(targetModels, function(){
 
