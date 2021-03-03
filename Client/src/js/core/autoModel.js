@@ -131,23 +131,28 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
          jQuery.extend( simpleModelArgs, {id: args.id} );  // if we have a given Id, use it 
 
        // create the desired model and inject the model wrapper as request document
-       super(simpleModelArgs);
+        var bcdPreInit = args ? args.bcdPreInit : null;
+        super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+            // urspruenglicher this krempel vor super
+            this.type = this.getClassName();
 
-       this.type = this.getClassName();
-
-        // handle initialFilterBRefs via JSDataProvider
-        if(args.initialFilterBRefs){
-          var dataLink = new bcdui.core.JsDataProvider({
-            doAllwaysRefresh : true,
-            callback : function(initialFilterBRefs){
-              // reset value once we have been used once
-              if(this.hasBeenRun)return "";
-              this.hasBeenRun = true;
-              return initialFilterBRefs;
-            }.bind(this,args.initialFilterBRefs)
-          });
-          params.initialFilterBRefs = dataLink;
-        }
+            // handle initialFilterBRefs via JSDataProvider
+            if(args.initialFilterBRefs){
+              var dataLink = new bcdui.core.JsDataProvider({
+                doAllwaysRefresh : true,
+                callback : function(initialFilterBRefs){
+                  // reset value once we have been used once
+                  if(this.hasBeenRun)return "";
+                  this.hasBeenRun = true;
+                  return initialFilterBRefs;
+                }.bind(this,args.initialFilterBRefs)
+              });
+              params.initialFilterBRefs = dataLink;
+            }
+          }}))
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {

@@ -987,11 +987,18 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    */
   constructor(args)
   {
-    args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-    super(args);
-    // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
-    // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
-    this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
+     var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+   
+          // urspruenglicher this krempel vor super
+          args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+          // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
+          // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
+          this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
+    }}))
   }
 
   /**

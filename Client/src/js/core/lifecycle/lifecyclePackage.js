@@ -28,12 +28,18 @@ bcdui.wkModels = bcdui.wkModels || new Object();
 bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
     constructor(args) {
-      super(args);
-      this.type = this.getClassName();
-      /** @private */
-      this._lockedReadiness = true;
-      /** @private */
-      this._setReady = false;
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          // urspruenglicher this krempel vor super
+          this.type = this.getClassName();
+          /** @private */
+          this._lockedReadiness = true;
+          /** @private */
+          this._setReady = false;
+      }}))
     }
     
     /** @private */

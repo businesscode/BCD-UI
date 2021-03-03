@@ -38,51 +38,58 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
    */
   constructor(args)
     {
-      super( args);
-      this.type = this.getClassName();
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this); 
+          // urspruenglicher this krempel vor super
 
-      /**
-       * The modelUpdaters attached to this class. The elements of the array are of the
-       * type "ModelUpdaterReference".
-       * @type Array
-       * @private
-       */
-      this._modelUpdaters = [];
+          this.type = this.getClassName();
 
-      /**
-       * @private
-       */
-      this._modelUpdatersThatWillBeAddedSoon = {};
+          /**
+           * The modelUpdaters attached to this class. The elements of the array are of the
+           * type "ModelUpdaterReference".
+           * @type Array
+           * @private
+           */
+          this._modelUpdaters = [];
 
-      /**
-       * A boolean value that becomes "true" as soon as there is a modelUpdate which
-       * can make an auto update.
-       * @type Boolean
-       * @private
-       */
-      this._hasAutoUpdateModelUpdater = false;
-      
-      this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
+          /**
+           * @private
+           */
+          this._modelUpdatersThatWillBeAddedSoon = {};
 
-      /**
-       * A status object representing the status when the modelUpdaters are executed (via fire).
-       * @constant
-       * @private
-       */
-      this._refreshingModelUpdatersStatus = new bcdui.core.status.RefreshingModelUpdaters();
-      /**
-       * A status object representing the status when the modelUpdaters are executed (via execute).
-       * @constant
-       * @private
-       */
-      this._refreshingModelUpdatersStatusCausedByExecute = new bcdui.core.status.RefreshingModelUpdatersCausedByExecute();
+          /**
+           * A boolean value that becomes "true" as soon as there is a modelUpdate which
+           * can make an auto update.
+           * @type Boolean
+           * @private
+           */
+          this._hasAutoUpdateModelUpdater = false;
+          
+          this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
 
-      /**
-       * Must be set by sub-classes to the list of status objects that are considered to be
-       * ready states for model updaters.
-       * @private
-       */
-      this._readyStatiForModelUpdates = [];
+          /**
+           * A status object representing the status when the modelUpdaters are executed (via fire).
+           * @constant
+           * @private
+           */
+          this._refreshingModelUpdatersStatus = new bcdui.core.status.RefreshingModelUpdaters();
+          /**
+           * A status object representing the status when the modelUpdaters are executed (via execute).
+           * @constant
+           * @private
+           */
+          this._refreshingModelUpdatersStatusCausedByExecute = new bcdui.core.status.RefreshingModelUpdatersCausedByExecute();
+
+          /**
+           * Must be set by sub-classes to the list of status objects that are considered to be
+           * ready states for model updaters.
+           * @private
+           */
+          this._readyStatiForModelUpdates = [];
+      }}))
     }
 
     getClassName() {return "bcdui.core.AbstractUpdatableModel";}

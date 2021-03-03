@@ -57,8 +57,8 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
     var reqHolder = new bcdui.core.DataProviderHolder();
     var inputModel = new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_inputModel", url: new bcdui.core.RequestDocumentDataProvider( { uri: "cube_" + args.id, requestModel: reqHolder } ) } );
 
-    super( { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
     this.type = this.getClassName();
+    super( { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 

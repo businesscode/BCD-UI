@@ -67,11 +67,19 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    */
   constructor(/* object */ args)
     {
-      super( args );
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+            this.type = this.getClassName();
 
-      this.type = this.getClassName();
+            this.saveOptions = args.saveOptions;
+   
+          // urspruenglicher this krempel vor super
+      }}))
 
-      this.saveOptions = args.saveOptions;
+
 
       /**
        * flag to monitor write/remove operations after last fire
