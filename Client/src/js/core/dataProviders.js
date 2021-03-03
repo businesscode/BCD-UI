@@ -91,13 +91,19 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
    */
   constructor(/* object */ args)
     {
-      super(args);
-      /*
-       * Validate if the name and value parameters are present.
-       */
-      if (typeof args.value == "undefined") {
-        throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
-      }
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          /*
+           * Validate if the name and value parameters are present.
+           */
+          if (typeof args.value == "undefined") {
+            throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
+          }
+        }
+      }));
       /**
        * The value provided by the "getData" function.
        * @type String|Number|Boolean
@@ -440,22 +446,25 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
    */
   constructor(/* object */ args)
     {
-      if (typeof args.xPath == "undefined") {
-        throw Error("Must specify an \"xPath\" property in the parameter map.");
-      }
-
-      var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
-      if (! args.source)
-        args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
-      args.xPath = modelParams.xPath;
-
-      super(args);
-
-      this._xPath = args.xPath;
-      if (typeof args.nullValue != undefined)
-        this._nullValue = args.nullValue;
-      
-
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          if (typeof args.xPath == "undefined") {
+            throw Error("Must specify an \"xPath\" property in the parameter map.");
+          }
+    
+          var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
+          if (! args.source)
+            args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
+          args.xPath = modelParams.xPath;
+    
+          this._xPath = args.xPath;
+          if (typeof args.nullValue != undefined)
+            this._nullValue = args.nullValue;
+        }
+      }));
     }
   /**
    * @private
@@ -517,18 +526,24 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
        */
       constructor(/* object */ args)
         {
-          if (typeof args.xPath == "undefined") {
-            throw Error("Must specify an \"xPath\" property in the parameter map.");
-          }
+          var bcdPreInit = args ? args.bcdPreInit : null;
+          super(jQuery.extend(args, {
+            bcdPreInit: function() {
+              if (bcdPreInit)
+                bcdPreInit.call(this);
 
-          var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
-          if (! args.source)
-            args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
-          args.xPath = modelParams.xPath;
+              if (typeof args.xPath == "undefined") {
+                throw Error("Must specify an \"xPath\" property in the parameter map.");
+              }
 
-          super( args);
-          this._xPath = args.xPath;
+              var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
+              if (! args.source)
+                args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
+              args.xPath = modelParams.xPath;
 
+              this._xPath = args.xPath;
+            }
+          }));
         }
       /**
        * returns the root-element of the document
@@ -601,17 +616,22 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
    * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
    */
   constructor(/* object */ args){
-    super( args);
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
 
-    if (!args.optionsModelXPath) {
-      throw Error('Must specify an "optionsModelXPath" property in the parameter map.');
-    }
+        if (!args.optionsModelXPath) {
+          throw Error('Must specify an "optionsModelXPath" property in the parameter map.');
+        }
 
-    this.args = jQuery.extend(true, {}, args, {
-      options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
-    });
-    this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);
-
+        this.args = jQuery.extend(true, {}, args, {
+          options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
+        });
+        this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);
+      }
+    }));
   }
   /**
    * returns the root-element of the document
@@ -702,12 +722,18 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
    * // It will auto-reload and once geoModel.isReady() === true, it will hold region data for 'FR'
    */
   constructor(args){
-    super(args);    
-    args.modelURL = args.modelURL || args.modelUrl;
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+        args.modelURL = args.modelURL || args.modelUrl;
+        
+        this.method = (args.method != "GET" && args.method != "POST") ? "GET" : args.method;
     
-    this.method = (args.method != "GET" && args.method != "POST") ? "GET" : args.method;
-
-    args["name"] = args.name || args.id;
+        args["name"] = args.name || args.id;
+      }
+    }));    
     
     this.isAutoRefresh = args.isAutoRefresh;
     this.value = "";

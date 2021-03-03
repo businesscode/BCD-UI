@@ -42,7 +42,6 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
    */
   constructor(args)
   {
-    super();
     args = jQuery.extend({parameters: {paramModel: args.config}}, args);
     args.targetHtml = bcdui._migPjs._$(args.targetHtml);
     super(args);

@@ -75,33 +75,43 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
    */
   constructor(args)
     {
-      super(args);
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
 
-      this.saveOptions = args.saveOptions || {};
-      this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
-      this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
-
-      if( typeof args === "string" ) {
-        args = { url: args };
-      }
-
-      args.saveOptions = this.saveOptions;
-
-      // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
-      this.mimeType = !!args.mimeType ? args.mimeType : undefined;
-      
-      this.urlProvider = null;
-      if (typeof args.url == "string" || typeof args.url == "undefined") {
-
-        if (typeof args.url == "undefined" || !args.url.trim().length)
-          args.url = bcdui.core.webRowSetServletPath;
-
-        if(args.uri){
-          args.url += "/" + args.uri;
+          this.saveOptions = args.saveOptions || {};
+          this.saveOptions.saveChain = this.saveOptions.saveChain || args.saveChain;                // args.saveChain for backwards compatibility
+          this.saveOptions.saveParameters = this.saveOptions.saveParameters || args.saveParameters; // args.saveParameters for backwards compatibility
+    
+          if( typeof args === "string" ) {
+            args = { url: args };
+          }
+    
+          args.saveOptions = this.saveOptions;
+    
+          // User defined (enforced) mimeType. If not given, it will be derived before loading via best-guess from the then-known url
+          this.mimeType = !!args.mimeType ? args.mimeType : undefined;
+          
+          this.urlProvider = null;
+          if (typeof args.url == "string" || typeof args.url == "undefined") {
+    
+            if (typeof args.url == "undefined" || !args.url.trim().length)
+              args.url = bcdui.core.webRowSetServletPath;
+    
+            if(args.uri){
+              args.url += "/" + args.uri;
+            }
+            this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
+          } else {
+            this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
+            this.checkAutoRefresh = true;
+          }
         }
-        this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || new bcdui.core.ConstantDataProvider({ name: "url", value: args.url });
+      }));
 
-      } else {
+      if (this.checkAutoRefresh) {
         this.saveOptions.urlProvider = this.urlProvider = args.saveOptions.urlProvider || args.url;
 
         // in case of isAutoRefresh listen to changes of urlProvider and
