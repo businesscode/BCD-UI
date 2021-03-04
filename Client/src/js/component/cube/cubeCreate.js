@@ -136,28 +136,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createCube_args);
 
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cube");
-        args.detailExportFilterModel = args.detailExportFilterModel || args.statusModel;
-
-    super( {
-      id: args.id,
-      inputModel: args.inputModel,
-      targetHtml: args.targetHtml, 
-      parameters: jQuery.extend({paramModel: args.enhancedConfiguration, cubeId: args.id}, args.parameters ),
-      chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
-    }
-    );
-
-    this.metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
-    this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    this.targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
-    //-----------------------------------------------------------
-    // Enhanced configuration translates the input into parameters for the XSLTs out chain
-    this.enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
-      id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
-      chain: [ bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
-               bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
-               bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
-      parameters: { cubeId: args.id, statusModel: args.statusModel } } );
+    args.detailExportFilterModel = args.detailExportFilterModel || args.statusModel;
 
     //-----------------------------------------------------------
     // If we do not have an explicit input model, we create our own here from the metadata
@@ -169,7 +148,35 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
       args.inputModel = new bcdui.component.cube.CubeModel( modelArgs );
     }
 
+    var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
+    var statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    var metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
+    var enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
+      id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
+      chain: [ bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
+               bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
+               bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
+      parameters: { cubeId: args.id, statusModel: args.statusModel } } );
 
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super( {
+        id: args.id,
+        inputModel: args.inputModel,
+        targetHtml: targetHtml, 
+        parameters: jQuery.extend({paramModel: enhancedConfiguration, cubeId: args.id}, args.parameters ),
+        chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
+        , bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+
+          this.targetHtml = targetHtml;
+          this.metaDataModel = metaDataModel;
+          this.statusModel = statusModel;
+          //-----------------------------------------------------------
+          // Enhanced configuration translates the input into parameters for the XSLTs out chain
+          this.enhancedConfiguration = enhancedConfiguration;
+        }
+      });
 
     // cube rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this cube
     args.enhancedConfiguration.onChange( { callback: args.inputModel.execute.bind(args.inputModel) } );
