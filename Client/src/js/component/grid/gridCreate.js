@@ -72,10 +72,8 @@ bcdui.component.grid.GridModel = function(args)
     this.loadChain = new bcdui.core.ModelUpdater({targetModel: this, chain: args.loadChain, autoUpdate: true, parameters: args.loadParameters || {} });
   
   // validation wrapper, grid renderer adds basic wrs and reference validation
-  this.validationChain = args.validationChain || [];
-  this.validationParameters = args.validationParameters || {};
-  this.validationParameters["bcdGridModel"] = this; // make gridModel available in validation chain
-  this.validationResult = this.validationChain ? new bcdui.core.ModelWrapper({ chain: this.validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: this.validationParameters }) : null;
+  this.validationChain = args.validationChain;
+  this.validationParameters = args.validationParameters;
 
   if (isLeaf)
     this._checkAutoRegister();
@@ -128,26 +126,10 @@ bcdui.component.grid.Grid = function(args)
   this.targetHtml = bcdui.util._getTargetHtml(args, "grid_");
   this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
   this.config = args.config;
-  if (! this.config) {
+  if (! this.config)
     this.config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
-  }
 
-  var validationParameters = {
-      source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
-    , changes: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_changes", name: "changes", value: []})
-  }
-  var validationChain = [this._validateWrs.bind(this)];
-
-  if (args.validationChain) {
-    if (Array.isArray(args.validationChain))
-      validationChain = validationChain.concat(args.validationChain);
-    else
-      validationChain.push(args.validationChain);
-  }
-  if (args.validationParameters)
-    validationParameters = jQuery.extend(validationParameters, args.validationParameters);
-
-  // If we do not have an explicit input model, we create our own here from the metadata
+  // If we do not have an explicit input model, we create our own here from the metadata, otherwise use it
   if( ! args.inputModel ) {
     this.gridModel = new bcdui.component.grid.GridModel({
         id: this.id +"_bcdImpl_model"
@@ -157,28 +139,10 @@ bcdui.component.grid.Grid = function(args)
       , saveParameters: args.saveParameters
       , loadChain: args.loadChain
       , loadParameters: args.loadParameters
-      , validationChain: validationChain
-      , validationParameters: validationParameters
     });
   }
-  else {
-
-    // use inputModel as gridModel and make it visible in validation chain
+  else
     this.gridModel = args.inputModel;
-    validationParameters["bcdGridModel"] = args.inputModel;
-
-    // update gridmodel's validation chain
-    if (this.gridModel.validationChain) {
-      if (Array.isArray(this.gridModel.validationChain))
-        validationChain= validationChain.concat(this.gridModel.validationChain);
-      else
-        validationChain.push(this.gridModel.validationChain);
-    }
-    if (this.gridModel.validationParameters)
-      validationParameters = jQuery.extend(validationParameters, this.gridModel.validationParameters);
-
-    this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
-  }
 
   // Now we have a gridModel
   // Create enhancedConfiguration from user-provided configuration
@@ -201,6 +165,36 @@ bcdui.component.grid.Grid = function(args)
       chain: [ this._prepareHtOptions.bind(this), this._renderData.bind(this) ]
     }
   );
+
+  var validationParameters = {
+      source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
+    , changes: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_changes", name: "changes", value: []})
+  }
+  var validationChain = [this._validateWrs.bind(this)];
+
+  if (args.validationChain) {
+    if (Array.isArray(args.validationChain))
+      validationChain = validationChain.concat(args.validationChain);
+    else
+      validationChain.push(args.validationChain);
+  }
+  if (args.validationParameters)
+    validationParameters = jQuery.extend(validationParameters, args.validationParameters);
+
+  validationParameters["bcdGridModel"] = this.gridModel;
+
+  // merge in possible existing validationChains/Parameters from gridModel
+  if (this.gridModel.validationChain) {
+    if (Array.isArray(this.gridModel.validationChain))
+      validationChain= validationChain.concat(this.gridModel.validationChain);
+    else
+      validationChain.push(this.gridModel.validationChain);
+  }
+  if (this.gridModel.validationParameters)
+    validationParameters = jQuery.extend(validationParameters, this.gridModel.validationParameters);
+
+  // finally setup the validation model wrapper
+  this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
 
   this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
   this.sortColumn = null;
