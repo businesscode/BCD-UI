@@ -992,7 +992,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-          args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+          args.chain = args.chain || this.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
           // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
           // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
           this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId
