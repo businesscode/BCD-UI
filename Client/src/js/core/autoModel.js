@@ -81,6 +81,20 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
            maxRows:      typeof args.maxRows != "undefined" ? args.maxRows : -1 };
        jQuery.extend( params, args.reqDocParameters || {} );
 
+       // handle initialFilterBRefs via JSDataProvider
+       if(args.initialFilterBRefs){
+         var dataLink = new bcdui.core.JsDataProvider({
+           doAllwaysRefresh : true,
+           callback : function(initialFilterBRefs){
+             // reset value once we have been used once
+             if(this.hasBeenRun)return "";
+             this.hasBeenRun = true;
+             return initialFilterBRefs;
+           }.bind(this,args.initialFilterBRefs)
+         });
+         params.initialFilterBRefs = dataLink;
+       }
+
        if (typeof args.additionalFilterXPath != "undefined" && args.additionalFilterXPath != null && ! !args.additionalFilterXPath.trim()) {
          var modelParams = bcdui.factory._extractXPathAndModelId(args.additionalFilterXPath);
          args.additionalFilterXPath = modelParams.xPath;
@@ -131,26 +145,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
          jQuery.extend( simpleModelArgs, {id: args.id} );  // if we have a given Id, use it 
 
        // create the desired model and inject the model wrapper as request document
-        var bcdPreInit = args ? args.bcdPreInit : null;
-        super(jQuery.extend(args, {
-        bcdPreInit: function() {
-          if (bcdPreInit)
-            bcdPreInit.call(this);
-
-            // handle initialFilterBRefs via JSDataProvider
-            if(args.initialFilterBRefs){
-              var dataLink = new bcdui.core.JsDataProvider({
-                doAllwaysRefresh : true,
-                callback : function(initialFilterBRefs){
-                  // reset value once we have been used once
-                  if(this.hasBeenRun)return "";
-                  this.hasBeenRun = true;
-                  return initialFilterBRefs;
-                }.bind(this,args.initialFilterBRefs)
-              });
-              params.initialFilterBRefs = dataLink;
-            }
-          }}))
+       super(simpleModelArgs);
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
@@ -188,8 +183,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
            });
          }
        }
-       return this;
     }
-
-    getClassName() {return "bcdui.core.AutoModel";}
-};
+    getClassName() { return "bcdui.core.AutoModel"}
+}
