@@ -126,34 +126,11 @@ bcdui.component.grid.Grid = function(args)
   this.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
   bcdui.factory.objectRegistry.registerObject( this );
   this.targetHtml = bcdui.util._getTargetHtml(args, "grid_");
-
+  this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
   this.config = args.config;
   if (! this.config) {
     this.config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
   }
-
-  this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
-  this.sortColumn = null;
-  this.sortDirection = null;
-  this.forceAddAtBottom = args.forceAddAtBottom || false;
-  this.topMode = args.topMode || false;
-  this.isReadOnly = args.isReadOnly || false;
-  this.statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-  this.htTargetHtmlId = this.targetHtml+"_ht";
-  this.hotArgs = args.hotArgs;
-  this.allowNewRows = !(args.allowNewRows === false || args.allowNewCells === false);
-  if (this.isReadOnly)
-    this.allowNewRows = false;
-
-  this.rowDependencyRegEx = /\$grid\.([A-Za-z0-9_]+)/g;
-
-  this.columnFilters = args.columnFilters || false;
-  this.maxHeight = args.hotArgs && args.hotArgs.height ? undefined : args.maxHeight;
-  this.columnSorting = true;
-
-  // takeover set columnSorting
-  if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined")
-    this.columnSorting = this.hotArgs.columnSorting;
 
   var validationParameters = {
       source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
@@ -203,6 +180,58 @@ bcdui.component.grid.Grid = function(args)
     this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
   }
 
+  // Now we have a gridModel
+  // Create enhancedConfiguration from user-provided configuration
+  // since we want to take information from enhancedConfiguration, we need to make sure the renderer does not start until
+  // we got the information. For this, we use a dp holder for the renderer. Its source is set as soon as we're done
+  this.enhancedConfiguration = new bcdui.core.ModelWrapper({
+    inputModel: this.config,
+    chain: [ bcdui.contextPath+"/bcdui/js/component/grid/configurationRenderer.xslt"],
+    parameters: {gridModel: this.gridModel, statusModel: this.statusModel, gridModelId: this.gridModel.id }
+  });
+
+  // Initialize out parent class, by calling the methods in the chain, we guarantee to dataProviders are ready
+  // Grid rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this grid
+  this.gridModelHolder = new bcdui.core.DataProviderHolder();
+  bcdui.core.Renderer.call( this, {
+      id: this.id,
+      inputModel: this.gridModelHolder,
+      targetHtml: this.targetHtml,
+      parameters: { paramModel: this.getEnhancedConfiguration() },
+      chain: [ this._prepareHtOptions.bind(this), this._renderData.bind(this) ]
+    }
+  );
+
+  this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
+  this.sortColumn = null;
+  this.sortDirection = null;
+  this.forceAddAtBottom = args.forceAddAtBottom || false;
+  this.topMode = args.topMode || false;
+  this.isReadOnly = args.isReadOnly || false;
+  this.htTargetHtmlId = this.targetHtml+"_ht";
+  this.hotArgs = args.hotArgs;
+  this.allowNewRows = !(args.allowNewRows === false || args.allowNewCells === false);
+  if (this.isReadOnly)
+    this.allowNewRows = false;
+
+  this.rowDependencyRegEx = /\$grid\.([A-Za-z0-9_]+)/g;
+
+  this.columnFilters = args.columnFilters || false;
+  this.maxHeight = args.hotArgs && args.hotArgs.height ? undefined : args.maxHeight;
+  this.columnSorting = true;
+
+  // takeover set columnSorting
+  if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined")
+    this.columnSorting = this.hotArgs.columnSorting;
+
+
+  // for singleSelect widget use via wrs:References, we need to have the id registered
+  if (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id) == "undefined")
+    bcdui.factory.objectRegistry.registerObject(this.gridModel);
+
+  // modelupdater for wrs header changes like exchanging reference information 
+  new bcdui.core.ModelUpdater({ targetModel: this.gridModel , chain: bcdui.contextPath+"/bcdui/js/component/grid/updateWrsHeader.xslt" , autoUpdate: false, parameters: {config: this.config} });
+
   // init custom callbacks for save and afterAddRow
   this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
   this.saveRoutine = args.customSave || this.save;
@@ -232,24 +261,6 @@ bcdui.component.grid.Grid = function(args)
     if (this.customAfterAddRow)
       this.customAfterAddRow(args);
   } 
-    
-  // modelupdater for wrs header changes like exchanging reference information 
-  new bcdui.core.ModelUpdater({ targetModel: this.gridModel , chain: bcdui.contextPath+"/bcdui/js/component/grid/updateWrsHeader.xslt" , autoUpdate: false, parameters: {config: this.config} });
-
-  // for singleSelect widget use via wrs:References, we need to have the id registered
-  if (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id) == "undefined")
-    bcdui.factory.objectRegistry.registerObject(this.gridModel);
-
-  // Now we have a gridModel
-  // Create enhancedConfiguration from user-provided configuration
-  // since we want to take information from enhancedConfiguration, we need to make sure the renderer does not start until
-  // we got the information. For this, we use a dp holder for the renderer. Its source is set as soon as we're done
-  this.gridModelHolder = new bcdui.core.DataProviderHolder();
-  this.enhancedConfiguration = new bcdui.core.ModelWrapper({
-    inputModel: this.config,
-    chain: [ bcdui.contextPath+"/bcdui/js/component/grid/configurationRenderer.xslt"],
-    parameters: {gridModel: this.gridModel, statusModel: this.statusModel, gridModelId: this.gridModel.id }
-  });
 
   // add onChange listener on enhancedConfiguration and collect optionsModel information
   this.getEnhancedConfiguration().onceReady(function(){
@@ -473,17 +484,7 @@ bcdui.component.grid.Grid = function(args)
     this._createHtmlStructure(args);
 
   }.bind(this));
-  
-  // Initialize out parent class, by calling the methods in the chain, we guarantee to dataProviders are ready
-  // Grid rendering chain, any change on enhancedConfiguration will refresh input model and any change to that will re-render this grid
-  bcdui.core.Renderer.call( this, {
-      id: this.id,
-      inputModel: this.gridModelHolder,
-      targetHtml: this.targetHtml,
-      parameters: { paramModel: this.getEnhancedConfiguration() },
-      chain: [ this._prepareHtOptions.bind(this), this._renderData.bind(this) ]
-    }
-  );
+
 
   // show common buttons and pagination when rendering is done
   this.onceReady(function() {
