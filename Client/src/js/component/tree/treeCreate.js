@@ -394,6 +394,8 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
       }
       return doc;
     }
+    
+    getClassName() {return "bcdui.component.tree.Tree";}
 }
 
 /************************
