@@ -205,7 +205,7 @@ public class BCDUIConfig extends HttpServlet {
     // log page
     if(PageSqlLogger.getInstance().isEnabled()) {
       final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(sessionId, request.getHeader("Referer"), pageHash);
-      virtLoggerPage.info(logRecord);
+      virtLoggerPage.info(logRecord); // was level DEBUG
     }
   }
 

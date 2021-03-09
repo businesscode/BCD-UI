@@ -44,9 +44,9 @@ public class ErrorLogAppender extends AppenderSkeleton {
     // If this is not the case, there is a programming error, which should lead to an uncaught exception.
     ErrorLogEvent bcduiLogEvent = (ErrorLogEvent) event.getMessage();
 
-    try {
-      HttpServletRequest request = bcduiLogEvent.getRequest();
-      if (request != null) {
+    HttpServletRequest request = bcduiLogEvent.getRequest();
+    if(ErrorSqlLogger.getInstance().isEnabled() && request != null) {
+      try {
         String pageHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH));
         String requestHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH));
         String sessionId = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID));
@@ -70,23 +70,20 @@ public class ErrorLogAppender extends AppenderSkeleton {
         String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? throwInfo : "");
 
         // log error
-        if(ErrorSqlLogger.getInstance().isEnabled()) {
-          final ErrorSqlLogger.LogRecord recordError = new ErrorSqlLogger.LogRecord(
-                sessionId
-              , requestUrl
-              , pageHash
-              , requestHash
-              , level
-              , bcduiLogEvent.getMessage()
-              , message
-              , revision
-          );
-          ErrorSqlLogger.getInstance().process(recordError);
-        }
+        final ErrorSqlLogger.LogRecord recordError = new ErrorSqlLogger.LogRecord(
+              sessionId
+            , requestUrl
+            , pageHash
+            , requestHash
+            , level
+            , bcduiLogEvent.getMessage()
+            , message
+            , revision
+        );
+        ErrorSqlLogger.getInstance().process(recordError);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
     }
   }
 

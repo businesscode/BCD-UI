@@ -40,6 +40,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.util.SOAPFaultMessage;
 import de.businesscode.util.Utils;
 
@@ -70,6 +71,7 @@ public class RequestLifeCycleFilter implements Filter {
   private Logger log = getLogger();
   private final Logger virtLoggerSession = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
   private final Logger virtLoggerLogin = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
 
   /**
    * tells if given request is issued for logging transceiver
@@ -102,11 +104,13 @@ public class RequestLifeCycleFilter implements Filter {
       /*
        * We got an Exception in the user code so we make a rollback now.
        */
-      log.error("An exception occurred, we do rollback.",ex);
+      String msg = ex.getMessage(); // we could also loop through all causes look for a msg
+      virtLoggerError.info(new ErrorLogEvent(msg != null && !msg.isEmpty() ? msg :  "An exception occurred, we do rollback.", request), ex);
       try {
         Configuration.getInstance().closeAllConnections(true);
       } catch (SQLException e) {
-        log.error("Error during rollback.",e);
+        msg = e.getMessage();
+        virtLoggerError.info(new ErrorLogEvent("Error during rollback" + (msg != null && !msg.isEmpty() ? ": " + msg : "."), request), ex);
       }
 
       if(!response.isCommitted()){
@@ -188,7 +192,7 @@ public class RequestLifeCycleFilter implements Filter {
       if (sessionCreated != null) {
         session.removeAttribute(SESSION_KEY_BCD_SESSIONCREATED);
         final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost());
-        virtLoggerSession.info(record);
+        virtLoggerSession.info(record); // was level DEBUG
       }
     }
 
@@ -203,7 +207,7 @@ public class RequestLifeCycleFilter implements Filter {
             shiroSession.removeAttribute("BCD_LOGIN_USER");
             shiroSession.removeAttribute("BCD_LOGIN_RESULT");
             final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
-            virtLoggerLogin.info(record);
+            virtLoggerLogin.info(record); // was level DEBUG
           }
         }
       }

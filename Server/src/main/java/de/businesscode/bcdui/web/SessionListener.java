@@ -39,7 +39,7 @@ public class SessionListener implements HttpSessionListener{
     Logger virtLoggerSession = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
     Logger virtLoggerLogin = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
 
-    virtLoggerSession.info(new SessionExpiredSqlLogger.LogRecord(session.getId()));
-    virtLoggerLogin.info(new LogoutSqlLogger.LogRecord(session.getId()));
+    virtLoggerSession.info(new SessionExpiredSqlLogger.LogRecord(session.getId())); // was level DEBUG
+    virtLoggerLogin.info(new LogoutSqlLogger.LogRecord(session.getId())); // was level DEBUG
   }
 }

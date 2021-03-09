@@ -36,7 +36,6 @@ public class Wrq2SqlServlet extends HttpServlet {
 
   private static final long serialVersionUID = -1447179893615429245L;
   private final Logger log = Logger.getLogger(getClass());
-  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   
 
   /**
@@ -60,8 +59,7 @@ public class Wrq2SqlServlet extends HttpServlet {
         .append("]]></Sql></Header></Wrs>");
     }
     catch (Exception e) {
-      virtLoggerError.info(new ErrorLogEvent("Exception while processing the request.", request), e);
-      throw new ServletException(e);
+      throw new ServletException("Exception while processing the request.", e);
     }
 
     if (log.isTraceEnabled()) {

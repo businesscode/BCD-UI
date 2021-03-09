@@ -57,7 +57,6 @@ public class WrsServlet extends HttpServlet {
 
   private static final long serialVersionUID = 4633486737694422868L;
   private final Logger log = Logger.getLogger(getClass());
-  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
   private final Map< String, Class<? extends ISqlGenerator> > services = new HashMap< String, Class<? extends ISqlGenerator> >();
 
@@ -168,32 +167,20 @@ public class WrsServlet extends HttpServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_WRS, request, options, generator, loader, dataWriter);
-      virtLoggerAccess.info(logEvent);
-    }
-    catch (SocketException e) {
+      virtLoggerAccess.info(logEvent); // was level TRACE
+    } catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
-      if (e.getMessage().indexOf("Connection reset by peer") < 0){
-        virtLoggerError.info(new ErrorLogEvent("SocketException while processing the WRS-request.", request), e);
-        throw new ServletException(e);  // Trigger rollback
-      }
-    }
-    catch (InvocationTargetException e) {
-      if( e.getCause() instanceof Exception) {
-        virtLoggerError.info(new ErrorLogEvent("InvocationTargetException while processing the WRS-request.", request), e);
-      }
-      throw new ServletException(e.getTargetException());  // Trigger rollback
-    }
-    catch (Exception e) {
-      virtLoggerError.info(new ErrorLogEvent("Exception while processing the WRS-request.", request), e);
-      throw new ServletException(e); // Trigger rollback
-    }
-    finally {
+      if (e.getMessage().indexOf("Connection reset by peer") < 0)
+        throw new ServletException("SocketException while processing the WRS-request.", e);  // Trigger rollback
+    } catch (InvocationTargetException e) {
+      throw new ServletException("InvocationTargetException while processing the WRS-request.", e.getCause());  // Trigger rollback
+    } catch (Exception e) {
+      throw new ServletException("Exception while processing the WRS-request.", e); // Trigger rollback
+    } finally {
       try {
         if (dataWriter != null)
           dataWriter.close();
-      }
-      catch (Exception ignore) {
-      }
+      } catch (Exception ignore) { }
     }
     if (log.isTraceEnabled()) {
       log.trace("processed.");

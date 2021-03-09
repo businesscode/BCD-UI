@@ -50,6 +50,7 @@ import de.businesscode.bcdui.toolbox.FilterUtils;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.toolbox.WEEKDAY;
 import de.businesscode.bcdui.web.cacheControl.server.wrapper.TeePrintWriterWrapper;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 
 
 /**
@@ -107,8 +108,7 @@ public class ServerCachingFilter extends AbstractCacheFilter {
                     chain.doFilter(request, response);
                 }
                 catch (Exception e) {
-                    log.error("could not clean cached data.", e);
-                    throw new ServletException(e);
+                    throw new ServletException("Could not clean cached data.", e);
                 }
             } else {
                 String requestKey = generateRequestKey(httpRequest);
@@ -173,7 +173,6 @@ public class ServerCachingFilter extends AbstractCacheFilter {
             }
         }
         catch (Exception e) {
-            log.error(e);
             throw new ServletException(e);
         }
     }

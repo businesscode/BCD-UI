@@ -83,17 +83,17 @@ public class CsvServlet extends ExportServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_CVS, request, options, generator, loader, dataWriter);
-      virtLoggerAccess.info(logEvent);
+      virtLoggerAccess.info(logEvent); // was level DEBUG
     }
     catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
-      if (e.getMessage().indexOf("Connection reset by peer") < 0){
+      if (e.getMessage().indexOf("Connection reset by peer") < 0) {
+        // TODO : should this be thrown as a ServletException instead?
         virtLoggerError.info(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
       }
     }
     catch (Exception e) {
-      virtLoggerError.info(new ErrorLogEvent("Exception while processing the CSV-request.", request), e);
-      throw new ServletException(e);
+      throw new ServletException("Exception while processing the CSV-request.", e);
     }
     finally {
       try {

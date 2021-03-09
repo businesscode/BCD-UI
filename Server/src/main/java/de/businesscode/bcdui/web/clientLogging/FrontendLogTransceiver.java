@@ -76,7 +76,7 @@ public class FrontendLogTransceiver extends HttpServlet {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Writer sw = new OutputStreamWriter(bos,  Charset.forName("UTF-8"));// set fix UTF, thus otherwise could not work with XML doc as parameter
       sw.write("<?xml version=\"1.0\"?>"); sw.write(req.getParameter("data"));sw.flush();
-      virtLoggerError.info(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
+      virtLoggerError.info(new ErrorLogEvent("Client Exception", req, req.getParameter("data"))); // was level ERROR
 
       SecureXmlFactory.newSaxParserFactory().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
         private String level;

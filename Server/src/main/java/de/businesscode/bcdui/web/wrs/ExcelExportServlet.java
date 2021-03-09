@@ -52,7 +52,6 @@ public class ExcelExportServlet extends ExportServlet {
   private static final String templateLocationInVfs = "/bcdui/vfs/excelExportTemplates";
   private static final long serialVersionUID = 1L;
   private Logger log = Logger.getLogger(getClass());
-  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   private final Logger virtLoggerPage = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
   private final Set<String> templateContainers = new HashSet<>();
   private static AtomicInteger concurrent = new AtomicInteger(0);
@@ -109,14 +108,13 @@ public class ExcelExportServlet extends ExportServlet {
         if (requestUrl.length()> 4000)
           requestUrl = requestUrl.substring(0, 4000);
         final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(Utils.getSessionId(req, false), requestUrl, pageHash);
-        virtLoggerPage.info(logRecord);
+        virtLoggerPage.info(logRecord); // was level DEBUG
       }
 
       new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
     } catch (Exception e) {
-      virtLoggerError.info(new ErrorLogEvent("Exception while processing the Wrs2Excel request.", req), e);
-      throw new ServletException(e.getCause());
+      throw new ServletException("Exception while processing the Wrs2Excel request.", e); // was previously throwing e.getCause()
     } finally {
       concurrent.decrementAndGet();
     }

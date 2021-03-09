@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
+
 /**
  * filter for identifying requests from MS Office applications like Word or Excel. 
  * no redirect to login page. 
@@ -74,8 +76,7 @@ public class AvailabilityFilter implements Filter {
         chain.doFilter(request, response);
       }
     } catch (Throwable t) {
-      logger.fatal("Availability filter failed", t);
-      throw new ServletException("Unrecoverable server error occurred. Please contact support.");
+      throw new ServletException("Unrecoverable server error occurred. Please contact support. (Availability filter failed)", t);
     }
   }
 

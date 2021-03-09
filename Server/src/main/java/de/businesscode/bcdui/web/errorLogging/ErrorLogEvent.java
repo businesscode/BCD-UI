@@ -23,6 +23,9 @@ import de.businesscode.bcdui.toolbox.ServletUtils;
 
 /**
  * The error-logEvent for usage with the ErrorLogAppender. <br>
+ * All thrown {@link javax.servlet.ServletException} are processed in 
+ * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly. <br>
+ * 
  * Example:
  * 
  * ...

@@ -134,7 +134,7 @@ public class Wrs2Excel {
 
             // log wrs-access
             WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_XLS, request, options, writer.getGenerator(), writer.getLoader(), writer);
-            virtLoggerAccess.info(logEvent);
+            virtLoggerAccess.info(logEvent); // was level DEBUG
           }
 
           // Client did send a Wrs with data

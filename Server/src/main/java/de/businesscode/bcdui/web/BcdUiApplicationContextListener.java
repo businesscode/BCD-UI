@@ -117,15 +117,15 @@ public class BcdUiApplicationContextListener implements ServletContextListener
           Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
           logger.setLevel(Level.INFO);
           
-          // setAdditivity(false) ensures that the logged messages are not
-          // propagated to the ancestors of the logger.
-          // The goal here is that the messages are not passed to the appenders
-          // of the root logger. Otherwise errors would occur twice in the 
-          // appenders of the root logger, because the error logging is already
-          // done by the class loggers. Nevertheless the error virtlogger is 
-          // necessary, because it ensures that errors are logged by the 
-          // ErrorLogAppender into the database.
-          logger.setAdditivity(false);
+          /*
+           * setAdditivity(false) would ensure that the logged messages are not propagated to the ancestors of the logger.
+           * 
+           * Because these kinds of exceptions were once passed to individual class loggers and this virtual logger, 
+           * they would appear twice. Since all ErrorLogEvent/ServletException logging has been centralized in the 
+           * RequestLifeCycleFilter, this is no longer an issue. In fact, the opposite is the case: when additivity 
+           * is set to false, these exceptions are never shown on the console anymore.
+           */
+          //logger.setAdditivity(false);
           logger.addAppender(new ErrorLogAppender());
         }
       } catch (Exception e) {}
