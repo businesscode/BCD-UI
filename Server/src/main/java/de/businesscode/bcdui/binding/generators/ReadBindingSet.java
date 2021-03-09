@@ -116,11 +116,9 @@ public class ReadBindingSet implements Runnable {
     // Check schema. We expect files with BindingGroup BindingSet and BindingInclude
     // The first two will be known to the system but BindingInclude is not usable stand-alone but is to be
     // used via xi:include for cleaner organization. If we have a file containing a BindingInclude, we just skip it here.
-    if (!BINDINGS_NAMESPACE.equals(bindingDoc.getDocumentElement().getNamespaceURI())) {
-      log.error("The binding document should use schema " + BINDINGS_NAMESPACE + " File:" + fileName);
+    if (!BINDINGS_NAMESPACE.equals(bindingDoc.getDocumentElement().getNamespaceURI()))
       throw new BindingException("The binding document should use schema " + BINDINGS_NAMESPACE + " File:" + fileName
           +"\nused is:" + bindingDoc.getDocumentElement().getNamespaceURI());
-    }
     if ("BindingSet".equals(bindingDoc.getDocumentElement().getLocalName())) {
       String bsName = bindingDoc.getDocumentElement().getAttribute("id");
       if( bindingMap.containsKey(bsName) )
@@ -433,9 +431,7 @@ public class ReadBindingSet implements Runnable {
       return bItem;
     }
     catch (TransformerException te) {
-      log.error("error caught while processing BindingSet #" + pBindingSet.getName(), te);
-      throw new IOException(te);
-
+      throw new IOException("error caught while processing BindingSet #" + pBindingSet.getName(), te);
     }
   }
 }
