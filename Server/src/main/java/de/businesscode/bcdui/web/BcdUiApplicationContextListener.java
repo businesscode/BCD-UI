@@ -124,6 +124,9 @@ public class BcdUiApplicationContextListener implements ServletContextListener
            * they would appear twice. Since all ErrorLogEvent/ServletException logging has been centralized in the 
            * RequestLifeCycleFilter, this is no longer an issue. In fact, the opposite is the case: when additivity 
            * is set to false, these exceptions are never shown on the console anymore.
+           * 
+           * Recommended solution is to set the threshold of the console appender, which can also be done in the 
+           * already in use properties file. (see https://logging.apache.org/log4j/2.x/manual/configuration.html#Additivity)
            */
           //logger.setAdditivity(false);
           logger.addAppender(new ErrorLogAppender());
