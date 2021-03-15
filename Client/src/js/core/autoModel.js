@@ -83,14 +83,15 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 
        // handle initialFilterBRefs via JSDataProvider
        if(args.initialFilterBRefs){
+         var hasBeenRun = false;
          var dataLink = new bcdui.core.JsDataProvider({
            doAllwaysRefresh : true,
            callback : function(initialFilterBRefs){
              // reset value once we have been used once
-             if(this.hasBeenRun)return "";
-             this.hasBeenRun = true;
+             if(hasBeenRun)return "";
+             hasBeenRun = true;
              return initialFilterBRefs;
-           }.bind(this,args.initialFilterBRefs)
+           }.bind(undefined, args.initialFilterBRefs)
          });
          params.initialFilterBRefs = dataLink;
        }
@@ -103,9 +104,9 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
        }
 
        if (typeof args.additionalPassiveFilterXPath != "undefined" && args.additionalPassiveFilterXPath != null && ! !args.additionalPassiveFilterXPath.trim()) {
-         var modelParams = bcdui.factory._extractXPathAndModelId(args.additionalPassiveFilterXPath);
-         args.additionalPassiveFilterXPath = modelParams.xPath;
-         args.additionalPassiveFilterModel = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
+         var modelParamsPassive = bcdui.factory._extractXPathAndModelId(args.additionalPassiveFilterXPath);
+         args.additionalPassiveFilterXPath = modelParamsPassive.xPath;
+         args.additionalPassiveFilterModel = bcdui.factory.objectRegistry.getObject(modelParamsPassive.modelId);
          params.additionalPassiveFilterXPath = new bcdui.core.DataProviderWithXPathNodes({ source: args.additionalPassiveFilterModel, xPath: args.additionalPassiveFilterXPath });
        }
 
