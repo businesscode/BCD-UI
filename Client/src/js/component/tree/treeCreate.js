@@ -36,171 +36,178 @@ bcdui.util.namespace("bcdui.component.tree");
  * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
  *  
 */
-bcdui.component.tree.Tree = function(args)
+bcdui.component.tree.Tree = class extends bcdui.core.Renderer
 {
-  this.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
-  bcdui.factory.objectRegistry.registerObject( this );
-  this.targetHtml = bcdui.util._getTargetHtml(args, "tree_");
-  this.statusModel = args.statusModel || bcdui.wkModels.guiStatus;
+  constructor(args) {
 
-  this.persistent = true;
-  if (args.persistent === false)
-    this.persistent = false;
-
-  this.config = args.config;
-  if (! this.config) {
-    this.config = new bcdui.core.SimpleModel( { url: "treeConfiguration.xml" } );
-  }
-
-  this.enhancedConfiguration = new bcdui.core.ModelWrapper({
-    inputModel: this.config
-    , chain: function(doc, args){
-      // add some identifier to the single node
-      var q = 0;
-      jQuery.makeArray(doc.selectNodes("//*[local-name()='Node' or local-name()='Root']")).forEach(function(e){
-        e.setAttribute("bcdNodeId", "L" + (q++));
-      });
-      return doc;
+    var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
+    var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
+    var statusModel = args.statusModel || bcdui.wkModels.guiStatus;
+    var config = args.config;
+    if (! config) {
+      config = new bcdui.core.SimpleModel( { url: "treeConfiguration.xml" } );
     }
-    , parameters: {statusModel: this.statusModel }
-  });
-
-  this.enhancedConfiguration.onceReady(function(){
-    
-    // create the context menu, prepare contextmenu injects the right used treeDataModel
-    if( !!args.contextMenu && args.contextMenu !== 'false' && args.contextMenu !== false ) {
-      var contextMenuUrl = args.contextMenu === true || args.contextMenu === 'true' ? bcdui.config.jsLibPath+"component/tree/contextMenu.xslt" : args.contextMenu;
-      var bcdPageAccess = " " + ((bcdui.config.clientRights && bcdui.config.clientRights.bcdPageAccess) || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
-      var prepareContextMenu = function(doc, args) {
-        var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
-        bcdui.factory.objectRegistry.getObject(args.treeId + "_treeDataModel").value = target != null ? bcdui.factory.objectRegistry.getObject(jQuery("#" + target).closest("table").attr("bcdNodeModelId")).getData() : null;
+    var enhancedConfiguration = new bcdui.core.ModelWrapper({
+      inputModel: config
+      , chain: function(doc, args){
+        // add some identifier to the single node
+        var q = 0;
+        jQuery.makeArray(doc.selectNodes("//*[local-name()='Node' or local-name()='Root']")).forEach(function(e){
+          e.setAttribute("bcdNodeId", "L" + (q++));
+        });
         return doc;
-      };
-      this.contextMenu = new bcdui.core.ModelWrapper({ chain: [prepareContextMenu, contextMenuUrl], inputModel: this.statusModel,
-        parameters: {
-          bcdRowIdent: bcdui.wkModels.bcdRowIdent
-        , bcdColIdent: bcdui.wkModels.bcdColIdent
-        , treeDefinition: this.enhancedConfiguration
-        , treeDataModel : new bcdui.core.ConstantDataProvider({id: this.id + "_treeDataModel", name: "treeDataModel", value: null})
-        , bcdPageAccess: bcdPageAccess
-        , treeId: this.id
-        , gotExport: "" + (typeof bcdui.component.exports != "undefined")
-        }
-      });
-      bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
-    }
+      }
+      , parameters: {statusModel: statusModel }
+    });
     
-    // add a row hover effect
-    jQuery("#" + this.targetHtml).on("mouseenter", "tr", function (event) {jQuery(this).addClass("highlight");});
-    jQuery("#" + this.targetHtml).on("mouseleave", "tr", function (event) {jQuery(this).removeClass("highlight");});
-
-    // add export event handler
-    jQuery("#" + this.targetHtml).on("treeActions:fullDataExport", function(evt){
-      bcdui.component.exports.exportToExcelTemplate({ inputModel: bcdui.factory.objectRegistry.getObject(jQuery(evt.target).closest("table").attr("bcdNodeModelId")) });
+    // the actual renderer
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super({
+      id: id,
+      inputModel: enhancedConfiguration,
+      targetHtml: targetHtml,
+      parameters: { statusModel: statusModel },
+      bcdPreInit: function(){
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+        this.chain = this._render.bind(this);
+      }
     });
 
-    // add click listeners for the expand/collapse buttons
-    jQuery("#" + this.targetHtml).on("click", "i", function(event) {
+    this.id = id;
+    this.targetHtml = targetHtml;
+    this.statusModel = statusModel;
+    this.config = config;
+    this.enhancedConfiguration = enhancedConfiguration;
 
-      var table = jQuery(event.target).closest("table");
-      var row = jQuery(event.target).closest("tr");
-      var rowId = row.attr("bcdRowIdent");
-      var tree = bcdui.factory.objectRegistry.getObject(table.attr("bcdTreeId"));
-      var nodeModel = bcdui.factory.objectRegistry.getObject(table.attr("bcdNodeModelId"));
-      var nodeId = table.attr("bcdNodeId");
+    this.persistent = true;
+    if (args.persistent === false)
+      this.persistent = false;
 
-      var rowValue = "";
-      
-      // when the tree is persistent, we need to store a kind of key information (wrs dimId values for the row)
-      if (tree.persistent) {
-        rowValue = table.closest(".bcdTreeRow").data("rowValue") || "";
-        jQuery.makeArray(nodeModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@dimId]")).forEach(function(e) {
-          rowValue += ((rowValue == "" ? "" : bcdui.core.magicChar.separator) + nodeModel.read("/*/wrs:Data/wrs:R[@id='" + rowId + "']/wrs:C[position()='"+e.getAttribute("pos")+"']", ""));
+    this.enhancedConfiguration.onceReady(function(){
+
+      // create the context menu, prepare contextmenu injects the right used treeDataModel
+      if( !!args.contextMenu && args.contextMenu !== 'false' && args.contextMenu !== false ) {
+        var contextMenuUrl = args.contextMenu === true || args.contextMenu === 'true' ? bcdui.config.jsLibPath+"component/tree/contextMenu.xslt" : args.contextMenu;
+        var bcdPageAccess = " " + ((bcdui.config.clientRights && bcdui.config.clientRights.bcdPageAccess) || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
+        var prepareContextMenu = function(doc, args) {
+          var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
+          bcdui.factory.objectRegistry.getObject(args.treeId + "_treeDataModel").value = target != null ? bcdui.factory.objectRegistry.getObject(jQuery("#" + target).closest("table").attr("bcdNodeModelId")).getData() : null;
+          return doc;
+        };
+        this.contextMenu = new bcdui.core.ModelWrapper({ chain: [prepareContextMenu, contextMenuUrl], inputModel: this.statusModel,
+          parameters: {
+            bcdRowIdent: bcdui.wkModels.bcdRowIdent
+          , bcdColIdent: bcdui.wkModels.bcdColIdent
+          , treeDefinition: this.enhancedConfiguration
+          , treeDataModel : new bcdui.core.ConstantDataProvider({id: this.id + "_treeDataModel", name: "treeDataModel", value: null})
+          , bcdPageAccess: bcdPageAccess
+          , treeId: this.id
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined")
+          }
         });
+        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
       }
 
-      // expand or collapse?
-      if (jQuery(event.target).hasClass("bcdExpand")) {
+      // add a row hover effect
+      jQuery("#" + this.targetHtml).on("mouseenter", "tr", function (event) {jQuery(this).addClass("highlight");});
+      jQuery("#" + this.targetHtml).on("mouseleave", "tr", function (event) {jQuery(this).removeClass("highlight");});
 
-        // remember open node status in statusModel
-        if (tree.persistent)
-          tree.statusModel.write("/*/guiStatus:Tree[@id='" + tree.id + "']/guiStatus:Node[@id='"+nodeId+"' and .='{{=it[0]}}']", [rowValue], null, true);
+      // add export event handler
+      jQuery("#" + this.targetHtml).on("treeActions:fullDataExport", function(evt){
+        bcdui.component.exports.exportToExcelTemplate({ inputModel: bcdui.factory.objectRegistry.getObject(jQuery(evt.target).closest("table").attr("bcdNodeModelId")) });
+      });
 
-        // change icon
-        jQuery(event.target).removeClass("bcdExpand").addClass("bcdCollapse");
-        
-        // did we already load and render the data, if yes, simple show it again
-        if (row.next(".bcdTreeRow").length > 0) {
-          row.next(".bcdTreeRow").show();
+      // add click listeners for the expand/collapse buttons
+      jQuery("#" + this.targetHtml).on("click", "i", function(event) {
+
+        var table = jQuery(event.target).closest("table");
+        var row = jQuery(event.target).closest("tr");
+        var rowId = row.attr("bcdRowIdent");
+        var tree = bcdui.factory.objectRegistry.getObject(table.attr("bcdTreeId"));
+        var nodeModel = bcdui.factory.objectRegistry.getObject(table.attr("bcdNodeModelId"));
+        var nodeId = table.attr("bcdNodeId");
+
+        var rowValue = "";
+
+        // when the tree is persistent, we need to store a kind of key information (wrs dimId values for the row)
+        if (tree.persistent) {
+          rowValue = table.closest(".bcdTreeRow").data("rowValue") || "";
+          jQuery.makeArray(nodeModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@dimId]")).forEach(function(e) {
+            rowValue += ((rowValue == "" ? "" : bcdui.core.magicChar.separator) + nodeModel.read("/*/wrs:Data/wrs:R[@id='" + rowId + "']/wrs:C[position()='"+e.getAttribute("pos")+"']", ""));
+          });
         }
-        else {
-          // otherwise render (and load) next nodes
-          var colspan = row.find("th,td").length;
-          var subNodes = tree.enhancedConfiguration.queryNodes("//*[@bcdNodeId='"+nodeId+"']/tree:Node");
-          for (var n = 0; n < subNodes.length; n++) {
 
-            // insert a new row into parent tree for our sub elements
-            row = jQuery("<tr class='bcdTreeRow'><th colspan='" + colspan + "'><div class='bcdTreeInner'></div></th></tr>").insertAfter(row);
+        // expand or collapse?
+        if (jQuery(event.target).hasClass("bcdExpand")) {
 
-            // remember current rowValue if we want to make the tree persistent
-            if (tree.persistent)
-              row.data("rowValue", rowValue);
+          // remember open node status in statusModel
+          if (tree.persistent)
+            tree.statusModel.write("/*/guiStatus:Tree[@id='" + tree.id + "']/guiStatus:Node[@id='"+nodeId+"' and .='{{=it[0]}}']", [rowValue], null, true);
 
-            // and render it...
-            tree._renderNextNode({ root: subNodes[n], targetHtml: jQuery(row).find("th > div").get(0), parentNodeModel: nodeModel, rowId: rowId });
+          // change icon
+          jQuery(event.target).removeClass("bcdExpand").addClass("bcdCollapse");
+
+          // did we already load and render the data, if yes, simple show it again
+          if (row.next(".bcdTreeRow").length > 0) {
+            row.next(".bcdTreeRow").show();
+          }
+          else {
+            // otherwise render (and load) next nodes
+            var colspan = row.find("th,td").length;
+            var subNodes = tree.enhancedConfiguration.queryNodes("//*[@bcdNodeId='"+nodeId+"']/tree:Node");
+            for (var n = 0; n < subNodes.length; n++) {
+
+              // insert a new row into parent tree for our sub elements
+              row = jQuery("<tr class='bcdTreeRow'><th colspan='" + colspan + "'><div class='bcdTreeInner'></div></th></tr>").insertAfter(row);
+
+              // remember current rowValue if we want to make the tree persistent
+              if (tree.persistent)
+                row.data("rowValue", rowValue);
+
+              // and render it...
+              tree._renderNextNode({ root: subNodes[n], targetHtml: jQuery(row).find("th > div").get(0), parentNodeModel: nodeModel, rowId: rowId });
+            }
+          }
+
+          // show all tree rows for this node
+          var nextRowShow = row.next("tr");
+          while (nextRowShow.hasClass("bcdTreeRow")) {
+            nextRowShow.show();
+            nextRowShow = nextRowShow.next("tr");
           }
         }
+        // collapse is a simple hide
+        else {
 
-        // show all tree rows for this node
-        var nextRowShow = row.next("tr");
-        while (nextRowShow.hasClass("bcdTreeRow")) {
-          nextRowShow.show();
-          nextRowShow = nextRowShow.next("tr");
+          // remove open node status in statusModel        
+          if (tree.persistent)
+            tree.statusModel.remove("/*/guiStatus:Tree[@id='" + tree.id + "']/guiStatus:Node[@id='" + nodeId + "' and .='{{=it[0]}}']", [rowValue], true);
+
+          // change icon
+          jQuery(event.target).removeClass("bcdCollapse").addClass("bcdExpand");
+
+          // hide all tree rows for this node
+          var nextRowHide = row.next("tr");
+          while (nextRowHide.hasClass("bcdTreeRow")) {
+            nextRowHide.hide();
+            nextRowHide = nextRowHide.next("tr");
+          }
         }
-      }
-      // collapse is a simple hide
-      else {
+      });
 
-        // remove open node status in statusModel        
-        if (tree.persistent)
-          tree.statusModel.remove("/*/guiStatus:Tree[@id='" + tree.id + "']/guiStatus:Node[@id='" + nodeId + "' and .='{{=it[0]}}']", [rowValue], true);
+    }.bind(this));
+    this.enhancedConfiguration.execute();
+  }
 
-        // change icon
-        jQuery(event.target).removeClass("bcdCollapse").addClass("bcdExpand");
-        
-        // hide all tree rows for this node
-        var nextRowHide = row.next("tr");
-        while (nextRowHide.hasClass("bcdTreeRow")) {
-          nextRowHide.hide();
-          nextRowHide = nextRowHide.next("tr");
-        }
-      }
-    });
-
-    // the actual renderer
-    bcdui.core.Renderer.call( this, {
-      id: this.id,
-      inputModel: this.enhancedConfiguration,
-      targetHtml: this.targetHtml,
-      parameters: { statusModel: this.statusModel },
-      chain: [ this._render.bind(this) ]
-    });
-
-  }.bind(this));
-  this.enhancedConfiguration.execute();
-}
-
-bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototype,
-/** @lends bcdui.component.tree.Tree.prototype */
-{
-  _render: { writable: true, configurable: true, enumerable: true, value: function(doc, args)
+  _render(doc, args)
     {
       // start the recursive rendering
       this._renderNextNode({targetHtml: this.targetHtml});
       return doc;
     }
-  },
-  _renderNextNode: { writable: true, configurable: true, enumerable: true, value: function(args)
+
+  _renderNextNode(args)
     {
       var root = args.root || this.enhancedConfiguration.query("/*/tree:Root");
       var nodeId = root.getAttribute("bcdNodeId")
@@ -361,14 +368,13 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
         }
       }
     }
-  },
 
   /**
    * node model wrapper chain function create or append f:Filter node in wrq request by
    * taking all filters from statusModel and the stored node filters
    * @private
    */
-  _addRequestFilters: { writable: true, configurable: true, enumerable: true, value: function(doc, args)
+  _addRequestFilters(doc, args)
     {
       // create f:Filter if not present
       var filterNode = doc.selectSingleNode("/*/wrq:Select/f:Filter");
@@ -388,8 +394,9 @@ bcdui.component.tree.Tree.prototype = Object.create( bcdui.core.Renderer.prototy
       }
       return doc;
     }
-  }
-});
+    
+    getClassName() {return "bcdui.component.tree.Tree";}
+}
 
 /************************
  * Glue-ware for declarative environments, not to be used directly

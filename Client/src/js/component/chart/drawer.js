@@ -36,13 +36,13 @@ bcdui.component.chart.SVGVMLDrawer = class
    * @constant
    * @private
    */
-  static VML= 0;
+  VML= 0;
 
   /**
    * @constant
    * @private
    */
-  static SVG= 1;
+  SVG= 1;
 
   /**
    * @classdesc
@@ -207,7 +207,7 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
    */
   constructor( args )
   {
-    super.call( this, args );
+    super( args );
 
     this.doc = args.doc;
     this.rootElem = this._createElementNS("svg");

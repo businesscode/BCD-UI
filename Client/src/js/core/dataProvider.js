@@ -67,11 +67,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    */
   constructor(/* object */ args)
     {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core.DataProvider" ): "") != "";    
-      
-      this.saveOptions = args.saveOptions;
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
 
-      super.call( this, args );
+            this.saveOptions = args.saveOptions;
+      }}))
+
+
 
       /**
        * flag to monitor write/remove operations after last fire
@@ -125,10 +130,9 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       // especially NOT bcdui.core._ModelBeingUpdated
       if (this.saveOptions)
         this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
-
-      if (isLeaf)
-        this._checkAutoRegister();
     }
+
+    getClassName() {return "bcdui.core.DataProvider";}
     
     _statusTransitionHandlerDp(/* StatusEvent */ statusEvent)
     {

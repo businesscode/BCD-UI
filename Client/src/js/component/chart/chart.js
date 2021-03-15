@@ -36,40 +36,40 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   /**
    * @constant
    */
-  static LINECHART= 1;
+  LINECHART= 1;
   /**
    * @constant
    */
-  static AREACHART= 2;
+  AREACHART= 2;
   /**
    * @constant
    */
-  static BARCHART=  3;
+  BARCHART=  3;
   /**
    * @constant
    */
-  static PIECHART=  4;
+  PIECHART=  4;
   /**
    * @constant
    */
-  static SCATTEREDCHART= 5;
+  SCATTEREDCHART= 5;
   /**
    * @constant
    */
-  static POINTCHART= 6;
+  POINTCHART= 6;
   /**
    * @constant
    */
-  static GAUGECHART= 7;
+  GAUGECHART= 7;
   /**
    * @constant
    */
-  static MARIMEKKOCHART= 8;
+  MARIMEKKOCHART= 8;
   /**
    * @private
    * @constant
    */
-  static TYPEMAXINDEX= 8;
+  TYPEMAXINDEX= 8;
 
   /**
    * @classdesc
@@ -89,9 +89,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    */
   constructor(args)
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.chart.Chart" ): "") != "";
-
-    super.call( this, args);
+    super(args);
 
     this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
     this.initializedStatus = new bcdui.core.status.InitializedStatus();
@@ -138,9 +136,9 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
     if( ! args.suppressInitialRendering )
       this.execute();
     
-    if (isLeaf)
-      this._checkAutoRegister();
   }
+
+  getClassName() {return "bcdui.component.chart.Chart";}
 
   /**
    * initializes/computes some values

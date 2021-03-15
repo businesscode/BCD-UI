@@ -40,7 +40,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
 
     this.name = (args.name != null && args.name != "") ? args.name : "$menu";
     this.rootId = (args.rootIdOrElement != null && args.rootIdOrElement != "") ? args.rootIdOrElement : "root_bcdDefault";
-    this.type = "menu";
+    this.type = this.getClassName();
     this.closeDelayTimer = null;
     this.closingMenuItem = null;
 
@@ -51,6 +51,8 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
     }
     this.rootContainer = this._createMenuContainer(this.rootId, this);
   }
+
+  getClassName() {return "menu";}
 
   /**
    * these two create methods make it possible to extend MenuContainer and MenuItem without
@@ -92,7 +94,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
    * @constructs
    */
   constructor(idOrElement, parent) {
-    this.type = "menuContainer";
+    this.type = this.getClassName();
     this.menuItems = [];
     this.init(idOrElement, parent);
   }
@@ -145,6 +147,8 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
       }
     }
   }
+
+  getClassName() {return "MenuContainer";}
   /**
    * @private
    */
@@ -237,8 +241,9 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.
     /**
      * @ignore
      */
+    super();
     var menuItem = this;
-    this.type = "menuItem";
+    this.type = this.getClassName();
     this.subMenu = null;
     this.init(idOrElement, parent);
     if (this.subMenu) {
@@ -267,6 +272,8 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.
       }
     }
   }
+
+  getClassName() {return "MenuItem";}
 
   /**
    * Open the item

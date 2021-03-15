@@ -46,7 +46,7 @@ bcdui.core.status.NullStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "NULL"; }
   getDescription() { return "[NullStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.NullStatus; }
@@ -65,7 +65,7 @@ bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "L0"; }
   getDescription() { return "[InitializedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.InitializedStatus; }
@@ -84,7 +84,7 @@ bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "L1"; }
   getDescription() { return "[LoadingStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.LoadingStatus; }
@@ -102,7 +102,7 @@ bcdui.core.status.URLAvailableStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "L2"; }
   getDescription() { return "[URLAvailableStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.URLAvailableStatus; }
@@ -120,7 +120,7 @@ bcdui.core.status.LoadedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "L3"; }
   getDescription() { return "[LoadedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.LoadedStatus; }
@@ -138,7 +138,7 @@ bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  initialize() {}
+  constructor() {super();}
   getCode() { return "F0"; }
   getDescription() { return "[LoadFailedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.LoadFailedStatus; }
@@ -156,7 +156,7 @@ bcdui.core.status.SavingStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "S0"; }
   getDescription() { return "[SavingStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.SavingStatus; }
@@ -175,7 +175,7 @@ bcdui.core.status.SavedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "S1"; }
   getDescription() { return "[SavedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.SavedStatus; }
@@ -193,7 +193,7 @@ bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "SF0"; }
   getDescription() { return "[SaveFailedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.SaveFailedStatus; }
@@ -212,7 +212,7 @@ bcdui.core.status.ChainLoadedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "MW-1"; }
   getDescription() { return "[ChainLoadedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.ChainLoadedStatus; }
@@ -232,7 +232,7 @@ bcdui.core.status.WaitingForParametersStatus =class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "MW-2"; }
   getDescription() { return "[WaitingForParametersStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.WaitingForParametersStatus; }
@@ -251,7 +251,7 @@ bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  initialize() {}
+  constructor() {super();}
   getCode() { return "MW-3"; }
   getDescription() { return "[TransformingStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.TransformingStatus; }
@@ -270,7 +270,7 @@ bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "MW-8"; }
   getDescription() { return "[TransformFailedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.TransformFailedStatus; }
@@ -289,7 +289,7 @@ bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "MW-4"; }
   getDescription() { return "[TransformedStatus]"; }
   equals(status) { return status instanceof bcdui.core.status.TransformedStatus; }
@@ -308,7 +308,7 @@ bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  initialize() {}
+  constructor() {super();}
   getCode() { return "F1"; }
   getDescription() { return "[ChainLoadingFailed]"; }
   equals(status) { return status instanceof bcdui.core.status.ChainLoadingFailed; }
@@ -327,7 +327,7 @@ bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  constructor() {}
+  constructor() {super();}
   getCode() { return "F2"; }
   getDescription() { return "[ChainStylesheetLoadingFailed]"; }
   equals(status) { return status instanceof bcdui.core.status.ChainStylesheetLoadingFailed; }
@@ -347,7 +347,7 @@ bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
    * 
    * @constructs
    */
-  initialize() {}
+  constructor() {super();}
   getCode() { return "MU-1"; }
   getDescription() { return "[RefreshingModelUpdaters]"; }
   equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdaters; }
@@ -366,7 +366,7 @@ bcdui.core.status.RefreshingModelUpdatersCausedByExecute = class extends bcdui.c
        * 
        * @constructs
        */
-      constructor() {}
+      constructor() {super();}
       getCode() { return "MU-2"; }
       getDescription() { return "[RefreshingModelUpdatersCausedByExecute]"; }
       equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdatersCausedByExecute; }
@@ -385,7 +385,7 @@ bcdui.core.status.WaitingForUncomittedChanges = class extends bcdui.core.Status
        * 
        * @constructs
        */
-      constructor() {}
+      constructor() {super();}
       getCode() { return "MW-5"; }
       getDescription() { return "[WaitingForUncomittedChanges]"; }
       equals(status) { return status instanceof bcdui.core.status.WaitingForUncomittedChanges; }

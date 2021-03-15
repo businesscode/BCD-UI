@@ -28,16 +28,16 @@ bcdui.wkModels = bcdui.wkModels || new Object();
 bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
     constructor(args) {
-      var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.core._GuiEstDataProvider" ): "") != "";
-      /** @private */
-      this._lockedReadiness = true;
-      /** @private */
-      this._setReady = false;
-
-      bcdui.core.StaticModel.call(this, args);
-      
-      if (isLeaf)
-        this._checkAutoRegister();
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          /** @private */
+          this._lockedReadiness = true;
+          /** @private */
+          this._setReady = false;
+      }}))
     }
     
     /** @private */
@@ -54,6 +54,8 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
       else
         this._setReady = true;
     }
+    
+    getClassName() {return "bcdui.core._GuiEstDataProvider";}
   };
 
 /**

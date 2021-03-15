@@ -94,9 +94,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
    */
   constructor(/* object */ args )
   {
-    var isLeaf = ((typeof this.type == "undefined")  ? "" + (this.type = "bcdui.component.scorecard.Scorecard" ): "") != "";
-
-    super.call( this, args );
+    super(args);
 
     // Arguments
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
@@ -125,10 +123,9 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 
     this.addStatusListener(this._statusTransitionHandler.bind(this));
     this.setStatus(this.initializedStatus);
-
-    if (isLeaf)
-      this._checkAutoRegister();
   }
+
+  getClassName() {return "bcdui.component.scorecard.Scorecard";}
 
   /**
    * @private

@@ -185,7 +185,7 @@ bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.
    */
   constructor(colorsAsRgb)
   {
-    super.call(this);
+    super();
     this.colors = colorsAsRgb;
   }
 
@@ -221,7 +221,7 @@ bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component
    */
   constructor(colorArray)
   {
-    super.call(this);
+    super();
     this.colors = colorArray;
   }
 }; // TypeColorProviderFixedList
@@ -250,7 +250,7 @@ bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.componen
    * @private
    */
   constructor(args) {
-    super.call(this);
+    super();
 
     if( args.baseColors ) {
       this.baseColors = args.baseColors;

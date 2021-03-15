@@ -860,7 +860,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
          */        
         {
           constructor(){}
-          
+
           updateValue()
             {
               var containerHtmlElement = bcdui._migPjs._$(this.htmlElementId);
