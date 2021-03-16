@@ -28,7 +28,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
@@ -44,7 +45,7 @@ import de.businesscode.bcdui.toolbox.Configuration;
  *
  **/
 public class Menus {
-  private static final Logger log = Logger.getLogger(MenuServlet.class);
+  private static final Logger log = LogManager.getLogger(MenuServlet.class);
   private static final String defaultMenuFolderPath = "menu";
   private Map<String, Menu> menuMap;
   private static Menus instance=null;

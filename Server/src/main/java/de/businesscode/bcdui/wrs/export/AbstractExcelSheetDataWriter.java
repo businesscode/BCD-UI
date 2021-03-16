@@ -28,7 +28,9 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -66,7 +68,7 @@ abstract public class AbstractExcelSheetDataWriter
   private final CellStyle cellStyleDate, cellStyleTimestamp, cellStyleHeader;
 
   // Some constants
-  protected Logger log = Logger.getLogger(Wrs2Excel.class.getName());
+  protected Logger log = LogManager.getLogger(Wrs2Excel.class.getName());
   private final SimpleDateFormat SDF_TIMESTAMP = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Not threadsafe
   private final SimpleDateFormat SDF_YYYYMMDD = new SimpleDateFormat("yyyy-MM-dd");
 

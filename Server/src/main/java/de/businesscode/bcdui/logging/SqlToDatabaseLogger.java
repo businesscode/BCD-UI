@@ -100,7 +100,7 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   /**
    * record being logged into db
    */
-  public static final class LogRecord extends LogEventBase{
+  public static final class LogRecord extends LogEventBase {
     final private String jdbcMethod;
     final private String sql;
     final Date stamp = new Date();
@@ -133,6 +133,14 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
 
     public void setRequestHash(String requestHash) {
       this.requestHash = requestHash;
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      // just to have something here
+      return "SqlToDatabaseLogger.LogRecord <<jdbcMethod: " + jdbcMethod + ">, <sql: " + sql + ">, <stamp: " + stamp
+          + ">, <durationMs: " + durationMs + ">, <rowsAffected: " + rowsAffected + ">, <sessionId: " + sessionId
+          + ">, <pageHash: " + pageHash + ">, <requestHash: " + requestHash + ">>";
     }
   }
 

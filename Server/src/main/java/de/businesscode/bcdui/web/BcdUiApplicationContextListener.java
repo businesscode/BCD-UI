@@ -21,8 +21,10 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import de.businesscode.bcdui.binding.BindingAliasMap;
 import de.businesscode.bcdui.binding.Bindings;
@@ -50,7 +52,7 @@ import de.businesscode.util.jdbc.DatabaseCompatibility;
  */
 public class BcdUiApplicationContextListener implements ServletContextListener
 {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   private static Control resourceBundleControl;
   
   public static Control getResourceBundleControl() {
@@ -114,8 +116,8 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       // add frontend error logging when bcd_log_error binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_error")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
-          logger.setLevel(Level.INFO);
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+          Configurator.setLevel(logger.getName(), Level.INFO);
           
           /*
            * setAdditivity(false) would ensure that the logged messages are not propagated to the ancestors of the logger.
@@ -129,51 +131,58 @@ public class BcdUiApplicationContextListener implements ServletContextListener
            * already in use properties file. (see https://logging.apache.org/log4j/2.x/manual/configuration.html#Additivity)
            */
           //logger.setAdditivity(false);
-          logger.addAppender(new ErrorLogAppender());
+          org.apache.logging.log4j.core.Logger l = (org.apache.logging.log4j.core.Logger) logger;
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(ErrorLogAppender.createAppender());
         }
       } catch (Exception e) {}
 
       // add access logging when bcd_log_access binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_access")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
-          logger.setLevel(Level.INFO);
-          logger.addAppender(new AccessLogAppender());
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+          Configurator.setLevel(logger.getName(), Level.INFO);
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(AccessLogAppender.createAppender());
         }
       } catch (Exception e) {}
 
       // add page logging when bcd_log_page binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_page")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
-          logger.setLevel(Level.INFO);
-          logger.addAppender(new PageLogAppender());
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
+          Configurator.setLevel(logger.getName(), Level.INFO);
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(PageLogAppender.createAppender());
         }
       } catch (Exception e) {}
 
       // add session logging when bcd_log_session binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_session")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
-          logger.setLevel(Level.INFO);
-          logger.addAppender(new SessionLogAppender());
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+          Configurator.setLevel(logger.getName(), Level.INFO);
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(SessionLogAppender.createAppender());
         }
       } catch (Exception e) {}
 
       // add login logging when bcd_log_login binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_login")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
-          logger.setLevel(Level.INFO);
-          logger.addAppender(new LoginLogAppender());
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+          Configurator.setLevel(logger.getName(), Level.INFO);
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(LoginLogAppender.createAppender());
         }
       } catch (Exception e) {}
       // set sql logging when bcd_log_sql binding is available
       try {
         if (Bindings.getInstance().hasBindingSet("bcd_log_sql")) {
-          Logger logger = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.sql");
-          logger.setLevel(Level.INFO);
-          logger.addAppender(new SqlLogAppender());
+          Logger logger = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.sql");
+          Configurator.setLevel(logger.getName(), Level.INFO);
+          if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+            ((org.apache.logging.log4j.core.Logger) logger).addAppender(SqlLogAppender.createAppender());
         }
       } catch (Exception e) {}
 

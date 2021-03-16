@@ -28,7 +28,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -45,7 +46,7 @@ import de.businesscode.util.xml.SecureXmlFactory;
  *
  */
 public class FrontendLogTransceiver extends HttpServlet {
-  private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+  private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   private static final long serialVersionUID = 1L;
   private FrontendLogRecordPublisher proc = new FrontendLogRecordPublisher();
 

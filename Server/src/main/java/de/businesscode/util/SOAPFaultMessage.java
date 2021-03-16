@@ -36,7 +36,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.dom.DOMResult;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
@@ -61,7 +62,7 @@ import de.businesscode.util.jdbc.SQLDetailException;
  */
 public class SOAPFaultMessage {
   private SOAPMessage message;
-  private Logger logger = Logger.getLogger(getClass());
+  private Logger logger = LogManager.getLogger(getClass());
 
   /**
    * Convenience method to write a SOAP massage response. The responseOutputStream must not be opened yet.
@@ -80,7 +81,7 @@ public class SOAPFaultMessage {
       resp.setContentType("text/xml");
       return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, faultException, faultMessage);
     } catch( Exception e ) {
-      Logger.getLogger(SOAPFaultMessage.class).error(e+" causer "+faultException+" for "+requestURL);
+      LogManager.getLogger(SOAPFaultMessage.class).error(e+" causer "+faultException+" for "+requestURL);
       return false;
     }
   }
@@ -113,7 +114,7 @@ public class SOAPFaultMessage {
       SOAPFaultMessage sFM = new SOAPFaultMessage(requestDocument, requestURL, faultException, faultMessage);
       sFM.writeTo(os);
     } catch( Exception e ) {
-      Logger.getLogger(SOAPFaultMessage.class).error(faultException,faultException);
+      LogManager.getLogger(SOAPFaultMessage.class).error(faultException,faultException);
       return false;
     }
     return true;

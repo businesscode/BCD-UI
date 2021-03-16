@@ -27,7 +27,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 
 /**
@@ -113,7 +114,7 @@ abstract public class AWorkerQueue<T> {
     executor.allowCoreThreadTimeOut(true);
   }
   
-  protected Logger log = Logger.getLogger(getClass());
+  protected Logger log = LogManager.getLogger(getClass());
   /*
    * when performing the idle-handling
    * the normal operation cannot proceed

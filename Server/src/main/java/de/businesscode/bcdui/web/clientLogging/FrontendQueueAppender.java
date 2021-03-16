@@ -15,55 +15,52 @@
 */
 package de.businesscode.bcdui.web.clientLogging;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.xml.XMLLayout;
+
+
+import java.io.Serializable;
+
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 
-/**
- *         This appender is desgined to publish logging events to the Frontend
- *         logging subsystem for clients requested it. For this purpose we rely
- *         on the {@link RequestLifeCycleFilter} which has to tag those with the
- *         session id.
- *
- */
-class FrontendQueueAppender extends AppenderSkeleton {
-
-  public FrontendQueueAppender() {
-    setLayout(new XMLLayout());
+@Plugin(name = "FrontendQueueAppender", category = "Core", elementType = "appender", printObject = true)
+public class FrontendQueueAppender extends AbstractAppender {
+  
+  public FrontendQueueAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+      final boolean ignoreExceptions, final Property[] properties) {
+    super(name, filter, layout, ignoreExceptions, properties);
+  }
+  
+  @PluginFactory
+  public static FrontendQueueAppender createAppender(@PluginAttribute("name") String name,
+                                                     @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                                     @PluginElement("Filters") Filter filter) {
+      if (layout == null)
+          layout = PatternLayout.createDefaultLayout();
+      return new FrontendQueueAppender(name, filter, layout, false, null);
+  }
+  
+  public static FrontendQueueAppender createAppender() {
+    return createAppender("FrontendQueueAppender", null, null);
   }
 
-  /*
-   * @see
-   * org.apache.log4j.AppenderSkeleton#append(org.apache.log4j.spi.LoggingEvent)
-   */
   @Override
-  protected void append(LoggingEvent event) {
-    String sessionId = (String) event
-        .getMDC(RequestLifeCycleFilter.MDC_KEY_IS_CLIENT_LOG);
+  public void append(LogEvent event) {
+    String sessionId = event.getContextData().getValue(RequestLifeCycleFilter.MDC_KEY_IS_CLIENT_LOG);
     // dont log if either originated from frontend log publisher or no MDC set
-    if (sessionId == null
-        || FrontendLogRecordPublisher.LOGGER_NAME.equals(event.getLoggerName()))
+    if (sessionId == null || FrontendLogRecordPublisher.LOGGER_NAME.equals(event.getLoggerName()))
       return;
 
-    SingletonStringQueue.getInstance(sessionId).add(getLayout().format(event));
-  }
-
-  /*
-   * @see org.apache.log4j.Appender#close()
-   */
-  @Override
-  public void close() {
-  }
-
-  /*
-   * return false as we dont want to enforce it in the properties
-   *
-   * @see org.apache.log4j.Appender#requiresLayout()
-   */
-  @Override
-  public boolean requiresLayout() {
-    return false;
+    // TODO : no idea if this works as intended
+    SingletonStringQueue.getInstance(sessionId).add(getLayout().toByteArray(event).toString());
   }
 }

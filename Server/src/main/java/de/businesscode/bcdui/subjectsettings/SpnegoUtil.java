@@ -19,7 +19,8 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * utility class abstracting principal information from de.businesscode.bcdui.security.SpnegoValve
@@ -34,7 +35,7 @@ public class SpnegoUtil {
    */
   private static final String TAINTED_PRINCIPAL_NAME = "[\u26C4BCD-TAINTED-PRINCIPAL\u26C4]";
 
-  private static Logger logger = Logger.getLogger(SpnegoUtil.class);
+  private static Logger logger = LogManager.getLogger(SpnegoUtil.class);
 
   /**
    * retrieve principal's name, if available and if authenticated by BCD SPNEGO

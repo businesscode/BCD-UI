@@ -250,4 +250,9 @@ public class WrsAccessLogEvent extends LogEventBase{
     return "BCD-UI write WRS-Access-Log. Type=" + getAccessType();
   }
 
+  @Override
+  public String getFormattedMessage() {
+    return toString();
+  }
+
 }

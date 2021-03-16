@@ -36,7 +36,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -63,7 +64,7 @@ public class DataModifiedFilter implements Filter {
   public static final int REFRESH_PERIOD_DEFAULT = 30*1000;
 
   protected Map<String,ScopeInfo> scopesLamos = null;
-  protected Logger logger = Logger.getLogger(this.getClass());
+  protected Logger logger = LogManager.getLogger(this.getClass());
   protected long lastRefreshedMs = 0;
   protected long refreshPeriodMs = REFRESH_PERIOD_DEFAULT;
   protected Calendar utcCal = null; 

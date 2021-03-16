@@ -34,7 +34,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 
 import de.businesscode.util.xml.SecureXmlFactory;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
@@ -49,15 +51,14 @@ import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 import de.businesscode.bcdui.wrs.load.WrsDataWriter;
 import de.businesscode.bcdui.wrs.save.DataSaver;
 
-
 /**
  * Servlet for calling Wrs delivering services
  */
 public class WrsServlet extends HttpServlet {
 
   private static final long serialVersionUID = 4633486737694422868L;
-  private final Logger log = Logger.getLogger(getClass());
-  private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+  private final Logger log = LogManager.getLogger(getClass());
+  private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
   private final Map< String, Class<? extends ISqlGenerator> > services = new HashMap< String, Class<? extends ISqlGenerator> >();
 
   protected int maxRowsDefault = 4000;

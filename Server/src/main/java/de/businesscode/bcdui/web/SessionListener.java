@@ -19,7 +19,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.logging.LogoutSqlLogger;
 import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
@@ -36,8 +37,8 @@ public class SessionListener implements HttpSessionListener{
   public void sessionDestroyed(HttpSessionEvent se) {
     HttpSession session = se.getSession();
 
-    Logger virtLoggerSession = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
-    Logger virtLoggerLogin = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+    Logger virtLoggerSession = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+    Logger virtLoggerLogin = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
 
     virtLoggerSession.info(new SessionExpiredSqlLogger.LogRecord(session.getId())); // was level DEBUG
     virtLoggerLogin.info(new LogoutSqlLogger.LogRecord(session.getId())); // was level DEBUG

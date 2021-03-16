@@ -16,30 +16,51 @@
 package de.businesscode.bcdui.web.errorLogging;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.MDC;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.businesscode.bcdui.logging.ErrorSqlLogger;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.util.Utils;
 
-public class ErrorLogAppender extends AppenderSkeleton {
-
-  public ErrorLogAppender() {
+@Plugin(name = "ErrorLogAppender", category = "Core", elementType = "appender", printObject = true)
+public class ErrorLogAppender extends AbstractAppender {
+  
+  public ErrorLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+      final boolean ignoreExceptions, final Property[] properties) {
+    super(name, filter, layout, ignoreExceptions, properties);
   }
-
-  public ErrorLogAppender(boolean isActive) {
-    super(isActive);
+  
+  @PluginFactory
+  public static ErrorLogAppender createAppender(@PluginAttribute("name") String name,
+                                                @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                                @PluginElement("Filters") Filter filter) {
+      if (layout == null)
+          layout = PatternLayout.createDefaultLayout();
+      return new ErrorLogAppender(name, filter, layout, false, null);
+  }
+  
+  public static ErrorLogAppender createAppender() {
+    return createAppender("ErrorLogAppender", null, null);
   }
 
   @Override
-  protected void append(LoggingEvent event) {
+  public void append(LogEvent event) {
     // It is assumed that every LoggingEvent passed to the appender is an ErrorLogEvent.
     // If this is not the case, there is a programming error, which should lead to an uncaught exception.
     ErrorLogEvent bcduiLogEvent = (ErrorLogEvent) event.getMessage();
@@ -47,26 +68,28 @@ public class ErrorLogAppender extends AppenderSkeleton {
     HttpServletRequest request = bcduiLogEvent.getRequest();
     if(ErrorSqlLogger.getInstance().isEnabled() && request != null) {
       try {
-        String pageHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH));
-        String requestHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH));
-        String sessionId = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID));
-        String requestUrl = bcduiLogEvent.getRequestUrl();
+        Level errorLevel = event.getLevel();
+        String pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH),
+               requestHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH),
+               sessionId = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID),
+               requestUrl = bcduiLogEvent.getRequestUrl(),
+               level = errorLevel != null ? errorLevel.toString() : null,
+               revision = Utils.getBCDUIVersion(),
+               throwInfo = null,
+               clientMsg = bcduiLogEvent != null ? bcduiLogEvent.getFormattedMessage() : null;
+
         if (requestUrl.length()> 2000)
           requestUrl = requestUrl.substring(0, 2000);
-        Level errorLevel = event.getLevel();
-        String level = errorLevel != null ? errorLevel.toString() : null;
-        String revision = Utils.getBCDUIVersion();
         if (revision != null && revision.length() > 30)
           revision = revision.substring(0, 30);
 
-        String throwInfo = null; 
-        if (event.getThrowableInformation() != null && event.getThrowableInformation().getThrowable() != null) {
-          StringWriter writer = new StringWriter();
-          event.getThrowableInformation().getThrowable().printStackTrace(new PrintWriter(writer));
-          throwInfo = writer.toString();  
-        }
-
-        String clientMsg = event.getRenderedMessage();
+        Throwable thrwbl = bcduiLogEvent.getThrowable();
+        if (thrwbl == null) thrwbl = event.getThrown();
+        if (thrwbl != null)
+          try (StringWriter writer = new StringWriter(); PrintWriter prWriter = new PrintWriter(writer);) {
+            event.getThrown().printStackTrace(prWriter);
+            throwInfo = writer.toString();
+          }
         String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? throwInfo : "");
 
         // log error
@@ -85,14 +108,5 @@ public class ErrorLogAppender extends AppenderSkeleton {
         e.printStackTrace();
       }
     }
-  }
-
-  @Override
-  public boolean requiresLayout() {
-    return false;
-  }
-
-  @Override
-  public void close() {
   }
 }

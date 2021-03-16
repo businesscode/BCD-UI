@@ -35,7 +35,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.POIXMLProperties;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -74,8 +75,8 @@ public class Wrs2Excel {
    */
   private class WrsContainerParser {
     private Stack<String> pathStack = new Stack<>(); // for path tracking
-    private Logger log = Logger.getLogger(Wrs2Excel.class.getName().concat(".WrsContainerParser"));
-    private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+    private Logger log = LogManager.getLogger(Wrs2Excel.class.getName().concat(".WrsContainerParser"));
+    private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
     private final OutputStream excelOutputStream;
     private final IRequestOptions options;
     private XMLEvent event;
@@ -193,7 +194,7 @@ public class Wrs2Excel {
     }
   }
 
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   private TemplateResolver templateResolver;
   private Workbook workbook;
 

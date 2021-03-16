@@ -22,7 +22,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -33,7 +34,7 @@ import de.businesscode.sqlengine.SQLEngine;
  * Resource bundle loading from binding-set bcd_i18n
  */
 class SqlResourceBundle extends MapResourceBundle {
-  private static Logger logger = Logger.getLogger(SqlResourceBundle.class);
+  private static Logger logger = LogManager.getLogger(SqlResourceBundle.class);
 
   SqlResourceBundle(Locale locale) {
     super(locale, load(locale));

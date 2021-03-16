@@ -22,7 +22,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
@@ -36,7 +37,7 @@ import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 public class ExportServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
-  private Logger log = Logger.getLogger(getClass());
+  private Logger log = LogManager.getLogger(getClass());
   protected int maxRowsDefault = 30000; // Default
 
   @Override

@@ -23,7 +23,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Servlet to manage http-session attributes.
@@ -34,7 +35,7 @@ import org.apache.log4j.Logger;
  *
  */
 public class SessionAttributesManager extends HttpServlet {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   //
   private String allowedAttributes; // comma separated list of allowed names
 

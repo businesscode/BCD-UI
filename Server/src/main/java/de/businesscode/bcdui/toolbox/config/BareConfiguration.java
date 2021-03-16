@@ -25,11 +25,13 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.util.JNDIProvider;
 import de.businesscode.util.SingletonHolder;
-import org.apache.log4j.Logger;
 
 /**
  * bare configuration singleton, this class is for internal purpose and must not be used in
@@ -39,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 public class BareConfiguration extends JNDIProvider {
 
-  private static Logger log = Logger.getLogger( BareConfiguration.class );
+  private static Logger log = LogManager.getLogger( BareConfiguration.class );
 
   /* singleton handling */
   private static SingletonHolder<BareConfiguration> holder = new SingletonHolder<BareConfiguration>() {

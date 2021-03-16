@@ -29,27 +29,51 @@ import de.businesscode.bcdui.toolbox.ServletUtils;
  * Example:
  * 
  * ...
- * private final Logger virtLoggerError = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+ * private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
  * ...
  * virtLoggerError.info(new ErrorLogEvent("Error", request), exception);
  * ...
  *
  */
-public class ErrorLogEvent extends LogEventBase{
+public class ErrorLogEvent extends LogEventBase {
 
   private String message;
   private String data;
   private HttpServletRequest request;
+  private Throwable thrwbl;
 
   /**
+   * 
+   * @param message
+   * @param request
+   * @param data
+   * @param thrwbl
+   */
+  public ErrorLogEvent(String message, HttpServletRequest request, String data, Throwable thrwbl) {
+    this.message = message;
+    this.request = request;
+    this.data = data;
+    this.thrwbl = thrwbl;
+  }
+  
+  /**
+   * 
    * @param message
    * @param request
    * @param data
    */
   public ErrorLogEvent(String message, HttpServletRequest request, String data) {
-    this.message = message;
-    this.request = request;
-    this.data = data;
+    this(message, request, data, null);
+  }
+  
+  /**
+   * 
+   * @param message
+   * @param request
+   * @param thrwbl
+   */
+  public ErrorLogEvent(String message, HttpServletRequest request, Throwable thrwbl) {
+    this(message, request, null, thrwbl);
   }
   
   /**
@@ -58,7 +82,7 @@ public class ErrorLogEvent extends LogEventBase{
    * @param request
    */
   public ErrorLogEvent(String message, HttpServletRequest request) {
-    this(message, request, null);
+    this(message, request, null, null);
   }
 
   /**
@@ -148,5 +172,15 @@ public class ErrorLogEvent extends LogEventBase{
   @Override
   public String toString() {
     return "" + getMessage() + " | URL:" + getRequestUrl() + (this.data != null ? " | Data: " + data.replaceAll("\r\n", "") : "");
+  }
+
+  @Override
+  public String getFormattedMessage() {
+    return getMessage();
+  }
+
+  @Override
+  public Throwable getThrowable() {
+    return thrwbl;
   }
 }

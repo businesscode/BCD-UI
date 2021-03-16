@@ -15,28 +15,50 @@
 */
 package de.businesscode.bcdui.web.accessLogging;
 
+import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.MDC;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.businesscode.bcdui.logging.AccessSqlLogger;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 import de.businesscode.bcdui.web.wrs.WrsAccessLogEvent;
 import de.businesscode.util.Utils;
 
-public class AccessLogAppender extends AppenderSkeleton {
-
-  public AccessLogAppender() {
+@Plugin(name = "AccessLogAppender", category = "Core", elementType = "appender", printObject = true)
+public class AccessLogAppender extends AbstractAppender {
+  
+  public AccessLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+      final boolean ignoreExceptions, final Property[] properties) {
+    super(name, filter, layout, ignoreExceptions, properties);
   }
-
-  public AccessLogAppender(boolean isActive) {
-    super(isActive);
+  
+  @PluginFactory
+  public static AccessLogAppender createAppender(@PluginAttribute("name") String name,
+                                                 @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                                 @PluginElement("Filters") Filter filter) {
+      if (layout == null)
+          layout = PatternLayout.createDefaultLayout();
+      return new AccessLogAppender(name, filter, layout, false, null);
+  }
+  
+  public static AccessLogAppender createAppender() {
+    return createAppender("AccessLogAppender", null, null);
   }
 
   @Override
-  protected void append(LoggingEvent event) {
+  public void append(LogEvent event) {
     // It is assumed that every LoggingEvent passed to the appender is an WrsAccessLogEvent.
     // If this is not the case, there is a programming error, which should lead to an uncaught exception.
     WrsAccessLogEvent wrsLogEvent = (WrsAccessLogEvent) event.getMessage();
@@ -44,18 +66,18 @@ public class AccessLogAppender extends AppenderSkeleton {
     try {
       HttpServletRequest request = wrsLogEvent.getRequest();
       if (request != null) {
-        String pageHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH));
-        String requestHash = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH));
-        String sessionId = ((String)MDC.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID));
-        String requestUrl = request.getRequestURL().toString();
-        String reqQuery = request.getQueryString();
-        requestUrl += (reqQuery != null ? "?" + reqQuery : "");
+        String pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH),
+               requestHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH),
+               sessionId = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID),
+               reqQuery = request.getQueryString(),
+               requestUrl = request.getRequestURL().toString() + (reqQuery != null ? "?" + reqQuery : ""),
+               bindingSetName = wrsLogEvent.getBindingSetName(),
+               requestXML = wrsLogEvent.getRequestDoc() != null ? Utils.serializeElement(wrsLogEvent.getRequestDoc()) : null;
+
         if (requestUrl.length()> 2000)
           requestUrl = requestUrl.substring(0, 2000);
-        String bindingSetName = wrsLogEvent.getBindingSetName();
         if (bindingSetName != null && bindingSetName.length()> 255)
           bindingSetName = bindingSetName.substring(0, 255);
-        String requestXML = wrsLogEvent.getRequestDoc()!=null ? Utils.serializeElement(wrsLogEvent.getRequestDoc()) : null;
 
         // log access
         if(AccessSqlLogger.getInstance().isEnabled()) {
@@ -80,14 +102,5 @@ public class AccessLogAppender extends AppenderSkeleton {
     catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-  @Override
-  public boolean requiresLayout() {
-    return false;
-  }
-
-  @Override
-  public void close() {
   }
 }

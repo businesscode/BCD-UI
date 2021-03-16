@@ -27,7 +27,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.wrs.IRequestOptions;
@@ -42,7 +43,7 @@ import de.businesscode.util.jdbc.Closer;
  */
 public class DataLoader {
   //
-  private static final Logger log = Logger.getLogger(DataLoader.class);
+  private static final Logger log = LogManager.getLogger(DataLoader.class);
   //
   private final IRequestOptions options;
   //

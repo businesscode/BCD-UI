@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Document;
@@ -64,8 +64,8 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
       this.refererUrl = request.getHeader("referer");
       this.refererGuiStatusDoc = parseGuiStatusDoc(this.refererUrl, httpOptions.getServletCtx(), request);
     }
-    this.pageHash = (String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH);
-    this.requestHash = (String)MDC.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH);
+    this.pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH);
+    this.requestHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH);
 
     try{
       Subject subject = SecurityUtils.getSubject();

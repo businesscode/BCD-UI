@@ -15,38 +15,51 @@
 */
 package de.businesscode.bcdui.web.accessLogging;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
+import java.io.Serializable;
+
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
 import de.businesscode.bcdui.logging.SessionSqlLogger;
 
-public class SessionLogAppender extends AppenderSkeleton {
-
-  public SessionLogAppender() {
+@Plugin(name = "SessionLogAppender", category = "Core", elementType = "appender", printObject = true)
+public class SessionLogAppender extends AbstractAppender {
+  
+  public SessionLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+      final boolean ignoreExceptions, final Property[] properties) {
+    super(name, filter, layout, ignoreExceptions, properties);
   }
-
-  public SessionLogAppender(boolean isActive) {
-    super(isActive);
+  
+  @PluginFactory
+  public static SessionLogAppender createAppender(@PluginAttribute("name") String name,
+                                                  @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                                  @PluginElement("Filters") Filter filter) {
+      if (layout == null)
+          layout = PatternLayout.createDefaultLayout();
+      return new SessionLogAppender(name, filter, layout, false, null);
+  }
+  
+  public static SessionLogAppender createAppender() {
+    return createAppender("SessionLogAppender", null, null);
   }
 
   @Override
-  protected void append(LoggingEvent event) {
+  public void append(LogEvent event) {
     if (event.getMessage() instanceof SessionSqlLogger.LogRecord && SessionSqlLogger.getInstance().isEnabled()) {
       // Session log
       SessionSqlLogger.getInstance().process( (SessionSqlLogger.LogRecord) event.getMessage() );
     } else if (event.getMessage() instanceof SessionExpiredSqlLogger.LogRecord && SessionExpiredSqlLogger.getInstance().isEnabled()) {
       // Session expiry log
       SessionExpiredSqlLogger.getInstance().process( (SessionExpiredSqlLogger.LogRecord) event.getMessage() );
-    }
-  }
-
-  @Override
-  public boolean requiresLayout() {
-    return false;
-  }
-
-  @Override
-  public void close() {
+    } // TODO : what if its neither? would be a programming error... compare to other appenders
   }
 }

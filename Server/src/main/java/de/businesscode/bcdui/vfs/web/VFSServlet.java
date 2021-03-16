@@ -37,7 +37,8 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.cache.CacheFactory;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
@@ -62,7 +63,7 @@ import net.sf.ehcache.Element;
 public class VFSServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private static final String CONFIG_FOLDER_NAME = "folder-name";
-  protected Logger logger = Logger.getLogger(getClass());
+  protected Logger logger = LogManager.getLogger(getClass());
 
   private String folderName;
 
@@ -286,7 +287,7 @@ public class VFSServlet extends HttpServlet {
     private static final String SQL_UPDATE_FILE = "#set($b = $bindings.bcd_virtualFileSystem) UPDATE $b.plainTableName SET $b.resourceBlob- = ? WHERE $b.path- = ?";
     private static final String SQL_INSERT_FILE = "#set($b = $bindings.bcd_virtualFileSystem) INSERT INTO $b.plainTableName ($b.resourceBlob-,$b.path-,$b.isServer-) VALUES (?,?,0)";
     private static final String SQL_DELETE_FILES = "#set($b = $bindings.bcd_virtualFileSystem) DELETE FROM $b.plainTableName WHERE $b.isServer- = 0 AND $b.path- IN ({0})";
-    private Logger log = Logger.getLogger(getClass());
+    private Logger log = LogManager.getLogger(getClass());
 
     final private Connection con;
     final private Collection<String> filesWritten = new LinkedList<String>();

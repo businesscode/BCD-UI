@@ -24,7 +24,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
@@ -69,7 +70,7 @@ public class Configuration implements ConfigurationProvider {
   private DbProperties dbProperties;
   private BareConfiguration bareConfig;
 
-  static private Logger log = Logger.getLogger(Configuration.class);
+  static private Logger log = LogManager.getLogger(Configuration.class);
 
   // For the optional classes, we determine here, which one to use based on a priority list and a lookup, which class actually is available
   // This serves as our form of dependency injection until we can assume all platforms we run on have CDI

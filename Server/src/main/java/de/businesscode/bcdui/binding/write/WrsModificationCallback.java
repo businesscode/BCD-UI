@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
@@ -55,7 +56,7 @@ import de.businesscode.bcdui.el.ELEnvironment;
  * </dl>
  */
 public class WrsModificationCallback extends WriteProcessingCallback {
-  protected final  Logger log = Logger.getLogger(getClass());
+  protected final  Logger log = LogManager.getLogger(getClass());
 
   private Set<BindingItemConfig> bindingItemConfig;
   protected List<BindingItem> columns;
@@ -254,7 +255,7 @@ public class WrsModificationCallback extends WriteProcessingCallback {
  *
  */
 final class BindingItemConfig {
-  Logger log = Logger.getLogger(getClass());
+  Logger log = LogManager.getLogger(getClass());
   public static enum CONFIG_IGNORE {
     never, update
   }

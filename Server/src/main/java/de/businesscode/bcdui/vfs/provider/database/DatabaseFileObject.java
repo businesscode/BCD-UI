@@ -33,8 +33,9 @@ import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileType;
 import org.apache.commons.vfs.impl.VirtualFileName;
 import org.apache.commons.vfs.provider.AbstractFileObject;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -55,7 +56,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  **/
 public class DatabaseFileObject extends AbstractFileObject {
 
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   private final DatabaseFileSystem fileSystem;
 
   private final FileName fileName;

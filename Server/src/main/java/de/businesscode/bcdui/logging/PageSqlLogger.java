@@ -43,7 +43,7 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
    * the result to log into database
    *
    */
-  public static final class LogRecord extends LogEventBase{
+  public static final class LogRecord extends LogEventBase {
     String sessionId, url, pageHash;
     final Date stamp = new Date();
 
@@ -57,6 +57,11 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
     @Override
     public String toString() {
       return String.format("[SESSION:'%s', URL:'%s']", sessionId, url);
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      return toString();
     }
   }
 

@@ -70,7 +70,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -137,7 +138,7 @@ public class ZipLet extends HttpServlet {
    */
   private static final Map<Character, Byte> charToB64;
 
-  private static final Logger log = Logger.getLogger(ZipLet.class);
+  private static final Logger log = LogManager.getLogger(ZipLet.class);
 
   private static int maxTinyUrlAge = -1;
 

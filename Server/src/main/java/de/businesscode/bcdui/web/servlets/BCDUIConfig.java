@@ -42,7 +42,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
@@ -61,8 +62,8 @@ public class BCDUIConfig extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   private static final String clientConfigFilePath="/WEB-INF/clientLog.properties";
-  private Logger log = Logger.getLogger(this.getClass());
-  private final Logger virtLoggerPage = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
+  private Logger log = LogManager.getLogger(this.getClass());
+  private final Logger virtLoggerPage = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
   
 
   private String configJson;

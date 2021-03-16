@@ -20,7 +20,8 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
@@ -37,7 +38,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
   private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/session/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/session/queueSleepMs";
-  private static Logger logger = Logger.getLogger(SessionExpiredSqlLogger.class);
+  private static Logger logger = LogManager.getLogger(SessionExpiredSqlLogger.class);
   /**
    * Log for expired session
    */
@@ -53,6 +54,11 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
     @Override
     public String toString() {
       return String.format("[EXPIRED SESSION:'%s']", sessionId);
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      return toString();
     }
   }
 

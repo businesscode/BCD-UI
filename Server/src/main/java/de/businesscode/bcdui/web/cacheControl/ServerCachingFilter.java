@@ -43,7 +43,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.FilterUtils;
@@ -68,7 +69,7 @@ public class ServerCachingFilter extends AbstractCacheFilter {
     private static final String KEY_INSTANCE = "de.businesscode.bcdui.web.cacheControl.ServerCachingFilter";
     private final static String URLS_PATTERN_PARAM_NAME = "pattern";
     //
-    protected Logger log = Logger.getLogger(this.getClass());
+    protected Logger log = LogManager.getLogger(this.getClass());
     //
     private Set<String> urls;
 

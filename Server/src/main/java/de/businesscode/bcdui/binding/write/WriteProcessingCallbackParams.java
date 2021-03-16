@@ -26,7 +26,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -69,7 +70,7 @@ public class WriteProcessingCallbackParams {
    * @throws XPathExpressionException
    */
   public static WriteProcessingCallbackParams parse(Node callbackNode) throws XPathExpressionException{
-    final Logger log = Logger.getLogger(WriteProcessingCallbackParams.class);
+    final Logger log = LogManager.getLogger(WriteProcessingCallbackParams.class);
     final WriteProcessingCallbackParams instance = new WriteProcessingCallbackParams();
 
     final StandardNamespaceContext nsCtx = StandardNamespaceContext.getInstance();

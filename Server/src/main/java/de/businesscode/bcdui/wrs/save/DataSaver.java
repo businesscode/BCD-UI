@@ -15,8 +15,6 @@
 */
 package de.businesscode.bcdui.wrs.save;
 
-
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,8 +25,9 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
+import org.apache.logging.log4j.Logger;
+
 import de.businesscode.util.xml.SecureXmlFactory;
-import org.apache.log4j.Logger;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.wrs.IRequestOptions;
@@ -38,14 +37,12 @@ import de.businesscode.bcdui.wrs.save.event.SaveEventState;
 
 public class DataSaver {
 
-
   private Bindings bindings = null;
   private XMLEventReader dataReader = null;
   private int maxSqlBatchSize = 0;
   private Logger logger = null;
   private ISaveEventListener listener;
   private IRequestOptions options;
-
 
   public void init(IRequestOptions optionsPr, XMLEventReader reader, Logger loggerPr) throws Exception {
     bindings = optionsPr.getBindings();
@@ -56,10 +53,7 @@ public class DataSaver {
     this.logger = loggerPr;
   }
 
-
-
   public void run() throws Exception {
-
     // allow skipping of listed Elements
     EventFilter eventFilter = new EventFilter() {
       private int ignoreLevel = 0;

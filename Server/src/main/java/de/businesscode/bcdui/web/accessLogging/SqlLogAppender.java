@@ -15,34 +15,49 @@
 */
 package de.businesscode.bcdui.web.accessLogging;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.spi.LoggingEvent;
+import java.io.Serializable;
+
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
+import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
 import de.businesscode.bcdui.logging.SqlToDatabaseLogger;
-import de.businesscode.bcdui.logging.SqlToDatabaseLogger.LogRecord;
 
-public class SqlLogAppender extends AppenderSkeleton {
-
-  public SqlLogAppender() {
+@Plugin(name = "SqlLogAppender", category = "Core", elementType = "appender", printObject = true)
+public class SqlLogAppender extends AbstractAppender {
+  
+  public SqlLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+      final boolean ignoreExceptions, final Property[] properties) {
+    super(name, filter, layout, ignoreExceptions, properties);
   }
-
-  public SqlLogAppender(boolean isActive) {
-    super(isActive);
+  
+  @PluginFactory
+  public static SqlLogAppender createAppender(@PluginAttribute("name") String name,
+                                              @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                              @PluginElement("Filters") Filter filter) {
+      if (layout == null)
+          layout = PatternLayout.createDefaultLayout();
+      return new SqlLogAppender(name, filter, layout, false, null);
+  }
+  
+  public static SqlLogAppender createAppender() {
+    return createAppender("SqlLogAppender", null, null);
   }
 
   @Override
-  protected void append(LoggingEvent event) {
-    LogRecord sqlLogEvent = (SqlToDatabaseLogger.LogRecord) event.getMessage();
+  public void append(LogEvent event) {
+    // It is assumed that every LoggingEvent passed to the appender is an SqlToDatabaseLogger.LogRecord.
+    // If this is not the case, there is a programming error, which should lead to an uncaught exception.
+    SqlToDatabaseLogger.LogRecord sqlLogEvent = (SqlToDatabaseLogger.LogRecord) event.getMessage();
     if(SqlToDatabaseLogger.getInstance().isEnabled()) {
       SqlToDatabaseLogger.getInstance().process(sqlLogEvent);
     }
-  }
-
-  @Override
-  public boolean requiresLayout() {
-    return false;
-  }
-
-  @Override
-  public void close() {
   }
 }

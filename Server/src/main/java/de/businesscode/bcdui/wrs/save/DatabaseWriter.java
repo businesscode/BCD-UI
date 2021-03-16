@@ -32,7 +32,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.codec.Base64;
 
 import de.businesscode.bcdui.binding.BindingItem;
@@ -58,7 +59,7 @@ public class DatabaseWriter {
   private Integer[] columnTypes = null;
   private boolean[] isKeyColumn = null;
   private int maxBatchSize = 0;
-  private Logger log = Logger.getLogger(getClass().getCanonicalName());
+  private Logger log = LogManager.getLogger(getClass().getCanonicalName());
 
   private SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd");
   private SimpleDateFormat timestampParser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -54,6 +54,11 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
     public String toString() {
       return String.format("[SESSION:'%s', AGENT:'%s']", sessionId, userAgent);
     }
+
+    @Override
+    public String getFormattedMessage() {
+      return toString();
+    }
   }
 
   private final static String TPL_INSERT_STMT =

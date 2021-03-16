@@ -33,7 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -41,8 +42,6 @@ import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.vfs.provider.database.DatabaseFileSystemConfigBuilder;
 import de.businesscode.util.SOAPFaultMessage;
-
-
 
 /**
  * This class serves static resources like JS or HTML pages from the
@@ -75,7 +74,7 @@ import de.businesscode.util.SOAPFaultMessage;
  */
 public class StaticResourceServlet extends HttpServlet {
   private static final long serialVersionUID = -2307432233792320807L;
-  static Logger log = Logger.getLogger(StaticResourceServlet.class);
+  static Logger log = LogManager.getLogger(StaticResourceServlet.class);
 
   /**
    * All classpath resource lookups get this prefix.

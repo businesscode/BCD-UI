@@ -23,7 +23,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.wrs.IRequestOptions;
@@ -37,8 +38,8 @@ public class SylkServlet extends ExportServlet {
 
   private static final long serialVersionUID = 4633486737694422869L;
   //
-  private final Logger log = Logger.getLogger(getClass());
-  private final Logger virtLoggerAccess = Logger.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+  private final Logger log = LogManager.getLogger(getClass());
+  private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
 
   /**
    * SylkServlet

@@ -26,7 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.toolbox.Configuration;
@@ -40,7 +41,7 @@ import de.businesscode.util.jdbc.Closer;
  */
 public class WrsNextIdentifierServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
 
   /**
    * provides next identifier
