@@ -987,8 +987,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           }
         }
       }
-      if (! seriesGotData)
+      if (! seriesGotData) {
+        // user might have merged in a null series, so we need to check for existance again
+        if (! opts.series[s])
+          opts.series[s] = {};
         opts.series[s].removeMe = true;
+      }
     }
 
     // remove series which don't have data
