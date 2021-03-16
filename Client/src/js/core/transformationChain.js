@@ -97,13 +97,13 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         add &= (implicitParamModels.map(function(a) {return a[0]}).indexOf(this.modelUpdaterTargetModel.id) == -1);
 
       if (add) {
-        for (var i = 0; i < implicitParamModels.length; i++) {
-          if (!this.dataProviders.some(function(dataProvider) { return dataProvider.id == implicitParamModels[i][0] ; })) {//don't override already set value
-            if(typeof implicitParamModels[i][1] != "undefined"){
-              this.dataProviders.push(implicitParamModels[i][1]);
+        implicitParamModels.forEach(function(implicitParamModel){
+          if (!this.dataProviders.some(function(dataProvider) { return dataProvider.id == implicitParamModel[0] ; })) {//don't override already set value
+            if(typeof implicitParamModel[1] != "undefined"){
+              this.dataProviders.push(implicitParamModel[1]);
             }
           }
-        }
+        }.bind(this));
       }
       // Adds for convenience the current date im ms to the chain, passed identical to all xslt of the chain
       // There is also the current date for each individual xslt
@@ -142,12 +142,12 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
        * @type bcdui.core.Model
        * @private
        */
-        this.chainParam = args.chain;
+      this.chainParam = args.chain;
         
       /**
        * @private
        */
-        this.chain = null;
+      this.chain = null;
 
       /**
        * This status is set when the constructor has set all parameters.
@@ -365,9 +365,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       if( stylesheetParams ) {
         dPs = dPs.concat( stylesheetParams );
       } else {
-        for( var p=0; p<this.chain.phases.length; p++ )
-          for( var s=0; s<this.chain.phases[p].xslts.length; s++ )
-            dPs = dPs.concat( this.chain.phases[p].xslts[s].params || [] );
+        this.chain.phases.forEach(function(phase) {
+          phase.xslts.forEach(function(xslt) {
+            dPs = dPs.concat( xslt.params || [] );
+          });
+        });
       }
 
       // Transform it into a has map
@@ -460,21 +462,22 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
                 var partiallIdDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
                 if( partiallIdDP && !!partiallIdDP.getData().trim()) {
                   var ids = partiallIdDP.getData().split(" ");
-                  for( var i = 0; i < ids.length; i++ ) {
-                    var node = document.getElementById(ids[i]);
-                    var newContent = result.querySelector ? result.querySelector("#"+ids[i]) : result.getElementById(ids[i]); // getElementById for IE <= 7 
+                  ids.forEach(function(id) {
+                    var node = document.getElementById(id);
+                    var newContent = result.querySelector ? result.querySelector("#"+id) : result.getElementById(id); // getElementById for IE <= 7 
                     if( node && newContent ) {
                       bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
                       jQuery(node).replaceWith( newContent );
                       if (typeof this.postHtmlAttachProcess == "function")
-                        this.postHtmlAttachProcess(node, ids[i]);
-                    } else if( node )
+                        this.postHtmlAttachProcess(node, id);
+                    }
+                    else if( node )
                       jQuery(node).remove();
-                  }
+                  }.bind(this));
                 }  else {
-                  for ( var ch = 0; ch < result.childNodes.length; ch++) {
-                    bcdui.i18n.syncTranslateHTMLElement({elementOrId:result.childNodes[ch]});
-                  }
+                  result.childNodes.forEach(function(child) {
+                    bcdui.i18n.syncTranslateHTMLElement({elementOrId: child});
+                  });
                   // Browser takes care that the fragment itself is treated as a container and only its children are appended to the HTML DOM
                   jQuery(targetElement).empty();  // to support .destroy() mechanism of jQuery Widgets
                   targetElement.appendChild(result);
@@ -530,7 +533,6 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
             callBack( result );
         }.bind(this)
       });
-      return;
     }
 
   /**
@@ -785,11 +787,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         (Array.isArray(this.chainParam) ? this.chainParam : [ this.chainParam ]).forEach( function( rule, stylesheetNo )
           {
             var name = "bcd_"+this.id + "_chain_" + stylesheetNo;
-            var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(rule); } );
-            if( typeof mappingInfo === "undefined" )
+            var mapInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(rule); } );
+            if( typeof mapInfo === "undefined" )
               throw Error("Unknown type of transformation rule ("+rule.toString()+") for "+this.id)
-            mappingInfo = mappingInfo.info;
-            this.chain.phases[0].xslts.push( { model: new mappingInfo.ruleDp( rule, name ), transformerFactory: mappingInfo.ruleTf } );
+            mapInfo = mapInfo.info;
+            this.chain.phases[0].xslts.push( { model: new mapInfo.ruleDp( rule, name ), transformerFactory: mapInfo.ruleTf } );
           }.bind(this)
         );
       }
@@ -853,8 +855,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               xsltModel = new bcdui.core.SimpleModel({
                 url: bcdui.util.url.resolveURLWithXMLBase(stylesheet, stylesheet.getAttribute("url"))
               });
-              var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
-              xslt.transformerFactory = mappingInfo.info.ruleTf;
+              var mapInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
+              xslt.transformerFactory = mapInfo.info.ruleTf;
             } else if (stylesheet.getAttribute("jsFactoryExpression") != null){
               /*
                * It can also be returned by a JS function.
@@ -897,16 +899,12 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
       //--------------------------------
       // Now we have the chain in js form, let's load all stylesheets
-      for( var p=0; p<this.chain.phases.length; p++ ) 
-      {
-        var phase = this.chain.phases[p];
-
-        for( var stylesheetNo=0; stylesheetNo<phase.xslts.length; stylesheetNo++ ) 
-        {
+      this.chain.phases.forEach(function(phase) {
+        phase.xslts.forEach(function(xslt) {
           /*
            * If the model is already available we do not need to add a listener.
            */
-          var xsltModel = phase.xslts[stylesheetNo].model;
+          var xsltModel = xslt.model;
           if (!xsltModel.isReady()) {
             /*
              * Add the status listener observing when the stylesheet model has finished loading.
@@ -914,25 +912,27 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
              */
             xsltModel.addStatusListener({
               status: xsltModel.getReadyStatus(),
-              listener: this._singleChainTransformerLoaded.bind(this, phase, phase.xslts[stylesheetNo]).bind(this)
+              listener: this._singleChainTransformerLoaded.bind(this, phase, xslt).bind(this)
             });
             var failedStati = xsltModel.getFailedStatus();
             (Array.isArray(failedStati) ? failedStati : [ failedStati ]).forEach(function(failedStatus) {
               xsltModel.addStatusListener({
                 status: failedStatus,
-                listener: this._chainStylesheetLoadingFailed.bind(this,phase.xslts[stylesheetNo]).bind(this)
+                listener: this._chainStylesheetLoadingFailed.bind(this,xslt).bind(this)
               });
             }, this);
             xsltModel.execute();
           } else {
-            this._singleChainTransformerLoaded(phase, phase.xslts[stylesheetNo]);
+            this._singleChainTransformerLoaded(phase, xslt);
           }
           
-        } // transformation loop
-      } // phases loop
+        }.bind(this)); // transformation loop
+      }.bind(this)); // phases loop
 
       // Mark last transformation in past phase as the very last of the chain
-      this.chain.phases[p-1].xslts[stylesheetNo-1].isLastOfChain = true;
+      var lastPhase = this.chain.phases[this.chain.phases.length-1];
+      var lastXslt = lastPhase.xslts[lastPhase.xslts.length-1];
+      lastXslt.isLastOfChain = true;
     }
 
   /**

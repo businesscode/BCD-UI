@@ -247,14 +247,14 @@ bcdui.util.namespace("bcdui.core",
          * Remove attribute nodes
          */
         attrName = attrName[0].substring(2);
-        var nodes = doc.selectNodes(path.match("(.*)/@\\w+$")[1] + "[@" + attrName + "]");
-        var count = nodes.length;
-        for (var i = 0; i < nodes.length; ++i) {
-          nodes.item(i).removeAttribute(attrName);
-          if (removeEmptyElements && nodes.item(i).selectNodes("text()|@*").length == 0)
-            nodes.item(i).parentNode.removeChild(nodes.item(i));
+        var pathNodes = doc.selectNodes(path.match("(.*)/@\\w+$")[1] + "[@" + attrName + "]");
+        var c = pathNodes.length;
+        for (var i = 0; i < pathNodes.length; ++i) {
+          pathNodes.item(i).removeAttribute(attrName);
+          if (removeEmptyElements && pathNodes.item(i).selectNodes("text()|@*").length == 0)
+            pathNodes.item(i).parentNode.removeChild(pathNodes.item(i));
         }
-        return count;
+        return c;
       }
 
       /*
@@ -265,8 +265,7 @@ bcdui.util.namespace("bcdui.core",
 
       if (nodes != null && nodes.length > 0) {
         count = nodes.length;
-        for (var i = 0; i < nodes.length; ++i) {
-          var node = nodes[i];
+        nodes.forEach(function(node) {
           var nodeName = (node.baseName || node.localName);
           if (useWrsExtensions && node.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs &&
               (nodeName == "R" || nodeName == "M" || nodeName == "D" || nodeName == "I")) {
@@ -285,7 +284,7 @@ bcdui.util.namespace("bcdui.core",
             else
               node.parentNode.removeChild(node);
           }
-        }
+        });
       }
 
       return count;
@@ -396,9 +395,9 @@ bcdui.util.namespace("bcdui.core",
             }
             result = result + "#" + parameterName + "=" + value;
           } else {
-            var questionMarkPos = result.indexOf("?");
+            var questionMarkIdx = result.indexOf("?");
             var lastCharacter = result.substr(result.length - 1);
-            if (questionMarkPos < 0) {
+            if (questionMarkIdx < 0) {
               result = result + "?" + parameterName + "=" + value;
             } else if (lastCharacter == "?" || lastCharacter == "&") {
               result = result + parameterName + "=" + value;
@@ -531,7 +530,6 @@ bcdui.util.namespace("bcdui.core",
 
       while (pos < str.length) {
         var delMatch = this._splitXPathPredicate_DelimiterRegExp.exec(str.substr(pos));
-        var isDelimiter = delMatch != null;
         var c = str.charAt(pos++);
         if (delMatch == null || currentQuote != "" || predicateBracketLevel > 0) {
           currentStr += c;
@@ -747,9 +745,9 @@ bcdui.util.namespace("bcdui.core",
                 requestedElementPath = requestedElementPath.replace(/\[.+\]/,"[" + colSize + "]")
               }
               while ((nextNode = currentNode.selectSingleNode(requestedElementPath)) == null) {
-                var node = bcdui.core.browserCompatibility.appendElementWithPrefix(currentNode, newNodeName);
+                var appendedNode = bcdui.core.browserCompatibility.appendElementWithPrefix(currentNode, newNodeName);
                 if(useWrsExtensions){
-                  bcdui.wrs.wrsUtil.repairWrsNode(node);
+                  bcdui.wrs.wrsUtil.repairWrsNode(appendedNode);
                 }
                 if (--maxTries <= 0) {
                   throw new Error("createElementWithPrototype: Array constraint too high: " + requestedElementPath);
@@ -1108,7 +1106,7 @@ bcdui.util.namespace("bcdui.core",
         var newItemXPath = newItemXPathPrefix + bcdui.core.quoteXPathString(val) + "]";
         bcdui.core.createElementWithPrototype(doc, newItemXPath, true);
         ++modifiedElementCount;
-      };
+      }
 
       return modifiedElementCount;
     },

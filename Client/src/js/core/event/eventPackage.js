@@ -34,18 +34,18 @@ bcdui.util.namespace("bcdui.core.event", {
 
     fire(eventType){
       var targetTypes = ["GLOBAL", eventType.typeId];
-      for(var k=0;k<targetTypes.length;k++){
-        var targetTypeListeners = this.typeListenerMap[targetTypes[k]];
-        if(targetTypeListeners == null)continue;
-
-        for(var i=0;i<targetTypeListeners.length;i++){
-          try{
-            targetTypeListeners[i]();
-          }catch(e){
-            bcdui.log.isDebugEnabled() && bcdui.log.debug("event listener for event " + eventType.typeId + " thrown error: ", e);
-          }
+      targetTypes.forEach(function(targetType) {
+        var targetTypeListeners = this.typeListenerMap[targetType];
+        if(targetTypeListeners != null) {
+          targetTypeListeners.forEach(function(targetTypeListener) {
+            try{
+              targetTypeListener();
+            }catch(e){
+              bcdui.log.isDebugEnabled() && bcdui.log.debug("event listener for event " + eventType.typeId + " thrown error: ", e);
+            }
+          });
         }
-      }
+      }.bind(this));
     }
 
     /*

@@ -358,9 +358,6 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
     if( this.source ) {
       // TODO
       throw "bcdui.core.DataProviderHolder: Overwriting a source is not yet implemented";
-
-//      this.source.removeStatusListener(statListener);
-//      this.source.removeStatusListener(this);
     }
 
     // Maybe we just removed the previous source
@@ -580,7 +577,8 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
             nodes.forEach( function(e){
               if( e.nodeType===2 ){
                 parent.appendChild( newDoc.createElement(e.nodeName) ).text=e.nodeValue;
-              } else
+              }
+              else
                 parent.appendChild(e.cloneNode(true));
             })
           }

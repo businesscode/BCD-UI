@@ -160,7 +160,6 @@ bcdui.core.browserCompatibility = {
         bcdui.log.error(msg);
       }
       setTimeout(fn.bind(undefined,proc));
-      return;
     },
 
     /*
@@ -284,8 +283,9 @@ if (bcdui.browserCompatibility.isIE) {
       var fragment = document.createDocumentFragment();
       var dummy = document.createElement("dummy");
       dummy.innerHTML = this.msxmlImpl_Proc.output;
-      for( var ch=0; ch<dummy.children.length; ch ++ )
-        fragment.appendChild(dummy.children[ch]);
+      dummy.children.forEach(function(child) {
+        fragment.appendChild(child);
+      });
       return fragment;
     };
     XSLTProcessor.prototype.transform = function ( args ) {
@@ -372,15 +372,14 @@ if (bcdui.browserCompatibility.isIE) {
       {
         if (typeof bcdui.core.browserCompatibility.ie.currentMSXMLVersion == "undefined" ||
             !bcdui.core.browserCompatibility.ie.msxmlVersions.indexOf(bcdui.core.browserCompatibility.ie.currentMSXMLVersion)!==-1) {
-          for (var i = 0; i < bcdui.core.browserCompatibility.ie.msxmlVersions.length; i++) {
+          bcdui.core.browserCompatibility.ie.msxmlVersions.forEach(function(msxmlVersion) {
             try {
-              var object = new ActiveXObject(id + "." + bcdui.core.browserCompatibility.ie.msxmlVersions[i]);
-              bcdui.core.browserCompatibility.ie.currentMSXMLVersion = bcdui.core.browserCompatibility.ie.msxmlVersions[i];
+              var object = new ActiveXObject(id + "." + msxmlVersion);
+              bcdui.core.browserCompatibility.ie.currentMSXMLVersion = msxmlVersion;
               return object;
-              break;
             } catch (e) {
             }
-          }
+          });
           bcdui.log.error("No msxml available.");
           return null;
         }
@@ -457,8 +456,8 @@ if (bcdui.browserCompatibility.isIE) {
     setNamespacesForMSXMLDocument: function(domDoc)
       {
         var nsDef = "";
-        for (var key in bcdui.core.xmlConstants.namespaces) {
-          nsDef += "xmlns:" + key + "='" + bcdui.core.xmlConstants.namespaces[key] + "' ";
+        for (var nsKey in bcdui.core.xmlConstants.namespaces) {
+          nsDef += "xmlns:" + nsKey + "='" + bcdui.core.xmlConstants.namespaces[nsKey] + "' ";
         }
         for (var key in this.nsResolvableArray) {
           nsDef += "xmlns:" + key + "='" + bcdui.core.nsResolvableArray[key] + "' ";
@@ -806,7 +805,11 @@ bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = functio
   var prefixArray = serializedDoc.match(/([\w-]+)(?=:(?!(:|\/)))/g);
   if(! prefixArray)
     return serializedDoc;
-  prefixArray = prefixArray.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);;
+  prefixArray = prefixArray.reduce(function(a, b) {
+    if(a.indexOf(b)===-1)
+      a.push(b);
+    return a;
+  }, []);
 
   var documentAttributes = bcdui.core.xmlLoader._getDocumentElementAttributes(serializedDoc);
 

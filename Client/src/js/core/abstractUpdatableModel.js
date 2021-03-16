@@ -110,9 +110,9 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
    */
   _applyModelUpdaters(fromExecute, /* Integer? */ currentUpdaterNo)
     {
-      if (this._modelUpdaters.length == 0) {
+      if (this._modelUpdaters.length == 0 || currentUpdaterNo == this._modelUpdaters.length) {
         /*
-         * When there are no model updaters we can directly go to the
+         * When we reached the final model updater (or there are no model updaters) we can directly go to the
          * ready status.
          * Must be synchronous (at least for static models without model updaters) because their execute is guaranteed to be sync
          */
@@ -123,12 +123,6 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
          * On the first call we start with the first model updater.
          */
         this._applyModelUpdaters(fromExecute, 0);
-      } else if (currentUpdaterNo == this._modelUpdaters.length) {
-        /*
-         * We reached the final model updater.
-         */
-        var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.getReadyStatus();
-        this.setStatus(newStatus);
       } else if (! fromExecute && this.hasBeenExecutedBefore && !this._modelUpdaters[currentUpdaterNo].autoUpdate) {
         /*
          * Skip non-auto-updating ModelUpdaters if they are ready.

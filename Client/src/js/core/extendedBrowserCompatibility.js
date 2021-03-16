@@ -52,8 +52,7 @@ if (bcdui.browserCompatibility.isGecko) {
      * We add the declarations here
      */
     serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
-    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
-    return doc;
+    return new DOMParser().parseFromString(serializedDoc, "text/xml");
   };
 
   /**
@@ -161,7 +160,6 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         template.appendChild(element);
         var firstTemplate = domDocument.selectSingleNode("/*/xsl:template");
         firstTemplate.parentNode.insertBefore(template,firstTemplate.nextSibling);
-        firstTemplate = null;
       }
 
       // Let's start with the top-level imports, they will be replaced by their content recursively
@@ -185,7 +183,6 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
                 fn(proc);
               }.bind(this) );
           }.bind(this) );
-      return;
     },
 
     /**
@@ -324,7 +321,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
               if( e.nodeName=="xsl:import" )
                 e.setAttribute("href",bcdui.util.url.resolveURLWithXMLBase(e, e.getAttribute("href")));
               else if( e.getAttribute("select") && e.getAttribute("select").indexOf("document(")>-1 ) {
-                var foundDocumentExpr = e.getAttribute("select").match(new RegExp("^document\\('([^']+)'\\).*"));
+                e.getAttribute("select").match(new RegExp("^document\\('([^']+)'\\).*"));
                 var newDocumentExpr = e.getAttribute("select").replace(RegExp.$1,bcdui.util.url.resolveURLWithXMLBase(e,RegExp.$1));
                 e.setAttribute("select",newDocumentExpr);
               }
@@ -349,15 +346,15 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
           var match = template.getAttribute("match");
           if( match ) {
             match = match.replace(/'/g,"&quot;");
-            var conflictingTemplates = jQuery(template.selectNodes("preceding-sibling::xsl:template[@match='"+match+"' and "+mode+"]"));
-            conflictingTemplates.each( function(ctIdx,ct) {
+            var conflictingTemplatesMatch = jQuery(template.selectNodes("preceding-sibling::xsl:template[@match='"+match+"' and "+mode+"]"));
+            conflictingTemplatesMatch.each( function(ctIdx,ct) {
               ct.parentNode.removeChild(ct);
             });
           }
           var name = template.getAttribute("name");
           if( name ) {
-            var conflictingTemplates = jQuery(template.selectNodes("preceding-sibling::xsl:template[@name='"+name+"' and "+mode+"]"));
-            conflictingTemplates.each( function(ctIdx,ct) {
+            var conflictingTemplatesName = jQuery(template.selectNodes("preceding-sibling::xsl:template[@name='"+name+"' and "+mode+"]"));
+            conflictingTemplatesName.each( function(ctIdx,ct) {
               ct.parentNode.removeChild(ct);
             });
           }
@@ -397,8 +394,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      */
     var serializedDoc = new XMLSerializer().serializeToString(args.doc);
     serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
-    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
-    return doc;
+    return new DOMParser().parseFromString(serializedDoc, "text/xml");
   };
 
 
@@ -408,10 +404,9 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
   XSLTProcessor.prototype.transformToDocumentOrig = XSLTProcessor.prototype.transformToDocument;
   XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
-    var src = sourceDoc;
     var wrsHeaderIsEnough = this.xslt.selectSingleNode("/*/@bcdxml:wrsHeaderIsEnough");
     if( wrsHeaderIsEnough && wrsHeaderIsEnough.value=="true" && sourceDoc.selectSingleNode("/wrs:Wrs") ) {
-      src = bcdui.core.browserCompatibility.createDOMFromXmlString("<wrs:Wrs xmlns:wrs='http://www.businesscode.de/schema/bcdui/wrs-1.0.0'/>");
+      var src = bcdui.core.browserCompatibility.createDOMFromXmlString("<wrs:Wrs xmlns:wrs='http://www.businesscode.de/schema/bcdui/wrs-1.0.0'/>");
       if( sourceDoc.selectSingleNode("/*/wrs:Header") )
         src.firstChild.appendChild(src.importNode(sourceDoc.selectSingleNode("/*/wrs:Header"),true));
     }
@@ -448,8 +443,8 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
       for( var i=0; i < msmlNodesetScipts.length; i++ )
         msmlNodesetScipts.item(i).parentNode.removeChild( msmlNodesetScipts.item(i) );
       var msmlNodesetCall = this.xslt.selectNodes("/*//@select[contains(.,'exslt:node-set')]");
-      for( var i=0; i<msmlNodesetCall.length; i++ )
-        msmlNodesetCall.item(i).nodeValue = msmlNodesetCall.item(i).nodeValue.replace(/exslt:node-set/g,"msxsl:node-set");
+      for( var j=0; j<msmlNodesetCall.length; j++ )
+        msmlNodesetCall.item(j).nodeValue = msmlNodesetCall.item(j).nodeValue.replace(/exslt:node-set/g,"msxsl:node-set");
       this.importStylesheet(this.xslt);
       this.wasAlreadyImported = true;
     }
@@ -565,7 +560,7 @@ if (bcdui.browserCompatibility.isWebKit) {
    * @ignore
    */
   bcdui.core.browserCompatibility.cloneDocument = bcdui.core.browserCompatibility.webKit.cloneDocument;
-};
+}
 //-----------------------------------------------------------------------------
 //END: Implementation of Webkit-specific functions
 //-----------------------------------------------------------------------------

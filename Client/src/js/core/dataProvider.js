@@ -73,7 +73,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
           if (bcdPreInit)
             bcdPreInit.call(this);
 
-            this.saveOptions = args.saveOptions;
+          this.saveOptions = args.saveOptions;
       }}))
 
 
@@ -246,7 +246,6 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
               // if we got a WRS model but nothing to post, skip posting
               if (p.doc.selectSingleNode("/*/wrs:Data") != null && p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null) {
                 p.onSuccess(p.doc);
-                return;
               }
               else {
                 bcdui.core.xmlLoader.post(p);
@@ -655,8 +654,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     }
     if (isAttrPath) {
       stringValue = "";
-      for (var i = 0; i < nodes.length; ++i) {
-        stringValue += nodes.item(i).value + "|";
+      for (var j = 0; j < nodes.length; ++j) {
+        stringValue += nodes.item(j).value + "|";
       }
     }
 
@@ -664,8 +663,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       return stringValue;
 
     var hash = 0;
-    for (var chr, i = 0, len = stringValue.length; i < len; i++) {
-      chr   = stringValue.charCodeAt(i);
+    for (var chr, k = 0, len = stringValue.length; k < len; k++) {
+      chr   = stringValue.charCodeAt(k);
       hash  = ((hash << 5) - hash) + chr;
       hash |= 0; // 32bit integer
     }

@@ -695,8 +695,6 @@ bcdui.core.XMLLoader = class
           }.bind(this)
         });
       }.bind(this) });
-        
-      return;
     }
     
 };  // Create class: bcdui.core.XMLLoader

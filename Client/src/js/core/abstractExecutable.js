@@ -238,7 +238,7 @@ bcdui.core.AbstractExecutable = class
         if (status.equals(this.nullStatus)) {
           for (var statusCode in this.listeners) {
             this._removeStatusListenerFromCodeMapping(listener, statusCode);
-          };
+          }
         } else {
           this._removeStatusListenerFromCodeMapping(listener, status.getCode());
         }
@@ -488,8 +488,9 @@ bcdui.core.AbstractExecutable = class
                 } else {
                   this.setStatus(newStatus);
                 }
-              } else
-              traceExecutedSync += statusPublisher.id+", ";
+              }
+              else
+                traceExecutedSync += statusPublisher.id+", ";
             }
           }
           else { // publisher is ready

@@ -143,9 +143,9 @@ bcdui.core.compression = {
             result += c;
             if (c == "\"") {
               while (++i < data.length) {
-                var c = data.charAt(i);
-                result += c;
-                if (c == "\"") break;
+                var ch = data.charAt(i);
+                result += ch;
+                if (ch == "\"") break;
               }
             }
             withinTag = (c != ">");
@@ -228,9 +228,9 @@ bcdui.core.compression = {
             result += c;
             if (c == "\"") {
               while (++i < data.length) {
-                var c = data.charAt(i);
-                result += c;
-                if (c == "\"") break;
+                var ch = data.charAt(i);
+                result += ch;
+                if (ch == "\"") break;
               }
             }
             withinTag = (c != ">");
@@ -517,12 +517,10 @@ bcdui.core.compression = {
         });
       }
 
-      var result = new bcdui.core.SimpleModel({
+      return new bcdui.core.SimpleModel({
         id: id || ("unzipRequest_server_" + (++bcdui.core.compression.unzipRequestId)),
         url: this._zipLetURL + "?data=" + compressedXmlString
       });
-
-      return result;
     },
 
     /**
