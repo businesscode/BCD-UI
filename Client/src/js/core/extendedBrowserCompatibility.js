@@ -281,7 +281,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
     _replaceXSLImport: function(/* XMLDocument */ doc, /* function */ fn )
     {
       // Find all imports.
-      var imports = jQuery.makeArray(doc.selectNodes("/xsl:stylesheet/xsl:import"));
+      var imports = Array.from(doc.selectNodes("/xsl:stylesheet/xsl:import"));
       if (imports.length > 0)
       {
         imports.reverse(); // This way we preserve the order, we need to because "the latest wins" in import precedence

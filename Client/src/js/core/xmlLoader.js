@@ -87,7 +87,7 @@ bcdui.core.XMLLoader = class
    */
   _getDataFromXPointer(/* XMLDocument */ doc, /* string? */ xPointer)
     {
-      if (xPointer == null || !xPointer.trim()) return jQuery.makeArray(doc.selectNodes("/*"));
+      if (xPointer == null || !xPointer.trim()) return Array.from(doc.selectNodes("/*"));
       xPointer = this._translateXIncludeElementSchemeToXPointer(xPointer);
       if (xPointer.substr(0, 9) == "xpointer(") {
         xPointer = xPointer.substring(9, xPointer.length - 1);
@@ -95,7 +95,7 @@ bcdui.core.XMLLoader = class
       if (!xPointer.trim() || xPointer == "/") {
         xPointer = "/*";
       }
-      return jQuery.makeArray(doc.selectNodes(xPointer));
+      return Array.from(doc.selectNodes(xPointer));
     }
 
   /**
@@ -237,7 +237,7 @@ bcdui.core.XMLLoader = class
       var xincludes = doc.selectNodes("//xi:include | //bcdxml:include");
       var xincludeCount = xincludes.length;
       if (xincludeCount > 0) {
-        jQuery.makeArray(xincludes).forEach(function(xinclude) {
+        Array.from(xincludes).forEach(function(xinclude) {
           var xincludeUrl = bcdui.util.url.resolveURLWithXMLBase(xinclude, xinclude.getAttribute("href"));
           this.load({
             url: xincludeUrl,
@@ -627,7 +627,7 @@ bcdui.core.XMLLoader = class
         var href = imp.getAttribute("href");
         imp.setAttribute("href", bcdui.util.url.resolveURLWithXMLBase(imp, href));
       }
-      var docFkts = jQuery.makeArray(doc.selectNodes("/xsl:stylesheet//xsl:*[starts-with(@select, \"document('\") and not(starts-with(@select, \"document('')\"))]"));
+      var docFkts = Array.from(doc.selectNodes("/xsl:stylesheet//xsl:*[starts-with(@select, \"document('\") and not(starts-with(@select, \"document('')\"))]"));
       var documentFunctionFinder = new RegExp("^document\\('([^']+)'\\)");
       docFkts.forEach( function( docFktVar ) {
         var select = docFktVar.getAttribute("select");

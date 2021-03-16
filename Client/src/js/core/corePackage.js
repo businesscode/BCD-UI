@@ -260,7 +260,7 @@ bcdui.util.namespace("bcdui.core",
       /*
        * Remove elements
        */
-      var nodes = jQuery.makeArray(doc.selectNodes(path));
+      var nodes = Array.from(doc.selectNodes(path));
       var count = 0;
 
       if (nodes != null && nodes.length > 0) {
@@ -300,7 +300,7 @@ bcdui.util.namespace("bcdui.core",
    */
   removeXMLBase: function(/* XMLDocument */ doc)
     {
-    jQuery.makeArray(doc.selectNodes("//*[@*[name() = 'xml:base']]")).forEach(function(element) {
+    Array.from(doc.selectNodes("//*[@*[name() = 'xml:base']]")).forEach(function(element) {
         element.removeAttribute("xml:base");
       });
       return doc;
@@ -993,7 +993,7 @@ bcdui.util.namespace("bcdui.core",
        */
 
       doc = bcdui.core._getDocParameter(doc);
-      var opt = jQuery.makeArray(values).reduce( function(map, v) { map[v] = v; return map; }, {} );
+      var opt = Array.from(values).reduce( function(map, v) { map[v] = v; return map; }, {} );
       var modifiedElementCount = 0;
 
       /*
@@ -1004,7 +1004,7 @@ bcdui.util.namespace("bcdui.core",
        */
 
 
-      jQuery.makeArray(doc.selectNodes(targetXPath)).forEach(function (item) {
+      Array.from(doc.selectNodes(targetXPath)).forEach(function (item) {
         var val = item.nodeValue || item.text;
         var parentWrsNodeName = item.nodeType == 1 &&
               item.parentNode.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs ?

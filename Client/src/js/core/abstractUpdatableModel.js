@@ -296,7 +296,7 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
       bcdPreInit: function() {
         if (bcdPreInit)
           bcdPreInit.call(this);
-        this._readyStatiForModelUpdates = jQuery.makeArray(args.readyStatiForModelUpdates);
+        this._readyStatiForModelUpdates = Array.from(args.readyStatiForModelUpdates);
     }}));
   }
 

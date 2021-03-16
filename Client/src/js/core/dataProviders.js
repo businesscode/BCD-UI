@@ -571,7 +571,7 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
           var dataElement = this._getDataElement();
           var nodes = null;
           if (dataElement != null) {
-            nodes  = jQuery.makeArray(dataElement.selectNodes(this._xPath));
+            nodes  = Array.from(dataElement.selectNodes(this._xPath));
           }
 
           var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<Root/>");
@@ -656,7 +656,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
     var dataElement = this._getDataElement();
     var nodes = null;
     if (dataElement != null) {
-      nodes  = jQuery.makeArray(dataElement.selectNodes(this.args.options.xPath));
+      nodes  = Array.from(dataElement.selectNodes(this.args.options.xPath));
     }
 
     var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString('<cust:Options xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0" xmlns="http://www.businesscode.de/schema/bcdui/customization-1.0.0"/>');
