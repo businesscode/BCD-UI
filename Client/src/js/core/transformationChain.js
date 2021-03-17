@@ -19,6 +19,12 @@
  * This file contains the implementation of the TransformationChain class.
  */
 
+ /**
+   * A class representing one or more transformations applied on models with parameters. Transformators can be js functions, XSLTs or doTjs templates.
+   * Use {@link bcdui.core.Renderer Renderer} or {@link bcdui.core.ModelWrapper ModelWrapper} as concrete sub classes
+   * @extends bcdui.core.DataProvider
+   * @abstract
+    */
 bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.TransformationChain.prototype
@@ -26,13 +32,6 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 {
 
   /**
-   * @classdesc
-   * A class representing one or more transformations applied on models with parameters. Transformators can be js functions, XSLTs or doTjs templates.
-   * Use {@link bcdui.core.Renderer Renderer} or {@link bcdui.core.ModelWrapper ModelWrapper} as concrete sub classes
-   * @extends bcdui.core.DataProvider
-   * @abstract
-   *
-   * @constructs
    * @description
    * The constructor for the TransformationChain class.
    */
@@ -957,17 +956,15 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 }; // Create class: bcdui.core.TransformationChain
 
 
-
+ /**
+   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
+   * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
+   * @extends bcdui.core.TransformationChain
+    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.Renderer.prototype */
 {
   /**
-   * @classdesc
-   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
-   * @extends bcdui.core.TransformationChain
-   * 
-   * @constructs
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
@@ -1082,15 +1079,14 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   }
 };
 
+ /**
+   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
+  * @extends bcdui.core.TransformationChain
+   */
 bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.ModelWrapper.prototype */
 {
   /**
-  * @classdesc
-  * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
-  * @extends bcdui.core.TransformationChain
-  * 
-  * @constructs
   * @param {Object} args - An argument object with the following properties:
   * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
@@ -1121,17 +1117,16 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   getClassName() {return "bcdui.core.ModelWapper";}
 };
 
-bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
-/** @lends bcdui.core.ModelUpdater.prototype */
-{
-  /**
-   * @classdesc
+ /**
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, replacing its targetModel's content with the result of the transformation applied to it.
    * Can be applied to all concrete subclasses of {@link bcdui.core.AbstractUpdatableModel AbstractUpdatableModel}, 
    * like {@link bcdui.core.bcdui.core.StaticModel StaticModel} or {@link bcdui.core.SimpleModel SimpleModel}
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
-   * 
-   * @constructs
+  */
+bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
+/** @lends bcdui.core.ModelUpdater.prototype */
+{
+  /**
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
