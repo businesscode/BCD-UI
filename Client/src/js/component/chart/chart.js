@@ -25,6 +25,9 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
 /*
  * ========================================================
  * Chart
+ * This class represents a chart.
+ * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart
+ * @extends bcdui.core.DataProvider
  */
 bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 /**
@@ -72,12 +75,6 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   TYPEMAXINDEX= 8;
 
   /**
-   * @classdesc
-   * This class represents a chart.
-   * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args - Parameter object:
    * @param {targetHtmlRef} args.targetHtml                       - Where to place the chart
    * @param {boolean}       [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
