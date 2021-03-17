@@ -19,23 +19,21 @@
  * Declares bcdui.core.AbstractUpdatableModel and some private helpers
  */
 
+/**
+ * This is the base class for Model classes which support the usage of {@link bcdui.core.ModelUpdater ModelUpdaters}.
+ * Model updaters are executed on each data modification event.
+ * @extends bcdui.core.DataProvider
+ * @abstract
+ * 
+ * @description 
+ * This class is abstract and not meant to be instantiated directly
+ */
+
 bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.AbstractUpdatableModel.prototype
  */
 {
-
-  /**
-   * @classdesc
-   *   This is the base class for Model classes which support the usage of {@link bcdui.core.ModelUpdater ModelUpdaters}.
-   *   Model updaters are executed on each data modification event.
-   * @extends bcdui.core.DataProvider
-   * @abstract
-   * 
-   * @constructs
-   * @description 
-   * This class is abstract and not meant to be instantiated directly
-   */
   constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
@@ -219,6 +217,15 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
 
 /**
  * @private
+ * <p>
+ *   A reference object encapsulating a model updater which is a transformation
+ *   chain object. Additionally it contains a flag indicating if the auto-update
+ *   mode is applicable.
+ * </p>
+ * <p>
+ *   This class is internally used by the {@link bcdui.core.AbstractUpdatableModel}
+ *   class.
+ * </p>
  */
 bcdui.core.ModelUpdaterReference = class
 /**
@@ -226,18 +233,6 @@ bcdui.core.ModelUpdaterReference = class
  */
 {
   /**
-   * @classdesc
-   * <p>
-   *   A reference object encapsulating a model updater which is a transformation
-   *   chain object. Additionally it contains a flag indicating if the auto-update
-   *   mode is applicable.
-   * </p>
-   * <p>
-   *   This class is internally used by the {@link bcdui.core.AbstractUpdatableModel}
-   *   class.
-   * </p>
-
-   * @constructs
    * @private
    */
   constructor(/* TransformationChain */ updater, /* Boolean? */ autoUpdate)
@@ -266,23 +261,23 @@ bcdui.core.ModelUpdaterReference = class
     }
 };
 
+/**
+ * <p>
+ *   This internal class is a wrapper for a {@link bcdui.core.DataProvider} derived class
+ *   which slightly modifies its behavior in that it reports to be ready BEFORE its
+ *   modelUpdaters have been executed. Normally the DataProvider would reach its
+ *   ready state after that. However some DataProviders - especially in the
+ *   of the modelUpdaters themselves - need access to the model a bit earlier.
+ * </p>
+ * @extends bcdui.core.DataProviderAlias
+ */
+
 bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
 /**
  * @lends bcdui.core._ModelBeingUpdated.prototype
  */
 {
   /**
-   * @classdesc
-   * <p>
-   *   This internal class is a wrapper for a {@link bcdui.core.DataProvider} derived class
-   *   which slightly modifies its behavior in that it reports to be ready BEFORE its
-   *   modelUpdaters have been executed. Normally the DataProvider would reach its
-   *   ready state after that. However some DataProviders - especially in the
-   *   of the modelUpdaters themselves - need access to the model a bit earlier.
-   * </p>
-   * @extends bcdui.core.DataProviderAlias
-   *
-   * @constructs
    * @override
    * @param {Object}                  args        - The argument map:
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped

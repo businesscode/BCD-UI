@@ -14,15 +14,15 @@
   limitations under the License.
 */
 "use strict";
+
+/**
+ * An AutoModel is an easy way for loading data from a BindingSet in many cases. At minimum just provide the BindingSet id and a list of bRefs.
+ * @extends bcdui.core.SimpleModel
+ */
 bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 /**  @lends bcdui.core.AutoModel.prototype */
 {
   /**
-   * @classdesc
-   * An AutoModel is an easy way for loading data from a BindingSet in many cases. At minimum just provide the BindingSet id and a list of bRefs.
-   * @extends bcdui.core.SimpleModel
-   * 
-   * @constructs bcdui.core.AutoModel
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-styleshhet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
    * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.
