@@ -971,7 +971,10 @@ bcdui.util.namespace("bcdui.factory",
     }
 }); // namespace  bcdui.factory
 
-
+ /**
+   *   This class represents a link for a data provider. Using links has the benefit that a
+   *   link can exists even before the linked object has been constructed.
+ */
 bcdui.factory.SymLink = class
 /**
  * @lends bcdui.factory.SymLink.prototype
@@ -979,11 +982,6 @@ bcdui.factory.SymLink = class
 {
 
   /**
-   * @classdesc
-   *   This class represents a link for a data provider. Using links has the benefit that a
-   *   link can exists even before the linked object has been constructed.
-
-   * @constructs
    * @param {String} obj The string id of the object to be referenced. This id can be
    * used with $getObject to get the actual object as soon as it exists.
    * @private

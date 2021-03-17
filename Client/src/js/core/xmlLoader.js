@@ -21,17 +21,16 @@
  *
  */
 
+ /**
+   *   Encapsulation of all XML related functions such as the XML transfer from and to
+   *   the server, XML document creation and XSLT processing.
+  */
 bcdui.core.XMLLoader = class
 /**
  * @lends bcdui.core.XMLLoader.prototype
  */
 {
   /**
-   * @classdesc
-   *   Encapsulation of all XML related functions such as the XML transfer from and to
-   *   the server, XML document creation and XSLT processing.
-   * 
-   * @constructs
    * @private
    */
   constructor()
