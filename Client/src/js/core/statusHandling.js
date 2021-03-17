@@ -19,20 +19,16 @@
  * This file contains all basic classes for status handling.
  */
 
+ /**
+   * An abstract base class, representing a Status.
+   * See {@link bcdui.core.status} for concrete sub classes.
+   * @abstract
+    */
 bcdui.core.Status = class
 /**
  * @lends bcdui.core.Status.prototype
  */
 {
-
-  /**
-   * @classdesc
-   * An abstract base class, representing a Status.
-   * See {@link bcdui.core.status} for concrete sub classes.
-   * @abstract
-   *
-   * @constructs
-   */
   constructor() {}
 
   /**
@@ -71,7 +67,10 @@ bcdui.core.Status = class
     }
 }; // Create class: bcdui.core.Status
 
-
+ /**
+   * Represents a status event thrown to status listeners of {@link bcdui.core.DataProvider DataProviders}, 
+   * see {@link bcdui.core.AbstractExecutable#removeStatusListener} and {@link bcdui.core.StatusListener}
+    */
 bcdui.core.StatusEvent = class
 /**
  * @lends bcdui.core.StatusEvent.prototype
@@ -79,11 +78,6 @@ bcdui.core.StatusEvent = class
 {
 
   /**
-   * @classdesc
-   * Represents a status event thrown to status listeners of {@link bcdui.core.DataProvider DataProviders}, 
-   * see {@link bcdui.core.AbstractExecutable#removeStatusListener} and {@link bcdui.core.StatusListener}
-   *   
-   * @constructs
    * @description
    * The constructor creating a new StatusEvent object.
    * @param {Object}            args          - This parameter map must contain two properties:
@@ -136,19 +130,15 @@ bcdui.core.StatusEvent = class
     }
 }; // Create class: bcdui.core.StatusEvent
 
-
+ /**
+   * An interface that status listeners must implement.
+   * A StatusListener is informed by DataProviders (more precisely by {@link bcdui.core.AbstractExecutable AbstractExecutables}) about status changes, becoming ready is the most important.
+    */
 bcdui.core.StatusListener = class
 /**
  * @lends bcdui.core.StatusListener.prototype
  */
 {
-  /**
-   * @classdesc
-   * An interface that status listeners must implement.
-   * A StatusListener is informed by DataProviders (more precisely by {@link bcdui.core.AbstractExecutable AbstractExecutables}) about status changes, becoming ready is the most important.
-   * 
-   * @constructs
-   */
   constructor() {}
 
   /**
