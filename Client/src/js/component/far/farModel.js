@@ -15,16 +15,16 @@
 */
 "use strict";
 bcdui.util.namespace("bcdui.component.far",{});
+
+/**
+ * Data provider implementation reading far:Configuration document and providing data according to it, you can use this model if you solely want
+ * to read data using far:Configuration.
+ * @extends bcdui.core.AsyncJsDataProvider
+ */
 bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
 /** @lends bcdui.component.far.FarModel.prototype */
 {
   /**
-   * @classdesc
-   * Data provider implementation reading far:Configuration document and providing data according to it, you can use this model if you solely want
-   * to read data using far:Configuration.
-   * @extends bcdui.core.AsyncJsDataProvider
-   *
-   * @constructs
    * @param {object}                  args                      Parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.config               Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
    * @param {string}                  [args.componentId=far]    An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
