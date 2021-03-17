@@ -24,18 +24,12 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
 /*
  * ========================================================
  * XmlChart
+ * Implements XML-definition interface. Extends the JS implementation of the
+ * Chart class allowing an XML definition model as input.
  */
 bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
-/**
- * @lends bcdui.component.chart.XmlChart.prototype
- */
 {
   /**
-   * @classdesc
-   * Implements XML-definition interface. Extends the JS implementation of the
-   * Chart class allowing an XML definition model as input.
-   * 
-   * @constructs
    * @description
    * Constructor of bcdui.component.XmlChart, called by prototype.
    * @extends bcdui.component.chart.Chart
