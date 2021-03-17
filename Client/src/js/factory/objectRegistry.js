@@ -14,20 +14,20 @@
   limitations under the License.
 */
 "use strict";
+
+ /**
+   * The object registry is a class that tracks registration of BCD-UI objects by
+   * their id. It also offers methods to wait for the registration of one or more
+   * objects so that the dependencies can be managed more easily.
+   * <p/>
+   * Use the singleton {@link bcdui.factory.objectRegistry} for registering
+    */
 bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
 /**
  * @lends bcdui.factory.ObjectRegistry.prototype
  */
 {
   /**
-   * @classdesc
-   * The object registry is a class that tracks registration of BCD-UI objects by
-   * their id. It also offers methods to wait for the registration of one or more
-   * objects so that the dependencies can be managed more easily.
-   * <p/>
-   * Use the singleton {@link bcdui.factory.objectRegistry} for registering
-   *    
-   * @constructs
    * @description
    * This class should not be instantiated directly, because there is already a
    * singleton instance at {@link bcdui.factory.objectRegistry} which is used by

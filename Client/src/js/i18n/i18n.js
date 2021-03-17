@@ -20,13 +20,7 @@
  */
 bcdui.util.namespace("bcdui.i18n");
 
-bcdui.i18n.MessageCatalog = class
-/**
- * @lends bcdui.i18n.MessageCatalog.prototype
- */
-{
-  /**
-   * @classdesc 
+ /**
    *  The i18n registry.
    *  An XML island is used to produce a mapping from msgid to phrase,
    *  the phrase can optionally contain interpolation terms in the format
@@ -52,8 +46,13 @@ bcdui.i18n.MessageCatalog = class
    *    mc.translate({msgid:'foo'}); # would result in 'bar'
    *    mc.translate({msgid:'someline'}, {'type': 'short'}); //  'this is a short line'
    *  </pre>
-   * 
-   * @constructs
+  */
+bcdui.i18n.MessageCatalog = class
+/**
+ * @lends bcdui.i18n.MessageCatalog.prototype
+ */
+{
+  /**
    * @param args {Object} Parameter object with property "document" with catalog
    * entries.
    * @private
