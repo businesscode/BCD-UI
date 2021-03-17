@@ -22,13 +22,14 @@ bcdui.util.namespace("bcdui.widget.notifications",
 /** @lends bcdui.widget.notifications */
 {});
 
+
+ /**
+   * Notificator component displaying user notifications
+  */
 bcdui.widget.notifications.Notificator = class
 /** @lends bcdui.widget.notifications.Notificator.prototype */
 {
   /**
-   * @classdesc
-   * Notificator component displaying user notifications
-   * @constructs
    * @param {Object} args - Parameter object
    * @param {integer} [args.retainMessagesNumber=5]   number of messages to retain in viewable area
    * @param {boolean} [args.attachMouseHandler=false] if true, the mousehover/unhover will close the box

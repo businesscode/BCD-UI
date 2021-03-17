@@ -1288,16 +1288,16 @@
   });
 
   bcdui.util.namespace("bcdui.widgetNg.connectable");
+
+/** 
+ * Tree support class providing item rendering, controls binding and onItemMoved handler
+ */
   bcdui.widgetNg.connectable.TreeSupport = class
   /**
    * @lends bcdui.widgetNg.connectable.TreeSupport
    * */ 
   {
     /**
-     * @classdesc
-     * Tree support class providing item rendering, controls binding and onItemMoved handler
-     *
-     * @constructs
      * @param {jQuery}  container                       The container
      * @param {object}  config                            Options
      * @param {boolean} [config.isDefaultCollapsed=true]  Initial state
