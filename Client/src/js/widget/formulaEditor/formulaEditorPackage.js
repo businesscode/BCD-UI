@@ -829,7 +829,6 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
     /**
-     * @classdesc
      *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
@@ -849,7 +848,6 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         },
 
     /**
-     * @classdesc
      *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
@@ -859,7 +857,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
          * @lends bcdui.widget.formulaEditor.XMLVariablesListener.prototype
          */        
         {
-          constructor(){}
+          constructor(){super()}
 
           updateValue()
             {

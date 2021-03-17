@@ -432,7 +432,6 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
     },
 
     /**
-     * @classdesc
      *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
