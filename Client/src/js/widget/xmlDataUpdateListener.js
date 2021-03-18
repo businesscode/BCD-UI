@@ -15,9 +15,6 @@
 */
 "use strict";
 bcdui.widget.XMLDataUpdateListener = class
-/**
- * @lends bcdui.widget.XMLDataUpdateListener.prototype
- */
 {
   /**
    * @class

@@ -74,7 +74,6 @@ bcdui.core.transformators =
    * For usage by TransformationChain
     */
 bcdui.core.transformators.IdentityTransformator = class
-/** @lends bcdui.core.transformators.IdentityTransformator.prototype */
 {
 
   /**
@@ -140,9 +139,6 @@ bcdui.core.transformators.IdentityTransformator = class
    * For usage by TransformationChain
     */
 bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
-/**
- * @lends bcdui.core.transformators.JsTransformator.prototype
- */
 {
   /**
    * @param {(string|function)} prokFunc - The js function to be used for processing. Either a real function or a string with JS code for eval.
@@ -176,7 +172,6 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
    * For usage by TransformationChain
     */
 bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
-/** @lends bcdui.core.transformators.WebworkerTransformator.prototype */
 {  
   /**
    * @param args The parameter map:
@@ -215,9 +210,6 @@ bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.tran
    * For usage by TransformationChain
     */
 bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
-/**
- * @lends bcdui.core.transformators.DotJsTransformator.prototype
- */
 {
   /**
    * @private
