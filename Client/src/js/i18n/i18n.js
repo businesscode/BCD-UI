@@ -48,9 +48,6 @@ bcdui.util.namespace("bcdui.i18n");
    *  </pre>
   */
 bcdui.i18n.MessageCatalog = class
-/**
- * @lends bcdui.i18n.MessageCatalog.prototype
- */
 {
   /**
    * @param args {Object} Parameter object with property "document" with catalog
@@ -135,9 +132,6 @@ bcdui.i18n.MessageCatalog = class
 };
 
 bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
-/**
- * @lends bcdui.i18n.HTMLTranslator.prototype
- */
 {
   /**
    * @constructs
