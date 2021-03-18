@@ -27,9 +27,6 @@ if (typeof bcdui.widget == "undefined") {
 }
 
 bcdui.widget.DetachedEvent = class
-/**
- * @lends bcdui.widget.DetachedEvent.prototype
- */
 {
   /**
    * @constructs
