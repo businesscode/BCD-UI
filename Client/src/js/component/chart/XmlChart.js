@@ -21,18 +21,16 @@
  */
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
-/*
- * ========================================================
- * XmlChart
+/**
  * Implements XML-definition interface. Extends the JS implementation of the
  * Chart class allowing an XML definition model as input.
+ * @extends bcdui.component.chart.Chart
  */
 bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 {
   /**
    * @description
    * Constructor of bcdui.component.XmlChart, called by prototype.
-   * @extends bcdui.component.chart.Chart
    * @param {Object} args Parameter object
    * @param {targetHtmlRef}           args.targetHtml                       - Where to place the chart
    * @param {bcdui.core.DataProvider} args.config                           - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
