@@ -25,7 +25,6 @@
 var bcdui = bcdui || new Object();
 
 jQuery.extend( bcdui, 
-/** @lends bcdui */
 {
     /**
      * Information useful for debugging
