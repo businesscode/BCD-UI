@@ -30,9 +30,6 @@
   * @abstract
   */
 bcdui.core.AbstractExecutable = class
-/**
- * @lends bcdui.core.AbstractExecutable.prototype
- */
 {
 
   /** 
