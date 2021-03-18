@@ -25,9 +25,6 @@ bcdui.util.namespace("bcdui.component.cube");
   * @extends bcdui.core.ModelWrapper
   */
 bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
-/**
- * @lends bcdui.component.cube.CubeModel.prototype
- */
 {
   /**
    * @param {Object} args The parameter map contains the following properties:
@@ -115,9 +112,6 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
  */
 
 bcdui.component.cube.Cube = class extends bcdui.core.Renderer
-/**
- * @lends bcdui.component.cube.Cube.prototype
- */
 {
   /**
    * @param args The parameter map contains the following properties:
