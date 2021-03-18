@@ -23,9 +23,6 @@
    * Use the singleton {@link bcdui.factory.objectRegistry} for registering
     */
 bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
-/**
- * @lends bcdui.factory.ObjectRegistry.prototype
- */
 {
   /**
    * @description

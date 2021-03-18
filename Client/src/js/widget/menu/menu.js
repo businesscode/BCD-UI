@@ -23,9 +23,6 @@
  * @namespace bcdui.widget.menu
  */
 bcdui.util.namespace("bcdui.widget.menu").Menu = class
-/**
- * @lends bcdui.widget.menu.Menu.prototype
- */
 {
   /**
    *
@@ -86,9 +83,6 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
  *  MenuContainer
  */
 bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
-/**
- * @lends bcdui.widget.menu.MenuContainer.prototype
- */
 {
   /**
    * @constructs
@@ -229,9 +223,6 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
  * Menu
  */
 bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.menu.MenuContainer
-  /**
-   * @lends bcdui.widget.menu.MenuItem.prototype
-   */
   {
   /**
    * @constructs

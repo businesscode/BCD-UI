@@ -22,9 +22,6 @@
 bcdui.util.namespace("bcdui.component.exports");
 
 bcdui.component.exports.PDFExport = class
-/**
- * @lends bcdui.component.exports.PDFExport.prototype
- */
 {
 
   /**

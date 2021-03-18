@@ -27,7 +27,6 @@ bcdui.util.namespace("bcdui.widget.notifications",
    * Notificator component displaying user notifications
   */
 bcdui.widget.notifications.Notificator = class
-/** @lends bcdui.widget.notifications.Notificator.prototype */
 {
   /**
    * @param {Object} args - Parameter object

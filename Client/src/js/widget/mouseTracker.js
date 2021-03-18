@@ -27,9 +27,6 @@ if (typeof bcdui.widget == "undefined") {
 }
 
 bcdui.widget.MouseTracker = class
-/**
- * @lends bcdui.widget.MouseTracker.prototype
- */
 {
   /**
    * @private
