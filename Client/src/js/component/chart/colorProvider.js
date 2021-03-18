@@ -27,9 +27,6 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * ColorProvider
  */
 bcdui.component.chart.ColorProvider = class
-/**
- * @lends bcdui.component.chart.ColorProvider.prototype
- */
 {
   /**
    * Constructor of bcdui.component.chart.ColorProvider, called by prototype.
@@ -169,9 +166,6 @@ bcdui.component.chart.ColorProvider = class
  * SeriesColorProvider
  */
 bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.ColorProvider
-/**
- * @lends bcdui.component.chart.SeriesColorProvider.prototype
- */
 {
   /**
    * Constructor of bcdui.component.chart.SeriesColorProvider, called by prototype.
@@ -231,9 +225,6 @@ bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component
  * TypeColorProviderBaseColors
  */
 bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.component.chart.ColorProvider
-/**
- * @lends bcdui.component.chart.TypeColorProviderBaseColors.prototype
- */
 {
   /**
    * Constructor of bcdui.component.chart.TypeColorProviderBaseColors, called by prototype.
