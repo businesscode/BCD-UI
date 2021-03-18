@@ -393,9 +393,6 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
  *
  */
 bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
-/**
- * @lends bcdui.core.DataProviderAlias.prototype
- */
 {
   /**
    * @param {object} args - The argument map taking two mandatory parameters:
@@ -419,9 +416,6 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
  * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
-/**
- * @lends bcdui.core.DataProviderWithXPath.prototype
- */
 {
   /**
    * @private
@@ -500,9 +494,6 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
-    /**
-     * @lends bcdui.core.DataProviderWithXPathNodes.prototype
-     */
     {
       /** 
        * @param {object}                  args
@@ -588,9 +579,6 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
  * @extends bcdui.core.DataProviderHolder
 */
 bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
-/**
- * @lends bcdui.core.OptionsDataProvider.prototype
- */
 {
   /** 
    * @param {object}                  args
@@ -667,9 +655,6 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
  * @extends bcdui.core.DataProvider
  */
 bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.core.RequestDocumentDataProvider.prototype
- */
 {
   /**
    * @param {Object} args - Parameter object
@@ -867,13 +852,9 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 /**
  * A DataProvider retrieving its content on getData() from an attribute in the HTML DOM tree.
  * @extends bcdui.core.DataProvider
- * 
+ * Retrieves its value from an HTML element attribute
  */
 bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
-/**
- * Retrieves its value from an HTML element attribute
- * @lends bcdui.core.DataProviderHtmlAttribute.prototype
- */
 {
   /**
    * @param {Object} args
@@ -916,7 +897,6 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
  * @extends bcdui.core.DataProvider
  */
 bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
-/** @lends bcdui.core.StringDataProvider.prototype */
 {
   /**
    * @param {Object} args
@@ -1012,9 +992,6 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
   * @extends bcdui.core.DataProvider
  */
 bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.core.JsDataProvider.prototype
- */
 {
   /**
    * @param {Object} args - The parameter map contains the following properties:
@@ -1072,9 +1049,6 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
   * @extends bcdui.core.DataProvider   
  */
 bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
-  /**
-   * @lends bcdui.core.AsyncJsDataProvider.prototype
-   */
   {
     /**
      * @param args The parameter map contains the following properties:
