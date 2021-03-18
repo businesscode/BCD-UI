@@ -22,17 +22,12 @@
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
 
-/*
- * ========================================================
- * Chart
+/**
  * This class represents a chart.
  * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart
  * @extends bcdui.core.DataProvider
  */
 bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.component.chart.Chart.prototype
- */
 {
   //***********************************************
   // Constants for available chart types
