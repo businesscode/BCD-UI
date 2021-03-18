@@ -22,19 +22,13 @@
 
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
-/*
- * =====================================================================
- * SVGVMLDrawer
+/**
  * This class represents a base class for SVG and VML Drawers, which have the same interface.
  * @abstract
  *
  */
 bcdui.component.chart.SVGVMLDrawer = class
-/**
- * @lends bcdui.component.chart.SVGVMLDrawer.prototype
- */
 {
-
   /**
    * @constant
    * @private
@@ -184,9 +178,6 @@ bcdui.component.chart.SVGVMLDrawer = class
  * SVGDrawer
  */
 bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDrawer
-/**
- * @lends bcdui.component.chart.SVGDrawer.prototype
- */
 {
   /**
    * @class
