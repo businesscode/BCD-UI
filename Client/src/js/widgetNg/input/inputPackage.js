@@ -68,22 +68,8 @@
 
     /**
      * initializes the widget according to the API
-     *
-     * @param element {Element} to initialize from
-     * @param extendedConfig {Object?} optional configuration paramter as a part of protected level API
-     *
-     * extendedConfig parameters:
-     * -  hasCustomUpdateHandler:
-     *    if true, no default update handler is installed, you have to call bcdui.widgetNg.input.updateValue(inputElementId) yourself to
-     *    sync widgets value to the target model
-     * -  hasCustomPlaceholderHandler:
-     *    if true, no default placeholder handler is installed, you have to call bcdui.widgetNg.input._setUnsetPlaceholder(inputElementId,true)
-     *    yourself to put the placeholder
-     * -  noTooltip: dont register a tooltip for a balloon
-     *
      * @private
      */
-    //TODO: Documentation != Implementation
     _create : function() {
       this._super();
 

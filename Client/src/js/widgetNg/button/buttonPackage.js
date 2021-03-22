@@ -112,11 +112,9 @@
     /**
      * creates the button control
      *
-     * @param element {Element} to initialize from
      * @private
      * @return \{widget: is the widget element to append to layout, control: A-element\}
      */
-    //TODO: Documentation != Implementation
     _createButtonControl: function(){
       var el = jQuery("<a></a>");
       el.html(this.options.text);

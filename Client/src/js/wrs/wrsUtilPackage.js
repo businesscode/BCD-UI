@@ -378,13 +378,12 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * Helper to removes a row in the wrs format. Therefore the element must either be a
    * wrs:R, wrs:I, wrs:M or wrs:D element. wrs:I rows are simply removed, wrs:R rows become wrs:D, wrs:D rows remain untouched
    * 
-   * @param {Element} row - The wrs row to be deleted.
+   * @param {XMLElement} element - The wrs row to be deleted.
    * @return {Boolean} True, if the element has been a valid wrs element
    * which is applicable for this function (wrs:R, wrs:I, wrs:M or wrs:D) or
    * false otherwise.
    * @private
    */
-  //TODO: Documentation != Implementation
   deleteWrsRow: function(/* XMLElement */ element)
     {
       if (element.namespaceURI != bcdui.core.xmlConstants.namespaces.wrs) {

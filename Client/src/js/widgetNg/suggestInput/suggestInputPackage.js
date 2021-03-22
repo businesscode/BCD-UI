@@ -377,10 +377,9 @@
     /**
      * creates a datalist element as a child of a given element
      *
-     * @param htmlElementId the control element and returns it
+     * @param {htmlElement} parentElement the parent element where the datalist is being attached to
      * @private
      */
-    //TODO: Documentation != Implementation
     _ntv_createDataListElement: function(parentElement){
       var el = jQuery("<datalist id='" + parentElement.id + "_dataList" + "'></datalist>");
       parentElement.appendChild(el.get(0));

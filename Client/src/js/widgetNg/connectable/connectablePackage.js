@@ -107,15 +107,8 @@
 
     /**
      * initializes the widget according to the API
-     *
-     * @param element {Element} to initialize from
-     * @param extendedConfig {Object?} optional configuration parameter as a part of protected level API
-     *
-     * extendedConfig parameters:
-     * -  noTooltip: dont register a tooltip for a balloon
      * @private
      */
-    //TODO: Documentation != Implementation
     _create : function() {
       this._super();
 

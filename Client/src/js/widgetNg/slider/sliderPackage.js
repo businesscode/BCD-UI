@@ -298,16 +298,11 @@
      * 
      * @private
      * @return {object} with following properties
-     * @param {array}
-     *          values array
-     * @param {array}
-     *          [captions] optional captions, if configured
-     * @param {object}
-     *          valuePosMap position-by-value map
-     * @param {object}
-     *          [captionPosMap] position-by-caption map
+     * {array} values array
+     * {array} [captions] optional captions, if configured
+     * {object} valuePosMap position-by-value map
+     * {object} [captionPosMap] position-by-caption map
      */
-    //TODO: Documentation != Implementation
     _getBoundOptions : function() {
       var optionsSelector = this._getOptionSelector();
       var buildPosMap = function(arr) {

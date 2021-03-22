@@ -2793,10 +2793,10 @@ bcdui.util.namespace("bcdui.widget",
      
       /**
        * adds widget link to NavPath model
-       * @param htmlElement
+       * @param {string} id html element id of the current widget
+       * @param {string} caption caption value of the current widget
        * @private
        */
-      //TODO: Documentation != Implementation
       _linkNavPath: function(id, caption) {
         if (typeof id == "string" && id != "") {
 
@@ -3438,10 +3438,14 @@ bcdui.widget.validationToolTip = class
   /**
    * Tool tip listener initialization and registering.
    * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {dataProvider} targetModel
+   * @param {string} targetModelId identifier of model that should be tracked
+   * @param {string} targetModelXPath xpath of model that should be tracked
+   * @param {XMLDocument} doc XMLDocument of the targetModel 
+   * @param {HtmlElement} containerHtmlElement html container with binded control
    * @returns {Function} Listener which controls the tool tip.
    * @private
    */
-  //TODO: Documentation != Implementation
   _initTooltip(t)
     {
       var xpath, xpathMessage;
@@ -3488,11 +3492,11 @@ bcdui.widget.validationToolTip = class
 
     /**
      * Validation visualiser (adding bcdInvalid class to source html container if validation failed)
-     * @param containerHtmlElement {HTMLElement} Widget container element.
-     *        validateValue {boolean} result of validation true\false
+     * @param {HTMLElement}  containerHtmlElement Widget container element.
+     * @param {string} targetModelId id of targetModel which holds the validationResult
+     * @param {string} xpath xpath to the value
      * @private
      */
-    //TODO: Documentation != Implementation
     _visualizeValidationResult(containerHtmlElement, targetModelId, xpath){
       var doc=bcdui.factory.objectRegistry.getObject(targetModelId).getData();
       var node = doc.selectSingleNode(xpath);
