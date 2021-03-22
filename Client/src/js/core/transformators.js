@@ -28,10 +28,8 @@ bcdui.core.transformators =
    * For XSLT an XSLT stylesheet document is to be provided
    * For JS the function name or a function reference can be used
    * @param args The parameter map:
-   *    <ul>
-   *      <li>procFkt:  {String|function} The js function to be used for processing.</li>
-   *      <li>callback: {function} Callback called once the processor is created</li>
-   *    </ul>
+   * @params {String|function} args.procFkt The js function to be used for processing.
+   * @params {function} args.callback Callback called once the processor is created
    * @private
    */
   factory: function( transformerFactory, args ) {
@@ -77,10 +75,10 @@ bcdui.core.transformators.IdentityTransformator = class
 {
 
   /**
-   * @param {*} [template] Dummy only, not deeded:
+   * @param {object} [template] Dummy only, not deeded:
    * @private
    */
-  constructor(/* object */ template)
+  constructor(template)
   {
     this.params = {};
     this.template = null;
@@ -91,10 +89,10 @@ bcdui.core.transformators.IdentityTransformator = class
   /**
    * For usage by TransformationChain
    * @param {string} name  - Name of the parameter as known to the transformation template
-   * @param {*}      value - Parameter value, can be anything that is understood by the template
+   * @param {object} value - Parameter value, can be anything that is understood by the template
    * @private
    */
-  addParameter( /* String */ name, /* object */ value)
+  addParameter( name, value)
   {
     this.params[name] = value;
   }
@@ -145,6 +143,7 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
    * @private
    */
   constructor(/* object */ procFkt)
+  //TODO: Documentation != Implementation
   {
     super( procFkt);
     if( typeof procFkt == "string" ) {
@@ -174,13 +173,10 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
 bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {  
   /**
-   * @param args The parameter map:
-   *    <ul>
-   *      <li>Data to be transformed</li>
-   *    </ul>
+   * @param {Object} args The parameter map: contains Data to be transformed
    * @private
    */
-  constructor(/* object */ args)
+  constructor( args)
   {
     super(args);
     this.worker = new Worker("webWorkerProc.js");

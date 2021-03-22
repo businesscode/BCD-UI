@@ -37,11 +37,11 @@ bcdui.core.XMLLoader = class
   /**
    * Sets the xml:base attribute of the document element of the doc provided as
    * argument.
-   * @param doc The XML document the xml:base attribute should be set on.
-   * @param base The value of the xml:base attribute.
+   * @param {XMLDocument} doc The XML document the xml:base attribute should be set on.
+   * @param {string} base The value of the xml:base attribute.
    * @private
    */
-  _setXMLBase(/* XMLDocument */ doc, /* string */ base)
+  _setXMLBase(doc, base)
     {
       if (doc == null || doc.documentElement == null) return;
       doc.documentElement.setAttribute("xml:base", bcdui.util.url.extractFolderFromURL(base));
@@ -51,12 +51,12 @@ bcdui.core.XMLLoader = class
    * This function returns an XPointer with the "xpointer()" scheme if the passed
    * xPointer uses the element() scheme. For exampel the xpointer "element(myId)"
    * is translated to "xpointer(id('myId'))".
-   * @param xPointer An XPointer string which may begin with "element(".
+   * @param {string} xPointer An XPointer string which may begin with "element(".
    * @return Either the input string or the element() scheme transformed into the
    * xpointer() scheme.
    * @private
    */
-  _translateXIncludeElementSchemeToXPointer(/* string */ xPointer)
+  _translateXIncludeElementSchemeToXPointer( xPointer)
     {
       if (xPointer == null) return xPointer;
       xPointer.trim();
@@ -75,13 +75,13 @@ bcdui.core.XMLLoader = class
    * Finds the elements identified by a specific XPointer within the provided
    * XML document. This function is used for XInclude resolution to select the
    * elements that replace the XInclude after loading.
-   * @param doc The document the xPointer is applied on.
-   * @param xPointer An xPointer selecting elements out of a document. If it
+   * @param {XMLDocument} doc The document the xPointer is applied on.
+   * @param {string} xPointer An xPointer selecting elements out of a document. If it
    * is null it is considered to be equal to "element(/1)".
    * @return {Array} The list of elements matching the xPointer.
    * @private
    */
-  _getDataFromXPointer(/* XMLDocument */ doc, /* string? */ xPointer)
+  _getDataFromXPointer( doc, xPointer)
     {
       if (xPointer == null || !xPointer.trim()) return jQuery.makeArray(doc.selectNodes("/*"));
       xPointer = this._translateXIncludeElementSchemeToXPointer(xPointer);
@@ -103,13 +103,14 @@ bcdui.core.XMLLoader = class
    * Attention: Elements of undeclared namespace in the included document will inherit the host documents'
    * default namespace if there is one. Sample: HTML tags without namespace xi:included in an XSLT variable body
    * would become (invalid) xslt elements. Thus: Always declare namespaces in documents to be included
-   * @param {XMLElement} The XInclude to be replaced with its result.
-   * @param {XMLDocument} xincludeDoc The XML document loaded from the href denoted by the XInclude.
-   * @param {String} xincludeUrl The absolute URL the xincludeDoc has been loaded from. This is only for debugging.
-   * @param {Function?} preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
+   * @param {object} args
+   * @param {XMLElement} args.xinclude The XInclude to be replaced with its result.
+   * @param {XMLDocument} args.xincludeDoc The XML document loaded from the href denoted by the XInclude.
+   * @param {String} args.xincludeUrl The absolute URL the xincludeDoc has been loaded from. This is only for debugging.
+   * @param {Function?} args.preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
    * @private
    */
-  _replaceXIncludeWithResult( /* object */ args )
+  _replaceXIncludeWithResult( args )
     {
       var xinclude = args.xinclude;
       var xincludeDoc = args.xincludeDoc;
@@ -190,10 +191,10 @@ bcdui.core.XMLLoader = class
 
   /**
    * @private
-   * @param {String}      xPath
-   * @param {XMLDocument} doc
-   * @param {function}    onSuccess
-   * @param {function?}   onFailure Optional, called with a message as param, otherwise, an exception is thrown
+   * @param {String}      args.xPath
+   * @param {XMLDocument} args.doc
+   * @param {function}    args.onSuccess
+   * @param {function?}   args.onFailure Optional, called with a message as param, otherwise, an exception is thrown
    */
   _processAllBcdIncludes( /* Object */ args )
     {
@@ -211,14 +212,15 @@ bcdui.core.XMLLoader = class
    * inserted in the document. The callback function gets the combined document as
    * parameter. To load nested XInclude element this function uses the "load" function.
    * If no XInclude is found it directly calls the "onSuccess" function with "doc" as argument.
-   * @param {XMLDocument} doc The XML document the XIncludes should be processed on.
-   * @param {Function?} onSuccess An optional callback which is executed after successful operation
-   * @param {Function?} onFailure Optional, called with a message as param, otherwise, an exception is thrown
-   * @param {Function?} preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
+   * @param {object} args
+   * @param {XMLDocument} args.doc The XML document the XIncludes should be processed on.
+   * @param {Function?} args.onSuccess An optional callback which is executed after successful operation
+   * @param {Function?} args.onFailure Optional, called with a message as param, otherwise, an exception is thrown
+   * @param {Function?} args.preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
    * and inserted into the "doc". It gets the document as parameter.
    * @private
    */
-  _processAllIncludes( /* object */ args )
+  _processAllIncludes(args )
     {
       var doc = args.doc;
       var preProcessFkt = args.preProcessFkt;
@@ -297,13 +299,11 @@ bcdui.core.XMLLoader = class
    * Parameters to the function:
    *
    * @param {Object} args The parameter map must contain:
-   *   <ul>
-   *     <li>doc: {XMLDocument}</li>
-   *   </ul>
+   * @param {XMLDocument} args.doc
    * @return null or result object (read above)
    * @private
    */
-  _checkForSOAPFault( /* Object */ args )
+  _checkForSOAPFault( args )
     {
       if (args.doc == null) return null;
       var faultElements = args.doc.selectNodes("/env:Envelope/env:Body/env:Fault");
@@ -322,17 +322,15 @@ bcdui.core.XMLLoader = class
    * it is finished or fails. The loading is done with a HTTP GET request and it
    * resolves all xincludes found in the document.
    * @param {Object} args The parameter map must contain:
-   *   <ul>
-   *     <li>url: {String} The URL the XML document comes from.</li>
-   *     <li>onSuccess: {Function} A function called when the request has finished
-   *         loading. This function gets the XML document as argument.</li>
-   *     <li>onFailure: {Function?} Optional, called with the transport object as param, otherwise, an exception is thrown</li>
-   *     <li>onComplete: {Function?} Optional, after onSuccess and onFailure</li>
-   *     <li>method: {String?} An optional http method, default is GET
-   *     <li>skipSoapFault: {boolean?} An optional, if true, no default Soap fault handling is done
-   *   </ul>
+   * @param {String} args.url The URL the XML document comes from.
+   * @param {Function} args.onSuccess A function called when the request has finished
+   *         loading. This function gets the XML document as argument.
+   * @param {Function} [args.onFailure] Optional, called with the transport object as param, otherwise, an exception is thrown
+   * @param {Function} [args.onComplete]  Optional, after onSuccess and onFailure
+   * @param {String} [args.method]  An optional http method, default is GET
+   * @param {boolean} [args.skipSoapFault] An optional, if true, no default Soap fault handling is done
    */
-  load(/* object */ args)
+  load( args)
     {
       var traceLoadStart = bcdui.log.isTraceEnabled() ? (new Date().getTime()-bcdui.log.applicationStartTs) : 0;
 
@@ -427,19 +425,17 @@ bcdui.core.XMLLoader = class
    * it is finished or fails. It also resolves XIncludes on the document returned,
    * but these includes are loaded via GET.
    * @param {Object} args The parameter map must contain:
-   *   <ul>
-   *     <li>url: {String} The URL the XML document comes from.</li>
-   *     <li>isSync: {Boolean} Set to FALSE / TRUE to enable sync/async request. Default is FALSE.</li>
-   *     <li>doc: {XMLDocument} The document to be posted to the server.</li>
-   *     <li>onSuccess: {Function} A function called when the request has finished
-   *         loading. This function gets the XML document as argument.</li>
-   *     <li>onFailure: {Function?} Optional, called with the transport object as param, otherwise, an exception is thrown</li>
-   *     <li>onComplete: {Function?} Optional, after onSuccess and onFailure</li>
-   *     <li>onWrsValidationFailure: {Function?} Optional, called with the wrs:ValidationResult element as param in case wrs validation failure, otherwise, an exception is thrown</li>
-   *     <li>skipSoapFault: {boolean?} An optional, if true, no default Soap fault handling is done
-   *   </ul>
+   * @param {String} args.url The URL the XML document comes from.
+   * @param {Boolean} args.isSync Set to FALSE / TRUE to enable sync/async request. Default is FALSE.
+   * @param {XMLDocument} args.doc The document to be posted to the server.
+   * @param {Function}args.onSuccess A function called when the request has finished
+   *         loading. This function gets the XML document as argument.
+   * @param {Function} [args.onFailure] Optional, called with the transport object as param, otherwise, an exception is thrown
+   * @param {Function} [args.onComplete] Optional, after onSuccess and onFailure
+   * @param {Function} [args.onWrsValidationFailure] Optional, called with the wrs:ValidationResult element as param in case wrs validation failure, otherwise, an exception is thrown
+   * @param {boolean} [args.skipSoapFault] An optional, if true, no default Soap fault handling is done
    */
-  post(/* object */ args)
+  post(args)
     {
       var xhr = bcdui.core.browserCompatibility.jQueryXhr();
       var xhrFactory = function() { return xhr };
@@ -522,16 +518,16 @@ bcdui.core.XMLLoader = class
    * browser dependent namespaces issues are addressed
    * If the result is again an XSLT, this is applied to the input again and so on until no XSLT is generated anymore
    * resultDoc: The document to take care for
-   * args:
-   * <ul>
-   *  <li>processor: transformator used to create resultDoc, for output type</li>
-   *  <li>stylesheetURL: url of the to create resultDoc, for base path adjustment</li>
-   *  <li>xslt: from transformationChain.chain.phases.xslt</li>
-   *  <li>onSuccess</li>
-   *  <li>onFailure TODO handling</li>
-   * </ul>
+   * @param {Object} args
+   * @param args.processor: transformator used to create resultDoc, for output type</li>
+   * @param args.stylesheetURL: url of the to create resultDoc, for base path adjustment</li>
+   * @param args.xslt: from transformationChain.chain.phases.xslt</li>
+   * @param args.onSuccess</li>
+   * @param args.onFailure TODO handling
+   *
+   * @param {Document} resultDoc
    */
-  _asyncTransformToXMLPostProcess( /* Object */ args, /* Document */ resultDoc )
+  _asyncTransformToXMLPostProcess( args, resultDoc )
     {
       // We do not care about XML featues if this is a html document
       if( args.processor.outputFormat==="html" ) {
@@ -610,11 +606,11 @@ bcdui.core.XMLLoader = class
    * Happens for example if a included file had paths relative to its position (xml:base) but is now in a
    * file with a different position. The hrefs should then be relative to the new postion (=baseURL)
    * An absolute path is expected to begin below the contextPath
-   * @param {XMLDocument} The document to work on
-   * @param (String) baseUrl, the new base URL to which all relative href in the doc should be calculated.
+   * @param {XMLDocument} doc The document to work on
+   * @param {String} baseURL, the new base URL to which all relative href in the doc should be calculated.
    * @private
    */
-  _translateRelativeXSLImportUrlsToAbsolute(/* XMLDocument */ doc, /* String */ baseURL)
+  _translateRelativeXSLImportUrlsToAbsolute( doc, baseURL)
     {
       var imports = doc.selectNodes("/*/xsl:import | /*/xsl:include");
       baseURL = bcdui.util.url.resolveToFullURLPathWithCurrentURL(baseURL);
@@ -642,14 +638,11 @@ bcdui.core.XMLLoader = class
    * of the processor provided it needs to know if the (first) processor creates HTML.
    * Therefore the "isHTML" argument needs to be set, based on the XSLT the "processor"
    * argument encapsulates.
-   * doc: The document to take care for
-   * args:
-   * <ul>
-   *  <li>processor: transformator used to create doc, for output type</li>
-   *  <li>stylesheetURL: url of the to create doc, for base path adjustment</li>
-   *  <li>xslt: from transformationChain.chain.phases.xslt</li>
-   *  <li></li>
-   * </ul>
+   * @param doc - The document to take care for
+   * @param {Object} args
+   * @param args.processor - transformator used to create doc, for output type
+   * @param args.stylesheetURL url of the to create doc, for base path adjustment
+   * @param args.xslt  from transformationChain.chain.phases.xslt
    * @private
    */
     _handleGeneratedXslt( doc, args ) 

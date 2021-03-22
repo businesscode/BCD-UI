@@ -40,10 +40,10 @@ jQuery.extend( bcdui.logging,
      * <p/>
      * Well-known bindingSet bcd_log_pageperformance must be available for using this.
      * @param {Object} args - The parameter map containing
-     * @param {string[]} idRef - Id(s) of DataProvider(s) to wait for, or wait for all renderers registered at the moment of {@link bcdui.core.ready}
-     * @param {string} [logName=idRef] - If provided, this is the name for which the log is written. If not given, idRef is used
-     * @param {string}  [addInfo] - Optionally any text that should be also logged
-     * @param {function}  [jsCallback] - A callback function can be supplied which is triggered once the log has captured data. 
+     * @param {string[]} args.idRef - Id(s) of DataProvider(s) to wait for, or wait for all renderers registered at the moment of {@link bcdui.core.ready}
+     * @param {string} [args.logName=idRef] - If provided, this is the name for which the log is written. If not given, idRef is used
+     * @param {string}  [args.addInfo] - Optionally any text that should be also logged
+     * @param {function}  [args.jsCallback] - A callback function can be supplied which is triggered once the log has captured data.
      * The callback is called with a parameter object with a duration property, indicating the logged duration
      */
     logPage: function( args ) {

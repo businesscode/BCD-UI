@@ -138,6 +138,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    * this is the callback function that is called as soon as the requested ids are registered.
    */
   withObjects(args1, args2) {
+    //TODO: Documentation != Implementation
     var args = this._extractFunctionAndIdsFromArgs(args1, args2);
     // If a model is given more than once, we still only need to wait once for it
     // This is especially important since there will only be one entry for this id and this listener combination in _objectIdToListenerIdMap
@@ -227,6 +228,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    * @param {function}               fn        - The callback function if argsOrIds is an array.
    * @static
    */
+  //TODO: Documentation != Implementation
   withReadyObjects(args1, args2, skipExecute) {
     var args = bcdui.factory.objectRegistry._extractFunctionAndIdsFromArgs(args1, args2, true);
     args.ids = args.ids.reduce(function(a, b) { return typeof b !== "undefined" && b !== null && a.indexOf(b) === -1 ? a.concat(b) : a; }, []);  // Even for objects provided here twice, we only need to wait once
@@ -278,6 +280,7 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    * @param {Object|string[]|string} argsOrIds - The parameter object or the object ids.
    * @param {function}               fn        - The callback function if argsOrIds is an array.
    */
+  //TODO: Documentation != Implementation
   withReadyObjectsNoExecute(args1, args2) {
     bcdui.factory.objectRegistry.withReadyObjects(args1, args2, true);
   }

@@ -40,9 +40,10 @@ bcdui.util.namespace("bcdui.component.chart",
 
   /**
    * Helper for creating a chart with controller from a jsp tag, interannly instantating XmlChart
-   * @param id
-   * @param metaDataModel
-   * @param targetHtmlElementId
+   * @param args {Object}
+   * @param args.id
+   * @param args.metaDataModel
+   * @param args.targetHtmlElementId
    * @private
    */
   createChart: function(args)
@@ -127,8 +128,7 @@ bcdui.util.namespace("bcdui.component.chart",
    * initialized legend renderer from given over HTML element that contains
    * all needed settings for legend renderer
    *
-   * @param args: id                   -  renderer ID
-   *               targetHTMLElementId  - target HTML element ID
+   * @param targetHTMLElement - Target Html Element
    * @private
    */
   initChartLegend: function(targetHTMLElement ){

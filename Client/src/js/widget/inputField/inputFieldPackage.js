@@ -60,7 +60,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
    * The initialization function called by inputField.xslt.
    * For parameters, see widgetPackage.js
    * @function
-   * @param {HTMLElement} htmlElement The element the input field is based on.
+   * @param {HTMLElement} e The element the input field is based on.
    * @private
    */
   init: function(e)
@@ -94,7 +94,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
   
   /**
    * Common init function but currently kept as single-entry point for grid overlay input field 
-   * @param {} htmlElement - inputField
+   * @param htmlElement - inputField
    * @private
    */
   _initElement: function(htmlElement) {
@@ -351,9 +351,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
     /**
      * Prepares the input field for data input, especially when no value is selected
      * I.e. remove any user-hint and possibly set * according to wildcards
+     * @param {HTMLElement|ID} elementOrId
      * @private
      */
-    _prepareForInput: function( /*HTMLElement or ID*/ elementOrId, newText )
+    _prepareForInput: function( elementOrId, newText )
     {
       var el = bcdui._migPjs._$(elementOrId);
       if( ! el.length > 0 ){
@@ -435,9 +436,9 @@ bcdui.util.namespace("bcdui.widget.inputField",
     /**
      * sets cursor at the end of value of the HTML Element
      * @private
-     * @param elementOrId
+     * @param {HTMLElement | ID} elementOrId
      */
-    _setCursorPosition: function( /*HTMLElement or ID*/ elementOrId, newPos ){
+    _setCursorPosition: function( elementOrId, newPos ){
       var el = bcdui._migPjs._$(elementOrId);
       if( ! el.length > 0 ){
         return; // no element - no action
@@ -1095,7 +1096,6 @@ bcdui.util.namespace("bcdui.widget.inputField",
      * scrolls the div so that current selected element is visible
      * @private
      */
-
     _scrollElement: function( valueBox, element){
       var vb = bcdui._migPjs._$(valueBox) 
       var el = bcdui._migPjs._$(element)
@@ -1119,9 +1119,10 @@ bcdui.util.namespace("bcdui.widget.inputField",
    *   0 for set focus
    *   1 for set focus but do not show option box this time
    *   2 for do not set focus on input field
+   * @param {boolean} setValue=True
    * @private
    */
-  _hideOptions: function(htmlElementId, /* Boolean default true*/ setValue, focus, isSelectedByClick)
+  _hideOptions: function(htmlElementId, setValue, focus, isSelectedByClick)
     {
       // unregister the click listener
       jQuery(document).off('mousedown',bcdui.widget.inputField._hideOnClickListener);
@@ -1459,8 +1460,8 @@ bcdui.util.namespace("bcdui.widget.inputField",
     },
 
     /**
-     *  Set default parameters
-     * @param HTMLElement  htmlElement The element the input field is based on.
+     * Set default parameters
+     * @param {HTMLElement} htmlElement The element the input field is based on.
      * @private
      */
     _adjustDefaultParameters: function(htmlElement){
@@ -1531,7 +1532,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
     },
     
     /**
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */

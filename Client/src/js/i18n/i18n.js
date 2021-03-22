@@ -75,9 +75,9 @@ bcdui.i18n.MessageCatalog = class
   }
 
   /**
-   *
-   * @param msgid
-   * @param interpolations
+   * @param {Object} args
+   * @param args.msgid
+   * @param args.interpolations
    * @return translated message or empty String if did not find
    */
   translate(args) {
@@ -135,11 +135,11 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
 {
   /**
    * @constructs
-   * @class
    * @member bcdui.i18n.HTMLTranslator
-   * @param {bcdui.i18n.MessageCatalog} catalog
-   * @param {String} translateAttrName (optional)
-   * @param {String} translateAttrsAttrName (optional)
+   * @param {Object} args
+   * @param {bcdui.i18n.MessageCatalog} args.catalog
+   * @param {String} [args.translateAttrName]
+   * @param {String} [args.translateAttrsAttrName]
    * @private
    */
   constructor(args) {
@@ -155,9 +155,9 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
   /**
    * translates the element and all its children having the translate attribute
    * @private
-   * @param args:
-   *         element  - element to translate
-   *         catalog  - catalog with i18n entries
+   * @param {Object} args
+   * @param args.element  - element to translate
+   * @param args.catalog  - catalog with i18n entries
    */
   translate(args) {
     var docel = typeof args.element === "string" ? document.getElementById(args.element) : args.element;

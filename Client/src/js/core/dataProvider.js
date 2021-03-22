@@ -59,8 +59,9 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    *   if the data provider is passed to a {@link bcdui.core.TransformationChain} the name should
    *   be unique for within this TransformationChain object.
    * </p>
+   * @param {object} args
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -666,8 +667,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     }
     return "" + hash;
   }
-  
-  setStatus(/* Status */ args) {
+
+  /**
+   * @param {Status} args
+   */
+  setStatus( args) {
     var stat = bcdui.core.AbstractExecutable.prototype.setStatus.call(this, args);
 
     // we do send a fire in case we reached a ready status
@@ -679,7 +683,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * True, if DataProvider is ready and there are no uncomitted write transactions,
+   * True, if DataProvider is ready and there are no uncommitted write transactions,
    * see {@link bcdui.core.AbstractExecutable#isReady isReady()} and {@link bcdui.core.DataProvider#onChange fire()}.
    * @returns {boolean}
    */

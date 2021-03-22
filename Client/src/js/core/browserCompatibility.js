@@ -113,7 +113,8 @@ bcdui.core.browserCompatibility = {
      * @returns {XMLElement} The new XMLElement.
      */
     appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
-      {
+    // TODO: Documentation != implementation
+    {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;
         if (name.indexOf(":") <= 0) {
@@ -140,6 +141,7 @@ bcdui.core.browserCompatibility = {
      * takes the processor instance as argument.
      */
     asyncCreateXsltProcessor: function( args )
+      // TODO: Documentation != implementation
     {
       var domDocument = args.model;
       var fn = args.callBack;
@@ -340,6 +342,7 @@ if (bcdui.browserCompatibility.isIE) {
      * @returns {XMLElement} The new XMLElement.
      */
     appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
+        // TODO: Documentation != implementation
       {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;
@@ -413,9 +416,10 @@ if (bcdui.browserCompatibility.isIE) {
       },
 
     /**
+     * @param {XMLDocument} domDocument
      * @private
      */
-    setSelectionNamespaces: function(/* XMLDocument */ domDocument)
+    setSelectionNamespaces: function(domDocument)
       {
         var nsDef = "";
         var key;
@@ -522,7 +526,6 @@ if (bcdui.browserCompatibility.isIE) {
 
     /**
      * @constructs
-     * @class
      *   A class implementing the XmlHttpRequest interface for Internet Explorer so that it
      *   always created "FreeThreadedDOMDocuments". The default IE implementation creates
      *   non free-threaded document which cannot be used to create an XSLT processor. This
@@ -793,11 +796,11 @@ if (!bcdui.browserCompatibility.isIE) {
  * 1) An xsl is embedded in another document and extracted, serialized and used to create a new static model like scorecard aspects,
  * the serializers do not include namespace declarations then, which are only within attributes like match or select
  * 2) Same applies for gecko and webkit for xslt generation
- * @param (String) serializedDoc The doc to work on
+ * @param {String} serializedDoc The doc to work on
  * @return {String} The serialized doc with the updated root element.
  * @private
  */
-bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(/* String */ serializedDoc)
+bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(serializedDoc)
 {
   // PrefixArray to hold all words, followed by : but not by :: (axes) or by :/ (url)
   var prefixArray = serializedDoc.match(/([\w-]+)(?=:(?!(:|\/)))/g);

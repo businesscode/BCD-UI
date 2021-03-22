@@ -30,10 +30,10 @@ bcdui.util.datetime =
   /**
    * Parses a date if the argument is a string or returns the date otherwise. The
    * date can be in XML date or timestamp format.
-   * @param {Data|string} date The date object to be parsed.
+   * @param {Date|string} date The date object to be parsed.
    * @returns {Date} The parsed date or the "date" argument if it is already a date object.
    */
-  parseDate: function(/* String|Date */ date)
+  parseDate: function( date)
     {
       if (typeof date == "undefined" || (bcdui.util.isString(date) && !date.match(/^\d{4}-\d{2}-\d{2}/))) {
         return null;
@@ -63,10 +63,10 @@ bcdui.util.datetime =
 
 /**
    * Checks if date passed is valid date
-   * @param {string} date The date string to be parsed.
+   * @param {String} date The date string to be parsed.
    * @returns {boolean} Whether the parsed "date" argument is valid date string.
    */
-  isValidDate: function(/* String */ date)
+  isValidDate: function(date)
     {
       if (typeof date == "undefined" || (bcdui.util.isString(date) && !date.match(/^\d{4}-\d{2}-\d{2}/))) {
         return false;
@@ -89,7 +89,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} endDate Last day of the date range
    * @returns {boolean}
    */
-  isYearRange: function(/* Date|String */ startDate, /* Date|String */ endDate)
+  isYearRange: function(startDate, endDate)
     {
       if (typeof startDate == "undefined" || startDate == null ||
           typeof endDate == "undefined" || endDate == null) return false;
@@ -114,7 +114,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} endDate Last day of the date range
    * @returns {boolean}
    */
-  isQuarterRange: function(/* Date|String */ startDate, /* Date|String */ endDate)
+  isQuarterRange: function(startDate, endDate)
     {
       if (typeof startDate == "undefined" || startDate == null ||
           typeof endDate == "undefined" || endDate == null) return false;
@@ -141,7 +141,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} endDate Last day of the date range
    * @returns {boolean}
    */
-  isMonthRange: function(/* Date|String */ startDate, /* Date|String */ endDate)
+  isMonthRange: function(startDate, endDate)
     {
       if (typeof startDate == "undefined" || startDate == null ||
           typeof endDate == "undefined" || endDate == null) return false;
@@ -166,7 +166,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} endDate Last day of the date range
    * @returns {boolean}
    */
-  isWeekRange: function(/* Date|String */ startDate, /* Date|String */ endDate)
+  isWeekRange: function( startDate, endDate)
     {
       if (typeof startDate == "undefined" || startDate == null ||
           typeof endDate == "undefined" || endDate == null) return false;
@@ -188,11 +188,11 @@ bcdui.util.datetime =
   /**
    * Shifts the given period by the given value
    * The value is assumed to have the same period type (qu, mo, dy) as startDate and endDate
-   * @param {number} shiftvalue -  An integer of how many perionds the input is to be shifted. Negative values are allowed.
+   * @param {Int} value -  An integer of how many perionds the input is to be shifted. Negative values are allowed.
    * @param {Date} startDate
    * @param {Date} endDate
    */
-  increasePeriod: function(/* Int */ value, /* Date */ startDate, /* Date */ endDate)
+  increasePeriod: function( value, startDate, endDate)
     {
       if (startDate != null && endDate != null) {
         if (bcdui.util.datetime.isYearRange(startDate, endDate)) {
@@ -228,7 +228,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} date - date for which to determine the CW
    * @returns {Integer} cwYr
    */
-  getISOWeekYear: function(/* Date|String */ date)
+  getISOWeekYear: function( date)
     {
       var d = bcdui.util.datetime.parseDate(date);
       if (d.getMonth() > 0 && d.getMonth() < 11) {
@@ -249,7 +249,7 @@ bcdui.util.datetime =
    * @param {(Date|string)} date - date for which to determine the CW
    * @returns {Integer} cw
    */
-  getISOWeekNumber: function(/* Date|String */ date)
+  getISOWeekNumber: function( date)
     {
       var startAt = 1;      // 0 - sunday ; 1 - monday
       if (typeof date == "undefined" || date == null)
@@ -259,7 +259,7 @@ bcdui.util.datetime =
 
       // Algorithm used:
       // From Klaus Tondering's Calendar document (The Authority/Guru)
-      // hhtp://www.tondering.dk/claus/calendar.html
+      // http://www.tondering.dk/claus/calendar.html
       // a = (14-month) / 12
       // y = year + 4800 - a
       // m = month + 12a - 3
@@ -298,7 +298,7 @@ bcdui.util.datetime =
   * @param {(Date|string)} endDate Last day of the date range
   * @returns {String} A string describing the date range (e.g. "Jul 2010" or "CW 30, 2010").
   */
- prettyPrintDateRange: function(/* Date|String */ startDate, /* Date|String */ endDate)
+ prettyPrintDateRange: function(startDate, endDate)
    {
      if (typeof startDate == "undefined" || startDate == null || (bcdui.util.isString(startDate) && !startDate.trim()) ||
          typeof endDate == "undefined" || endDate == null || (bcdui.util.isString(endDate) && !endDate.trim()))
@@ -359,43 +359,49 @@ bcdui.util.datetime =
 
  /**
   * The month name as abbreviated string (e.g. "Jul")
+  * @param {int} month
   * @returns {String}.
   */
- getShortMonthName: function(/* Integer */ month)
+ getShortMonthName: function(month)
    {
      return bcdui.util.datetime._shortMonthNames[month - 1];
    },
 
  /**
+  * @param {int} year
+  * @param {int} month
   * @private
   */
- _formatMonthAndYear: function(/* integer */ year, /* integer */ month)
+ _formatMonthAndYear: function( year,  month)
    {
      return bcdui.util.datetime.getShortMonthName(month) + " " + year;
    },
 
  /**
   * The date in the XML date format (e.g. "2010-07-23")
+  * @param {Date} date
   * @returns {String}
   */
- formatDate: function(/* Date */ date)
+ formatDate: function( date)
    {
      return date.getFullYear() + "-" + bcdui.util.datetime._twoDigits(date.getMonth() + 1) + "-" + bcdui.util.datetime._twoDigits(date.getDate());
    },
 
  /**
   * The date in the XML datetime format (e.g. "2010-07-23T00:00:00")
+  * @param {Date} date
   * @returns {String}
   */
- formatDateTime: function(/* Date */ date)
+ formatDateTime: function(date)
    {
      return date.getFullYear() + "-" + bcdui.util.datetime._twoDigits(date.getMonth() + 1) + "-" + bcdui.util.datetime._twoDigits(date.getDate())
        + "T" + bcdui.util.datetime._twoDigits(date.getHours()) + ":" + bcdui.util.datetime._twoDigits(date.getMinutes()) + ":" + bcdui.util.datetime._twoDigits(date.getSeconds());
    },
  /**
+  * @param {int} value
   * @private
   */
- _twoDigits: function(/* integer */ value)
+ _twoDigits: function( value)
    {
      if (value < 10) return "0" + value;
      return value;

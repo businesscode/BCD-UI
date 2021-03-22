@@ -29,7 +29,6 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
 bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 {
   /**
-   * @description
    * Constructor of bcdui.component.XmlChart, called by prototype.
    * @param {Object} args Parameter object
    * @param {targetHtmlRef}           args.targetHtml                       - Where to place the chart
@@ -311,10 +310,8 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param map with
-   *  <ul>
-   *     <li>seriesInd, index of series to be removed</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.seriesInd - index of series to be removed
    * @return count of removed nodes or null
    * @private
    */
@@ -328,11 +325,9 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param map with
-   *  <ul>
-   *    <li>yData</li>
-   *    <li>seriesInd, index of series to be removed</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.yData
+   * @param args.seriesInd, index of series to be removed
    * @return count of removed nodes or null
    * @private
    */
@@ -400,10 +395,10 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   }
 
   /**
-   * @param statusEvent
+   * @param statusEvent {StatusEvent}
    * @private
    */
- _statusTransitionHandler(/* StatusEvent */statusEvent) {
+ _statusTransitionHandler(statusEvent) {
 
     // We need to wait for the metadata model and all models it refers to
     if (statusEvent.getStatus().equals(this.loadingStatus)) {

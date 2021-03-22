@@ -362,7 +362,8 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
    * @private
    */
   _parseText: function(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions)
-    {
+      //TODO: Documentation != Implementation
+  {
       var result = bcdui.widget.formulaEditor.Parser.shunting_yard(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions);
       return result;
     },
@@ -532,9 +533,10 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
   /**
+   * @param {boolean} setValue=true
    * @private
    */
-  _hideOptions: function(containerHtmlElement, /* Boolean default true*/ setValue)
+  _hideOptions: function(containerHtmlElement, setValue)
     {
       var htmlElement = bcdui._migPjs._$(containerHtmlElement).find("input.bcdFormulaEditField")[0];
       var htmlElementId = containerHtmlElement.id;
@@ -814,8 +816,8 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
   /**
-   *  Set default parameters
-   *  @private
+   * Set default parameters
+   * @private
    * @param HTMLElement  htmlElement The element the formulaEditor is based on.
    */
   _adjustDefaultParameters: function(HTMLElement)
@@ -829,7 +831,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
     /**
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
@@ -848,7 +850,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         },
 
     /**
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */

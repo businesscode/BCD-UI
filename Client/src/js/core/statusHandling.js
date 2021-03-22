@@ -76,9 +76,9 @@ bcdui.core.StatusEvent = class
    * The constructor creating a new StatusEvent object.
    * @param {Object}            args          - This parameter map must contain two properties:
    * @param {Object}            args.source   - The object the status transition happened
-   * @param {bcdui.core.Status} argsnewStatus - The new status of the source object
+   * @param {bcdui.core.Status} args,newStatus - The new status of the source object
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       if (typeof args.status == "undefined")
         throw Error("Parameter Map must contain \"status\" attribute");

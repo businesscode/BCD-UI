@@ -31,7 +31,7 @@ bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namesp
 /**
  * Creates a scorecard-model from a scorecard definition, the scorecard model is derived {@link bcdui.core.DataProvider DataProvider}
  * Format of scorecard definition is defined by XSD http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
- * <p/>
+ *
  * This scorecard does all calculations and also transposes data if necessary. It does not deal with any presentation part, though.
  * See {@link bcdui.component.createScorecard} if you want a default scorecard rendering.
  * @extends bcdui.core.DataProvider
@@ -84,7 +84,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
    * @param {object}                  [args.parameters]            - Custom parameters to be shared between all aggregators, aspects, etc.
    */
-  constructor(/* object */ args )
+  constructor( args )
   {
     super(args);
 

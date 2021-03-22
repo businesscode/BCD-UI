@@ -257,8 +257,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * The global state transition listener. This listener is responsible for
    * executing the appropriate action based on a state transition.
    * @private
+   * @param {StatusEvent} statusEvent
    */
-  _statusTransitionHandler(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(statusEvent)
     {
       if (statusEvent.getStatus().equals(this.loadingStatus)) {
         /*
@@ -347,11 +348,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Gets the data providers attached to this object as hash map. This map can
    * be passed to the transformator functions to set the parameters
-   * @param (Array?) If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
+   * @param {Array} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
    *                 if not given, all dataproviders given to any stylesheet are included
    * @private
    */
-  _getDataProviderValues(/* Array? */ stylesheetParams)
+  _getDataProviderValues(stylesheetParams)
     {
       // Data providers for all stylesheets
       var dPs = this.dataProviders.slice(0);
@@ -374,9 +375,10 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
     }
 
   /**
+   * @param {String} name
    * @returns {bcdui.core.DataProvider} returns the parameter of the given name
    */
-  getDataProviderByName(/* String */ name)
+  getDataProviderByName(name)
     {
       return this._getDataProviderValues()[name];
     }
@@ -414,7 +416,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * @private
    */
   _runTransformation(/* object */ xslt, /* object */ input )
-    {
+  //TODO: Documentation != Implementation
+  {
       xslt.running = true;
       xslt.input = input;
       var processor = xslt.processor;
@@ -576,9 +579,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Adds a new data provider to the list which becomes the new primary model
    * of the transformation chain.
-   * @param primaryModel the new primary model of the transformation chain.
+   * @param {DataProvider} primaryModel the new primary model of the transformation chain.
    */
-  setPrimaryModel(/* DataProvider */ primaryModel)
+  setPrimaryModel(primaryModel)
     {
       this.dataProviders.unshift(primaryModel);
       this.modelParameterId = primaryModel.id;
@@ -995,15 +998,13 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   /**
    * Overwrites inherited execute(forced)
    * Allows also to provide instead of the boolean forced an args object with
-   * @param args {(boolean|Object)} forced or args:
-   *   <ul>
-   *     <li>fn: {function?} A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false</li>
-   *     <li>partialHtmlTargets: {String?} Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render 
-   *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.</li>
-   *     <li>shouldRefresh: {boolean?} "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".</li>
-   *   </ul>
+   * @param {(boolean|Object)} args forced or args:
+   * @param {function} [args.fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
+   * @param {String} [args.partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
+   *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.
+   * @param {boolean} [args.shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
    */
-  execute( /* object */ args)
+  execute( args)
   {
     // set targetHTMLElementId/targetHtmlElement on first execute
     if (! this.targetHTMLElementId) {

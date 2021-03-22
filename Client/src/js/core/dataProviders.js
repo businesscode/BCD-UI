@@ -31,10 +31,11 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @constructs
-   * @param {string=} args.name - Title provided to the user when the input box pops up.
-   * @param {id=}     args.id   - Globally unique id for use in declarative contexts
+   * @param {object} args
+   * @param {string} [args.name] - Title provided to the user when the input box pops up.
+   * @param {id}    [args.id]  - Globally unique id for use in declarative contexts
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       super(args);
       this.value = "";
@@ -80,11 +81,11 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @param {object}  args       - paramater map
-   * @param {id=}     args.id    - Globally unique id for use in declarative contexts
-   * @param {string=} args.name  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
+   * @param {id}     [args.id]    - Globally unique id for use in declarative contexts
+   * @param {string} [args.name]  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
    * @param {(string|number|boolean|object)} args.value - The data
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -157,7 +158,7 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
    * @param {bcdui.core.DataProvider} [args.source] - The data provider to be wrapped, unless set later via {@link bcdui.core.DataProviderHolder#setSource}
    * @param {string}                  [id]          - id
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
 
       args = args || {};
@@ -390,7 +391,6 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
  * that a DataProvider can be mapped to an arbitrary xsl:param element.
  * where the bcdui.core.DataProviderAlias' name is used as the xsl:param's name
  * @extends bcdui.core.DataProvider
- *
  */
 bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
 {
@@ -399,7 +399,7 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped
    * @param {string}                  args.name - The new name of the data provider
    */
-  constructor(/* object */ args)
+  constructor(args)
   {
 
     if (typeof args.name == "undefined") {
@@ -424,9 +424,9 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   /**
    * @param {object}  args
    * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-   * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
+   * @param {string}    [args.name]  - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -501,7 +501,7 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
        * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
        * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
        */
-      constructor(/* object */ args)
+      constructor(args)
         {
           var bcdPreInit = args ? args.bcdPreInit : null;
           super(jQuery.extend(args, {
@@ -588,7 +588,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
    * @param {xPath}                   [args.optionsModelRelativeValueXPath] - optional xPath relative to args.optionsModelXPath
    * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  constructor(/* object */ args){
+  constructor( args){
     var bcdPreInit = args ? args.bcdPreInit : null;
     super(jQuery.extend(args, {
       bcdPreInit: function() {
@@ -867,7 +867,7 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
    *   console.log(dp.getData());
    * &lt;/script>
    */
-  constructor(/* object */ args)
+  constructor( args)
   {
     super( args);
     this.htmlElementId = args.htmlElementId;
@@ -1000,7 +1000,7 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
    * @param {id}       [args.id]                     - Globally unique id for use in declarative contexts
    * @param {string}   [args.name]                   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       super(args);
       this.callback = args.callback;

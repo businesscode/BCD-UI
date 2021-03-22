@@ -17,7 +17,6 @@
 /**
  * @fileoverview
  * The implementation of the Drawer class.
- *
  */
 
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
@@ -25,7 +24,6 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
 /**
  * This class represents a base class for SVG and VML Drawers, which have the same interface.
  * @abstract
- *
  */
 bcdui.component.chart.SVGVMLDrawer = class
 {
@@ -89,6 +87,7 @@ bcdui.component.chart.SVGVMLDrawer = class
 
   /**
    * The function moves the tooltip if it exist
+   * @param element
    * @param event
    * @private
    */
@@ -102,6 +101,7 @@ bcdui.component.chart.SVGVMLDrawer = class
 
   /**
    * The function shows the tooltip if it exist
+   * @param element
    * @param {Event} event
    * @private
    */
@@ -173,19 +173,14 @@ bcdui.component.chart.SVGVMLDrawer = class
 }; // End SVGVMLDrawer
 
 
-/*
- * =====================================================================
- * SVGDrawer
+/**
+ * A SVG drawer, drawing basic geometries
+ * @extends bcdui.component.chart.SVGVMLDrawer
  */
 bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDrawer
 {
   /**
-   * @class
-   * A SVG drawer, drawing basic geometries
-   * @extends bcdui.component.chart.SVGVMLDrawer
-   * 
    * @constructs
-   * @description
    * Constructor of bcdui.component.chart.SVGDrawer
    * @param {Object} args - Parameter object
    * @param {Document} args.doc               - Document for creating the SVG drawing
@@ -218,7 +213,6 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
 
   /**
    * Draw a SVG line
-   * @param map with
    * @param {Object} args - Parameter object
    * @param {numeric[][]} args.points           - 2 dimensional array with x,y points, args.points[0][0] being the first one</li>
    * @param {string}      [args.effect]         - An effect to be used for areas. Possible values: linearGradient, radialPlate, linearRound, linearPlate
@@ -464,7 +458,7 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   }
 
   /**
-   * The function is usefull to create a SVG in IE to create PDF from it.
+   * The function is useful to create a SVG in IE to create PDF from it.
    * creates an element, depends on User client registers svg Namespace(Firefox) or not(IE).
    * @private
    */

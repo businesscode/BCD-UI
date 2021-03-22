@@ -26,27 +26,29 @@ if (typeof bcdui.widget == "undefined") {
   bcdui.widget = {};
 }
 
+/**
+ * <p>
+ *   This class represents a DOM event which can be stored for later use,
+ *   especially in a timeout function. It encapsulates the event functionality
+ *   provided by prototype.js, but it is not destroyed when the event has
+ *   finished. Instead it can be kept to invoke the event handler later.
+ * </p>
+ * <p>
+ *   A use case for this event object is for example a delayed tooltip
+ *   appearing for example 200 ms after the mouse over event has occurred.
+ * </p>
+ * @type {bcdui.widget.DetachedEvent}
+ */
 bcdui.widget.DetachedEvent = class
 {
   /**
    * @constructs
-   * @class
-   * <p>
-   *   This class represents a DOM event which can be stored for later use,
-   *   especially in a timeout function. It encapsulates the event functionality
-   *   provided by prototype.js, but it is not destroyed when the event has
-   *   finished. Instead it can be kept to invoke the event handler later.
-   * </p>
-   * <p>
-   *   A use case for this event object is for example a delayed tooltip
-   *   appearing for example 200 ms after the mouse over event has occurred.
-   * </p>
    * @member bcdui.widget.DetachedEvent
    * @param {Event} event The event object that should be the base for this
    * object.
-   * @param {HTMLElement?} element The source element of the event if it should
+   * @param {HTMLElement} [element] The source element of the event if it should
    * not be derived from the provided event.
-   * @param {HTMLElement?} endElement The optional end element for the findAttribute
+   * @param {HTMLElement} [endElement] The optional end element for the findAttribute
    * method. No attribute on of an ancestor of this element is returned by
    * findAttribute.
    */

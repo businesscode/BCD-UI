@@ -38,15 +38,15 @@ bcdui.util =
 
   /**
    * Logic derived from PrototypeJs library to remove xml tags from a string.
-   * @param {string} string - String to be stripped
-   * @returns {string}
+   * @param {String} str String to be stripped
+   * @returns {String}
    * @private
    */
   stripTags: function(str) { return str.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '') ;},
 
   /**
    * Logic derived from PrototypeJs library to remove <script> tags from a string.
-   * @param {string} string - String to be stripped
+   * @param {string} str - String to be stripped
    * @returns {string}
    * @private
    */
@@ -55,6 +55,7 @@ bcdui.util =
   /**
    * Logic derived from PrototypeJs library to "Parses a URI-like query string and returns an object composed of parameter/value pairs".
    * @param {string} url - URL with the parameters
+   * @param separator
    * @returns {string} An object with the parameters of the url as properties
    */
   toQueryParams: function(url, separator) {
@@ -82,6 +83,7 @@ bcdui.util =
    * Logic derived from PrototypeJs library clone the position of one element (source) to another
    * @param {HTMLElement} element - The element which is moved to the cloned position
    * @param {HTMLElement} source - The element of which the position is cloned
+   * @param args
    * @returns The moved target element
    * @private
    */
@@ -215,7 +217,7 @@ bcdui.util =
    * @private
    */
 
-  namespace : function(/* string */ namespace, /* object? */ extensions) {
+  namespace : function(namespace, extensions) {
     var components = namespace.split(".");
     var ns= components.reduce( function( previousValue, currentValue, index, array ) {
       if( !previousValue[currentValue] )

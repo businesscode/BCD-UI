@@ -99,7 +99,7 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
   }
 
   /**
-   * trggered by .execute()
+   * triggered by .execute()
    * @private
    */
   _execute(args){

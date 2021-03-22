@@ -96,7 +96,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * @param {DOMDocument} doc - The XML document to add the namespaces on
      * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
      */
-    _addDefaultNamespaceAttributesToDocumentElement: function(/* XMLDocument */ doc, /* Array */except )
+    _addDefaultNamespaceAttributesToDocumentElement: function(/* XMLDocument */ doc, except )
     {
       for (var prefix in bcdui.core.xmlConstants.namespaces) {
         var uri = bcdui.core.xmlConstants.namespaces[prefix];
@@ -134,6 +134,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * @param {Function} fn The callback function executed when the processor has been created. It
      */
     asyncCreateXsltProcessor: function( args )
+//TODO: Documentation != Implementation
     {
       var domDocument = args.model;
       var fn = args.callBack;
@@ -199,7 +200,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * which are addressed in the document function and what they include
      * @private
      */
-    _replaceDocumentFunctions: function(/* XMLDocument */ doc, /* Function */ fn )
+    _replaceDocumentFunctions: function(doc,fn )
     {
       // Resolve all standard includes, (keeping xslt namespace)
       bcdui.core.xmlLoader._processAllIncludes( { doc: doc, onSuccess: function(doc)
@@ -278,7 +279,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * @param {Function} fn callback after finishing
      * @private
      */
-    _replaceXSLImport: function(/* XMLDocument */ doc, /* function */ fn )
+    _replaceXSLImport: function( doc,  fn )
     {
       // Find all imports.
       var imports = jQuery.makeArray(doc.selectNodes("/xsl:stylesheet/xsl:import"));
