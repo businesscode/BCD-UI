@@ -74,6 +74,7 @@
      * -  noTooltip: dont register a tooltip for a balloon
      * @private
      */
+    //TODO: Documentation != Implementation
     _create : function() {
       this._super();
 

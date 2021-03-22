@@ -115,6 +115,7 @@
      * -  noTooltip: dont register a tooltip for a balloon
      * @private
      */
+    //TODO: Documentation != Implementation
     _create : function() {
       this._super();
 
@@ -1223,7 +1224,7 @@
      * change sorting / move items up or down
      * 
      * @private
-     * @param {integer} moveDir=1     Direction to move, -1=up, +1=down
+     * @param {integer} dir=1     Direction to move, -1=up, +1=down
      */
     _moveSelectedItemsUpDown : function(dir){
       dir = dir||-1;
@@ -1364,7 +1365,7 @@
 
     /**
      * our default options sorting function uses alphabetical sorting on captions but
-     * preserves leafs in trees.
+     * preserves leaves in trees.
      *
      * @private
      */
@@ -1406,9 +1407,9 @@
     /**
      * Context: widget's instace
      * @param {object}  args  parameters from connectable
-     * @param {jQuery}  from  The source container .bcdSource/.bcdTarget, depends on direction
-     * @param {jQuery}  to    The target container .bcdTarget/.bcdSource, depends on direction
-     * @param {string}  dir   Direction: src2dst, dst2src
+     * @param {jQuery}  args.from  The source container .bcdSource/.bcdTarget, depends on direction
+     * @param {jQuery}  args.to    The target container .bcdTarget/.bcdSource, depends on direction
+     * @param {string}  args.dir   Direction: src2dst, dst2src
      * @private
      */
     onItemMoved(args) {

@@ -380,6 +380,7 @@
      * @param htmlElementId the control element and returns it
      * @private
      */
+    //TODO: Documentation != Implementation
     _ntv_createDataListElement: function(parentElement){
       var el = jQuery("<datalist id='" + parentElement.id + "_dataList" + "'></datalist>");
       parentElement.appendChild(el.get(0));
@@ -692,7 +693,7 @@
     /**
      * BINDS and reveals options box for given htmlElementId
      *
-     * @param doRebindOnly : true if to skip refine-options, this is because of cyclic dependency
+     * @param doRebindOnly - true if to skip refine-options, this is because of cyclic dependency
      *
      * @private
      */

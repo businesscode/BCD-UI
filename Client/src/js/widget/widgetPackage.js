@@ -595,10 +595,11 @@ bcdui.util.namespace("bcdui.widget",
     },
     /**
      * this method replace always < with &lt; and if the value is for an attribute targetxpath single and double quotes will be replaced as well
+     * @param {String} value
      * @private
      */
 
-   _escapeText: function( targetXpath, /* String */ value ){
+   _escapeText: function( targetXpath,value ){
      if (value == null ) return null;
       if ( targetXpath.match("/@\\w+$")){
           return value.replace(/</g, '&lt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -608,9 +609,10 @@ bcdui.util.namespace("bcdui.widget",
     },
     
     /**
+     * @param {String} value
      * @private
      */
-    _unescapeText: function( targetXpath, /* String */ value){
+    _unescapeText: function( targetXpath, value){
       if (value == null ) return null;
       if (targetXpath.match("/@\\w+$")){
         return value.replace(/&lt;/g, "<").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
@@ -619,18 +621,29 @@ bcdui.util.namespace("bcdui.widget",
      }
     },
     /**
+     * @param {DataProvider} targetModel
+     * @param {String} targetModelXPath
+     * @param {String} value
+     * @param {Boolean} [keepEmptyValueExpression]
+     * @param {func} cbBeforeCommit func to execute before commit
      * @private
      * @return true in case the target document was changed
      */
-    _copyDataFromHTMLElementToTargetModel: function(/* DataProvider */ targetModel, /* String */ targetModelXPath, /* String */ value, /* Boolean? */ keepEmptyValueExpression, isRadio, /* func to execute before commit */ cbBeforeCommit){
+    _copyDataFromHTMLElementToTargetModel: function( targetModel, targetModelXPath, value,  keepEmptyValueExpression, isRadio, cbBeforeCommit){
       return bcdui.widget._copyDataAndCaptionFromHTMLElementToTargetModel( targetModel, targetModelXPath, value, null, keepEmptyValueExpression, isRadio, cbBeforeCommit );
     },
 
   /**
    * @private
+   * @param {DataProvider} targetModel
+   * @param {DataProvider} targetModelXPath
+   * @param {String} value
+   * @param {String} caption
+   * @param {Boolean} [keepEmptyValueExpression]
+   * @param {func} cbBeforeCommit - func to execute before commit
    * @return true in case the target document was changed
    */
-  _copyDataAndCaptionFromHTMLElementToTargetModel: function(/* DataProvider */ targetModel, /* String */ targetModelXPath, /* String */ value, /* String */ caption, /* Boolean? */ keepEmptyValueExpression, isRadio, /* func to execute before commit */ cbBeforeCommit)
+  _copyDataAndCaptionFromHTMLElementToTargetModel: function(targetModel, targetModelXPath,  value,  caption, keepEmptyValueExpression, isRadio, cbBeforeCommit)
     {
       // In a wrs model, switch wrs:R to wrs:M
       var isWrsModel = (targetModel.getData().selectSingleNode("/wrs:Wrs") != null ? true:false);
@@ -726,9 +739,11 @@ bcdui.util.namespace("bcdui.widget",
 
   /**
    * Creates WRS modified row
+   * @param {XMLNode} originNode
+   * @param {Model} targetModel
    * @private
    */
-  _renameToModifiedRow:function( /*XML Node*/originNode, /*Model*/ targetModel){
+  _renameToModifiedRow:function( originNode, targetModel){
     if(originNode.parentNode.nodeName != "I" && originNode.parentNode.nodeName != "wrs:I"){
       var doc = originNode.ownerDocument;
       var newRow = bcdui.core.createElementWithPrototype(targetModel, "/wrs:Wrs/wrs:M");
@@ -998,8 +1013,8 @@ bcdui.util.namespace("bcdui.widget",
     },
 
     /**
-     * @param models : an array of unique model names with $ tokens, i.e [$guiStatus,$referenceModel]
-     * @param config is an array of:
+     * @param models - an array of unique model names with $ tokens, i.e [$guiStatus,$referenceModel]
+     * @param {Array} config is an array of:
      *   optionsModelId
      *   optionsModelXPath
      *   optionsModelRelativeValueXPath
@@ -1139,9 +1154,11 @@ bcdui.util.namespace("bcdui.widget",
       },
 
    /**
+    * @param {String} htmlElementId
+    * @param {String} caption
     * @private
     */
-   _getValueOfCaption: function(/* String */ htmlElementId, /* String */ caption)
+   _getValueOfCaption: function( htmlElementId, caption)
      {
        if (typeof caption == "undefined" || caption == null || !caption.trim()) return "";
 
@@ -1170,9 +1187,10 @@ bcdui.util.namespace("bcdui.widget",
 
      /**
       * @private
+      * @param {String} htmlElementId
       * @return an 2dim array containining caption/value array or NULL if no caption mapping available (i.e. values=caption), the array is of items with size 2
       */
-     _getCaptionValueArray: function(/* String */ htmlElementId)
+     _getCaptionValueArray: function(htmlElementId)
      {
        var htmlElement = document.getElementById(htmlElementId);
        var optionsModelId = htmlElement.getAttribute("bcdOptionsModelId");
@@ -1192,9 +1210,11 @@ bcdui.util.namespace("bcdui.widget",
      },
 
    /**
+    * @param {String} htmlElementId
+    * @param {String} value
     * @private
     */
-   _getCaptionOfValue: function(/* String */ htmlElementId, /* String */ value)
+   _getCaptionOfValue: function( htmlElementId, value)
      {
        if (typeof value == "undefined" || value == null || !value.trim()) return "";
 
@@ -1218,9 +1238,11 @@ bcdui.util.namespace("bcdui.widget",
 
      /**
       * @private
+      * @param {String} htmlElementId
+      * @param {String} value
       * @return String The input-value if found in optsionModel or if no options model is given (==all values allowed), otherwise an empty string
       */
-     _findValueInOptionsModel: function(/* String */ htmlElementId, /* String */ value)
+     _findValueInOptionsModel: function( htmlElementId, value)
      {
        if (typeof value == "undefined" || value == null || !value.trim()) return "";
 
@@ -1398,9 +1420,10 @@ bcdui.util.namespace("bcdui.widget",
     },
 
   /**
+   * @param {HTMLElement} baseElement
    * @private
    */
-  _computeRowAndColIdents: function(/* HTMLElement */ baseElement)
+  _computeRowAndColIdents: function(baseElement)
     {
       var result = {
             bcdRowIdent: null
@@ -1481,24 +1504,22 @@ bcdui.util.namespace("bcdui.widget",
    * of the targetRenderer's contentDiv is left.
    *
    * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>tooltipRendererId: {String|DataProvider} The renderer responsible
+   * @param {String|DataProvider} args.tooltipRendererId The renderer responsible
    *          for generating the tooltip content. When the "tableMode" parameter
    *          is true this renderer will get two additional parameters "bcdRowIdent"
    *          and "bcdColIdent". These parameters come from the table cell the mouse
-   *          is placed over in the targetRenderer.</li>
-   *      <li>targetHtmlElement: {HtmlElement} The HtmlElement we are attached to.</li>
-   *      <li>filter: {String?} An optional filter on the tag name where the
+   *          is placed over in the targetRenderer.
+   * @param {HtmlElement} args.targetHtmlElement The HtmlElement we are attached to.
+   * @param  {String} [args.filter] An optional filter on the tag name where the
    *          tooltip should appear. In "tableMode" it is recommended to set it
-   *          on "td" or "th|td".</li>
-   *      <li>tableMode: {Boolean?} This flag can be set to "true" if the "bcdRowIdent"
+   *          on "td" or "th|td".
+   * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML and added
-   *          as parameters on the tooltipRenderer.</li>
-   *      <li>delay: {Integer?} The delay in Miliseconds that the tooltip should wait
-   *          before it appears.</li>
-   *      <li>offset: {Integer?} Offset value which is used to position the tooltip
-   *          relatively to the mouse pointer, if not given it's determined automatically 
-   *    </ul>
+   *          as parameters on the tooltipRenderer.
+   * @param {Integer} [args.delay] The delay in Milliseconds that the tooltip should wait
+   *          before it appears.
+   * @param {Integer} [args.offset] Offset value which is used to position the tooltip
+   *          relatively to the mouse pointer, if not given it's determined automatically
    * @private
    */
   _attachTooltipRenderer: function(args)
@@ -1570,12 +1591,15 @@ bcdui.util.namespace("bcdui.widget",
     },
 
   /**
-   * Finds the inner most occurance of an attribute
+   * Finds the inner most occurrence of an attribute
    * starting at the startElement following its anchestor axis to maximal endElement
+   * @param {HTMLElement} startElement
+   * @param {String} attrName
+   * @param {HTMLElement} endElement
    * @return value of the attribute, null if attribute was not found
    * @private
    */
-  _findAttribute: function(/* HTMLElement */ startElement, /* String */ attrName, /* HTMLElement */ endElement)
+  _findAttribute: function( startElement, attrName,  endElement)
     {
       var _endElement = endElement || null;
       while (startElement != null && !startElement.documentElement) {
@@ -1592,17 +1616,15 @@ bcdui.util.namespace("bcdui.widget",
    * Attaches a context menu renderer to a target renderer. This function is similar
    * to the attachTooltipRenderer function, but it is triggered with onClick and it
    * provides the contextId parameter to the stylesheet.
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>contextMenuRendererId: {String|DataProvider} The renderer responsible
+   * @param args The parameter map
+   * @param {String|DataProvider} args.contextMenuRendererId The renderer responsible
    *          for generating the context menu. Usually the HTML rendering is done
-   *          by the default contextMenu.xslt stylesheet.</li>
-   *      <li>targetHtmlElement: {String|DataProvider} The renderer the context menu is to be attached to. (or give targetRendererId)</li>
-   *      <li>tableMode: {Boolean?} This flag can be set to "true" if the "bcdRowIdent"
-   *          and "bcdColIdent" parameters should be extracted from the HTML.</li>
-   *      <li>offset: {Integer?} Offset value which is used to position the contextMenu
-   *          relatively to the mouse pointer, if not given it's determined automatically 
-   *    </ul>
+   *          by the default contextMenu.xslt stylesheet.
+   * @param {String|DataProvider} args.targetHtmlElement The renderer the context menu is to be attached to. (or give targetRendererId)</li>
+   * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
+   *          and "bcdColIdent" parameters should be extracted from the HTML.
+   * @param {Integer} [args.offset] Offset value which is used to position the contextMenu
+   *          relatively to the mouse pointer, if not given it's determined automatically
    * @private
    */
   _attachContextMenu: function(args)
@@ -1872,10 +1894,8 @@ bcdui.util.namespace("bcdui.widget",
   /**
    * Helper function, assuring bcdOptionsModelId, bcdOptionsModelXPath, bcdTargetModelId and bcdTargetModelXPath
    * are set, they may be derived from the xxXPath attributed when using $midelId/xPath syntax
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>htmlElement: (HTMLElement) htmlTargetElement to work on</li>
-   *    </ul>
+   * @param {Object} args The parameter map
+   * @param args.htmlElement: (HTMLElement) htmlTargetElement to work on
    * @private
    */
   _assureModelIdAndXPathAttributes: function(args)
@@ -1903,11 +1923,9 @@ bcdui.util.namespace("bcdui.widget",
    *        - write initial @mandatory into targetModel
    *        - add listener to the target model on the mandatoryXPath - call args.onMandatoryChanged
    *
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>htmlElement: (HTMLElement) htmlTargetElement to work on</li>
-   *      <li>onMandatoryChanged: (function) the callback function - will be called on mandatory changed</li>
-   *    </ul>
+   * @param args The parameter map
+   * @param {HTMLElement} args.htmlElement htmlTargetElement to work on
+   * @param {function} args.onMandatoryChanged the callback function - will be called on mandatory changed
    * @private
    */
   _initWidgetMandatory: function(args) {
@@ -1969,13 +1987,13 @@ bcdui.util.namespace("bcdui.widget",
      * Calculate mandatoryXPath for given targetModel and targetModelXPath.
      * The model should be ready.
      *
-     * @param targetModel
-     * @param targetModelXPath
+     * @param {DataProvider} targetModel
+     * @param {String} targetModelXPath
      * @return String - the calculated @mandatory xPath
      *
      * @private
      */
-    _getMandatoryXPath: function(/* DataProvider */ targetModel, /* String */ targetModelXPath) {
+    _getMandatoryXPath: function( targetModel,  targetModelXPath) {
       var doc = targetModel.getData();
       var isWrsModel = (doc.selectSingleNode("/wrs:Wrs") != null ? true : false);
       var mandatoryXPath;
@@ -2034,9 +2052,12 @@ bcdui.util.namespace("bcdui.widget",
 
 
   /**
+   * @param {Event} event
+   * @param {DataProvider} renderer
+   * @param {HTMLElement} targetElement
    * @private
    */
-  _setIdents: function(/* Event */ event, /* DataProvider */ renderer, /* HTMLElement */ targetElement)
+  _setIdents: function(event, renderer, targetElement)
     {
       var element = event.target;
       var idents = bcdui.widget._computeRowAndColIdents(element);
@@ -2089,14 +2110,14 @@ bcdui.util.namespace("bcdui.widget",
 
     /**
      *
-     * @param args:
-     *             targetModelId
-     *             targetModelXPath
-     *             delta
-     *             lastPage
-     *             currentPage
-     *             elementId
-     *             fn
+     * @param args
+     * @param args.targetModelId
+     * @param args.targetModelXPath
+     * @param args.delta
+     * @param args.lastPage
+     * @param args.currentPage
+     * @param args.elementId
+     * @param args.fn
      * @private
      */
     _pagingPanelChangePageNum:function(args) {
@@ -2775,6 +2796,7 @@ bcdui.util.namespace("bcdui.widget",
        * @param htmlElement
        * @private
        */
+      //TODO: Documentation != Implementation
       _linkNavPath: function(id, caption) {
         if (typeof id == "string" && id != "") {
 
@@ -2871,19 +2893,19 @@ bcdui.util.namespace("bcdui.widget",
 
      /**
       * shows a js alert box with the given message
-      * @param msgKey
-      * @param defaultValue
+      * @param {string} msgKey
+      * @param {string} defaultValue
       */
-     i18nAlert : function(/* string */ msgKey, /* string */ defaultValue) {
+     i18nAlert : function( msgKey,  defaultValue) {
        alert(bcdui.i18n.syncTranslateFormatMessage({msgid: msgKey}) || defaultValue);
      },
      
      /**
       * shows a js confirm box with the given message
-      * @param msgKey
-      * @param defaultValue
+      * @param {string} msgKey
+      * @param {string} defaultValue
       */
-     i18nConfirm : function(/* string */ msgKey, /* string */ defaultValue) {
+     i18nConfirm : function( msgKey,  defaultValue) {
        return confirm(bcdui.i18n.syncTranslateFormatMessage({msgid: msgKey}) || defaultValue);
      },
 
@@ -3330,16 +3352,16 @@ bcdui.widget.validationToolTip = class
     }
   }
 
-  /*
+  /**
    * @constructs
    * Initializing tooltip widget
-   * input parameters arg
-   *    id - option widget identifier
-   *    targetModelId - identifier of model that should be tracked
-   *    targetModelXPath - xpath of model that should be tracked
-   *    containerHtmlElement - html container with binded control
-   *    validateWrapperUrl - xstl transformation which implement concrete validation logic
-   *    validateWrapperParameters - parameters that should be passed to validateWrapper
+   * @param args
+   * @param args.id - option widget identifier
+   * @param args.targetModelId - identifier of model that should be tracked
+   * @param args.targetModelXPath - xpath of model that should be tracked
+   * @param args.containerHtmlElement - html container with binded control
+   * @param args.validateWrapperUrl - xstl transformation which implement concrete validation logic
+   * @param args.validateWrapperParameters - parameters that should be passed to validateWrapper
    * */
   constructor(args)
   {
@@ -3419,6 +3441,7 @@ bcdui.widget.validationToolTip = class
    * @returns {Function} Listener which controls the tool tip.
    * @private
    */
+  //TODO: Documentation != Implementation
   _initTooltip(t)
     {
       var xpath, xpathMessage;
@@ -3469,6 +3492,7 @@ bcdui.widget.validationToolTip = class
      *        validateValue {boolean} result of validation true\false
      * @private
      */
+    //TODO: Documentation != Implementation
     _visualizeValidationResult(containerHtmlElement, targetModelId, xpath){
       var doc=bcdui.factory.objectRegistry.getObject(targetModelId).getData();
       var node = doc.selectSingleNode(xpath);

@@ -376,6 +376,7 @@
      * @param htmlElementId of the controller element (or the controller element itself)
      * @private
      */
+    //TODO: Documentation != Implementation
     _ntv_init: function(htmlElement){
 
       var el = bcdui._migPjs._$(htmlElement);

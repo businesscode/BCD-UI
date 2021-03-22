@@ -254,7 +254,7 @@
      * modification callback executed), please call _targetUpdated() everytime you updating data
      * in targetModelXPath BEFORE .fire()ing the data-provider.
      *
-     * @param {function} callback The callback to executon upon model change
+     * @param {function} callback The callback to execution upon model change
      * @private
      * @throws Throws an error if targetModelXPath option is not set 
      */
@@ -289,7 +289,7 @@
 
     /**
      * If you have registered a target modification callback via _setOnTargetModelChange(), then call
-     * this method everytime you write internal state into targetModelXPath and before issueing .fire() on
+     * this method everytime you write internal state into targetModelXPath and before issuing .fire() on
      * the target data provider.
      * @private
      * @throws Throws an error if targetModelXPath option is not set 
