@@ -483,7 +483,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         }
 
         // initialization
-        var validationTooltip = bcdui.widget.periodChooser._initValidateWrapper(containerHtmlElement/*, tooltipListener*/);
+        var validationTooltip = bcdui.widget.periodChooser._initValidateWrapper(containerHtmlElement);
         bcdui.widget.periodChooser._initUpdaterViewFromXMLData(containerHtmlElement, validationTooltip);
         if (containerHtmlElement.getAttribute("bcdTextInput") === "true") {
           bcdui._migPjs._$(containerHtmlElement).find("input.bcdYear, input.bcdMonth, input.bcdDay, input.bcdHour, input.bcdMinute, input.bcdSecond").each(function(i, input) {
@@ -534,11 +534,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
    * Initialization of validation wrapper.
    * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param tooltipListener {Function} Listener which controls the tool tip.
    * @private
    */
   _initValidateWrapper: function(containerHtmlElement)
-        //TODO: Documentation != Implementation
     {
       var t = bcdui.widget.periodChooser._getTargetData(containerHtmlElement);
       var xpathFrom, xpathTo;
@@ -968,12 +966,11 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
      * Fills the certain time field (hour, minute or second) if field value isn't equals calculated date value.
      * @private
-     * @param field {HTMLElement} The one of date field - year, month or day.
-     * @param date {Array} The array of strings with date's elements - year, month or day.
-     * @param i {Integer} Index to access to the date array.
+     * @param field {HTMLElement} The html input element of the date field - hour, minute or seconds.
+     * @param time {Array} The array of strings with time elements - hour, minute or seconds.
+     * @param i {Integer} Index of the time field array to get filled
      */
     _fillTimeFieldIfNeeded: function(field, time, i)
-        //TODO: Documentation != Implementation
     {
         if (field != null){
           if (jQuery.makeArray(time).length > i) {

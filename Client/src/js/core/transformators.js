@@ -139,11 +139,10 @@ bcdui.core.transformators.IdentityTransformator = class
 bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
   /**
-   * @param {(string|function)} prokFunc - The js function to be used for processing. Either a real function or a string with JS code for eval.
+   * @param {(string|function)} procFkt - The js function to be used for processing. Either a real function or a string with JS code for eval.
    * @private
    */
   constructor(/* object */ procFkt)
-  //TODO: Documentation != Implementation
   {
     super( procFkt);
     if( typeof procFkt == "string" ) {

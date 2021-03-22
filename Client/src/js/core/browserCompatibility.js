@@ -108,12 +108,12 @@ bcdui.core.browserCompatibility = {
      * and appends it to the specified target element. This function should be used
      * rather than createElementNS, because the latter is not available on the
      * Internet Explorer.
-     * @param doc The document the element should be created for.
-     * @param name The element name which may contain a well-known prefix.
+     * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
+     * @param {string} name The element name which may contain a well-known prefix.
+     * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
      * @returns {XMLElement} The new XMLElement.
      */
-    appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
-    // TODO: Documentation != implementation
+    appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
     {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;
@@ -135,13 +135,12 @@ bcdui.core.browserCompatibility = {
 
     /**
      * Asynchronous creation of an XSLTProcessor object from a DOM document.
-     * @param {XMLDocument} domDocument The XSLT document the XSLTProcessor instance should be
-     * created from.
-     * @param {Function} fn The callback function executed when the processor has been created. It
-     * takes the processor instance as argument.
+     * @param {object}   args - An argument map containing the following elements:
+     * @param {XMLDocument} args.model The XSLT document the XSLTProcessor instance should be
+     * @param {function} args.callBack The callback function executed when the processor has been created. It takes the processor instance as argument
+     * @param {string}   args.callerDebug Additional (debug) information from the caller for logging 
      */
     asyncCreateXsltProcessor: function( args )
-      // TODO: Documentation != implementation
     {
       var domDocument = args.model;
       var fn = args.callBack;
@@ -162,7 +161,6 @@ bcdui.core.browserCompatibility = {
         bcdui.log.error(msg);
       }
       setTimeout(fn.bind(undefined,proc));
-      return;
     },
 
     /*
@@ -337,12 +335,12 @@ if (bcdui.browserCompatibility.isIE) {
      * Creates a new element whose name can contain a well-known prefix (like "wrs").
      * It uses createElement, because IE does not implement createElementNS. The element
      * is then appended to the specified target element.
-     * @param doc The document the element should be created for.
-     * @param name The element name which may contain a well-known prefix.
+     * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
+     * @param {string} name The element name which may contain a well-known prefix.
+     * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
      * @returns {XMLElement} The new XMLElement.
      */
-    appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
-        // TODO: Documentation != implementation
+    appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
       {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;

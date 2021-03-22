@@ -253,9 +253,8 @@ bcdui.util.xml =
   },
 
   /**
-   * @param {object} args The parameter map containing following properties
-   * @param {string} args.expression - the expression to parse
-   * @param {object} [args.params] - the expression to parse
+   * @param {string} expression - the expression to parse
+   * @param {object} params - the expression to parse
    * @return {document} containing parsed expression
    * @example
    *   
@@ -283,7 +282,6 @@ bcdui.util.xml =
    *   &lt;/f:And>
    */
   parseFilterExpression : function(expression, params){
-    //TODO: Documentation != Implementation
     var parser = new bcdui_util_xml_filterExpressionParser.Parser();
     parser.yy = {
       resolveVariable : v => params[parser.yy.escapeHtml(v.substring(1))],

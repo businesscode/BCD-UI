@@ -130,11 +130,13 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * Keep in mind: as the content is inserted into the host document, elements from undeclared default namespacees will
      * inherit the host documents default namespace, for example HTML tags of undeclared namespace would become xsl elements
      * if the generated XSLT has xslt as the default namespace, which often happens. Thus: always declare HTML namespaces as well for Chrome
-     * @param {XMLDocument} domDocument The XSLT document
-     * @param {Function} fn The callback function executed when the processor has been created. It
-     */
+
+     * @param {object}      args - An argument map containing the following elements:
+     * @param {XMLDocument} args.model The XSLT document the XSLTProcessor instance should be
+     * @param {function}    args.callBack The callback function executed when the processor has been created. It takes the processor instance as argument
+     * @param {boolean}     args.isGenerated is generated XSLT
+    */
     asyncCreateXsltProcessor: function( args )
-//TODO: Documentation != Implementation
     {
       var domDocument = args.model;
       var fn = args.callBack;

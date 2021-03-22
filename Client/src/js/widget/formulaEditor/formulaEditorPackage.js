@@ -358,11 +358,15 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
 
   /**
    * parsing formula by calling external formula parser
-   * @param inputField {HTMLElement} html input element.
+   * @param {string} formula The actual formula.
+   * @param {dataProvider} optionsModel The dataprovider holding the XML options.
+   * @param {string} optionsModelXPath The XPath in whole XML options data.
+   * @param {string} optionsModelRelativeValueXPath The relative XPath in whole XML options data.
+   * @param {boolean} doNotValidateContent Do not validate content.
+   * @param {boolean} skipServerSidedFunctions Skip server-sided functions.
    * @private
    */
   _parseText: function(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions)
-      //TODO: Documentation != Implementation
   {
       var result = bcdui.widget.formulaEditor.Parser.shunting_yard(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions);
       return result;

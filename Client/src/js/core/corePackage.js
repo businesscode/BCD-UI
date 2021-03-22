@@ -223,9 +223,9 @@ bcdui.util.namespace("bcdui.core",
   /**
    * Removes XML elements from a DOM document. These XML elements are identified
    * with an XPath.
-   * @param {document} doc - The document the XPath specified in the "path"
+   * @param {XMLDocument|XMLElement|DataProvider} doc - The document the XPath specified in the "path"
    * argument is evaluated on.
-   * @param {xpath} path - The XPath pointing to the nodes to be removed.
+   * @param {string} path - The XPath pointing to the nodes to be removed.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
    * wrs elements differently (like converting wrs:R to wrs:D instead of removing it).
    * It is "true" by default.
@@ -236,8 +236,7 @@ bcdui.util.namespace("bcdui.core",
    * @return {number} The number of removed nodes.
    * @private
    */
-  removeXPath: function(/* XMLDocument | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements)
-  //TODO: Documentation != Implementation
+  removeXPath: function(/* XMLDocument | XMLElement | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements)
     {
       var useWrsExtensions = (typeof enableWrsExtensions == "undefined" ? true : enableWrsExtensions);
       doc = bcdui.core._getDocParameter(doc);
@@ -295,12 +294,11 @@ bcdui.util.namespace("bcdui.core",
   /**
    * Removes the xml:base attribute from all XML elements. This is useful for example
    * in FireFox and Chrome, because they do not allow xml:base to occur in XSLT documents.
-   * @param {document} doc - The document the xml:base attributes should be removed from.
+   * @param {XMLDocument} doc - The document the xml:base attributes should be removed from.
    * @return {document} The doc passed as argument for convenience.
    * @private
    */
   removeXMLBase: function(/* XMLDocument */ doc)
-      //TODO: Documentation != Implementation
     {
     jQuery.makeArray(doc.selectNodes("//*[@*[name() = 'xml:base']]")).forEach(function(element) {
         element.removeAttribute("xml:base");
@@ -574,11 +572,10 @@ bcdui.util.namespace("bcdui.core",
    * becomes
    *    'myValue'
    * . The quotes are automatically added so that it is a valid XPath string.
-   * @param {xpath} str - The string to be quotes as an XPath string.
-   * @returns {xpath} The XPath string representing str.
+   * @param {string} str - The string to be quotes as an XPath string.
+   * @returns {string} The XPath string representing str.
    */
-  quoteXPathString: function(/* String */ str)
-    //TODO: Documentation != Implementation
+  quoteXPathString: function(str)
   {
       var hasSingleQuote = str.indexOf("'") >= 0;
       if (!hasSingleQuote)
@@ -623,8 +620,8 @@ bcdui.util.namespace("bcdui.core",
    * and the "or" conjunction cannot be used.
    * </p>
    * If you want to modify an existing wrs cell, bcdui.wrs.wrsUtil.setCellValue might be a more convenient function to use.
-   * @param {Element} baseElement - The DOM document or the XML element the path is evaluated on.
-   * @param {xpath} path - The XPath identifying the element to be retrieved or
+   * @param {XMLDocument|XMLElement|DataProvider} baseElement - The Dataprovider, DOM document or the XML element the path is evaluated on.
+   * @param {string} path - The XPath identifying the element to be retrieved or
    * created.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
    * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I
@@ -632,7 +629,6 @@ bcdui.util.namespace("bcdui.core",
    * @return {Element} The XML element to be found under the specified XPath.
    */
   createElementWithPrototype: function(/* XMLDocument | XMLElement | DataProvider */ baseElement, /* String */ path, /* Boolean? */ enableWrsExtensions)
-      //TODO: Documentation != Implementation
   {
       var useWrsExtensions = (typeof enableWrsExtensions == "undefined" ? true : enableWrsExtensions);
       var baseElement = bcdui.core._getDocParameter(baseElement);

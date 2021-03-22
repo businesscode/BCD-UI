@@ -411,12 +411,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * function is an auxiliary function of "_transformNext".
    * This is called once for each chain.phases.xslt. If a xslt itself creates a stylesheet which is executed, this is done
    * in xml post processing, not here
-   * @param {Object} current transformation rule from this.chain.phases.xslt to be executed
-   * @param {(XMLDocument|Object)} Input to be transformed
+   * @param {Object} xslt transformation rule from this.chain.phases.xslt to be executed
+   * @param {(XMLDocument|Object)} input the input to be transformed
    * @private
    */
   _runTransformation(/* object */ xslt, /* object */ input )
-  //TODO: Documentation != Implementation
   {
       xslt.running = true;
       xslt.input = input;
