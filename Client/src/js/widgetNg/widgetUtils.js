@@ -145,11 +145,6 @@
       var args = el.data("_args_");
       var config = el.data("_config_");
 
-      // in case of a drop down, we store the code/caption combination for later reuse at _sync
-      var htmlElement = el.get(0);
-      if (htmlElement.nodeName == "SELECT")
-        el.data("bcdSelected", htmlElement.value + bcdui.core.magicChar.separator + (htmlElement.selectedIndex >= 0 && htmlElement.selectedIndex < htmlElement.options.length ? htmlElement.options[htmlElement.selectedIndex].text : ""));
-
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.utils._writeDataToXML: writing data...");
       // tag that we're writing data ourself so that XMLUpdateListener
       // ignores and does not propagate this update.
@@ -322,32 +317,12 @@
     _syncValue: function(inputElementId){
       var value = bcdui.widgetNg.utils._readDataFromXML(inputElementId).value||"";
       var el = bcdui._migPjs._$(inputElementId);
-
-      // in case of a select drop down box, we try to set the value by using the index method
-      // for this, we stored bcdSelected data (code|caption) in _writeDataToXML (we may have one value with multiple captions)
-      // otherwise we simply set the value.
-      var foundIndex = -1;
-      var htmlElement = el.get(0);
-      if (htmlElement.nodeName == "SELECT") {
-        var bcdSelected = el.data("bcdSelected") || "";
-        if (bcdSelected != "") {
-          var c = bcdSelected.split(bcdui.core.magicChar.separator);
-          var code = c[0];
-          var caption = c.length > 0 ? c[1] : c[0];
-          foundIndex = Array.from(htmlElement.options).map(function(e){ return e.value == code && e.text == caption ? "1" : "0";}).indexOf("1");
-        }
-      }
-      if (foundIndex == -1)
-        htmlElement.value = value;
-      else
-        htmlElement.selectedIndex = foundIndex;
-
       // we're settings fields value - reset placeholder
       if(el.prop("bcdIsValuePlaceholder")){
         el.prop("bcdIsValuePlaceholder", false);
         el.removeClass("bcdPlaceholder");
       }
-
+      el.get(0).value = value;
       var isValueEmpty = value == null || !value.trim();
 
       ! isValueEmpty ? jQuery(el).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(el).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");

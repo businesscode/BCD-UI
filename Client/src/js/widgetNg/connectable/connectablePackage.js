@@ -397,10 +397,8 @@
         // we wait for readiness of current target and belonging source
         // and remember source options
         var targetModels = new Array(this.config.target.modelId);
-        var sourceOptions = this._getScopedSourceElement()._bcduiWidget().options;
-        var sourceConfig = bcdui.factory._extractXPathAndModelId( sourceOptions.optionsModelXPath );
+        var sourceConfig = this._getScopedSourceElement()._bcduiWidget().config.source;
         targetModels.push(sourceConfig.modelId);
-        sourceConfig.optionsModelRelativeValueXPath = sourceOptions.optionsModelRelativeValueXPath;
 
         bcdui.factory.objectRegistry.withReadyObjects(targetModels, function(){
 
@@ -719,6 +717,18 @@
       // setup our function handlers
       this.onBeforeChange = this.options.onBeforeChange || nop;
       this.onChange = this.options.onChange || nop;
+      this.generateItemHelperHtml = this.options.generateItemHelperHtml || function(event, item) {
+        // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
+        var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
+        var caption = "<ul>";
+        for (var i = 0; i < selectedItems.length && i < 5; i++)
+          caption += "<li>" + (jQuery(selectedItems[i]).text() == "" ? jQuery(selectedItems[i]).attr("bcdValue") : jQuery(selectedItems[i]).text()) + "</li>";
+        if (selectedItems.length > 5)
+          caption += "<li>[...]</li>";
+        caption += "</ul>";
+        return jQuery(caption);
+      };
+
       this.generateItemHtml = this.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
 
       var self = this;
@@ -1020,18 +1030,7 @@
             });
           }
           , stop: function() {jQuery(document).off('mousemove');}
-          , helper: function(event, item) {
-
-            // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
-            var selectedItems = self.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
-            var caption = "<ul>";
-            for (var i = 0; i < selectedItems.length && i < 5; i++)
-              caption += "<li>" + (jQuery(selectedItems[i]).text() == "" ? jQuery(selectedItems[i]).attr("bcdValue") : jQuery(selectedItems[i]).text()) + "</li>";
-            if (selectedItems.length > 5)
-              caption += "<li>[...]</li>";
-            caption += "</ul>";
-            return jQuery(caption);
-          }
+          , helper: this.generateItemHelperHtml.bind(this)
         });
 
         // remember which selectable box you're currently in

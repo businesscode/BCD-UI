@@ -973,6 +973,8 @@
       // rebind widget specific values : put this into separate function as it may happen that we have to re-init renderer deferred at it is not
       // known to ObjectRegistry right after construction
       var rebindRendererParams = function(renderer){
+        // rebind to different target before rendering
+        renderer.setTargetHtml(this._CST_DATALIST_ELEMENT_ID);
         // reset input document to options document of our widget
         renderer.dataProviders[0] = srcModel;
         renderer.modelParameterId = renderer.dataProviders[0].id;
@@ -986,7 +988,7 @@
           boundTo : ctx.el.id,
           rendererId : renderer.id
         };
-      };
+      }.bind(this);
   
       if(ctx.args.optionsRendererId){
         /* we have custom renderer */

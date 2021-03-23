@@ -80,7 +80,7 @@
           }
           if(this.options.onClickAction){
             if (this.options.optionsModelXPath) {
-              this._renderDropDownButtonControl(el, this.options.onClickAction);
+              this._renderDropDownButtonControl(el);
               event.stopPropagation();
               event.preventDefault();
             }
@@ -147,8 +147,9 @@
     /**
      * @private
      */
-    _renderDropDownButtonControl: function(el, onClickAction){
+    _renderDropDownButtonControl: function(el){
 
+      var self = this;
       var isExpanded = el.hasClass("opened");
 
       // remove possibly existing div and listeners
@@ -212,7 +213,7 @@
 
           bcdui.widgetNg.button._cleanup(el);
 
-          onClickAction.bind(this)(value);
+          window.setTimeout(self.options.onClickAction.bind(el.get(0), value),0);
         });
 
         // blur listener to get outer clicks (close drop down)

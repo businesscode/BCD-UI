@@ -261,7 +261,9 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
 
     // No voice recognition supported and no input field wanted: nothing to do
     let inputFieldSetting = this.args.config.query("/*/txtnav:TextLine");
-    if( typeof webkitSpeechRecognition === "undefined" && (inputFieldSetting === null || inputFieldSetting.getAttribute("input") === "false") )
+    // No support for voice recognition available and no input field wanted? Exit.
+    if( (bcdui.browserCompatibility.isChromiumEdge || typeof webkitSpeechRecognition === "undefined")
+         && (inputFieldSetting === null || inputFieldSetting.getAttribute("input") === "false") )
       this.disabled = true;
 
     // txtnav:Model: we refer to a model loaded outside
@@ -412,8 +414,8 @@ bcdui.component.textnavigation.VoiceRecognition = class
    */
   constructor(args)
   {
-    // No voice control available
-    if( typeof webkitSpeechRecognition === "undefined" )
+    // No support for voice recognition available?
+    if( bcdui.browserCompatibility.isChromiumEdge || typeof webkitSpeechRecognition === "undefined" )
       return;
 
     this.args = args;

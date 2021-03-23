@@ -315,6 +315,7 @@
       <xs:enumeration value="DISTINCT" />
       <xs:enumeration value="DOUBLE" />
       <xs:enumeration value="FLOAT" />
+      <xs:enumeration value="GEOMETRY" />
       <xs:enumeration value="INTEGER" />
       <xs:enumeration value="JAVA_OBJECT" />
       <xs:enumeration value="LONGNVARCHAR" />

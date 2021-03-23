@@ -348,9 +348,9 @@
             Sets the maximum value for an integer or numeric type input field (HTML5 only).
           </Doc>
         </Param>
-        <Param name="autocomplete" type="enum" value="|on|off" default="">
+        <Param name="autocomplete" type="string">
           <Doc>
-            html autocomplete attribute
+            html autocomplete attribute. Can be on or off. Google Chrome ignores off, so set something like new-password or other.
           </Doc>
         </Param>
         <Param name="type" type="enum" value="text|email|password|int|numeric" default="text">
@@ -695,7 +695,7 @@
         </Param>
         <Param name="generateItemHtml" required="false" type="function">
           <Doc>
-            Function to generate the html for one container item. Gets object with properties: value , caption, position;
+            Function to generate the html for one container item. Gets object with properties: value, caption, position;
             see implementation documentation to read more about the structure to return by this function.
           </Doc>
           <ImplDoc>
@@ -707,6 +707,11 @@
               bcdLoCase='caption'
               title=''>&lt;span class='bcdItem'>[Caption]&lt;/span>&lt;/li>
           </ImplDoc>
+        </Param>
+        <Param name="generateItemHelperHtml" required="false" type="function">
+          <Doc>
+            Function to generate the html for helper container item which appears when you drag items. Basically the function for jQuery's sortable helper function. By default the first 5 items are listed.
+          </Doc>
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       

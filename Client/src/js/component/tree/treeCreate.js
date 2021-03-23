@@ -65,6 +65,17 @@ bcdui.component.tree.Tree = function(args)
     , parameters: {statusModel: this.statusModel }
   });
 
+  // the actual renderer
+  bcdui.core.Renderer.call( this, {
+    id: this.id,
+    inputModel: this.enhancedConfiguration,
+    targetHtml: this.targetHtml,
+    parameters: { statusModel: this.statusModel },
+    chain: [ this._render.bind(this) ]
+  });
+
+
+
   this.enhancedConfiguration.onceReady(function(){
     
     // create the context menu, prepare contextmenu injects the right used treeDataModel
@@ -175,15 +186,6 @@ bcdui.component.tree.Tree = function(args)
           nextRowHide = nextRowHide.next("tr");
         }
       }
-    });
-
-    // the actual renderer
-    bcdui.core.Renderer.call( this, {
-      id: this.id,
-      inputModel: this.enhancedConfiguration,
-      targetHtml: this.targetHtml,
-      parameters: { statusModel: this.statusModel },
-      chain: [ this._render.bind(this) ]
     });
 
   }.bind(this));

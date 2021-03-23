@@ -349,8 +349,9 @@ bcdui.browserCompatibility = (function(){
     return {
       isIE:             isInternetExplorer,
       isMsEdge:         ua.indexOf(' Edge/') !== -1,
+      isChromiumEdge:   ua.indexOf(" Edg/")  !== -1,
       isOpera:          isOpera,
-      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1,
+      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1, // Note: This is also true for Chromium Edge
       isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,
       isMobileSafari:   /Apple.*Mobile/.test(ua),
       isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf("MSIE")+5))== 8,

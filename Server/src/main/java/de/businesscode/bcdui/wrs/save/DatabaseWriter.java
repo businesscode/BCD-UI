@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -40,6 +41,7 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.wrs.save.exc.KeyColumnsNotDefinedException;
 import de.businesscode.util.jdbc.Closer;
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.jdbc.SQLDetailException;
 
 /**
@@ -140,7 +142,12 @@ public class DatabaseWriter {
 
       builder.append(column.getColumnExpression());
       if(column.isDefinedJDBCDataType() && column.getJDBCDataType() == Types.OTHER){
-        builder.append("=(?)::" + getCustomDatabaseType(column) + ",");
+        if( "GEOMETRY".equalsIgnoreCase(column.getCustomAttributesMap().get("type-name")) ) {
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]).append(", ");
+        } else {
+          builder.append("=(?)::" + getCustomDatabaseType(column) + ",");
+        }
       } else {
         builder.append("=?,");
       }
@@ -162,7 +169,12 @@ public class DatabaseWriter {
         BindingItem bi = columns[i];
         wherePart.append(bi.getColumnExpression());
         if(bi.isDefinedJDBCDataType() && bi.getJDBCDataType() == Types.OTHER){
-          wherePart.append("=(?)::" + getCustomDatabaseType(bi));
+          if( "GEOMETRY".equalsIgnoreCase(bi.getCustomAttributesMap().get("type-name")) ) {
+            final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+            builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]);
+          } else {
+            wherePart.append("=(?)::" + getCustomDatabaseType(bi));
+          }
         } else {
           wherePart.append("=?");
         }
@@ -202,8 +214,13 @@ public class DatabaseWriter {
       if (i > 0)
         builder.append(", ");
       BindingItem bItem = columns[i];
-      if(bItem.isDefinedJDBCDataType() && bItem.getJDBCDataType() == Types.OTHER){
-        builder.append("(?)::" + getCustomDatabaseType(bItem));
+      if(bItem.isDefinedJDBCDataType() && bItem.getJDBCDataType() == Types.OTHER) {
+        if( "GEOMETRY".equalsIgnoreCase(bItem.getCustomAttributesMap().get("type-name")) ) {
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          builder.append(fctMapping.get("GeoFromWkt")[0]).append(" ? ").append(fctMapping.get("GeoFromWkt")[2]);
+        } else {
+          builder.append("(?)::" + getCustomDatabaseType(bItem));
+        }
       } else {
         builder.append("?");
       }
