@@ -2,36 +2,24 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-    <!-- define ConsoleAppender and set its Threshold -->
-    <appender name="ConsoleAppender" class="org.apache.logging.log4j.ConsoleAppender">
-        <param name="Threshold" value="ALL"/>
-        <layout class="org.apache.logging.log4j.PatternLayout">
-            <!-- pattern: date sessionid level class message -->
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %X{BCD.requestHash} %C{1}: %m%n"/>
-        </layout>
-    </appender>
+    <Appenders>
+        <!-- define ConsoleAppender and set its Threshold -->
+        <Console name="ConsoleAppender">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %X{BCD.requestHash} %C{1}: %m%n"/>
+        </Console>
+    </Appenders>
 
-    <!-- define individual loggers and set their levels -->
-    <logger name="de.businesscode">
-        <level value="DEBUG"/>
-    </logger>
-    <logger name="de.businesscode.bcdui.web.servlets.StaticResourceServlet">
-        <level value="ERROR"/>
-    </logger>
-    <logger name="net.sf.ehcache">
-        <level value="INFO"/>
-    </logger>
-    <logger name="org.apache">
-        <level value="INFO"/>
-    </logger>
-    <logger name="org.zefer">
-        <level value="WARN"/>
-    </logger>
-	
-    <!-- add an appender to the root logger and set its level -->
-    <root>
-        <level value="ALL"/>
-        <appender-ref ref="ConsoleAppender"/>
-    </root>
+    <Loggers>
+        <!-- define individual loggers and set their levels -->
+        <Logger name="de.businesscode" level="DEBUG"/>
+        <Logger name="de.businesscode.bcdui.web.servlets.StaticResourceServlet" level="ERROR"/>
+        <Logger name="net.sf.ehcache" level="INFO"/>
+        <Logger name="org.apache" level="INFO"/>
+        <Logger name="org.zefer" level="WARN"/>
 
+        <!-- add an appender to the root logger and set its level -->
+        <Root level="ALL">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+    </Loggers>
 </log4j:configuration>
