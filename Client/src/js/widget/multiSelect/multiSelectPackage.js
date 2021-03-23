@@ -24,7 +24,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
   /**
    * The initialization function called by multiSelect.xslt.
    * @function
-   * @param {HTMLElement} htmlElement The element the multiSelect is based on.
+   * @param {HTMLElement} e The element the multiSelect is based on.
    * @method
    * @private
    */
@@ -129,10 +129,11 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
     },
 
   /**
+   * @param {String} htmlElementId
    * @method
    * @private
    */
-  _updateOptions: function(/* String */ htmlElementId, evtSrc)
+  _updateOptions: function( htmlElementId, evtSrc)
     {
       var htmlElement = bcdui._migPjs._$(htmlElementId).get(0);
       // if the html element is not available anymore exit the method
@@ -421,7 +422,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
     },
 
    /**
-    *  Set default parameters
+    * Set default parameters
     * @param HTMLElement  htmlElement The element the multiSelect is based on.
     * @private
     */
@@ -432,15 +433,11 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
     },
 
     /**
-     * @classdesc
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
     XMLListener: class extends bcdui.widget.XMLDataUpdateListener
-    /**
-     * @lends bcdui.widget.multiSelect.XMLListener.prototype
-     */
     {
       updateValue(evtSrc)
         {

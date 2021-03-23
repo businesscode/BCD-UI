@@ -19,22 +19,16 @@
  * The file containing the implementation of the SimpleModel class.
  *
  */
-bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 /**
- * @lends bcdui.core.SimpleModel.prototype
- */
+ *   This class represents the standard case of a model where the loaded from a specified URL. Its document can be accessed
+ *   via {@link bcdui.core.SimpleModel#getData myModel.getData()}. Javascript and {@link bcdui.core.Modelupdater Modelupdaters} can modify the data.
+ *   Data loading is triggered by {@link bcdui.core.AbstractExecutable#execute myModel.execute()}
+ * @extends bcdui.core.AbstractUpdatableModel
+*/
+bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
 
   /**
-   * @classdesc
-   * <p>
-   *   This class represents the standard case of a model where the loaded from a specified URL. Its document can be accessed
-   *   via {@link bcdui.core.SimpleModel#getData myModel.getData()}. Javascript and {@link bcdui.core.Modelupdater Modelupdaters} can modify the data.
-   *   Data loading is triggered by {@link bcdui.core.AbstractExecutable#execute myModel.execute()}
-   * </p>
-   * @extends bcdui.core.AbstractUpdatableModel
-   *
-   * @constructs
    * @description
    * The constructor of the model takes only one property besides the mandatory
    * "id" property (defined in AbstractExecutable) in its args parameter map namely

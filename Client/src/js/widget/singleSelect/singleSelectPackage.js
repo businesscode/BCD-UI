@@ -256,15 +256,11 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
   },
 
   /**
-   * @classdesc
    *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
    * @extends bcdui.widget.XMLDataUpdateListener
    * @private
    */
-  XMLListener: class extends bcdui.widget.XMLDataUpdateListener
-      /**
-       * @lends bcdui.widget.singleSeelct.XMLListener.prototype
-       */   {
+  XMLListener: class extends bcdui.widget.XMLDataUpdateListener   {
    updateValue(evtSrc){
        bcdui.widget.singleSelect._readDataFromXML(this.htmlElementId, evtSrc);
      }

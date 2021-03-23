@@ -180,8 +180,7 @@
      * options
      * 
      * @private
-     * @param {integer|array}
-     *          [value] value, range or skip, to read current value from the widget
+     * @param {integer|array} value, range or skip, to read current value from the widget
      */
     _renderWidgetLabel : function(value) {
       if (this.options.tooltips !== undefined) {
@@ -209,14 +208,10 @@
      * default rendering of the label
      * 
      * @private
-     * @param {object}
-     *          with params
-     * @param {targetHtmlRef}
-     *          target html to render into
-     * @param {array}
-     *          [captions] set for range captions (or single element array)
-     * @param {array}
-     *          [values] set for range values (or single element array)
+     * @param {object} args with params
+     * @param {targetHtmlRef} args.targetHtml target html to render into
+     * @param {array} args.captions set for range captions (or single element array)
+     * @param {array} args.values set for range values (or single element array)
      */
     _defaultLabelRenderingFunction : function(args) {
       if (args.captions.length > 1) {
@@ -303,14 +298,10 @@
      * 
      * @private
      * @return {object} with following properties
-     * @param {array}
-     *          values array
-     * @param {array}
-     *          [captions] optional captions, if configured
-     * @param {object}
-     *          valuePosMap position-by-value map
-     * @param {object}
-     *          [captionPosMap] position-by-caption map
+     * {array} values array
+     * {array} [captions] optional captions, if configured
+     * {object} valuePosMap position-by-value map
+     * {object} [captionPosMap] position-by-caption map
      */
     _getBoundOptions : function() {
       var optionsSelector = this._getOptionSelector();
@@ -341,8 +332,7 @@
 
     /**
      * @private
-     * @param {integer}
-     *          index
+     * @param {integer} index
      * @return either returns index or maps to boundOptions, if available and returns the mapped value
      */
     _mapIndexToOption : function(index) {
@@ -357,8 +347,7 @@
 
     /**
      * @private
-     * @param {integer}
-     *          index
+     * @param {integer} index
      * @return either returns index or maps to boundOptions, if available and returns the mapped caption
      */
     _mapIndexToCaption : function(index) {
@@ -399,8 +388,7 @@
      * updates model with new value, this function is called by widget onchange
      * 
      * @private
-     * @param {array}
-     *          value the distinct value (single element in array) or range
+     * @param {array} value the distinct value (single element in array) or range
      */
     _writeModel : function(value) {
       var selector = this._getTargetSelector();
@@ -481,8 +469,7 @@ bcdui.util.namespace("bcdui.widgetNg.slider",
   /**
    * initializes the widget according to the API
    * 
-   * @param element
-   *          {Element} to initialize from
+   * @param htmlElement {Element} to initialize from
    * @private
    */
   init : function(htmlElement) {
@@ -490,10 +477,8 @@ bcdui.util.namespace("bcdui.widgetNg.slider",
   },
 
   /**
-   * @param {string}
-   *          id targetHtml of widget
-   * @param {function}
-   *          callback to be called with generated caption
+   * @param {string} id targetHtml of widget
+   * @param {function} callback to be called with generated caption
    * @return {string} NavPath information via callback for widget
    */
   getNavPath : function(id, callback) {

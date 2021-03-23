@@ -20,40 +20,35 @@
  */
 
 
-bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 /**
- * @lends bcdui.core.DataProvider.prototype
+ * A data provider is an abstract class on top of the {@link bcdui.core.AbstractExecutable},
+ * extending it by data-related functions (like getName, getData, data modification events).
+ * The name is filled with the id by default or set from the "name" argument.
+ * getData() is abstract and must be provided by sub-classes.
+ *
+ * <br/>Most common implementations are:
+ * {@link bcdui.core.StaticModel} &bull;
+ * {@link bcdui.core.SimpleModel} &bull;
+ * {@link bcdui.core.ModelWrapper}
+ *
+ * <br/>Further implementations:
+ * {@link bcdui.core.AsyncJsDataProvider} &bull;
+ * {@link bcdui.core.StringDataProvider} &bull;
+ * {@link bcdui.core.DataProviderHtmlAttribute} &bull;
+ * {@link bcdui.core.RequestDocumentDataProvider} &bull;
+ * {@link bcdui.core.DataProviderWithXPathNodes} &bull;
+ * {@link bcdui.core.DataProviderWithXPath} &bull;
+ * {@link bcdui.core.DataProviderHolder} &bull;
+ * {@link bcdui.core.DataProviderAlias} &bull;
+ * {@link bcdui.core.ConstantDataProvider} &bull;
+ * {@link bcdui.core.PromptDataProvider} &bull;
+ *
+ * @extends bcdui.core.AbstractExecutable
+ * @abstract
  */
+bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 {
-
   /**
-   * @classdesc
-   * A data provider is an abstract class on top of the {@link bcdui.core.AbstractExecutable},
-   * extending it by data-related functions (like getName, getData, data modification events).
-   * The name is filled with the id by default or set from the "name" argument.
-   * getData() is abstract and must be provided by sub-classes.
-   *
-   * <br/>Most common implementations are:
-   * {@link bcdui.core.StaticModel} &bull;
-   * {@link bcdui.core.SimpleModel} &bull;
-   * {@link bcdui.core.ModelWrapper}
-   *
-   * <br/>Further implementations:
-   * {@link bcdui.core.AsyncJsDataProvider} &bull;
-   * {@link bcdui.core.StringDataProvider} &bull;
-   * {@link bcdui.core.DataProviderHtmlAttribute} &bull;
-   * {@link bcdui.core.RequestDocumentDataProvider} &bull;
-   * {@link bcdui.core.DataProviderWithXPathNodes} &bull;
-   * {@link bcdui.core.DataProviderWithXPath} &bull;
-   * {@link bcdui.core.DataProviderHolder} &bull;
-   * {@link bcdui.core.DataProviderAlias} &bull;
-   * {@link bcdui.core.ConstantDataProvider} &bull;
-   * {@link bcdui.core.PromptDataProvider} &bull;
-   *
-   * @extends bcdui.core.AbstractExecutable
-   * @abstract
-   * 
-   * @constructs
    * @description
    * Calls the initializer of {@link bcdui.core.AbstractExecutable} and additionally sets
    * the name property. This property is filled from the "args" parameter
@@ -64,8 +59,9 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    *   if the data provider is passed to a {@link bcdui.core.TransformationChain} the name should
    *   be unique for within this TransformationChain object.
    * </p>
+   * @param {object} args
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -671,8 +667,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     }
     return "" + hash;
   }
-  
-  setStatus(/* Status */ args) {
+
+  /**
+   * @param {Status} args
+   */
+  setStatus( args) {
     var stat = bcdui.core.AbstractExecutable.prototype.setStatus.call(this, args);
 
     // we do send a fire in case we reached a ready status
@@ -684,7 +683,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * True, if DataProvider is ready and there are no uncomitted write transactions,
+   * True, if DataProvider is ready and there are no uncommitted write transactions,
    * see {@link bcdui.core.AbstractExecutable#isReady isReady()} and {@link bcdui.core.DataProvider#onChange fire()}.
    * @returns {boolean}
    */

@@ -108,12 +108,13 @@ bcdui.core.browserCompatibility = {
      * and appends it to the specified target element. This function should be used
      * rather than createElementNS, because the latter is not available on the
      * Internet Explorer.
-     * @param doc The document the element should be created for.
-     * @param name The element name which may contain a well-known prefix.
+     * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
+     * @param {string} name The element name which may contain a well-known prefix.
+     * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
      * @returns {XMLElement} The new XMLElement.
      */
-    appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
-      {
+    appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
+    {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;
         if (name.indexOf(":") <= 0) {
@@ -134,10 +135,10 @@ bcdui.core.browserCompatibility = {
 
     /**
      * Asynchronous creation of an XSLTProcessor object from a DOM document.
-     * @param {XMLDocument} domDocument The XSLT document the XSLTProcessor instance should be
-     * created from.
-     * @param {Function} fn The callback function executed when the processor has been created. It
-     * takes the processor instance as argument.
+     * @param {object}   args - An argument map containing the following elements:
+     * @param {XMLDocument} args.model The XSLT document the XSLTProcessor instance should be
+     * @param {function} args.callBack The callback function executed when the processor has been created. It takes the processor instance as argument
+     * @param {string}   args.callerDebug Additional (debug) information from the caller for logging 
      */
     asyncCreateXsltProcessor: function( args )
     {
@@ -160,7 +161,6 @@ bcdui.core.browserCompatibility = {
         bcdui.log.error(msg);
       }
       setTimeout(fn.bind(undefined,proc));
-      return;
     },
 
     /*
@@ -335,11 +335,12 @@ if (bcdui.browserCompatibility.isIE) {
      * Creates a new element whose name can contain a well-known prefix (like "wrs").
      * It uses createElement, because IE does not implement createElementNS. The element
      * is then appended to the specified target element.
-     * @param doc The document the element should be created for.
-     * @param name The element name which may contain a well-known prefix.
+     * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
+     * @param {string} name The element name which may contain a well-known prefix.
+     * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
      * @returns {XMLElement} The new XMLElement.
      */
-    appendElementWithPrefix: function(/* XMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
+    appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
       {
         var doc = targetElement.ownerDocument;
         if (typeof doc == "undefined") doc = targetElement;
@@ -413,9 +414,10 @@ if (bcdui.browserCompatibility.isIE) {
       },
 
     /**
+     * @param {XMLDocument} domDocument
      * @private
      */
-    setSelectionNamespaces: function(/* XMLDocument */ domDocument)
+    setSelectionNamespaces: function(domDocument)
       {
         var nsDef = "";
         var key;
@@ -517,26 +519,21 @@ if (bcdui.browserCompatibility.isIE) {
    */
   bcdui.core.browserCompatibility.appendElementWithPrefix = bcdui.core.browserCompatibility.ie.appendElementWithPrefix;
 
-  bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
   /**
-   * @lends bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments.prototype
+   * A class implementing the XmlHttpRequest interface for Internet Explorer so that it
+   * always created "FreeThreadedDOMDocuments". The default IE implementation creates
+   * non free-threaded document which cannot be used to create an XSLT processor. This
+   * bug is worked around by this class.
+   *
+   * Sadly, we cannot switch to new (IE9) XMLHttpRequest. Because
+   * A) The new native docs do not support Xpath and
+   * b) By setting responseType = 'msxml-document' we can get MSXML docs instead of the native ones, having support for xPath,
+   * but the version then is only IXMLDomDocument2, which is incompatible with Msxml2.XSLTemplate.6.0 (being IXMLDomDocument3),
+   * XSLTProcessor will complain when using it as a parameter to a stylesheet.
    */
+  bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
   {
 
-    /**
-     * @constructs
-     * @class
-     *   A class implementing the XmlHttpRequest interface for Internet Explorer so that it
-     *   always created "FreeThreadedDOMDocuments". The default IE implementation creates
-     *   non free-threaded document which cannot be used to create an XSLT processor. This
-     *   bug is worked around by this class.
-     *
-     * Sadly, we cannot switch to new (IE9) XMLHttpRequest. Because
-     * A) The new native docs do not support Xpath and
-     * b) By setting responseType = 'msxml-document' we can get MSXML docs instead of the native ones, having support for xPath,
-     * but the version then is only IXMLDomDocument2, which is incompatible with Msxml2.XSLTemplate.6.0 (being IXMLDomDocument3),
-     * XSLTProcessor will complain when using it as a parameter to a stylesheet.
-     */
     constructor(args)
       {
         this.domDocument = null;
@@ -796,11 +793,11 @@ if (!bcdui.browserCompatibility.isIE) {
  * 1) An xsl is embedded in another document and extracted, serialized and used to create a new static model like scorecard aspects,
  * the serializers do not include namespace declarations then, which are only within attributes like match or select
  * 2) Same applies for gecko and webkit for xslt generation
- * @param (String) serializedDoc The doc to work on
+ * @param {String} serializedDoc The doc to work on
  * @return {String} The serialized doc with the updated root element.
  * @private
  */
-bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(/* String */ serializedDoc)
+bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(serializedDoc)
 {
   // PrefixArray to hold all words, followed by : but not by :: (axes) or by :/ (url)
   var prefixArray = serializedDoc.match(/([\w-]+)(?=:(?!(:|\/)))/g);

@@ -22,22 +22,20 @@
 bcdui.util.namespace("bcdui.component.tree");
 
 /**
- * @classdesc
  * Creates a tree front end based on a configuration
- * @extends bcdui.core.Renderer
- *
- * @constructs bcdui.component.tree.Tree
- * @param args The parameter map contains the following properties:
- * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
- * @param {bcdui.core.DataProvider} [args.config=./treeConfiguration]                      - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
- * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus]            - StatusModel (default is 'guiStatus'), containing the filters as /SomeRoot/f:Filter and used to store tree expand/collapse status
- * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
- * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
- * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
- *  
+ * @extends bcdui.core.Renderer  
 */
 bcdui.component.tree.Tree = class extends bcdui.core.Renderer
 {
+  /**
+  * @param args The parameter map contains the following properties:
+  * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
+  * @param {bcdui.core.DataProvider} [args.config=./treeConfiguration]                      - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus]            - StatusModel (default is 'guiStatus'), containing the filters as /SomeRoot/f:Filter and used to store tree expand/collapse status
+  * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
+  * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
+  * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
+   */
   constructor(args) {
 
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");

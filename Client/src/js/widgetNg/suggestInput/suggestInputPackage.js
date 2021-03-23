@@ -377,7 +377,7 @@
     /**
      * creates a datalist element as a child of a given element
      *
-     * @param htmlElementId the control element and returns it
+     * @param {htmlElement} parentElement the parent element where the datalist is being attached to
      * @private
      */
     _ntv_createDataListElement: function(parentElement){
@@ -692,7 +692,7 @@
     /**
      * BINDS and reveals options box for given htmlElementId
      *
-     * @param doRebindOnly : true if to skip refine-options, this is because of cyclic dependency
+     * @param doRebindOnly - true if to skip refine-options, this is because of cyclic dependency
      *
      * @private
      */

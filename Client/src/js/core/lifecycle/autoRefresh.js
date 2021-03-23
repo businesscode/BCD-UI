@@ -83,7 +83,7 @@ bcdui.core.lifecycle.AutoRefresh = class
   /**
    * x Pre-defined strategies for activeIf and onModified arguments of AutoRefresh
    * @name bcdui.core.lifecycle.AutoRefresh.strategy
-   * @property {Object} activeIf - Predefined callbacks for args.acrtiveIf
+   * @property {Object} activeIf - Predefined callbacks for args.activeIf
    * @property {function} activeIf.bcdIsAutoRefreshInFilter
    *    True if bRef 'bcdIsAutoRefresh' is part of f:Filter of the requestModel of an args.model being a SimpleModel
    * @property {Object} modifiedIf - Predefined callbacks for args.modifiedIf

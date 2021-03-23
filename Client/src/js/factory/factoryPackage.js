@@ -22,10 +22,10 @@
  * <p/>
  * The main difference between JavaScript and declarative contexts are that 
  * <ul>
- *   <li>All objects are identified and connected by a string id rather than by JavaScript references. For this reason, all objects created by the factory are registered automatically.</li>
+ *   <li>All objects are identified and connected by a string id rather than by JavaScript references. For this reason, all objects created by the factory are registered automatically.
  *   <li>Second, it is allowed for objects to be created in an order following HTML output, as for example jsp tags are put into their output place.
  *       This leads to situations, where an object receives an object as input, which is only defined further down, something that cannot happen in JavaScript.
- *       Therefore the factories in here delay the object creation until all objects ot depends on are defined.</li>
+ *       Therefore the factories in here delay the object creation until all objects ot depends on are defined.
  * </ul>
  * 
   * @namespace bcdui.factory
@@ -71,7 +71,7 @@ bcdui.util.namespace("bcdui.factory",
    * the xPathWithModelId parameter is composed of.
    * @private
    */
-  _extractXPathAndModelId: function(/* String */ xPathWithModelId) {
+  _extractXPathAndModelId: function(xPathWithModelId) {
     var modelId = xPathWithModelId.replace(/^(\$(\w+))?.*$/, "$2");
     return {
       xPath: xPathWithModelId.replace(/^\$\w+/, ""),
@@ -352,9 +352,10 @@ bcdui.util.namespace("bcdui.factory",
 
   /**
    * JSP/SXLT/API factory for {@link bcdui.core.ModelUpdater}
+   * @param args {Object}
    * @private
    */
-  createModelUpdater: function(/* Object */ args)
+  createModelUpdater: function(args)
     {
       args = this._xmlArgs( args, bcdui.factory.validate.core._schema_createModelUpdater_args );
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_createModelUpdater_args);
@@ -422,15 +423,13 @@ bcdui.util.namespace("bcdui.factory",
   /**
    * JSP/SXLT/API factory for {@link bcdui.core.Renderer}
    * @param args The parameter map contains the same members {@link bcdui.core.Renderer} plus the following properties:
-   *    <ul>
-   *      <li>url: {String?} This parameter can be set when the renderer should only
+   * @param {String} [args.url]  This parameter can be set when the renderer should only
    *          apply one single XSLT style sheet. It contains the URL pointing to
    *          it. If this parameter is set the 'chain' and 'stylesheetModel' parameters
-   *          must be omitted.</li>
-   *      <li>stylesheetModel: {DataProvider?|SymLink?} A model providing the stylesheet
+   *          must be omitted.
+   * @param {String|DataProvider|SymLink} [args.stylesheetModel] A model providing the stylesheet
    *          of the renderer. If specified the parameters 'url' and 'chain' are
-   *          invalid.</li>
-   *    </ul>
+   *          invalid.
    * @return {bcdui.factory.SymLink} A reference to the renderer (TransformationChain object).
    * @private
    */
@@ -573,7 +572,7 @@ bcdui.util.namespace("bcdui.factory",
 
   /**
    * JSP/SXLT/API factory for {@link bcdui.core.ModelWrapper}
-   * @param args The parameter map is identical to the parameter map of the {@link bcdui.factory.createRenderer} function 
+   * @param {Object} args The parameter map is identical to the parameter map of the {@link bcdui.factory.createRenderer} function
    * except for the 'targetHTMLElementId'. This is not used by a ModelWrapper.
    * @return {bcdui.factory.SymLink} A reference to the modelWrapper (TransformationChain object).
    * @private
@@ -639,24 +638,22 @@ bcdui.util.namespace("bcdui.factory",
    * either when a specific state is reached or on any state change. Each BCDUI object
    * has a specific set of states and transitions between them. They are documented in
    * the respective component (such as the TransformationChain class).
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>idRef: {DataProvider|SymLink|String} The DataProvider the listener is
-   *          added to.</li>
-   *      <li>listener: {Function|StatusListener} A function or StatusListener object
-   *         representing the listener action.</li>
-   *      <li>status: {Status?|String?} The status object which identifies the status
+   * @param {Object} args The parameter map contains the following properties:
+   * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   *          added to.
+   * @param {Function|StatusListener} args.listener A function or StatusListener object
+   *         representing the listener action.
+   * @param {Status|String} [args.status] The status object which identifies the status
    *          that needs to be reached for the listener to be executed. If this
    *          parameter is missing the listener is called on every status transition.
    *          If the status is described with a String it can be the JavaScript variable
    *          name of the status object. If it starts with a dot (.) the status is taken
    *          from a property of the DataProvider. This is useful because most
    *          DataProviders (like TransformationChain) offer their possible status objects
-   *          as properties so that the user can access them. (i.e. ".getReadyStatus()" as string)</li>
-   *      <li>onlyOnce: {Boolean?} A boolean variable indicating that the listener should
+   *          as properties so that the user can access them. (i.e. ".getReadyStatus()" as string)
+   * @param {Boolean} [args.onlyOnce] A boolean variable indicating that the listener should
    *         be automatically removed after it has been executed. The default value
-   *         is "false".</li>
-   *    </ul>
+   *         is "false".
    *
    * @example
    *   bcdui.factory.addStatusListener({
@@ -669,7 +666,7 @@ bcdui.util.namespace("bcdui.factory",
    *   });
    * @private
    */
-  addStatusListener: function(/* Object */ args)
+  addStatusListener: function(args)
     {
       args = this._xmlArgs( args, bcdui.factory.validate.core._schema_addStatusListener_args );
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_addStatusListener_args);
@@ -698,19 +695,17 @@ bcdui.util.namespace("bcdui.factory",
    * document) is changed. The listener offers two options: It can either be fired on
    * any change or on a change in a specific XPath result.
    *
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>idRef: {DataProvider|SymLink|String} The DataProvider the listener is
-   *          added to.</li>
-   *      <li>listener: {Function?|Object?} A synonym for 'callback'.</li>
-   *      <li>side: {String?} Whether the listener is called before or after, default is after.</li>
-   *      <li>onlyOnce: {Boolean?} A boolean variable indicating that the listener should
+   * @param {Object} args The parameter map contains the following properties:
+   * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   *          added to.
+   * @param {Function|Object} [args.listener]  A synonym for 'callback'.
+   * @param {String} [args.side] Whether the listener is called before or after, default is after.
+   * @param {Boolean}[args.onlyOnce] A boolean variable indicating that the listener should
    *         be automatically removed after it has been executed. The default value
-   *         is "false".</li>
-   *      <li>trackingXPath: {String?} An XPath filter that is applied on the data document
+   *         is "false".
+   * @param {String}[trackingXPath] An XPath filter that is applied on the data document
    *          before checking if the data has actually changed. If the document has changed,
-   *          but the result of the XPath has not, the callback function is not called.</li>
-   *    </ul>
+   *          but the result of the XPath has not, the callback function is not called.
    *
    * @example
    *   bcdui.factory.addDataListener({
@@ -745,12 +740,10 @@ bcdui.util.namespace("bcdui.factory",
      * by a listener function.
      *
      * @param args The parameter map contains the following properties:
-     *    <ul>
-     *      <li>idRef: {DataProvider|SymLink|String} The DataProvider the listener is
-     *          added to.</li>
-     *      <li>id: Id of the listener </li>
-     *      <li>listener: the function/listener itself </li>
-     *    </ul>
+     * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+     *          added to.
+     * @param args.id: Id of the listener
+     * @param args.listener the function/listener itself
      *
      * @example
      *   bcdui.factory.removeDataListener({
@@ -774,33 +767,26 @@ bcdui.util.namespace("bcdui.factory",
    * computed values. The behavior of the function is similar to the createModelWrapper
    * function and therefore it inherits all parameters from it. The only additional
    * parameter required is the "targetModel" parameter described below.
-   * @param args The parameter map contains the following properties:
-   *    <ul>
-   *      <li>targetModel: {DataProvider|SymLink|String} The ID of the Model
-   *          (DataProvider) whose content is supposed to be transformed.</li>
-   *      <li>[from modelWrapper]
-   *          chain: {DataProvider?|SymLink?|String?} A DataProvider (or SymLink or
+   * @param args The parameter map
+   * @param {DataProvider|SymLink|String} args.targetModel  The ID of the Model
+   *          (DataProvider) whose content is supposed to be transformed.
+   * @param {DataProvider|SymLink|String} [args.chain] from modelWrapper - A DataProvider (or SymLink or
    *          its ID) which contains the list of style sheets that make up the
    *          transformation chain of this renderer. This DataProvider must
    *          contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
-   *          The 'url' and 'chain' parameters are mutually exclusive.</li>
-   *      <li>[from modelWrapper]
-   *          url: {String?} This parameter can be set when the renderer should only
+   *          The 'url' and 'chain' parameters are mutually exclusive.
+   * @param {String}[args.url] from modelWrapper - This parameter can be set when the renderer should only
    *          apply one single XSLT style sheet. It contains the URL pointing to
-   *          it. If this parameter is set the 'chain' parameter must be omitted.</li>
-   *      <li>[from modelWrapper]
-   *          inputModel: {DataProvider?|SymLink?} The DataProvider instance that
+   *          it. If this parameter is set the 'chain' parameter must be omitted.
+   * @param {DataProvider|SymLink} [args.inputModel]  from modelWrapper - The DataProvider instance that
    *          becomes the input of the transformation chain. If omitted the first
-   *          element of the dataProviders[] array is the input.</li>
-   *      <li>[from modelWrapper]
-   *          dataProviders: {DataProvider|SymLink[]?} An array of DataProviders passed to
+   *          element of the dataProviders[] array is the input.
+   * @param {DataProvider|SymLink[]} [args.dataProviders]  from modelWrapper - An array of DataProviders passed to
    *          the transformation chain. These data providers can be access in the
-   *          transformation style sheets with xsl:param.</li>
-   *      <li>[from modelWrapper]
-   *          parameters: {Object?} A mapping from parameter names to DataProviders (or
+   *          transformation style sheets with xsl:param.
+   * @param {Object}[args.parameters] from modelWrapper - A mapping from parameter names to DataProviders (or
    *          SymLinks) which are passed to the transformation chain. This is a more
-   *          convenient way to pass parameters compared to the dataProviders array.</li>
-   *    </ul>
+   *          convenient way to pass parameters compared to the dataProviders array.
    * @example
       bcdui.factory.executeXSLT({
         targetModel    : myModel,
@@ -848,17 +834,15 @@ bcdui.util.namespace("bcdui.factory",
   /**
    * (Re)-executes the given {@link bcdui.core.DataProvider} and calls a function
    * when it has finished.
-   * @param {Object} args The argument map with the following parameters:
-   *   <ul>
-   *     <li>idRef: {String|bcdui.factory.SymLink} The data provider to be
-   *         re-executed.</li>
-   *     <li>fn: {Function?} The function to be called when the data provider
-   *         becomes ready.</li>
-   *     <li>forced: {Boolean?} If true, the object will be re-executed even
+   * @param {Object} args The argument map
+   * @param {String|bcdui.factory.SymLink} args.idRef The data provider to be
+   *         re-executed.
+   * @param {Function} [args.fn] The function to be called when the data provider
+   *         becomes ready.
+   * @param {Boolean} [args.forced]  If true, the object will be re-executed even
    *         if it is currently ready. Otherwise it is not re-executed when
    *         it is already ready, but the callback function is executed
-   *         immediately. The default value is "true".</li>
-   *   </ul>
+   *         immediately. The default value is "true".
    * @private
    */
   reDisplay: function(args)
@@ -971,19 +955,14 @@ bcdui.util.namespace("bcdui.factory",
     }
 }); // namespace  bcdui.factory
 
-
-bcdui.factory.SymLink = class
-/**
- * @lends bcdui.factory.SymLink.prototype
+ /**
+   *   This class represents a link for a data provider. Using links has the benefit that a
+   *   link can exists even before the linked object has been constructed.
  */
+bcdui.factory.SymLink = class
 {
 
   /**
-   * @classdesc
-   *   This class represents a link for a data provider. Using links has the benefit that a
-   *   link can exists even before the linked object has been constructed.
-
-   * @constructs
    * @param {String} obj The string id of the object to be referenced. This id can be
    * used with $getObject to get the actual object as soon as it exists.
    * @private

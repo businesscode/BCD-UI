@@ -601,7 +601,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
   },
 
   /**
-   * _getDimensionLevel: returns the Level element from dimension Model for a given dimensionModelId, dimensionName, level name
+   * returns the Level element from dimension Model for a given dimensionModelId, dimensionName, level name
    * @private
    */
   _getDimensionLevel: function(dimName, name){
@@ -610,7 +610,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
 
 
   /**
-   * _removeObsoleteChooser: remove html elements(input fields, level captions, and table rows) and remove input model of dimension level that aren't required by new selected level
+   * remove html elements(input fields, level captions, and table rows) and remove input model of dimension level that aren't required by new selected level
    * @private
    */
   _removeObsoleteChooser: function(dimChooserName, requiredChooserList, dimChooserId, targetModelId, noRefresh, dimensionName){
@@ -668,7 +668,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
   },
 
   /**
-   * _createLevelLists: traverses the dependencies in dimensionModel and add all required parents to a list.
+   * traverses the dependencies in dimensionModel and add all required parents to a list.
    * The List is order top down, so the the selected level is always the last element of the list.
    * @private
    */

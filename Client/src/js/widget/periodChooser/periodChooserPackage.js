@@ -281,7 +281,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
   /**
    * Common init function but currently kept as single-entry point for custom rendered periodchoosers 
-   * @param {} htmlElement - periodChooser
+   * @param {htmlElement} containerHtmlElement - periodChooser
    * @private
    */
   _initElement: function(containerHtmlElement) {
@@ -483,7 +483,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         }
 
         // initialization
-        var validationTooltip = bcdui.widget.periodChooser._initValidateWrapper(containerHtmlElement/*, tooltipListener*/);
+        var validationTooltip = bcdui.widget.periodChooser._initValidateWrapper(containerHtmlElement);
         bcdui.widget.periodChooser._initUpdaterViewFromXMLData(containerHtmlElement, validationTooltip);
         if (containerHtmlElement.getAttribute("bcdTextInput") === "true") {
           bcdui._migPjs._$(containerHtmlElement).find("input.bcdYear, input.bcdMonth, input.bcdDay, input.bcdHour, input.bcdMinute, input.bcdSecond").each(function(i, input) {
@@ -534,7 +534,6 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
    * Initialization of validation wrapper.
    * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param tooltipListener {Function} Listener which controls the tool tip.
    * @private
    */
   _initValidateWrapper: function(containerHtmlElement)
@@ -599,7 +598,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
   /**
    * Checks WRS mode.
-   * @param doc {Document} The XML document.
+   * @param {Document} doc The XML document.
    * @returns {Boolean} True in WRS mode.
    * @private
    */
@@ -783,15 +782,16 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
    * @private
    * @param fromDate {String} The "from" period value.
    * @param toDate {String} The "to" period value.
-   * @param pcConfig {
-   *  @param targetModelId {String} The identifier of target model.
-   *  @param targetModelXPath {String} The XPath in whole XML model data.
-   *  @param outputPeriodType {Boolean} if output of periodChooser produced as periodType.
-   *  @param isWeekSelectable {Boolean}
-   *  @param isYearSelectable {Boolean}
-   *  @param isQuarterSelectable {Boolean}
-   *  @param isMonthSelectable {Boolean}
-   * }   */
+   * @param pcConfig
+   * @param {String} pcConfig.targetModelId  The identifier of target model.
+   * @param {String} pcConfig.targetModelXPath  The XPath in whole XML model data.
+   * @param {Boolean} pcConfig.outputPeriodType  if output of periodChooser produced as periodType.
+   * @param {Boolean} pcConfig.isWeekSelectable
+   * @param {Boolean} pcConfig.isYearSelectable
+   * @param {Boolean} pcConfig.isQuarterSelectable
+   * @param {Boolean} pcConfig.isMonthSelectable
+   *
+   */
   _updateXMLDoc: function(fromDate, toDate, pcConfig)
     {
       var targetModel = bcdui.factory.objectRegistry.getObject(pcConfig.targetModelId);
@@ -843,8 +843,8 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   /**
    * Shows the pop-up calendar.
    * @private
-   * @param htmlElement {HTMLElement} The element (span in our case) which displays period value.
-   * @param hiddenInputField {HTMLElement} The hidden input element which contains internal representation of period value.
+   * @param {HTMLElement} htmlElement  The element (span in our case) which displays period value.
+   * @param {HTMLElement} hiddenInputField  The hidden input element which contains internal representation of period value.
    * @param dateOrder \{"from", "to"\} for what date popup will shown
    */
   _showPopup: function(htmlElement, hiddenInputField, dateOrder)
@@ -966,12 +966,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
      * Fills the certain time field (hour, minute or second) if field value isn't equals calculated date value.
      * @private
-     * @param field {HTMLElement} The one of date field - year, month or day.
-     * @param date {Array} The array of strings with date's elements - year, month or day.
-     * @param i {Integer} Index to access to the date array.
+     * @param field {HTMLElement} The html input element of the date field - hour, minute or seconds.
+     * @param time {Array} The array of strings with time elements - hour, minute or seconds.
+     * @param i {Integer} Index of the time field array to get filled
      */
     _fillTimeFieldIfNeeded: function(field, time, i)
-      {
+    {
         if (field != null){
           if (jQuery.makeArray(time).length > i) {
             if (field.value != time[i]) { field.value = time[i]; }
@@ -1020,18 +1020,17 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
      * Method which checking if fromDate and toDate are one of known date periods and adding a nodes for them into model
      * @private
-     * @param pcConfig - periodChooser configuration \{
-     *  targetModelId
-     *  targetModelXPath
-     *  outputPeriodType
-     *  isWeekSelectable
-     *  isMonthSelectable
-     *  isQuarterSelectable
-     *  isYearSelectable
-     *  isHourSelectable
-     *  isMinuteSelectable
-     *  isSecondSelectable
-     * \}
+     * @param pcConfig - periodChooser configuration
+     * @param pcConfig.targetModelId
+     * @param pcConfig.targetModelXPath
+     * @param pcConfig.outputPeriodType
+     * @param pcConfig.isWeekSelectable
+     * @param pcConfig.isMonthSelectable
+     * @param pcConfig.isQuarterSelectable
+     * @param pcConfig.isYearSelectable
+     * @param pcConfig.isHourSelectable
+     * @param pcConfig.isMinuteSelectable
+     * @param pcConfig.isSecondSelectable
      */
   _setDatePeriodType: function(dateFrom, dateTo, pcConfig)
     {
@@ -1402,15 +1401,14 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
    * Increases period and write new value to the model.
    * @private
    * @param value {Integer} The delta value.
-   * @param pcConfig {
-   *  @param targetModelId {String} The identifier of target model.
-   *  @param targetModelXPath {String} The XPath in whole XML model data.
-   *  @param outputPeriodType {Boolean} if output of periodChooser produced as periodType.
-   *  @param isWeekSelectable {Boolean}
-   *  @param isYearSelectable {Boolean}
-   *  @param isQuarterSelectable {Boolean}
-   *  @param isMonthSelectable {Boolean}
-   * }
+   * @param pcConfig
+   * @param pcConfig.targetModelId {String} The identifier of target model.
+   * @param pcConfig.targetModelXPath {String} The XPath in whole XML model data.
+   * @param pcConfig.outputPeriodType {Boolean} if output of periodChooser produced as periodType.
+   * @param pcConfig.isWeekSelectable {Boolean}
+   * @param pcConfig.isYearSelectable {Boolean}
+   * @param pcConfig.isQuarterSelectable {Boolean}
+   * @param pcConfig.isMonthSelectable {Boolean}
    */
   _increasePeriod: function(value, pcConfig)
     {
@@ -1450,14 +1448,13 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   /**
    * Turns a month/year input into an ISO date (YYYY-MM-DD) range output
    * @private
-   * @param pcargs {
-   *  @param year {Integer} the yr information.
-   *  @param mo {Integer} the mo information.
-   *  @param cw {Integer} the cw information.
-   *  @param cwyr {Integer} the cwyr information.
-   *  @param dy {String} the dy information.
+   * @param args
+   * @param args.year {Integer} the yr information.
+   * @param args.mo {Integer} the mo information.
+   * @param args.cw {Integer} the cw information.
+   * @param args.cwyr {Integer} the cwyr information.
+   * @param args.dy {String} the dy information.
    * @return attributes: from and to for calculated range
-   * }
    */
   _periodToISORange: function( args )
   {
@@ -1556,12 +1553,12 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
    * Does not work with ranges as input or hours
    * Works sync and assumes targetModel to be ready
    * @private
-   * @param args {
-   *  @param value {Integer} Positive size of the range.
-   *  @param targetModelId {String|object} Target model.
-   *  @param targetModelXPath {String} The XPath in whole XML model data.
-   * }
+   * @param args
+   * @param args.value {Integer} Positive size of the range.
+   * @param args.targetModelId {String|object} Target model.
+   * @param args.targetModelXPath {String} The XPath in whole XML model data.
    */
+
   _periodToRange: function( args )
   {
     var model = bcdui.factory.objectRegistry.getObject(args.targetModelId);
@@ -1652,10 +1649,9 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
   /**
    * A transformer, taking the input, leaving everything 1:1 except a period filter, which is transformed to a range
    * with the given date or range end as the end and keeping the input period type
-   * @param parameters {
-   *  @param rangeSize {Integer} Size of the range.
-   *  @param targetModelXPath {String} The xPath pointing to the period filter within the transformed document.
-   * }
+   * @param parameters
+   * @param parameters.rangeSize {Integer} Size of the range.
+   * @param parameters.targetModelXPath {String} The xPath pointing to the period filter within the transformed document.
    */
   periodToRangeTransformator: function( doc, parameters )
   {
@@ -2040,7 +2036,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
 
   /**
    * Checks if elem is visible
-   * @param input {HTMLElement}
+   * @param elem {HTMLElement} - Input
    * @private
    */
   _isVisible: function(elem){
@@ -2102,7 +2098,6 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     },
 
     /**
-     * @classdesc
      *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
@@ -2215,7 +2210,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     /**
      * adds/overwrites dateFrom/dateTo attributes on periodChoosers filter nodes (outer And)
      * based on the currently available filters
-     * @param {targetModelDoc} document containing the filter nodes which needs to get worked on
+     * @param {Document} targetModelDoc containing the filter nodes which needs to get worked on
      */
     rebuildDateFromDateToFromFilter: function(targetModelDoc) {
 

@@ -165,7 +165,7 @@
     },
 
     /**
-     * creates internal status model and renderer + container for craetion of new elements,
+     * creates internal status model and renderer + container for creation of new elements,
      * we will reuse them. We expose Event API on this.createUiElement to issue rendering:
      * event: bcdui:universalFilter:renderCreateUi
      * @private

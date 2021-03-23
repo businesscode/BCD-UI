@@ -29,10 +29,9 @@ bcdui.util.namespace("bcdui.component.treeView",
 
   /**
    * Expand or collapse a level for a treeView renderer
-   * @param {Object} args - The argument map containing the following elements
-   * @param {string}  args.rendererId - Id of the treeView's renderer
-   * @param {string}  args.levelid    - Which level to change
-   * @param {boolean} args.isExpand   - True for expand, false for collapse
+   * @param {string}  rendererId - Id of the treeView's renderer
+   * @param {string}  levelId    - Which level to change
+   * @param {boolean} isExpand   - True for expand, false for collapse
    */
   expandCollapse: function(levelId, /* string */ rendererId, /* boolean */ isExpand)
     {
@@ -56,7 +55,6 @@ bcdui.util.namespace("bcdui.component.treeView",
      * @param {Object}  args - The argument map containing the following elements:
      * @param {string}  args.rendererId - Id of the treeView's renderer
      * @param {boolean} args.isExpand   - True for expand, false for collapse
-     * @return nothing
      */
     expandCollapseAll: function( args )
       {

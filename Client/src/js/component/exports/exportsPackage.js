@@ -15,10 +15,8 @@
 */
 "use strict";
 /**
- * <p>
  * Export package is the API to the WYSIWYG and detail exports of BCD-UI
  * WYSIWYG can be pdf, excel or image
- * </p>
  * @namespace bcdui.component.exports
  */
 

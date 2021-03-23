@@ -14,20 +14,19 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
-/**
- * @lends bcdui.factory.ObjectRegistry.prototype
- */
-{
-  /**
-   * @classdesc
+
+bcdui.util.namespace("bcdui.factory")
+
+ /**
    * The object registry is a class that tracks registration of BCD-UI objects by
    * their id. It also offers methods to wait for the registration of one or more
    * objects so that the dependencies can be managed more easily.
    * <p/>
    * Use the singleton {@link bcdui.factory.objectRegistry} for registering
-   *    
-   * @constructs
+    */
+  bcdui.factory.ObjectRegistry = class
+{
+  /**
    * @description
    * This class should not be instantiated directly, because there is already a
    * singleton instance at {@link bcdui.factory.objectRegistry} which is used by
@@ -130,14 +129,14 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    *
    * See {@link bcdui.factory.objectRegistry.withReadyObjects withReadyObjects()}
    *
-   * @param {Object|string[]|string} argsOrIds This can either be a parameter object or an array of id
+   * @param {Object|string[]|string} args1 This can either be a parameter object or an array of id
    * strings or a single id. The format of the parameter object is as follows
    *   <ul>
    *     <li>ids: {string[]|string} The array of ids that must be registered before the callback
    *               function is called.</li>
    *     <li>fn: {Function} The function to be called when the ids are registered.</li>
    *   </ul>
-   * @param {function} fn - If the first parameter is not a parameter object, then
+   * @param {function} args2 - If the first parameter is not a parameter object, then
    * this is the callback function that is called as soon as the requested ids are registered.
    */
   withObjects(args1, args2) {
@@ -226,8 +225,9 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    * Note that it will also execute the DataProviders it waits fir, if they are not yet ready.
    * The interface is identical to the {@link bcdui.factory.objectRegistry.withObjects withObjects()} function.
    * 
-   * @param {Object|string[]|string} argsOrIds - The parameter object or the object ids.
-   * @param {function}               fn        - The callback function if argsOrIds is an array.
+   * @param {Object|string[]|string} args1 - The parameter object or the object ids.
+   * @param {function}               args2 - The callback function if argsOrIds is an array.
+   * @param {boolean}                skipExecute - do not execute the non-ready dataproviders
    * @static
    */
   withReadyObjects(args1, args2, skipExecute) {
@@ -278,8 +278,8 @@ bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
    * It does not execute the DataProviders it waits for, it waits until somebody else executes it.
    * The interface is identical to the {@link bcdui.factory.objectRegistry.withObjects} function.
    * 
-   * @param {Object|string[]|string} argsOrIds - The parameter object or the object ids.
-   * @param {function}               fn        - The callback function if argsOrIds is an array.
+   * @param {Object|string[]|string} args1 - The parameter object or the object ids.
+   * @param {function}               args2 - The callback function if argsOrIds is an array.
    */
   withReadyObjectsNoExecute(args1, args2) {
     bcdui.factory.objectRegistry.withReadyObjects(args1, args2, true);

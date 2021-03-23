@@ -55,28 +55,28 @@ bcdui.util.namespace("bcdui.widget.detailView",
 
   /**
    * @param args
-   * targetHtmlElement{String|Element}  - to attach listener to
-   * targetRenderer{String|Object}      - optional the target renderer, targetHtmlElement has precedence
-   * consumeEvent{Boolean}              - optional, default is: FALSE, consumes the event or allow propagation
+   * @param {String|Element} args.targetHtmlElement  - to attach listener to
+   * @param {String|Object} args.targetRenderer      - optional the target renderer, targetHtmlElement has precedence
+   * @param {Boolean} args.consumeEvent              - optional, default is: FALSE, consumes the event or allow propagation
    *
-   * childElementSelector{String}       - filter (jQuery) compatible for filtering on nested children, default is "tbody tr"
-   * event{String}            - event to attach on , default is 'dblclick'
-   * filterFunction{Function} - a filter function to check on target element if to pass, default is a filter
-   *                            function expecting targetElement to have 'bcdrowident' attribute
-   *                            this function shall return TRUE of FALSE, an argument is provided to the function
-   *                            containing following properties:
-   *                            eventContext.event - the event
-   *                            eventContext.targetElement - the target element where event has occurred
-   * renderViewContainerFunction{Function}  - a function which renders the view container, the default implementation is
-   *                                          renderDialogContainer(), please refer to docs for more infos, arguments passed to this function:
-   *                                          factoryArgs{Object}                 - the initial factory args which were provided attachDetailView() function, may be null
-   *                                          eventContext.event{Object}          - the event object which triggered this function, may be null
-   *                                          eventContext.targetElement{Element} - the target element which event occurred, may be null
-   *                                          referenceElement{Element}           - is eventContext.targetElement
-   *                                          targetHtmlElement{Element}          - element to attach view container on
-   * renderViewContainerFunctionParamsFactory{Function} - factory for additional params which are mixed-in to the argument of renderViewContainerFunction()
+   * @param {String} args.childElementSelector       - filter (jQuery) compatible for filtering on nested children, default is "tbody tr"
+   * @param {String} args.event            - event to attach on , default is 'dblclick'
+   * @param {Function} args.filterFunction - a filter function to check on target element if to pass, default is a filter
+   *                                          function expecting targetElement to have 'bcdrowident' attribute
+   *                                          this function shall return TRUE of FALSE, an argument is provided to the function
+   *                                          containing following properties:
+   * @param args.filterFunction.eventContext.event - the event
+   * @param args.eventContext.targetElement - the target element where event has occurred
+   * @param {Function} args.renderViewContainerFunction  - a function which renders the view container, the default implementation is
+   * @param args.renderViewContainerFunction.renderDialogContainer(), please refer to docs for more infos, arguments passed to this function:
+   * @param {Object} args.renderViewContainerFunction.factoryArgs              - the initial factory args which were provided attachDetailView() function, may be null
+   * @param {Object} args.renderViewContainerFunction.eventContext.event          - the event object which triggered this function, may be null
+   * @param {Element} args.renderViewContainerFunction.eventContext.targetElement - the target element which event occurred, may be null
+   * @param {Element} args.renderViewContainerFunction.referenceElement           - is eventContext.targetElement
+   * @param {Element} args.renderViewContainerFunction.targetHtmlElement          - element to attach view container on
+   * @param {Function} args.renderViewContainerFunctionParamsFactory - factory for additional params which are mixed-in to the argument of renderViewContainerFunction()
    *                                                      available through extra.* property; this function gets same arguments as 'renderViewContainerFunction'
-   * containerViewRenderedCb{Function}      - a function which is called by renderViewContainerFunction() once container is contructed
+   * @param {Function} args.containerViewRenderedCb      - a function which is called by renderViewContainerFunction() once container is contructed
    *
    *
    * @return args, additionally contains .unbind() function which stops this handler working; when called that function, you have to attachDetailView() again
@@ -188,12 +188,12 @@ bcdui.util.namespace("bcdui.widget.detailView",
    * you can override any attributes via extra.dialog object parameter
    *
    * @param args
-   *  targetHtmlElement                   - the target element this container is attached to
-   *  referenceElement{Element}           - the the element this detail container is constructed for
-   *  containerViewRenderedCb             - the function which is called once target container is constructed and argument with
+   * @param args.targetHtmlElement                   - the target element this container is attached to
+   * @param {Element} args.referenceElement         - the the element this detail container is constructed for
+   * @param args.containerViewRenderedCb.             - the function which is called once target container is constructed and argument with
    *                                        following properties is provided:
-   *                                        targetHtmlElement{Element}  - the element to render content into, this may be reused so ensure executing .empty() before adding content
-   *                                        referenceElement{Element}   - see above
+   * @param {Element} args.containerViewRenderedCb.targetHtmlElement  - the element to render content into, this may be reused so ensure executing .empty() before adding content
+   * @param {Element} args.containerViewRenderedCb.referenceElement   - see above
    * ---
    * specific parameters, which are available in this function,
    * but is not API contract, i.e. in case you provide your custom

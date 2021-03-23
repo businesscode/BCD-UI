@@ -19,20 +19,13 @@
  * This file contains all basic classes for status handling.
  */
 
-bcdui.core.Status = class
-/**
- * @lends bcdui.core.Status.prototype
- */
-{
-
-  /**
-   * @classdesc
+ /**
    * An abstract base class, representing a Status.
    * See {@link bcdui.core.status} for concrete sub classes.
    * @abstract
-   *
-   * @constructs
-   */
+    */
+bcdui.core.Status = class
+{
   constructor() {}
 
   /**
@@ -71,26 +64,21 @@ bcdui.core.Status = class
     }
 }; // Create class: bcdui.core.Status
 
-
+ /**
+   * Represents a status event thrown to status listeners of {@link bcdui.core.DataProvider DataProviders}, 
+   * see {@link bcdui.core.AbstractExecutable#removeStatusListener} and {@link bcdui.core.StatusListener}
+    */
 bcdui.core.StatusEvent = class
-/**
- * @lends bcdui.core.StatusEvent.prototype
- */
 {
 
   /**
-   * @classdesc
-   * Represents a status event thrown to status listeners of {@link bcdui.core.DataProvider DataProviders}, 
-   * see {@link bcdui.core.AbstractExecutable#removeStatusListener} and {@link bcdui.core.StatusListener}
-   *   
-   * @constructs
    * @description
    * The constructor creating a new StatusEvent object.
    * @param {Object}            args          - This parameter map must contain two properties:
    * @param {Object}            args.source   - The object the status transition happened
-   * @param {bcdui.core.Status} argsnewStatus - The new status of the source object
+   * @param {bcdui.core.Status} args,newStatus - The new status of the source object
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       if (typeof args.status == "undefined")
         throw Error("Parameter Map must contain \"status\" attribute");
@@ -136,19 +124,12 @@ bcdui.core.StatusEvent = class
     }
 }; // Create class: bcdui.core.StatusEvent
 
-
-bcdui.core.StatusListener = class
-/**
- * @lends bcdui.core.StatusListener.prototype
- */
-{
-  /**
-   * @classdesc
+ /**
    * An interface that status listeners must implement.
    * A StatusListener is informed by DataProviders (more precisely by {@link bcdui.core.AbstractExecutable AbstractExecutables}) about status changes, becoming ready is the most important.
-   * 
-   * @constructs
-   */
+    */
+bcdui.core.StatusListener = class
+{
   constructor() {}
 
   /**
