@@ -26,6 +26,9 @@ bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace 
  * @abstract
  */
 bcdui.component.chart.SVGVMLDrawer = class
+/**
+ * @lends bcdui.component.chart.SVGVMLDrawer.prototype
+ */
 {
   /**
    * @constant
@@ -178,6 +181,9 @@ bcdui.component.chart.SVGVMLDrawer = class
  * @extends bcdui.component.chart.SVGVMLDrawer
  */
 bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDrawer
+/**
+ * @lends bcdui.component.chart.SVGDrawer.prototype
+ */
 {
   /**
    * @constructs

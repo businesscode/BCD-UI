@@ -26,6 +26,9 @@
  * @extends bcdui.core.AbstractUpdatableModel
 */
 bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
+/**
+ * @lends bcdui.core.SimpleModel.prototype
+ */
 {
 
   /**

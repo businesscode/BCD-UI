@@ -520,6 +520,9 @@ if (bcdui.browserCompatibility.isIE) {
   bcdui.core.browserCompatibility.appendElementWithPrefix = bcdui.core.browserCompatibility.ie.appendElementWithPrefix;
 
   bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
+  /**
+   * @lends bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments.prototype
+   */
   {
 
     /**

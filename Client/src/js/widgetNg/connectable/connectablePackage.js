@@ -22,6 +22,9 @@
    * @private
    */
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
+      /**
+     * @lends XMLListener.prototype
+     */
     {
       /**
        * @member bcdui.widget.inputField.XMLListener
@@ -1284,6 +1287,9 @@
  * Tree support class providing item rendering, controls binding and onItemMoved handler
  */
   bcdui.widgetNg.connectable.TreeSupport = class
+  /**
+   * @lends bcdui.widgetNg.connectable.TreeSupport
+   * */ 
   {
     /**
      * @param {jQuery}  container                       The container

@@ -57,6 +57,7 @@ bcdui.util.namespace("bcdui.component",
   * @extends bcdui.core.Renderer
  */
 bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
+/** @lends bcdui.component.scorecard.Scorecard.prototype */
 {
   /**
    * @param {Object} args - The parameter map contains the following properties:

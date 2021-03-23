@@ -26,6 +26,9 @@
    *   the server, XML document creation and XSLT processing.
   */
 bcdui.core.XMLLoader = class
+/**
+ * @lends bcdui.core.XMLLoader.prototype
+ */
 {
   /**
    * @private

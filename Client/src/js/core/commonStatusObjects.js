@@ -39,6 +39,9 @@ bcdui.core.status = bcdui.core.status || {};
  * @extends bcdui.core.Status 
  */
 bcdui.core.status.NullStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.NullStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "NULL"; }
@@ -52,6 +55,9 @@ bcdui.core.status.NullStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.InitializedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "L0"; }
@@ -65,6 +71,9 @@ bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.LoadingStatus.prototype
+ */
 {
 
   constructor() {super();}
@@ -78,6 +87,9 @@ bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.URLAvailableStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.URLAvailableStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "L2"; }
@@ -90,6 +102,9 @@ bcdui.core.status.URLAvailableStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.LoadedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.LoadedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "L3"; }
@@ -102,6 +117,9 @@ bcdui.core.status.LoadedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.LoadFailedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "F0"; }
@@ -114,6 +132,9 @@ bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SavingStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.SavingStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "S0"; }
@@ -126,6 +147,9 @@ bcdui.core.status.SavingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SavedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.SavedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "S1"; }
@@ -138,6 +162,9 @@ bcdui.core.status.SavedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.SaveFailedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "SF0"; }
@@ -151,6 +178,9 @@ bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainLoadedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.ChainLoadedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "MW-1"; }
@@ -179,6 +209,9 @@ bcdui.core.status.WaitingForParametersStatus =class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.TransformingStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "MW-3"; }
@@ -191,6 +224,9 @@ bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.TransformFailedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "MW-8"; }
@@ -203,6 +239,9 @@ bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.TransformedStatus.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "MW-4"; }
@@ -215,6 +254,9 @@ bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.ChainLoadingFailed.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "F1"; }
@@ -227,6 +269,9 @@ bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.ChainStylesheetLoadingFailed.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "F2"; }
@@ -240,6 +285,9 @@ bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
+/**
+ * @lends bcdui.core.status.RefreshingModelUpdaters.prototype
+ */
 {
   constructor() {super();}
   getCode() { return "MU-1"; }
@@ -253,6 +301,9 @@ bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.RefreshingModelUpdatersCausedByExecute = class extends bcdui.core.Status
+    /**
+     * @lends bcdui.core.status.RefreshingModelUpdatersCausedByExecute.prototype
+     */
     {
       constructor() {super();}
       getCode() { return "MU-2"; }
@@ -265,6 +316,9 @@ bcdui.core.status.RefreshingModelUpdatersCausedByExecute = class extends bcdui.c
  * @extends bcdui.core.Status
  */
 bcdui.core.status.WaitingForUncomittedChanges = class extends bcdui.core.Status
+    /**
+     * @lends bcdui.core.status.WaitingForUncomittedChanges.prototype
+     */
     {
       constructor() {super();}
       getCode() { return "MW-5"; }

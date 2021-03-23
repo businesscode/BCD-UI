@@ -960,6 +960,9 @@ bcdui.util.namespace("bcdui.factory",
    *   link can exists even before the linked object has been constructed.
  */
 bcdui.factory.SymLink = class
+/**
+ * @lends bcdui.factory.SymLink.prototype
+ */
 {
 
   /**
