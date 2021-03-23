@@ -47,9 +47,9 @@ bcdui.util.namespace("bcdui.i18n",
 
   /**
    * initializes i18n module
-   * @param args:
-   *         modelId        - ID of i18n model
-   *         initTranslate  -  immediately translation the whole HTML documents after loading, default true
+   * @param {Object} args
+   * @param  args.modelId        - ID of i18n model
+   * @param  args.initTranslate  - immediately translation the whole HTML documents after loading, default true
    * @private
    */
   _initializeI18nModul:function(args){
@@ -150,9 +150,9 @@ bcdui.util.namespace("bcdui.i18n",
    *
    * @param {Object} args - Parameter object
    * @param {targetHtmlRef} args.targetHtml          - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
-   * @param {(HTMLElement|string)} args.elementOrId  - ID or HTML element to translate, default "document"
-   * @param {string} [args.i18nModelId=bcdI18nModel] - model with i18n entries, default "bcdI18nModel"
-   * @param {string} [args.display]                  - original css 'display' value of the HTML element to be set after translation
+   * @param {HTMLElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
+   * @param {string} args.i18nModelId                - model with i18n entries, default "bcdI18nModel"
+   * @param {string} args.display                    - original css 'display' value of the HTML element to be set after translation
    * @returns translation time
    *
    */
@@ -196,9 +196,9 @@ bcdui.util.namespace("bcdui.i18n",
    *
    * @param {Object} args - Parameter object
    * @param {targetHtmlRef}        args.targetHtml   - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
-   * @param {(HTMLElement|string)} args.elementOrId  - ID or HTML element to translate, default "document"
-   * @param {Object}             [args.catalog]      - Catalog with i18n entries
-   * @param {boolean}            [args.doDefer=true] - If true, in case at time of syncTranslateHTMLElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
+   * @param {HTMLElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
+   * @param {Object}               args.catalog      - Catalog with i18n entries
+   * @param {boolean}              args.doDefer=true - If true, in case at time of syncTranslateHTMLElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
    */
   syncTranslateHTMLElement: function(args){
       if(!args) args={};
@@ -252,14 +252,13 @@ bcdui.util.namespace("bcdui.i18n",
 
     /**
      * formats message
-     * @parameter :
-     *             message                                                      - String message
-     *             [values]                                                     -  Array values to set
-     *             [formattingFunctions=bcdui.i18n.standardFormattingFunctions] - Object  formating function
+     * @param {String} message
+     * @param {any[]} values - Array values to set
+     * @param {object} formattingFunctions
      * @example
      * bcdui.i18n.formatMessage( "Successfully updated {0} records in {1,number,#0.00} columns.", [ 3, 2 ] );
      */
-  formatMessage: function(/* String */ message, /* Array */ values, /* Object */ formattingFunctions) {
+  formatMessage: function( message, values, formattingFunctions) {
     var msgTemp = message.replace(bcdui.i18n._quotePattern, "\\\"");
     var msg = msgTemp;
     var regEx = bcdui.i18n._messageFormatToJSPattern;
@@ -330,7 +329,7 @@ bcdui.util.namespace("bcdui.i18n",
     * Can also process dates as specified [by the W3C](http://www.w3.org/TR/NOTE-datetime)
     * The following combinations are valid:
     * dates only
-     *  | * yyyy
+     * | * yyyy
      * | * yyyy-MM
      * | * yyyy-MM-dd
      * times only, with an optional time zone appended
@@ -382,7 +381,7 @@ bcdui.util.namespace("bcdui.i18n",
    * initialization is asychronous) then NULL is returned in production
    * and an error is thrown in debug mode.
    *
-   * @param  {(Object|string)} messageId - Object args with a property args.msgid, or the messageId itself
+   * @param  {Object|string} messageId - Object args with a property args.msgid, or the messageId itself
    * @returns {string} translated and formated message
    */
   syncTranslateFormatMessage:function(args){

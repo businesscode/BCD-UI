@@ -22,9 +22,6 @@
    * @private
    */
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
-    /**
-     * @lends XMLListener.prototype
-     */
     {
       /**
        * @member bcdui.widget.inputField.XMLListener
@@ -110,12 +107,6 @@
 
     /**
      * initializes the widget according to the API
-     *
-     * @param element {Element} to initialize from
-     * @param extendedConfig {Object?} optional configuration parameter as a part of protected level API
-     *
-     * extendedConfig parameters:
-     * -  noTooltip: dont register a tooltip for a balloon
      * @private
      */
     _create : function() {
@@ -1226,7 +1217,7 @@
      * change sorting / move items up or down
      * 
      * @private
-     * @param {integer} moveDir=1     Direction to move, -1=up, +1=down
+     * @param {integer} dir=1     Direction to move, -1=up, +1=down
      */
     _moveSelectedItemsUpDown : function(dir){
       dir = dir||-1;
@@ -1288,16 +1279,13 @@
   });
 
   bcdui.util.namespace("bcdui.widgetNg.connectable");
-  bcdui.widgetNg.connectable.TreeSupport = class
-  /**
-   * @lends bcdui.widgetNg.connectable.TreeSupport
-   * */ 
+
+/** 
+ * Tree support class providing item rendering, controls binding and onItemMoved handler
+ */
+  bcdui.widgetNg.connectable.TreeSupport = class 
   {
     /**
-     * @classdesc
-     * Tree support class providing item rendering, controls binding and onItemMoved handler
-     *
-     * @constructs
      * @param {jQuery}  container                       The container
      * @param {object}  config                            Options
      * @param {boolean} [config.isDefaultCollapsed=true]  Initial state
@@ -1370,7 +1358,7 @@
 
     /**
      * our default options sorting function uses alphabetical sorting on captions but
-     * preserves leafs in trees.
+     * preserves leaves in trees.
      *
      * @private
      */
@@ -1412,9 +1400,9 @@
     /**
      * Context: widget's instace
      * @param {object}  args  parameters from connectable
-     * @param {jQuery}  from  The source container .bcdSource/.bcdTarget, depends on direction
-     * @param {jQuery}  to    The target container .bcdTarget/.bcdSource, depends on direction
-     * @param {string}  dir   Direction: src2dst, dst2src
+     * @param {jQuery}  args.from  The source container .bcdSource/.bcdTarget, depends on direction
+     * @param {jQuery}  args.to    The target container .bcdTarget/.bcdSource, depends on direction
+     * @param {string}  args.dir   Direction: src2dst, dst2src
      * @private
      */
     onItemMoved(args) {

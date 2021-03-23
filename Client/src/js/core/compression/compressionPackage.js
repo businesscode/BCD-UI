@@ -73,7 +73,7 @@ bcdui.core.compression = {
    * @return {boolean} True if c is a digit.
    * @private
    */
-  _isDigit: function(/* char */ c)
+  _isDigit: function(c)
     {
       return (c >= 48 && c <= 57);
     },
@@ -94,7 +94,7 @@ bcdui.core.compression = {
    * @return {string} The compressed XML-like document.
    * @private
    */
-  _compressXMLString: function(/* string */ data)
+  _compressXMLString: function(data)
     {
       var constPrefix = "__token_";
       var result = "";
@@ -170,7 +170,7 @@ bcdui.core.compression = {
    * @return {string} The serialized XML document.
    * @private
    */
-  _uncompressXMLString: function(/* string */ data)
+  _uncompressXMLString: function(data)
     {
       var result = "";
       var reverseTokenMap = new Array();
@@ -253,7 +253,7 @@ bcdui.core.compression = {
    * @return {string} The value as hex number.
    * @private
    */
-  _toHexString: function(/* integer */ value, /* boolean? */ hasRecursed)
+  _toHexString: function(value, hasRecursed)
     {
       if (value == 0) return hasRecursed ? "" : "0";
       return this._toHexString(value >> 4, true) + this._b64ToChar.charAt(value & 15);
@@ -272,7 +272,7 @@ bcdui.core.compression = {
    * @see #_decodeStringWithAlphabetMapping
    * @private
    */
-  _encodeStringWithAlphabetMapping: function(/* string */ data)
+  _encodeStringWithAlphabetMapping: function( data)
     {
       var alphabetMapping = new Array();
       var alphabet = "";
@@ -297,7 +297,7 @@ bcdui.core.compression = {
    * @see #_encodeStringWithAlphabetMapping
    * @private
    */
-  _decodeStringWithAlphabetMapping: function(/* string */ encodedData)
+  _decodeStringWithAlphabetMapping: function( encodedData)
     {
       var alphabet = this._decodeString(encodedData);
       var data = encodedData.substr(this._encodeString(alphabet).length);
@@ -320,7 +320,7 @@ bcdui.core.compression = {
    * @see #_decodeString
    * @private
    */
-  _encodeString: function(/* string */ data)
+  _encodeString: function( data)
     {
       var result = this._toHexString(data.length) + "-";
       for (var i = 0; i < data.length; i += 3) {
@@ -344,7 +344,7 @@ bcdui.core.compression = {
    * @see #_encodeString
    * @private
    */
-  _decodeString: function(/* string */ data)
+  _decodeString: function( data)
     {
       var offset = data.indexOf('-');
       if (offset <= 0) return "";
@@ -382,6 +382,7 @@ bcdui.core.compression = {
    * @private
    */
   _serializeXMLWithoutComments: function(/* XMLDocument */ doc)
+  //TODO: Documentation != Declaration
     {
       return new XMLSerializer().serializeToString(doc).replace(new RegExp("<!--[^-]+(-[^-]+)*-->", "g"), "");
     },
@@ -405,6 +406,7 @@ bcdui.core.compression = {
    * @param {XMLDocument} doc - The DOM document to be compressed.
    * @param {function} fn - The callback function executed when the compression succeeds. This
    * function gets a string argument with the compressed document.
+   * @param {function} [errorFn]
    * @param {boolean} [isSync=false] - If set to true the compression is forced to call the callback *fn* synchronously,
    * i.e. keeping the event call stack, etc
    * @param {boolean} [compressAll=false] -I f set to true 'tiny' compression is taken into account even for non guiStatus docs

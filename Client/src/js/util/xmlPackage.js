@@ -29,7 +29,7 @@ bcdui.util.xml =
      * @param {string} xmlString - The string to be processed.
      * @return {string} The parameter with XML control characters replaced.
      */
-    quoteXMLString: function(/* String */ xmlString)
+    quoteXMLString: function( xmlString)
       {
         if (typeof xmlString == "undefined") return null;
         if (!bcdui.util.isString(xmlString)) return null;
@@ -69,10 +69,11 @@ bcdui.util.xml =
      * a comment, text node etc.) or null if there is no sibling element. If the function
      * is supported by the browser (e.g. FireFox) the native implementation is used. In
      * other browsers (e.g. Internet Explorer) it is computed here.
+     * @param {XMLElement} element
      * @return {Element} The element immediately following the specified element or
      * null if there is no such element.
      */
-    nextElementSibling: function(/* XMLElement */ element)
+    nextElementSibling: function(element)
       {
         if (typeof element.nextElementSibling != "undefined") return element.nextElementSibling;
         do {
@@ -116,10 +117,10 @@ bcdui.util.xml =
    * Renames an XML element and optionally filters its child elements (which is
    * useful in conjunction with the wrs-Format).
    * @param {Element} element - The XML element to be renamed.
-   * @param {sting} newName - The new name of the XML element.
+   * @param {string} newName - The new name of the XML element.
    * @return {XMLElement} The renamed XML element.
    */
-  renameElement: function(/* XMLElement */ element, /* String */ newName)
+  renameElement: function( element, newName)
     {
       /*
 
@@ -148,9 +149,9 @@ bcdui.util.xml =
     /**
      * Removes XML elements from a DOM document. These XML elements are identified
      * with an XPath.
-     * @param {document} doc - The document the XPath specified in the "path"
+     * @param {XMLDocument | DataProvider } doc - The document the XPath specified in the "path"
      * argument is evaluated on.
-     * @param {writableModelXPath} path - The XPath pointing to the nodes to be removed.
+     * @param {writableModelXPath | String} path - The XPath pointing to the nodes to be removed.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:D instead of removing it).
      * It is "true" by default.
@@ -160,13 +161,12 @@ bcdui.util.xml =
      * Item elements need to be cleared as well.
      * @return {number} The number of removed nodes.
      */
-    removeXPath: function(/* XMLDocument | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements)
+    removeXPath: function( doc, path, enableWrsExtensions, removeEmptyElements)
       {
-        return bcdui.core.removeXPath(/* XMLDocument | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements);
+        return bcdui.core.removeXPath( doc, path, enableWrsExtensions, removeEmptyElements);
       },
 
     /**
-     * <p>
      * This function works similar to selectSingleNode in that executes an XPath
      * on a DOMDocument or XML element and returns an XML element. However if the
      * element does not exists it creates XML elements on the XPath so that the XPath
@@ -191,15 +191,15 @@ bcdui.util.xml =
      * to be computed. For example it is not allowed to specify "//" in the XPath
      * and the "or" conjunction cannot be used.
      * </p>
-     * @param {Element} baseElement - The DOM document or the XML element the path is evaluated on.
-     * @param {modelXPath} path - The XPath identifying the element to be retrieved or
+     * @param {XMLDocument | XMLElement | DataProvider} baseElement - The DOM document or the XML element the path is evaluated on.
+     * @param {modelXPath | String} path - The XPath identifying the element to be retrieved or
      * created.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I
      * elements). It is "true" by default.
      * @return {Element} The XML element to be found under the specified XPath.
      */
-    createElementWithPrototype: function(/* XMLDocument | XMLElement | DataProvider */ baseElement, /* String */ path, /* Boolean? */ enableWrsExtensions)
+    createElementWithPrototype: function( baseElement, path, enableWrsExtensions)
       {
         return bcdui.core.createElementWithPrototype(/* XMLDocument | XMLElement | DataProvider */ baseElement, /* String */ path, /* Boolean? */ enableWrsExtensions);
       },
@@ -208,9 +208,10 @@ bcdui.util.xml =
      * Determines the parent element of a node, no matter if it is an attribute node
      * or an element. It is quite useful especially for attribute nodes, because the
      * parentNode property does not work on them.
+     * @param {XMLElement | XMLAttribute} node
      * @return {Element} The parent element of the specified node.
      */
-    getParentNode: function(/* XMLElement | XMLAttribute */ node)
+    getParentNode: function( node)
       {
         if (node.nodeType == 2) {
            /*
@@ -252,9 +253,8 @@ bcdui.util.xml =
   },
 
   /**
-   * @param {object} args The parameter map containing following properties
-   * @param {string} args.expression - the expression to parse
-   * @param {object} [args.params] - the expression to parse
+   * @param {string} expression - the expression to parse
+   * @param {object} params - the expression to parse
    * @return {document} containing parsed expression
    * @example
    *   

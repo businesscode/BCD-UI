@@ -48,19 +48,17 @@ bcdui.util.namespace("bcdui.component",
   }
 });
 
+/**
+  * Creates a convenience standard scorecard renderer.
+  * You can create this with a configuration args.config or a {@link bcdui.component.scorecard.ScorecardModel} as args.input.  
+  * This renderer provides a default tooltip and supports default actions for detail-export, WSYIWYG export and detail-drill-over for a context menu
+  * Call these by triggering scorecardActions:[detailExport|reportExcelExport|drillToAnalysis] at the cell, 
+  * you may provide them with a custom 'chain' and 'chainParameters', see bcdRowIdent in default context menu as samples.
+  * @extends bcdui.core.Renderer
+ */
 bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
-/** @lends bcdui.component.scorecard.Scorecard.prototype */
 {
   /**
-   * @classdesc
-   * Creates a convenience standard scorecard renderer.
-   * You can create this with a configuration args.config or a {@link bcdui.component.scorecard.ScorecardModel} as args.input.  
-   * This renderer provides a default tooltip and supports default actions for detail-export, WSYIWYG export and detail-drill-over for a context menu
-   * Call these by triggering scorecardActions:[detailExport|reportExcelExport|drillToAnalysis] at the cell, 
-   * you may provide them with a custom 'chain' and 'chainParameters', see bcdRowIdent in default context menu as samples.
-   * @extends bcdui.core.Renderer
-   *
-   * @constructs
    * @param {Object} args - The parameter map contains the following properties:
    * @param {targetHtmlRef}           args.targetHtml                         - The socrecard renderer's target html element.
    * @param {bcdui.core.DataProvider} [args.inputModel]                       - The data of the scorecard model {@link bcdui.component.scorecard.ScorecardModel}. Provide args.config or args.inputModel

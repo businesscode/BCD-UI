@@ -32,7 +32,7 @@ bcdui.util.url =
  * @param {string} relativeUrl - The relative URL to be resolved.
  * @return {string} The result of applying the relativeUrl to the relativeBaseUrl.
  */
-translateRelativeURL: function(/* string */ relativeBaseUrl, /* string */ relativeUrl)
+translateRelativeURL: function( relativeBaseUrl,  relativeUrl)
   {
     if (bcdui.util.url.isAbsoluteURL(relativeUrl)) return relativeUrl;
     var resultParts = relativeBaseUrl.split("/");
@@ -68,10 +68,10 @@ translateRelativeURL: function(/* string */ relativeBaseUrl, /* string */ relati
  * Converts a relative URL (like ../Ziplet) to a full URL path (like
  * (/myApp/ZipLet), based on the current page location.
  * @param {String} url - The (relative or absolute) url to a full URL path.
- * @return {String} The - full URL path which is the absolute URL
+ * @return {String} The full URL path which is the absolute URL
  * without the host/protocol/port part, starting with slash.
  */
-resolveToFullURLPathWithCurrentURL: function(/* String */ url)
+resolveToFullURLPathWithCurrentURL: function( url)
   {
     if (url.substring(0, 1) == "/") {
       return bcdui.getContextPath().replace(/\/?$/, url);
@@ -85,7 +85,7 @@ resolveToFullURLPathWithCurrentURL: function(/* String */ url)
  * @param {string} url The URL to be inspected.
  * @return {boolean} True if the URL is either null or an absolute URL.
  */
-isAbsoluteURL: function(/* string */ url)
+isAbsoluteURL: function(url)
   {
     return url == null || url.charAt(0) == '/' || url.indexOf("http://") == 0 || url.indexOf("https://") == 0;
   },
@@ -99,7 +99,7 @@ isAbsoluteURL: function(/* string */ url)
  * @return {string} The parent folder of the element denoted by the URL or
  * the URL itself if it is already a folder (ending with slash "/").
  */
-extractFolderFromURL: function(/* string */ url)
+extractFolderFromURL: function( url)
   {
     if (url == null || !url.trim()) return null;
     url.trim();
@@ -111,13 +111,13 @@ extractFolderFromURL: function(/* string */ url)
  * Resolves a URL with its correct xml:base. To compute the xml:base for the
  * URL it may be necessary to resolve the xml:base with its ancestor xml:base
  * elements unless one of them is an absolute URL.
- * @param xmlElement The point where the xml:base resolution should
+ * @param {XMLElement} xmlElement The point where the xml:base resolution should
  * start.
  * @param {string} url The URL to be resolved.
  * @return {string} The URL resolved with all xml:base elements of the element
  * itself and its ancestor elements.
  */
-resolveURLWithXMLBase: function(/* XMLElement */ xmlElement, /* String */ url)
+resolveURLWithXMLBase: function( xmlElement, url)
   {
     // Context path
     if( url.startsWith("bcduicp://") )

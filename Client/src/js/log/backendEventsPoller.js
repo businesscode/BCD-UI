@@ -38,9 +38,10 @@
 
   /**
    * takes a map of params:
-   * @param pollingIntervalMs (default 10000)
-   * @param url
-   * @param threshold of type log4javascript.Level (default log4javascript.Level.ALL)
+   * @param config
+   * @param config.pollingIntervalMs (default 10000)
+   * @param config.url
+   * @param config.threshold of type log4javascript.Level (default log4javascript.Level.ALL)
    */
   function TypeBackendEventsPoller(config){
     config = config||{};

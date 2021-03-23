@@ -501,6 +501,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
    */
   _setCubeItemAttribute: function( targetModelId, cubeId, isDimension, attribute, value , levelId )
   {
+    // TODO: Documentation does not match declaration
      var idRef =  levelId || bcdui.component.cube.configurator._getMeasureId("bcdColIdent");
      bcdui.component.cube.configurator._setCubeItemAttributeIdRef( targetModelId, cubeId, idRef, isDimension, attribute, value);
   },
@@ -560,7 +561,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
    * @private
    * @param cubeId
    * @param targetModelId
-   * @param targetModelXpath
+   * @param targetModelXPath
    */
   _addMeasure: function( cubeId, targetModelId, targetModelXPath, dialogCaption, isEditMode){
     // preparing variablesModel

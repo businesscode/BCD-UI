@@ -112,7 +112,6 @@
     /**
      * creates the button control
      *
-     * @param element {Element} to initialize from
      * @private
      * @return \{widget: is the widget element to append to layout, control: A-element\}
      */
