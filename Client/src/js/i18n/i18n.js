@@ -134,7 +134,8 @@ bcdui.i18n.MessageCatalog = class
   }
 };
 
-bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
+bcdui.util.namespace("bcdui.i18n")
+bcdui.i18n.HTMLTranslator = class
 /**
  * @lends bcdui.i18n.HTMLTranslator.prototype
  */

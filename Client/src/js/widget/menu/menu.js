@@ -229,10 +229,12 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
 
 };
 
+bcdui.util.namespace("bcdui.widget.menu")
+
 /**
  * Menu
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.menu.MenuContainer
+ bcdui.widget.menu.MenuItem = class extends bcdui.widget.menu.MenuContainer
  /**
    * @lends bcdui.widget.menu.MenuItem.prototype
    */

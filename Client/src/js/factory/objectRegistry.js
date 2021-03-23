@@ -15,6 +15,8 @@
 */
 "use strict";
 
+bcdui.util.namespace("bcdui.factory")
+
  /**
    * The object registry is a class that tracks registration of BCD-UI objects by
    * their id. It also offers methods to wait for the registration of one or more
@@ -22,7 +24,7 @@
    * <p/>
    * Use the singleton {@link bcdui.factory.objectRegistry} for registering
     */
-bcdui.util.namespace("bcdui.factory").ObjectRegistry = class
+  bcdui.factory.ObjectRegistry = class
 /**
  * @lends bcdui.factory.ObjectRegistry.prototype
  */
