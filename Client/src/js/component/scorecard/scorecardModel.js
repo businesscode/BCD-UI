@@ -37,6 +37,9 @@ bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namesp
  * @extends bcdui.core.DataProvider
  */
 bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
+/**
+ * @lends bcdui.component.scorecard.ScorecardModel.prototype
+ */
 {
   /* This class represents a Scorecard. The process is:
     * <pre>

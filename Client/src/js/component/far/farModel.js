@@ -22,6 +22,7 @@ bcdui.util.namespace("bcdui.component.far",{});
  * @extends bcdui.core.AsyncJsDataProvider
  */
 bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
+/** @lends bcdui.component.far.FarModel.prototype */
 {
   /**
    * @param {object}                  args                      Parameter map contains the following properties:

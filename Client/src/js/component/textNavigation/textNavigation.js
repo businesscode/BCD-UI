@@ -30,6 +30,7 @@ bcdui.util.namespace("bcdui.component.textnavigation",{});  // Making sure our n
  * @type {bcdui.component.textnavigation.TextNavigation}
  */
 bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Renderer
+/** @lends bcdui.component.textnavigation.TextNavigation.prototype */
 {
   /**
    * @constructs

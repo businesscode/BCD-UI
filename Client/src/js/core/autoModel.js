@@ -20,6 +20,7 @@
  * @extends bcdui.core.SimpleModel
  */
 bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
+/** @lends bcdui.core.AutoModel.prototype */
 {
   /**
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-styleshhet.

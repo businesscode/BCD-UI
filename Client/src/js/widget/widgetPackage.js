@@ -3339,6 +3339,9 @@ bcdui.util.namespace("bcdui.widget",
 }); // namespace
 
 bcdui.widget.validationToolTip = class
+/**
+ * @lends bcdui.widget.validationToolTip.prototype
+ */
 {
   _schema_validationToolTip_args= !(bcdui.factory.validate.jsvalidation._patterns) ? {} : {
     name: "_schema_validationToolTip_args",

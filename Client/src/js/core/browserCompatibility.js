@@ -519,22 +519,24 @@ if (bcdui.browserCompatibility.isIE) {
    */
   bcdui.core.browserCompatibility.appendElementWithPrefix = bcdui.core.browserCompatibility.ie.appendElementWithPrefix;
 
+  /**
+   * A class implementing the XmlHttpRequest interface for Internet Explorer so that it
+   * always created "FreeThreadedDOMDocuments". The default IE implementation creates
+   * non free-threaded document which cannot be used to create an XSLT processor. This
+   * bug is worked around by this class.
+   *
+   * Sadly, we cannot switch to new (IE9) XMLHttpRequest. Because
+   * A) The new native docs do not support Xpath and
+   * b) By setting responseType = 'msxml-document' we can get MSXML docs instead of the native ones, having support for xPath,
+   * but the version then is only IXMLDomDocument2, which is incompatible with Msxml2.XSLTemplate.6.0 (being IXMLDomDocument3),
+   * XSLTProcessor will complain when using it as a parameter to a stylesheet.
+   */
   bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
+  /**
+   * @lends bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments.prototype
+   */
   {
 
-    /**
-     * @constructs
-     *   A class implementing the XmlHttpRequest interface for Internet Explorer so that it
-     *   always created "FreeThreadedDOMDocuments". The default IE implementation creates
-     *   non free-threaded document which cannot be used to create an XSLT processor. This
-     *   bug is worked around by this class.
-     *
-     * Sadly, we cannot switch to new (IE9) XMLHttpRequest. Because
-     * A) The new native docs do not support Xpath and
-     * b) By setting responseType = 'msxml-document' we can get MSXML docs instead of the native ones, having support for xPath,
-     * but the version then is only IXMLDomDocument2, which is incompatible with Msxml2.XSLTemplate.6.0 (being IXMLDomDocument3),
-     * XSLTProcessor will complain when using it as a parameter to a stylesheet.
-     */
     constructor(args)
       {
         this.domDocument = null;

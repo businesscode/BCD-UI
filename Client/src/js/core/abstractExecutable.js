@@ -30,6 +30,9 @@
   * @abstract
   */
 bcdui.core.AbstractExecutable = class
+/**
+ * @lends bcdui.core.AbstractExecutable.prototype
+ */
 {
 
   /** 
@@ -40,7 +43,7 @@ bcdui.core.AbstractExecutable = class
    * @param {function} [args.bcdPreInit] a function which can be used to execute code before any super code of derived classes
    * @throws Error An Error is thrown if id is not unique, i.e. an object with the same id is already registered.
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       if (args.bcdPreInit)
         args.bcdPreInit.call(this);

@@ -40,6 +40,9 @@ if (typeof bcdui.widget == "undefined") {
  * @type {bcdui.widget.DetachedEvent}
  */
 bcdui.widget.DetachedEvent = class
+/**
+ * @lends bcdui.widget.DetachedEvent.prototype
+ */
 {
   /**
    * @constructs

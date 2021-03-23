@@ -26,6 +26,9 @@
    * @abstract
     */
 bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
+/**
+ * @lends bcdui.core.TransformationChain.prototype
+ */
 {
 
   /**
@@ -961,6 +964,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * @extends bcdui.core.TransformationChain
     */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
+/** @lends bcdui.core.Renderer.prototype */
 {
   /**
    * @param {Object} args - An argument object with the following properties:
@@ -1080,6 +1084,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   * @extends bcdui.core.TransformationChain
    */
 bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
+/** @lends bcdui.core.ModelWrapper.prototype */
 {
   /**
   * @param {Object} args - An argument object with the following properties:
@@ -1119,6 +1124,7 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
   */
 bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
+/** @lends bcdui.core.ModelUpdater.prototype */
 {
   /**
    * @param {Object} args - An argument object with the following properties:
