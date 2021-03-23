@@ -24,16 +24,15 @@ import de.businesscode.bcdui.toolbox.ServletUtils;
 /**
  * The error-logEvent for usage with the ErrorLogAppender. <br>
  * All thrown {@link javax.servlet.ServletException} are processed in 
- * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly. <br>
+ * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly, 
+ * so there is usually no reason to manually use this class. <br>
  * 
  * Example:
- * 
  * ...
  * private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
  * ...
  * virtLoggerError.info(new ErrorLogEvent("Error", request), exception);
  * ...
- *
  */
 public class ErrorLogEvent extends LogEventBase {
 

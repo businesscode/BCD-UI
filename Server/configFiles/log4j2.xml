@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+<Configuration>
+  <Appenders>
+    <!-- define ConsoleAppender and set its pattern -->
+    <Console name="ConsoleAppender">
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %X{BCD.requestHash} %C{1}: %m%n"/>
+      <ThresholdFilter level="ALL"/> <!-- this values needs to be changed if you want to filter what is printed to console -->
+    </Console>
+  </Appenders>
 
-    <Appenders>
-        <!-- define ConsoleAppender and set its Threshold -->
-        <Console name="ConsoleAppender">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %X{BCD.requestHash} %C{1}: %m%n"/>
-        </Console>
-    </Appenders>
+  <Loggers>
+    <!-- define individual loggers and set their levels -->
+    <Logger name="de.businesscode" level="DEBUG"/>
+    <Logger name="de.businesscode.bcdui.web.servlets.StaticResourceServlet" level="ERROR"/>
+    <Logger name="net.sf.ehcache" level="INFO"/>
+    <Logger name="org.apache" level="INFO"/>
+    <Logger name="org.zefer" level="WARN"/>
 
-    <Loggers>
-        <!-- define individual loggers and set their levels -->
-        <Logger name="de.businesscode" level="DEBUG"/>
-        <Logger name="de.businesscode.bcdui.web.servlets.StaticResourceServlet" level="ERROR"/>
-        <Logger name="net.sf.ehcache" level="INFO"/>
-        <Logger name="org.apache" level="INFO"/>
-        <Logger name="org.zefer" level="WARN"/>
-
-        <!-- add an appender to the root logger and set its level -->
-        <Root level="ALL">
-            <AppenderRef ref="ConsoleAppender"/>
-        </Root>
-    </Loggers>
-</log4j:configuration>
+    <!-- add the ConsoleAppender to the root logger -->
+    <Root level="ALL">
+      <AppenderRef ref="ConsoleAppender"/>
+    </Root>
+  </Loggers>
+</Configuration>

@@ -138,9 +138,14 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
     @Override
     public String getFormattedMessage() {
       // just to have something here
-      return "SqlToDatabaseLogger.LogRecord <<jdbcMethod: " + jdbcMethod + ">, <sql: " + sql + ">, <stamp: " + stamp
-          + ">, <durationMs: " + durationMs + ">, <rowsAffected: " + rowsAffected + ">, <sessionId: " + sessionId
-          + ">, <pageHash: " + pageHash + ">, <requestHash: " + requestHash + ">>";
+      // previously, this method did not exists and LogRecord was stringified using regular toString() method, which sometimes swallowed information
+      String s = toString();
+      if (s.startsWith(getClass().toString())) // if only the class + instance is returned, wrap all info up
+        // TODO : is all this info needed, or do we only want specifics
+        return "SqlToDatabaseLogger.LogRecord <<jdbcMethod: " + jdbcMethod + ">, <sql: " + sql + ">, <stamp: " + stamp
+            + ">, <durationMs: " + durationMs + ">, <rowsAffected: " + rowsAffected + ">, <sessionId: " + sessionId
+            + ">, <pageHash: " + pageHash + ">, <requestHash: " + requestHash + ">>";
+      return s;
     }
   }
 

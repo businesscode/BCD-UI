@@ -61,9 +61,10 @@ public class FrontendQueueAppender extends AbstractAppender {
     if (sessionId == null || FrontendLogRecordPublisher.LOGGER_NAME.equals(event.getLoggerName()))
       return;
 
-    // TODO : no idea if this works as intended
-    System.err.println("layout: "+getLayout()+", "+XmlLayout.createDefaultLayout());
-    XmlLayout.createDefaultLayout().toSerializable(event);
-    SingletonStringQueue.getInstance(sessionId).add(getLayout().toByteArray(event).toString());
+    // TODO : do we need this check? or can we blindly cast to XmlLayout?
+    String msg = getLayout() instanceof XmlLayout ? 
+        ((XmlLayout) getLayout()).toSerializable(event) : 
+        XmlLayout.createDefaultLayout().toSerializable(event);
+    SingletonStringQueue.getInstance(sessionId).add(msg);
   }
 }

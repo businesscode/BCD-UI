@@ -120,17 +120,25 @@ public class BcdUiApplicationContextListener implements ServletContextListener
           Configurator.setLevel(logger.getName(), Level.INFO);
           
           /*
-           * setAdditivity(false) would ensure that the logged messages are not propagated to the ancestors of the logger.
+           * It is recommended to not set up loggers and appenders programatically and it is even still lacking some functionality, 
+           * but this approach works and results in exactly what we want.
            * 
-           * Because these kinds of exceptions were once passed to individual class loggers and this virtual logger, 
-           * they would appear twice. Since all ErrorLogEvent/ServletException logging has been centralized in the 
-           * RequestLifeCycleFilter, this is no longer an issue. In fact, the opposite is the case: when additivity 
-           * is set to false, these exceptions are never shown on the console anymore.
-           * 
-           * Recommended solution is to set the threshold of the console appender, which can also be done in the 
-           * already in use properties file. (see https://logging.apache.org/log4j/2.x/manual/configuration.html#Additivity)
+           * Alternatives that were ruled out due to several reasons:
+           *   - Defining the loggers and appenders in the config file and programatically only setting the level. This approach is not 
+           *     really possible without some really ugly practices. Loading multiple configuration files is not possible, but we don't 
+           *     want all these internal loggers and appenders cluttering the log4j2.xml file. Also, changing the threshold of an appender
+           *     is not possible at all, instead it would have to be removed completely and rebuilt with a new level. Turning this entire
+           *     logger level to OFF would result in the logevents not reaching the root logger's appenders, i.e. the Console, which would
+           *     not be what we want. (more info: https://logging.apache.org/log4j/2.x/manual/customconfig.html)
+           *   - Adding a regular ThresholdFilter to the appender is not sufficient, as it's threshold level can't be changed. Using a
+           *     DynamicThresholdFilter could be possible, but not in the way the ThreadContext is already used in this project. The
+           *     RequestLifeCycleFilter clears the ThreadContextMap after each request chain is handled, so any value we would set for the
+           *     DTF would get deleted as well. (more info: https://logging.apache.org/log4j/2.x/manual/filters.html#DynamicThresholdFilter)
+           *   - Add a (static) boolean to the appender that is used to decide if the append method actually does anything or not is also 
+           *     a possibility, but that would still require the loggers and appenders to be defined in the configuration file and thus not 
+           *     alleviate the previous issues.
            */
-          //logger.setAdditivity(false);
+          
           if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
             ((org.apache.logging.log4j.core.Logger) logger).addAppender(ErrorLogAppender.createAppender());
         }

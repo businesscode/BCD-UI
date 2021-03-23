@@ -104,7 +104,8 @@ public class RequestLifeCycleFilter implements Filter {
       /*
        * We got an Exception in the user code so we make a rollback now.
        */
-      String msg = ex.getMessage(); // we could also loop through all causes look for a msg
+      String msg = ex.getMessage(); // we could also loop through all causes look for a msg, but this should be sufficient
+      // all exceptions thrown during a request will be logged to the database (if that functionality is enabled)
       virtLoggerError.info(new ErrorLogEvent(msg != null && !msg.isEmpty() ? msg :  "An exception occurred, we do rollback.", request, ex));
       try {
         Configuration.getInstance().closeAllConnections(true);
