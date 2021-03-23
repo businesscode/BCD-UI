@@ -20,13 +20,7 @@
  */
 bcdui.util.namespace("bcdui.i18n");
 
-bcdui.i18n.MessageCatalog = class
-/**
- * @lends bcdui.i18n.MessageCatalog.prototype
- */
-{
-  /**
-   * @classdesc 
+ /**
    *  The i18n registry.
    *  An XML island is used to produce a mapping from msgid to phrase,
    *  the phrase can optionally contain interpolation terms in the format
@@ -52,8 +46,10 @@ bcdui.i18n.MessageCatalog = class
    *    mc.translate({msgid:'foo'}); # would result in 'bar'
    *    mc.translate({msgid:'someline'}, {'type': 'short'}); //  'this is a short line'
    *  </pre>
-   * 
-   * @constructs
+  */
+bcdui.i18n.MessageCatalog = class
+{
+  /**
    * @param args {Object} Parameter object with property "document" with catalog
    * entries.
    * @private
@@ -79,9 +75,9 @@ bcdui.i18n.MessageCatalog = class
   }
 
   /**
-   *
-   * @param msgid
-   * @param interpolations
+   * @param {Object} args
+   * @param args.msgid
+   * @param args.interpolations
    * @return translated message or empty String if did not find
    */
   translate(args) {
@@ -135,18 +131,16 @@ bcdui.i18n.MessageCatalog = class
   }
 };
 
-bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
-/**
- * @lends bcdui.i18n.HTMLTranslator.prototype
- */
+bcdui.util.namespace("bcdui.i18n")
+bcdui.i18n.HTMLTranslator = class
 {
   /**
    * @constructs
-   * @class
    * @member bcdui.i18n.HTMLTranslator
-   * @param {bcdui.i18n.MessageCatalog} catalog
-   * @param {String} translateAttrName (optional)
-   * @param {String} translateAttrsAttrName (optional)
+   * @param {Object} args
+   * @param {bcdui.i18n.MessageCatalog} args.catalog
+   * @param {String} [args.translateAttrName]
+   * @param {String} [args.translateAttrsAttrName]
    * @private
    */
   constructor(args) {
@@ -162,9 +156,9 @@ bcdui.util.namespace("bcdui.i18n").HTMLTranslator = class
   /**
    * translates the element and all its children having the translate attribute
    * @private
-   * @param args:
-   *         element  - element to translate
-   *         catalog  - catalog with i18n entries
+   * @param {Object} args
+   * @param args.element  - element to translate
+   * @param args.catalog  - catalog with i18n entries
    */
   translate(args) {
     var docel = typeof args.element === "string" ? document.getElementById(args.element) : args.element;

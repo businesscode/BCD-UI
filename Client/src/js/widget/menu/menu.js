@@ -22,18 +22,15 @@
 /**
  * @namespace bcdui.widget.menu
  */
-bcdui.util.namespace("bcdui.widget.menu").Menu = class
-/**
- * @lends bcdui.widget.menu.Menu.prototype
- */
+bcdui.widget.menu.Menu = class
 {
   /**
-   *
-   * @param rootIdOrElement       String|HTMLElement  root Node of the menu (ul)
-   * @param name                  String              name of the variable that stores the result
-   *                                                  of this constructor function
-   * @param customConfigFunction  function            optional config function to override the default settings
-   *                                                  for an example see Menu.prototype.config
+   * @param args
+   * @param {String|HTMLElement} args.rootIdOrElement         root Node of the menu (ul)
+   * @param {String} args.name                                name of the variable that stores the result
+   *                                                           of this constructor function
+   * @param {function} args.customConfigFunction              optional config function to override the default settings
+   *                                                          for an example see Menu.prototype.config
    * @constructs
    */
   constructor(args) {
@@ -82,18 +79,19 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
 
 };
 
-/*
+/**
  *  MenuContainer
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
-/**
- * @lends bcdui.widget.menu.MenuContainer.prototype
- */
+ bcdui.widget.menu.MenuContainer = class
 {
   /**
    * @constructs
    */
-  constructor(idOrElement, parent) {
+  constructor(idOrElement, parent, args) {
+
+    if (args && args.bcdPreInit)
+      args.bcdPreInit.call(this);
+
     this.type = this.getClassName();
     this.menuItems = [];
     this.init(idOrElement, parent);
@@ -148,7 +146,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
     }
   }
 
-  getClassName() {return "MenuContainer";}
+  getClassName() {return "menuContainer";}
   /**
    * @private
    */
@@ -225,13 +223,12 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
 
 };
 
-/*
+bcdui.util.namespace("bcdui.widget.menu")
+
+/**
  * Menu
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.menu.MenuContainer
-  /**
-   * @lends bcdui.widget.menu.MenuItem.prototype
-   */
+ bcdui.widget.menu.MenuItem = class extends bcdui.widget.menu.MenuContainer
   {
   /**
    * @constructs
@@ -241,11 +238,13 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.
     /**
      * @ignore
      */
-    super();
+    super(idOrElement, parent, {
+      bcdPreInit: function() {
+        this.type = this.getClassName();
+        this.subMenu = null;
+      }
+    });
     var menuItem = this;
-    this.type = this.getClassName();
-    this.subMenu = null;
-    this.init(idOrElement, parent);
     if (this.subMenu) {
       this.element.onmouseover = function() {
         menuItem.subMenu._open();
@@ -273,7 +272,7 @@ bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.
     }
   }
 
-  getClassName() {return "MenuItem";}
+  getClassName() {return "menuItem";}
 
   /**
    * Open the item

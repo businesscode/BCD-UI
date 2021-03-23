@@ -378,7 +378,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    * Helper to removes a row in the wrs format. Therefore the element must either be a
    * wrs:R, wrs:I, wrs:M or wrs:D element. wrs:I rows are simply removed, wrs:R rows become wrs:D, wrs:D rows remain untouched
    * 
-   * @param {Element} row - The wrs row to be deleted.
+   * @param {XMLElement} element - The wrs row to be deleted.
    * @return {Boolean} True, if the element has been a valid wrs element
    * which is applicable for this function (wrs:R, wrs:I, wrs:M or wrs:D) or
    * false otherwise.
@@ -1079,7 +1079,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
    *
    * @param {string|bcdui.core.DataProvider}  wrs           Id of a DataProvider or the DataProvider itself (dp must be ready)
    * @param {string|number}                   rowId       The row-id or 1-based position of row
-   * @param {string|number}                   columnId      ID or 1-based position of column
+   * @param {string|number}                   columnIdOrPos      ID or 1-based position of column
    * @param {string}                          [value=null]  If NULL then wrs:null node is appended to column
    *
    * @return true if value has been set, false otherwise
@@ -1110,7 +1110,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
   /**
    * Phsyically drops columns from Wrs
    * 
-   * @param {Element}  wrsRootNode  - Pointing to wrs:Wrs
+   * @param {Element}  wrs  - WRSRootNode: Pointing to wrs:Wrs
    * @param {string[]} colIdArray   - Array of column-ids to remove
    * 
    */
@@ -1564,7 +1564,7 @@ bcdui.util.namespace("bcdui.wrs.jsUtil",
 
   /**
    * Converts a js object created with domToJs to an XML document
-   * @param {Object} args - The JavaScript object following Wrs conventions, from which the XML document is to be created
+   * @param {Object} arg - The JavaScript object following Wrs conventions, from which the XML document is to be created
    */
   jsToXml: function( arg )
   {

@@ -143,7 +143,9 @@ bcdui.factory.validate.jsvalidation = {
    *      http://tools.ietf.org/html/draft-zyp-json-schema-03
    * and
    *      json-schema.org
-   * Example
+   * @param {Object} args
+   * @param {Object} schema
+   * @Example
    * <pre>
       {
         id: { type: "string", required: false },
@@ -154,7 +156,7 @@ bcdui.factory.validate.jsvalidation = {
    *  </pre>
    * @private
    */
-  _validateArgs: function(/* Object */ args, /* Object */ schema) {
+  _validateArgs: function(args, schema) {
 
     // when bcdui.config.debug is false (see bcduiLoaderPost.js) this function only exists as an empty function
 

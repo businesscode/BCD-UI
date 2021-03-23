@@ -18,7 +18,7 @@
  * validators package, common API all validators share:
  *
  * validator functions are simple functions taking argument object as parameter and returning
- * either NULL (for successful validation) or a validationError object in case of a failed validtion.
+ * either NULL (for successful validation) or a validationError object in case of a failed validation.
  *
  * the validationErrorObject properties:
  *
@@ -250,7 +250,7 @@ bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS = {
  * native validation has returned negative result.
  *
  * @param {string|element}  htmlElementId                 validatable element
- * @param {string[]}        validationMessages            An array of custom validation messages to display for this element (optional)
+ * @param {string[]}        customValidationMessages      An array of custom validation messages to display for this element (optional)
  * @param {boolean}         [skipNativeValidation=false]  If you want to skip implicit, native html5 validation on the element.
  *
  * @return TRUE if field has been validated and has no errors, false otherwise

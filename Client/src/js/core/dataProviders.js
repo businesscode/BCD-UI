@@ -21,21 +21,21 @@
  * or make an alias for a model.
  */
 
-bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
+
 /**
- * @lends bcdui.core.PromptDataProvider.prototype
+ * This is a data provider showing the user a prompt on each execute() and returning the value the user has entered. It is mainly intended for debugging.
+ * @extends bcdui.core.DataProvider
+ *
  */
+bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 {
   /**
-   * @classdesc
-   * This is a data provider showing the user a prompt on each execute() and returning the value the user has entered. It is mainly intended for debugging.
-   * @extends bcdui.core.DataProvider
-   *
    * @constructs
-   * @param {string=} args.name - Title provided to the user when the input box pops up.
-   * @param {id=}     args.id   - Globally unique id for use in declarative contexts
+   * @param {object} args
+   * @param {string} [args.name] - Title provided to the user when the input box pops up.
+   * @param {id}    [args.id]  - Globally unique id for use in declarative contexts
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       super(args);
       this.value = "";
@@ -73,23 +73,19 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 };
 
 
-bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 /**
- * @lends bcdui.core.ConstantDataProvider.prototype
+ *   A data provider for constant values. This is especially useful to set values for the xsl:param elements of a {@link bcdui.core.TransformationChain TransformationChain} subclass.
+ * @extends bcdui.core.DataProvider
  */
+bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 {
   /**
-   * @classdesc
-   *   A data provider for constant values. This is especially useful to set values for the xsl:param elements of a {@link bcdui.core.TransformationChain TransformationChain} subclass.
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {object}  args       - paramater map
-   * @param {id=}     args.id    - Globally unique id for use in declarative contexts
-   * @param {string=} args.name  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
+   * @param {id}     [args.id]    - Globally unique id for use in declarative contexts
+   * @param {string} [args.name]  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
    * @param {(string|number|boolean|object)} args.value - The data
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -147,26 +143,22 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
     }
 }; // Create class: bcdui.core.ConstantDataProvider
 
-bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 /**
- * @lends bcdui.core.DataProviderHolder.prototype
+  * This acts as a holder for the real DataProvider and behaves like a DataProvider itself.
+  * It is possible to instantiate this even without a source, we then only become ready, once a source was set and became ready.
+  * Use this if a DataProvider or even its type is not known in the moment you need it as a parameter.
+  * If we are executed, we pass through it directly or once out source is added later. 
+  * We mirror our source's state but reduce them to only initialized and loaded = ready.
+  * @extends bcdui.core.DataProvider
  */
+bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 {
   /**
-   * @classdesc
-   * This acts as a holder for the real DataProvider and behaves like a DataProvider itself.
-   * It is possible to instantiate this even without a source, we then only become ready, once a source was set and became ready.
-   * Use this if a DataProvider or even its type is not known in the moment you need it as a parameter.
-   * If we are executed, we pass through it directly or once out source is added later. 
-   * We mirror our source's state but reduce them to only initialized and loaded = ready.
-   * @extends bcdui.core.DataProvider
-   *
-   * @constructs
    * @param {object} [args] - The argument map
    * @param {bcdui.core.DataProvider} [args.source] - The data provider to be wrapped, unless set later via {@link bcdui.core.DataProviderHolder#setSource}
    * @param {string}                  [id]          - id
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
 
       args = args || {};
@@ -392,27 +384,23 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 }; // Create class: bcdui.core.DataProviderHolder
 
 
-
-bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
 /**
- * @lends bcdui.core.DataProviderAlias.prototype
+ * This class is a wrapper for a DataProvider giving it a new name (not id) and
+ * reducing its states to only initialized and loaded. It is useful for
+ * renaming a DataProvider before passing it to a TransformationChain so
+ * that a DataProvider can be mapped to an arbitrary xsl:param element.
+ * where the bcdui.core.DataProviderAlias' name is used as the xsl:param's name
+ * @extends bcdui.core.DataProvider
  */
+bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
+
 {
   /**
-   * @classdesc
-   *   This class is a wrapper for a DataProvider giving it a new name (not id) and
-   *   reducing its states to only initialized and loaded. It is useful for
-   *   renaming a DataProvider before passing it to a TransformationChain so
-   *   that a DataProvider can be mapped to an arbitrary xsl:param element.
-   *   where the bcdui.core.DataProviderAlias' name is used as the xsl:param's name
-   * @extends bcdui.core.DataProvider
-   *
-   * @constructs
    * @param {object} args - The argument map taking two mandatory parameters:
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped
    * @param {string}                  args.name - The new name of the data provider
    */
-  constructor(/* object */ args)
+  constructor(args)
   {
 
     if (typeof args.name == "undefined") {
@@ -423,28 +411,24 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
   }
 };
 
-
-bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
 /**
- * @lends bcdui.core.DataProviderWithXPath.prototype
+ * Reading a single data item from an XPath on getData() as string.
+ * See {@link bcdui.core.DataProviderWithXPathNodes DataProviderWithXPathNodes} for reading a full XML node-set
+ * @extends bcdui.core.DataProviderHolder
  */
+bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
+
 {
   /**
    * @private
    */
   _nullValue= null
   /**
-   * @classdesc
-   * Reading a single data item from an XPath on getData() as string.
-   * See {@link bcdui.core.DataProviderWithXPathNodes DataProviderWithXPathNodes} for reading a full XML node-set
-   * @extends bcdui.core.DataProviderHolder
-   * 
-   * @constructs
    * @param {object}  args
    * @param {modelXPath} args.xPath - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-   * @param {string=}    args.name  - Logical name of this DataProvider when used as a parameter in a transformation
+   * @param {string}    [args.name]  - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;
       super(jQuery.extend(args, {
@@ -505,26 +489,22 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
     }
 };
 
-
+/**
+  *  This class creates a static model with a top level element '<Root/>' and appends all
+  *  the elements that are found by xpath as children. Useful for be passing data as parameter to an XSLT transformation.
+  *  See {@link bcdui.core.DataProviderWithXPath DataProviderWithXPath} for reading a single value as a string
+  * @extends bcdui.core.DataProviderHolder
+ */
 bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
-    /**
-     * @lends bcdui.core.DataProviderWithXPathNodes.prototype
-     */
+
     {
       /** 
-       * @classdesc
-       *  This class creates a static model with a top level element '<Root/>' and appends all
-       *  the elements that are found by xpath as children. Useful for be passing data as parameter to an XSLT transformation.
-       *  See {@link bcdui.core.DataProviderWithXPath DataProviderWithXPath} for reading a single value as a string
-       * @extends bcdui.core.DataProviderHolder
-       *
-       * @constructs
        * @param {object}                  args
        * @param {modelXPath}              [args.xPath]  - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
        * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
        * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
        */
-      constructor(/* object */ args)
+      constructor(args)
         {
           var bcdPreInit = args ? args.bcdPreInit : null;
           super(jQuery.extend(args, {
@@ -595,19 +575,16 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
         }
     };
 
-bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
 /**
- * @lends bcdui.core.OptionsDataProvider.prototype
- */
+ *  This class creates a static model with a top level element '&lt;cust:Options/>' and appends all
+ *  the elements that are found by xpath as children (as element '&lt;cust:Option value="v" caption="x"/>').
+ *  Useful for be passing data as parameter to transformators.
+ * @extends bcdui.core.DataProviderHolder
+*/
+bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
+
 {
   /** 
-   * @classdesc
-   *  This class creates a static model with a top level element '&lt;cust:Options/>' and appends all
-   *  the elements that are found by xpath as children (as element '&lt;cust:Option value="v" caption="x"/>').
-   *  Useful for be passing data as parameter to transformators.
-   * @extends bcdui.core.DataProviderHolder
-   *
-   * @constructs
    * @param {object}                  args
    * @param {modelXPath}              args.optionsModelXPath                - Data xPath with model reference, like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>,
    *                                                                        is treated as value+caption in case args.optionsModelRelativeValueXPath is NOT DEFINED or
@@ -615,7 +592,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
    * @param {xPath}                   [args.optionsModelRelativeValueXPath] - optional xPath relative to args.optionsModelXPath
    * @param {string}                  [args.name]                           - Logical name of this DataProvider when used as a parameter in a transformation
    */
-  constructor(/* object */ args){
+  constructor( args){
     var bcdPreInit = args ? args.bcdPreInit : null;
     super(jQuery.extend(args, {
       bcdPreInit: function() {
@@ -674,20 +651,17 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
   }
 };
 
-bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 /**
- * @lends bcdui.core.RequestDocumentDataProvider.prototype
+ * Turns a DataProvider into a URL provider for SimpleModel.<p/>
+ * We do reflect the status of the requestModel transparently as we are just glueware.
+ * If the requestModel becomes invalid or throws dataModification, we do also become not-ready and stay so. 
+ * Even if the requestModel becomes ready again, we stay until we are executed unless args.isAutoRefresh = true is set.
+ * @extends bcdui.core.DataProvider
  */
+bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
+
 {
   /**
-   * @classdesc
-   * Turns a DataProvider into a URL provider for SimpleModel.<p/>
-   * We do reflect the status of the requestModel transparently as we are just glueware.
-   * If the requestModel becomes invalid or throws dataModification, we do also become not-ready and stay so. 
-   * Even if the requestModel becomes ready again, we stay until we are executed unless args.isAutoRefresh = true is set.
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args - Parameter object
    * @param {bcdui.core.DataProvider}        [args.requestModel]            - A DataProvider providing a request, for example a wrs:WrsRequest
    * @param {string}                         [args.url]                     - URL to load the data from, use this or args.requestModel.
@@ -880,19 +854,14 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
   }
 };// end RequestDocumentDataProvider
 
-
-bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
 /**
+ * A DataProvider retrieving its content on getData() from an attribute in the HTML DOM tree.
+ * @extends bcdui.core.DataProvider
  * Retrieves its value from an HTML element attribute
- * @lends bcdui.core.DataProviderHtmlAttribute.prototype
  */
+bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
 {
   /**
-   * @classdesc
-   * A DataProvider retrieving its content on getData() from an attribute in the HTML DOM tree.
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args
    * @param {string} args.htmlElementId
    * @param {string} args.attributeName
@@ -903,7 +872,7 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
    *   console.log(dp.getData());
    * &lt;/script>
    */
-  constructor(/* object */ args)
+  constructor( args)
   {
     super( args);
     this.htmlElementId = args.htmlElementId;
@@ -928,16 +897,13 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
   }
 };
 
-
+/**
+ * A StringDataProvider provides a plain string via getData()
+ * @extends bcdui.core.DataProvider
+ */
 bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
-/** @lends bcdui.core.StringDataProvider.prototype */
 {
   /**
-   * @classdesc
-   * A StringDataProvider provides a plain string via getData()
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args
    * @param {string} args.value  - The data
    * @param {id}     [args.id]   - Globally unique id for use in declarative contexts
@@ -1026,25 +992,21 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
 
 };
 
-
-bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
 /**
- * @lends bcdui.core.JsDataProvider.prototype
+  * Allows providing a custom js callback function returning a value.
+  * @extends bcdui.core.DataProvider
  */
+bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
+
 {
   /**
-   * @classdesc
-   * Allows providing a custom js callback function returning a value.
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args - The parameter map contains the following properties:
    * @param {function} args.callback                 - The callback providing the data
    * @param {boolean}  [args.doAllwaysRefresh=false] - If true, each getData() calls the callback, otherwise only execute() will do.
    * @param {id}       [args.id]                     - Globally unique id for use in declarative contexts
    * @param {string}   [args.name]                   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
-  constructor(/* object */ args)
+  constructor(args)
     {
       super(args);
       this.callback = args.callback;
@@ -1086,20 +1048,15 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
     }
 };
 
-
+/**
+  * Allows providing a js callback function for deferred execution which has to execute .setData(data) on provided instance once data is available.<p/>
+  * As all DataProviders, AsyncJsDataProvider will not become ready until data is available, i.e. until the callback has delivered data for the first time.
+  * This leaves the callback time to do asynchronous data requests against a server for example.
+  * @extends bcdui.core.DataProvider   
+ */
 bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
-  /**
-   * @lends bcdui.core.AsyncJsDataProvider.prototype
-   */
   {
     /**
-     * @classdesc
-     * Allows providing a js callback function for deferred execution which has to execute .setData(data) on provided instance once data is available.<p/>
-     * As all DataProviders, AsyncJsDataProvider will not become ready until data is available, i.e. until the callback has delivered data for the first time.
-     * This leaves the callback time to do asynchronous data requests against a server for example.
-     * @extends bcdui.core.DataProvider
-     * 
-     * @constructs
      * @param args The parameter map contains the following properties:
      * @param {function} args.callback - The callback providing the data; gets args object with 'setData' function to call once data is available.
      * @param {id}       [args.id]     - A globally unique id for use in declarative contexts
