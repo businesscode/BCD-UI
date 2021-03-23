@@ -18,26 +18,24 @@
  * @fileoverview
  * Container file for the AbstractExecutable class.
  */
+  
+ /**
+ * The abstract executable class is a base class for asynchronous operating status-based classes in BCD-UI library. It offers a basic set of
+ * methods that these classes share. Most methods deal with status handling, transitions, listeners and synchronization.
+ *
+ * <br/>Most common implementations are:
+ * {@link bcdui.core.StaticModel} &bull;
+ * {@link bcdui.core.SimpleModel} &bull;
 
+  * @abstract
+  */
 bcdui.core.AbstractExecutable = class
 /**
  * @lends bcdui.core.AbstractExecutable.prototype
  */
 {
 
-  /**
-   * @classdesc
-   * The abstract executable class is a base class for asynchronous operating status-based classes in BCD-UI library. It offers a basic set of
-   * methods that these classes share. Most methods deal with status handling, transitions, listeners and synchronization.
-   *
-   * <br/>Most common implementations are:
-   * {@link bcdui.core.StaticModel} &bull;
-   * {@link bcdui.core.SimpleModel} &bull;
-
-   * @abstract
-   *
-   * @constructs
-   * @description 
+  /** 
    * The constructor which must be called by all sub-classes. It initializes the listeners, status and id fields.
    * This class is abstract and not meant to be instantiated directly
    * @param {Object} [args] Parameter object
@@ -45,7 +43,7 @@ bcdui.core.AbstractExecutable = class
    * @param {function} [args.bcdPreInit] a function which can be used to execute code before any super code of derived classes
    * @throws Error An Error is thrown if id is not unique, i.e. an object with the same id is already registered.
    */
-  constructor(/* object */ args)
+  constructor( args)
     {
       if (args.bcdPreInit)
         args.bcdPreInit.call(this);
@@ -164,13 +162,13 @@ bcdui.core.AbstractExecutable = class
    * Counter-part of the "_extractStatusListFromArgs" function which is responsible
    * for extracting the listener from the args object. It is also used by the status
    * functions.
-   * @param args The args can either be a {@link bcdui.core.StatusListener StatusListener} object, a function or a
+   * @param args {object} - The args can either be a {@link bcdui.core.StatusListener StatusListener} object, a function or a
    * parameter map with a "listener" property holding a StatusListener or function.
    * @return {Function|bcdui.core.StatusListener} The listener taken from the args.
    * @throws Error An error is thrown when no status listener can be extracted.
    * @private
    */
-  _extractListenerObjectOrFunctionFromArgs(/* object */ args)
+  _extractListenerObjectOrFunctionFromArgs( args)
     {
       var listener = args;
       if (typeof args == "object") {
@@ -188,12 +186,12 @@ bcdui.core.AbstractExecutable = class
 
   /**
    * Removes the specified listener from the listeners map.
-   * @param listener The listener to be removed. This can either be a function or
+   * @param {StatusListener|function} listener The listener to be removed. This can either be a function or
    * a StatusListener object.
-   * @param statusCode The status code the listener is assigned to.
+   * @param {Status} statusCode The status code the listener is assigned to.
    * @private
    */
-  _removeStatusListenerFromCodeMapping(/* StatusListener|function */ listener, /* Status */ statusCode)
+  _removeStatusListenerFromCodeMapping(listener, statusCode)
     {
       if (typeof this.listeners[statusCode] == "undefined") return;
       this.listeners[statusCode] = this.listeners[statusCode].filter(function(item) {
@@ -206,13 +204,13 @@ bcdui.core.AbstractExecutable = class
    * transitions. The status listener must listen to either one specific event or
    * all events.
    * Call {@link bcdui.core.AbstractExecutable#removeStatusListener removeStatusListener()} to remove the listener.
-   * @param {(function|object)} args - Either a function executed on all status transitions <p/>or a parameter map with the following properties:
+   * @param {(function|StatusListener|object)} args - Either a function executed on all status transitions <p/>or a parameter map with the following properties:
    * @param {(function|bcdui.core.StatusListener)} args.listener - A function or StatusListener object representing the listener action.
    * @param {bcdui.core.Status=} args.status - The status it should listen to. 
    *   If it is missing the listener is executed on all status transitions, otherwise it is executed when the status is set to the specified status.
    * @param {boolean} [args.onlyOnce=false] - A boolean variable indicating that the listener should be automatically removed after it has been executed. 
    */
-  addStatusListener(/* function|StatusListener|object */ args)
+  addStatusListener(args)
     {
       var listener = this._extractListenerObjectOrFunctionFromArgs(args);
       this._extractStatusListFromArgs(args).forEach(function(status) {
@@ -225,13 +223,13 @@ bcdui.core.AbstractExecutable = class
 
   /**
    * Removes the provided status listener from this instance, added via {@link bcdui.core.AbstractExecutable#addStatusListener addStatusListener()} before.
-   * @param {Object} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map. In the latter case the map
+   * @param { function|StatusListener|Object} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map. In the latter case the map
    *   can contain the following fields
    * @param {function|bcdui.core.StatusListener} args.listener - A function <p/>or StatusListener object representing the listener action.
    * @param {bcdui.core.Status}                  args.status   - The status this listener is listening to. 
    *   If it is missing the it is assumed that the listener belongs to the global scope.
    */
-  removeStatusListener(/* function|StatusListener|object */ args)
+  removeStatusListener( args)
     {
       var listener = this._extractListenerObjectOrFunctionFromArgs(args);
       this._extractStatusListFromArgs(args).forEach(function(status) {
@@ -247,12 +245,12 @@ bcdui.core.AbstractExecutable = class
 
   /**
    * Fires a status event to the responsible listeners.
-   * @param args The args parameter map must either be an instance of the
+   * @param {Status} args The args parameter map must either be an instance of the
    * Status object or a parameter map containing a "status" property holding
    * a Status object.
    * @private
    */
-  _fireStatusEvent(/* Status */ args)
+  _fireStatusEvent( args)
     {
       if (typeof args == "object") {
         var status = null;
@@ -338,7 +336,7 @@ bcdui.core.AbstractExecutable = class
    * @param {bcdui.core.Status} args Either a Status object or a parameter map with a property
    * "status" holding a Status object.
    */
-  setStatus(/* Status */ args)
+  setStatus( args)
     {
       var oldStatus = this.status;
       var status = this._extractStatusListFromArgs(args)[0];
@@ -423,10 +421,11 @@ bcdui.core.AbstractExecutable = class
   /**
    * Loops over all status publishers and tests if the isReady function returns
    * true.
+   * @param {array} statusPublishers
    * @return {boolean} True, if all statusPublishers are ready.
    * @private
    */
-  _areAllReady(/* array */ statusPublishers)
+  _areAllReady(statusPublishers)
     {
       return statusPublishers.every(function(statusPublisher) {
         return statusPublisher.isReady();
@@ -437,13 +436,14 @@ bcdui.core.AbstractExecutable = class
    * A utility function potentially asynchronously waiting until all
    * "dependentStatusPublishers" objects are ready. Then it sets the status
    * to the provided one.
-   * @param newStatus The new status to be set as soon as all publishers are
+   * @param {Status} newStatus The new status to be set as soon as all publishers are
    * ready.
-   * @param dependentStatusPublishers The array of status publishers that
+   * @param {array} dependentStatusPublishers The array of status publishers that
    * are required to be ready before the status change happens.
+   * @param {function} [failureCallback]
    * @private
    */
-  _synchronizedStatusTransition(/* Status */ newStatus, /* array */ dependentStatusPublishers, /* Function? */ failureCallback)
+  _synchronizedStatusTransition(newStatus, dependentStatusPublishers, failureCallback)
     {
       if (this._areAllReady(dependentStatusPublishers)) { // this also sets ready if there are no dependentStatusPublishers at all
         this.setStatus(newStatus);
@@ -522,7 +522,7 @@ bcdui.core.AbstractExecutable = class
    * nothing when the object is already in the ready status. The default is "true"
    * meaning that the process is re-started when it is currently ready.
    */
-  execute(/* boolean? */ doesRefresh)
+  execute(doesRefresh)
     {
       // The actual process is implemented in the "_executeImpl" method so that the "execute" method should normally not be overridden in sub-classes.
       if (doesRefresh == false && this.getStatus().equals(this.getReadyStatus())) {

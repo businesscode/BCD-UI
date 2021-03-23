@@ -21,24 +21,15 @@
  */
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
-/*
- * ========================================================
- * XmlChart
+/**
+ * Implements XML-definition interface. Extends the JS implementation of the
+ * Chart class allowing an XML definition model as input.
+ * @extends bcdui.component.chart.Chart
  */
 bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
-/**
- * @lends bcdui.component.chart.XmlChart.prototype
- */
 {
   /**
-   * @classdesc
-   * Implements XML-definition interface. Extends the JS implementation of the
-   * Chart class allowing an XML definition model as input.
-   * 
-   * @constructs
-   * @description
    * Constructor of bcdui.component.XmlChart, called by prototype.
-   * @extends bcdui.component.chart.Chart
    * @param {Object} args Parameter object
    * @param {targetHtmlRef}           args.targetHtml                       - Where to place the chart
    * @param {bcdui.core.DataProvider} args.config                           - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
@@ -319,10 +310,8 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param map with
-   *  <ul>
-   *     <li>seriesInd, index of series to be removed</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.seriesInd - index of series to be removed
    * @return count of removed nodes or null
    * @private
    */
@@ -336,11 +325,9 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param map with
-   *  <ul>
-   *    <li>yData</li>
-   *    <li>seriesInd, index of series to be removed</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.yData
+   * @param args.seriesInd, index of series to be removed
    * @return count of removed nodes or null
    * @private
    */
@@ -408,10 +395,10 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   }
 
   /**
-   * @param statusEvent
+   * @param statusEvent {StatusEvent}
    * @private
    */
- _statusTransitionHandler(/* StatusEvent */statusEvent) {
+ _statusTransitionHandler(statusEvent) {
 
     // We need to wait for the metadata model and all models it refers to
     if (statusEvent.getStatus().equals(this.loadingStatus)) {

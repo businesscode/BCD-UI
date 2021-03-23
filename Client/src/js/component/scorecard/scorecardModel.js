@@ -28,9 +28,13 @@
  */
 bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namespace exists
 
-/*
- * ========================================================
- * Scorecard
+/**
+ * Creates a scorecard-model from a scorecard definition, the scorecard model is derived {@link bcdui.core.DataProvider DataProvider}
+ * Format of scorecard definition is defined by XSD http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
+ *
+ * This scorecard does all calculations and also transposes data if necessary. It does not deal with any presentation part, though.
+ * See {@link bcdui.component.createScorecard} if you want a default scorecard rendering.
+ * @extends bcdui.core.DataProvider
  */
 bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 /**
@@ -76,15 +80,6 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
        </pre>
   */
   /**
-   * @classdesc
-   * Creates a scorecard-model from a scorecard definition, the scorecard model is derived {@link bcdui.core.DataProvider DataProvider}
-   * Format of scorecard definition is defined by XSD http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
-   * <p/>
-   * This scorecard does all calculations and also transposes data if necessary. It does not deal with any presentation part, though.
-   * See {@link bcdui.component.createScorecard} if you want a default scorecard rendering.
-   * @extends bcdui.core.DataProvider
-   *
-   * @constructs
    * @param {Object} args - Parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.config                  - The scorecard definition
    * @param {string}                  [args.id]                    - The id of the new object. If omitted the id is automatically generated
@@ -92,7 +87,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters at /SomeRoot/f:Filter
    * @param {object}                  [args.parameters]            - Custom parameters to be shared between all aggregators, aspects, etc.
    */
-  constructor(/* object */ args )
+  constructor( args )
   {
     super(args);
 

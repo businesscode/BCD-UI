@@ -32,24 +32,23 @@
 bcdui.util.namespace("bcdui.component.grid");
 
 /**
- * @classdesc
  * Creates a GridModel
  * @extends bcdui.core.DataProvider
- *
- * @constructs bcdui.component.grid.GridModel
- * @param {Object} args The parameter map contains the following properties:
- * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
- * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
- * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
- * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
- * @param {Object}                  [args.saveParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
- * @param {chainDef}                [args.validationChain]                                 - The definition of the transformation chain
- * @param {Object}                  [args.validationParameters]                            - An object, where each property holds a DataProvider, used as a transformation parameters.
- * @param {chainDef}                [args.loadChain]                                       - The definition of the transformation chain
- * @param {Object}                  [args.loadParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
-*/
+ */
 bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
+  /**
+  * @param {Object} args The parameter map contains the following properties:
+  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
+  * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
+  * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
+  * @param {Object}                  [args.saveParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
+  * @param {chainDef}                [args.validationChain]                                 - The definition of the transformation chain
+  * @param {Object}                  [args.validationParameters]                            - An object, where each property holds a DataProvider, used as a transformation parameters.
+  * @param {chainDef}                [args.loadChain]                                       - The definition of the transformation chain
+  * @param {Object}                  [args.loadParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
+ */
   constructor(args) {
     // Evaluate default parameters
     var id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("gridModel");
@@ -81,41 +80,39 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 }
 
 /**
- * @classdesc
  * Creates a grid front end based on given data or a configuration
  * @extends bcdui.core.Renderer
- *
- * @constructs bcdui.component.grid.Grid
- * @param args The parameter map contains the following properties:
- * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
- * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
- * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
- * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
- * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
- * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
- * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
- * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
- * @param {function}                [args.customSave]                                      - Custom save function
- * @param {function}                [args.afterAddRow]                                     - Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
- * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
- * @param {Object}                  [args.saveParameters]                                  - Parameters for the saving chain
- * @param {chainDef}                [args.loadChain]                                       - A chain definition which is used for the grid loading operation 
- * @param {Object}                  [args.loadParameters]                                  - Parameters for the loading chain
- * @param {chainDef}                [args.validationChain]                                 - A chain definition which is used for the validation operation. basic wrs and reference validation is given by default
- * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
- * @param {boolean}                 [args.allowNewRows=true]                               - Allows inserting new rows via default contextMenu or drag/paste 
- * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
- * @param {integer}                 [args.maxHeight]                                       - Set a maximum vertical size in pixel (only used when no handsontable height is set)
- * @param {boolean}                 [args.isReadOnly=false]                                - Turn on viewer-only mode
- * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
- * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
- * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
- * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
- * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
- *
 */
 bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 {
+  /**
+  * @param args The parameter map contains the following properties:
+  * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
+  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
+  * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
+  * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
+  * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
+  * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
+  * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
+  * @param {function}                [args.customSave]                                      - Custom save function
+  * @param {function}                [args.afterAddRow]                                     - Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
+  * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
+  * @param {Object}                  [args.saveParameters]                                  - Parameters for the saving chain
+  * @param {chainDef}                [args.loadChain]                                       - A chain definition which is used for the grid loading operation 
+  * @param {Object}                  [args.loadParameters]                                  - Parameters for the loading chain
+  * @param {chainDef}                [args.validationChain]                                 - A chain definition which is used for the validation operation. basic wrs and reference validation is given by default
+  * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
+  * @param {boolean}                 [args.allowNewRows=true]                               - Allows inserting new rows via default contextMenu or drag/paste 
+  * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
+  * @param {integer}                 [args.maxHeight]                                       - Set a maximum vertical size in pixel (only used when no handsontable height is set)
+  * @param {boolean}                 [args.isReadOnly=false]                                - Turn on viewer-only mode
+  * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+  * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
+  * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+  * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
+  * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
+  */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
     var targetHtml = bcdui.util._getTargetHtml(args, "grid_");

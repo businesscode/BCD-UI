@@ -358,11 +358,16 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
 
   /**
    * parsing formula by calling external formula parser
-   * @param inputField {HTMLElement} html input element.
+   * @param {string} formula The actual formula.
+   * @param {dataProvider} optionsModel The dataprovider holding the XML options.
+   * @param {string} optionsModelXPath The XPath in whole XML options data.
+   * @param {string} optionsModelRelativeValueXPath The relative XPath in whole XML options data.
+   * @param {boolean} doNotValidateContent Do not validate content.
+   * @param {boolean} skipServerSidedFunctions Skip server-sided functions.
    * @private
    */
   _parseText: function(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions)
-    {
+  {
       var result = bcdui.widget.formulaEditor.Parser.shunting_yard(formula, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, doNotValidateContent, skipServerSidedFunctions);
       return result;
     },
@@ -532,9 +537,10 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
   /**
+   * @param {boolean} setValue=true
    * @private
    */
-  _hideOptions: function(containerHtmlElement, /* Boolean default true*/ setValue)
+  _hideOptions: function(containerHtmlElement, setValue)
     {
       var htmlElement = bcdui._migPjs._$(containerHtmlElement).find("input.bcdFormulaEditField")[0];
       var htmlElementId = containerHtmlElement.id;
@@ -814,8 +820,8 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
   /**
-   *  Set default parameters
-   *  @private
+   * Set default parameters
+   * @private
    * @param HTMLElement  htmlElement The element the formulaEditor is based on.
    */
   _adjustDefaultParameters: function(HTMLElement)
@@ -829,8 +835,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     },
 
     /**
-     * @classdesc
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
@@ -849,8 +854,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
         },
 
     /**
-     * @classdesc
-     *  Listener to see changes of target Xpath in model. Calls visualization and validation of new data
+     * Listener to see changes of target Xpath in model. Calls visualization and validation of new data
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
@@ -859,7 +863,7 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
          * @lends bcdui.widget.formulaEditor.XMLVariablesListener.prototype
          */        
         {
-          constructor(){}
+          constructor(){super()}
 
           updateValue()
             {

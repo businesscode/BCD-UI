@@ -629,10 +629,10 @@
      * - a field validation is triggered after options have been reloaded
      * (TODO REMOVE)
      * paramter in args:
-     * @param htmlElementId {Object|String}
-     * @param forEachFunc {Function} the callback function which is executed for each of found nodes according to .forEach() API
-     * @param onReadyFunc {Function?} optional function to execute when we are ready iterating
-     * @param doSort {Boolean} default FALSE; if TRUE the options are sorted via bcdui.widgetNg.utils.sorting.node.cmpAlphaIgnoreCase comparator.
+     * @param args.htmlElementId {Object|String}
+     * @param args.forEachFunc {Function} the callback function which is executed for each of found nodes according to .forEach() API
+     * @param args.onReadyFunc {Function?} optional function to execute when we are ready iterating
+     * @param args.doSort {Boolean} default FALSE; if TRUE the options are sorted via bcdui.widgetNg.utils.sorting.node.cmpAlphaIgnoreCase comparator.
      * @private
      */
     _updateInternalOptions: function(args){
@@ -662,10 +662,10 @@
      * the htmlElement is not attached to HTML DOM anymore.
      * args:
      *
-     * @param idRef
-     * @param trackingXPath
-     * @param htmlElementId
-     * @param updateValueCallback
+     * @param args.idRef
+     * @param args.trackingXPath
+     * @param args.htmlElementId
+     * @param args.updateValueCallback
      *
      * @return listener instance
      * @private

@@ -223,9 +223,9 @@ bcdui.util.namespace("bcdui.core",
   /**
    * Removes XML elements from a DOM document. These XML elements are identified
    * with an XPath.
-   * @param {document} doc - The document the XPath specified in the "path"
+   * @param {XMLDocument|XMLElement|DataProvider} doc - The document the XPath specified in the "path"
    * argument is evaluated on.
-   * @param {xpath} path - The XPath pointing to the nodes to be removed.
+   * @param {string} path - The XPath pointing to the nodes to be removed.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
    * wrs elements differently (like converting wrs:R to wrs:D instead of removing it).
    * It is "true" by default.
@@ -236,7 +236,7 @@ bcdui.util.namespace("bcdui.core",
    * @return {number} The number of removed nodes.
    * @private
    */
-  removeXPath: function(/* XMLDocument | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements)
+  removeXPath: function(/* XMLDocument | XMLElement | DataProvider */ doc, /* String */ path, /* Boolean? */ enableWrsExtensions, /* Boolean? */ removeEmptyElements)
     {
       var useWrsExtensions = (typeof enableWrsExtensions == "undefined" ? true : enableWrsExtensions);
       doc = bcdui.core._getDocParameter(doc);
@@ -294,7 +294,7 @@ bcdui.util.namespace("bcdui.core",
   /**
    * Removes the xml:base attribute from all XML elements. This is useful for example
    * in FireFox and Chrome, because they do not allow xml:base to occur in XSLT documents.
-   * @param {document} doc - The document the xml:base attributes should be removed from.
+   * @param {XMLDocument} doc - The document the xml:base attributes should be removed from.
    * @return {document} The doc passed as argument for convenience.
    * @private
    */
@@ -335,7 +335,7 @@ bcdui.util.namespace("bcdui.core",
    * @return {string} The value of the parameter or the default value (usually NULL)
    * if the parameter is empty or not found.
    */
-  getUrlParameter: function(/* string */ url, /* string */ parameterName, /* string? */ defaultValue)
+  getUrlParameter: function( url, parameterName, defaultValue)
     {
       var result = new RegExp("[?&#]" + parameterName + "=([^&#]*)").exec(url);
       if (result == null || result.length < 2 || result[1] == null) {
@@ -425,13 +425,13 @@ bcdui.util.namespace("bcdui.core",
    *      [ "", "Root", "Item[@type = 1]", "Value" ]
    * The empty initial string comes from the first slash in the xPath. To omit it
    * the "skipStartingSlash" parameter should be set to "true".
-   * @param {xpath} The XPath to be split.
-   * @param skipStartingSlash True to make the function ignore the leading slash
+   * @param {String} xPath The XPath to be split.
+   * @param {Boolean} skipStartingSlash True to make the function ignore the leading slash
    * if the XPath has one.
    * @return {Array} The parts the XPath consists of.
    * @private
    */
-  splitXPath: function(/* String */ xPath, /* Boolean */ skipStartingSlash)
+  splitXPath: function( xPath, skipStartingSlash)
     {
       var quoteChars = "'\"";
       var result = new Array();
@@ -471,11 +471,11 @@ bcdui.util.namespace("bcdui.core",
 
   /**
    * An auxiliary function for createElementWithPrototype and removeXPath.
-   * @param doc The document or the data provider giving the requested document or element.
+   * @param {XMLDocument | DataProvider} doc The document or the data provider giving the requested document or element.
    * @returns {XMLDocument|XMLElement} The element belonging to the specified param.
    * @private
    */
-  _getDocParameter: function(/* XMLDocument | DataProvider */ doc)
+  _getDocParameter: function( doc)
     {
       if (typeof doc.isReady != "undefined" && typeof doc.getData != "undefined") {
         /*
@@ -515,11 +515,11 @@ bcdui.util.namespace("bcdui.core",
    * its parts, divided by the "and" conjunction. The result for the example is
    * the array [wrs:C[1]='abc', wrs:C[@x='y']='z']. It is an auxiliary function
    * for createElementWithPrototype.
-   * @param str The string containing the XPath predicate.
+   * @param {String} str The string containing the XPath predicate.
    * @return {Array} The xPath predicate split by the "and" conjunction.
    * @private
    */
-  splitXPathPredicate: function(/* string */ str)
+  splitXPathPredicate: function(str)
     {
       var quoteChars = "'\"";
       var result = new Array();
@@ -572,11 +572,11 @@ bcdui.util.namespace("bcdui.core",
    * becomes
    *    'myValue'
    * . The quotes are automatically added so that it is a valid XPath string.
-   * @param {xpath} str - The string to be quotes as an XPath string.
-   * @returns {xpath} The XPath string representing str.
+   * @param {string} str - The string to be quotes as an XPath string.
+   * @returns {string} The XPath string representing str.
    */
-  quoteXPathString: function(/* String */ str)
-    {
+  quoteXPathString: function(str)
+  {
       var hasSingleQuote = str.indexOf("'") >= 0;
       if (!hasSingleQuote)
         return "'" + str + "'";
@@ -620,8 +620,8 @@ bcdui.util.namespace("bcdui.core",
    * and the "or" conjunction cannot be used.
    * </p>
    * If you want to modify an existing wrs cell, bcdui.wrs.wrsUtil.setCellValue might be a more convenient function to use.
-   * @param {Element} baseElement - The DOM document or the XML element the path is evaluated on.
-   * @param {xpath} path - The XPath identifying the element to be retrieved or
+   * @param {XMLDocument|XMLElement|DataProvider} baseElement - The Dataprovider, DOM document or the XML element the path is evaluated on.
+   * @param {string} path - The XPath identifying the element to be retrieved or
    * created.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
    * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I
@@ -629,7 +629,7 @@ bcdui.util.namespace("bcdui.core",
    * @return {Element} The XML element to be found under the specified XPath.
    */
   createElementWithPrototype: function(/* XMLDocument | XMLElement | DataProvider */ baseElement, /* String */ path, /* Boolean? */ enableWrsExtensions)
-    {
+  {
       var useWrsExtensions = (typeof enableWrsExtensions == "undefined" ? true : enableWrsExtensions);
       var baseElement = bcdui.core._getDocParameter(baseElement);
 
@@ -938,14 +938,14 @@ bcdui.util.namespace("bcdui.core",
    *     /Root/Items/Item/@value
    * ; in both cases there is one item per value, but it is stored in the item text in the first
    * example and in the value attribute in the second one.
-   * @param doc The document the targetXPath is based on.
-   * @param targetXPath The XPath pointing to the elements to be synchronized with the values.
-   * @param values A string array containing the values to be stored in the elements under the
+   * @param { XMLDocument | DataProvider} doc The document the targetXPath is based on.
+   * @param {String} targetXPath The XPath pointing to the elements to be synchronized with the values.
+   * @param {Array} values A string array containing the values to be stored in the elements under the
    * targetXPath.
    * @return {Integer} The number of elements created, modified or deleted by this function.
    * @private
    */
-  _syncMultipleValues: function(/* XMLDocument | DataProvider */ doc, /* String */ targetXPath, /* Array */ values)
+  _syncMultipleValues: function( doc, targetXPath, values)
     {
       // Four examples:
       //
@@ -1124,7 +1124,7 @@ bcdui.util.namespace("bcdui.core",
    * immediately.
    * @param {function} fn The function executed as soon as the browser has finished loading.
    */
-  ready: function(/* Function */ fn)
+  ready: function(fn)
     {
       if (bcdui.core.windowLoaded) {
         fn();

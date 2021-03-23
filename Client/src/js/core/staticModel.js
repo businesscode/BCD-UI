@@ -20,14 +20,7 @@
  *
  */
 
-bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
-/**
- * @lends bcdui.core.StaticModel.prototype
- */
-{
-
-  /**
-   * @classdesc
+ /**
    * Creates a model from fixed data without accessing the network.</p>
    * As opposed to most DataProviders, execute() of a StaticModel is guaranteed to be synchronous except when using model updaters.
    * Note that this implies that it is only static once the page is fully loaded {@link bcdui.core.ready()}
@@ -36,8 +29,14 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
    *   <li> at the time of .execute() no model updaters were registered for this model, because model updaters operate asynchronously</li>
    * </ol>
    * @extends bcdui.core.AbstractUpdatableModel
-   * 
-   * @constructs
+   */
+bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
+/**
+ * @lends bcdui.core.StaticModel.prototype
+ */
+{
+
+  /**
    * @description
    * Create a StaticModel and provide the data.
    * @param {string|object|Document} args - An XML string, which is parsed, a DOM document </p>or a parameter map

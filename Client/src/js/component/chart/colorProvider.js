@@ -22,9 +22,9 @@
 
 bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
-/*
- * =====================================================================
- * ColorProvider
+/**
+ * This class represents a color provider;
+ * format see "chartDefinition.xsd".
  */
 bcdui.component.chart.ColorProvider = class
 /**
@@ -33,9 +33,6 @@ bcdui.component.chart.ColorProvider = class
 {
   /**
    * Constructor of bcdui.component.chart.ColorProvider, called by prototype.
-   * @class
-   *   This class represents a color provider;
-   *   format see "chartDefinition.xsd".
    * @constructs
    * @private
    */
@@ -57,11 +54,9 @@ bcdui.component.chart.ColorProvider = class
   /**
    *  appends computed/existed colors as Color nodes into defDoc under "\/*\/Computed/Colors/Color",
    *  needed for legendRenderer
-   * @param map with
-   *   <ul>
-   *     <li>doc, chart definition document</li>
-   *     <li>targetNode, node in definition document</li>
-   *   </ul>
+   * @param args
+   * @param args.doc - chart definiton document
+   * @param args.targetNode - node in definition document
    */
   appendColors(args){
     for(var c=0; c<this.colors.length; c++)
@@ -112,7 +107,7 @@ bcdui.component.chart.ColorProvider = class
   }
 
   /**
-   * @param index
+   * @param hexSub
    * @private
    */
   _toDecimal(hexSub)
@@ -164,9 +159,10 @@ bcdui.component.chart.ColorProvider = class
 
 }; // ColorProvider
 
-/*
- * =====================================================================
- * SeriesColorProvider
+/**
+ * This class represents a color provider;
+ * format see "chartDefinition.xsd".
+ * @extends bcdui.component.chart.ColorProvider
  */
 bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.ColorProvider
 /**
@@ -175,10 +171,6 @@ bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.
 {
   /**
    * Constructor of bcdui.component.chart.SeriesColorProvider, called by prototype.
-   * @class
-   *   This class represents a color provider;
-   *   format see "chartDefinition.xsd".
-   * @extends bcdui.component.chart.ColorProvider
    * @constructs
    * @param colorsAsRgb
    * @private
@@ -199,9 +191,10 @@ bcdui.component.chart.SeriesColorProvider = class extends bcdui.component.chart.
 
 
 
-/*
- * =====================================================================
- * TypeColorProviderFixedList
+/**
+ * This class represents a color provider;
+ * format see "chartDefinition.xsd".
+ * @extends bcdui.component.chart.ColorProvider
  */
 bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component.chart.ColorProvider
 /**
@@ -211,10 +204,6 @@ bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component
 
   /**
    * Constructor of bcdui.component.chart.TypeColorProviderFixedList, called by prototype.
-   * @class
-   *   This class represents a color provider;
-   *   format see "chartDefinition.xsd".
-   * @extends bcdui.component.chart.ColorProvider
    * @constructs
    * @param colorArray
    * @private
@@ -226,9 +215,10 @@ bcdui.component.chart.TypeColorProviderFixedList = class extends bcdui.component
   }
 }; // TypeColorProviderFixedList
 
-/*
- * =====================================================================
- * TypeColorProviderBaseColors
+/**
+ * This class represents a color provider;
+ * format see "chartDefinition.xsd".
+ * @extends bcdui.component.chart.ColorProvider
  */
 bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.component.chart.ColorProvider
 /**
@@ -237,16 +227,10 @@ bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.componen
 {
   /**
    * Constructor of bcdui.component.chart.TypeColorProviderBaseColors, called by prototype.
-   * @class
-   *   This class represents a color provider;
-   *   format see "chartDefinition.xsd".
-   * @extends bcdui.component.chart.ColorProvider
    * @constructs
-   * @param map with
-   *   <ul>
-   *     <li>count, how many colors are to be constructed from the base colors</li>
-   *     <li>baseColors, space serarated list of base colors</li>
-   *   </ul>
+   * @param args {Object}
+   * @param args.count - how many colors are to be constructed from the base colors
+   * @param args.baseColors - space separated list of base colors
    * @private
    */
   constructor(args) {

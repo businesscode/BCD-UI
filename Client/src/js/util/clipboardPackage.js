@@ -73,7 +73,7 @@ bcdui.util.clipboard =
      * pasting as new rows, in case only empty-cells were previously copied to the
      * clipboard.
      */
-    pasteCSVasXML: function(/* String? */ data, /* boolean? */ emptyRowIfNoData) {
+    pasteCSVasXML: function( data, emptyRowIfNoData) {
       var plaintext = typeof data == "undefined" || data == null ? bcdui.util.clipboard.paste() : data;
       var serializedXml = "<?xml version='1.0'?><CSVData xmlns=\"" + bcdui.core.xmlConstants.namespaces.csv + "\">";
       if( plaintext != null && plaintext.length > 0){

@@ -29,7 +29,7 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
        * @param {(String|HTMLElement)} args.idOrElement
        *
        */
-      constructor(/* object */ args)
+      constructor(args)
       {
           bcdui.log.isTraceEnabled() && bcdui.log.trace("HTML2XMLDataProvider init");
           super( {

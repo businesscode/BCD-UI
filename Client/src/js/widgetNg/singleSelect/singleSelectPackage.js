@@ -373,7 +373,7 @@
      * - declares 'list'-attribute on the input-element and binds to the datalist
      * - attaches handlers to listen to options-model which populate the 'datalist' input element is bound to
      *
-     * @param htmlElementId of the controller element (or the controller element itself)
+     * @param htmlElement id of the controller element (or the controller element itself)
      * @private
      */
     _ntv_init: function(htmlElement){

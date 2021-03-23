@@ -15,6 +15,11 @@
 */
 "use strict";
 bcdui.util.namespace("bcdui.component.far",{});
+
+
+/** 
+ * A FAR component
+ */
 bcdui.component.far.Far = class
 /** @lends bcdui.component.far.Far.prototype */
 {
@@ -30,10 +35,6 @@ bcdui.component.far.Far = class
     rendered : "bcdui.component.far.rendered"
   }
   /**
-   * @classdesc
-   * A FAR component
-   *
-   * @constructs
    * @param {object}                    args                    The parameter map contains the following properties:
    * @param {targetHtmlRef}             args.targetHtml         A reference to the HTML DOM Element where to render the output.
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
