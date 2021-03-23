@@ -28,7 +28,7 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.layout.XmlLayout;
 
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 
@@ -38,6 +38,7 @@ public class FrontendQueueAppender extends AbstractAppender {
   public FrontendQueueAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
       final boolean ignoreExceptions, final Property[] properties) {
     super(name, filter, layout, ignoreExceptions, properties);
+    start();
   }
   
   @PluginFactory
@@ -45,7 +46,7 @@ public class FrontendQueueAppender extends AbstractAppender {
                                                      @PluginElement("Layout") Layout<? extends Serializable> layout,
                                                      @PluginElement("Filters") Filter filter) {
       if (layout == null)
-          layout = PatternLayout.createDefaultLayout();
+          layout = XmlLayout.createDefaultLayout();
       return new FrontendQueueAppender(name, filter, layout, false, null);
   }
   
@@ -61,6 +62,8 @@ public class FrontendQueueAppender extends AbstractAppender {
       return;
 
     // TODO : no idea if this works as intended
+    System.err.println("layout: "+getLayout()+", "+XmlLayout.createDefaultLayout());
+    XmlLayout.createDefaultLayout().toSerializable(event);
     SingletonStringQueue.getInstance(sessionId).add(getLayout().toByteArray(event).toString());
   }
 }

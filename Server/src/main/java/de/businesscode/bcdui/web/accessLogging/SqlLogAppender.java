@@ -36,6 +36,7 @@ public class SqlLogAppender extends AbstractAppender {
   public SqlLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
       final boolean ignoreExceptions, final Property[] properties) {
     super(name, filter, layout, ignoreExceptions, properties);
+    start();
   }
   
   @PluginFactory

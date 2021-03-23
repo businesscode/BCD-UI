@@ -131,7 +131,6 @@ public class BcdUiApplicationContextListener implements ServletContextListener
            * already in use properties file. (see https://logging.apache.org/log4j/2.x/manual/configuration.html#Additivity)
            */
           //logger.setAdditivity(false);
-          org.apache.logging.log4j.core.Logger l = (org.apache.logging.log4j.core.Logger) logger;
           if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
             ((org.apache.logging.log4j.core.Logger) logger).addAppender(ErrorLogAppender.createAppender());
         }

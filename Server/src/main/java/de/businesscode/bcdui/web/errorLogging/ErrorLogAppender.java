@@ -44,6 +44,7 @@ public class ErrorLogAppender extends AbstractAppender {
   public ErrorLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
       final boolean ignoreExceptions, final Property[] properties) {
     super(name, filter, layout, ignoreExceptions, properties);
+    start();
   }
   
   @PluginFactory
