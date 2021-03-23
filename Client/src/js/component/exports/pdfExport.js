@@ -21,6 +21,13 @@
 
 bcdui.util.namespace("bcdui.component.exports");
 
+
+/**
+ * Exporter for PDF/JPG/PNG/BMP/GIF format using the HTML2PDF conversion Servlet.
+ * This Servlet is usually registered under "/bcdui/servlets/HTML2PDFServlet".
+ * For Excel export using "/bcdui/servlets/HTML2ExcelServlet"
+ * @type {bcdui.component.exports.PDFExport}
+ */
 bcdui.component.exports.PDFExport = class
 /**
  * @lends bcdui.component.exports.PDFExport.prototype
@@ -67,41 +74,34 @@ bcdui.component.exports.PDFExport = class
 
   /**
    * Creates a new PDFExport instance.
-   * @class
-   *   Exporter for PDF/JPG/PNG/BMP/GIF format using the HTML2PDF conversion Servlet.
-   *   This Servlet is usually registered under "/bcdui/servlets/HTML2PDFServlet".
-   *   For Excel export using "/bcdui/servlets/HTML2ExcelServlet"
-   *
    * @constructs
-   * @param args The constructor argument map offers the following properties:
-   *   <ul>
-   *     <li>rootElement: {(HTMLElement|HTMLElement[]|String)} The HTML element to be exported either
+   * @param {Object} args - The constructor argument map offers the following properties:
+   * @param {(HTMLElement|HTMLElement[]|String)} args.rootElement - The HTML element to be exported either
    *         given as the element itself or its HTML ID. In the latter case the element
    *         does not need to exist before the execute() method is called.
    *         OR a space separated list of ids OR an array with ids or elements or a mixture,
-   *         which are then included in the export in the given order.</li>
-   *     <li>form: {HTMLElement? | String?} The HTML Form element used for sending the
+   *         which are then included in the export in the given order.
+   * @param {HTMLElement | String} [args.form] - The HTML Form element used for sending the
    *         export request to the server. 
    *         It must use POST because the logic is restricted to POST due to security considerations.
    *         If omitted an appropriate Form is created by this class.</li>
-   *     <li>css: {Array?) An array of URLs containing CSS files to be loaded by the
-   *         server.</li>
-   *     <li>orientationLandscape: {Boolean?} Set this flag to true to make the PDF
+   * @param {Array} [args.css] An array of URLs containing CSS files to be loaded by the
+   *         server.
+   * @param {Boolean} [args.orientationLandscape] - Set this flag to true to make the PDF
    *         appear in landscape page orientation. The default value is "false".</li>
-   *     <li>dimension: {String?} Output size, like LETTER or A5. The default value
-   *         is "A4".</li>
-   *     <li>format: {String?} This can be "pdf", "jpg", "png", "gif", "bmp" to determine the output type.
-   *         The default value is "pdf".</li>
-   *     <li>title: {String?} The title of the HTML fragment sent to the server.
-   *         This is for future use.</li>
-   *     <li>htmlWidth: {String?} Determines the scaling. That width in px is scaled to fill the full width of the selected dimension.
+   * @param {String} [args.dimension] - Output size, like LETTER or A5. The default value
+   *         is "A4".
+   * @param {String} [args.format] - This can be "pdf", "jpg", "png", "gif", "bmp" to determine the output type.
+   *         The default value is "pdf".
+   * @param {String} [args.title] - The title of the HTML fragment sent to the server.
+   *         This is for future use.
+   * @param {String} [args.htmlWidth] - Determines the scaling. That width in px is scaled to fill the full width of the selected dimension.
    *         For example if the widh of the div you export is with is 500px and dimension is A5, then in the output the content of that
-   *         width is scaled to the width of A5. Default is the width of the (first) args.rootElement.</li>
-   *     <li>fileName: {String?} Name of the file send by the server as the response.</li>
-   *   </ul>
+   *         width is scaled to the width of A5. Default is the width of the (first) args.rootElement.
+   * @param {String} [args.fileName] - Name of the file send by the server as the response.
    * @private
    */
-  constructor(/* Object */ args)
+  constructor(args)
     {
       args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.core._schema_PDFExport_args);
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_PDFExport_args);
@@ -185,10 +185,10 @@ bcdui.component.exports.PDFExport = class
    * The form then gets the specified formId, but if there is already a form with
    * this ID it does not create a new form, but takes this form.
    * @private
-   * @param formId The ID of the new form. If there is already an element with this
+   * @param {String} formId The ID of the new form. If there is already an element with this
    * ID this element is taken.
    */
-  _createForm(/* String */ formId)
+  _createForm(formId)
     {
       // Take already existing form if possible
       if (this.form = bcdui._migPjs._$(formId).get(0)) return;
@@ -269,7 +269,7 @@ bcdui.component.exports.PDFExport = class
    * data (inside this.form) right before it is sent to the server. The implementation
    * in this class does not do anything.
    * @event
-   */
+   * */
   onBeforeSend()
     {
     }

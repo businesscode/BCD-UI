@@ -30,14 +30,14 @@ bcdui.util.namespace("bcdui.component.textnavigation",{});  // Making sure our n
  * @type {bcdui.component.textnavigation.TextNavigation}
  */
 bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Renderer
-  /** @lends bcdui.component.textnavigation.TextNavigation.prototype */
+/** @lends bcdui.component.textnavigation.TextNavigation.prototype */
 {
   /**
    * @constructs
    * @param {Object} args - Parameter object:
    * @param {targetHtmlRef} args.targetHtml         - Where to place the microphone and text field
-   * @param {Function} customPreEvaluator           - Called before the standard evaluation, can remove words by returning a shorter array
-   * @param {Function} customPostEvaluator          - Called after the standard evaluation, can trigger page switches for example
+   * @param {Function} args.customPreEvaluator           - Called before the standard evaluation, can remove words by returning a shorter array
+   * @param {Function} args.customPostEvaluator          - Called after the standard evaluation, can trigger page switches for example
    * @param {bcdui.core.DataProvider} args.config   - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0
    */
   constructor(args)
@@ -407,7 +407,7 @@ bcdui.component.textnavigation.VoiceRecognition = class
   /**
    * @constructs
    * @param {Object} args - Parameter object:
-   * @param {Function} interpreter                  - Text transcript is handed over to this callback
+   * @param {Function} args.interpreter             - Text transcript is handed over to this callback
    * @param {targetHtmlRef} args.targetHtml         - Where to place the microphone
    * @param {bcdui.core.DataProvider} args.config   - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0
    * @private

@@ -28,12 +28,12 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
  */
 {
   /**
-   *
-   * @param rootIdOrElement       String|HTMLElement  root Node of the menu (ul)
-   * @param name                  String              name of the variable that stores the result
-   *                                                  of this constructor function
-   * @param customConfigFunction  function            optional config function to override the default settings
-   *                                                  for an example see Menu.prototype.config
+   * @param args
+   * @param {String|HTMLElement} args.rootIdOrElement         root Node of the menu (ul)
+   * @param {String} args.name                                name of the variable that stores the result
+   *                                                           of this constructor function
+   * @param {function} args.customConfigFunction              optional config function to override the default settings
+   *                                                          for an example see Menu.prototype.config
    * @constructs
    */
   constructor(args) {
@@ -82,7 +82,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
 
 };
 
-/*
+/**
  *  MenuContainer
  */
 bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
@@ -229,11 +229,13 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
 
 };
 
-/*
+bcdui.util.namespace("bcdui.widget.menu")
+
+/**
  * Menu
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuItem = class extends bcdui.widget.menu.MenuContainer
-  /**
+ bcdui.widget.menu.MenuItem = class extends bcdui.widget.menu.MenuContainer
+ /**
    * @lends bcdui.widget.menu.MenuItem.prototype
    */
   {

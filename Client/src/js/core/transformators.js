@@ -28,10 +28,8 @@ bcdui.core.transformators =
    * For XSLT an XSLT stylesheet document is to be provided
    * For JS the function name or a function reference can be used
    * @param args The parameter map:
-   *    <ul>
-   *      <li>procFkt:  {String|function} The js function to be used for processing.</li>
-   *      <li>callback: {function} Callback called once the processor is created</li>
-   *    </ul>
+   * @params {String|function} args.procFkt The js function to be used for processing.
+   * @params {function} args.callback Callback called once the processor is created
    * @private
    */
   factory: function( transformerFactory, args ) {
@@ -69,21 +67,19 @@ bcdui.core.transformators =
 
 };
 
-
+ /**
+   * Most simple transformation, just 1:1 and base class for all transformators
+   * For usage by TransformationChain
+    */
 bcdui.core.transformators.IdentityTransformator = class
 /** @lends bcdui.core.transformators.IdentityTransformator.prototype */
 {
 
   /**
-   * @classdesc
-   * Most simple transformation, just 1:1 and base class for all transformators
-   * For usage by TransformationChain
-   * 
-   * @constructs
-   * @param {*} [template] Dummy only, not deeded:
+   * @param {object} [template] Dummy only, not deeded:
    * @private
    */
-  constructor(/* object */ template)
+  constructor(template)
   {
     this.params = {};
     this.template = null;
@@ -94,10 +90,10 @@ bcdui.core.transformators.IdentityTransformator = class
   /**
    * For usage by TransformationChain
    * @param {string} name  - Name of the parameter as known to the transformation template
-   * @param {*}      value - Parameter value, can be anything that is understood by the template
+   * @param {object} value - Parameter value, can be anything that is understood by the template
    * @private
    */
-  addParameter( /* String */ name, /* object */ value)
+  addParameter( name, value)
   {
     this.params[name] = value;
   }
@@ -136,20 +132,18 @@ bcdui.core.transformators.IdentityTransformator = class
   }
 };
 
-
+ /**
+   * JsTransformator for Javascript transformators. 
+   * A Javascript transformators is a function that receives the input as its first parameter and a object with properties as named parameters as the second parameter
+   * For usage by TransformationChain
+    */
 bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 /**
  * @lends bcdui.core.transformators.JsTransformator.prototype
  */
 {
   /**
-   * @classdesc
-   * JsTransformator for Javascript transformators. 
-   * A Javascript transformators is a function that receives the input as its first parameter and a object with properties as named parameters as the second parameter
-   * For usage by TransformationChain
-   *
-   * @constructs
-   * @param {(string|function)} prokFunc - The js function to be used for processing. Either a real function or a string with JS code for eval.
+   * @param {(string|function)} procFkt - The js function to be used for processing. Either a real function or a string with JS code for eval.
    * @private
    */
   constructor(/* object */ procFkt)
@@ -172,26 +166,21 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
   }
 };
 
-
-bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
-/** @lends bcdui.core.transformators.WebworkerTransformator.prototype */
-{  
-  /**
-   * @classdesc
+ /**
    * WebworkerTransformator
    *  Perf check 2014.03 round cycle webworker overhead incl. 2 JSOM.stringify and 2 parse:
    *    jWrs with 61k cells, most having an attribute, 1.5MB source: IE11: 343ms, FF: 158ms, Chrome: 162ms
    *    jWrs with 250 cells, most having an attributes, 10k source: IE 11,9,8(fake ww): 14ms, FF: 15ms, Chrome: 13ms
    * For usage by TransformationChain
-   * 
-   * @constructs
-   * @param args The parameter map:
-   *    <ul>
-   *      <li>Data to be transformed</li>
-   *    </ul>
+    */
+bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
+/** @lends bcdui.core.transformators.WebworkerTransformator.prototype */
+{  
+  /**
+   * @param {Object} args The parameter map: contains Data to be transformed
    * @private
    */
-  constructor(/* object */ args)
+  constructor( args)
   {
     super(args);
     this.worker = new Worker("webWorkerProc.js");
@@ -216,18 +205,16 @@ bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.tran
   }
 };
 
-
+ /**
+   * JsTransformator
+   * For usage by TransformationChain
+    */
 bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 /**
  * @lends bcdui.core.transformators.DotJsTransformator.prototype
  */
 {
   /**
-   * @classdesc
-   * JsTransformator
-   * For usage by TransformationChain
-   *
-   * @constructs
    * @private
    */
   constructor(/* object */ procFkt)

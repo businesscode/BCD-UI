@@ -26,6 +26,38 @@ if (typeof bcdui.widget == "undefined") {
   bcdui.widget = {};
 }
 
+/**
+ * <p>
+ *   A utility class tracking mouse enter and leave events within a specified
+ *   parent element. It keeps track of the mouse movement and fires the event
+ *   as soon as the mouse does not move for a certain amount of time (default
+ *   200 ms). This is useful because when the function does a complex
+ *   computation like executing a tooltip XSLT it is not recommended to
+ *   execute it with every mouse move.
+ * </p>
+ * <p>
+ *   Please note that "onLeave" does NOT work on HTML table elements in FireFox. So
+ *   in this case the baseElement must be the DIV containing the table.
+ * </p>
+ * <p>
+ *   Example:
+ * </p>
+ * <pre>
+ new bcdui.widget.MouseTracker({
+           baseElement: $$("table.treeView")[0].up()
+         , delay: 1000
+         , onEnter: function(e) {
+             bcdui.log.isTraceEnabled() && bcdui.log.trace("row No: " + e.element().rowIndex);
+           }
+         , onLeave: function() {
+             bcdui.log.isTraceEnabled() && bcdui.log.trace("onLeave")
+           }
+         , filter: "tr"
+       }).start();
+ </pre>
+ *
+ */
+
 bcdui.widget.MouseTracker = class
 /**
  * @lends bcdui.widget.MouseTracker.prototype
@@ -51,57 +83,24 @@ bcdui.widget.MouseTracker = class
    * Creates a new mouse tracker instance. This instance is inactive until the
    * {@link #start()} method is called. Then it tracks the mouse movement on the
    * specified base element until the {@link #stop()} method is executed.
-   * @class
-   * <p>
-   *   A utility class tracking mouse enter and leave events within a specified
-   *   parent element. It keeps track of the mouse movement and fires the event
-   *   as soon as the mouse does not move for a certain amount of time (default
-   *   200 ms). This is useful because when the function does a complex
-   *   computation like executing a tooltip XSLT it is not recommended to
-   *   execute it with every mouse move.
-   * </p>
-   * <p>
-   *   Please note that "onLeave" does NOT work on HTML table elements in FireFox. So
-   *   in this case the baseElement must be the DIV containing the table.
-   * </p>
-   * <p>
-   *   Example:
-   * </p>
-   * <pre>
-       new bcdui.widget.MouseTracker({
-           baseElement: $$("table.treeView")[0].up()
-         , delay: 1000
-         , onEnter: function(e) {
-             bcdui.log.isTraceEnabled() && bcdui.log.trace("row No: " + e.element().rowIndex);
-           }
-         , onLeave: function() {
-             bcdui.log.isTraceEnabled() && bcdui.log.trace("onLeave")
-           }
-         , filter: "tr"
-       }).start();
-     </pre>
-   *
    * @constructs
    * @param {Object} args The argument map offers the following properties:
-   *   <ul>
-   *     <li>baseElement: {HTMLEement|String} The id or HTML element that contains
+   * @param {HTMLElement|String} args.baseElement  The id or HTML element that contains
    *         the sub-elements the mouse enter / leave events should be tracked on.
-   *         It is recommended to use an HTML DIV element as base element.</li>
-   *     <li>onEnter: {Function?} The function to be executed when an observed
+   *         It is recommended to use an HTML DIV element as base element.
+   * @param {Function} [args.onEnter]  The function to be executed when an observed
    *         element is entered by the mouse pointer. This function gets an event
    *         parameter (of the type {@link bcdui.widget.DetachedEvent}) as
-   *         argument.</li>
-   *     <li>onLeave: {Function?} A function which is run when the mouse leaves an
-   *         observed element. The function has no arguments.</li>
-   *     <li>filter: {String?} The tag name (or multiple pipe-separated tag names)
+   *         argument.
+   * @param {Function} [args.onLeave] A function which is run when the mouse leaves an
+   *         observed element. The function has no arguments.
+   * @param {String} [args.filter] The tag name (or multiple pipe-separated tag names)
    *         that should be observed for the onEnter / onLeave events. It is often
    *         TD or TR so that moving the mouse over table cells / rows inside the
    *         base element is observed. If omitted every child element is observed.
-   *         </li>
-   *     <li>delay: {Integer?} The duration in milliseconds defining how long the
+   * @param {Integer}[args.delay] The duration in milliseconds defining how long the
    *         events should be idle until the provided function is triggered. The
-   *         default value is 200.</li>
-   *   </ul>
+   *         default value is 200.
    */
   constructor(args)
     {

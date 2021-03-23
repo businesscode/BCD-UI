@@ -14,16 +14,19 @@
   limitations under the License.
 */
 "use strict";
+
+/**
+ *   This listener is an abstract base class for XML listeners registered to a targetModel
+ *   and depending on the existence of a specific HTML element. When the HTML element disappears
+ *   the listener de-registers itself from the target model.
+ * @type {bcdui.widget.XMLDataUpdateListener}
+ */
 bcdui.widget.XMLDataUpdateListener = class
 /**
  * @lends bcdui.widget.XMLDataUpdateListener.prototype
  */
 {
   /**
-   * @class
-   *   This listener is an abstract base class for XML listeners registered to a targetModel
-   *   and depending on the existence of a specific HTML element. When the HTML element disappears
-   *   the listener de-registers itself from the target model.
    * @abstract
    * @constructs
    */

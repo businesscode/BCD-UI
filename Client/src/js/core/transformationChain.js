@@ -19,6 +19,12 @@
  * This file contains the implementation of the TransformationChain class.
  */
 
+ /**
+   * A class representing one or more transformations applied on models with parameters. Transformators can be js functions, XSLTs or doTjs templates.
+   * Use {@link bcdui.core.Renderer Renderer} or {@link bcdui.core.ModelWrapper ModelWrapper} as concrete sub classes
+   * @extends bcdui.core.DataProvider
+   * @abstract
+    */
 bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 /**
  * @lends bcdui.core.TransformationChain.prototype
@@ -26,13 +32,6 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 {
 
   /**
-   * @classdesc
-   * A class representing one or more transformations applied on models with parameters. Transformators can be js functions, XSLTs or doTjs templates.
-   * Use {@link bcdui.core.Renderer Renderer} or {@link bcdui.core.ModelWrapper ModelWrapper} as concrete sub classes
-   * @extends bcdui.core.DataProvider
-   * @abstract
-   *
-   * @constructs
    * @description
    * The constructor for the TransformationChain class.
    */
@@ -97,13 +96,13 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         add &= (implicitParamModels.map(function(a) {return a[0]}).indexOf(this.modelUpdaterTargetModel.id) == -1);
 
       if (add) {
-        implicitParamModels.forEach(function(implicitParamModel){
-          if (!this.dataProviders.some(function(dataProvider) { return dataProvider.id == implicitParamModel[0] ; })) {//don't override already set value
-            if(typeof implicitParamModel[1] != "undefined"){
-              this.dataProviders.push(implicitParamModel[1]);
+        for (var i = 0; i < implicitParamModels.length; i++) {
+          if (!this.dataProviders.some(function(dataProvider) { return dataProvider.id == implicitParamModels[i][0] ; })) {//don't override already set value
+            if(typeof implicitParamModels[i][1] != "undefined"){
+              this.dataProviders.push(implicitParamModels[i][1]);
             }
           }
-        }.bind(this));
+        }
       }
       // Adds for convenience the current date im ms to the chain, passed identical to all xslt of the chain
       // There is also the current date for each individual xslt
@@ -142,12 +141,12 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
        * @type bcdui.core.Model
        * @private
        */
-      this.chainParam = args.chain;
+        this.chainParam = args.chain;
         
       /**
        * @private
        */
-      this.chain = null;
+        this.chain = null;
 
       /**
        * This status is set when the constructor has set all parameters.
@@ -261,8 +260,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * The global state transition listener. This listener is responsible for
    * executing the appropriate action based on a state transition.
    * @private
+   * @param {StatusEvent} statusEvent
    */
-  _statusTransitionHandler(/* StatusEvent */ statusEvent)
+  _statusTransitionHandler(statusEvent)
     {
       if (statusEvent.getStatus().equals(this.loadingStatus)) {
         /*
@@ -351,11 +351,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Gets the data providers attached to this object as hash map. This map can
    * be passed to the transformator functions to set the parameters
-   * @param (Array?) If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
+   * @param {Array} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
    *                 if not given, all dataproviders given to any stylesheet are included
    * @private
    */
-  _getDataProviderValues(/* Array? */ stylesheetParams)
+  _getDataProviderValues(stylesheetParams)
     {
       // Data providers for all stylesheets
       var dPs = this.dataProviders.slice(0);
@@ -365,11 +365,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       if( stylesheetParams ) {
         dPs = dPs.concat( stylesheetParams );
       } else {
-        this.chain.phases.forEach(function(phase) {
-          phase.xslts.forEach(function(xslt) {
-            dPs = dPs.concat( xslt.params || [] );
-          });
-        });
+        for( var p=0; p<this.chain.phases.length; p++ )
+          for( var s=0; s<this.chain.phases[p].xslts.length; s++ )
+            dPs = dPs.concat( this.chain.phases[p].xslts[s].params || [] );
       }
 
       // Transform it into a has map
@@ -380,9 +378,10 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
     }
 
   /**
+   * @param {String} name
    * @returns {bcdui.core.DataProvider} returns the parameter of the given name
    */
-  getDataProviderByName(/* String */ name)
+  getDataProviderByName(name)
     {
       return this._getDataProviderValues()[name];
     }
@@ -415,12 +414,12 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * function is an auxiliary function of "_transformNext".
    * This is called once for each chain.phases.xslt. If a xslt itself creates a stylesheet which is executed, this is done
    * in xml post processing, not here
-   * @param {Object} current transformation rule from this.chain.phases.xslt to be executed
-   * @param {(XMLDocument|Object)} Input to be transformed
+   * @param {Object} xslt transformation rule from this.chain.phases.xslt to be executed
+   * @param {(XMLDocument|Object)} input the input to be transformed
    * @private
    */
   _runTransformation(/* object */ xslt, /* object */ input )
-    {
+  {
       xslt.running = true;
       xslt.input = input;
       var processor = xslt.processor;
@@ -462,22 +461,21 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
                 var partiallIdDP = this.dataProviders.find(function(dataProvider) { return dataProvider.name == "bcdPartialHtmlTargets";  });
                 if( partiallIdDP && !!partiallIdDP.getData().trim()) {
                   var ids = partiallIdDP.getData().split(" ");
-                  ids.forEach(function(id) {
-                    var node = document.getElementById(id);
-                    var newContent = result.querySelector ? result.querySelector("#"+id) : result.getElementById(id); // getElementById for IE <= 7 
+                  for( var i = 0; i < ids.length; i++ ) {
+                    var node = document.getElementById(ids[i]);
+                    var newContent = result.querySelector ? result.querySelector("#"+ids[i]) : result.getElementById(ids[i]); // getElementById for IE <= 7 
                     if( node && newContent ) {
                       bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
                       jQuery(node).replaceWith( newContent );
                       if (typeof this.postHtmlAttachProcess == "function")
-                        this.postHtmlAttachProcess(node, id);
-                    }
-                    else if( node )
+                        this.postHtmlAttachProcess(node, ids[i]);
+                    } else if( node )
                       jQuery(node).remove();
-                  }.bind(this));
+                  }
                 }  else {
-                  result.childNodes.forEach(function(child) {
-                    bcdui.i18n.syncTranslateHTMLElement({elementOrId: child});
-                  });
+                  for ( var ch = 0; ch < result.childNodes.length; ch++) {
+                    bcdui.i18n.syncTranslateHTMLElement({elementOrId:result.childNodes[ch]});
+                  }
                   // Browser takes care that the fragment itself is treated as a container and only its children are appended to the HTML DOM
                   jQuery(targetElement).empty();  // to support .destroy() mechanism of jQuery Widgets
                   targetElement.appendChild(result);
@@ -533,6 +531,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
             callBack( result );
         }.bind(this)
       });
+      return;
     }
 
   /**
@@ -582,9 +581,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Adds a new data provider to the list which becomes the new primary model
    * of the transformation chain.
-   * @param primaryModel the new primary model of the transformation chain.
+   * @param {DataProvider} primaryModel the new primary model of the transformation chain.
    */
-  setPrimaryModel(/* DataProvider */ primaryModel)
+  setPrimaryModel(primaryModel)
     {
       this.dataProviders.unshift(primaryModel);
       this.modelParameterId = primaryModel.id;
@@ -787,11 +786,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         (Array.isArray(this.chainParam) ? this.chainParam : [ this.chainParam ]).forEach( function( rule, stylesheetNo )
           {
             var name = "bcd_"+this.id + "_chain_" + stylesheetNo;
-            var mapInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(rule); } );
-            if( typeof mapInfo === "undefined" )
+            var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(rule); } );
+            if( typeof mappingInfo === "undefined" )
               throw Error("Unknown type of transformation rule ("+rule.toString()+") for "+this.id)
-            mapInfo = mapInfo.info;
-            this.chain.phases[0].xslts.push( { model: new mapInfo.ruleDp( rule, name ), transformerFactory: mapInfo.ruleTf } );
+            mappingInfo = mappingInfo.info;
+            this.chain.phases[0].xslts.push( { model: new mappingInfo.ruleDp( rule, name ), transformerFactory: mappingInfo.ruleTf } );
           }.bind(this)
         );
       }
@@ -855,8 +854,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               xsltModel = new bcdui.core.SimpleModel({
                 url: bcdui.util.url.resolveURLWithXMLBase(stylesheet, stylesheet.getAttribute("url"))
               });
-              var mapInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
-              xslt.transformerFactory = mapInfo.info.ruleTf;
+              var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
+              xslt.transformerFactory = mappingInfo.info.ruleTf;
             } else if (stylesheet.getAttribute("jsFactoryExpression") != null){
               /*
                * It can also be returned by a JS function.
@@ -899,12 +898,16 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
       //--------------------------------
       // Now we have the chain in js form, let's load all stylesheets
-      this.chain.phases.forEach(function(phase) {
-        phase.xslts.forEach(function(xslt) {
+      for( var p=0; p<this.chain.phases.length; p++ ) 
+      {
+        var phase = this.chain.phases[p];
+
+        for( var stylesheetNo=0; stylesheetNo<phase.xslts.length; stylesheetNo++ ) 
+        {
           /*
            * If the model is already available we do not need to add a listener.
            */
-          var xsltModel = xslt.model;
+          var xsltModel = phase.xslts[stylesheetNo].model;
           if (!xsltModel.isReady()) {
             /*
              * Add the status listener observing when the stylesheet model has finished loading.
@@ -912,27 +915,25 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
              */
             xsltModel.addStatusListener({
               status: xsltModel.getReadyStatus(),
-              listener: this._singleChainTransformerLoaded.bind(this, phase, xslt).bind(this)
+              listener: this._singleChainTransformerLoaded.bind(this, phase, phase.xslts[stylesheetNo]).bind(this)
             });
             var failedStati = xsltModel.getFailedStatus();
             (Array.isArray(failedStati) ? failedStati : [ failedStati ]).forEach(function(failedStatus) {
               xsltModel.addStatusListener({
                 status: failedStatus,
-                listener: this._chainStylesheetLoadingFailed.bind(this,xslt).bind(this)
+                listener: this._chainStylesheetLoadingFailed.bind(this,phase.xslts[stylesheetNo]).bind(this)
               });
             }, this);
             xsltModel.execute();
           } else {
-            this._singleChainTransformerLoaded(phase, xslt);
+            this._singleChainTransformerLoaded(phase, phase.xslts[stylesheetNo]);
           }
           
-        }.bind(this)); // transformation loop
-      }.bind(this)); // phases loop
+        } // transformation loop
+      } // phases loop
 
       // Mark last transformation in past phase as the very last of the chain
-      var lastPhase = this.chain.phases[this.chain.phases.length-1];
-      var lastXslt = lastPhase.xslts[lastPhase.xslts.length-1];
-      lastXslt.isLastOfChain = true;
+      this.chain.phases[p-1].xslts[stylesheetNo-1].isLastOfChain = true;
     }
 
   /**
@@ -957,17 +958,15 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 }; // Create class: bcdui.core.TransformationChain
 
 
-
+ /**
+   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
+   * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
+   * @extends bcdui.core.TransformationChain
+    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.Renderer.prototype */
 {
   /**
-   * @classdesc
-   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
-   * @extends bcdui.core.TransformationChain
-   * 
-   * @constructs
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
@@ -1002,15 +1001,13 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   /**
    * Overwrites inherited execute(forced)
    * Allows also to provide instead of the boolean forced an args object with
-   * @param args {(boolean|Object)} forced or args:
-   *   <ul>
-   *     <li>fn: {function?} A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false</li>
-   *     <li>partialHtmlTargets: {String?} Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render 
-   *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.</li>
-   *     <li>shouldRefresh: {boolean?} "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".</li>
-   *   </ul>
+   * @param {(boolean|Object)} args forced or args:
+   * @param {function} [args.fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
+   * @param {String} [args.partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
+   *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.
+   * @param {boolean} [args.shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
    */
-  execute( /* object */ args)
+  execute( args)
   {
     // set targetHTMLElementId/targetHtmlElement on first execute
     if (! this.targetHTMLElementId) {
@@ -1082,15 +1079,14 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   }
 };
 
+ /**
+   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
+  * @extends bcdui.core.TransformationChain
+   */
 bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 /** @lends bcdui.core.ModelWrapper.prototype */
 {
   /**
-  * @classdesc
-  * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
-  * @extends bcdui.core.TransformationChain
-  * 
-  * @constructs
   * @param {Object} args - An argument object with the following properties:
   * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
@@ -1121,17 +1117,16 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   getClassName() {return "bcdui.core.ModelWapper";}
 };
 
-bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
-/** @lends bcdui.core.ModelUpdater.prototype */
-{
-  /**
-   * @classdesc
+ /**
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, replacing its targetModel's content with the result of the transformation applied to it.
    * Can be applied to all concrete subclasses of {@link bcdui.core.AbstractUpdatableModel AbstractUpdatableModel}, 
    * like {@link bcdui.core.bcdui.core.StaticModel StaticModel} or {@link bcdui.core.SimpleModel SimpleModel}
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
-   * 
-   * @constructs
+  */
+bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
+/** @lends bcdui.core.ModelUpdater.prototype */
+{
+  /**
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
