@@ -139,9 +139,9 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
     public String getFormattedMessage() {
       // just to have something here
       // previously, this method did not exists and LogRecord was stringified using regular toString() method, which sometimes swallowed information
-      String s = toString();
-      if (s.startsWith(getClass().toString())) // if only the class + instance is returned, wrap all info up
-        // TODO : is all this info needed, or do we only want specifics
+      String s = toString(); // if only the class + instance is returned, wrap all info up
+      if (s.startsWith("" + getClass()) || s.startsWith(getClass().toString()) || s.startsWith("de.businesscode.bcdui.logging.SqlToDatabaseLogger$LogRecord"))
+        // TODO : is all this info needed, or do we only want specifics (compare to LogEvents captured by BcdStatementWrapper in EE project)
         return "SqlToDatabaseLogger.LogRecord <<jdbcMethod: " + jdbcMethod + ">, <sql: " + sql + ">, <stamp: " + stamp
             + ">, <durationMs: " + durationMs + ">, <rowsAffected: " + rowsAffected + ">, <sessionId: " + sessionId
             + ">, <pageHash: " + pageHash + ">, <requestHash: " + requestHash + ">>";
