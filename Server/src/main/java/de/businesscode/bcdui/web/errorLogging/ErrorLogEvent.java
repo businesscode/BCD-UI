@@ -176,7 +176,7 @@ public class ErrorLogEvent extends LogEventBase {
 
   @Override
   public String getFormattedMessage() {
-    return getMessage();
+    return toString();
   }
 
   @Override
