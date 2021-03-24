@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component",
+bcdui.component = Object.assign(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

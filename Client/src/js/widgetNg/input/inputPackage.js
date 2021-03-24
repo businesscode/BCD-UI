@@ -57,7 +57,7 @@
      * @private
      */
     _getCreateOptions : function(){
-      return jQuery.extend(true, {}, this.options, bcdui.widgetNg.impl.readParams.input(this.element[0]));
+      return Object.assign({}, this.options, bcdui.widgetNg.impl.readParams.input(this.element[0]));
     },
     /**
      * @private
@@ -745,7 +745,7 @@
  * A namespace for the BCD-UI input widget. For creation @see {@link bcdui.widgetNg.createInput}
  * @namespace bcdui.widgetNg.input
  */
-bcdui.util.namespace("bcdui.widgetNg.input",
+bcdui.widgetNg.input = Object.assign(bcdui.widgetNg.input,
 /** @lends bcdui.widgetNg.input */
 {
   /**

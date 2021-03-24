@@ -19,7 +19,7 @@
  * @namespace bcdui.widget.pageEffects
  * @private
  */
-bcdui.util.namespace("bcdui.widget.pageEffects",
+bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
 /**  @lends bcdui.widget.pageEffects */
 {
   /* 

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.i18n", 
+bcdui.i18n = Object.assign(bcdui.i18n, 
 /** @lends bcdui.i18n */
 {
   /**

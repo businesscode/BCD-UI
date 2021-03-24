@@ -260,7 +260,7 @@
 /**
  * @namespace bcdui.component.far
  */
-bcdui.util.namespace("bcdui.component.far.farConfigurator",
+bcdui.component.far.farConfigurator = Object.assign(bcdui.component.far.farConfigurator,
 /** @lends bcdui.component.far.farConfigurator */
 {
   /**

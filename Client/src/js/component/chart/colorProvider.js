@@ -20,8 +20,6 @@
  *
  */
 
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
-
 /**
  * This class represents a color provider;
  * format see "chartDefinition.xsd".

@@ -26,7 +26,6 @@
  * The implementation of the Scorecard class.
  * @namespace bcdui.component.scorecard
  */
-bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namespace exists
 
 /**
  * Creates a scorecard-model from a scorecard definition, the scorecard model is derived {@link bcdui.core.DataProvider DataProvider}
@@ -92,7 +91,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
     this.scorecardRefDataModelId = args.config || args.metaDataModelId || args.metaDataModel;
     this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    this.customParameters = jQuery.extend({}, args.parameters);
+    this.customParameters = Object.assign({}, args.parameters);
 
     // Internal data
     this.internalPrefix = this.id+"_bcdImpl"; // Prefix for internal models

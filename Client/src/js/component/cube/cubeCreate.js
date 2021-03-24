@@ -18,7 +18,6 @@
  * This namespace contains functionality directly related to BCD-UI cube
  * @namespace bcdui.component.cube
  */
-bcdui.util.namespace("bcdui.component.cube");
 
 /**
   * Creates a cube model, provides data with calculations and col dimensions applied
@@ -136,7 +135,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     //-----------------------------------------------------------
     // If we do not have an explicit input model, we create our own here from the metadata
     if( ! args.inputModel ) {
-      var modelArgs = jQuery.extend({},args);
+      var modelArgs = Object.assign({},args);
       modelArgs.chain = undefined;  // If we get a chain argument, it refers to the renderer not to the model
       modelArgs.id = args.id+"_bcdImpl_model";
       modelArgs.cubeId = args.id;
@@ -158,7 +157,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
         id: args.id,
         inputModel: args.inputModel,
         targetHtml: targetHtml, 
-        parameters: jQuery.extend({paramModel: enhancedConfiguration, cubeId: args.id}, args.parameters ),
+        parameters: Object.assign({paramModel: enhancedConfiguration, cubeId: args.id}, args.parameters ),
         chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
         , bcdPreInit: function() {
           if (bcdPreInit)
@@ -194,7 +193,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
             dimensionModel: bcdui.wkModels.bcdDimensions,
             filterModel: bcdui.factory.objectRegistry.getObject(detailExportFilterModel)
           }
-          jQuery.extend(parameters, memo.chainParameters);
+          parameters = Object.assign(parameters, memo.chainParameters);
           var chain = memo.chain || bcdui.contextPath + "/bcdui/js/component/cube/detailExportWrq.xslt";
           new bcdui.core.ModelWrapper({ id: modelName, inputModel: bcdui.factory.objectRegistry.getObject(cubeGroupedDataModel), chain: chain, parameters: parameters });
 
@@ -214,7 +213,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
         // Run the export wrq, open response in a new window
         var fileType = memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat;
-        var exportParams = jQuery.extend({wrq: modelName, type: fileType}, memo);
+        var exportParams = Object.assign({wrq: modelName, type: fileType}, memo);
         bcdui.component.exports.detailExport(exportParams);
       }.bind(undefined,args.id, args.inputModel, args.enhancedConfiguration, args.metaDataModel, args.detailExportFilterModel)
     );
@@ -265,7 +264,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
 };
 
-bcdui.util.namespace("bcdui.component",
+bcdui.component = Object.assign(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

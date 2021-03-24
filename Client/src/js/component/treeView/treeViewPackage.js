@@ -18,7 +18,7 @@
  * This namespace contains the functions for expanding and collapsing tree nodes in the tree viewer.
  * @namespace bcdui.component.treeView
  */
-bcdui.util.namespace("bcdui.component.treeView", 
+bcdui.component.treeView = Object.assign(bcdui.component.treeView, 
 /** @lends bcdui.component.treeView */
 {
 

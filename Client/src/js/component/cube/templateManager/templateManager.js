@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.templateManager
  */
-bcdui.util.namespace("bcdui.component.cube.templateManager",
+bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templateManager,
 /** @lends bcdui.component.cube.templateManager */
 {
 

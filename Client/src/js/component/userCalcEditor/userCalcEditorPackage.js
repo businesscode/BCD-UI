@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.userCalcEditor
  */
-bcdui.util.namespace("bcdui.component.userCalcEditor", 
+bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor, 
 /** @lends bcdui.component.userCalcEditor */
 {
 

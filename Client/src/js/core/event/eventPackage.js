@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.core.event
  */
-bcdui.util.namespace("bcdui.core.event", {
+bcdui.core.event = Object.assign(bcdui.core.event, {
   EventType : class {
     constructor(typeId){
       this.typeId = typeId;
