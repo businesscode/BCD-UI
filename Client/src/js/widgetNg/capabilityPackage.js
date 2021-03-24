@@ -49,9 +49,7 @@ jQuery.extend(bcdui.browserCompatibility, {
          * @private
          * @namespace bcdui.browserCapability._intern.input
          */
-        jQuery.extend(bcdui.browserCapability._intern.input,{
-          pattern: false
-        });
+        bcdui.browserCompatibility._intern.input = { pattern: false };
       }
     },
 

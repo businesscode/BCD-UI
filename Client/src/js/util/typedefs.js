@@ -70,11 +70,8 @@ jQuery.extend(true, bcdui, {
     i18n:{},
     factory: {},
     subjectSettings: {},
-    browserCompatibility:{
-        _intern:{
-            input:{}
-        }
-    },
+    browserCompatibility:{},
+    browserCapability:{},
     wrs:{
         wrsUtil:{},
         jsUtil:{}
