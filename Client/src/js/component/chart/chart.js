@@ -19,9 +19,6 @@
  * The implementation of the Chart class.
  */
 
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
-
-
 /**
  * This class represents a chart.
  * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart

@@ -562,7 +562,7 @@ bcdui.util =
  * SubjectSettings related package.
  * @namespace bcdui.subjectSettings
  */
-bcdui.util.namespace("bcdui.subjectSettings",
+jQuery.extend(bcdui.subjectSettings,
 /** @lends bcdui.subjectSettings */
 {
     /**

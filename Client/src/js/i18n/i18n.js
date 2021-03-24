@@ -14,11 +14,6 @@
   limitations under the License.
 */
 "use strict";
-/**
- * The namespace for the i18n (internationalization) functions.
- * @namespace bcdui.i18n
- */
-bcdui.util.namespace("bcdui.i18n");
 
  /**
    *  The i18n registry.
@@ -134,7 +129,6 @@ bcdui.i18n.MessageCatalog = class
   }
 };
 
-bcdui.util.namespace("bcdui.i18n")
 bcdui.i18n.HTMLTranslator = class
 /**
  * @lends bcdui.i18n.HTMLTranslator.prototype

@@ -229,7 +229,7 @@
  * A namespace for the BCD-UI scorecardConfigurator widget. For creation @see {@link bcdui.component.scorecard.createScorecardConfigurator}
  * @namespace bcdui.component.scorecardConfigurator
  */
-bcdui.util.namespace("bcdui.component.scorecardConfigurator",
+jQuery.extend(bcdui.component.scorecardConfigurator,
 /** @lends bcdui.component.scorecardConfigurator */
 {
   /**

@@ -18,7 +18,6 @@
  * This namespace contains functionality directly related to BCD-UI cube
  * @namespace bcdui.component.cube
  */
-bcdui.util.namespace("bcdui.component.cube");
 
 /**
   * Creates a cube model, provides data with calculations and col dimensions applied
@@ -269,7 +268,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
 };
 
-bcdui.util.namespace("bcdui.component",
+jQuery.extend(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

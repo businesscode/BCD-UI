@@ -26,7 +26,6 @@
  * The implementation of the Scorecard class.
  * @namespace bcdui.component.scorecard
  */
-bcdui.util.namespace("bcdui.component.scorecard",{});  // Making sure our namespace exists
 
 /**
  * Creates a scorecard-model from a scorecard definition, the scorecard model is derived {@link bcdui.core.DataProvider DataProvider}
