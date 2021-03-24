@@ -1056,7 +1056,7 @@
  * A namespace for the BCUDI GUI suggestInput widget. For creation @see {@link bcdui.widgetNg.createSuggestInput}
  * @namespace bcdui.widgetNg.suggestInput
  */
-bcdui.util.namespace("bcdui.widgetNg.suggestInput",
+jQuery.extend(bcdui.widgetNg.suggestInput,
 /** @lends bcdui.widgetNg.suggestInput */
 {
   /**

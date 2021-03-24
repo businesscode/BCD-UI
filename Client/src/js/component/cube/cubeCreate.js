@@ -18,18 +18,17 @@
  * This namespace contains functionality directly related to BCD-UI cube
  * @namespace bcdui.component.cube
  */
-bcdui.util.namespace("bcdui.component.cube");
+
+/**
+  * Creates a cube model, provides data with calculations and col dimensions applied
+  * @extends bcdui.core.ModelWrapper
+  */
 bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
 /**
  * @lends bcdui.component.cube.CubeModel.prototype
  */
 {
   /**
-   * @classdesc
-   * Creates a cube model, provides data with calculations and col dimensions applied
-   * @extends bcdui.core.ModelWrapper
-   *
-   * @constructs
    * @param {Object} args The parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} [args.config] - The model containing the cube meta data (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
    * @param {string}                  [args.cubeId] - When settings are to be derived from status model, this is the id in <cube:Layout cubeId="myCube">
@@ -109,6 +108,10 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
 
 
 // cube
+/**
+ * Creates a cube front end based on given data or a configuration
+ * @extends bcdui.core.Renderer
+ */
 
 bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 /**
@@ -116,11 +119,6 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
  */
 {
   /**
-   * @classdesc
-   * Creates a cube front end based on given data or a configuration
-   * @extends bcdui.core.Renderer
-   *
-   * @constructs
    * @param args The parameter map contains the following properties:
    * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
    * @param {bcdui.core.DataProvider} [args.config]                                          - The model containing the cube's configuration (see cube-2.0.0.xsd). If it is not present, the configuration at './cubeConfiguration.xml' is used
@@ -270,7 +268,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
 };
 
-bcdui.util.namespace("bcdui.component",
+jQuery.extend(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

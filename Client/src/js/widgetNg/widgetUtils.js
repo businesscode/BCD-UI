@@ -4,7 +4,7 @@
    * A namespace for the BCDUI GUI widgetNg utils.
    * @namespace bcdui.widgetNg.utils
    */
-  bcdui.util.namespace("bcdui.widgetNg.utils",
+  jQuery.extend(bcdui.widgetNg.utils,
   /** @lends bcdui.widgetNg.utils */
   {
     /**

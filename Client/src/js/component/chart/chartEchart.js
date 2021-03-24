@@ -14,7 +14,6 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component.chart",{});
 
 /*
  * TODO

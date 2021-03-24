@@ -19,12 +19,10 @@
  * The implementation of the Chart class.
  */
 
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
-
-
-/*
- * ========================================================
- * Chart
+/**
+ * This class represents a chart.
+ * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart
+ * @extends bcdui.core.DataProvider
  */
 bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 /**
@@ -72,12 +70,6 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   TYPEMAXINDEX= 8;
 
   /**
-   * @classdesc
-   * This class represents a chart.
-   * In many cases you use {@link bcdui.component.chart.XmlChart} and you have a config for the chart
-   * @extends bcdui.core.DataProvider
-   * 
-   * @constructs
    * @param {Object} args - Parameter object:
    * @param {targetHtmlRef} args.targetHtml                       - Where to place the chart
    * @param {boolean}       [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
@@ -288,7 +280,6 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {numeric}           [args.width]                    - Line width</li>
    * @param {(function|string)} [args.onClick]                  - Either a function or the name of a function
    * @param {boolean}           [args.toSeriesPercentage=false] - If true, each value is represented by its percentage value of the full series.
-   *  </ul>
    */
   addSeries( args )
   {
@@ -366,10 +357,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * Be sure to call calc() upfront at least once.
    * Use execute() for normal operations, which takes care of all initializations
    *
-   * @param map with
-   *  <ul>
-   *     <li>targetHtmlElement, Will clear its content and insert the chart</li>
-   *  </ul>
+   * @param targetHtmlElement Will clear its content and insert the chart
    * @private
    */
   _draw( targetHtmlElement )
@@ -928,11 +916,9 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * (means 0.5 for 7 or 20 for 500 for example)
    * minValue: value to start with so that minValue+n*width will be 0
    * length: number steps along axisLength when stepsize gridWidth
-   * @param map with
-   *  <ul>
-   *     <li>axisLength</li>
-   *     <li>minValue</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.axisLength
+   * @param args.minValue
    * @private
    */
   _autoGrid( args )
@@ -1168,12 +1154,10 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   /**
    * returns concatenated css class name(s) of current element
    * like: chartXAxis trendDivTypeChartXAxis26
-   * @param map with
-   *  <ul>
-   *     <li>suff, suffix of cssClassName</li>
-   *     <li>axisName, X or Y axis</li>
-   *     <li>axisCssClass - default cssClass of the axis</li>
-   *  </ul>
+   * @param args {Object}
+   * @param args.suff         - suffix of cssClassName
+   * @param args.axisName     - X or Y axis
+   * @param args.axisCssClass - default cssClass of the axis
    * @private
    */
   _getCssClass(args)
@@ -1187,7 +1171,6 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   /**
    * @member bcdui.component.Chart
    * @private
-   * @param none
    */
   _drawGridMainAxes()
   {
@@ -1493,12 +1476,10 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 
   /**
    * Convert an XML doc to a js array
-   * @param map with
-   *  <ul>
-   *     <li>data, data doc or array of values</li>
-   *     <li>dataInfo?, doc or array of values</li>
-   *     <li>doParseValues - if true, treat values as float</li>
-   *  </ul>
+   * @param {Object} args
+   * @param args.data - data doc or array of values
+   * @param args.dataInfo - doc or array of values
+   * @param args.doParseValues - if true, treat values as float
    * @private
    */
   _nodeSetOrArray2Array( args )
@@ -1542,11 +1523,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   
   /**
    * Draw the chart's tooltip as a static function to be used as a call back by the drawer
-   * @param map with
-   *  <ul>
-   *     <li>target: the root element of the svg chart</li>
-   *     <li>src: the element originally firing the event, for example a box</li>
-   *  </ul>
+   * @param target - the root element of the svg chart
+   * @param src - the element originally firing the event, for example a box
    * @private
    */
   _createToolTipCb(target,src)
@@ -1630,10 +1608,10 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   }
 
   /**
-   * @param statusEvent
+   * @param statusEvent {StatusEvent}
    * @private
    */
- _statusTransitionHandler(/* StatusEvent */statusEvent) 
+ _statusTransitionHandler(statusEvent)
  {
     if (statusEvent.getStatus().equals(this.loadingStatus)) {
       this._initValues();

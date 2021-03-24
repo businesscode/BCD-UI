@@ -15,7 +15,7 @@
 */
 "use strict";
 
-bcdui.util.namespace("bcdui.component.cube.expandCollapse",
+jQuery.extend(bcdui.component.cube.expandCollapse,
 /** @lends bcdui.component.cube.expandCollapse */
 {
   _init: function(htmlElement) {

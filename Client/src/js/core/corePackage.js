@@ -55,7 +55,7 @@
  * </p>
  * @namespace bcdui.core
  */
-bcdui.util.namespace("bcdui.core", 
+jQuery.extend(bcdui.core, 
 /** 
  * @lends bcdui.core 
  */

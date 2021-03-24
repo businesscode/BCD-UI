@@ -43,7 +43,7 @@
  * A namespace for the BCD-UI inputField widget. For creation @see {@link bcdui.widget.createInputField}
  * @namespace bcdui.widget.inputField
  */
-bcdui.util.namespace("bcdui.widget.inputField",
+jQuery.extend(bcdui.widget.inputField,
 /** @lends bcdui.widget.inputField */
 {
   /**

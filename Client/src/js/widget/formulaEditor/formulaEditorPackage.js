@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI formulaEditor widget.
  * @namespace bcdui.widget.formulaEditor
  */
-bcdui.util.namespace("bcdui.widget.formulaEditor",
+jQuery.extend(bcdui.widget.formulaEditor,
 /** @lends bcdui.widget.formulaEditor */
 {
   /**

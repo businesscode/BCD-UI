@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI multiSelect widget. For creation @see {@link bcdui.widget.createMultiSelect}
  * @namespace  bcdui.widget.multiSelect
  */
-bcdui.util.namespace("bcdui.widget.multiSelect",
+jQuery.extend(bcdui.widget.multiSelect,
 /** @lends bcdui.widget.multiSelect */
 {
   /**

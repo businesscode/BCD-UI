@@ -22,7 +22,7 @@
  * @namespace bcdui.component.exports
  */
 
-bcdui.util.namespace("bcdui.component.exports",
+jQuery.extend(bcdui.component.exports,
 /** @lends bcdui.component.exports */
 {
   /**

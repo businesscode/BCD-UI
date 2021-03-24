@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI periodChooser widget. For creation @see {@link bcdui.widget.createPeriodChooser}
  * @namespace bcdui.widget.periodChooser
  */
-bcdui.util.namespace("bcdui.widget.periodChooser",
+jQuery.extend(bcdui.widget.periodChooser,
 /** @lends bcdui.widget.periodChooser */
 {
   /**

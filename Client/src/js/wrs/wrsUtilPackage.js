@@ -19,7 +19,7 @@
  * These are mainly JavaScript wrappers around XML library found a bcdui/xslt
  * @namespace bcdui.wrs.wrsUtil
  */
-bcdui.util.namespace("bcdui.wrs.wrsUtil", 
+jQuery.extend(bcdui.wrs.wrsUtil, 
 /** @lends bcdui.wrs.wrsUtil */
 {
 
@@ -1441,7 +1441,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
  * Helper for js WRS format
  * @namespace bcdui.wrs.jsUtil
  */
-bcdui.util.namespace("bcdui.wrs.jsUtil", 
+jQuery.extend(bcdui.wrs.jsUtil, 
 /** @lends bcdui.wrs.jsUtil */
 {
 

@@ -25,7 +25,7 @@
  * A namespace for the BCD-UI formulaParser widget.
  * @namespace bcdui.widget.formulaEditor.Parser
  */
-bcdui.util.namespace("bcdui.widget.formulaEditor.Parser",
+jQuery.extend(bcdui.widget.formulaEditor.Parser,
 /** @lends bcdui.widget.formulaEditor.Parser */
 {
 

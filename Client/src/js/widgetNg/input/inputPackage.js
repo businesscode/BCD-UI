@@ -758,7 +758,7 @@
  * A namespace for the BCD-UI input widget. For creation @see {@link bcdui.widgetNg.createInput}
  * @namespace bcdui.widgetNg.input
  */
-bcdui.util.namespace("bcdui.widgetNg.input",
+jQuery.extend(bcdui.widgetNg.input,
 /** @lends bcdui.widgetNg.input */
 {
   /**

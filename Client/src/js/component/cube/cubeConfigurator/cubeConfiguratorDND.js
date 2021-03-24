@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.configuratorDND
  */
-bcdui.util.namespace("bcdui.component.cube.configuratorDND",
+jQuery.extend(bcdui.component.cube.configuratorDND,
 /** @lends bcdui.component.cube.configuratorDND */
 {
   /**

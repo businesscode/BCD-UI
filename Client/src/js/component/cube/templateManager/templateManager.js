@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.templateManager
  */
-bcdui.util.namespace("bcdui.component.cube.templateManager",
+jQuery.extend(bcdui.component.cube.templateManager,
 /** @lends bcdui.component.cube.templateManager */
 {
 

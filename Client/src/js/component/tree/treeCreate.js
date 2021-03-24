@@ -19,8 +19,6 @@
  */
 "use strict"; 
 
-bcdui.util.namespace("bcdui.component.tree");
-
 /**
  * @classdesc
  * Creates a tree front end based on a configuration
@@ -401,7 +399,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
 /************************
  * Glue-ware for declarative environments, not to be used directly
  */
-bcdui.util.namespace("bcdui.component",
+jQuery.extend(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

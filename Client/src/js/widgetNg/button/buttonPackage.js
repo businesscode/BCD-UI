@@ -236,7 +236,7 @@
  * A namespace for the BCD-UI button widget. For creation @see {@link bcdui.widgetNg.createButton}
  * @namespace bcdui.widgetNg.button
  */
-bcdui.util.namespace("bcdui.widgetNg.button",
+jQuery.extend(bcdui.widgetNg.button,
 /** @lends bcdui.widgetNg.button */
 {
   /**

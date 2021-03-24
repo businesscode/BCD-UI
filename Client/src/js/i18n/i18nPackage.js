@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.i18n", 
+jQuery.extend(bcdui.i18n, 
 /** @lends bcdui.i18n */
 {
   /**
