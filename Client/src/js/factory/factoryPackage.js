@@ -30,7 +30,7 @@
  * 
   * @namespace bcdui.factory
  */
-bcdui.util.namespace("bcdui.factory", 
+bcdui.factory = Object.assign(bcdui.factory, 
 /** @lends bcdui.factory */
 {
 

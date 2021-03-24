@@ -122,7 +122,7 @@
  * @namespace bcdui.widgetNg.pasteList
  * @private
  */
-bcdui.util.namespace("bcdui.widgetNg.pasteList",
+bcdui.widgetNg.pasteList = Object.assign(bcdui.widgetNg.pasteList,
 /** @lends bcdui.widgetNg.pasteList */
 {
   init: function(htmlElement){

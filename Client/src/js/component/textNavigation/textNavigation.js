@@ -23,7 +23,6 @@
  * The implementation of the TextNavigation class.
  * @namespace bcdui.component.textnavigation
  */
-bcdui.util.namespace("bcdui.component.textnavigation",{});  // Making sure our namespace exists
 
 /**
  * Create a text navigation based on http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0 XSD
@@ -41,7 +40,7 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
    */
   constructor(args)
   {
-    args = jQuery.extend({parameters: {paramModel: args.config}}, args);
+    args = Object.assign({parameters: {paramModel: args.config}}, args);
     args.targetHtml = bcdui._migPjs._$(args.targetHtml);
     super(args);
     this.args = args;

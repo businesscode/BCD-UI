@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component",
+bcdui.component = Object.assign(bcdui.component,
 /** @lends bcdui.component */
 {
   /**
@@ -192,7 +192,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
         }
 
         this.actionDetailExportWrq.execute(true);
-        var exportParams = jQuery.extend({wrq: this.actionDetailExportWrq, type: memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat}, memo);
+        var exportParams = Object.assign({wrq: this.actionDetailExportWrq, type: memo.fileType || bcdui.config.settings.bcdui.component.exports.detailExportDefaultFormat}, memo);
         bcdui.component.exports.detailExport(exportParams);
 
       }.bind( this, args.id ) );

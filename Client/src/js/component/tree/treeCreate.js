@@ -19,8 +19,6 @@
  */
 "use strict"; 
 
-bcdui.util.namespace("bcdui.component.tree");
-
 /**
  * Creates a tree front end based on a configuration
  * @extends bcdui.core.Renderer  
@@ -261,7 +259,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
             delete inheritFilters[b];
           });
 
-          nodeFilters = jQuery.extend(nodeFilters, inheritFilters);
+          nodeFilters = Object.assign(nodeFilters, inheritFilters);
         }
 
         // store node filters (current and inherited ones)
@@ -399,7 +397,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
 /************************
  * Glue-ware for declarative environments, not to be used directly
  */
-bcdui.util.namespace("bcdui.component",
+bcdui.component = Object.assign(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

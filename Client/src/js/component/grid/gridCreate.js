@@ -29,8 +29,6 @@
  *  - Customize the currently in tfoot stored action buttons to own rendering
  */
 
-bcdui.util.namespace("bcdui.component.grid");
-
 /**
  * Creates a GridModel
  * @extends bcdui.core.DataProvider
@@ -186,7 +184,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         validationChain.push(args.validationChain);
     }
     if (args.validationParameters)
-      validationParameters = jQuery.extend(validationParameters, args.validationParameters);
+      validationParameters = Object.assign(validationParameters, args.validationParameters);
 
     validationParameters["bcdGridModel"] = this.gridModel;
 
@@ -198,7 +196,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         validationChain.push(this.gridModel.validationChain);
     }
     if (this.gridModel.validationParameters)
-      validationParameters = jQuery.extend(validationParameters, this.gridModel.validationParameters);
+      validationParameters = Object.assign(validationParameters, this.gridModel.validationParameters);
 
     // finally setup the validation model wrapper
     this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
@@ -1016,7 +1014,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       // take over possible hotArgs column values
       if (this.hotArgs && this.hotArgs.columns && typeof this.hotArgs.columns[idx] != "undefined") {
-        jQuery.extend(colHeader, this.hotArgs.columns[idx]);
+        colHeader = Object.assign(colHeader, this.hotArgs.columns[idx]);
       }
 
       this.gotHiddenColumns |= colHeader.isHidden;
@@ -1904,7 +1902,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (this.hideColHeaders)
       delete this.hotArgs.colHeaders;
 
-    var finalArgs = jQuery.extend(createArgs, this.hotArgs);
+    var finalArgs = Object.assign(createArgs, this.hotArgs);
     // allow custom handsonable hooks for already internally used functions, our function will be executed first though
     [ ["afterChange", afterChange]
     , ["afterRender", afterRender]
@@ -2801,7 +2799,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 /************************
  * Glue-ware for declarative environments, not to be used directly
  */
-bcdui.util.namespace("bcdui.component",
+bcdui.component = Object.assign(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

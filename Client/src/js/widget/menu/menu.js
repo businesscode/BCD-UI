@@ -223,8 +223,6 @@ bcdui.widget.menu.Menu = class
 
 };
 
-bcdui.util.namespace("bcdui.widget.menu")
-
 /**
  * Menu
  */

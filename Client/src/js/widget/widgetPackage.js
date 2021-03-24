@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI widgets.
  * @namespace bcdui.widget
  */
-bcdui.util.namespace("bcdui.widget",
+jQuery.extend(bcdui.widget,
 /**  @lends bcdui.widget */
 {
   /**
@@ -3282,7 +3282,7 @@ bcdui.util.namespace("bcdui.widget",
          const dataPropName = "bcdDialogCloseData";
 
          // defaults
-         args = jQuery.extend(true, {
+         args = Object.assign( {
            width: 640,
            height: 320,
            minWidth: 100,

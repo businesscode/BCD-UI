@@ -98,7 +98,7 @@
  * @namespace bcdui.widgetNg.dateInput
  * @private
  */
-bcdui.util.namespace("bcdui.widgetNg.dateInput",
+bcdui.widgetNg.dateInput = Object.assign(bcdui.widgetNg.dateInput,
 /** @lends bcdui.widgetNg.dateInput */
 {
   init: function(htmlElement){

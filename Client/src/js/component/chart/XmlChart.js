@@ -19,7 +19,6 @@
  * Extends the JS implementation of the Chart class allowing an XML definition model as input
  *
  */
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
 /**
  * Implements XML-definition interface. Extends the JS implementation of the
@@ -44,7 +43,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   constructor(args)
   { 
      var bcdPreInit = args ? args.bcdPreInit : null;
-      super(jQuery.extend(args, {
+      super(Object.assign(args, {
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
