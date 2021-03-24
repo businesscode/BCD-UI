@@ -19,7 +19,7 @@
  * @namespace bcdui.widget.contextMenu
  * @private
  */
-bcdui.util.namespace("bcdui.widget.contextMenu",
+jQuery.extend(bcdui.widget.contextMenu,
 /** @lends bcdui.widget.contextMenu */
 {
   /**

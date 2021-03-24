@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI widgets.
  * @namespace bcdui.widget
  */
-bcdui.util.namespace("bcdui.widget",
+jQuery.extend(bcdui.widget,
 /**  @lends bcdui.widget */
 {
   /**

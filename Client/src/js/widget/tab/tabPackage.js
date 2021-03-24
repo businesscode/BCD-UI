@@ -122,7 +122,7 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
  * @namespace bcdui.widget.tab
  * @private
  */
-bcdui.util.namespace("bcdui.widget.tab",
+jQuery.extend(bcdui.widget.tab,
 /** @lends bcdui.widget.tab */
 {
     /**

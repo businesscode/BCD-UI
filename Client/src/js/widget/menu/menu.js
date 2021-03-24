@@ -22,7 +22,7 @@
 /**
  * @namespace bcdui.widget.menu
  */
-bcdui.util.namespace("bcdui.widget.menu").Menu = class
+bcdui.widget.menu.Menu = class
 /**
  * @lends bcdui.widget.menu.Menu.prototype
  */
@@ -85,7 +85,7 @@ bcdui.util.namespace("bcdui.widget.menu").Menu = class
 /**
  *  MenuContainer
  */
-bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
+ bcdui.widget.menu.MenuContainer = class
 /**
  * @lends bcdui.widget.menu.MenuContainer.prototype
  */
@@ -228,8 +228,6 @@ bcdui.util.namespace("bcdui.widget.menu").MenuContainer = class
   }
 
 };
-
-bcdui.util.namespace("bcdui.widget.menu")
 
 /**
  * Menu

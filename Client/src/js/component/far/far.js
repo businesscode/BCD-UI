@@ -14,8 +14,6 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component.far",{});
-
 
 /** 
  * A FAR component
@@ -338,7 +336,7 @@ bcdui.component.far.Far = class
  * enhancement DSL adapter utility : far-config to enhanced configuration
  * @namespace
  */
-bcdui.util.namespace("bcdui.component.far.enhancer",
+jQuery.extend(bcdui.component.far.enhancer,
 /** @lends bcdui.component.far.enhancer */    
 {
   /**

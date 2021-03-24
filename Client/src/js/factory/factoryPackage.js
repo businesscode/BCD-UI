@@ -30,7 +30,7 @@
  * 
   * @namespace bcdui.factory
  */
-bcdui.util.namespace("bcdui.factory", 
+jQuery.extend(bcdui.factory, 
 /** @lends bcdui.factory */
 {
 

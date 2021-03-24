@@ -1281,8 +1281,6 @@
     }
   });
 
-  bcdui.util.namespace("bcdui.widgetNg.connectable");
-
 /** 
  * Tree support class providing item rendering, controls binding and onItemMoved handler
  */
@@ -1555,7 +1553,7 @@
  * A namespace for the BCD-UI connectable widget. For creation @see {@link bcdui.widgetNg.createConnectable}
  * @namespace bcdui.widgetNg.connectable
  */
-bcdui.util.namespace("bcdui.widgetNg.connectable",
+jQuery.extend(bcdui.widgetNg.connectable,
 /** @lends bcdui.widgetNg.connectable */
 {
   /**

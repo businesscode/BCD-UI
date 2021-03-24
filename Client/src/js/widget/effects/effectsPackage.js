@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI widget effects.
  * @namespace bcdui.widget.effects
  */
-bcdui.util.namespace("bcdui.widget.effects",
+jQuery.extend(bcdui.widget.effects,
 /** @lends bcdui.widget.effects */
 {
   /**

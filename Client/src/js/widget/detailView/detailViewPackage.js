@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI detailView widget.
  * @namespace bcdui.widget.detailView
  */
-bcdui.util.namespace("bcdui.widget.detailView",
+jQuery.extend(bcdui.widget.detailView,
 /** @lends bcdui.widget.detailView */
 {
 /**

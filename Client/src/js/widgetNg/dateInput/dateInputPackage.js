@@ -98,7 +98,7 @@
  * @namespace bcdui.widgetNg.dateInput
  * @private
  */
-bcdui.util.namespace("bcdui.widgetNg.dateInput",
+jQuery.extend(bcdui.widgetNg.dateInput,
 /** @lends bcdui.widgetNg.dateInput */
 {
   init: function(htmlElement){
