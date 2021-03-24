@@ -463,7 +463,7 @@
  * @see {@link bcdui.widgetNg.createSlider}
  * @namespace bcdui.widgetNg.slider
  */
-bcdui.util.namespace("bcdui.widgetNg.slider",
+jQuery.extend(bcdui.widgetNg.slider,
 /** @lends bcdui.widgetNg.slider */
 {
   /**

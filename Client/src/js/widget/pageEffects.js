@@ -19,7 +19,7 @@
  * @namespace bcdui.widget.pageEffects
  * @private
  */
-bcdui.util.namespace("bcdui.widget.pageEffects",
+jQuery.extend(bcdui.widget.pageEffects,
 /**  @lends bcdui.widget.pageEffects */
 {
   /* 

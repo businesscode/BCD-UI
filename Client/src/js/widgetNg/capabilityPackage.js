@@ -27,7 +27,7 @@
  * @namespace bcdui.browserCompatibility
  * @private
  */
-bcdui.util.namespace("bcdui.browserCompatibility", {
+jQuery.extend(bcdui.browserCompatibility, {
   /**
    * internal representation of features, which is queried prior to Modernizr
    * @private
@@ -49,9 +49,7 @@ bcdui.util.namespace("bcdui.browserCompatibility", {
          * @private
          * @namespace bcdui.browserCapability._intern.input
          */
-        bcdui.util.namespace("bcdui.browserCapability._intern.input",{
-          pattern: false
-        });
+        bcdui.browserCompatibility._intern.input = { pattern: false };
       }
     },
 

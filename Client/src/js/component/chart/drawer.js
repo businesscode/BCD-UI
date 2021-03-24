@@ -19,8 +19,6 @@
  * The implementation of the Drawer class.
  */
 
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
-
 /**
  * This class represents a base class for SVG and VML Drawers, which have the same interface.
  * @abstract

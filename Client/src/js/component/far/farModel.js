@@ -14,7 +14,6 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component.far",{});
 
 /**
  * Data provider implementation reading far:Configuration document and providing data according to it, you can use this model if you solely want

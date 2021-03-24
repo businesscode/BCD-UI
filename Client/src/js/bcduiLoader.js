@@ -63,7 +63,8 @@ bcdui.bcduiCeFiles =
       "id": "bcduiUtil",
       "required": "mandatory",
       "files": [
-          "/js/util/utilPackage.js"
+          "/js/util/typedefs.js"
+        , "/js/util/utilPackage.js"
         , "/js/util/datetimePackage.js"
         , "/js/util/clipboardPackage.js"
         , "/js/util/urlPackage.js"

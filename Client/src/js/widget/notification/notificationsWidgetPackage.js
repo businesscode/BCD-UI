@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI notifications widget.
  * @namespace bcdui.widget.notifications
  */
-bcdui.util.namespace("bcdui.widget.notifications",
+jQuery.extend(bcdui.widget.notifications,
 /** @lends bcdui.widget.notifications */
 {});
 

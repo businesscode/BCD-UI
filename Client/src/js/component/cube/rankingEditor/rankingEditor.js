@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component.cube.rankingEditor",
+jQuery.extend(bcdui.component.cube.rankingEditor,
 /** @lends bcdui.component.cube.rankingEditor */
 {
   /**

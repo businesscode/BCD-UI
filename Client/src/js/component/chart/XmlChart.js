@@ -19,7 +19,6 @@
  * Extends the JS implementation of the Chart class allowing an XML definition model as input
  *
  */
-bcdui.util.namespace("bcdui.component.chart",{});  // Making sure our namespace exists
 
 /**
  * Implements XML-definition interface. Extends the JS implementation of the

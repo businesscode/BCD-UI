@@ -29,8 +29,6 @@
  *  - Customize the currently in tfoot stored action buttons to own rendering
  */
 
-bcdui.util.namespace("bcdui.component.grid");
-
 /**
  * Creates a GridModel
  * @extends bcdui.core.DataProvider
@@ -2801,7 +2799,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 /************************
  * Glue-ware for declarative environments, not to be used directly
  */
-bcdui.util.namespace("bcdui.component",
+jQuery.extend(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

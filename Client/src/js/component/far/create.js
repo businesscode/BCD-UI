@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component",
+jQuery.extend(bcdui.component,
 /** @lends bcdui.component */
 {
   /**

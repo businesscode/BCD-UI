@@ -77,7 +77,7 @@
  * @namespace bcdui.widgetNg.textArea
  * @private
  */
-bcdui.util.namespace("bcdui.widgetNg.textArea",
+jQuery.extend(bcdui.widgetNg.textArea,
 /** @lends bcdui.widgetNg.textArea */
 {
   init: function(htmlElement){

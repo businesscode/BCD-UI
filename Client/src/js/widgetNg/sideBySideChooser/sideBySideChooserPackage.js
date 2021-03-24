@@ -178,7 +178,7 @@
  * A namespace for the BCD-UI sideBySideChooser widget. For creation @see {@link bcdui.widgetNg.createSideBySideChooser}
  * @namespace bcdui.widgetNg.sideBySideChooser
  */
-bcdui.util.namespace("bcdui.widgetNg.sideBySideChooser",
+jQuery.extend(bcdui.widgetNg.sideBySideChooser,
 /** @lends bcdui.widgetNg.sideBySideChooser */
 {
   /**
