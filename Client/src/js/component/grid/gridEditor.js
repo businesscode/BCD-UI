@@ -88,7 +88,7 @@ widgetBaseEditor.prototype.open = function () {
       this.gotGridReferences = true;
 
       // we need to deep clone the editorParameters to not replace the original xpath 
-      this.widgetParams = jQuery.extend(true, {}, this.cellProperties.editorParameter);
+      this.widgetParams = Object.assign({}, this.cellProperties.editorParameter);
 
       // handle grid row dependencies (find belonging cell in gridModel and replace placeholder with it)
       this.widgetParams["optionsModelXPath"] = this.instance.getBCDUIGrid()._resolveRowDependency({rowId: this.instance.getSourceData()[this.row].r.getAttribute("id"), xPath: this.widgetParams["optionsModelXPath"]});
@@ -195,7 +195,7 @@ bcduiInput.prototype.prepare = function(row, col, prop, td, originalValue, cellP
   this.cssPath  = "#" + this.objectId + " input";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widgetNg.createInput(args)
   };
 
@@ -219,7 +219,7 @@ bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue
   this.cssPath       = "#" + this.objectId + " select";
   
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widgetNg.createSingleSelect(args)
   };
   
@@ -245,7 +245,7 @@ bcduiInputField.prototype.prepare = function(row, col, prop, td, originalValue, 
   this.cssPath       = "#" + this.objectId + " input";
   
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widget.createInputField(args);
   };
   
@@ -295,7 +295,7 @@ bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValu
   this.cssPath       = "#" + this.objectId + " > span";
   
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widget.createPeriodChooser(args);
   };
   
@@ -327,7 +327,7 @@ bcduiSimpleInput.prototype.prepare = function(row, col, prop, td, originalValue,
   this.value = "";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     var html = "<input";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
     html += "></input>"
@@ -355,7 +355,7 @@ bcduiSimpleTextarea.prototype.prepare = function(row, col, prop, td, originalVal
   this.value = "";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     var html = "<textarea";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
     html += "></textarea>"
@@ -382,7 +382,7 @@ bcduiSimpleNumericInput.prototype.prepare = function(row, col, prop, td, origina
   this.value = "";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     var html = "<input type='number'";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
     html += args.max ? " max='" + args.max + "'" : "";
@@ -416,7 +416,7 @@ bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalVal
   this.distinctOptions = params.distinctOptions === "true";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
 
     // build up code/caption list only once (unless no gridReferences are used)
     if (typeof this.optionsArray == "undefined")
@@ -505,7 +505,7 @@ bcduiSuggestInput.prototype.prepare = function(row, col, prop, td, originalValue
   this.cssPath       = "#" + this.objectId + " input";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widgetNg.createSuggestInput(args);
   };
 
@@ -729,7 +729,7 @@ bcduiModelDropDown.prototype.prepare = function(row, col, prop, td, originalValu
   this.optionsModelRelativeValueXPath = "../@id";
 
   this.createWidget = function(widgetParams) {
-    var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
+    var args = Object.assign({targetHtml: this.objectId},widgetParams);
 
     // build up code/caption list only once (unless no gridReferences are used)
     if (typeof this.optionsArray == "undefined")

@@ -20,7 +20,7 @@
  * @namespace bcdui.component.exports
  */
 
-bcdui.util.namespace("bcdui.component.exports",
+bcdui.component.exports = Object.assign(bcdui.component.exports,
 /** @lends bcdui.component.exports */
 {
   /**
@@ -464,7 +464,7 @@ bcdui.util.namespace("bcdui.component.exports",
     args.exportMode = args.exportMode || "full";
 
     bcdui.factory.objectRegistry.withReadyObjects([args.wrq], function() {
-      var newArgs = jQuery.extend({}, args);
+      var newArgs = Object.assign({}, args);
       newArgs.wrq = bcdui.factory.objectRegistry.getObject(args.wrq);
       newArgs.callback = bcdui.component.exports._doExport;
 

@@ -19,7 +19,7 @@
  * These are mainly JavaScript wrappers around XML library found a bcdui/xslt
  * @namespace bcdui.wrs.wrsUtil
  */
-bcdui.util.namespace("bcdui.wrs.wrsUtil", 
+bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil, 
 /** @lends bcdui.wrs.wrsUtil */
 {
 
@@ -1301,7 +1301,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
     else if (typeof args.getData != "undefined")    // shorthand handling for a dataprovider
       args = { wrsDoc : args.getData() }
 
-    args = jQuery.extend({ uri : "", onFailure : function(msg){ bcdui.log.fatal("failed to POST wrs: " + msg); }, onSuccess : function(){} }, args);
+    args = Object.assign({ uri : "", onFailure : function(msg){ bcdui.log.fatal("failed to POST wrs: " + msg); }, onSuccess : function(){} }, args);
 
     // handle array of docs/dataproviders
     if(Array.isArray(args.wrsDoc)){
@@ -1441,7 +1441,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
  * Helper for js WRS format
  * @namespace bcdui.wrs.jsUtil
  */
-bcdui.util.namespace("bcdui.wrs.jsUtil", 
+bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil, 
 /** @lends bcdui.wrs.jsUtil */
 {
 

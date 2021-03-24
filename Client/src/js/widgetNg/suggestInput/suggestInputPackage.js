@@ -86,7 +86,7 @@
      * @private
      */
     _getCreateOptions : function(){
-      return jQuery.extend(true, {}, this.options, bcdui.widgetNg.impl.readParams.suggestInput(this.element[0]));
+      return Object.assign({}, this.options, bcdui.widgetNg.impl.readParams.suggestInput(this.element[0]));
     },
     /**
      * @private
@@ -1058,7 +1058,7 @@
  * A namespace for the BCUDI GUI suggestInput widget. For creation @see {@link bcdui.widgetNg.createSuggestInput}
  * @namespace bcdui.widgetNg.suggestInput
  */
-bcdui.util.namespace("bcdui.widgetNg.suggestInput",
+bcdui.widgetNg.suggestInput = Object.assign(bcdui.widgetNg.suggestInput,
 /** @lends bcdui.widgetNg.suggestInput */
 {
   /**

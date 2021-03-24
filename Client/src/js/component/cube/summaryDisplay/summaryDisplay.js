@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-bcdui.util.namespace("bcdui.component.cube.summaryDisplay",
+bcdui.component.cube.summaryDisplay = Object.assign(bcdui.component.cube.summaryDisplay,
 /** @lends bcdui.component.cube.summaryDisplay */
 {
   /**

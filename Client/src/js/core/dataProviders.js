@@ -614,7 +614,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
           throw Error('Must specify an "optionsModelXPath" property in the parameter map.');
         }
 
-        this.args = jQuery.extend(true, {}, args, {
+        this.args = Object.assign( {}, args, {
           options : bcdui.factory._extractXPathAndModelId(args.optionsModelXPath)
         });
         this.args.source = args.source = bcdui.factory.objectRegistry.getObject(this.args.options.modelId);

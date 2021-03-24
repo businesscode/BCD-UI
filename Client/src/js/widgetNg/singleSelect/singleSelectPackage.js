@@ -476,7 +476,7 @@
  * A namespace for the BCD-UI singleSelect widget. For creation @see {@link bcdui.widgetNg.createSingleSelect}
  * @namespace bcdui.widgetNg.singleSelect
  */
-bcdui.util.namespace("bcdui.widgetNg.singleSelect",
+bcdui.widgetNg.singleSelect = Object.assign(bcdui.widgetNg.singleSelect,
   /** @lends bcdui.widgetNg.singleSelect */
   {
   /**

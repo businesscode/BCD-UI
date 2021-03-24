@@ -329,7 +329,7 @@
  * A namespace for the BCD-UI checkbox widget. For creation @see {@link bcdui.widgetNg.createCheckbox}
  * @namespace bcdui.widgetNg.checkbox
  */
-bcdui.util.namespace("bcdui.widgetNg.checkbox",
+bcdui.widgetNg.checkbox = Object.assign(bcdui.widgetNg.checkbox,
 /** @lends bcdui.widgetNg.checkbox */
 {
   /**

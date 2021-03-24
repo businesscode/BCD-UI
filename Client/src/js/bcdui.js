@@ -24,7 +24,7 @@
  */
 var bcdui = bcdui || new Object();
 
-jQuery.extend( bcdui, 
+bcdui = Object.assign(bcdui, 
 /** @lends bcdui */
 {
     /**

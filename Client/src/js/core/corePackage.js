@@ -55,7 +55,7 @@
  * </p>
  * @namespace bcdui.core
  */
-bcdui.util.namespace("bcdui.core", 
+bcdui.core = Object.assign(bcdui.core, 
 /** 
  * @lends bcdui.core 
  */

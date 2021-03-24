@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI singleSelect widget. For creation @see {@link bcdui.widget.createSingleSelect}
  * @namespace bcdui.widget.singleSelect
  */
-bcdui.util.namespace("bcdui.widget.singleSelect",
+bcdui.widget.singleSelect = Object.assign(bcdui.widget.singleSelect,
 /**  @lends bcdui.widget.singleSelect */
 {
   /**

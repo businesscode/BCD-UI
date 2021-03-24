@@ -19,9 +19,6 @@
  *   This file contains the class definition of the PDFExport class.
  */
 
-bcdui.util.namespace("bcdui.component.exports");
-
-
 /**
  * Exporter for PDF/JPG/PNG/BMP/GIF format using the HTML2PDF conversion Servlet.
  * This Servlet is usually registered under "/bcdui/servlets/HTML2PDFServlet".

@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.configurator
  */
-bcdui.util.namespace("bcdui.component.cube.configurator",
+bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configurator,
 /** @lends bcdui.component.cube.configurator */
 {
 
@@ -223,7 +223,7 @@ bcdui.util.namespace("bcdui.component.cube.configurator",
              nodes.item(hN).parentNode.removeChild(nodes.item(hN));
          });
       // and show totals for this level...
-      var newArgs = jQuery.extend({}, args);
+      var newArgs = Object.assign({}, args);
       newArgs.levelId = args.totalId;
       return this.showThisTotals(targetModelId, cubeId, newArgs);
     }

@@ -119,7 +119,7 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
  * @namespace bcdui.widget.tab
  * @private
  */
-bcdui.util.namespace("bcdui.widget.tab",
+bcdui.widget.tab = Object.assign(bcdui.widget.tab,
 /** @lends bcdui.widget.tab */
 {
     /**

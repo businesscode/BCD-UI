@@ -34,10 +34,10 @@
  * as well as be providing a XML definition according to http://www.businesscode.de/schema/bcdui/charts-1.0.0 using {@link bcdui.component.chart.XmlChart}.
  * @namespace bcdui.component.chart
  */
-bcdui.util.namespace("bcdui.component.chart", 
+
+bcdui.component.chart = Object.assign(bcdui.component.chart, 
 /** @lends bcdui.component.chart */
 {
-
   /**
    * Helper for creating a chart with controller from a jsp tag, interannly instantating XmlChart
    * @param args {Object}
