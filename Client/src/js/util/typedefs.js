@@ -9,7 +9,8 @@ jQuery.extend(true, bcdui, {
             configuratorDND:{} ,
             rankingEditor:{},
             summaryDisplay:{},
-            templateManager:{}
+            templateManager:{},
+            expandCollapse:{}
         },
         exports: {},
         far: {
@@ -31,7 +32,7 @@ jQuery.extend(true, bcdui, {
         dimensionChooser:{},
         effects:{},
         formulaEditor:{
-            parser:{}
+            Parser:{}
         },
         inputField:{},
         menu:{},
