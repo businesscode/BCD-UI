@@ -9,9 +9,6 @@
    * @private
    */
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
-    /**
-     * @lends XMLListener.prototype
-     */
     {
       /**
        * @member bcdui.widget.inputField.XMLListener
