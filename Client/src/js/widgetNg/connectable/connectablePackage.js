@@ -1313,7 +1313,7 @@
       if(!config.captionAttrName){
         throw ".captionAttrName property undefined";
       }
-      this.config = jQuery.extend(config, {
+      this.config = Object.assign(config, {
         isDefaultCollapsed : config.isDefaultCollapsed == undefined ? true : config.isDefaultCollapsed
       });
       this.config.leftPaddingLevel = this.config.leftPaddingLevel || 14;
@@ -1553,7 +1553,7 @@
  * A namespace for the BCD-UI connectable widget. For creation @see {@link bcdui.widgetNg.createConnectable}
  * @namespace bcdui.widgetNg.connectable
  */
-jQuery.extend(bcdui.widgetNg.connectable,
+bcdui.widgetNg.connectable = Object.assign(bcdui.widgetNg.connectable,
 /** @lends bcdui.widgetNg.connectable */
 {
   /**

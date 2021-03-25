@@ -14,7 +14,7 @@
   limitations under the License.
 */
 "use strict";
-jQuery.extend(bcdui.component.cube.rankingEditor,
+bcdui.component.cube.rankingEditor = Object.assign(bcdui.component.cube.rankingEditor,
 /** @lends bcdui.component.cube.rankingEditor */
 {
   /**

@@ -343,7 +343,7 @@ bcdui.util =
    * @private
    */
   _scrollTo : function(container, scrollTo, options){
-    options = jQuery.extend({
+    options = Object.assign({
       // DEFAULTS
       snapTo : "beginning"
     }, options);
@@ -456,7 +456,7 @@ bcdui.util =
    * {object} [args.parameters]     object map with parameters to send
    */
   _sendFormRequest : function(url, args){
-    args = jQuery.extend({
+    args = Object.assign({
       method : "get",
       target : "_blank",
       enctype: "application/x-www-form-urlencoded"
@@ -562,7 +562,7 @@ bcdui.util =
  * SubjectSettings related package.
  * @namespace bcdui.subjectSettings
  */
-jQuery.extend(bcdui.subjectSettings,
+bcdui.subjectSettings = Object.assign(bcdui.subjectSettings,
 /** @lends bcdui.subjectSettings */
 {
     /**

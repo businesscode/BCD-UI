@@ -19,7 +19,7 @@
  * @namespace bcdui.widget.contextMenu
  * @private
  */
-jQuery.extend(bcdui.widget.contextMenu,
+bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
 /** @lends bcdui.widget.contextMenu */
 {
   /**
