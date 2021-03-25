@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI detailView widget.
  * @namespace bcdui.widget.detailView
  */
-jQuery.extend(bcdui.widget.detailView,
+bcdui.widget.detailView = Object.assign(bcdui.widget.detailView,
 /** @lends bcdui.widget.detailView */
 {
 /**
@@ -101,7 +101,7 @@ jQuery.extend(bcdui.widget.detailView,
       }
     }
 
-    args = jQuery.extend({
+    args = Object.assign({
       // defaults
        childElementSelector : "tbody tr"
       ,listenEvent : "dblclick"

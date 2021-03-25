@@ -475,7 +475,7 @@
  * @see {@link bcdui.widgetNg.createSlider}
  * @namespace bcdui.widgetNg.slider
  */
-jQuery.extend(bcdui.widgetNg.slider,
+bcdui.widgetNg.slider = Object.assign(bcdui.widgetNg.slider,
 /** @lends bcdui.widgetNg.slider */
 {
   /**

@@ -124,8 +124,8 @@
         sourceArgs.sortOptionsFunction = treeSupport._optionsSortingFunction.bind(treeSupport);
       }
 
-      jQuery.extend(sourceArgs, args);
-      jQuery.extend(targetArgs, args);
+      sourceArgs = Object.assign(sourceArgs, args);
+      targetArgs = Object.assign(targetArgs, args);
 
       // and generate the connectables
       bcdui.widgetNg.createConnectable(sourceArgs);
@@ -178,7 +178,7 @@
  * A namespace for the BCD-UI sideBySideChooser widget. For creation @see {@link bcdui.widgetNg.createSideBySideChooser}
  * @namespace bcdui.widgetNg.sideBySideChooser
  */
-jQuery.extend(bcdui.widgetNg.sideBySideChooser,
+bcdui.widgetNg.sideBySideChooser = Object.assign(bcdui.widgetNg.sideBySideChooser,
 /** @lends bcdui.widgetNg.sideBySideChooser */
 {
   /**

@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI dimensionChooser widget. For creation @see {@link bcdui.widgetNg.createDimensionChooser}
  * @namespace bcdui.widget.dimensionChooser
  */
-jQuery.extend(bcdui.widget.dimensionChooser,
+bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
 /** @lends bcdui.widget.dimensionChooser */
 {
   /**

@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.core.event
  */
-jQuery.extend(bcdui.core.event, {
+bcdui.core.event = Object.assign(bcdui.core.event, {
   EventType : class {
     constructor(typeId){
       this.typeId = typeId;

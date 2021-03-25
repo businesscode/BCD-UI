@@ -194,7 +194,7 @@
       targetHtml = jQuery("<div class='bcd-quickedit-container'/>").appendTo(jQuery(targetHtml).empty());
 
       this.context = {
-        wrsDataProvider, targetHtml, columnTypeWidgetRendererMap: jQuery.extend({}, DEFAULT_WIDGET_TYPE_MAP, columnTypeWidgetRendererMap), callbackHandler, rowId
+        wrsDataProvider, targetHtml, columnTypeWidgetRendererMap: Object.assign({}, DEFAULT_WIDGET_TYPE_MAP, columnTypeWidgetRendererMap), callbackHandler, rowId
       };
 
       // attach global handlers
@@ -333,7 +333,7 @@
   jQuery.widget("bcdui.bcduiQuickEdit", jQuery.bcdui.bcduiWidget, {
     _getCreateOptions() {
       //return jQuery.extend(true, {}, this.options, bcdui.widgetNg.impl.readParams.input(this.element[0]));
-      return jQuery.extend(true, {}, this.options, { targetHtml: this.element[0] });
+      return Object.assign( {}, this.options, { targetHtml: this.element[0] });
     },
     _create() {
       this.instanceObject = new QuickEdit(this.options);

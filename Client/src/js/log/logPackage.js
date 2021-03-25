@@ -19,7 +19,7 @@
  */
 bcdui.logging = bcdui.logging || new Object();
 
-jQuery.extend( bcdui.logging,
+bcdui.logging = Object.assign( bcdui.logging,
   /** @lends bcdui.logging */
   {
     /**

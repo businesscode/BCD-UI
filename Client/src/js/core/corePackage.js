@@ -55,7 +55,7 @@
  * </p>
  * @namespace bcdui.core
  */
-jQuery.extend(bcdui.core, 
+bcdui.core = Object.assign(bcdui.core, 
 /** 
  * @lends bcdui.core 
  */

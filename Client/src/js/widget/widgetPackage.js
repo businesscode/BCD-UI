@@ -3260,7 +3260,7 @@ jQuery.extend(bcdui.widget,
          const dataPropName = "bcdDialogCloseData";
 
          // defaults
-         args = jQuery.extend(true, {
+         args = Object.assign( {
            width: 640,
            height: 320,
            minWidth: 100,

@@ -33,7 +33,7 @@
  * A namespace for the BCD-UI widget validation (general).
  * @namespace bcdui.widgetNg.validation.validators.general
  */
-jQuery.extend(bcdui.widgetNg.validation.validators.general,
+bcdui.widgetNg.validation.validators.general = Object.assign(bcdui.widgetNg.validation.validators.general,
 /** @lends bcdui.widgetNg.validation.validators.general */
 {}
 );
@@ -48,7 +48,7 @@ jQuery.extend(bcdui.widgetNg.validation.validators.general,
  * A namespace for the BCD-UI widget validation (specific).
  * @namespace bcdui.widgetNg.validation.validators.widget
  */
-jQuery.extend(bcdui.widgetNg.validation.validators.widget,
+bcdui.widgetNg.validation.validators.widget = Object.assign(bcdui.widgetNg.validation.validators.widget,
 /** @lends bcdui.widgetNg.validation.validators.widget */
 {}
 );

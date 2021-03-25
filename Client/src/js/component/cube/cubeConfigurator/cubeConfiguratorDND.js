@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.configuratorDND
  */
-jQuery.extend(bcdui.component.cube.configuratorDND,
+bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.configuratorDND,
 /** @lends bcdui.component.cube.configuratorDND */
 {
   /**

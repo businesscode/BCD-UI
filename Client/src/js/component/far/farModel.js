@@ -33,12 +33,12 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
   constructor(args){ // takes .config or .enhancedConfig
     // call super-constructor
     var bcdPreInit = args ? args.bcdPreInit : null;
-      super(jQuery.extend(args, {
+      super(Object.assign(args, {
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
           // checks
-          args = jQuery.extend({}, args, {
+          args = Object.assign({}, args, {
             callback : this._execute.bind(this)
           });
           if(!(args.config || args.enhancedConfig)){

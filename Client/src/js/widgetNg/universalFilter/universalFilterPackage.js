@@ -616,7 +616,7 @@
  * A namespace for the BCD-UI widget. For creation @see {@link bcdui.widgetNg.createUniversalFilter}
  * @namespace bcdui.widgetNg.universalFilter
  */
-jQuery.extend(bcdui.widgetNg.universalFilter,
+bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
 /** @lends bcdui.widgetNg.button */
 {
   /**

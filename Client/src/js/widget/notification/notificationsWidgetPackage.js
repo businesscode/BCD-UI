@@ -18,7 +18,7 @@
  * A namespace for the BCD-UI notifications widget.
  * @namespace bcdui.widget.notifications
  */
-jQuery.extend(bcdui.widget.notifications,
+bcdui.widget.notifications = Object.assign(bcdui.widget.notifications,
 /** @lends bcdui.widget.notifications */
 {});
 
@@ -36,7 +36,7 @@ bcdui.widget.notifications.Notificator = class
    */
    constructor(args) {
     //console.info("init", args);
-    this.options = jQuery.extend({
+    this.options = Object.assign({
       retainMessagesNumber : 5,
       attachMouseHandler : false,  /* if true , the mousehover/unhover will close the box */
       autoHideMs : 0               /* if greater 0, the box will autohide after that amount of ms, otherwise the box has to be closed manually */
