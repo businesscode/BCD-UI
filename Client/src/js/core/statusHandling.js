@@ -25,9 +25,6 @@
    * @abstract
     */
 bcdui.core.Status = class
-/**
- * @lends bcdui.core.Status.prototype
- */
 {
   constructor() {}
 
@@ -72,9 +69,6 @@ bcdui.core.Status = class
    * see {@link bcdui.core.AbstractExecutable#removeStatusListener} and {@link bcdui.core.StatusListener}
     */
 bcdui.core.StatusEvent = class
-/**
- * @lends bcdui.core.StatusEvent.prototype
- */
 {
 
   /**
@@ -135,9 +129,6 @@ bcdui.core.StatusEvent = class
    * A StatusListener is informed by DataProviders (more precisely by {@link bcdui.core.AbstractExecutable AbstractExecutables}) about status changes, becoming ready is the most important.
     */
 bcdui.core.StatusListener = class
-/**
- * @lends bcdui.core.StatusListener.prototype
- */
 {
   constructor() {}
 

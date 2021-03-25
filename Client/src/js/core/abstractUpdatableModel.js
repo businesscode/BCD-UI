@@ -30,9 +30,7 @@
  */
 
 bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.core.AbstractUpdatableModel.prototype
- */
+
 {
   constructor(args)
     {
@@ -227,9 +225,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
  *   class.
  */
 bcdui.core.ModelUpdaterReference = class
-/**
- * @lends bcdui.core.ModelUpdaterReference.prototype
- */
+
 {
   /**
    * @private
@@ -270,9 +266,6 @@ bcdui.core.ModelUpdaterReference = class
  */
 
 bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
-/**
- * @lends bcdui.core._ModelBeingUpdated.prototype
- */
 {
   /**
    * @override

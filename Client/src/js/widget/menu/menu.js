@@ -23,9 +23,6 @@
  * @namespace bcdui.widget.menu
  */
 bcdui.widget.menu.Menu = class
-/**
- * @lends bcdui.widget.menu.Menu.prototype
- */
 {
   /**
    * @param args
@@ -86,9 +83,6 @@ bcdui.widget.menu.Menu = class
  *  MenuContainer
  */
  bcdui.widget.menu.MenuContainer = class
-/**
- * @lends bcdui.widget.menu.MenuContainer.prototype
- */
 {
   /**
    * @constructs
@@ -233,9 +227,6 @@ bcdui.widget.menu.Menu = class
  * Menu
  */
  bcdui.widget.menu.MenuItem = class extends bcdui.widget.menu.MenuContainer
- /**
-   * @lends bcdui.widget.menu.MenuItem.prototype
-   */
   {
   /**
    * @constructs
