@@ -15,9 +15,6 @@
 */
 "use strict";
 bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
-    /**
-     * @lends bcdui.core.HTML2XMLDataProvider.prototype
-     */
     {
 
       /**

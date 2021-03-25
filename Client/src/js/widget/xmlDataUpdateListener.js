@@ -22,9 +22,6 @@
  * @type {bcdui.widget.XMLDataUpdateListener}
  */
 bcdui.widget.XMLDataUpdateListener = class
-/**
- * @lends bcdui.widget.XMLDataUpdateListener.prototype
- */
 {
   /**
    * @abstract

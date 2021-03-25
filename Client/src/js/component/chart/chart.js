@@ -25,9 +25,6 @@
  * @extends bcdui.core.DataProvider
  */
 bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.component.chart.Chart.prototype
- */
 {
   //***********************************************
   // Constants for available chart types

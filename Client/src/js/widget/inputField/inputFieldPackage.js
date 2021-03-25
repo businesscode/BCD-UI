@@ -1537,9 +1537,6 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
      * @private
      */
   XMLListener: class extends bcdui.widget.XMLDataUpdateListener
-    /**
-     * @lends bcdui.widget.inputField.XMLListener.prototype
-     */
     {
       updateValue()
         {

@@ -438,9 +438,6 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
      * @private
      */
     XMLListener: class extends bcdui.widget.XMLDataUpdateListener
-    /**
-     * @lends bcdui.widget.multiSelect.XMLListener.prototype
-     */
     {
       updateValue(evtSrc)
         {

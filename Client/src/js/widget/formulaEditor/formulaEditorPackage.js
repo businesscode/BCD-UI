@@ -834,10 +834,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLListener: class extends bcdui.widget.XMLDataUpdateListener
-        /**
-         * @lends bcdui.widget.formulaEditor.XMLListener.prototype
-         */        
+    XMLListener: class extends bcdui.widget.XMLDataUpdateListener    
         {
           updateValue()
             {
@@ -854,10 +851,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
      * @extends bcdui.widget.XMLDataUpdateListener
      * @private
      */
-    XMLVariablesListener: class extends bcdui.widget.XMLDataUpdateListener
-        /**
-         * @lends bcdui.widget.formulaEditor.XMLVariablesListener.prototype
-         */        
+    XMLVariablesListener: class extends bcdui.widget.XMLDataUpdateListener     
         {
           constructor(){}
 

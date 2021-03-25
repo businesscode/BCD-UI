@@ -23,7 +23,6 @@ bcdui.widget.notifications = Object.assign(bcdui.widget.notifications,
 {});
 
 bcdui.widget.notifications.Notificator = class
-/** @lends bcdui.widget.notifications.Notificator.prototype */
 {
   /**
    * @classdesc

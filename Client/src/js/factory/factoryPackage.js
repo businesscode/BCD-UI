@@ -973,9 +973,6 @@ bcdui.factory = Object.assign(bcdui.factory,
 
 
 bcdui.factory.SymLink = class
-/**
- * @lends bcdui.factory.SymLink.prototype
- */
 {
 
   /**

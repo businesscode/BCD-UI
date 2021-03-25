@@ -32,9 +32,6 @@
  * Scorecard
  */
 bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
-/**
- * @lends bcdui.component.scorecard.ScorecardModel.prototype
- */
 {
   /* This class represents a Scorecard. The process is:
     * <pre>

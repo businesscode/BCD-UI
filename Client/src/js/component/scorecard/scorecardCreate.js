@@ -49,7 +49,6 @@ bcdui.component = Object.assign(bcdui.component,
 });
 
 bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
-/** @lends bcdui.component.scorecard.Scorecard.prototype */
 {
   /**
    * @classdesc
