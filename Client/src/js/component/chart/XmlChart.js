@@ -43,7 +43,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   constructor(args)
   { 
      var bcdPreInit = args ? args.bcdPreInit : null;
-      super(jQuery.extend(args, {
+      super(Object.assign(args, {
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);

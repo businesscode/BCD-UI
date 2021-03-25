@@ -40,10 +40,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    */
   constructor(args)
   {
-    args = jQuery.extend({parameters: {paramModel: args.config}}, args);
+    args = Object.assign({parameters: {paramModel: args.config}}, args);
     super(args);
     this.config = args.config;
-    this.userOptions = jQuery.extend(true, {}, bcdui.component.chart.ChartEchart.OPTIONS, args.options);
+    this.userOptions = Object.assign(true, {}, bcdui.component.chart.ChartEchart.OPTIONS, args.options);
   }
 
   /**
@@ -684,7 +684,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     opts = merge(opts, this.userOptions);
 
     // link contextMenu
-    var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? jQuery.extend({}, opts.on.detailsmenu) : null;
+    var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? Object.assign({}, opts.on.detailsmenu) : null;
 
     if (customOnContextMenu != null) {
       delete opts.on.detailsmenu; // remove it to avoid event calling issues
@@ -711,7 +711,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       , tableMode : false
       , inputModel : new bcdui.core.ModelWrapper({
           chain : finalChain
-        , parameters : jQuery.extend(customOnContextMenu.parameters, {bcdChartGotDetails: bcdChartGotDetails, targetHtml: this.targetHtml})
+        , parameters :  Object.assign(customOnContextMenu.parameters, {bcdChartGotDetails: bcdChartGotDetails, targetHtml: this.targetHtml})
         })
       });
       

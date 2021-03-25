@@ -30,7 +30,7 @@
  * 
   * @namespace bcdui.factory
  */
-jQuery.extend(bcdui.factory, 
+bcdui.factory = Object.assign(bcdui.factory, 
 /** @lends bcdui.factory */
 {
 
