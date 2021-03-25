@@ -26,9 +26,6 @@
  * @type {bcdui.component.exports.PDFExport}
  */
 bcdui.component.exports.PDFExport = class
-/**
- * @lends bcdui.component.exports.PDFExport.prototype
- */
 {
 
   /**

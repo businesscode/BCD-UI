@@ -31,9 +31,6 @@
    * @extends bcdui.core.AbstractUpdatableModel
    */
 bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
-/**
- * @lends bcdui.core.StaticModel.prototype
- */
 {
 
   /**

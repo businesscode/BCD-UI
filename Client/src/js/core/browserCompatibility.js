@@ -532,9 +532,6 @@ if (bcdui.browserCompatibility.isIE) {
    * XSLTProcessor will complain when using it as a parameter to a stylesheet.
    */
   bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments = class
-  /**
-   * @lends bcdui.core.browserCompatibility.ie.XHRwithFreeThreadedDocuments.prototype
-   */
   {
 
     constructor(args)

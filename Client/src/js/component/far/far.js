@@ -19,7 +19,6 @@
  * A FAR component
  */
 bcdui.component.far.Far = class
-/** @lends bcdui.component.far.Far.prototype */
 {
   /**
    * events fired on (or on a child of) the targetHtml
