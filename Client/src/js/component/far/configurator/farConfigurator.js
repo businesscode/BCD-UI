@@ -260,7 +260,7 @@
 /**
  * @namespace bcdui.component.far
  */
-jQuery.extend(bcdui.component.far.farConfigurator,
+bcdui.component.far.farConfigurator = Object.assign(bcdui.component.far.farConfigurator,
 /** @lends bcdui.component.far.farConfigurator */
 {
   /**

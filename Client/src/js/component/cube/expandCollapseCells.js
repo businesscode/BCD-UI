@@ -15,7 +15,7 @@
 */
 "use strict";
 
-jQuery.extend(bcdui.component.cube.expandCollapse,
+bcdui.component.cube.expandCollapse = Object.assign(bcdui.component.cube.expandCollapse,
 /** @lends bcdui.component.cube.expandCollapse */
 {
   _init: function(htmlElement) {

@@ -36,7 +36,7 @@
  * A namespace for the BCD-UI balloon widget.
  * @namespace bcdui.widgetNg.commons.balloon
  */
-jQuery.extend(bcdui.widgetNg.commons.balloon,
+bcdui.widgetNg.commons.balloon = Object.assign(bcdui.widgetNg.commons.balloon,
 /** @lends bcdui.widgetNg.commons.balloon */
 {
   /**
@@ -343,7 +343,7 @@ bcdui.widgetNg.commons.balloon.messagesToXML = function(messagesArray, tooltipSt
  * @namespace bcdui.widgetNg.utils.sorting
  * @private
  */
-jQuery.extend(bcdui.widgetNg.utils.sorting,
+bcdui.widgetNg.utils.sorting = Object.assign(bcdui.widgetNg.utils.sorting,
 /** @lends bcdui.widgetNg.utils.sorting */
 {
   /**

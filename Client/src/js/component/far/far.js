@@ -43,7 +43,7 @@ bcdui.component.far.Far = class
   constructor(args){
     const self = this;
     // enhance arguments
-    this.options = jQuery.extend(true,{},args);
+    this.options = Object.assign(true,{},args);
     // business component id to read configuration, may be ambiguous
     this.options.componentId = this.options.componentId || "far";
     this.options.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
@@ -336,7 +336,7 @@ bcdui.component.far.Far = class
  * enhancement DSL adapter utility : far-config to enhanced configuration
  * @namespace
  */
-jQuery.extend(bcdui.component.far.enhancer,
+bcdui.component.far.enhancer = Object.assign(bcdui.component.far.enhancer,
 /** @lends bcdui.component.far.enhancer */    
 {
   /**
@@ -358,7 +358,7 @@ jQuery.extend(bcdui.component.far.enhancer,
    * @public
    */
   createEnhancedConfiguration : function(args){
-    var enhancerParams = jQuery.extend(true,{},args,{
+    var enhancerParams = Object.assign({},args,{
       chain : args.chain || bcdui.contextPath + "/bcdui/js/component/far/config-enhancer.xslt",
       inputModel : args.config,
       parameters : {

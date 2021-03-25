@@ -94,7 +94,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
     this.customParameterModelId = args.customParameterModelId || args.customParameterModel || args.customParameter;
     this.scorecardRefDataModelId = args.config || args.metaDataModelId || args.metaDataModel;
     this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    this.customParameters = jQuery.extend({}, args.parameters);
+    this.customParameters = Object.assign({}, args.parameters);
 
     // Internal data
     this.internalPrefix = this.id+"_bcdImpl"; // Prefix for internal models

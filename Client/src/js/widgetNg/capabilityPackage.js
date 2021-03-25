@@ -27,7 +27,7 @@
  * @namespace bcdui.browserCompatibility
  * @private
  */
-jQuery.extend(bcdui.browserCompatibility, {
+bcdui.browserCompatibility = Object.assign(bcdui.browserCompatibility, {
   /**
    * internal representation of features, which is queried prior to Modernizr
    * @private

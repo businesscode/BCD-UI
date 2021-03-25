@@ -35,7 +35,7 @@
  * @namespace bcdui.component.chart
  */
 
-jQuery.extend(bcdui.component.chart, 
+bcdui.component.chart = Object.assign(bcdui.component.chart, 
 /** @lends bcdui.component.chart */
 {
   /**
