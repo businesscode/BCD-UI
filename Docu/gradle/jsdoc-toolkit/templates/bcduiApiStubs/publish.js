@@ -76,7 +76,7 @@ function printClass( taffyData, clazz )
   
   var result = "";
   result += "/*"+newLine;
-  result += "  "+clazz.alias+newLine;
+  result += "  "+clazz.longname+newLine;
   result += " */"+newLine;
 
   // This dummy has to come before the clazz comment and it has to have the same name as the member (without the package)
@@ -106,7 +106,7 @@ function printClass( taffyData, clazz )
 
   // Assignment to name with package is needed for Eclipse auto-suggest and for tooltip of functions
   // Assignment to short name is necessary for Eclipse fly-over on constructor and the type-name for the methods
-  result += clazz.alias+" = function(";
+  result += clazz.longname+" = function(";
   if( clazz.params ) {
     clazz.params.filter(function(param){
       if( param.name )
@@ -121,9 +121,9 @@ function printClass( taffyData, clazz )
   }
   result += "){};"+newLine;
   if( clazz.augments )
-    result += clazz.alias+".prototype = Object.create("+clazz.augments+".prototype);"+newLine;
+    result += clazz.longname+".prototype = Object.create("+clazz.augments+".prototype);"+newLine;
 
-  result += clazz.alias+".prototype.constructor = "+clazz.alias+";"+newLine+newLine;
+  result += clazz.longname+".prototype.constructor = "+clazz.longname+";"+newLine+newLine;
 
   // Now print the methods
   var methods = find(taffyData,{ kind: "function", memberof: clazz.longname });
