@@ -180,6 +180,9 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
       this.pendingExecute = false;
       this.setSource(args.source);
     }
+
+  getClassName() {return "bcdui.core.DataProviderHolder";}
+
   /**
    * @private
    */
@@ -409,6 +412,8 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
     super(args );
 
   }
+
+  getClassName() {return "bcdui.core.DataProviderAlias";}
 };
 
 /**
@@ -450,6 +455,9 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
         }
       }));
     }
+
+  getClassName() {return "bcdui.core.DataProviderWithXPath";}
+
   /**
    * @private
    */
@@ -525,6 +533,9 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
             }
           }));
         }
+
+      getClassName() {return "bcdui.core.DataProviderWithXPathNodes";}
+
       /**
        * returns the root-element of the document
        * @private
@@ -610,6 +621,9 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
       }
     }));
   }
+
+  getClassName() {return "bcdui.core.DataProviderWithXPathNodes";}
+
   /**
    * returns the root-element of the document
    * @private
@@ -756,6 +770,9 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
     this.addStatusListener(this._statusTransitionHandler.bind(this));
     
   }
+
+  getClassName() {return "bcdui.core.RequestDocumentDataProvider";}
+
   /**
    * @private
    */
@@ -878,6 +895,9 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
     this.htmlElementId = args.htmlElementId;
     this.attributeName = args.attributeName;
   }
+
+  getClassName() {return "bcdui.core.DataProviderHtmlAttribute";}
+
   /**
    * @inheritsdoc
    */
@@ -941,6 +961,9 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
 
     this.setStatus(this.initializedStatus);
   }
+
+  getClassName() {return "bcdui.core.StringDataProvider";}
+
   /**
    * @inheritdoc
    */
@@ -1019,6 +1042,9 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
       var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
       this.setStatus( this.doAllwaysRefresh ? newStatus : this.initializedStatus );
     }
+
+  getClassName() {return "bcdui.core.JsDataProvider";}
+
   /**
    * Calls the provided function
    * is then returned by "getData".
@@ -1065,7 +1091,7 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
     constructor(/* object */ args)
       {
         super( args);
-        this.callback = args.callback;
+        this.callback = args.callback || this.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
         // object is initialized
@@ -1076,6 +1102,9 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
         this.transformedStatus = new bcdui.core.status.TransformedStatus();
         this.setStatus( this.initializedStatus );
       }
+
+    getClassName() {return "bcdui.core.AsyncJsDataProvider";}
+
     /**
      * Calls the provided function which in turn set to .setData()
      *
