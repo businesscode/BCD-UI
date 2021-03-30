@@ -1065,7 +1065,7 @@ bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
     constructor(/* object */ args)
       {
         super( args);
-        this.callback = args.callback;
+        this.callback = args.callback || this.callback;
         this.value = null;
         this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
         // object is initialized
