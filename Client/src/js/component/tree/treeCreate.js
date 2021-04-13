@@ -69,14 +69,14 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
         if (bcdPreInit)
           bcdPreInit.call(this);
         this.chain = this._render.bind(this);
+        this.enhancedConfiguration = enhancedConfiguration;
+        this.statusModel = statusModel;
       }
     });
 
     this.id = id;
     this.targetHtml = targetHtml;
-    this.statusModel = statusModel;
     this.config = config;
-    this.enhancedConfiguration = enhancedConfiguration;
 
     this.persistent = true;
     if (args.persistent === false)
