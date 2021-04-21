@@ -199,6 +199,7 @@ public class WrsPagination
     sql.append( wrq2Sql.generateFromClause() );
     sql.append( wrq2Sql.generateWhereClause( boundVariables ) );
     sql.append( wrq2Sql.generateGroupingClause( boundVariables) );
+    sql.append( wrq2Sql.generateHavingClause (boundVariables) );
 
 
     sql.append(") bcdBase "); // Tera needs this, Oracle accepts it
