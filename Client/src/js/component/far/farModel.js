@@ -36,10 +36,7 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-          // checks
-          args = Object.assign({}, args, {
-            callback : this._execute.bind(this)
-          });
+          this.callback = this._execute.bind(this)
           if(!(args.config || args.enhancedConfig)){
             throw "Requires either .config or .enhancedConfig parameter to be provided.";
           }
