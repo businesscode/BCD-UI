@@ -76,28 +76,50 @@ function printClass( taffyData, clazz )
 {
   var result = "";
 
-  // Create @typdef
+  // Create the @typdef
   result += "/**" + newLine(0) + "@typedef " + clazz.longname + newLine(0) + "*/" + newLine(0);
 
   result += newLine(0);
 
-  // Create ClassDoku
-  // Doku->  clazz.comment
-  if (clazz.description)
-    result += "/**" + newLine(0) + clazz.description + newLine(0) + "*/" + newLine(0);
+  // Add the documentation for the class
+  if (clazz.classdesc && clazz.description){
+    result += "/**" + newLine(1);
 
-  // Create Class
-  // class + clazz.longname + {
-  result += clazz.longname + " = class {" + newLine(1);
+    if( clazz.classdesc )
+      result += clazz.classdesc + newLine(1);
+    if (clazz.description)
+      result += clazz.description + newLine(0);
+    if (clazz.examples)
+      result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+    result += "*/" + newLine(0)
+  }
 
-  // Constructor Doku
+  // The name of the class is stored in the variable .longname.
+  // Some longnames contain a ~ which needs to be removed
+  if (clazz.longname.includes("~")){
+    var name_adjusted = clazz.longname.split("~")[1]
+  }else{
+    var name_adjusted = clazz.longname
+  }
+
+  // Start: Print out Class
+  // Print the name...
+  result += name_adjusted + " = class ";
+
+  // ...add extends for this class, stored in .augments
+  if (clazz.augments)
+    result += "extends " + clazz.augments[0];
+
+  result += "{" + newLine(1);
+
+  // ... add Constructor parameter
   if (clazz.params && clazz.params.length !== 0){
     result += "/**" + newLine(1);
     result += printCommentParams(clazz.params, clazz, "Constructor");
     result += "  */" + newLine(1);
   }
 
-  // Constructor
+  // ... add the Constructor
   result += "constructor("
   if(clazz.params && clazz.params.length !== 0){
     clazz.params.forEach( function(param) {
@@ -109,9 +131,8 @@ function printClass( taffyData, clazz )
 
   result += "){}" + newLine(1);
 
-  // For Each Method, create Method
-  // Now print the methods
-  var methods = find(taffyData,{ kind: "function", memberof: clazz.longname });
+  // ...for Each Method, print the Method
+  var methods = find(taffyData,{ kind: "function", memberof: name_adjusted });
   methods = methods.filter( function(m){ return m.access !== "private" } );
   methods.sort( function(m1, m2){ return m1.name > m2.name } );
 
@@ -120,20 +141,18 @@ function printClass( taffyData, clazz )
     result += printMethod_forClasses(method, methodIdx, clazz, method.name) + newLine(1);
   });
 
-/*  // Print Methods that are inherited
-  var ownMethods = methods.filter( function(m){ return m.inherits } );
-  ownMethods.forEach( function(method, methodIdx) {
-    result += printMethod(method, methodIdx, clazz, method.name) + newLine(1);
+  // TODO note in comment that the method is inherited
+  var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
+  inheritedMethods.forEach( function(method, methodIdx) {
+    result += printMethod_forClasses(method, methodIdx, clazz, method.name ) + newLine(1)
   });
-*/
 
-  // End Class
+  // ... and close the bracket
   result = result.slice(0, -2);
   result += "}" + newLine(0) + newLine(0) + newLine(0);
 
   return result;
 }
-
 
 /**
  * Print a method docu block
@@ -209,7 +228,7 @@ function printNamespaces( taffyData, opts )
       });
       throw("namespace '" + namespace.longname + "' is defined multiple times! " + errorMsg);
     }
-    
+
     result += newLine(0) + "/**" + newLine(0);
     if( namespace.description )
       result += stringCleaner(namespace.description) + newLine(0);
@@ -218,12 +237,13 @@ function printNamespaces( taffyData, opts )
     if( namespace.longname.indexOf(".") === -1 )
       result += "var ";
     result += namespace.longname + " = {};" + newLine(0) + newLine(0);
-    
+
     result += printProperties( taffyData, namespace.longname );
 
     var methods = find(taffyData,{ kind: "function", memberof: namespace.longname });
     methods = methods.filter( function(m){ return m.access !== "private" } );
     methods.sort( function(m1, m2){ return m1.name > m2.name } );
+
     methods.forEach ( function( method, methodIdx ) {
       result += newLine(0) + printMethods_forNamespace(method, methodIdx, namespace, namespace.longname);
     })
