@@ -102,7 +102,7 @@ function printClass( taffyData, clazz )
     var name_adjusted = clazz.longname
   }
 
-  // Start: Print out Class
+  // Start -> Print out Class
   // Print the name...
   result += name_adjusted + " = class ";
 
@@ -131,24 +131,24 @@ function printClass( taffyData, clazz )
 
   result += "){}" + newLine(1);
 
-  // ...for Each Method, print the Method
+  // ...for each method, print the method
   var methods = find(taffyData,{ kind: "function", memberof: name_adjusted });
   methods = methods.filter( function(m){ return m.access !== "private" } );
   methods.sort( function(m1, m2){ return m1.name > m2.name } );
-
   var ownMethods = methods.filter( function(m){ return !m.inherits } );
   ownMethods.forEach( function(method, methodIdx) {
     result += printMethod_forClasses(method, methodIdx, clazz, method.name) + newLine(1);
   });
 
-  // TODO note in comment that the method is inherited
+  // ... add all methods that are inherited from the parent class
   var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
   inheritedMethods.forEach( function(method, methodIdx) {
+    // TODO note in comment that the method is inherited
     result += printMethod_forClasses(method, methodIdx, clazz, method.name ) + newLine(1)
   });
 
   // ... and close the bracket
-  result = result.slice(0, -2);
+  result = result.slice(0, -2) + newLine(0);
   result += "}" + newLine(0) + newLine(0) + newLine(0);
 
   return result;
@@ -164,14 +164,16 @@ function printClass( taffyData, clazz )
 function printMethod_forClasses(method, methodIdx, clazz, name)
 {
   var result = ""
+
+  // Add the documentation for the method, but only if the documentation actually exists.
   if (method.description || (method.params && method.params.length !== 0)) {
     result = "/**" + newLine(1);
     result += "<p><b>@see</b> <a href='https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name+"'>Online help</a></p>"+newLine(0);
 
-    // Create Doku
     if (method.description)
       result += method.description + newLine(1);
 
+    // ... add the params
     result += printCommentParams(method.params, clazz, method);
 
     if (method.inherits) result += "@inherits " + method.inherits + newLine(1);
@@ -188,9 +190,7 @@ function printMethod_forClasses(method, methodIdx, clazz, name)
     result += "*/" + newLine(1);
   }
 
-  // Create Function
-  // For each Param, add to Function
-
+  // Create the method
   result += name + "(";
   if (method.params){
     method.params.forEach(function (param){
@@ -202,6 +202,7 @@ function printMethod_forClasses(method, methodIdx, clazz, name)
     }
   }
 
+  // Close the bracket
   result += "){}";
 
   return result;
@@ -313,7 +314,6 @@ function printMethods_forNamespace(method, methodIdx, clazz, tempAlias)
 
   return result;
 }
-
 
 /**
  * Print the properties of an object
