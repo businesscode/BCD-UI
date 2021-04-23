@@ -143,7 +143,7 @@ function printClass( taffyData, clazz )
   // ... add all methods that are inherited from the parent class
   var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
   inheritedMethods.forEach( function(method, methodIdx) {
-    // TODO note in comment that the method is inherited
+
     result += printMethod_forClasses(method, methodIdx, clazz, method.name ) + newLine(1)
   });
 
