@@ -12,7 +12,6 @@
     "d3-format":          "@version",
     "jquery":             "git+https://github.com/jquery/jquery#@version",
     "jquery-ui-dist":     "@version",
-    "jquery-mobile":      "git+https://github.com/jquery/jquery-mobile#@version",
     "webcomponents":      "git+https://github.com/webcomponents/webcomponentsjs#@version",
     "handsontable":       "@version",
     "nouislider":         "@version",

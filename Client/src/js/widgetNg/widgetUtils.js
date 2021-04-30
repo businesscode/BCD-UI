@@ -201,26 +201,6 @@
     },
 
     /**
-     * triggers jquerymobile.selectmenu("refresh") to update UI overlay,
-     * does nothing if jquerymobile is not enabled
-     *
-     * @private
-     */
-    _jqmRefresh : function(elId, doForce){
-      if(window.jQuery && window.jQuery.mobile){
-        var w = jQuery("select#" + elId);
-        // if .selectmenu widget is available
-        if(w.selectmenu !== undefined){
-          // pre-initialize if not done yet
-          if ( w.data("mobile-selectmenu") === undefined ) {
-            w.selectmenu();
-          }
-          w.selectmenu("refresh", doForce||false);
-        }
-      }
-    },
-
-    /**
      * this function shall be called in order to accept value from GUI control into the model,
      * also we handle a placeholder here, since this is considered to be the API to sync new GUI input
      * @private

@@ -109,20 +109,6 @@
         return;
       }
 
-      // in case of jQM - install refresher and some workarounds
-      if(typeof jQuery != "undefined"){
-        controlEl.on(bcdui.widgetNg.utils.EVENT.SYNC_READ, bcdui.widgetNg.utils._jqmRefresh.bind(undefined,controlEl.get(0).id));
-        var _loadingDiv = jQuery("<div></div>").css({
-          "position":"relative",
-          "width":"16px",
-          "height":"16px"
-        }).addClass("statusNotReady");
-        // workaround for jqm, as it overlays our native SELECT with his custom layer
-        rootContainer.data("__LOADING_INDICATOR__", _loadingDiv.get(0));
-        this.setVisible(false);
-        rootContainer.parent().get(0).appendChild(_loadingDiv.get(0));
-      }
-
       // handle label creation before appending control
       this._createLabel(controlEl.attr("id"));
 
@@ -337,8 +323,6 @@
           }
           // apply i18n
           bcdui.i18n.syncTranslateHTMLElement({elementOrId:el});
-          // respect jQueryMobile overlays
-          bcdui.widgetNg.utils._jqmRefresh(el.id, true);
           // re-validate widget
           bcdui.widgetNg.utils._validateElement(el);
           // un/set bcd-singleselect-empty class if has no options
