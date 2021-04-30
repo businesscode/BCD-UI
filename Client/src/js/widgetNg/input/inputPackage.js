@@ -300,7 +300,7 @@
      */
     _createInputControl: function(args, config){
       
-      var el = jQuery("<input class='form-control' />");
+      var el = jQuery("<input class='form-control'></input>");
 
       el.attr("id", config.inputElementId);
       // the hints are handled by balloons

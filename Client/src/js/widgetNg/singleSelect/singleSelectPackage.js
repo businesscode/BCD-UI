@@ -272,7 +272,7 @@
 
       // used within forEachFunc loop to detect the first run for the "please select" option
       var optionContextScope = {
-          captionNode : bcdui.i18n.isI18nKey(this.options.placeholder) ? jQuery("<option value=''/>").attr("bcdTranslate", this.options.placeholder) : jQuery("<option value=''/>").text(this.options.placeholder),
+          captionNode : bcdui.i18n.isI18nKey(this.options.placeholder) ? jQuery("<option value=''></option>").attr("bcdTranslate", this.options.placeholder) : jQuery("<option value=''></option>").text(this.options.placeholder),
           isFirst: true,
           hasSelectedValue: false
       }
@@ -437,7 +437,7 @@
      * @private
      */
     _ntv_createInputControl: function(args, config){
-      var el = jQuery("<select class='form-control' />");
+      var el = jQuery("<select class='form-control'></select>");
       el.attr("id", config.htmlElementId);
       // the hints are handled by balloons
       el.attr("bcdHint", args.hint);

@@ -2499,7 +2499,7 @@ bcdui.util.namespace("bcdui.widget",
         var inputText = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) :  e.getAttribute("caption");
         inputText = e.getAttribute("caption") == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : inputText;  
         if ((showAll && ! isCurrentlyFiltered) || (isEnabled && ! isCurrentlyFiltered) || (! showAll && ! isFiltered && ! isCurrentlyFiltered))
-          multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "/><span" + cssClass + ">" +   bcdui.widget._getSingleFilterOption(inputText) + "</span></div>";
+          multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "></input><span" + cssClass + ">" +   bcdui.widget._getSingleFilterOption(inputText) + "</span></div>";
       });
       multiSelect += "</form>";
       jQuery(targetHtml).find(".bcdFilterMultiSelect").append(multiSelect);
@@ -3301,7 +3301,7 @@ bcdui.util.namespace("bcdui.widget",
                jQuery(this).parent().find('.ui-dialog-title').attr("bcdTranslate", args.title).bcdTranslate();
              }
              delegate.open({
-               targetHtml : jQuery("<div/>").appendTo(this)
+               targetHtml : jQuery("<div></div>").appendTo(this)
              });
            }
          });
@@ -3311,7 +3311,7 @@ bcdui.util.namespace("bcdui.widget",
          args.width = _recalc(args.width,  document.documentElement.clientWidth);
          args.height = _recalc(args.height,  document.documentElement.clientHeight);
          
-         jQuery("<div/>").appendTo(bcdui.util.getSingletonElement("bcdui_dialog").empty()).dialog(args);
+         jQuery("<div></div>").appendTo(bcdui.util.getSingletonElement("bcdui_dialog").empty()).dialog(args);
        });
      }
 }); // namespace

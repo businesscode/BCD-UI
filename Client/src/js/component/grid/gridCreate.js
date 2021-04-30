@@ -2301,7 +2301,7 @@ bcdui.component.grid.Grid.prototype = Object.create( bcdui.core.Renderer.prototy
    * @private
    */
   _createHtmlStructure: { writable: true, configurable: true, enumerable: true, value: function( args ) {
-    var table = jQuery("<table class='bcdGrid'/>");
+    var table = jQuery("<table class='bcdGrid'></table>");
     table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
     table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
     table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");

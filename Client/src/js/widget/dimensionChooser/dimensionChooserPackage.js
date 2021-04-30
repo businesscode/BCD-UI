@@ -29,7 +29,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
   init: function( htmlElement ){
 
     if (htmlElement.getAttribute("bcdLabel")){
-      var labelEl = jQuery("<label/>").appendTo(htmlElement);
+      var labelEl = jQuery("<label></label>").appendTo(htmlElement);
       bcdui.widget._initLabel(labelEl, null, htmlElement.getAttribute("bcdLabel"));
     }
 
@@ -59,7 +59,7 @@ bcdui.util.namespace("bcdui.widget.dimensionChooser",
     jQuery(htmlElement).append(
       "<table><tr" + ((multiSelect != "check") ? " style='display:none'>" : ">")
     + "<td id='" + id + "_expandMulti'><span class='bcdMultiSelect'><span class='radio'><form><span>"
-    + "<input type='checkbox' title='" + caption + "' onclick='bcdui.widget.dimensionChooser._toggleMulti(this);'/>"
+    + "<input type='checkbox' title='" + caption + "' onclick='bcdui.widget.dimensionChooser._toggleMulti(this);'></input>"
     + "<span>" + caption + "</span></span></form></span></span></td></tr>"
     + "<tr" + ((multiSelect != "true") ? " style='display:none'>" : ">")
     + "<td id='" + id + "_multiSelectBox'"

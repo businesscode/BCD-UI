@@ -211,7 +211,7 @@ bcdui.util.namespace("bcdui.widget.detailView",
     if(!containerElement){
       var containerElementId = "bcd_dtl_vw_container"+bcdui.factory.objectRegistry.generateTemporaryId();
       args.targetHtmlElement.setAttribute("bcd-detail-view-container-id", containerElementId);
-      containerElement = jQuery("<div id='"+containerElementId+"' class='bcd-detail-view-container'/>").appendTo(document.body);
+      containerElement = jQuery("<div id='"+containerElementId+"' class='bcd-detail-view-container'></div>").appendTo(document.body);
       // decorate waiting - it will be anyway removed during rendering
       containerElement.append(jQuery("<div class='statusNotReady'>&#160;</div>"));
     }

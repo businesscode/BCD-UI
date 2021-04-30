@@ -64,16 +64,16 @@
       // wrapping element to render the slider into
       this.element.addClass("bcd-slider");
 
-      jQuery("<span class='bcdLoading'/>").appendTo(this.element); // use element to indicate loading, rather than class on targetHtml
+      jQuery("<span class='bcdLoading'></span>").appendTo(this.element); // use element to indicate loading, rather than class on targetHtml
 
       if (!this.options.labelRenderingFunctionTargetHtml) {
-        this.options.labelRenderingFunctionTargetHtml = jQuery("<div class='bcd-slider-label'/>").appendTo(this.element); // render the state of the widget
+        this.options.labelRenderingFunctionTargetHtml = jQuery("<div class='bcd-slider-label'></label>").appendTo(this.element); // render the state of the widget
       } else {
         this.options.labelRenderingFunctionTargetHtml = jQuery(this.options.labelRenderingFunctionTargetHtml);
       }
 
       // element containing the sliderElement, we need a wrapping element for that
-      this.sliderTargetHtml = jQuery("<div/>").appendTo(this.element);
+      this.sliderTargetHtml = jQuery("<div></div>").appendTo(this.element);
       // this element is initalized with .slider() jQueryUI Widget
       this.sliderElement = null;
 
@@ -96,7 +96,7 @@
               this.sliderElement.remove(); // explicitely destroy widget
               rewriteModel = true;
             }
-            this.sliderElement = jQuery("<div/>").appendTo(targetHtml.empty()); // reconstruct DOM entirely
+            this.sliderElement = jQuery("<div></div>").appendTo(targetHtml.empty()); // reconstruct DOM entirely
 
             // re/read bound options
             if (this.options.optionsModelXPath) {

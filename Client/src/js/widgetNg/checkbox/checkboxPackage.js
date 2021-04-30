@@ -189,7 +189,7 @@
      */
     _createInputControl: function(){
 
-      var el = jQuery("<input />"); // do not attach .form-check-input since our parent must be .form-check which we cant force here
+      var el = jQuery("<input></input>"); // do not attach .form-check-input since our parent must be .form-check which we cant force here
 
       var opts = this.options;
       el.attr("id","inputchk_" + opts.id);

@@ -50,7 +50,7 @@ bcdui.widget.notifications.Notificator = bcdui._migPjs._classCreate( null,
       this.contentContainer = this.container = jQuery("#" + this.options.targetHtmlElementId).hide();
     }else{
       this.container = jQuery("<div class='bcd-widget-notificator-container'><span class='bcd-widget-notificator-container-closer'>&#160;</span></div>").hide().appendTo( document.body );
-      this.contentContainer = jQuery("<div/>").appendTo( this.container );
+      this.contentContainer = jQuery("<div></div>").appendTo( this.container );
     }
 
     // bind mouse over/out to take over control over auto-hide

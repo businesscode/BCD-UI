@@ -31,7 +31,7 @@ bcdui.util.namespace("bcdui.widget.multiSelect",
   init: function(e)
     {
       if (e.getAttribute("bcdLabel")){
-        var labelEl = jQuery("<label/>").appendTo(e);
+        var labelEl = jQuery("<label></label>").appendTo(e);
         bcdui.widget._initLabel(labelEl, e.getAttribute("bcdid"), e.getAttribute("bcdLabel"));
       }
 

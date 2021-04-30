@@ -599,5 +599,5 @@ bcdui.util.namespace("bcdui.component.exports",
       form.submit();
     });
   },
-  exportToExcelTemplateFormTpl: doT.compile("<form id='{{=it.id}}' method='post'><input type='hidden' name='data' value=''/><input type='hidden' name='pageHash' value=''/></form>")
+  exportToExcelTemplateFormTpl: doT.compile("<form id='{{=it.id}}' method='post'><input type='hidden' name='data' value=''></input><input type='hidden' name='pageHash' value=''></input></form>")
 });

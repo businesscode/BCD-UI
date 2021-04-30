@@ -85,10 +85,10 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
 
       // Should it be an input?
       if( this.config.read("/*/txtnav:TextLine/@input") === "false"  ) {
-        this.targetHtml.append("<span class='bcdSpeechOutput' title='Click microphone to speak'/>");
+        this.targetHtml.append("<span class='bcdSpeechOutput' title='Click microphone to speak'></span>");
       } else {
         // Leave field or enter
-        this.targetHtml.append("<input class='bcdSpeechOutput'/>")
+        this.targetHtml.append("<input class='bcdSpeechOutput'></input>")
           .change( evt => this.interpret(evt.target.value) )
           // Only IE needs an explicit enter detection to trigger onchange
           .keypress( evt => { if(bcdui.browserCompatibility.isIE && evt.keyCode===13) this.interpret(evt.target.value) } );

@@ -33,15 +33,15 @@ bcdui.util.namespace("bcdui.widget.formulaEditor",
     var doValCheckbox = containerHtmlElement.getAttribute("bcdValidateVariableNamesCheckbox") == "true";
 
     jQuery(containerHtmlElement).append(
-        "<div style='zoom:0;overflow:hidden;clear:both;height:0px;width:0px;'/>"
+        "<div style='zoom:0;overflow:hidden;clear:both;height:0px;width:0px;'></div>"
       + "<label" + bcdui.widget._domFromBcdAttribute(containerHtmlElement, "bcdCaption", "bcdTranslate") + ">"
       + bcdui.widget._getBcdAttributeValue(containerHtmlElement, "bcdCaption")
-      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField form-control' /></span>"
+      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField form-control'></input></span>"
       + "<div class='bcdFormulaSkipValidationDiv'"
       + (! doValCheckbox ? " style='display:none'" : "")
       + "><input type='checkbox' class='bcdFormulaSkipValidation checkboxes'"
       + (doValCheckbox ? " checked='true'" : "")
-      + "/><label class='bcdFormulaSkipValidationLabel' bcdTranslate='" + skipVal + "'>" + skipVal + "</label></div>"
+      + "></input><label class='bcdFormulaSkipValidationLabel' bcdTranslate='" + skipVal + "'>" + skipVal + "</label></div>"
     ).addClass("bcdFormulaEditor");
     bcdui.widget._bcdIdToDomId(containerHtmlElement);
     bcdui.i18n.translateHTMLElement({elementOrId:containerHtmlElement});

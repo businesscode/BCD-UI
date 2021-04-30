@@ -71,7 +71,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
     // as self closing elements with jQuery.
 
     if (e.getAttribute("bcdLabel")){
-      var labelEl = jQuery("<label/>").appendTo(e);
+      var labelEl = jQuery("<label></label>").appendTo(e);
       bcdui.widget._initLabel(labelEl, e.getAttribute("bcdid"), e.getAttribute("bcdLabel"));
     }
 
@@ -81,7 +81,7 @@ bcdui.util.namespace("bcdui.widget.inputField",
       + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='new-password'" : "")
       + bcdui.widget._domFromBcdAttribute(e, "bcdTabIndex", "tabindex")
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
-      + "/>"
+      + "></input>"
     ).addClass(e.getAttribute("bcdOptionsModelXPath") ? "bcdInputField bcdComboInputField" : "bcdInputField");
     var htmlElement = jQuery(e).children().last().addClass("form-control").get(0);
     bcdui.widget._moveBcdAttributes(e, htmlElement);

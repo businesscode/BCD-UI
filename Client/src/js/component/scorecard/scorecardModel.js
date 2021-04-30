@@ -336,7 +336,7 @@ bcdui.component.scorecard.ScorecardModel = bcdui._migPjs._classCreate(bcdui.core
                         var valOfBcdGr = col.getAttribute("bcdGr");
                         if( valOfBcdGr)
                           dimSet += " bcdGr='"+valOfBcdGr+"'";
-                          dimSet += (dm && dm.data ? ">"+(dm.nodeValue ? jQuery("<div/>").text(dm.nodeValue).html() : "")+"</C>" : "/>");
+                          dimSet += (dm && dm.data ? ">"+(dm.nodeValue ? jQuery("<div></div>").text(dm.nodeValue).html() : "")+"</C>" : "/>");
                       }
                       dimSetArray.push(dimSet);
                     }

@@ -327,7 +327,7 @@
     createMultiValueInput : function(targetElement){
       var widgetElement = jQuery(targetElement); // this is a proxy-widget element
 
-      targetElement = jQuery(`<div class="${this.options.cssClassPrefix}multi-input-container"/>`).appendTo(jQuery(targetElement).empty());
+      targetElement = jQuery(`<div class="${this.options.cssClassPrefix}multi-input-container"></div>`).appendTo(jQuery(targetElement).empty());
       var self = this;
 
       let inputItemTemplate = doT.compile(`<div class='${this.options.cssClassPrefix}multi-input-item'>

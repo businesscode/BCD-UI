@@ -859,7 +859,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
         var bcdGrNode = col.getAttribute("bcdGr");
         newDims += "<C"+(bcdGrNode!=null?" bcdGr='"+bcdGrNode+"'":"");
         var fc = col.firstChild;
-        newDims += (fc&&fc.nodeValue ? ">"+jQuery("<div/>").text(fc.nodeValue).html()+"</C>":"/>");
+        newDims += (fc&&fc.nodeValue ? ">"+jQuery("<div></div>").text(fc.nodeValue).html()+"</C>":"/>");
       }
       // Let's see whether we are the first with these values
       // We store the dims (with all attributes) and an array for the measures, filled by coming rows with the same dim
@@ -927,7 +927,7 @@ bcdui.util.namespace("bcdui.wrs.wrsUtil",
         for( var mV=0; mV<valueNodesCnt; mV++ ) {
           var meas = measureValues ? measureValues[mV] : null;
           if( meas )
-            wrs += "<C>"+jQuery("<div/>").text(meas).html()+"</C>";
+            wrs += "<C>"+jQuery("<div></div>").text(meas).html()+"</C>";
           else
             wrs += "<C/>";
         }

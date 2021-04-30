@@ -124,7 +124,7 @@
         
         this.element.addClass("form-group");
         
-        const labelElement = $("<label />").attr("for", controlId);
+        const labelElement = $("<label></label>").attr("for", controlId);
         if(this.options.label && this.options.label.startsWith(bcdui.i18n.TAG)){
           labelElement.attr("bcdTranslate", this.options.label);
         } else {

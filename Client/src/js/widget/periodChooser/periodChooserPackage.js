@@ -226,54 +226,54 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
     var buttoStyle = (containerHtmlElement.getAttribute("bcdSuppressButtons") == "true" ? "style='display:none'" : "");
 
     jQuery(containerHtmlElement).append(
-          "<input class='bcdHidden'/>"
+          "<input class='bcdHidden'></input>"
         + "<span class='bcdButton' " + buttoStyle + ">" + caption1 + "</span>"
         + ("<span class='bcdValue'>"
             + (textInput ?
-              ( " <input type='text' class='bcdYear' maxLength='4'/>"
-              + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'/>"
-              + "<input type='text' class='bcdMonth' maxLength='2'/>"
-              + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'/>"
-              + "<input type='text' class='bcdDay' maxLength='2'/>"
+              ( " <input type='text' class='bcdYear' maxLength='4'></input>"
+              + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'></input>"
+              + "<input type='text' class='bcdMonth' maxLength='2'></input>"
+              + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'></input>"
+              + "<input type='text' class='bcdDay' maxLength='2'></input>"
               + (isHourSelectable ?
-                  ( "<input type='text' class='bcdDateTimeDelimiter' readonly='readonly' disabled='disabled' value=' '/>"
-                  + "<input type='text' class='bcdHour' maxLength='2'/>"): "")
+                  ( "<input type='text' class='bcdDateTimeDelimiter' readonly='readonly' disabled='disabled' value=' '></input>"
+                  + "<input type='text' class='bcdHour' maxLength='2'></input>"): "")
               + (isMinuteSelectable ?
-                  ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'/>"
-                  + "<input type='text' class='" + timeClass + "' maxLength='2'/>"): "")
+                  ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'></input>"
+                  + "<input type='text' class='" + timeClass + "' maxLength='2'></input>"): "")
               + (isSecondSelectable ?
-                  ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'/>"
-                  + "<input type='text' class='bcdSecond' maxLength='2'/>"): "")
+                  ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'></input>"
+                  + "<input type='text' class='bcdSecond' maxLength='2'></input>"): "")
               ): "")
             + "</span>"
             + (showClearButton ? "<span class='bcdClearButton'></span>" : "")
           )
         + (isFreeRange ?
-            ("<div class='bcdHr'><hr/></div>"
-            + "<input class='bcdHidden'/>"
+            ("<div class='bcdHr'><hr></hr></div>"
+            + "<input class='bcdHidden'></input>"
             + "<span class='bcdButton' " + buttoStyle + ">" + caption2 + "</span>"
             + ("<span class='bcdValue'>"
               + (textInput ?
-                ( " <input type='text' class='bcdYear' maxLength='4'/>"
-                + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'/>"
-                + "<input type='text' class='bcdMonth' maxLength='2'/>"
-                + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'/>"
-                + "<input type='text' class='bcdDay' maxLength='2'/>"
+                ( " <input type='text' class='bcdYear' maxLength='4'></input>"
+                + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'></input>"
+                + "<input type='text' class='bcdMonth' maxLength='2'></input>"
+                + "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value='-'></input>"
+                + "<input type='text' class='bcdDay' maxLength='2'></input>"
                 + (isHourSelectable ?
-                    ( "<input type='text' class='bcdDateTimeDelimiter' readonly='readonly' disabled='disabled' value=' '/>"
-                    + "<input type='text' class='bcdHour' maxLength='2'/>"): "")
+                    ( "<input type='text' class='bcdDateTimeDelimiter' readonly='readonly' disabled='disabled' value=' '></input>"
+                    + "<input type='text' class='bcdHour' maxLength='2'></input>"): "")
                 + (isMinuteSelectable ?
-                    ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'/>"
-                    + "<input type='text' class='" + timeClass + "' maxLength='2'/>"): "")
+                    ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'></input>"
+                    + "<input type='text' class='" + timeClass + "' maxLength='2'></input>"): "")
                 + (isSecondSelectable ?
-                    ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'/>"
-                    + "<input type='text' class='bcdSecond' maxLength='2'/>"): "")
+                    ( "<input type='text' class='bcdDateDelimiter' readonly='readonly' disabled='disabled' value=':'></input>"
+                    + "<input type='text' class='bcdSecond' maxLength='2'></input>"): "")
                 ): "")
               + "</span>"
             )): ""
           )
-        + (showPrevNextButtons ?("<br/><a href='#' class='bcdPeriodChooserModLeft' onclick='bcdui.widget.periodChooser._incPeriod(-1, this);return false;'></a>&#160;<a href='#' class='bcdPeriodChooserModRight' onclick='bcdui.widget.periodChooser._incPeriod(1, this);return false;'></a>"): "")
-        + (textInput ? ("<div class='bcdHr'><hr/></div><span class='bcdHint'>" + hint + "</span>") : "" )
+        + (showPrevNextButtons ?("<br></br><a href='#' class='bcdPeriodChooserModLeft' onclick='bcdui.widget.periodChooser._incPeriod(-1, this);return false;'></a>&#160;<a href='#' class='bcdPeriodChooserModRight' onclick='bcdui.widget.periodChooser._incPeriod(1, this);return false;'></a>"): "")
+        + (textInput ? ("<div class='bcdHr'><hr></hr></div><span class='bcdHint'>" + hint + "</span>") : "" )
     ).addClass("bcdPeriodChooser");
     bcdui.widget._bcdIdToDomId(containerHtmlElement);
     bcdui.widget.periodChooser._initElement(containerHtmlElement);
@@ -397,7 +397,7 @@ bcdui.util.namespace("bcdui.widget.periodChooser",
         }
 
         if (containerHtmlElement.getAttribute("bcdLabel")){
-          jQuery(containerHtmlElement).prepend("<label/>");
+          jQuery(containerHtmlElement).prepend("<label></label>");
           bcdui.widget._initLabel(jQuery(containerHtmlElement).find("label"), containerHtmlElement.getAttribute("bcdid"), containerHtmlElement.getAttribute("bcdLabel"));
         }
 

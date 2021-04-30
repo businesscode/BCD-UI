@@ -203,7 +203,7 @@ bcdui.core.lifecycle =
         url = url.substring(0, url.indexOf("?")) + "?";
         url += "guiStatusGZ=" + compressedDoc;
         jQuery("#bcdBookmark").remove();
-        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book' onclick='bcdui.core.lifecycle._generateBookmark(\"" + args.proposedName + "\", \"" + url + "\");'/>");
+        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book' onclick='bcdui.core.lifecycle._generateBookmark(\"" + args.proposedName + "\", \"" + url + "\");'></button>");
         jQuery("#bcdBookmark").click();
         jQuery("#bcdBookmark").remove();
       }

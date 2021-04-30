@@ -191,7 +191,7 @@
         throw `.wrsDataProvider is either not registered to objectRegistry or is not same as $${wrsDataProvider.id}`;
       }
 
-      targetHtml = jQuery("<div class='bcd-quickedit-container'/>").appendTo(jQuery(targetHtml).empty());
+      targetHtml = jQuery("<div class='bcd-quickedit-container'></div>").appendTo(jQuery(targetHtml).empty());
 
       this.context = {
         wrsDataProvider, targetHtml, columnTypeWidgetRendererMap: jQuery.extend({}, DEFAULT_WIDGET_TYPE_MAP, columnTypeWidgetRendererMap), callbackHandler, rowId

@@ -28,7 +28,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
   init: function(htmlElement){
 
     if (htmlElement.getAttribute("bcdLabel")){
-      bcdui.widget._initLabel(jQuery("<label/>").appendTo(htmlElement), null, htmlElement.getAttribute("bcdLabel"));
+      bcdui.widget._initLabel(jQuery("<label></label>").appendTo(htmlElement), null, htmlElement.getAttribute("bcdLabel"));
     }
 
     jQuery(htmlElement).addClass("bcdSingleSelect");
@@ -226,7 +226,7 @@ bcdui.util.namespace("bcdui.widget.singleSelect",
         wrapperDiv.style.whitespace = "nowrap";
         wrapperDiv.style.verticalalign = "top";
         var parent=document.createElement("div");
-        parent.innerHTML="<input type='radio' " + (isSelected ?'checked':"" ) +" name='" + args.itemName + "' value='" + radioItemValue + "' bcdPosInOptionsModel='" + i + "'/>";
+        parent.innerHTML="<input type='radio' " + (isSelected ?'checked':"" ) +" name='" + args.itemName + "' value='" + radioItemValue + "' bcdPosInOptionsModel='" + i + "'></input>";
         var radioItem=parent.firstChild;
 
         bcdui._migPjs._$(radioItem).on("click", bcdui.widget.singleSelect._writeDataToXML.bind(undefined,args.htmlElement.id));

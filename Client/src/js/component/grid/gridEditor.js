@@ -330,7 +330,7 @@ bcduiSimpleInput.prototype.prepare = function(row, col, prop, td, originalValue,
     var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
     var html = "<input";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
-    html += "/>"
+    html += "></input>"
     jQuery("#" + this.objectId).append(html);
     jQuery("#" + this.objectId + " input").val(this.value);
   };
@@ -358,7 +358,7 @@ bcduiSimpleTextarea.prototype.prepare = function(row, col, prop, td, originalVal
     var args = jQuery.extend({targetHtml: this.objectId},widgetParams);
     var html = "<textarea";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
-    html += "/>"
+    html += "></textarea>"
     jQuery("#" + this.objectId).append(html);
     jQuery("#" + this.objectId + " textarea").val(this.value);
   };
@@ -387,7 +387,7 @@ bcduiSimpleNumericInput.prototype.prepare = function(row, col, prop, td, origina
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
     html += args.max ? " max='" + args.max + "'" : "";
     html += args.min ? " min='" + args.min + "'" : "";
-    html += "/>"
+    html += "></input>"
     jQuery("#" + this.objectId).append(html);
     jQuery("#" + this.objectId + " input").val(this.value);
   };
