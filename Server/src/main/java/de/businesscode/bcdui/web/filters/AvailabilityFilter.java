@@ -27,7 +27,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * filter for identifying requests from MS Office applications like Word or Excel. 
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
 
 public class AvailabilityFilter implements Filter {
   public static final String cvsId = "$Id$";
-  private final static Logger logger = Logger.getLogger(AvailabilityFilter.class);
+  private final static Logger logger = LogManager.getLogger(AvailabilityFilter.class);
   private final static Pattern USER_AGENTS_PATTERN = Pattern.compile( "([\\w\\W]*)(Word|Excel|PowerPoint|ms-office)([\\w\\W]*)");
   private final static Pattern EXCLUDE_USER_AGENTS_PATTERN = Pattern.compile( "([\\w\\W]*)Microsoft Outlook([\\w\\W]*)");
 
@@ -74,8 +75,7 @@ public class AvailabilityFilter implements Filter {
         chain.doFilter(request, response);
       }
     } catch (Throwable t) {
-      logger.fatal("Availability filter failed", t);
-      throw new ServletException("Unrecoverable server error occurred. Please contact support.");
+      throw new ServletException("Unrecoverable server error occurred. Please contact support. (Availability filter failed)", t);
     }
   }
 

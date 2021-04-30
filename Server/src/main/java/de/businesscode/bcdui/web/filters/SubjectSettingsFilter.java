@@ -26,7 +26,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.Session;
 
@@ -38,7 +39,7 @@ import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
  * returned.
  */
 public class SubjectSettingsFilter implements Filter {
-  private Logger logger = Logger.getLogger(getClass());
+  private Logger logger = LogManager.getLogger(getClass());
   public static final String PARAM_NAME_FILTER_NAME = "bcdSFN";
   public static final String PARAM_NAME_FILTER_VALUE = "bcdSFV";
 

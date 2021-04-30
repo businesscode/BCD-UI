@@ -31,7 +31,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.FilterUtils;
@@ -74,7 +75,7 @@ public class ClientCachingFilter extends AbstractCacheFilter {
     private Set<String> excludeExtensions;
 
     //
-    private Logger logger = Logger.getLogger(ClientCachingFilter.class);
+    private Logger logger = LogManager.getLogger(ClientCachingFilter.class);
 
     //
 

@@ -31,7 +31,8 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.web.i18n.I18nDbResources;
 
@@ -130,7 +131,7 @@ public class ExcelSylkTemplate  {
 
     public ExcelSylkTemplate( ResultSetMetaData metaData, int rowCountIfKnown, List<ColumnMapping> orderedLogicalColumnNames , I18nDbResources i18nDbResources)throws SQLException{
       this.i18nDbResources = i18nDbResources;
-      this.logger = Logger.getLogger(getClass());
+      this.logger = LogManager.getLogger(getClass());
         // set row and col count. has to be done before header construction
         if (rowCountIfKnown > 0) { nrRows = rowCountIfKnown; }
 

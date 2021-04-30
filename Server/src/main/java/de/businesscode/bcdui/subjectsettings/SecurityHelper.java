@@ -23,7 +23,8 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -44,7 +45,7 @@ public class SecurityHelper {
 
   public static final String SUBJECT_FILTER_TYPE_BCDUSERID = "bcd_userId:userId";
 
-  private static Logger log = Logger.getLogger(SecurityHelper.class);
+  private static Logger log = LogManager.getLogger(SecurityHelper.class);
 
   /**
    * checks current security context of the user for given operation. Security

@@ -25,7 +25,8 @@ import java.util.ResourceBundle.Control;
 
 import javax.servlet.ServletContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -50,7 +51,7 @@ class ResourceBundleControl extends ResourceBundle.Control {
   private final static String FORMAT_SQL = "bcdui.sql", FORMAT_FILE = "bcdui.file";
   private final static List<String> FORMATS_LIST = Arrays.asList(new String[] { FORMAT_SQL, FORMAT_FILE });
 
-  private final Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = LogManager.getLogger(getClass());
   private final Locale defaultLocale;
   private final ServletContext servletContext;
   private final long cacheTtl;

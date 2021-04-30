@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -45,7 +46,7 @@ import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
  */
 public class DatabaseCompatibility
 {
-  static private final Logger log = Logger.getLogger(DatabaseCompatibility.class);
+  static private final Logger log = LogManager.getLogger(DatabaseCompatibility.class);
   private static DatabaseCompatibility singleton = null;
 
   // Set of database-specific reserved words, which are often used in column expressions and usually not referring to a column
@@ -341,7 +342,7 @@ public class DatabaseCompatibility
     calcFktMapping = new HashMap<String,String[]>();
     calcFktMapping.put("Calc",          new String[]{"Y",  "",     "+",   "", "Y"}); // We default to + if Calc has multiple children
 
-    calcFktMapping.put("Sum",           new String[]{"N",  "SUM(",          "",  ")", "I"});
+    calcFktMapping.put("Sum",           new String[]{"Y",  "SUM(",          "",  ")", "I"});
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
     calcFktMapping.put("Avg",           new String[]{"N",  "AVG(",          "",  ")", "I"});

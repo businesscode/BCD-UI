@@ -15,7 +15,7 @@
 */
 package de.businesscode.util.jdbc.wrapper;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 
 /**
  * global switch for internal bcd connection wrapper class, which is not globally exposed.

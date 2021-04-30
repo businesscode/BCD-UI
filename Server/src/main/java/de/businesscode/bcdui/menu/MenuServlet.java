@@ -27,7 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.menu.config.Menu;
 
@@ -41,7 +42,7 @@ public class MenuServlet extends HttpServlet {
 
 
   private static final long serialVersionUID = 472884415395811048L;
-  private static final Logger log = Logger.getLogger(MenuServlet.class);
+  private static final Logger log = LogManager.getLogger(MenuServlet.class);
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)

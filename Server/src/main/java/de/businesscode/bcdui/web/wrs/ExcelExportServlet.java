@@ -28,10 +28,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
-import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
 import de.businesscode.bcdui.wrs.export.Wrs2Excel;
@@ -51,7 +51,8 @@ public class ExcelExportServlet extends ExportServlet {
   private static final String templateLocationInWar = "/excelExportTemplates";
   private static final String templateLocationInVfs = "/bcdui/vfs/excelExportTemplates";
   private static final long serialVersionUID = 1L;
-  private Logger log = Logger.getLogger(getClass());
+  private Logger log = LogManager.getLogger(getClass());
+  private final Logger virtLoggerPage = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
   private final Set<String> templateContainers = new HashSet<>();
   private static AtomicInteger concurrent = new AtomicInteger(0);
   private static final int MAX_MEMORY_GB = 8;
@@ -107,14 +108,13 @@ public class ExcelExportServlet extends ExportServlet {
         if (requestUrl.length()> 4000)
           requestUrl = requestUrl.substring(0, 4000);
         final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(Utils.getSessionId(req, false), requestUrl, pageHash);
-        log.debug(logRecord);
+        virtLoggerPage.info(logRecord); // was level DEBUG
       }
 
       new Wrs2Excel().setTemplateResolver(new TemplateResolver()).export(new StringReader(data), resp.getOutputStream(), new HttpRequestOptions(getServletContext(), req, maxRows), req );
 
     } catch (Exception e) {
-      log.error(new ErrorLogEvent("Exception while processing the Wrs2Excel request.", req), e);
-      throw new ServletException(e.getCause());
+      throw new ServletException("Exception while processing the Wrs2Excel request.", e); // was previously throwing e.getCause()
     } finally {
       concurrent.decrementAndGet();
     }

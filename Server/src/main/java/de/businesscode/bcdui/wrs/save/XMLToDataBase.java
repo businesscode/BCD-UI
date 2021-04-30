@@ -34,7 +34,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;

@@ -22,16 +22,15 @@ import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.log4j.Logger;
-
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * This class implements the file system based caching store.
  */
 public class FileCachePersist implements IServerCachePersist {
     private File rootFolder;
-    private final Logger logger = Logger.getLogger(FileCachePersist.class);
+    private final Logger logger = LogManager.getLogger(FileCachePersist.class);
 
     /**
      * Constructor

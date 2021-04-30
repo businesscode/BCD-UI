@@ -22,7 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Element;
@@ -52,7 +53,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   private final BindingSet bindingSet;
   private final WrqInfo wrqInfo;
   private final List<Element> boundVariables;
-  private Logger logger = Logger.getLogger(getClass());
+  private Logger logger = LogManager.getLogger(getClass());
   // TODO: add depedency on isDebug? or introduce custom new flag
   private boolean applySqlOptimization = true;
 

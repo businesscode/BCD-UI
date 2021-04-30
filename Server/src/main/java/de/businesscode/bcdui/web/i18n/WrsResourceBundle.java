@@ -28,7 +28,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -40,7 +41,7 @@ import de.businesscode.util.xml.SecureXmlFactory;
  * Resource bundle loading from a Wrs XML, i.e. messages.xml
  */
 class WrsResourceBundle extends MapResourceBundle {
-  private final static Logger logger = Logger.getLogger(WrsResourceBundle.class);
+  private final static Logger logger = LogManager.getLogger(WrsResourceBundle.class);
 
   WrsResourceBundle(InputStream is, Locale locale) {
     super(locale, parse(is, locale));

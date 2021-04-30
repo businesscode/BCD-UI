@@ -47,7 +47,8 @@ dependencies {
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
   implementation ('javax.servlet:jstl:1.2') { transitive = false }
-  implementation ('log4j:log4j:1.2.17') { transitive = false }
+  implementation ('org.apache.logging.log4j:log4j-api:2.14.1') { transitive = false }
+  implementation ('org.apache.logging.log4j:log4j-core:2.14.1') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
   implementation ('net.sf.opencsv:opencsv:2.3') { transitive = false }
   implementation ('org.apache.poi:poi:3.16') { transitive = false }
@@ -67,8 +68,9 @@ dependencies {
 
   // Additionally needed only during runtime
   runtime ('commons-beanutils:commons-beanutils:1.9.3') { transitive = false }
-  runtime ('org.slf4j:slf4j-api:1.7.25') { transitive = false }
-  runtime ('org.slf4j:slf4j-log4j12:1.7.25') { transitive = false }
+  runtime ('org.slf4j:slf4j-api:1.7.30') { transitive = false } // is needed by Tomcat, for example
+  runtime ('org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1') { transitive = false } // actual implementation of slf4j using log4j
+  runtime ('org.apache.logging.log4j:log4j-1.2-api:2.14.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
 
   // Provided during runtime by servlet container
   compileOnly ('javax.el:javax.el-api:2.2.5') { transitive = false }

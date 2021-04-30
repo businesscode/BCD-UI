@@ -16,16 +16,18 @@
 package de.businesscode.bcdui.web.wrs;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
-import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 import de.businesscode.bcdui.wrs.load.Wrq2Sql;
 import de.businesscode.util.StandardNamespaceContext;
-import org.apache.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 
 /**
@@ -35,7 +37,7 @@ import java.io.IOException;
 public class Wrq2SqlServlet extends HttpServlet {
 
   private static final long serialVersionUID = -1447179893615429245L;
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
 
   /**
    * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
@@ -58,8 +60,7 @@ public class Wrq2SqlServlet extends HttpServlet {
         .append("]]></Sql></Header></Wrs>");
     }
     catch (Exception e) {
-      log.error(new ErrorLogEvent("Exception while processing the request.", request), e);
-      throw new ServletException(e);
+      throw new ServletException("Exception while processing the request.", e);
     }
 
     if (log.isTraceEnabled()) {

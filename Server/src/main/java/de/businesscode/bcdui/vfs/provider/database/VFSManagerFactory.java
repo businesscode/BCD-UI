@@ -27,7 +27,8 @@ import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.VFS;
 import org.apache.commons.vfs.impl.StandardFileSystemManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -36,7 +37,7 @@ import de.businesscode.bcdui.cache.CacheFactory;
 
 
 public class VFSManagerFactory {
-  private static final Logger log = Logger.getLogger(VFSManagerFactory.class);
+  private static final Logger log = LogManager.getLogger(VFSManagerFactory.class);
   private static StandardFileSystemManager fileSystemMng=null;
   private static final Set<FileSystem> fileSystemSet= new HashSet<FileSystem>();
 

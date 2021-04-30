@@ -23,10 +23,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
-import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.export.SylkDataWriter;
 import de.businesscode.bcdui.wrs.load.DataLoader;
@@ -38,7 +38,8 @@ public class SylkServlet extends ExportServlet {
 
   private static final long serialVersionUID = 4633486737694422869L;
   //
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
+  private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
 
   /**
    * SylkServlet
@@ -93,17 +94,15 @@ public class SylkServlet extends ExportServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_SYLK, request, options, generator, loader, dataWriter);
-      log.debug(logEvent);
+      virtLoggerAccess.info(logEvent); // was level DEBUG
     }
     catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
-      if (e.getMessage().indexOf("Connection reset by peer") < 0){
-        log.error(new ErrorLogEvent("Exception while processing the SYLK-request.", request), e);
-      }
+      if (e.getMessage().indexOf("Connection reset by peer") < 0)
+        throw new ServletException("Exception while processing the SYLK-request.", e);
     }
     catch (Exception e) {
-      log.error(new ErrorLogEvent("Exception while processing the SYLK-request.", request), e);
-      throw new ServletException(e);
+      throw new ServletException("Exception while processing the SYLK-request.", e);
     }
     finally {
       try {

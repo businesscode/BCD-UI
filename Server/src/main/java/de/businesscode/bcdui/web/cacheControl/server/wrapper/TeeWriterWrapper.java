@@ -17,11 +17,9 @@ package de.businesscode.bcdui.web.cacheControl.server.wrapper;
 
 import java.io.IOException;
 import java.io.Writer;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
-
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -31,7 +29,7 @@ import org.apache.log4j.Logger;
  */
 public class TeeWriterWrapper extends Writer {
   private Writer target,clone;
-  private Logger log = Logger.getLogger(getClass());
+  private Logger log = LogManager.getLogger(getClass());
 
   public TeeWriterWrapper(Writer target, Writer clone) {
     this.target = target;

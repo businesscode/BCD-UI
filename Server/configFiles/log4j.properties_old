@@ -3,10 +3,13 @@
 
 log4j.rootLogger=ALL, ConsoleAppender
 
-log4j.appender.ConsoleAppender=org.apache.log4j.ConsoleAppender
-log4j.appender.ConsoleAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.ConsoleAppender=org.apache.logging.log4j.ConsoleAppender
+log4j.appender.ConsoleAppender.layout=org.apache.logging.log4j.PatternLayout
 #format: date sessionid level class message
 log4j.appender.ConsoleAppender.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %X{BCD.requestHash} %C{1}: %m%n
+
+#restrict what is sent to console
+log4j.appender.ConsoleAppender.Threshold = INFO
 
 #Set log levels
 log4j.logger.de.businesscode = DEBUG

@@ -100,7 +100,7 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   /**
    * record being logged into db
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase {
     final private String jdbcMethod;
     final private String sql;
     final Date stamp = new Date();
@@ -133,6 +133,19 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
 
     public void setRequestHash(String requestHash) {
       this.requestHash = requestHash;
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      // just to have something here
+      // previously, this method did not exists and LogRecord was stringified using regular toString() method, which sometimes swallowed information
+      String s = toString(); // if only the class + instance is returned, wrap all info up
+      if (s.startsWith("" + getClass()) || s.startsWith(getClass().toString()) || s.startsWith("de.businesscode.bcdui.logging.SqlToDatabaseLogger$LogRecord"))
+        // TODO : is all this info needed, or do we only want specifics (compare to LogEvents captured by BcdStatementWrapper in EE project)
+        return "SqlToDatabaseLogger.LogRecord <<jdbcMethod: " + jdbcMethod + ">, <sql: " + sql + ">, <stamp: " + stamp
+            + ">, <durationMs: " + durationMs + ">, <rowsAffected: " + rowsAffected + ">, <sessionId: " + sessionId
+            + ">, <pageHash: " + pageHash + ">, <requestHash: " + requestHash + ">>";
+      return s;
     }
   }
 

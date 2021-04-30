@@ -32,8 +32,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +57,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  * This result is then handed over to the regular BindingSet parsing (our parent class's run())
  */
 public class CaseWhenFromRel extends ReadBindingSet {
-  private final Logger log = Logger.getLogger( getClass());
+  private final Logger log = LogManager.getLogger( getClass());
 
   public CaseWhenFromRel( Document bindingDoc, String fileName, Map<String, Collection<StandardBindingSet>> bindingMap) {
     super( bindingDoc, fileName, bindingMap);

@@ -117,7 +117,7 @@
     removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
-    driverClassName="com.mysql.jdbc.Driver"
+    driverClassName="com.mysql.cj.jdbc.Driver"
     url="${myproj_db_url}"
     username="${myproj_db_username}"
     password="${myproj_db_password}" />

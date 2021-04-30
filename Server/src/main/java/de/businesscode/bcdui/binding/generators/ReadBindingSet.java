@@ -34,8 +34,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,7 +65,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  *  Parses a binding xml and creates an in-memory BindingSet
  */
 public class ReadBindingSet implements Runnable {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
 
   protected Document bindingDoc;
   protected String fileName;
@@ -116,11 +117,9 @@ public class ReadBindingSet implements Runnable {
     // Check schema. We expect files with BindingGroup BindingSet and BindingInclude
     // The first two will be known to the system but BindingInclude is not usable stand-alone but is to be
     // used via xi:include for cleaner organization. If we have a file containing a BindingInclude, we just skip it here.
-    if (!BINDINGS_NAMESPACE.equals(bindingDoc.getDocumentElement().getNamespaceURI())) {
-      log.error("The binding document should use schema " + BINDINGS_NAMESPACE + " File:" + fileName);
+    if (!BINDINGS_NAMESPACE.equals(bindingDoc.getDocumentElement().getNamespaceURI()))
       throw new BindingException("The binding document should use schema " + BINDINGS_NAMESPACE + " File:" + fileName
           +"\nused is:" + bindingDoc.getDocumentElement().getNamespaceURI());
-    }
     if ("BindingSet".equals(bindingDoc.getDocumentElement().getLocalName())) {
       String bsName = bindingDoc.getDocumentElement().getAttribute("id");
       if( bindingMap.containsKey(bsName) )
@@ -433,9 +432,7 @@ public class ReadBindingSet implements Runnable {
       return bItem;
     }
     catch (TransformerException te) {
-      log.error("error caught while processing BindingSet #" + pBindingSet.getName(), te);
-      throw new IOException(te);
-
+      throw new IOException("error caught while processing BindingSet #" + pBindingSet.getName(), te);
     }
   }
 }

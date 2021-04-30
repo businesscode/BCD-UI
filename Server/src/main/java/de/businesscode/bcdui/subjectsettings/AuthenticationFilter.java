@@ -23,7 +23,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -57,7 +58,7 @@ import org.apache.shiro.subject.Subject;
  * </p>
  */
 public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.FormAuthenticationFilter {
-  private final Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = LogManager.getLogger(getClass());
 
   @Override
   public void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {

@@ -34,7 +34,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 
 import de.businesscode.util.xml.SecureXmlFactory;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
@@ -49,14 +51,14 @@ import de.businesscode.bcdui.wrs.load.ISqlGenerator;
 import de.businesscode.bcdui.wrs.load.WrsDataWriter;
 import de.businesscode.bcdui.wrs.save.DataSaver;
 
-
 /**
  * Servlet for calling Wrs delivering services
  */
 public class WrsServlet extends HttpServlet {
 
   private static final long serialVersionUID = 4633486737694422868L;
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
+  private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
   private final Map< String, Class<? extends ISqlGenerator> > services = new HashMap< String, Class<? extends ISqlGenerator> >();
 
   protected int maxRowsDefault = 4000;
@@ -166,32 +168,20 @@ public class WrsServlet extends HttpServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_WRS, request, options, generator, loader, dataWriter);
-      log.trace(logEvent);
-    }
-    catch (SocketException e) {
+      virtLoggerAccess.info(logEvent); // was level TRACE
+    } catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
-      if (e.getMessage().indexOf("Connection reset by peer") < 0){
-        log.error(new ErrorLogEvent("SocketException while processing the WRS-request.", request), e);
-        throw new ServletException(e);  // Trigger rollback
-      }
-    }
-    catch (InvocationTargetException e) {
-      if( e.getCause() instanceof Exception) {
-        log.error(new ErrorLogEvent("InvocationTargetException while processing the WRS-request.", request), e);
-      }
-      throw new ServletException(e.getTargetException());  // Trigger rollback
-    }
-    catch (Exception e) {
-      log.error(new ErrorLogEvent("Exception while processing the WRS-request.", request), e);
-      throw new ServletException(e); // Trigger rollback
-    }
-    finally {
+      if (e.getMessage().indexOf("Connection reset by peer") < 0)
+        throw new ServletException("SocketException while processing the WRS-request.", e);  // Trigger rollback
+    } catch (InvocationTargetException e) {
+      throw new ServletException("InvocationTargetException while processing the WRS-request.", e.getCause());  // Trigger rollback
+    } catch (Exception e) {
+      throw new ServletException("Exception while processing the WRS-request.", e); // Trigger rollback
+    } finally {
       try {
         if (dataWriter != null)
           dataWriter.close();
-      }
-      catch (Exception ignore) {
-      }
+      } catch (Exception ignore) { }
     }
     if (log.isTraceEnabled()) {
       log.trace("processed.");

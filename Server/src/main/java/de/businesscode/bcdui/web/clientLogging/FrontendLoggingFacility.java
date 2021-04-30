@@ -15,11 +15,10 @@
 */
 package de.businesscode.bcdui.web.clientLogging;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.util.SingletonHolder;
-
-
 
 /**
  *
@@ -32,8 +31,9 @@ public class FrontendLoggingFacility {
   private static SingletonHolder<Logger> holder = new SingletonHolder<Logger>() {
     @Override
     protected Logger createInstance() {
-      Logger logger = Logger.getRootLogger();
-      logger.addAppender(new FrontendQueueAppender());
+      Logger logger = LogManager.getRootLogger();
+      if (logger instanceof org.apache.logging.log4j.core.Logger) // is always the case when log4j-core is on the classpath
+        ((org.apache.logging.log4j.core.Logger) logger).addAppender(FrontendQueueAppender.createAppender());
       return logger;
     }
   };

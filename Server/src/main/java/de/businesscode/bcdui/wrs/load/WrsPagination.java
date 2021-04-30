@@ -19,7 +19,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -32,7 +33,7 @@ import de.businesscode.bcdui.binding.BindingSet;
  */
 public class WrsPagination
 {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   private boolean available = false;
   private int start = -1;
   private int end = -1;

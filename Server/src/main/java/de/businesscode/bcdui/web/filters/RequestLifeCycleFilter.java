@@ -28,8 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
@@ -40,9 +41,9 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.util.SOAPFaultMessage;
 import de.businesscode.util.Utils;
-
 
 /**
  * This class is a very first entry point of any requests.
@@ -68,6 +69,9 @@ public class RequestLifeCycleFilter implements Filter {
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
   private Logger log = getLogger();
+  private final Logger virtLoggerSession = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
+  private final Logger virtLoggerLogin = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+  private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
 
   /**
    * tells if given request is issued for logging transceiver
@@ -100,11 +104,14 @@ public class RequestLifeCycleFilter implements Filter {
       /*
        * We got an Exception in the user code so we make a rollback now.
        */
-      log.error("An exception occurred, we do rollback.",ex);
+      String msg = ex.getMessage(); // we could also loop through all causes look for a msg, but this should be sufficient
+      // all exceptions thrown during a request will be logged to the database (if that functionality is enabled)
+      virtLoggerError.info(new ErrorLogEvent(msg != null && !msg.isEmpty() ? msg :  "An exception occurred, we do rollback.", request, ex));
       try {
         Configuration.getInstance().closeAllConnections(true);
       } catch (SQLException e) {
-        log.error("Error during rollback.",e);
+        msg = e.getMessage();
+        virtLoggerError.info(new ErrorLogEvent("Error during rollback" + (msg != null && !msg.isEmpty() ? ": " + msg : "."), request, ex));
       }
 
       if(!response.isCommitted()){
@@ -129,7 +136,7 @@ public class RequestLifeCycleFilter implements Filter {
    * log messages are not queued for client anymore
    */
   private void disableClientEventQueue() {
-    MDC.remove(MDC_KEY_IS_CLIENT_LOG);
+    ThreadContext.remove(MDC_KEY_IS_CLIENT_LOG);
   }
 
   /**
@@ -139,7 +146,7 @@ public class RequestLifeCycleFilter implements Filter {
    *          to obtain session id from
    */
   private void enableClientEventQueue(HttpServletRequest request) {
-    MDC.put(MDC_KEY_IS_CLIENT_LOG, Utils.getSessionId(request, false));
+    ThreadContext.put(MDC_KEY_IS_CLIENT_LOG, Utils.getSessionId(request, false));
     FrontendLoggingFacility.deployLogger();
   }
 
@@ -160,7 +167,7 @@ public class RequestLifeCycleFilter implements Filter {
     final HttpSession session = request.getSession(false);
     // sessionId is never null
     final String sessionId = Utils.getSessionId(request, false);
-    MDC.put(MDC_KEY_SESSION_ID, sessionId);
+    ThreadContext.put(MDC_KEY_SESSION_ID, sessionId);
     
     String uri = request.getRequestURI().toLowerCase();
     int idx = uri.indexOf(";jsessionid=");
@@ -176,8 +183,8 @@ public class RequestLifeCycleFilter implements Filter {
       pageHash = RequestHashGenerator.generateHash(request);
     if ((requestHash == null || requestHash.isEmpty()) && uri.indexOf("/bcdui/servlets") != -1)
       requestHash = pageHash +"."+Math.round(Math.random()*1000);
-    if (requestHash != null) MDC.put(MDC_KEY_BCD_REQUESTHASH, requestHash);
-    if (pageHash != null)    MDC.put(MDC_KEY_BCD_PAGEHASH, pageHash);
+    if (requestHash != null) ThreadContext.put(MDC_KEY_BCD_REQUESTHASH, requestHash);
+    if (pageHash != null)    ThreadContext.put(MDC_KEY_BCD_PAGEHASH, pageHash);
 
     // log session once
     if (session != null && SessionSqlLogger.getInstance().isEnabled()) {
@@ -186,7 +193,7 @@ public class RequestLifeCycleFilter implements Filter {
       if (sessionCreated != null) {
         session.removeAttribute(SESSION_KEY_BCD_SESSIONCREATED);
         final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost());
-        log.debug(record);
+        virtLoggerSession.info(record); // was level DEBUG
       }
     }
 
@@ -201,7 +208,7 @@ public class RequestLifeCycleFilter implements Filter {
             shiroSession.removeAttribute("BCD_LOGIN_USER");
             shiroSession.removeAttribute("BCD_LOGIN_RESULT");
             final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
-            log.debug(record);
+            virtLoggerLogin.info(record); // was level DEBUG
           }
         }
       }
@@ -231,14 +238,13 @@ public class RequestLifeCycleFilter implements Filter {
    */
   private void afterChain(String url, HttpServletRequest request,
       HttpServletResponse response, boolean isTransceiver, boolean isDebug) {
-
-     if (!isTransceiver && log.isTraceEnabled()) {
+    if (!isTransceiver && log.isTraceEnabled()) {
       if (request.getHeader(RequestHashGenerator.X_HTTP_HEADER_REQUEST) != null)
         log.trace("Finished processing.");
       else
         log.trace("Finished processing: " + url);
     }
-    MDC.clear();
+    ThreadContext.clearMap();
   }
 
   /**
@@ -256,7 +262,7 @@ public class RequestLifeCycleFilter implements Filter {
    *         to the logical request.
    */
   public static Logger getLogger() {
-    return Logger.getLogger(LOGGER_NAME);
+    return LogManager.getLogger(LOGGER_NAME);
   }
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~ javax.servlet.Filter API ~~~~~~~~~~~~~~~~~~~ */

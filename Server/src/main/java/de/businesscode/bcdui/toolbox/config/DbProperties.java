@@ -24,8 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -48,7 +49,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  *
  */
 public class DbProperties {
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
 
   public static interface Listener {
     /**

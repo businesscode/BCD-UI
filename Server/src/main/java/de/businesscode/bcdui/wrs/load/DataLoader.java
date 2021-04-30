@@ -27,7 +27,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.wrs.IRequestOptions;
@@ -42,7 +43,7 @@ import de.businesscode.util.jdbc.Closer;
  */
 public class DataLoader {
   //
-  private static final Logger log = Logger.getLogger(DataLoader.class);
+  private static final Logger log = LogManager.getLogger(DataLoader.class);
   //
   private final IRequestOptions options;
   //
@@ -258,11 +259,7 @@ public class DataLoader {
           log.trace("SQL executed.");
         }
         catch (SQLException e) { // Wrap the SQLException - add SQL to the exception message
-          if (getOptions().isDebugMode()){
-            throw new Exception("Couldn't execute statement:\n" + sql, e);
-          }else{
-            throw new Exception("Couldn't execute statement", e);
-          }
+          throw new Exception("Couldn't execute statement:\n" + sql, e);
         }
         setExecuteDuration(System.currentTimeMillis() - timeBefore);
         //

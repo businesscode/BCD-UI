@@ -15,9 +15,9 @@
 */
 package de.businesscode.bcdui.web.clientLogging;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * processes records coming from the frontend and propagates them
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 class FrontendLogRecordPublisher {
   public static final String LOGGER_NAME = FrontendLogRecordPublisher.class.getName();
-  private Logger log = Logger.getLogger(LOGGER_NAME);
+  private Logger log = LogManager.getLogger(LOGGER_NAME);
 
   /**
    * special LogRecord to be filled which logically fits to the log4javascript's

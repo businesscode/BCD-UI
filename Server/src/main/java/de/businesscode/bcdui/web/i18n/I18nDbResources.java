@@ -31,7 +31,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
@@ -97,7 +98,7 @@ public class I18nDbResources extends ListResourceBundle {
     this.dateTimePattern = (String) session.getAttribute(I18nDbResources.BCDUI_DATETIME_PATTERN);
     this.xsltDateTimePattern = (String) session.getAttribute(I18nDbResources.BCDUI_XSLT_DATETIME_PATTERN);
 
-    this.logger = Logger.getLogger(this.getClass());
+    this.logger = LogManager.getLogger(this.getClass());
     this.con = con;
     try {
       this.messagesBundle = ResourceBundle.getBundle("i18n/messages", this.lang, new Control(){

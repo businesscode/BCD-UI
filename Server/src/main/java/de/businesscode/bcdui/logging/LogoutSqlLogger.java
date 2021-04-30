@@ -20,7 +20,8 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
@@ -37,12 +38,12 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
   private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/login/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/login/queueSleepMs";
-  private static Logger logger = Logger.getLogger(LogoutSqlLogger.class);
+  private static Logger logger = LogManager.getLogger(LogoutSqlLogger.class);
   /**
    * the result to log into database
    *
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase {
     final String sessionId;
     final Date stamp = new Date();
 
@@ -54,6 +55,11 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
     @Override
     public String toString() {
       return String.format("[LOGOUT SESSION:'%s']", sessionId);
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      return toString();
     }
   }
 

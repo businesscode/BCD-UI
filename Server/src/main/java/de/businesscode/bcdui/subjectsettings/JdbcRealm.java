@@ -31,8 +31,9 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -85,7 +86,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
   private static final String BS_USER_ROLES = "bcd_sec_user_roles";
   public static final int DEFAULT_HASH_ITERATIONS = 1024;
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   final private String u_table;
   final private String u_userid;
   final private String u_login;

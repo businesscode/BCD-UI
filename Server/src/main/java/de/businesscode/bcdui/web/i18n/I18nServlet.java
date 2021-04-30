@@ -27,14 +27,15 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Provides i18n catalog XML for bcdui.i18n.I18nCatalog class, the keys are normalized and serialized as element names as expected by catalog implementation.
  */
 public class I18nServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  private Logger logger = Logger.getLogger(getClass());
+  private Logger logger = LogManager.getLogger(getClass());
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

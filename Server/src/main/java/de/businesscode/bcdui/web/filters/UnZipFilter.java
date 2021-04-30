@@ -16,7 +16,6 @@
 package de.businesscode.bcdui.web.filters;
 
 import java.io.IOException;
-import org.apache.log4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,13 +26,15 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.web.servlets.ZipLet;
 
 public class UnZipFilter implements Filter {
   private ServletContext servletContext;
-  private static final Logger log = Logger.getLogger(UnZipFilter.class);
+  private static final Logger log = LogManager.getLogger(UnZipFilter.class);
 
   /**
    *

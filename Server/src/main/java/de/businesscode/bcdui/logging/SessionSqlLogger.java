@@ -39,7 +39,7 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
    * the result to log into database
    *
    */
-  public static final class LogRecord {
+  public static final class LogRecord extends LogEventBase{
     String sessionId, userAgent,remoteAddress;
     final Date stamp = new Date();
 
@@ -53,6 +53,11 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
     @Override
     public String toString() {
       return String.format("[SESSION:'%s', AGENT:'%s']", sessionId, userAgent);
+    }
+
+    @Override
+    public String getFormattedMessage() {
+      return toString();
     }
   }
 

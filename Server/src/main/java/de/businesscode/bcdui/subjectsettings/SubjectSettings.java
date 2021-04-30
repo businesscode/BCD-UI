@@ -33,7 +33,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.session.Session;
 
 import de.businesscode.bcdui.binding.Bindings;
@@ -58,7 +59,7 @@ public class SubjectSettings extends SubjectSettingsConfig {
   private static final String permissionAttributePrefix = "permission:";
 
   private static SubjectSettings singelton = null;
-  private static final Logger log = Logger.getLogger(SubjectSettings.class);
+  private static final Logger log = LogManager.getLogger(SubjectSettings.class);
   private Map<String,SubjectFilterType> subjectFilterTypeMap = null;
   private static boolean rightsInDbAvailable = true;
   private static Lock initLock = new ReentrantLock(true);

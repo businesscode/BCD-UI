@@ -18,30 +18,61 @@ package de.businesscode.bcdui.web.errorLogging;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import de.businesscode.bcdui.logging.LogEventBase;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 
 /**
- * The error-logEvent for usage with the BuiErrorLogAppender. <br>
+ * The error-logEvent for usage with the ErrorLogAppender. <br>
+ * All thrown {@link javax.servlet.ServletException} are processed in 
+ * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly, 
+ * so there is usually no reason to manually use this class. <br>
+ * 
  * Example:
- *
- * log.error(new ErrorLogEvent("Error", request), exception);
- *
+ * ...
+ * private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+ * ...
+ * virtLoggerError.info(new ErrorLogEvent("Error", request), exception);
+ * ...
  */
-public class ErrorLogEvent {
+public class ErrorLogEvent extends LogEventBase {
 
   private String message;
   private String data;
   private HttpServletRequest request;
+  private Throwable thrwbl;
 
   /**
+   * 
+   * @param message
+   * @param request
+   * @param data
+   * @param thrwbl
+   */
+  public ErrorLogEvent(String message, HttpServletRequest request, String data, Throwable thrwbl) {
+    this.message = message;
+    this.request = request;
+    this.data = data;
+    this.thrwbl = thrwbl;
+  }
+  
+  /**
+   * 
    * @param message
    * @param request
    * @param data
    */
   public ErrorLogEvent(String message, HttpServletRequest request, String data) {
-    this.message = message;
-    this.request = request;
-    this.data = data;
+    this(message, request, data, null);
+  }
+  
+  /**
+   * 
+   * @param message
+   * @param request
+   * @param thrwbl
+   */
+  public ErrorLogEvent(String message, HttpServletRequest request, Throwable thrwbl) {
+    this(message, request, null, thrwbl);
   }
   
   /**
@@ -50,7 +81,7 @@ public class ErrorLogEvent {
    * @param request
    */
   public ErrorLogEvent(String message, HttpServletRequest request) {
-    this(message, request, null);
+    this(message, request, null, null);
   }
 
   /**
@@ -140,5 +171,15 @@ public class ErrorLogEvent {
   @Override
   public String toString() {
     return "" + getMessage() + " | URL:" + getRequestUrl() + (this.data != null ? " | Data: " + data.replaceAll("\r\n", "") : "");
+  }
+
+  @Override
+  public String getFormattedMessage() {
+    return toString();
+  }
+
+  @Override
+  public Throwable getThrowable() {
+    return thrwbl;
   }
 }

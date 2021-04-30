@@ -23,7 +23,8 @@ import javax.servlet.ServletContext;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.vfs.provider.database.VFSManagerFactory;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
@@ -35,7 +36,7 @@ import net.sf.ehcache.Cache;
  *
  */
 public class VfsResourceProvider implements StaticResourceServlet.ResourceProvider {
-  private Logger log = Logger.getLogger(getClass());
+  private Logger log = LogManager.getLogger(getClass());
 
   public VfsResourceProvider() {
 
@@ -66,7 +67,7 @@ public class VfsResourceProvider implements StaticResourceServlet.ResourceProvid
    * represents a single resource to VFS
    */
   public static class VfsResource implements Resource {
-    private Logger log = Logger.getLogger(getClass());
+    private Logger log = LogManager.getLogger(getClass());
 
     /**
      * The (unprocessed) path of the resource request.

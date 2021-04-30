@@ -24,7 +24,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -40,7 +41,7 @@ import com.google.gson.JsonParser;
 public class OAuthRealm extends AuthenticatingRealm {
   private static final String UTF8 = StandardCharsets.UTF_8.name();
 
-  private final Logger logger = Logger.getLogger(getClass());
+  private final Logger logger = LogManager.getLogger(getClass());
 
   private String clientSecret;
   private String principalPropertyName;

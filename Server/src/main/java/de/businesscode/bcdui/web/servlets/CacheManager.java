@@ -23,11 +23,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
-
 
 /**
  *  Servlet to manage cache settings (VFS, Bindings): delete, reload
@@ -38,7 +38,7 @@ public class CacheManager extends HttpServlet {
   private final String refreshAllAction="refreshAll";
   private final String regenerateAction="regenerateBindings";
 
-  private final Logger log = Logger.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
   private String callBackClass; // comma separated list of allowed names
 
  @Override
