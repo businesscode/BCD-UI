@@ -2304,7 +2304,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
    * @private
    */
   _createHtmlStructure( args ) {
-    var table = jQuery("<table class='bcdGrid'/>");
+    var table = jQuery("<table class='bcdGrid'></table>");
     table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
     table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
     table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");

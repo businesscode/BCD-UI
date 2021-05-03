@@ -41,14 +41,14 @@ bcdui.component.exports.PDFExport = class
    * @private
    */
   _defaultFormContent =
-      '<input type="hidden" name="htmlString"/>' +
-      '<input type="hidden" name="orientation"/>' +
-      '<input type="hidden" name="dimension"/>' +
-      '<input type="hidden" name="format" value="pdf"/>' +
-      '<input type="hidden" name="basePath" value="."/>' +
-      '<input type="hidden" name="pageHash"/>' +
-      '<input type="hidden" name="fileName"/>' +
-      '<input type="hidden" name="htmlWidth"/>';
+      '<input type="hidden" name="htmlString"></input>' +
+      '<input type="hidden" name="orientation"></input>' +
+      '<input type="hidden" name="dimension"></input>' +
+      '<input type="hidden" name="format" value="pdf"></input>' +
+      '<input type="hidden" name="basePath" value="."></input>' +
+      '<input type="hidden" name="pageHash"></input>' +
+      '<input type="hidden" name="fileName"></input>' +
+      '<input type="hidden" name="htmlWidth"></input>';
 
   /**
    * The HTML template for CSS includes.
@@ -64,7 +64,7 @@ bcdui.component.exports.PDFExport = class
    * @private
    */
   _htmlPageTemplate= doT.template(
-      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>');
+      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>');
 
   /**
    * Creates a new PDFExport instance.
