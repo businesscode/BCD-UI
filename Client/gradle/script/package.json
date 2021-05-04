@@ -6,7 +6,7 @@
 
   "dependencies": {
     "block-ui":           "@version",
-    "dot":                "git+https://github.com/olado/doT#@version",
+    "dot":                "@version",
     "log4javascript":     "git+https://github.com/DECK36/log4javascript#@version",
     "modernizr":          "@version",
     "d3-format":          "@version",
