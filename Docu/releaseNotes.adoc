@@ -18,6 +18,7 @@ Some changes are backward incompatible and may require code change in the projec
 * update to fontawesome 5.15.3 and bootstrap 4.6.0 for themes
 * update to doT 1.1.3
 * update to d3-format 1.4.5
+* update to filesaver 2.0.4
 
 .Incompatibilities:
 * due to a security fix in latest jQuery, be sure you don't use self closing html elements in jQuery.append()/etc. (Example: <span/> -> <span></span>)
