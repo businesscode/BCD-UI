@@ -75,56 +75,60 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
    */
   constructor(args)
   {
-
-    var id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_")
-    var inputModel = new bcdui.core.DataProviderHolder();
-
-    super( {
-      id: id ,
-      inputModel: inputModel,
-      targetHtml: args.targetHtml, 
-      chain: args.chain,
-      suppressInitialRendering : args.suppressInitialRendering,
-      parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
-    });
-
-
     // As long as ScorecardModel internally relies on the registry to find its sub- or helper models, we have to enforce an id here
     // also context menu needs it
-    this.id = id;
+    var id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_");
 
     // Argument defaults
     args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
-    this.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    this.metaDataModel = args.config;
-    this.targetHtml = args.targetHtml;
+    var statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    var metaDataModel = args.config;
+    var targetHtml = args.targetHtml;
     args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
 
     if (! args.inputModel && ! args.config) {
-      bcdui.log.error("Scorecard "+this.id+" has neither an inputModel nor a config parameter");
+      bcdui.log.error("Scorecard "+id+" has neither an inputModel nor a config parameter");
       return;
     }
 
     // generate enhancedConfiguration out of config
     if (args.config)
-      args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: this.metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: this.id, statusModel: this.statusModel } } );
+      args.enhancedConfiguration = new bcdui.core.ModelWrapper({inputModel: metaDataModel, chain: [ bcdui.contextPath+"/bcdui/js/component/scorecard/mergeLayout.xslt"],parameters: {scorecardId: id, statusModel: statusModel } } );
 
-    this.inputModel = inputModel;
+    var inputModel = new bcdui.core.DataProviderHolder();
 
     // if we got an input model, we can directly proceed
     if (!!args.inputModel)
-      this.inputModel.setSource(args.inputModel);
+      inputModel.setSource(args.inputModel);
     else {
       bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function() {
         // don't run (provide an empty wrq) when we don't have at least one KpiRef in our configuration
-        this.inputModel.setSource(
+        inputModel.setSource(
           ! args.enhancedConfiguration.query("/*/scc:Layout/scc:KpiRefs/scc:KpiRef")
             ? new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" )
-            : new bcdui.component.scorecard.ScorecardModel({ id: this.id+"_model", config: args.enhancedConfiguration, statusModel: this.statusModel, customParameter: args.customParameter })
+            : new bcdui.component.scorecard.ScorecardModel({ id: id+"_model", config: args.enhancedConfiguration, statusModel: statusModel, customParameter: args.customParameter })
         );
-      }.bind(this));
+      });
     }
-  
+
+	var bcdPreInit = args ? args.bcdPreInit : null;
+    super( {
+      id: id ,
+      inputModel: inputModel,
+      targetHtml: targetHtml, 
+      chain: args.chain,
+      suppressInitialRendering : args.suppressInitialRendering,
+      parameters: jQuery.extend({scConfig: args.enhancedConfiguration, customParameter: args.customParameter, paramModel: args.enhancedConfiguration}, args.parameters )
+      , bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
+          this.id = id;
+          this.targetHtml = targetHtml;
+          this.metaDataModel = metaDataModel;
+          this.statusModel = statusModel;
+        }
+    });
+
     //------------------
     // We also create some convenience objects: tooltip, detail export and WYSIWYG export infrastructure
     // Being lazy
