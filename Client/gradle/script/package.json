@@ -7,7 +7,7 @@
   "dependencies": {
     "block-ui":           "@version",
     "dot":                "@version",
-    "log4javascript":     "git+https://github.com/DECK36/log4javascript#@version",
+    "log4javascript":     "@version",
     "modernizr":          "@version",
     "d3-format":          "@version",
     "jquery":             "git+https://github.com/jquery/jquery#@version",
