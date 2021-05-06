@@ -64,7 +64,7 @@ def js3rdPartyNpm = [
                           [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/dist/nouislider.js"],
       "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js",               ofnm: "babel-polyfill/dist/polyfill.min.js"],
-      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/FileSaver.js",                       ofnm: "file-saver/FileSaver.min.js"],
+      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/dist/FileSaver.js",                  ofnm: "file-saver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
     ]
