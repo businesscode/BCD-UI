@@ -32,8 +32,10 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -79,8 +81,8 @@ abstract public class AbstractExcelSheetDataWriter
     this.usingTemplate = includeHeader;
     sheetName = defaultSheetName;
     cellStyleHeader = workbook.createCellStyle();
-    cellStyleHeader.setFillForegroundColor( new HSSFColor.GREY_25_PERCENT().getIndex() );
-    cellStyleHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
+    cellStyleHeader.setFillForegroundColor(HSSFColor.HSSFColorPredefined.GREY_25_PERCENT.getIndex());
+    cellStyleHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
     Font headerFont = workbook.createFont();
     headerFont.setBold(true);
     cellStyleHeader.setFont(headerFont);
@@ -377,7 +379,7 @@ abstract public class AbstractExcelSheetDataWriter
     if (cellRef.getCol() == cellRef.getRow() && cellRef.getRow() == 0) {
       XSSFSheet sheet = table.getXSSFSheet();
       // get sheets last row+col, the last col is derived from assumed header
-      String areaReference = new AreaReference(new CellReference(0, 0), new CellReference(sheet.getLastRowNum(), sheet.getRow(0).getLastCellNum() - 1)).formatAsString();
+      String areaReference = new AreaReference(new CellReference(0, 0), new CellReference(sheet.getLastRowNum(), sheet.getRow(0).getLastCellNum() - 1), SpreadsheetVersion.EXCEL2007).formatAsString();
       log.trace("found table in sheet '" + sheet.getSheetName() + "', align its range to " + areaReference);
       sheet.getCTWorksheet().getDimension().setRef(areaReference);
       CTTable ctTable = table.getCTTable();

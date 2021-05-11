@@ -16,6 +16,7 @@
 
 package de.businesscode.bcdui.wrs.export;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,14 +39,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.POIXMLProperties;
-import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType;
@@ -158,7 +158,7 @@ public class Wrs2Excel {
         workbook.setSheetOrder(sheetName, active+1);
         if( sheet instanceof XSSFSheet ) {
           XSSFSheet xssfSheet = (XSSFSheet)sheet;
-          xssfSheet.setTabColor( new HSSFColor.RED().getIndex() );
+          xssfSheet.setTabColor(new XSSFColor(java.awt.Color.RED, null));
         }
         Row row = sheet.createRow(0); 
         Cell cell = row.createCell(0);
@@ -291,7 +291,7 @@ public class Wrs2Excel {
       // open workbook
       log.trace("opening workbook");
       workbook = WorkbookFactory.create(new FileInputStream(tempFile));
-    } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+    } catch (EncryptedDocumentException | IOException e) {
       throw new ExcelWriterException("failed to open workbook", e);
     }
     this.workbook.setForceFormulaRecalculation(true);

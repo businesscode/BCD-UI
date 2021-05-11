@@ -15,11 +15,11 @@
 */
 
 /*--------------------------------------------
- * Gradle file building Eclipse .project and .classpath
- * To use
- * 1. Copy this file to your project
- * 2. Copy bcdui_project_template_build.gradle found here as build.gradle to your project and read its instructions
- ------------------------------------------------*/
+* Gradle file building Eclipse .project and .classpath
+* To use
+* 1. Copy this file to your project
+* 2. Copy bcdui_project_template_build.gradle found here as build.gradle to your project and read its instructions
+------------------------------------------------*/
 
 configurations {
   // Needed this to compile but it will not be part of packaging as it is found in the target environment by other means
@@ -36,13 +36,13 @@ dependencies {
   // For BCD-UI we list all jars we need during compile and runtime explicitly here
   // We do not want any additionally declared transitive dependencies
   // these dependencies are also used to build BCD-UI
-  implementation ('commons-codec:commons-codec:1.10') { transitive = false }
+  implementation ('commons-codec:commons-codec:1.15') { transitive = false }
   implementation ('commons-collections:commons-collections:3.2.2') { transitive = false }
-  implementation ('org.apache.commons:commons-collections4:4.1') { transitive = false } // collections:3.2.2 and 4-4.1 do not conflict. 3 is used by lib, 4 by poi
-  implementation ('org.apache.commons:commons-csv:1.5') { transitive = false }
+  implementation ('org.apache.commons:commons-collections4:4.4') { transitive = false } // collections:3.2.2 and 4-4.1 do not conflict. 3 is used by lib, 4 by poi
+  implementation ('org.apache.commons:commons-csv:1.8') { transitive = false }
   implementation ('commons-dbutils:commons-dbutils:1.7') { transitive = false }
-  implementation ('commons-fileupload:commons-fileupload:1.3.3') { transitive = false }
-  implementation ('commons-io:commons-io:2.5') { transitive = false }
+  implementation ('commons-fileupload:commons-fileupload:1.4') { transitive = false }
+  implementation ('commons-io:commons-io:2.8.0') { transitive = false }
   implementation ('commons-lang:commons-lang:2.6') { transitive = false }
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
@@ -50,36 +50,44 @@ dependencies {
   implementation ('org.apache.logging.log4j:log4j-api:2.14.1') { transitive = false }
   implementation ('org.apache.logging.log4j:log4j-core:2.14.1') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
-  implementation ('net.sf.opencsv:opencsv:2.3') { transitive = false }
-  implementation ('org.apache.poi:poi:3.16') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml:3.16') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml-schemas:3.16') { transitive = false }
-  implementation ('org.apache.shiro:shiro-all:1.4.0') { transitive = false }
+  implementation ('com.opencsv:opencsv:5.4') { transitive = false }
+  implementation ('org.apache.poi:poi:4.1.2') { transitive = false }
+  implementation ('org.apache.poi:poi-ooxml:4.1.2') { transitive = false }
+  implementation ('org.apache.poi:poi-ooxml-schemas:4.1.2') { transitive = false }
+  implementation ('org.apache.shiro:shiro-all:1.7.1') { transitive = false }
   implementation ('org.apache.velocity:velocity:1.7') { transitive = false }
-  implementation ('org.apache.xmlbeans:xmlbeans:2.6.0') { transitive = false }
+  implementation ('org.apache.xmlbeans:xmlbeans:3.1.0') { transitive = false }
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
-  implementation ('com.google.code.gson:gson:2.8.5') { transitive = false }
-  // These moved from Java to Java EE with Java 11:
-  if(JavaVersion.current() >= JavaVersion.VERSION_11) {
-    implementation('javax.xml.bind:jaxb-api:2.3.1') { transitive = false }
-    implementation('javax.xml.bind:activation:1.0.2') { transitive = false }
-    implementation('javax.xml.soap:javax.xml.soap-api:1.4.0') { transitive = false }
+  implementation ('com.google.code.gson:gson:2.8.6') { transitive = false }
+
+  // Only needed when using jsp
+  // implementation ('javax.servlet:jstl:1.2') { transitive = false }
+  // implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
+  // compileOnly ('javax.servlet.jsp:jsp-api:2.3.3') { transitive = false }
+
+  // These moved from Java to Java Jakarta with Java 9 http://openjdk.java.net/jeps/320:
+  // We use soap api 1 for error messages, so we use soap 1.x and also saaj 1.x
+  if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
+    implementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.3') { transitive = false }
+    implementation('jakarta.xml.soap:jakarta.xml.soap-api:1.4.2') { transitive = false }
+    implementation('jakarta.activation:jakarta.activation-api:1.2.1') { transitive = false }
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.4') { transitive = false }
+    implementation('com.sun.istack:istack-commons-runtime:4.0.1') { transitive = false }
+    implementation('com.sun.xml.messaging.saaj:saaj-impl:2.0.1') { transitive = false }
+    implementation('org.jvnet.staxex:stax-ex:2.0.1') { transitive = false }
   }
 
   // Additionally needed only during runtime
-  runtime ('commons-beanutils:commons-beanutils:1.9.3') { transitive = false }
-  runtime ('org.slf4j:slf4j-api:1.7.30') { transitive = false } // is needed by Tomcat, for example
-  runtime ('org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1') { transitive = false } // actual implementation of slf4j using log4j
-  runtime ('org.apache.logging.log4j:log4j-1.2-api:2.14.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
+  runtimeOnly ('commons-beanutils:commons-beanutils:1.9.4') { transitive = false }
+  runtimeOnly ('org.slf4j:slf4j-api:1.7.30') { transitive = false } // is needed by Tomcat, for example
+  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1') { transitive = false } // actual implementation of slf4j using log4j
+  runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.14.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
+  runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
+  runtimeOnly ('org.apache.commons:commons-compress:1.20') { transitive = false } // needed by poi
 
   // Provided during runtime by servlet container
-  compileOnly ('javax.el:javax.el-api:2.2.5') { transitive = false }
-  compileOnly ('javax.servlet.jsp:jsp-api:2.2') { transitive = false }
-  compileOnly ('javax.servlet:javax.servlet-api:3.0.1') { transitive = false }
-
-  // Provided during runtime by servlet container
-  provided ('com.sun.xml.bind:jaxb-impl:2.2.6') { transitive = false }
-  provided ('com.sun.xml.bind:jaxb-xjc:2.2.6') { transitive = false }
+  compileOnly ('javax.el:javax.el-api:3.0.0') { transitive = false }
+  compileOnly ('javax.servlet:javax.servlet-api:3.1.0') { transitive = false }
 
   // End BCD-UI dependencies
 }

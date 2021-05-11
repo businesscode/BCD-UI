@@ -277,6 +277,7 @@ public class BindingItem extends SimpleBindingItem {
    * @deprecated This method should no longer be used. Instead the
    * method {@link #getJDBCDataType()} can be called.
    */
+  @Deprecated
   public String getDisplayFormat() {
     return displayFormat;
   }
@@ -287,6 +288,7 @@ public class BindingItem extends SimpleBindingItem {
    * @return The XML element of the DisplayFormat node.
    * @deprecated Use the method {@link #getJDBCDataType()} instead.
    */
+  @Deprecated
   public Node getDisplayFormatAsNode() throws SAXException, IOException, ParserConfigurationException {
     Node node = null;
     if (this.displayFormat != null && this.displayFormat.length() > 0) {

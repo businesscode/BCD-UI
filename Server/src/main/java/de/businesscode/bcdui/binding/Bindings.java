@@ -209,6 +209,7 @@ public class Bindings {
    * @throws BindingException
    * @deprecated This getter is deprecated because it prevents the BindingSetGroup feature from being totally transparent to the user.
    */
+  @Deprecated
   public BindingSet get(String bindingSetId) throws BindingException {
     Collection<StandardBindingSet> result = getBindingSetUnchecked( bindingSetId );
     if (result == null) {

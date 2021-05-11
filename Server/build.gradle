@@ -16,7 +16,7 @@
 //**************************************
 // Handle compilation of BCD-UI's Java server and generation of Java classes from xsd
 apply plugin: 'java' // because we are also imported else where, we can not use the new plugins{} mechanism (gradle 4.1)
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
 
 // Add jaxb gensrc to default source set
 sourceSets {

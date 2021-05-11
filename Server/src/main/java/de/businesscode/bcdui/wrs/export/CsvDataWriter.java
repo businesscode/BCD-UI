@@ -28,9 +28,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import au.com.bytecode.opencsv.CSVWriter;
-import au.com.bytecode.opencsv.ResultSetHelper;
-import au.com.bytecode.opencsv.ResultSetHelperService;
+import com.opencsv.CSVWriter;
+import com.opencsv.ResultSetHelper;
+import com.opencsv.ResultSetHelperService;
 import de.businesscode.bcdui.wrs.load.AbstractDataWriter;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.WrsBindingItem;
@@ -81,7 +81,7 @@ public abstract class CsvDataWriter extends AbstractDataWriter implements IDataW
       try {
         char separator = getCsvSeparator().charAt(0);
         char quotechar = (getCsvQuoteCharacter().length() == 0) ? CSVWriter.NO_QUOTE_CHARACTER : getCsvQuoteCharacter().charAt(0);
-        writer = new CSVWriter(getLazyStream(), separator, quotechar, quotechar);
+        writer = new CSVWriter(getLazyStream(), separator, quotechar, quotechar, "\n");
         // Sadly, we cannot user 'sep=' as first line here as it breakes Excel's BOM recognition and this non-latin characters.
         //
         ResultSetHelper helper = new ResultSetHelperService() {

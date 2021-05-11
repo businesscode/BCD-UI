@@ -180,6 +180,7 @@ public String reconstructURI(HttpServletRequest request) {
    * @param response
    * @param time
    */
+  @Deprecated
   public void setExpirationHeader(HttpServletResponse response, long time) {
     response.setDateHeader("Expires", time);
   }

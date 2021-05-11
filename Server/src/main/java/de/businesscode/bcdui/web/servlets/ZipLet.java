@@ -654,6 +654,7 @@ public class ZipLet extends HttpServlet {
    * @throws Exception If the decompression or the XML parsing fails.
    * @deprecated
    */
+  @Deprecated
   public static Document decodeAndDecompressToXML(String compressedString) throws Exception {
     return decodeAndDecompressToXML(compressedString, null);
   }
@@ -710,6 +711,7 @@ public class ZipLet extends HttpServlet {
    * @see ZipLet#decodeAndDecompressToXMLWithXInclude(String, XMLBaseAttributeResolver, HttpServletRequest)
    * @deprecated
    */
+  @Deprecated
   public static Document decodeAndDecompressToXMLWithXInclude(String compressedString, ServletContext context) throws Exception {
     return decodeAndDecompressToXMLWithXInclude(compressedString, new ServletContextXMLBaseAttributeResolver(context), null);
   }

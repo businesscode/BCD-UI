@@ -28,6 +28,7 @@ public interface ServerSideValueBean {
    * @return username OR null, in case user is not known
    * @deprecated use {@link #getUserLogin()} instead
    */
+  @Deprecated
   String getUserName();
   
   /**

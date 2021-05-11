@@ -16,7 +16,7 @@
 //--------------------------------------------------
 // Handles compilation of JSP taglib related Java classes
 apply plugin: "java" // Because we are also imported as a script, we can't currently (gradle 4.1) use plugins{}
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
 
 dependencies {
   repositories {

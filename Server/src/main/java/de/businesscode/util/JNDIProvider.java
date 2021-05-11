@@ -41,6 +41,7 @@ public class JNDIProvider implements ConfigurationProvider {
   /**
    * @deprecated will be removed after BCD-UI 4.5
    */
+  @Deprecated
   private static JNDIProvider instance = null;
 
   protected Map<String, Object> configurationParameters = Collections.synchronizedMap(new HashMap<String, Object>());
@@ -52,6 +53,7 @@ public class JNDIProvider implements ConfigurationProvider {
    * @return
    * @deprecated will be removed after BCD-UI 4.5
    */
+  @Deprecated
   public synchronized static JNDIProvider getInstance() {
     if (instance == null)
       instance = new JNDIProvider();
@@ -64,6 +66,7 @@ public class JNDIProvider implements ConfigurationProvider {
    * @return
    * @deprecated will be removed after BCD-UI 4.5
    */
+  @Deprecated
   public static JNDIProvider getLocalInstance(String propsFile)
   {
     if (instance == null)
