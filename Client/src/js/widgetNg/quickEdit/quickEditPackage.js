@@ -121,7 +121,7 @@
 
   /**
    * QuickEdit widget provides UI to edit Wrs row
-   * @class
+   * @type {bcdui.widgetNg.QuickEdit}
    * 
    * @example <caption>HTML container for QuickEdit</caption>
    * &lt;div id="formContainer">&lt;/div>
@@ -153,7 +153,7 @@
    *   });
    * });
    */
-  class QuickEdit {
+  bcdui.widgetNg.QuickEdit = class  {
     /**
      * This callback is displayed as part of the Requester class.
      * @callback QuickEdit~callbackHandler
@@ -163,7 +163,7 @@
      */
 
     /**
-     * Create QuickEdit
+     * @constructs
      * @param {object} args - the arguments
      * @param {bcdui.core.DataProvider} args.wrsDataProvider - The dataProvider with Wrs document
      * @param {string} args.rowId - the rowId to edit, the row with such ID must exist in the document already
@@ -336,7 +336,7 @@
       return Object.assign( {}, this.options, { targetHtml: this.element[0] });
     },
     _create() {
-      this.instanceObject = new QuickEdit(this.options);
+      this.instanceObject = new bcui.widgetNg.QuickEdit(this.options);
     },
     _destroy() {
       this.instanceObject.destroy();
