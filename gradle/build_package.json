@@ -4,7 +4,7 @@
   "author":      "BusinessCode GmbH, Germany",
   "license":     "Apache V2.0",
   "dependencies": {
-    "jsdoc":                "3.5.5",
+    "jsdoc":                "3.6.7",
     "jaguarjs-jsdoc":       "1.1.0",
     "node-sass":            "4.7.2",
     "clean-css-cli":        "4.1.9",

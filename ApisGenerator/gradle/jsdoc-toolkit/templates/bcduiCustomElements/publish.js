@@ -116,6 +116,8 @@ function customElementsWidgets( taffyData, packageName, postfix, path )
 
 function printCustomTag( tagName, jsConstructorLongname, params, factory )
 {
+  params = params || [];
+
   result = "// " + tagName + " HTML custom element" + newLine;
   result += "bcdui.util.createCustomElement( '"+tagName+"', function() {" + newLine;
   result += "  var args = { targetHtml: this };" + newLine;
