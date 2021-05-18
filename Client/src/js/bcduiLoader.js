@@ -42,7 +42,7 @@ bcdui.bcduiCeFiles =
        "isIE" : true
      },
      "files": [
-          "/js/3rdParty/babel-polyfill.js"
+          "/js/3rdParty/core-js-bundle.js"
      ]
     },
     {

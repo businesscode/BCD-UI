@@ -63,7 +63,7 @@ def js3rdPartyNpm = [
       "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js",        ofnm: "handsontable/dist/handsontable.full.min.js"],
                           [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/dist/nouislider.js"],
-      "babel-polyfill": [ fn: "babel-polyfill.js",     ofn: "babel-polyfill/dist/polyfill.js",               ofnm: "babel-polyfill/dist/polyfill.min.js"],
+      "core-js-bundle": [ fn: "core-js-bundle.js",     ofn: "core-js-bundle/index.js",                       ofnm: "core-js-bundle/minified.js"],
       "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/dist/FileSaver.js",                  ofnm: "file-saver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
@@ -222,9 +222,8 @@ task bcduiClientJsFileGroups {
       mustRunAfter 'bcduiClientCollectAll'
       inputs.files inputFiles + "./src/js/$jsBcduiLoader"
       outputs.file file(outFileName)
-      script = file("$nodeModulesDir/babel-cli/bin/babel")
-      def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/babel-preset-es2015" : "")
-      def plugins = "--plugins=$nodeModulesDir/babel-plugin-transform-class-properties"
+      script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
+      def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/@babel/preset-env" : "")
       args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets + plugins
 
       // Postpend copy right. We do not prepend it to keep the source map indices intact
@@ -382,11 +381,10 @@ task bcduiClientEcma5One2One (type: NodeTask) {
     delete taskDestDir
   }
 
-  // Job itself: Call babel and put individual ecma6 files to taskDestDir (excluding 3rdParty, they are copyied below)
-  script = file("$nodeModulesDir/babel-cli/bin/babel")
-  args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/babel-preset-es2015" + "--source-maps" +
-              "--plugins=$nodeModulesDir/babel-plugin-transform-async-to-generator,$nodeModulesDir/babel-plugin-transform-class-properties" +
-              "--ignore" + "./3rdParty/*.js"
+  // Job itself: Call babel and put individual ecma6 files to taskDestDir (excluding 3rdParty, they are copied below)
+  script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
+  args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/@babel/preset-env" + "--source-maps" +
+          "--ignore" + "$bcduiClientCollectAll.destinationDir/js/3rdParty/*.js"
 
   // 1. We do not apply ECMA5 babel to 3rdParty resources (also has issues with ecma6Polyfills and webcomponent), so we overwrite them here with the originals
   // 2. We do neet to add es5Postfix to js, map and change the map entry in js
