@@ -17,15 +17,15 @@
 /*--------------------------------------------
  * Gradle file building Eclipse .project
  * 1.  Create an "Dynamic Web Project"
- *   - Eclipse recommends to keep git projects outside of wokspace, so create your project maybe next to it
+ *   - Eclipse recommends to keep git projects outside of workspace, so create your project maybe next to it
  * 2a. Copy this file and bcdui_dependencies.gradle into your front-end project root
  *   - Rename this file to build.gradle
  * 2b. Copy .gitignore found here to your project root
  *    - Later, do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
  * 2c. Copy gradle-wrapper.properties into /gradle/wrapper/
- * 2d. Copy context.xml and web.xml from Server/configFiles/ into your project
+ * 2d. Copy context.xml and web.xml from Server/configFiles/ into your project (into /META-INF and /WEB-INF)
  * 2e. Copy bcd-ui-core|theme*.jar and the database driver in into WEB-INF/lib/
- * 2f. Copy log4j.properties to src/main/resources/
+ * 2f. Copy Server/configFiles/log4j.properties to src/main/resources/
  *    - Also create src/main/java/, this will be your source folder
  * 3. Import the project into Eclipse as "Existing Gradle Project"
  *    - Then run "Gradle->Refresh Gradle Project" from context menu and refresh "Gradle Task" view

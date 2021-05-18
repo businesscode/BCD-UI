@@ -15,6 +15,8 @@
   limitations under the License.
 -->
 <BindingSet id="bcd_sec_user_roles" table="bcd_sec_user_roles" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+  <!-- Do not use BindingSet/@dbSourceName, is has no effect. It always uses the default datasource context.xml bcdui/defaultConnection
+    unless it is overwritten in WEB-INF/subjectSettings.xml /SubjectSettingsConfig/SubjectSettings/Jdbc/DataSource/@name -->
 
   <C id="user_id"     isKey="true"><Column>user_id</Column></C>
   <C id="user_role"   isKey="true"><Column>user_role</Column></C>

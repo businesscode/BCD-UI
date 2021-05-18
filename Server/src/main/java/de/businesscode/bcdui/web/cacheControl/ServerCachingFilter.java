@@ -320,7 +320,7 @@ public class ServerCachingFilter extends AbstractCacheFilter {
     }
 
     /**
-     * @param wrapperForURL
+     * @param key
      * @param writer
      * @return
      * @throws IOException

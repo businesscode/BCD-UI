@@ -77,7 +77,7 @@ public class DataModifiedFilter implements Filter {
       " FROM $t";
 
   /**
-   * Handle the request -> 304 or operation
+   * Handle the request brings 304 or operation
    */
   @Override
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)

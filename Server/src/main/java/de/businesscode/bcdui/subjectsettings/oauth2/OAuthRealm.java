@@ -79,7 +79,7 @@ public class OAuthRealm extends AuthenticatingRealm {
   /**
    * the API endpoint to obtain information about user basically providing JSON data containing {@link #getPrincipalPropertyName()} to extract
    * 
-   * @param apiEndpoint
+   * @param apiEndPoint The endpoint to get principal's JSON
    */
   public void setApiEndpoint(String apiEndPoint) {
     this.apiEndpoint = apiEndPoint;
@@ -196,7 +196,7 @@ public class OAuthRealm extends AuthenticatingRealm {
    * call against oauth2.0 "/token" endpoint to obtain an access token
    * 
    * @param oauthToken
-   * @return
+   * @return The access token
    * @throws IOException
    */
   protected String createAccessToken(OAuthToken oauthToken) throws IOException {
@@ -270,8 +270,8 @@ public class OAuthRealm extends AuthenticatingRealm {
    * helper to access plain property of a json string, i.e. readJsonProperty('{ foo:"bar" }', "foo").getAsString() returns "bar"
    * 
    * @param jsonString
-   * @param stringPropertyName
-   * @return
+   * @param propertyName
+   * @return The property
    */
   protected JsonElement readJsonProperty(String jsonString, String propertyName) {
     return new JsonParser().parse(jsonString).getAsJsonObject().get(propertyName);

@@ -311,6 +311,8 @@ public class ReadBindingSet implements Runnable {
         if (preProcessStylesheets != null) {
           for (int i = 0; i < preProcessStylesheets.getLength(); i++) {
             // TODO impl
+            log.error("bnd:WriteProcessing/bnd:PreProcessStylesheets is not yet implemented and will be ignored. BindingSet: '" + bsName + "'");
+            break;
           }
         }
 

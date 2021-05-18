@@ -4,41 +4,35 @@
 === Release Notes
 
 The following release notes allow to follow BCD-UI's updates and to judge whether migrating to a newer version is worth it.
-Some changes are backward incompatible and may require code change in the project. They are listed here as well.
-
+Some changes are not backward compatible and may require code change in the project. They are listed here as well.
 
 ==== Release 5_5_0 ...in progress
 
 .Major new features:
-* removal of jQuery Mobile
-* update to log4j2
-* update js code and documentation to ECMA 6 standard
-
-. js 3rd party libs update
-* updated to jQuery 3.6.0
-* updated to echart 5.1.1
-* updated to fontawesome 5.15.3
-* updated to bootstrap 4.6.0 
-* updated to doT 1.1.3
-* updated to d3-format 1.4.5
-* updated to filesaver 2.0.4
-* updated to modernizr 3.5.0
-* updated to nouislider 15.0.0
-* updated to webcomponentsjs 1.3.3
-* updated to log4javascript 1.4.16
-
-* updated dependency jars
+* Migrated BCD-UI to Java 11
+* Updated to log4j2
+* Updated 3rd-party java libs
+* Updated 3rd-party js libs
+* Updated BCD-UI js code and documentation to ECMA 6 standard
+* Removed jQuery Mobile
 
 .Incompatibilities:
-* due to a security fix in latest jQuery, be sure you don't use self closing html elements in jQuery.append()/etc. (Example: <span/> -> <span></span>)
-* projects need to update to log4j2 jars and adjust log4j.properties
-* echart uses new default colors, ensure to set colors in your projects and don't rely on default coloring
-* due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
-* add the following to your shiro main settings in web.xml: invalidRequest.blockSemicolon = false
-* ensure to update dependency jars
+* Client
+** Due to a security fix in latest jQuery, be sure you don't use self closing html elements in jQuery.append()/etc. (Example: <span/> -> <span></span>)
+** echart uses new default colors, ensure to set colors in your projects and don't rely on default coloring
+** Due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
+* Config
+** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
+** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
+** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
+
+.If you are interested in the individual versions of 3rd party libs for runtime, see
+* bcdui_dependencies.gradle for java
+* gradle.properties for javascript
 
 .Build:
-* updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
+* Updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
+* Updated to babel-js, node-sass and jsdoc, see build_package.json
 
 ==== Release 5_4_0
 

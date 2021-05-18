@@ -15,12 +15,13 @@
 */
 "use strict";
 /**
+ * !! Do not use if your browser does not support native date widget, for example IE 11 does not. !!
+ *
  * API for an Date Input widget implementation as jQuery Widget and extends the bcduiInput
  * widget for implementation.
  *
  * This widget offers native and custom implementation dependending on the browser capabilities,
- * the native implementation utilizes html5 input type feature whereas custom implementation uses
- * the calendar picker.
+ * the native implementation utilizes html5 input type feature.
  *
  * native functions are implemented with "_ntv_" prefix, whereas custom implementation functions are
  * prefixed with "_cst_" prefixes.

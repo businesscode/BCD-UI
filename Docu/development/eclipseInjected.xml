@@ -43,22 +43,17 @@
       -->
 
     <!--
-      1.a) Checkout BCD-UI into your workspace (under that name) and run bcduiBuildBin and bcduiClientEcma5One2One gradle tasks with target tldForWEB-INF
-      to create tlds for use in WEB-INF
-      -> As a result refresh BCD-UI (F5) and check that, after refreshing, you have /BCD-UI/dist/bcdui.tld and others
+      1.a) Checkout BCD-UI into your workspace (under that name) and run bcd-ui/bcduiBuildBin and bcd-ui/advanced/bcduiClientEcma5One2One gradle tasks
+      -> As a result refresh BCD-UI (F5) and check that, after refreshing, you have /BCD-UI/libs/bcd.ui-core.jar and others
       1.b) Remove bcdui.jar and bcdui_theme.jar from WEB-INF/lib, if your project contains them already, remove them also from build-path!
      -->
 
     <!-- 2. Add this to .project (Open navigation view. On top-level, below projectDescription, for example at the end just before </projectDescription>)
-      a) You may manually need to change 'WebContent' to point to your project's web content folder (the one above WEB-INF) relative to your project folder.
-      b) Change the 'bcd' in "PARENT-2-PROJECT_LOC/BCD-UI/themes/bcd/theme" to your theme.
-         In case of a non-legacy theme, the path should point to: "PARENT-2-PROJECT_LOC/BCD-UI/dist/themes/<your project>/bcdui/theme"
-
-      c) 'PARENT-2-PROJECT_LOC' is pre-defined by Eclipse, it will point to the project's parent dir
-         if you have a nested project (FE is a sub-folder of the git repository), change it to PARENT-2-PROJECT_LOC
-         otherwise, if you have put BCD-UI elsewhere, you can also use <variableList><variable><name>GIT_LOC</name><value>file:/D:/repository/git_bcd</value></variable></variableList>
-      -> As result check that in your project you have linked folders (with small arrows):
-         <webContent>/WEB-INF/tags/bcdui/..., <webContent>/bcdui/js|theme|xslt, /java, /genjava and /tld
+      a) Replace 'WebContent' with your project's web content folder (the one above WEB-INF) relative to your project folder if different.
+      b) 'PARENT-2-PROJECT_LOC' is pre-defined by Eclipse, it will go two levels up and search for BCD-UI there, you may need to adjust it
+      c) The path for bcdui_inject/theme should point to you theme, for bcd themes it is
+         PARENT-2-PROJECT_LOC/BCD-UI/Theme/build/themes/<your project>/WebContent/bcdui/theme
+      -> As result check that in your project you have about 12 linked folders (with small arrows) at bcdui_inject/*, which you can browse
     -->
 
     <linkedResources>
@@ -132,6 +127,7 @@
     <!-- 3. Add this to .classpath
          a) You manually need to change WebContent to point to your web content folder (the one above WEB-INF), relative to your project folder
          -> As a result check that you have <webContent>/WEB-INF/classes/bcdui/.../*.class, if not, check also that your build-path is ok
+         b) Replace "/path-to-apache-tomcat/" with the value for your computer
     -->
     <classpathentry kind="src" output="WebContent/WEB-INF/classes" path="bcdui_inject/genjava"/>
     <classpathentry kind="src" output="WebContent/bcdui/js" path="bcdui_inject/genjs"/>
@@ -147,6 +143,9 @@
     <classpathentry kind="src" output="WebContent/WEB-INF/tags/bcdui" path="bcdui_inject/tlds"/>
     <classpathentry kind="src" output="WebContent/bcdui/xslt" path="bcdui_inject/xslt"/>
 
+    <classpathentry kind="lib" path="/path-to-apache-tomcat/lib/el-api.jar"/>
+    <classpathentry kind="lib" path="/path-to-apache-tomcat/lib/jsp-api.jar"/>
+    <classpathentry kind="lib" path="/path-to-apache-tomcat/lib/servlet-api.jar"/>
     <!-- 4. Add this to project-level .gitignore
       It will usually already contain WebContent/WEB-INF/classes
       We list the subfolders of WebContent/bcdui/ individually, because a WebContent/bcdui/conf, if presen, does belong to got
@@ -188,13 +187,14 @@
     </jsp-config>
 
     <!-- 6. Cleanup:
-        a) Sometimes, Eclipse will add 3 entries to .settings\org.eclipse.wst.common.component, remove this one:
-           <wb-resource deploy-path="/WEB-INF/classes" source-path="/bcdui_tld"/>
+        a) Sometimes, Eclipse will add 3 entries to .settings\org.eclipse.wst.common.component, remove those of
+           <wb-resource deploy-path="/WEB-INF/classes" source-path="XX"/> of type (gen- or not) js, xslt, tld, taglib
+           otherwise they end up in WEB-INF/classes which is not a real problem but still wrong
         b) Sometimes, for unknown reason bcdui_tld will initially contain everything from dist, refresh it and only tdls will stay
       -->
 
     <!-- 7. Debug source path
-        For breakpoints, it is best is to have BCD-UI/src/java in the debuger's source setting (and not the linked ones).
+        For breakpoints, it is best is to have BCD-UI/src/java in the debugger's source setting (and not the linked ones).
         To do this first start once your (Eclipse managed) Tomcat in debug mode, to create an entry for it in debug configurations.
         Then go to Run->Debug configurations...->Tomcat->Source and add BCD-UI/src/java as the first entry,
         so when you click on a line in exceptions, the BCD-UI/src.. will open. Also always open these for setting breakpoints,

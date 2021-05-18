@@ -313,7 +313,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
-   * @param {string}        [args.label]                          If provided, renders label element to this input
+   * @param {string}        [args.label]                          If provided, renders label element to this input, unless args.isCheckBox = true
    */
   createMultiSelect: function(args)
     {
@@ -339,7 +339,7 @@ jQuery.extend(bcdui.widget,
           widgetCaption:            args.widgetCaption,
           enableNavPath:           args.enableNavPath,
           doSortOptions:            args.doSortOptions || "false",
-          label :                   args.label
+          label :                   !args.isCheckBox ? args.label : null
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -1314,7 +1314,7 @@ jQuery.extend(bcdui.widget,
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
     * @param {string}        [args.defaultState=closed]   'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
-    * @param {writableModelXPath} [args.targetModelXPath]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
+    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:Status/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
     */
    createBlindUpDownArea:function(args){
@@ -3338,6 +3338,9 @@ jQuery.extend(bcdui.widget,
      }
 }); // namespace
 
+/**
+ * Tooltip for widget validation results
+ */
 bcdui.widget.validationToolTip = class
 {
   _schema_validationToolTip_args= !(bcdui.factory.validate.jsvalidation._patterns) ? {} : {
@@ -3353,7 +3356,6 @@ bcdui.widget.validationToolTip = class
   }
 
   /**
-   * @constructs
    * Initializing tooltip widget
    * @param args
    * @param args.id - option widget identifier

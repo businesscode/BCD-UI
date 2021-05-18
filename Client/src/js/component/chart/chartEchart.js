@@ -1121,6 +1121,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * Export an EChart as PNG
    * @param targetHtml  - Html element where the chart is found
    * @param name        - File name: name+".png"
+   * @static
    */
   static saveAsImage(targetHtml, name) {
     // use configuration item and data specified to show chart

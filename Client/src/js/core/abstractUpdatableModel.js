@@ -215,14 +215,13 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
 
 
 /**
- * @private
- *
  *   A reference object encapsulating a model updater which is a transformation
  *   chain object. Additionally it contains a flag indicating if the auto-update
  *   mode is applicable.
  *
  *   This class is internally used by the {@link bcdui.core.AbstractUpdatableModel}
  *   class.
+ * @private
  */
 bcdui.core.ModelUpdaterReference = class
 

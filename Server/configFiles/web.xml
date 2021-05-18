@@ -112,6 +112,8 @@
         cacheManager = org.apache.shiro.cache.ehcache.EhCacheManager
         securityManager.cacheManager = $cacheManager
 
+        invalidRequest.blockSemicolon = false
+
         ## Some links
         authc.loginUrl      = /login.html
         # /oauth?oauth-provider-id=azure   use this if there is only an Azure login
@@ -129,7 +131,8 @@
         ## Which URLs are public ('anon') and which require the user to be logged in ('authc') and possibly specific roles or permissions
         ## format: /reports/budget/** = authc, perms["pages:budget"]
         [urls]
-        # Following one  line is a workaround for a FireFox bug Q2 2020. Obviously FF is not sending session cookies along with included xml/xslt
+        # Following one line is a workaround for a FireFox bug starting 2020. Obviously FF is not sending session cookies along with included xml/xslt in case of https
+        # Workaround for FF 81.02 still needed
         /**/*.xslt              = anon
 
         ## For all OAuth we listen here.
@@ -261,7 +264,7 @@
   </filter-mapping>
 
   <!-- Allows for client-side caching depending on scopes maintained in bcd_cache_scope -->
-  <filter>
+  <!-- filter>
     <filter-name>bcdui4.DataModifiedFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.cacheControl.DataModifiedFilter</filter-class>
     <init-param>
@@ -272,7 +275,7 @@
   <filter-mapping>
     <filter-name>bcdui4.DataModifiedFilter</filter-name>
     <url-pattern>/bcdui/servlets/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping -->
 
   <!--
     BCD-UI Standard servlets

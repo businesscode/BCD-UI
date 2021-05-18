@@ -191,6 +191,7 @@
     <xs:attribute name="scale"        type="xs:integer">
       <xs:annotation>
         <xs:documentation>
+          Requires type-name to be set to a numeric type!
           A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
           B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
           C) Samples (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5.

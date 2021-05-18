@@ -114,7 +114,7 @@
           If this attribute is set, no calc:Calc element shall be nested.
         </xs:documentation></xs:annotation>
       </xs:attribute>
-    <xs:attributeGroup ref="tns:measureLayoutInformtion"/>
+    <xs:attributeGroup ref="tns:measureLayoutInformation"/>
     </xs:complexType>
   </xs:element>
 
@@ -154,7 +154,7 @@
     </xs:attribute>
     <xs:attribute name="sortBy" type="xs:NCName">
       <xs:annotation><xs:documentation>
-        If given, the sort of this level is not based on the dimension's value but on the given bRef. Can be the value itself, an extra sort bRef of a measure.
+        If given, the sort of this level is not based on the dimension's value but on the given measure or some artificial value.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="total" type="tns:TypeTotalAttr">
@@ -174,7 +174,7 @@
     </xs:attribute>
     <xs:attribute name="orderBRef" type="xs:NCName">
       <xs:annotation><xs:documentation>
-        If given, the dimension values are listed in ascending value order given by this bRef.
+        If given, orderBRef defines the sorting, otherwise the bRef itself defines the order.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="refDimension" type="xs:NCName">
@@ -191,7 +191,7 @@
     </xs:attribute>
   </xs:complexType>
 
-  <xs:attributeGroup name="measureLayoutInformtion">
+  <xs:attributeGroup name="measureLayoutInformation">
     <xs:attribute name="sort" type="tns:TypeSortAttr" default="ascending">
       <xs:annotation><xs:documentation>
         Whether and how (ascending/descending) to sort the values.
@@ -250,7 +250,7 @@
             Auto-evaluated by the cube
           </xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attributeGroup ref="tns:measureLayoutInformtion"/>
+        <xs:attributeGroup ref="tns:measureLayoutInformation"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

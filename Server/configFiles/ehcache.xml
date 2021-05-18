@@ -16,7 +16,10 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<ehcache updateCheck="false" name="application">
+<!--
+  Overwrite shiro authorization caching by placing our own version at src/main/resources/org/apache/shiro/cache/ehcache/ehcache.xml
+ -->
+<ehcache updateCheck="false" name="org.apache.shiro.cache.ehcache">
 
     <!-- Sets the path to the directory where cache .data files are created.
 
@@ -27,7 +30,7 @@
             user.dir - User's current working directory
             java.io.tmpdir - Default temp file path
     -->
-    <diskStore path="java.io.tmpdir/ehcache-application"/>
+    <diskStore path="java.io.tmpdir/shiro-ehcache"/>
 
 
     <!--Default Cache configuration. These will applied to caches programmatically created through
@@ -72,15 +75,27 @@
             diskExpiryThreadIntervalSeconds="120"
             />
 
-    <cache  name="de.businesscode.bcdui.vfs.DataBaseFileSystem"
+    <!-- Keep the session cache to eternal.
+         Timeout is handled by Shiro and cache should not drop info per se
+         In a web container, Shiro's default is ServletContainerSessionManager and session timeout is controlled by container's session-timeout in web.xml -->
+    <cache name="shiro-activeSessionCache"
             maxElementsInMemory="10000"
+           overflowToDisk="true"
+           eternal="true"
+           timeToLiveSeconds="0"
+           timeToIdleSeconds="0"
+           diskPersistent="true"
+           diskExpiryThreadIntervalSeconds="600"/>
+
+    <!-- Timeout determines, when realmBcdJdbc = de.businesscode.bcdui.subjectsettings.JdbcRealm re-reads
+         rights from bcd_sec_usersettings during an ongoing session -->
+    <cache name="realmBcdJdbc.authorizationCache"
+           maxElementsInMemory="1000"
             eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
-            overflowToDisk="false"
-            diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
-            />
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="3600"
+           overflowToDisk="true"/>
+
 </ehcache>
 
 

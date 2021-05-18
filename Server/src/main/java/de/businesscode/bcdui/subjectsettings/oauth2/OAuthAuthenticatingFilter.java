@@ -37,19 +37,16 @@ import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.WebUtils;
 
 /**
- * @formatter:off
  * The flow here is (start = not authenticated request)
- * 
- * 1. shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
- * 2. {@link #onAccessDenied(ServletRequest, ServletResponse)} is called, here we detect if this a pending login-attempt (roundtrip back from AD including auth-code token) or we save current request and initiate a redirect to oauth authorization server and set redirect_url to link back to us
- * 3. server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
- * 4. {@link #executeLogin(ServletRequest, ServletResponse)} queries {@link #createToken(ServletRequest, ServletResponse)} to create a token (which here is basically the auth-code we got from AD), this token is passed to {@link Subject#login(AuthenticationToken)}
- * 5. Shiro kicks in and asks each and every avaialable realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated princial. No authorization is done on this level, just authentication, as such our oauth2 realm is authenticating only, and not authorizing
- * 6. whenever permission are checked, Shiro scans next realms to authorize, here our jdbcrealm loads properties from database according to prinpical (user-id)
- * 7. the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overriden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
- * 
- * @formatter:on
- * 
+ * <p><ol>
+ * <li> shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
+ * <li> {@link #onAccessDenied(ServletRequest, ServletResponse)} is called, here we detect if this a pending login-attempt (roundtrip back from AD including auth-code token) or we save current request and initiate a redirect to oauth authorization server and set redirect_url to link back to us
+ * <li> server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
+ * <li> {@link #executeLogin(ServletRequest, ServletResponse)} queries {@link #createToken(ServletRequest, ServletResponse)} to create a token (which here is basically the auth-code we got from AD), this token is passed to {@link Subject#login(AuthenticationToken)}
+ * <li> Shiro kicks in and asks each and every avaialable realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated princial. No authorization is done on this level, just authentication, as such our oauth2 realm is authenticating only, and not authorizing
+ * <li> whenever permission are checked, Shiro scans next realms to authorize, here our jdbcrealm loads properties from database according to prinpical (user-id)
+ * <li> the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overriden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
+ * <ol></p>
  * all final methods on these class define the flow and must not be changed.
  */
 public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
@@ -77,7 +74,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
   /**
    * override successUrl and dont set a default one, since successUrl is usually a redirectUrl in our case, but in case we provide successUrl this will be
-   * explicitely redirected after successful login overriding whatever original url user navigated to
+   * explicitly redirected after successful login overriding whatever original url user navigated to
    */
   @Override
   public void setSuccessUrl(String successUrl) {
@@ -241,7 +238,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    * @see {@link #isLoginRequest(ServletRequest, ServletResponse)}
    * @param request
    * @param response
-   * @return
+   * @return URL to be used for login
    * @throws IOException
    */
   protected String constructLoginUrl(ServletRequest request, ServletResponse response) throws IOException {
@@ -285,7 +282,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    * 
    * @param request
    * @param response
-   * @return
+   * @return true if this is a login request
    */
   @Override
   protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {

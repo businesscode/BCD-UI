@@ -15,11 +15,11 @@
 */
 
 /*--------------------------------------------
-* Gradle file building Eclipse .project and .classpath
-* To use
-* 1. Copy this file to your project
-* 2. Copy bcdui_project_template_build.gradle found here as build.gradle to your project and read its instructions
-------------------------------------------------*/
+ * Gradle file building Eclipse .project and .classpath
+ * To use
+ * 1. Copy this file to your project
+ * 2. Copy bcdui_project_template_build.gradle found here as build.gradle to your project and read its instructions
+ ------------------------------------------------*/
 
 configurations {
   // Needed this to compile but it will not be part of packaging as it is found in the target environment by other means

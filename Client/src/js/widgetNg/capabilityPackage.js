@@ -47,7 +47,7 @@ bcdui.browserCompatibility = Object.assign(bcdui.browserCompatibility, {
         /**
          * A namespace for the BCD-UI browser capability and availability package
          * @private
-         * @namespace bcdui.browserCapability._intern.input
+         * @namespace bcdui.browserCompatibility._intern.input
          */
         bcdui.browserCompatibility._intern.input = { pattern: false };
       }

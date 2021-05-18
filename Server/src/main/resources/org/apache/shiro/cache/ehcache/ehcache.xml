@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 <!--
-  Overwrite shiro authorization caching by placing our own version at WEB-INF/classes/org/apache/shiro/cache/ehcache/ehcache.xml
+  Overwrite shiro authorization caching by placing our own version at src/main/resources/org/apache/shiro/cache/ehcache/ehcache.xml
  -->
 <ehcache updateCheck="false" name="org.apache.shiro.cache.ehcache">
 
