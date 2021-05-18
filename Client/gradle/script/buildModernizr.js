@@ -29,5 +29,5 @@ var config =
 };
 
 modernizr.build( config , function (result) {
-  fs.writeFile( process.argv[2], result); // the build
+  fs.writeFileSync( process.argv[2], result); // the build
 });

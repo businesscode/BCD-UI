@@ -37,6 +37,8 @@ Some changes are backward incompatible and may require code change in the projec
 * add the following to your shiro main settings in web.xml: invalidRequest.blockSemicolon = false
 * ensure to update dependency jars
 
+.Build:
+* updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
 
 ==== Release 5_4_0
 

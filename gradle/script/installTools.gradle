@@ -31,7 +31,7 @@ ext {
 // Configure node.js exec and modules local installation process
 node {
 
-  version = "6.11.4"
+  version = "12.13.0"
 
   // If false, it will try to use globally installed node.
   // TODO find a way to dynamically use existing node, if it exists
@@ -43,22 +43,6 @@ node {
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-
-//------------------------------------------
-// Workaround: Currently, com.moowork.node plugin does not locate a root project's node installation correctly in subprojects
-// Here we let all NodeType tasks point to the right executable, path being calculated relative to the root project
-afterEvaluate {
-  ext.nodePath = [NODE_ROOT: node.variant.nodeBinDir]
-  allprojects {
-    tasks.withType( NodeTask ).all{
-      it.execOverrides {
-        it.executable = "${nodePath.NODE_ROOT}/node"
-      }
-      it.dependsOn ':bcduiNodeJsTools'
-    }
-  }
-}
-
 
 //**********************************
 // Workaround: This should be part of Client/gradle.build, but there is an issue with NpmTask being used from sub projects

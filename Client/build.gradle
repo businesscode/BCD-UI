@@ -16,28 +16,27 @@
 //--------------------------------------------------
 // Deals with js and xslt sources, mainly: file-group-packaging for js and minifying
 
-// We cannot use the new plugins{} system as it won't support apply from: this from other build files (gradle 4.1)
+// We cannot use the new plugins{} system as it won't support importing via 'apply from:' (gradle 7)
 buildscript {
   repositories {
-    mavenCentral()
+    gradlePluginPortal()
   }
   dependencies {
-    classpath group: 'com.eriwen', name: 'gradle-js-plugin',  version: '1.12.0'
+    classpath "com.github.node-gradle:gradle-node-plugin:3.1.0"
   }
 }
-import com.eriwen.gradle.js.JsPlugin
-apply plugin: JsPlugin
+apply plugin: 'com.github.node-gradle.node'
 
 //------------------------------------------
 // Configure node.js exec and modules local installation process
-apply plugin: "com.moowork.node"
 node {
-  version = "4.6.0"
+  version = "12.13.0"
+  download = true
+
   // Set the work directory for unpacking node itself
   workDir = file(nodeJsDir)
 }
 
-import com.eriwen.gradle.js.tasks.*
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
@@ -59,12 +58,12 @@ def js3rdPartyNpm = [
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
       "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
-      "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "@webcomponents/webcomponentsjs/webcomponents-lite.js"],
+      "webcomponents":  [ fn: "webcomponents-lite.js", ofn: "webcomponents/webcomponents-lite.js"],
       "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js",        ofnm: "handsontable/dist/handsontable.full.min.js"],
                           [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/dist/nouislider.js"],
       "core-js-bundle": [ fn: "core-js-bundle.js",     ofn: "core-js-bundle/index.js",                       ofnm: "core-js-bundle/minified.js"],
-      "fileSaver":      [ fn: "fileSaver.js",          ofn: "file-saver/dist/FileSaver.js",                  ofnm: "file-saver/dist/FileSaver.min.js"],
+      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
     ]
@@ -94,12 +93,12 @@ task bcduiClientCollect3rdPartyModernizr( type: NodeTask ) {
   inputs.file rootProject.rootDir.path + "/gradle.properties"
   outputs.file "$taskDestDir/modernizr.js"
 
-  doFirst {
-    file(taskDestDir).mkdirs()
-    file("$buildDir/tmp/$name").mkdirs()
+  file(taskDestDir).mkdirs()
+  file("$buildDir/tmp/$name").mkdirs()
 
-    // Create a custom build file for modernizr based on gradle.properties
-    def modernizsBuildTemplate = new File("$clientRoot/gradle/script/buildModernizr.js")
+  // Create a custom build file for modernizr based on gradle.properties
+  def modernizsBuildTemplate = new File("$clientRoot/gradle/script/buildModernizr.js")
+  if(modernizsBuildTemplate.exists()) {
     def modernizsBuild = new File("$buildDir/tmp/$name/buildModernizr.js")
     modernizsBuild.text = modernizsBuildTemplate.text
     modernizsBuild.text = modernizsBuild.text.replaceAll( /.*@bcdui.3rdPartyJs.modernizr.feature-detects.*/, project.properties['bcdui.3rdPartyJs.modernizr.feature-detects'] )
@@ -217,14 +216,14 @@ task bcduiClientJsFileGroups {
   file("$clientCombinedDir/js/3rdParty").mkdirs()
 
   // A babel task for combining multiple files, minifying and optional ecma6-transpiling
-  def createBabelTask = { newTaskName, inputFiles, outFileName, ecma5, is3rdParty ->
+  def createBabelTask = { String newTaskName, inputFiles, outFileName, ecma5, is3rdParty ->
     task(newTaskName, type: NodeTask) {
       mustRunAfter 'bcduiClientCollectAll'
       inputs.files inputFiles + "./src/js/$jsBcduiLoader"
       outputs.file file(outFileName)
       script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
       def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/@babel/preset-env" : "")
-      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets + plugins
+      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
 
       // Postpend copy right. We do not prepend it to keep the source map indices intact
       doLast {
@@ -242,7 +241,7 @@ task bcduiClientJsFileGroups {
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
       "$clientCombinedDir/${fPathName}"
-    })
+    }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName$es5Postfix", inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}${es5Postfix}.js", true, false )
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js",              false, false )
@@ -277,7 +276,7 @@ task bcduiClientJsFileGroups {
       }
     }
     else if (copyUnmodified[value.fn]) {
-      // in case we want to explictly keep a file 1:1 (no minimize, no ECMA5 transpile, we copy it
+      // in case we want to explicitly keep a file 1:1 (no minimize, no ECMA5 transpile, we copy it
       copy {
         from "${copyUnmodified[value.fn].ofn}"
         into "$clientCombinedDir/$jsDistDir/3rdParty/"
@@ -415,9 +414,9 @@ task bcduiDist(type: Jar) {
 
   dependsOn bcduiClientJsFileGroups
 
-  baseName = "$artifactsBaseName-client"
-  version  = bcduiVersion
-  destinationDir = file("$buildDir/libs")
+  archiveBaseName = "$artifactsBaseName-client"
+  archiveVersion  = bcduiVersion
+  destinationDirectory = file("$buildDir/libs")
 
   from( "$clientCombinedDir/$jsDistDir" ) {
     into    'bcdui/js'
@@ -441,9 +440,9 @@ task bcduiDebugDist(type: Jar) {
 
   dependsOn bcduiClientJsFileGroups
 
-  baseName = "$artifactsBaseName-client-debug"
-  version  = bcduiVersion
-  destinationDir = file("$buildDir/libs")
+  archiveBaseName = "$artifactsBaseName-client-debug"
+  archiveVersion  = bcduiVersion
+  destinationDirectory = file("$buildDir/libs")
 
   from( "$clientCombinedDir/$jsDistDir" ) {
     into    'bcdui/js'

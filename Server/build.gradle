@@ -40,14 +40,13 @@ apply from: '../../BCD-UI/Docu/development/bcdui_dependencies.gradle'
 dependencies {
   repositories {
     mavenCentral()
-    jcenter()
   }
 
   // Needed by Ant during build
   antLib 'com.sun.xml.bind:jaxb-impl:2.2.6'
   antLib 'com.sun.xml.bind:jaxb-xjc:2.2.6'
-  antLib group: 'javax.xml.bind', name: 'activation', version: '1.0.2'
-  antLib group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+  antLib group: 'jakarta.activation', name: 'jakarta.activation-api', version: '1.2.1'
+  antLib group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.2'
 }
 
 //********************************
@@ -95,8 +94,8 @@ compileJava {
 //*********************************
 // Java Plugin default task configuration
 jar {
-  baseName = "$artifactsBaseName-server"
-  version  = bcduiVersion
+  archiveBaseName = "$artifactsBaseName-server"
+  archiveVersion  = bcduiVersion
   manifest {
     attributes( bcduiManifestAttributes() )
   }
@@ -115,9 +114,9 @@ task bcduiClean {
 //********************************
 // Refers to default task
 task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
-  baseName = "$artifactsBaseName-server"
-  version  = bcduiVersion
+  archiveClassifier = 'sources'
+  archiveBaseName = "$artifactsBaseName-server"
+  archiveVersion  = bcduiVersion
   from sourceSets.main.allSource
 }
 
@@ -129,13 +128,13 @@ task bcduiServerCollect3rdPartyJars ( type: Copy ) {
   description "Collects all 3rd party dependency jars in Server|JspTaglib/$buildDir.name/$taskDestDir"
 
   into "$buildDir/$taskDestDir"
-  from(configurations.compile) {
+  from(configurations.compileClasspath - (configurations.compileClasspath - configurations.runtimeClasspath)) {
     into "compileAndWebinf"
   }
-  from(configurations.runtime - configurations.compile) {
+  from(configurations.runtimeClasspath - configurations.compileClasspath) {
     into "onlyWebinf"
   }
-  from(configurations.compileOnly) {
+  from(configurations.compileClasspath - configurations.runtimeClasspath) {
     into "compileOnlyNotWebinf"
   }
 }

@@ -17,8 +17,9 @@
 // Handles generation of HTML documentation from manual adoc and JSDoc comments plus js API stubs for IDEs, based on JSDoc comments
 plugins {
   id 'java'
+  id "com.github.node-gradle.node"
 }
-apply plugin: "com.moowork.node"
+
 import groovy.json.JsonSlurper
 
 
@@ -30,6 +31,8 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
   dependsOn ':Client:bcduiClientCollectAll'
 
+  onlyIf { getGradle().getStartParameter().getTaskNames().contains("bcduiBuildDocu") }
+
   def inputsDir = "${tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir}/js"
   def targetDir = "$buildDir/htmldocs/jsdoc"
   inputs.dir inputsDir
@@ -40,7 +43,7 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   }
 
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-  args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).files + [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
+  args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).collect{it.absolutePath} + [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
   outputs.dir targetDir
 
   doLast {
@@ -81,22 +84,21 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   inputs.dir  inputsDir
   outputs.dir taskDestDirName
 
-  doFirst {
+  onlyIf { getGradle().getStartParameter().getTaskNames().contains("bcduiBuildDocu") }
 
-    // Which files are part of this distribution? We only want this to happen in execution phase
-    def jsonSlurper = new JsonSlurper()
-    def bcduiFiles = jsonSlurper.parseText(file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")[1])
-    def files = bcduiFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
-    // If a file is included in different fileGroups, just take it once to have all definitions unambiguous
-    files = files.unique(false)
+  // Which files are part of this distribution? We only want this to happen in execution phase
+  def jsonSlurper = new JsonSlurper()
+  def bcduiFiles = jsonSlurper.parseText(file(jsBcduiLoaderPath).text.split("// JSON-PART-FOR-BUILD")[1])
+  def files = bcduiFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
+  // If a file is included in different fileGroups, just take it once to have all definitions unambiguous
+  files = files.unique(false)
 
-    script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-    args   = files.collect { tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir.path+it } +
-             [ "--recurse",
-               "--template", file("$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs"),
-               "--destination", file(taskDestDirName),
-               "--query", "files="+files.join(',') ]
-  }
+  script = file("$nodeModulesDir/jsdoc/jsdoc.js")
+  args   = files.collect { tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir.path+it } +
+           [ "--recurse",
+             "--template", file("$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs").absolutePath,
+             "--destination", file(taskDestDirName).absolutePath,
+             "--query", "files="+files.join(',') ]
 }
 
 
@@ -114,9 +116,6 @@ task bcduiJavadoc(type: Javadoc) {
   options.addStringOption('Xmaxwarns', '1')
   options.addStringOption('stylesheetfile', 'gradle/static/javadoc/stylesheet.css')
   options.noTimestamp = true
-  doLast {
-    copy{ from "gradle/static/javadoc" into destinationDir }
-  }
 }
 
 

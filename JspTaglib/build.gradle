@@ -21,7 +21,6 @@ sourceCompatibility = JavaVersion.VERSION_11
 dependencies {
   repositories {
     mavenCentral()
-    jcenter()
   }
   compileOnly project(':Server')
   compileOnly 'javax.servlet.jsp:jsp-api:2.2'
@@ -34,8 +33,8 @@ jar {
 
   dependsOn ':ApisGenerator:bcduiBuild'
 
-  baseName = "$artifactsBaseName-jsptaglib"
-  version  = bcduiVersion
+  archiveBaseName = "$artifactsBaseName-jsptaglib"
+  archiveVersion  = bcduiVersion
 
   // Also add generated tld, tags
   // Tags being part of a jar require a tld file

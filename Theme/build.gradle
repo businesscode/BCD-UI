@@ -17,8 +17,16 @@
 /**
  * Generates the theme with sass into gensrc/themes
  */
-apply plugin: "com.moowork.node"
+plugins {
+  id "com.github.node-gradle.node"
+}
+node {
+  version = "12.13.0"
+  download = true
 
+  // Set the work directory for unpacking node itself
+  workDir = file(nodeJsDir)
+}
 def themeName         = project.properties['bcdui.theme.name']
 def themeFullLocation = project.properties['bcdui.theme.location'] + '/' + themeName
 def rootFolder = file(new File("$themeFullLocation/.genericBased")).exists() ? "generic" : "bcd"
@@ -111,9 +119,9 @@ task bcduiThemeDistCollect ( type: Copy ) {
 //******************************
 // Do all for what gradle 'Theme' project is responsible for
 task bcduiThemeDist( type: Jar ) {
-  baseName = "$artifactsBaseName-theme-$themeName"
-  version  = bcduiVersion
-  destinationDir = file("$buildDir/libs")
+  archiveBaseName = "$artifactsBaseName-theme-$themeName"
+  archiveVersion  = bcduiVersion
+  destinationDirectory = file("$buildDir/libs")
   includeEmptyDirs = false
   from bcduiThemeDistCollect
 }

@@ -25,18 +25,17 @@ subprojects {
   }
 }
 
-// We cannot use the new plugins{} system as it won't support importing via 'apply from:' this script from other build files (gradle 4.1)
+// We cannot use plugins{}as it doesn't support importing via 'apply from:' (gradle 7)
 buildscript {
   repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
+    gradlePluginPortal()
   }
   dependencies {
-    classpath "com.moowork.gradle:gradle-node-plugin:1.2.0"
+    classpath "com.github.node-gradle:gradle-node-plugin:3.1.0"
   }
 }
-apply plugin: 'com.moowork.node'
+
+apply plugin: 'com.github.node-gradle.node'
 
 // Project wide settings
 logging.captureStandardOutput LogLevel.INFO
@@ -64,11 +63,11 @@ task bcduiBuildCore( type: Jar ) {
   dependsOn    ':Server:jar', ':Client:bcduiDist'
 
   dependsOn bcduiMetaInf
-  destinationDir = file("$buildDir/libs")
+  destinationDirectory = file("$buildDir/libs")
   includeEmptyDirs = false
 
-  baseName = "$artifactsBaseName-core"
-  version  = bcduiVersion
+  archiveBaseName = "$artifactsBaseName-core"
+  archiveVersion  = bcduiVersion
 
   // Just merge the content of the individual projects Server, Client, Theme, JspTaglib
   [':Server:jar', ':Client:bcduiDist'].each { subJar ->

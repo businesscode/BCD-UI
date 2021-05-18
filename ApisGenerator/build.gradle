@@ -16,6 +16,17 @@
 //--------------------------------------------------
 // Generates additional APIS in form of HTML Custom Elements, XSLT, XML and JSP Taglib and parameter-validation for JS classes
 // HTML Custom Elements, XSLT, XML and JSP Taglib are Apis that can be used alternative to plain JS
+// We cannot use the new plugins{} system as it won't support importing via 'apply from:' (gradle 7)
+buildscript {
+  repositories {
+    gradlePluginPortal()
+  }
+
+  dependencies {
+    classpath "com.github.node-gradle:gradle-node-plugin:3.1.0"
+  }
+}
+apply plugin: 'com.github.node-gradle.node'
 
 // Provide xmltask.jar for ant task below
 configurations { antlibs }
@@ -26,8 +37,6 @@ dependencies {
   antlibs 'com.oopsconsultancy:xmltask:1.16'
 }
 import groovy.text.SimpleTemplateEngine
-import groovy.json.JsonSlurper
-apply plugin: "com.moowork.node"
 
 def genSrcOutputDir = "$buildDir/gensrc"
 
@@ -91,7 +100,7 @@ task bcduiGensrcJsXsltXapiJspTagApis {
 //************************************
 // Generate HTML Custom Elements for Renderer and Widget(Ng)s
 // It does so by applying a BCD-UI JSDoc template on the JS Sources
-// For these, we generate HTML Ccustom elements, further filtering is done in publish.js
+// For these, we generate HTML Custom elements, further filtering is done in publish.js
 task bcduiGensrcCustomElements ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
   dependsOn bcduiGensrcJsXsltXapiJspTagApis
@@ -100,14 +109,12 @@ task bcduiGensrcCustomElements ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' 
 
   def inputFiles = project.hasProperty('bcdui.genCustomElementsInputFiles') ? project.getProperty('bcdui.genCustomElementsInputFiles').split(', *|,| ') : []
   inputs.files  inputFiles
-  outputs.dir   genSrcOutputDir
+  outputs.dir   "$genSrcOutputDir/js"
 
-  doFirst {
-    script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-    args   = inputFiles.collect { it } +
-            [ "--template", file("gradle/jsdoc-toolkit/templates/bcduiCustomElements"),
-              "--destination", file(genSrcOutputDir) ]
-  }
+  script = file("$nodeModulesDir/jsdoc/jsdoc.js")
+  args   = inputFiles.collect { it } +
+          [ "--template", file("gradle/jsdoc-toolkit/templates/bcduiCustomElements").absolutePath,
+            "--destination", file(genSrcOutputDir).absolutePath ]
 }
 
 //--------------------------
@@ -115,7 +122,7 @@ task bcduiGensrcCustomElements ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' 
 // $genSrcOutputDir/taglib/META-INF:     tlds for usage in a bcdui.jar
 // $genSrcOutputDir/taglib/WEB-INF:      tlds for usage when BCD-UI "exploded" into a project
 task bcduiGensrcTld {
-  onlyIf { !inputs.files.files.empty }
+  onlyIf { !inputs.files.empty }
 
   // We need the tags as input
   dependsOn bcduiGensrcJsXsltXapiJspTagApis
@@ -198,10 +205,8 @@ task bcduiJisonArtefacts ( type: NodeTask ) {
   inputs.files jisonFile
   outputs.dir "$genSrcOutputDir/js/jison"
 
-  doFirst {
-    script = file("$nodeModulesDir/jison/lib/cli.js")
-    args   = [jisonFile, "-m", "js", "-o", file("$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js") ]
-  }
+  script = file("$nodeModulesDir/jison/lib/cli.js")
+  args   = [jisonFile, "-m", "js", "-o", file("$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js").absolutePath ]
 }
 
 
