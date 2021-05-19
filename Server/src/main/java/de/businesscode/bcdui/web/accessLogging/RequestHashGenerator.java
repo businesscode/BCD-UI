@@ -32,14 +32,14 @@ public class RequestHashGenerator {
     String addOn = request.getSession(false) != null ? request.getSession(false).getId() : "-";
     String url = request.getHeader("Referer");
     if (url == null)
-      return new Integer(addOn.hashCode()).toString(); // Here we avoid sharing sessionid information with the client
+      return Integer.toUnsignedString(addOn.hashCode()); // Here we avoid sharing sessionid information with the client
     int x = url.indexOf("//");
     url = x != -1 ? url.substring(x + 2) : url;
     int y = url.indexOf("/");
     url = x != -1 && y != -1 ? url.substring(y) : url;
     int z = url.indexOf("#");
     url = z != -1 ? url.substring(0, z) : url;
-    url = "" + (url + addOn).hashCode();
+    url = "" + Integer.toUnsignedString((url + addOn).hashCode());
     return url;
   }
   
