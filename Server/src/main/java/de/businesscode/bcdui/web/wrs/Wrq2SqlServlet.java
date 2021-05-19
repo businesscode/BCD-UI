@@ -38,6 +38,8 @@ public class Wrq2SqlServlet extends HttpServlet {
 
   private static final long serialVersionUID = -1447179893615429245L;
   private final Logger log = LogManager.getLogger(getClass());
+  // Default name of the permission in web.xml needed to access us as we expose implementation information here
+  public static final String DEFAULT_PERMISSION = "bcdAdmin:ImplementationDetails";
 
   /**
    * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)

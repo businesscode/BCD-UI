@@ -26,6 +26,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
 ** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
+** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
 
 .If you are interested in the individual versions of 3rd party libs for runtime, see
 * bcdui_dependencies.gradle for java

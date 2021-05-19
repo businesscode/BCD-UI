@@ -135,6 +135,9 @@
         # Workaround for FF 81.02 still needed
         /**/*.xslt              = anon
 
+        # This opens sensitive information to the caller and should only be allowed to a well-choosen subset of users
+        /bcdui/servlets/Wrq2SqlServlet/** = perms["bcdAdmin:ImplementationDetails"]
+
         ## For all OAuth we listen here.
         ## Login is triggered via calling /oauth?oauth-provider-id=azure or google in [url] section.
         ## OAuth response from provider also goes to here (but without that parameter)
