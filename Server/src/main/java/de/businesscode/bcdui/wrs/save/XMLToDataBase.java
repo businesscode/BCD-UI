@@ -260,7 +260,7 @@ public class XMLToDataBase implements XMLEventConsumer {
     this.writeProcessingCallbacks.clear();
 
     if(bindingSet.getWriteProcessing().hasCallbacks()){
-      logger.info("write processing callbacks found, delegating processEndHeader.");
+      logger.debug("write processing callbacks found, delegating processEndHeader.");
 
       // We derive the standard writing filter from SubjectSettings
       if( bindingSet.getSubjectFilters() != null && !bindingSet.getSubjectFilters().isSkipWriteCheck() ) {
@@ -288,7 +288,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       }
 
     } else {
-      logger.info("NO write processing callbacks found");
+      logger.debug("NO write processing callbacks found");
     }
   }
 
@@ -297,7 +297,7 @@ public class XMLToDataBase implements XMLEventConsumer {
    * WriteProcessing and apply them
    */
   private void processEndRow(String rowElementName) throws Exception {
-    logger.info("write processing callbacks found, delegating processEndRow.");
+    logger.debug("write processing callbacks found, delegating processEndRow.");
     for(WriteProcessingCallback cb : this.writeProcessingCallbacks){
       cb.endDataRow(WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName), updateValues, columnValues);
     }

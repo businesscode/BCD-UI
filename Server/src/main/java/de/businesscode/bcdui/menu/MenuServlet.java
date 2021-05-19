@@ -31,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.menu.config.Menu;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 
 /**
  *
@@ -70,14 +71,14 @@ public class MenuServlet extends HttpServlet {
       else{
         log.trace("Menu with menuId:" + menuId +" does not exist");
         if(Menus.getInstance().isEmpty())
-          log.trace("The Menu map is empty, check your configuration");
+          log.warn("The Menu map is empty, check your configuration");
       }
 
       if(! isCreated){
         res.getOutputStream().print("<Empty/>");
       }
     } catch (Exception e) {
-      log.info("Exception by reading menu files", e);
+        log.error(new ErrorLogEvent("Exception when reading menu files.", req), e);
     }
   }
 }
