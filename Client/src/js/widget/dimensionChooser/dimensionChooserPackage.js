@@ -264,7 +264,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
 
       // Special case: When there is only one visible level, we hide the level chooser and set its value (if empty)
       if( visibleLevels.length === 0 ) {
-        bcdui.log.warn("BCD-UI: DimensionChooser "+this.id+" could not find any levels.")
+        bcdui.log.warn("BCD-UI: DimensionChooser "+e.id+" could not find any levels.")
       } else if( visibleLevels.length == 1 ) {
         jQuery("#" + e.id+ "_level").closest("TR").hide();
         var levelNode = bcdui.core.createElementWithPrototype(targetModel.getData(),config.targetModelXPath);
