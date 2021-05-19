@@ -336,6 +336,7 @@ public class DatabaseCompatibility
    */
   protected DatabaseCompatibility()
   {
+    //---------------------------------------
     // Allowed calc expressions in sql
     Map<String, String[]> calcFktMapping;
     // isArithmetic, openingExpression, operandSeparator, closingExpression, inner aggregation or an analyt. fct
@@ -345,10 +346,10 @@ public class DatabaseCompatibility
     calcFktMapping.put("Sum",           new String[]{"Y",  "SUM(",          "",  ")", "I"});
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
-    calcFktMapping.put("Avg",           new String[]{"N",  "AVG(",          "",  ")", "I"});
-    calcFktMapping.put("Count",         new String[]{"N",  "COUNT(",        "",  ")", "I"});
-    calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
-    calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
+    calcFktMapping.put("Avg",           new String[]{"Y",  "AVG(",          "",  ")", "I"});
+    calcFktMapping.put("Count",         new String[]{"Y",  "COUNT(",        "",  ")", "I"});
+    calcFktMapping.put("CountDistinct", new String[]{"Y",  "COUNT(DISTINCT(", "",  "))", "I"});
+    calcFktMapping.put("Distinct",      new String[]{"Y",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
 
@@ -373,12 +374,15 @@ public class DatabaseCompatibility
     // Using '+' for MSSQL for concat does not autocast: VARCHAR + INTEGER fails. Concat does cast, same as || does for oracle.
     // On the other hand, concat for oracle does not support >2 arguments, so Concat is handled db specific
     sqlServerCalcFktMapping.put("Concat", new String[]{"N",  "CONCAT(",     ",", ")", "N"});
+    sqlServerCalcFktMapping.put("Mod",    new String[]{"Y",  "",  "%",  "", "N"});
+    
 
-    // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values cause by higher aggregation
+    // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values caused by higher aggregation
     // So both nulls will end up in one row and for MySQL we treat all such rows as a (sub)total rows
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     mysqlCalcFktMapping.put("Grouping",   new String[]{"N",  "ISNULL(", "", ")", "I"});
 
+    //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
     aggregationMappingGeneric = new HashMap<String, String>();
     aggregationMappingGeneric.put("sum",       "SUM");
@@ -387,7 +391,7 @@ public class DatabaseCompatibility
     aggregationMappingGeneric.put("avg",       "AVG");
     aggregationMappingGeneric.put("count",     "COUNT");
     aggregationMappingGeneric.put("grouping",  "GROUPING");
-    aggregationMappingGeneric.put("none",      ""); // Can be used if the column expression already has a aggregator defined
+    aggregationMappingGeneric.put("none",      ""); // Can be used if the column expression already has an aggregator defined
     
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
     aggregationMappingMySql.put("grouping",  "ISNULL");
@@ -420,8 +424,9 @@ public class DatabaseCompatibility
     sqlServerSpatialFktMapping.put("SpatContained", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatIntersects", new String[]{"",  ".STIntersects(", ") = 1"});
 
-
-    sqlKeyWordsOracle = new HashSet<String>(
+    //---------------------------------------
+    // SQL keywords, common for all databases
+    sqlKeyWordsGeneric = new HashSet<String>(
         Arrays.asList( new String[]
           {
             // Build-in functions
@@ -435,11 +440,11 @@ public class DatabaseCompatibility
             "HEXTORAW",
             "INITCAP", "INSTR", "INSTRB", "INSTRC", "INSTR2", "INSTR4", "ISNCHAR",
             "LAST_DAY", "LEAST", "LEAST_UB", "LENGTH", "LENGTHB", "LENGTHC", "LENGTH2", "LENGTH4", "LEVEL", "LN", "LOCALTIME", "LOCALTIMESTAMP", "LOG", "LOWER", "LPAD", "LTRIM", "LUB",
-            "MONTHS_BETWEEN",
+            "MOD", "MONTHS_BETWEEN",
             "NANVL", "NCHARTOROWID", "NCHR", "NEW_TIME", "NEXT_DAY", "NHEXTORAW", "NLS_CHARSET_DECL_LEN", "NLS_CHARSET_ID", "NLS_CHARSET_NAME", "NLS_INITCAP", "NLS_LOWER", "NLSSORT", "NLS_UPPER", "NULLFN", "NULLIF", "NUMTODSINTERVAL", "NUMTOYMINTERVAL", "NVL",
             "POWER",
             "RAWTOHEX", "RAWTONHEX", "REF", "REGEXP_INSTR", "REGEXP_LIKE", "REGEXP_REPLACE", "REGEXP_SUBSTR", "REMAINDER", "REPLACE", "ROLLBACK_NR", "ROLLBACK_SV", "ROLLUP", "ROUND", "ROWID ", "ROWIDTOCHAR", "ROWIDTONCHAR", "ROWLABEL", "ROWNUM", "RPAD", "RTRIM",
-            "SAVEPOINT", "SESSIONTIMEZONE", "SET", "SET_TRANSACTION_USE", "SIGN", "SIN", "SINH", "SOUNDEX", "SQLCODE", "SQLERRM", "SQRT", "SUBSTR", "SUBSTRB", "SUBSTRC", "SUBSTR2", "SUBSTR4",
+            "SAVEPOINT", "SESSIONTIMEZONE", "SET", "SET_TRANSACTION_USE", "SIGN", "SIN", "SINH", "SOUNDEX", "STRING_AGG", "SQLCODE", "SQLERRM", "SQRT", "SUBSTR", "SUBSTRB", "SUBSTRC", "SUBSTR2", "SUBSTR4", "SUBSTRING",
             "SYS_AT_TIME_ZONE", "SYS_CONTEXT", "SYSDATE", "SYS_EXTRACT_UTC", "SYS_GUID", "SYS_LITERALTODATE", "SYS_LITERALTODSINTERVAL", "SYS_LITERALTOTIME", "SYS_LITERALTOTIMESTAMP", "SYS_LITERALTOTZTIME", "SYS_LITERALTOTZTIMESTAMP", "SYS_LITERALTOYMINTERVAL", "SYS$LOB_REPLICATION", "SYSTIMESTAMP",
             "TAN", "TANH", "TO_ANYLOB", "TO_BINARY_DOUBLE", "TO_BINARY_FLOAT", "TO_BLOB", "TO_CHAR", "TO_CLOB", "TO_DATE", "TO_DSINTERVAL", "TO_LABEL", "TO_MULTI_BYTE", "TO_NCHAR", "TO_NCLOB", "TO_NUMBER", "TO_RAW", "TO_SINGLE_BYTE", "TO_TIME", "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_TIME_TZ", "TO_YMINTERVAL", "TRANSLATE", "TRIM", "TRUNC", "TZ_OFFSET",
             "UID", "UNISTR", "UPPER", "UROWID ", "USER", "USERENV",
@@ -471,31 +476,34 @@ public class DatabaseCompatibility
         )
       );
 
-    // SQL ANSI keywords beyond Oracle
-    sqlKeyWordsGeneric = new HashSet<String>(
+    // Oracle specific
+    sqlKeyWordsOracle = new HashSet<String>(sqlKeyWordsGeneric);
+    sqlKeyWordsOracle.addAll(
         Arrays.asList( new String[]
           {
             // Build-in functions
-            "SUBSTRING"
+            "SDO_CONTAINS", "SDO_UTIL", "FROM_WKTGEOMETRY"
           }
         )
       );
 
-    // TODO See also DatabaseMetaData.getKeyWords()
-    sqlKeyWordsGeneric.addAll(sqlKeyWordsOracle);
 
+    // SQL Server specific
     sqlKeyWordsSqlServer = new HashSet<String>(sqlKeyWordsGeneric);
     sqlKeyWordsSqlServer.addAll(
         Arrays.asList( new String[]
           {
-            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "FORMAT", "TZOFFSET", "ISO_WEEK", "GETUTCDATE",
+            "DATEADD", "DATEPART", "DATENAME", "DATEDIFF", "DATETIME", "DATETIME2", "FORMAT", "TZOFFSET", "ISO_WEEK", "GETUTCDATE",
             "ISO_WEEK", "DAYOFYEAR", "WEEKDAY", "MILLISECOND", "MICROSECOND", "NANOSECOND",
-            "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS", "LEN",
+            "FRACTIONS", "PRECISION", "TIMEFROMPARTS", "DATEFROMPARTS",
+            "DIFFERENCE", "LEFT", "LEN", "PATINDEX", "QUOTENAME", "REPLICATE", "REVERSE", "RIGHT", "SPACE", "STRING_SPLIT",
             "GEOMETRY", "GEOGRAPHY", "POINT", "STGEOMFROMTEXT", "STCONTAINS", "STINTERSECTS", "ENVELOPEAGGREGATE", "TOSTRING", "CURVETOLINEWITHTOLERANCE"
           }
         )
       );
 
+
+    // MySql specific
     sqlKeyWordsMysql = new HashSet<String>(sqlKeyWordsGeneric);
     sqlKeyWordsMysql.addAll(
         Arrays.asList( new String[]
