@@ -20,13 +20,7 @@
 plugins {
   id "com.github.node-gradle.node"
 }
-node {
-  version = "12.13.0"
-  download = true
 
-  // Set the work directory for unpacking node itself
-  workDir = file(nodeJsDir)
-}
 def themeName         = project.properties['bcdui.theme.name']
 def themeFullLocation = project.properties['bcdui.theme.location'] + '/' + themeName
 def rootFolder = file(new File("$themeFullLocation/.genericBased")).exists() ? "generic" : "bcd"

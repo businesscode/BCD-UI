@@ -26,6 +26,7 @@ ext {
   themeRoot     = file("$rootProject.projectDir/Theme")
   jspTaglibRoot = file("$rootProject.projectDir/JspTaglib")
   apisGeneratorRoot   = file("$rootProject.projectDir/ApisGenerator")
+  nodeJsDir     = file("${rootProject.rootDir}/.gradle/nodejs")
 
   // Content provided by one project for another
   bcdXsdDir        = "$docuRoot/xsd"
@@ -72,4 +73,10 @@ ext.bcduiManifestAttributes = {
           "Implementation-Version": project.properties['bcdui.version'],
           "Implementation-Vendor" : 'BusinessCode GmbH, Bonn, Germany'
   ]
+}
+
+//--------------------------
+// Whenever we use 'com.github.node-gradle.node' somewhere, we want to use the common inst in BCD-UI/.gradle
+pluginManager.withPlugin('com.github.node-gradle.node') {
+  node { version = "12.13.0"; download = true; workDir = file(nodeJsDir) }
 }

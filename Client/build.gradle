@@ -27,16 +27,6 @@ buildscript {
 }
 apply plugin: 'com.github.node-gradle.node'
 
-//------------------------------------------
-// Configure node.js exec and modules local installation process
-node {
-  version = "12.13.0"
-  download = true
-
-  // Set the work directory for unpacking node itself
-  workDir = file(nodeJsDir)
-}
-
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
