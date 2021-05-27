@@ -43,6 +43,7 @@
 
       <!-- JS factory methods, mainly setting params as html attributes to the container -->
       <File name="gensrc/js/widgetNg/widgetPackage.js">
+        <xsl:text>"use strict";</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.component.scorecard");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.component.far");</xsl:text>
@@ -51,6 +52,7 @@
 
       <!-- JS stubs for init() for getting params from html -->
       <File name="gensrc/js/widgetNg/widgetImpl.js">
+        <xsl:text>"use strict";</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg.impl.readParams");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.widgetNg.impl.validateParams");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.component.scorecard.impl.readParams");</xsl:text>

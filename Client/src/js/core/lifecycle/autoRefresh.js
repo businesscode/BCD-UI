@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
+"use strict";
 /**
  * Support for auto-refreshing a {bcdui.core.DataProvider} in the background and detecting, if new data is available.<br/>
  * After trying to reload every periodSec, args.modifiedIf to see, if new data was sent.<br/>
@@ -21,7 +21,7 @@
  * fullfilled from the cache.<br/>
  * * If the server sent a 304, we keep using the latest data sent from server.<br/>
  * Both is supported for example by DataRefreshedFilter for example.
- * Once new data was received from the server, agrs.onModified will be executed.
+ * Once new data was received from the server, args.onModified will be executed.
  * @example
  * let arModel = myCube.getPrimaryModel().getPrimaryModel();
  * new bcdui.core.lifecycle.AutoRefresh({ model: arModel });

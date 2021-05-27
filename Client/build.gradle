@@ -145,7 +145,7 @@ task bcduiClientCollect3rdParty {
 
 
 //**********************************
-// Copies all bcdui/js and bcdui/xslt from the various places together, except bcduiLoader, which is treated seperatly
+// Copies all bcdui/js and bcdui/xslt from the various places together, except bcduiLoader, which is treated separately
 // Shrink XSLTs and other non-js for production use and put them to build/bcduiClientPrepareNonJs
 task bcduiClientCollectAll( type: Copy ) {
 
@@ -218,6 +218,8 @@ task bcduiClientJsFileGroups {
       // Postpend copy right. We do not prepend it to keep the source map indices intact
       doLast {
         def outFile = file(outFileName)
+        outFile.text = outFile.text.replace('"use strict";', "")
+        outFile.text = '"use strict";' + outFile.text
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
       }
     }
