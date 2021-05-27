@@ -52,32 +52,34 @@ function customElementsCore( taffyData, path )
 
 /**
  * More components to be added
+ * Workaround JSDoc 3.6.7 returns a class twice, one short and one long version for unknown reason.
+ * Test for undocumented != true dropy the short one
  */
 function customElementsComponent( taffyData, path )
 {
   // We want to name it 'Chart', though technically it is an XmlChart
-  var clazzes = taffyData( { kind: "class", longname: "bcdui.component.chart.XmlChart" } ).get();
+  var clazzes = taffyData( { kind: "class", longname: "bcdui.component.chart.XmlChart", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
     var result = printCustomTag( "bcd-chart", clazzes[0].memberof+"."+"ChartTag", clazzes[0].params, "bcdui.component.chart.createChart" );
     fs.mkPath( path+"/chart" );
     fs.writeFileSync( path+"/chart/customElements.js", result, 'utf8');
   }
 
-  clazzes = taffyData( { kind: "class", longname: "bcdui.component.cube.Cube" } ).get();
+  clazzes = taffyData( { kind: "class", longname: "bcdui.component.cube.Cube", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
     var result = printCustomTag( "bcd-cube", clazzes[0].memberof+"."+"CubeTag", clazzes[0].params, "bcdui.component.createCube" );
     fs.mkPath( path+"/cube" );
     fs.writeFileSync( path+"/cube/customElements.js", result, 'utf8');
   }
   
-  clazzes = taffyData( { kind: "class", longname: "bcdui.component.scorecard.Scorecard" } ).get();
+  clazzes = taffyData( { kind: "class", longname: "bcdui.component.scorecard.Scorecard", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
     var result = printCustomTag( "bcd-scorecard", clazzes[0].memberof+"."+"ScorecardTag", clazzes[0].params, "bcdui.component.createScorecard" );
     fs.mkPath( path+"/scorecard" );
     fs.writeFileSync( path+"/scorecard/customElements.js", result, 'utf8');
   }
 
-  clazzes = taffyData( { kind: "class", longname: "bcdui.component.far.Far" } ).get();
+  clazzes = taffyData( { kind: "class", longname: "bcdui.component.far.Far", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
     var result = printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar" );
     fs.mkPath( path+"/far" );
