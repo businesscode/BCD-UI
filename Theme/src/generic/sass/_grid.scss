@@ -203,13 +203,10 @@ input.bcdInputFieldGrid {
 
 .bcdGrid {
 
-  > thead tr td,
-  > tfoot tr td {
-    text-align: left;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    .bcdButton { margin-right: 10px; }
-  }
+  .bcdGridFoot .gridAction .bcdButton { margin: 0.5em 0.5em 0 0; }
+  .bcdGridHead .gridAction .bcdButton { margin: 0 0.5em 0.5em 0; }
+  .bcdGridFoot .bcdPagingPanel { display: inline-block; margin: 0.5em 0 0 0; }
+  .bcdGridHead .bcdPagingPanel { display: inline-block; margin: 0 0 0.5em 0; }
 
   .bcdGroupAction:after { content: "\2212"; }
   .bcdCollapsed.bcdGroupAction:after {content: "\002B";}

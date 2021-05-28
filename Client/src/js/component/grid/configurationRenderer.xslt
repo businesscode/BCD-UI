@@ -129,8 +129,8 @@
           <xsl:attribute name="type">
             <xsl:choose>
               <xsl:when test="grid:Renderer/@type"><xsl:value-of select="grid:Renderer/@type"/></xsl:when>
-              <xsl:when test="grid:Editor[@type='bcduiStatusModelEditor']">bcdui.component.grid.bcduiStatusModelRenderer</xsl:when>
-              <xsl:when test="grid:Editor[@type='bcduiModelDropDown']">bcdui.component.grid.bcduiModelDropDownRenderer</xsl:when>
+              <xsl:when test="grid:Editor[@type='bcduiStatusModelEditor']">bcduiStatusModelRenderer</xsl:when>
+              <xsl:when test="grid:Editor[@type='bcduiModelDropDown']">bcduiModelDropDownRenderer</xsl:when>
               <xsl:when test="boolean((@isReadOnly|$wrsC/@isReadOnly)='true')"><xsl:value-of select="'Handsontable.renderers.TextRenderer'"/></xsl:when> <!-- render read-only cells in standard text mode for now -->
               <xsl:when test="$typeName='DATE'"><xsl:value-of select="'Handsontable.renderers.DateRenderer'"/></xsl:when>
               <xsl:when test="$isNumeric"><xsl:value-of select="'Handsontable.renderers.NumericRenderer'"/></xsl:when>

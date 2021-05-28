@@ -110,6 +110,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
+  * @param {boolean}                 [args.defaultButtons=true]                             - Set to false if you want to hide the default buttons reset/delete/save
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -163,6 +164,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
     );
+	this.defaultButtons = !(args.defaultButtons === false);
     this.id = id
     this.targetHtml = targetHtml;
     this.statusModel = statusModel;
@@ -233,7 +235,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
     // init custom callbacks for save and afterAddRow
     this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
-    this.saveRoutine = args.customSave || this.save;
+    this.actionSave = args.customSave || this.save;
     this.customAfterAddRow = args.afterAddRow;
     this.afterAddRow = function(args) {
   
@@ -485,10 +487,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }.bind(this));
   
   
-    // show common buttons and pagination when rendering is done
+    // show common buttons and pagination when rendering is done and add action trigger hooks
     this.onceReady(function() {
-      jQuery("#" + this.htTargetHtmlId).closest("table").find("thead").show();
-      jQuery("#" + this.htTargetHtmlId).closest("table").find("tfoot").show();
+	  var self = this;
+      jQuery("#" + this.htTargetHtmlId).closest(".bcdGrid").find(".bcdGridHead").show();
+      jQuery("#" + this.htTargetHtmlId).closest(".bcdGrid").find(".bcdGridFoot").show();
+	  jQuery("#"+ targetHtml).on("bcdGrid:save", function() {self.actionSave();	});
+	  jQuery("#"+ targetHtml).on("bcdGrid:reset", function() { self.actionReset(); });
+	  jQuery("#"+ targetHtml).on("bcdGrid:addRow", function() { self.actionAddRow(); });
     });
   
     // Listen on future changes
@@ -997,14 +1003,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if ("|TIMESTAMP|TIME".indexOf(typeName) != -1)
         type = "time";
 
+	  var rendererFct = renderer ? (renderer.text.indexOf("bcdui") == 0 && renderer.text.indexOf("bcdui.") != 0 ? "bcdui.component.grid.GridRenderer."+renderer.text : renderer.text) : "";
+	  var editorFct = editor ? (editor.text.indexOf("bcdui") == 0  && renderer.text.indexOf("bcdui.") != 0  ? "bcdui.component.grid.GridEditor."+editor.text : editor.text) : "";
+
       var colHeader = {
           data:       domProperty(this, id)
         , type:       (hc.getAttribute("isCheckbox") || "").length > 0 ? "checkbox" : type
         , readOnly:   this.isReadOnly || hc.getAttribute("readOnly") == "true" || hc.getAttribute("isHidden") == "true" // hidden columns will be readonly to avoid copy/paste overwrites
         , format:     format
         , allowEmpty: hc.getAttribute("nullable") != "0" // nullable is an xs:Bit
-        , rendererX:  renderer  ? (renderer.text != ""  ? renderer.text.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null) : null
-        , editor:    editor    ? (editor.text != ""    ? editor.text.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null) : null
+        , rendererX:  rendererFct != "" ? rendererFct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null
+        , editor:    editorFct != "" ? editorFct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null
         , validator: null // we handle validation in afterChange hook
         , editorParameter: {}
         , rendererParameter: {}
@@ -2304,27 +2313,27 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
    * @private
    */
   _createHtmlStructure( args ) {
-    var table = jQuery("<table class='bcdGrid'></table>");
-    table.append("<thead style='display:none'><tr><td class='form-row'></td></tr></thead>");
-    table.append("<tbody><tr><td><div id='"+this.htTargetHtmlId+"'><div></td></tr></tbody>");
-    table.append("<tfoot style='display:none'><tr><td class='form-row'></td></tr></tfoot>");
-    var buttonCell = jQuery(table).find(this.topMode ? "thead" : "tfoot");
-    
-    if (this.allowNewRows)
-      buttonCell.find("td").append("<div class='col-sm-auto'><bcd-buttonNg caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").addRow();'></bcd-buttonNg></div>");
+    var table = jQuery("<div class='bcdGrid'></div>");
+    table.append("<div class='bcdGridHead' style='display:none'></div>");
+    table.append("<div class='bcdGridBody'><div id='"+this.htTargetHtmlId+"'><div></div>");
+    table.append("<div class='bcdGridFoot' style='display:none'></div>");
+    var buttonCell = jQuery(table).find(this.topMode ? ".bcdGridHead" : ".bcdGridFoot");
 
-    buttonCell.find("td").append("<div class='col-sm-auto'><bcd-buttonNg caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").reset();'></bcd-buttonNg></div>");
-
-    if (! this.isReadOnly)
-      buttonCell.find("td").append("<div class='col-sm-auto'><bcd-buttonNg caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").saveRoutine();'></bcd-buttonNg></div>");
-
+	if (this.defaultButtons) {
+      if (this.allowNewRows) 
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
+      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
+      if (! this.isReadOnly)
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
+    }
     table.append(buttonCell);
     jQuery("#"+this.targetHtml).append(table);
     
-    // set trimming container to current table in case we're rendering ourself in an overflow container to prevent handsontable to make the grid too big 
-    var trimmingContainer = this._getTrimmingContainer(jQuery("#"+this.targetHtml).get(0));
-    if (trimmingContainer !== window)
-      jQuery("#"+this.targetHtml).find("table").css({overflow: "auto", width: "auto", height: "auto"});
+    // set trimming container to current bcdGrid container in case we're rendering ourself in an overflow container which is not the container itself
+    // this prevents handsontable to make the grid too big
+    var trimmingContainer = this._getTrimmingContainer(jQuery("#"+this.targetHtml).find(".bcdGrid").get(0));
+    if (trimmingContainer !== window && trimmingContainer != jQuery("#"+this.targetHtml).get(0))
+      jQuery("#"+this.targetHtml).find(".bcdGridBody").css({overflow: "hidden", height: "auto", width: "auto"});
 
     // pagination renderer, model and listener to rerender on page change
     this.pager = new bcdui.core.StaticModel("<Data><xp:Paginate xmlns:xp='http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0'><xp:PageNumber>" + this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageNumber", "1") + "</xp:PageNumber></xp:Paginate></Data>");
@@ -2359,6 +2368,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.hotInstance.render();
         this.afterChange([], "edit");  // trigger full validation
 
+		// in case of showing all entries, handsontable might not refresh all rows, so do another redraw
+		if (curPage == -1)
+			setTimeout(this.hotInstance.render);
+
         // redraw to adjust new page counts
         if (this.paginationRenderer)
           this.paginationRenderer.execute();
@@ -2367,10 +2380,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }.bind(this));
 
     this.pager.execute();
-    var headOrFoot = this.topMode ? "tfoot" : "thead";
+    var headOrFoot = this.topMode ? ".bcdGridFoot" : ".bcdGridHead";
     this.paginationRenderer = gotPagination
     ? new bcdui.core.Renderer({
-        targetHtml: "#" + this.targetHtml + " " + headOrFoot + " td"
+        targetHtml: "#" + this.targetHtml + " " + headOrFoot
       , chain: bcdui.contextPath + "/bcdui/js/component/grid/pagination.xslt"
       , inputModel : this.getEnhancedConfiguration()
       , parameters:{ targetModel: this.pager, gridModel: this.gridModel, targetModelId: this.pager.id }
@@ -2768,15 +2781,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
    * Drop all changes and load fresh data
    * @method
    */
-  reset() {
+  actionReset() {
     this._blindGrid();
     this.gridModel.execute(true);
     this.gridModel.onceReady(this._unBlindGrid);
   }
 
-  addRow() {
+  actionAddRow() {
     jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd");
-	}
+  }
 
   /**
    * @method

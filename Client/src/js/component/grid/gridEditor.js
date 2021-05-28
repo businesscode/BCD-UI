@@ -16,10 +16,13 @@
 
 "use strict";
 
-var widgetBaseEditor = Handsontable.editors.TextEditor.prototype.extend();
+bcdui.component.grid.GridEditor = bcdui.component.grid.GridEditor || {};
+bcdui.component.grid.GridRenderer = bcdui.component.grid.GridRenderer || {};
+
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor = Handsontable.editors.TextEditor.prototype.extend();
 
 // init is called on handsontable creation, we mainly only generate a targetModel here  and provide two standard functions
-widgetBaseEditor.prototype.init = function() {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.init = function() {
 
   // default manifestData call for widgetNgs, using _bcduiWidget to get the jQuery widget instances and calling the widget's manifestValue function
   this.manifestValue = function() {
@@ -46,7 +49,7 @@ widgetBaseEditor.prototype.init = function() {
 };
 
 // prepare is called on each cell activation. Should set the concrete functions for this cell type and the target xpath
-widgetBaseEditor.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   // let's first call the standard texteditor prepare
   Handsontable.editors.TextEditor.prototype.prepare.apply(this, arguments);
@@ -61,7 +64,7 @@ widgetBaseEditor.prototype.prepare = function(row, col, prop, td, originalValue,
 };
 
 // opens a cell editor
-widgetBaseEditor.prototype.open = function () {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.open = function () {
 
   // hide bcdui flyovers while the widget is open
   jQuery("#bcdTooltipDiv").css({"visibility" : "hidden"});
@@ -69,8 +72,8 @@ widgetBaseEditor.prototype.open = function () {
   jQuery(".htBorders").css({"visibility" : "hidden"});
 
   // partly disable handsontable key event handling and mouseclicks for some well known bcd singletons (bcdCalendar, bcdAutocompletionBox)
-  this.instance.addHook("beforeKeyDown", killEvents);
-  jQuery("#bcdSingletonHolder").on("mousedown", killEvents);
+  this.instance.addHook("beforeKeyDown", bcdui.component.grid.GridEditor.killEvents);
+  jQuery("#bcdSingletonHolder").on("mousedown", bcdui.component.grid.GridEditor.killEvents);
 
   // create widget container if it does not exist yet (this happens when it was scrolled outside of viewport)
   if (jQuery("#" + this.objectId).length == 0) {
@@ -125,12 +128,12 @@ widgetBaseEditor.prototype.open = function () {
 };
 
 // set input field focus to start typing
-widgetBaseEditor.prototype.focus = function() {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.focus = function() {
   jQuery(this.cssPath).focus();
 };
 
 // close editor, should cleanup hooks and widget (not when it is just scrolled outside viewport tdOutside=true)
-widgetBaseEditor.prototype.close = function(tdOutside) {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.close = function(tdOutside) {
 
   // kill widget unless it's not just hidden by out-of-viewport scroll
   if (! tdOutside) {
@@ -144,7 +147,7 @@ widgetBaseEditor.prototype.close = function(tdOutside) {
 
   // enable handsontable key / mouse event handling again
   jQuery("#bcdSingletonHolder").off("mousedown");
-  this.instance.removeHook('beforeKeyDown', killEvents);
+  this.instance.removeHook('beforeKeyDown', bcdui.component.grid.GridEditor.killEvents);
 
   // restore old textarea (since e.g. copy/paste listeners are connected)
   this.TEXTAREA = this.TEXTAREA_BAK;
@@ -152,7 +155,7 @@ widgetBaseEditor.prototype.close = function(tdOutside) {
 };
 
 // keyboard press hook
-function killEvents(event) {
+bcdui.component.grid.GridEditor.killEvents = function(event) {
 
   // disable nearly all key events for handsontable while widget is open
   switch (event.keyCode) {
@@ -170,7 +173,7 @@ function killEvents(event) {
 }
 
 // straight forward writer to take over data from grid into widget 
-widgetBaseEditor.prototype.setValue = function(value) {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.setValue = function(value) {
   if (value != null)
     bcdui.core.createElementWithPrototype(this.targetModel.getData(), this.targetModelXPath, false).text = value;
   else
@@ -178,7 +181,7 @@ widgetBaseEditor.prototype.setValue = function(value) {
 };
 
 // straight forward reader to take over widget selected value into grid
-widgetBaseEditor.prototype.getValue = function() {
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.getValue = function() {
 //get current value from widget by calling updateValue
   this.manifestValue();
   return this.targetModel.read(this.targetModelXPath, "");
@@ -188,8 +191,8 @@ widgetBaseEditor.prototype.getValue = function() {
 /* ***************************************************************************************************************** */
 /* Input Widget */
 /* ***************************************************************************************************************** */
-var bcduiInput = widgetBaseEditor.prototype.extend();
-bcduiInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiInput = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId = "bcdInput";
   this.cssPath  = "#" + this.objectId + " input";
@@ -204,7 +207,7 @@ bcduiInput.prototype.prepare = function(row, col, prop, td, originalValue, cellP
   };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 
@@ -212,8 +215,8 @@ bcduiInput.prototype.prepare = function(row, col, prop, td, originalValue, cellP
 /* ***************************************************************************************************************** */
 /* Single Select Widget */
 /* ***************************************************************************************************************** */
-var bcduiSingleSelect = widgetBaseEditor.prototype.extend();
-bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSingleSelect = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId      = "bcdSingleSelect";
   this.cssPath       = "#" + this.objectId + " select";
@@ -230,7 +233,7 @@ bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue
   };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 
@@ -238,8 +241,8 @@ bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue
 /* ***************************************************************************************************************** */
 /* inputField Widget */
 /* ***************************************************************************************************************** */
-var bcduiInputField = widgetBaseEditor.prototype.extend();
-bcduiInputField.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiInputField = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiInputField.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId      = "bcdInputField";
   this.cssPath       = "#" + this.objectId + " input";
@@ -268,7 +271,7 @@ bcduiInputField.prototype.prepare = function(row, col, prop, td, originalValue, 
   };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 
@@ -276,9 +279,9 @@ bcduiInputField.prototype.prepare = function(row, col, prop, td, originalValue, 
 /* ***************************************************************************************************************** */
 /* periodChooser Widget */
 /* ***************************************************************************************************************** */
-var bcduiPeriodChooser = widgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiPeriodChooser = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
 
-bcduiPeriodChooser.prototype.init = function() {
+bcdui.component.grid.GridEditor.bcduiPeriodChooser.prototype.init = function() {
 
   // move calendar from head to body (if not done yet)
   if( jQuery("#bcdCalendar").parent()[0].nodeName == "HEAD" ) {
@@ -286,10 +289,10 @@ bcduiPeriodChooser.prototype.init = function() {
     jQuery(bcdHolder).prepend(jQuery("#bcdCalendar"));
   }
 
-  widgetBaseEditor.prototype.init.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.init.apply(this, arguments);
 }
 
-bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId      = "bcduiPeriodChooser";
   this.cssPath       = "#" + this.objectId + " > span";
@@ -299,7 +302,7 @@ bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValu
     bcdui.widget.createPeriodChooser(args);
   };
   
-  this.manifestValue = function() {};
+  this.manifestValue = function() { return; };
   
   this.destroyWidget = function() {
     jQuery("#bcdCalendar").hide();  // close a possible open popupcalendar
@@ -312,15 +315,15 @@ bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValu
   };
   
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 
 /* ***************************************************************************************************************** */
 /* Simple Text Input */
 /* ***************************************************************************************************************** */
-var bcduiSimpleInput = widgetBaseEditor.prototype.extend();
-bcduiSimpleInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSimpleInput = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSimpleInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId = "bcduiSimpleInput";
   this.cssPath  = "#" + this.objectId + " input";
@@ -337,18 +340,18 @@ bcduiSimpleInput.prototype.prepare = function(row, col, prop, td, originalValue,
 
   this.setValue = function(value) {this.value = value;};
   this.getValue = function() {return jQuery(this.cssPath).val();};
-  this.prepareLayout = function() {};
+  this.prepareLayout = function() { return; };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 
 /* ***************************************************************************************************************** */
 /* Simple Textarea Input */
 /* ***************************************************************************************************************** */
-var bcduiSimpleTextarea = widgetBaseEditor.prototype.extend();
-bcduiSimpleTextarea.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSimpleTextarea = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSimpleTextarea.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId = "bcduiSimpleTextarea";
   this.cssPath  = "#" + this.objectId + " textarea";
@@ -365,17 +368,17 @@ bcduiSimpleTextarea.prototype.prepare = function(row, col, prop, td, originalVal
 
   this.setValue = function(value) {this.value = value;};
   this.getValue = function() {return jQuery(this.cssPath).val();};
-  this.prepareLayout = function() {};
+  this.prepareLayout = function() { return; };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 /* ***************************************************************************************************************** */
 /* Simple Numeric Input */
 /* ***************************************************************************************************************** */
-var bcduiSimpleNumericInput = widgetBaseEditor.prototype.extend();
-bcduiSimpleNumericInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSimpleNumericInput = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSimpleNumericInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId = "bcduiSimpleNumericInput";
   this.cssPath  = "#" + this.objectId + " input";
@@ -394,18 +397,18 @@ bcduiSimpleNumericInput.prototype.prepare = function(row, col, prop, td, origina
   
   this.setValue = function(value) {this.value = value;};
   this.getValue = function() {return jQuery(this.cssPath).val();};
-  this.prepareLayout = function() {};
+  this.prepareLayout = function() { return; };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 /* ***************************************************************************************************************** */
 /* Simple Drop Down */
 /* ***************************************************************************************************************** */
-var bcduiSimpleDropDown= widgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSimpleDropDown= bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
 
-bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   var params = cellProperties.editorParameter;
 
@@ -492,14 +495,14 @@ bcduiSimpleDropDown.prototype.prepare = function(row, col, prop, td, originalVal
   this.setValue = function(value) {this.value = value;};
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
 /* ***************************************************************************************************************** */
 /* suggest input Widget */
 /* ***************************************************************************************************************** */
-var bcduiSuggestInput = widgetBaseEditor.prototype.extend();
-bcduiSuggestInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiSuggestInput = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSuggestInput.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId      = "bcduiSuggestInput";
   this.cssPath       = "#" + this.objectId + " input";
@@ -514,7 +517,7 @@ bcduiSuggestInput.prototype.prepare = function(row, col, prop, td, originalValue
   };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 
 };
 
@@ -534,9 +537,9 @@ bcduiSuggestInput.prototype.prepare = function(row, col, prop, td, originalValue
  */
 /* ***************************************************************************************************************** */
 
-var bcduiStatusModelEditor = Handsontable.editors.BaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor = Handsontable.editors.BaseEditor.prototype.extend();
 
-bcduiStatusModelEditor.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
   Handsontable.editors.BaseEditor.prototype.prepare.apply(this, arguments);
 
   // set renderer/statusModel and title based from current column
@@ -566,9 +569,9 @@ bcduiStatusModelEditor.prototype.prepare = function(row, col, prop, td, original
   }
 };
 
-bcduiStatusModelEditor.prototype.focus = function() {/* nothing to focus but needed */}
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.focus = function() {/* nothing to focus but needed */}
 
-bcduiStatusModelEditor.prototype.open = function() {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.open = function() {
 
   // kill key / mouse events for handsontable
   this.instance.addHook("beforeKeyDown", this.stopEvents);
@@ -620,7 +623,7 @@ bcduiStatusModelEditor.prototype.open = function() {
   this.renderer.execute(true);
 }
 
-bcduiStatusModelEditor.prototype.close = function() {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.close = function() {
   // restore event handling
   this.instance.removeHook('beforeKeyDown', this.stopEvents);
   jQuery("#bcdSingletonHolder").off("mousedown");
@@ -631,7 +634,7 @@ bcduiStatusModelEditor.prototype.close = function() {
   bcdui.wkModels.bcdNavPath.dataDoc = bcdui.util.xml.parseDocument(this.backupNavPath);
 }
 
-bcduiStatusModelEditor.prototype.setValue = function(value) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.setValue = function(value) {
   if (value != "") {
     try {
       this.statusModel.dataDoc = bcdui.util.xml.parseDocument(value);
@@ -644,22 +647,22 @@ bcduiStatusModelEditor.prototype.setValue = function(value) {
     bcdui.core.removeXPath(this.statusModel.getData(), "/*/*");
 }
 
-bcduiStatusModelEditor.prototype.getValue = function() {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.getValue = function() {
   return this.statusModel.serialize();
 };
 
-bcduiStatusModelEditor.prototype.stopEvents = function(event) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.stopEvents = function(event) {
   event.stopImmediatePropagation();
 }
 
 // button actions
 
-bcduiStatusModelEditor.clearData = function(element) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.clearData = function(element) {
   var self = jQuery(element).closest(".bcdStatusModelEditor").data("instance");
   self.statusModel.remove("/*/*", true);
 }
 
-bcduiStatusModelEditor.cancelData = function(element) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData = function(element) {
   var self = jQuery(element).closest(".bcdStatusModelEditor").data("instance");
   // if close is triggered from takeData, do nothing
   if (self.closeFromTakeData) {
@@ -673,7 +676,7 @@ bcduiStatusModelEditor.cancelData = function(element) {
   jQuery(element).closest(".bcdStatusModelEditor").dialog("close");
 }
 
-bcduiStatusModelEditor.takeData = function(element) {
+bcdui.component.grid.GridEditor.bcduiStatusModelEditor.takeData = function(element) {
   var self = jQuery(element).closest(".bcdStatusModelEditor").data("instance");
   self.closeFromTakeData = true;
 
@@ -692,7 +695,7 @@ bcduiStatusModelEditor.takeData = function(element) {
 }
 
 // renders the data in statusmodel guiStatus:StatusModelEditorCaption textnode as lis (separated via bcdui.core.magicChar.separator)
-bcdui.component.grid.bcduiStatusModelRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+bcdui.component.grid.GridRenderer.bcduiStatusModelRenderer = function(instance, td, row, col, prop, value, cellProperties) {
   var v = "<ul>";
   var match = value.match(/<guiStatus:StatusModelEditorCaption[ a-zA-Z\:\.\/\"0-9\-\=]*>(.*)<\/guiStatus:StatusModelEditorCaption>/);
   if (match != null && match.length > 1) {
@@ -713,9 +716,9 @@ bcdui.component.grid.bcduiStatusModelRenderer = function(instance, td, row, col,
 /* ***************************************************************************************************************** */
 /* Drop Down with XML Model*/
 /* ***************************************************************************************************************** */
-var bcduiModelDropDown= widgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiModelDropDown= bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
 
-bcduiModelDropDown.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+bcdui.component.grid.GridEditor.bcduiModelDropDown.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId = "bcduiModelDropDown";
   this.cssPath  = "#" + this.objectId + " select";
@@ -797,10 +800,10 @@ bcduiModelDropDown.prototype.prepare = function(row, col, prop, td, originalValu
   };
 
   // call base class
-  widgetBaseEditor.prototype.prepare.apply(this, arguments);
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
-bcdui.component.grid.bcduiModelDropDownRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+bcdui.component.grid.GridRenderer.bcduiModelDropDownRenderer = function(instance, td, row, col, prop, value, cellProperties) {
   var v = "";
   var match = value.match(/ caption=\"([^\"]*)\"| caption=\'([^\']*)\'/);
   if (match != null && match.length > 1) {

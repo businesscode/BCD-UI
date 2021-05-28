@@ -673,7 +673,12 @@
           <Doc>
             Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.
           </Doc>
-        </Param>        
+        </Param>
+        <Param name="defaultButtons" type="boolean" default="false">
+          <Doc>
+            Set to false if you want to hide the default buttons reset/delete/save.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">

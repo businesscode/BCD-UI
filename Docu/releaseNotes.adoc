@@ -21,6 +21,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** Due to a security fix in latest jQuery, be sure you don't use self closing html elements in jQuery.append()/etc. (Example: <span/> -> <span></span>)
 ** echart uses new default colors, ensure to set colors in your projects and don't rely on default coloring
 ** Due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
+** Grid pagination/action buttons are now in divs, so you may need to check your styling
 ** Moved QuickEdit to package bcdui.widgetNg
 * Config
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
@@ -35,6 +36,9 @@ Some changes are not backward compatible and may require code change in the proj
 .Build:
 * Updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
 * Updated to babel-js, node-sass and jsdoc, see build_package.json
+
+.Components:
+* Grid, use div container, new option defaultButtons=true to show/hide action button, allow button actions to be triggered via bcdGrid:save, bcdGrid:reset, bcdGrid:addRow on targetHtml
 
 ==== Release 5_4_0
 
