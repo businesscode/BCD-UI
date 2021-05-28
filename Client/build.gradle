@@ -61,13 +61,45 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 
 def copyUnmodified = [ /* currently no files to be taken 1:1 */ ]
 
+
 //**********************************
-// Load 3rdParty js libraries to build/node_modules with the help of package.json, which we copy to build and execute npm install there
-task bcduiClient3rdPartyNpm {
-  // Workaround: Due to an issue with using NpmTask from subprojects in combination with a local node installation,
-  // we put the implementation to installTools.gradle
-  dependsOn ":bcduiClient3rdPartyNpmHelper"
+// Install node modules for our runtime. Needed for the (client) distribution
+// (as opposed to those neede for the build, which are handled in installTools.gradle)
+def clientNodeModulesDir  = "$clientRoot/build/node_modules"
+task bcduiClient3rdPartyNpm( type: NpmTask ) {
+
+  outputs.upToDateWhen { file(clientNodeModulesDir).exists() &&  file(clientNodeModulesDir).list().length > 0 }
+
+  // Not everybody importing this script, needs this
+  onlyIf { file("$clientRoot/gradle/script/package.json").exists() }
+
+  doFirst {
+    // Create a package.json for npm in buildDir based on out template
+    new File(clientNodeModulesDir).mkdirs()
+    def packageJson = new JsonSlurper().parseText( file("$clientRoot/gradle/script/package.json").text )
+    def iterator = packageJson.dependencies.iterator()
+    // Replace @version of the 3rdParty libs by the values provided by the user.
+    // Remove unwanted 3rdParty libs entries
+    while( iterator.hasNext() ) {
+      def entry = iterator.next()
+      if( !project.hasProperty('bcdui.3rdPartyJs.'+entry.key) ) {
+        iterator.remove()
+        continue
+      }
+      entry.value = entry.value.replace( '@version', project.getProperty('bcdui.3rdPartyJs.'+entry.key ) )
+    }
+    def packageJsonFile = new File("$clientRoot/build/package.json")
+    packageJsonFile.text = JsonOutput.prettyPrint( JsonOutput.toJson( packageJson ) )
+  }
+
+  // We want local node_modules to be below build folder
+  execOverrides {
+    it.workingDir = file("$clientRoot/build")
+  }
+
+  args = ['install']
 }
+
 
 //**********************************
 // Create a custom build of modernizr.js based on settings in gradle.properties
