@@ -200,7 +200,9 @@ task bcduiJisonArtefacts ( type: NodeTask ) {
   def jisonFile = "jison/bcdui_util_xml_filterExpressionParser.jison";
   onlyIf { file(jisonFile).exists() }
 
-  file("$genSrcOutputDir/js/jison/").mkdirs()
+  doFirst {
+    file("$genSrcOutputDir/js/jison/").mkdirs()
+  }
 
   inputs.files jisonFile
   outputs.dir "$genSrcOutputDir/js/jison"

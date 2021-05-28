@@ -39,6 +39,7 @@ node {
 
   // Set the work directory for unpacking node itself
   workDir = file(nodeJsDir)
+  nodeProjectDir = file(nodeJsDir)
 }
 
 import groovy.json.JsonOutput
@@ -55,7 +56,7 @@ task bcduiClient3rdPartyNpmHelper( type: NpmTask ) {
   onlyIf { file("$clientRoot/gradle/script/package.json").exists() }
 
   doFirst {
-    // Create a package.json fror npm in buildDir based on out template
+    // Create a package.json for npm in buildDir based on out template
     new File(clientNodeModulesDir).mkdirs()
     def packageJson = new JsonSlurper().parseText( file("$clientRoot/gradle/script/package.json").text )
     def iterator = packageJson.dependencies.iterator()
