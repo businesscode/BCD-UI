@@ -1313,6 +1313,14 @@ table.bcd-far-configurator {
 /* Grid and Scheduler */
 
 .bcdGrid {
+
+  display: flex;
+  flex-direction: column;
+  .bcdGridBody, .bcdGridHead, .bcdGridFoot {
+    display: flex;
+    flex-direction: row;
+  }
+
   .handsontable .htDimmed {
     color: #ccc;
   }

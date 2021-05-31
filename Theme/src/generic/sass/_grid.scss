@@ -42,7 +42,7 @@
   }
 }
 
-.bcdGrid {
+.bcdGrid.bcdGridDE {
   display: block;
   position: relative;
   font: $font-size-default $font-family-default;
@@ -202,6 +202,17 @@ input.bcdInputFieldGrid {
 }
 
 .bcdGrid {
+
+  display: flex;
+  flex-direction: column;
+  .bcdGridBody, .bcdGridHead, .bcdGridFoot {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .handsontable .htDimmed {
+    color: #ccc;
+  }
 
   .bcdGridFoot .gridAction .bcdButton { margin: 0.5em 0.5em 0 0; }
   .bcdGridHead .gridAction .bcdButton { margin: 0 0.5em 0.5em 0; }
