@@ -282,7 +282,7 @@ bcdui.util.xml =
    *   &lt;/f:And>
    */
   parseFilterExpression : function(expression, params){
-    var parser = new bcdui_util_xml_filterExpressionParser.Parser();
+    var parser = new bcdui.util.xml.filterExpressionParser.Parser();
     parser.yy = {
       resolveVariable : v => params[parser.yy.escapeHtml(v.substring(1))],
       escapeHtml : v => bcdui.util.escapeHtml(v)
