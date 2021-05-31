@@ -1489,6 +1489,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , this.hotInstance.view.wt.wtTable.wot
         ].forEach(function(e){ e.getSetting = function(key, param1, param2, param3, param4) {
           var v = this.wtSettings.getSetting(key, param1, param2, param3, param4);
+
+          if (key == "totalColumns" && self.hiddenColumns)
+           v -= self.hiddenColumns.length; 
+
           if (key != "columnHeaders")
             return v;
 
