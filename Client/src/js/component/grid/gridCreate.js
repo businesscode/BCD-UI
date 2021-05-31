@@ -25,8 +25,8 @@
  * 
  * Future Improvements:
  *  - support optionModels which reference a different model ($), keep in mind that a code/caption map is built up on startup and is used for reference validation, too
- *    If dynamic/dependent optionsmodels are supported, the map needs to cover all possible code/captions to avoid validation problems 
- *  - Customize the currently in tfoot stored action buttons to own rendering
+ *    If dynamic/dependent optionsmodels are supported, the map needs to cover all possible code/captions to avoid validation problems
+ *  - server sided pagination (keep in mind, built up code/caption maps need to be update)
  */
 
 /**
@@ -164,7 +164,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
     );
-	this.defaultButtons = !(args.defaultButtons === false);
+	this.defaultButtons = args.defaultButtons !== false;
     this.id = id
     this.targetHtml = targetHtml;
     this.statusModel = statusModel;
@@ -237,10 +237,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
     this.actionSave = args.customSave || this.save;
     this.customAfterAddRow = args.afterAddRow;
-    this.afterAddRow = function(args) {
+    this.afterAddRow = function(argsAddRow) {
   
       // fill new cell with value if column is mandatory and the optionsmodel only got one value
-      var nodes = args.rowNode.selectNodes("wrs:C");
+      var nodes = argsAddRow.rowNode.selectNodes("wrs:C");
       for (var n = 0; n < nodes.length; n++) {
         if (this.colsWithReferences.indexOf("" + (n + 1)) != -1) {
           var colId = this.wrsHeaderIdByPos["" + (n + 1)];
@@ -260,7 +260,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
       if (this.customAfterAddRow)
-        this.customAfterAddRow(args);
+        this.customAfterAddRow(argsAddRow);
     } 
   
     // add onChange listener on enhancedConfiguration and collect optionsModel information
@@ -275,7 +275,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
       var keyColumns = "";
       this.keyColumns = new Array();
-      jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
       var binding = this.gridModel.read("/*//wrq:WrsRequest//wrq:BindingSet", "");
       this.keyRequestPre = "<WrsRequest xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0' xmlns:f='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><Select><Columns>" + keyColumns + "</Columns><From><BindingSet>" + binding + "</BindingSet></From><f:Filter><f:Or>";
       this.keyRequestPost = "</f:Or></f:Filter><Grouping>" + keyColumns + "</Grouping></Select></WrsRequest>"
@@ -285,12 +285,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       
       // validate GridModel against GridConfig (problems can only occur if you provide a gridModel yourself and an own config)
       var j = 1;
-      jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(e) {
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(e) {
         if (this.gridModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + j++ + "' and @id='" + e.getAttribute("bRef") + "']") == null)
           throw new Error("GridConfiguration holds column which isn't in GridModel (or wrong position): " + this.id + " " + e.getAttribute("bRef"));
       }.bind(this));
       j = 1;
-      jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
+      Array.from(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
         if (this.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + j++ + "' and @bRef='" + e.getAttribute("id") + "']") == null)
           throw new Error("GridModel holds column which isn't in GridConfiguration (or wrong position): " + this.id + " " + e.getAttribute("id"));
       }.bind(this));
@@ -303,12 +303,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
       this.colsWithReferences = new Array();
       this.colsWithReferencesInfo = new Array();
-      var cNodes = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]");
-      for (var i = 0; i < cNodes.length; i++) {
-  
-        var optionsModelXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelXPath']");
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]")).forEach(function(cNode){
+        var optionsModelXPath = cNode.selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelXPath']");
         optionsModelXPath = optionsModelXPath == null ? null : optionsModelXPath.getAttribute("value");
-        var optionsModelRelativeValueXPath = cNodes[i].selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelRelativeValueXPath']");
+        var optionsModelRelativeValueXPath = cNode.selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelRelativeValueXPath']");
         optionsModelRelativeValueXPath = optionsModelRelativeValueXPath == null ? null : optionsModelRelativeValueXPath.getAttribute("value");
   
         if (optionsModelXPath != null) {
@@ -328,7 +326,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               else if (v.length > 1 & v[0] == "c" && ! isNaN(vc))
                 dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+vc+"']/@id", ""));
               else
-                throw "illegal row dependency value " + this.id + " " + v;
+                throw new Error("illegal row dependency value " + this.id + " " + v);
             }
             match = regEx.exec(optionsModelXPath);
           }
@@ -337,27 +335,27 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           if (testXPath.indexOf("$") == -1) {
             var info = bcdui.factory._extractXPathAndModelId(optionsModelXPath);
             optionsModels.push(info.modelId);
-            this.optionsModelInfo[cNodes[i].getAttribute("bRef")] = {
+            this.optionsModelInfo[cNode.getAttribute("bRef")] = {
                 optionsModelId: info.modelId
               , optionsModelXPath: info.xPath
               , optionsModelRelativeValueXPath: optionsModelRelativeValueXPath
               , codeCaptionMap : {}
               , captionCodeMap : {}
               , gotRowDependency: info.xPath.indexOf("$grid") != -1
-              , isSuggestInput: cNodes[i].selectSingleNode("./grid:Editor[@type='bcduiSuggestInput']") != null
+              , isSuggestInput: cNode.selectSingleNode("./grid:Editor[@type='bcduiSuggestInput']") != null
               , dependendOnCols: dependendOnCols.filter(function(e, idx){return dependendOnCols.indexOf(e) == idx})
               , referencedByCols: []
             }
     
-            this.colsWithReferences.push(cNodes[i].getAttribute("pos"));
-            this.colsWithReferencesInfo.push(cNodes[i].getAttribute("bRef"));
+            this.colsWithReferences.push(cNode.getAttribute("pos"));
+            this.colsWithReferencesInfo.push(cNode.getAttribute("bRef"));
           }
         }
-      }
-      var dependendToReference = function(x) {
-        this.optionsModelInfo[x].dependendOnCols.forEach(function(e) {
-          if (this.optionsModelInfo[e].referencedByCols.indexOf(x) == -1) {
-            var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@id='"+x+"']/@pos", "0"), 10);
+      }.bind(this));
+      var dependendToReference = function(dep) {
+        this.optionsModelInfo[dep].dependendOnCols.forEach(function(e) {
+          if (this.optionsModelInfo[e].referencedByCols.indexOf(dep) == -1) {
+            var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@id='"+dep+"']/@pos", "0"), 10);
             if (this.colsWithReferences.indexOf("" + colIdx))
               this.optionsModelInfo[e].referencedByCols.push(colIdx);
           }
@@ -375,15 +373,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           var renderErrors = function() {
             this.errors = {};
             var gotOldErrors = this.gotErrors || 0;
-            var errorEntries = this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*[local-name()!='D']");
+            var errorEntries = Array.from(this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*[local-name()!='D']"));
             // Collect the error cells in errors. Each row with an error has a errors property with an array for the error columns
-            for (var e = 0; e < errorEntries.length; e++) {
-              var errorCs = errorEntries[e].getElementsByTagName("*");
-              var factor = (errorEntries[e].localName||errorEntries[e].baseName) === "M" ? 2 : 1;
+            errorEntries.forEach(function(err){
+              var errorCs = err.getElementsByTagName("*");
+              var factor = (err.localName||err.baseName) === "M" ? 2 : 1;
               var rowId = errorCs[0].text;
               this.errors[rowId] = this.errors[rowId] || [];
               this.errors[rowId][this.hotInstance.propToCol(errorCs[factor].text)] = 1;
-            }
+            }.bind(this));
             this.gotErrors = errorEntries.length > 0;
   
             // refresh table to show errors
@@ -407,7 +405,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
               // get old modified or deleted keys so we can exclude them from the check
               var oldKeys = {};
-              jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:M")).forEach(function(modRow) {
+              Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:M")).forEach(function(modRow) {
                 var key = "";
                 var oldNodes = modRow.selectNodes("wrs:O");
                 for (var i = 0; i < oldNodes.length; i++)
@@ -415,7 +413,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
                 oldKeys[key] = 1;
               }.bind(this));
-              jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:D")).forEach(function(modRow) {
+              Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:D")).forEach(function(modRow) {
                 var key = "";
                 var oldNodes = modRow.selectNodes("wrs:C");
                 for (var i = 0; i < oldNodes.length; i++)
@@ -424,24 +422,23 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 oldKeys[key] = 1;
               }.bind(this));
   
-              jQuery.makeArray(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
+              Array.from(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
                 // let's rebuild the concatenated key
                 var key = "";
-                jQuery.makeArray(row.selectNodes("wrs:C")).forEach(function(column) {
+                Array.from(row.selectNodes("wrs:C")).forEach(function(column) {
                   key += (key != "" ? bcdui.core.magicChar.separator + (column.text || "") : (column.text || ""));
                 }.bind(this));
     
                 // if found key is not part of the modfied (client) ones, add unique key constraint error
-                if (!(oldKeys[key] == 1)) {
+                if (oldKeys[key] != 1) {
                   // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
                   var rowId = this.deepKeyCheckKeys[key];
                   this.foundServerSidedKeys[key] = rowId;
-                  for (var k = 0; k < this.wrsValidateKeyColumns.length; k++) {
-                    var col = this.wrsValidateKeyColumns[k];
+                  this.wrsValidateKeyColumns.forEach(function(col) {
                     this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
                     this.wrsErrors[rowId][col] |= 128;
                     bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
-                  }
+                  }.bind(this))
                 }
               }.bind(this));
   
@@ -453,9 +450,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           }
           else
             renderErrors(); // refresh grid to show errors
-  
-          return;
-  
+
         }.bind(this)});
       }
   
@@ -469,13 +464,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         for (var m in this.optionsModelInfo) {
           var captionXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? ("[" + this.optionsModelInfo[m].optionsModelRelativeValueXPath) : "") + "[.='{{=it[0]}}']" + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "]" : "")).replace(this.rowDependencyRegEx, "");
           var valueXPath = (this.optionsModelInfo[m].optionsModelXPath + (this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? "/" + this.optionsModelInfo[m].optionsModelRelativeValueXPath : "")).replace(this.rowDependencyRegEx, "");
-          var optionRows = bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).queryNodes(valueXPath);
-          for (var o = 0; o < optionRows.length; o++ ){
-            var option = optionRows[o].nodeType == 3 ? optionRows[o].nodeValue : optionRows[o].text;
+          Array.from(bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).queryNodes(valueXPath)).forEach(function(optRaw){
+            var option = optRaw.nodeType == 3 ? optRaw.nodeValue : optRaw.text;
             var caption = this.optionsModelInfo[m].optionsModelRelativeValueXPath != null ? bcdui.factory.objectRegistry.getObject(this.optionsModelInfo[m].optionsModelId).read(captionXPath, [option]) : option;
             this.optionsModelInfo[m].codeCaptionMap[bcdui.util.escapeHtml(option)] = caption;
             this.optionsModelInfo[m].captionCodeMap[bcdui.util.escapeHtml(caption)] = option;
-          }
+          }.bind(this));
         }
   
         this.gridModelHolder.setSource(this.gridModel);
@@ -640,15 +634,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , "bcd_ValidReferences"
         , "bcd_ValidDocument"
       ];
-      var headerNodes = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C");
-      for (var h = 0; h < headerNodes.length; h++) {
-        var type       = headerNodes[h].getAttribute("type-name");
-        var nullable   = headerNodes[h].getAttribute("nullable");
-        var id         = headerNodes[h].getAttribute("id");
-        var isKey      = (headerNodes[h].getAttribute("isKey") === "true");
-        var pos        = parseInt(headerNodes[h].getAttribute("pos"), 10);
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(hNode){
+        var type       = hNode.getAttribute("type-name");
+        var nullable   = hNode.getAttribute("nullable");
+        var id         = hNode.getAttribute("id");
+        var isKey      = (hNode.getAttribute("isKey") === "true");
+        var pos        = parseInt(hNode.getAttribute("pos"), 10);
         var references = this.optionsModelInfo[id];
-        var isDocument = (headerNodes[h].getAttribute("isDocument") === "true");
+        var isDocument = (hNode.getAttribute("isDocument") === "true");
 
         var checkBits = 0;
         if ("DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL".indexOf(type) != -1)          checkBits |= 1;   // is decimal
@@ -669,15 +662,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         // let's sort in via pos (even if it's pretty uncommon that a wrs header @pos doesn't use the physical order)
         this.wrsValidateInfo[pos - 1] = ({
           checkBits: checkBits
-        , scale: headerNodes[h].getAttribute("scale")
-        , displaySize: headerNodes[h].getAttribute("display-size")
+        , scale: hNode.getAttribute("scale")
+        , displaySize: hNode.getAttribute("display-size")
         , id: id
         , isKey: isKey
-        , isReadyOnly: this.isReadOnly || headerNodes[h].getAttribute("readOnly") === "true"
-        , isHidden: headerNodes[h].getAttribute("isHidden") === "true"
+        , isReadyOnly: this.isReadOnly || hNode.getAttribute("readOnly") === "true"
+        , isHidden: hNode.getAttribute("isHidden") === "true"
         , references: references
         });
-      }
+      }.bind(this));
     }
 
     // first validation queue step, kill the previous
@@ -692,19 +685,18 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // check if a key column was changed and collect affected columns
     if (args.changes.length > 0) {
-      for (var ch = 0; ch < args.changes.length; ch++) {
-        var change = args.changes[ch];
-        if (this.wrsValidateKeyColumns.indexOf(change.colId) != -1) {
+      args.changes.forEach(function(change){
+        if (this.wrsValidateKeyColumns.indexOf(change.colId) != -1)
           needKeyCheck = true;  // a key column is actually affected
-        }
+
         columns.push(change.colIdx - 1);
         // in case of row dependencies, check the linked cells, too
         if (this.optionsModelInfo[change.colId]) {
-          for (var refc = 0; refc < this.optionsModelInfo[change.colId].referencedByCols.length; refc++) {
-            columns.push(this.optionsModelInfo[change.colId].referencedByCols[refc] - 1);
-          }
+          this.optionsModelInfo[change.colId].referencedByCols.forEach(function(refCol){
+            columns.push(refCol - 1);
+          });
         }
-      }
+      }.bind(this));
     }
 
     // add all key columns is a key check is needed (but only if we have a column sub selection, otherwise we check everything anyway)
@@ -716,18 +708,16 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // no key cell changed, we only quickly check the cell
     if (! needKeyCheck) {
-      for (var cha = 0; cha < args.changes.length; cha++) {
-        var curChange = args.changes[cha];
+      args.changes.forEach(function(curChange){
         this._validateCell(curChange.rowId, this.wrsValidateInfo[curChange.colIdx - 1], curChange.newValue);
         // in case of row dependencies, check the linked cells, too
         if (this.optionsModelInfo[curChange.colId]) {
-          for (var rc = 0; rc < this.optionsModelInfo[curChange.colId].referencedByCols.length; rc++) {
-            var colIdx = this.optionsModelInfo[curChange.colId].referencedByCols[rc];
+          this.optionsModelInfo[curChange.colId].referencedByCols.forEach(function(colIdx) {
             var refValue = this.gridModel.read("/*/wrs:Data/wrs:*[@id='" + curChange.rowId + "']/wrs:C[position()='" + colIdx + "']", "");
             this._validateCell(curChange.rowId, this.wrsValidateInfo[colIdx - 1], refValue);
-          }
+          }.bind(this));
         }
-      }
+      }.bind(this));
     }
     // otherwise, we run over all rows
     else {
@@ -751,19 +741,18 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           if (columns.length > 0) {
             // a paste with identical data would cause a change event but with no wrs:M data while a standard change does create a wrs:M, that's why we have to get the factor
             var factor = (rowElement == "M" ? 2 : 1);
-            for (var c = 0; c < columns.length; c++) {
-              var value = row.childNodes[columns[c] * factor].text || "";
-              if (this.wrsValidateInfo[columns[c]].isKey) {
+            columns.forEach(function(theCol){
+              var value = row.childNodes[theCol * factor].text || "";
+              if (this.wrsValidateInfo[theCol].isKey) {
                 key += (key != "" ? bcdui.core.magicChar.separator + value : value);
-                keyColumn += (keyColumn != "" ? bcdui.core.magicChar.separator + this.wrsValidateInfo[columns[c]].id : this.wrsValidateInfo[columns[c]].id);
+                keyColumn += (keyColumn != "" ? bcdui.core.magicChar.separator + this.wrsValidateInfo[theCol].id : this.wrsValidateInfo[theCol].id);
               }
-              this._validateCell(rowId, this.wrsValidateInfo[columns[c]], value);
-            }
+              this._validateCell(rowId, this.wrsValidateInfo[theCol], value);
+            }.bind(this))
           }
           else {
             // run over all cells
-            for (var cn = 0; cn < row.childNodes.length; cn++) {
-              var column = row.childNodes[cn];
+            Array.from(row.childNodes).forEach(function(column) {
               if ((column.localName||column.baseName) == "C") {
                 var columnValue = column.text || "";
                 // build Key
@@ -774,7 +763,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 this._validateCell(rowId, this.wrsValidateInfo[x], columnValue);
                 x++;
               }
-            }
+            }.bind(this));
           }
           if (key != "") {
             var foundKey = keys[key];
@@ -793,13 +782,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 // in case we have a client sided error (e.g. wrong dataformat, wrong size etc) in a key column
                 // we don't add the value to the deepcheck (otherwise you'd run into sql type issues). User has to fix client sided errors first, then
                 // the deepkey check may find another one
+                var kk = 0;
                 var alreadyBad = false;
-                for (var kk = 0; kk < this.wrsValidateKeyColumns.length; kk++) {
-                  var co = this.wrsValidateKeyColumns[kk];  
-                  if (typeof this.wrsErrors[rowId] != "undefined" && typeof this.wrsErrors[rowId][co] != "undefined" && this.wrsErrors[rowId][co] > 0) {
-                    alreadyBad = true;
-                    break;
-                  }
+                while (!alreadyBad && kk < this.wrsValidateKeyColumns.length) {
+                  var co = this.wrsValidateKeyColumns[kk++];
+                  alreadyBad = (typeof this.wrsErrors[rowId] != "undefined" && typeof this.wrsErrors[rowId][co] != "undefined" && this.wrsErrors[rowId][co] > 0);
                 }
                 if (! alreadyBad) {
                   this.deepKeyCheckKeys[key] = rowId;
@@ -813,13 +800,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               delete this.deepKeyCheckKeys[key];
               delete this.deepKeyCheckKeyColumns[key];
 
-              for (var k = 0; k < this.wrsValidateKeyColumns.length; k++) {
-                var col = this.wrsValidateKeyColumns[k];
+              this.wrsValidateKeyColumns.forEach(function(col){
                 this.wrsErrors[foundKey] = this.wrsErrors[foundKey] || []; this.wrsErrors[foundKey][col] = this.wrsErrors[foundKey][col] || [0];
                 this.wrsErrors[foundKey][col] |= 128;
                 this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
                 this.wrsErrors[rowId][col] |= 128;
-              }
+              }.bind(this))
             }
           }
         }
@@ -865,10 +851,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       var references = this.optionsModelInfo[colId];
       if (references != null) {
         refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
-        if (references.isSuggestInput && refValue == null)
-          refValue = value;  // suggestInput with a suggested value
-        else if (refValue == null)
-          refValue = value;  // a drop down without optionsModelRelativeValueXPath
+        if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+          refValue = value;
       }
     }
     return refValue;
@@ -920,7 +904,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
           // Update data of handsontable
           row.r = instance.gridModel.query("/*/wrs:Data/wrs:*[position()="+(rowIdx+1)+"]");
-          row.c = jQuery.makeArray(row.r.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";})
+          row.c = Array.from(row.r.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";})
 
           // the upper write might create a M, so redefine factor
           factor = (row.r.localName||row.r.baseName) === "M" ? 2 : 1;
@@ -929,10 +913,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           if (references != null) {
             var refValue = null;
             refValue = references.captionCodeMap[bcdui.util.escapeHtml(lookUp)];
-            if (references.isSuggestInput && refValue == null)
-              refValue = lookUp;  // suggestInput with a suggested value
-            else if (refValue == null)
-              refValue = lookUp;  // a drop down without optionsModelRelativeValueXPath
+            if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+              refValue = lookUp;
             if (refValue != null)
               row.c[factor * colIdx].text = refValue;
           }
@@ -951,7 +933,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     
     this.wrsHeaderMeta = bcdui.wrs.wrsUtil.generateWrsHeaderMeta(this.gridModel.getData());
     this.wrsHeaderIdByPos = {};
-    jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
+    Array.from(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
       this.wrsHeaderIdByPos[e.getAttribute("pos")] = e.getAttribute("id");
     }.bind(this));
 
@@ -982,8 +964,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       // Create column type information
       var editor    = hc.selectSingleNode("grid:Editor/@type");
       var renderer  = hc.selectSingleNode("grid:Renderer/@type");
-      var editorParameter =  jQuery.makeArray(hc.selectNodes("grid:Editor/grid:Param"));
-      var rendererParameter = jQuery.makeArray(hc.selectNodes("grid:Renderer/grid:Param"));
+      var editorParameter =  Array.from(hc.selectNodes("grid:Editor/grid:Param"));
+      var rendererParameter = Array.from(hc.selectNodes("grid:Renderer/grid:Param"));
       var format = null;
       var scale = parseInt( hc.getAttribute("scale"), 10 );
       if( isFinite(scale) ) {
@@ -1012,8 +994,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , readOnly:   this.isReadOnly || hc.getAttribute("readOnly") == "true" || hc.getAttribute("isHidden") == "true" // hidden columns will be readonly to avoid copy/paste overwrites
         , format:     format
         , allowEmpty: hc.getAttribute("nullable") != "0" // nullable is an xs:Bit
-        , rendererX:  rendererFct != "" ? rendererFct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null
-        , editor:    editorFct != "" ? editorFct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null
+        , rendererX:  rendererFct != "" ? rendererFct.split(".").reduce( function( fkt, renderF ) { return fkt[renderF] }, window ) : null
+        , editor:    editorFct != "" ? editorFct.split(".").reduce( function( fkt, editorF ) { return fkt[editorF] }, window ) : null
         , validator: null // we handle validation in afterChange hook
         , editorParameter: {}
         , rendererParameter: {}
@@ -1028,7 +1010,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       this.gotHiddenColumns |= colHeader.isHidden;
       if (this.gotHiddenColumns && ! colHeader.isHidden)
-        throw "isHidden columns must be defined at the end of the column list"; // ensure no copy/paste operations with not visible data
+        throw new Error("isHidden columns must be defined at the end of the column list"); // ensure no copy/paste operations with not visible data
 
       // set zero width to hidden columns
       if (colHeader.isHidden)
@@ -1101,17 +1083,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       var isNumeric = ("DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL|INTEGER").indexOf(type) != -1;
       var references = this.optionsModelInfo[this.wrsHeaderIdByPos["" + this.sortColumn] || ""];
 
-      sortedValues = jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]")).sort(function(a,b){
+      sortedValues = Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]")).sort(function(a,b){
         var ax = (a.selectSingleNode("wrs:C[position()='"+this.sortColumn+"']").text);
         var bx = (b.selectSingleNode("wrs:C[position()='"+this.sortColumn+"']").text);
         // numerical search (in case of references on a numeric cell, do it by references and not here)
         if (isNumeric && references == null) {
-          var aValue = isNaN(ax) ? 0 : parseFloat(ax);
-          var bValue = isNaN(bx) ? 0 : parseFloat(bx);
+          var aValueNum = isNaN(ax) ? 0 : parseFloat(ax);
+          var bValueNum = isNaN(bx) ? 0 : parseFloat(bx);
           if (this.sortDirection == "ascending")
-            return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+            return aValueNum > bValueNum ? 1 : aValueNum < bValueNum ? -1 : 0;
           else
-            return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+            return aValueNum < bValueNum ? 1 : aValueNum > bValueNum ? -1 : 0;
         }
         else {
           // in case of reference use, take the caption from the code (reuse filterGetCaption, so you automatically also handle possible customized code to caption handlings)
@@ -1156,14 +1138,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         stop = sortedValues.length;
       for (var s = start; s < stop; s++) {
         var e = sortedValues[s];
-        this.htOptions.data.push({ r: e, c: jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";}) })
+        this.htOptions.data.push({ r: e, c: Array.from(e.getElementsByTagName("*")).filter(function(ele){return (ele.localName||ele.baseName) != "null";}) })
         this.rowIdMap[e.getAttribute("id")] = index++;
       }
     }
     else {
-      Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]" + xPath), function(e){
-        this.htOptions.data.push({ r: e, c: jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";}) })
-        this.rowIdMap[e.getAttribute("id")] = index++;
+      Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]" + xPath), function(row){
+        this.htOptions.data.push({ r: row, c: Array.from(row.getElementsByTagName("*")).filter(function(elem){return (elem.localName||elem.baseName) != "null";}) })
+        this.rowIdMap[row.getAttribute("id")] = index++;
       }.bind(this));
     }
   }
@@ -1201,10 +1183,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   var refValue = "";
                   var value = data[yy][xx];
                   refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
-                  if (references.isSuggestInput && refValue == null)
-                    refValue = value;  // suggestInput with a suggested value
-                  else if (refValue == null)
-                    refValue = value;  // a drop down without optionsModelRelativeValueXPath
+                  if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                    refValue = value;
                   data[yy][xx] = refValue;
                 }
               }
@@ -1233,10 +1213,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   var refValue = "";
                   var value = data[yy][xx];
                   refValue = references.captionCodeMap[bcdui.util.escapeHtml(value)];
-                  if (references.isSuggestInput && refValue == null)
-                    refValue = value;  // suggestInput with a suggested value
-                  else if (refValue == null)
-                    refValue = value;  // a drop down without optionsModelRelativeValueXPath
+                  if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                    refValue = value;
                   data[yy][xx] = refValue;
                 }
               }
@@ -1272,7 +1250,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       fkt();
     }
     
-    function afterColumnResize(currentColumn, newSize, isDoubleClick) {}
+    function afterColumnResize(currentColumn, newSize, isDoubleClick) { return; }
 
     function afterRender(isForced) {
 
@@ -1290,7 +1268,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         var targetModelXPath = "/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='" + this.getPrimaryModel().id +"']";
 
         // set filter class/title according to condition
-        jQuery("#" + this.htTargetHtmlId +" .ht_clone_top").find(".bcdFilterButton").each(function(i,e) {
+        jQuery("#" + this.htTargetHtmlId +" .ht_clone_top").find(".bcdFilterButton").each(function(i, e) {
           var id = jQuery(e).attr("colId");
           if (bcdui.wkModels.guiStatus.query(targetModelXPath + "/f:Or[@id='"+id+"']/f:Expression") != null)
             jQuery(e).addClass("active");
@@ -1305,20 +1283,20 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , inputModel: this.getPrimaryModel()
           , targetModelXPath: targetModelXPath
           , useCustomHeaderRenderer: true
-          , getFilteredValues: function(colIdx) { return jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]/wrs:C[" + colIdx + "]"));}.bind(this)
+          , getFilteredValues: function(colIdx) { return Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]/wrs:C[" + colIdx + "]"));}.bind(this)
           , getCaptionForColumnValue: this.columnFiltersGetCaptionForColumnValue
           , callback: function() {
   
               // build array of columns which got a filter
-              var colsWithFilter = jQuery.makeArray(bcdui.wkModels.guiStatus.queryNodes(targetModelXPath + "/f:Or[f:Expression]/@id")).map(function(e) {
+              var colsWithFilter = Array.from(bcdui.wkModels.guiStatus.queryNodes(targetModelXPath + "/f:Or[f:Expression]/@id")).map(function(e) {
                 return this.wrsHeaderMeta[e.text].pos;
               }.bind(this));
   
               // mark filtered cells 
-              jQuery.makeArray(this.gridModel.queryNodes("/*/wrs:Data/wrs:*")).forEach(function(e) {
+              Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*")).forEach(function(e) {
                 var factor = (e.localName||e.baseName) === "M" ? 2 : 1;
                 e.removeAttribute("filtered");
-                var wrsC = jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";});
+                var wrsC = Array.from(e.getElementsByTagName("*")).filter(function(el){return (el.localName||el.baseName) != "null";});
                 for (var i = 0; i < (wrsC.length / factor); i++) {
                   if (colsWithFilter.indexOf("" + (i+1)) != -1) {
                     var bRef = this.wrsHeaderIdByPos["" + (i + 1)] || "";
@@ -1369,18 +1347,19 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
          // make the cell visible, take over the class from the colspan cell and add the remaining colspan value.
          // finally we take over the caption from the cut off colspan cell just for some better visual representation
          if (this.hasHeaderGroups) { 
-            jQuery(value).find("tr").each(function(i,y){
+            jQuery(value).find("tr").each(function(i, y){
               var first = false;
               var ths = jQuery(y).find("th");
-              ths.each(function(j,x){
-                if (! jQuery(x).is(":visible") && jQuery(x).hasClass("bcdColSpan")) {
-                  if (jQuery(y).find("th:nth-child(-n + " + jQuery(x).index() + ")").filter("th[colspan]").length == 0) {
+              ths.each(function(j, theTH){
+                var th = jQuery(theTH);
+                if (! th.is(":visible") && th.hasClass("bcdColSpan")) {
+                  if (jQuery(y).find("th:nth-child(-n + " + th.index() + ")").filter("th[colspan]").length == 0) {
                     if (! first) {
-                      jQuery(x).show();
-                      jQuery(x).addClass(jQuery(x).attr("csClass"));
-                      jQuery(x).attr("colspan", parseInt(jQuery(x).attr("rcs") || "1", 10));
-                      jQuery(x).attr("oc", parseInt(jQuery(x).attr("rcs") || "1", 10));
-                      jQuery(x).find(".colHeader").text(jQuery(x).attr("caption"));
+                      th.show();
+                      th.addClass(th.attr("csClass"));
+                      th.attr("colspan", parseInt(th.attr("rcs") || "1", 10));
+                      th.attr("oc", parseInt(th.attr("rcs") || "1", 10));
+                      th.find(".colHeader").text(th.attr("caption"));
                     }
                     first = true;
                   }
@@ -1390,11 +1369,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
                 // also virtual horizontal rendering might cut off the very right part (so instead of n columns just n-1 are rendered since
                 // handsontable decided that parts might not fit) so we need to adjust possible colspans which go beyond this area
-                var colspan = parseInt((jQuery(x).attr("colspan") || "1"), 10);
+                var colspan = parseInt((th.attr("colspan") || "1"), 10);
                 if (colspan > 1) {
-                  if (ths.length < jQuery(x).index() + colspan) {
-                    jQuery(x).attr("colspan", ths.length - jQuery(x).index());
-                    jQuery(x).attr("oc", ths.length - jQuery(x).index());
+                  if (ths.length < th.index() + colspan) {
+                    th.attr("colspan", ths.length - th.index());
+                    th.attr("oc", ths.length - th.index());
                   }
                 } 
               });
@@ -1412,7 +1391,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       // this needs to be in a timeout to avoid rendering issues in handsontable
       if (this.maxHeight) {
         var h = 0;
-        jQuery("#" + this.htTargetHtmlId + " .ht_master tr").each(function(i,e){ h += jQuery(e).outerHeight(); })
+        jQuery("#" + this.htTargetHtmlId + " .ht_master tr").each(function(i, e){ h += jQuery(e).outerHeight(); })
         if (h >= this.maxHeight && ! this.maxHeightReached) {
           this.maxHeightReached = true;
           setTimeout(function() {
@@ -1446,11 +1425,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.hotInstance.getBCDUIGrid = function() { return this; }.bind(this);
 
       // support C element classes
-      var headerColumns = jQuery.makeArray(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C"));
+      var headerColumns = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C"));
       if (headerColumns.length > 0) {
         this.hotInstance.headerCss = new Array();
-        for (var i = 0; i < headerColumns.length; i++) {
-          var e = headerColumns[i];
+        headerColumns.forEach(function(e){
           var cssClass = "";
           if (e.getAttribute("isKey") === "true") {
             cssClass += " bcdKey";
@@ -1461,7 +1439,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           var c = e.getAttribute("class") || "";
           c = c != "" ? " " + c : "";
           this.hotInstance.headerCss.push(cssClass + c);
-        }
+        }.bind(this));
       }
 
       if (this.hasHeaderGroups || this.gotHiddenColumns) {
@@ -1473,7 +1451,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           this.hotInstance.getPlugin("ManualColumnResize").onMouseOver = function(event) {
             if (this.checkIfColumnHeader(event.target)) {
               var th = this.getTHFromTargetElement(event.target);
-              if (!th || ! (jQuery(th).parent().index() == jQuery(th).closest("THEAD").find("TR").length - 1)) { // only allow last TR
+              if (!th || jQuery(th).parent().index() != jQuery(th).closest("THEAD").find("TR").length - 1) { // only allow last TR
                 return;
               }
 
@@ -1517,7 +1495,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           // custom columnHeaders
           var newHead = [];
           if (self.filledGroupedHeader) {
-            self.filledGroupedHeader.forEach(function(e){
+            self.filledGroupedHeader.forEach(function(groupHeader){
               newHead.push(function(column, TH) {
                 // when rendering rowheader, remove possible existing col/rowspan (which might happen due to virtual scrolling)
                 if (column == -1) {
@@ -1528,7 +1506,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   return;
                 }
                 // replace TH with the one from pre-constructed matrix
-                var el = jQuery(e[column]);
+                var el = jQuery(groupHeader[column]);
                 if (el.length > 0) {
                   jQuery(TH).replaceWith(el);
                 }
@@ -1739,9 +1717,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
             // we clean the inserted C elements for alignment since createElementWithPrototype might have set the first referenced item (insertRow.xslt does not do this with setDefaultValue=false)
             var e = bcdui.core.createElementWithPrototype(row.r, "./wrs:C[" + this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length +"]");
-            jQuery.makeArray(e.parentNode.selectNodes("./wrs:C")).forEach(function(e) {
-              e.text = "";
-              bcdui.core.browserCompatibility.appendElementWithPrefix(e, "wrs:null");
+            Array.from(e.parentNode.selectNodes("./wrs:C")).forEach(function(cElement) {
+              cElement.text = "";
+              bcdui.core.browserCompatibility.appendElementWithPrefix(cElement, "wrs:null");
             });
 
             // in case of a paste operation, we remmeber the rows for later callback use
@@ -1751,14 +1729,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               this.afterAddRow({rowNode:row.r, headerMeta: this.wrsHeaderMeta});
 
             // We use getElementsByTagName here for IE performance, but as it works recursively, we need to clean it afterwards
-            row.c = jQuery.makeArray(row.r.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) === "C" || (e.localName||e.baseName) === "O";})
+            row.c = Array.from(row.r.getElementsByTagName("*")).filter(function(rowElement){return (rowElement.localName||rowElement.baseName) === "C" || (rowElement.localName||rowElement.baseName) === "O";})
           }
         }
         if (amount > 0) {
           // rebuild rowIdMap when new rows were inserted
           var x = 0;
           this.rowIdMap = {};
-          this.htOptions.data.forEach(function(e){ this.rowIdMap[e.r.getAttribute("id")] = x++; }.bind(this));
+          this.htOptions.data.forEach(function(d){ this.rowIdMap[d.r.getAttribute("id")] = x++; }.bind(this));
           this.afterChange([], "edit");  // trigger full validation
         }
       }
@@ -1794,7 +1772,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.headerMatrix = this._createGroupedHeader({matrixOnly: true});
 
       // initially update headerMatrix with settings from guiStatus
-      jQuery.makeArray(bcdui.wkModels.guiStatus.queryNodes("/*/guiStatus:PersistentSettings/guiStatus:Grid[@id='" + this.id + "']/guiStatus:Group")).forEach(function(e) {
+      Array.from(bcdui.wkModels.guiStatus.queryNodes("/*/guiStatus:PersistentSettings/guiStatus:Grid[@id='" + this.id + "']/guiStatus:Group")).forEach(function(e) {
         var id = (e.getAttribute("id") || "").substring(1).split("_");
         var row = id[0] || -1;
         var col = id[1] || -1;
@@ -1973,7 +1951,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         else if (v.length > 1 & v[0] == "c" && ! isNaN(vc))
           v = vc;
         else
-          throw "illegal row dependency value " + this.id + " " + v;
+          throw new Error("illegal row dependency value " + this.id + " " + v);
         var m = match[0].replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
         var refValue = this.gridModel.getData().selectSingleNode("/*/wrs:Data/wrs:*[@id='" + args.rowId + "']/wrs:C[position()='" + v + "']");
         refValue = refValue == null ? "" : refValue.text;
@@ -2048,7 +2026,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (this.initiallyCollapsedOrHidden && this.hiddenColumns.length > 0)
       delete this.initiallyCollapsedOrHidden;
 
-    this.htOptions.columns.forEach(function(e, i){ if (e.isHidden) this.hiddenColumns.push(i); }.bind(this));
+    this.htOptions.columns.forEach(function(col, i){ if (col.isHidden) this.hiddenColumns.push(i); }.bind(this));
 
     // show all
     jQuery("#" + this.htTargetHtmlId + " .bcdClosed").removeClass("bcdClosed");
@@ -2062,13 +2040,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     [ jQuery("#" + this.htTargetHtmlId +" .ht_master colgroup col")
     , jQuery("#" + this.htTargetHtmlId +" .ht_clone_top colgroup col")
     ].forEach(function(cg) {
-        cg.each(function(x,e) {
-          var realX = x - (offset - 1) + range.start; // offset -1 since we're not in nth-child context anymore
-          var colId = this.wrsHeaderIdByPos["" + (realX + 1)] || "";
+        cg.each(function(idx, colElement) {
+          var rX = idx - (offset - 1) + range.start; // offset -1 since we're not in nth-child context anymore
+          var colId = this.wrsHeaderIdByPos["" + (rX + 1)] || "";
           if (colId != "") {
-            var outerWidth = parseInt(jQuery(e).outerWidth(), 10);
+            var outerWidth = parseInt(jQuery(colElement).outerWidth(), 10);
             this.storedWidths = this.storedWidths || {};
-            var manWidth = this.hotInstance.getSettings().manualColumnResize && this.hotInstance.getPlugin("ManualColumnResize").manualColumnWidths[realX] || -1;
+            var manWidth = this.hotInstance.getSettings().manualColumnResize && this.hotInstance.getPlugin("ManualColumnResize").manualColumnWidths[rX] || -1;
             // when using manual column sizes, use them
             if (manWidth != -1)
               this.storedWidths[colId] = manWidth;
@@ -2079,15 +2057,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             else if (outerWidth != 0)
               this.storedWidths[colId] = outerWidth;
             // and finally set it as style width
-            jQuery(e).css("width", this.storedWidths[colId]);
+            jQuery(colElement).css("width", this.storedWidths[colId]);
           }
         }.bind(this));
     }.bind(this));
 
     // mark the ones which will be hidden
-    this.hiddenColumns.forEach(function(e) {
-      var realX = e - range.start + offset;
-      var headerCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th:nth-child(" + realX + ")");
+    this.hiddenColumns.forEach(function(hiddenCol) {
+      var xHide = hiddenCol - range.start + offset;
+      var headerCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th:nth-child(" + xHide + ")");
       headerCellsToHide.addClass("bcdToBeClosed");
     }.bind(this));
 
@@ -2097,11 +2075,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     ].forEach(function(t) {
       var c = 1;
       var cols = jQuery(t).find("colgroup col");
-      jQuery(t).find("thead tr:last-child th").each(function(x,e){
+      jQuery(t).find("thead tr:last-child th").each(function(index, theTH){
         var colElement = jQuery(t).find("colgroup col:nth-child(" + c + ")");
-        var realX = x - (offset - 1) + range.start; // offset -1 since we're not in nth-child context anymore
-        var colId = this.wrsHeaderIdByPos["" + (realX + 1)] || "";
-        if (! jQuery(e).hasClass("bcdToBeClosed")) {
+        var xCol = index - (offset - 1) + range.start; // offset -1 since we're not in nth-child context anymore
+        var colId = this.wrsHeaderIdByPos["" + (xCol + 1)] || "";
+        if (! jQuery(theTH).hasClass("bcdToBeClosed")) {
           colElement.css("width", this.storedWidths[colId]);
           c++;
         }
@@ -2113,25 +2091,25 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }.bind(this));
 
     // finally hide selected cells
-    this.hiddenColumns.forEach(function(e) {
-      var realX = e - range.start + offset;
-      var headerCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th:nth-child(" + realX + ")");
-      var bodyCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master tbody tr td:nth-child(" + realX + ")");
+    this.hiddenColumns.forEach(function(hiddenCol) {
+      var xHiddenCol = hiddenCol - range.start + offset;
+      var headerCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th:nth-child(" + xHiddenCol + ")");
+      var bodyCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master tbody tr td:nth-child(" + xHiddenCol + ")");
       headerCellsToHide.addClass("bcdClosed");
       bodyCellsToHide.addClass("bcdClosed");
     }.bind(this));
 
     // and update colspans according to the show/hide state
     var colSpans = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th[colspan]");
-    colSpans.each(function(i,e) {
-      var originalColSpan = parseInt(jQuery(e).attr("oc") || "1", 10);
+    colSpans.each(function(i,colSpanElement) {
+      var originalColSpan = parseInt(jQuery(colSpanElement).attr("oc") || "1", 10);
       var newColSpan = 0; 
-      var col = jQuery(e).index() - (offset - 1) + range.start;
-      for (var x = col; x < col + originalColSpan; x++) {
-        if (this.hiddenColumns.indexOf(x) == -1)
+      var col = jQuery(colSpanElement).index() - (offset - 1) + range.start;
+      for (var ax = col; ax < col + originalColSpan; ax++) {
+        if (this.hiddenColumns.indexOf(ax) == -1)
           newColSpan++;
       }
-      jQuery(e).attr("colspan", newColSpan);
+      jQuery(colSpanElement).attr("colspan", newColSpan);
     }.bind(this));
 
     // let handsontable recalculate width of all wider elements
@@ -2149,25 +2127,24 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
      * the final matrix has as much rows as the maximum grouping level and as much columns as the grid
      * it contains either null (fields which will be row/column spanned, C (a rendered Item) or G (a group)
      */
-    function buildMatrix(matrix, x, y, root, columns) {
-      var nodes = root.selectNodes("./*");
-      for (var n = 0; n < nodes.length; n++) {
-        if (typeof matrix[y] == "undefined")
-          matrix.push(new Array(columns));
-        if ((nodes[n].localName||nodes[n].baseName) == "C") {
-          matrix[y][x] = {type: "C"};
-          x++;
+    function buildMatrix(theMatrix, curX, curY, root, columns) {
+      Array.from(root.selectNodes("./*")).forEach(function(node){
+        if (typeof theMatrix[curY] == "undefined")
+          theMatrix.push(new Array(columns));
+        if ((node.localName||node.baseName) == "C") {
+          theMatrix[curY][curX] = {type: "C"};
+          curX++;
         }
-        if ((nodes[n].localName||nodes[n].baseName) == "Group") {
-          var caption = nodes[n].getAttribute("caption") || "";
+        if ((node.localName||node.baseName) == "Group") {
+          var caption = node.getAttribute("caption") || "";
           caption = caption.indexOf(bcdui.i18n.TAG) == 0 ? bcdui.i18n.syncTranslateFormatMessage({msgid:caption}) : caption;
-          matrix[y][x] = {type: "G", caption: caption, cssClass: nodes[n].getAttribute("class") || ""};
-          matrix[y][x].collapsable = (nodes[n].getAttribute("collapsed") != null);
-          matrix[y][x].isCollapsed = (nodes[n].getAttribute("collapsed") === "true"); // take initial value from config
-          x = buildMatrix(matrix, x, y + 1, nodes[n], columns)
+          theMatrix[curY][curX] = {type: "G", caption: caption, cssClass: node.getAttribute("class") || ""};
+          theMatrix[curY][curX].collapsable = (node.getAttribute("collapsed") != null);
+          theMatrix[curY][curX].isCollapsed = (node.getAttribute("collapsed") === "true"); // take initial value from config
+          curX = buildMatrix(theMatrix, curX, curY + 1, node, columns)
         }
-      }
-      return x;
+      });
+      return curX;
     }
 
     var matrix = new Array();
@@ -2267,7 +2244,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       // update information (wrs:R (wrs:M/I/D) / wrs:C (wrs:O) data in hot data array
       var hDataEntry = this.htOptions.data[this.rowIdMap[rowId]];
       hDataEntry.r = e;
-      hDataEntry.c = jQuery.makeArray(e.getElementsByTagName("*")).filter(function(e){return (e.localName||e.baseName) != "null";})
+      hDataEntry.c = Array.from(e.getElementsByTagName("*")).filter(function(element){return (element.localName||element.baseName) != "null";})
 
       // take over the row changes for afterChange call
       if ((e.localName||e.baseName) != "D") {
@@ -2298,7 +2275,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (rebuildIndexList) {
       var index = 0;
       this.rowIdMap = {};
-      this.htOptions.data.forEach(function(e){ this.rowIdMap[e.r.getAttribute("id")] = index++; }.bind(this));
+      this.htOptions.data.forEach(function(entry){ this.rowIdMap[entry.r.getAttribute("id")] = index++; }.bind(this));
     }
 
     // rerender
@@ -2368,9 +2345,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.hotInstance.render();
         this.afterChange([], "edit");  // trigger full validation
 
-		// in case of showing all entries, handsontable might not refresh all rows, so do another redraw
-		if (curPage == -1)
-			setTimeout(this.hotInstance.render);
+        // in case of showing all entries, handsontable might not refresh all rows, so do another redraw
+        if (curPage == -1)
+          setTimeout(this.hotInstance.render);
 
         // redraw to adjust new page counts
         if (this.paginationRenderer)
@@ -2392,27 +2369,25 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // we might use custom optionsModels, so we need to provide the correct caption value for the old value
     // to the tooltip renderer (which by default only knows wrs/reference captions and the actual gridModel values
-    var prepareTooltip = function(doc, args) {
-      if (args.bcdColIdent && args.bcdRowIdent && args.gridInstanceId) {
-        var grid = bcdui.factory.objectRegistry.getObject(args.gridInstanceId);
+    var prepareTooltip = function(doc, argsTooltip) {
+      if (argsTooltip.bcdColIdent && argsTooltip.bcdRowIdent && argsTooltip.gridInstanceId) {
+        var grid = bcdui.factory.objectRegistry.getObject(argsTooltip.gridInstanceId);
         if (grid) {
           doc.selectSingleNode("/*/wrs:Data").removeAttribute("mappedCaption");
 
           var isDocument = false;
-          if (typeof grid.wrsHeaderMeta[args.bcdColIdent].pos != "undefined")
-            isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + grid.wrsHeaderMeta[args.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
+          if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos != "undefined")
+            isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
           doc.selectSingleNode("/*/wrs:Data").setAttribute("isDocument", "" + isDocument);
           
-          var references = grid.optionsModelInfo[args.bcdColIdent];
+          var references = grid.optionsModelInfo[argsTooltip.bcdColIdent];
           if (references) {
-            var index = grid.wrsHeaderMeta[args.bcdColIdent].pos; //grid.gridModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + args.bcdColIdent + "']/@pos", "-1");
-            var value = grid.gridModel.read("/*/wrs:Data/wrs:M[@id='" + args.bcdRowIdent + "']/wrs:O[position()='"+ index + "']");
+            var index = grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos;
+            var value = grid.gridModel.read("/*/wrs:Data/wrs:M[@id='" + argsTooltip.bcdRowIdent + "']/wrs:O[position()='"+ index + "']");
             if (value) {
               var refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
-              if (references.isSuggestInput && refValue == null)
-                refValue = value;  // suggestInput with a suggested value
-              else if (refValue == null)
-                refValue = value;  // a drop down without optionsModelRelativeValueXPath
+              if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                refValue = value;
               doc.selectSingleNode("/*/wrs:Data").setAttribute("mappedCaption", refValue);
             }
           }
@@ -2427,7 +2402,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       // in case grid is in a tab, we need to trigger a refresh when changing tabs
       var tabItem = jQuery("#" + this.targetHtml).closest(".bcdTabItem");
       if (tabItem.length > 0) {
-        tabItem.on("bcd:widget.tab.show", function(event, args) {
+        tabItem.on("bcd:widget.tab.show", function(event) {
           if (this.hotInstance)
             this.hotInstance.render();
         }.bind(this));
@@ -2450,10 +2425,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if( !!args.contextMenu && args.contextMenu !== 'false' && args.contextMenu !== false ) {
 
         // little contextMenu preprocessor which checks if the row is fully readonly 
-        var prepareContextMenu = function(doc, args) {
-          var grid = bcdui.factory.objectRegistry.getObject(args.gridId);
+        var prepareContextMenu = function(doc, argsContextMenu) {
+          var grid = bcdui.factory.objectRegistry.getObject(argsContextMenu.gridId);
           if (typeof grid != "undefined" && typeof grid.rowIdMap != "undefined") {
-            var row = grid.rowIdMap[args.bcdRowIdent];
+            var row = grid.rowIdMap[argsContextMenu.bcdRowIdent];
             if (typeof row != "undefined") {
               var cellProperties = grid.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
               bcdui.factory.objectRegistry.getObject(grid.id + "_rowIsDisabled").value = "" + (cellProperties.indexOf("false") == -1);
@@ -2488,17 +2463,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         
         var rowId = memo ? memo.rowId : "";
         var q = this.hotInstance.countRows();
-        var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
+        var activePagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
+        var thisPageLastRowId = q > 0 ? this.hotInstance.getSourceDataAtRow(q - 1).r.getAttribute("id") : null
 
         var insertBeforeSelection = false;
         // clicked on AddRow button, then - depending on topMode - chooser top or bottom row
         if (rowId == "") {
           if (this.forceAddAtBottom) {
-            var thisPageLastRowId = q > 0 ? this.hotInstance.getSourceDataAtRow(q - 1).r.getAttribute("id") : null
             rowId = (thisPageLastRowId == null) ? "R1" : thisPageLastRowId;
           }
           // for pagination, always add at top of current page
-          else if (gotPagination) {
+          else if (activePagination) {
             var topRow = q > 0 ? this.hotInstance.getSourceDataAtRow(0).r.getAttribute("id") : null
             rowId = (topRow == null) ? "R1" : topRow;
             insertBeforeSelection = true;
@@ -2508,10 +2483,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             rowId = (thisPageFirstRowId == null) ? "R1" : thisPageFirstRowId;
             insertBeforeSelection = true;
           }
-          else {
-            var thisPageLastRowId = q > 0 ? this.hotInstance.getSourceDataAtRow(q - 1).r.getAttribute("id") : null
+          else
             rowId = (thisPageLastRowId == null) ? "R1" : thisPageLastRowId;
-          }
         }
 
         // handle context menu specific insert positions 
@@ -2522,7 +2495,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             insertBeforeSelection = true;
 
             // in pagination we don't have sorting, so we can pick the first row in the gridModel
-            if (gotPagination)
+            if (activePagination)
               rowId = this.gridModel.read("/*/wrs:Data/*[position()=1]/@id", "R1");
           }
           if (memo.mode == "bottom") {
@@ -2531,7 +2504,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             insertBeforeSelection = false;
 
             // in pagination we don't have sorting, so we can pick the last row in the gridModel
-            if (gotPagination)
+            if (activePagination)
               rowId = this.gridModel.read("/*/wrs:Data/*[position()=last()]/@id", "R1");
           }
           if (memo.mode == "above") {
@@ -2616,7 +2589,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             , chain: function(doc) {
 
                 // get rid of hidden ones
-                var hiddenOnes = jQuery.makeArray(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
+                var hiddenOnes = Array.from(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
                 if (hiddenOnes.length > 0) {
                   var firstHidden = hiddenOnes.sort()[0];
                   bcdui.core.removeXPath(doc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);
@@ -2625,9 +2598,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 }
 
                 // take caption instead of code                
-                jQuery.makeArray(doc.selectNodes("/*/wrs:Data/wrs:*")).forEach(function(e){
-                  jQuery.makeArray(e.selectNodes("wrs:C")).forEach(function(c, i) {
-                    c.text = theGrid.columnFiltersGetCaptionForColumnValue(i + 1, c.text);
+                Array.from(doc.selectNodes("/*/wrs:Data/wrs:*")).forEach(function(e){
+                  Array.from(e.selectNodes("wrs:C")).forEach(function(cElement, i) {
+                    cElement.text = theGrid.columnFiltersGetCaptionForColumnValue(i + 1, cElement.text);
                   });
                 });
 
