@@ -154,7 +154,7 @@ task bcduiGensrcTld {
           <uri>http://de.businesscode.web/jsp/taglib/bcdui/$tldDisplayName</uri>
         $tagList
         </taglib>
-      '''.stripIndent()
+      '''.stripIndent(true)
     def tldTemplate = new SimpleTemplateEngine().createTemplate(templateString)
 
     // Settings for the api groups
