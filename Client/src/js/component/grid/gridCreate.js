@@ -2103,18 +2103,45 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       bodyCellsToHide.addClass("bcdClosed");
     }.bind(this));
 
-    // and update colspans according to the show/hide state
-    var colSpans = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th[colspan]");
-    colSpans.each(function(i,colSpanElement) {
-      var originalColSpan = parseInt(jQuery(colSpanElement).attr("oc") || "1", 10);
-      var newColSpan = 0; 
-      var col = jQuery(colSpanElement).index() - (offset - 1) + range.start;
-      for (var ax = col; ax < col + originalColSpan; ax++) {
-        if (this.hiddenColumns.indexOf(ax) == -1)
-          newColSpan++;
-      }
-      jQuery(colSpanElement).attr("colspan", newColSpan);
-    }.bind(this));
+    // in case of header groups, we update colspans according to hide/show  and the width of the visible columns to the widest cell above the current column 
+    if (jQuery("#" + this.htTargetHtmlId +" .ht_master thead tr").length > 1) {
+
+      var colSpans = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th[colspan]");
+      colSpans.each(function(i,colSpanElement) {
+        var originalColSpan = parseInt(jQuery(colSpanElement).attr("oc") || "1", 10);
+        var newColSpan = 0; 
+        var col = jQuery(colSpanElement).index() - (offset - 1) + range.start;
+        for (var ax = col; ax < col + originalColSpan; ax++) {
+          if (this.hiddenColumns.indexOf(ax) == -1)
+            newColSpan++;
+        }
+        jQuery(colSpanElement).attr("colspan", newColSpan);
+      }.bind(this));
+
+      [ jQuery("#" + this.htTargetHtmlId +" .ht_master")
+      , jQuery("#" + this.htTargetHtmlId +" .ht_clone_top")
+      ].forEach(function(t) {
+        var c = 1;
+        jQuery(t).find("thead tr:last-child th").each(function(index, theTH) {
+          var colElement = jQuery(t).find("colgroup col:nth-child(" + c + ")");
+          // only look at the visible ones
+          if (! jQuery(theTH).hasClass("bcdToBeClosed")) {
+            // take the current col width as default
+            var max = parseInt(colElement.css("width"), 10);
+            // check if there are bigger ones in rows above
+            // we only calc the width of the closing action buttons, the header text and possible padding of the cell itself 
+            jQuery(t).find("thead tr th:nth-child(" + (index + 1) + ")").each(function(cx, col) {
+              var width = (jQuery(col).find(".bcdGroupAction").outerWidth() || 0) + (jQuery(col).find(".colHeader").outerWidth() || 0) + parseInt(jQuery(col).find("div").css("padding-left") || 0, 10) + parseInt(jQuery(col).find("div").css("padding-right") || 0, 10);
+              if (max < width)
+                max = width;
+            });
+            // finally set the new width
+            colElement.css("width", max);
+            c++;
+          }
+        });
+      });
+    }
 
     // let handsontable recalculate width of all wider elements
     this.hotInstance.view.wt.wtOverlays.adjustElementsSize(true);
