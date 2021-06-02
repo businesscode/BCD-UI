@@ -15,23 +15,26 @@
 */
 
 /*--------------------------------------------
- * Gradle file building Eclipse .project
+ * Gradle file building Eclipse project
  * 1.  Create an "Dynamic Web Project"
  *   - Eclipse recommends to keep git projects outside of workspace, so create your project maybe next to it
- * 2a. Copy this file and bcdui_dependencies.gradle into your front-end project root
+ * 2a. Copy this file into your front-end project root
  *   - Rename this file to build.gradle
+ *   - Adjust sourceCompatibility and version of bcd-ui dependencies
+ *   - Add at last your database driver as a dependency or put it to WEB-INF/lib
  * 2b. Copy .gitignore found here to your project root
- *    - Later, do not add .classpath or .project or .settings to git and do not manually or via Eclipse dialogs change them
  * 2c. Copy gradle-wrapper.properties into /gradle/wrapper/
  * 2d. Copy context.xml and web.xml from Server/configFiles/ into your project (into /META-INF and /WEB-INF)
- * 2e. Copy bcd-ui-core|theme*.jar and the database driver in into WEB-INF/lib/
- * 2f. Copy Server/configFiles/log4j.properties to src/main/resources/
- *    - Also create src/main/java/, this will be your source folder
+ * 2f. Copy Server/configFiles/log4j2.xml to src/main/resources/
+ *   - Also create src/main/java/, this as a source folder
  * 3. Import the project into Eclipse as "Existing Gradle Project"
- *    - Then run "Gradle->Refresh Gradle Project" from context menu and refresh "Gradle Task" view
+ *   - Run "Gradle->Refresh Gradle Project" from context menu of the project and refresh "Gradle Task" view
  * 4. Run gradle task "wrapper" and refresh project with F5
- * --
- * 5. If you later add more libs always run "Gradle->Refresh Gradle Project"
+ *
+ * You can also use a locally build bcdui.jar in WEB-INF/lib, To do that::
+ * - remove dependency on the jar from dependencies
+ * - copy bcdui_dependencies.gradle next to build.grade
+ * - add "apply from: 'bcdui_dependencies.gradle'" before the dependency block
  ------------------------------------------------*/
 
 apply plugin: 'war'
@@ -41,29 +44,31 @@ apply plugin: 'eclipse'
 // To work with a Tomcat started from Eclipse, we put all java .class files where they would be in a normal web app
 webAppDirName = 'WebContent'
 
-// If you are working with maybe JDK 13 but have a 1.8 runtime target, enable this
-//sourceCompatibility = 1.8
-//targetCompatibility = 1.8
+// Adjust to your target runtime
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 // We collect all classes in WEB-INF/classes
 sourceSets.main.java.outputDir      = file("$webAppDirName/WEB-INF/classes")
 sourceSets.main.output.resourcesDir = file("$webAppDirName/WEB-INF/classes")
 
-// Import dependencies of BCD-UI lib
-apply from: 'bcdui_dependencies.gradle'
-
-// Your project's dependencies
+// Dependencies
 dependencies {
   repositories {
     mavenCentral()
+    maven {
+      url "https://github.com/businesscode/maven-repo/raw/master"
+    }
   }
+  implementation 'de.businesscode.bcdui:bcd-ui-core:5.5.0-SNAPSHOT'
+  implementation 'de.businesscode.bcdui:bcd-ui-theme-bcd:5.5.0-SNAPSHOT'
 
   // Local files from WEB-INF/lib
-  // Commit bcd-ui-core|theme*.jar and the database driver into WEB-INF/lib
   implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
 
   // If necessary, any additional project dependencies like this
   // implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+  // implementation 'com.oracle.database.jdbc:ojdbc8:19.6.0.0'
 }
 
 // We need WEB-INF/lib and WEB-INF/classes as compile dependencies
