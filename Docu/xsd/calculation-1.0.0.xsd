@@ -201,7 +201,12 @@
         <xs:extension base="tns:CalculatedValueType">
           <xs:attribute name="idRef">
             <xs:annotation><xs:documentation>
-              The form is agg_[idOfMyAggregator]_$.[idOfMyProperty].
+              The form is agg_<idOfMyAggregator>_$.<idOfMyProperty> which is extended by the current KPI's first measure.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="bindingItemId">
+            <xs:annotation><xs:documentation>
+              The form is agg_<aggregatorId>_<measureId>.<propertyId>. If this is specified, idRef is ignored.
             </xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>

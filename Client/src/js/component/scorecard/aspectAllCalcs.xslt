@@ -166,7 +166,14 @@
         <xsl:otherwise><xsl:value-of select="$firstMeasure"/></xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="bindingItemId" select="concat(substring-before(@idRef,'$'),$uniqueMeasure,substring-after(@idRef,'$'))"/>
+    <xsl:variable name="bindingItemId">
+      <xsl:choose>
+        <xsl:when test="count(@bindingItemId)=1"><xsl:value-of select="@bindingItemId"/></xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(substring-before(@idRef,'$'),$uniqueMeasure,substring-after(@idRef,'$'))"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="colIndex">
       <xsl:for-each select="$doc">
         <xsl:value-of select="key('colHeadById', $bindingItemId)/@pos"/>
