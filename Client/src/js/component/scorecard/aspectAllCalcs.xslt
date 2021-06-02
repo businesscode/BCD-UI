@@ -38,6 +38,8 @@
   <xsl:key name="kpiExtNameVal" match="/*/scc:Kpis/scc:Kpi/scc:Extensions/@*" use="concat(../../@id,'&#xE0F1;',name(),'&#xE0F1;',.)"/>
   <xsl:key name="kpiExtName" match="/*/scc:Kpis/scc:Kpi/scc:Extensions/@*" use="concat(../../@id,'&#xE0F1;',name())"/>
 
+  <xsl:key name="kpiAttrByName" match="/*/scc:Kpis/scc:Kpi/@*" use="concat(../@id,'_',name())"/>
+
   <xsl:variable name="doc" select="/"/>
 
   <xsl:variable name="templateDoc" select="document('aspectAllCalcsTemplate.xslt')"/>
@@ -95,14 +97,10 @@
             <xsl:when test="local-name($calcOrChoose)='chooseCalc'">
               <wrs:C>
                 <!-- Our node is the matching whenExtension or otherwise  -->
-
-                <xsl:variable name="whenName" select="$calcOrChoose/scc:whenKpiAttr/@name"/>
-                <xsl:variable name="whenValue" select="$calcOrChoose/scc:whenKpiAttr/@value"/>
-
                 <xsl:variable name="calcParentPos">
                   <xsl:for-each select="$sccDefinition">
                     <xsl:value-of select="count(($calcOrChoose/scc:whenExtension[key('kpiExtNameVal',concat($kpi/@id,'&#xE0F1;',@name,'&#xE0F1;',@value))]
-                    | $calcOrChoose/scc:whenKpiAttr[$kpi/@*[local-name()=$whenName]=$whenValue]
+                    | $calcOrChoose/scc:whenKpiAttr[@value=key('kpiAttrByName',concat($kpi/@id,'_',@name))]
                     | $calcOrChoose/scc:otherwise)[1]/preceding-sibling::*)"/>
                   </xsl:for-each>
                 </xsl:variable>
