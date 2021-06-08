@@ -861,6 +861,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   list-style-type: none;
   height: 100%;
   width: 100%;
+  margin: 0;
   li { position: relative; cursor: default;}
   .bcdItem { cursor: pointer; }
   .ui-selected {
