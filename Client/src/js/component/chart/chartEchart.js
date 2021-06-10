@@ -35,7 +35,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * @constructs
    * @param {Object} args - Parameter object:
    * @param {targetHtmlRef} args.targetHtml                       - Where to place the chart
-   * @param {bcdui.core.DataProvider} args.config                 - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
+   * @param {bcdui.core.DataProvider} args.config                 - Definition if the chart according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
    * @param {Object} args.options                                 - Options of ECharts, extending / being merged with the options deried from config
    */
   constructor(args)
@@ -1000,6 +1000,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
     if( foundData ) {
       myChart.setOption(opts, true);
+      bcdui.core.createElementWithPrototype( this.config, "/*/chart:Computed/chart:ChartsDrawn").text = "true";
     }
     else {
       let msg = bcdui.i18n.syncTranslateFormatMessage("bcd_EmptyChart");
@@ -1210,4 +1211,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           e = H - h;
       return e ? v + e * (ascArr[h] - v) : v;
   }
+
+  /**
+   * @return definition DOM document
+   */
+  getData(){
+    return this.config.getData();
+  }
+
 };
