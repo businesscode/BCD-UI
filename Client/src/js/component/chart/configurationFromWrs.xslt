@@ -130,16 +130,24 @@
           <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
           <chart:Categories modelId="{$bcdInputModelId}" nodes="/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[position() > 1 and not(contains(@id,'&#xE0F0;1'))]/@caption"/>
         </chart:XAxis>
-  
-        <chart:YAxis1 unit="{$rowSeriesDistinctUnits[1]/@unit}" caption="{wrs:Header/wrs:Columns/wrs:C[1]/@caption}">
-          <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
-        </chart:YAxis1>
-  
-        <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $rowSeriesDistinctUnits[2]">
-          <chart:YAxis2 unit="{$rowSeriesDistinctUnits[2]/@unit}" caption="{wrs:Header/wrs:Columns/wrs:C[1]/@caption}">
-            <xsl:copy-of select="$chartPreSettings/*/chart:YAxis2/@*"/>
-          </chart:YAxis2>
-        </xsl:if>
+
+        <xsl:choose>
+          <xsl:when test="$rowSeriesDistinctUnits[1]/@unit">
+            <chart:YAxis1 unit="{$rowSeriesDistinctUnits[1]/@unit}" caption="{wrs:Header/wrs:Columns/wrs:C[1]/@caption}">
+              <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
+            </chart:YAxis1>
+            <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $rowSeriesDistinctUnits[2]">
+              <chart:YAxis2 unit="{$rowSeriesDistinctUnits[2]/@unit}" caption="{wrs:Header/wrs:Columns/wrs:C[1]/@caption}">
+                <xsl:copy-of select="$chartPreSettings/*/chart:YAxis2/@*"/>
+              </chart:YAxis2>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <chart:YAxis1 count="{count($rowSeriesDistinctUnits)}" unit="{wrs:Header/wrs:Columns/wrs:C[2]/@unit}" caption="{substring-after(wrs:Header/wrs:Columns/wrs:C[2]/@caption, '|')}">
+              <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
+            </chart:YAxis1>
+          </xsl:otherwise>
+        </xsl:choose>
 
         <chart:Series>
           <xsl:for-each select="wrs:Data/wrs:R[not(wrs:C[1]/@bcdGr=1)]">
