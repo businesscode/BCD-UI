@@ -2376,9 +2376,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.hotInstance.render();
         this.afterChange([], "edit");  // trigger full validation
 
-        // in case of showing all entries, handsontable might not refresh all rows, so do another redraw
-        if (curPage == -1)
-          setTimeout(this.hotInstance.render);
+        // redraw on page switch since we might have less (last page) or more (show all) rows to render
+        setTimeout(this.hotInstance.render);
 
         // redraw to adjust new page counts
         if (this.paginationRenderer)
