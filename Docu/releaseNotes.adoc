@@ -56,6 +56,9 @@ Some changes are not backward compatible and may require code change in the proj
 * InputField
 ** fix not disabled field until options model is ready (in case of wrapped optionmodels)
 
+* createTableHeadFilter
+** add option valueCaptionProvider which allows asynchronous providing of code/caption data for filter dialog
+
 ==== Release 5_4_0
 
 .Major new features:

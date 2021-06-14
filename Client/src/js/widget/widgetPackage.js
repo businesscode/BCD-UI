@@ -2162,8 +2162,9 @@ jQuery.extend(bcdui.widget,
      * @param {dataProvider}  [args.statusModel=bcdui.wkModels.guiStatus] StatusModel where the widget will write its content to.
      * @param {boolean}       [args.useCustomHeaderRenderer=false]        Set to true when your code adds bcdFilterButton classes on its own (e.g. grid)
      * @param {function}      [args.callback]                             Function which will be executed after a change of the filters have been performed
-     * @param {function}      [args.getCaptionForColumnValue]             Function (colIdx, colValue) which returns the rendered caption for the cell. By default standard wrs @caption, wrs:references and unit/scale handling is supported already 
-     * @param {function}      [args.getFilteredValues]                    Function (colIdx) which needs to return a wrs:C array which holds the valid values for the current column. Use this to e.g. only show prefiltered values 
+     * @param {function}      [args.getCaptionForColumnValue]             Function (colIdx, colValue) which returns the rendered caption for the cell. By default standard wrs @caption, wrs:references and unit/scale handling is supported already. Deprecated (prefer valueCaptionProvider parameter). 
+     * @param {function}      [args.getFilteredValues]                    Function (colIdx) which needs to return a wrs:C array which holds the valid values for the current column. Use this to e.g. only show prefiltered values . Deprecated (prefer valueCaptionProvider parameter).
+     * @param {function}      [args.valueCaptionProvider]                 Function (inputModel, colIdx) which needs to return a Promise which resolves with an array of objects {value, caption, isFiltered}  
      */
     createTableHeadFilter: function(args) {
       var tableHead = jQuery(args.tableElement).find("thead");
@@ -2227,12 +2228,13 @@ jQuery.extend(bcdui.widget,
       }
       
       // add click handler to the inserted items
-      tableHead.on("click", ".bcdFilterButton", {inputModel: inputModel, getFilteredValues: args.getFilteredValues, statusModel: statusModel, targetModelXPath: targetModelXPath, getCaptionForColumnValue: args.getCaptionForColumnValue}, function(event) {
+      tableHead.on("click", ".bcdFilterButton", {inputModel: inputModel, valueCaptionProvider: args.valueCaptionProvider, getFilteredValues: args.getFilteredValues, statusModel: statusModel, targetModelXPath: targetModelXPath, getCaptionForColumnValue: args.getCaptionForColumnValue}, function(event) {
         var inputModel       = event.data.inputModel;
         var getFilteredValues = event.data.getFilteredValues;
         var statusModel      = event.data.statusModel;
         var targetModelXPath = event.data.targetModelXPath;
         var getCaptionForColumnValue = event.data.getCaptionForColumnValue;
+        var valueCaptionProvider = event.data.valueCaptionProvider;
 
         var id      = jQuery(event.target).attr("colId");
         var index   = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@pos", "-1");
@@ -2259,231 +2261,241 @@ jQuery.extend(bcdui.widget,
         var typeName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@type-name", "");
         var isNumeric = typeName == "INTEGER" || typeName == "NUMERIC" || typeName == "DECIMAL";
 
-        // get set of filtered values
-        var filteredValues = (getFilteredValues ? getFilteredValues(index) : jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']"))).map(function(e) {
-          var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
-          return isTotal? "\uE0F1" : e.text;
-        });
-
-        // get caption for values
-        var values = jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']")).map(function(e) {
-
-          // caption is either an existing caption attribute or the node value
-          var caption = (e.getAttribute("caption") || e.text);
-          var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
-          var value = e.text;
-          var isFiltered = "" + (filteredValues.indexOf(e.text) == -1);
-          isFiltered = isTotal ? "" + (filteredValues.indexOf("\uE0F1") == -1) : isFiltered;
-          var isInvalid = isNaN(e.text) || e.text == "Infinity";
-
-          if (isNumeric) {
-            if (isInvalid) {
-              caption = bcdui.core.magicChar.dimEmpty;
-            }
-            else {
-              var scaleInt = parseInt(scale, 10);
-              if (scaleInt > 10) {
-                caption = Math.round(value / scaleInt) * scaleInt;
-              }
-              else if (scaleInt < -10) {
-                caption = Math.round(value / scaleInt) * -1;
-              }
-              else {
-                // in case of < 0, remove trailing zeros (by using parseFloat again)
-                var mul = (unit == "%") ? 100.0 : 1.0;
-                caption = scaleInt < 0 ? parseFloat((mul * parseFloat(value)).toFixed(Math.abs(scaleInt))) : (mul * parseFloat(value)).toFixed(Math.abs(scaleInt));
-              }
-              if (unit != "")
-                caption += " " + unit;
-            }
-          }
-
-          // in case of reference usage, lookup caption for value
-          if (useRefs) {
-            var refNode = inputModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/wrs:References/wrs:Wrs/wrs:Data/wrs:R/wrs:C[position()=2 and .='{{=it[0]}}']/wrs:C[1]", [value]);
-            if (refNode != null)
-              caption = refNode.text;
-          }
-          if (getCaptionForColumnValue) {
-            caption = getCaptionForColumnValue(index, value, e.selectSingleNode("..").getAttribute("id"));
-          }
-          var rt = value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
-          rt =  value == "" && isTotal ? ("\uE0F1" + bcdui.core.magicChar.separator + "\uE0F1" + bcdui.core.magicChar.separator + isFiltered) : rt;
-          return rt;
-        });
-        values = values.filter(function(e, idx){return values.indexOf(e) == idx}); // make unique
-        values = values.map(function(e) { var q = e.split(bcdui.core.magicChar.separator); return {value: q[0], caption: q[1], isFiltered: q[2] == "true"} }); // make value/caption object
-
-        // sort either numerical (by value) (in case of reference we can't be sure if it maps to a non numerical value, so use string sort then) or by string
-        if (isNumeric && !useRefs)
-          values.sort(function(a,b) {
-            var aa = isNaN(a.value) ? 0 : parseFloat(a.value);
-            var bb = isNaN(b.value) ? 0 : parseFloat(b.value);
-            return aa > bb ? 1 : aa < bb ? -1 : 0;});
-        else
-          values.sort(function(a,b) {
-            var aa = a.caption.toLowerCase();
-            var bb = b.caption.toLowerCase();
-            // sort empty to top
-            if (aa != bb) {
-              if (aa == "\uE0F1")
-                return -1;
-              if (bb == "\uE0F1")
-                return 1;
-              if (aa == bcdui.core.magicChar.dimEmpty)
-                return -1;
-              if (bb == bcdui.core.magicChar.dimEmpty)
-                return 1;
-            }
-            return aa > bb ? 1 : aa < bb ? -1 : 0;
+        var defaultProvider = function(inputModel, colIdx){
+          return new Promise(function(resolve, reject) {
+          // get set of filtered values
+            var filteredValues = (getFilteredValues ? getFilteredValues(index) : jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']"))).map(function(e) {
+              var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
+              return isTotal? "\uE0F1" : e.text;
             });
 
-        var modelData = "<Data>";
-        var i = 1;
-        values.forEach(function(e) {
-          var isSelected = statusModel.query(rootXPath + "/f:Expression[@op='=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null;
-          var enabled = isSelected ? " enabled='true'" : "";
-          var isFiltered = e.isFiltered ? " isFiltered='true'" : "";
-          modelData +="<Item caption='" + bcdui.util.escapeHtml(e.caption) + "'" + enabled + isFiltered + " id='R" + (i++) +"'>" + bcdui.util.escapeHtml(e.value) + "</Item>";
-        });
-        modelData += "</Data>";
-        var multiSelectDataModel = new bcdui.core.StaticModel({data:modelData});
-        bcdui.factory.objectRegistry.registerObject(multiSelectDataModel);
-        multiSelectDataModel.execute();
+            // get caption for values
+            var values = jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='"+index+"']")).map(function(e) {
 
-        // filter functions
-        bcdui.widget._bcdFilter = {}
-        bcdui.widget._bcdFilter.contains = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().indexOf(value.toLowerCase()) != -1;};
-        bcdui.widget._bcdFilter.endswith = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().endsWith(value.toLowerCase());};
-        bcdui.widget._bcdFilter.startswith = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase().startsWith(value.toLowerCase());};
-        bcdui.widget._bcdFilter.isequal = function(cellValue, value)    { return value == "" ? true : cellValue.toLowerCase() == value.toLowerCase();};
-        bcdui.widget._bcdFilter.isnotequal = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase() != value.toLowerCase();};
-        bcdui.widget._bcdFilter.isempty = function(cellValue, value)    { return value == "" ? true : cellValue == bcdui.core.magicChar.dimEmpty;};
-        bcdui.widget._bcdFilter.isnotempty = function(cellValue, value) { return value == "" ? true : cellValue != bcdui.core.magicChar.dimEmpty;};
-        bcdui.widget._bcdFilter.isbigger = function(cellValue, value)   {
-          if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
-            return false;
-          if (value == "")
-            return true;
-          var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
-          var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
-          return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) > parseFloat(value)) : (cellValue > value);
+              // caption is either an existing caption attribute or the node value
+              var caption = (e.getAttribute("caption") || e.text);
+              var isTotal = (e.getAttribute("bcdGr") || "0")  == "1";
+              var value = e.text;
+              var isFiltered = "" + (filteredValues.indexOf(e.text) == -1);
+              isFiltered = isTotal ? "" + (filteredValues.indexOf("\uE0F1") == -1) : isFiltered;
+              var isInvalid = isNaN(e.text) || e.text == "Infinity";
+
+              if (isNumeric) {
+                if (isInvalid) {
+                  caption = bcdui.core.magicChar.dimEmpty;
+                }
+                else {
+                  var scaleInt = parseInt(scale, 10);
+                  if (scaleInt > 10) {
+                    caption = Math.round(value / scaleInt) * scaleInt;
+                  }
+                  else if (scaleInt < -10) {
+                    caption = Math.round(value / scaleInt) * -1;
+                  }
+                  else {
+                    // in case of < 0, remove trailing zeros (by using parseFloat again)
+                    var mul = (unit == "%") ? 100.0 : 1.0;
+                    caption = scaleInt < 0 ? parseFloat((mul * parseFloat(value)).toFixed(Math.abs(scaleInt))) : (mul * parseFloat(value)).toFixed(Math.abs(scaleInt));
+                  }
+                  if (unit != "")
+                    caption += " " + unit;
+                }
+              }
+
+              // in case of reference usage, lookup caption for value
+              if (useRefs) {
+                var refNode = inputModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/wrs:References/wrs:Wrs/wrs:Data/wrs:R/wrs:C[position()=2 and .='{{=it[0]}}']/wrs:C[1]", [value]);
+                if (refNode != null)
+                  caption = refNode.text;
+              }
+              if (getCaptionForColumnValue) {
+                caption = getCaptionForColumnValue(index, value, e.selectSingleNode("..").getAttribute("id"));
+              }
+              var rt = value == "" ? (bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + bcdui.core.magicChar.dimEmpty + bcdui.core.magicChar.separator + isFiltered) : (value + bcdui.core.magicChar.separator + caption + bcdui.core.magicChar.separator + isFiltered);
+              rt =  value == "" && isTotal ? ("\uE0F1" + bcdui.core.magicChar.separator + "\uE0F1" + bcdui.core.magicChar.separator + isFiltered) : rt;
+              return rt;
+            });
+            values = values.filter(function(e, idx){return values.indexOf(e) == idx}); // make unique
+            values = values.map(function(e) { var q = e.split(bcdui.core.magicChar.separator); return {value: q[0], caption: q[1], isFiltered: q[2] == "true"} }); // make value/caption object
+
+            resolve(values);
+          });
         };
-        bcdui.widget._bcdFilter.issmaller = function(cellValue, value)  {
-          if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
-            return false;
-          if (value == "")
-            return true;
-          var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
-          var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
-          return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) < parseFloat(value)) : (cellValue < value);
-        };
 
-        // build dialog template
-        jQuery(".bcdFilterDialog").remove();
+        var provider = valueCaptionProvider ? valueCaptionProvider : defaultProvider;
+        provider(inputModel, index).then(function(values) {
 
-        // prepare options dropdown
-        var options = "";
-        var opt = [
-          ["bcd_widget_filter_isEqual"   , "isequal"]
-        , ["bcd_widget_filter_isNotEqual", "isnotequal"]
-        , ["bcd_widget_filter_contains"  , "contains"]
-        , ["bcd_widget_filter_startsWith", "startswith"]
-        , ["bcd_widget_filter_endsWith"  , "endswith"]
-        , ["bcd_widget_filter_isBigger"  , "isbigger"]
-        , ["bcd_widget_filter_isSmaller" , "issmaller"]
-          // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
-//        , ["bcd_widget_filter_isEmpty"   , "isempty"]
-//        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
-        ];
-        opt.forEach(function(e){
-          var selectedStatus = e[1] == selectedCondition ? " selected" : "";
-          options += "<option value='" + e[1] + "'" + selectedStatus + " bcdTranslate='" + e[0] + "'>" + e[0] + "</option>";
-        });
+          // sort either numerical (by value) (in case of reference we can't be sure if it maps to a non numerical value, so use string sort then) or by string
+          if (isNumeric && !useRefs)
+            values.sort(function(a,b) {
+              var aa = isNaN(a.value) ? 0 : parseFloat(a.value);
+              var bb = isNaN(b.value) ? 0 : parseFloat(b.value);
+              return aa > bb ? 1 : aa < bb ? -1 : 0;});
+          else
+            values.sort(function(a,b) {
+              var aa = a.caption.toLowerCase();
+              var bb = b.caption.toLowerCase();
+              // sort empty to top
+              if (aa != bb) {
+                if (aa == "\uE0F1")
+                  return -1;
+                if (bb == "\uE0F1")
+                  return 1;
+                if (aa == bcdui.core.magicChar.dimEmpty)
+                  return -1;
+                if (bb == bcdui.core.magicChar.dimEmpty)
+                  return 1;
+              }
+              return aa > bb ? 1 : aa < bb ? -1 : 0;
+            });
 
-        // prepare html template
-        jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
-          "<div class='bcdFilterSelection'>" +
-            "<select class='bcdFilterSelect form-control'>" + options + "</select>" +
-            "<input class='bcdFilterInput form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
-            "<div class='bcdFilterActions'>" +
-              "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
-              "<p>&nbsp;</p>" +
-              "<div class='form-row'>" +
-                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng></div>" +
-                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng></div>" +
-                "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng></div>" +
-              "</div>"+
-            "</div>" +
-            "<div class='bcdFilterMultiSelect'></div>"+
-            "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
-          "</div>"+
-          "<div class='form-row'>" +
-            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng></div>" +
-            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng></div>" +
-            "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng></div>" +
-      		"</div>" +
-        "</div>");
-        bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
+          var modelData = "<Data>";
+          var i = 1;
+          values.forEach(function(e) {
+            var isSelected = statusModel.query(rootXPath + "/f:Expression[@op='=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null;
+            var enabled = isSelected ? " enabled='true'" : "";
+            var isFiltered = e.isFiltered ? " isFiltered='true'" : "";
+            modelData +="<Item caption='" + bcdui.util.escapeHtml(e.caption) + "'" + enabled + isFiltered + " id='R" + (i++) +"'>" + bcdui.util.escapeHtml(e.value) + "</Item>";
+          });
+          modelData += "</Data>";
+          var multiSelectDataModel = new bcdui.core.StaticModel({data:modelData});
+          bcdui.factory.objectRegistry.registerObject(multiSelectDataModel);
+          multiSelectDataModel.execute();
 
-        // let's append the config to the dialog
-        jQuery(".bcdFilterDialog").data("config", {
-            statusModel: statusModel
-          , targetModelXPath: targetModelXPath 
-          , multiSelectDataModel: multiSelectDataModel
-          , inputModel: inputModel
-          , id: id
-          , rootXPath : rootXPath
-        });
+          // filter functions
+          bcdui.widget._bcdFilter = {}
+          bcdui.widget._bcdFilter.contains = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().indexOf(value.toLowerCase()) != -1;};
+          bcdui.widget._bcdFilter.endswith = function(cellValue, value)   { return value == "" ? true : cellValue.toLowerCase().endsWith(value.toLowerCase());};
+          bcdui.widget._bcdFilter.startswith = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase().startsWith(value.toLowerCase());};
+          bcdui.widget._bcdFilter.isequal = function(cellValue, value)    { return value == "" ? true : cellValue.toLowerCase() == value.toLowerCase();};
+          bcdui.widget._bcdFilter.isnotequal = function(cellValue, value) { return value == "" ? true : cellValue.toLowerCase() != value.toLowerCase();};
+          bcdui.widget._bcdFilter.isempty = function(cellValue, value)    { return value == "" ? true : cellValue == bcdui.core.magicChar.dimEmpty;};
+          bcdui.widget._bcdFilter.isnotempty = function(cellValue, value) { return value == "" ? true : cellValue != bcdui.core.magicChar.dimEmpty;};
+          bcdui.widget._bcdFilter.isbigger = function(cellValue, value)   {
+            if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+              return false;
+            if (value == "")
+              return true;
+            var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) > parseFloat(value)) : (cellValue > value);
+          };
+          bcdui.widget._bcdFilter.issmaller = function(cellValue, value)  {
+            if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+              return false;
+            if (value == "")
+              return true;
+            var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) < parseFloat(value)) : (cellValue < value);
+          };
 
-        // initially filter options and run renderer
-        bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
-        bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+          // build dialog template
+          jQuery(".bcdFilterDialog").remove();
 
-        // and make it a jQuery dialog
-        jQuery(".bcdFilterDialog").dialog({
-            height: "auto"
-          , width: "auto"
-          , modal: false
-          , resizable: false
-          , draggable: true
-          , closeText: "\u2716"
-          , position: { my: 'left top', at: 'left top', of: event }
-          , close: function(){ bcdui.widget._cancelFilter(inputModel.id, id);}
-          , create: function() { jQuery("body").css({ overflow: 'hidden' });}
-          , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
-        });
+          // prepare options dropdown
+          var options = "";
+          var opt = [
+            ["bcd_widget_filter_isEqual"   , "isequal"]
+          , ["bcd_widget_filter_isNotEqual", "isnotequal"]
+          , ["bcd_widget_filter_contains"  , "contains"]
+          , ["bcd_widget_filter_startsWith", "startswith"]
+          , ["bcd_widget_filter_endsWith"  , "endswith"]
+          , ["bcd_widget_filter_isBigger"  , "isbigger"]
+          , ["bcd_widget_filter_isSmaller" , "issmaller"]
+            // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
+  //        , ["bcd_widget_filter_isEmpty"   , "isempty"]
+  //        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
+          ];
+          opt.forEach(function(e){
+            var selectedStatus = e[1] == selectedCondition ? " selected" : "";
+            options += "<option value='" + e[1] + "'" + selectedStatus + " bcdTranslate='" + e[0] + "'>" + e[0] + "</option>";
+          });
 
-        // effect for checkbox area hover
-        jQuery(".bcdFilterMultiSelect").on("mouseenter", "div", function() {jQuery(this).addClass("highlight"); });
-        jQuery(".bcdFilterMultiSelect").on("mouseleave", "div", function() {jQuery(this).removeClass("highlight"); });
-        // trigger input click when clicking the span
-        jQuery(".bcdFilterMultiSelect").on("click", "span", function() { jQuery(this).prev("input").trigger("click"); });
+          // prepare html template
+          jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
+            "<div class='bcdFilterSelection'>" +
+              "<select class='bcdFilterSelect form-control'>" + options + "</select>" +
+              "<input class='bcdFilterInput form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
+              "<div class='bcdFilterActions'>" +
+                "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
+                "<p>&nbsp;</p>" +
+                "<div class='form-row'>" +
+                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng></div>" +
+                "</div>"+
+              "</div>" +
+              "<div class='bcdFilterMultiSelect'></div>"+
+              "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
+            "</div>"+
+            "<div class='form-row'>" +
+              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng></div>" +
+        		"</div>" +
+          "</div>");
+          bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
 
-        // trigger input click when clicking the span
-        jQuery(".bcdShowAll").on("click", function() { jQuery(this).prev("input").trigger("click"); });
-        // listener on hide/show all checkbox change
-        jQuery(".bcdFilterActions input").on("change", function() {
+          // let's append the config to the dialog
+          jQuery(".bcdFilterDialog").data("config", {
+              statusModel: statusModel
+            , targetModelXPath: targetModelXPath 
+            , multiSelectDataModel: multiSelectDataModel
+            , inputModel: inputModel
+            , id: id
+            , rootXPath : rootXPath
+          });
+
+          // initially filter options and run renderer
           bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
           bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
-        });
-        
-        // listener on checkbox change, mark selected items as enabled/disabled
-        jQuery(".bcdFilterMultiSelect").on("change", "input", function() {
-          var item = multiSelectDataModel.query("/*/Item[@id='{{=it[0]}}']", [jQuery(this).val()]);
-          if (item != null)
-            item.setAttribute("enabled", "" + jQuery(this).is(':checked'));
-          jQuery(".bcdFilterSelection p span.bcdCount").text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
-        });
-        // listeners on condition change, triggers filtering
-        jQuery(".bcdFilterSelect").on("change", function(){
-          bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
-          bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
-        });
-        // listeners on input key change, triggers filtering
-        jQuery(".bcdFilterInput").on("keyup", function(){
-          bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
-          bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+  
+          // and make it a jQuery dialog
+          jQuery(".bcdFilterDialog").dialog({
+              height: "auto"
+            , width: "auto"
+            , modal: false
+            , resizable: false
+            , draggable: true
+            , closeText: "\u2716"
+            , position: { my: 'left top', at: 'left top', of: event }
+            , close: function(){ bcdui.widget._cancelFilter(inputModel.id, id);}
+            , create: function() { jQuery("body").css({ overflow: 'hidden' });}
+            , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
+          });
+  
+          // effect for checkbox area hover
+          jQuery(".bcdFilterMultiSelect").on("mouseenter", "div", function() {jQuery(this).addClass("highlight"); });
+          jQuery(".bcdFilterMultiSelect").on("mouseleave", "div", function() {jQuery(this).removeClass("highlight"); });
+          // trigger input click when clicking the span
+          jQuery(".bcdFilterMultiSelect").on("click", "span", function() { jQuery(this).prev("input").trigger("click"); });
+  
+          // trigger input click when clicking the span
+          jQuery(".bcdShowAll").on("click", function() { jQuery(this).prev("input").trigger("click"); });
+          // listener on hide/show all checkbox change
+          jQuery(".bcdFilterActions input").on("change", function() {
+            bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
+            bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+          });
+          
+          // listener on checkbox change, mark selected items as enabled/disabled
+          jQuery(".bcdFilterMultiSelect").on("change", "input", function() {
+            var item = multiSelectDataModel.query("/*/Item[@id='{{=it[0]}}']", [jQuery(this).val()]);
+            if (item != null)
+              item.setAttribute("enabled", "" + jQuery(this).is(':checked'));
+            jQuery(".bcdFilterSelection p span.bcdCount").text(multiSelectDataModel.queryNodes("/*/Item[@enabled='true']").length);
+          });
+          // listeners on condition change, triggers filtering
+          jQuery(".bcdFilterSelect").on("change", function(){
+            bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
+            bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+          });
+          // listeners on input key change, triggers filtering
+          jQuery(".bcdFilterInput").on("keyup", function(){
+            bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
+            bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+          });
         });
       });
     },
