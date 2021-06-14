@@ -488,7 +488,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       jQuery("#" + this.htTargetHtmlId).closest(".bcdGrid").find(".bcdGridFoot").show();
 	  jQuery("#"+ targetHtml).on("bcdGrid:save", function() {self.actionSave();	});
 	  jQuery("#"+ targetHtml).on("bcdGrid:reset", function() { self.actionReset(); });
-	  jQuery("#"+ targetHtml).on("bcdGrid:addRow", function() { self.actionAddRow(); });
+	  jQuery("#"+ targetHtml).on("bcdGrid:addRow", function(event, memo) { self.actionAddRow(memo); });
     });
   
     // Listen on future changes
@@ -2790,8 +2790,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.gridModel.onceReady(this._unBlindGrid);
   }
 
-  actionAddRow() {
-    jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd");
+  actionAddRow(memo) {
+    jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd", memo);
   }
 
   /**
