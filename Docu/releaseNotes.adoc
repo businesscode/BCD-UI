@@ -37,6 +37,9 @@ Some changes are not backward compatible and may require code change in the proj
 * Updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
 * Updated to babel-js, node-sass and jsdoc, see build_package.json
 
+.Core:
+* _getFillParams which is used in read, write, query, queryNodes can handle xPaths with * now
+
 .Components:
 * Grid
 ** use div container
