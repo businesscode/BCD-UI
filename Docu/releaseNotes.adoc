@@ -3,7 +3,7 @@
 
 === Release Notes
 
-The following release notes allow to follow BCD-UI's updates and to judge whether migrating to a newer version is worth it.
+The following release notes allow following BCD-UI's updates and to judge whether migrating to a newer version is worth it.
 Some changes are not backward compatible and may require code change in the project. They are listed here as well.
 
 ==== Release 5_5_0 ...in progress
@@ -29,12 +29,12 @@ Some changes are not backward compatible and may require code change in the proj
 ** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
 ** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
 
-.If you are interested in the individual versions of 3rd party libs for runtime, see
+.All versions of 3rd party libraries for runtime, are listed in
 * bcdui_dependencies.gradle for java
 * gradle.properties for javascript
 
 .Build:
-* Updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 due
+* Updated to gradle 7.0, including switching to com.github.node-gradle.node plugin and node-js version 12.13 (LTS)
 * Updated to babel-js, node-sass and jsdoc, see build_package.json
 
 .Core:

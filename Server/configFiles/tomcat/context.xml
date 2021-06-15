@@ -24,7 +24,7 @@
      -Dmyproj_db_username=SomeUsername
      -Dmyproj_db_password=SomePassword
 -->
-<Context seeAttributesBelow="">
+<Context>
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 

@@ -427,6 +427,7 @@
     <servlet-name>bcdui4.WrsNextIdentifierServlet</servlet-name>
     <url-pattern>/bcdui/servlets/WrsNextIdentifierServlet/*</url-pattern>
   </servlet-mapping>
+
   <!-- WYSIWYG Excel export Servlet -->
   <!-- PLEASE NOTE: Consider setting maxPostSize in your server config -->
   <servlet>
