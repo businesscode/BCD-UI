@@ -2237,7 +2237,7 @@ jQuery.extend(bcdui.widget,
         var valueCaptionProvider = event.data.valueCaptionProvider;
 
         var id      = jQuery(event.target).attr("colId");
-        var index   = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@pos", "-1");
+        var index   = parseInt(inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@pos", "-1"), 10);
         var caption = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@caption", "");
         var scale   = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@scale", "0");
         var unit    = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + id + "']/@unit", "");
