@@ -679,6 +679,21 @@
             Set to false if you want to hide the default buttons reset/delete/save.
           </Doc>
         </Param>
+        <Param name="serverSidedPagination" type="boolean" default="false">
+          <Doc>
+            Set to true if you want to enable server sided pagination.
+          </Doc>
+        </Param>
+        <Param name="paginationSize" type="integer" default="20">
+          <Doc>
+            Set pagination page size (and enable pagination).
+          </Doc>
+        </Param>
+        <Param name="paginationAllPages" type="boolean" default="false">
+          <Doc>
+            Set pagination show all option (and enable pagination).
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">

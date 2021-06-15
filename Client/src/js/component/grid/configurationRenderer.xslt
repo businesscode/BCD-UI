@@ -25,6 +25,10 @@
   <xsl:param name="statusModel" select="/*[1=0]"/>
   <xsl:param name="gridModel" select="/*[1=0]"/>
   <xsl:param name="gridModelId"/>
+  
+  <xsl:param name="serverSidedPagination"/>
+  <xsl:param name="paginationSize"/>
+  <xsl:param name="paginationAllPages"/>
 
   <!-- default copy -->
   <xsl:template match="@*|node()"><xsl:copy><xsl:apply-templates select="@*|node()"/></xsl:copy></xsl:template>
@@ -32,7 +36,25 @@
   <xsl:template match="/">
     <grid:GridConfiguration>
 
-      <xsl:copy-of select="/*/xp:Paginate"/>
+      <xsl:if test="$paginationSize!='' or $paginationAllPages!='' or $serverSidedPagination='true' or /*/xp:Paginate">
+        <xp:Paginate>
+          <xp:PageSize>
+            <xsl:choose>
+              <xsl:when test="$paginationSize!=''"><xsl:value-of select="$paginationSize"/></xsl:when>
+              <xsl:when test="/*/xp:Paginate/xp:PageSize"><xsl:value-of select="/*/xp:Paginate/xp:PageSize"/></xsl:when>
+              <xsl:otherwise>20</xsl:otherwise>
+            </xsl:choose>
+          </xp:PageSize>
+          <xp:PageNumber>1</xp:PageNumber>
+          <xp:ShowAllOption>
+            <xsl:choose>
+              <xsl:when test="$paginationAllPages!=''"><xsl:value-of select="$paginationAllPages"/></xsl:when>
+              <xsl:when test="/*/xp:Paginate/xp:ShowAllOption"><xsl:value-of select="/*/xp:Paginate/xp:ShowAllOption"/></xsl:when>
+              <xsl:otherwise>false</xsl:otherwise>
+            </xsl:choose>
+            </xp:ShowAllOption>
+        </xp:Paginate>
+      </xsl:if>
 
       <!-- either take config or wrs column information -->
       <grid:Columns>

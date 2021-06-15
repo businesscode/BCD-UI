@@ -36,6 +36,7 @@
   <xsl:param name="targetModelId"/>
   <xsl:param name="targetModel"/>
   <xsl:param name="gridModel"/>
+  <xsl:param name="totalRowCountDp"/>
 
   <xsl:variable name="paginate" select="/*/xp:Paginate"/>
   
@@ -52,8 +53,8 @@
       <xsl:if test="$paginate and $gridModel/*/wrs:Data/wrs:*">
         <xsl:call-template name="createPagingPanel">
           <xsl:with-param name="pageSize" select="$paginate/xp:PageSize"/>
-          <xsl:with-param name="totalRowsCount" select="count($gridModel/*/wrs:Data/wrs:*[not(@filtered)])"/>
-          <xsl:with-param name="rowsCount" select="count($gridModel/*/wrs:Data/wrs:*[not(@filtered)])"/>
+          <xsl:with-param name="totalRowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/>
+          <xsl:with-param name="rowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/>
           <xsl:with-param name="page" select="$page"/>
           <xsl:with-param name="targetModelId" select="$targetModelId"/>
           <xsl:with-param name="targetModelXPath">/*/xp:Paginate/xp:PageNumber</xsl:with-param>
