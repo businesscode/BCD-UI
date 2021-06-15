@@ -339,7 +339,7 @@ public class DatabaseCompatibility
     //---------------------------------------
     // Allowed calc expressions in sql
     Map<String, String[]> calcFktMapping;
-    // isArithmetic, openingExpression, operandSeparator, closingExpression, inner aggregation or an analyt. fct
+    // isArithmetic (i.e. it requires numeric input), openingExpression, operandSeparator, closingExpression, inner aggregation or an analyt. fct
     calcFktMapping = new HashMap<String,String[]>();
     calcFktMapping.put("Calc",          new String[]{"Y",  "",     "+",   "", "Y"}); // We default to + if Calc has multiple children
 
@@ -347,9 +347,9 @@ public class DatabaseCompatibility
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
     calcFktMapping.put("Avg",           new String[]{"Y",  "AVG(",          "",  ")", "I"});
-    calcFktMapping.put("Count",         new String[]{"Y",  "COUNT(",        "",  ")", "I"});
-    calcFktMapping.put("CountDistinct", new String[]{"Y",  "COUNT(DISTINCT(", "",  "))", "I"});
-    calcFktMapping.put("Distinct",      new String[]{"Y",  "DISTINCT(",     "",  ")", "I"});
+    calcFktMapping.put("Count",         new String[]{"N",  "COUNT(",        "",  ")", "I"});
+    calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
+    calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
 
