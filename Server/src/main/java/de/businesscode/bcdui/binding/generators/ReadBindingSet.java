@@ -319,9 +319,7 @@ public class ReadBindingSet implements Runnable {
         // Listeners
         NodeList callbacks = (NodeList) xPath.evaluate("/" + xPathNS + "BindingSet//" + xPathNS + "WriteProcessing/" + xPathNS + "Callbacks/" + xPathNS + "Callback", bindingDoc, XPathConstants.NODESET);
         if(callbacks != null && callbacks.getLength()>0){
-          if(log.isDebugEnabled()){
-            log.debug("callbacks found: " + Integer.toString(callbacks.getLength()));
-          }
+          log.debug("'{}' found {} callbacks", () -> bsName, () -> Integer.toString(callbacks.getLength()));
           for (int i = 0; i < callbacks.getLength(); i++) {
             Element callbackEl = (Element)callbacks.item(i);
             try {

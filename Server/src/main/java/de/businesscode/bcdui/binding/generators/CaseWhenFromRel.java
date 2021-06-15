@@ -188,8 +188,7 @@ public class CaseWhenFromRel extends ReadBindingSet {
                   i--; len--;
                   converted = true;
                   // For debugging purposes the converted BindingSet is output to the console.
-                  log.debug( "The Relation node with BindingSet " + rel.getRightBindingSetName() + " of file "
-                      + fileName + " was replaced.");
+                  log.debug( "A Relation node in BindingSet " + rel.getRightBindingSetName() + " was replaced.");
                 } else {
                   log.warn( "The Relation node with BindingSet " + rel.getRightBindingSetName() + " of file "
                       + fileName + " was not replaced, because the \"right\" table is empty.");

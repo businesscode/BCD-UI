@@ -62,7 +62,7 @@ import de.businesscode.util.jdbc.SQLDetailException;
  */
 public class SOAPFaultMessage {
   private SOAPMessage message;
-  private Logger logger = LogManager.getLogger(getClass());
+  private static Logger logger = LogManager.getLogger(SOAPFaultMessage.class);
 
   /**
    * Convenience method to write a SOAP massage response. The responseOutputStream must not be opened yet.
@@ -81,7 +81,7 @@ public class SOAPFaultMessage {
       resp.setContentType("text/xml");
       return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, faultException, faultMessage);
     } catch( Exception e ) {
-      LogManager.getLogger(SOAPFaultMessage.class).error(e+" causer "+faultException+" for "+requestURL);
+      logger.error(e+" causer "+faultException+" for "+requestURL);
       return false;
     }
   }
@@ -93,7 +93,7 @@ public class SOAPFaultMessage {
    * @param request
    * @param response
    * @param faultException - optional exception caused this fault, must not reveal security relevant facts
-   * @param message - must not reveal security relevant facts
+   * @param faultMessage - must not reveal security relevant facts
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
   static public boolean writeSOAPFaultToHTTPResponse(HttpServletRequest request, HttpServletResponse response, Exception faultException, String faultMessage) {
@@ -114,7 +114,7 @@ public class SOAPFaultMessage {
       SOAPFaultMessage sFM = new SOAPFaultMessage(requestDocument, requestURL, faultException, faultMessage);
       sFM.writeTo(os);
     } catch( Exception e ) {
-      LogManager.getLogger(SOAPFaultMessage.class).error(faultException,faultException);
+      logger.error(faultMessage, faultException);
       return false;
     }
     return true;
@@ -126,7 +126,7 @@ public class SOAPFaultMessage {
    * @param requestDocument - optional request document to serialize into SOAPFault
    * @param requestURL - optional URL to appear in SOAPFault
    * @param faultException - optional exception caused this fault
-   * @param faultMessage - optional literal message provided as FaultReason in SOAPFault
+   * @param message - optional literal message provided as FaultReason in SOAPFault
    */
   public SOAPFaultMessage(Document requestDocument, String requestURL, Throwable faultException, String message) throws SOAPException {
     this.message = createMessage(requestDocument, requestURL, faultException, message);

@@ -125,10 +125,12 @@ public class StaticResourceServlet extends HttpServlet {
     if (resource.notFound()) {
       // Because MSXML6 XHR hangs on 404 and the fact that we want to allow optional includes,
       // we may need to send an http-OK here in the form of a SOAP fault, which is detected by the client
-      // Obviously this only works for ressources under control of this Servlet, but
+      // Obviously this only works for resources under control of this Servlet, but
       // 1) Setting a 404 jsp error page for tomcat would not allow to include the response in bcdui.jar
       // 2) At the end this is a workaround for MSXML6+non-required includes, which only makes sense for vfs anyway
-      SOAPFaultMessage.writeSOAPFaultToHTTPResponse(req, resp, null, "Not Found");
+      // Missing .js.map is no issue, happens when debug view is opened in explorer but map not provided in distribution
+      if( !req.getRequestURI().endsWith(".js.map") )
+        SOAPFaultMessage.writeSOAPFaultToHTTPResponse(req, resp, null, "Not Found: "+req.getRequestURI());
       return;
     }
 
