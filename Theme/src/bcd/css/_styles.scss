@@ -15,6 +15,12 @@ $h6-font-size:                $bcd-font-size-base !default;
   font-size: $bcd-font-size-base;
 }
 
+.bcd__sidebar-left__inner .form-group {
+  margin-bottom: .5em;
+  width: 100%;
+  display: inline-block;
+}
+
 /*********************************************************************************************************************/
 /* 80% on smaller screens */
 /*********************************************************************************************************************/
