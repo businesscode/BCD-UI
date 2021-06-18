@@ -43,7 +43,7 @@ exports.publish = function(taffyData, opts, tutorials)
 function customElementsCore( taffyData, path )
 {
   var result = "";
-  var clazz = taffyData( { kind: "class", longname: "bcdui.core.Renderer" } ).get()[0];
+  var clazz = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get()[0];
   result += printCustomTag( "bcd-"+clazz.name.toLowerCase(), clazz.memberof+"."+clazz.name+"Tag", clazz.params, "bcdui.factory.createRenderer" );
   
   fs.mkPath( path );
