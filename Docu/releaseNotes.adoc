@@ -23,6 +23,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** Due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
 ** Grid pagination/action buttons are now in divs, so you may need to check your styling
 ** Moved QuickEdit to package bcdui.widgetNg
+** createFixedTableHeader uses new css classes, ensure your theme includes them
 * Config
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
@@ -58,6 +59,9 @@ Some changes are not backward compatible and may require code change in the proj
 .Widgets
 * InputField
 ** fix not disabled field until options model is ready (in case of wrapped optionmodels)
+
+* fixedTableHeader
+** createFixedTableHeader uses optimized and more compatible code
 
 * createTableHeadFilter
 ** add option valueCaptionProvider which allows asynchronous providing of code/caption data for filter dialog

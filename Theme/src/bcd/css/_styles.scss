@@ -1076,6 +1076,25 @@ $h6-font-size:                $bcd-font-size-base !default;
   font-size: 1.25em;
 }
 
+/* fixed header */
+
+.bcdOrigTableHolder {
+  max-height: 40em;
+  overflow-y: auto;
+  padding-right: .5em;
+}
+.bcdTableHeadHolder {
+  position: relative;
+}
+.bcdCloneTableHolder {
+  position: absolute;
+  background-color: #ffffff;
+  top: 0;
+  left: 0;
+}
+.bcdCloneTableHolder .bcdReport{
+  margin-bottom: 0;
+}
 
 /* column filter */
 

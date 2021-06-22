@@ -2713,82 +2713,147 @@ jQuery.extend(bcdui.widget,
      * Its size is derived from the "original" header, still in place for the table
      * @param {Object}        args                 The parameter map contains the following properties.
      * @param {string}        args.rendererId      Id of the renderer to work on
-     * @param {boolean}       [args.isSync=false]  Decide whether the action is to be called synchronous or not
+     * @param {boolean}       [args.storeSize=true]  Decide whether the action is to be called synchronous or not
+     * @param {boolean}       [args.enableColumnFilters=false]  Set to true if you wnat to enable column filters, too
+     * @param {function}      [args.getCaptionForColumnValue]  if you enabled column filters, you can set its getCaptionForColumnValue here 
     */
     createFixedTableHeader: function(args) {
+      var storeSize = typeof args.storeSize != "undefined" ? args.storeSize : true;
+      var tableElement =  jQuery(bcdui.factory.objectRegistry.getObject(args.rendererId).getTargetHtml()).find("table");
+      bcdui.widget._enableFixedTableHeader(tableElement, args.rendererId, storeSize, args.getCaptionForColumnValue);
+    },
 
-      var action = function( rendererId ) {
-        var tRenderer = bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(rendererId).getTargetHtml());
+    /**
+     * Create fixed table header by adding a fixed copy of the original
+     * Its size is derived from the "original" header, still in place for the table
+     * @param {htmlElement}   tableElement    the table html element 
+     * @param {string}        rendererId      Id of the renderer to work on
+     * @param {boolean}       storeSize       Decide whether the action is to be called synchronous or not
+     * @param {boolean}       enableColumnFilters Set to true if you wnat to enable column filters, too
+     * @param {function}      getCaptionForColumnValue if you enabled column filters, you can set its getCaptionForColumnValue here
+     * @private 
+    */
+    _enableFixedTableHeader: function(tableElement, rendererId, storeSize, enableColumnFilters, getCaptionForColumnValue) {
 
-        // IE specific, TODO the reason for the 1px is unclear and it seams not to be exactly 1px
-        var iePadding = bcdui.browserCompatibility.isIE ? 16 : 0;
-
-        var tDiv = null;
-        if( tRenderer.find("table").length==1 ) {
-          tRenderer.css({position:"relative"});
-          tDiv = bcdui._migPjs._$(document.createElement("div"));
-          tDiv.css({overflowY:"scroll",overflowX:"hidden",height:tRenderer.css("height"), paddingRight:iePadding+"px"});
-          // If the user has set the bcdFhInitialScrollPos value, we do not overwrite it
-          var tRendererId = tRenderer.attr('id');
-          var onUnLoad = "if(!bcdui._migPjs._$('"+tRendererId+"').attr('bcdFhInitialScrollPos')) bcdui._migPjs._$('"+tRendererId+"').attr('bcdFhInitialScrollPos',jQuery('#" + tRendererId + "_outerDiv').get(0).scrollTop);";
-          tDiv.attr("bcdOnUnload", onUnLoad);
-          tDiv.attr("id", tRendererId + "_outerDiv");
-          tDiv.append(tRenderer.find("table")[0]);
-          tRenderer.append(tDiv);
-
-          // set to stored top scroll position
-          if(tRenderer.attr("bcdFhInitialScrollPos") ) {
-            tDiv.get(0).scrollTop = parseInt(tRenderer.attr("bcdFhInitialScrollPos"), 10);
-            tRenderer.get(0).removeAttribute("bcdFhInitialScrollPos");  // Remove it here, so that we later know whether we have to set it or the user did set it already
-          }
-
-          var fixTable = jQuery(tDiv.find("table").get(0).cloneNode(false));
-          fixTable.append(jQuery(tDiv.find("thead")).first().clone(true,true));
-          fixTable.css({position:"absolute", top:"0px", display: "none"});
-          fixTable.attr("bcdHideOnExport","true");
-          tRenderer.append(fixTable);
-        }
-
-        tRenderer.find("table")[1].style.width = "auto"; // In terms of size, follow the settings on the th below
-
-        // do width calculation in a timeout to allow the browser to finish/resize table first
-        setTimeout(function() {
-
-          // border separation/collapse results in additional count factor
-          var isSeparate = tRenderer.find("table").first().css("borderCollapse") == "separate";
-
-          // set tr heights 
-          var origHs = jQuery(tRenderer.find("table")[0]).find("thead tr");
-          var fixHs  = jQuery(tRenderer.find("table")[1]).find("thead tr");
-          for(var h = 0; h < origHs.length; h++)
-            fixHs[h].style.height = jQuery(origHs[h]).css('height');
-
-          // set th widths
-          fixTable.find("th").each(function(index) {
-            jQuery(this).addClass("bcdFixedTableHeaderNoPad");  // remove any left/right padding/merging
-
-            // now try to calculate the width needed by borders 
-            var border = 0.5 * (jQuery(tRenderer.find("table")[0]).find("th").eq(index).outerWidth() - jQuery(tRenderer.find("table")[0]).find("th").eq(index).innerWidth());
-            border *= (border > 0 && bcdui.browserCompatibility.isGecko ? 2 : 1);  // Firefox seems to count borders only once, so we need to double them again
-            border += isSeparate ? 1 : 0;
-
-            jQuery(this).css("width", (jQuery(tRenderer.find("table")[0]).find("th").eq(index).outerWidth() - border) + "px"); // and set the new calculated width
-          });
-          // The copied header may contain widgets and other extras, which we need to activate
-          if( fixTable )
-            bcdui.factory.objectRegistry.getObject(rendererId)._executeOnXAttributes(fixTable,"bcdOnLoad");
-
-          // finally show it
-          fixTable.show();
-        });
-      };
-
-      // Decide whether to be called synchronous (for example in case of a just created renderer output in bcdOnLoad)
-      if( args.isSync ) {
-        action( args.rendererId );
-      } else {
-        bcdui.factory.objectRegistry.withReadyObjects( args.rendererId, function() { action( args.rendererId ); } );
+      if (enableColumnFilters) {
+        var paramBag = {rendererId: rendererId}
+        if (getCaptionForColumnValue)
+          paramBag["getCaptionForColumnValue"] = getCaptionForColumnValue;
+        bcdui.widget.createFilterTableHeader(paramBag);
       }
+
+      // move table to new container and clone header to another new container
+      var table = jQuery(tableElement);
+      table.parent().append("<div class='bcdTableHeadHolder' rendererId='"+rendererId+"'><div class='bcdCloneTableHolder'></div><div class='bcdOrigTableHolder'></div></div>");
+      var bcdTableHeadHolder = table.parent().find(".bcdTableHeadHolder");
+      bcdTableHeadHolder.find(".bcdCloneTableHolder").append(jQuery(table.get(0).cloneNode(false)));
+      bcdTableHeadHolder.find(".bcdCloneTableHolder table").append(jQuery(table.find("thead").get(0).cloneNode(true)));
+      table.parent().find(".bcdOrigTableHolder").append(table);
+
+      if (storeSize) {
+        // initially take stored width/heights in case of a rerender. This avoids flickering (assuming number of cells did not change), but only needed
+        // if you got manual refeshs like collapsable cubes clicks (maybe columnfilters, too)
+        bcdTableHeadHolder.find(".bcdConeTableHolder").attr("storeSize", "true");
+        bcdTableHeadHolder.find(".bcdCloneTableHolder").find("tr").each(function(i, e) {
+          jQuery(e).find("th, td").each(function(j, f) {
+            var h = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", "");
+            var w = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", "");
+            if (h != "")
+              jQuery(f).css("height", h + "px");
+            if (w != "")
+              jQuery(f).css("width", w + "px");
+          });
+        });
+        var ww = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/@w", "");
+        if (ww != "")
+          bcdTableHeadHolder.find(".bcdCloneTableHolder table thead").css("width", ww + "px");
+        bcdui.wkModels.guiStatus.remove("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']", true);
+      }
+
+      // let's enable collapseable buttons also in cloned thead
+      if (jQuery(tableElement).find(".bcdExpandContainer").length > 0)
+        bcdui.component.cube.expandCollapse._init(bcdTableHeadHolder.find(".bcdCloneTableHolder table").get(0)); 
+
+      var cloneTable = bcdTableHeadHolder.find(".bcdCloneTableHolder table");
+      var origTableHead = bcdTableHeadHolder.find(".bcdOrigTableHolder table thead");
+
+      // hide clone header when doing a wysiwyg export
+      cloneTable.attr("bcdHideOnExport", "true");
+
+      if (enableColumnFilters) {
+        jQuery(cloneTable).find("tr").each(function(i, e) {
+          jQuery(e).find("th, td").each(function(j, f) {
+            var cell = jQuery(jQuery(cloneTable.find("tr").get(i)).find("th, td").get(j));
+            if (cell.find(".bcdInfoBox").length == 0)
+              cell.html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>"+cell.text()+"</div><div class='bcdFilterButton'></div></div>")
+          });
+        });
+      }
+
+      // initial recalc of columns
+      setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
+
+      // on window resize we recalc the columns again to match the original table
+      var resizeTimeout = null;
+      jQuery(window).on("resize", function(e) {
+        // prevent reentry
+        if (resizeTimeout != null)
+          clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+          // reset possible set 'table' first, recalc decides is a new one is needed
+          jQuery(tableElement).closest(".bcdTableHeadHolder").get(0).style.display = '';
+          bcdui.widget._recalcFixedHeader(tableElement)
+        });
+      });
+      // if sidebar gets toggled, we resize
+      bcdui.wkModels.guiStatus.onChange(function(){
+        setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
+      }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin");
+
+    },
+
+    /**
+     * recalculates the height and width of the fixed header
+     * @param {htmlElement} tableElement - the container holding .bcdTableHeadHolder
+     * @param {boolean} noFinalRefresh - flag to skip a 2nd run of recalc to avoid some possible browser redraw flaws
+     * @private
+     */
+    _recalcFixedHeader: function(tableElement, noFinalRefresh) {
+      var bcdTableHeadHolder = jQuery(tableElement).closest(".bcdTableHeadHolder");
+      var cloneTableHead = bcdTableHeadHolder.find(".bcdCloneTableHolder table thead");
+      var origTableHead = bcdTableHeadHolder.find(".bcdOrigTableHolder table thead");
+      var storeSize = bcdTableHeadHolder.find(".bcdCloneTableHolder").attr("storeSize") == "true";
+      var rendererId = bcdTableHeadHolder.attr("rendererId");
+      jQuery(cloneTableHead).find("tr").each(function(i, e) {
+        jQuery(e).css("height", jQuery(origTableHead.find("tr").get(i)).outerHeight() + "px");
+        jQuery(e).find("th, td").each(function(j, f) {
+          var cell = jQuery(jQuery(origTableHead.find("tr").get(i)).find("th, td").get(j));
+          jQuery(f).css("height", cell.outerHeight() + "px");
+          jQuery(f).css("width", cell.outerWidth() + "px");
+          if (storeSize) {
+            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", cell.outerHeight());
+            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", cell.outerWidth());
+          }
+        });
+        cloneTableHead.css("width", origTableHead.outerWidth() + "px");
+      });
+      if (storeSize)
+        bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/@w", origTableHead.outerWidth(), true);
+
+      // in case we have a horizontal scrolling table, we additionally set the display type to table
+      // so the clone gets resized too
+      var w = bcdTableHeadHolder.find(".bcdOrigTableHolder table").outerWidth();
+      var c = bcdTableHeadHolder.find(".bcdCloneTableHolder table").outerWidth();
+      if (c + 1 < w) { // + 1 = IE quirk prevention
+        bcdTableHeadHolder.get(0).style.display = 'table';
+      }
+
+      // in case we did the recalc once, we do a final second run since there can
+      // be cases like a very quick resize of the browser window where the browser did not finish
+      // rendering the table yet and we already did a recalc. 500ms is just an assumption and
+      // needs to be tested further
+      if (! noFinalRefresh)
+        setTimeout(function() {bcdui.widget._recalcFixedHeader(tableElement, true);}, 500);
     },
 
     /**
