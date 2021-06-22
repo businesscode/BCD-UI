@@ -2627,7 +2627,9 @@ jQuery.extend(bcdui.widget,
      * @param {function}      [args.getFilteredValues]                    Function (colIdx) which needs to return a wrs:C array which holds the valid values for the current column. Use this to e.g. only show prefiltered values 
     */
     createFilterTableHeader: function(args) {
-      var action = function( renderer ) {
+      var action = function( rendererOrRendererId ) {
+        
+        var renderer = bcdui.factory.objectRegistry.getObject(rendererOrRendererId);
 
         var tableHead = jQuery(renderer.getTargetHtml()).find("table thead").first();
         if ((tableHead.length == 0 && ! renderer.backupHeader) || renderer.getPrimaryModel().query("/*/wrs:Header/wrs:Columns/wrs:C") == null) {
@@ -2696,15 +2698,10 @@ jQuery.extend(bcdui.widget,
         });
       };
 
-      // Decide whether to be called synchronous (for example in case of a just created renderer output in bcdOnLoad)
-      var renderer = args.renderer || args.rendererId;
-      if (typeof renderer == "string")
-        renderer = bcdui.factory.objectRegistry.getObject(renderer);
-      
       if( args.isSync ) {
-        action( renderer );
+        action( args.renderer || args.rendererId );
       } else {
-        bcdui.factory.objectRegistry.withReadyObjects( args.rendererId, function() { action( renderer ); } );
+        bcdui.factory.objectRegistry.withReadyObjects( args.renderer || args.rendererId, function() { action( args.renderer || args.rendererId ); } );
       }
     },
 
@@ -2781,9 +2778,9 @@ jQuery.extend(bcdui.widget,
       cloneTable.attr("bcdHideOnExport", "true");
 
       if (enableColumnFilters) {
-        jQuery(cloneTable).find("tr").each(function(i, e) {
+        jQuery(origTableHead).find("tr").each(function(i, e) {
           jQuery(e).find("th, td").each(function(j, f) {
-            var cell = jQuery(jQuery(cloneTable.find("tr").get(i)).find("th, td").get(j));
+            var cell = jQuery(jQuery(origTableHead.find("tr").get(i)).find("th, td").get(j));
             if (cell.find(".bcdInfoBox").length == 0)
               cell.html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>"+cell.text()+"</div><div class='bcdFilterButton'></div></div>")
           });

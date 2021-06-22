@@ -62,6 +62,7 @@ Some changes are not backward compatible and may require code change in the proj
 
 * fixedTableHeader
 ** createFixedTableHeader uses optimized and more compatible code
+** new htmlBuilder parameters createHeaderFilters and createFixHeader
 
 * createTableHeadFilter
 ** add option valueCaptionProvider which allows asynchronous providing of code/caption data for filter dialog

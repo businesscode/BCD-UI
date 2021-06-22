@@ -48,7 +48,14 @@
  -->
 <xsl:template match="/*">
   <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
-    <xsl:attribute name="bcdOnLoad"><xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if><xsl:if test="$isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:if></xsl:attribute>
+    <xsl:attribute name="bcdOnLoad">
+      <xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if>
+      <xsl:choose>
+        <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
+        <xsl:when test="$isCreateHeaderFilters and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true, true);</xsl:when>
+        <xsl:when test="$isCreateHeaderFilters and not($isCreateFixHeader)">bcdui.widget.createFilterTableHeader({renderer: '<xsl:value-of select="$bcdControllerVariableName"/>'});</xsl:when>
+      </xsl:choose>
+    </xsl:attribute>
     <xsl:apply-templates select="wrs:Header/wrs:Columns"/>
     <xsl:apply-templates select="wrs:Data"/>
   </table>

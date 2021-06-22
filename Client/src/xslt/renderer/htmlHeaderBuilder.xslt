@@ -549,6 +549,7 @@
   <!--
     Creates various variables used in the generated XSLT document.
    -->
+  <xsl:param name="createHeaderFilters" select="false()"/>
   <xsl:param name="createFixHeader" select="false()"/>
   <xsl:param name="expandCollapseCells" select="false()"/>
   <xsl:template match="generator:VariablesForHeader" mode="generateXSLT">
@@ -582,6 +583,10 @@
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">isExpandCollapseCells</xsl:attribute>
       <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:ExpandCollapseCells='true' or $expandCollapseCells='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">isCreateHeaderFilters</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:CreateHeaderFilters='true' or $createHeaderFilters='true'"/>()</xsl:attribute>
     </xsl:element>
   </xsl:template>
 
