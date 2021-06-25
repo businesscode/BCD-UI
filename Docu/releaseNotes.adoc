@@ -67,6 +67,9 @@ Some changes are not backward compatible and may require code change in the proj
 * createTableHeadFilter
 ** add option valueCaptionProvider which allows asynchronous providing of code/caption data for filter dialog
 
+.Utils
+* bcdui.util.getUuid() returns you an uuid
+
 ==== Release 5_4_0
 
 .Major new features:
