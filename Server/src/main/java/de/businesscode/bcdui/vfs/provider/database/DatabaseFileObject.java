@@ -120,15 +120,15 @@ public class DatabaseFileObject extends AbstractFileObject {
         BcdSqlLogger.setLevel(Level.TRACE);
         String sql = new SQLEngine().transform(mainBindingSQL);
         stmt = connection.prepareStatement(sql);
-        stmt.setString(1, this.fileName.getPath());
+        stmt.setString(1, this.fileName.getPathDecoded());
 
-        log.trace("isReadable():" + sql + " param: " + this.fileName.getPath());
+        log.trace("isReadable():" + sql + " param: " + this.fileName.getPathDecoded());
 
         rs = stmt.executeQuery();
         // register readable file in VFS cache
         is = rs.next();
         if (is)
-          CacheFactory.getVFSCache().put(new Element(getName().getPath(), getName().getPath()));
+          CacheFactory.getVFSCache().put(new Element(getName().getPathDecoded(), getName().getPathDecoded()));
       }
       catch (Exception e) {
         throw new FileSystemException(e);
@@ -171,9 +171,9 @@ public class DatabaseFileObject extends AbstractFileObject {
         BcdSqlLogger.setLevel(Level.TRACE);
         String sql = new SQLEngine().transform(mainBindingSQL);
         stmt = connection.prepareStatement(sql);
-        stmt.setString(1, this.fileName.getPath());
+        stmt.setString(1, this.fileName.getPathDecoded());
 
-        log.trace("doGetInputStream():" + sql + " param: " + this.fileName.getPath());
+        log.trace("doGetInputStream():" + sql + " param: " + this.fileName.getPathDecoded());
         rs = stmt.executeQuery();
         if (rs.next()) {
 
@@ -233,11 +233,11 @@ public class DatabaseFileObject extends AbstractFileObject {
       try{
         BcdSqlLogger.setLevel(Level.TRACE);
         if(doGetType() != FileType.FOLDER){
-          log.warn("The original file is not a folder, thus no children, filePath:" + this.fileName.getPath());
+          log.warn("The original file is not a folder, thus no children, filePath:" + this.fileName.getPathDecoded());
           return chs;
         }
 
-        String path = this.fileName.getPath();
+        String path = this.fileName.getPathDecoded();
         path = path + FileName.SEPARATOR + "*";
         path = path.replaceAll("\\*", "%");
 
@@ -277,7 +277,7 @@ public class DatabaseFileObject extends AbstractFileObject {
     ArrayList<String> chPaths = new ArrayList<String>();
     if(clds != null){
       for (int i = 0; i < clds.length; i++) {
-        chPaths.add( clds[i].getName().getPath());
+        chPaths.add( clds[i].getName().getPathDecoded());
       }
     }
     return chPaths.toArray(new String[chPaths.size()]);

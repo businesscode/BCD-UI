@@ -17,6 +17,7 @@ package de.businesscode.bcdui.web.servlets;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletContext;
 
@@ -49,8 +50,19 @@ public class VfsResourceProvider implements StaticResourceServlet.ResourceProvid
       // we expect that BcdUiApplicationContextListener is active in current application
       // and has activated VFS catalog
       Cache vfsCache = VFSManagerFactory.getVFSCache();
-      if (vfsCache != null && vfsCache.isElementInMemory(fullyQualifiedPath)) {
-        log.trace("try to fetch resource from VFS: " + fullyQualifiedPath);
+
+      // vfsCache holds keys as decoded strings while resolveFile
+      // expects an URI and does the decoding automatically. To avoid
+      // double decoding we only decode the value for the key lookup
+      String decode = "";
+      try {
+        decode = java.net.URLDecoder.decode(fullyQualifiedPath, "UTF-8");
+      } catch (UnsupportedEncodingException ex) {
+        log.warn("failed to decode path", ex);
+      }
+
+      if (vfsCache != null && vfsCache.isElementInMemory(decode)) {
+        log.trace("try to fetch resource from VFS: " + decode);
         FileObject vFile = VFSManagerFactory.getManager().resolveFile("sql:" + fullyQualifiedPath);
         if (vFile != null && vFile.isReadable()) {
           res = new VfsResource(fullyQualifiedPath, vFile);
