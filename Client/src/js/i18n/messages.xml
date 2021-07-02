@@ -271,5 +271,11 @@
       <R id="R455"><C>bcd_DocUploader_Download</C><C>Download</C><C>en</C></R>
       <R id="R456"><C>bcd_DocUploader_Delete_Confirm</C><C>Do you really want to delete this document?</C><C>en</C></R>
 
+      <!-- Comment Widget -->
+      <R id="R500"><C>bcd_Comment_Placeholder</C><C>Enter Comment</C><C>en</C></R>
+      <R id="R501"><C>bcd_Comment_Text</C><C>Comment Text</C><C>en</C></R>
+      <R id="R502"><C>bcd_Comment_LastUpdate</C><C>Last Update</C><C>en</C></R>
+      <R id="R503"><C>bcd_Comment_UpdatedBy</C><C>Updated By</C><C>en</C></R>
+      <R id="R504"><C>bcd_Comment_Add</C><C>Add</C><C>en</C></R>
     </Data>
 </Wrs>

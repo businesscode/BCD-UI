@@ -1032,6 +1032,26 @@ the data that is actually placed in XML.
           </Doc>
         </Param>
       </Api>
+
+      <Api name="comment" extends="widget hasLabel">
+        <Doc> Offers a simple container with comment functionality</Doc>
+        <Param name="scope" type="string" required="true">
+          <Doc>
+            A given scope for the current comments.
+          </Doc>
+        </Param>
+        <Param name="instance" type="string" required="true">
+          <Doc>
+            A given instance for the current comments.
+          </Doc>
+        </Param>
+        <Param name="caption" type="string">
+          <Doc>
+            A caption string which appears in the top add row.
+          </Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -1050,6 +1070,7 @@ the data that is actually placed in XML.
       <BcdObject name="farConfigurator" implements="farConfigurator" implementationPackage="bcdui.component.far.farConfigurator"/>
       <BcdObject name="universalFilter" implements="universalFilter" implementationPackage="bcdui.widgetNg.universalFilter"/>
       <BcdObject name="slider" implements="slider" implementationPackage="bcdui.widgetNg.slider"/>
+      <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

@@ -58,6 +58,7 @@ jQuery.extend(true, bcdui, {
         },
         button:{},
         checkbox:{},
+        comment:{},
         connectable:{},
         dateInput:{},
         input:{},

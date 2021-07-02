@@ -1780,3 +1780,30 @@ span.bcd-notification-warn {
   .col.title { flex: 0 0 40%; }
   .col.info { word-break: break-all;}
 }
+
+/* ******************************************************************* */
+/* comment widget */
+/* ******************************************************************* */
+
+.bcdComment {
+  .row { margin: 0 0 .3em 0; padding: 0; align-items: center; }
+  .col { margin: 0 .3em 0 0; padding: 0;}
+  .col:last-child { margin: 0; }
+  .row:last-child { margin: 0; }
+  .col.add { flex: 0 0 5em; }
+  .overflow { overflow: auto; }
+  
+  .commentContainer {
+    background-color: #fff;
+    padding: 1em;
+    border: 1px solid #aaa;
+    border-radius: 1em;
+    margin-bottom: .3em;
+  }
+
+  .edit, .user { text-align: right; }
+  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: .3em; }
+  .icon.ts:before        { content: "\f017"; }
+  .icon.user:before      { content: "\f007"; }
+  .icon.edit:before      { content: "\f044"; cursor: pointer; }
+}

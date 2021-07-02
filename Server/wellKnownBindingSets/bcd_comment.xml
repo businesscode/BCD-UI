@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BindingSet id="bcd_comment" table="bcd_comment" dbSourceName="jdbc/bcduitestpostgres" xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0" allowSelectAllColumns="true">
+  <C id="scope"><Column>scope</Column></C>
+  <C id="instance"><Column>instance_id</Column></C>
+  <C id="comment_text"      caption="&#xE0FF;bcd_Comment_Text"><Column>text</Column></C>
+  <C id="lastUpdate"        caption="&#xE0FF;bcd_Comment_LastUpdate"><Column>last_modified_at</Column></C>
+  <C id="updatedBy"         caption="&#xE0FF;bcd_Comment_UpdatedBy"><Column>last_modified_by</Column></C>
+
+  <SubjectSettings>
+    <Security>
+      <Operation permission="" name="write"/>
+    </Security>
+    <SubjectFilters>
+      <SubjectFilter type="bcdClient:bcdComment"/>
+    </SubjectFilters>
+  </SubjectSettings>
+
+  <WriteProcessing>
+    <Callbacks>
+      <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
+        <Param bindingItemId="lastUpdate" expression="${bcdBean.creationStamp}" isCoalesce="false"/>
+        <Param bindingItemId="updatedBy" expression="${bcdBean.userName}" isCoalesce="false" />
+      </Callback>
+    </Callbacks>
+  </WriteProcessing>
+
+</BindingSet>

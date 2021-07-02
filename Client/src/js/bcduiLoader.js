@@ -157,6 +157,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/slider/sliderPackage.js"
         , "/js/widgetNg/slider/typedSliders.js"
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
+        , "/js/widgetNg/comment/commentPackage.js"
       ]
     },
     {
