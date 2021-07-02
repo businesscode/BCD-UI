@@ -275,6 +275,16 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiDocUpload",
+      "required": "optional",
+      "files": [
+        "/js/component/docUpload/docUploadCreate.js"
+      ],
+      "buildFolders": [
+        "/js/component/docUpload"
+      ]
+    },
+    {
       "id": "bcduiTree",
       "required": "optional",
       "files": [

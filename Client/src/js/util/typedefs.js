@@ -18,6 +18,7 @@ jQuery.extend(true, bcdui, {
             farConfigurator:{}
         },
         grid:{},
+        docUpload:{},
         scorecardConfigurator:{},
         scorecard: {},
         textnavigation:{},

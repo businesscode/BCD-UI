@@ -262,5 +262,14 @@
       <R id="R310"><C>bcd_Tree_ActionsGlobalHdr</C><C>General Options</C><C>en</C></R>
       <R id="R311"><C>bcd_Tree_Export</C><C>Tree export</C><C>en</C></R>
 
+      <!-- DocUploader -->
+      <R id="R450"><C>bcd_DocUploader_Required</C><C>Required Upload</C><C>en</C></R>
+      <R id="R451"><C>bcd_DocUploader_Optional</C><C>Optional Upload</C><C>en</C></R>
+      <R id="R452"><C>bcd_DocUploader_Delete</C><C>Delete</C><C>en</C></R>
+      <R id="R453"><C>bcd_DocUploader_Comment</C><C>Enter Comment...</C><C>en</C></R>
+      <R id="R454"><C>bcd_DocUploader_View</C><C>View</C><C>en</C></R>
+      <R id="R455"><C>bcd_DocUploader_Download</C><C>Download</C><C>en</C></R>
+      <R id="R456"><C>bcd_DocUploader_Delete_Confirm</C><C>Do you really want to delete this document?</C><C>en</C></R>
+
     </Data>
 </Wrs>

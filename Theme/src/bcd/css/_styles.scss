@@ -1848,3 +1848,98 @@ select:focus option:checked {
 .home-card a:hover {
   text-decoration: none;
 }
+
+
+
+/* ******************************************************************* */
+/* docUploader */
+/* ******************************************************************* */
+
+.bcdDocUploader {
+  .bcdDropArea {
+    width: 24em;
+    padding: 1em; 
+    text-align: center; 
+    border: 2px solid #d8d8d8; 
+    border-radius: .5em;
+    color: #555; 
+    margin: 0 .3em 0 0;
+    position: relative;
+  }
+
+  .bcdDropNow {
+    background-color: #555 !important;
+    color: #FFF !important;
+  }
+
+  .action:after          { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .action.download:after { content: "\f56d"; }
+  .action.view:after     { content: "\f06e"; }
+  .action.delete:after   { content: "\f2ed"; }
+
+  .def_true              { background-color: #ffffff; cursor: pointer; }
+  .def_false             { background-color: #F6F6F6;  cursor: pointer; }
+  .def_false.req_false   { background-color: #fae8e8; cursor: pointer; }
+  .def_true .fileType .icon:before  { color: #aa0000; }
+  .def_false .fileType .icon:before { color: #aaaaaa; }
+
+  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .fileType .icon:before { font-size: 2em; padding-right: 0; }
+
+  .comment.icon:before, .info .icon:before { font-size: 1em; padding-right: .3em; }
+
+  .icon.def_true:before  { content: "\f15b"; }
+  .icon.def_false:before { content: "\f574"; }
+  .icon.pdf:before       { content: "\f1c1"; }
+  .icon.doc:before       { content: "\f1c2"; }
+  .icon.docx:before      { content: "\f1c2"; }
+  .icon.xls:before       { content: "\f1c3"; }
+  .icon.xlsx:before      { content: "\f1c3"; }
+  .icon.txt:before       { content: "\f15c"; }
+  .icon.gif:before       { content: "\f1c5"; }
+  .icon.png:before       { content: "\f1c5"; }
+  .icon.jpeg:before      { content: "\f1c5"; }
+  .icon.svg:before       { content: "\f1c5"; }
+  .icon.ppt:before       { content: "\f1c4"; }
+  .icon.csv:before       { content: "\f6dd"; }
+  .icon.zip:before       { content: "\f1c6"; }
+  .icon.ts:before        { content: "\f017"; }
+  .icon.user:before      { content: "\f007"; }
+  .icon.comment:before   { content: "\f075"; }
+  .icon.fileName:before  { content: "\f15c"; }
+  .icon.fileSize:before  { content: "\f013"; }
+
+  .actions {
+    position: absolute; top: -1em; right: 0em; color: #000;
+    a { color: #000; }
+    span:hover {
+      cursor: pointer;
+      background-color: #555;
+      color: #fff;
+    }
+    span {
+      display: inline-block;
+      margin: 0 .3em 0 0;
+      background-color: #ffffff;
+      border: 1px solid #555;
+      border-radius: 1em;
+      padding: .25em;
+      width: 2em;
+      height: 2em;
+    }
+  }
+
+  .small { font-size: .8em; }
+  .docUploaderContainer { display: flex; }
+  .commentinput { resize: none; }
+
+  .row { margin: 0 0 0 0; padding: 0; width: 100%; text-align: left; }
+  .row.comment { align-items: center; }
+  .row.main { pointer-events: none; }
+
+  .col { margin: 0 .3em 0 0; padding: 0; }
+  .col:last-child { margin: 0; }
+  .col.fileType { flex: 0 0 10%; }
+  .col.title { flex: 0 0 40%; }
+  .col.info { word-break: break-all;}
+}

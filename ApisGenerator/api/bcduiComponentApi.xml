@@ -726,6 +726,36 @@
         </Param>
       </Api>
 
+      <Api name="docUpload" extends="hasTargetHtml config">
+        <Doc>
+          Creates a docUpload front end based on given data or a configuration.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="cmp:config" doc="The model containing the grid configuration data." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+        </Examples>
+        <Param name="scope" type="string" required="true">
+          <Doc>
+            The scope for the documents.
+          </Doc>
+        </Param>
+        <Param name="instance" type="string" required="true">
+          <Doc>
+            The instance for the documents.
+          </Doc>
+        </Param>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the docUpload configuration data.
+            If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
+          </Doc>
+        </Param>
+      </Api>
     </BcdAPI>
 
     <BcdObjects>
@@ -744,6 +774,7 @@
       <BcdObject name="gridModel" implements="gridModel" implementationPackage="bcdui.component." tagFolder="component"/>
       <BcdObject name="grid" implements="grid" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="tree" implements="tree" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="docUpload" implements="docUpload" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
 
     </BcdObjects>
   </WorkingDraft>

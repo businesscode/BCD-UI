@@ -48,6 +48,9 @@ Some changes are not backward compatible and may require code change in the proj
 ** allow button actions to be triggered via bcdGrid:save, bcdGrid:reset, bcdGrid:addRow on targetHtml
 ** fix grouped headers to not clip long cells
 
+* DocUploader
+** initial commit of a document uploader component, uses VFS (bcd_docUpload binding) to store data on scope/instance level (scope subjectsettings)
+
 * Scorecard
 ** fix aspect definitions with multiple chooseCalc when statements
 ** calc:AspectRef can directly address a bindingItemId now
