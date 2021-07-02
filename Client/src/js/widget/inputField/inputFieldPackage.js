@@ -871,8 +871,11 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
    */
   _keyUp: function(htmlElementId, event)
     {
+      var htmlElement = bcdui._migPjs._$(htmlElementId);
+      htmlElement.removeAttr("writeByEnterKey");
       switch (event.keyCode) {
         case bcdui.util.Event.KEY_RETURN:
+          htmlElement.attr("writeByEnterKey", event.shiftKey ? "up": "down"); // flag for grid editor to decide where to put the cell
           bcdui.widget.inputField._hideOptions(htmlElementId,true,0); // Use ESC to not choose from the drop down
           break;
 
@@ -889,7 +892,6 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
           // Update list, then allow to selecting the first entry by enter when we entered enough to get the right one to the top
           bcdui.widget.inputField._updateDropDownList(htmlElementId,false,true)
           bcdui.widget.inputField._moveSelection( {htmlElementId: htmlElementId, direction: 1, forceFirst: true, ignoreIfSelected: true} );
-          var htmlElement = bcdui._migPjs._$(htmlElementId);
 
           // On DEL, BACKSPACE at the end: re-add wildcards, unless a wildcard itself was deleted
           if( (event.keyCode==bcdui.util.Event.KEY_BACKSPACE || event.keyCode==bcdui.util.Event.KEY_DELETE) && htmlElement.attr("bcdAdditionalFilterXPath") ) {

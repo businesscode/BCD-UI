@@ -251,13 +251,40 @@ bcdui.component.grid.GridEditor.bcduiInputField.prototype.prepare = function(row
     var args = Object.assign({targetHtml: this.objectId},widgetParams);
     bcdui.widget.createInputField(args);
   };
-  
+
   this.manifestValue = function() {
     var widgetEl = jQuery("#" + this.objectId + " input");
-    if (widgetEl.length > 0)
+    if (widgetEl.length > 0) {
+
+      // in case the inputWidget value was written via enter key, we go up or down one row/col
+      var direction = widgetEl.attr("writeByEnterKey") || "";
+      if (direction != "") {
+        setTimeout(function() {
+          var sel = this.instance.getSelected();
+          if (sel && sel.length > 0) {
+            var newRow = sel[0][0] + (direction == "up" ? -1 : 1);
+            var newCol = sel[0][1];
+            if (newRow < 0) {
+              newRow = this.instance.countRows() -1;
+              newCol--;
+              if (newCol < 0)
+                newCol = this.instance.countCols() -1;
+            }
+            if (newRow >= this.instance.countRows()) {
+              newRow = 0;
+              newCol++;
+              if (newCol >= this.instance.countCols())
+                newCol = 0;
+            }
+            this.instance.selectCell(newRow, newCol);
+          }
+        }.bind(this));
+      }
+
       bcdui.widget.inputField._writeDataToXML(widgetEl.get(0).id, false);
+    }
   };
-  
+
   this.destroyWidget = function() {
     jQuery("#bcdAutoCompletionBox").hide();  // close a possible open autocomplete box
     jQuery("#" + this.objectId).remove();
