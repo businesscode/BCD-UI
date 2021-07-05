@@ -52,7 +52,7 @@
           <xsl:variable name="docAvailableClass" select="concat(' def_', string(boolean($entry)))"/>
           <xsl:variable name="requiredClass" select="concat(' req_', string($required='false' or not($required) or ($required='true' and boolean($entry))))"/>
 
-          <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass)}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" onDrop="bcdui.component.docUpload.Uploader.onDndDrop(event, this)" onDragDrop="bcdui.component.docUpload.Uploader.onDndDrop(event, this)">
+          <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass)}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" onDrop="bcdui.component.docUpload.Uploader._onDndDrop(event, this)" onDragDrop="bcdui.component.docUpload.Uploader._onDndDrop(event, this)">
             <xsl:if test="$entry">
               <div class='actions' style="display:none">
                 <xsl:choose>

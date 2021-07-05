@@ -90,7 +90,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     // the actual renderer call
     // we add a hidden fileinput before the actual targetHtml
-    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload.Uploader.onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
+    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload.Uploader._onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
     super({
         id: widgetId
       , targetHtml: jQuery("#" + targetHtml).find(".bcdDocUploader")
@@ -149,6 +149,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       jQuery("#" + this.targetHtml).on("mouseenter", ".bcdDropArea", function() {jQuery(this).find(".actions").show();});
       jQuery("#" + this.targetHtml).on("mouseleave", ".bcdDropArea", function() {jQuery(this).find(".actions").hide();});
       
+      // handle comment change and save
       jQuery("#" + this.targetHtml).off("change");
       jQuery("#" + this.targetHtml).on("change", ".commentinput", function() {
         var newComment = jQuery(this).val();
@@ -158,7 +159,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var fileSize = area.attr("fileSize");
         var fileName = area.attr("fileName");
         bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-        self.saveData();
+        self._saveData();
       });
 
       jQuery("#" + this.targetHtml).off("click");
@@ -166,7 +167,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var area = jQuery(event.target).closest(".bcdDropArea");
 
         if (jQuery(event.target).closest(".comment").length > 0) {
-          // nothing to do...
+          // nothing to do...prevent click from opening file dialog
         }
         else if (jQuery(event.target).hasClass("action")) {
         var action = "";
@@ -193,7 +194,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           }
           if (jQuery(event.target).hasClass("delete"))
             action = "delete";
-          self.performAction(jQuery(event.target).closest(".bcdDropArea"), action);
+          self._performAction(jQuery(event.target).closest(".bcdDropArea"), action);
         }
         else {
           var container = jQuery(event.target).closest(".bcdDocUploader");
@@ -210,13 +211,47 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
   getClassName() {return "bcdui.component.docUpload.Uploader";}
   
-  // general save call, blind ui and send to server
-  saveData() {
+  
+  /**
+   * returns an array with objects for each category of the current scope.
+   * in case of uploaded data it holds additional information like filename, size, url, comment, etc
+   */
+  getUploadInfo() {
+    var info = [];
+    Array.from(this.config.queryNodes("/*/rnd:Scopes/rnd:Scope[@id='{{=it[0]}}']/rnd:Category",[this.scope])).forEach(function(e) {
+      var m = this.infoModel.query("/*/Entry[@catId='{{=it[0]}}']", [e.getAttribute("id")]);
+      var o = {
+        id: "" + e.getAttribute("id")
+      , caption: "" + e.getAttribute("caption")
+      , required: "true" == (e.getAttribute("required") || "false")
+      , uploaded: m != null
+      };
+      if (m != null) {
+        o["timestamp"] = m.getAttribute("ts");
+        o["user"] = m.getAttribute("ts");
+        o["name"] = m.getAttribute("fileName");
+        o["size"] = m.getAttribute("fileSize");
+        o["url"] = m.getAttribute("link");
+        o["comment"] = m.getAttribute("comment");
+      }        
+      info.push(o);
+    }.bind(this));
+    return info;
+  }
+
+  /**
+   * general save call, blind ui and send to server
+   * @private
+   */
+  _saveData() {
     setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
     this.dataModel.sendData();
   }
   
-  performAction(container, action, fileName) {
+  /**
+   * @private
+   */
+  _performAction(container, action, fileName) {
     var catId = jQuery(container).attr("catId") || "";
     var rowId = jQuery(container).attr("rowId") || "";
     var comment = jQuery(container).attr("comment") || "";
@@ -237,6 +272,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
       var fr = new FileReader();
 
+      // for big files, show percentage value in overlay
       fr.onprogress = function(d) {
         if (d.lengthComputable) {                                            
           var percent = parseInt(100 * d.loaded / d.total, 10);
@@ -244,35 +280,40 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
       };
 
+      // data is loaded (as base64), so start saving
       fr.onload = function() {
 
         // data is in base64 format now
         var b64 = this.result.substring(this.result.indexOf("base64,") + "base64,".length);
-        
+
+        // extract possible file extension (currently only used for css icon selection)
         var ext = fileName.indexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
 
+        // insert a resourceBlob column into the current data model at the last position 
         var lastPos = self.dataModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
         bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='resourceBlob' and @pos='"+lastPos+"' and @nullable='1' and @type-name='BLOB']");
 
         // if we got a rowId, we are replacing an existing cell
         if (rowId) {
+
+          // create and fill the modified blob column C/O values
           bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Data/wrs:*[@id='"+rowId+"']/wrs:C["+lastPos+"]");
           bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Data/wrs:*[@id='"+rowId+"']/wrs:O["+lastPos+"]");
+          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "resourceBlob", b64);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "resourceBlob", b64);
-          self.saveData();
+          self._saveData();
         }
 
-        // otherwise we write a new row and prefill all needed columns
+        // otherwise we insert a new row at topmost position and prefill all needed columns (including instance and scope)
         else {
           bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "resourceBlob", b64);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "resourceBlob", b64);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-            self.saveData();
+            self._saveData();
           }});
         }
       };
@@ -293,7 +334,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       var msg = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete_Confirm"}) || "Do you really want to delete this document?";
       if (confirm(msg)) {
         bcdui.wrs.wrsUtil.deleteRow(this.dataModel, rowId, false);
-        this.saveData();
+        this._saveData();
       }
     }
   }
@@ -302,7 +343,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Uploader,
 /** @lends bcdui.component.docUpload.Uploader */
 {
-  onDndDrop: function(event, element) {
+  /**
+   * @private
+   */
+  _onDndDrop: function(event, element) {
     event.stopPropagation();
     event.preventDefault();
     var dndUploadFile = event.originalEvent ? event.originalEvent.dataTransfer.files[0] : event.dataTransfer.files[0];
@@ -312,15 +356,18 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
     container.parent().find("*[bcdRole=fileInput]").prop("bcdDnDSelected", dndUploadFile);
     var objects = jQuery(container).data("objects");
     if (objects && objects.instance && dndUploadFile.name)
-      objects.instance.performAction(jQuery(element).closest(".bcdDropArea"), "upload", dndUploadFile.name);
+      objects.instance._performAction(jQuery(element).closest(".bcdDropArea"), "upload", dndUploadFile.name);
   },
 
-  onFileInputChange: function(element) {
+  /**
+   * @private
+   */
+  _onFileInputChange: function(element) {
     var container = jQuery(element).next(".bcdDocUploader");
     container.parent().find("*[bcdRole=fileInput]").prop("bcdDnDSelected", null);
     var fileName = container.parent().find("*[bcdRole=fileInput]").prop("files")[0].name;
     var objects = jQuery(container).data("objects");
     if (objects && objects.instance)
-      objects.instance.performAction(container.parent().find("*[bcdRole=fileInput]"), "upload", fileName);
+      objects.instance._performAction(container.parent().find("*[bcdRole=fileInput]"), "upload", fileName);
   },
 });
