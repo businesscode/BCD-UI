@@ -46,8 +46,11 @@ public class ExportServlet extends HttpServlet {
     try {
       maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows"));
     } catch(Exception e) {
-      log.info("For "+getServletName()+" init parameter MaxRows not found, using default.");
+      if( config.getInitParameter("MaxRows") != null ) {
+        log.warn("Servlet init parameter 'MaxRows' for "+getServletName()+" could not be parsed");
+      }
     }
+    log.info("Using "+maxRowsDefault+" for export MaxRows, unless overwritten on user level.");
   }
 
   /**

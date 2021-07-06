@@ -336,6 +336,7 @@
       <param-name>MaxRows</param-name>
       <param-value>65000</param-value>
     </init-param>
+    <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.CsvServlet</servlet-name>
@@ -352,6 +353,7 @@
       <param-name>MaxRows</param-name>
       <param-value>65000</param-value>
     </init-param>
+    <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.SylkServlet</servlet-name>
@@ -387,6 +389,11 @@
   <servlet>
     <servlet-name>bcdui4.ZipLet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.ZipLet</servlet-class>
+    <init-param>
+      <param-name>maxTinyUrlAge</param-name>
+      <param-value>-1</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.ZipLet</servlet-name>

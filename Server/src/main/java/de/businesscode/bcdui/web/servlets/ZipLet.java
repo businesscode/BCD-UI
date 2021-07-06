@@ -148,8 +148,11 @@ public class ZipLet extends HttpServlet {
     try {
       maxTinyUrlAge = Integer.parseInt(config.getInitParameter("maxTinyUrlAge"));
     } catch(Exception e) {
-      log.info("For "+getServletName()+" init parameter maxTinyUrlAge not found, using default.");
+      if( config.getInitParameter("maxTinyUrlAge") != null ) {
+        log.warn("Parameter 'maxTinyUrlAge' for "+getServletName()+" could not be parsed");
+      }
     }
+    log.info("Using "+maxTinyUrlAge+" months for maxTinyUrlAge");
   }
 
   /**
@@ -933,7 +936,7 @@ public class ZipLet extends HttpServlet {
    * counterpart of makeTiny. This will get the long data information from the given
    * tiny variant.
    * If key exists, last update stamp is updated.
-   * @param data The tiny string to be decoded.
+   * @param tinyUrl The tiny string to be decoded.
    * @return The lstring or NULL in case of an error
    * @throws Exception
    */
