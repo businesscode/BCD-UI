@@ -22,37 +22,43 @@
 
       var commentBox = this._createCommentBox();
 
+      // our config holds sope, instance and the actual data model
       var config = {
         scope: this.options.scope, instance: this.options.instance,
         commentModel: new bcdui.core.AutoModel({ 
-        bindingSetId: "bcd_comment"
-      , bRefs: "comment_text lastUpdate updatedBy"
-      , filterElement: bcdui.util.xml.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
-      , orderByBRefs: "lastUpdate-"
-      , saveOptions: {
-        // after saving, we unblock the ui and reload the model and of course refresh the vfs
-          onSuccess: function() { setTimeout(jQuery.unblockUI);}
-        , onFailure: function() { setTimeout(jQuery.unblockUI);}
-        , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI);}
-        , reload: true
-      }
+          bindingSetId: "bcd_comment"
+        , bRefs: "comment_text lastUpdate updatedBy"
+        , filterElement: bcdui.util.xml.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
+        , orderByBRefs: "lastUpdate-"
+        , saveOptions: {
+          // after saving, we unblock the ui and reload the model and of course refresh the vfs
+            onSuccess: function() { setTimeout(jQuery.unblockUI);}
+          , onFailure: function() { setTimeout(jQuery.unblockUI);}
+          , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI);}
+          , reload: true
+        }
       })}
 
       this.element.data("_config_", config);
-      
+
       // handle label creation after appending control
       this._createLabel(commentBox.attr("id"));
 
       // attach to DOM
       this.element.append(commentBox);
 
+      // readd events
       this.element.off("click");
       this.element.on("click", ".edit", function() { jQuery(this).parent().next().toggle(); });
       this.element.on("click", ".bcdButton", function(){
+
+        // show/hide input field row
         jQuery(this).closest(".bcdComment").find(".addRow").toggle();
         var conf = jQuery(this).closest(".bcdComment").parent().data("_config_");
         var value = jQuery(this).closest(".bcdComment").find("input").val() || "";
         var model = conf.commentModel;
+
+        // add scope and instance columns in header and add a new prefilled row
         if (conf && model && value) {
           var lastPos = model.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
           bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='scope' and @pos='"+lastPos+"' and @nullable='1' and @type-name='VARCHAR']");
@@ -67,6 +73,7 @@
         }
       });
 
+      // actual renderer, render cards per entry
       var tableRenderer = new bcdui.core.Renderer({
         targetHtml: this.element.find(".bcdComment .commentTable")
       , inputModel: config.commentModel
@@ -83,6 +90,8 @@
           }.bind(this));
           return doc;
       }.bind(this)});
+
+      // rerender when comment model was saved
       tableRenderer.onceReady(function() {
         config.commentModel.onReady(function() {
           tableRenderer.execute(true);
@@ -93,12 +102,11 @@
       this.element.show();
       // limit comment table's height to outer container height
       var outerHeight = this.element.parent().outerHeight();
-      outerHeight -= this.element.find(".titleRow").outerHeight();
-      outerHeight -= this.element.find(".addRow").outerHeight();
+      outerHeight -= this.element.find(".titleRow").outerHeight() || 0;
+      outerHeight -= this.element.find(".addRow").outerHeight() || 0;
       this.element.find(".addRow").hide();
       this.element.find(".commentTable").css("overflow", "auto");
       this.element.find(".commentTable").css("height", outerHeight + "px");
-
     },
 
     _createCommentBox: function(){
@@ -110,6 +118,8 @@
       var rights = bcdui.config.clientRights && bcdui.config.clientRights.bcdComment ? "|" + bcdui.config.clientRights.bcdComment.join("|") + "|" : "";
       if (!(rights.indexOf("|*|") != -1 || rights.indexOf("|" + opts.scope + "|") != -1))
         opts.readonly = true;
+
+      // outer widget container, in case of readonly, the input field is not rendered
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
