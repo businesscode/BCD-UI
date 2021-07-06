@@ -256,27 +256,19 @@ bcdui.component.grid.GridEditor.bcduiInputField.prototype.prepare = function(row
     var widgetEl = jQuery("#" + this.objectId + " input");
     if (widgetEl.length > 0) {
 
-      // in case the inputWidget value was written via enter key, we go up or down one row/col
+      // in case the inputWidget value was written via enter key, we simulate an EditorManager onAfterEnter(shiftKey) 
       var direction = widgetEl.attr("writeByEnterKey") || "";
       if (direction != "") {
         setTimeout(function() {
-          var sel = this.instance.getSelected();
-          if (sel && sel.length > 0) {
-            var newRow = sel[0][0] + (direction == "up" ? -1 : 1);
-            var newCol = sel[0][1];
-            if (newRow < 0) {
-              newRow = this.instance.countRows() -1;
-              newCol--;
-              if (newCol < 0)
-                newCol = this.instance.countCols() -1;
-            }
-            if (newRow >= this.instance.countRows()) {
-              newRow = 0;
-              newCol++;
-              if (newCol >= this.instance.countCols())
-                newCol = 0;
-            }
-            this.instance.selectCell(newRow, newCol);
+          var curMovesDefault = this.instance.getBCDUIGrid() && this.instance.getBCDUIGrid().hotArgs && this.instance.getBCDUIGrid().hotArgs.enterMoves  ? this.instance.getBCDUIGrid().hotArgs.enterMoves : {row: 1, col: 0 };
+          var enterMoves = typeof curMovesDefault === 'function' ? curMovesDefault(/*event*/) : curMovesDefault;
+
+          if (direction == "up") {
+            // move selection up
+            this.instance.selection.transformStart(-enterMoves.row, -enterMoves.col);
+          } else {
+            // move selection down (add a new row if needed)
+            this.instance.selection.transformStart(enterMoves.row, enterMoves.col, true);
           }
         }.bind(this));
       }
