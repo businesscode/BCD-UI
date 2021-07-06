@@ -94,7 +94,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
     // check and report when no updates done
     for(int i=0; i<updates.length; i++){
       if(updates[i] == 0){
-        logger.warn("Failed to log session expiry, no hit for session: " + params[i][1]);
+        logger.warn("Failed to update session expiry in bcd_log_session for session: " + params[i][1]);
       }
     }
     return updates;

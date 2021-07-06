@@ -94,8 +94,10 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
     int[] updates = super.executeStatement(params);
     // check and report when no updates done
     for(int i=0; i<updates.length; i++){
-      if(updates[i] == 0){
-        logger.warn("Failed to log session expiry, no hit for session: " + params[i][1]);
+      if(updates[i] == 0) {
+        // This happens if a restricted page is accessed without a valid login and the user does not login before the temporary session expires.
+        // In that case there is no log entry to update. So this is not considered a warning or error
+        logger.trace("Failed to update session expiry in bcd_log_login for session: " + params[i][1]);
       }
     }
     return updates;
