@@ -7,7 +7,6 @@
   <C id="isServer"                  type-name="INTEGER"> <Column>is_server</Column>     </C>
   <C id="updatedBy"                 type-name="VARCHAR"> <Column>updated_by</Column>    </C>
   <C id="lastUpdate"                type-name="TIMESTAMP"><Column>last_update</Column>   </C>
-  <C id="bcd_userId"  isKey="true"  type-name="VARCHAR"> <Column>bcd_userId</Column>    </C>
 
   <C id="scope"     type-name="VARCHAR"> <Column>scope</Column> </C>
   <C id="instance"  type-name="VARCHAR"> <Column>instance</Column> </C>
@@ -19,7 +18,6 @@
     </Security>
     <SubjectFilters>
       <And>
-        <SubjectFilter type="bcd_userId:userId"/>
         <SubjectFilter type="bcdClient:bcdDocUpload"/>
       </And>
     </SubjectFilters>

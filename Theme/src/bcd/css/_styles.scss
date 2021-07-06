@@ -1877,9 +1877,10 @@ select:focus option:checked {
   .action.view:after     { content: "\f06e"; }
   .action.delete:after   { content: "\f2ed"; }
 
-  .def_true              { background-color: #ffffff; cursor: pointer; }
-  .def_false             { background-color: #F6F6F6;  cursor: pointer; }
-  .def_false.req_false   { background-color: #fae8e8; cursor: pointer; }
+  .pointer_true          { cursor: pointer; }
+  .def_true              { background-color: #ffffff; }
+  .def_false             { background-color: #F6F6F6; }
+  .def_false.req_false   { background-color: #fae8e8; }
   .def_true .fileType .icon:before  { color: #aa0000; }
   .def_false .fileType .icon:before { color: #aaaaaa; }
 

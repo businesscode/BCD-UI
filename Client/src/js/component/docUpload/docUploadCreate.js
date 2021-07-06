@@ -22,7 +22,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
 
     // get data from virtual filesystem for current scope and instance
-    var dataModel = new bcdui.core.AutoModel({bRefs: "path bcd_userId metaData scope instance updatedBy lastUpdate", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
+    var dataModel = new bcdui.core.AutoModel({bRefs: "path metaData scope instance updatedBy lastUpdate", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -165,8 +165,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       jQuery("#" + this.targetHtml).off("click");
       jQuery("#" + this.targetHtml).on("click", ".bcdDropArea", function(event) {
         var area = jQuery(event.target).closest(".bcdDropArea");
-
-        if (jQuery(event.target).closest(".comment").length > 0) {
+        if (jQuery(event.target).closest(".comment").length > 0 || ! area.hasClass("pointer_true")) {
           // nothing to do...prevent click from opening file dialog
         }
         else if (jQuery(event.target).hasClass("action")) {

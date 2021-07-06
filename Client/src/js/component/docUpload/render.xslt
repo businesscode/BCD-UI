@@ -41,18 +41,25 @@
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
   <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 
+  <xsl:variable name="hasWriteAccess" select="(contains($scopes,'*') or contains($scopes, concat('|',$scope,'|')))"/>
+
   <xsl:template match="/*">
     <div>
       <h2><xsl:value-of select="concat($scope, ' - ', $instance)"/></h2>
       <div class='docUploaderContainer'>
-        <xsl:for-each select="$config/*/rnd:Scopes/rnd:Scope[@id=$scope and (contains($scopes,'*') or contains($scopes, concat('|',$scope,'|')))]/rnd:Category">
+        <xsl:for-each select="$config/*/rnd:Scopes/rnd:Scope[@id=$scope]/rnd:Category">
           <xsl:variable name="catId" select="@id"/>
           <xsl:variable name="entry" select="$infoModel/*/Entry[@catId=$catId]"/>
           <xsl:variable name="required" select="@required"/>
           <xsl:variable name="docAvailableClass" select="concat(' def_', string(boolean($entry)))"/>
           <xsl:variable name="requiredClass" select="concat(' req_', string($required='false' or not($required) or ($required='true' and boolean($entry))))"/>
+          <xsl:variable name="dropAllowedClass" select="concat(' pointer_', string($hasWriteAccess))"/>
 
-          <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass)}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" onDrop="bcdui.component.docUpload.Uploader._onDndDrop(event, this)" onDragDrop="bcdui.component.docUpload.Uploader._onDndDrop(event, this)">
+          <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}">
+            <xsl:if test="$hasWriteAccess">
+              <xsl:attribute name="onDrop">bcdui.component.docUpload.Uploader._onDndDrop(event, this)</xsl:attribute>
+              <xsl:attribute name="onDragDrop">bcdui.component.docUpload.Uploader._onDndDrop(event, this)</xsl:attribute>
+            </xsl:if>
             <xsl:if test="$entry">
               <div class='actions' style="display:none">
                 <xsl:choose>
@@ -64,7 +71,9 @@
                   </xsl:otherwise>
                 </xsl:choose>
                 <a target="_blank" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_view}" class='action view'></span></a>
-                <span title="{$i18_delete}" class='action delete'></span>
+                <xsl:if test="$hasWriteAccess">
+                  <span title="{$i18_delete}" class='action delete'></span>
+                </xsl:if>
               </div>
             </xsl:if>
             <div class='row main'>
@@ -92,7 +101,15 @@
               </div>
             </div>
             <xsl:if test="$entry">
-              <div class='row small icon comment'><div class='col'><textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea></div></div>
+              <xsl:choose>
+                <xsl:when test="$hasWriteAccess">
+                  <div class='row small icon comment'><div class='col'><textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea></div></div>
+                </xsl:when>
+                <xsl:otherwise>
+                  <div class='row small icon comment'><div class='col'><span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span></div></div>
+                </xsl:otherwise>
+              </xsl:choose>
+              
             </xsl:if>
           </div>
         </xsl:for-each>
