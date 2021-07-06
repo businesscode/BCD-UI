@@ -29,6 +29,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
 ** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
 ** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
+** bindingItem skipWriteCheck attribute (to bypass subject settings write checks) was removed. Use the new mode (R|W|RW) attribute on SubjectFilterType instead
 
 .All versions of 3rd party libraries for runtime, are listed in
 * bcdui_dependencies.gradle for java
@@ -40,6 +41,9 @@ Some changes are not backward compatible and may require code change in the proj
 
 .Core:
 * _getFillParams which is used in read, write, query, queryNodes can handle xPaths with * now
+
+.Server:
+* new SubjectFilterType mode attribute to specify how this filter type should be enabled. on read, write of both (default)
 
 .Components:
 * Grid

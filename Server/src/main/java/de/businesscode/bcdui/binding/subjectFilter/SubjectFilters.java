@@ -44,15 +44,9 @@ import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
  */
 public class SubjectFilters {
   private final Connective connective;
-  private final boolean skipWriteCheck;
 
   public SubjectFilters(Connective connective) {
-    this(connective, false);
-  }
-
-  public SubjectFilters(Connective connective, boolean skipWriteCheck) {
     this.connective = connective;
-    this.skipWriteCheck = skipWriteCheck;
   }
 
   private Collection<SubjectFilter> collectSubjectFilters(Connective connective, Collection<SubjectFilter> targetCollection) {
@@ -142,7 +136,7 @@ public class SubjectFilters {
         // create default root connective and add children to it
         rootConnective = build(filters.getSubjectFilterOrAndOrOr(), new ConnectiveAnd());
       }
-      return new SubjectFilters(rootConnective, filters.isSkipWriteCheck());
+      return new SubjectFilters(rootConnective);
     } catch (JAXBException e) {
       throw new RuntimeException("Failed to parse SubjectFilters", e);
     }
@@ -183,9 +177,5 @@ public class SubjectFilters {
       }
     }
     return rootConnective;
-  }
-  
-  public boolean isSkipWriteCheck() {
-    return skipWriteCheck;
   }
 }

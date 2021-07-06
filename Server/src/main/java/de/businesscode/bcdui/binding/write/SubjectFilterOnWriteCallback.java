@@ -63,7 +63,9 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
       if( ! sft.getOp().equals("=") )
         throw new SecurityException("Invalid setup for BindingSet " + bindingSet.getName() + ": Only '=' allowed for SubjectSettings");
 
-      enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), sft.getName() ) );
+      // apply write subject settings checks when subject filter type mode isn't (R)ead-only
+      if (! "R".equalsIgnoreCase(sft.getMode()))
+        enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), sft.getName() ) );
     }
   }
 

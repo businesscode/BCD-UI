@@ -263,7 +263,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       logger.debug("write processing callbacks found, delegating processEndHeader.");
 
       // We derive the standard writing filter from SubjectSettings
-      if( bindingSet.getSubjectFilters() != null && !bindingSet.getSubjectFilters().isSkipWriteCheck() ) {
+      if( bindingSet.getSubjectFilters() != null) {
         Connective con = bindingSet.getSubjectFilters().getConnective();
         if( con.getElements().size() > 0 ) {
           WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);

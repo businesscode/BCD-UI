@@ -69,9 +69,6 @@ public class TypeSubjectFilters {
     })
     protected List<JAXBElement<?>> subjectFilterOrAndOrOr;
 
-    @XmlAttribute(name="skipWriteCheck")
-    protected boolean skipWriteCheck;
-
     /**
      * Gets the value of the subjectFilterOrAndOrOr property.
      * 
@@ -101,9 +98,5 @@ public class TypeSubjectFilters {
             subjectFilterOrAndOrOr = new ArrayList<JAXBElement<?>>();
         }
         return this.subjectFilterOrAndOrOr;
-    }
-    
-    public boolean isSkipWriteCheck() {
-      return skipWriteCheck;
     }
 }

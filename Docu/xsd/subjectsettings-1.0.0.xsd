@@ -150,6 +150,11 @@
       and set this attribute to true to allow accessing the data.
       </documentation></annotation>
     </attribute>
+    <attribute name="mode" use="optional" type="string" default="RW">
+      <annotation><documentation>
+      Defines on which operations this filter type is being enabled. (R)ead operations only, (W)rite operations only, or both (RW) which is the default.
+    </documentation></annotation>
+    </attribute>
   </complexType>
 
   <complexType name="AuthenticationType">

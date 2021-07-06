@@ -232,6 +232,10 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     // Either this is attached as an attribute to our session
     final String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
 
+    // in case of a (W)rite-only-check filter type, we can skip resolving
+    if ("W".equalsIgnoreCase(ft.getMode()))
+      return true;
+
     if (sessionFilterValue != null) {
       resolveWithValue(boundVariables, sqlClause, ft, bRef, sessionFilterValue, connective);
       return true;
