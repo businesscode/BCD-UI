@@ -38,13 +38,13 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
    *
-   * @param {string}                  [args.reqDocStyleSheetUrl]          - Optional custom wrq-stylesheet URL to generate the request. Most parameters here only apply when using default wrq-styleshhet.
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
-   * @param {Array}                   [args.reqDocChain]                  - Optional custom chain for request document builder.
+   * @param {Array}                   [args.reqDocChain=['wrs/requestDocumentBuilder.xslt']] - Optional custom chain for request document builder.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
-   * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document
+   * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
-   * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) which is connected via f:And to other filters
+   * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd.
+   *    This node can also easily be created in place with {@link bcdui.util.xml.parseFilterExpression}, see sample below.
    * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
    * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
    * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
@@ -52,10 +52,10 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
    * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
-   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url (by default taken from the underlying simple model url)
+   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement:bcdui.util.xml.parseFilterExpression("country='DE'") });
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: bcdui.util.xml.parseFilterExpression("country='DE'") });
    */
   constructor(args)
     {

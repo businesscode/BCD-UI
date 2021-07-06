@@ -959,7 +959,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
    * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
    * @extends bcdui.core.TransformationChain
-    */
+   */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**

@@ -48,10 +48,10 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
    * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
    * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
-   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataprovider holding the request url (by default taken from the args.url)
+   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataProvider holding the request url (by default taken from the args.url).
    *  If not text/plain, (derived or via mimeType), the data is parsed.
    *  <table>
-   *    <tr><th>"auto"</th><th>mimeType</th><th>Result</th></tr>
+   *    <tr><th>file extension</th><th>value</th><th>Result</th></tr>
    *    <tr><td>*.json</td><td>"application/json"</td><td>are turned into a js object</li>
    *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</li>
    *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</li>

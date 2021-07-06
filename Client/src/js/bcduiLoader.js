@@ -36,14 +36,14 @@ bcdui.bcduiCeFiles =
 {
   "groups": [
     {
-     "id": "_ecma6Polyfills",
-     "required": "mandatory",
-     "browserCompatibility" : {
-       "isIE" : true
-     },
-     "files": [
-          "/js/3rdParty/core-js-bundle.js"
-     ]
+      "id": "_ecma6Polyfills",
+      "required": "mandatory",
+      "browserCompatibility" : {
+        "isIE" : true
+      },
+      "files": [
+        "/js/3rdParty/core-js-bundle.js"
+      ]
     },
     {
       "id": "3rdParty",
