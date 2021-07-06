@@ -54,6 +54,11 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
      * is fired on the INPUT field after a value has been updated from a list by mouse-click
      */
     UPDATED_BY_CLICK : "EV:bcdui.widget.inputField.UPDATED_BY_CLICK"
+    /**
+     * is fired when hide options is called
+     * useful if you want to monitor also no changes of targetXPath values (e.g. in grid)
+     */
+    , HIDE_OPTIONS : "EV:bcdui.widget.inputField.HIDE_OPTIONS"
   },
 
   /**
@@ -1160,6 +1165,9 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         } else if( htmlElement.getAttribute("bcdOptionsModelIsSuggestionOnly")=="true" ){
           bcdui.widget.inputField._writeDataToXML(htmlElementId, isSelectedByClick);
         }
+
+        // trigger event HIDE OPTIONS
+        jQuery("#" + htmlElementId).trigger(bcdui.widget.inputField.events.HIDE_OPTIONS);
 
         if( focus!=2 ) {
           window.setTimeout(

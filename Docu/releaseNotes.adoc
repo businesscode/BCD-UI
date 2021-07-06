@@ -51,6 +51,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** new option defaultButtons=true to show/hide action button
 ** allow button actions to be triggered via bcdGrid:save, bcdGrid:reset, bcdGrid:addRow on targetHtml
 ** fix grouped headers to not clip long cells
+** bcduiInputField editor follows handsongrid's cell movement rules, closes correctly on identical values
 
 * DocUploader
 ** initial commit of a document uploader component, uses VFS (bcd_docUpload binding) to store data on scope/instance level (scope subjectsettings)

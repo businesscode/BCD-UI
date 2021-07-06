@@ -252,6 +252,20 @@ bcdui.component.grid.GridEditor.bcduiInputField.prototype.prepare = function(row
     bcdui.widget.createInputField(args);
   };
 
+  // we also listen on HIDE_OPTIONS event to close editor in any case (i.e. when value hasn't changed)
+  this.open = function() {
+    bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.open.apply(this);
+    var self = this;
+    jQuery(this.cssPath).on(bcdui.widget.inputField.events.HIDE_OPTIONS, function() {
+      self.instance.getActiveEditor().finishEditing();
+    });
+  }
+
+  this.close = function() {
+    jQuery(this.cssPath).off(bcdui.widget.inputField.events.HIDE_OPTIONS);
+    bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.close.apply(this);
+  }
+
   this.manifestValue = function() {
     var widgetEl = jQuery("#" + this.objectId + " input");
     if (widgetEl.length > 0) {
