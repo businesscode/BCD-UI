@@ -1721,7 +1721,7 @@ span.bcd-notification-warn {
   .def_true .fileType .icon:before  { color: #aa0000; }
   .def_false .fileType .icon:before { color: #aaaaaa; }
 
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; width: 1.2em; display: inline-block; }
   .fileType .icon:before { font-size: 2em; padding-right: 0; }
 
   .comment.icon:before, .info .icon:before { font-size: 1em; padding-right: .3em; }
@@ -1773,7 +1773,7 @@ span.bcd-notification-warn {
 
   .row { margin: 0 0 0 0; padding: 0; width: 100%; text-align: left; }
   .row.comment { align-items: center; }
-  .row.main { pointer-events: none; }
+  .row.main { pointer-events: none; min-height: 5em;}
 
   .col { margin: 0 .3em 0 0; padding: 0; }
   .col:last-child { margin: 0; }

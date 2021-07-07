@@ -11,6 +11,7 @@
   <C id="scope"     type-name="VARCHAR"> <Column>scope</Column> </C>
   <C id="instance"  type-name="VARCHAR"> <Column>instance</Column> </C>
   <C id="metaData"  type-name="CLOB">    <Column>meta_data</Column> </C>
+  <C id="fileExists" type-name="INTEGER"><Column>case when resource_blob is null then 0 else 1 end</Column></C>
 
   <SubjectSettings>
     <Security>

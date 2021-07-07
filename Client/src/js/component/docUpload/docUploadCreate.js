@@ -22,7 +22,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
 
     // get data from virtual filesystem for current scope and instance
-    var dataModel = new bcdui.core.AutoModel({bRefs: "path metaData scope instance updatedBy lastUpdate", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
+    var dataModel = new bcdui.core.AutoModel({bRefs: "path metaData scope instance updatedBy lastUpdate fileExists", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -40,6 +40,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var userIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='updatedBy']/@pos").text, 10);
         var tsIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='lastUpdate']/@pos").text, 10);
         var pathIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos").text, 10);
+        var fileExistsIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos").text, 10);
         
         // rebuild it completely
         bcdui.core.removeXPath(doc, "/*/Entry", false);
@@ -57,9 +58,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 // user and ts are columns
                 var user = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + userIndex + "]").text) || "";
                 var ts = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + tsIndex + "]").text) || "";
+                var fileExists = ("1" == e.selectSingleNode("wrs:C[" + fileExistsIndex + "]").text);
 
                 // filename and comment are part of the metaData
-                var fileName = bcdui.util.escapeHtml(category.getAttribute("fileName") || "");
+                var fileName = bcdui.util.escapeHtml(category.getAttribute("fileName") || "-");
                 var comment = bcdui.util.escapeHtml(category.getAttribute("comment") || "");
                 var fileSize = bcdui.util.escapeHtml(category.getAttribute("fileSize") || "0");
                 fileSize = parseInt(fileSize, 10);
@@ -75,9 +77,12 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
                 var path = e.selectSingleNode("wrs:C[" + pathIndex + "]").text || "";
                 var ext = fileName.indexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
+                
+                if (! fileExists)
+                  fSize = "-";
 
                 // add entry
-                bcdui.core.createElementWithPrototype(doc, "/*/Entry[@ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                bcdui.core.createElementWithPrototype(doc, "/*/Entry[@fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
@@ -155,11 +160,28 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var newComment = jQuery(this).val();
         var area = jQuery(event.target).closest(".bcdDropArea");
         var catId = area.attr("catId");
-        var rowId = area.attr("rowId");
+        var rowId = area.attr("rowId") || "";
         var fileSize = area.attr("fileSize");
         var fileName = area.attr("fileName");
-        bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-        self._saveData();
+
+        // remove fileExists flag before saving
+        var fileExistsIndex  = parseInt(self.dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos", "0"), 10);
+        bcdui.core.removeXPath(self.dataModel.getData(), "/*/wrs:Data/wrs:R/wrs:C["+fileExistsIndex+"]", false);
+        bcdui.core.removeXPath(self.dataModel.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']", false);
+
+        if (rowId) {
+          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+          self._saveData();
+        }
+        else {
+          bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid());
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
+            self._saveData();
+          }});
+        }
       });
 
       jQuery("#" + this.targetHtml).off("click");
@@ -288,16 +310,15 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         // extract possible file extension (currently only used for css icon selection)
         var ext = fileName.indexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
 
-        // insert a resourceBlob column into the current data model at the last position 
-        var lastPos = self.dataModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
-        bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='resourceBlob' and @pos='"+lastPos+"' and @nullable='1' and @type-name='BLOB']");
+        // change fileExists entry to resource blob 
+        var fileExistsHeader = self.dataModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']");
+        fileExistsHeader.setAttribute("id", "resourceBlob");
+        fileExistsHeader.setAttribute("type-name", "BLOB");
 
         // if we got a rowId, we are replacing an existing cell
         if (rowId) {
 
           // create and fill the modified blob column C/O values
-          bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Data/wrs:*[@id='"+rowId+"']/wrs:C["+lastPos+"]");
-          bcdui.core.createElementWithPrototype(self.dataModel.getData(), "/*/wrs:Data/wrs:*[@id='"+rowId+"']/wrs:O["+lastPos+"]");
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "resourceBlob", b64);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
@@ -369,4 +390,103 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
     if (objects && objects.instance)
       objects.instance._performAction(container.parent().find("*[bcdRole=fileInput]"), "upload", fileName);
   },
+  
+  /**
+  * Generate a wrs modelwrapper holding overview information for the given scope (optionally limited to instances)
+  * The wrs holds 1 row per instance with the information about loaded, needed and missing required documents 
+  * @param args The parameter map contains the following properties:
+  * @param {string}                  args.scope                                             - The scope identifier
+  * @param {string}                  [args.id]                                              - The id of the returned wrs modelwrapper
+  * @param {string|array}            [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
+  * @param {bcdui.core.DataProvider} [args.config=./docUploadConfiguration.xml]             - The model containing the uploader configuration data. If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
+  * @return a wrs model holding the overview information
+  */
+  getUploadOverview: function(args) {
+    if (! args.scope)
+      throw new Error("You need to specify a scope value");
+
+    var instances = [];
+    var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("docUploadOverview_");
+
+    if (Array.isArray(args.instance))
+      instances = args.instance;
+    else if (typeof args.instance == "string" && args.instance.trim() != "") {
+      if (args.instance.split(" ").length > 0)
+        instances = args.instance.split(" ");
+      else
+        instances.push(args.instance)
+    }
+    var instfilter =  instances.length > 0 ? " and instance in '"+instances.join(",")+"'" : "";
+    var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
+    var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true});
+
+    return new bcdui.core.ModelWrapper({
+      id: id
+    , inputModel: dataModel
+    , parameters: {scope: args.scope, dataModel: dataModel, config: config, instances: instances.join(" ")}
+    , chain: function(doc, chainArgs) {
+
+        var givenInstances = chainArgs.instances.split(" ").filter(function(e) { return e != ""; });
+
+        var output = new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"></wrs:Wrs>");
+
+        // generate a minimal wrs header
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Scope"}) + "' and @id='scope' and @type-name='VARCHAR']/@pos", "1");
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Instance"}) + "' and @id='instance' and @type-name='VARCHAR']/@pos", "2");
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Loaded_Documents"}) + "' and @id='loaded' and @type-name='INTEGER']/@pos", "3");
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"'bcd_DocUploader_Number_Of_Documents"}) + "' and @type-name='INTEGER']/@pos", "4");
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Missing_Required"}) + "' and @id='missing_required' and @type-name='INTEGER']/@pos", "5");
+
+        // the number of needed files is simply the number of categories for the current scope in the config file
+        var neededFiles = chainArgs.config.selectNodes("/*/rnd:Scopes/rnd:Scope[@id='"+chainArgs.scope+"']/rnd:Category").length;
+
+        // get the mandatory ids for later check
+        var mandatoryIds = Array.from(chainArgs.config.selectNodes("/*/rnd:Scopes/rnd:Scope[@id='"+chainArgs.scope+"']/rnd:Category[@required='true']")).map(function(e) { return e.getAttribute("id");});
+
+        var oldInstance = "";
+        var rowCount = 1;
+        var instanceIdx = doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='instance']/@pos").text;
+        var metaDataIdx = doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos").text;
+        var fileExistsIdx = doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos").text;
+
+        // run over all loaded rows
+        Array.from(doc.selectNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
+          var curInstance = row.selectSingleNode("wrs:C["+instanceIdx+"]").text;
+
+          // when a new instance was found, we write a new row in the output, otherwise we simply continue
+          if (oldInstance != curInstance) {
+            oldInstance = curInstance;
+
+            // the number of loaded docs is simply the count of rows for the current instance which have fileExists = 1  
+            var loadedDocs = chainArgs.dataModel.selectNodes("/*/wrs:Data/wrs:R[wrs:C["+instanceIdx+"]='"+curInstance+"' and wrs:C["+fileExistsIdx+"]='1']").length;
+
+            // to find the number of missing required documents, we need to check the id attribute in the loaded meta data
+            // we check each mandatory id (collected above) for existance
+            var missingMandatory = mandatoryIds.length;
+            var catRows = Array.from(doc.selectNodes("/*/wrs:Data/wrs:R[wrs:C["+instanceIdx+"]='"+curInstance+"' and wrs:C["+fileExistsIdx+"]='1']/wrs:C["+metaDataIdx+"]"));
+            mandatoryIds.forEach(function(mandatoryId) {
+              for (var catRow = 0; catRow < catRows.length; catRow++) {
+                var found = catRows[catRow].text.match(/ id=\"([\w\d\s]+)\"/); // regex to find the id attribute value in the metaData
+                if (found && found.length > 0 && found[1] == mandatoryId) {
+                  // we've found the id, so reduce the possible missing ones
+                  missingMandatory--;
+                  break;
+                }
+              }
+            });
+            // add a new wrs row in one go with all information
+            bcdui.core.createElementWithPrototype(output.getData(), "/*/wrs:Data/wrs:R[@id='R" + (rowCount++)+"' and wrs:C[1] = '"+chainArgs.scope+"' and wrs:C[2]='"+curInstance+"' and wrs:C[3]='"+loadedDocs+"' and wrs:C[4]='"+neededFiles+"' and wrs:C[5]='"+missingMandatory+"']");
+          }
+        });
+
+        // in case of given instances, add rows for totally missing ones
+        givenInstances.forEach(function(i) {
+          if (doc.selectSingleNode("/*/wrs:Data/wrs:R[wrs:C["+instanceIdx+"]='"+i+"']") == null)
+            bcdui.core.createElementWithPrototype(output.getData(), "/*/wrs:Data/wrs:R[@id='R" + (rowCount++)+"' and wrs:C[1] = '"+chainArgs.scope+"' and wrs:C[2]='"+i+"' and wrs:C[3]='0' and wrs:C[4]='"+neededFiles+"' and wrs:C[5]='"+mandatoryIds.length+"']");
+        }); 
+        output.fire();
+        return output.getData();
+      }
+    });
+  }
 });

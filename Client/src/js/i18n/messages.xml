@@ -270,6 +270,11 @@
       <R id="R454"><C>bcd_DocUploader_View</C><C>View</C><C>en</C></R>
       <R id="R455"><C>bcd_DocUploader_Download</C><C>Download</C><C>en</C></R>
       <R id="R456"><C>bcd_DocUploader_Delete_Confirm</C><C>Do you really want to delete this document?</C><C>en</C></R>
+      <R id="R457"><C>bcd_DocUploader_Scope</C><C>Scope</C><C>en</C></R>
+      <R id="R458"><C>bcd_DocUploader_Instance</C><C>Instance</C><C>en</C></R>
+      <R id="R459"><C>bcd_DocUploader_Number_Of_Documents</C><C># Documents</C><C>en</C></R>
+      <R id="R460"><C>bcd_DocUploader_Loaded_Documents</C><C>Loaded Documents</C><C>en</C></R>
+      <R id="R461"><C>bcd_DocUploader_Missing_Required</C><C>Missing Required Documents</C><C>en</C></R>
 
       <!-- Comment Widget -->
       <R id="R500"><C>bcd_Comment_Placeholder</C><C>Enter Comment</C><C>en</C></R>
