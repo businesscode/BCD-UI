@@ -43,12 +43,12 @@ jQuery.extend( true, bcdui, {
   i18n: {},
   logging: {},
   subjectSettings: {},
-  widget: { comment:{}, contextMenu: {}, detailView: {}, dimensionChooser:{}, effects: {}, formulaEditor: { Parser: {} }, inputField: {},
+  widget: { contextMenu: {}, detailView: {}, dimensionChooser:{}, effects: {}, formulaEditor: { Parser: {} }, inputField: {},
     menu: {}, multiSelect: {}, notifications: {}, periodChooser: {}, singleSelect: {}, tab: {}, pageEffects: {}
   },
   widgetNg: {
     commons: { balloon: {} },
-    button: {}, checkbox: {}, connectable: {}, dateInput: {}, input: {}, pasteList: {}, sideBySideChooser: {}, singleSelect: {},
+    button: {}, checkbox: {}, comment:{}, connectable: {}, dateInput: {}, input: {}, pasteList: {}, sideBySideChooser: {}, singleSelect: {},
     slider: {}, suggestInput: {}, textArea: {}, universalFilter: {},
     utils: { sorting: {} },
     validation: { validators: { general: {}, widget:{} } }
