@@ -210,34 +210,6 @@ bcdui.component.grid.GridEditor.bcduiInput.prototype.prepare = function(row, col
   bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };
 
-
-
-/* ***************************************************************************************************************** */
-/* Single Select Widget */
-/* ***************************************************************************************************************** */
-bcdui.component.grid.GridEditor.bcduiSingleSelect = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
-bcdui.component.grid.GridEditor.bcduiSingleSelect.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
-
-  this.objectId      = "bcdSingleSelect";
-  this.cssPath       = "#" + this.objectId + " select";
-  
-  this.createWidget = function(widgetParams) {
-    var args = Object.assign({targetHtml: this.objectId},widgetParams);
-    bcdui.widgetNg.createSingleSelect(args)
-  };
-  
-  this.prepareLayout = function() {
-    // make select as wide as cell
-    var width = Handsontable.dom.outerWidth(this.TD);
-    this.TEXTAREA.style.minWidth = width + 'px';
-  };
-
-  // call base class
-  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
-};
-
-
-
 /* ***************************************************************************************************************** */
 /* inputField Widget */
 /* ***************************************************************************************************************** */

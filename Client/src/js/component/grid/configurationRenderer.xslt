@@ -124,7 +124,7 @@
           </xsl:if>
 
           <!-- set default suggestInput parameter -->              
-          <xsl:if test="grid:Editor/@type='bcduiSuggestInput'">
+          <xsl:if test="grid:Editor/@type='bcduiSuggestInput' or grid:Editor/@type='bcduiInput'">
             <grid:Param name="isSync" value="true"/>
           </xsl:if>
 
@@ -139,7 +139,7 @@
           </xsl:if>
 
           <!-- use wrs references as optionsmodel for singleSelect/simpleDropDown with no optionsModelXPath given -->
-          <xsl:if test="((grid:Editor/@type='bcduiSimpleDropDown' or grid:Editor/@type='bcduiSingleSelect') and (not(grid:Param) or grid:Editor/grid:Param[@name != 'optionsModelXPath'])) or $wrsC/wrs:References/wrs:Wrs/wrs:Data/wrs:R">
+          <xsl:if test="((grid:Editor/@type='bcduiSimpleDropDown') and (not(grid:Param) or grid:Editor/grid:Param[@name != 'optionsModelXPath'])) or $wrsC/wrs:References/wrs:Wrs/wrs:Data/wrs:R">
             <xsl:if test="$wrsC/wrs:References/wrs:Wrs/wrs:Data/wrs:R">
               <grid:Param name="optionsModelXPath" value="${$gridModelId}/*/wrs:Header/wrs:Columns/wrs:C[@id='{$bRef}']/wrs:References/wrs:Wrs/wrs:Data/wrs:R/wrs:C[1]"/>
               <grid:Param name="optionsModelRelativeValueXPath" value="../wrs:C[2]"/>

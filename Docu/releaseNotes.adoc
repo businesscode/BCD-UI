@@ -22,6 +22,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** echart uses new default colors, ensure to set colors in your projects and don't rely on default coloring
 ** Due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
 ** Grid pagination/action buttons are now in divs, so you may need to check your styling
+** Grid editor bcduiSingleSelect was removed, use bcduiSimpleDropDown instead
 ** Moved QuickEdit to package bcdui.widgetNg
 ** createFixedTableHeader uses new css classes, ensure your theme includes them
 * Config
