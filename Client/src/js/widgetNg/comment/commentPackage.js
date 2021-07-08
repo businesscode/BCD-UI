@@ -60,6 +60,10 @@
 
         // add scope and instance columns in header and add a new prefilled row
         if (conf && model && value) {
+
+          // remove entered value
+          jQuery(this).closest(".bcdComment").find("input").val("");
+
           var lastPos = model.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
           bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='scope' and @pos='"+lastPos+"' and @nullable='1' and @type-name='VARCHAR']");
           bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='instance' and @pos='"+(lastPos + 1)+"' and @nullable='1' and @type-name='VARCHAR']");
