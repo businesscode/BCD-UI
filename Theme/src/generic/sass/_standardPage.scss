@@ -1788,11 +1788,11 @@ span.bcd-notification-warn {
 
 .bcdComment {
   .row { margin: 0 0 .3em 0; padding: 0; align-items: center; }
-  .col { margin: 0 .3em 0 0; padding: 0;}
+  .col { margin: 0 .3em 0 0; padding: 0; white-space: normal;}
   .col:last-child { margin: 0; }
   .row:last-child { margin: 0; }
   .col.add { flex: 0 0 5em; }
-  .overflow { overflow: auto; }
+  .body { white-space: normal; }
   
   .commentContainer {
     background-color: #fff;

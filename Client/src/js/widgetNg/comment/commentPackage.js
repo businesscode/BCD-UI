@@ -94,7 +94,7 @@
               var comment = r.selectSingleNode("wrs:C["+comment_text_idx+"]").text;
               var lastUpdate = r.selectSingleNode("wrs:C["+lastUpdate_idx+"]").text;
               var updatedBy = r.selectSingleNode("wrs:C["+updatedBy_idx+"]").text;
-              jQuery("<div class='commentContainer'><div class='row'><div class='col icon ts'>" + lastUpdate + "</div><div class='col icon user'>" + updatedBy + "</div></div><div class='row'><div class='col'>" + comment + "</div></div></div>").appendTo(this.element.find(".bcdComment .commentTable"));
+              jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + lastUpdate + "</div><div class='col icon user'>" + updatedBy + "</div></div><div class='row body'><div class='col'>" + comment + "</div></div></div>").appendTo(this.element.find(".bcdComment .commentTable"));
             }.bind(this));
           }
           return doc;
@@ -109,13 +109,16 @@
 
       // display constructed container
       this.element.show();
+
       // limit comment table's height to outer container height
-      var outerHeight = this.element.parent().outerHeight();
-      outerHeight -= this.element.find(".titleRow").outerHeight() || 0;
-      outerHeight -= this.element.find(".addRow").outerHeight() || 0;
-      this.element.find(".addRow").hide();
-      this.element.find(".commentTable").css("overflow", "auto");
-      this.element.find(".commentTable").css("height", outerHeight + "px");
+      setTimeout(function() {
+        var outerHeight = this.element.parent().outerHeight();
+        outerHeight -= this.element.find(".titleRow").outerHeight() || 0;
+        outerHeight -= this.element.find(".addRow").outerHeight() || 0;
+        this.element.find(".addRow").hide();
+        this.element.find(".commentTable").css("overflow", "auto");
+        this.element.find(".commentTable").css("height", outerHeight + "px");
+      }.bind(this));
     },
 
     _createCommentBox: function(){
