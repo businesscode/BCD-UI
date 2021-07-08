@@ -86,12 +86,17 @@
           var comment_text_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@pos", "");
           var lastUpdate_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='lastUpdate']/@pos", "");
           var updatedBy_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='updatedBy']/@pos", "");
-          Array.from(doc.selectNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
-            var comment = r.selectSingleNode("wrs:C["+comment_text_idx+"]").text;
-            var lastUpdate = r.selectSingleNode("wrs:C["+lastUpdate_idx+"]").text;
-            var updatedBy = r.selectSingleNode("wrs:C["+updatedBy_idx+"]").text;
-            jQuery("<div class='commentContainer'><div class='row'><div class='col icon ts'>" + lastUpdate + "</div><div class='col icon user'>" + updatedBy + "</div></div><div class='row'><div class='col'>" + comment + "</div></div></div>").appendTo(this.element.find(".bcdComment .commentTable"));
-          }.bind(this));
+          var rows = Array.from(doc.selectNodes("/*/wrs:Data/wrs:R"));
+          if (rows.length == 0)
+            jQuery("<div>"+(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Comment_No_Comments"}) || "No Comments")+"</div>").appendTo(this.element.find(".bcdComment .commentTable"));
+          else {
+            rows.forEach(function(r) {
+              var comment = r.selectSingleNode("wrs:C["+comment_text_idx+"]").text;
+              var lastUpdate = r.selectSingleNode("wrs:C["+lastUpdate_idx+"]").text;
+              var updatedBy = r.selectSingleNode("wrs:C["+updatedBy_idx+"]").text;
+              jQuery("<div class='commentContainer'><div class='row'><div class='col icon ts'>" + lastUpdate + "</div><div class='col icon user'>" + updatedBy + "</div></div><div class='row'><div class='col'>" + comment + "</div></div></div>").appendTo(this.element.find(".bcdComment .commentTable"));
+            }.bind(this));
+          }
           return doc;
       }.bind(this)});
 

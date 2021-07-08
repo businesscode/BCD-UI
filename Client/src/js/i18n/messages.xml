@@ -282,5 +282,6 @@
       <R id="R502"><C>bcd_Comment_LastUpdate</C><C>Last Update</C><C>en</C></R>
       <R id="R503"><C>bcd_Comment_UpdatedBy</C><C>Updated By</C><C>en</C></R>
       <R id="R504"><C>bcd_Comment_Add</C><C>Add</C><C>en</C></R>
+      <R id="R505"><C>bcd_Comment_No_Comments</C><C>No Comments</C><C>en</C></R>
     </Data>
 </Wrs>
