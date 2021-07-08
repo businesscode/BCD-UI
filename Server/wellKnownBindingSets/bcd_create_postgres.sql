@@ -186,6 +186,9 @@ CREATE TABLE bcd_virtualFileSystem
    updated_by     VARCHAR(128),
    last_update    TIMESTAMP,
    bcd_userId     VARCHAR(64),
+   scope          VARCHAR(255),
+   instance       VARCHAR(255),
+   meta_data      TEXT,
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
 
@@ -199,6 +202,16 @@ CREATE  TABLE bcd_cache_scope
   expires_min_offset_sec INTEGER
 );
 
+-- comment
+DROP TABLE bcd_comment;
+CREATE TABLE bcd_comment
+(
+   scope             VARCHAR(256),
+   instance_id       VARCHAR(256),
+   text              VARCHAR(256),
+   last_modified_at  timestamp,
+   last_modified_by  VARCHAR(256)
+);
 
 -- geo
 -- As admin login to right database; creates postgis in public schema, make sure publich is ih user's search path

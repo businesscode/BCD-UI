@@ -188,6 +188,9 @@ CREATE TABLE bcd_virtualFileSystem
    updated_by     VARCHAR(128),
    last_update    DATETIME,
    bcd_userId     VARCHAR(64),
+   scope          VARCHAR(255),
+   instance       VARCHAR(255),
+   meta_data     NVARCHAR(MAX),
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
 
@@ -199,4 +202,15 @@ CREATE  TABLE bcd_cache_scope
   scope_last_modified    TIMESTAMP,
   earliest_next_modified TIMESTAMP,
   expires_min_offset_sec INTEGER
+);
+
+-- comment
+DROP TABLE bcd_comment;
+CREATE TABLE bcd_comment
+(
+   scope             varchar(256),
+   instance_id       varchar(256),
+   text              varchar(256),
+   last_modified_at  timestamp,
+   last_modified_by  varchar(256)
 );

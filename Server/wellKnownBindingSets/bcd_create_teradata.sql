@@ -175,6 +175,23 @@ CREATE SET TABLE bcd_tinyurl_control, FALLBACK, NO BEFORE JOURNAL, NO AFTER JOUR
 )
 UNIQUE PRIMARY INDEX ( tiny_url );
 
+-- vfs
+DROP TABLE bcd_virtualFileSystem;
+CREATE TABLE bcd_virtualFileSystem
+(
+   path           VARCHAR(1024) NOT NULL,
+   resource_clob  CLOB,
+   resource_blob  BLOB,
+   is_server      INTEGER         DEFAULT 0 NOT NULL,
+   updated_by     VARCHAR(128),
+   last_update    TIMESTAMP,
+   bcd_userId     VARCHAR(64),
+   scope          VARCHAR(255),
+   instance       VARCHAR(255),
+   meta_data      CLOB,
+   PRIMARY KEY (path, is_server, bcd_userId)
+)
+
 -- cache
 DROP TABLE bcd_cache_scope;
 CREATE  TABLE bcd_cache_scope
@@ -183,4 +200,15 @@ CREATE  TABLE bcd_cache_scope
   scope_last_modified    TIMESTAMP,
   earliest_next_modified TIMESTAMP,
   expires_min_offset_sec INTEGER
+);
+
+-- comment
+DROP TABLE bcd_comment;
+CREATE TABLE bcd_comment
+(
+   scope             VARCHAR(256),
+   instance_id       VARCHAR(256),
+   text              VARCHAR(256),
+   last_modified_at  timestamp,
+   last_modified_by  VARCHAR(256)
 );
