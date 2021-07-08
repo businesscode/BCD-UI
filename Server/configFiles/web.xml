@@ -289,7 +289,7 @@
     <servlet-class>de.businesscode.bcdui.web.servlets.StaticResourceServlet</servlet-class>
     <init-param>
       <param-name>vfsFileExtensions</param-name>
-      <param-value>xml txt vfsxml</param-value>
+      <param-value>xml txt vfsxml pdf png gif jpg jpeg svg doc docx xls xlsx csv zip</param-value>
     </init-param>
   </servlet>
   <!-- Add any URL for the virtual file system here -->
