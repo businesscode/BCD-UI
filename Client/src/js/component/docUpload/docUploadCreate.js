@@ -245,7 +245,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         id: "" + e.getAttribute("id")
       , caption: "" + e.getAttribute("caption")
       , required: "true" == (e.getAttribute("required") || "false")
-      , uploaded: m != null
+      , uploaded: "true" == (m != null && m.getAttribute("fileExists") || "false")
       };
       if (m != null) {
         o["timestamp"] = m.getAttribute("ts");

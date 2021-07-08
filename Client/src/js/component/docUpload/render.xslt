@@ -45,7 +45,6 @@
 
   <xsl:template match="/*">
     <div>
-      <h2><xsl:value-of select="concat($scope, ' - ', $instance)"/></h2>
       <div class='docUploaderContainer'>
         <xsl:for-each select="$config/*/rnd:Scopes/rnd:Scope[@id=$scope]/rnd:Category">
           <xsl:variable name="catId" select="@id"/>
