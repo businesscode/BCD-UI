@@ -151,7 +151,7 @@ abstract public class AWorkerQueue<T> {
     this.queueDelayMs = Math.max(0, queueDelayMs);
 
     if(log.isDebugEnabled()){
-      log.debug(getClass().getName() + " worker configured with queue size " + this.maxQueueSize + " and idle treshold(ms) of " + idleThresholdMs + " and queue delay (ms): " + this.queueDelayMs);
+      log.debug(" Worker configured with queue size " + this.maxQueueSize + " and idle treshold(ms) of " + idleThresholdMs + " and queue delay (ms): " + this.queueDelayMs);
     }
 
     queues.add(this);

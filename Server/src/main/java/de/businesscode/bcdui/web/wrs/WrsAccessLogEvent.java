@@ -247,7 +247,7 @@ public class WrsAccessLogEvent extends LogEventBase{
    */
   @Override
   public String toString() {
-    return "BCD-UI write WRS-Access-Log. Type=" + getAccessType();
+    return getAccessType()+"-Access. " + getBindingSetName();
   }
 
   @Override

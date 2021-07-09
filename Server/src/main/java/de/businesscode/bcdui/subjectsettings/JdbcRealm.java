@@ -140,10 +140,10 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         uro_userid = biUserId.getColumnExpression();
         uro_userrole  = bs.get("user_role").getColumnExpression();
       } catch (BindingSetNotFoundException bsnf) {
-        log.info("JDBC User Roles not available due to missing binding set " + BS_USER_ROLES);
+        log.info("JDBC user roles not active, no binding set " + BS_USER_ROLES);
       } 
     } catch (Exception e) {
-      throw new RuntimeException("Failed to initilialize when accessing BindingSet", e);
+      throw new RuntimeException("Failed to initialize when accessing BindingSet", e);
     }
   }
 

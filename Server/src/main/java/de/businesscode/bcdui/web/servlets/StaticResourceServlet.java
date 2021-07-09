@@ -211,7 +211,7 @@ public class StaticResourceServlet extends HttpServlet {
             )
         );
       } catch (BindingException e) {
-        log.debug("Did not find the bindingSet for VFS: " + DatabaseFileSystemConfigBuilder.bindingSetId +" - no VFS is activated");
+        log.info("Did not find the bindingSet for VFS: " + DatabaseFileSystemConfigBuilder.bindingSetId +" - no VFS is activated");
       }
     }
     /**
