@@ -66,7 +66,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 var fileSize = bcdui.util.escapeHtml(category.getAttribute("fileSize") || "0");
                 fileSize = parseInt(fileSize, 10);
                 var fSize = fileSize + " Byte";
-                if (fileSize> 0) {
+                if (fileSize > 1000) {
                   if (fileSize / 1024 < 1000)
                     fSize = (fileSize / 1024).toFixed(2) + " KByte";
                   else if (fileSize / 1024 / 1024 < 1000)
