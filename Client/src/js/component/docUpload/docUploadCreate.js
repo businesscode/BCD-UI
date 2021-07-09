@@ -314,6 +314,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var fileExistsHeader = self.dataModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']");
         fileExistsHeader.setAttribute("id", "resourceBlob");
         fileExistsHeader.setAttribute("type-name", "BLOB");
+        fileExistsHeader.removeAttribute("scale");
+        fileExistsHeader.removeAttribute("display-size");
+        fileExistsHeader.removeAttribute("signed");
 
         // if we got a rowId, we are replacing an existing cell
         if (rowId) {
