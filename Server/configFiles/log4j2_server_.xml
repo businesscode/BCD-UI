@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Typical logging for production.
+  Rename to log4j2.xml and include it in war file.
+ -->
+<Configuration>
+  <!-- Define ConsoleAppender and set its pattern -->
+  <Appenders>
+    <!-- Avoid uncontrolled growing of log files in production -->
+    <RollingFile
+            name="fileAppender"
+            fileName="/var/log/tomcat/cloudwatch-fe.log"
+            filePattern="/var/log/tomcat/cloudwatch-fe.%d{yyyy-MM-dd-}.%i.log.gz"
+            ignoreExceptions="false">
+      <PatternLayout pattern="%d{ISO8601}{UTC}Z %-5level %logger{4.}: %MDC{BCD.requestHash} %message%n"/>
+      <ThresholdFilter level="INFO"/>
+      <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+      <DefaultRolloverStrategy max="14"/>
+    </RollingFile>
+  </Appenders>
+
+  <!-- Define individual loggers and set their levels -->
+  <Loggers>
+
+    <!-- We want to see config information (info), warnings and errors. -->
+    <Logger name="de.businesscode" level="INFO"/>
+
+    <!--
+      Exclude output targeting bcd_log_ tables from our Appenders.
+      It still is written to the database if the BindingSets are present.
+      Errors / Warnings are not coming via virtlogger and are also not effected.
+     -->
+    <Logger name="de.businesscode.bcdui.logging.virtlogger" additivity="false">
+    </Logger>
+
+    <!-- 3rd-party classes -->
+    <Logger name="net.sf.ehcache" level="INFO"/>
+    <Logger name="org.apache" level="INFO"/>
+    <Logger name="org.zefer" level="WARN"/>
+
+    <!-- Add the Appender to the root logger -->
+    <Root level="ALL">
+      <AppenderRef ref="fileAppender"/>
+    </Root>
+  </Loggers>
+</Configuration>
