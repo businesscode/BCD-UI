@@ -45,6 +45,7 @@ Some changes are not backward compatible and may require code change in the proj
 
 .Server:
 * new SubjectFilterType mode attribute to specify how this filter type should be enabled. on read, write of both (default)
+* fix Postgres (empty) CLOB and BLOB reading
 
 .Components:
 * Grid

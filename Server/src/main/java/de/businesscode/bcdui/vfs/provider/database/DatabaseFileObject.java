@@ -182,11 +182,8 @@ public class DatabaseFileObject extends AbstractFileObject {
 
           // Otherwise use the binary content
           // the rs.getBinaryStream() cannot be accessed after the rs/stmt were closed so we read the content and put it in an new Stream
-          if (iStr == null){
-            Blob blob = rs.getBlob(3);
-            if (blob != null)
-              iStr = new ByteArrayInputStream(IOUtils.toByteArray(blob.getBinaryStream()));
-          }
+          if (iStr == null)
+            iStr = DatabaseCompatibility.getInstance().getBlobInputStream(BCDVIRTUALFILESYSTEM, rs, 3);
         }
       }
       finally{

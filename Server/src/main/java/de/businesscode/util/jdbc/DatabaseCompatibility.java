@@ -18,6 +18,7 @@ package de.businesscode.util.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
+import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -300,6 +301,18 @@ public class DatabaseCompatibility
   }
 
   /**
+   * returns the blob column data as a byte array
+   * @param bindingSetName the name of the currently used binding set
+   * @param rs the current result set
+   * @param column the index of the columns within the result set
+   * @return byte array with data
+   */
+  public byte[] getBlob(String bindingSetName, ResultSet rs, int column) throws Exception {
+    InputStream iStr = getBlobInputStream(bindingSetName, rs, column);
+    return iStr != null ? IOUtils.toByteArray(iStr) : null;
+  }
+
+  /**
    * returns the clob column data as an inputstream
    * @param bindingSetName the name of the currently used binding set
    * @param rs the current result set
@@ -315,7 +328,8 @@ public class DatabaseCompatibility
     // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
     if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
       content = rs.getString(column);
-      iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
+      if (content != null)
+        iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
     }
     else {
       clob = rs.getClob(column);
@@ -327,6 +341,28 @@ public class DatabaseCompatibility
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
         cContentReader.close();
       }
+    }
+    return iStr;
+  }
+  
+  /**
+   * returns the blob column data as an inputstream
+   * @param bindingSetName the name of the currently used binding set
+   * @param rs the current result set
+   * @param column the index of the columns within the result set
+   * @return blob data as an inputstream
+   */
+  public InputStream getBlobInputStream(String bindingSetName, ResultSet rs, int column) throws Exception {
+    BindingSet bs  = Bindings.getInstance().get(bindingSetName, new ArrayList<String>());
+    InputStream iStr = null;
+    // postgresql would fail when using getBlob, so we use getBytes instead to access the binary column
+    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+      iStr = new ByteArrayInputStream(rs.getBytes(column));
+    }
+    else {
+      Blob blob = rs.getBlob(column);
+      if (blob != null)
+        iStr = new ByteArrayInputStream(IOUtils.toByteArray(blob.getBinaryStream()));
     }
     return iStr;
   }

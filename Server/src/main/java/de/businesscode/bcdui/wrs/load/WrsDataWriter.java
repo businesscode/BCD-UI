@@ -463,11 +463,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
       case Types.BLOB: {
-        Blob data = getResultSet().getBlob(colNum);
-        if (data == null || data.length() == 0 || getResultSet().wasNull()){
+        BindingSet bs = getGenerator().getSelectedBindingSet();
+        byte[] data = DatabaseCompatibility.getInstance().getBlob(bs.getName(), getResultSet(), colNum);
+        if (data == null || data.length == 0 || getResultSet().wasNull()){
           getWriter().writeEmptyElement("null");
         }else{
-          String b64 = Base64.getEncoder().encodeToString(data.getBytes(1,  (int) data.length()));
+          String b64 = Base64.getEncoder().encodeToString(data);
           getWriter().writeCharacters(b64);
         }
         break;
