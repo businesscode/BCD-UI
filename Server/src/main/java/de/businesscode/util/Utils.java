@@ -186,11 +186,11 @@ public class Utils {
     if (bcduiVersion == null) {
       bcduiVersion = readBCDUIVersion();
       if (bcduiVersion == null) {
-        bcduiVersion = ""; // mark as readed from manifest even if not found
+        bcduiVersion = ""; // mark as read from manifest even if not found
       }
     }
     if ("".equals(bcduiVersion)) {
-      return null; // return null for the readed but not valid value
+      return null; // return null for the read but not valid value
     }
     return bcduiVersion;
   }
@@ -203,9 +203,8 @@ public class Utils {
     try {
       Enumeration<URL> resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
       while (resEnum.hasMoreElements()) {
-        try {
-          URL url = resEnum.nextElement();
-          InputStream is = url.openStream();
+        URL url = resEnum.nextElement();
+        try (InputStream is = url.openStream()) {
           if (is != null) {
             Manifest manifest = new Manifest(is);
             Attributes mainAttribs = manifest.getMainAttributes();
