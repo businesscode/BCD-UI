@@ -73,14 +73,14 @@ dependencies {
     implementation('jakarta.activation:jakarta.activation-api:1.2.1') { transitive = false }
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.4') { transitive = false }
     implementation('com.sun.istack:istack-commons-runtime:4.0.1') { transitive = false }
-    implementation('com.sun.xml.messaging.saaj:saaj-impl:2.0.1') { transitive = false }
+    implementation('com.sun.xml.messaging.saaj:saaj-impl:1.5.3') { transitive = false }
     implementation('org.jvnet.staxex:stax-ex:2.0.1') { transitive = false }
   }
 
   // Additionally needed only during runtime
   runtimeOnly ('commons-beanutils:commons-beanutils:1.9.4') { transitive = false }
   runtimeOnly ('org.slf4j:slf4j-api:1.7.30') { transitive = false } // is needed by Tomcat, for example
-  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1') { transitive = false } // actual implementation of slf4j using log4j
+  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
   runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.14.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
   runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
   runtimeOnly ('org.apache.commons:commons-compress:1.20') { transitive = false } // needed by poi
