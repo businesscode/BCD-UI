@@ -34,9 +34,10 @@ import org.apache.logging.log4j.ThreadContext;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 
-import de.businesscode.bcdui.logging.SessionSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
+import de.businesscode.bcdui.logging.SessionSqlLogger;
+import de.businesscode.bcdui.logging.VirtLogger;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
@@ -68,10 +69,10 @@ public class RequestLifeCycleFilter implements Filter {
   public static final String MDC_KEY_SESSION_ID = "BCD.httpSessionId";
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
-  private Logger log = getLogger();
-  private final Logger virtLoggerSession = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
-  private final Logger virtLoggerLogin = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
-  private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+  private final Logger log = getLogger();
+  private final Logger virtLoggerSession = LogManager.getLogger(VirtLogger.SESSION);
+  private final Logger virtLoggerLogin = LogManager.getLogger(VirtLogger.LOGIN);
+  private final Logger virtLoggerError = LogManager.getLogger(VirtLogger.ERROR);
 
   /**
    * tells if given request is issued for logging transceiver
@@ -103,14 +104,17 @@ public class RequestLifeCycleFilter implements Filter {
     } catch (Exception ex) {
       /*
        * We got an Exception in the user code so we make a rollback now.
+       * All exceptions thrown during a request will be logged to the database (if that functionality is enabled),
+       * but we also need to log using the regular logger, as the virtlogger will not pass the event to the parent logger.
        */
       String msg = ex.getMessage(); // we could also loop through all causes look for a msg, but this should be sufficient
-      // all exceptions thrown during a request will be logged to the database (if that functionality is enabled)
+      log.error(new ErrorLogEvent(msg != null && !msg.isEmpty() ? msg :  "An exception occurred, we do rollback.", request, ex));
       virtLoggerError.info(new ErrorLogEvent(msg != null && !msg.isEmpty() ? msg :  "An exception occurred, we do rollback.", request, ex));
       try {
         Configuration.getInstance().closeAllConnections(true);
       } catch (SQLException e) {
         msg = e.getMessage();
+        log.error(new ErrorLogEvent("Error during rollback" + (msg != null && !msg.isEmpty() ? ": " + msg : "."), request, ex));
         virtLoggerError.info(new ErrorLogEvent("Error during rollback" + (msg != null && !msg.isEmpty() ? ": " + msg : "."), request, ex));
       }
 

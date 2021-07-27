@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.logging.LogoutSqlLogger;
 import de.businesscode.bcdui.logging.SessionExpiredSqlLogger;
+import de.businesscode.bcdui.logging.VirtLogger;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 
 public class SessionListener implements HttpSessionListener{
@@ -37,8 +38,8 @@ public class SessionListener implements HttpSessionListener{
   public void sessionDestroyed(HttpSessionEvent se) {
     HttpSession session = se.getSession();
 
-    Logger virtLoggerSession = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.session");
-    Logger virtLoggerLogin = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.login");
+    Logger virtLoggerSession = LogManager.getLogger(VirtLogger.SESSION);
+    Logger virtLoggerLogin = LogManager.getLogger(VirtLogger.LOGIN);
 
     virtLoggerSession.info(new SessionExpiredSqlLogger.LogRecord(session.getId())); // was level DEBUG
     virtLoggerLogin.info(new LogoutSqlLogger.LogRecord(session.getId())); // was level DEBUG

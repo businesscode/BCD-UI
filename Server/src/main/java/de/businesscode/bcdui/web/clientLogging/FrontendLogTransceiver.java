@@ -28,12 +28,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import de.businesscode.bcdui.logging.VirtLogger;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.util.xml.SecureXmlFactory;
@@ -46,7 +47,8 @@ import de.businesscode.util.xml.SecureXmlFactory;
  *
  */
 public class FrontendLogTransceiver extends HttpServlet {
-  private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
+  private final Logger log = LogManager.getLogger();
+  private final Logger virtLoggerError = LogManager.getLogger(VirtLogger.ERROR);
   private static final long serialVersionUID = 1L;
   private FrontendLogRecordPublisher proc = new FrontendLogRecordPublisher();
 
@@ -77,7 +79,9 @@ public class FrontendLogTransceiver extends HttpServlet {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Writer sw = new OutputStreamWriter(bos,  Charset.forName("UTF-8"));// set fix UTF, thus otherwise could not work with XML doc as parameter
       sw.write("<?xml version=\"1.0\"?>"); sw.write(req.getParameter("data"));sw.flush();
-      virtLoggerError.info(new ErrorLogEvent("Client Exception", req, req.getParameter("data"))); // was level ERROR
+      // do not remove the regular logger call, as the virtlogger does not pass the event to its parent logger!
+      log.error(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
+      virtLoggerError.info(new ErrorLogEvent("Client Exception", req, req.getParameter("data")));
 
       SecureXmlFactory.newSaxParserFactory().newSAXParser().parse(new ByteArrayInputStream(bos.toByteArray()), new DefaultHandler(){
         private String level;

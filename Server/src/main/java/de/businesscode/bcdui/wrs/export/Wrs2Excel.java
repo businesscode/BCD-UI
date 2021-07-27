@@ -16,7 +16,6 @@
 
 package de.businesscode.bcdui.wrs.export;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +25,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -34,7 +34,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,8 +48,11 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbookType;
+
+import de.businesscode.bcdui.logging.VirtLogger;
 import de.businesscode.bcdui.web.wrs.WrsAccessLogEvent;
 import de.businesscode.bcdui.wrs.IRequestOptions;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * Wrs to Excel (.xlsx) data exporter: exports data from Wrs into sheet(s) of target excel template, uses efficient streaming API when interfacing with input
@@ -76,7 +78,7 @@ public class Wrs2Excel {
   private class WrsContainerParser {
     private Stack<String> pathStack = new Stack<>(); // for path tracking
     private Logger log = LogManager.getLogger(Wrs2Excel.class.getName().concat(".WrsContainerParser"));
-    private final Logger virtLoggerAccess = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.access");
+    private final Logger virtLoggerAccess = LogManager.getLogger(VirtLogger.ACCESS);
     private final OutputStream excelOutputStream;
     private final IRequestOptions options;
     private XMLEvent event;
