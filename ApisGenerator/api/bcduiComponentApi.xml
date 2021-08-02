@@ -762,7 +762,7 @@
         </Param>
         <Param name="onBeforeSave" type="function">
           <Doc>
-            Function which is called before each save operation. Parameter holds current wrs dataprovider.
+            Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data.
           </Doc>
         </Param>
       </Api>

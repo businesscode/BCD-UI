@@ -12,7 +12,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  args.instance                                          - The instance identifier
   * @param {bcdui.core.DataProvider} [args.config=./docUploadConfiguration.xml]             - The model containing the uploader configuration data. If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
-  * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider.
+  * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   */
     constructor(args){
 
@@ -274,12 +274,18 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
    * @private
    */
   _saveData() {
-    setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+    
+    // undo changes in case onBeforeSave is specified and returns false 
     if (this.onBeforeSave && typeof this.onBeforeSave == "function")
-      this.onBeforeSave(this.dataModel);
+      if (! this.onBeforeSave(this.dataModel)) {
+        setTimeout(jQuery.unblockUI);
+        this.dataModel.execute(true);
+        return;
+      }
+    setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
     this.dataModel.sendData();
   }
-  
+
   /**
    * @private
    */
