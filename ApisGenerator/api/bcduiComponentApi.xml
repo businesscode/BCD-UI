@@ -755,6 +755,16 @@
             If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
           </Doc>
         </Param>
+        <Param name="addBRefs" type="string">
+          <Doc>
+            Space separated list of additional bRefs you want to load.
+          </Doc>
+        </Param>
+        <Param name="onBeforeSave" type="function">
+          <Doc>
+            Function which is called before each save operation. Parameter holds current wrs dataprovider.
+          </Doc>
+        </Param>
       </Api>
     </BcdAPI>
 

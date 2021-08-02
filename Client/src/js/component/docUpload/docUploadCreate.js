@@ -11,6 +11,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  args.instance                                          - The instance identifier
   * @param {bcdui.core.DataProvider} [args.config=./docUploadConfiguration.xml]             - The model containing the uploader configuration data. If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
+  * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
+  * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider.
   */
     constructor(args){
 
@@ -21,13 +23,19 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     var targetHtml = bcdui.util._getTargetHtml(args, "docUploader_");
     var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
 
-    // get data from virtual filesystem for current scope and instance
-    var dataModel = new bcdui.core.AutoModel({bRefs: "path metaData scope instance updatedBy lastUpdate fileExists", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
+    // get data from virtual filesystem for current scope and instance and additional bRefs
+    // ensure fileExists at last position (for later comment write modification)
+    var finalBRefs = "path metaData scope instance updatedBy lastUpdate" + (args.addBRefs ? " " + args.addBRefs : "");
+    finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != "" && e != "fileExists"; });
+    finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
+    finalBRefs.push("fileExists");
+
+    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
       , onFailure: function() { setTimeout(jQuery.unblockUI);}
-      , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI);}
+      , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI); }
       , reload: true
     }
     });
@@ -99,7 +107,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     super({
         id: widgetId
       , targetHtml: jQuery("#" + targetHtml).find(".bcdDocUploader")
-      , chain: bcdui.contextPath + "/bcdui/js/component/docUpload/render.xslt"
+      , chain: bcdui.contextPath + "/bcdui/js/component/docUpload/docUploadRenderer.xslt"
       , parameters: {
           config: config
         , instance: args.instance
@@ -123,6 +131,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.scope = args.scope;
     this.dataModel = dataModel;
     this.infoModel = infoModel;
+    this.onBeforeSave = args.onBeforeSave;
 
     // reexecute infoModel and renderer when dataModel was saved/deleted
     this.onceReady(function() {
@@ -266,6 +275,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
    */
   _saveData() {
     setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+    if (this.onBeforeSave && typeof this.onBeforeSave == "function")
+      this.onBeforeSave(this.dataModel);
     this.dataModel.sendData();
   }
   
