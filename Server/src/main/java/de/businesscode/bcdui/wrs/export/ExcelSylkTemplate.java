@@ -207,9 +207,17 @@ public class ExcelSylkTemplate  {
     protected void writeAddInfo(PrintWriter output) throws IOException {
       StringBuffer buffer = new StringBuffer();
       String addInfo = getAddInfo();
+      int maxSize = 250; 
       if (addInfo != null && ! addInfo.trim().isEmpty()) {
-        buffer.append("\nF" + addInfoFormat + ";Y" + nrFirstRow + ";X" + nrFirstCol);
-        buffer.append("\nC" + ";K\"" + addInfo + "\"");
+        int len = 0;
+        String part = addInfo.substring(len, len + maxSize > addInfo.length() ? addInfo.length() : len + maxSize);
+        int col = nrFirstCol;
+        while (! part.isEmpty()) {
+          buffer.append("\nF" + addInfoFormat + ";Y" + nrFirstRow + ";X" + col++);
+          buffer.append("\nC" + ";K\"" + part + "\"");
+          len = len + maxSize;
+          part = len > addInfo.length() ? "" : addInfo.substring(len, len + maxSize > addInfo.length() ? addInfo.length() : len + maxSize);
+        }
         buffer.append("\nF" + addInfoFormat + ";Y" + (nrFirstRow + 1) + ";X" + nrFirstCol);
         buffer.append("\nC" + ";K\"\"");
       }
