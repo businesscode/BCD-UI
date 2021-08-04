@@ -21,13 +21,17 @@
       this.element.hide();
 
       var commentBox = this._createCommentBox();
+      
+      var finalBRefs = "comment_text lastUpdate updatedBy" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
+      finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != "" && e != "scope"  && e != "instance"; });
+      finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
 
       // our config holds sope, instance and the actual data model
       var config = {
-        scope: this.options.scope, instance: this.options.instance,
+        scope: this.options.scope, instance: this.options.instance, onBeforeSave: this.options.onBeforeSave,
         commentModel: new bcdui.core.AutoModel({ 
           bindingSetId: "bcd_comment"
-        , bRefs: "comment_text lastUpdate updatedBy"
+        , bRefs: finalBRefs.join(" ")
         , filterElement: bcdui.util.xml.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
         , orderByBRefs: "lastUpdate-"
         , saveOptions: {
@@ -67,13 +71,22 @@
           var lastPos = model.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
           bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='scope' and @pos='"+lastPos+"' and @nullable='1' and @type-name='VARCHAR']");
           bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='instance' and @pos='"+(lastPos + 1)+"' and @nullable='1' and @type-name='VARCHAR']");
+
           bcdui.wrs.wrsUtil.insertRow({model: model, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "comment_text", value);
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "scope", conf.scope);
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "instance", conf.instance);
+
+            // undo changes in case onBeforeSave is specified and returns false 
+            if (config.onBeforeSave && typeof config.onBeforeSave == "function")
+              if (! config.onBeforeSave(model)) {
+                model.execute(true);
+                return;
+              }
+
             setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
             model.sendData();
-          }});
+          }.bind(this)});
         }
       });
 

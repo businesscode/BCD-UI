@@ -1050,6 +1050,16 @@ the data that is actually placed in XML.
             A caption string which appears in the top add row.
           </Doc>
         </Param>
+        <Param name="addBRefs" type="string">
+          <Doc>
+            Space separated list of additional bRefs you want to load.
+          </Doc>
+        </Param>
+        <Param name="onBeforeSave" type="function">
+          <Doc>
+            Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data.
+          </Doc>
+        </Param>
       </Api>
 
     </BcdAPI>
