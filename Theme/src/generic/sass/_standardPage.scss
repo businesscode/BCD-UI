@@ -1802,6 +1802,7 @@ span.bcd-notification-warn {
     margin-bottom: .3em;
   }
 
+  .edit { flex: 0 0 1em; }
   .edit, .user { text-align: right; }
   .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: .3em; }
   .icon.ts:before        { content: "\f017"; }
