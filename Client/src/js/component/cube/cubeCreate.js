@@ -132,6 +132,8 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cube");
     args.detailExportFilterModel = args.detailExportFilterModel || args.statusModel;
 
+    var metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
+
     //-----------------------------------------------------------
     // If we do not have an explicit input model, we create our own here from the metadata
     if( ! args.inputModel ) {
@@ -139,12 +141,12 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
       modelArgs.chain = undefined;  // If we get a chain argument, it refers to the renderer not to the model
       modelArgs.id = args.id+"_bcdImpl_model";
       modelArgs.cubeId = args.id;
+      modelArgs.config = metaDataModel;
       args.inputModel = new bcdui.component.cube.CubeModel( modelArgs );
     }
 
     var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
     var statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
-    var metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
     var enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
       id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
       chain: [ bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
