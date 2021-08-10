@@ -148,14 +148,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     pager.execute();
 
     // initially inject pageSize/pageNumber from config in our pager model
-    new bcdui.core.ModelUpdater({targetModel: config, chain: function(doc) {
-      var pageSizeNode = doc.selectSingleNode("//xp:Paginate/xp:PageSize");
+    config.onceReady(function() {
+      var pageSizeNode = config.query("//xp:Paginate/xp:PageSize");
       if (pageSizeNode != null)
         pager.write("/*/xp:Paginate/xp:PageSize", pageSizeNode.text);
       if (serverSidedPagination != "" && pageSizeNode == null)
         pager.write("/*/xp:Paginate/xp:PageSize", paginationSize);
       pager.write("/*/xp:Paginate/xp:PageNumber", "1", true);
-    }, autoUpdate: false })
+    });
 
     // If we do not have an explicit input model, we create our own here from the metadata, otherwise use it
     var gridModel = null;
