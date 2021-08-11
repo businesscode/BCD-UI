@@ -250,8 +250,10 @@ task bcduiClientJsFileGroups {
       // Postpend copy right. We do not prepend it to keep the source map indices intact
       doLast {
         def outFile = file(outFileName)
-        outFile.text = outFile.text.replace('"use strict";', "")
-        outFile.text = '"use strict";' + outFile.text
+        if (! is3rdParty) {
+          outFile.text = outFile.text.replace('"use strict";', "")
+          outFile.text = '"use strict";' + outFile.text
+        }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
       }
     }
