@@ -30,7 +30,7 @@
   <xsl:import href="generator_validate.xslt"/>
   <xsl:import href="generator_xslt.xslt"/>
 
-  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
   <!-- Used when generating xslts for xslt and xapi -->
   <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>

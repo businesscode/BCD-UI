@@ -68,15 +68,15 @@ task bcduiGensrcJsXsltXapiJspTagApis {
 
       // This generates per each of the 4 api groups one temporary xml file with XSLT, XAPI and tld in it
       ant.xslt(
-              in:       file("./api/bcdui${apiGroup}.xml"),
-              style:    file("$sharedBuildFilesRoot/ApisGenerator/generators/generate${apiGroup}.xslt"),
-              out:      file("$taskTempDirName/${apiGroup}s.xml")
+        in:       file("./api/bcdui${apiGroup}.xml"),
+        style:    file("$sharedBuildFilesRoot/ApisGenerator/generators/generate${apiGroup}.xslt"),
+        out:      file("$taskTempDirName/${apiGroup}s.xml")
       )
 
       ant.taskdef(name: 'xmltask', classname: 'com.oopsconsultancy.xmltask.ant.XmlTask', classpath: "../lib/xmltask-1.16.1.jar" )
       ant.xmltask(source: "$taskTempDirName/${apiGroup}s.xml") {
 
-        // Here we separate the api group file into individual files like core.xslt and coreValidate.js
+        // Here we separate the api group file into individual tag files, like activity/apply.tag and coreValidate.js
         ant.call(path: "/*//File[not(@outputFormat='xml')]") {
           ant.param( name: 'name', path: '@name')
           ant.param( name: 'content', path: 'text()')
@@ -85,11 +85,11 @@ task bcduiGensrcJsXsltXapiJspTagApis {
           }
         }
 
-        // Here we separate the api group file into individual tag files, like activity/apply.tag
+        // Here we separate the api group files for non XML files into individual files like core.xslt
         ant.call(path: "/*//File[@outputFormat='xml']/*", buffer: "content") {
           ant.param( name: 'name', path: '../@name')
           ant.actions {
-            ant.xmltask( sourcebuffer: "content", dest: "$buildDir/"+'@{name}', encoding: "UTF-8" )
+            ant.xmltask( sourcebuffer: "content", dest: "$buildDir/"+'@{name}', encoding: "UTF-8", indent:"false" )
           }
         }
       }
