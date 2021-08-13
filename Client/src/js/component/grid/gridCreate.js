@@ -1620,7 +1620,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         // overwrite handsontable sumCellSizes to skip hidden columns (i.e. hidden columns give a 0 width amount)
         [ this.hotInstance.view.wt.wtOverlays.leftOverlay
         ].forEach(function(e){ e.sumCellSizes = function(from, to) {
-          var defaultColumnWidth = this.wot.wtSettings.defaultColumnWidth;
+          var defaultColumnWidth = this.wot.wtSettings.settings.defaultColumnWidth;  // actually we fixed handsontable here by pointing to wot.wtSetting.settings.defaultColumnWidth
           var column = from;
           var sum = 0;
 
@@ -1641,8 +1641,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         ].forEach(function(e){ e.getSetting = function(key, param1, param2, param3, param4) {
           var v = this.wtSettings.getSetting(key, param1, param2, param3, param4);
 
+          // for a totalColumns count, we subtract the number of hiddenColumns from the total
+          // but only real hidden ones which are placed at the end of the grid, not hidden ones which exists due to groupcollapsing
+          // the totalColumns value is used e.g. to check if the last visible column is clicked and then the little lasso square is put inside and not overlapping
           if (key == "totalColumns" && self.hiddenColumns)
-           v -= self.hiddenColumns.length; 
+            v -= self.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']").length;
 
           if (key != "columnHeaders")
             return v;
@@ -2162,6 +2165,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var offset = this.hotInstance.hasRowHeaders() ? 2 : 1; // nth child starts with 1, and an additional +1 for rowheaders
     var range = this._getRenderedColumnsRange();
 
+    // let's keep a copy of cellProperties' width values and -if already created-, restore old values
+    // we need to restore cellProperties' width values since we've modifying them (for collapsed groups / hidden values further down)
+    // expanding columns needs original values again
+    var cellProperties = this.hotInstance.getCellMeta(0, 0);
+    if (cellProperties != null && cellProperties.colWidths) {
+      if (! cellProperties.colWidthsBak)
+        cellProperties.colWidthsBak = [].concat(cellProperties.colWidths);
+      else
+        cellProperties.colWidths = [].concat(cellProperties.colWidthsBak);
+    }
+
     // collect hidden and visible columns
     var matrix = this.headerMatrix || [];
     this.hiddenColumns = new Array();
@@ -2289,6 +2303,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       ].forEach(function(t) {
         var c = 1;
         jQuery(t).find("thead tr:last-child th").each(function(index, theTH) {
+          var gotCollapse = jQuery(t).find("thead tr th:nth-child(" + (index + 1) + ")").find(".bcdGroupAction").length > 0;
           var colElement = jQuery(t).find("colgroup col:nth-child(" + c + ")");
           // only look at the visible ones
           if (! jQuery(theTH).hasClass("bcdToBeClosed")) {
@@ -2297,20 +2312,50 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             // check if there are bigger ones in rows above
             // we only calc the width of the closing action buttons, the header text and possible padding of the cell itself 
             jQuery(t).find("thead tr th:nth-child(" + (index + 1) + ")").each(function(cx, col) {
-              var width = (jQuery(col).find(".bcdGroupAction").outerWidth() || 0) + (jQuery(col).find(".colHeader").outerWidth() || 0) + parseInt(jQuery(col).find("div").css("padding-left") || 0, 10) + parseInt(jQuery(col).find("div").css("padding-right") || 0, 10);
-              if (max < width)
+              var colWidth = (jQuery(col).find(".colHeader").outerWidth() || 0);
+              var width = parseInt(jQuery(col).css("border-left-width") || 0, 10) + parseInt(jQuery(col).css("border-right-width") || 0, 10) + (jQuery(col).find(".bcdGroupAction").outerWidth() || 0) + colWidth + parseInt(jQuery(col).find("div").css("padding-left") || 0, 10) + parseInt(jQuery(col).find("div").css("padding-right") || 0, 10);
+              // we're only increasing the width of columns which hold a groupaction somewhere 
+              if (max < width && gotCollapse)
                 max = width;
             });
             // finally set the new width
             colElement.css("width", max);
             c++;
           }
-        });
-      });
+        }.bind(this));
+      }.bind(this));
     }
 
     // let handsontable recalculate width of all wider elements
+    // since widths are stored in the AutoColumnSize plugin and used in sumCellSizes getColumnWidth operations
+    // we need to update our newly calculated widths there
+    var acsPlug = this.hotInstance.getPlugin("AutoColumnSize");
+    if (acsPlug != null && acsPlug.widths) {
+      var c1 = 0;
+      var cgs = jQuery("#" + this.htTargetHtmlId +" .ht_master colgroup col");
+      acsPlug.widths.forEach(function(e1, i) {
+        // col elements have a weird counting, hidden columns are not in the list, so the cols are shifted and only represent visible ones
+        // acsPlug.widths are real columns though, so we set hidden ones to 0 and only take the col element width from the visible ones 
+        acsPlug.widths[i] = (this.hiddenColumns.indexOf(i) != -1) ? 0 : parseInt(jQuery(cgs[c1++]).css("width") || "0", 10);
+      }.bind(this));
+    }
+
+    // patch cell properties' width accordingly (but don't zero out hidden ones here, they keep their original value)
+    if (cellProperties != null && cellProperties.colWidths) {
+      var c2 = 0;
+      cellProperties.colWidths.forEach(function(e2, i) {
+        cellProperties.colWidths[i] = (this.hiddenColumns.indexOf(i) != -1) ? e2 : parseInt(jQuery(cgs[c2++]).css("width") || "0", 10);
+      }.bind(this));
+    }
+
+    // also do one single rerender for cleaning up artifacts 
     this.hotInstance.view.wt.wtOverlays.adjustElementsSize(true);
+    if (! this.reRenderOnce) {
+      this.reRenderOnce = true;
+      this.hotInstance.render();
+    }
+    else
+      this.reRenderOnce = false;
   }
 
   /**
