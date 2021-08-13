@@ -270,7 +270,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     // finally setup the validation model wrapper
     this.gridModel.validationResult = new bcdui.core.ModelWrapper({ chain: validationChain, inputModel: new bcdui.core.StaticModel("<wrs:ValidationResult xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Wrs><wrs:Header><wrs:Columns><wrs:C pos=\"1\" id=\"rowId\"/><wrs:C pos=\"2\" id=\"colId\"/><wrs:C pos=\"3\" id=\"errMsg\"/></wrs:Columns></wrs:Header><wrs:Data/></wrs:Wrs></wrs:ValidationResult>"), parameters: validationParameters});
 
-    this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) { var x = this.colsWithReferences.indexOf("" + index); return (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value); }.bind(this)
+    this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) {
+      var x = this.colsWithReferences.indexOf("" + index);
+      var value = (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value);
+      return (value == "" ? bcdui.core.magicChar.dimEmpty : value);
+     }.bind(this)
     this.sortColumn = null;
     this.sortDirection = null;
     this.forceAddAtBottom = args.forceAddAtBottom || false;
@@ -1445,8 +1449,6 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   if (colsWithFilter.indexOf("" + (i+1)) != -1) {
                     var bRef = this.wrsHeaderIdByPos["" + (i + 1)] || "";
                     var value = (wrsC[i * factor].text);
-                    if (value == "")
-                      value = bcdui.core.magicChar.dimEmpty;
                     if (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[value]) == null) {
                       e.setAttribute("filtered", "true");
                       break;
