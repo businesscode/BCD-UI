@@ -48,11 +48,15 @@ Some changes are not backward compatible and may require code change in the proj
 * fix Postgres (empty) CLOB and BLOB reading
 
 .Components:
+* Cube
+** minimize load of cubeConfiguration and dimensionsAndMeasures for cube/cubeConfigurator
+
 * Grid
 ** use div container
 ** new option defaultButtons=true to show/hide action button
 ** allow button actions to be triggered via bcdGrid:save, bcdGrid:reset, bcdGrid:addRow on targetHtml
-** fix grouped headers to not clip long cells
+** major improvement to grouped headers
+** fixed columnFilter for empty values
 ** bcduiInputField editor follows handsongrid's cell movement rules, closes correctly on identical values
 
 * DocUploader
@@ -79,6 +83,9 @@ Some changes are not backward compatible and may require code change in the proj
 
 * comment widget
 ** initial commit of a comment widget to store comments in the database (bcd_comment) on scope/instance level (scope subjectsettings)
+
+* SylkExport
+** limit additionalInformation field to sync limits
 
 .Utils
 * bcdui.util.getUuid() returns you an uuid
