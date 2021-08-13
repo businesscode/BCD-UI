@@ -415,15 +415,6 @@ bcdui.component = Object.assign(bcdui.component,
     if (args.targetModelId && bcdui.util.isString(args.targetModelId) && args.targetModelId != ""){
       targetModel = bcdui.factory._generateSymbolicLink(args.targetModelId);
     }
-    if (args.metaDataModelId && bcdui.util.isString(args.metaDataModelId) && args.metaDataModelId != ""){
-      metaDataModel = bcdui.factory._generateSymbolicLink(args.metaDataModelId);
-    } else {
-      metaDataModel = bcdui.factory.createModel({
-        id: args.cubeId+"_dndOptionsModel",
-        url: "dimensionsAndMeasures.xml"
-      });
-      args.metaDataModelId = args.cubeId+"_dndOptionsModel";
-    }
 
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Cube targetModel: " + targetModel);
     bcdui.log.isTraceEnabled() && bcdui.log.trace("DndMatrix metaDataModel: " + metaDataModel);
@@ -682,17 +673,31 @@ bcdui.component = Object.assign(bcdui.component,
       );
     };
 
-    if( typeof args.cubeRenderer == "string" || args.cubeRenderer.refId) {
-      bcdui.factory.objectRegistry.withReadyObjects( [args.cubeRenderer, args.metaDataModelId], function() {
+    // ensure readyness of cubeRenderer (if given)
+    var modelToWaitFor = (typeof args.cubeRenderer == "string" || args.cubeRenderer.refId) ? args.cubeRenderer : bcdui.wkModels.guiStatus;    
+    bcdui.factory.objectRegistry.withReadyObjects( [modelToWaitFor], function() {
+      if (typeof args.cubeRenderer == "string" || args.cubeRenderer.refId)
         args.cubeRenderer = bcdui.factory.objectRegistry.getObject(args.cubeRenderer);
-        action();
-       });
-    }
-    else {
+       
+      // in case no config is given and a cube configuration is available and includes measures and dimensions, use the cubeConfig as config 
+      if (! args.metaDataModelId && args.cubeRenderer && args.cubeRenderer.getConfigModel() && cube.getConfigModel().isReady() && cube.getConfigModel().query("/*/dm:Dimensions") != null && cube.getConfigModel().query("/*/dm:Measures") != null)
+        args.metaDataModelId = args.cubeRenderer.getConfigModel().id;
+
+      // perpare metaDataModel
+      if (args.metaDataModelId && bcdui.util.isString(args.metaDataModelId) && args.metaDataModelId != ""){
+        metaDataModel = bcdui.factory._generateSymbolicLink(args.metaDataModelId);
+      } else {
+        metaDataModel = bcdui.factory.createModel({
+          id: args.cubeId+"_dndOptionsModel",
+          url: "dimensionsAndMeasures.xml"
+        });
+        args.metaDataModelId = args.cubeId+"_dndOptionsModel";
+      }
+
       bcdui.factory.objectRegistry.withReadyObjects( [args.metaDataModelId], function() {
         action();
       });
-    }
+    });
 
     return null; //cubeDnDMatrixRenderer;
   },
