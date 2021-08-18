@@ -10,7 +10,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  args.instance                                          - The instance identifier
-  * @param {bcdui.core.DataProvider} [args.config=./docUploadConfiguration.xml]             - The model containing the uploader configuration data. If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   */
@@ -21,7 +20,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     var widgetId = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("docUploader");
     var targetHtml = bcdui.util._getTargetHtml(args, "docUploader_");
-    var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
+    var config = bcdui.wkModels.bcdDocUpload;
 
     // get data from virtual filesystem for current scope and instance and additional bRefs
     // ensure fileExists at last position (for later comment write modification)
@@ -418,7 +417,6 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  [args.id]                                              - The id of the returned wrs modelwrapper
   * @param {string|array}            [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
-  * @param {bcdui.core.DataProvider} [args.config=./docUploadConfiguration.xml]             - The model containing the uploader configuration data. If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
   * @return a wrs model holding the overview information
   */
   getUploadOverview: function(args) {
@@ -437,7 +435,7 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
         instances.push(args.instance)
     }
     var instfilter =  instances.length > 0 ? " and instance in '"+instances.join(",")+"'" : "";
-    var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
+    var config = bcdui.wkModels.bcdDocUpload;
     var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true});
 
     return new bcdui.core.ModelWrapper({

@@ -296,6 +296,7 @@ bcdui.core.lifecycle =
 bcdui.core.lifecycle._constructGuiStatus();
 
 // Declare well known models. Data is only loaded if the models are actually used
+bcdui.wkModels.bcdDocUpload = new bcdui.core.SimpleModel({ id: "bcdDocUpload",  url: bcdui.contextPath + "/bcdui/conf/docUpload.xml" });
 bcdui.wkModels.bcdDimensions = new bcdui.core.SimpleModel({ id: "bcdDimensions",  url: bcdui.contextPath + "/bcdui/conf/dimensions.xml" }); 
 bcdui.wkModels.bcdCategories = new bcdui.core.SimpleModel({ id: "bcdCategories",  url: bcdui.contextPath + "/bcdui/conf/categories.xml" });
 bcdui.wkModels.bcdRowIdent = new bcdui.core.StringDataProvider( { id: "bcdRowIdent", name: "bcdRowIdent", value: "" } );

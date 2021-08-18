@@ -749,12 +749,6 @@
             The instance for the documents.
           </Doc>
         </Param>
-        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
-          <Doc>
-            The model containing the docUpload configuration data.
-            If it is not present a SimpleModel with the url  './docUploadConfiguration.xml' is created.
-          </Doc>
-        </Param>
         <Param name="addBRefs" type="string">
           <Doc>
             Space separated list of additional bRefs you want to load.
