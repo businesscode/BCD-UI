@@ -213,7 +213,7 @@ task bcduiJisonArtefacts ( type: NodeTask ) {
   
   doLast() {
     // convert generated var to package function. Unfortunately jison generates a variable by reusing the jison filename which makes this replacement necessary.
-    file(jsFilename).text = file(jsFilename).text.replace(/var bcdui_util_xml_filterExpressionParser =/, "bcdui.util.xml.filterExpressionParser =")
+    file(jsFilename).text = file(jsFilename).text.replace(/var bcdui_util_xml_filterExpressionParser =/, "bcdui.wrs.wrsUtil.filterExpressionParser =")
   }
 }
 

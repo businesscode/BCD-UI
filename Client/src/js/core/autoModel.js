@@ -44,7 +44,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
    * @param {document|element}        [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd.
-   *    This node can also easily be created in place with {@link bcdui.util.xml.parseFilterExpression}, see sample below.
+   *    This node can also easily be created in place with {@link bcdui.wrs.wrsUtil.parseFilterExpression}, see sample below.
    * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
    * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
    * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
@@ -55,7 +55,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: bcdui.util.xml.parseFilterExpression("country='DE'") });
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("country='DE'") });
    */
   constructor(args)
     {

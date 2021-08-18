@@ -30,7 +30,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
     finalBRefs.push("fileExists");
 
-    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
+    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -208,7 +208,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
             var rowId = area.attr("rowId");
             var fileName = area.attr("fileName");
             var pathV = self.dataModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[" + self.dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos", "") + "]", "");
-            var blob = new bcdui.core.AutoModel({bRefs: "resourceBlob", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("path='"+pathV+"' and scope='"+args.scope+"' and instance='"+args.instance+"'")});
+            var blob = new bcdui.core.AutoModel({bRefs: "resourceBlob", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("path='"+pathV+"' and scope='"+args.scope+"' and instance='"+args.instance+"'")});
             blob.onceReady(function() {
               var decode = atob(blob.read("/*/wrs:Data/wrs:R[1]/wrs:C[1]", ""));
               var bytes  = new Array(decode.length);
@@ -438,7 +438,7 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
     }
     var instfilter =  instances.length > 0 ? " and instance in '"+instances.join(",")+"'" : "";
     var config = args.config || new bcdui.core.SimpleModel( { url: "docUploadConfiguration.xml" } );
-    var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.util.xml.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true});
+    var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true});
 
     return new bcdui.core.ModelWrapper({
       id: id

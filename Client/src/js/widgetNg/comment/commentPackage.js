@@ -32,7 +32,7 @@
         commentModel: new bcdui.core.AutoModel({ 
           bindingSetId: "bcd_comment"
         , bRefs: finalBRefs.join(" ")
-        , filterElement: bcdui.util.xml.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
+        , filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
         , orderByBRefs: "lastUpdate-"
         , saveOptions: {
           // after saving, we unblock the ui and reload the model and of course refresh the vfs

@@ -25,6 +25,7 @@ Some changes are not backward compatible and may require code change in the proj
 ** Grid editor bcduiSingleSelect was removed, use bcduiSimpleDropDown instead
 ** Moved QuickEdit to package bcdui.widgetNg
 ** createFixedTableHeader uses new css classes, ensure your theme includes them
+** bcdui.util.xml.parseFilterExpression was moved to bcdui.wrs.wrsUtil.parseFilterExpression
 * Config
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
