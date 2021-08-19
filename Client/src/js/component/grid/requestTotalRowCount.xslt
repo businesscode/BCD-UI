@@ -19,6 +19,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+  xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
 
