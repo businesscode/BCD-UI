@@ -3260,8 +3260,8 @@ jQuery.extend(bcdui.widget,
 
              for (var t = 0; t < targetNodes.length; t++) {
 
-               if (t > 3) {
-                 finalCaption += ((finalCaption == "" ? "..." : ",..."));
+               if (t > 2) {
+                 finalCaption += ((finalCaption == "" ? "+" : ",+") + (targetNodes.length - t));
                  break;
                }
 

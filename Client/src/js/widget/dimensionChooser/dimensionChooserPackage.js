@@ -1093,8 +1093,8 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
                : bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*/f:Filter/f:And[@bcdDimension='" + dimension + "_exclude']/f:Or");
   
               for (var t = 0; t < targetNodes.length; t++) {
-                if (t > 3) {
-                  captionArray[x] += ((captionArray[x] == "" ? "..." : ",..."));
+                if (t > 2) {
+                  captionArray[x] += ((captionArray[x] == "" ? "+" : ",+") + (targetNodes.length - t));
                   break;
                 }
                 var targetNode = targetNodes[t];
