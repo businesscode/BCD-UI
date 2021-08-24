@@ -680,7 +680,7 @@ bcdui.component = Object.assign(bcdui.component,
         args.cubeRenderer = bcdui.factory.objectRegistry.getObject(args.cubeRenderer);
        
       // in case no config is given and a cube configuration is available and includes measures and dimensions, use the cubeConfig as config 
-      if (! args.metaDataModelId && args.cubeRenderer && args.cubeRenderer.getConfigModel() && cube.getConfigModel().isReady() && cube.getConfigModel().query("/*/dm:Dimensions") != null && cube.getConfigModel().query("/*/dm:Measures") != null)
+      if (! args.metaDataModelId && args.cubeRenderer && args.cubeRenderer.getConfigModel() && args.cubeRenderer.getConfigModel().isReady() && args.cubeRenderer.getConfigModel().query("/*/dm:Dimensions") != null && args.cubeRenderer.getConfigModel().query("/*/dm:Measures") != null)
         args.metaDataModelId = args.cubeRenderer.getConfigModel().id;
 
       // perpare metaDataModel
