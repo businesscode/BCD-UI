@@ -59,6 +59,26 @@
     }
   }
 
+  &__sidebar-right {
+    overflow: visible;
+    height:100%;
+    position:absolute;
+    transition: all .4s ease-in-out;
+    transform:translateX(0em);
+    right: 0;
+    width:$sidebar-width;
+    z-index: $z-index-base + 1;
+    padding-left:1.5em;
+
+    .bcd__sidebar-right__inner {
+      padding-top:0.3em;
+      background: $sidebar_background;
+      border-left: 1px solid $border-color;
+      height:100%;
+      overflow-y: auto;
+    }
+  }
+
   &__content-container {
     background: $content-background-color;
     flex: 1 1 auto;
@@ -102,7 +122,23 @@
     border-radius:0 4px 4px 0;
   }
 
+  // button wrapper
+  &__sidebar-right-collaps-toggle-wrapper {
+    position: absolute;
+    top: 1.1em;
+    left: 0em;
+    width: 1.6em;
+    height: 3.6em;
+    display: flex;
+    background: $sidebar_background;
+    border-style:solid;
+    border-width:1px 0 1px 1px;
+    border-color:$border-color;
+    border-radius:0 0 4px 4px;
+  }
+
   // the toggle himself
+  &__sidebar-right-collaps-toggle,
   &__sidebar-left-collaps-toggle {
     flex: 0 0 auto;
     width: 1.5em;
@@ -119,7 +155,7 @@
 
 
   // change state from / to pinned sidebar
-  &__vertical-split.bcd__vertical-split--sidebar-collapsed {
+  &__vertical-split.bcd__vertical-split--sidebar-collapsed-left {
 
     .bcd {
       &__sidebar-left {
@@ -144,18 +180,55 @@
       }
     }
   }
+  &__vertical-split.bcd__vertical-split--sidebar-collapsed-right {
+
+    .bcd {
+      &__sidebar-right{
+        position: absolute;
+        transition: all .4s ease-in-out;
+        transform: translateX(-$sidebar-width-offset);
+
+        .bcd__sidebar-right__inner {
+          box-shadow: -3px 0 12px rgba(0, 0, 0, .2);
+        }
+        &.hover {
+          transform: translateX(0em);
+        }
+      }
+      &__sidebar-right-collaps-toggle-wrapper {
+        box-shadow: -3px 1px 3px rgba(0, 0, 0, .1);
+      }
+      &__sidebar-right-collaps-toggle {
+        i {
+          transform:rotate(180deg);
+        }
+      }
+    }
+  }
 }
 
 
 // no Sidebar:
 .bcd__vertical-split {
-  .bcd__sidebar-left + .bcd__content-container {
+  .bcd__sidebar-left ~ .bcd__content-container {
     margin-left: ($sidebar-width - 1em);
   }
 }
-.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed {
-  .bcd__sidebar-left + .bcd__content-container {
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left {
+  .bcd__sidebar-left ~ .bcd__content-container {
     margin-left: 2em;
+  }
+}
+
+// no Sidebar:
+.bcd__vertical-split {
+  .bcd__sidebar-right ~ .bcd__content-container {
+    margin-right: ($sidebar-width - 1em);
+  }
+}
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right {
+  .bcd__sidebar-right ~ .bcd__content-container {
+    margin-right: 2em;
   }
 }
 
@@ -432,9 +505,11 @@ footer {
 }
 
 // avoid initial transition on page load, bcdSidebarEffect is set via pageEffects
+.bcd__sidebar-right,
 .bcd__sidebar-left {
   display: none;
 }
+.bcd__sidebar-right,
 .bcd__sidebar-left,
 .bcd__content-container {
  transition: none;
@@ -443,6 +518,7 @@ footer {
   transition: all .4s ease-in-out !important;
 }
 
+.bcd__sidebar-right__inner,
 .bcd__sidebar-left__inner {
   .hamburger-inner,
   .hamburger-inner::after,

@@ -15,6 +15,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   font-size: $bcd-font-size-base;
 }
 
+.bcd__sidebar-right__inner .form-group,
 .bcd__sidebar-left__inner .form-group {
   margin-bottom: .5em;
   width: 100%;
@@ -1826,6 +1827,7 @@ select:focus option:checked {
 /* sidebar font size                            */
 /* ******************************************************************* */
 
+.bcd__sidebar-right,
 .bcd__sidebar-left {
   .bcd__form-container {
     font-size: $sidebar-font-size;

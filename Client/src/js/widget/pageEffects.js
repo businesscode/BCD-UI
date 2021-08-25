@@ -56,65 +56,86 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
     if (bcdui.config.userName && jQuery("#bcdUserName").length > 0)
       jQuery("#bcdUserName").text(bcdui.config.userName);
 
-    var newCssLayoutSidebar = jQuery('.bcd__vertical-split').find(".bcd__sidebar-left");
+    var newCssLayoutSidebarLeft = jQuery('.bcd__vertical-split').find(".bcd__sidebar-left");
+    var newCssLayoutSidebarRight = jQuery('.bcd__vertical-split').find(".bcd__sidebar-right");
     var args = {
         sideBarSizeAdjust:  jQuery("#bcdSideBarContainer").hasClass("bcdEffectSizeAdjust")
       , sideBarAutoScroll:  jQuery("#bcdSideBarContainer").hasClass("bcdEffectAutoScroll")
       , pageSizeAdjust:     jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageSizeAdjust")
       , sideBarDraggable:   jQuery("#bcdSideBarContainer").hasClass("bcdEffectDraggable")
-      , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse") || newCssLayoutSidebar.hasClass("bcdEffectCollapse")
+      , sideBarCollapsable: jQuery("#bcdSideBarContainer").hasClass("bcdEffectCollapse") || newCssLayoutSidebarLeft.find(".bcdEffectCollapse").length > 0 || newCssLayoutSidebarRight.find(".bcdEffectCollapse").length > 0
       , sideBarMinimizeOnClick: jQuery("#bcdSideBarContainer").hasClass("bcdEffectMinimizeOnClick")
       , pageStickyFooter: jQuery("#bcdSideBarContainer").hasClass("bcdEffectPageStickyFooter")
-      , sidebarLeft: newCssLayoutSidebar.length > 0
+      , sidebarLeft: newCssLayoutSidebarLeft.length > 0
+      , sidebarRight: newCssLayoutSidebarRight.length > 0
       , userNameWidget: jQuery('.bcd__header').has('.bcd__header__upper').length ? true : false
     };
 
     /*
      * Side bar toggle function
      */
-    if (args.sidebarLeft && ! jQuery('.bcd__vertical-split').hasClass("bcdActivated")) {
+
+    var sideBarEffects = function(isLeft) {
       
-      jQuery('.bcd__vertical-split').addClass("bcdActivated");
+      var cssClass = isLeft ? "bcd__sidebar-left" : "bcd__sidebar-right";
+      var direction = isLeft ? "left" : "right";
+      var basis = jQuery(".bcd__vertical-split .bcd__sidebar-"+direction+"__inner");
+      if ((basis.hasClass("bcdEffectCollapse") || basis.parent().hasClass("bcdEffectCollapse")) && basis.find(".bcd__sidebar-"+direction+"-collaps-toggle-wrapper").length == 0)
+        basis.append('<div class="bcd__sidebar-'+direction+'-collaps-toggle-wrapper"><button class="bcd__sidebar-'+direction+'-collaps-toggle bcd__sidebar-'+direction+'-collaps-toggle--collapsed"><i class="fas fa-caret-'+direction+'"></i></button></div>');
 
-      // collapse sidebar depending on PersistentSetting
-      var pinnedClass = bcdui.wkModels.guiStatus.read("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin", "0") == "1" ? " is-active bcd__sidebar-left-collaps-toggle--collapsed " : "";
-      if (pinnedClass == "") {
-        jQuery('.bcd__vertical-split').addClass('bcd__vertical-split--sidebar-collapsed');
+      var isCollapseable = basis.find(".bcd__sidebar-"+direction+"-collaps-toggle-wrapper").length > 0;
+
+      if (! jQuery('.bcd__vertical-split').find("." + cssClass).hasClass("bcdActivated")) {
+        
+        jQuery('.bcd__vertical-split').find("." + cssClass).addClass("bcdActivated");
+  
+        // collapse sidebar depending on PersistentSetting
+        var pinnedClass = bcdui.wkModels.guiStatus.read("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-"+direction, "0") == "1" ? " is-active "+cssClass+"-collaps-toggle--collapsed-"+direction : "";
+        if (isCollapseable && pinnedClass == "")
+          jQuery('.bcd__vertical-split').addClass("bcd__vertical-split--sidebar-collapsed-"+direction);
+
+        //set transition effect after rendering to avoid initial effect
+        setTimeout(function() {
+          jQuery(".bcd__content-container").addClass("bcdSidebarEffect");
+        });
+        jQuery("."+cssClass).addClass("bcdSidebarEffect").show();
+  
+        // add hamburger animation
+        var finalClass = pinnedClass + " hamburger " + (jQuery('.' + cssClass).attr("hamburger-style") || "hamburger--spin");
+        jQuery('.'+ cssClass+'-collaps-toggle-wrapper button i').replaceWith("<span class='hamburger-box'><span class='hamburger-inner'></span></span>");
+        jQuery('.'+ cssClass+'-collaps-toggle-wrapper button').addClass(finalClass);
+  
+        // show sidebar in case we hit it (but not when we enter via pin button
+        jQuery("."+ cssClass).on("mouseenter", function(event) {
+          if (jQuery(event.target).closest("."+ cssClass).lenght == 0 || jQuery(event.target).hasClass(cssClass) )
+            jQuery('.'+ cssClass).addClass("hover");
+        });
+        // hide sidebar when we leave it
+        jQuery('.'+ cssClass).on("mouseleave", function(event) { jQuery('.'+ cssClass).removeClass("hover"); });
+  
+        // click event
+        jQuery('.'+ cssClass+'-collaps-toggle').click(function() {
+          // toggle show/hide classes (hamburger and standard)
+          jQuery(this).toggleClass('is-active');
+          jQuery('.bcd__vertical-split').toggleClass("bcd__vertical-split--sidebar-collapsed-"+direction);
+  
+          // remove hover class, too
+          if (jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed-"+direction))
+            jQuery('.'+ cssClass).removeClass("hover");
+  
+          // write new status 
+          bcdui.wkModels.guiStatus.write("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-"+direction, jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed-"+direction) ? "0" : "1", true);
+        });
       }
-
-      //set transition effect after rendering to avoid initial effect
-      setTimeout(function() {
-        jQuery(".bcd__content-container").addClass("bcdSidebarEffect");
-        jQuery(".bcd__sidebar-left").addClass("bcdSidebarEffect").show();
-      });
-
-      // add hamburger animation
-      var finalClass = pinnedClass + "hamburger " + (jQuery('.bcd__sidebar-left').attr("hamburger-style") || "hamburger--spin");
-      jQuery('.bcd__sidebar-left-collaps-toggle-wrapper button i').replaceWith("<span class='hamburger-box'><span class='hamburger-inner'></span></span>");
-      jQuery('.bcd__sidebar-left-collaps-toggle-wrapper button').addClass(finalClass);
-
-      // show sidebar in case we hit it (but not when we enter via pin button
-      jQuery(".bcd__sidebar-left").on("mouseenter", function(event) {
-        if (jQuery(event.target).closest(".bcd__sidebar-left").lenght == 0 || jQuery(event.target).hasClass("bcd__sidebar-left") )
-          jQuery('.bcd__sidebar-left').addClass("hover");
-      });
-      // hide sidebar when we leave it
-      jQuery('.bcd__sidebar-left').on("mouseleave", function(event) { jQuery('.bcd__sidebar-left').removeClass("hover"); });
-
-      // click event
-      jQuery('.bcd__sidebar-left-collaps-toggle').click(function() {
-        // toggle show/hide classes (hamburger and standard)
-        jQuery(this).toggleClass('is-active');
-        jQuery('.bcd__vertical-split').toggleClass('bcd__vertical-split--sidebar-collapsed');
-
-        // remove hover class, too
-        if (jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed"))
-          jQuery('.bcd__sidebar-left').removeClass("hover");
-
-        // write new status 
-        bcdui.wkModels.guiStatus.write("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin", jQuery('.bcd__vertical-split').hasClass("bcd__vertical-split--sidebar-collapsed") ? "0" : "1", true);
-      });
     }
+
+    bcdui.wkModels.guiStatus.onceReady(function() {
+      if (args.sidebarLeft)
+        sideBarEffects(true);
+
+      if (args.sidebarRight)
+        sideBarEffects(false);
+    });
 
     // nothing to do?
     if (! args.sideBarSizeAdjust && ! args.sideBarAutoScroll && ! args.pageSizeAdjust && ! args.sideBarDraggable && ! args.sideBarCollapsable && ! args.sideBarMinimizeOnClick && ! args.pageStickyFooter)
@@ -123,8 +144,8 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
     if (jQuery("#bcdSideBarEffect").length == 0)
       jQuery("#bcdSideBarContainer").prepend("<div id='bcdSideBarEffect'></div>");
     
-    bcdui.widget.pageEffects._bcdIsNewCssLayout    = newCssLayoutSidebar.length > 0; 
-    bcdui.widget.pageEffects._bcdSidebarRooElement = newCssLayoutSidebar.length > 0 ? newCssLayoutSidebar : jQuery("#bcdSideBarArea");
+    bcdui.widget.pageEffects._bcdIsNewCssLayout    = newCssLayoutSidebarLeft.length > 0 || newCssLayoutSidebarRight.length > 0;
+    bcdui.widget.pageEffects._bcdSidebarRooElement = newCssLayoutSidebarLeft.length > 0 ? newCssLayoutSidebarLeft : jQuery("#bcdSideBarArea");
 
     bcdui.widget.pageEffects._bcdSideBarMinWidth  = jQuery("#bcdSideBarEffect").length > 0 ? parseInt(jQuery("#bcdSideBarEffect").css("minWidth").replace("px", ""), 10) : 0;
     bcdui.widget.pageEffects._bcdSideBarMaxWidth  = jQuery("#bcdSideBarEffect").length > 0 ? parseInt(jQuery("#bcdSideBarEffect").css("maxWidth").replace("px", ""), 10) : 0;
