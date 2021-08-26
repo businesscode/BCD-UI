@@ -13,74 +13,133 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<!doctype html>
 <html>
+  
 <head>
-  <style type="text/css">
-    section > section > header {
-      font-family: Arial,Helvetica;
-      font-weight: normal;
-      font-size: 1.2em;
-      line-height: 1.16em;
-      color: #002867;
-      margin-bottom: 0.56em;
-    }
-    section > header {
-      font-family: Arial, Helvetica;
-      font-weight: bold;
-      color: #f79642;
-      font-size: 1.4em;
-      line-height: 1.166666667em;
-      margin-top: 1.16666667em;
-      margin-bottom: 0.46666667em;
-    }
-    section {
-      margin: 10px 0px;
-    }
+  
+<meta charset="UTF-8">
+<title>BCD-UI Suite</title>
+  <link rel="stylesheet" 
+      type="text/css" href="css/index.css">
+  <link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    @import 
+      url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
   </style>
+  
 </head>
+
 <body>
-  <div style="background-image: url('images/headerBack.png'); background-repeat: no-repeat; width: 1024px; margin: auto; font-family: Helvetica; padding-top: 90px">
-
-    <section>
-      <header>BCD-UI</header>
-
-      <section>
-        <header>Overview</header>
-        <p>
-          BCD-UI is a full-stack framework for building enterprise applications with web technologies.
-        </p>
-        <p>
-          BCD-UI features a set of frequently used components for reporting and data management and is built on today's technologies.
-        </p>
-      </section>
-
-      <section>
-        <header>Documentation</header>
-        <p>
-          For more details visit the documentation (opens in new tab):
-        <p/>
-        <p>
-          <a href="tutorial/index.html" target="_blank">Tutorial</a> &bullet;
-          <a href="jsdoc/index.html" target="_blank">Javascript docu</a> &bullet;
-          <a href="javadoc/index.html" target="_blank">Java docu</a>
-        </p>
-      </section>
-    </section>
-
-    <section>
-      <header>BusinessCode</header>
-      <p>
-        The company behind BCD-UI is <a href="https://www.business-code.de">BusinessCode GmbH, Germany</a>.
-      </p>
-      <p>
-        BCD-UI can be used as a part of BusinessCode's BCD-Suite, which also provides features for loading, cleaning, calculating
-        and enriching data in you warehouse with support of a graphical logic editor BCD-BM.
-      </p>
-      <div style="width: 800px; margin: auto">
-        <img src="images/BCD-Suite-Overview.png" style="width: 800px; margin: 30px auto"/>
-      </div>
-      For more information on BCD-Suite visit <a href="https://www.business-code.de">https://www.business-code.de</a>.
-    </section>
+  
+<div class="grid">
+  <div class="header">
+    <div class="logo">
+      <a href="https://www.business-code.de/" target="_blank"> 
+        <img src="images/logo.svg" alt="Logo"/> 
+      </a>
+    </div>   
+    <a href="https://github.com/businesscode/BCD-UI" target="_blank"> 
+      <button class="IconButton">
+        <i class="fa fa-github fa-2x"></i>
+        <span class="button-text">Github</span>
+      </button> 
+    </a>
   </div>
+  
+  <div class="background-image">
+    <img src="images/bcd-logo-blue.png" alt="Logo BCD" />
+  </div>
+  
+  <h1>BCD-UI</h1>
+  <h2>an advanced Ajax based<br>
+    user interface library.</h2>
+  
+  <div class="scroll_container">
+    <img src="images/scrollDown.svg" alt="Scroll" class="Scroll"/>
+  </div>
+  
+  <div class="Overview">
+    <h3>Overview</h3>
+      
+    <div class="row"> 
+      <hr>
+      <div class="columnOverview">BCD-UI is a full-stack framework for building<br>
+        enterprise applications with web technologies.
+      </div>
+      <hr>
+      <div class="columnOverview">BCD-UI features a set of frequently used<br>
+        components for reporting and data management<br>
+        and is built on today's technologies.
+      </div>
+    </div>
+  </div>
+  
+  <div class="Documentation"> 
+    <h3>Documentation</h3>
+    For more details visit the documentation (opens in a new tab).
+    
+    <div class="row">
+      <div class="columnDocumentation">
+        <a href="https://businesscode.github.io/BCD-UI-Docu/tutorial/index.html" target="_blank">
+          <button class="buttonDocumentation">Tutorial</button> 
+        </a> 
+      </div>
+      
+      <div class="columnDocumentation">
+        <a href="https://businesscode.github.io/BCD-UI-Docu/jsdoc/index.html" target="_blank">
+          <button class="buttonDocumentation">JavaScript<br>docu</button> 
+        </a>
+      </div>
+      
+      <div class="columnDocumentation">
+         <a href="https://businesscode.github.io/BCD-UI-Docu/javadoc/index.html" target="_blank">
+           <button class="buttonDocumentation">Java docu</button>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="OurCompany">
+    
+  <h3>Our Company</h3>
+    <div class="text_block">
+      <div class="text_left">
+        <b>The company behind BCD-UI</b><br>is 
+        <a href="https://www.business-code.de/" target="_blank">
+          <b>BusinessCode GmbH,<br> Germany.</b>
+        </a>
+      </div>
+        
+      <div class="text_right">
+        BCD-UI can be used as a part of BusinessCode's BCD-Suite, which also provides features<br> 
+        for loading, cleaning, calculating and enriching data in you warehouse with support of<br>
+        a graphical logic editor BCD-BM.
+      </div>
+    </div>
+  </div>
+  
+  <div class="picture_block">
+    <img src="images/scheme-04.svg" alt="Scheme" style="width:auto;height:650px" class="center"/>
+  </div>
+    
+  <div class="footer">
+    <div class="footer_claim">
+      Do you want to know more about BCD Suite?
+    </div>
+  
+    <a href="https://www.business-code.de/" target="_blank">
+      <button class="normalButton">Visit our website</button>
+    </a>
+  
+    <div class="copy">
+      &copy; 2021 BusinessCode GmbH. All rights reserved.
+    </div>
+  
+  </div>
+</div>
+  
 </body>
+  
 </html>
