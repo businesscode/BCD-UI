@@ -41,8 +41,9 @@ i {
 }
 
 .IconButton {
-  width: 186px;
-  height: 64px;
+  display: inline-block;
+  padding: 10pt 30pt;
+  min-height: 64px;
   border: 1px solid #FFFFFF;
   border-radius: 100px;
   opacity: 1;
@@ -66,8 +67,9 @@ i {
 
 
 .normalButton {
-  width: 226px;
-  height: 64px;
+  display: inline-block;
+  padding: 10pt 30pt;
+  min-height: 64px;
   border: 1px solid #FFFFFF;
   border-radius: 100px;
   opacity: 1;
@@ -75,7 +77,6 @@ i {
   text-align: center;
   font: normal normal bold 18px DM Sans;
   color: #FFFFFF;
-  margin-bottom: 150px;
 }
 
 .normalButton:hover {
@@ -87,8 +88,7 @@ i {
   float: left;
   position: relative;
   margin-top: 15px;
-  width: 300px;
-  height: 32px;
+  width: 400px;
   vertical-align: middle;
 }
 
@@ -206,8 +206,8 @@ hr {
 
 .columnDocumentation {
   float: left;
-  width: 356px;
-  margin-right: 76px;
+  width: 250pt;
+  margin-right: 100px;
 }
 
 .columnDocumentation:nth-child(3n) {
@@ -303,5 +303,6 @@ hr {
 }
 
 .copy {
+  margin-top: 150px;
   margin-bottom: 30px;
 }
