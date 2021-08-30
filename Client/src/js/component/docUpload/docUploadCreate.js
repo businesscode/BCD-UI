@@ -1,8 +1,28 @@
+/*
+  Copyright 2010-2019 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+/**
+* This namespace contains functionality directly related to BCD-UI docUpload
+* @namespace bcdui.component.docUpload
+*/
 "use strict"; 
 
 /**
- * @namespace bcdui.component.docUpload
-*/
+ * Creates an Uploader
+ * @extends bcdui.core.Renderer
+ */
 bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 {
   /**
@@ -10,10 +30,11 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  args.instance                                          - The instance identifier
+  * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   */
-    constructor(args){
+  constructor(args){
 
     if (! args.scope || ! args.instance)
       throw new Error("You need to specify a scope and an instance value");      
@@ -235,12 +256,11 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
       });
     }.bind(this));
-
   }
 
   getClassName() {return "bcdui.component.docUpload.Uploader";}
-  
-  
+
+
   /**
    * returns an array with objects for each category of the current scope.
    * in case of uploaded data it holds additional information like filename, size, url, comment, etc
@@ -507,4 +527,36 @@ bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Upl
       }
     });
   }
+});
+
+/************************
+ * Glue-ware for declarative environments, not to be used directly
+ */
+bcdui.component = Object.assign(bcdui.component,
+/** @lends bcdui.component */
+{
+  /**
+   * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
+  /**
+  * @param args The parameter map contains the following properties:
+  * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
+  * @param {string}                  args.scope                                             - The scope identifier
+  * @param {string}                  args.instance                                          - The instance identifier
+  * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
+  * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
+  * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
+   * @private
+   */
+  createDocUpload: function( args )
+  {
+    new bcdui.component.docUpload.Uploader( {
+      targetHtml:           bcdui.util._getTargetHtml(args, "docUpload_"),
+      scope:                args.scope,
+      instance:             args.instance,
+      id:                   args.id,
+      addBRefs:             args.addBRefs,
+      onBeforeSave:         args.onBeforeSave
+    });
+    return { refId: args.id, symbolicLink: true };
+  }  
 });
