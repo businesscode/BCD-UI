@@ -123,7 +123,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     // the actual renderer call
     // we add a hidden fileinput before the actual targetHtml
-    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload.Uploader._onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
+    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload._onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
     super({
         id: widgetId
       , targetHtml: jQuery("#" + targetHtml).find(".bcdDocUploader")
@@ -399,8 +399,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   }
 }
 
-bcdui.component.docUpload.Uploader = Object.assign(bcdui.component.docUpload.Uploader,
-/** @lends bcdui.component.docUpload.Uploader */
+bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
+/** @lends bcdui.component.docUpload */
 {
   /**
    * @private

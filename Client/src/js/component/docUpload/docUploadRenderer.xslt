@@ -56,8 +56,8 @@
 
           <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}">
             <xsl:if test="$hasWriteAccess">
-              <xsl:attribute name="onDrop">bcdui.component.docUpload.Uploader._onDndDrop(event, this)</xsl:attribute>
-              <xsl:attribute name="onDragDrop">bcdui.component.docUpload.Uploader._onDndDrop(event, this)</xsl:attribute>
+              <xsl:attribute name="onDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
+              <xsl:attribute name="onDragDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
             </xsl:if>
             <xsl:if test="$entry">
               <div class='actions' style="display:none">
