@@ -40,7 +40,7 @@ i {
   vertical-align: middle;
 }
 
-.IconButton {
+.i-button {
   display: inline-block;
   padding: 10pt 30pt;
   min-height: 64px;
@@ -54,19 +54,19 @@ i {
   float: right;
 }
 
-.button-text {
+.i-button-text {
   display: inline-block;
   vertical-align: -2px;
 }
 
-.IconButton:hover {
+.i-button:hover {
   background-color: #369afb;
   border: solid #369afb;
 }
 
 
 
-.normalButton {
+.n-button {
   display: inline-block;
   padding: 10pt 30pt;
   min-height: 64px;
@@ -79,7 +79,7 @@ i {
   color: #FFFFFF;
 }
 
-.normalButton:hover {
+.n-button:hover {
   background-color: #369afb;
   border: solid #369afb;
 }
@@ -107,17 +107,17 @@ i {
   width: 750px;
 }
 
-.Scroll {
+.scroll {
   position: relative;
   top: 230px;
   float: right;
   transition: top ease 0.3s;
 }
 
-.Scroll:hover {
+.scroll:hover {
   top: 220px;
 }
-.scroll_container {
+.scroll-container {
   grid-column-start: 13;
   grid-column-end: 14;
 }
@@ -133,7 +133,7 @@ h1 {
   grid-column-start: 2;
   grid-column-end: 14;
   position: relative;
-  top: 150px; 
+  top: 150px;
 }
 
 h2 {
@@ -147,7 +147,7 @@ h2 {
   grid-column-start: 2;
   grid-column-end: 14;
   position: relative;
-  top: 250px; 
+  top: 250px;
 }
 h3 {
   color: #FFFFFF;
@@ -165,7 +165,7 @@ h4 {
   font-weight: bold;
 }
 
-.Overview {
+.overview {
   grid-column-start: 2;
   grid-column-end: 14;
   background-color: transparent;
@@ -174,7 +174,7 @@ h4 {
   height: 230px;
 }
 
-.columnOverview {
+.column-overview {
   float: left;
   width: 40%;
   padding-left: 16px;
@@ -195,7 +195,7 @@ hr {
   background-color: white;
 }
 
-.Documentation {
+.documentation {
   grid-column-start: 2;
   grid-column-end: 14;
   background-color: transparent;
@@ -204,18 +204,18 @@ hr {
   height: 530px;
 }
 
-.columnDocumentation {
+.column-documentation {
   float: left;
   width: 250pt;
   margin-right: 100px;
 }
 
-.columnDocumentation:nth-child(3n) {
+.column-documentation:nth-child(3n) {
   margin-right: 0px;
 }
 
 
-.buttonDocumentation {
+.button-documentation {
   border: 1px solid #FFFFFF;
   border-radius: 16px;
   background: transparent;
@@ -229,7 +229,7 @@ hr {
   font-weight: 500; 
 }
 
-.buttonDocumentation:hover {
+.button-documentation:hover {
   background-color: #369afb;
   border: solid #369afb;
 }
@@ -240,7 +240,7 @@ hr {
   clear: both;
 }
 
-.OurCompany {
+.our-company {
   grid-column-start: 2;
   grid-column-end: 14;
   background-color: transparent;
@@ -249,23 +249,23 @@ hr {
   height: 530px;
 }
 
-.text_block {
+.text-block {
   display: block;
   float: left;
 }
 
-.text_right {
+.text-right {
   display: block;
   float: left;
 }
 
-.text_left {
+.text-left {
   display: block;
   float: left;
   margin-right: 160px;
 }
 
-.picture_block {
+.picture-block {
   background-color: white;
   position: relative;
   height:900px;
@@ -283,7 +283,7 @@ hr {
   width: 50%;
 }
 
-.footer_claim {
+.footer-claim {
   color: #FFFFFF;
   font-family: DM Sans, sans-serif;
   line-height: 36px;
@@ -302,6 +302,11 @@ hr {
   color: white;
 }
 
+.footer-column {
+  float: left;
+  width: 33.33%;
+  margin-right: 32px;
+}
 .copy {
   margin-top: 150px;
   margin-bottom: 30px;
