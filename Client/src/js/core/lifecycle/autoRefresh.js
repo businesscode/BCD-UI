@@ -37,7 +37,7 @@ bcdui.core.lifecycle.AutoRefresh = class
    * @param {function} [args.onModified=...strategy.onModified.applyAction]   - Function called (with the current AutoRefresh as param) when new model data is available. Also see strategies below
    */
   constructor(args) {
-    if(typeof args.activeIf !== "function" && !args.activeIf) returm;
+    if(typeof args.activeIf !== "function" && !args.activeIf) return;
 
     this.model = args.model;
     this.periodSec = args.periodSec || 300;
