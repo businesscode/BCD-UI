@@ -40,6 +40,12 @@ exports.publish = function(taffyData, opts, tutorials)
 
   var allClasses = find( taffyData, { kind: "class", access: { "!is": "private" }, virtual: { "!is": true } } );
 
+  // For some reason TaffyDB contains classes multiple times (up to 3) and some occurrences are unclean
+  // It could well be that it has an issue with our way to annotate them with ja-doc.
+  // Here we remove them as a work-around
+  allClasses = allClasses.filter( (clazz) => { return clazz.longname.indexOf("~") === -1 ; } );
+  allClasses = allClasses.filter( (clazz) => { return clazz.undocumented !== true; } );
+
   // We want the definitions to follow the order in bcduiLoader.js
   // So we loop over the files there and find the matching classes
   // Further, for windows, we first normalize the path separator to /
