@@ -29,12 +29,12 @@
 bcdui.core.lifecycle.AutoRefresh = class
 {
   /**
-   * @constructs
+   * @param {Object} args                              - The parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.model       - Model to monitor for updates by calling execute(true) and checking with modifiedIf
    * @param {number} [args.periodSec=300]              - Period in sec how often to query the server
    * @param {boolean|function} [args.activeIf=true]    - Boolean or function to determine whether we should check for model updates, queries all periodSec. Also see strategies below
-   * @param {boolean|function} [args.modifiedIf=...strategy.modifiedIf.wrsTs] - Function called (with the current AutoRefresh as param) to check whether model was updated. Also see strategies below
-   * @param {function} [args.onModified=...strategy.onModified.applyAction]   - Function called (with the current AutoRefresh as param) when new model data is available. Also see strategies below
+   * @param {boolean|function} [args.modifiedIf=strategy.modifiedIf.wrsTs] - Function called (with the current AutoRefresh as param) to check whether model was updated. Also see strategies below
+   * @param {function} [args.onModified=strategy.onModified.applyAction]   - Function called (with the current AutoRefresh as param) when new model data is available. Also see strategies below
    */
   constructor(args) {
     if(typeof args.activeIf !== "function" && !args.activeIf) return;
