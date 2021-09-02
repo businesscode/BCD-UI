@@ -504,9 +504,15 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Removes a data listener via its id or listener object / function.
-   * @param {(string|function|Object)} listenerObject - Either a listener function or id <p/>or a parameter map with the following properties:
-   * @param {string} [listenerObject.id] - listener id
-   * @param {string} [listenerObject.callback] - listener function
+   */
+
+   /**
+   * @typedef {object} RemoveDataListenerParam
+   * @property {string} [id] - listener id
+   * @property {string} [callback] - listener function
+   */
+  /**
+   * @param {(string|function|RemoveDataListenerParam)} listenerObject - Either a listener function or id or a parameter map
   */
   removeDataListener(listenerObject) {
 
@@ -534,12 +540,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * document) is changed. The listener offers two options: It can either be fired on
    * any change or on a change in a specific XPath result.
    * Note that no uniqueness check is done before adding the listener so it is possible to add the same listener twice or more times.
-   * 
-   * @param {(function|Object)} listenerObject - Either a function to be called after changes <p/>or a parameter map with the following properties:
-   * @param {function} listenerObject.callback - function to be called after changes
-   * @param {string}   [listenerObject.trackingXPath] - xPath to monitor for changes
-   * @param {boolean}  [listenerObject.onlyOnce=false] - fire on each change or only once  (higher priority than listenerObject's onlyOnce)
-   * @param {string}   [listenerObject.id] - listener id (only needed for removeDataListener usability)
+   * /
+   /**
+   * @typedef {object} OnChangeParam
+   * @property {function} callback - function to be called after changes
+   * @property {string}   [trackingXPath] - xPath to monitor for changes
+   * @property {boolean}  [onlyOnce=false] - fire on each change or only once  (higher priority than listenerObject's onlyOnce)
+   * @property {string}   [id] - listener id (only needed for removeDataListener usability)
+   */
+   /**
+   * @param {(function|OnChangeParam)} listenerObject - Either a function to be called after changes or a parameter map
    * @param {string}   [trackingXPath] - xPath to monitor to monitor for changes
   */
   onChange(listenerObject, trackingXPath) {

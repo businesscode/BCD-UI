@@ -23,50 +23,56 @@
  *   This class represents the standard case of a model where the loaded from a specified URL. Its document can be accessed
  *   via {@link bcdui.core.SimpleModel#getData myModel.getData()}. Javascript and {@link bcdui.core.Modelupdater Modelupdaters} can modify the data.
  *   Data loading is triggered by {@link bcdui.core.AbstractExecutable#execute myModel.execute()}
+ * The constructor of the model takes only one property besides the mandatory
+ * "id" property (defined in AbstractExecutable) in its args parameter map namely
+ * the "url" property. It specifies the URL the XML document represented by this
+ * model should be loaded from.
+ * The parameter isAutoRefresh=true forces a reload if the DataProvider has changed.
+ * If not text/plain, (derived or via mimeType), the data is parsed.
+ *  <table>
+ *    <tr><th>file extension</th><th>value</th><th>Result</th></tr>
+ *    <tr><td>*.json</td><td>"application/json"</td><td>are turned into a js object</li>
+ *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</li>
+ *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</li>
+ *  </table>
+ *  All other content are just loaded as plain text.
+ * @example
+ * // Load plain content and use it in a renderer
+ * var bookModel = new bcdui.core.SimpleModel( "../docs/allBooks.xml" );
+ * var renderer  = new bcdui.core.Renderer({ targetHtml: "booksDiv", chain: "renderer.xslt", inputModel: bookModel });
+ * @example
+ * // Load a model using a Wrs request document from Wrs servlet
+ * var myModel = new bcdui.core.SimpleModel({ id  : "myModel", url : new bcdui.core.RequestDocumentDataProvider({ url: "requestDoc.xml"}) });
+ * myModel.execute();
  * @extends bcdui.core.AbstractUpdatableModel
 */
 bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
+   /**
+   * @typedef {object} SimpleModelParamSaveOptions
+   * @property {chainDef}                                      [saveChain]              - The definition of the transformation chain
+   * @property {Object}                                        [saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @property {boolean}                                       [reload=false]           - Useful especially for models of type SimpleModel for refreshing from server after save
+   * @property {function}                                      [onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
+   * @property {function}                                      [onFailure]              - Callback on failure, is called if error occurs
+   * @property {function}                                      [onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
+   * @property {bcdui.core.DataProvider}                       [urlProvider]            - dataProvider holding the request url (by default taken from the args.url).
+   */
 
   /**
-   * @description
-   * The constructor of the model takes only one property besides the mandatory
-   * "id" property (defined in AbstractExecutable) in its args parameter map namely
-   * the "url" property. It specifies the URL the XML document represented by this
-   * model should be loaded from.
-   * The parameter isAutoRefresh=true forces a reload if the DataProvider has changed.
-   * @param {string|object}                                 args - A url for the data <p/>or an argument map containing the following elements:
-   * @param {string|bcdui.core.RequestDocumentDataProvider} args.url                   - A string with the URL or a RequestDocumentDataProvider providing the request. See {@link bcdui.core.RequestDocumentDataProvider RequestDocumentDataProvider} for an example.
-   * @param {string}                                        [args.uri]                 - uri extension as a suffix to .url to tag requests, must not start with '/'. This parameter is ineffective if .url is provided.
-   * @param {string}                                        [args.id]                  - Globally unique id for used in declarative contexts
-   * @param {boolean}                                       [args.isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
-   * @param {string}                                        [args.mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
-   * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
-   * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
-   * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
-   * @param {boolean}                                       [args.saveOptions.reload=false]           - Useful especially for models of type SimpleModel for refreshing from server after save
-   * @param {function}                                      [args.saveOptions.onSuccess]              - Callback after saving (and optionally reloading) was successfully finished
-   * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
-   * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
-   * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - dataProvider holding the request url (by default taken from the args.url).
-   *  If not text/plain, (derived or via mimeType), the data is parsed.
-   *  <table>
-   *    <tr><th>file extension</th><th>value</th><th>Result</th></tr>
-   *    <tr><td>*.json</td><td>"application/json"</td><td>are turned into a js object</li>
-   *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</li>
-   *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</li>
-   *  </table>
-   *  All other content are just loaded as plain text.
-   * @example
-   * // Load plain content and use it in a renderer
-   * var bookModel = new bcdui.core.SimpleModel( "../docs/allBooks.xml" );
-   * var renderer  = new bcdui.core.Renderer({ targetHtml: "booksDiv", chain: "renderer.xslt", inputModel: bookModel });
-   * @example
-   * // Load a model using a Wrs request document from Wrs servlet
-   * var myModel = new bcdui.core.SimpleModel({ id  : "myModel", url : new bcdui.core.RequestDocumentDataProvider({ url: "requestDoc.xml"}) });
-   * myModel.execute();
-   *
+   * @typedef {object} SimpleModelParam
+   * @property {(string|bcdui.core.RequestDocumentDataProvider)} url                 - A string with the URL or a RequestDocumentDataProvider providing the request. See {@link bcdui.core.RequestDocumentDataProvider RequestDocumentDataProvider} for an example.
+   * @property {string}                                        [uri]                 - uri extension as a suffix to .url to tag requests, must not start with '/'. This parameter is ineffective if .url is provided.
+   * @property {string}                                        [id]                  - Globally unique id for used in declarative contexts
+   * @property {boolean}                                       [isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
+   * @property {string}                                        [mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
+   * @property {SimpleModelParamSaveOptions}                   [saveOptions]         - An argument map for save options
    */
+
+   /**
+   * @param {(string|SimpleModelParam)}                       args - An url for the data or an argument map
+   */
+
   constructor(args)
     {
       var bcdPreInit = args ? args.bcdPreInit : null;

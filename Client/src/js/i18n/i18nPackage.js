@@ -381,7 +381,13 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    * initialization is asychronous) then NULL is returned in production
    * and an error is thrown in debug mode.
    *
-   * @param  {Object|string} messageId - Object args with a property args.msgid, or the messageId itself
+   /**
+   * @typedef {object} SyncTranslateFormatMessageParam
+   * @property {string} [msgid] - the message id
+  */
+
+  /**
+   * @param  {(SyncTranslateFormatMessageParam|string)} messageId - Either an object with property msgid, or the messageId itself
    * @returns {string} translated and formated message
    */
   syncTranslateFormatMessage:function(args){

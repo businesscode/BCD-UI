@@ -29,13 +29,16 @@
   /**
    * Scrolls the container to the target, this function must be called on a scrollable
    * container. Implementation is provided by bcdui.util._scrollTo()
-   *
-   * @param {object|element|string}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object,
-   *  an Element or jQuery compatible selector.
-   *
-   * @param {object}                  [options]                         Options to apply, all the options are optional, valid options:
-   * @param {string}                  [options.snapTo=beginning]        snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
-   *                                                                    'nearest': snap the element to the nearest edge of the container.
+   */
+
+  /**
+   * @typedef {object} BcdScrollToParamOptions
+   * @property {string}                [snapTo=beginning] snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   */
+
+   /**
+   * @param {(object|element|string)}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object, an Element or jQuery compatible selector.
+   * @param {BcdScrollToParamOptions}  [options] Options to apply, all the options are optional
    *
    * @returns {object} jQuery object
    */

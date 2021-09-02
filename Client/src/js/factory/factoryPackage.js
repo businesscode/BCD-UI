@@ -698,7 +698,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    * @param {Object} args The parameter map contains the following properties:
    * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
    *          added to.
-   * @param {Function|Object} [args.listener]  A synonym for 'callback'.
+   * @param {(Function|Object)} [args.listener]  A synonym for 'callback'.
    * @param {String} [args.side] Whether the listener is called before or after, default is after.
    * @param {Boolean}[args.onlyOnce] A boolean variable indicating that the listener should
    *         be automatically removed after it has been executed. The default value

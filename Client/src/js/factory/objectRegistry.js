@@ -127,7 +127,7 @@
    *
    * See {@link bcdui.factory.objectRegistry.withReadyObjects withReadyObjects()}
    *
-   * @param {Object|string[]|string} args1 This can either be a parameter object or an array of id
+   * @param {(Object|string[]|string)} args1 This can either be a parameter object or an array of id
    * strings or a single id. The format of the parameter object is as follows
    *   <ul>
    *     <li>ids: {string[]|string} The array of ids that must be registered before the callback
@@ -223,7 +223,7 @@
    * Note that it will also execute the DataProviders it waits fir, if they are not yet ready.
    * The interface is identical to the {@link bcdui.factory.objectRegistry.withObjects withObjects()} function.
    * 
-   * @param {Object|string[]|string} args1 - The parameter object or the object ids.
+   * @param {(Object|string[]|string)} args1 - The parameter object or the object ids.
    * @param {function}               args2 - The callback function if argsOrIds is an array.
    * @param {boolean}                skipExecute - do not execute the non-ready dataproviders
    * @static
@@ -276,7 +276,7 @@
    * It does not execute the DataProviders it waits for, it waits until somebody else executes it.
    * The interface is identical to the {@link bcdui.factory.objectRegistry.withObjects} function.
    * 
-   * @param {Object|string[]|string} args1 - The parameter object or the object ids.
+   * @param {(Object|string[]|string)} args1 - The parameter object or the object ids.
    * @param {function}               args2 - The callback function if argsOrIds is an array.
    */
   withReadyObjectsNoExecute(args1, args2) {

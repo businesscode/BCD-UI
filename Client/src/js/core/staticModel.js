@@ -36,9 +36,15 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
   /**
    * @description
    * Create a StaticModel and provide the data.
-   * @param {string|object|Document} args - An XML string, which is parsed, a DOM document </p>or a parameter map
-   * @param {string}                 [args.id]              - Globally unique id for use in declarative contexts, ignored if args.data is not set
-   * @param {string|object|Document} [args.data="</Empty>"] - And XML string, which is parsed, an XML Document or a JSON object or any other kind of data
+
+  /**
+   * @typedef {object} StaticModelParam
+   * @property {string}                 [id]              - Globally unique id for use in declarative contexts, ignored if args.data is not set
+   * @property {(string|object|Document)} [data="</Empty>"] - And XML string, which is parsed, an XML Document or a JSON object or any other kind of data
+   */
+
+  /**
+   * @param {(string|StaticModelParam|Document)} args - An XML string, which is parsed, a DOM document or a parameter map
    * @example
    * // Provide data as a {@link bcdui.core.DataProvider DataProvider}
    * var myModel = new bcdui.core.StaticModel( "<Root myAttr='Test'></Root>" );

@@ -55,8 +55,8 @@ bcdui.widget.detailView = Object.assign(bcdui.widget.detailView,
 
   /**
    * @param args
-   * @param {String|Element} args.targetHtmlElement  - to attach listener to
-   * @param {String|Object} args.targetRenderer      - optional the target renderer, targetHtmlElement has precedence
+   * @param {(String|Element)} args.targetHtmlElement  - to attach listener to
+   * @param {(String|bcdui.core.Renderer)} args.targetRenderer      - optional the target renderer, targetHtmlElement has precedence
    * @param {Boolean} args.consumeEvent              - optional, default is: FALSE, consumes the event or allow propagation
    *
    * @param {String} args.childElementSelector       - filter (jQuery) compatible for filtering on nested children, default is "tbody tr"

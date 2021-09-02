@@ -1283,16 +1283,20 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
   /**
    * POSTs one or mode WRS documents to well known WrsServlet URL
-   * Multiple document are handled by WrsServlet in one transaction,
+   * Multiple document are handled by WrsServlet in one transaction.
+   * You can also simply provide one argument: wrsDoc or array thereof, which is then POSTed
+   */
+  /**
+   * @typedef {object} PostWrsParam
+   * @property {XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[]}          args.wrsDoc - Document(s) / DataProvider
+   * @property {function}                           [onSuccess]              - Callback on success, is called after successful POST or if POST was not issued due to to changes in the document 
+   * @property {function}                           [onFailure]              - Callback on failure, is called if error occurs
+   * @property {function}                           [onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
+   * @property {string}                             [uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
+   */
+  /**
+   * @param {(PostWrsParam|XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[])} args        - DataProvider(s), Document(s) or a parameter object
    *
-   * @param {(Object|XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[])} args        - DataProvider(s), Document(s) or a parameter object with the following properties
-   * @param {XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[]}          args.wrsDoc - Document(s) / DataProvider
-   * @param {function}                           [args.onSuccess]              - Callback on success, is called after successful POST or if POST was not issued due to to changes in the document 
-   * @param {function}                           [args.onFailure]              - Callback on failure, is called if error occurs
-   * @param {function}                           [args.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
-   * @param {string}                             [args.uri]                    - An URI (i.e. SomeDoc) which is appended as pathInfo to WrsServlet
-   *
-   * you can also simply provide one argument: wrsDoc or array thereof, which is then POSTed
    */
   postWrs : function(args){
 

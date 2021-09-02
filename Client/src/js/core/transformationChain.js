@@ -997,11 +997,18 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   /**
    * Overwrites inherited execute(forced)
    * Allows also to provide instead of the boolean forced an args object with
-   * @param {(boolean|Object)} args forced or args:
-   * @param {function} [args.fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
-   * @param {String} [args.partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
+   */
+   
+  /**
+   * @typedef {object} ExecuteParam
+   * @property {function} [fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
+   * @property {String} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
    *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.
-   * @param {boolean} [args.shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
+   * @property {boolean} [shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
+   */
+
+  /**
+   * @param {(boolean|ExecuteParam)} args either true for forced or parameter map
    */
   execute( args)
   {

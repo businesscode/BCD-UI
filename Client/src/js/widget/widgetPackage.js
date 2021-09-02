@@ -2620,7 +2620,7 @@ jQuery.extend(bcdui.widget,
     /**
      * Create filter table header
      * @param {Object}        args                 The parameter map contains the following properties.
-     * @param {string|object} args.renderer        Id of the registered renderer to work on or the render itself
+     * @param {(string|bcdui.core.Renderer)} args.renderer        Id of the registered renderer to work on or the render itself
      * @param {boolean}       [args.isSync=false]  Decide whether the action is to be called synchronous or not
      * @param {boolean}       [args.alwaysShowHeader=true] If filtering leads to no rows to be displayed, this flag will show the table header to allow removal of filters
      * @param {function}      [args.getCaptionForColumnValue]             Function (colIdx, colValue) which returns the rendered caption for the cell. By default standard wrs @caption, wrs:references and unit/scale handling is supported already 
