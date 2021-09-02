@@ -66,7 +66,8 @@ exports.publish = function(taffyData, opts, tutorials)
 
   // Hiding local symbols
   result = "// This file contains BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine(0) + result + newLine(0);
-  result = result.replace(/var bcdui/, 'export var bcdui');
+
+  result = result + "export { bcdui };" + newLine(0);
 
   fs.mkPath(opts.destination);
   fs.writeFileSync(opts.destination+"/bcduiApiStubs.js", result, 'utf8')
@@ -82,9 +83,6 @@ exports.publish = function(taffyData, opts, tutorials)
 function printClass( taffyData, clazz )
 {
   var result = "";
-
-  // Create the @typdef
-  result += "/**" + newLine(0) + "@typedef " + clazz.longname + newLine(0) + "*/" + newLine(0);
 
   result += newLine(0);
 
