@@ -125,9 +125,9 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "  var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
-  var allowedParamTypes = ["string", "boolean", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer"];
+  var allowedParamTypes = ["string", "boolean", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer", "stringList"];
   // for default values we have to distinguish between literals and string values
-  var stringParamTypes = ["string", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "enum"];
+  var stringParamTypes = ["string", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "enum", "stringList"];
   params.filter( function( param ) {
     // id attribute refers to the html tag, not the object. Use objectId for that
     if( param.name.indexOf(".") === -1 || param.name === "args.id" )
