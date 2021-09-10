@@ -1060,6 +1060,11 @@ the data that is actually placed in XML.
             Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data.
           </Doc>
         </Param>
+        <Param name="filterBRefs" type="stringList">
+          <Doc>
+            The space separated list of binding Refs that will be used in filter clause of request document.
+          </Doc>
+        </Param>
       </Api>
 
     </BcdAPI>

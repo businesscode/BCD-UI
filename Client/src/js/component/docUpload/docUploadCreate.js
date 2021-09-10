@@ -33,6 +33,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
+  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  
   */
   constructor(args){
 
@@ -50,7 +52,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
     finalBRefs.push("fileExists");
 
-    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false
+    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false, filterBRefs: args.filterBRefs
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -437,6 +439,7 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  [args.id]                                              - The id of the returned wrs modelwrapper
   * @param {string|array}            [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
+  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @return a wrs model holding the overview information
   */
   getUploadOverview: function(args) {
@@ -456,7 +459,7 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
     }
     var instfilter =  instances.length > 0 ? " and instance in '"+instances.join(",")+"'" : "";
     var config = bcdui.wkModels.bcdDocUpload;
-    var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true});
+    var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true, filterBRefs: args.filterBRefs});
 
     return new bcdui.core.ModelWrapper({
       id: id
@@ -545,6 +548,7 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
+  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
    * @private
    */
   createDocUpload: function( args )
@@ -555,7 +559,8 @@ bcdui.component = Object.assign(bcdui.component,
       instance:             args.instance,
       id:                   args.id,
       addBRefs:             args.addBRefs,
-      onBeforeSave:         args.onBeforeSave
+      onBeforeSave:         args.onBeforeSave,
+      filterBRefs:          args.filterBRefs
     });
     return { refId: args.id, symbolicLink: true };
   }  

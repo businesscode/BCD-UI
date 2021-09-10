@@ -34,6 +34,7 @@
         , bRefs: finalBRefs.join(" ")
         , filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
         , orderByBRefs: "lastUpdate-"
+        , filterBRefs: this.options.filterBRefs
         , saveOptions: {
           // after saving, we unblock the ui and reload the model and of course refresh the vfs
             onSuccess: function() { setTimeout(jQuery.unblockUI);}
