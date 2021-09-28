@@ -148,6 +148,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     pager.execute();
 
     // initially inject pageSize/pageNumber from config in our pager model
+    // since config can be a modelwrapper, we can't use a modelUpdater here and need help from a dpHolder
+    // to ensure readiness before the gridModel creation below already builds the request
+    var pagerHolder = new bcdui.core.DataProviderHolder();
     config.onceReady(function() {
       var pageSizeNode = config.query("//xp:Paginate/xp:PageSize");
       if (pageSizeNode != null)
@@ -155,6 +158,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if (serverSidedPagination != "" && pageSizeNode == null)
         pager.write("/*/xp:Paginate/xp:PageSize", paginationSize);
       pager.write("/*/xp:Paginate/xp:PageNumber", "1", true);
+      pagerHolder.setSource(pager);
     });
 
     // If we do not have an explicit input model, we create our own here from the metadata, otherwise use it
@@ -171,7 +175,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , validationChain: validationChain
         , validationParameters: validationParameters
         , serverSidedPagination: serverSidedPagination
-        , pagerModel: pager
+        , pagerModel: pagerHolder
       });
     }
     else
