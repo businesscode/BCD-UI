@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * This namespace contains functionality directly related to BCD-UI grid
  * @namespace bcdui.component.grid
  */
-"use strict"; 
+"use strict";
 
 /*
  * Notes:
@@ -29,12 +29,13 @@
  *
  *  - make insertedNewRow (top/bottom/above/below) fully available when sorting is active (so that empty rows stay where they are and are not sorted to top/bottom)
  *
- * current server sided pagination limitations:
- *  - currently only possible when no inputModel is given and the gridModel is generated. Reason: a) rowStart/Stop, column filters are injected in the request
- *  - jumpToRow (e.g. to show a possible error or jump to inserted top/bottom row) only works on the current page. 
+ * Current server sided pagination limitations:
+ *  - since we buffer pages and merge them together, memory usage might be twice as high as needed
+ *  - currently only possible when no inputModel is given and the gridModel is generated. Reason: a) rowStart/Stop, column filters and sorting options are injected in the request
+ *  - jumpToRow (e.g. to show a possible error or jump to inserted top/bottom row) is limited to already buffered pages only (and if toggled manually, a new encoded rowId format needs to be used)
+ *  - data validation is limited to already buffered pages only (exception deep key check)
  *  - columnSorting is limited to sort server sided by code (order by) and not by caption values. Reason: captions are taken from optionModels and not raw data.
- *  - need to save before sort/filter/page change. Reason: no memorization/reapply of changes yet
- *
+ *  - need to save changes before switching to "ALL" page selector and on sort/filter. Reason: filtering/sorting is done server-sided, nothing yet implemented which memorizes/restores grid changes before/after such options
  */
 
 /**
@@ -224,6 +225,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.enhancedConfiguration = enhancedConfiguration;
     this.gridModelHolder = gridModelHolder;
     this.serverSidedPagination = args.serverSidedPagination;
+    this.pageBuffer = {};
+    this.validationResultPageBuffer = {};
 
     // limitation for now, since we need to update rowStart/rowEnd in the gridModel request, we disallow external wrs for the moment 
     if (args.inputModel)
@@ -276,8 +279,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     this.columnFiltersGetCaptionForColumnValue = args.columnFiltersGetCaptionForColumnValue || function(index, value) {
       var x = this.colsWithReferences.indexOf("" + index);
-      var value = (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value);
-      return (value == "" ? bcdui.core.magicChar.dimEmpty : value);
+      var newValue = (x != -1 ? this.optionsModelInfo[this.colsWithReferencesInfo[x]].codeCaptionMap[bcdui.util.escapeHtml(value)] || value : value);
+      return (newValue == "" ? bcdui.core.magicChar.dimEmpty : newValue);
      }.bind(this)
     this.sortColumn = null;
     this.sortDirection = null;
@@ -594,7 +597,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
     // Listen on future changes
     this.gridModel.onceReady( function() {
-      this.gridModel.onChange( this.execute.bind(this) );
+      this.gridModel.onChange(function() {
+        if (this.serverSidedRefresh)
+          delete this.serverSidedRefresh;
+        else
+          this.execute();
+      }.bind(this));
     }.bind(this) );
   }
   
@@ -1223,16 +1231,19 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    curPage = isNaN(curPage) ? -1 : curPage;
     var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-
-    // in case we got serverSidedPagination, we simply show all wrs data from 1 to pageSize, so we "fake" the cur page (or -1 for 'all') 
-    if (this.serverSidedPagination && curPage != -1)
-      curPage = 1;
 
     var wrsStart = ((curPage - 1) * pageSize) + 1;
     var wrsStop = wrsStart + pageSize - 1; 
     var xPath = (gotPagination && curPage != -1 && pageSize != -1) ? "[position() >= " + wrsStart + " and position() <= " + wrsStop + "]" : "";
+
+    // in case we got serverSidedPagination, we simply show all wrs data (not(@key) = freshly loaded data, @key=P.. = data belonging to current page)
+    if (this.serverSidedPagination && curPage != -1) {
+      xPath = "[not(@key) or @key='P"+wrsStart + "_" + wrsStop+"']";
+      curPage = 1;
+      wrsStart = 1;
+    }
+
     var index = 0;
     var indexFull = 0;
     this.rowIdMap = {};
@@ -2034,24 +2045,6 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.lastMaxRows = createArgs["maxRows"];
     }
 
-    // disable create-rows-on-drag when we got pagination
-    var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
-    var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    curPage = isNaN(curPage) ? -1 : curPage;
-    var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-    if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length) {
-      createArgs["maxRows"] = parseInt(pageSize, 10);
-      this.lastMaxRows = createArgs["maxRows"];
-
-      // if page contains less rows, update value accordingly
-      var wrsStart = ((curPage - 1) * pageSize) + 1;
-      var wrsStop = wrsStart + pageSize - 1;
-      if (wrsStop > this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length)
-        wrsStop = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
-      if (wrsStop - wrsStart + 1 < createArgs["maxRows"])
-        createArgs["maxRows"] = wrsStop - wrsStart + 1;
-    }
-
     // highlight column groups
     if (this.hasHeaderGroups) {
       createArgs["beforeOnCellMouseDown"] = beforeOnCellMouseDown.bind(this);
@@ -2573,51 +2566,141 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.pager.onceReady(function() {
       this.pager.onChange(function() {
 
-        if (this.serverSidedPagination && this.gridModel.query("/*/wrs:Data/wrs:*[local-name() != 'R']") != null) {
-          if (! confirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"})))
-           return;
-        }
+        var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+        var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
 
         var holder = new bcdui.core.DataProviderHolder();
+        var dataKey = "";
+
+        // in case we got server sided pagination and not the "ALL" pages mode on, we buffer page data 
         if (this.serverSidedPagination) {
-          this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-            this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-              this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-                holder.setSource(bcdui.wkModels.guiStatus);  
+
+          // delete stored errors, we're rebuilding validationResult so we don't need memorized errors to be readded
+          delete this.wrsErrors;
+
+          // copy current page into buffer (wrq start/end forms the key from the last loaded webRowSet)
+          var start = this.gridModel.read("/*/wrs:RequestDocument/wrq:WrsRequest/wrq:Select/@rowStart", "-1");
+          var end = this.gridModel.read("/*//wrs:RequestDocument/wrq:WrsRequest/wrq:Select/@rowEnd", "-1");
+          var key = "P" + start + "_" + end;
+
+          // now determine new page key (which was just selected)
+          var y2 = curPage != -1 ? pageSize * curPage : -1;
+          var y1 = curPage != -1 ? y2 - pageSize + 1 : 1;
+          var newStart = (y1 > 0 && y2 > 0) ? y1 : -1;
+          var newEnd = (y2 > 0) ? y2 : -1;
+          var newKey = "P" + newStart + "_" + newEnd;
+
+          // old loaded data is an ALL-pages selection (start = end = -1)? then we don't buffer the data
+          if (start != -1) {
+  
+            // update the row ids and set a key for all not yet processed data (= newly loaded or inserted)
+            // the key attribute represents the page where they belong to
+            Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@key)]")).forEach(function(row) {
+  
+              // since inserted rows take over the old row Id and add a prefix I_transaction number, we
+              // might get pretty long ids, so we might cut anything behind #
+              var curId = row.getAttribute("id") || "";
+              var tagIndex = curId.indexOf("#");
+              curId = tagIndex != -1 ? curId.substring(0, tagIndex) : curId;
+              row.setAttribute("id", curId + "#" + key);
+              row.setAttribute("key", key);
+            });
+  
+            // (re)add key/id information to validationResult
+            Array.from(this.gridModel.validationResult.queryNodes("/*/*/wrs:Data/wrs:*")).forEach(function(errrow) {
+              var curIdNode = errrow.selectSingleNode("wrs:C[1]");
+              var curId = curIdNode.text || "";
+              var tagIndex = curId.indexOf("#");
+              var oldKey = (tagIndex != -1) ? curId.substring(tagIndex + 1) : "";
+              curId = tagIndex != -1 ? curId.substring(0, tagIndex) : curId;
+              curIdNode.text = curId + "#" + (oldKey||key);
+              errrow.setAttribute("key", (oldKey||key));
+            });
+  
+            // buffer current data but remove data which doesn't belong to this page (gridModel and so the pageBuffer might contain more than the current page)        
+            this.pageBuffer[key] = bcdui.util.xml.parseDocument(this.gridModel.getData());
+            bcdui.core.removeXPath(this.pageBuffer[key], "/*/wrs:Data/wrs:*[@key!='"+key+"']", false);
+  
+            // do the same for validation data
+            this.validationResultPageBuffer[key] = bcdui.util.xml.parseDocument(this.gridModel.validationResult.getData());
+            bcdui.core.removeXPath(this.validationResultPageBuffer[key], "/*/*/wrs:Data/wrs:*[@key!='"+key+"']", false);
+  
+            // remember key identifying which data was just loaded into gridModel
+            dataKey = key;
+          }
+
+          // switching to ALL pages mode with changes will prompt you to save data first           
+          if (newStart == -1 && this.gridModel.query("/*/wrs:Data/wrs:*[local-name() != 'R']") != null) {
+            if (! confirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"})))
+             return;
+            else
+              this._resetPageBuffer();
+          }
+
+          // do we have the page already in memory, so use that data by cloning the pageBuffer         
+          if (typeof this.validationResultPageBuffer[newKey] != "undefined") {
+            this.gridModel.validationResult.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.validationResultPageBuffer[newKey]);
+          }
+          else
+            bcdui.core.removeXPath(this.gridModel.validationResult.getData(), "/*/*/wrs:Data", false);
+
+          // do we have the page already in memory, so use that data by cloning the pageBuffer         
+          if (typeof this.pageBuffer[newKey] != "undefined") {
+            this.gridModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.pageBuffer[newKey]);
+            // set dataKey to currently cloned data and signal readiness
+            dataKey = newKey;
+            holder.setSource(bcdui.wkModels.guiStatus); 
+          }
+          // otherwise we load it
+          else { 
+            this.serverSidedRefresh = true;
+
+            this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+              this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                  // signal readiness
+                  holder.setSource(bcdui.wkModels.guiStatus);  
+                }.bind(this)});
+                this.gridModel.execute(true);
               }.bind(this)});
-              this.gridModel.execute(true);
+              this.gridModel.urlProvider.execute(true);
             }.bind(this)});
-            this.gridModel.urlProvider.execute(true);
-          }.bind(this)});
-          this.gridModel.urlProvider.requestModel.execute(true);
+            this.gridModel.urlProvider.requestModel.execute(true);
+          }
         }
         else
           holder.setSource(bcdui.wkModels.guiStatus);
           
         holder.onceReady(function() {
-          // reset/set maxRows
-          var createArgs = {maxRows: Infinity};
-          if (! this.allowNewRows)
-            createArgs["maxRows"] = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
-          var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-          curPage = isNaN(curPage) ? -1 : curPage;
-          var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-          if (gotPagination && pageSize != -1 && curPage != -1 && pageSize < this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length) {
-            createArgs["maxRows"] = parseInt(pageSize, 10);
 
-            // if page contains less rows, update value accordingly
-            var wrsStart = ((curPage - 1) * pageSize) + 1;
-            var wrsStop = wrsStart + pageSize - 1;
-            if (wrsStop > this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length)
-              wrsStop = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
-            if (wrsStop - wrsStart + 1 < createArgs["maxRows"])
-              createArgs["maxRows"] = wrsStop - wrsStart + 1;
+          // in serverPagination we need to merge the stored page buffers and validation buffers
+          if (this.serverSidedPagination) {
+
+            // don't merge if we just loaded all data (ALL pages mode)
+            if (newStart != -1) {
+
+              // merge in all buffers into model except the just loaded (or cloned) one (which we know by looking at dataKey) 
+              for (var buffer in this.pageBuffer) {
+                if (buffer != dataKey) {
+                  var target = this.gridModel.query("/*/wrs:Data");
+                  Array.from(this.pageBuffer[buffer].selectNodes("/*/wrs:Data/*")).forEach(function(row) {
+                    target.appendChild(row.cloneNode(true));  
+                  });
+                }
+              }
+              // same for validation results 
+              for (var valBuffer in this.validationResultPageBuffer) {
+                if (valBuffer != dataKey) {
+                  var valTarget = bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/*/wrs:Data");
+                  Array.from(this.validationResultPageBuffer[valBuffer].selectNodes("/*/*/wrs:Data/*")).forEach(function(row) {
+                    valTarget.appendChild(row.cloneNode(true));  
+                  });
+                }
+              }
+            }
           }
 
-          if (this.lastMaxRows != createArgs["maxRows"])
-            this.hotInstance.updateSettings(createArgs);
-          this.lastMaxRows = createArgs["maxRows"]; 
-  
+          // let's refresh row indexes etc
           this._refreshDataCompletely();
           this.hotInstance.render();
           this.afterChange([], "edit");  // trigger full validation
@@ -2961,6 +3044,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
    * @private
    */
+  _resetPageBuffer() {
+    this.pageBuffer = {};
+    this.validationResultPageBuffer = {};
+  }
+
+  /**
+   * @private
+   */
   _blindGrid() {
     setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
   }
@@ -3001,9 +3092,19 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     // in case of pagination, we calc the needed page numer and jump to it if necessary
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    if (gotPagination && ! this.serverSidedPagination) {
+    if (gotPagination) {
       var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
       var page = 1 + Math.floor(this.rowIdMapFull[rowId] / pageSize);
+
+      // in case of serversided Pagination we use the current rowStart to determine the page
+      if (this.serverSidedPagination) {
+        var start = parseInt(this.gridModel.read("/*/wrs:RequestDocument/wrq:WrsRequest/wrq:Select/@rowStart", "-1"), 10);
+        // or if the requested rowId is already in transformed id mode, we take the start from there
+        if (rowId.indexOf("#P") != -1)
+          start = parseInt(rowId.substring(rowId.indexOf("#P") + 2).split("_")[0], 10);
+        page = 1 + Math.floor((start - 1)/ pageSize)
+      }
+
       if (curPage != page) {
         this.pager.write("/*/xp:Paginate/xp:PageNumber", page, true);
       }
@@ -3047,6 +3148,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         return;
       }
       this._blindGrid();
+      this._resetPageBuffer();
+
       bcdui.wrs.wrsUtil.saveModel({ model: this.gridModel, reload: true, onSuccess: this._unBlindGrid });
     }.bind(this);
 
@@ -3091,6 +3194,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // in case of serverSidedPagination we need to refresh the request deeply to update the pagination
     if (this.serverSidedPagination) {
+
+      this._resetPageBuffer();
+      
       this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
         this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
           this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
