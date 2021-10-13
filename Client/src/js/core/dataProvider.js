@@ -219,9 +219,13 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         // transform model if saveChain is provided or wrs model is used or dp is not a simple model
         var mw = null;
         var saveChain = [];
+        if (this.saveOptions && this.saveOptions.saveChain) {
+          if (Array.isArray(this.saveOptions.saveChain))
+            saveChain = this.saveOptions.saveChain;
+          else
+            saveChain.push(this.saveOptions.saveChain);
+        }
         // if wrs dp, we add a cleanup chain step
-        if (this.saveOptions && this.saveOptions.saveChain)
-          saveChain.push(this.saveOptions.saveChain);
         if (this.query("/*/wrs:Data") != null)
           saveChain.push(bcdui.config.libPath + "xslt/wrs/prepareToPost.xslt");
         // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
