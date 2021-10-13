@@ -343,6 +343,29 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
     // add onChange listener on enhancedConfiguration and collect optionsModel information
     this.getEnhancedConfiguration().onceReady(function(){
+
+      this.removeOnSaveColumnIds = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@removeOnSave='true']")).map(function(e) {
+        if (e.getAttribute("isKey") == "true")
+          throw new Error("removeOnSave is not allowed on a key column: " + this.id);
+        return e.getAttribute("id");
+      }.bind(this));
+
+      if (this.removeOnSaveColumnIds.length > 0) {
+        if (this.gridModel.saveOptions) {
+          var newSaveChain = [];
+
+          if (Array.isArray(this.gridModel.saveOptions.saveChain))
+            newSaveChain = this.gridModel.saveOptions.saveChain;
+          else
+            newSaveChain.push(this.gridModel.saveOptions.saveChain);
+
+          newSaveChain.push(function(doc, args) {
+            bcdui.wrs.wrsUtil.deleteColumns(doc, this.removeOnSaveColumnIds)
+            return doc;
+          }.bind(this));
+          this.gridModel.saveOptions.saveChain = newSaveChain;
+        }
+      } 
   
       // if gridModel got filter, we enable the deep key check and prebuild request xml
       this.enableDeepKeyCheck = this.gridModel.query("/*//wrq:WrsRequest//f:Filter//f:Expression") != null || this.serverSidedPagination;

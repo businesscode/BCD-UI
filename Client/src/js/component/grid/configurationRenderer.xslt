@@ -102,6 +102,7 @@
         <xsl:attribute name="isDocument"><xsl:value-of select="boolean(grid:Editor[@type='bcduiStatusModelEditor'] or grid:Editor[@type='bcduiModelDropDown'])"/></xsl:attribute>
         <xsl:attribute name="width"><xsl:value-of select="@width"/></xsl:attribute>
         <xsl:attribute name="isCheckbox"><xsl:value-of select="@isCheckbox"/></xsl:attribute>
+        <xsl:attribute name="removeOnSave"><xsl:value-of select="@removeOnSave"/></xsl:attribute>
 
         <grid:Editor>
           <xsl:attribute name="type">
