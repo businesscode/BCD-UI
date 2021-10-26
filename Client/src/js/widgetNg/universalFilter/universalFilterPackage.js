@@ -28,6 +28,17 @@
     contentRendered : "bcdui.bcduiUniversalFilterNg.events.contentRendered"
   };
 
+  /**
+   * pre-create elements
+   * this is done outside of the jQuery widget since it seems that for IE11, such properties
+   * are transformed from a node to a js object by jQuery. cloneNode (later on) would fail on a pure object
+   */
+  var TEMPLATE_ELEMENTS = {
+    "f:And"         : (()=>bcdui.util.xml.parseDocument("<D><f:And/></D>").selectSingleNode("/*/*"))(),
+    "f:Or"          : (()=>bcdui.util.xml.parseDocument("<D><f:Or/></D>").selectSingleNode("/*/*"))(),
+    "f:Expression"  : (()=>bcdui.util.xml.parseDocument("<D><f:Expression/></D>").selectSingleNode("/*/*"))()
+  };
+
   jQuery.widget("bcdui.bcduiUniversalFilterNg", jQuery.bcdui.bcduiWidget, {
 
     _getCreateOptions : function(){
@@ -52,15 +63,6 @@
     MAPPING_JUNCT_FILTER : {
       "AND" : "<f:And/>",
       "OR"  : "<f:Or/>"
-    },
-
-    /**
-     * pre-create elements
-     */
-    TEMPLATE_ELEMENTS : {
-      "f:And"         : (()=>bcdui.util.xml.parseDocument("<D><f:And/></D>").selectSingleNode("/*/*"))(),
-      "f:Or"          : (()=>bcdui.util.xml.parseDocument("<D><f:Or/></D>").selectSingleNode("/*/*"))(),
-      "f:Expression"  : (()=>bcdui.util.xml.parseDocument("<D><f:Expression/></D>").selectSingleNode("/*/*"))()
     },
 
     /**
@@ -431,17 +433,17 @@
       if(args.value.length > 1){ // multi-value
         if(args.op == "in" || args.op == "notIn"){
           // create f:Or/*f:And with f:Expresion/op = '=' for each value
-          const fOrAnd = args.op == "in" ? self.TEMPLATE_ELEMENTS["f:Or"].cloneNode(false) : self.TEMPLATE_ELEMENTS["f:And"].cloneNode(false);
+          const fOrAnd = args.op == "in" ? TEMPLATE_ELEMENTS["f:Or"].cloneNode(false) : TEMPLATE_ELEMENTS["f:And"].cloneNode(false);
           const cmp = args.op == "in" ? "=" : "!=";
           args.value.forEach((v)=>{
-            fOrAnd.appendChild(fOrAnd.ownerDocument.importNode( fillExpressionNode( self.TEMPLATE_ELEMENTS["f:Expression"], args.bRef, cmp, v ), false ));
+            fOrAnd.appendChild(fOrAnd.ownerDocument.importNode( fillExpressionNode( TEMPLATE_ELEMENTS["f:Expression"].cloneNode(false), args.bRef, cmp, v ), false ));
           });
           return fOrAnd;
         } else {
           throw `Multi-value for op '${args.op}' is not supported`;
         }
       } else { // single value turns into single f:Expression
-        return fillExpressionNode(self.TEMPLATE_ELEMENTS["f:Expression"].cloneNode(false), args.bRef, args.op, args.value[0]);
+        return fillExpressionNode(TEMPLATE_ELEMENTS["f:Expression"].cloneNode(false), args.bRef, args.op, args.value[0]);
       }
     },
 
