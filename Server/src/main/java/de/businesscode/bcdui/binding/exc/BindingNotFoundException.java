@@ -25,7 +25,7 @@ import de.businesscode.bcdui.binding.BindingSet;
 public class BindingNotFoundException extends BindingException {
   private static final long serialVersionUID = 1L;
   public BindingNotFoundException(BindingSet binding, String bindingItemName) {
-    super("Binding item \"" + bindingItemName + "\" not found in binding set \"" + binding.getName() + "\".");
+    super("Binding item" + (bindingItemName.indexOf(",") > -1 ? "s" : "") +  " \"" + bindingItemName + "\" not found in binding set \"" + binding.getName() + "\".");
   }
   public BindingNotFoundException(String bindingSetName) {
     super("BindingSet \"" + bindingSetName + "\" not found.");
