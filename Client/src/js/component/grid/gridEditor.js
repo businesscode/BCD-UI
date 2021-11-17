@@ -595,9 +595,9 @@ bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.open = function
   jQuery("body").append("<div style='display:none' class='bcdStatusModelEditor' title='" + this.title + "'>" +
         "<div class='bcdLoadContainer'></div>" +
         "<div class='bcdControls'>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' onClickAction='bcduiStatusModelEditor.takeData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' onClickAction='bcduiStatusModelEditor.clearData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' onClickAction='bcduiStatusModelEditor.cancelData(this)'></bcd-buttonng>" +
+          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.takeData(this)'></bcd-buttonng>" +
+          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.clearData(this)'></bcd-buttonng>" +
+          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData(this)'></bcd-buttonng>" +
         "</div>" +
       "</div>");
   jQuery(".bcdStatusModelEditor").data("instance", this); // remember instance for button use
@@ -613,7 +613,7 @@ bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.open = function
     // and make it a dialog
     jQuery(".bcdStatusModelEditor").dialog({closeOnEscape: false, height: "auto", width: "auto", modal: true, resizable: false, draggable: true, closeText: "\u2716", position: { my: 'center', at: 'center' }
       , create: function() { jQuery("body").css({ overflow: 'hidden' });}
-      , close: function() {bcduiStatusModelEditor.cancelData(jQuery(".bcdStatusModelEditor").get(0));}
+      , close: function() {bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData(jQuery(".bcdStatusModelEditor").get(0));}
       , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
     });
 
