@@ -29,7 +29,7 @@
 
   //set up remote appender which propagates clients logging events to backend
   $$.appender = new log4javascript.AjaxAppender(bcdui.log.BACKEND_LOGGING_TRANSCEIVER_URL);
-  $$.appender.setLayout(new log4javascript.XmlLayout());
+  $$.appender.setLayout(new log4javascript.PatternLayout());
   $$.appender.setThreshold(log4javascript.Level.ERROR);
   bcdui.log.addAppender($$.appender);
 

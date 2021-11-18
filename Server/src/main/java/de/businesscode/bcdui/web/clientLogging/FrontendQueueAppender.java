@@ -28,7 +28,7 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.apache.logging.log4j.core.layout.XmlLayout;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
 
@@ -46,7 +46,7 @@ public class FrontendQueueAppender extends AbstractAppender {
                                                      @PluginElement("Layout") Layout<? extends Serializable> layout,
                                                      @PluginElement("Filters") Filter filter) {
       if (layout == null)
-          layout = XmlLayout.createDefaultLayout();
+          layout = PatternLayout.createDefaultLayout();
       return new FrontendQueueAppender(name, filter, layout, false, null);
   }
   
@@ -61,10 +61,9 @@ public class FrontendQueueAppender extends AbstractAppender {
     if (sessionId == null || FrontendLogRecordPublisher.LOGGER_NAME.equals(event.getLoggerName()))
       return;
 
-    // TODO : do we need this check? or can we blindly cast to XmlLayout?
-    String msg = getLayout() instanceof XmlLayout ? 
-        ((XmlLayout) getLayout()).toSerializable(event) : 
-        XmlLayout.createDefaultLayout().toSerializable(event);
+    String msg = getLayout() instanceof PatternLayout ? 
+        ((PatternLayout) getLayout()).toSerializable(event) : 
+          PatternLayout.createDefaultLayout().toSerializable(event);
     SingletonStringQueue.getInstance(sessionId).add(msg);
   }
 }
