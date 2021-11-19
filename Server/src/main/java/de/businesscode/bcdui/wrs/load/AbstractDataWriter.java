@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 
 /**
- * An abstract writer-implementation - contains helper getters for all writer parameteres
+ * An abstract writer-implementation - contains helper getters for all writer parameters
  */
 public abstract class AbstractDataWriter implements IDataWriter {
 

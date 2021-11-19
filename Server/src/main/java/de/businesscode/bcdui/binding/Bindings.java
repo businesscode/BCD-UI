@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class Bindings {
   }
 
   /**
-  /* EnterpriseEdition has a more powerful BindigSet reader
+  /* EnterpriseEdition has a more powerful BindingSet reader
    * @throws BindingException
    */
   protected void initWarMap()  throws BindingException {
@@ -116,7 +116,7 @@ public class Bindings {
   {
     if( Bindings.bindings==null ) {
       try {
-        Bindings.bindings = (Bindings) Configuration.getClassoption(OPT_CLASSES.BINDINGS).newInstance();
+        Bindings.bindings = (Bindings) Configuration.getClassoption(OPT_CLASSES.BINDINGS).getDeclaredConstructor().newInstance();
       } catch (Exception e) {
         throw new BindingException("No valid Bindings class found", e);
       }

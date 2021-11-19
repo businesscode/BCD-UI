@@ -20,6 +20,10 @@ import java.util.Collection;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+/**
+ * Represents a BindingItem in a concrete Wrq, includes information like overwritten attributes
+ * See analogy SimpleBindingItem and its subclasses representing the input side, i.e. StandardBindingSet or clc:Calc
+ */
 public interface WrsBindingItem {
 
   int                         getColumnNumber();

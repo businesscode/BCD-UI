@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class ErrorLogAppender extends AbstractAppender {
             event.getThrown().printStackTrace(prWriter);
             throwInfo = writer.toString();
           }
-        String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? throwInfo : "");
+        String message = (clientMsg != null ? clientMsg : "") + (throwInfo != null ? System.lineSeparator() + throwInfo : "");
 
         // log error
         final ErrorSqlLogger.LogRecord recordError = new ErrorSqlLogger.LogRecord(

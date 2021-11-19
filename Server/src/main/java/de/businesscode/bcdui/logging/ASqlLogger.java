@@ -66,7 +66,7 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
   }
 
   /**
-   * as SQL logger we are depended on Bindings, which in turn use classes using us, so we dont participate in Binding bootsrap process
+   * as SQL logger we are depended on Bindings, which in turn use classes using us, so we dont participate in Binding bootstrap process
    *
    * @return
    */
@@ -128,7 +128,7 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
 
   /**
    *
-   * @return SQL template for inserts (prepared statement compatible to process batch updates) this sql template is not intented to change and is cached so this function
+   * @return SQL template for inserts (prepared statement compatible to process batch updates) this sql template is not intended to change and is cached so this function
    * is called only once
    */
   protected abstract String getSqlTemplate();

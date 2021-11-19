@@ -68,11 +68,11 @@ public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.Form
       if (spnegoPrincipal != null) {
         Subject subj = SecurityUtils.getSubject();
         if (!subj.isAuthenticated()) {
-          logger.trace("implicitely authenticating:" + spnegoPrincipal);
+          logger.trace("implicitly authenticating:" + spnegoPrincipal);
           try {
             subj.login(new ExternalAuthenticationToken(spnegoPrincipal));
           } catch (Exception e) {
-            logger.warn("failed to implicitely authenticate user", e);
+            logger.warn("failed to implicitly authenticate user", e);
           }
         }
       }

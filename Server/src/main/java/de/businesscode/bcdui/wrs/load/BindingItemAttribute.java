@@ -20,7 +20,7 @@ import java.util.Map;
 import de.businesscode.bcdui.binding.BindingItem;
 
 /**
- * This class is container of one attribute of binding item. It serves as a marker
+ * This class is container of a wrq:A of binding item in a query. It serves as a marker
  * In WRS-request the Attribute element presents as
  * {@code
  * <Columns>

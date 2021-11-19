@@ -88,7 +88,7 @@ public class BindingUtils
    * Column expressions prefixed with SimpleBindingItem.BCD_NO_TABLE_ALIAS by the user are excluded from this
    * the user has to assure that this is only used in an unambiguous statement when using this in a join.
    * This is the case for example if the column refers to another table than the one assigned to this BindingSet
-   * or for mySeqence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
+   * or for mySequence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
    */
   public static String addTableAlias( List<String> sCE, String tableAlias ) 
   {

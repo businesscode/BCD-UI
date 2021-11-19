@@ -70,7 +70,7 @@ public abstract class SingletonHolder<T> {
    */
   public T get() {
     /*
-     * TODO: we could also switch to double-checked locking to gain slightly more peformance
+     * TODO: we could also switch to double-checked locking to gain slightly more performance
      * by resigning the synchronized method
      */
     synchronized (holders) {

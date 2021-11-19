@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ public class WriteProcessingCallbackFactory {
 
   /**
    *
-   * @return new intance of a configurated callback
+   * @return new instance of a configured callback
    */
   public WriteProcessingCallback createInstance(){
     WriteProcessingCallback instance;
     try {
-      instance = callbackClass.newInstance();
+      instance = callbackClass.getDeclaredConstructor().newInstance();
       instance.setParams(params);
     } catch(Exception e){
       throw new RuntimeException("failed to create instance of " + callbackClass.getName(), e);

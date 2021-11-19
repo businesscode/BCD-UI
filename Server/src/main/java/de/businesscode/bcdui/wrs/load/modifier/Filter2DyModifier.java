@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ public class Filter2DyModifier implements Modifier
     filterOut = doc.createElementNS("http://www.businesscode.de/schema/bcdui/filter-1.0.0", "f:Filter");
     select.appendChild(filterOut);
 
+    // Let's return a full document
     if( filterIn == null )
       return doc.getDocumentElement();
 
@@ -74,6 +75,7 @@ public class Filter2DyModifier implements Modifier
 
     periodTypeToDyRange();
 
+    // If filterIn was given we end up here and return only the new filter Element
     return filterOut;
   }
   

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
 /**
- * callback params class scaffolding arbirtrary parameters supplied to callback and
+ * callback params class scaffolding arbitrary parameters supplied to callback and
  * providing access API,
  *
  * The parameters sample:
@@ -125,7 +125,7 @@ public class WriteProcessingCallbackParams {
    *
    * @return
    */
-  public <T> T getValue(Map<String, String> map, String key, T defaultValue){
+  public <T> T getValue(Map<String, T> map, String key, T defaultValue){
     return map.containsKey(key) ? (T)map.get(key) : defaultValue;
   }
 }
