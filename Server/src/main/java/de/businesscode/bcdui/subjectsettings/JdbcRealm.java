@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -55,9 +55,10 @@ import org.apache.shiro.util.SimpleByteSource;
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
-import de.businesscode.bcdui.binding.exc.BindingSetNotFoundException;
+import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
+import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
 import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
 
@@ -82,69 +83,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private String passwordColumnName     = BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT;
   private String passwordSaltColumnName = BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT;
 
-  private static final String BS_USER = "bcd_sec_user";
-  private static final String BS_USER_RIGHTS = "bcd_sec_user_settings";
-  private static final String BS_USER_ROLES = "bcd_sec_user_roles";
   public static final int DEFAULT_HASH_ITERATIONS = 1024;
   private final Logger log = LogManager.getLogger(getClass());
-  final private String u_table;
-  final private String u_userid;
-  final private String u_login;
-  final private String u_isdisabled;
 
-  private String ur_table;
-  private String ur_userid;
-  private String ur_userid_jdbcType;
-  private String ur_righttype;
-  private String ur_rightvalue;
-
-  private String uro_table;
-  private String uro_userid;
-  private String uro_userid_jdbcType;
-  private String uro_userrole;
-  
-  private boolean hashSalted = true; // Depends on whether password_salt exists as a bRef in BS_USER
   private static int hashIterations = DEFAULT_HASH_ITERATIONS;
-  
+
   public JdbcRealm() {
     super();
-    this.setPermissionsLookupEnabled(false);
-    try {
-      Collection<String> c = new LinkedList<String>();
-      c.add("user_id");
-
-      BindingSet bs = Bindings.getInstance().get(BS_USER, c);
-      u_table    = bs.getTableName();
-      BindingItem biUserId = bs.get("user_id");
-      u_userid   = biUserId.getColumnExpression();
-      u_login    = bs.get("user_login").getColumnExpression();
-      u_isdisabled = bs.get("is_disabled").getColumnExpression();
-      hashSalted = bs.hasItem("password_salt");
-      try {
-        bs = Bindings.getInstance().get(BS_USER_RIGHTS, c);
-        ur_table  = bs.getTableName();
-        biUserId = bs.get("user_id");
-        ur_userid_jdbcType = getCustomJdbcType(biUserId);
-        ur_userid = biUserId.getColumnExpression();
-        ur_righttype  = bs.get("right_type").getColumnExpression();
-        ur_rightvalue = bs.get("right_value").getColumnExpression();
-        this.setPermissionsLookupEnabled(true);
-      } catch (BindingSetNotFoundException bsnf) {
-        log.info("JDBC Authorization not available due to missing binding set " + BS_USER_RIGHTS);
-      } 
-      try {
-        bs = Bindings.getInstance().get(BS_USER_ROLES, c);
-        uro_table  = bs.getTableName();
-        biUserId = bs.get("user_id");
-        uro_userid_jdbcType = getCustomJdbcType(biUserId);
-        uro_userid = biUserId.getColumnExpression();
-        uro_userrole  = bs.get("user_role").getColumnExpression();
-      } catch (BindingSetNotFoundException bsnf) {
-        log.info("JDBC user roles not active, no binding set " + BS_USER_ROLES);
-      } 
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to initialize when accessing BindingSet", e);
-    }
+    this.setPermissionsLookupEnabled(true);
   }
 
   /**
@@ -194,7 +140,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   
   @Override
   public CredentialsMatcher getCredentialsMatcher() {
-    if(hashSalted) {
+    if(isHashSalted()) {
       final HashedCredentialsMatcher matcher = new org.apache.shiro.authc.credential.HashedCredentialsMatcher(Sha256Hash.ALGORITHM_NAME);
       matcher.setHashIterations(hashIterations);
       return matcher;
@@ -211,8 +157,9 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
-    String stmt = "select "+u_userid+", "+ passwordColumnName + (hashSalted?", "+ passwordSaltColumnName :"") + " from "+u_table+" where "+u_login+" = ? and "+u_userid+" is not null and ("+u_isdisabled+" is null or "+u_isdisabled+"<>'1')";
-    return new QueryRunner(getDataSource(), true).query(stmt, (rs) -> {
+    boolean hashSalted = isHashSalted();
+    String stmt = "#set( $k = $bindings.bcd_sec_user ) select $k.user_id-, " + getPasswordColumnName() + (hashSalted ? ", " + getPasswordSaltColumnName()  : "") + " from $k.getPlainTableName() where $k.user_login- = ? and $k.user_id- is not null and ($k.is_disabled- is null or $k.is_disabled-<>'1')";
+    return new QueryRunner(getDataSource(), true).query(new SQLEngine().transform(stmt), rs -> {
       if(rs.next()){
         ArrayList<String> result = new ArrayList<>();
         result.add(rs.getString(1));
@@ -294,7 +241,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
           pc.add(upassToken.getUsername(), getName());                  // user-login
 
           // salted vs. plaintext pass
-          if(hashSalted) {
+          if(isHashSalted()) {
             // use same scheme as in de.businesscode.bcdui.subjectsettings.SecurityHelper.generatePasswordHashSalt(String) tool
             return new SimpleAuthenticationInfo(pc, Hex.decode(credentialInfo[1]), new SimpleByteSource(Hex.decode(credentialInfo[2])));
           } else {
@@ -318,19 +265,31 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   /**
    * load roles from db
    */
+  @Override
   protected Set<String> getRoleNamesForUser(Connection con, String userId) throws SQLException {
-    final Set<String> roles = new HashSet<String>();
-    if (uro_table == null) {
+    final Set<String> roles = new HashSet<>();
+
+    BindingItem biUserId = null;
+    try { biUserId = getBindingItem("bcd_sec_user_roles", "user_id"); } catch (BindingException e) {
+      log.info("JDBC user roles not active, no binding set bcd_sec_user_roles");
+    }
+
+    if (biUserId == null) {
       roles.add("default");
     } else {
       try {
         BcdSqlLogger.setLevel(Level.OFF);
-        new QueryRunner(true).query(con, "SELECT "+uro_userrole+" FROM "+uro_table+" WHERE " + getDefineJdbcParameter(uro_userid, uro_userid_jdbcType), (rs) -> {
+        String uroUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
+        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.user_role- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
+
+        new QueryRunner(true).query(con, new SQLEngine().transform(sql), rs -> {
           while(rs.next()){
             roles.add(rs.getString(1));
           }
           return null;
         }, userId);
+      } catch (Exception e) {
+        log.error("Error getting user roles from DB.",e);
       } finally {
         BcdSqlLogger.reset();
       }
@@ -345,33 +304,43 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @see org.apache.shiro.realm.jdbc.JdbcRealm#getPermissions(java.sql.Connection, java.lang.String, java.util.Collection)
    * @Override
    */
+  @Override
   protected Set<String> getPermissions(Connection con, String userId, Collection<String> roleNames)
     throws SQLException
   {
-    Set<String> permissions = new HashSet<String>();
-    String stmt = "select "+ur_righttype+", "+ur_rightvalue+" from "+ur_table+" where " + getDefineJdbcParameter(ur_userid, ur_userid_jdbcType);
-    PreparedStatement ps = null;
-    ResultSet rs = null;
+    Set<String> permissions = new HashSet<>();
 
-    try {
-      // we don't want to log our JDBC activity
-      BcdSqlLogger.setLevel(Level.OFF);
-
-      ps = con.prepareStatement(stmt);
-      ps.setString(1, userId);
-      rs = ps.executeQuery();
-      while( rs.next() ) {
-        String permission = rs.getString(1);
-        if( rs.getString(2)!=null && rs.getString(2).length()!=0 )
-          permission = permission+":"+rs.getString(2);
-        permissions.add(permission);
+    BindingItem biUserId = null;
+    try { biUserId = getBindingItem("bcd_sec_user_settings", "user_id"); } catch (BindingException e) { log.info("JDBC Authorization not available due to missing binding set bcd_sec_user_settings"); }
+  
+    if (biUserId != null) {
+  
+      PreparedStatement ps = null;
+      ResultSet rs = null;
+  
+      try {
+        String urUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
+        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type-, $k.right_value- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), urUseridjdbcTypeColExpre);
+  
+        // we don't want to log our JDBC activity
+        BcdSqlLogger.setLevel(Level.OFF);
+  
+        ps = con.prepareStatement(new SQLEngine().transform(sql));
+        ps.setString(1, userId);
+        rs = ps.executeQuery();
+        while( rs.next() ) {
+          String permission = rs.getString(1);
+          if( rs.getString(2)!=null && rs.getString(2).length()!=0 )
+            permission = permission+":"+rs.getString(2);
+          permissions.add(permission);
+        }
+      } catch (Exception e) {
+        log.error("Error getting subject settings from DB.",e);
+      } finally {
+        BcdSqlLogger.reset();
+  
+        Closer.closeAllSQLObjects(rs, ps);
       }
-    } catch (Exception e) {
-      log.error("Error getting subject settings from DB.",e);
-    } finally {
-      BcdSqlLogger.reset();
-
-      Closer.closeAllSQLObjects(rs, ps);
     }
     return permissions;
   }
@@ -432,7 +401,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         clearPasswd = br.readLine();
       }
     }
-    String salted[]=generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
+    String[] salted = generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
     System.out.println(String.format("hash-iterations:%s\npasswd hash:%s\nsalt:%s\n", DEFAULT_HASH_ITERATIONS, salted[0], salted[1]));
   }
 
@@ -445,23 +414,32 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     this.passwordColumnName = passwordColumnsName;
   }
   public String getPasswordColumnName() {
-    return passwordColumnName;
+    return this.passwordColumnName;
   }
   public void setPasswordSaltColumnName(String passwordSaltColumnName) {
     Configuration.getInstance().addConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME, passwordSaltColumnName);
     this.passwordSaltColumnName = passwordSaltColumnName;
   }
   public String getPasswordSaltColumnName() {
-    return passwordSaltColumnName;
+    return this.passwordSaltColumnName;
   }
   public void setHashIterations(int hashIterations) {
     JdbcRealm.hashIterations = hashIterations;
   }
-  static public int getHashIterations() {
+  public static int getHashIterations() {
     return JdbcRealm.hashIterations;
   }
-  public boolean isHashSalted() {
-    return hashSalted;
+
+  private BindingItem getBindingItem(String bindingSet, String bindingItem) throws BindingException {
+    Collection<String> c = new LinkedList<>();
+    c.add(bindingItem);
+    BindingSet bs = Bindings.getInstance().get(bindingSet, c);
+    return bs.get(bindingItem);
+  }
+  
+  private boolean isHashSalted() {
+    try { getBindingItem("bcd_sec_user", "password_salt"); } catch (BindingException e) { return false; }
+    return true;
   }
 
 }
