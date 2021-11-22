@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
 */
 package de.businesscode.bcdui.vfs.provider.database;
 
-import java.io.ByteArrayInputStream;
+import org.xml.sax.InputSource;
+import org.w3c.dom.Document;
 import java.io.InputStream;
-import java.sql.Blob;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,7 +27,6 @@ import java.util.Arrays;
 
 import net.sf.ehcache.Element;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.FileSystemException;
@@ -36,17 +36,20 @@ import org.apache.commons.vfs.provider.AbstractFileObject;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.cache.CacheFactory;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.filters.RequestLifeCycleFilter;
+import de.businesscode.bcdui.web.wrs.RequestOptions;
+import de.businesscode.bcdui.wrs.IRequestOptions;
+import de.businesscode.bcdui.wrs.load.DataLoader;
+import de.businesscode.bcdui.wrs.load.Wrq2Sql;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
-import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 
 
@@ -82,17 +85,13 @@ public class DatabaseFileObject extends AbstractFileObject {
     }
   }
 
-  private static final String innerSQL =
-  " ( SELECT $k.path-, $k.resourceClob-, $k.resourceBlob-, $k.isServer-, ROW_NUMBER() OVER (PARTITION BY $k.path- ORDER BY $k.isServer- DESC ) C FROM $k.getPlainTableName()" +
-  " ) Q WHERE C=1 AND ($k.isServer- = 1 OR ($k.isServer- = 0 AND UPPER($k.path-) NOT LIKE '/WEB-INF/%'))";
-
   private static final String mainBindingSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM " + innerSQL + " AND $k.path- = ?";
+  " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM $k.getPlainTableName() WHERE $k.path- = ?";
 
   private static final String getChildrenSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path- FROM " + innerSQL + " AND $k.path- like ?";
+  " SELECT $k.path- FROM $k.getPlainTableName() WHERE $k.path- like ?";
 
   @Override
   /**
@@ -151,55 +150,21 @@ public class DatabaseFileObject extends AbstractFileObject {
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
-
-    Connection connection = null;
-    ConnectionContainer conCont = null;
-
-    boolean gotBinding = true;
-    try {conCont = obtainConnection(); connection = conCont.connection;} catch (Exception ex) {
-      gotBinding  = false;
-    }
-
-    InputStream iStr=null;
-
-    if (gotBinding) {
-
-      PreparedStatement stmt=null;
-      ResultSet rs=null;
-
-      try {
-        BcdSqlLogger.setLevel(Level.TRACE);
-        String sql = new SQLEngine().transform(mainBindingSQL);
-        stmt = connection.prepareStatement(sql);
-        stmt.setString(1, this.fileName.getPathDecoded());
-
-        log.trace("doGetInputStream():" + sql + " param: " + this.fileName.getPathDecoded());
-        rs = stmt.executeQuery();
-        if (rs.next()) {
-
-          // First, try to use the clob content
-          iStr = DatabaseCompatibility.getInstance().getClobInputStream(BCDVIRTUALFILESYSTEM, rs, 2);
-
-          // Otherwise use the binary content
-          // the rs.getBinaryStream() cannot be accessed after the rs/stmt were closed so we read the content and put it in an new Stream
-          if (iStr == null)
-            iStr = DatabaseCompatibility.getInstance().getBlobInputStream(BCDVIRTUALFILESYSTEM, rs, 3);
-        }
-      }
-      finally{
-        BcdSqlLogger.reset();
-        Closer.closeAllSQLObjects(rs, stmt);
-        conCont.close();
-      }
-    }
-
-    return iStr;
+    String reqSql = "<WrsRequest xmlns=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\" xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\"><Select><Columns><C bRef=\"path\"/><C bRef=\"resourceClob\"/><C bRef=\"resourceBlob\"/></Columns><From><BindingSet>bcd_virtualFileSystem</BindingSet></From><f:Filter><f:Expression bRef=\"path\" op=\"=\" value=\""+ this.fileName.getPathDecoded()+"\"/></f:Filter></Select></WrsRequest>";
+    StringReader strReader = new StringReader(reqSql);
+    Document doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().parse(new InputSource(strReader));
+    IRequestOptions options = new RequestOptions(-1);
+    options.setRequestDoc(doc);
+    VFSDataWriter dataWriter = new VFSDataWriter(){};
+    DataLoader loader = new DataLoader(options, new Wrq2Sql(options), dataWriter);
+    loader.run();
+    return dataWriter.getInputStream();
   }
 
   @Override
   protected FileType doGetType() throws Exception {
     if(fileName != null){
-      if(fileName.getExtension() != null && fileName.getExtension() != "")
+      if(fileName.getExtension() != null && ! fileName.getExtension().isEmpty())
         return FileType.FILE;
 
       return FileType.FOLDER;
@@ -242,7 +207,7 @@ public class DatabaseFileObject extends AbstractFileObject {
         stmt.setString(1, path);
         rs = stmt.executeQuery();
 
-        ArrayList<DatabaseFileObject> list = new ArrayList<DatabaseFileObject>();
+        ArrayList<DatabaseFileObject> list = new ArrayList<>();
 
         while (rs.next()) {
           list.add( new DatabaseFileObject(
@@ -271,7 +236,7 @@ public class DatabaseFileObject extends AbstractFileObject {
    */
   protected String[] doListChildren() throws Exception {
     FileObject[] clds = getChildren();
-    ArrayList<String> chPaths = new ArrayList<String>();
+    ArrayList<String> chPaths = new ArrayList<>();
     if(clds != null){
       for (int i = 0; i < clds.length; i++) {
         chPaths.add( clds[i].getName().getPathDecoded());
@@ -287,7 +252,6 @@ public class DatabaseFileObject extends AbstractFileObject {
           Arrays.asList(cfgBuilder.getBindingItemIdPath()
               , cfgBuilder.getBindingItemIdResourceClob()
               , cfgBuilder.getBindingItemIdResourceBlob()
-              , cfgBuilder.getBindingItemIdIsServer()
               ));
     }
     return bindingSet;
@@ -301,7 +265,7 @@ public class DatabaseFileObject extends AbstractFileObject {
    * @throws Exception
    */
   protected ConnectionContainer obtainConnection() throws Exception {
-    BindingSet bs  = Bindings.getInstance().get(BCDVIRTUALFILESYSTEM, new ArrayList<String>());
+    BindingSet bs  = Bindings.getInstance().get(BCDVIRTUALFILESYSTEM, new ArrayList<>());
     Boolean isManaged = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
     Connection con = isManaged ?
         Configuration.getInstance().getManagedConnection(bs.getDbSourceName()) :

@@ -23,7 +23,6 @@ public class DatabaseFileSystemConfigBuilder extends FileSystemConfigBuilder{
   public final static String pathBindingSetItemId="path";
   public final static String bindingItemIdResourceClob="resourceClob";
   public final static String resourceBlobBindingSetItemId="resourceBlob";
-  public final static String bindingItemIdIsServer="isServer";
   public final static String configFilePath="/de/businesscode/bcdui/vfs/provider/database/vfs-providers.xml";
 
   private static DatabaseFileSystemConfigBuilder ins = new DatabaseFileSystemConfigBuilder();
@@ -62,13 +61,6 @@ public class DatabaseFileSystemConfigBuilder extends FileSystemConfigBuilder{
    */
   public String getBindingItemIdResourceBlob(){
     return resourceBlobBindingSetItemId;
-  }
-
-  /**
-   * returns BindingItemId of resource isServer column
-   */
-  public String getBindingItemIdIsServer(){
-    return bindingItemIdIsServer;
   }
 
   @Override
