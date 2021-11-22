@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.util.WebUtils;
 import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingSet;
@@ -87,7 +90,11 @@ public class Wrq2Sql implements ISqlGenerator
       resultingBindingSet = options.getBindings().get(wrqInfo.getBindingSetId(),  wrqInfo.getAllRawBRefs());
     }
 
-    resultingBindingSet.assurePermitted(SECURITY_OPS.read);
+    // for client sided calls, check read security 
+    Subject subject = SecurityUtils.getSubject();
+    if (subject != null && WebUtils.isHttp(subject))
+      resultingBindingSet.assurePermitted(SECURITY_OPS.read);
+
     sqlConditionGeneratorClass = Configuration.getClassoption(OPT_CLASSES.SUBJECTSETTINGS2SQL);
     pagination      = new WrsPagination( wrqInfo, resultingBindingSet );
   }
@@ -214,10 +221,15 @@ public class Wrq2Sql implements ISqlGenerator
 
     // Now we determine the where-clause part driven by the SubjectSettings
     if(sqlConditionGeneratorClass != null && resultingBindingSet.hasSubjectFilters()){
-      SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, new Class<?>[]{BindingSet.class, WrqInfo.class, List.class}, resultingBindingSet, wrqInfo, boundVariables);
-      subjectSettingsClause = sqlConditionGen.getCondition();
-      if (subjectSettingsClause == null){
-        subjectSettingsClause = "";
+
+      // only add possible subject settings clause for client sided calls
+      Subject subject = SecurityUtils.getSubject();
+      if (WebUtils.isHttp(subject)) {
+        SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, new Class<?>[]{BindingSet.class, WrqInfo.class, List.class}, resultingBindingSet, wrqInfo, boundVariables);
+        subjectSettingsClause = sqlConditionGen.getCondition();
+        if (subjectSettingsClause == null){
+          subjectSettingsClause = "";
+        }
       }
     }
 
