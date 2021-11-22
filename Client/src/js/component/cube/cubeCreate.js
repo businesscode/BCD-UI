@@ -680,8 +680,10 @@ bcdui.component = Object.assign(bcdui.component,
         args.cubeRenderer = bcdui.factory.objectRegistry.getObject(args.cubeRenderer);
        
       // in case no config is given and a cube configuration is available and includes measures and dimensions, use the cubeConfig as config 
-      if (! args.metaDataModelId && args.cubeRenderer && args.cubeRenderer.getConfigModel() && args.cubeRenderer.getConfigModel().isReady() && args.cubeRenderer.getConfigModel().query("/*/dm:Dimensions") != null && args.cubeRenderer.getConfigModel().query("/*/dm:Measures") != null)
+      if (! args.metaDataModelId && args.cubeRenderer && args.cubeRenderer.getConfigModel() && args.cubeRenderer.getConfigModel().isReady() && args.cubeRenderer.getConfigModel().query("/*/dm:Dimensions") != null && args.cubeRenderer.getConfigModel().query("/*/dm:Measures") != null) {
         args.metaDataModelId = args.cubeRenderer.getConfigModel().id;
+        bcdui.factory.objectRegistry.registerObject(args.cubeRenderer.getConfigModel());
+      }
 
       // perpare metaDataModel
       if (args.metaDataModelId && bcdui.util.isString(args.metaDataModelId) && args.metaDataModelId != ""){
@@ -693,6 +695,8 @@ bcdui.component = Object.assign(bcdui.component,
         });
         args.metaDataModelId = args.cubeId+"_dndOptionsModel";
       }
+
+      bcdui.factory.objectRegistry.registerObject(metaDataModel);
 
       bcdui.factory.objectRegistry.withReadyObjects( [args.metaDataModelId], function() {
         action();
