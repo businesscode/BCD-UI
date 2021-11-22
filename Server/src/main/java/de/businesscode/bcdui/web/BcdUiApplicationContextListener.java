@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package de.businesscode.bcdui.web;
 
 import java.util.ResourceBundle.Control;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -25,6 +24,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.SubjectThreadState;
+import org.apache.shiro.util.ThreadState;
+import org.apache.shiro.web.env.WebEnvironment;
+import org.apache.shiro.web.util.WebUtils;
 
 import de.businesscode.bcdui.binding.BindingAliasMap;
 import de.businesscode.bcdui.binding.Bindings;
@@ -93,7 +97,7 @@ public class BcdUiApplicationContextListener implements ServletContextListener
   {
     BareConfiguration conf = BareConfiguration.getInstance();
     conf.addConfigurationParameter(Configuration.CONFIG_FILE_PATH_KEY,context.getServletContext().getRealPath("/WEB-INF/bcdui") );
-
+    ThreadState threadState = null;
     try {
       try {
         conf.addConfigurationParameter(Configuration.VFS_CATALOG_KEY, CacheFactory.registerVFSCatalog());
@@ -101,6 +105,12 @@ public class BcdUiApplicationContextListener implements ServletContextListener
         log.error("Failed to bootstrap VFS", e);
       }
       initBeforeBindings(conf);
+
+      // make SecurityManager available
+      WebEnvironment webEnv = WebUtils.getRequiredWebEnvironment(context.getServletContext());
+      Subject subject = new Subject.Builder(webEnv.getWebSecurityManager()).buildSubject();
+      threadState = new SubjectThreadState(subject);
+      threadState.bind();
 
       // initial binding set generation
       Bindings bindings = Bindings.getInstance();
@@ -110,6 +120,10 @@ public class BcdUiApplicationContextListener implements ServletContextListener
     } catch (BindingException e) {
       log.error(e.getMessage(), e);
     }finally{
+
+      if (threadState != null)
+        threadState.clear();
+
       // In the following "virtloggers" are used to decouple the logging of
       // frontend events into the database from the class loggers.
       
