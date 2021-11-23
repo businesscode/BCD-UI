@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
   limitations under the License.
 */
 package de.businesscode.bcdui.web.wrs;
+
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +32,7 @@ import de.businesscode.bcdui.wrs.load.ISqlGenerator;
  */
 public class WrsAccessLogEvent extends LogEventBase{
 
+  private static final long serialVersionUID = 3561315599141005246L;
   public static final String ACCESS_TYPE_WRS = "WRS";
   public static final String ACCESS_TYPE_SYLK = "SYLK";
   public static final String ACCESS_TYPE_CVS = "CVS";
@@ -58,7 +61,9 @@ public class WrsAccessLogEvent extends LogEventBase{
    * @param writer
    */
   public WrsAccessLogEvent(String accessType, HttpServletRequest request, IRequestOptions options, ISqlGenerator generator, DataLoader loader, IDataWriter writer) {
-    this(accessType, request, generator.getSelectedBindingSetName(), options.getRequestDoc(), loader.getExecuteDuration(), loader.getWriteDuration(), loader.getRsStartTime(), loader.getRsEndTime(), writer.getRowCount(), writer.getColumnsCount());
+    this(accessType, request, 
+        String.join( ",", generator.getResolvedBindingSets().stream().map(bs->bs.getName()).collect(Collectors.toSet()) ), 
+        options.getRequestDoc(), loader.getExecuteDuration(), loader.getWriteDuration(), loader.getRsStartTime(), loader.getRsEndTime(), writer.getRowCount(), writer.getColumnsCount());
   }
 
   /**
