@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.sql.Date;
 import java.sql.SQLXML;
 import java.sql.Timestamp;
@@ -29,6 +28,8 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.time.Instant;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -208,8 +209,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     getWriter().writeDefaultNamespace(WRS_XML_NAMESPACE);
     
     {
-      BindingSet bs = getGenerator().getSelectedBindingSet();
-      if(bs!=null && bs.hasCustomItem()){
+      boolean hasCustomItems = getGenerator().getResolvedBindingSets().stream().anyMatch(bs->bs.hasCustomItem());
+      if(hasCustomItems){
         getWriter().setPrefix(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
         getWriter().writeNamespace(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
       }
@@ -242,9 +243,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     //
 //    writeWrsHeaderMetaData();
 
-    getWriter().writeStartElement("BindingSet");
-    getWriter().writeCharacters(getGenerator().getRequestedBindingSetName());
-    getWriter().writeEndElement(); // BindingSet
+    for( Entry<String, String> reqBs: getGenerator().getRequestedBindingSetNames() ) {
+      getWriter().writeStartElement("BindingSet");
+      if( !reqBs.getValue().isBlank() ) getWriter().writeAttribute("alias", reqBs.getValue());
+      getWriter().writeCharacters(reqBs.getKey());
+      getWriter().writeEndElement(); // BindingSet
+    }
 
     /*
     getWriter().writeStartElement("KeySet");
@@ -338,8 +342,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     getWriter().writeCharacters("" + getDuration());
     getWriter().writeEndElement(); // ExecTime
     //
-    getWriter().writeStartElement("SelectedBindingSet");
-    getWriter().writeCharacters(getGenerator().getSelectedBindingSetName());
+    getWriter().writeStartElement("SelectedBindingSets");
+    getWriter().writeCharacters(String.join(",", getGenerator().getResolvedBindingSets().stream().map(bs->bs.getName()).collect(Collectors.toSet())));
     getWriter().writeEndElement(); // SelectedBindingSet
     //
     getWriter().writeStartElement("Url");
@@ -463,7 +467,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
       case Types.BLOB: {
-        BindingSet bs = getGenerator().getSelectedBindingSet();
+        BindingSet bs = getGenerator().getResolvedBindingSets().iterator().next(); // We only need this for DatabaseCompatibility, so any does
         byte[] data = DatabaseCompatibility.getInstance().getBlob(bs.getName(), getResultSet(), colNum);
         if (data == null || data.length == 0 || getResultSet().wasNull()){
           getWriter().writeEmptyElement("null");
@@ -474,7 +478,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
         break;
       }
       case Types.CLOB: {
-        BindingSet bs = getGenerator().getSelectedBindingSet();
+        BindingSet bs = getGenerator().getResolvedBindingSets().iterator().next();
         String data = DatabaseCompatibility.getInstance().getClob(bs.getName(), getResultSet(), colNum);
         if (data == null || getResultSet().wasNull()) {
           getWriter().writeEmptyElement("null");

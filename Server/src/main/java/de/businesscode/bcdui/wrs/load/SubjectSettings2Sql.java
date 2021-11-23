@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
 /**
  * Returns a where clause based on the SubjectFilters of the BindingSet and the current Subject's permissions Initially taken from WrsSqlGenerator. For change
  * history see there
- * 
+ * We are instantiated per SQL generation for a SubjectFilters
  */
 public class SubjectSettings2Sql implements SqlConditionGenerator {
   /**
@@ -52,15 +52,19 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
   private static final int THRESHOLD_PERMS_COUNT_INLINE = 20;
   private final BindingSet bindingSet;
   private final WrqInfo wrqInfo;
+  private final String wrqAlias;
+  private final String sqlAlias;
   private final List<Element> boundVariables;
   private Logger logger = LogManager.getLogger(getClass());
-  // TODO: add depedency on isDebug? or introduce custom new flag
+  // TODO: add dependency on isDebug? or introduce custom new flag
   private boolean applySqlOptimization = true;
 
-  public SubjectSettings2Sql(BindingSet bindingSet, WrqInfo wrqInfo, List<Element> boundVariables) {
+  public SubjectSettings2Sql(BindingSet bindingSet, WrqInfo wrqInfo, List<Element> boundVariables, String wrqAlias, String sqlAlias) throws BindingNotFoundException {
     this.bindingSet = bindingSet;
     this.wrqInfo = wrqInfo;
     this.boundVariables = boundVariables;
+    this.wrqAlias = wrqAlias;
+    this.sqlAlias = sqlAlias;
   }
 
   /**
@@ -216,11 +220,9 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param boundVariables
    * @param settings
    * @param subject
-   * @param session
    * @param sqlClause
    * @param sf
    * @param connective
-   * @param preparedStatementParams
    * @return false in case user has no access to the binding-set at all, true otherwise
    * @throws BindingException
    */
@@ -265,8 +267,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     if (subjectSettingsClause.length() > 0) {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
-
-    generateCondition(subjectSettingsClause, subject, ft, boundVariables, filterType, permissions, bindingSet.get(bRef).getQColumnExpression());
+    generateCondition(subjectSettingsClause, subject, ft, boundVariables, filterType, permissions, bindingSet.get(bRef).getQColumnExpression(sqlAlias));
   }
 
   /**
@@ -275,7 +276,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param subjectSettingsClause - to generate condition into
    * @param subject - current subject
    * @param ft - filter type to generate condition from
-   * @param preparedStatementParams - the parameter list
+   * @param boundVariables
    * @param filterType - filter type name
    * @param permissions - permissions granted by subject
    * @param columnExpression - the column expression to participate in condition
@@ -327,12 +328,13 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
 
     // in case of implicit value with isIsNullAllowsAccess, we need to construct x is null or x is value 
     if (ft.isIsNullAllowsAccess()) {
-      subjectSettingsClause.append("($col$ IS NULL OR ".replace("$col$", bindingSet.get(bRef).getQColumnExpression()));
+      subjectSettingsClause.append("($col$ IS NULL OR ".replace("$col$", bindingSet.get(bRef).getQColumnExpression(sqlAlias)));
     }
 
     // Make sure the bRef we are working on is known, even if it did not appear elsewhere so far
-    if (!wrqInfo.getAllBRefs().containsKey(bRef)) {
-      wrqInfo.getAllBRefs().put(bRef, new WrqBindingItem(wrqInfo, wrqInfo.getResultingBindingSet().get(bRef), "v" + (wrqInfo.aliasCounter++), false));
+    if (!wrqInfo.getAllBRefs().containsKey(wrqAlias+"."+bRef)) {
+      String fullbRef = wrqAlias.isEmpty() ? bRef : wrqAlias+"."+bRef;
+      wrqInfo.getAllBRefs().put(fullbRef, new WrqBindingItem(wrqInfo, bindingSet.get(bRef), "v" + (wrqInfo.aliasCounter++), false));
     }
 
     Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
@@ -388,7 +390,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       try {
         bsUr = Bindings.getInstance().get("bcd_sec_user_settings", c);
 
-        table = bsUr.getTableName();
+        table = bsUr.getTableReference();
         userid = bsUr.get("user_id").getColumnExpression();
         righttype = bsUr.get("right_type").getColumnExpression();
         rightvalue = bsUr.get("right_value").getColumnExpression();

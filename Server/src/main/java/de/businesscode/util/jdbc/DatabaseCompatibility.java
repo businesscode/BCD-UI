@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.businesscode.util.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -63,6 +64,7 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> sqlServerCalcFktMapping;
   protected final Map<String, String[]> oracleCalcFktMapping;
   protected final Map<String, String[]> mysqlCalcFktMapping;
+  protected final Map<String, String[]> redshiftCalcFktMapping;
 
   protected final Map<String, String> aggregationMappingGeneric;
   protected final Map<String, String> aggregationMappingMySql;
@@ -70,6 +72,8 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> spatialFktMapping;
   protected final Map<String, String[]> oracleSpatialFktMapping;
   protected final Map<String, String[]> sqlServerSpatialFktMapping;
+
+  protected final Map<String, String> sqlSetOperators;
 
   // When casting to VARCHAR, we use this size, should be long enough and not hurt on the other side
   private int LENGTH_FOR_CAST_TO_VARCHAR = 1024;
@@ -84,8 +88,8 @@ public class DatabaseCompatibility
     if( DatabaseCompatibility.singleton == null ) {
       Class<? extends DatabaseCompatibility> clazz = (Class<? extends DatabaseCompatibility>) Configuration.getClassoption(Configuration.OPT_CLASSES.DATABASECOMPATIBILITY);
       try {
-        DatabaseCompatibility.singleton = clazz.newInstance();
-      } catch (InstantiationException | IllegalAccessException e) {
+        DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
+      } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
         throw new RuntimeException("No class found for DatabseCompatibility", e);
       }
     }
@@ -141,21 +145,30 @@ public class DatabaseCompatibility
   }
 
   /**
-   * MySql does not support ANSI GROUPING SETS and ROLLUP but only a custom WITH ROLLUP without a column list
+   * Are we allowed to use GROUPING SETs and GROUPING()?
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbOnlyKnowsWithRollup(BindingSet resultingBindingSet) 
-  {
+  public boolean dbSupportsGroupingSets(BindingSet resultingBindingSet) {
     String product = getDatabaseProductNameLC(resultingBindingSet);
-    return product.contains("mysql");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("teradata");
+  }
+
+  /**
+   * Returns true if the database of resultingBindingSet supports GROUPING SETS
+   * @param resultingBindingSet
+   * @return
+   */
+  public String dbLikeEscapeBackslash(BindingSet resultingBindingSet) {
+    String product = getDatabaseProductNameLC(resultingBindingSet);
+    return product.contains("redshift") ? "" : " ESCAPE '\\'";
   }
 
   /**
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbNeedsVarcharCastForConcatInTopN( BindingSet resultingBindingSet) {
+  public boolean dbNeedsVarcharCastForConcatInTopN(BindingSet resultingBindingSet) {
     return false;
   }
 
@@ -167,7 +180,7 @@ public class DatabaseCompatibility
    */
   public int dbOrderByNullsLast( BindingSet resultingBindingSet, String colExpr, boolean isDesc, StringBuffer sql ) 
   {
-    if( getDatabaseProductNameLC(resultingBindingSet).contains("oracle") ) {
+    if( getDatabaseProductNameLC(resultingBindingSet).contains("oracle") || getDatabaseProductNameLC(resultingBindingSet).contains("redshift") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
       } else {
@@ -209,6 +222,8 @@ public class DatabaseCompatibility
     }
     else if( getDatabaseProductNameLC(bindingSet).contains("oracle") )
       return "CAST (" + expr + " AS VARCHAR2("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
+    else if( getDatabaseProductNameLC(bindingSet).contains("mysql") )
+      return "CAST (" + expr + " AS CHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
     else
       return "CAST (" + expr + " AS VARCHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
   }
@@ -226,6 +241,8 @@ public class DatabaseCompatibility
       return sqlServerCalcFktMapping;
     if( product.contains("mysql") )
       return mysqlCalcFktMapping;
+    if( product.contains("redshift") )
+      return redshiftCalcFktMapping;
     return oracleCalcFktMapping;    
   }
 
@@ -240,6 +257,14 @@ public class DatabaseCompatibility
     return aggregationMappingGeneric;
   }
 
+  /**
+   * Standard SQL Set Operators
+   */
+  public Map<String, String> getSetOperators()
+  {
+    return sqlSetOperators;
+  }
+  
   /**
    * Geo spatial operators differ significantly from database to database
    */
@@ -277,6 +302,8 @@ public class DatabaseCompatibility
         BareConfiguration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
 
       String databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase();
+      // AWS Redshift returns PostgreSQL as product name, but we want to distinguish them
+      if( con.getMetaData().getURL().toLowerCase().contains("redshift") ) databaseProductName = "redshift";
       databaseProduct.put(dbSource, databaseProductName);
       return databaseProductName;
     } catch (Exception e) {
@@ -388,6 +415,10 @@ public class DatabaseCompatibility
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
+    calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "I"});
+    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "I"});
+    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "I"});
+    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "I"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
 
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
     calcFktMapping.put("Sub",           new String[]{"Y",  "(",     "-",  ")", "N"});
@@ -398,6 +429,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
     // Analytical functions optional module
+    calcFktMapping.put("RowNumber",     new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
     calcFktMapping.put("CountOver",     new String[]{"N", "COUNT(",         "",   ")", "O"});
     calcFktMapping.put("SumOver",       new String[]{"N", "SUM(",           "",   ")", "O"});
     calcFktMapping.put("LeadOver",      new String[]{"N", "LEAD(",          ",",  ")", "O"});
@@ -412,12 +444,17 @@ public class DatabaseCompatibility
     sqlServerCalcFktMapping.put("Concat", new String[]{"N",  "CONCAT(",     ",", ")", "N"});
     sqlServerCalcFktMapping.put("Mod",    new String[]{"Y",  "",  "%",  "", "N"});
     
-
-    // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values caused by higher aggregation
-    // So both nulls will end up in one row and for MySQL we treat all such rows as a (sub)total rows
+    // MySql
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    mysqlCalcFktMapping.put("Grouping",   new String[]{"N",  "ISNULL(", "", ")", "I"});
+    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
+    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", " AS CHAR),CAST(", " AS CHAR))", "N"});
+    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(", "",  " AS CHAR)",  "I"});
 
+    // MySql
+    redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
+    redshiftCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
+    redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?|| 
+    
     //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
     aggregationMappingGeneric = new HashMap<String, String>();
@@ -432,6 +469,16 @@ public class DatabaseCompatibility
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
     aggregationMappingMySql.put("grouping",  "ISNULL");
 
+
+    //---------------------------------------
+    // Set operators
+    sqlSetOperators = new HashMap<String,String>();
+    sqlSetOperators.put("Union",        "UNION");
+    sqlSetOperators.put("UnionAll",     "UNION ALL");
+    sqlSetOperators.put("Except",       "EXCEPT");
+    sqlSetOperators.put("ExceptAll",    "EXCEPT ALL");
+    sqlSetOperators.put("Intersect",    "INTERSECT");
+    sqlSetOperators.put("IntersectAll", "INTERSECT ALL");
 
     //---------------------------------------
     // Spatial operators
@@ -489,7 +536,7 @@ public class DatabaseCompatibility
             // Aggregation functions
             "AVG", "CORR", "COVAR_POP", "COVAR_SAMP", "COUNT", "CUME_DIST", "DENSE_RANK", "LAG", "FIRST_VALUE", "LAST_VALUE ", "LEAD", "MAX", "MIN", "NTILE", "PERCENT_RANK", "RATIO_TO_REPORT",
             "REGR_SLOPE", "REGR_INTERCEPT", "REGR_COUNT", "REGR_R2", "REGR_AVGX", "REGR_AVGY", "REGR_SXX", "REGR_SYY", "REGR_SXY",
-            "RANK", "ROW_NUMBER ", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
+            "RANK", "ROW_NUMBER", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
             "OVER", "ORDER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",

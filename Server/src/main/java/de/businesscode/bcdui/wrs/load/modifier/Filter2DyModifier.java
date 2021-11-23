@@ -35,7 +35,6 @@ import org.w3c.dom.NodeList;
 
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
-import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * Changes a standard f:Filter element as created by the period chooser from mo/cw to dy
@@ -45,7 +44,7 @@ public class Filter2DyModifier implements Modifier
 {
   private final XPath xp;
   private Document doc;
-  private Element filterOut;
+  private Element filterElem;
 
   public Filter2DyModifier() {
     xp = XPathUtils.newXPathFactory().newXPath();
@@ -53,30 +52,20 @@ public class Filter2DyModifier implements Modifier
     xp.setNamespaceContext(nsContext);
   }
   
-  public Element process(Element filterIn) throws ParserConfigurationException 
+  public void process(Element selectElem) throws ParserConfigurationException 
   {
-    doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().newDocument();
-    // clone f:Filter to new temp doc
-    Element wrsRequest = doc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0", "wrq:WrsRequest");
-    doc.appendChild(wrsRequest);
-    Element select = doc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0", "wrq:Select");
-    wrsRequest.appendChild(select);
-    filterOut = doc.createElementNS("http://www.businesscode.de/schema/bcdui/filter-1.0.0", "f:Filter");
-    select.appendChild(filterOut);
-
-    // Let's return a full document
-    if( filterIn == null )
-      return doc.getDocumentElement();
-
-    NodeList nl = filterIn.getChildNodes();
-    for (int n = 0; n < nl.getLength(); n++) { 
-      filterOut.appendChild(doc.importNode(nl.item(n), true)); 
+    doc = selectElem.getOwnerDocument();
+    try {
+      final XPathExpression filterXpathExpr = xp.compile(".//f:Filter[1]");
+      filterElem = (Element) filterXpathExpr.evaluate(selectElem, XPathConstants.NODE);
+    } catch (XPathExpressionException e) {
+      throw new ParserConfigurationException("Could not concvert date formate to dy");
     }
+    
+    // Nothing to do
+    if( filterElem==null ) return;
 
     periodTypeToDyRange();
-
-    // If filterIn was given we end up here and return only the new filter Element
-    return filterOut;
   }
   
   public void periodTypeToDyRange() 
@@ -90,7 +79,7 @@ public class Filter2DyModifier implements Modifier
         // remove affected period nodes
         XPathExpression xPath = xp.compile("//*[@bcdMarker]");
         XPathExpression xPath2 = xp.compile("./f:Expression[@bRef='yr' or @bRef='qr' or @bRef='mo' or @bRef='cw' or @bRef='cwyr']");
-        NodeList remNodes = (NodeList) xPath.evaluate(filterOut, XPathConstants.NODESET);
+        NodeList remNodes = (NodeList) xPath.evaluate(filterElem, XPathConstants.NODESET);
         for (int r = 0; r < remNodes.getLength(); r++) {
           Node removeNode = remNodes.item(r);
           // do not remove not converted entries
@@ -119,12 +108,12 @@ public class Filter2DyModifier implements Modifier
           to.setAttribute("value", l.get(p).get("to"));
           outer.appendChild(from);
           outer.appendChild(to);
-          filterOut.appendChild(outer);
+          filterElem.appendChild(outer);
         }
       }
       // finally remove markers (bcdNotConverted attribute's node is identical to the bcdMarker one)
       XPathExpression xPath = xp.compile("//*[@bcdMarker]");
-      NodeList nl = (NodeList) xPath.evaluate(filterOut, XPathConstants.NODESET);
+      NodeList nl = (NodeList) xPath.evaluate(filterElem, XPathConstants.NODESET);
       for (int m = 0; m < nl.getLength(); m++) {
         ((Element)nl.item(m)).removeAttribute("bcdMarker");
         ((Element)nl.item(m)).removeAttribute("bcdNotConverted");

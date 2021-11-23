@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import de.businesscode.bcdui.binding.write.WriteProcessing;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.subjectsettings.SecurityMissingException;
 import de.businesscode.bcdui.subjectsettings.config.Security;
+import de.businesscode.bcdui.wrs.load.SQLStatementWithParams;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
 import de.businesscode.util.StandardNamespaceContext;
 
@@ -57,18 +58,16 @@ public interface BindingSet extends Cloneable, Serializable {
   public abstract String getName();
 
   /**
-   * Gets the unique alias name.
+   * Returns a table reference. Can be a plain table name (with alias) or a join of tables
    * @return
    */
-  public abstract String getAliasName();
-  public abstract String getTableName();
+  String getTableReference();
 
   /**
-   * returns table name by means requested binding items.
-   * the table name may contain join(s), if requested binding items
-   * belongs to a relation.
+   * Returns a table expression and if it is a complex one (subselect with where for example) it may come with variables to be bound as host variables
+   * @return
    */
-  public abstract String getTableName(Collection<String> pBindingItems) throws BindingException;
+  SQLStatementWithParams getSQLStatementWithParams();
 
   /**
    * Tells if the binding set has subject filters.
@@ -142,7 +141,7 @@ public interface BindingSet extends Cloneable, Serializable {
    * @param pRelation
    * @param itemName - requested binding item name
    *
-   * @return a new BindingItem object if
+   * @return BindingItem object or null if not found
    *
    * @throws BindingException
    */
@@ -201,5 +200,5 @@ public interface BindingSet extends Cloneable, Serializable {
    * This is completely transparent to the caller, the answer Wrs does show the original WrsRequest
    * @return
    */
-  public abstract List<Class<? extends Modifier>> getWrqModifiers();
+  List<Class<? extends Modifier>> getWrqModifiers();
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -25,38 +25,71 @@ import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 
+/**
+ * Represents part of an SQL string and the values for bound variables
+ */
 public class SQLStatementWithParams {
 
-  private String statement;
-  private List<Element> filterItems;
-  private List<String> filterValues;
-  private List<BindingItem> filterBindingItems;
+  private StringBuilder statement = new StringBuilder();
+  private List<Element> filterItems = new LinkedList<Element>();
+  private List<String> filterValues = new LinkedList<String>();
+  private List<BindingItem> filterBindingItems = new LinkedList<BindingItem>();
 
-  public SQLStatementWithParams(String statement, List<Element> filterItems, BindingSet bindingSet) throws BindingNotFoundException {
+  public SQLStatementWithParams() {
     super();
-    this.statement = statement;
-    this.filterItems = filterItems;
-    this.filterValues = new ArrayList<String>();
-    this.filterBindingItems = new ArrayList<BindingItem>();
-    for (Element e : filterItems) {
+  }
+
+  public SQLStatementWithParams(String statement) {
+    super();
+    this.statement.append(statement);
+  }
+   
+  public SQLStatementWithParams(String statement, List<Element> filterItems, BindingSet currBindingSet) throws BindingNotFoundException {
+    super();
+    append(statement, filterItems, currBindingSet);
+  }
+
+  public SQLStatementWithParams append(SQLStatementWithParams moreStatement) throws BindingNotFoundException 
+  {
+    if( moreStatement == null ) return this;
+
+    statement.append(moreStatement.getStatement());
+    filterItems.addAll(moreStatement.getFilterItems());
+    filterValues.addAll(moreStatement.getFilterValues());
+    filterBindingItems.addAll(moreStatement.getFilterBindingItems());
+    return this;
+  }
+  
+  public SQLStatementWithParams append(String currStatement)
+  {
+    statement.append(currStatement);
+    return this;
+  }
+
+  public SQLStatementWithParams append(String currStatement, List<Element> currFilterItems, BindingSet currBindingSet) throws BindingNotFoundException 
+  {  
+    statement.append(currStatement);
+    filterItems.addAll(currFilterItems);
+    
+    for (Element e : currFilterItems) {
       filterValues.add(e.getAttribute("value"));
       if( !e.getAttribute("bRef").isEmpty() )
-        filterBindingItems.add(bindingSet.get(e.getAttribute("bRef")));
-      // If we want to enforce a numeric type (needed for example for NULLIF(v,0)), we need to create a dummy BinsingItem here as a carrier for the data type
+        filterBindingItems.add(currBindingSet.get(e.getAttribute("bRef")));
+      // If we want to enforce a numeric type (needed for example for NULLIF(v,0)), we need to create a dummy BindingItem here as a carrier for the data type
       else if( "NUMERIC".equals(e.getAttribute(Bindings.jdbcDataTypeNameAttribute)) ) {
-        BindingItem dummyBi = new BindingItem(null, "null", false, bindingSet);
+        BindingItem dummyBi = new BindingItem(null, "null", false, currBindingSet);
         try {
           dummyBi.setJDBCDataTypeName("NUMERIC");
-        } catch(Exception exc) { // We know, it does exist, because its value is hard-coded here
-        }
+        } catch(Exception exc) { /* We know, it does exist, because its value is hard-coded here */ }
         filterBindingItems.add(dummyBi);
       } else
         filterBindingItems.add(null);
     }
+    return this;
   }
 
   public String getStatement() {
-    return statement;
+    return statement.toString();
   }
 
   public List<Element> getFilterItems() {

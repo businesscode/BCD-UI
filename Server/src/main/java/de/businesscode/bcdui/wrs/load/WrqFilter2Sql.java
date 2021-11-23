@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ import de.businesscode.bcdui.binding.write.CustomJdbcTypeSupport;
 
 /**
  * Parses a f:Filter expression and returns the SQL Where expression
- * Initially taken from WrsSqlGenerator. For older change history, see there
+ * For older change history, see WrsSqlGenerator
  */
 public class WrqFilter2Sql
 {
   private final WrqInfo wrqInfo;
   private final Element filterElement; // f:Filter or wrq:Having
-  private final boolean useAggr;       // true for having, using aggretated expressions
+  private final boolean useAggr;       // true for having, using aggregated expressions
 
   public WrqFilter2Sql(WrqInfo wrqInfo, Element root, boolean useAggr) throws XPathExpressionException
   {
@@ -163,8 +163,9 @@ public class WrqFilter2Sql
    * This limitation could be removed by allowing to overwrite the aggr at the having-filter expression, for example
    * @param wrqInfo
    * @param item
-   * @param elementList
+   * @param boundVariables
    * @param ownerDocument
+   * @param useAggr
    * @return
    * @throws BindingNotFoundException
    */
@@ -244,7 +245,7 @@ public class WrqFilter2Sql
       value = value.replace("%", "\\%");
       value = value.replace("*", "%");
       valueElement.setAttribute("value", value );
-      colExprPostfix = " ESCAPE '\\'";
+      colExprPostfix = DatabaseCompatibility.getInstance().dbLikeEscapeBackslash(wrqInfo.getResultingBindingSet());
     }
 
     // Support of BITAND operation -> BITAND( col, value) > 0

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,29 +19,35 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.web.util.WebUtils;
+import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.binding.exc.SecurityMissingForBindingException;
-import de.businesscode.bcdui.binding.rel.BindingItemRef;
-import de.businesscode.bcdui.binding.rel.Coalesce;
-import de.businesscode.bcdui.binding.rel.ImportItem;
 import de.businesscode.bcdui.binding.rel.Relation;
-import de.businesscode.bcdui.binding.rel.impl.AbstractColumn;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilters;
 import de.businesscode.bcdui.binding.write.WriteProcessing;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.Security;
+import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
+import de.businesscode.bcdui.wrs.load.SQLStatementWithParams;
+import de.businesscode.bcdui.wrs.load.SqlConditionGenerator;
+import de.businesscode.bcdui.wrs.load.WrqInfo;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
 
 /**
- * A BindingSet is a mapping from names to BindingItems. It is read from <br>
- * a static XML file by the Bindings class. This file must satisfy the <br>
- * Schema bindings.xsd. <br>
+ * A BindingSet is a mapping from names to BindingItems. It is read from 
+ * a static XML file by the Bindings class usually from WEB-INF/bindings
+ * That file must satisfy the Schema bindings.xsd.
  * @see Bindings
  */
 public class StandardBindingSet implements BindingSet {
@@ -54,10 +60,11 @@ public class StandardBindingSet implements BindingSet {
   private Map<String, BindingItem> bindingItems = new LinkedHashMap<String, BindingItem>(new HashMap<String, BindingItem>());
   private SubjectFilters subjectFilters;
   private final ArrayList<Relation> relations = new ArrayList<Relation>();
-  private final WriteProcessing writeProcessing = new WriteProcessing();
+  private final WriteProcessing writeProcessing;
   private Security security = null;
   private boolean hasCustomItem = false;
   private List<Class<? extends Modifier>> wrqModifiers = new ArrayList<>();
+
   /**
    * StandardBindingSet
    *
@@ -65,8 +72,21 @@ public class StandardBindingSet implements BindingSet {
    */
   public StandardBindingSet(String name) {
     this.name = name;
-    // create a unique alias name for this binding set
-    BindingAliasMap.getAliasName(this.name);
+    writeProcessing = new WriteProcessing();
+  }
+
+  public StandardBindingSet(StandardBindingSet bs) {
+    name = bs.name;
+    tableName = bs.tableName;
+    dbSourceName = bs.dbSourceName;
+    allowSelectAllColumns = bs.allowSelectAllColumns;
+    bindingItems = bs.bindingItems;
+    subjectFilters = bs.subjectFilters;
+    relations.addAll(bs.relations);
+    writeProcessing = bs.writeProcessing;
+    security = bs.security;
+    hasCustomItem = bs.hasCustomItem;
+    wrqModifiers.addAll(bs.wrqModifiers);
   }
 
   /**
@@ -77,16 +97,16 @@ public class StandardBindingSet implements BindingSet {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.BindingSet#getTableName()
+   * @see de.businesscode.bcdui.binding.BindingSet#getTableReference()
    */
-  public String getTableName() {
-    return tableName;
+  public String getTableReference(String tableAlias) {
+    return tableName + " " + tableAlias;
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.BindingSet#getTableName()
+   * @see de.businesscode.bcdui.binding.BindingSet#getTableReference()
    */
-  public String getTableName(Collection<String> reqBRefs) throws BindingException {
+  public String getTableReference(Collection<String> reqBRefs, String tableAlias) throws BindingException {
     StringBuilder res = new StringBuilder();
     StringBuilder relationParts = null;
     boolean hasJoin = false;
@@ -94,11 +114,12 @@ public class StandardBindingSet implements BindingSet {
       relationParts = new StringBuilder();
       HashMap<String, Relation> requestedRelations = new HashMap<String, Relation>();
 
+      // Loop is only needed if there are bRefs in reqBRefs which are not part of our main bindingItems
       for (int i = 0; !bindingItems.keySet().containsAll(reqBRefs) && i < getRelations().size(); i++) {
 
         // For each BindingItem which is not in the main BindingSet, we need to find a relation
         // Note that the BindingItem in the main BindingSet always wins, if it also would occur in a relation to prevent unnecessary joins
-        // There is no sophisticated algorithm yet to optimize the subset of relations choosen
+        // There is no sophisticated algorithm yet to optimize the subset of relations chosen
         Relation rel = getRelations().get(i);
         for (String bRef : reqBRefs) {
           if( ! bindingItems.containsKey(bRef) && rel.importsContainItem(bRef) ) {
@@ -111,7 +132,7 @@ public class StandardBindingSet implements BindingSet {
         for (Map.Entry<String, Relation> entry : requestedRelations.entrySet()) {
           Relation curRelation = entry.getValue();
 
-          relationParts.append(curRelation.getRelationStatement());// with JOIN clause
+          relationParts.append(curRelation.getRelationStatement(tableAlias));// with JOIN clause
 
           if (relationParts.length() > 0) {
             relationParts.append("\n");
@@ -122,7 +143,7 @@ public class StandardBindingSet implements BindingSet {
       }
     }
 
-    res.append(getTableName()).append(" ").append(getAliasName());
+    res.append(getTableReference(tableAlias));
     if (hasJoin) {
       res.append("\n");
       res.append(relationParts);
@@ -148,6 +169,33 @@ public class StandardBindingSet implements BindingSet {
     this.subjectFilters = subjectFilters;
   }
 
+  /**
+   * Generate the part of the where clause that is reflecting the bnd:BindingSet/bnd:SubjectSettings/bnd:SubjectFilters
+   * @param wrqInfo
+   * @param tableAlias
+   * @return
+   * @throws BindingException
+   */
+  public SQLStatementWithParams getSubjectFilterExpression(WrqInfo wrqInfo, String wrqAlias, String sqlAlias) throws BindingException {
+    final SQLStatementWithParams stmt = new SQLStatementWithParams();
+    List<Element> boundVariables = new LinkedList<Element>();
+
+    final Class<?> sqlConditionGeneratorClass = Configuration.getClassoption(OPT_CLASSES.SUBJECTSETTINGS2SQL);
+    if( hasSubjectFilters() && sqlConditionGeneratorClass != null ) {
+      
+      if( !WebUtils.isHttp(SecurityUtils.getSubject()) ) {
+        System.out.println("Unsave access"); // TODO);
+      } else {
+        SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, 
+              new Class<?>[]{BindingSet.class, WrqInfo.class, List.class, String.class, String.class},
+            this, wrqInfo, boundVariables, wrqAlias, sqlAlias);
+        String subjectSettingsClause = sqlConditionGen.getCondition();
+        stmt.append(subjectSettingsClause, boundVariables, this);
+      }
+    }
+    return stmt;
+  }
+  
   /**
    * putItem
    *
@@ -204,7 +252,7 @@ public class StandardBindingSet implements BindingSet {
    * @see de.businesscode.bcdui.binding.BindingSet#get(java.lang.String)
    */
   public BindingItem get(String key) throws BindingNotFoundException {
-    final BindingItem bi = getItem(key);
+    final BindingItem bi = getItem(key.split("\\.")[key.split("\\.").length-1]);
     if(bi == null){
       throw new BindingNotFoundException(this, key);
     }
@@ -219,7 +267,7 @@ public class StandardBindingSet implements BindingSet {
   /**
    * gets binding-item by id
    *
-   * @param key
+   * @param id
    * @return item or null
    */
   private BindingItem getItem(String id){
@@ -255,31 +303,14 @@ public class StandardBindingSet implements BindingSet {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.BindingSet#getBindingItemFromRelation(de.businesscode.bcdui.binding.rel.Relation, java.lang.String)
+   * @param pRelation
+   * @param itemName
+   * @return null if not found
    */
   public BindingItem getBindingItemFromRelation(Relation pRelation, String itemName) throws BindingException {
-    BindingItem bi = null;
-    if (pRelation.importsContainItem(itemName)) {
-      ImportItem iItem = pRelation.getImportItemByName(itemName);
-      AbstractColumn child = iItem.getChildColumnItem().get(0);
-      if (child instanceof BindingItemRef) {
-        BindingItem biRef = ((BindingItemRef) child).getRelatedBindingItem();
-        bi = new BindingItem(biRef);
-        bi.setTableAliasName(BindingAliasMap.getAliasName(pRelation.getId()));
-        bi.setQColumnExpression();
-      }
-      else if (child instanceof Coalesce) {
-        Coalesce coal = (Coalesce) child;
-        bi = new BindingItem(itemName, coal.getName(), false, this);
-
-        bi.setCaption(coal.getAliasColumnName());
-        bi.setTableAliasName(null);
-      }
-      if ( iItem.getCaption() != null && bi != null) {
-        bi.setCaption( iItem.getCaption());
-      }
-    }
-    return bi;
+    
+    return pRelation.getImportItemByName(itemName);
+    
   }
 
   /**
@@ -343,10 +374,6 @@ public class StandardBindingSet implements BindingSet {
     return writeProcessing;
   }
 
-  public String getAliasName() {
-    return  BindingAliasMap.getAliasName(this.name);
-  }
-
 
   public void setSecurity(Security security){
     this.security = security;
@@ -370,7 +397,7 @@ public class StandardBindingSet implements BindingSet {
   }
   
   public void addWrqModifier(String className) throws ClassNotFoundException {
-    wrqModifiers.add((Class<? extends Modifier>)Class.forName(className));
+    wrqModifiers.add(Class.forName(className).asSubclass(Modifier.class));
   }
   
   @Override
@@ -397,4 +424,16 @@ public class StandardBindingSet implements BindingSet {
       SecurityHelper.checkSecurity(getSecurity(), operation.name(), false);
     }
   }
+
+  @Override
+  public String getTableReference() {
+    return tableName;
+  }
+  
+  @Override
+  public SQLStatementWithParams getSQLStatementWithParams() {
+    SQLStatementWithParams sqlStatementWithParams = new SQLStatementWithParams(tableName);
+    return sqlStatementWithParams;
+  }
+
 }

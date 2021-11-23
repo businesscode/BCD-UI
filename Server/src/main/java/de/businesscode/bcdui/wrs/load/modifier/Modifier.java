@@ -25,11 +25,11 @@ import org.w3c.dom.Element;
 public interface Modifier {
 
   /**
-   * Take the WrsRequest document as send by the client and return a f:Filter element (an extra Document), which is then used to create the SQL instead
+   * Take the WrsRequest document as send by the client
    * @param wrq
    * @return
    * @throws ParserConfigurationException
    */
-  Element process( Element wrq ) throws ParserConfigurationException;
+  void process( Element wrq ) throws ParserConfigurationException;
  
 }

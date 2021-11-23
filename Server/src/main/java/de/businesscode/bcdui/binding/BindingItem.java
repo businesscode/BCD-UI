@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -352,22 +352,23 @@ public class BindingItem extends SimpleBindingItem {
    * @param isReadOnly
    */
   public void setReadOnly(Boolean isReadOnly) {
-    this.isReadOnly = (isReadOnly!=null ? isReadOnly : new Boolean(false));
+    this.isReadOnly = (isReadOnly!=null ? isReadOnly : false);
   }
 
 
   /**
-   * gets if the content is writen as escaped xml
+   * Returns true if the content will be stored as an escaped XML string, otherwise it is plain XML
    */
   public Boolean isEscapeXML(){
     return this.isEscapeXML;
   }
 
   /**
-   * sets if the BindingItem is read only
+   * If true, treats content as a string of escaped XML.
+   * Otherwise it is stored as XML type and returned as inline XML
    */
    public void setEscapeXML(Boolean isEscapeXML){
-     this.isEscapeXML =  ( isEscapeXML !=null ? isEscapeXML : new Boolean(true));
+     this.isEscapeXML =  ( isEscapeXML !=null ? isEscapeXML : true);
    }
 
 

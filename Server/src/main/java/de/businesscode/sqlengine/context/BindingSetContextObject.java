@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Set;
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 
@@ -39,30 +40,32 @@ public class BindingSetContextObject
   //
   private BindingSet bindingSet;
   private String tableName;
+  private String tableAlias;
   private String plainTableName;
 
   // All BindingItems listed before the table name
-  private final List<BindingItem> selectedBindigItemsInOrder = new LinkedList<BindingItem>();
+  private final List<BindingItem> selectedBindingItemsInOrder = new LinkedList<BindingItem>();
 
-  // all BindingItems in hteir order
-  private final List<BindingItem> allBindigItemsInOrder = new LinkedList<BindingItem>();
+  // all BindingItems in their order
+  private final List<BindingItem> allBindingItemsInOrder = new LinkedList<BindingItem>();
 
   /**
    * @param bindings       Global BCD-UI Bindings singleton
    * @param requestedName  Its logical name
    * @param requestedItems All binding item names it will be asked for
    */
-  public BindingSetContextObject(Bindings bindings, String requestedName, Set<String> requestedItems) {
+  public BindingSetContextObject(Bindings bindings, String requestedName, Set<String> requestedItems, String tableAlias) {
     super();
     this.bindings = bindings;
     this.requestedName = requestedName;
     this.requestedItems = requestedItems;
+    this.tableAlias = tableAlias;
   }
 
   /**
    * @return the bindingSet
    */
-  public BindingSet getBindingSet() {
+  public StandardBindingSet getBindingSet() {
     if (bindingSet == null) {
       try {
         bindingSet = bindings.get(requestedName, requestedItems);
@@ -71,7 +74,7 @@ public class BindingSetContextObject
         throw new RuntimeException("Unable to find the binding set.", e);
       }
     }
-    return bindingSet;
+    return (StandardBindingSet)bindingSet;
   }
 
   /**
@@ -82,7 +85,7 @@ public class BindingSetContextObject
   public String getTableName() {
     if (tableName == null) {
       try {
-        tableName = getBindingSet().getTableName(requestedItems);
+        tableName = getBindingSet().getTableReference(requestedItems, tableAlias);
       }
       catch (Exception e) {
         throw new RuntimeException("Unable to get the table name.", e);
@@ -98,7 +101,7 @@ public class BindingSetContextObject
   public String getPlainTableName() {
     if (plainTableName == null) {
       try {
-          plainTableName =  getBindingSet().getTableName();
+          plainTableName =  getBindingSet().getTableReference();
       }
       catch (Exception e) {
         throw new RuntimeException("Unable to get the table name.", e);
@@ -122,10 +125,10 @@ public class BindingSetContextObject
       // Simple heuristic: all BindingItems requested before the table name are likely the selected ones
       // Avoids BindingItems being part of group by or order by clauses for example to be identified as selected
       if( tableName == null && plainTableName == null )
-        selectedBindigItemsInOrder.add(bindingItem);
-      allBindigItemsInOrder.add(bindingItem);
+        selectedBindingItemsInOrder.add(bindingItem);
+      allBindingItemsInOrder.add(bindingItem);
 
-      return requestedUnqualified ? bindingItem.getColumnExpression() : bindingItem.getQColumnExpression() ;
+      return requestedUnqualified ? bindingItem.getColumnExpression() : bindingItem.getQColumnExpression(tableAlias);
     }
     catch (BindingNotFoundException e) {
       throw new RuntimeException("Unable to find the binding item", e);
@@ -160,15 +163,15 @@ public class BindingSetContextObject
    * Getter for BindingItems which are part of the select clause, i.e. they are mentioned before the table name,
    * useful for a caller of SQLEngine to get info about the query structure
    */
-  public List<BindingItem> getSelectedBindigItemsInOrder() {
-    return selectedBindigItemsInOrder;
+  public List<BindingItem> getSelectedBindingItemsInOrder() {
+    return selectedBindingItemsInOrder;
   }
 
   /**
    * Getter for BindingItems mentioned somewhere,
    * useful for a caller of SQLEngine to get info about the query structure
    */
-  public List<BindingItem> getAllBindigItemsInOrder() {
-    return allBindigItemsInOrder;
+  public List<BindingItem> getAllBindingItemsInOrder() {
+    return allBindingItemsInOrder;
   }
 }

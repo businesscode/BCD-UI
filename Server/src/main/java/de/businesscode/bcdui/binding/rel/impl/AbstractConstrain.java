@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package de.businesscode.bcdui.binding.rel.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 
@@ -30,13 +32,18 @@ public abstract class AbstractConstrain {
 
   private Type type;
 
-  private ArrayList<AbstractColumn> bindingItemRefs;
+  private ArrayList<BindingItem> bindingItemRefs;
   private ArrayList<AbstractConstrain> childConstraints;
   private boolean negate = false;
   private String statement;
 
-  public static String OPER_REPL = "$OPER_REPL";
-  public static Pattern REGEXP_OPER_REPL = Pattern.compile("\\$OPER_REPL");
+  // We want to cache Calculated relation expressions but the main table's alias change, so we just below place holders in the cache
+  // The joined table alias is mainTableAlias + afixRelationAlias
+  protected static String  MAINTABLE_SQLALIAS_PLACEHOLDER = "$MAINTABLE_SQLALIAS_PLACEHOLDER";
+  protected static Pattern MAINTABLE_SQLALIAS_PATTERN = Pattern.compile("\\"+MAINTABLE_SQLALIAS_PLACEHOLDER);
+  
+  protected static String OPER_REPL = "$OPER_REPL";
+  protected static Pattern REGEXP_OPER_REPL = Pattern.compile("\\$OPER_REPL");
 
   /**
    * AbstractConstrain
@@ -53,6 +60,19 @@ public abstract class AbstractConstrain {
     return statement;
   }
 
+  /**
+   * Turns the cached condition expression into a concrete one for the current query
+   * The relations's alias postfix is fix and baked into the BindingItemFromRel, so we just need to add the main table's alias
+   * @param cond
+   * @param mainTableSqlAlias
+   * @return
+   */
+  protected String insertMainTableAlias(String cond, String mainTableSqlAlias) {
+    String res = getStatement().replaceAll(AbstractConstrain.MAINTABLE_SQLALIAS_PATTERN.pattern(), mainTableSqlAlias);
+    return res;
+  }
+
+  
   /**
    * setStatement
    *
@@ -104,9 +124,9 @@ public abstract class AbstractConstrain {
    *
    * @param pColumn
    */
-  public void addColumn(AbstractColumn pColumn) {
+  public void addColumn(BindingItem pColumn) {
     if (this.bindingItemRefs == null)
-      this.bindingItemRefs = new ArrayList<AbstractColumn>();
+      this.bindingItemRefs = new ArrayList<BindingItem>();
 
     this.bindingItemRefs.add(pColumn);
   }
@@ -116,7 +136,7 @@ public abstract class AbstractConstrain {
    *
    * @return
    */
-  public ArrayList<AbstractColumn> getColumns() {
+  public List<BindingItem> getColumns() {
     return this.bindingItemRefs;
   }
 
@@ -195,7 +215,7 @@ public abstract class AbstractConstrain {
    * @throws BindingNotFoundException
    * @throws BindingException
    */
-  public abstract String getConstrainedStatement( String prepareCaseExpressionForAlias) throws BindingException;
+  public abstract String getConstrainedStatement(String mainTableAlias, boolean isForJoinToCaseWhen) throws BindingException;
 
   /**
    * if the constraint may contain child constraint

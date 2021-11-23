@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.BindingItemWithMetaData;
 import de.businesscode.bcdui.wrs.load.SQLStatementWithParams;
@@ -199,7 +200,7 @@ public class MultiLevelSuggest extends AbstractSqlGenerator
     // Convert the bcdui-sql into a plain sql with BindingSet and BindingItems translated to table/view and columns
     SQLEngine sqlE = new SQLEngine();
     String sql = sqlE.transform(sqlSB.toString());
-    resultingBindingSet = sqlE.getResultingBindingSets().iterator().next();
+    BindingSet resultingBindingSet = sqlE.getResultingBindingSets().iterator().next(); // We know we have only one BindingSet used below
 
     // The select list contains each level exactly once
     int colNr = 1;

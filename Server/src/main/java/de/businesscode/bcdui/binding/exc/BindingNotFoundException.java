@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public class BindingNotFoundException extends BindingException {
   public BindingNotFoundException(BindingSet binding, String bindingItemName) {
     super("Binding item" + (bindingItemName.indexOf(",") > -1 ? "s" : "") +  " \"" + bindingItemName + "\" not found in binding set \"" + binding.getName() + "\".");
   }
-  public BindingNotFoundException(String bindingSetName) {
-    super("BindingSet \"" + bindingSetName + "\" not found.");
+  public BindingNotFoundException(String message) {
+    super(message);
   }
 }

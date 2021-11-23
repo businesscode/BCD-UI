@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -65,12 +65,13 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  *  Parses a binding xml and creates an in-memory BindingSet
  */
 public class ReadBindingSet implements Runnable {
-  private final Logger log = LogManager.getLogger(getClass());
+  protected final Logger log = LogManager.getLogger(getClass());
 
   protected Document bindingDoc;
   protected String fileName;
   protected Map<String, Collection<StandardBindingSet>> bindingMap;
   protected StandardNamespaceContext nsContext;
+  protected static final String STARTUP_CHECK_TABLE_ALIAS = "t1";
 
   /**
    * Parses a binding xml and creates an in-memory BindingSet
@@ -163,17 +164,17 @@ public class ReadBindingSet implements Runnable {
         // Set bnd:BindingSet/bnd:C/@skipStartupRead=true to skip the reading here. All values are default then (like VARCHAR), except given in bs:BindingSet/bs:C 
         if( !"true".equals(bindingItemElem.getAttribute("skipStartupRead") )) {
 
-          stmtStr.append(sep).append(bindingItem.getQColumnExpression());
+          stmtStr.append(sep).append(bindingItem.getQColumnExpression(STARTUP_CHECK_TABLE_ALIAS));
           sep = ", ";
   
           // In the special case of @aggr="none", there is an aggregation expected in the BindingItem's column expression
           // For these, we need a dummy group by over all other columns. When there is no @aggr="none", we can drop this.
           if( ! "none".equals(bindingItem.getAggr()) ) {
             // Pure constant expressions (i.e. such that do not refer to a column) must not be part of group by (in sqlserver)
-            if( BindingUtils.splitColumnExpression(bindingItem.getQColumnExpression(), bindingItem.isColumnQuoting(), bs).size()>1 ) {
+            if( BindingUtils.splitColumnExpression(bindingItem.getQColumnExpression(STARTUP_CHECK_TABLE_ALIAS), bindingItem.isColumnQuoting(), bs).size()>1 ) {
               if( gbStmtStr.length() > 0 )
                 gbStmtStr.append(", ");
-              gbStmtStr.append(bindingItem.getQColumnExpression());
+              gbStmtStr.append(bindingItem.getQColumnExpression(STARTUP_CHECK_TABLE_ALIAS));
             }
           } else {
             groupByNeeded = true;
@@ -186,7 +187,7 @@ public class ReadBindingSet implements Runnable {
 
       // We do a select on the table with all binding items to get their data types and also to check correctness
       // Their types derived from the request will only be used if not overwritten by the user in the definition
-      stmtStr.append(" FROM ").append(tableName).append(" ").append(bs.getAliasName()).append(" WHERE 1=0 ");
+      stmtStr.append(" FROM ").append(tableName).append(" ").append(STARTUP_CHECK_TABLE_ALIAS).append(" WHERE 1=0 ");
       if( groupByNeeded )
         stmtStr.append(" GROUP BY ").append(gbStmtStr);
       Connection con = null;
@@ -299,7 +300,7 @@ public class ReadBindingSet implements Runnable {
         NodeList relations = (NodeList) xPath.evaluate("/" + xPathNS + "BindingSet//" + xPathNS + "Relation", bindingDoc, XPathConstants.NODESET);
         if (relations != null && relations.getLength() > 0) {
           for (int rel = 0; rel < relations.getLength(); rel++) {
-            Relation cRel = new Relation((Element) relations.item(rel), bs);
+            Relation cRel = new Relation((Element) relations.item(rel), bs, rel);
             cRel.setId(cRel.getRightBindingSetName() + "_" + rel);
             bs.addRelation(cRel);
           }
@@ -308,12 +309,9 @@ public class ReadBindingSet implements Runnable {
 
       { // WriteProcessing
         NodeList preProcessStylesheets = (NodeList) xPath.evaluate("/" + xPathNS + "BindingSet//" + xPathNS + "WriteProcessing/" + xPathNS + "PreProcessStylesheets/" + xPathNS + "PreProcessStylesheet", bindingDoc, XPathConstants.NODESET);
-        if (preProcessStylesheets != null) {
-          for (int i = 0; i < preProcessStylesheets.getLength(); i++) {
-            // TODO impl
-            log.error("bnd:WriteProcessing/bnd:PreProcessStylesheets is not yet implemented and will be ignored. BindingSet: '" + bsName + "'");
-            break;
-          }
+        if (preProcessStylesheets != null && preProcessStylesheets.getLength() > 0) {
+          // TODO impl
+          log.error("bnd:WriteProcessing/bnd:PreProcessStylesheets is not yet implemented and will be ignored. BindingSet: '" + bsName + "'");
         }
 
         // Listeners

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import de.businesscode.bcdui.binding.Bindings;
  */
 public class BindingsContextObject 
 {
-	private final Map<String, BindingSetContextObject> usedBindingSets = new HashMap<String, BindingSetContextObject>();
+	private final Map<String, BindingSetContextObject> resolvedBindingSets = new HashMap<String, BindingSetContextObject>();
 
 	/**
 	 * @param bindings BCD global Bindings singleton
@@ -36,11 +36,12 @@ public class BindingsContextObject
 	 */
 	public BindingsContextObject(Bindings bindings, BindingsLookupContextObject bindingsLookup) {
 		super();
-		//
+		// Each table gets am individual alias
+		int tableAliasCnt = 1;
 		for (BindingSetLookupContextObject bindingSet : bindingsLookup.getUsedBindings()) {
 			String requestedName = bindingSet.getName();
-			BindingSetContextObject bs = new BindingSetContextObject(bindings, requestedName, bindingSet.getUsedItems());
-			this.usedBindingSets.put(requestedName, bs);
+			BindingSetContextObject bs = new BindingSetContextObject(bindings, requestedName, bindingSet.getUsedItems(), "t_"+(tableAliasCnt++));
+			this.resolvedBindingSets.put(requestedName, bs);
 		}
 	}
 
@@ -51,7 +52,7 @@ public class BindingsContextObject
 	 * @return the BindingSet representation
 	 */
 	public Object get(String key) {
-		return usedBindingSets.get(key);
+		return resolvedBindingSets.get(key);
 	}
 
 	/**
@@ -60,7 +61,7 @@ public class BindingsContextObject
 	 * @return
 	 */
   public Map<String, BindingSetContextObject> getUsedBindings() {
-    return usedBindingSets;
+    return resolvedBindingSets;
   }
 
 }

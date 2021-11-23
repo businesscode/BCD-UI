@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,12 +34,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingUtils;
+import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
+/**
+ * Represents a BindingItem in a Wrq, it is it has knowledge of the underlying BindingItem and the current query
+ * There can be multiple WrqBindingItem for a BindingItem(FromRel), to reflect different behaviora like aggr for example in select and in grouping clause
+ */
 public class WrqBindingItem implements WrsBindingItem
 {
   private int columnNumber;
@@ -56,7 +62,6 @@ public class WrqBindingItem implements WrsBindingItem
   private final WrqInfo wrqInfo;
   private final int jdbcDataType;
   private final int origJdbcDataType; // Can differ, if the datatype had to be adjusted due to VDM
-  private String tableAlias;
   // A bRef for which we do not want to be calculated if that one is on (sub)total level
   private String skipForTotals = "";
   // may be null, refers to original BindingItem
@@ -69,6 +74,11 @@ public class WrqBindingItem implements WrsBindingItem
   private final String wrsAName;            // Only for wrs:A
   private final WrqBindingItem parentWrsC;  // Only for wrs:A
 
+  // The table alias during the current query has multiple parts, see getTableAlias()
+  private String tableAliasOverwrite = null;
+  private String tableAliasPostFix = "";
+
+  
   private Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
 
   /**
@@ -106,11 +116,10 @@ public class WrqBindingItem implements WrsBindingItem
       Element firstValueRef = (Element)elem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"ValueRef").item(0);
       if( firstValueRef!= null ) {
         bi = wrqInfo.getResultingBindingSet().get(firstValueRef.getAttribute("idRef"));
+        if( bi instanceof BindingItemFromRel ) tableAliasPostFix = ((BindingItemFromRel)bi).getTableAlias("");
         this.referenceBindingItem = bi;
-        this.tableAlias = bi.getTableAliasName();
       } else {        
         this.referenceBindingItem = null;
-        this.tableAlias = null;
       }
 
       // Its allowed to define the type at the calc element
@@ -138,7 +147,7 @@ public class WrqBindingItem implements WrsBindingItem
       else
         this.aggr = getDefaultAggr(getJDBCDataType());
       columnQuoting = false;
-      isEscapeXml = "false".equals(elem.getAttribute("escapeXml")) ? new Boolean(false) : new Boolean(true);
+      isEscapeXml = "false".equals(elem.getAttribute("escapeXml")) ? false : true;
 
       setColumnExpression( wrqCalc2Sql.getWrqCalcAsSql( calc, boundVariables, enforceAggr, getJDBCDataType() ) );
     }
@@ -147,9 +156,11 @@ public class WrqBindingItem implements WrsBindingItem
       BindingItem bi = wrqInfo.getResultingBindingSet().get(elem.getAttribute("bRef"));
       this.referenceBindingItem = bi;
       this.aggr = determineAggr(elem);
-      // TODO imported bindingitems have the getId() of the source BindingSet (not matching our bRef). Any import-prefix or renaming is ignored. We use bRef here, because it reflects this properly.
+      // TODO imported BindingItems have the getId() of the source BindingSet (not matching our bRef). Any import-prefix or renaming is ignored. We use bRef here, because it reflects this properly.
       this.id = elem.getAttribute("id").isEmpty() ? elem.getAttribute("bRef").isEmpty() ? bi.getId() : elem.getAttribute("bRef") : elem.getAttribute("id");
-      this.tableAlias = bi.getTableAliasName(); // what in case of wrq:Calc
+      if( bi instanceof BindingItemFromRel ) tableAliasPostFix = ((BindingItemFromRel)bi).getTableAlias("");
+      if( bi==null ) 
+        throw new NullPointerException("BindingItem '"+elem.getAttribute("bRef")+"' not found at BindingSet '"+wrqInfo.getResultingBindingSet().getName()+"'");
 
       // take over all bcdui standard binding attributes for this binding item
       attributes.putAll(bi.getAttributes());
@@ -157,7 +168,7 @@ public class WrqBindingItem implements WrsBindingItem
       origJdbcDataType = bi.getJDBCDataType();
       jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
       columnQuoting = bi.isColumnQuoting();
-      isEscapeXml = elem.getAttribute("escapeXml").isEmpty() ? bi.isEscapeXML() : new Boolean(elem.getAttribute("escapeXml"));
+      isEscapeXml = elem.getAttribute("escapeXml").isEmpty() ? bi.isEscapeXML() : Boolean.valueOf(elem.getAttribute("escapeXml"));
       setColumnExpression( bi.getColumnExpression() );
     }
 
@@ -215,10 +226,11 @@ public class WrqBindingItem implements WrsBindingItem
     wrqInfo.getAllBRefAggrs().get(parentC.getId()).addWrsAAttribute(this); // We are in document order, so we know our parent wrs:C exists already
     this.parentWrsC = parentC;
     this.jdbcDataType = origJdbcDataType = Types.VARCHAR;
-    this.tableAlias = parentC.getTableAlias();
     this.columnQuoting = parentC.columnQuoting;
-    isEscapeXml = new Boolean(true);
+    isEscapeXml = true;
     setColumnExpression( columnExpression );
+    this.tableAliasOverwrite = parentC.tableAliasOverwrite;
+    this.tableAliasPostFix = parentC.tableAliasPostFix;
   }
 
   /**
@@ -237,7 +249,6 @@ public class WrqBindingItem implements WrsBindingItem
     this.alias = alias;
     this.wrsAName = null;
     this.parentWrsC = null;
-    this.tableAlias = bi.getTableAliasName();
 
     attributes.putAll(bi.getAttributes());
     // User-provided VDM values are strings
@@ -246,6 +257,10 @@ public class WrqBindingItem implements WrsBindingItem
     columnQuoting = bi.isColumnQuoting();
     isEscapeXml = bi.isEscapeXML();
     setColumnExpression( bi.getColumnExpression() );
+    
+    if( bi instanceof BindingItemFromRel ) {
+      tableAliasPostFix = ((BindingItemFromRel) bi).getTableAlias("");
+    }
   }
 
 
@@ -255,6 +270,7 @@ public class WrqBindingItem implements WrsBindingItem
     // There is a grouping but we are not part of it
     if( aggr==null && wrqInfo.reqHasGroupBy() && !wrqInfo.getGroupingBRefs().contains(bRef) ) {
       BindingItem bi = wrqInfo.getResultingBindingSet().get(bRef);
+      if(bi==null) throw new BindingNotFoundException("BindingItem "+bRef+" not found at BindingSet '"+wrqInfo.getResultingBindingSet().getName()+"'");
       aggr = bi.getAggr()!=null ? aggregationMapping.get(bi.getAggr()) : getDefaultAggr(bi.getJDBCDataType());
     }
     return aggr;
@@ -410,18 +426,18 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   /**
-   * Returns the column expression with aggregation applied, if any is set
+   * Returns the column expression with table alias and with aggregation applied, if any is set
    * @return
    */
-  public String getQColumnExpressionWithAggr() {
+  public String getQColumnExpressionWithAggr() throws BindingNotFoundException {
     return getQColumnExpressionWithAggr(false);
   }
 
   /**
-   * Returns the column expression with aggregation applied, if any is set or if enforceAggr=true
+   * Returns the column expression with table alias and with aggregation applied, if any is set or if enforceAggr=true
    * @return
    */
-  public String getQColumnExpressionWithAggr( boolean enforceAggr ) {
+  public String getQColumnExpressionWithAggr( boolean enforceAggr ) throws BindingNotFoundException {
     if( aggr!=null && !aggr.isEmpty() )
       return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet()).get(aggr.toLowerCase())+"("+getQColumnExpression()+")";
     else if( enforceAggr )
@@ -430,9 +446,30 @@ public class WrqBindingItem implements WrsBindingItem
       return getQColumnExpression();
   }
 
+  /**
+   * Returns the column expression with aggregation applied, if any is set
+   * @return
+   */
+  public String getColumnExpressionWithAggr() {
+    return getColumnExpressionWithAggr(false);
+  }
+
+  /**
+   * Returns the column expression with aggregation applied, if any is set or if enforceAggr=true
+   * @return
+   */
+  public String getColumnExpressionWithAggr( boolean enforceAggr ) {
+    if( aggr!=null && !aggr.isEmpty() )
+      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet()).get(aggr.toLowerCase())+"("+getColumnExpression()+")";
+    else if( enforceAggr )
+      return getDefaultAggr(getJDBCDataType())+"("+getColumnExpression()+")";
+    else
+      return getColumnExpression();
+  }
+
   // True, if a column expression has at least one column reference, false, if the expression is a complete constant
   // Allows for example to eliminate complete-constant expressions from group-by as they are not allowed in SQLServer
-  public boolean hasAColumReference()
+  public boolean hasAColumnReference()
   {
     List<String> sCE = getSplitColumnExpression(true);
     return sCE.size() > 1;
@@ -442,7 +479,7 @@ public class WrqBindingItem implements WrsBindingItem
    * Return the column expression with the table alias
    * @return
    */
-  public String getQColumnExpression()
+  public String getQColumnExpression() throws BindingNotFoundException
   {
     return getQColumnExpression( true );
   }
@@ -451,10 +488,10 @@ public class WrqBindingItem implements WrsBindingItem
    * @param applyVdm If false, virtual dimension members are ignored here
    * @return
    */
-  public String getQColumnExpression( boolean applyVdm )
+  public String getQColumnExpression( boolean applyVdm ) throws BindingNotFoundException
   {
     List<String> sCE = getSplitColumnExpression(applyVdm);
-    return BindingUtils.addTableAlias(sCE, tableAlias);
+    return BindingUtils.addTableAlias(sCE, getTableAlias());
   }
 
   /**
@@ -584,12 +621,21 @@ public class WrqBindingItem implements WrsBindingItem
       plainColumnExpressionWithVdm = plainColumnExpression;
   }
 
-  public String getTableAlias() {
-    return tableAlias;
+  /**
+   * Usually the table alias is derived from the wrq-table alias with which this bindingItem is referenced
+   * b.country will be taken from the table that is associated with the wrq table alias "b"
+   * This value is created during each query. But here are two special cases:
+   * tableAliasOverwrite allows to completely ignore this and fix out table alias by using setTableAliasOverwrite(). This is used for CTE fo example
+   * tableAliasPostFix will be not empty in case the BindingItem comes from a Relation as it mist be the Relation-joined (as opposed to Wrq-joined) table
+   * @return
+   * @throws BindingNotFoundException
+   */
+  public String getTableAlias() throws BindingNotFoundException {
+    if( tableAliasOverwrite!= null ) return tableAliasOverwrite;
+    String wrqAlias = id.indexOf(".")!=-1 ? id.split("\\.")[0] : "";
+    return wrqInfo.getCurrentSelect().getBindingSetForWrqAlias(wrqAlias).getSqlAlias() + tableAliasPostFix;
   }
-  public void setTableAlias(String tableAlias) {
-    this.tableAlias = tableAlias;
-  }
+
   public WrqBindingItem getParentWrsC() {
     return parentWrsC;
   }
@@ -624,6 +670,14 @@ public class WrqBindingItem implements WrsBindingItem
    */
   public boolean isNumeric() {
     return BindingUtils.isNumeric(jdbcDataType);
+  }
+
+  public Object getAttribute(String name) {
+    return attributes.get(name);
+  }
+
+  public void setTableAliasOverwrite(String tableAlias) {
+    tableAliasOverwrite = tableAlias;
   }
 
 }
