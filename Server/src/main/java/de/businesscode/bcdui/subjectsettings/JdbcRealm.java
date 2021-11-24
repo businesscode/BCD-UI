@@ -280,7 +280,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         BcdSqlLogger.setLevel(Level.OFF);
         String uroUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.user_role- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
 
         new QueryRunner(true).query(con, new SQLEngine().transform(sql), rs -> {
           while(rs.next()){
