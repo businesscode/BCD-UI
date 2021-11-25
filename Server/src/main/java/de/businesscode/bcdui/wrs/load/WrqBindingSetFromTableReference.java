@@ -16,6 +16,7 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
+import de.businesscode.bcdui.binding.rel.Relation;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
@@ -268,8 +270,14 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
   protected void collectBindingItems(Set<String> allRawBRefsWoRel, String wrqAlias, boolean selectAll, BindingSet bs) throws BindingException {
     
     // We either are looking for a specific list allRawBRefsWoRel or we want to select all being made available from the underlying (maybe virtual) BindingSet
-    Collection<String> bRefsToRetrieve = selectAll ? bs.getBindingItemNames() : allRawBRefsWoRel;
-        
+    Collection<String> bRefsToRetrieve;
+    if( selectAll ) {
+      bRefsToRetrieve = new LinkedList<String>( bs.getBindingItemNames() );
+      for(Relation rel: bs.getRelations() ) bRefsToRetrieve.addAll( rel.getAllImportItemNames() );
+    } else {
+      bRefsToRetrieve = allRawBRefsWoRel;
+    }
+
     for( String bRef: bRefsToRetrieve ) {
       BindingItem bi = bs.get(bRef);
       if( bi== null ) 
