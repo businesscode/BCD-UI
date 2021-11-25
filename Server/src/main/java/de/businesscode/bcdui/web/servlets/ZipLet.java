@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -978,7 +978,7 @@ public class ZipLet extends HttpServlet {
 
   public static Connection getControlConnection() throws Exception{
     BindingSet bs  = Bindings.getInstance().get(BCDTINYURLCONTROL, new ArrayList<String>());
-    Connection con = Configuration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
+    Connection con = Configuration.getInstance().getUnmanagedConnection(bs.getJdbcResourceName());
     return con;
   }
 
