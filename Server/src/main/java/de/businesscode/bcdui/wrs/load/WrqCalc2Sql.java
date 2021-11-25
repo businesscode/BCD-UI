@@ -44,8 +44,8 @@ public class WrqCalc2Sql
   public WrqCalc2Sql( WrqInfo wrqInfo )
   {
     this.wrqInfo = wrqInfo;
-    calcFktMapping = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getResultingBindingSet());
-    aggregationMapping = DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet());
+    calcFktMapping = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getJdbcResourceName());
+    aggregationMapping = DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName());
   }
 
   /**

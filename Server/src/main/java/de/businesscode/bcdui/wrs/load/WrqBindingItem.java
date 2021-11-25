@@ -439,7 +439,7 @@ public class WrqBindingItem implements WrsBindingItem
    */
   public String getQColumnExpressionWithAggr( boolean enforceAggr ) throws BindingNotFoundException {
     if( aggr!=null && !aggr.isEmpty() )
-      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet()).get(aggr.toLowerCase())+"("+getQColumnExpression()+")";
+      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName()).get(aggr.toLowerCase())+"("+getQColumnExpression()+")";
     else if( enforceAggr )
       return getDefaultAggr(getJDBCDataType())+"("+getColumnExpression()+")";
     else
@@ -460,7 +460,7 @@ public class WrqBindingItem implements WrsBindingItem
    */
   public String getColumnExpressionWithAggr( boolean enforceAggr ) {
     if( aggr!=null && !aggr.isEmpty() )
-      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet()).get(aggr.toLowerCase())+"("+getColumnExpression()+")";
+      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName()).get(aggr.toLowerCase())+"("+getColumnExpression()+")";
     else if( enforceAggr )
       return getDefaultAggr(getJDBCDataType())+"("+getColumnExpression()+")";
     else
@@ -600,7 +600,7 @@ public class WrqBindingItem implements WrsBindingItem
         pCEWithVdm.append(q).append(elseValue).append(q);
       } else {
         // Because in CASE THEN and ELSE data types have to match, we cast the column to string if needed
-        pCEWithVdm.append(DatabaseCompatibility.getInstance().castToVarchar(wrqInfo.getResultingBindingSet(), origJdbcDataType, plainColumnExpression));
+        pCEWithVdm.append(DatabaseCompatibility.getInstance().castToVarchar(wrqInfo.getJdbcResourceName(), origJdbcDataType, plainColumnExpression));
       }
       pCEWithVdm.append(" END ");
 

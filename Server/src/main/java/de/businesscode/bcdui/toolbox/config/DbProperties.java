@@ -107,7 +107,7 @@ public class DbProperties {
     super();
     this.bindingSetId = bindingSetId;
     try {
-      this.dataSourceName = Bindings.getInstance().get(bindingSetId).getDbSourceName();
+      this.dataSourceName = Bindings.getInstance().get(bindingSetId).getJdbcResourceName();
     } catch (BindingException be) {
       throw be;
     } catch (Exception e) {

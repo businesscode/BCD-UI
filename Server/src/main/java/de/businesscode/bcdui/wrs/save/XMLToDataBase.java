@@ -323,7 +323,7 @@ public class XMLToDataBase implements XMLEventConsumer {
 
 
     if (databaseWriter == null) {
-      String dbSourceName = bindingSet.getDbSourceName();
+      String dbSourceName = bindingSet.getJdbcResourceName();
       if (dbSourceName != null && !dbSourceName.equals(BindingSet.DEFAULT_DATABASE_SOURCENAME)) {
         usedConnection = options.getManagedConnection(dbSourceName);
       }

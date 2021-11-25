@@ -85,7 +85,7 @@ public interface BindingSet extends Cloneable, Serializable {
    * Gets the database name the table of the BindingSet is located in.
    * @return The dbSourceName attribute of the BindingSet.
    */
-  public abstract String getDbSourceName();
+  public abstract String getJdbcResourceName();
 
   /**
    * isAllowSelectAllColumns

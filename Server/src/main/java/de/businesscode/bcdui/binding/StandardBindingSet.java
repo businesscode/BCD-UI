@@ -39,6 +39,7 @@ import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
+import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.wrs.load.SQLStatementWithParams;
 import de.businesscode.bcdui.wrs.load.SqlConditionGenerator;
 import de.businesscode.bcdui.wrs.load.WrqInfo;
@@ -218,9 +219,12 @@ public class StandardBindingSet implements BindingSet {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.BindingSet#getDbSourceName()
+   * @see de.businesscode.bcdui.binding.BindingSet#getJdbcResourceName()
    */
-  public String getDbSourceName() {
+  public String getJdbcResourceName() {
+    if(dbSourceName == null) {
+      dbSourceName = BareConfiguration.getInstance().getConfigurationParameter(Configuration.DEFAULT_DB_CONTEXT_ID).toString();
+    }
     return dbSourceName;
   }
 

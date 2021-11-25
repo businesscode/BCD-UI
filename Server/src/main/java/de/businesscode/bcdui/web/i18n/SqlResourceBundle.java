@@ -63,7 +63,7 @@ class SqlResourceBundle extends MapResourceBundle {
     try {
       BindingSet i18nBs = Bindings.getInstance().get("bcd_i18n");
       String sql = new SQLEngine().transform(selectFileSQL);
-      try (Connection con = Configuration.getInstance().getUnmanagedConnection(i18nBs.getDbSourceName())) {
+      try (Connection con = Configuration.getInstance().getUnmanagedConnection(i18nBs.getJdbcResourceName())) {
         return new QueryRunner(true).query(con, sql, (rs) -> {
           final Map<String, String> keyMap = new HashMap<>();
 

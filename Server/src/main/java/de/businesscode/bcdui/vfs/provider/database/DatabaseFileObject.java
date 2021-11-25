@@ -268,8 +268,8 @@ public class DatabaseFileObject extends AbstractFileObject {
     BindingSet bs  = Bindings.getInstance().get(BCDVIRTUALFILESYSTEM, new ArrayList<>());
     Boolean isManaged = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
     Connection con = isManaged ?
-        Configuration.getInstance().getManagedConnection(bs.getDbSourceName()) :
-        Configuration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
+        Configuration.getInstance().getManagedConnection(bs.getJdbcResourceName()) :
+        Configuration.getInstance().getUnmanagedConnection(bs.getJdbcResourceName());
 
     return new ConnectionContainer(con, isManaged);
   }

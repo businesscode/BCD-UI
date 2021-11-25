@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -538,8 +537,12 @@ public class WrqInfo
   public void setReqHasGroupingFunction(Boolean reqHasGroupingFunction) {
     this.reqHasGroupingFunction = reqHasGroupingFunction;
   }
-  public String getDatabaseName() {
-    return resultingBindingSet.getDbSourceName();
+  /**
+   * Convenience method
+   * @return
+   */
+  public String getJdbcResourceName() {
+    return getCurrentSelect().getWrqQueryBuilder().getJdbcResourceName();
   }
 
   public SqlFromSubSelect getCurrentSelect() {

@@ -17,12 +17,14 @@ package de.businesscode.bcdui.wrs.load;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.StandardBindingSet;
+import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.util.StandardNamespaceContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -48,6 +50,7 @@ public class WrqQueryBuilder
   protected Map<String,WrqBindingSet> wrqBindingSetForWrqAlias = new HashMap<>();         // Registry to associate BindingSets with user provided table expression alias
   protected final Map<String,Object> queryGlobalStorage = new HashMap<>();                // Store query-wide values
   protected Set<StandardBindingSet> resolvedBindingSets = new HashSet<>();                // Real BindingSets used in this query
+  protected String jdbcResourceName;
 
   // Result of our work. The SQL statement as string plus the bound values for the prepared statement
   private SQLStatementWithParams selectStatement;
@@ -86,6 +89,12 @@ public class WrqQueryBuilder
     NodeList withClauseNodes = wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Cte");
     String connect = "WITH ";
     try {
+      // We need the database source to clarify which database dialect to apply
+      // We just take the one from the first non-virtual BindingSet we find
+      Element firstBindingSet = (Element)wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet").item(0);
+      BindingSet firstSbs = bindings.get(firstBindingSet.getTextContent().trim(), Collections.emptySet());
+      jdbcResourceName = firstSbs.getJdbcResourceName();
+
       // Loop over CTEs
       for( int cte=0; cte<withClauseNodes.getLength(); cte++ ) {
         StringBuilder sql = new StringBuilder();
@@ -221,5 +230,13 @@ public class WrqQueryBuilder
     return "cte"+(aliasCounter++);
   }
 
+  /**
+   * The database source name our query goes to
+   * @return
+   */
+  public String getJdbcResourceName() {
+    return jdbcResourceName;
+  }
+  
 }
 

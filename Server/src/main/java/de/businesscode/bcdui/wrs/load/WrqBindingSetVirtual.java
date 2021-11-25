@@ -83,9 +83,7 @@ public abstract class WrqBindingSetVirtual implements WrqBindingSet {
    * @return All tables need to be on the same database, so here we return one from a random resolved BindingSet
    */
   @Override
-  public String getDbSourceName() {
-    return resolvedBindingSets.iterator().next().getDbSourceName();
-  }
+  public abstract  String getJdbcResourceName();
 
   @Override
   public boolean isAllowSelectAllColumns() {

@@ -172,7 +172,7 @@ public class SqlFromSubSelect
       // We may want to not calculate this value if another bRef part of Grouping Set is on (sub)total level
       // Typical case is the caption. It could be part of the Grouping Set itself but this keeps the query simpler, see scorecard
       if( wrqInfo.reqHasGroupingFunction() && wrqInfo.getGroupingBRefs().contains(bi.getSkipForTotals()) ) {
-        String[] grpFM = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getResultingBindingSet()).get("Grouping");
+        String[] grpFM = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqQueryBuilder.getJdbcResourceName()).get("Grouping");
         WrqBindingItem sftBi = wrqInfo.getAllBRefs().get(bi.getSkipForTotals());
         sql.append("CASE WHEN ").append(grpFM[1]).append(sftBi.getQColumnExpression()).append(grpFM[3]).append(" = 0 THEN ");
         sql.append(bi.getQColumnExpressionWithAggr()).append(" END ");
@@ -298,7 +298,7 @@ public class SqlFromSubSelect
         sql.append(", ");
 
       // To have the same position of NULL values (sort them to the end), add a database specific order by specification
-      int bind = dbCompat.dbOrderByNullsLast(wrqInfo.getResultingBindingSet(), item.getQColumnExpressionWithAggr(), item.isOrderByDescending(), sql );
+      int bind = dbCompat.dbOrderByNullsLast(wrqQueryBuilder.getJdbcResourceName(), item.getQColumnExpressionWithAggr(), item.isOrderByDescending(), sql );
       for( ; bind > 0; bind-- )
         boundVariables.addAll( item.getBoundVariables() );
     }

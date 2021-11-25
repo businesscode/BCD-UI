@@ -112,4 +112,9 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
     return new SQLStatementWithParams();
   }
 
+  @Override
+  public String getJdbcResourceName() {
+    return wrqInfo.getJdbcResourceName();
+  }
+
 }

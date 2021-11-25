@@ -313,4 +313,11 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
     return stmt;
   }
+
+
+  @Override
+  public String getJdbcResourceName() {
+    return currentSelect.getWrqQueryBuilder().getJdbcResourceName();
+  }
+
 }

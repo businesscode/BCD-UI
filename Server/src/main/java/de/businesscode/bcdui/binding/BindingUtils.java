@@ -60,7 +60,7 @@ public class BindingUtils
     if (! columnQuoting && !SimpleBindingItem.pureColumnNamePattern.matcher(colExpr).matches() )
     {
       Matcher m = SimpleBindingItem.wordPattern.matcher(colExpr);
-      Set<String> reservedDBWords = DatabaseCompatibility.getInstance().getReservedDBWords( bs );
+      Set<String> reservedDBWords = DatabaseCompatibility.getInstance().getReservedDBWords( bs.getJdbcResourceName() );
       StringBuffer sb = new StringBuffer();
       int endLastColumnName = 0;
       while (m.find()) {

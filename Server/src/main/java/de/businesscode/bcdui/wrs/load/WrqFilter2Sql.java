@@ -245,7 +245,7 @@ public class WrqFilter2Sql
       value = value.replace("%", "\\%");
       value = value.replace("*", "%");
       valueElement.setAttribute("value", value );
-      colExprPostfix = DatabaseCompatibility.getInstance().dbLikeEscapeBackslash(wrqInfo.getResultingBindingSet());
+      colExprPostfix = DatabaseCompatibility.getInstance().dbLikeEscapeBackslash(wrqInfo.getJdbcResourceName());
     }
 
     // Support of BITAND operation -> BITAND( col, value) > 0
@@ -260,7 +260,7 @@ public class WrqFilter2Sql
     // Spatial operators. parameter is expected as WKT.
     // Implementation differences are handled by DatabaseCompatibility
     else if ("SpatContains".equals(operator) || "SpatContained".equals(operator) || "SpatIntersects".equals(operator)) {
-      final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(wrqInfo.getResultingBindingSet());
+      final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(wrqInfo.getJdbcResourceName());
       StringBuffer param = new StringBuffer().append(fctMapping.get("GeoFromWkt")[0]).append(" ? ").append(fctMapping.get("GeoFromWkt")[2]);
       StringBuffer sql = new StringBuffer();
       sql.append(fctMapping.get(operator)[0])

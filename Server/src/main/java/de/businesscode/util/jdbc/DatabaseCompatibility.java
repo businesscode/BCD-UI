@@ -109,10 +109,10 @@ public class DatabaseCompatibility
    * @param bs 
    * @return Set of key words for the database belonging to the BindingSets connection
    */
-  public Set<String>getReservedDBWords(BindingSet bs)
+  public Set<String>getReservedDBWords(String jdbcResourceName)
   {
     try {
-      String product = getDatabaseProductNameLC(bs);
+      String product = jdbcResourceName.toLowerCase();
       if( product.contains("oracle") )
         return sqlKeyWordsOracle;
       else if( product.contains("mysql") )
@@ -130,7 +130,7 @@ public class DatabaseCompatibility
    * @param bs
    * @return
    */
-  public boolean dbNeedsColumnListInWithClause(BindingSet bs)
+  public boolean dbNeedsColumnListInWithClause(String jdbcResourceName)
   {
     return false;
   }
@@ -139,7 +139,7 @@ public class DatabaseCompatibility
    * @param bs
    * @return
    */
-  public boolean dbAllowsMultiWithClauses(BindingSet bs)
+  public boolean dbAllowsMultiWithClauses(String jdbcResourceName)
   {
     return true;
   }
@@ -149,8 +149,8 @@ public class DatabaseCompatibility
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbSupportsGroupingSets(BindingSet resultingBindingSet) {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+  public boolean dbSupportsGroupingSets(String jdbcResourceName) {
+    String product = jdbcResourceName.toLowerCase();
     return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("teradata");
   }
 
@@ -159,8 +159,8 @@ public class DatabaseCompatibility
    * @param resultingBindingSet
    * @return
    */
-  public String dbLikeEscapeBackslash(BindingSet resultingBindingSet) {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+  public String dbLikeEscapeBackslash(String jdbcResourceName) {
+    String product = jdbcResourceName.toLowerCase();
     return product.contains("redshift") ? "" : " ESCAPE '\\'";
   }
 
@@ -168,7 +168,7 @@ public class DatabaseCompatibility
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbNeedsVarcharCastForConcatInTopN(BindingSet resultingBindingSet) {
+  public boolean dbNeedsVarcharCastForConcatInTopN(String jdbcResourceName) {
     return false;
   }
 
@@ -178,9 +178,10 @@ public class DatabaseCompatibility
    * @param resultingBindingSet
    * @return How often bound variables of the item used for ordering are used in the created expression
    */
-  public int dbOrderByNullsLast( BindingSet resultingBindingSet, String colExpr, boolean isDesc, StringBuffer sql ) 
+  public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql ) 
   {
-    if( getDatabaseProductNameLC(resultingBindingSet).contains("oracle") || getDatabaseProductNameLC(resultingBindingSet).contains("redshift") ) {
+    String product = jdbcResourceName.toLowerCase();
+    if( product.contains("oracle") || product.contains("redshift") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
       } else {
@@ -205,24 +206,25 @@ public class DatabaseCompatibility
    * @param expr             Expression to be wrapped
    * @return                 Wrapped SQL expression
    */
-  public String castToVarchar(BindingSet bindingSet, int origJdbcDataType, String expr)
+  public String castToVarchar(String jdbcResourceName, int origJdbcDataType, String expr)
   {
+    String product = jdbcResourceName.toLowerCase();
     if( origJdbcDataType == Types.CHAR || origJdbcDataType == Types.VARCHAR )
       return expr;
     // Conversion via CAST is ok for all types for all databases when ansi date is set as default.
     // But BCD-UI treats DATE as date-only (without time). Usually this is handled when reading the result-set for data-type DATE.
     // Since for VDM we switch to type VARCHAR, it would not happen and thus we make sure here, that DATE is ANSI-Date but without time
     else if( origJdbcDataType == Types.DATE ) {
-      if( getDatabaseProductNameLC(bindingSet).contains("microsoft sql server") )
+      if( product.contains("microsoft sql server") )
         return "FORMAT("+expr+",'yyyy-mm-dd')";
-      else if( getDatabaseProductNameLC(bindingSet).contains("mysql") )
+      else if( product.contains("mysql") )
         return "DATE_FORMAT("+expr+",'%Y-%m-%d')";
       else
         return "TO_CHAR("+expr+",'yyyy-mm-dd')";
     }
-    else if( getDatabaseProductNameLC(bindingSet).contains("oracle") )
+    else if( product.contains("oracle") )
       return "CAST (" + expr + " AS VARCHAR2("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
-    else if( getDatabaseProductNameLC(bindingSet).contains("mysql") )
+    else if( product.contains("mysql") )
       return "CAST (" + expr + " AS CHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
     else
       return "CAST (" + expr + " AS VARCHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
@@ -234,9 +236,9 @@ public class DatabaseCompatibility
     return oracleCalcFktMapping;
   }
 
-  public Map<String, String[]> getCalcFktMapping( BindingSet resultingBindingSet) 
+  public Map<String, String[]> getCalcFktMapping( String jdbcResourceName ) 
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = jdbcResourceName.toLowerCase();
     if( product.contains("microsoft sql server") )
       return sqlServerCalcFktMapping;
     if( product.contains("mysql") )
@@ -249,9 +251,9 @@ public class DatabaseCompatibility
   /**
    * For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
    */
-  public Map<String, String> getAggrFktMapping( BindingSet resultingBindingSet) 
+  public Map<String, String> getAggrFktMapping( String jdbcResourceName ) 
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = jdbcResourceName.toLowerCase();
     if( product.contains("mysql") )
       return aggregationMappingMySql;    
     return aggregationMappingGeneric;
@@ -268,9 +270,9 @@ public class DatabaseCompatibility
   /**
    * Geo spatial operators differ significantly from database to database
    */
-  public Map<String, String[]> getSpatialFktMapping(BindingSet resultingBindingSet)
+  public Map<String, String[]> getSpatialFktMapping(String jdbcResourceName)
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = jdbcResourceName.toLowerCase();
     if( product.contains("oracle") )
       return oracleSpatialFktMapping;
     else if( product.contains("microsoft sql server") )
@@ -278,36 +280,36 @@ public class DatabaseCompatibility
     return spatialFktMapping;
   }
 
+  
   /**
    * Does not do much checking, but as all BindingSets are tested on start, the risk is low
    * @param bs
    * @return
    */
-  public String getDatabaseProductNameLC(BindingSet bs)
+  public String getDatabaseProductNameLC(String jdbcResourceName)
   {
-    String dbSource = bs.getDbSourceName() == null ? "(default connection)" : bs.getDbSourceName();
-    if (databaseProduct.containsKey(dbSource)) {
-        return databaseProduct.get(dbSource);     
+    if (databaseProduct.containsKey(jdbcResourceName)) {
+      return databaseProduct.get(jdbcResourceName);     
     }
-    
+  
     Connection con = null;
     // we either use managed or unmanaged connection depended on the scope of execution
     boolean isManagedConnection = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
     try {
-      // Let's get the connection (will not be a new one but the used one, because each request gets always the same for one dbSourceName)
+      // Let's get the connection (will not be a new one but the used one, because each request gets always the same for one jdbcResourceName)
       /*
        * access BareConfiguration, since Configuration initialization has dependency on database (cycle)
        */
-      con = isManagedConnection ? BareConfiguration.getInstance().getManagedConnection(bs.getDbSourceName()) :
-        BareConfiguration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
+      con = isManagedConnection ? BareConfiguration.getInstance().getManagedConnection(jdbcResourceName) :
+        BareConfiguration.getInstance().getUnmanagedConnection(jdbcResourceName);
 
       String databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase();
       // AWS Redshift returns PostgreSQL as product name, but we want to distinguish them
       if( con.getMetaData().getURL().toLowerCase().contains("redshift") ) databaseProductName = "redshift";
-      databaseProduct.put(dbSource, databaseProductName);
+      databaseProduct.put(jdbcResourceName, databaseProductName);
       return databaseProductName;
     } catch (Exception e) {
-      log.error("BindingSet '"+bs.getName()+"' :"+e, e);
+      log.error("Database product for jdbcResourceName '"+jdbcResourceName+"' could not be determined.", e);
     } finally {
       if(!isManagedConnection)
         Closer.closeAllSQLObjects(con);
@@ -353,7 +355,7 @@ public class DatabaseCompatibility
     Clob clob = null;
     Reader cContentReader = null;
     // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+    if ("postgresql".equals(bs.getJdbcResourceName())) {
       content = rs.getString(column);
       if (content != null)
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
@@ -383,7 +385,7 @@ public class DatabaseCompatibility
     BindingSet bs  = Bindings.getInstance().get(bindingSetName, new ArrayList<String>());
     InputStream iStr = null;
     // postgresql would fail when using getBlob, so we use getBytes instead to access the binary column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+    if ("postgresql".equals(bs.getJdbcResourceName())) {
       iStr = new ByteArrayInputStream(rs.getBytes(column));
     }
     else {

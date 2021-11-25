@@ -109,7 +109,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     //---------------------------
     // Get right db connection
     // columnsOfCaller allows us to manipulate the list which is used by our caller when writing the wrq
-    con = Configuration.getInstance().getManagedConnection(bindingSet.getDbSourceName());
+    con = Configuration.getInstance().getManagedConnection(bindingSet.getJdbcResourceName());
     columnsOfCaller = columns;
     columnTypesOfCaller = columnTypes;
   }

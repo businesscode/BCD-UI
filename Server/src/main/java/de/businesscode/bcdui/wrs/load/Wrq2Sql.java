@@ -17,6 +17,7 @@ package de.businesscode.bcdui.wrs.load;
 
 import java.io.StringReader;
 import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,10 +53,8 @@ import de.businesscode.util.xml.SecureXmlFactory;
 public class Wrq2Sql implements ISqlGenerator
 {
   protected final Bindings bindings;         // We are not using Bindings.getInstance() to allow running in a batch program
-  protected final String dbSourceName;
   protected int rowStart = 0;
   protected int effectiveMaxRows = -1;
-  private final BindingSet firstUsedSet;
   protected WrqQueryBuilder wrqQueryBuilder;
   protected final Document requestDoc;
   
@@ -86,8 +85,6 @@ public class Wrq2Sql implements ISqlGenerator
         || requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select").getLength() == 0
         || requestDoc.getDocumentElement() == null
         || requestDoc.getDocumentElement().getFirstChild() == null ) {
-      dbSourceName = null;
-      firstUsedSet = null;
       return;
     }
     
@@ -102,18 +99,18 @@ public class Wrq2Sql implements ISqlGenerator
       effectiveMaxRows = Math.min( Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowEnd") ), effectiveMaxRows );
     }
 
-    // Since all SELECTs need to go to the same database, we just use the first here to decide about the database's capability
-    String firstBindingSetId = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet").item(0).getFirstChild().getTextContent().trim();
-    firstUsedSet = options.getBindings().get(firstBindingSetId, new LinkedList<String>());
-
-    dbSourceName = firstUsedSet.getDbSourceName();
-    
     // This is modifying the Wrq when it uses Grouping SETs but they are not supported by the current database
     try {
+      // We need the database source to clarify which database dialect to apply
+      // We just take the one from the first non-virtual BindingSet we find
+      Element firstBindingSet = (Element)requestDoc.getDocumentElement().getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet").item(0);
+      BindingSet firstSbs = bindings.get(firstBindingSet.getFirstChild().getTextContent().trim(), Collections.emptySet());
+      String jdbcResourceName = firstSbs.getJdbcResourceName();
+      
       // Here we implement a work-around for GROUPING SETs and convert them into GROUP BY with UNION
       // And we convert @rowStart and @rowEnd into a subselect with limit on ROW_NUMBER if @rowStart > 0
       boolean wrqHasGroupingSets = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "GroupingSets").getLength() > 0;
-      boolean dbSupportsGroupingSets = DatabaseCompatibility.getInstance().dbSupportsGroupingSets(firstUsedSet);
+      boolean dbSupportsGroupingSets = DatabaseCompatibility.getInstance().dbSupportsGroupingSets(jdbcResourceName);
       if( false || (wrqHasGroupingSets && !dbSupportsGroupingSets) ) { // TODO gs2u
         DOMSource source = new DOMSource(requestDoc.getDocumentElement());
         StreamSource styleSource = new StreamSource(new StringReader(wrqTransformGrs2UnionXsltStatic) );
@@ -149,7 +146,7 @@ public class Wrq2Sql implements ISqlGenerator
    */
   @Override
   public String getDbSourceName() {
-    return dbSourceName;
+    return wrqQueryBuilder.getJdbcResourceName();
   }
   /**
    * This is the binding sets / groups named in the Wrq

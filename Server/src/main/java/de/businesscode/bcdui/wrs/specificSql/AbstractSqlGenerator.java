@@ -74,7 +74,7 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
   
   @Override
   public String getDbSourceName() {
-    return resultingBindingSets.iterator().next().getDbSourceName();
+    return resultingBindingSets.iterator().next().getJdbcResourceName();
   }
 
   @Override

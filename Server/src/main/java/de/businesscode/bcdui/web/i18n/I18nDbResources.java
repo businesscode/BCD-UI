@@ -128,7 +128,7 @@ public class I18nDbResources extends ListResourceBundle {
 
   public static Connection getControlConnection() throws Exception{
     BindingSet bs  = Bindings.getInstance().get("bcd_i18n", new ArrayList<String>());
-    Connection con = Configuration.getInstance().getManagedConnection(bs.getDbSourceName());
+    Connection con = Configuration.getInstance().getManagedConnection(bs.getJdbcResourceName());
     return con;
   }
 

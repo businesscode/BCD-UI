@@ -143,7 +143,7 @@ public class DatabaseWriter {
       builder.append(column.getColumnExpression());
       if(column.isDefinedJDBCDataType() && column.getJDBCDataType() == Types.OTHER){
         if( "GEOMETRY".equalsIgnoreCase(column.getCustomAttributesMap().get("type-name")) ) {
-          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
           builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]).append(", ");
         } else {
           builder.append("=(?)::" + getCustomDatabaseType(column) + ",");
@@ -170,7 +170,7 @@ public class DatabaseWriter {
         wherePart.append(bi.getColumnExpression());
         if(bi.isDefinedJDBCDataType() && bi.getJDBCDataType() == Types.OTHER){
           if( "GEOMETRY".equalsIgnoreCase(bi.getCustomAttributesMap().get("type-name")) ) {
-            final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+            final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
             builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]);
           } else {
             wherePart.append("=(?)::" + getCustomDatabaseType(bi));
@@ -216,7 +216,7 @@ public class DatabaseWriter {
       BindingItem bItem = columns[i];
       if(bItem.isDefinedJDBCDataType() && bItem.getJDBCDataType() == Types.OTHER) {
         if( "GEOMETRY".equalsIgnoreCase(bItem.getCustomAttributesMap().get("type-name")) ) {
-          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
           builder.append(fctMapping.get("GeoFromWkt")[0]).append(" ? ").append(fctMapping.get("GeoFromWkt")[2]);
         } else {
           builder.append("(?)::" + getCustomDatabaseType(bItem));
