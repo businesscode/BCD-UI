@@ -42,10 +42,14 @@
   <xsl:param name="allBindingItems"></xsl:param>
   <xsl:param name="allKeyBindingItems"></xsl:param>
 
+  <xsl:key name="implicitBRefs" match="/*/f:Filter//f:Expression | /*/wrq:Grouping//wrq:C | /*/wrq:Having//wrq:C | /*/wrq:Ordering/wrq:Cf" use="@bRef"/>
+
   <!--
     Match our root, which needs to be a wrs:Select
    -->
   <xsl:template match="/*">
+  
+    <xsl:variable name="imputSelect" select="."/>
   
     <!-- Outer Select -->
     <xsl:copy>
@@ -86,11 +90,23 @@
                 <xsl:choose>
                   <xsl:when test="count(./wrq:Columns/wrq:C) != 0">
                     <xsl:copy-of select="./wrq:Columns/*"/>
+                    <!-- Add columns from other expressions -->
+                    <xsl:for-each select="./f:Filter//f:Expression | ./wrq:Grouping//wrq:C | ./wrq:Having//wrq:C | ./wrq:Ordering/wrq:C">
+                      <xsl:if test="generate-id(.)=generate-id(key('implicitBRefs', @bRef)) and not(@bRef=$imputSelect/wrq:Columns//@bRef)">
+                        <wrq:C bRef="{@bRef}"/>
+                      </xsl:if>
+                    </xsl:for-each>
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:call-template name="colList">
                       <xsl:with-param name="bRefList" select="$allBindingItems"/>
                     </xsl:call-template>
+                    <!-- Add columns from other expressions -->
+                    <xsl:for-each select="./f:Filter//f:Expression | ./wrq:Grouping//wrq:C | ./wrq:Having//wrq:C | ./wrq:Ordering/wrq:C">
+                      <xsl:if test="generate-id(.)=generate-id(key('implicitBRefs', @bRef)) and not(contains(concat(' ',$allBindingItems,' '), concat(' ',@bRef,' ')))">
+                        <wrq:C bRef="{@bRef}"/>
+                      </xsl:if>
+                    </xsl:for-each>
                   </xsl:otherwise>
                 </xsl:choose>
 
