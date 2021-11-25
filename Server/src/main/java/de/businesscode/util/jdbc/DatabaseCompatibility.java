@@ -112,7 +112,7 @@ public class DatabaseCompatibility
   public Set<String>getReservedDBWords(String jdbcResourceName)
   {
     try {
-      String product = jdbcResourceName.toLowerCase();
+      String product = getDatabaseProductNameLC(jdbcResourceName);
       if( product.contains("oracle") )
         return sqlKeyWordsOracle;
       else if( product.contains("mysql") )
@@ -150,7 +150,7 @@ public class DatabaseCompatibility
    * @return
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("teradata");
   }
 
@@ -160,7 +160,7 @@ public class DatabaseCompatibility
    * @return
    */
   public String dbLikeEscapeBackslash(String jdbcResourceName) {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     return product.contains("redshift") ? "" : " ESCAPE '\\'";
   }
 
@@ -180,7 +180,7 @@ public class DatabaseCompatibility
    */
   public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql ) 
   {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("oracle") || product.contains("redshift") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
@@ -208,7 +208,7 @@ public class DatabaseCompatibility
    */
   public String castToVarchar(String jdbcResourceName, int origJdbcDataType, String expr)
   {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( origJdbcDataType == Types.CHAR || origJdbcDataType == Types.VARCHAR )
       return expr;
     // Conversion via CAST is ok for all types for all databases when ansi date is set as default.
@@ -238,7 +238,7 @@ public class DatabaseCompatibility
 
   public Map<String, String[]> getCalcFktMapping( String jdbcResourceName ) 
   {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("microsoft sql server") )
       return sqlServerCalcFktMapping;
     if( product.contains("mysql") )
@@ -253,7 +253,7 @@ public class DatabaseCompatibility
    */
   public Map<String, String> getAggrFktMapping( String jdbcResourceName ) 
   {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("mysql") )
       return aggregationMappingMySql;    
     return aggregationMappingGeneric;
@@ -272,7 +272,7 @@ public class DatabaseCompatibility
    */
   public Map<String, String[]> getSpatialFktMapping(String jdbcResourceName)
   {
-    String product = jdbcResourceName.toLowerCase();
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("oracle") )
       return oracleSpatialFktMapping;
     else if( product.contains("microsoft sql server") )
@@ -355,7 +355,7 @@ public class DatabaseCompatibility
     Clob clob = null;
     Reader cContentReader = null;
     // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
-    if ("postgresql".equals(bs.getJdbcResourceName())) {
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       content = rs.getString(column);
       if (content != null)
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
@@ -385,7 +385,7 @@ public class DatabaseCompatibility
     BindingSet bs  = Bindings.getInstance().get(bindingSetName, new ArrayList<String>());
     InputStream iStr = null;
     // postgresql would fail when using getBlob, so we use getBytes instead to access the binary column
-    if ("postgresql".equals(bs.getJdbcResourceName())) {
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       iStr = new ByteArrayInputStream(rs.getBytes(column));
     }
     else {
