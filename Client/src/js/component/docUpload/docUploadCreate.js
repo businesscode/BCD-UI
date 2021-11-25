@@ -91,8 +91,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 var fileExists = ("1" == e.selectSingleNode("wrs:C[" + fileExistsIndex + "]").text);
 
                 // filename and comment are part of the metaData
-                var fileName = bcdui.util.escapeHtml(category.getAttribute("fileName") || "-");
-                var comment = bcdui.util.escapeHtml(category.getAttribute("comment") || "");
+                var fileName = category.getAttribute("fileName") || "-";
+                var comment = category.getAttribute("comment") || "";
                 var fileSize = bcdui.util.escapeHtml(category.getAttribute("fileSize") || "0");
                 fileSize = parseInt(fileSize, 10);
                 var fSize = fileSize + " Byte";
