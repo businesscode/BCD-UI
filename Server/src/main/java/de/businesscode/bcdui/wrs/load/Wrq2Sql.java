@@ -93,8 +93,8 @@ public class Wrq2Sql implements ISqlGenerator
     effectiveMaxRows = options.getMaxRows();
     NodeList selectElems = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select");
     if( selectElems.getLength() == 1                                            // If multiple, it is handles in SQL for each SELECT
-        && ( ((Element)selectElems.item(0)).getAttribute("rowStart").isEmpty()  // If rowStart is given (and > 0), it is handled in SQL
-              || Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowStart")) == 0 )
+        && ( ((Element)selectElems.item(0)).getAttribute("rowStart").isEmpty()  // If rowStart is given (and > 1), it is handled in SQL
+              || Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowStart")) <= 1 )
         && !((Element)selectElems.item(0)).getAttribute("rowEnd").isEmpty() ) {
       effectiveMaxRows = Math.min( Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowEnd") ), effectiveMaxRows );
     }
@@ -108,7 +108,7 @@ public class Wrq2Sql implements ISqlGenerator
       String jdbcResourceName = firstSbs.getJdbcResourceName();
       
       // Here we implement a work-around for GROUPING SETs and convert them into GROUP BY with UNION
-      // And we convert @rowStart and @rowEnd into a subselect with limit on ROW_NUMBER if @rowStart > 0
+      // And we convert @rowStart and @rowEnd into a subselect with limit on ROW_NUMBER if @rowStart > 1
       boolean wrqHasGroupingSets = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "GroupingSets").getLength() > 0;
       boolean dbSupportsGroupingSets = DatabaseCompatibility.getInstance().dbSupportsGroupingSets(jdbcResourceName);
       if( false || (wrqHasGroupingSets && !dbSupportsGroupingSets) ) { // TODO gs2u

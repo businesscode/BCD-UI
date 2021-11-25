@@ -43,21 +43,28 @@
   <xsl:param name="allKeyBindingItems"></xsl:param>
 
   <!--
-    Match root
+    Match our root, which needs to be a wrs:Select
    -->
   <xsl:template match="/*">
   
+    <!-- Outer Select -->
     <xsl:copy>
       <xsl:apply-templates select="@*"/>
 
+      <!-- Per convention BCD-UI handles rowEnd without rowStart restriction without the subselect we create here -->
       <xsl:choose>
-        <xsl:when test="number(./@rowStart) > 0">
+        <xsl:when test="number(./@rowStart) > 1">
         
           <wrq:Columns>
-            <!-- If a column list is not given, return all BindingItems -->
+            <!-- If a column list is not given, return all BindingItems. -->
             <xsl:choose>
               <xsl:when test="count(./wrq:Columns/wrq:C) != 0">
-                <xsl:copy-of select="./wrq:Columns/*"/>
+                <!-- Skip aggregation, the aggregation is taken care for in the inner SELECT  -->
+                <xsl:for-each select="./wrq:Columns/*">
+                  <xsl:copy>
+                    <xsl:copy-of select="@*[not(local-name()='aggr')]"/>
+                  </xsl:copy>
+                </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:call-template name="colList">
@@ -68,6 +75,7 @@
           </wrq:Columns>
           <wrq:From>
           
+            <!-- Inner Select -->
             <wrq:Select>
               <xsl:copy-of select="./@*[not(name()='rowStart') and not(name()='rowEnd')]"/>
 
@@ -155,7 +163,8 @@
   </xsl:template>
 
   <!-- 
-    Generate a list of wrq:C / wrq:ValueRef based on a string with a space separated list of bRefs 
+    Generate a list of wrq:C / wrq:ValueRef based on a string with a space separated list of bRefs
+    Recurse into bRefList / valueRefList which is the space separated list of bRefs to be created
     -->
   <xsl:template name="colList">
     <xsl:param name="bRefList"/>
