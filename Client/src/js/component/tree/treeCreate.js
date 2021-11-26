@@ -37,7 +37,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
   constructor(args) {
 
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
-    var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
+    var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "tree_");
     var statusModel = args.statusModel || bcdui.wkModels.guiStatus;
     var config = args.config;
     if (! config) {
