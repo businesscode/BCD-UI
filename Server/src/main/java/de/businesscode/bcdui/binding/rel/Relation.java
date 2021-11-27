@@ -66,8 +66,8 @@ public class Relation {
   private TYPE type = TYPE.leftOuter;
 
   // Import items are read lazy because only later we know the source BindingSet was also read
-  private List<BindingItemFromRel> imports = null;
-  private Condition condition;
+  private volatile List<BindingItemFromRel> imports = null;
+  private volatile Condition condition;
   private String id;
 
   // This postfix is unique for the table: "_rel"+idx, when this is the relation at index idx for its main BindingSet
@@ -133,15 +133,6 @@ public class Relation {
    */
   public void setId(String pname) {
     this.id = pname;
-  }
-
-  /**
-   * isInitImportItems
-   *
-   * @return
-   */
-  public boolean isInitImportItems() {
-    return imports != null;
   }
 
   /**
@@ -347,10 +338,22 @@ public class Relation {
    */
   public Condition getCondition() throws BindingException {
 
-    try {
-      // <Condition>
-      if( condition == null && conditionNode != null && conditionNode.getLength() > 0) {
-        this.condition = new Condition();
+    // 2nd and later calls just return the result
+    Condition retCondition = condition;
+    if( retCondition!= null ) {
+      return retCondition;
+    }
+    
+    // Lazy initialize. Make sure done only once
+    synchronized(this) {
+      try {
+        retCondition = condition;
+        if( retCondition != null ) {
+          return retCondition;
+        }
+        
+        // <Condition>
+        retCondition = new Condition();
   
         NodeList constraintNodes = (NodeList) XPathUtils.newXPathFactory().newXPath().compile("*").evaluate(conditionNode.item(0), XPathConstants.NODESET);
         // resolve all constraints
@@ -360,17 +363,19 @@ public class Relation {
             if (constraintNodes.item(con).getNodeType() == Node.ELEMENT_NODE) {
               AbstractConstrain cons = resolveConstraint((Element) constraintNodes.item(con), null);
               if (cons != null)
-                this.condition.setConstraint(cons);
+                retCondition.setConstraint(cons);
             }
-          }
-        }// end of constraints
+          }// end of constraints
+        }
+        // </Condition>
+      } catch (XPathExpressionException e) {
+        throw new BindingException("Condition of Relation "+getId()+" for BindingSet "+leftBindingSetName+" could not be found ", e);
       }
-      // </Condition>
-    } catch (XPathExpressionException e) {
-      throw new BindingException("Condition of Relation "+getId()+" for BindingSet "+leftBindingSetName+" could not be found ", e);
+
+      condition = retCondition;
     }
     
-    return condition;
+    return retCondition;
   }
 
   /**
@@ -487,46 +492,52 @@ public class Relation {
    */
   public List<BindingItemFromRel> getImportItems() throws BindingException {
     
-    // Usually we just return what we have 
-    if( imports != null ) {
-      return imports;
+    // Usually we just return what we have (after initial call)
+    List<BindingItemFromRel> importsRet = imports;
+    if( importsRet != null ) {
+      return importsRet;
     }
 
-    // After application startup, read the imports once.
+    // After application startup, read the imports on first call.
     // This is done lazy on the first request as during construction of the Relation the related BindingSet may not yes be available
     // depending on the order in which the BindingSets are read
-    else {
-      synchronized(this) {
-        imports = new ArrayList<BindingItemFromRel>();
-  
-        // All items with a prefix
-        if( defaultImportBRefPrefix != null ) {
-          BindingSet bs = getSourceBindingSet();
-          for( BindingItem bi: bs.getBindingItems() ) {
-            BindingItemFromRel bfr = new BindingItemFromRel( bi, this, defaultImportBRefPrefix+bi.getId(), null );
-            imports.add(bfr);
-          }
-        } 
-        
-        // Individually listed and named items
-        // TODO support for <ImportItem caption="Team" bRef="accountTeam" asBRef="accountTeam"/> asBRef optional
-        else if( importItemNodes != null ) {
-          for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
-            Element importNodeEl = (Element) importItemNodes.item(imp);
-            
-            String importName = importNodeEl.getAttribute("name");
-            String importCaption = importNodeEl.hasAttribute( "caption") ? importNodeEl.getAttribute( "caption") : null; 
-            
-            Element importFirstChild = (Element) importNodeEl.getElementsByTagName("BindingItemRef").item(0);// FirstChild();
-            String refName = importFirstChild.getAttribute("name");
-            
-            BindingItemFromRel bfr = new BindingItemFromRel(getSourceBindingSet().get(refName), this, importName, importCaption);
-            imports.add(bfr);
-          }
+    synchronized(this) {
+      importsRet = imports;
+      if( importsRet != null ) {
+        return importsRet;
+      }
+      // We only assign to imports after we have completed
+      importsRet = new ArrayList<BindingItemFromRel>();
+
+      // All items with a prefix
+      if( defaultImportBRefPrefix != null ) {
+        BindingSet bs = getSourceBindingSet();
+        for( BindingItem bi: bs.getBindingItems() ) {
+          BindingItemFromRel bfr = new BindingItemFromRel( bi, this, defaultImportBRefPrefix+bi.getId(), null );
+          importsRet.add(bfr);
+        }
+      } 
+      
+      // Individually listed and named items
+      // TODO support for <ImportItem caption="Team" bRef="accountTeam" asBRef="accountTeam"/> asBRef optional
+      else if( importItemNodes != null ) {
+        for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
+          Element importNodeEl = (Element) importItemNodes.item(imp);
+          
+          String importName = importNodeEl.getAttribute("name");
+          String importCaption = importNodeEl.hasAttribute( "caption") ? importNodeEl.getAttribute( "caption") : null; 
+          
+          Element importFirstChild = (Element) importNodeEl.getElementsByTagName("BindingItemRef").item(0);// FirstChild();
+          String refName = importFirstChild.getAttribute("name");
+          
+          BindingItemFromRel bfr = new BindingItemFromRel(getSourceBindingSet().get(refName), this, importName, importCaption);
+          importsRet.add(bfr);
         }
       }
-      return imports;
+      imports = importsRet;
     }
+
+    return importsRet;
   }
 
   /**
