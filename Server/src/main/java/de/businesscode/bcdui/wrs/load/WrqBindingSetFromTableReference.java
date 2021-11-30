@@ -16,6 +16,8 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,9 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
   protected final XPath xp = XPathUtils.newXPathFactory().newXPath();
   protected static final long serialVersionUID = -339592266521077317L;
+
+  protected Map<String, BindingItem> importedBindingItems = new LinkedHashMap<String, BindingItem>(new HashMap<String, BindingItem>());
+
   // StandardBindingSet may have SubjectSettings attached, that's why we collect them here
   // TreeMap is sorted, we get the SubjectFilters in the same order as the corresponding BindingSets for easier readability
   Map<String,StandardBindingSet> sbsWithSubjectFilters = new TreeMap<>(); 
@@ -282,7 +287,10 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
       BindingItem bi = bs.get(bRef);
       if( bi== null ) 
         throw new BindingException("BindingItem '"+bRef+"' not found for (virtual) BindingSet '"+wrqAlias+"'");
-      bindingItems.put(wrqAlias+"."+bRef, bi);
+      if( bs.getBindingItemNames().contains(bi.getId()) )
+        bindingItems.put(wrqAlias+"."+bRef, bi);
+      else
+        importedBindingItems.put(wrqAlias+"."+bRef, bi);
     }
   }
 
@@ -291,8 +299,9 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
    */
   @Override
   public BindingItem get(String key) throws BindingNotFoundException {
-    if(key.indexOf(".")==-1) return bindingItems.get("."+key);
-    else return bindingItems.get(key);
+    String qKey = key.indexOf(".")==-1 ? "."+key : key;
+    if( bindingItems.get(qKey)!=null ) return bindingItems.get(qKey); 
+    else return importedBindingItems.get(qKey);
   }
 
   /**
