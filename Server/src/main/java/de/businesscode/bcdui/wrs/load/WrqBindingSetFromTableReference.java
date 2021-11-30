@@ -53,10 +53,11 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
   protected static final long serialVersionUID = -339592266521077317L;
 
   protected Map<String, BindingItem> importedBindingItems = new LinkedHashMap<String, BindingItem>(new HashMap<String, BindingItem>());
+  protected boolean isAllowSelectAllColumns = true; 
 
   // StandardBindingSet may have SubjectSettings attached, that's why we collect them here
   // TreeMap is sorted, we get the SubjectFilters in the same order as the corresponding BindingSets for easier readability
-  Map<String,StandardBindingSet> sbsWithSubjectFilters = new TreeMap<>(); 
+  Map<String,StandardBindingSet> sbsWithSubjectFilters = new TreeMap<>();
   
   // To avoid SQL injection
   static protected final Map<String,String> joinTypes = Map.of("InnerJoin", "INNER JOIN", "FullOuterJoin", "FULL OUTER JOIN", "LeftOuterJoin", "LEFT OUTER JOIN", "RightOuterJoin", "RIGHT OUTER JOIN");
@@ -226,6 +227,8 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         StandardBindingSet sbs = (StandardBindingSet)currentSelect.getWrqQueryBuilder().getBindings().get(teElem.getTextContent(), allRawBRefsWoAlias);
         
         if(sbs.hasSubjectFilters()) sbsWithSubjectFilters.put(wrqAlias, sbs);
+        
+        isAllowSelectAllColumns &= sbs.isAllowSelectAllColumns();
 
         // We found a bnd:BindingSet bs based on the bRefs used in the query
         // Now, bnd:SubjectFilters attached to bs may now refer to additional bRefs, which we need to know 
@@ -329,6 +332,11 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     }
 
     return stmt;
+  }
+
+  @Override
+  public boolean isAllowSelectAllColumns() {
+    return isAllowSelectAllColumns;
   }
 
 

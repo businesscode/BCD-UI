@@ -447,6 +447,9 @@ public class WrqInfo
    */
   protected void selectAllBindingItems() throws BindingException
   {
+    if( !resultingBindingSet.isAllowSelectAllColumns() )
+      throw new BindingException("The BindingSet " + getResultingBindingSet().getName() +" requires list of bindings items in Select clause, see bnd:BindingSet/@allowSelectAllColumns");
+
     Iterator<BindingItem> bitemsIt = resultingBindingSet.getBindingItems().iterator();
     while( bitemsIt.hasNext() ) {
       BindingItem bi = bitemsIt.next();
