@@ -157,8 +157,9 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         else sqlStatementWithParams.append(" ").append(connect).append(" ");
 
         // Condition
-        String leftRel = elem.getAttribute("left").split("\\.")[0];
-        String leftBiId = elem.getAttribute("left").split("\\.")[1];
+        String left = elem.getAttribute("left");
+        String leftRel  = left.contains(".") ? left.split("\\.")[0] : "";
+        String leftBiId = left.contains(".") ? left.split("\\.")[1] : left;
         BindingItem leftBi = currentSelect.getBindingSetForWrqAlias(leftRel).get(leftBiId);
         String leftTableAlias = currentSelect.getBindingSetForWrqAlias(leftRel).getSqlAlias();
         sqlStatementWithParams.append(leftBi.getQColumnExpression(leftTableAlias));
@@ -166,10 +167,12 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         String operator = connectorsTypes.get(elem.getAttribute("op")); 
         sqlStatementWithParams.append(" ").append(operator).append(" ");
 
-        String rightRel = elem.getAttribute("right").split("\\.")[0];
-        String rightBi = elem.getAttribute("right").split("\\.")[1];
+        String right = elem.getAttribute("right");
+        String rightRel = right.contains(".") ? right.split("\\.")[0] : "";
+        String rightBiId  = right.contains(".") ? right.split("\\.")[1] : right;
+        BindingItem rightBi = currentSelect.getBindingSetForWrqAlias(rightRel).get(rightBiId);
         String rightTableAlias = currentSelect.getBindingSetForWrqAlias(rightRel).getSqlAlias();
-        sqlStatementWithParams.append(rightTableAlias).append(".").append(rightBi);
+        sqlStatementWithParams.append(rightBi.getQColumnExpression(rightTableAlias));
         
         // Handle following siblings
         handleJoinCondition( followingWrqElem(elem), connect, false );
@@ -216,7 +219,11 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
   protected void addTableFactor(Element teElem, SQLStatementWithParams sqlStatementWithParams, Set<String> allRawBRefs, boolean selectAll) throws Exception {
 
     final String wrqAlias = teElem.getAttribute("alias"); // Alias of table factor in Wrq XML
-    final Set<String> allRawBRefsWoAlias = allRawBRefs.stream().filter(bi -> bi.indexOf(".")==-1 || bi.startsWith(wrqAlias+".") ).map(bi -> bi.indexOf(".")==-1 ? bi : bi.split("\\.")[1]).collect(Collectors.toSet());
+    final Set<String> allRawBRefsWoAlias = allRawBRefs
+        .stream()
+        .filter(bi -> (bi.indexOf(".")==-1  && wrqAlias.isEmpty()) || bi.startsWith(wrqAlias+".") )
+        .map(bi -> bi.indexOf(".")==-1 ? bi : bi.split("\\.")[1])
+        .collect(Collectors.toSet());
     final WrqBindingSet bs;
 
     //---------------------------------------------------------------------
