@@ -29,7 +29,7 @@ Some changes are not backward compatible and may require code change in the proj
 
 * Config
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
-** move shiro settings to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before shiro filter, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
+** move shiro settings to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before BcdUiApplicationContextListener, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
 ** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
 ** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
