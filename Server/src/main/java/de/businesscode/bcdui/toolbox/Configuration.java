@@ -157,10 +157,6 @@ public class Configuration implements ConfigurationProvider {
           }
         });
         this.dbProperties.reload();
-      } catch (BindingException be) {
-        if(log.isDebugEnabled()){
-          log.info(BINDING_DB_CONFIG + " BindingSet not found. DbProperties disabled");
-        }
       } catch (Exception e) {
         log.fatal("failed to initialize DbProperties", e);
       }
