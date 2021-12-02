@@ -126,6 +126,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
           this.targetHtml = targetHtml;
           this.metaDataModel = metaDataModel;
           this.statusModel = statusModel;
+          this.inputModel = inputModel;
         }
     });
 
