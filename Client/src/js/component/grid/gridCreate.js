@@ -378,7 +378,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.keyColumns = new Array();
       Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
 
-      if (this.keyColumns.length == 0)
+      if (!this.isReadOnly && this.keyColumns.length == 0)
         throw new Error("GridModel needs at least one key column: " + this.id);    
 
       this.binding = this.gridModel.read("/*//wrq:WrsRequest//wrq:BindingSet", "");
