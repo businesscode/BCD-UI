@@ -6,7 +6,21 @@
 The following release notes allow following BCD-UI's updates and to judge whether migrating to a newer version is worth it.
 Some changes are not backward compatible and may require code change in the project. They are listed here as well.
 
-==== Release 5_5_0 ...in progress
+==== Release 5_6_0 ...in progress
+
+.Major new features:
+*
+
+Incompatibilities:
+
+** Move shiro settings from web.xml to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before shiro filter, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
+** Drop is_server column from bcd_virtualFileSystem
+** WrqModifier process() does not any more return a fragment in some cases but do now always work on the input document
+** bnd:Coalesce in Binding files was removed
+** getTableName() was renamed to getTableReference()
+and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
+
+==== Release 5_5_0
 
 .Major new features:
 * Migrated BCD-UI to Java 11
@@ -29,13 +43,11 @@ Some changes are not backward compatible and may require code change in the proj
 
 * Config
 ** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
-** move shiro settings to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before BcdUiApplicationContextListener, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
 ** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
 ** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
 ** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
 ** bindingItem skipWriteCheck attribute (to bypass subject settings write checks) was removed. Use the new mode (R|W|RW) attribute on SubjectFilterType instead
 ** for new themes, guiStatus:bcdSideBarPin was changed to guiStatus:bcdSideBarPin-left and guiStatus:bcdSideBarPin-right in case you preset a collapsed/expanded sidebar
-** remove is_server from bcd_virtualFileSystem
 
 .All versions of 3rd party libraries for runtime, are listed in
 * bcdui_dependencies.gradle for java
@@ -67,7 +79,7 @@ Layout:
 ** allow button actions to be triggered via bcdGrid:save, bcdGrid:reset, bcdGrid:addRow on targetHtml
 ** major improvement to grouped headers
 ** fixed columnFilter for empty values
-** bcduiInputField editor follows handsongrid's cell movement rules, closes correctly on identical values
+** bcduiInputField editor follows handsontable's grid cell movement rules, closes correctly on identical values
 
 * DocUploader
 ** initial commit of a document uploader component, uses VFS (bcd_docUpload binding) to store data on scope/instance level (scope subjectsettings)
