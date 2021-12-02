@@ -82,7 +82,7 @@ public class BindingSetContextObject
    *
    * @return the table name
    */
-  public String getTableName() {
+  public String getTableReference() {
     if (tableName == null) {
       try {
         tableName = getBindingSet().getTableReference(requestedItems, tableAlias);
@@ -155,7 +155,7 @@ public class BindingSetContextObject
    */
   @Override
   public String toString() {
-    return getTableName();
+    return getTableReference();
   }
 
 
