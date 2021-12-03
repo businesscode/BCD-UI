@@ -104,10 +104,16 @@ public class BcdUiApplicationContextListener implements ServletContextListener
       initBeforeBindings(conf);
 
       // make SecurityManager available
-      WebEnvironment webEnv = WebUtils.getRequiredWebEnvironment(context.getServletContext());
-      Subject subject = new Subject.Builder(webEnv.getWebSecurityManager()).buildSubject();
-      threadState = new SubjectThreadState(subject);
-      threadState.bind();
+      try {
+        WebEnvironment webEnv = WebUtils.getRequiredWebEnvironment(context.getServletContext());
+        Subject subject = new Subject.Builder(webEnv.getWebSecurityManager()).buildSubject();
+        threadState = new SubjectThreadState(subject);
+        threadState.bind();
+      }
+      catch (IllegalStateException e) {
+        /* not using shiro at all, ignore unavailable security manager */
+        log.info("Not using shiro");
+      }
 
       // initial binding set generation
       Bindings bindings = Bindings.getInstance();
