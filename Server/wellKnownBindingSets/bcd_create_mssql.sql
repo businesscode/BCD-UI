@@ -184,13 +184,14 @@ CREATE TABLE bcd_virtualFileSystem
    path           VARCHAR(850) NOT NULL,
    resource_clob  NVARCHAR(MAX),
    resource_blob  VARBINARY(MAX),
+   is_server      INTEGER NOT NULL,
    updated_by     VARCHAR(128),
    last_update    DATETIME,
    bcd_userId     VARCHAR(64),
    scope          VARCHAR(255),
    instance       VARCHAR(255),
    meta_data     NVARCHAR(MAX),
-   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, bcd_userId)
+   CONSTRAINT bcd_virtual_file_system_pk UNIQUE (path, is_server, bcd_userId)
 );
 
 -- cache

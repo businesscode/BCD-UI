@@ -35,7 +35,6 @@ Some changes are not backward compatible and may require code change in the proj
 ** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
 ** bindingItem skipWriteCheck attribute (to bypass subject settings write checks) was removed. Use the new mode (R|W|RW) attribute on SubjectFilterType instead
 ** for new themes, guiStatus:bcdSideBarPin was changed to guiStatus:bcdSideBarPin-left and guiStatus:bcdSideBarPin-right in case you preset a collapsed/expanded sidebar
-** remove is_server from bcd_virtualFileSystem
 
 .All versions of 3rd party libraries for runtime, are listed in
 * bcdui_dependencies.gradle for java

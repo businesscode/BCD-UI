@@ -85,13 +85,19 @@ public class DatabaseFileObject extends AbstractFileObject {
     }
   }
 
+  // isServer=1 indicates a priority so that in case you have vfs entries with that flag set are prefered over others with the same path
+  // e.g. you can protect cube templates from overwriting
+  private static final String innerSQL =
+  " ( SELECT $k.path-, $k.resourceClob-, $k.resourceBlob-, $k.isServer-, ROW_NUMBER() OVER (PARTITION BY $k.path- ORDER BY $k.isServer- DESC ) C FROM $k.getPlainTableName()" +
+  " ) Q WHERE C=1 AND ($k.isServer- = 1 OR ($k.isServer- = 0 AND UPPER($k.path-) NOT LIKE '/WEB-INF/%'))";
+
   private static final String mainBindingSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM $k.getPlainTableName() WHERE $k.path- = ?";
+  " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM " + innerSQL + " AND $k.path- = ?";
 
   private static final String getChildrenSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path- FROM $k.getPlainTableName() WHERE $k.path- like ?";
+  " SELECT $k.path- FROM " + innerSQL + " AND $k.path- like ?";
 
   @Override
   /**
@@ -150,7 +156,13 @@ public class DatabaseFileObject extends AbstractFileObject {
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
-    String reqSql = "<WrsRequest xmlns=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\" xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\"><Select><Columns><C bRef=\"path\"/><C bRef=\"resourceClob\"/><C bRef=\"resourceBlob\"/></Columns><From><BindingSet>bcd_virtualFileSystem</BindingSet></From><f:Filter><f:Expression bRef=\"path\" op=\"=\" value=\""+ this.fileName.getPathDecoded()+"\"/></f:Filter></Select></WrsRequest>";
+    String reqSql =
+      "<WrsRequest xmlns=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\" xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\"><Select>"
+    + "<Columns><C bRef=\"path\"/><C bRef=\"resourceClob\"/><C bRef=\"resourceBlob\"/></Columns>"
+    + "<From><BindingSet>bcd_virtualFileSystem</BindingSet></From>"
+    + "<f:Filter><f:Expression bRef=\"path\" op=\"=\" value=\""+ this.fileName.getPathDecoded()+"\"/></f:Filter>"
+    + "<Ordering><C bRef=\"isServer\" order=\"desc\"/></Ordering>"
+    + "</Select></WrsRequest>";
     StringReader strReader = new StringReader(reqSql);
     Document doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().parse(new InputSource(strReader));
     IRequestOptions options = new RequestOptions(-1);
