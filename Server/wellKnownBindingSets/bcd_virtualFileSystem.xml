@@ -19,6 +19,7 @@
   <C id="path"        isKey="true"  type-name="VARCHAR">  <Column>path</Column>          </C>
   <C id="resourceClob"              type-name="CLOB">     <Column>resource_clob</Column> </C>
   <C id="resourceBlob"              type-name="BLOB">     <Column>resource_blob</Column> </C>
+  <C id="isServer"                  type-name="INTEGER">  <Column>is_server</Column>     </C>
   <C id="updatedBy"                 type-name="VARCHAR">  <Column>updated_by</Column>    </C>
   <C id="lastUpdate"                type-name="TIMESTAMP"><Column>last_update</Column>   </C>
   <C id="bcd_userId"  isKey="true"  type-name="VARCHAR">  <Column>bcd_userId</Column>    </C>
@@ -37,6 +38,7 @@
       <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
         <Param bindingItemId="lastUpdate" expression="${bcdBean.creationStamp}" isCoalesce="false"/>
         <Param bindingItemId="updatedBy" expression="${bcdBean.userName}" isCoalesce="false" />
+        <Param bindingItemId="isServer" expression="0" isCoalesce="false"/>
       </Callback>
     </Callbacks>
   </WriteProcessing>

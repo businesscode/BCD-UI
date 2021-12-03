@@ -182,13 +182,14 @@ CREATE TABLE bcd_virtualFileSystem
    path           VARCHAR(1024) NOT NULL,
    resource_clob  CLOB,
    resource_blob  BLOB,
+   is_server      INTEGER         DEFAULT 0 NOT NULL,
    updated_by     VARCHAR(128),
    last_update    TIMESTAMP,
    bcd_userId     VARCHAR(64),
    scope          VARCHAR(255),
    instance       VARCHAR(255),
    meta_data      CLOB,
-   PRIMARY KEY (path, bcd_userId)
+   PRIMARY KEY (path, is_server, bcd_userId)
 )
 
 -- cache
