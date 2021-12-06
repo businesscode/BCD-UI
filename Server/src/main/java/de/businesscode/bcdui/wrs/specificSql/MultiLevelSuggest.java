@@ -140,7 +140,7 @@ public class MultiLevelSuggest extends AbstractSqlGenerator
         if( sLIt.hasNext() )
           sqlSB.append(", ");
       }
-      sqlSB.append("\n  FROM $k.tableName ");
+      sqlSB.append("\n  FROM $k ");
 
       // WHERE, search for all search words in the bRefs belonging to this level
       sqlSB.append("\n  WHERE $k.").append(dataLevel.bRefs.get(dataLevel.bRefs.size()-1)).append(" IS NOT NULL ");
