@@ -111,7 +111,7 @@ public class Wrq2Sql implements ISqlGenerator
       // And we convert @rowStart and @rowEnd into a subselect with limit on ROW_NUMBER if @rowStart > 1
       boolean wrqHasGroupingSets = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "GroupingSets").getLength() > 0;
       boolean dbSupportsGroupingSets = DatabaseCompatibility.getInstance().dbSupportsGroupingSets(jdbcResourceName);
-      if( false || (wrqHasGroupingSets && !dbSupportsGroupingSets) ) { // TODO gs2u
+      if( wrqHasGroupingSets && !dbSupportsGroupingSets ) {
         DOMSource source = new DOMSource(requestDoc.getDocumentElement());
         StreamSource styleSource = new StreamSource(new StringReader(wrqTransformGrs2UnionXsltStatic) );
         Transformer transformer = SecureXmlFactory.newTransformerFactory().newTransformer(styleSource);

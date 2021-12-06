@@ -98,7 +98,7 @@ public class SqlFromSubSelect
       if( rowEndAttr > 0 && rowEnd < 0  ) rowEnd = Integer.parseInt(rowEndAttrStr);
     }
 
-    // SELECTs which go to a normal BindingSet support rowStart > 1
+    // SELECTs which go to a non-virtual BindingSet support rowStart > 1
     // Currently only for top-level selects from BindingSet
     if( rowStart > 1 && (rowEnd == -1 || rowEnd > rowStart) ) {
       XPath xp = XPathUtils.newXPathFactory().newXPath();

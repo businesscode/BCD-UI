@@ -29,7 +29,7 @@
       bcdui.ThemeName     = bcd
  * 5. Run gradle task "IDE->Eclipse" and refresh project
  *
- * 6. Wehenever you changed the settings in gradle.properties, run gradle task "IDE->Eclipse" and refresh project
+ * 6. Whenever you changed the settings in gradle.properties, run gradle task "IDE->Eclipse" and refresh project
  * 7. When a new lib was pushed while you have it injected, locally delete the current bcdui.*.jar.injected
  *    and rename the new lib to bcdui.*.jar.injected
  * 8. If you build a war, it will keep BCD-UI injected as it is in your workspace in that moment

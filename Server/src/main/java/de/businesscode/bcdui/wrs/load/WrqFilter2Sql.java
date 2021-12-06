@@ -175,7 +175,7 @@ public class WrqFilter2Sql
     // If the binding item appears twice, we don't know which one to use and here we get the last one returned
     // This does impact the aggr being used below
     String bRef = item.getAttribute("bRef");
-    // Take care for binding items which where replaced vy virtual binding item by giving them a wrc:Calc in the select clause
+    // Take care for binding items which where replaced by virtual binding item by giving them a wrc:Calc in the select clause
     if( wrqInfo.getVirtualBRefs().containsKey(bRef) )
       bRef = wrqInfo.getVirtualBRefs().get(bRef);
     WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(bRef);

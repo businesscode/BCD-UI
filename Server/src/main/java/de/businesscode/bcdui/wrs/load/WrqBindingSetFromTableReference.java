@@ -231,10 +231,9 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
   protected void addTableFactor(Element teElem, SQLStatementWithParams sqlStatementWithParams, Set<String> allRawBRefs, boolean selectAll) throws Exception {
 
     final String wrqAlias = teElem.getAttribute("alias"); // Alias of table factor in Wrq XML
-    final Set<String> allRawBRefsWoAlias = allRawBRefs
-        .stream()
-        .filter(bi -> (bi.indexOf(".")==-1  && wrqAlias.isEmpty()) || bi.startsWith(wrqAlias+".") )
-        .map(bi -> bi.indexOf(".")==-1 ? bi : bi.split("\\.")[1])
+    final Set<String> allRawBRefsWoAlias = allRawBRefs.stream()
+        .filter( bRef -> ((bRef.indexOf(".")==-1 && wrqAlias.isEmpty())) || bRef.startsWith(wrqAlias+".") ) // Keep only bRef with our (potentially empty wrqAlias
+        .map( bRef -> bRef.indexOf(".")==-1 ? bRef : bRef.split("\\.")[1] )                                 // Remove the alias
         .collect(Collectors.toSet());
     final WrqBindingSet bs;
 
