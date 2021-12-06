@@ -387,7 +387,7 @@ public class WrqInfo
         String bRef = fBiDRef.getNodeValue();
         if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
           BindingItem bi = resultingBindingSet.get(bRef);
-          WrqBindingItem wrqBi = new WrqBindingItem(this, bi, "v"+(aliasCounter++), false);
+          WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
           allBRefs.put(bRef, wrqBi);
         }
       }
@@ -409,7 +409,7 @@ public class WrqInfo
         String bRef = hBiDRef.getNodeValue();
         if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
           BindingItem bi = resultingBindingSet.get(bRef);
-          WrqBindingItem wrqBi = new WrqBindingItem(this, bi, "v"+(aliasCounter++), false);
+          WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
           allBRefs.put(bRef, wrqBi);
         }
       }

@@ -334,7 +334,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     // Make sure the bRef we are working on is known, even if it did not appear elsewhere so far
     if (!wrqInfo.getAllBRefs().containsKey(wrqAlias+"."+bRef)) {
       String fullbRef = wrqAlias.isEmpty() ? bRef : wrqAlias+"."+bRef;
-      wrqInfo.getAllBRefs().put(fullbRef, new WrqBindingItem(wrqInfo, bindingSet.get(bRef), "v" + (wrqInfo.aliasCounter++), false));
+      wrqInfo.getAllBRefs().put(fullbRef, new WrqBindingItem(wrqInfo, bRef, bindingSet.get(bRef), "v" + (wrqInfo.aliasCounter++), false));
     }
 
     Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");

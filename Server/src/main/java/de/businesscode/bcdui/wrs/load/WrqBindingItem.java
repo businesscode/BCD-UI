@@ -240,11 +240,11 @@ public class WrqBindingItem implements WrsBindingItem
    * @param alias
    * @param enforceAggr
    */
-  protected WrqBindingItem(WrqInfo wrqInfo, BindingItem bi, String alias, boolean enforceAggr)
+  protected WrqBindingItem(WrqInfo wrqInfo, String id, BindingItem bi, String alias, boolean enforceAggr)
   {
     this.referenceBindingItem = bi;
     this.wrqInfo = wrqInfo;
-    this.id = bi.getId();
+    this.id = id;
     this.aggr = enforceAggr ? getDefaultAggr(bi.getJDBCDataType()) : null;
     this.alias = alias;
     this.wrsAName = null;
