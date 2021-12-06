@@ -71,7 +71,7 @@ public class ReadBindingSet implements Runnable {
   protected String fileName;
   protected Map<String, Collection<StandardBindingSet>> bindingMap;
   protected StandardNamespaceContext nsContext;
-  protected static final String STARTUP_CHECK_TABLE_ALIAS = "t1";
+  protected static final String STARTUP_CHECK_TABLE_ALIAS = "tsu";
 
   /**
    * Parses a binding xml and creates an in-memory BindingSet
