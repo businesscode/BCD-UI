@@ -115,11 +115,6 @@ public abstract class WrqBindingSetVirtual implements WrqBindingSet {
   }
 
   @Override
-  public Collection<BindingItem> getBindingItems() {
-    return bindingItems.values();
-  }
-
-  @Override
   public Collection<String> getBindingItemNames() {
     return bindingItems.keySet();
   }

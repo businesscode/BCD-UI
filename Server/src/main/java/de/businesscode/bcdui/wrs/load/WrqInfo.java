@@ -450,11 +450,12 @@ public class WrqInfo
     if( !resultingBindingSet.isAllowSelectAllColumns() )
       throw new BindingException("The BindingSet " + getResultingBindingSet().getName() +" requires list of bindings items in Select clause, see bnd:BindingSet/@allowSelectAllColumns");
 
-    Iterator<BindingItem> bitemsIt = resultingBindingSet.getBindingItems().iterator();
+    // We need to keep in mind that in resultingBindingSet.getBindingItems() the id is not yet wrqAlias aware 
+    Iterator<String> bitemsIt = resultingBindingSet.getBindingItemNames().iterator();
     while( bitemsIt.hasNext() ) {
-      BindingItem bi = bitemsIt.next();
-      String bRef = bi.getId();
-      WrqBindingItem biWm = new WrqBindingItem(this, bi, "v"+(aliasCounter++), !groupingBRefs.isEmpty() && !groupingBRefs.contains(bRef));
+      String bRef = bitemsIt.next();
+      BindingItem bi = resultingBindingSet.get(bRef);
+      WrqBindingItem biWm = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), !groupingBRefs.isEmpty() && !groupingBRefs.contains(bRef));
       String bRef_Aggr = biWm.getId()+(biWm.getAggr()==null ? "":" "+biWm.getAggr());
       allBRefAggrs.put(bRef_Aggr, biWm);
       allBRefs.put(biWm.getId(), biWm);

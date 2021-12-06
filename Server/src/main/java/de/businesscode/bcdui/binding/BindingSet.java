@@ -124,12 +124,6 @@ public interface BindingSet extends Cloneable, Serializable {
   public abstract Collection<BindingItem> get(Collection<String> keys) throws BindingNotFoundException;
 
   /**
-   * getBindingItems
-   * @return all items defined in the bindingSet
-   */
-  Collection<BindingItem> getBindingItems();
-
-  /**
    * getBindingItemNames
    * @return names of all items defined in the bindingSet
    */

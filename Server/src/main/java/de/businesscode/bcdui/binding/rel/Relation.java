@@ -32,7 +32,9 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
+import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.binding.rel.impl.AbstractConstrain;
 import de.businesscode.bcdui.binding.rel.impl.BooleanConstraintImpl;
 import de.businesscode.bcdui.binding.rel.impl.CombinedConstraintImpl;
@@ -57,10 +59,10 @@ public class Relation {
   NodeList constraintNodes = null;
   NodeList conditionNode   = null;
    
-  private BindingSet rightBindingSet;
+  private StandardBindingSet rightBindingSet;
   private String rightBindingSetName;
 
-  private BindingSet leftBindingSet;
+  private StandardBindingSet leftBindingSet;
   private String leftBindingSetName;
 
   private TYPE type = TYPE.leftOuter;
@@ -112,7 +114,7 @@ public class Relation {
    *
    * @param pLeftBindingSet
    */
-  public void setLeftBindingSet(BindingSet pLeftBindingSet) {
+  public void setLeftBindingSet(StandardBindingSet pLeftBindingSet) {
     this.leftBindingSet = pLeftBindingSet;
     setLeftBindingSetName(this.leftBindingSet.getName());
   }
@@ -415,7 +417,7 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public BindingSet getSourceBindingSet() {
+  public StandardBindingSet getSourceBindingSet() {
     if (rightBindingSet == null) {
       Bindings bs;
       try {
@@ -434,7 +436,7 @@ public class Relation {
    *
    * @param psourceBindingSet
    */
-  public void setSourceBindingSet(BindingSet psourceBindingSet) {
+  public void setSourceBindingSet(StandardBindingSet psourceBindingSet) {
     this.rightBindingSet = psourceBindingSet;
   };
 
@@ -490,7 +492,7 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public List<BindingItemFromRel> getImportItems() throws BindingException {
+  public List<BindingItemFromRel> getImportItems() throws BindingNotFoundException {
     
     // Usually we just return what we have (after initial call)
     List<BindingItemFromRel> importsRet = imports;
@@ -511,7 +513,7 @@ public class Relation {
 
       // All items with a prefix
       if( defaultImportBRefPrefix != null ) {
-        BindingSet bs = getSourceBindingSet();
+        StandardBindingSet bs = getSourceBindingSet();
         for( BindingItem bi: bs.getBindingItems() ) {
           BindingItemFromRel bfr = new BindingItemFromRel( bi, this, defaultImportBRefPrefix+bi.getId(), null );
           importsRet.add(bfr);
@@ -519,7 +521,6 @@ public class Relation {
       } 
       
       // Individually listed and named items
-      // TODO support for <ImportItem caption="Team" bRef="accountTeam" asBRef="accountTeam"/> asBRef optional
       else if( importItemNodes != null ) {
         for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
           Element importNodeEl = (Element) importItemNodes.item(imp);
@@ -570,7 +571,7 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public List<String> getAllImportItemNames() throws BindingException {
+  public List<String> getAllImportItemNames() throws BindingNotFoundException {
     if (getImportItems() == null)
       return null;
     
