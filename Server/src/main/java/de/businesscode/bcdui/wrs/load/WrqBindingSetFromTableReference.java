@@ -17,6 +17,7 @@ package de.businesscode.bcdui.wrs.load;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,6 +80,17 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     // In both cases we do not need an sqlAlias
     name = sqlAlias = "";
 
+    // It may be that a bRef is only used ever in the join. In that case if it comes from a Relation it would be missing
+    // when getting the table reference from the StandardBindingSet below. So we add all bRefs from the ON clause here
+    Set<String> allRawBRefsInclJoin = new HashSet<>();
+    NodeList onNl = ((Element)fromChildNl.item(0).getParentNode()).getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "On");
+    for( int on=0; on<onNl.getLength(); on++ ) {
+      Element onElem = (Element)onNl.item(on);
+      allRawBRefsInclJoin.add( onElem.getAttribute("left") );
+      allRawBRefsInclJoin.add( onElem.getAttribute("right") );
+    }
+    allRawBRefsInclJoin.addAll(allRawBRefs);
+
     // Loop over the table factors
     StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
     xp.setNamespaceContext(nsContext);
@@ -92,7 +104,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         case "Ref":
         case "BindingSet":
         case "Select": {
-          addTableFactor(fromChild, sqlStatementWithParams, allRawBRefs, selectAll);
+          addTableFactor(fromChild, sqlStatementWithParams, allRawBRefsInclJoin, selectAll);
           break;
         }
 
@@ -108,7 +120,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
           // Take care for the table expression, it must be the first Element in the wrq:Join
           Node childNode = fromChild.getFirstChild();
           while( childNode.getNodeType() != Node.ELEMENT_NODE ) childNode = childNode.getNextSibling();
-          addTableFactor((Element)childNode, sqlStatementWithParams, allRawBRefs, selectAll);
+          addTableFactor((Element)childNode, sqlStatementWithParams, allRawBRefsInclJoin, selectAll);
 
           // Join condition: wrq:On nested in wrq:And/Or
           sqlStatementWithParams.append(" ON ");
