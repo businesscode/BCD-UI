@@ -204,7 +204,7 @@ public class BooleanConstraintImpl extends AbstractConstrain {
         
         // Standard join case
         else {
-          str.append( getColumns().get( i).getQColumnExpression(mainTableAlias) );
+          str.append( getColumns().get( i).getQColumnExpression(AbstractConstrain.MAINTABLE_SQLALIAS_PLACEHOLDER) );
         }
 
         if ((str.length() > 0 && i < getColumns().size() - 1) || getColumns().size() == 1)
