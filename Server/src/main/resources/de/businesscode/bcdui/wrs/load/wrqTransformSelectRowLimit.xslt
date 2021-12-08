@@ -67,12 +67,22 @@
                 <xsl:for-each select="./wrq:Columns/*">
                   <xsl:copy>
                     <xsl:copy-of select="@*[not(local-name()='aggr')]"/>
+                    <!-- Set @dimId/@valueId -->
+                    <xsl:choose>
+                      <xsl:when test="$imputSelect/wrq:Grouping//wrq:C[@bRef=current()/@bRef]">
+                        <xsl:attribute name="dimId"><xsl:value-of select="current()/@bRef"/></xsl:attribute>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:attribute name="valueId"><xsl:value-of select="current()/@bRef"/></xsl:attribute>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </xsl:copy>
                 </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:call-template name="colList">
                   <xsl:with-param name="bRefList" select="$allBindingItems"/>
+                  <xsl:with-param name="grouping" select="$imputSelect/wrq:Grouping"/>
                 </xsl:call-template>
               </xsl:otherwise>
             </xsl:choose>
@@ -184,8 +194,20 @@
     -->
   <xsl:template name="colList">
     <xsl:param name="bRefList"/>
+    <xsl:param name="grouping" select="/*[1=0]"/>
     <xsl:if test="$bRefList != ''">
-      <wrq:C bRef="{substring-before($bRefList,' ')}"/>
+      <xsl:variable name="bRef" select="substring-before($bRefList,' ')"/>
+      <wrq:C bRef="{$bRef}">
+        <!-- Set @dimId/@valueId -->
+        <xsl:choose>
+          <xsl:when test="$grouping//wrq:C[@bRef=$bRef]">
+            <xsl:attribute name="dimId"><xsl:value-of select="$bRef"/></xsl:attribute>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="valueId"><xsl:value-of select="$bRef"/></xsl:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
+      </wrq:C>
       <xsl:call-template name="colList">
         <xsl:with-param name="bRefList" select="substring-after($bRefList,' ')"/>
       </xsl:call-template>
