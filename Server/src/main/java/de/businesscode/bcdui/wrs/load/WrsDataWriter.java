@@ -228,7 +228,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     writeWrsData();
     //
     // marker MaxRowsExceeded
-    if (isMaxRowsExceed()) {
+    if (isMaxRowsExceed() && getOptions().getMaxRows() < getGenerator().getMaxRows()) {
       writeWrsMaxRowsExceeded(getGenerator().getMaxRows());
     }
     //
