@@ -259,21 +259,21 @@ public class XMLToDataBase implements XMLEventConsumer {
   private void processEndHeader() throws Exception {
     this.writeProcessingCallbacks.clear();
 
+    // We derive the standard writing filter from SubjectSettings
+    if( bindingSet.getSubjectFilters() != null) {
+      Connective con = bindingSet.getSubjectFilters().getConnective();
+      if( con.getElements().size() > 0 ) {
+        WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);
+        this.writeProcessingCallbacks.add(cb);
+        cb.setValueBean(columnValueBean);
+        cb.setBindingSet(bindingSet);
+        cb.initialize();
+        cb.endHeader(columns, columnTypes, keyColumnNames);
+      }
+    }
+
     if(bindingSet.getWriteProcessing().hasCallbacks()){
       logger.debug("write processing callbacks found, delegating processEndHeader.");
-
-      // We derive the standard writing filter from SubjectSettings
-      if( bindingSet.getSubjectFilters() != null) {
-        Connective con = bindingSet.getSubjectFilters().getConnective();
-        if( con.getElements().size() > 0 ) {
-          WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);
-          this.writeProcessingCallbacks.add(cb);
-          cb.setValueBean(columnValueBean);
-          cb.setBindingSet(bindingSet);
-          cb.initialize();
-          cb.endHeader(columns, columnTypes, keyColumnNames);
-        }
-      }
 
       // These are the explicitly declared write callbacks
       for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacks()){
@@ -316,7 +316,7 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void endRow(String rowElementNameParam) throws Exception {
 
-    if(bindingSet.getWriteProcessing().hasCallbacks()) {
+    if(!this.writeProcessingCallbacks.isEmpty()) {
       // this will modify columns, columnTypes, columnValues and updateValues
       processEndRow(rowElementNameParam);
     }
@@ -334,7 +334,7 @@ public class XMLToDataBase implements XMLEventConsumer {
         listener.actionPerformed(new SaveEvent(con, SaveEventState.StartSaving));
       }
     }
-    else if(bindingSet.getWriteProcessing().hasCallbacks()) {
+    else if(!this.writeProcessingCallbacks.isEmpty()) {
       // columns and columnTypes might have changed in the callback (e.g. wrs:I versus wrs:M), so we need to set the new ones
       // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type 
       databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]));
