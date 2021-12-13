@@ -82,6 +82,29 @@
       </element>
       <element name="Authentication" type="tns:AuthenticationType"/>
       <element name="SubjectSettings" minOccurs="0" type="tns:SubjectSettingsType"/>
+      <element name="UserSettingsDefaults" minOccurs="0" maxOccurs="1">
+        <complexType>
+          <sequence minOccurs="0" maxOccurs="unbounded">
+            <element name="Default">
+              <annotation><documentation>
+                Sets a permission as a default for every user
+              </documentation></annotation>
+              <complexType>
+                <attribute name="type" use="required" type="string">
+                  <annotation><documentation>
+                    the permission type
+                   </documentation></annotation>
+                </attribute>
+                <attribute name="value" type="string" use="required">
+                  <annotation><documentation>
+                   the permission value
+                  </documentation></annotation>
+                </attribute>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
     </sequence>
   </complexType>
 
