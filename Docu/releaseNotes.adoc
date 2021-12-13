@@ -62,6 +62,7 @@ and needs also to be updated sql expression strings compiled with SQLEngine::tra
 
 .Server:
 * new SubjectFilterType mode attribute to specify how this filter type should be enabled. on read, write of both (default)
+* introduce UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
 * fix Postgres (empty) CLOB and BLOB reading
 
 
