@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -70,16 +70,16 @@ public class CombinedConstraintImpl extends AbstractConstrain {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.rel.impl.AbstractConstrain#getConstrainedStatement(String)
+   * @see de.businesscode.bcdui.binding.rel.impl.AbstractConstrain#getConstrainedStatement(String,String,String)
    */
   @Override
-  public String getConstrainedStatement( String prepareCaseExpressionForAlias) throws BindingException {
+  public String getConstrainedStatement(String mainTableAlias, boolean isForJoinToCaseWhen) throws BindingException {
     if (getStatement() == null) {
       StringBuilder str = new StringBuilder();
 
       if (getChildConstraints() != null && getChildConstraints().size() > 0) {
         for (int i = 0; i < getChildConstraints().size(); i++) {
-          String child = getChildConstraints().get( i).getConstrainedStatement( prepareCaseExpressionForAlias);
+          String child = getChildConstraints().get( i).getConstrainedStatement( mainTableAlias, isForJoinToCaseWhen );
           if (child != null && child.length() > 0) {
             if (str.length() > 0 && i <= getChildConstraints().size() - 1)
               str.append("\n").append(AbstractConstrain.OPER_REPL);

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.businesscode.bcdui.binding.subjectFilter.Connective;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilter;
@@ -60,8 +62,8 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
 
       SubjectFilter sf = (SubjectFilter)sfn;
       SubjectFilterType sft = SubjectSettings.getInstance().getSubjectFilterTypeByName( sf.getType() );
-      if( ! sft.getOp().equals("=") )
-        throw new SecurityException("Invalid setup for BindingSet " + bindingSet.getName() + ": Only '=' allowed for SubjectSettings");
+      if( ! sft.getOp().equals("=") && ! sft.getOp().equals("like") )
+        throw new SecurityException("Invalid setup for BindingSet " + bindingSet.getName() + ": Only '=' and 'like' allowed for SubjectSettings");
 
       // apply write subject settings checks when subject filter type mode isn't (R)ead-only
       if (! "R".equalsIgnoreCase(sft.getMode()))
@@ -130,13 +132,27 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
         else
           throw new SecurityException("Ambiguous value for enforced " + eBi.biId );
       }
-      // We have a value, is it allowed?
-      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null) {
+      else if (st != null && st.getOp().equals("like")) {
+        boolean likeMatch = false;
+        for (String perm : eBi.permissions) {
+          Pattern pattern = Pattern.compile(perm.replace("*", ".+"), Pattern.CASE_INSENSITIVE);
+          Matcher matcher = pattern.matcher(value);
+          likeMatch |= matcher.find();
+          if (likeMatch)
+            break;
+        }
+        if (! likeMatch && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null)
+          foundMissMatch = true;
+        else
+          foundMatch = true;
+      }
+      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null)
         foundMissMatch = true;
-        if( conIsAnd )
-          break;
-      } else
+      else
         foundMatch = true;
+
+      if (foundMissMatch && conIsAnd)
+        break;
     }
 
     // We need either at least one match (in case of OR) or all must match

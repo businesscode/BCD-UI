@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.businesscode.util.jdbc;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -63,6 +64,7 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> sqlServerCalcFktMapping;
   protected final Map<String, String[]> oracleCalcFktMapping;
   protected final Map<String, String[]> mysqlCalcFktMapping;
+  protected final Map<String, String[]> redshiftCalcFktMapping;
 
   protected final Map<String, String> aggregationMappingGeneric;
   protected final Map<String, String> aggregationMappingMySql;
@@ -70,6 +72,8 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> spatialFktMapping;
   protected final Map<String, String[]> oracleSpatialFktMapping;
   protected final Map<String, String[]> sqlServerSpatialFktMapping;
+
+  protected final Map<String, String> sqlSetOperators;
 
   // When casting to VARCHAR, we use this size, should be long enough and not hurt on the other side
   private int LENGTH_FOR_CAST_TO_VARCHAR = 1024;
@@ -84,8 +88,8 @@ public class DatabaseCompatibility
     if( DatabaseCompatibility.singleton == null ) {
       Class<? extends DatabaseCompatibility> clazz = (Class<? extends DatabaseCompatibility>) Configuration.getClassoption(Configuration.OPT_CLASSES.DATABASECOMPATIBILITY);
       try {
-        DatabaseCompatibility.singleton = clazz.newInstance();
-      } catch (InstantiationException | IllegalAccessException e) {
+        DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
+      } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
         throw new RuntimeException("No class found for DatabseCompatibility", e);
       }
     }
@@ -105,10 +109,10 @@ public class DatabaseCompatibility
    * @param bs 
    * @return Set of key words for the database belonging to the BindingSets connection
    */
-  public Set<String>getReservedDBWords(BindingSet bs)
+  public Set<String>getReservedDBWords(String jdbcResourceName)
   {
     try {
-      String product = getDatabaseProductNameLC(bs);
+      String product = getDatabaseProductNameLC(jdbcResourceName);
       if( product.contains("oracle") )
         return sqlKeyWordsOracle;
       else if( product.contains("mysql") )
@@ -126,7 +130,7 @@ public class DatabaseCompatibility
    * @param bs
    * @return
    */
-  public boolean dbNeedsColumnListInWithClause(BindingSet bs)
+  public boolean dbNeedsColumnListInWithClause(String jdbcResourceName)
   {
     return false;
   }
@@ -135,27 +139,36 @@ public class DatabaseCompatibility
    * @param bs
    * @return
    */
-  public boolean dbAllowsMultiWithClauses(BindingSet bs)
+  public boolean dbAllowsMultiWithClauses(String jdbcResourceName)
   {
     return true;
   }
 
   /**
-   * MySql does not support ANSI GROUPING SETS and ROLLUP but only a custom WITH ROLLUP without a column list
+   * Are we allowed to use GROUPING SETs and GROUPING()?
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbOnlyKnowsWithRollup(BindingSet resultingBindingSet) 
-  {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
-    return product.contains("mysql");
+  public boolean dbSupportsGroupingSets(String jdbcResourceName) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("teradata");
+  }
+
+  /**
+   * Returns true if the database of resultingBindingSet supports GROUPING SETS
+   * @param resultingBindingSet
+   * @return
+   */
+  public String dbLikeEscapeBackslash(String jdbcResourceName) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    return product.contains("redshift") ? "" : " ESCAPE '\\'";
   }
 
   /**
    * @param resultingBindingSet
    * @return
    */
-  public boolean dbNeedsVarcharCastForConcatInTopN( BindingSet resultingBindingSet) {
+  public boolean dbNeedsVarcharCastForConcatInTopN(String jdbcResourceName) {
     return false;
   }
 
@@ -165,9 +178,10 @@ public class DatabaseCompatibility
    * @param resultingBindingSet
    * @return How often bound variables of the item used for ordering are used in the created expression
    */
-  public int dbOrderByNullsLast( BindingSet resultingBindingSet, String colExpr, boolean isDesc, StringBuffer sql ) 
+  public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql ) 
   {
-    if( getDatabaseProductNameLC(resultingBindingSet).contains("oracle") ) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    if( product.contains("oracle") || product.contains("redshift") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
       } else {
@@ -192,23 +206,26 @@ public class DatabaseCompatibility
    * @param expr             Expression to be wrapped
    * @return                 Wrapped SQL expression
    */
-  public String castToVarchar(BindingSet bindingSet, int origJdbcDataType, String expr)
+  public String castToVarchar(String jdbcResourceName, int origJdbcDataType, String expr)
   {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( origJdbcDataType == Types.CHAR || origJdbcDataType == Types.VARCHAR )
       return expr;
     // Conversion via CAST is ok for all types for all databases when ansi date is set as default.
     // But BCD-UI treats DATE as date-only (without time). Usually this is handled when reading the result-set for data-type DATE.
     // Since for VDM we switch to type VARCHAR, it would not happen and thus we make sure here, that DATE is ANSI-Date but without time
     else if( origJdbcDataType == Types.DATE ) {
-      if( getDatabaseProductNameLC(bindingSet).contains("microsoft sql server") )
+      if( product.contains("microsoft sql server") )
         return "FORMAT("+expr+",'yyyy-mm-dd')";
-      else if( getDatabaseProductNameLC(bindingSet).contains("mysql") )
+      else if( product.contains("mysql") )
         return "DATE_FORMAT("+expr+",'%Y-%m-%d')";
       else
         return "TO_CHAR("+expr+",'yyyy-mm-dd')";
     }
-    else if( getDatabaseProductNameLC(bindingSet).contains("oracle") )
+    else if( product.contains("oracle") )
       return "CAST (" + expr + " AS VARCHAR2("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
+    else if( product.contains("mysql") )
+      return "CAST (" + expr + " AS CHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
     else
       return "CAST (" + expr + " AS VARCHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
   }
@@ -219,33 +236,43 @@ public class DatabaseCompatibility
     return oracleCalcFktMapping;
   }
 
-  public Map<String, String[]> getCalcFktMapping( BindingSet resultingBindingSet) 
+  public Map<String, String[]> getCalcFktMapping( String jdbcResourceName ) 
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("microsoft sql server") )
       return sqlServerCalcFktMapping;
     if( product.contains("mysql") )
       return mysqlCalcFktMapping;
+    if( product.contains("redshift") )
+      return redshiftCalcFktMapping;
     return oracleCalcFktMapping;    
   }
 
   /**
    * For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
    */
-  public Map<String, String> getAggrFktMapping( BindingSet resultingBindingSet) 
+  public Map<String, String> getAggrFktMapping( String jdbcResourceName ) 
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("mysql") )
       return aggregationMappingMySql;    
     return aggregationMappingGeneric;
   }
 
   /**
+   * Standard SQL Set Operators
+   */
+  public Map<String, String> getSetOperators()
+  {
+    return sqlSetOperators;
+  }
+  
+  /**
    * Geo spatial operators differ significantly from database to database
    */
-  public Map<String, String[]> getSpatialFktMapping(BindingSet resultingBindingSet)
+  public Map<String, String[]> getSpatialFktMapping(String jdbcResourceName)
   {
-    String product = getDatabaseProductNameLC(resultingBindingSet);
+    String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("oracle") )
       return oracleSpatialFktMapping;
     else if( product.contains("microsoft sql server") )
@@ -253,34 +280,36 @@ public class DatabaseCompatibility
     return spatialFktMapping;
   }
 
+  
   /**
    * Does not do much checking, but as all BindingSets are tested on start, the risk is low
    * @param bs
    * @return
    */
-  public String getDatabaseProductNameLC(BindingSet bs)
+  public String getDatabaseProductNameLC(String jdbcResourceName)
   {
-    String dbSource = bs.getDbSourceName() == null ? "(default connection)" : bs.getDbSourceName();
-    if (databaseProduct.containsKey(dbSource)) {
-        return databaseProduct.get(dbSource);     
+    if (databaseProduct.containsKey(jdbcResourceName)) {
+      return databaseProduct.get(jdbcResourceName);     
     }
-    
+  
     Connection con = null;
     // we either use managed or unmanaged connection depended on the scope of execution
     boolean isManagedConnection = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
     try {
-      // Let's get the connection (will not be a new one but the used one, because each request gets always the same for one dbSourceName)
+      // Let's get the connection (will not be a new one but the used one, because each request gets always the same for one jdbcResourceName)
       /*
        * access BareConfiguration, since Configuration initialization has dependency on database (cycle)
        */
-      con = isManagedConnection ? BareConfiguration.getInstance().getManagedConnection(bs.getDbSourceName()) :
-        BareConfiguration.getInstance().getUnmanagedConnection(bs.getDbSourceName());
+      con = isManagedConnection ? BareConfiguration.getInstance().getManagedConnection(jdbcResourceName) :
+        BareConfiguration.getInstance().getUnmanagedConnection(jdbcResourceName);
 
       String databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase();
-      databaseProduct.put(dbSource, databaseProductName);
+      // AWS Redshift returns PostgreSQL as product name, but we want to distinguish them
+      if( con.getMetaData().getURL().toLowerCase().contains("redshift") ) databaseProductName = "redshift";
+      databaseProduct.put(jdbcResourceName, databaseProductName);
       return databaseProductName;
     } catch (Exception e) {
-      log.error("BindingSet '"+bs.getName()+"' :"+e, e);
+      log.error("Database product for jdbcResourceName '"+jdbcResourceName+"' could not be determined.", e);
     } finally {
       if(!isManagedConnection)
         Closer.closeAllSQLObjects(con);
@@ -326,7 +355,7 @@ public class DatabaseCompatibility
     Clob clob = null;
     Reader cContentReader = null;
     // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       content = rs.getString(column);
       if (content != null)
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
@@ -356,7 +385,7 @@ public class DatabaseCompatibility
     BindingSet bs  = Bindings.getInstance().get(bindingSetName, new ArrayList<String>());
     InputStream iStr = null;
     // postgresql would fail when using getBlob, so we use getBytes instead to access the binary column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs))) {
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       iStr = new ByteArrayInputStream(rs.getBytes(column));
     }
     else {
@@ -388,6 +417,10 @@ public class DatabaseCompatibility
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
+    calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "I"});
+    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "I"});
+    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "I"});
+    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "I"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
 
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
     calcFktMapping.put("Sub",           new String[]{"Y",  "(",     "-",  ")", "N"});
@@ -398,6 +431,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
     // Analytical functions optional module
+    calcFktMapping.put("RowNumber",     new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
     calcFktMapping.put("CountOver",     new String[]{"N", "COUNT(",         "",   ")", "O"});
     calcFktMapping.put("SumOver",       new String[]{"N", "SUM(",           "",   ")", "O"});
     calcFktMapping.put("LeadOver",      new String[]{"N", "LEAD(",          ",",  ")", "O"});
@@ -412,12 +446,17 @@ public class DatabaseCompatibility
     sqlServerCalcFktMapping.put("Concat", new String[]{"N",  "CONCAT(",     ",", ")", "N"});
     sqlServerCalcFktMapping.put("Mod",    new String[]{"Y",  "",  "%",  "", "N"});
     
-
-    // MySql does not support GROUPING function, which allows to distinguish for aggregates null values in dimension members from null values caused by higher aggregation
-    // So both nulls will end up in one row and for MySQL we treat all such rows as a (sub)total rows
+    // MySql
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    mysqlCalcFktMapping.put("Grouping",   new String[]{"N",  "ISNULL(", "", ")", "I"});
+    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
+    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", " AS CHAR),CAST(", " AS CHAR))", "N"});
+    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(", "",  " AS CHAR)",  "I"});
 
+    // MySql
+    redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
+    redshiftCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
+    redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?|| 
+    
     //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
     aggregationMappingGeneric = new HashMap<String, String>();
@@ -432,6 +471,16 @@ public class DatabaseCompatibility
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
     aggregationMappingMySql.put("grouping",  "ISNULL");
 
+
+    //---------------------------------------
+    // Set operators
+    sqlSetOperators = new HashMap<String,String>();
+    sqlSetOperators.put("Union",        "UNION");
+    sqlSetOperators.put("UnionAll",     "UNION ALL");
+    sqlSetOperators.put("Except",       "EXCEPT");
+    sqlSetOperators.put("ExceptAll",    "EXCEPT ALL");
+    sqlSetOperators.put("Intersect",    "INTERSECT");
+    sqlSetOperators.put("IntersectAll", "INTERSECT ALL");
 
     //---------------------------------------
     // Spatial operators
@@ -489,7 +538,7 @@ public class DatabaseCompatibility
             // Aggregation functions
             "AVG", "CORR", "COVAR_POP", "COVAR_SAMP", "COUNT", "CUME_DIST", "DENSE_RANK", "LAG", "FIRST_VALUE", "LAST_VALUE ", "LEAD", "MAX", "MIN", "NTILE", "PERCENT_RANK", "RATIO_TO_REPORT",
             "REGR_SLOPE", "REGR_INTERCEPT", "REGR_COUNT", "REGR_R2", "REGR_AVGX", "REGR_AVGY", "REGR_SXX", "REGR_SYY", "REGR_SXY",
-            "RANK", "ROW_NUMBER ", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
+            "RANK", "ROW_NUMBER", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
             "OVER", "ORDER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",

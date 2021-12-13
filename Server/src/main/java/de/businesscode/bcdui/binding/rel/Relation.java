@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package de.businesscode.bcdui.binding.rel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.xpath.XPath;
@@ -26,11 +28,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import de.businesscode.bcdui.binding.BindingAliasMap;
+import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.binding.rel.impl.AbstractColumn;
+import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.binding.rel.impl.AbstractConstrain;
 import de.businesscode.bcdui.binding.rel.impl.BooleanConstraintImpl;
 import de.businesscode.bcdui.binding.rel.impl.CombinedConstraintImpl;
@@ -39,33 +43,42 @@ import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
 /**
- * The class represents the right table of an SQL JOIN with condition and possible return columns
+ * Relations are defined for a BindingSet in its config file. They are transparent to the client
+ * The related BindingSet is automatically joined, if one of its items is requested while the main BindingSet is queried
+ * Often this will be joined reference data tables
  */
 public class Relation {
-
+  
   public static enum TYPE {
     inner, leftOuter, rightOuter
   }
-  private BindingSet rightBindingSet;
+  
+  // Parked here during reading of BindingSets
+  // Evaluated only later during first access since only when we know the referenced BindingSet was also read
+  NodeList importItemNodes = null;
+  NodeList constraintNodes = null;
+  NodeList conditionNode   = null;
+   
+  private StandardBindingSet rightBindingSet;
   private String rightBindingSetName;
 
-  private BindingSet leftBindingSet;
+  private StandardBindingSet leftBindingSet;
   private String leftBindingSetName;
 
   private TYPE type = TYPE.leftOuter;
 
-  private List<Imports> imports;
-  private Condition condition;
-  private boolean initChildren = false;
+  // Import items are read lazy because only later we know the source BindingSet was also read
+  private volatile List<BindingItemFromRel> imports = null;
+  private volatile Condition condition;
   private String id;
-  private volatile String statement;
 
+  // This postfix is unique for the table: "_rel"+idx, when this is the relation at index idx for its main BindingSet
+  private final String tableAliasPostfix;
 
-  /**
-   * Relation
-   */
-  public Relation() {
-  }
+  // In case of DefaultImport bRefs are not listed but all bRef are imported with this prefix.
+  // For explicit Imports list, there is no prefix but names re given explicitly on each element
+  // This being not null (but empty is valid) also serves as marker that we are a default import
+  private String  defaultImportBRefPrefix = null;
 
   /**
    * getLeftBindingSetName
@@ -89,8 +102,10 @@ public class Relation {
    * getLeftBindingSet
    *
    * @return
+   * @throws BindingException 
    */
-  public BindingSet getLeftBindingSet() {
+  public BindingSet getLeftBindingSet() throws BindingException {
+    if( leftBindingSet==null ) leftBindingSet = Bindings.getInstance().get(leftBindingSetName, Collections.emptySet());
     return leftBindingSet;
   }
 
@@ -99,7 +114,7 @@ public class Relation {
    *
    * @param pLeftBindingSet
    */
-  public void setLeftBindingSet(BindingSet pLeftBindingSet) {
+  public void setLeftBindingSet(StandardBindingSet pLeftBindingSet) {
     this.leftBindingSet = pLeftBindingSet;
     setLeftBindingSetName(this.leftBindingSet.getName());
   }
@@ -123,15 +138,6 @@ public class Relation {
   }
 
   /**
-   * isInitImportItems
-   *
-   * @return
-   */
-  public boolean isInitImportItems() {
-    return initChildren;
-  }
-
-  /**
    * Constructor
    *
    * @param relationElement
@@ -139,15 +145,16 @@ public class Relation {
    * @throws XPathExpressionException
    * @throws BindingException
    */
-  public Relation(Element relationElement, String pLeftBindingSetName) throws XPathExpressionException, BindingException {
+  public Relation(Element relationElement, String pLeftBindingSetName, int idx) throws XPathExpressionException, BindingException {
+
+    this.tableAliasPostfix = "_rel"+idx;
+
     String typeAttr = relationElement.getAttribute("type");
     if (typeAttr != null && typeAttr.length() > 0)
       type = TYPE.valueOf(typeAttr);
 
     setLeftBindingSetName(pLeftBindingSetName);
-
     initRelation(relationElement);
-
     setId(getRightBindingSetName());
   }
 
@@ -160,16 +167,8 @@ public class Relation {
    * @throws XPathExpressionException
    * @throws BindingException
    */
-  public Relation(Element relationElement, BindingSet pLeftBindingSet) throws XPathExpressionException, BindingException {
-    String typeAttr = relationElement.getAttribute("type");
-    if (typeAttr != null && typeAttr.length() > 0)
-      type = TYPE.valueOf(typeAttr);
-
-    setLeftBindingSet(pLeftBindingSet);
-
-    initRelation(relationElement);
-
-    setId(getRightBindingSetName());
+  public Relation(Element relationElement, BindingSet pLeftBindingSet, int idx) throws XPathExpressionException, BindingException {
+    this( relationElement, pLeftBindingSet.getName(), idx );
   }
 
   public String getRightBindingSetName() {
@@ -199,20 +198,18 @@ public class Relation {
     //
     NodeList defaultImports = (NodeList) xPath.evaluate(xPathNS + "DefaultImports", relationElement, XPathConstants.NODESET);
 
+    // Default import imports all BindingItems with a prefix
     if (defaultImports != null && defaultImports.getLength() > 0) {
       if (defaultImports.getLength() > 1)
         throw new BindingException("Only one DefaultImports element is allowed.");
       String prefix = ((Element) defaultImports.item(0)).getAttribute("prefix");
       // in this case we can't init ImportItem of the Relation
       // we must do it by calling the Relation
-      if (this.imports == null)
-        this.imports = new ArrayList<Imports>();
-      Imports newImports = new Imports(this);
-      newImports = new Imports(this);
-      newImports.setPrefix(prefix);
-      newImports.setDefautImport(true);
-      this.imports.add(newImports);
-    } else {
+      defaultImportBRefPrefix = prefix;
+    } 
+    
+    // Otherwise the elements are listed explicitly
+    else {
 
       NodeList importsNode = (NodeList) xPath.evaluate(xPathNS + "Imports", relationElement, XPathConstants.NODESET);
 
@@ -220,80 +217,16 @@ public class Relation {
       if (importsNode != null && importsNode.getLength() > 0) {
         if (importsNode.getLength() > 1)
           throw new BindingException("Only one Imports element is allowed.");
-        if (this.imports == null)
-          this.imports = new ArrayList<Imports>();
 
-        Imports newImports = new Imports(this);
-        newImports = new Imports(this);
-        newImports.setDefautImport(false);
+        defaultImportBRefPrefix = null;
 
-        NodeList importItemNodes = (NodeList) xPath.evaluate(xPathNS + "ImportItem", importsNode.item(0), XPathConstants.NODESET);
-
-        if (importItemNodes != null && importItemNodes.getLength() > 0) {
-          for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
-            Element importNodeEl = (Element) importItemNodes.item(imp);
-            ImportItem importItem = new ImportItem(importNodeEl.getAttribute("name"), this.rightBindingSetName);
-            if ( importNodeEl.hasAttribute( "caption")) {
-              importItem.setCaption( importNodeEl.getAttribute( "caption"));
-            }
-            Element importFirstChild = (Element) importNodeEl.getElementsByTagName("*").item(0);// FirstChild();
-            String bindingSet = getBindingItemRefBindingSetName(importFirstChild.getAttribute("side"));
-            AbstractColumn importItemChild = null;
-            if (importFirstChild.getLocalName().equals("BindingItemRef")) {
-              importItemChild = new BindingItemRef(importFirstChild.getAttribute("name"), bindingSet, this);
-
-            }
-            else if (importFirstChild.getLocalName().equals("Coalesce")) {
-              importItemChild = new Coalesce(importNodeEl.getAttribute("name"), this.rightBindingSetName);
-
-              // resolve coalesce children
-              NodeList coalesceChildren = importFirstChild.getElementsByTagName("*");
-              for (int cChld = 0; cChld < coalesceChildren.getLength(); cChld++) {
-                Element cChild = (Element) coalesceChildren.item(cChld);
-                AbstractColumn childColItem = null;
-                if (cChild.getLocalName().equals("BindingItemRef")) {
-                  bindingSet = getBindingItemRefBindingSetName(cChild.getAttribute("side"));
-                  childColItem = new BindingItemRef(cChild.getAttribute("name"), bindingSet, this);
-                }
-                else if (cChild.getLocalName().equals("Value")) {
-                  childColItem = new Value("", "", cChild.getTextContent());
-                }
-                importItemChild.addChildColumnItem(childColItem);
-              }
-            }
-
-            importItem.addChildColumnItem(importItemChild);
-
-            newImports.addImportItem(importItem);
-          }
-
-          // </Imports>
-          initChildren = true;
-        }
-        imports.add(newImports);
+        importItemNodes = (NodeList) xPath.evaluate(xPathNS + "ImportItem", importsNode.item(0), XPathConstants.NODESET);
       }
     }
 
-    NodeList conditionNode = (NodeList) xPath.evaluate(xPathNS + "Condition", relationElement, XPathConstants.NODESET);
+    // Evaluated later
+    conditionNode = (NodeList) xPath.evaluate(xPathNS + "Condition", relationElement, XPathConstants.NODESET);
 
-    // <Condition>
-    if (conditionNode != null && conditionNode.getLength() > 0) {
-      this.condition = new Condition();
-
-      NodeList constraintNodes = (NodeList) XPathUtils.newXPathFactory().newXPath().compile("*").evaluate(conditionNode.item(0), XPathConstants.NODESET);
-      // resolve all constraints
-      if (constraintNodes != null && constraintNodes.getLength() > 0) {
-        for (int con = 0; con < constraintNodes.getLength(); con++) {
-          // because of comments or text values in DOM
-          if (constraintNodes.item(con).getNodeType() == Node.ELEMENT_NODE) {
-            AbstractConstrain cons = resolveConstraint((Element) constraintNodes.item(con), null);
-            if (cons != null)
-              this.condition.setConstraint(cons);
-          }
-        }
-      }// end of constraints
-    }
-    // </Condition>
   }
 
   /**
@@ -339,24 +272,30 @@ public class Relation {
 
       // Per default the first is left, the second is searched on the right side
       String side = curElement.getAttribute("side");
-      if( "".equals(side) )
-        side = "left";
-      bindingSetName = getBindingItemRefBindingSetName(side);
-      curConstraint.addColumn(new BindingItemRef(curElement.getAttribute("name"), bindingSetName, this));
+      if( "".equals(side) || "left".equals(side) ) {
+        String nameA = curElement.getAttribute("name");
+        curConstraint.addColumn(getLeftBindingSet().get(nameA));
 
-      curElement = (Element) constrChildNodes.item(1);
-      side = curElement.getAttribute("side");
-      if( "".equals(side) )
-        side = "right";
-      bindingSetName = getBindingItemRefBindingSetName(side);
-      curConstraint.addColumn(new BindingItemRef(curElement.getAttribute("name"), bindingSetName, this));
+        curElement = (Element) constrChildNodes.item(1);
+        String nameB = curElement.getAttribute("name");
+        curConstraint.addColumn(new BindingItemFromRel(rightBindingSet.get(nameB), this, nameB, null));
+      } 
+      else if( "right".equals(side) ) {
+        String nameA = curElement.getAttribute("name");
+        curConstraint.addColumn(rightBindingSet.get(nameA));
 
+        curElement = (Element) constrChildNodes.item(1);
+        String nameB = curElement.getAttribute("name");
+        curConstraint.addColumn(new BindingItemFromRel(leftBindingSet.get(nameB), this, nameB, null));
+      }
     }
     else if (constraintNode.getLocalName().equals("IsNull")) {
       curConstraint = new BooleanConstraintImpl(BooleanConstraintImpl.BooleanConstraint.ISNULL, negate);
 
       bindingSetName = getBindingItemRefBindingSetName(curElement.getAttribute("side"));
-      curConstraint.addColumn(new BindingItemRef(curElement.getAttribute("name"), bindingSetName, this));
+      BindingSet bs = Bindings.getInstance().get(bindingSetName, Collections.emptySet());
+      String name = curElement.getAttribute("name");
+      curConstraint.addColumn(new BindingItemFromRel(bs.get(name), this, name, null));
 
     }// combined with recursion
     else if (constraintNode.getLocalName().equals("And")) {
@@ -393,22 +332,52 @@ public class Relation {
   }
 
   /**
-   *
-   * Method getImports
-   *
-   * @return
-   */
-  public List<Imports> getImports() {
-    return imports;
-  }
-
-  /**
    * getCondition
    *
    * @return
+   * @throws XPathExpressionException 
+   * @throws BindingException 
    */
-  public Condition getCondition() {
-    return condition;
+  public Condition getCondition() throws BindingException {
+
+    // 2nd and later calls just return the result
+    Condition retCondition = condition;
+    if( retCondition!= null ) {
+      return retCondition;
+    }
+    
+    // Lazy initialize. Make sure done only once
+    synchronized(this) {
+      try {
+        retCondition = condition;
+        if( retCondition != null ) {
+          return retCondition;
+        }
+        
+        // <Condition>
+        retCondition = new Condition();
+  
+        NodeList constraintNodes = (NodeList) XPathUtils.newXPathFactory().newXPath().compile("*").evaluate(conditionNode.item(0), XPathConstants.NODESET);
+        // resolve all constraints
+        if (constraintNodes != null && constraintNodes.getLength() > 0) {
+          for (int con = 0; con < constraintNodes.getLength(); con++) {
+            // because of comments or text values in DOM
+            if (constraintNodes.item(con).getNodeType() == Node.ELEMENT_NODE) {
+              AbstractConstrain cons = resolveConstraint((Element) constraintNodes.item(con), null);
+              if (cons != null)
+                retCondition.setConstraint(cons);
+            }
+          }// end of constraints
+        }
+        // </Condition>
+      } catch (XPathExpressionException e) {
+        throw new BindingException("Condition of Relation "+getId()+" for BindingSet "+leftBindingSetName+" could not be found ", e);
+      }
+
+      condition = retCondition;
+    }
+    
+    return retCondition;
   }
 
   /**
@@ -448,10 +417,15 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public BindingSet getSourceBindingSet() throws BindingException {
+  public StandardBindingSet getSourceBindingSet() {
     if (rightBindingSet == null) {
-      Bindings bs = Bindings.getInstance();
-      rightBindingSet = bs.get(getRightBindingSetName());
+      Bindings bs;
+      try {
+        bs = Bindings.getInstance();
+        rightBindingSet = bs.get(getRightBindingSetName(), Collections.emptyList());
+      } catch (BindingException e) {
+        rightBindingSet = null;
+      }
     }
     return rightBindingSet;
   }
@@ -462,7 +436,7 @@ public class Relation {
    *
    * @param psourceBindingSet
    */
-  public void setSourceBindingSet(BindingSet psourceBindingSet) {
+  public void setSourceBindingSet(StandardBindingSet psourceBindingSet) {
     this.rightBindingSet = psourceBindingSet;
   };
 
@@ -491,8 +465,8 @@ public class Relation {
    *
    * @return
    */
-  public String getConditionStatement( String prepareCaseExpressionForAlias) throws BindingException {
-    return getCondition().getConditionStatement( prepareCaseExpressionForAlias);
+  public String getConditionStatement(String mainTableAlias, boolean isForJoinToCaseWhen) throws BindingException {
+    return getCondition().getConditionStatement( mainTableAlias, isForJoinToCaseWhen );
   }
 
   /**
@@ -511,25 +485,6 @@ public class Relation {
     return str;
   }
 
-  /**
-   *
-   * Method returns comma separated columns, that this relation can select
-   *
-   * @return
-   * @throws BindingException
-   */
-  public String getImportsColumnsAsString() throws BindingException {
-    List<Imports> imps = getImports();
-    if (imps.size() == 1)
-      return imps.get(0).getColumnsStatement();
-    StringBuilder result = new StringBuilder();
-    for (Imports imp : imps) {
-      if (result.length() > 0)
-        result.append(", \n");
-      result.append(imp.getColumnsStatement());
-    }
-    return result.toString();
-  }
 
   /**
    * getImportItems
@@ -537,15 +492,53 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public ArrayList<ImportItem> getImportItems() throws BindingException {
-    List<Imports> imps = getImports();
-    if (imps.size() == 1)
-      return imps.get(0).getImportItems();
-    ArrayList<ImportItem> result = new ArrayList<ImportItem>();
-    for (Imports imp : imps) {
-      result.addAll(imp.getImportItems());
+  public List<BindingItemFromRel> getImportItems() throws BindingNotFoundException {
+    
+    // Usually we just return what we have (after initial call)
+    List<BindingItemFromRel> importsRet = imports;
+    if( importsRet != null ) {
+      return importsRet;
     }
-    return result;
+
+    // After application startup, read the imports on first call.
+    // This is done lazy on the first request as during construction of the Relation the related BindingSet may not yes be available
+    // depending on the order in which the BindingSets are read
+    synchronized(this) {
+      importsRet = imports;
+      if( importsRet != null ) {
+        return importsRet;
+      }
+      // We only assign to imports after we have completed
+      importsRet = new ArrayList<BindingItemFromRel>();
+
+      // All items with a prefix
+      if( defaultImportBRefPrefix != null ) {
+        StandardBindingSet bs = getSourceBindingSet();
+        for( BindingItem bi: bs.getBindingItems() ) {
+          BindingItemFromRel bfr = new BindingItemFromRel( bi, this, defaultImportBRefPrefix+bi.getId(), null );
+          importsRet.add(bfr);
+        }
+      } 
+      
+      // Individually listed and named items
+      else if( importItemNodes != null ) {
+        for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
+          Element importNodeEl = (Element) importItemNodes.item(imp);
+          
+          String importName = importNodeEl.getAttribute("name");
+          String importCaption = importNodeEl.hasAttribute( "caption") ? importNodeEl.getAttribute( "caption") : null; 
+          
+          Element importFirstChild = (Element) importNodeEl.getElementsByTagName("BindingItemRef").item(0);// FirstChild();
+          String refName = importFirstChild.getAttribute("name");
+          
+          BindingItemFromRel bfr = new BindingItemFromRel(getSourceBindingSet().get(refName), this, importName, importCaption);
+          importsRet.add(bfr);
+        }
+      }
+      imports = importsRet;
+    }
+
+    return importsRet;
   }
 
   /**
@@ -556,27 +549,20 @@ public class Relation {
    * @throws BindingException
    */
   public boolean importsContainItem(String key) throws BindingException {
-    for (Imports imp : getImports()) {
-      if (imp.containsItem(key))
-        return true;
-    }
-    return false;
+    
+    return getImportItems().stream().anyMatch( bfr -> bfr.getId().equalsIgnoreCase(key) );
   }
 
   /**
    * getImportItemByName
    *
    * @param key
-   * @return
+   * @return null if not found
    * @throws BindingException
    */
-  public ImportItem getImportItemByName(String key) throws BindingException {
-    for (Imports imp : getImports()) {
-      if (imp.containsItem(key)) {
-        return imp.getImportItemByName(key);
-      }
-    }
-    return null;
+  public BindingItemFromRel getImportItemByName(String key) throws BindingException {
+  
+    return getImportItems().stream().filter( bfr -> bfr.getId().equalsIgnoreCase(key) ).findFirst().orElse(null);
   }
 
   /**
@@ -585,36 +571,28 @@ public class Relation {
    * @return
    * @throws BindingException
    */
-  public ArrayList<String> getAllImportItemNames() throws BindingException {
+  public List<String> getAllImportItemNames() throws BindingNotFoundException {
     if (getImportItems() == null)
       return null;
-
-    ArrayList<String> all = new ArrayList<String>();
-    for (int i = 0; i < getImportItems().size(); i++) {
-      all.add(getImportItems().get(i).getName());
-    }
-
-    return all;
+    
+    return Arrays.asList( getImportItems().stream().map( bfr -> bfr.getId() ).toArray( String[]::new ) );
   }
 
   /**
    * builds SQL statement for the relation like: LEFT OUTER JOIN ...tableName ...aliasName ON ( ...here condition statement )
    */
-  public String getRelationStatement() throws BindingException {
-    if (statement != null && statement.length() > 0)
-      return statement;
+  public String getRelationStatement(String mainTableAlias) throws BindingException {
 
     StringBuilder sql = new StringBuilder();
     sql.append(getJoinAsString());
-    sql.append(" ").append(getSourceBindingSet().getTableName());
-    sql.append(" ").append(BindingAliasMap.getAliasName(getId())); // relation alias
+    sql.append(" ").append(getSourceBindingSet().getTableReference());
+    sql.append(" ").append(mainTableAlias).append(tableAliasPostfix); // relation alias
     sql.append(" ON ");
     sql.append(" ( ");
-    sql.append( getConditionStatement( null));
+    sql.append( getConditionStatement(mainTableAlias, false) );
     sql.append(" ) ");
 
-    statement = sql.toString();
-    return statement;
+    return sql.toString();
   }
 
   /**
@@ -636,12 +614,44 @@ public class Relation {
     str.append(" rightBindingSet='").append(getRightBindingSetName()).append("'");
     str.append(" >");
 
-    str.append(getImports().toString());
-    if (getCondition() != null)
-      str.append(getCondition().toString());
+    String nodeName = (defaultImportBRefPrefix != null ? "DefaultImports" : "Imports");
+    str.append("<").append(nodeName);
+    if (defaultImportBRefPrefix != null)
+      str.append(" prefix='").append(defaultImportBRefPrefix).append("'");
+    str.append(">");
+
+    str.append("<Imports>");
+    if( defaultImportBRefPrefix != null ) {
+      str.append("<DefaultImports/>");
+    } else {
+      try {
+        for( BindingItemFromRel bfr: getImportItems() ) {
+          str.append("<ImportItem caption=\""+bfr.getCaption()+"\" name=\""+bfr.getId()+"\">");
+          str.append("<BindingItemRef name=\""+bfr.getReferencedBindingItem().getId()+"\" />");
+          str.append("</ImportItem>");
+        }
+      } catch (BindingException e) {
+        str.append("--- Error, items could not be determined ---");
+      }
+    }
+    str.append("<(Imports>");
+
+    try {
+      if (getCondition() != null)
+        str.append(getCondition().toString());
+    } catch (BindingException e) {
+      str.append("--- Error, Condition could not be determined ---");
+    }
 
     str.append("</Relation>");
     return str.toString();
   }
 
+  public String getTableAlias(String mainTableAlias) {
+    return mainTableAlias+tableAliasPostfix;
+  }
+  
+  public boolean isDefaultImport() {
+    return defaultImportBRefPrefix != null;
+  }
 }

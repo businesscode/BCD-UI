@@ -80,8 +80,8 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     //---------------------------
     // Set real column names for password and salt
     // We set the real column name of password and salt on a local copy of the BindingItem, which is from now on used for this Wrq
-    final String passwordColName = Configuration.getInstance().getConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_COLUMN_CONFIG_NAME, JdbcRealm.BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT);
-    final String passwordSaltColName = Configuration.getInstance().getConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME, JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT);
+    final String passwordColName = Configuration.getInstance().getConfigurationParameter(JdbcRealm.getConfigPasswordColumnName(), JdbcRealm.BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT);
+    final String passwordSaltColName = Configuration.getInstance().getConfigurationParameter(JdbcRealm.getConfigPasswordSaltColumnName(), JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT);
     passwordBi = new BindingItem(columns.get(wrqPasswordColIdx));
     passwordBi.setColumnExpression(passwordColName); // Overwriting col expr on local copy only
     columns.set(wrqPasswordColIdx, passwordBi);
@@ -109,7 +109,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     //---------------------------
     // Get right db connection
     // columnsOfCaller allows us to manipulate the list which is used by our caller when writing the wrq
-    con = Configuration.getInstance().getManagedConnection(bindingSet.getDbSourceName());
+    con = Configuration.getInstance().getManagedConnection(bindingSet.getJdbcResourceName());
     columnsOfCaller = columns;
     columnTypesOfCaller = columnTypes;
   }

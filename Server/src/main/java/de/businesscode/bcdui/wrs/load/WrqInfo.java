@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,11 +15,16 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -29,10 +34,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import de.businesscode.bcdui.binding.BindingItem;
-import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
@@ -46,15 +49,16 @@ import de.businesscode.util.XPathUtils;
  */
 public class WrqInfo
 {
-  private final Element wrq;
-  private final Bindings bindings;
+  private Element selectElem;
+  private final Bindings bindings; // Not using Bindings.getInstance() but a parameter to allow using us in batch mode!
+  
   private int columnNumber = 1;
-  private BindingSet resultingBindingSet;
-  private String wrqBindingSetId; // As send in the request. May be different from the actual BindingSet in case of BindingGroup
-  // Maps all wrs:C/@bRef-@aggr and wrs:A @bRef-@aggr combinations to a BindingSetwithMetadata
+  // The effective BindingSet, includes evaluation of a BindingSetGroup to find the right one
+  private WrqBindingSet resultingBindingSet;
+  // Maps all wrs:C/@bRef-@aggr and wrs:A @bRef-@aggr combinations to a BindingSetWithMetadata
   // This includes the select list of the ResultSet and all other places
   private Map<String,WrqBindingItem> allBRefAggrs;
-  // Maps all wrs:C/@bRef and wrs:A @bRef combinations to a BindingSetwithMetadata (ignoring the @aggr)
+  // Maps all wrs:C/@bRef and wrs:A @bRef combinations to a BindingSetWithMetadata (ignoring the @aggr)
   // This includes the select list of the ResultSet and all other places
   private Map<String,WrqBindingItem> allBRefs;
   // Lists all wrs:C/@bRef and wrs:A/@bRef
@@ -73,9 +77,6 @@ public class WrqInfo
   private Set<String> groupingBRefs;
   private Set<String> havingBRefs;
   private LinkedHashSet<String> orderingBRefs = new LinkedHashSet<String>();
-  // We may replace the given f:Filter by one modified at the server. Since we do not want to change the original WrsRequest, 
-  // because it is returned to the client and we do not want that to be included there, we hold such an element here.
-  private Element resultingFilterParent;
   // Keeps track of the virtual dimension members. Maps a bRef to a map of new names (i.e. content) of the data to the values mapped to this new name
   private Map<String,Map<String,Set<String>>> vdms = new HashMap<>();
   // This indicates whether this request uses a Grouping Function, for example grouping sets
@@ -87,68 +88,68 @@ public class WrqInfo
   int aliasCounter     = 1;
   int virtualBiCounter = 1;
 
+  // Context for our query as we are created for each individual
+  protected final SqlFromSubSelect currentSelect;
+
+  private WrqGroupBy2Sql wrqGroupBy2Sql = null;
+
+  // Here we collect all host variables in correct order (same as ? in generated statement), may be from wrq:Calc or f:Filter
+  private SQLStatementWithParams fromSQLStatementWithParams = null;
 
   /**
-   *
-   * @param wrq
-   * @param bindings A parameter and not Bindings.getInstance() because we may be called in batch mode
+   * Constructor from currentSelect as context and our wrq:Select element
+   * @param currentSelect
+   * @param selectElem
    * @throws Exception
    */
-  public WrqInfo( Document wrq, Bindings bindings ) throws Exception
+  public WrqInfo( SqlFromSubSelect currentSelect, Element selectElem ) throws Exception
   {
     try {
       xp = XPathUtils.newXPathFactory().newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
       xp.setNamespaceContext(nsContext);
-      fromBindingSetXpathExpr =   xp.compile("/wrq:WrsRequest/wrq:Select/wrq:From/wrq:BindingSet");
-      filterXpathExpr =           xp.compile("/wrq:WrsRequest/wrq:Select/f:Filter");
-      groupByRootXpathExpr =      xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping");     // grouping columns or functions
-      groupByChildrenXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*");     // grouping columns or functions
-      groupByIndicatorXpathExpr=  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:Set | /wrq:WrsRequest/wrq:Select/wrq:Grouping//wrq:C");     // indicates grouping query
-      groupByFunctionXpathExpr =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Grouping/wrq:*[not(self::wrq:C)]");  // grouping functions
-      havingRootXpathExpr      =  xp.compile("/wrq:WrsRequest/wrq:Select/wrq:Having");  // having clause
-      topNXPathExpr =             xp.compile("/wrq:WrsRequest/wrq:Select/wrq:TopNDimMembers");
+      fromChildXpathExpr       =  xp.compile("./wrq:From/wrq:*");
+      filterXpathExpr =           xp.compile("./f:Filter");
+      groupByRootXpathExpr =      xp.compile("./wrq:Grouping");     // grouping columns or functions
+      groupByChildrenXpathExpr =  xp.compile("./wrq:Grouping/wrq:*");     // grouping columns or functions
+      groupByIndicatorXpathExpr=  xp.compile("./wrq:Grouping//wrq:Set | ./wrq:Grouping//wrq:C");     // indicates grouping query
+      groupByFunctionXpathExpr =  xp.compile("./wrq:Grouping/wrq:*[not(self::wrq:C)]");  // grouping functions
+      havingRootXpathExpr      =  xp.compile("./wrq:Having");  // having clause
+      topNXPathExpr =             xp.compile("./wrq:TopNDimMembers");
 
-      selectListCAXpathExpr =     xp.compile("/*/wrq:Select/wrq:Columns//*[self::wrq:C | self::wrq:A]");
-      groupingCXpathExpr    =     xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C");
-      orderingCXpathExpr    =     xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C");
+      selectListCAXpathExpr =     xp.compile("./wrq:Columns//*[self::wrq:C | self::wrq:A]");
+      groupingCXpathExpr    =     xp.compile("./wrq:Grouping//wrq:C");
+      orderingCXpathExpr    =     xp.compile("./wrq:Ordering/wrq:C");
 
-      selectListBidRefXpathExpr   = xp.compile("/*/wrq:Select/wrq:Columns//*[not(wrq:Calc)]/@bRef       | /*/wrq:Select//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
-      filterBidRefXpathExpr       = xp.compile("/*/wrq:Select/f:Filter//f:Expression/@bRef");
-      groupingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | /*/wrq:Select/wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
-      havingBidRefXpathExpr       = xp.compile("/*/wrq:Select/wrq:Having//f:Expression//@bRef");
-      orderingBidRefXpathExpr     = xp.compile("/*/wrq:Select/wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | /*/wrq:Select/wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
-      topNBidRefXPathExpr         = xp.compile("/*/wrq:Select/wrq:TopNDimMembers//wrq:LevelRef/@bRef   | /*/wrq:Select/wrq:TopNDimMembers//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      selectListBidRefXpathExpr   = xp.compile("./wrq:Columns//*[not(wrq:Calc)]/@bRef      | .//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      filterBidRefXpathExpr       = xp.compile("./f:Filter//f:Expression/@bRef");
+      groupingBidRefXpathExpr     = xp.compile("./wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | ./wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      havingBidRefXpathExpr       = xp.compile("./wrq:Having//f:Expression//@bRef");
+      orderingBidRefXpathExpr     = xp.compile("./wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | ./wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      topNBidRefXPathExpr         = xp.compile("./wrq:TopNDimMembers//wrq:LevelRef/@bRef   | ./wrq:TopNDimMembers//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
 
-      vdmXpathExpr                 = xp.compile("/*/wrq:Select/wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
+      vdmXpathExpr                = xp.compile("./wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
     } catch (XPathExpressionException e) {
       throw new RuntimeException("Cannot initialize class. Wrong XPath", e); // it's a bug
     }
-    this.bindings = bindings;
+    this.bindings = currentSelect.getWrqQueryBuilder().getBindings(); // Not using Bindings.getInstance() to allow using us in batch mode!
+    this.currentSelect = currentSelect;
+    fromSQLStatementWithParams = new SQLStatementWithParams();
 
     // The caller can indicate an empty request by sending no request doc or an empty <wrq:WrsRequest/> root element
     // because it is very often much easier to use than preventing an empty request
     // (WrsDataWriter will for example return <wrs:Wrs>Empty</wrs:Wrs>)
-    if( wrq!=null && wrq.getDocumentElement()!=null
-        && wrq.getDocumentElement().getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"BindingSet").getLength()==1 ) {
-      this.wrq = wrq.getDocumentElement();
+    if( selectElem!=null && ((NodeList)fromChildXpathExpr.evaluate(selectElem, XPathConstants.NODESET)).getLength() >= 1 ) {
+      this.selectElem = selectElem;
       try {
-        if( !StandardNamespaceContext.WRSREQUEST_NAMESPACE.equals(this.wrq.getNamespaceURI()) )
+        if( !StandardNamespaceContext.WRSREQUEST_NAMESPACE.equals(this.selectElem.getNamespaceURI()) )
           throw new RuntimeException("Parse error, not a valid WrsRequest."); // can be namespace, can be anything
       } catch(Exception e) {
         throw new Exception("Error evaluating a WrsRequest.",e);
       }
       initMetaData();
     } else
-      this.wrq = null;
-  }
-
-  /**
-   * This is the binding set / group named in the Wrq
-   * @see de.businesscode.bcdui.wrs.load.ISqlGenerator#getRequestedBindingSetName()
-   */
-  protected String getRequestedBindingSetName() {
-    return wrqBindingSetId;
+      this.selectElem = null;
   }
 
   /**
@@ -156,7 +157,7 @@ public class WrqInfo
    */
   protected int getStartRow() {
     try {
-      String attribute = wrq.getAttribute("startRow");
+      String attribute = selectElem.getAttribute("startRow");
       if( attribute.isEmpty() )
         return 1;
       else
@@ -169,14 +170,14 @@ public class WrqInfo
 
   protected boolean isEmpty()
   {
-    return wrq == null;
+    return selectElem == null;
   }
 
   protected LinkedHashSet<String> getOrderingBRefs() {
     return orderingBRefs;
   }
 
-  protected LinkedHashSet<String> getFullSelectListBRefs() {
+  public LinkedHashSet<String> getFullSelectListBRefs() {
     return fullSelectListBRefs;
   }
   protected LinkedHashSet<String> getUserSelectListBRefs() {
@@ -191,30 +192,21 @@ public class WrqInfo
   }
 
   protected Element getFilterNode() throws XPathExpressionException {
-    return (Element) filterXpathExpr.evaluate(resultingFilterParent, XPathConstants.NODE);
+    return (Element) filterXpathExpr.evaluate(selectElem, XPathConstants.NODE);
   }
   protected Element getGroupingNode() throws XPathExpressionException {
-    return (Element) groupByRootXpathExpr.evaluate(wrq, XPathConstants.NODE);
+    return (Element) groupByRootXpathExpr.evaluate(selectElem, XPathConstants.NODE);
   }
   protected Element getHavingNode() throws XPathExpressionException {
-    return (Element) havingRootXpathExpr.evaluate(wrq, XPathConstants.NODE);
+    return (Element) havingRootXpathExpr.evaluate(selectElem, XPathConstants.NODE);
   }
 
   /**
-   * Initializes internal data structures for this Wrq
-   * - The resulting BindingSet
-   * - All bRefs used and their WrqBindingItem
-   * - bRefs used in the select list
-   * - bRefs used in group by
+   * Initializes internal data structures for s single wrq:Select
    * @throws Exception
-   * @throws ParserConfigurationException
-   * @throws IOException
-   * @throws SAXException
    */
   protected void initMetaData() throws Exception
   {
-    wrqBindingSetId = (String) fromBindingSetXpathExpr.evaluate(wrq, XPathConstants.STRING);
-
     allBRefAggrs = new HashMap<String, WrqBindingItem>();
     allBRefs = new HashMap<String, WrqBindingItem>();
     allRawBRefs = new HashSet<String>();
@@ -225,21 +217,38 @@ public class WrqInfo
     havingBRefs = new HashSet<String>();
     virtualBRefs = new HashMap<String, String>();
 
-    // Let's check, whether we have a filter modifiers attached to the BindingSet (/Group) and apply them
+    // Let's check, whether we have a filter modifiers attached to the BindingSets (and BsGroup in EE) and apply them
     // Note, we have a chicken and egg problem here. To ask a BindingSet for its modifiers, 
     // we first have to know the requested BindingItems to get the right BindingSet in case the id references to a BindingSetGroup
-    // But the modifier can change the set of required BindingItems. We handle this as follows:
+    // But the modifier can change the set of required BindingItems determined in the next steps. We handle this as follows:
     // If there is a BindingSetGroup registered for the name, we take its modifiers, otherwise we get the direct BindingSet ones
-    resultingFilterParent = wrq;
-    for( Class<? extends Modifier> modifier: bindings.getWrqModifiers(wrqBindingSetId) ) {
-      // Calculate filterServer so thaxt we have the correct bRef set
-      resultingFilterParent = modifier.newInstance().process((Element) filterXpathExpr.evaluate(wrq, XPathConstants.NODE));
-    }
+    // We work on the immediate BindingSet children and the current filter (not touching any child, parent or sibling sub-selects)
+    NodeList fromChildNl = ((NodeList)fromChildXpathExpr.evaluate(selectElem, XPathConstants.NODESET));
+    Element firstFromChild = (Element)fromChildNl.item(0);
+    Node directBsNode = firstFromChild;
+    boolean didCloneForModifier = false;
+    do {
+      String modifierBindingSet = directBsNode.getTextContent().trim();
+      if( "BindingSet".equals(directBsNode.getLocalName()) && bindings.getWrqModifiers( modifierBindingSet ).size() > 0 ) {
+        // We create a private copy for us as the original document is returned to the client and the Modifier is local to us
+        if( !didCloneForModifier ) {
+          Document copiedWrq = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+          copiedWrq.appendChild( copiedWrq.importNode(selectElem, true) );
+          selectElem = copiedWrq.getDocumentElement();
+          didCloneForModifier = true;
+        }
+        // Apply all Modifiers of the current BindingSet
+        for (Class<? extends Modifier> modifier : bindings.getWrqModifiers( modifierBindingSet )) {
+          modifier.getDeclaredConstructor().newInstance().process( selectElem );
+        }
+      }
+    } while( (directBsNode = directBsNode.getNextSibling()) != null );
+
 
     // Read the vdm virtual dimension members, they will be applied by WrqBindingItem further down
     // We know from the xPath, that ../*/@bRef, @to and @from are not empty.
     // We indicate the 'rest' value via a from=null assigned to to
-    NodeList vdmMapNodeList  = (NodeList) vdmXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    NodeList vdmMapNodeList  = (NodeList) vdmXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
     String vdmBRef = null;
     Map<String,Set<String>> mapping = null;
     for( int vm=0; vm<vdmMapNodeList.getLength(); vm++ ) {
@@ -266,27 +275,29 @@ public class WrqInfo
       vdms.put( vdmBRef, mapping );
     }
 
-    NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-    NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(resultingFilterParent, XPathConstants.NODESET);
-    NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-    NodeList havingBidRefNl    = (NodeList) havingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-    NodeList orderingBidRefNl  = (NodeList) orderingBidRefXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-    NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList havingBidRefNl    = (NodeList) havingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList orderingBidRefNl  = (NodeList) orderingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
 
+    
+    //-------------------------------------------------------------------
     // A) No bindingItem addressed, just select all items of the BindingSet
     if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 
         && havingBidRefNl.getLength() == 0 && orderingBidRefNl.getLength()==0 && selectedNl.getLength() == 0)
     {
-      resultingBindingSet = bindings.get(wrqBindingSetId); // We just use the explicitly given BindingSet (must not be a BindingGroup obviously)
+      resultingBindingSet = new WrqBindingSetFromTableReference(fromChildNl, currentSelect, allRawBRefs, true);
       selectAllBindingItems();
     }
 
     // B) Some bRef/idRef given
     else
     {
-      NodeList groupingNl  = (NodeList) groupingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-      NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(wrq, XPathConstants.NODESET);
-      NodeList topNBidRefNl = (NodeList) topNBidRefXPathExpr.evaluate(wrq, XPathConstants.NODESET);
+      NodeList groupingNl  = (NodeList) groupingCXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+      NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+      NodeList topNBidRefNl = (NodeList) topNBidRefXPathExpr.evaluate(selectElem, XPathConstants.NODESET);
 
       for( int i=0; i<selectedBidRefNl.getLength(); i++ )
         allRawBRefs.add(selectedBidRefNl.item(i).getNodeValue());
@@ -305,9 +316,14 @@ public class WrqInfo
       for ( int i=0; i<topNBidRefNl.getLength();i++) {
         allRawBRefs.add(topNBidRefNl.item(i).getNodeValue());
       }
-      resultingBindingSet = bindings.get(wrqBindingSetId, allRawBRefs);
 
-      // B.1.a Empty select list
+      //-------------------------------------------------------------------
+      // Create a virtual BindingSet from wrq:From
+      resultingBindingSet = new WrqBindingSetFromTableReference(fromChildNl, currentSelect, allRawBRefs, selectedBidRefNl.getLength()==0);;
+
+      
+      //-------------------------------------------------------------------
+          // B.1.a Empty select list
       if( selectedBidRefNl.getLength()==0 && selectedNl.getLength() == 0 ) {
         selectAllBindingItems();
       }
@@ -315,8 +331,11 @@ public class WrqInfo
       // B.1.b Select list given
       else
       {
-        reqHasGroupBy = ((NodeList)groupByIndicatorXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
-        reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(wrq, XPathConstants.NODESET)).getLength() > 0;
+        // Do we want to use aggregations for columns? This is th case if we have group-by columns 
+        // or if indicated @bcdIsGrandTotal=true
+        reqHasGroupBy = ((NodeList)groupByIndicatorXpathExpr.evaluate(selectElem, XPathConstants.NODESET)).getLength() > 0;
+        reqHasGroupBy |= getGroupingNode() != null && "true".equals(((Element)getGroupingNode()).getAttribute("bcdIsGrandTotal"));
+        reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(selectElem, XPathConstants.NODESET)).getLength() > 0;
         WrqBindingItem lastWrqC = null;
         for( int i=0; i<selectedNl.getLength(); i++ )
         {
@@ -368,7 +387,7 @@ public class WrqInfo
         String bRef = fBiDRef.getNodeValue();
         if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
           BindingItem bi = resultingBindingSet.get(bRef);
-          WrqBindingItem wrqBi = new WrqBindingItem(this, bi, "v"+(aliasCounter++), false);
+          WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
           allBRefs.put(bRef, wrqBi);
         }
       }
@@ -390,7 +409,7 @@ public class WrqInfo
         String bRef = hBiDRef.getNodeValue();
         if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
           BindingItem bi = resultingBindingSet.get(bRef);
-          WrqBindingItem wrqBi = new WrqBindingItem(this, bi, "v"+(aliasCounter++), false);
+          WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
           allBRefs.put(bRef, wrqBi);
         }
       }
@@ -418,6 +437,8 @@ public class WrqInfo
     for( String sl : fullSelectListBRefs ) {
       allBRefAggrs.get(sl).setColumnNumber(columnNumber++);
     }
+    
+    fromSQLStatementWithParams.append(resultingBindingSet.getSQLStatementWithParams());
   }
 
   /**
@@ -427,17 +448,19 @@ public class WrqInfo
   protected void selectAllBindingItems() throws BindingException
   {
     if( !resultingBindingSet.isAllowSelectAllColumns() )
-      throw new BindingException("The BindingSet " + wrqBindingSetId +" requires list of bindings items in Select clause, see bnd:BindingSet/@allowSelectAllColumns");
+      throw new BindingException("The BindingSet " + getResultingBindingSet().getName() +" requires list of bindings items in Select clause, see bnd:BindingSet/@allowSelectAllColumns");
 
-    Iterator<BindingItem> bitemsIt = resultingBindingSet.getBindingItems().iterator();
+    // We need to keep in mind that in resultingBindingSet.getBindingItems() the id is not yet wrqAlias aware 
+    Iterator<String> bitemsIt = resultingBindingSet.getBindingItemNames().iterator();
     while( bitemsIt.hasNext() ) {
-      BindingItem bi = bitemsIt.next();
-      String bRef = bi.getId();
-      WrqBindingItem biWm = new WrqBindingItem(this, bi, "v"+(aliasCounter++), !groupingBRefs.isEmpty() && !groupingBRefs.contains(bRef));
-      allBRefAggrs.put(biWm.getId(), biWm);
+      String bRef = bitemsIt.next();
+      BindingItem bi = resultingBindingSet.get(bRef);
+      WrqBindingItem biWm = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), !groupingBRefs.isEmpty() && !groupingBRefs.contains(bRef));
+      String bRef_Aggr = biWm.getId()+(biWm.getAggr()==null ? "":" "+biWm.getAggr());
+      allBRefAggrs.put(bRef_Aggr, biWm);
       allBRefs.put(biWm.getId(), biWm);
-      fullSelectListBRefs.add(biWm.getId());
-      userSelectListBRefs.add(biWm.getId());
+      fullSelectListBRefs.add(bRef_Aggr);
+      userSelectListBRefs.add(bRef_Aggr);
       wrsCOnlySelectListBRefs.add(biWm);
     }
   }
@@ -461,16 +484,11 @@ public class WrqInfo
   }
 
   public Document getOwnerDocument() {
-    return wrq.getOwnerDocument();
+    return selectElem.getOwnerDocument();
   }
 
-  public NodeList getSelectNodes() {
-    return wrq.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"Select");
-  }
-
-  public String getBindingSetId() throws XPathExpressionException
-  {
-    return (String) fromBindingSetXpathExpr.evaluate(wrq, XPathConstants.STRING);
+  public Element getSelectNode() {
+    return selectElem;
   }
 
   public Map<String, WrqBindingItem> getAllBRefAggrs() {
@@ -493,16 +511,16 @@ public class WrqInfo
   }
 
   public NodeList getGroupingChildNode() throws XPathExpressionException {
-    return (NodeList)groupByChildrenXpathExpr.evaluate(wrq, XPathConstants.NODESET);
+    return (NodeList)groupByChildrenXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
   }
 
   public NodeList getTopNs() throws XPathExpressionException {
-    return (NodeList) topNXPathExpr.evaluate(wrq, XPathConstants.NODE);
+    return (NodeList) topNXPathExpr.evaluate(selectElem, XPathConstants.NODE);
   }
   public int getNextColumnNumber() {
     return columnNumber++;
   }
-  public BindingSet getResultingBindingSet()
+  public WrqBindingSet getResultingBindingSet()
   {
     return resultingBindingSet;
   }
@@ -520,6 +538,24 @@ public class WrqInfo
   public boolean reqHasGroupBy() {
     return reqHasGroupBy;
   }
+  public void setReqHasGroupingFunction(Boolean reqHasGroupingFunction) {
+    this.reqHasGroupingFunction = reqHasGroupingFunction;
+  }
+  /**
+   * Convenience method
+   * @return
+   */
+  public String getJdbcResourceName() {
+    return getCurrentSelect().getWrqQueryBuilder().getJdbcResourceName();
+  }
+
+  public SqlFromSubSelect getCurrentSelect() {
+    return currentSelect;
+  }
+
+  public SQLStatementWithParams getSQLSelectWithParams() {
+    return fromSQLStatementWithParams;
+  }
 
   /**
    * Return the virtual dimension members for a bRef
@@ -530,9 +566,14 @@ public class WrqInfo
     return vdms.get( bRef );
   }
 
+  public WrqGroupBy2Sql getWrqGroupBy2Sql() {
+    if( wrqGroupBy2Sql == null ) wrqGroupBy2Sql = new WrqGroupBy2Sql( this );
+    return wrqGroupBy2Sql;
+  }
+
   private static final Map<String, String> aggregationMapping;
   private final XPath xp;
-  private final XPathExpression fromBindingSetXpathExpr;
+  private final XPathExpression fromChildXpathExpr;
   private final XPathExpression filterXpathExpr;
   private final XPathExpression groupByRootXpathExpr;
   private final XPathExpression groupByChildrenXpathExpr;
@@ -564,4 +605,5 @@ public class WrqInfo
     aggregationMapping.put("grouping", "GROUPING");
     aggregationMapping.put("none", ""); // Can be used if the column expression already has a aggregator defined
   }
+
 }

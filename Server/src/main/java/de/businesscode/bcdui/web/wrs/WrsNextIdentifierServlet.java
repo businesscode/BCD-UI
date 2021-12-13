@@ -104,7 +104,7 @@ public class WrsNextIdentifierServlet extends HttpServlet {
     blockSize = blockSize < 1 ? 1 : blockSize;
     log.trace("retrieve identifier for scope " + scope + ", blockSize: " + blockSize);
 
-    Connection con = Configuration.getInstance().getUnmanagedConnection(Bindings.getInstance().get("bcd_identifier").getDbSourceName());
+    Connection con = Configuration.getInstance().getUnmanagedConnection(Bindings.getInstance().get("bcd_identifier").getJdbcResourceName());
     try {
       final SQLEngine e = new SQLEngine();
       BigDecimal nextId;

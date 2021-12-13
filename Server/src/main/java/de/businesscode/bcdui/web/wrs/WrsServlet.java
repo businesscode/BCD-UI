@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -43,16 +43,18 @@ import org.apache.shiro.UnavailableSecurityManagerException;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
-import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.DataLoader;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
+import de.businesscode.bcdui.wrs.load.Wrq2Sql;
 import de.businesscode.bcdui.wrs.load.WrsDataWriter;
 import de.businesscode.bcdui.wrs.save.DataSaver;
 
 /**
- * Servlet for calling Wrs delivering services
+ * Servlet for calling Wrs services
+ * GET: It turns a WrsRequest into SQL and returns a Wrs document with wrs:R rows
+ * POST: It turns a Wrs into updates of the database based on wrs:M wrs:D rows
  */
 public class WrsServlet extends HttpServlet {
 
@@ -78,7 +80,7 @@ public class WrsServlet extends HttpServlet {
   /**
    * convenience method to check if given resource has been modified
    *
-   * @param resourceUri
+   * @param resourceUri Resource to be checked
    * @param lastReadDate if this parameter is NULL the method returns TRUE as is assumes the resource has never been read
    * @return true if the given resource has been modified
    */
@@ -88,7 +90,7 @@ public class WrsServlet extends HttpServlet {
 
   /**
    * convenience method
-   * @param resourceUri
+   * @param resourceUri Resource to be checked
    * @param lastReadStamp if this parameter is NULL the method returns TRUE as is assumes the resource has never been read
    * @return true if the given resource has been modified
    */
@@ -106,15 +108,23 @@ public class WrsServlet extends HttpServlet {
   /**
    * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    if (config.getInitParameter("MaxRows") != null)
+    
+    //-------------------------------------------------------
+    // Read application-wide max rows setting default
+    if (config.getInitParameter("MaxRows") != null) {
       try { maxRowsDefault = Integer.parseInt(config.getInitParameter("MaxRows")); } catch(Exception e) {}
+    }
 
+    //-------------------------------------------------------
+    // Register services
+    // - default (empty name) comes from Configuration.getClassoption(Configuration.OPT_CLASSES.WRQ2SQL)
+    // - further classes can be defined in web.xml with init param UserServices
+    
     // Standard Wrs Servlet: empty serviceName in request
-    services.put("", (Class<? extends ISqlGenerator>)Configuration.getClassoption(Configuration.OPT_CLASSES.WRQ2SQL));
+    services.put("", Wrq2Sql.class);
     
     // Beside the standard Wrs servlet, we allow ISQLGenerators to be called by serviceName
     // initParameter "UserServices" has the form: "svcName1:svcClass1 svcName2:svcClass2"
@@ -126,7 +136,7 @@ public class WrsServlet extends HttpServlet {
         try {
           services.put(serviceDefs[s], Class.forName(serviceDefs[s+1]).asSubclass(ISqlGenerator.class) );
         } catch (Exception e) {
-          log.error("BCD-UI: Wrong defintion of Wrs Service '"+serviceDefs[s]+"' for "+this.getClass().getName());
+          log.error("BCD-UI: Wrong definition of Wrs Service '"+serviceDefs[s]+"' for "+this.getClass().getName());
         }
       }
     }
@@ -137,6 +147,8 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doGet(HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+
+    // Max rows is default or overwritten on user level with SubjectSetting bcdWrs:maxRows
 	  int maxRows = maxRowsDefault;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
@@ -152,7 +164,8 @@ public class WrsServlet extends HttpServlet {
     //
     response.setContentType("text/xml");
     response.setCharacterEncoding("UTF-8");
-    //
+
+    // Read data and stream to client
     IDataWriter dataWriter = null;
     try {
       IRequestOptions options = new HttpRequestOptions(getServletContext(), request, maxRows);
@@ -168,7 +181,7 @@ public class WrsServlet extends HttpServlet {
       //
       // log wrs-access
       WrsAccessLogEvent logEvent = new WrsAccessLogEvent(WrsAccessLogEvent.ACCESS_TYPE_WRS, request, options, generator, loader, dataWriter);
-      virtLoggerAccess.info(logEvent); // was level TRACE
+      virtLoggerAccess.info(logEvent);
     } catch (SocketException e) {
       // no need to log Exception 'Connection reset by peer: socket write error'
       if (e.getMessage().indexOf("Connection reset by peer") < 0)
@@ -210,6 +223,8 @@ public class WrsServlet extends HttpServlet {
    */
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    // Max rows is default or overwritten on user level with SubjectSetting bcdWrs:maxRows
 	  int maxRows = maxRowsDefault;
     try {
       if (SecurityUtils.getSubject() != null && SecurityUtils.getSubject().isAuthenticated()) {
@@ -222,6 +237,8 @@ public class WrsServlet extends HttpServlet {
     if (log.isTraceEnabled()) {
       log.trace(String.format("WRS post url: %s", ServletUtils.getInstance().reconstructURL(request)));
     }
+
+    // Write data into database streamed from client
     IRequestOptions options = new HttpRequestOptions(getServletContext(), request,maxRows);
     XMLEventReader reader;
     try {

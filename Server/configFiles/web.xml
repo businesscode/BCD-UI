@@ -39,9 +39,6 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   -->
-  <listener>
-    <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
-  </listener>
 
   <!-- Security filter for authentication and authorization, see https://shiro.apache.org/configuration.html -->
   <filter>
@@ -346,6 +343,9 @@
   <!-- Session listener for session logging -->
   <listener>
     <listener-class>de.businesscode.bcdui.web.SessionListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
   </listener>
   <!-- Init code for BCD-UI server side components -->
   <listener>

@@ -78,10 +78,10 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   final static public String BCD_SEC_USER_PASSWORD_SALT_BINDINGITEM = "password_salt";
   final static public String BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT      = "password";
   final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT = "password_salt";
-  final static public String BCD_SEC_USER_PASSWORD_COLUMN_CONFIG_NAME       = "bcdSecUserPasswordColumnsName";
-  final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME  = "bcdSecUserPasswordSaltColumnsName";
   private String passwordColumnName     = BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT;
   private String passwordSaltColumnName = BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT;
+  private static String configPasswordColumnName;
+  private static String configPasswordSaltColumnName;
 
   public static final int DEFAULT_HASH_ITERATIONS = 1024;
   private final Logger log = LogManager.getLogger(getClass());
@@ -410,14 +410,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    * @return
    */
   public void setPasswordColumnName(String passwordColumnsName) {
-    Configuration.getInstance().addConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_COLUMN_CONFIG_NAME, passwordColumnsName);
+    JdbcRealm.setConfigPasswordColumnName(passwordColumnsName);
     this.passwordColumnName = passwordColumnsName;
   }
   public String getPasswordColumnName() {
     return this.passwordColumnName;
   }
   public void setPasswordSaltColumnName(String passwordSaltColumnName) {
-    Configuration.getInstance().addConfigurationParameter(JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_CONFIG_NAME, passwordSaltColumnName);
+    JdbcRealm.setConfigPasswordSaltColumnName(passwordSaltColumnName); 
     this.passwordSaltColumnName = passwordSaltColumnName;
   }
   public String getPasswordSaltColumnName() {
@@ -440,6 +440,22 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   private boolean isHashSalted() {
     try { getBindingItem("bcd_sec_user", "password_salt"); } catch (BindingException e) { return false; }
     return true;
+  }
+
+  public static String getConfigPasswordColumnName() {
+    return configPasswordColumnName;
+  }
+
+  public static void setConfigPasswordColumnName(String configPasswordColumnName) {
+    JdbcRealm.configPasswordColumnName = configPasswordColumnName;
+  }
+
+  public static String getConfigPasswordSaltColumnName() {
+    return configPasswordSaltColumnName;
+  }
+
+  public static void setConfigPasswordSaltColumnName(String configPasswordSaltColumnName) {
+    JdbcRealm.configPasswordSaltColumnName = configPasswordSaltColumnName;
   }
 
 }

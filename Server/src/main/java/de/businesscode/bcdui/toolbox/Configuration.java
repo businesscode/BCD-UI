@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -75,19 +75,19 @@ public class Configuration implements ConfigurationProvider {
   // For the optional classes, we determine here, which one to use based on a priority list and a lookup, which class actually is available
   // This serves as our form of dependency injection until we can assume all platforms we run on have CDI
   public static enum OPT_CLASSES {
-    WRQ2SQL,            // Extends de.businesscode.bcdui.wrs.load.Wrq2Sql, has constructor with param: (IRequestOptions)
+    SQLFROMSUBSELECT,   // Extends de.businesscode.bcdui.wrs.load.SqlFromSubSelect, has constructor with param: (WrqQueryBuilder, SqlFromSubSelect parent, Element)
     WRQCALC2SQL,        // Extends de.businesscode.bcdui.wrs.load.WrqCalc2Sql, has constructor with param: (WrqInfo)
     DATASOURCEWRAPPER,  // Implements java.jdbc.DataSource, has constructor with params: (DataSource origDataSource, Boolean alertUnclosedObjects, String dataSourceName)
     BINDINGS,           // Extends de.businesscode.bcdui.binding.Bindings, has constructor with no params
-    SUBJECTSETTINGS2SQL,// Implements de.businesscode.bcdui.wrs.load.SqlConditionGenerator, has constructor with params: (BindingSet bindingSet, WrqInfo wrqInfo, Collection<Element> connectives)
-    VFSRESOURCEPROVIDER, // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default contructor
-    DATABASECOMPATIBILITY // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default contructor
+    SUBJECTSETTINGS2SQL,// Implements de.businesscode.bcdui.wrs.load.SqlConditionGenerator, has constructor with params: (BindingSet bindingSet, WrqInfo wrqInfo, Collection<Element> boundVars, String wrqAlias, String sqlAlias)
+    VFSRESOURCEPROVIDER, // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default constructor
+    DATABASECOMPATIBILITY // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default constructor
   }
   static private final Map<OPT_CLASSES,String[]> optionalClassesPrio;
   static private final Map<OPT_CLASSES,Class<?>> optionalClasses;
   static {
     optionalClassesPrio = new HashMap<OPT_CLASSES, String[]>();
-    optionalClassesPrio.put(OPT_CLASSES.WRQ2SQL,     new String[]{"de.businesscode.bcdui.wrs.load.Wrq2Sql_TopN_Opt", "de.businesscode.bcdui.wrs.load.Wrq2Sql"});
+    optionalClassesPrio.put(OPT_CLASSES.SQLFROMSUBSELECT, new String[]{"de.businesscode.bcdui.wrs.load.Wrq2Sql_TopN_Opt", "de.businesscode.bcdui.wrs.load.SqlFromSubSelect"});
     optionalClassesPrio.put(OPT_CLASSES.WRQCALC2SQL, new String[]{"de.businesscode.bcdui.wrs.load.WrqCalc2Sql_AnalytFct_Opt", "de.businesscode.bcdui.wrs.load.WrqCalc2Sql"});
     optionalClassesPrio.put(OPT_CLASSES.BINDINGS,    new String[]{"de.businesscode.bcdui.binding.BindingsEnterprise", "de.businesscode.bcdui.binding.Bindings"});
     optionalClassesPrio.put(OPT_CLASSES.DATASOURCEWRAPPER, new String[]{"de.businesscode.util.jdbc.wrapper.BcdDataSourceWrapper"});
@@ -157,10 +157,6 @@ public class Configuration implements ConfigurationProvider {
           }
         });
         this.dbProperties.reload();
-      } catch (BindingException be) {
-        if(log.isDebugEnabled()){
-          log.info(BINDING_DB_CONFIG + " BindingSet not found. DbProperties disabled");
-        }
       } catch (Exception e) {
         log.fatal("failed to initialize DbProperties", e);
       }
@@ -326,7 +322,7 @@ public class Configuration implements ConfigurationProvider {
    * @param types to be accepted by constructor
    * @param params the params in exact order as types
    * @return the instance of matched class or null in case no such class could be found
-   * @throws RuntimeException in case the class is missing a constructor accepting given parameters or if the instatiation fails
+   * @throws RuntimeException in case the class is missing a constructor accepting given parameters or if the instantiation fails
    */
   static public <T> T getClassInstance(OPT_CLASSES name, Class<?>[] types, Object... params) throws RuntimeException {
     Class<?> clazz = getClassoption(name);
@@ -334,7 +330,7 @@ public class Configuration implements ConfigurationProvider {
   }
 
   /**
-   * Looks for a <b>public</b> constructor accepting given types and instatiates the class, with given params. in case a class a constructor is missing, this
+   * Looks for a <b>public</b> constructor accepting given types and instantiates the class, with given params. in case a class a constructor is missing, this
    * method throws an exception.
    * 
    * @param clazz
@@ -345,7 +341,7 @@ public class Configuration implements ConfigurationProvider {
    *          the params in exact order as types
    * @return the instance of matched class
    * @throws RuntimeException
-   *           in case the class is missing a constructor accepting given parameters or if the instatiation fails
+   *           in case the class is missing a constructor accepting given parameters or if the instantiation fails
    */
   @SuppressWarnings("unchecked")
   static public <T> T getClassInstance(Class<?> clazz, Class<?>[] types, Object... params) throws RuntimeException {

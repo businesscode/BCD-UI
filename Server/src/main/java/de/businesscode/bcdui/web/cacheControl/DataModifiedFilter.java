@@ -212,7 +212,7 @@ public class DataModifiedFilter implements Filter {
     try {
       BindingSet bs  = Bindings.getInstance().get("bcd_cache_scope", new ArrayList<String>());
       @SuppressWarnings("resource") // is a managed connection
-      Connection con = Configuration.getInstance().getManagedConnection(bs.getDbSourceName());
+      Connection con = Configuration.getInstance().getManagedConnection(bs.getJdbcResourceName());
       
       String sql = new SQLEngine().transform(getSelectSql());
       stmt = con.prepareStatement(sql);

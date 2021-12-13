@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.List;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 
-import de.businesscode.bcdui.binding.BindingSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
  * The generator parses the request document, builds select statement and extracts other information from the input-options
@@ -35,27 +38,21 @@ public interface ISqlGenerator {
   String getDbSourceName();
 
   /**
-   * getRequestedBindingSetName
+   * getRequestedBindingSetNames
+   * the requested bindingSet or bindingGroup names from the request document in the form Map.Entry<BsName,bsAlias>
+   * This because neither the BindingSet nor the alias need to be unique really
    *
-   * @return the requested bindingSet or bindingGroup name from the request document
+   * @return 
    */
-  String getRequestedBindingSetName();
+  Set<Map.Entry<String,String>> getRequestedBindingSetNames();
 
   /**
-   * getSelectedBindingSetName
-   *
-   * @return the really selected BindingSet name
+   * @return the really selected BindingSets
    */
-  String getSelectedBindingSetName();
-  
-  /**
-   * 
-   * @return the really selected BindingSet or null
-   */
-  BindingSet getSelectedBindingSet();
+  Set<StandardBindingSet> getResolvedBindingSets();
 
   /**
-   * @return The list of binding items in the select clause.
+   * @return The list of binding items in the select clause in their order.
    */
   List<WrsBindingItem> getSelectedBindingItems() throws Exception;
 

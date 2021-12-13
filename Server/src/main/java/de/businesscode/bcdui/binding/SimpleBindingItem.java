@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * Base class for BindingItems read from a BindingSet definition
- * See also WrqBindingItem for the analogy used during actual statement 
- *
+ * Base class for BindingItems read from a BindingSet definition or calc:Calc of a Wrs
+ * It becomes member of a (Wrs|Standard)BindingSet
+ * See also WrqBindingItem for the analogy used during actual statement representing the output
  */
 public class SimpleBindingItem {
   public  static final String BCD_NO_TABLE_ALIAS = "bcdNoTableAlias.";
@@ -34,7 +34,6 @@ public class SimpleBindingItem {
   protected String columnExpression;  // if columnQuoting == true, qColumnExpr and columnExpression do contain quotes already
   private boolean columnQuoting = false;
   protected String qColumnExpr;
-  private String tableAliasName;
   private BindingSet bindingSet;
 
   static {
@@ -50,22 +49,9 @@ public class SimpleBindingItem {
     this.columnExpression = src.columnExpression;
     this.columnQuoting = src.columnQuoting;
     this.qColumnExpr = src.qColumnExpr;
-    this.tableAliasName = src.tableAliasName;
     this.bindingSet = src.bindingSet;
   }
 
-  /**
-   *
-   * Constructor
-   *
-   * @param pBindingSet
-   * @param id
-   * @param pColumnExpression
-   * @param columnQuoting
-   */
-  public SimpleBindingItem(BindingSet pBindingSet, String id, String pColumnExpression, boolean columnQuoting) {
-    this(pBindingSet, id, pColumnExpression, columnQuoting, pBindingSet.getAliasName());
-  }
 
   /**
    * Prints an XML representation of the BindingItem.
@@ -88,19 +74,15 @@ public class SimpleBindingItem {
    *
    * @param pBindingSet
    * @param id
-   * @param pColumnExpression
-   *          - true - if item is SQL expression
-   * @param pTableAlias
-   *          - full qualified name
+   * @param pColumnExpression - true - if item is SQL expression
+   * @param columnQuoting
    */
-  public SimpleBindingItem(BindingSet pBindingSet, String id, String pColumnExpression, boolean columnQuoting, String pTableAlias) {
+  public SimpleBindingItem(BindingSet pBindingSet, String id, String pColumnExpression, boolean columnQuoting) {
     this.bindingSet = pBindingSet;
     this.columnExpression = columnQuoting ? "\"" + pColumnExpression + "\"" : pColumnExpression; 
     this.columnQuoting = columnQuoting;
     setId(id);
     setColumnExpression(this.columnExpression);
-    this.tableAliasName = pTableAlias;
-    setQColumnExpression();
   }
 
   /**
@@ -113,33 +95,12 @@ public class SimpleBindingItem {
   }
 
   /**
-   * returns full qualified name of the column like: tableName.columnName
-   *
-   * if the column is a SQLExpression - only column expression
-   *
-   * @return
+   * setBindingSet
    */
-  public String getQColumnExpression() {
-    if (this.qColumnExpr == null)
-      setQColumnExpression();
-
-    return qColumnExpr;
+  public void setBindingSet(BindingSet bindingSet) {
+    this.bindingSet = bindingSet;
   }
 
-  /**
-   * sets qualified name of the binding item if pqColumnExpression is null and bindingItem is not a SQL expression - builds qualified name as follow: bindingSetName.columnExpression
-   *
-   * Method setQColumnExpression
-   *
-   */
-  protected void setQColumnExpression() {
-    String tableAlias;
-    if (this.tableAliasName != null && this.tableAliasName.length() > 0)
-      tableAlias = this.tableAliasName;
-    else
-      tableAlias = this.bindingSet.getAliasName();
-    this.qColumnExpr = calcQColumnExpression(tableAlias);
-  }
 
   /**
    * Helper to merge a table alias into a column expression, which can contain SQL functions etc
@@ -147,12 +108,12 @@ public class SimpleBindingItem {
    * Method calcQColumnExpression
    *
    */
-  public String calcQColumnExpression( String tableAlias )
-  {    
-    return BindingUtils.addTableAlias(getColumnExpression(), columnQuoting, tableAlias, bindingSet);
+  public String getQColumnExpression( String tableAlias )
+  {
+    if( tableAlias==null || tableAlias.isEmpty() ) return getColumnExpression();
+    else return BindingUtils.addTableAlias(getColumnExpression(), columnQuoting, tableAlias, bindingSet);
   }
-   
-  
+
   /**
    * gets column expression
    */
@@ -181,24 +142,6 @@ public class SimpleBindingItem {
    */
   public String getId() {
     return id;
-  }
-
-  /**
-   * getTableAliasName
-   *
-   * @return
-   */
-  public String getTableAliasName() {
-    return tableAliasName;
-  }
-
-  /**
-   * setTableAliasName
-   *
-   * @param pTableAliasName
-   */
-  public void setTableAliasName(String pTableAliasName) {
-    this.tableAliasName = pTableAliasName;
   }
 
   public boolean isColumnQuoting() {

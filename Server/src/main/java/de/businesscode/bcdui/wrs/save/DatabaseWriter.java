@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ public class DatabaseWriter {
   private String getUpdateStatementSQL(boolean exceptKeyCols) {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
-    builder.append(bindingSet.getTableName());
+    builder.append(bindingSet.getTableReference());
     builder.append(" SET ");
     for (int c = 0; c < columns.length; c++) {
       if (exceptKeyCols && isKeyColumn[c])
@@ -143,7 +143,7 @@ public class DatabaseWriter {
       builder.append(column.getColumnExpression());
       if(column.isDefinedJDBCDataType() && column.getJDBCDataType() == Types.OTHER){
         if( "GEOMETRY".equalsIgnoreCase(column.getCustomAttributesMap().get("type-name")) ) {
-          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
           builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]).append(", ");
         } else {
           builder.append("=(?)::" + getCustomDatabaseType(column) + ",");
@@ -170,7 +170,7 @@ public class DatabaseWriter {
         wherePart.append(bi.getColumnExpression());
         if(bi.isDefinedJDBCDataType() && bi.getJDBCDataType() == Types.OTHER){
           if( "GEOMETRY".equalsIgnoreCase(bi.getCustomAttributesMap().get("type-name")) ) {
-            final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+            final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
             builder.append("=").append(fctMapping.get("GeoFromWkt")[0]).append("?").append(fctMapping.get("GeoFromWkt")[2]);
           } else {
             wherePart.append("=(?)::" + getCustomDatabaseType(bi));
@@ -200,7 +200,7 @@ public class DatabaseWriter {
   private String getInsertStatementSQL() {
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO ");
-    builder.append(bindingSet.getTableName());
+    builder.append(bindingSet.getTableReference());
     builder.append(" (");
     String sep = "";
     for (BindingItem column : columns) {
@@ -216,7 +216,7 @@ public class DatabaseWriter {
       BindingItem bItem = columns[i];
       if(bItem.isDefinedJDBCDataType() && bItem.getJDBCDataType() == Types.OTHER) {
         if( "GEOMETRY".equalsIgnoreCase(bItem.getCustomAttributesMap().get("type-name")) ) {
-          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet);
+          final Map<String, String[]> fctMapping = DatabaseCompatibility.getInstance().getSpatialFktMapping(bindingSet.getJdbcResourceName());
           builder.append(fctMapping.get("GeoFromWkt")[0]).append(" ? ").append(fctMapping.get("GeoFromWkt")[2]);
         } else {
           builder.append("(?)::" + getCustomDatabaseType(bItem));
@@ -253,7 +253,7 @@ public class DatabaseWriter {
   private String getDeleteStatementSQL() {
     StringBuilder builder = new StringBuilder();
     builder.append("DELETE FROM ");
-    builder.append(bindingSet.getTableName());
+    builder.append(bindingSet.getTableReference());
     String sep = "";
     StringBuilder wherePart = new StringBuilder();
     for (int i = 0; i < columns.length; ++i) {

@@ -75,7 +75,7 @@
       <xs:enumeration value="bitand"/>
       <xs:enumeration value="spatContains">
         <xs:annotation><xs:documentation>
-          Area of bRef contains param' areaa. Param is expected to be provided as WKT.
+          Area of bRef contains param' area. Param is expected to be provided as WKT.
         </xs:documentation></xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="spatContained">

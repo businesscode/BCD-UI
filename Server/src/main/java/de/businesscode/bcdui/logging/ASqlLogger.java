@@ -149,7 +149,7 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
     try {
       if(DATASOURCE_UNDEF.equals(dataSourceName)) {
         if(Bindings.isInitialized()){
-          dataSourceName = Bindings.getInstance().get(bindingSetId).getDbSourceName();
+          dataSourceName = Bindings.getInstance().get(bindingSetId).getJdbcResourceName();
         }else{
           throw new Exception("calling datasource while Bindings have not initialized yet");
         }

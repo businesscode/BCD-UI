@@ -210,7 +210,7 @@ public class Bindings {
    * @deprecated This getter is deprecated because it prevents the BindingSetGroup feature from being totally transparent to the user.
    */
   @Deprecated
-  public BindingSet get(String bindingSetId) throws BindingException {
+  public StandardBindingSet get(String bindingSetId) throws BindingException {
     Collection<StandardBindingSet> result = getBindingSetUnchecked( bindingSetId );
     if (result == null) {
       throw new BindingSetNotFoundException(bindingSetId);
@@ -238,7 +238,7 @@ public class Bindings {
    * @return
    * @throws BindingException
    */
-  public BindingSet get(String bindingSetId, Collection<String> items) throws BindingException {
+  public StandardBindingSet get(String bindingSetId, Collection<String> items) throws BindingException {
     return get(bindingSetId);
   }
 

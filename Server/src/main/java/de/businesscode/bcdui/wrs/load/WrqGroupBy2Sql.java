@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.w3c.dom.NodeList;
 import de.businesscode.bcdui.wrs.load.WrqGroupBy2Sql.GroupBy.GroupingFct;
 import de.businesscode.bcdui.wrs.load.WrqGroupBy2Sql.GroupBy.GroupingFct.GroupingSet;
 import de.businesscode.util.StandardNamespaceContext;
-import de.businesscode.util.jdbc.DatabaseCompatibility;
 
 /**
  * Parses a wrq:WrsRequest//wrq:Grouping element and returns a sql GROUP BY [GROUPING SET] expression
@@ -41,13 +40,9 @@ public class WrqGroupBy2Sql
   private final WrqInfo wrqInfo;
   private GroupBy groupBy = null;
 
-  public WrqGroupBy2Sql(WrqInfo wrqInfo) throws XPathExpressionException
+  public WrqGroupBy2Sql(WrqInfo wrqInfo)
   {
     this.wrqInfo = wrqInfo;
-  }
-
-  public boolean hasTotals() {
-    return !groupBy.groupingFcts.isEmpty();
   }
 
   /**
@@ -63,35 +58,11 @@ public class WrqGroupBy2Sql
     groupBy = new GroupBy(wrqInfo);
     String sep = "";
 
-    // MySql only knows a custom "WITH ROLLUP" expression appended to GROUP BY. It does not support ANSI GROUPING SETS nor ROLLUP
-    // It is less fine grained that what wrq:Grouping supports, but better than nothing for now
-    if( !groupBy.groupingFcts.isEmpty() && DatabaseCompatibility.getInstance().dbOnlyKnowsWithRollup(wrqInfo.getResultingBindingSet()) ) 
-    {
-      // We need to make sure the group by columns are in the order of the select columns to get the right (sub)totals.
-      // Order matters here, since MySql does not support columns in ROLLUP as ANSI does
-      // The ANSI oriented wrq:Grouping does not tell us the order and may even asked for slightly different (sub)totals
-      // This is the best we can do for now
-      LinkedHashSet<String> selectedBRefs = wrqInfo.getFullSelectListBRefs();
-      for( Iterator<String>bRefIt = selectedBRefs.iterator(); bRefIt.hasNext(); ) {
-        String biId = bRefIt.next();
-        if( wrqInfo.getGroupingBRefs().contains(biId) ) {
-          WrqBindingItem bi = wrqInfo.getAllBRefs().get(biId);
-          sql.append( sep+bi.getQColumnExpression() );
-          sep = ", ";
-        }
-      }
-      if ( sql.length() > 0 ) {
-        return new StringBuffer(" GROUP BY ").append( sql ).append(" WITH ROLLUP ");
-      } 
-
-      return new StringBuffer();
-    }
-
     // ANSI (sub)total calculations
     // Column children are just printed as their column expressions. They become part of each grouping set
     for( Iterator<String> bRefIt = groupBy.bRefs.iterator(); bRefIt.hasNext(); ) {
       WrqBindingItem bi = wrqInfo.getAllBRefs().get(bRefIt.next());
-      if( bi.hasAColumReference() ) { // Complete constant expressions are not allowed in group-by for some databases, skip them here
+      if( bi.hasAColumnReference() ) { // Complete constant expressions are not allowed in group-by for some databases, skip them here
         sql.append( sep+bi.getQColumnExpression() );
         sep = ", "; // From now on, prepend a colon
       }
@@ -109,7 +80,7 @@ public class WrqGroupBy2Sql
       SortedSet<String> sets = new TreeSet<String>();
       for( Iterator<String> bRefIt = groupingFct.bRefs.iterator(); bRefIt.hasNext(); ) {
         WrqBindingItem bi = wrqInfo.getAllBRefs().get(bRefIt.next()); 
-        if( bi.hasAColumReference() )
+        if( bi.hasAColumnReference() )
           sets.add(bi.getQColumnExpression());
       }
 
@@ -121,7 +92,7 @@ public class WrqGroupBy2Sql
           WrqBindingItem bi = wrqInfo.getAllBRefs().get(bRefIt.next());
           if( setColumns.length()>0 )
             setColumns.append(", ");
-          if( bi.hasAColumReference() )
+          if( bi.hasAColumnReference() )
             setColumns.append(bi.getQColumnExpression());
         }
         sets.add(" ( "+setColumns+" ) ");

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
@@ -43,8 +44,8 @@ public class WrqCalc2Sql
   public WrqCalc2Sql( WrqInfo wrqInfo )
   {
     this.wrqInfo = wrqInfo;
-    calcFktMapping = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getResultingBindingSet());
-    aggregationMapping = DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getResultingBindingSet());
+    calcFktMapping = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getJdbcResourceName());
+    aggregationMapping = DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName());
   }
 
   /**
@@ -65,14 +66,13 @@ public class WrqCalc2Sql
   }
 
   /**
-   * Recurses into a wrq:Calc expression and builds a string list as described @see {@link WrqCalc2Sql#getWrqCalcAsSql(WrqInfo, Element, List)}
-   * @param wrqInfo
+   * Recourses into a wrq:Calc expression and builds a string list as described @see
    * @param e
-   * @param sqlList
-   * @param doCastToDecimal
    * @param sql
+   * @param doCastToDecimal
    * @param boundVariables
    * @param isWithinAggr
+   * @param needsAggr
    * @return
    * @throws Exception
    */
@@ -94,9 +94,9 @@ public class WrqCalc2Sql
         if( "Concat".equals(e.getLocalName()) && ! e.getAttribute("separator").isEmpty() ) {
           String stringConcat = calcFktMapping.get("Concat")[2];
           sql.append(stringConcat+"?"+stringConcat); // User defined separators become host vars to prevent sql injection
-          Element seperatorDummy = e.getOwnerDocument().createElement("CalcValueDummy");
-          seperatorDummy.setAttribute("value",e.getAttribute("separator"));
-          boundVariables.add(seperatorDummy);
+          Element separatorDummy = e.getOwnerDocument().createElement("CalcValueDummy");
+          separatorDummy.setAttribute("value",e.getAttribute("separator"));
+          boundVariables.add(separatorDummy);
         } else // otherwise it can be the binary operator or a comma
           sql.append(calcFktMapping.get(e.getLocalName())[2]);
       }
@@ -116,6 +116,7 @@ public class WrqCalc2Sql
       {
         String bRef = child.getAttribute("idRef");
         BindingItem bi = wrqInfo.getNoMetaDataBindingItem(bRef);
+        if( bi== null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
         String aggr = null;
         if( ! isWithinAggr && needsAggr ) { // We need to use the "local" aggr
           aggr = child.getAttribute("aggr").isEmpty() ? wrqInfo.getDefaultAggr(bi) : aggregationMapping.get(child.getAttribute("aggr"));
@@ -145,12 +146,20 @@ public class WrqCalc2Sql
           doCastToDecimal = false; // only the first op needs a cast
         }
         Element calcValueDummy = e.getOwnerDocument().createElement("CalcValueDummy");
-        calcValueDummy.setAttribute("value",child.getTextContent());
+        boolean isNull = child.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "null").getLength() > 0;
+        if( ! isNull ) {
+          calcValueDummy.setAttribute("value",child.getTextContent());
+        }
         calcValueDummy.setAttribute("isInAggr",Boolean.toString(isWithinAggr)); // TODO may not be needed anymore because top-n will never use complex col expr in base table anymore
-        // Let's treat us numeric if w are in a numeric expression. This is important, because at least division needs a clean number for NULLIF
+        // Let's treat us numeric if we are in a numeric expression. This is important, because at least division needs a clean number for NULLIF
         // calcFktMapping[0]=='Y', except for Calc, where it applies only if there are multiple calc:Value children and calc:Add is implicitly applied
         if( "Calc".equals(e.getLocalName()) ) {
-          if( e.getElementsByTagName("*").getLength() > 1 )
+          String jdbcAttr = e.getAttribute(Bindings.jdbcDataTypeNameAttribute);
+          if( ! jdbcAttr.isEmpty() ) {
+            if( Types.class.getField(e.getAttribute(Bindings.jdbcDataTypeNameAttribute)) != null ) {
+              calcValueDummy.setAttribute(Bindings.jdbcDataTypeNameAttribute,jdbcAttr);
+            }
+          } else if( e.getElementsByTagName("*").getLength() > 1 )
             calcValueDummy.setAttribute(Bindings.jdbcDataTypeNameAttribute,"NUMERIC");
         } else {
           if( "Y".equals(calcFktMapping.get(e.getLocalName())[0]) )
@@ -179,13 +188,28 @@ public class WrqCalc2Sql
     return false;
   }
 
-  protected void openOperator(Element e, StringBuffer sql)
+  protected void openOperator(Element e, StringBuffer sql) throws BindingNotFoundException
   {
-    sql.append(calcFktMapping.get(e.getLocalName())[1]);
+    // CastAsBRef depends on an attribute @bRef and this needs special handling here
+    String funcName = e.getLocalName();
+    if( "CastAsBRef".equals(funcName) ) funcName = "CastAsNumeric"; // CastAsNumeric and CastAsVarchar have the same opening
+
+    String[] calcFunc = calcFktMapping.get(funcName);
+
+    sql.append( calcFunc[1] );
   }
 
-  protected void closeOperator(Element e, StringBuffer sql)
+  protected void closeOperator(Element e, StringBuffer sql) throws BindingNotFoundException
   {
-    sql.append(calcFktMapping.get(e.getLocalName())[3]);
+    // CastAsBRef depends on an attribute @bRef and this needs special handling here
+    String funcName = e.getLocalName();
+    if( "CastAsBRef".equals(funcName) ) {
+      String bRef = e.getAttribute("bRef");
+      boolean isNUmeric = wrqInfo.getResultingBindingSet().get(bRef).isNumeric();
+      funcName = isNUmeric ? "CastAsNumeric" : "CastAsVarchar";
+    }
+    String[] calcFunc = calcFktMapping.get(funcName);
+
+    sql.append( calcFunc[3] );
   }
 }

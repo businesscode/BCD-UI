@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,19 +16,22 @@
 package de.businesscode.sqlengine;
 
 import java.io.StringWriter;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.AbstractMap;
+import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.log.NullLogChute;
 
 import de.businesscode.bcdui.binding.BindingItem;
-import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.sqlengine.context.BindingSetContextObject;
 import de.businesscode.sqlengine.context.BindingsContextObject;
 import de.businesscode.sqlengine.context.BindingsLookupContextObject;
@@ -47,8 +50,8 @@ import de.businesscode.sqlengine.context.ParamsContextObject;
  */
 public class SQLEngine {
    private VelocityEngine velocityEngine;
-   private Collection<String> requestedBindingSets = new LinkedList<String>();
-   private Collection<BindingSet> resultingBindingSets = new LinkedList<BindingSet>();
+   private Set<String> requestedBindingSets = new HashSet<String>();
+   private Set<StandardBindingSet> resultingBindingSets = new HashSet<StandardBindingSet>();
    private final List<BindingItem> selectedBindigItemsInOrder = new LinkedList<BindingItem>();
    private final List<BindingItem> allBindigItemsInOrder = new LinkedList<BindingItem>();
 
@@ -83,15 +86,15 @@ public class SQLEngine {
   /**
    * Getter for BindingSets which where chosen base on the BindingSet name and BindingItems
    */
-  public Collection<BindingSet> getResultingBindingSets() {
+  public Set<StandardBindingSet> getResultingBindingSets() {
     return resultingBindingSets;
   }
 
   /**
    * Getter for the BindingSet requested for this sql
    */
-  public String getRequestedBindingSetName() {
-    return requestedBindingSets.iterator().next();
+  public Set<Map.Entry<String,String>> getRequestedBindingSetNames() {
+     return requestedBindingSets.stream().map(bs->new AbstractMap.SimpleImmutableEntry<>(bs, "")).collect(Collectors.toSet());
   }
 
   /**
@@ -168,8 +171,8 @@ public class SQLEngine {
       Map<String, BindingSetContextObject> bindingMap = bindingsContextObject.getUsedBindings();
       bindingMap.keySet().stream().forEach( requestedBindingSets::add );
       bindingMap.values().stream().map( p->p.getBindingSet() ).forEach( resultingBindingSets::add );
-      bindingMap.values().stream().map( p->p.getSelectedBindigItemsInOrder() ).flatMap( l->l.stream() ).forEach( selectedBindigItemsInOrder::add );
-      bindingMap.values().stream().map( p->p.getAllBindigItemsInOrder() ).flatMap( l->l.stream() ).forEach( allBindigItemsInOrder::add );
+      bindingMap.values().stream().map( p->p.getSelectedBindingItemsInOrder() ).flatMap(l->l.stream() ).forEach( selectedBindigItemsInOrder::add );
+      bindingMap.values().stream().map( p->p.getAllBindingItemsInOrder() ).flatMap(l->l.stream() ).forEach( allBindigItemsInOrder::add );
 
       return result.toString();
    }

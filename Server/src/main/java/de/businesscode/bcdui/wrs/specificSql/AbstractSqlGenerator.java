@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,12 +18,15 @@ package de.businesscode.bcdui.wrs.specificSql;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.wrs.load.BindingItemWithMetaData;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
@@ -37,9 +40,9 @@ import de.businesscode.sqlengine.SQLEngine;
 abstract public class AbstractSqlGenerator implements ISqlGenerator
 {
   protected String convertedSql;
-  protected String requestedBindingSetName;
+  protected Set<Map.Entry<String,String>> requestedBindingSetNames;
   protected List<WrsBindingItem> selectedBindingItems = new LinkedList<WrsBindingItem>();
-  protected BindingSet resultingBindingSet;
+  protected Set<StandardBindingSet> resultingBindingSets;
   protected SQLStatementWithParams selectStatementWithParams;
   protected List<Element> parameters;
 
@@ -53,35 +56,30 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
     SQLEngine sqlE = new SQLEngine();
     this.parameters = parameters;
     convertedSql   = sqlE.transform( sql );
-    requestedBindingSetName = sqlE.getRequestedBindingSetName();
+    requestedBindingSetNames = sqlE.getRequestedBindingSetNames();
 
     // Derive information needed for ISqlGenerator getter
     // Per default, each BindingItem mentioned in the sql is assumed to be selected
     int colNr = 1;
-    Iterator<BindingItem> usedBindigItemsInOrderIt = sqlE.getSelectedBindigItemsInOrder().iterator();
-    while( usedBindigItemsInOrderIt.hasNext() ) {
-      BindingItemWithMetaData bi = new BindingItemWithMetaData( usedBindigItemsInOrderIt.next(), null, null);
+    Iterator<BindingItem> usedBindingItemsInOrderIt = sqlE.getSelectedBindigItemsInOrder().iterator();
+    while( usedBindingItemsInOrderIt.hasNext() ) {
+      BindingItemWithMetaData bi = new BindingItemWithMetaData( usedBindingItemsInOrderIt.next(), null, null);
       bi.setColumnNumber(colNr++);
       selectedBindingItems.add( bi );
     }
-    resultingBindingSet = sqlE.getResultingBindingSets().iterator().next();
-    resultingBindingSet.assurePermitted(SECURITY_OPS.read);
-    selectStatementWithParams = new SQLStatementWithParams( convertedSql, parameters, resultingBindingSet);
+    resultingBindingSets = sqlE.getResultingBindingSets();
+    for( BindingSet bs: resultingBindingSets ) bs.assurePermitted(SECURITY_OPS.read);
+    selectStatementWithParams = new SQLStatementWithParams( convertedSql, parameters, resultingBindingSets.iterator().next());
   }
   
   @Override
   public String getDbSourceName() {
-    return resultingBindingSet.getDbSourceName();
+    return resultingBindingSets.iterator().next().getJdbcResourceName();
   }
 
   @Override
-  public String getSelectedBindingSetName() {
-    return resultingBindingSet.getName();
-  }
-
-  @Override
-  public BindingSet getSelectedBindingSet() {
-    return resultingBindingSet;
+  public Set<StandardBindingSet> getResolvedBindingSets() {
+    return resultingBindingSets;
   }
 
   @Override
@@ -89,6 +87,12 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
     return selectedBindingItems;
   }
 
+  @Override
+  public Set<Map.Entry<String,String>> getRequestedBindingSetNames() {
+    return requestedBindingSetNames;
+  }
+
+  
   @Override
   public int getStartRow() {
     return 0;
@@ -102,11 +106,6 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
   @Override
   public SQLStatementWithParams getSelectStatement() {
     return selectStatementWithParams;
-  }
-
-  @Override
-  public String getRequestedBindingSetName() {
-    return requestedBindingSetName;
   }
   
   @Override

@@ -50,6 +50,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  */
 public class DbProperties {
   private final Logger log = LogManager.getLogger(getClass());
+  private static final String BINDING_DB_CONFIG    = "bcd_db_properties";
 
   public static interface Listener {
     /**
@@ -106,15 +107,23 @@ public class DbProperties {
   public DbProperties(String bindingSetId, int refreshCycleSec) throws BindingException {
     super();
     this.bindingSetId = bindingSetId;
+    this.refreshCycleSec = refreshCycleSec;
+    this.TPL_SQL_SELECT = "#set($b = $bindings." + bindingSetId + ") SELECT $b.scope-,$b.name-,$b.type-,$b.value- FROM $b.plainTableName";
     try {
-      this.dataSourceName = Bindings.getInstance().get(bindingSetId).getDbSourceName();
+      // if no dbProperties binding is available, silently quit
+      if (! Bindings.getInstance().hasBindingSet(bindingSetId)) {
+        if(log.isDebugEnabled()){
+          log.info(BINDING_DB_CONFIG + " BindingSet not found. DbProperties disabled");
+        }
+        this.dataSourceName = "";
+        return;
+      }
+      this.dataSourceName = Bindings.getInstance().get(bindingSetId).getJdbcResourceName();
     } catch (BindingException be) {
       throw be;
     } catch (Exception e) {
       throw new RuntimeException("failed to obtain data source", e);
     }
-    this.refreshCycleSec = refreshCycleSec;
-    this.TPL_SQL_SELECT = "#set($b = $bindings." + bindingSetId + ") SELECT $b.scope-,$b.name-,$b.type-,$b.value- FROM $b.plainTableName";
 
     if(log.isDebugEnabled()){
       log.debug("init on binding-set " + bindingSetId + " with refresh cycle (sec) " + refreshCycleSec);

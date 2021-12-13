@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,12 +57,12 @@ public class Condition {
    * @return
    * @throws BindingNotFoundException
    */
-  public String getConditionStatement( String prepareCaseExpressionForAlias) throws BindingException {
+  public String getConditionStatement( String mainTableAlias, boolean isForJoinToCaseWhen ) throws BindingException {
+    // Maybe it is overwritten with conditionStatement.
     if (conditionStatement == null) {
-      conditionStatement = getConstraint().getConstrainedStatement( prepareCaseExpressionForAlias);
+      return getConstraint().getConstrainedStatement( mainTableAlias, isForJoinToCaseWhen );
     }
     return conditionStatement;
-
   }
 
   /**

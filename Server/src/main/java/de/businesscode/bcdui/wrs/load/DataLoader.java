@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.util.jdbc.Closer;
 
 /**
- * This algorithmus <br>
+ * This algorithms <br>
  * reads input from input options, <br>
  * uses generator to interpret the options (generate SQL), <br>
  * executes sql and <br>
@@ -110,8 +110,7 @@ public class DataLoader {
   }
 
   /**
-   * @param executeDuration
-   *          the executeDuration to set
+   * @param duration the executeDuration to set
    */
   private void setExecuteDuration(long duration) {
     this.executeDuration = duration;
@@ -169,8 +168,13 @@ public class DataLoader {
     for (String value : stmData.getFilterValues()) {
       BindingItem bindingItem = bindingItemIt.next();
       ++i;
-      // log.trace("Setting parameter " + i + " with datatype " + bindingItem.getJDBCDataTypeName() + " to " + value);
       int dataType = bindingItem!=null ? bindingItem.getJDBCDataType() : Types.VARCHAR;
+      if( value.isEmpty() 
+          && stmData.getFilterItems().get(i) != null
+          && !stmData.getFilterItems().get(i).hasAttribute("value") ) {
+        statement.setNull(i, dataType);
+        continue;
+      }
       switch( dataType ) {
         case Types.VARCHAR: // Frequent cases
         case Types.CHAR:
@@ -193,7 +197,7 @@ public class DataLoader {
         case Types.BIGINT:
         case Types.SMALLINT:
         case Types.TINYINT:
-          statement.setInt(i, new Integer(value));
+          statement.setInt(i, Integer.parseInt(value));
           break;
         default:
           statement.setString(i, value);
@@ -219,7 +223,7 @@ public class DataLoader {
         log.trace("Got connection. dbSourceName=" + (dbSourceName == null ? "<default>" : dbSourceName));
       }
       else {
-        throw new Exception("Canot find connection. dbSourceName=" + (dbSourceName == null ? "<default>" : dbSourceName));
+        throw new Exception("Cannot find connection. dbSourceName=" + (dbSourceName == null ? "<default>" : dbSourceName));
       }
       //
       PreparedStatement statement = null;
@@ -250,7 +254,6 @@ public class DataLoader {
           log.trace("Max rows:" + maxRows);
         }
         //
-        // TODO start row - here or in sql generator
         // TODO binding set version - see de.businesscode.soa.model.webRowSet.load.LoadXML.init(HttpServletRequest, String, String)
         //
         long timeBefore = System.currentTimeMillis();

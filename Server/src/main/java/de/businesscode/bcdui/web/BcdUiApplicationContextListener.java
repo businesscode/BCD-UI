@@ -30,7 +30,6 @@ import org.apache.shiro.util.ThreadState;
 import org.apache.shiro.web.env.WebEnvironment;
 import org.apache.shiro.web.util.WebUtils;
 
-import de.businesscode.bcdui.binding.BindingAliasMap;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.cache.CacheFactory;
@@ -76,8 +75,6 @@ public class BcdUiApplicationContextListener implements ServletContextListener
     SingletonHolder.clear();
     log.debug("clearing Bindings");
     Bindings.clear();
-    log.debug("clearing BidingAliasMap");
-    BindingAliasMap.clear();
     log.debug("clearing DatabaseCompatibility");
     DatabaseCompatibility.clear();
   }

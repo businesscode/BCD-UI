@@ -15,292 +15,130 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
+import java.io.StringReader;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.xml.xpath.XPathExpressionException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
-import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.toolbox.Configuration;
-import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
+import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.wrs.IRequestOptions;
+import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
- * Takes a Wrq and generates SQL from it together with the bound variables, ready to be executed
- * One instance of this class only handles one Wrq
- * TODO Features
- *  Fix issue with dummy- bRef for wrq:C[wrq:Calc]
- *  Allow Pagination and TOP-N at the same time
- *  Allow wrq:Calc in order-by, grouping
- *  Allow @aggr=none and not wrq:Calc in top-n (for UDF), fails now because cannot be separated into non-aggr and aggr part
+ * Takes a Wrq and generates SQL from it
  */
 public class Wrq2Sql implements ISqlGenerator
 {
-  protected final IRequestOptions options;              // Everything about the request
-  protected final WrqInfo wrqInfo;                      // Encapsulating knowledge about the Wrq itself
-  protected final WrsPagination pagination;             // Server side pagination
-  protected final BindingSet resultingBindingSet;       // Actually chosen BindingSet
-  private final Class<?> sqlConditionGeneratorClass;    // optional implementation class of generator, may be null
-
-  // Result of our work. The SQL statement as string plus the bound values for the prepared statement
-  private SQLStatementWithParams selectStatement;
-
-  private WrqGroupBy2Sql wrqGroupBy2Sql = null;
-
+  protected final Bindings bindings;         // We are not using Bindings.getInstance() to allow running in a batch program
+  protected int rowStart = 0;
+  protected int effectiveMaxRows = -1;
+  protected WrqQueryBuilder wrqQueryBuilder;
+  protected final Document requestDoc;
+  
+  // Stylesheet for Grouping Set conversion
+  protected static String wrqTransformGrs2UnionXsltStatic;
+  static {
+    try {
+      wrqTransformGrs2UnionXsltStatic = IOUtils.toString(Wrq2Sql.class.getResourceAsStream("wrqTransformGrs2Union.xslt"), "UTF-8");
+    } catch (Throwable e) {
+      LogManager.getLogger(Wrq2Sql.class).fatal("wrqTransformGrs2Union.xslt not found");
+    }
+  }
+  
   /**
-   * We are initialized for each Wrq request
+   * We are initialized for each wrq:WrqRequest.
    * @param options
-   * @throws Exception
    */
   public Wrq2Sql(IRequestOptions options)
       throws Exception
   {
     super();
-    this.options = options;
-    wrqInfo = new WrqInfo( options.getRequestDoc(), options.getBindings() );
-
-    if( wrqInfo.isEmpty() ) {
-      resultingBindingSet = null;
-      pagination = null;
-      sqlConditionGeneratorClass = null;
+    bindings = options.getBindings();
+    
+    // Is it an empty request?
+    Document requestDoc = options.getRequestDoc();
+    this.requestDoc = requestDoc;
+    if( requestDoc == null
+        || requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select").getLength() == 0
+        || requestDoc.getDocumentElement() == null
+        || requestDoc.getDocumentElement().getFirstChild() == null ) {
       return;
     }
-
-    // Determine effective BindingSet
-    // No bRef requested at all
-    if( wrqInfo.getAllRawBRefs().isEmpty() ) {
-      // It is ok here to use the binding-group-unaware get(), because we do not have a list of requested binding items in this case
-      resultingBindingSet = options.getBindings().get(wrqInfo.getBindingSetId());
-      if( !resultingBindingSet.isAllowSelectAllColumns() )
-        throw new RuntimeException("The BindingSet " + wrqInfo.getBindingSetId() +" requires list of bindings items in Select clause");
-    }
-    // Somewhere in the request are bRefs mentioned
-    else {
-      resultingBindingSet = options.getBindings().get(wrqInfo.getBindingSetId(),  wrqInfo.getAllRawBRefs());
+    
+    // Special case for backward compatibility of behavior:
+    // If we have a) a single Select in Wrq and it has b) rowEnd and c) no rowStart, we handle that when streaming the result, not in SQL
+    effectiveMaxRows = options.getMaxRows();
+    NodeList selectElems = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select");
+    if( selectElems.getLength() == 1                                            // If multiple, it is handles in SQL for each SELECT
+        && ( ((Element)selectElems.item(0)).getAttribute("rowStart").isEmpty()  // If rowStart is given (and > 1), it is handled in SQL
+              || Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowStart")) <= 1 )
+        && !((Element)selectElems.item(0)).getAttribute("rowEnd").isEmpty() ) {
+      effectiveMaxRows = Math.min( Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowEnd") ), effectiveMaxRows );
     }
 
-    // for client sided calls, check read security 
-    Subject subject = SecurityUtils.getSubject();
-    if (subject != null && WebUtils.isHttp(subject))
-      resultingBindingSet.assurePermitted(SECURITY_OPS.read);
-
-    sqlConditionGeneratorClass = Configuration.getClassoption(OPT_CLASSES.SUBJECTSETTINGS2SQL);
-    pagination      = new WrsPagination( wrqInfo, resultingBindingSet );
-  }
-
-
-  /**
-   * @see de.businesscode.bcdui.wrs.load.ISqlGenerator#getSelectStatement()
-   */
-  public SQLStatementWithParams getSelectStatement()
-  {
-    if (selectStatement == null && ! wrqInfo.isEmpty() ) { // No requestDocRoot indicates empty request -> return null
-      try {
-        if( pagination.isAvailable() )
-          selectStatement = pagination.generateStatementWithPagination( this );
-        else
-          selectStatement = generateStatement();
+    // This is modifying the Wrq when it uses Grouping SETs but they are not supported by the current database
+    try {
+      // We need the database source to clarify which database dialect to apply
+      // We just take the one from the first non-virtual BindingSet we find
+      Element firstBindingSet = (Element)requestDoc.getDocumentElement().getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet").item(0);
+      BindingSet firstSbs = bindings.get(firstBindingSet.getFirstChild().getTextContent().trim(), Collections.emptySet());
+      String jdbcResourceName = firstSbs.getJdbcResourceName();
+      
+      // Here we implement a work-around for GROUPING SETs and convert them into GROUP BY with UNION
+      // And we convert @rowStart and @rowEnd into a subselect with limit on ROW_NUMBER if @rowStart > 1
+      boolean wrqHasGroupingSets = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "GroupingSets").getLength() > 0;
+      boolean dbSupportsGroupingSets = DatabaseCompatibility.getInstance().dbSupportsGroupingSets(jdbcResourceName);
+      if( wrqHasGroupingSets && !dbSupportsGroupingSets ) {
+        DOMSource source = new DOMSource(requestDoc.getDocumentElement());
+        StreamSource styleSource = new StreamSource(new StringReader(wrqTransformGrs2UnionXsltStatic) );
+        Transformer transformer = SecureXmlFactory.newTransformerFactory().newTransformer(styleSource);
+        DOMResult result = new DOMResult();
+        transformer.transform(source, result);
+        requestDoc = (Document)result.getNode();
       }
-      catch (Exception e) {
-        throw new RuntimeException("Unable to generate select statement.", e);
-      }
+
+    } catch(Exception e) {
+      throw new RuntimeException("Unable to generate select statement.", e);
     }
-    return selectStatement;
-  }
-
-
-  /**
-   *
-   * @return
-   * @throws Exception
-   */
-  protected SQLStatementWithParams generateStatement() throws Exception
-  {
-    StringBuffer sql = new StringBuffer();
-    final List<Element> boundVariables = new LinkedList<Element>(); // All the host variables in correct order (same as ? in generated statement), may be from wrq:Calc or f:Filter
-
-    sql.append( generateSelectClause( boundVariables ) );
-    sql.append( generateFromClause() );
-    sql.append( generateWhereClause( boundVariables ) );
-    sql.append( generateGroupingClause(boundVariables) );
-    sql.append( generateHavingClause(boundVariables) );
-    // If the database does not allow ORDER BY together with ROLLUP and so on, we silently skip it.
-    // This only affects MySql, far from perfect but needs to be enough for know
-    if( !wrqGroupBy2Sql.hasTotals() || !DatabaseCompatibility.getInstance().dbOnlyKnowsWithRollup(resultingBindingSet) )
-      sql.append( generateOrderClause(boundVariables) );
-
-    return new SQLStatementWithParams(sql.toString(), boundVariables, resultingBindingSet);
-  }
-
-
-  /**
-   * Generates 'SELECT ' plus the select list
-   * @return
-   */
-  protected StringBuffer generateSelectClause( List<Element> boundVariables )
-  {
-    StringBuffer sql = new StringBuffer();
-    sql.append("SELECT ");
-    Iterator<String> it = wrqInfo.getFullSelectListBRefs().iterator();
-    String concat="";
-    while( it.hasNext() )
-    {
-      WrqBindingItem bi = wrqInfo.getAllBRefAggrs().get(it.next());
-      sql.append(concat);
-      // We may want to not calculate this value if another bRef part of Grouping Set is on (sub)total level
-      // Typical case is the caption. It could be part of the Grouping Set itself but this keeps the query simpler, see scorecard
-      if( wrqInfo.reqHasGroupingFunction() && wrqInfo.getGroupingBRefs().contains(bi.getSkipForTotals()) ) {
-        String[] grpFM = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqInfo.getResultingBindingSet()).get("Grouping");
-        WrqBindingItem sftBi = wrqInfo.getAllBRefs().get(bi.getSkipForTotals());
-        sql.append("CASE WHEN ").append(grpFM[1]).append(sftBi.getQColumnExpression()).append(grpFM[3]).append(" = 0 THEN ");
-        sql.append(bi.getQColumnExpressionWithAggr()).append(" END ");
-      } else
-        sql.append(bi.getQColumnExpressionWithAggr()).append(" ");
-      sql.append( bi.getAlias() );
-      concat = ", ";
-      boundVariables.addAll( bi.getBoundVariables() );
+    
+    wrqQueryBuilder = new WrqQueryBuilder(this, bindings, requestDoc.getDocumentElement());
+    
+    // Are we allowed to real all used BindingSets? Will throw otherwise
+    if( WebUtils.isHttp(SecurityUtils.getSubject()) ) {
+      wrqQueryBuilder.assurePermittedOnAllResolvedBindingSets(SECURITY_OPS.read);
     }
-    return sql;
   }
 
-
-  /**
-   * Generates 'FROM' and the tables with their join expression
-   */
-  protected StringBuffer generateFromClause() throws BindingException
-  {
-    StringBuffer sql = new StringBuffer();
-    sql.append(" FROM ");
-    Set<String> enrichedBRefs = new HashSet<String>(wrqInfo.getAllRawBRefs());
-
-    // There may be some bRefs mentioned in the selected BindingSet, which we need here
-    // the determination of that BindingSet is independent of this, because they come from that BindingSet
-    // By adding them here we make sure any potentially needed join containing these is part of the access
-    // add possible missing subject filter bRef to add missing joins
-    // can only be done here since subject filter bRefs are only known after binding parsing
-    // If the user has any-right "*" for a SubjectFilter, we do not need any join
-    // only effective, if sqlConditionGeneratorClass is available
-    if (sqlConditionGeneratorClass != null && resultingBindingSet.hasSubjectFilters()) {
-      resultingBindingSet.getSubjectFilters().enrichBindingItems(enrichedBRefs);
+  @Override
+  public SQLStatementWithParams getSelectStatement() {
+    if( wrqQueryBuilder != null ) {
+      return wrqQueryBuilder.getSelectStatement();
+    } else {
+      return null;
     }
-
-    sql.append(resultingBindingSet.getTableName(enrichedBRefs));
-    return sql;
-  }
-
-
-  /**
-   * Generates 'WHERE ' plus the filter
-   * @return
-   * @throws XPathExpressionException
-   * @throws BindingException
-   */
-  protected StringBuffer generateWhereClause( List<Element> boundVariables ) throws XPathExpressionException, BindingException
-  {
-    StringBuffer sql = new StringBuffer();
-
-    if( pagination.isMetaDataRequest() ) {
-      sql.append(" WHERE 1=0 ");
-      return sql;
-    }
-
-    WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo, wrqInfo.getFilterNode(), false);
-    String filterClause = wrqFilter2Sql.getAsSql( boundVariables );
-    String subjectSettingsClause = "";
-
-    // Now we determine the where-clause part driven by the SubjectSettings
-    if(sqlConditionGeneratorClass != null && resultingBindingSet.hasSubjectFilters()){
-
-      // only add possible subject settings clause for client sided calls
-      Subject subject = SecurityUtils.getSubject();
-      if (WebUtils.isHttp(subject)) {
-        SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, new Class<?>[]{BindingSet.class, WrqInfo.class, List.class}, resultingBindingSet, wrqInfo, boundVariables);
-        subjectSettingsClause = sqlConditionGen.getCondition();
-        if (subjectSettingsClause == null){
-          subjectSettingsClause = "";
-        }
-      }
-    }
-
-    // Now combine the two restrictions (Filter and SubjectSettings) into one WHERE clause
-    if( ! filterClause.isEmpty() || ! subjectSettingsClause.isEmpty() )
-      sql.append(" WHERE ");
-    if( ! filterClause.isEmpty() )
-      sql.append("( "+filterClause+" )");
-    if( ! filterClause.isEmpty() && ! subjectSettingsClause.isEmpty() )
-      sql.append(" AND ");
-    if( ! subjectSettingsClause.isEmpty() )
-      sql.append("( "+subjectSettingsClause+" )");
-
-    return sql;
-  }
-
-
-  /**
-   * Generates Grouping clause
-   * @return
-   * @throws Exception
-   */
-  protected StringBuffer generateGroupingClause(List<Element> boundVariables) throws Exception
-  {
-    wrqGroupBy2Sql = new WrqGroupBy2Sql( wrqInfo );
-    return wrqGroupBy2Sql.generateGroupingClause(boundVariables);
-  }
-
-  /**
-   * Generates Having SQL clause
-   * @param boundVariables
-   * @return
-   * @throws XPathExpressionException
-   * @throws BindingException
-   */
-  protected StringBuffer generateHavingClause( List<Element> boundVariables ) throws XPathExpressionException, BindingException
-  {
-    StringBuffer sql = new StringBuffer();
-    WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo, wrqInfo.getHavingNode(), true);
-    String filterClause = wrqFilter2Sql.getAsSql( boundVariables );
-    if( !filterClause.isEmpty() )
-      sql.append(" HAVING ").append( filterClause );
-    return sql;
-  }
-
-  /**
-   * Generates Order-By clause
-   * @return
-   */
-  protected StringBuffer generateOrderClause(List<Element> boundVariables)
-  {
-    StringBuffer sql = new StringBuffer();
-
-    Iterator<String> it = wrqInfo.getOrderingBRefs().iterator();
-    int i = 0;
-    DatabaseCompatibility dbCompat = DatabaseCompatibility.getInstance();
-    while( it.hasNext() ) {
-      String bRef = it.next();
-      WrqBindingItem item = wrqInfo.getAllBRefAggrs().get(bRef);
-
-      if (++i == 1)
-        sql.append(" ORDER BY ");
-      else
-        sql.append(", ");
-
-      int bind = dbCompat.dbOrderByNullsLast(resultingBindingSet, item.getQColumnExpressionWithAggr(), item.isOrderByDescending(), sql );
-      for( ; bind > 0; bind-- )
-        boundVariables.addAll( item.getBoundVariables() );
-    }
-
-    return sql;
   }
 
   /*
@@ -308,42 +146,43 @@ public class Wrq2Sql implements ISqlGenerator
    */
   @Override
   public String getDbSourceName() {
-    return resultingBindingSet.getDbSourceName();
+    return wrqQueryBuilder.getJdbcResourceName();
+  }
+  /**
+   * This is the binding sets / groups named in the Wrq
+   * @see de.businesscode.bcdui.wrs.load.ISqlGenerator#getRequestedBindingSetNames()
+   */
+  public Set<Map.Entry<String,String>> getRequestedBindingSetNames() {
+    HashSet<Entry<String, String>> requestedBindingSets = new HashSet<Map.Entry<String,String>>();
+    if( requestDoc!=null ) {
+      NodeList bsNl = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet");
+      for( int n=0; n<bsNl.getLength(); n++ ) requestedBindingSets.add( new AbstractMap.SimpleImmutableEntry<>(bsNl.item(n).getTextContent(), ((Element)bsNl.item(n)).getAttribute("alias")) );
+    }
+    return requestedBindingSets;
   }
   @Override
-  public String getRequestedBindingSetName() {
-    return wrqInfo.getRequestedBindingSetName();
+  public Set<StandardBindingSet> getResolvedBindingSets() {
+    if( wrqQueryBuilder != null ) return wrqQueryBuilder.getResolvedBindingSets();
+    else return new HashSet<>();
   }
   @Override
-  public String getSelectedBindingSetName() {
-    return resultingBindingSet==null ? "[Empty]" : resultingBindingSet.getName();
-  }
-  @Override
-  public LinkedList<WrsBindingItem> getSelectedBindingItems()
-      throws Exception
+  public List<WrsBindingItem> getSelectedBindingItems() throws Exception
   {
-    return wrqInfo.getWrsCOnlySelectListBRefs();
+    if( wrqQueryBuilder != null ) return wrqQueryBuilder.getSelectedBindingItems();
+    else return new LinkedList<>();
   }
   @Override
   public int getStartRow() {
-    return wrqInfo.getStartRow();
+    return rowStart;
   }
   @Override
   public int getMaxRows()
   {
-    if(pagination.getEnd() > 0 &&  options.getMaxRows() > 0 )
-      return Math.min(pagination.getEnd(), options.getMaxRows()); // Use the lower limit
-    else
-      return Math.max(pagination.getEnd(), options.getMaxRows()); // Only one is given
+    return effectiveMaxRows;
   }
   @Override
   public boolean isEmpty() {
     return (getSelectStatement() == null);
-  }
-
-  @Override
-  public BindingSet getSelectedBindingSet() {
-    return resultingBindingSet;
   }
 
 }
