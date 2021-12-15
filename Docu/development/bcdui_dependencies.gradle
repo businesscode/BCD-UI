@@ -47,8 +47,8 @@ dependencies {
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
   implementation ('javax.servlet:jstl:1.2') { transitive = false }
-  implementation ('org.apache.logging.log4j:log4j-api:2.15.0') { transitive = false }
-  implementation ('org.apache.logging.log4j:log4j-core:2.15.0') { transitive = false }
+  implementation ('org.apache.logging.log4j:log4j-api:2.16.0') { transitive = false }
+  implementation ('org.apache.logging.log4j:log4j-core:2.16.0') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
   implementation ('com.opencsv:opencsv:5.4') { transitive = false }
   implementation ('org.apache.poi:poi:4.1.2') { transitive = false }
@@ -80,8 +80,8 @@ dependencies {
   // Additionally needed only during runtime
   runtimeOnly ('commons-beanutils:commons-beanutils:1.9.4') { transitive = false }
   runtimeOnly ('org.slf4j:slf4j-api:1.7.30') { transitive = false } // is needed by Tomcat, for example
-  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.15.0') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
-  runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.15.0') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
+  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.16.0') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
+  runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.16.0') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
   runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
   runtimeOnly ('org.apache.commons:commons-compress:1.20') { transitive = false } // needed by poi
 
