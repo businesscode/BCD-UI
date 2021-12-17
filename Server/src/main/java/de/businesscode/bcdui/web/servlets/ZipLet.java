@@ -64,7 +64,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -224,7 +223,7 @@ public class ZipLet extends HttpServlet {
         writer.close();
       } else {
         Document doc = decodeAndDecompressToXML(request.getParameter("data"), request);
-        TransformerFactory.newInstance().newTransformer().transform(
+        SecureXmlFactory.newTransformerFactory().newTransformer().transform(
             new DOMSource(doc),
             new StreamResult(response.getWriter()));
       }
@@ -280,7 +279,7 @@ public class ZipLet extends HttpServlet {
    */
   public static String compressAndEncode(Document doc) throws Exception {
     StringWriter result = new StringWriter();
-    TransformerFactory.newInstance().newTransformer().transform(
+    SecureXmlFactory.newTransformerFactory().newTransformer().transform(
         new DOMSource(doc),
         new StreamResult(result));
     return compress(result.toString());
