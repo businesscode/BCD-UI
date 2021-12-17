@@ -27,7 +27,6 @@ import java.util.Map;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathExpressionException;
@@ -48,6 +47,7 @@ import de.businesscode.bcdui.binding.rel.Relation;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.util.jdbc.Closer;
 import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * This class is used to convert suitable bnd:Relation nodes from a BindingSet to CASE expressions.
@@ -110,7 +110,7 @@ public class CaseWhenFromRel extends ReadBindingSet {
                   bindingDoc.getDocumentElement().setAttribute( "isGenerated", "true");
 
                   // Insert the original Relation node as a comment into the BindingSet.
-                  Transformer t = TransformerFactory.newInstance().newTransformer();
+                  Transformer t = SecureXmlFactory.newTransformerFactory().newTransformer();
                   t.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
                   StringWriter sw = new StringWriter();
                   t.transform( new DOMSource( relations.item( i)), new StreamResult( sw));
