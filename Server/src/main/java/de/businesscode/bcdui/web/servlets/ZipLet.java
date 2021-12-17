@@ -220,9 +220,7 @@ public class ZipLet extends HttpServlet {
         writer.close();
       } else {
         Document doc = decodeAndDecompressToXML(request.getParameter("data"), request);
-        TransformerFactory factory = TransformerFactory.newInstance();
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.newTransformer().transform(
+        TransformerFactory.newInstance().newTransformer().transform(
             new DOMSource(doc),
             new StreamResult(response.getWriter()));
       }
@@ -278,9 +276,7 @@ public class ZipLet extends HttpServlet {
    */
   public static String compressAndEncode(Document doc) throws Exception {
     StringWriter result = new StringWriter();
-    TransformerFactory factory = TransformerFactory.newInstance();
-    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    factory.newTransformer().transform(
+    TransformerFactory.newInstance().newTransformer().transform(
         new DOMSource(doc),
         new StreamResult(result));
     return compress(result.toString());

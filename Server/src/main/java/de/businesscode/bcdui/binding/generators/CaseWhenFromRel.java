@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2017 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -111,9 +110,7 @@ public class CaseWhenFromRel extends ReadBindingSet {
                   bindingDoc.getDocumentElement().setAttribute( "isGenerated", "true");
 
                   // Insert the original Relation node as a comment into the BindingSet.
-                  TransformerFactory factory = TransformerFactory.newInstance();
-                  factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                  Transformer t = factory.newTransformer();
+                  Transformer t = TransformerFactory.newInstance().newTransformer();
                   t.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
                   StringWriter sw = new StringWriter();
                   t.transform( new DOMSource( relations.item( i)), new StreamResult( sw));
