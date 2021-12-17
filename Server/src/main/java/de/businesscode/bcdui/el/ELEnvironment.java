@@ -45,10 +45,6 @@ public class ELEnvironment {
   public ELEnvironment(HttpServletRequest request) throws Exception {
     factory = (ExpressionFactory) Class.forName(EXPRESSION_FACTORY_NAME).getConstructors()[0].newInstance();
     context = new StandardELContext("webpage", Functions.class);
-    if (request != null) {
-      setVariable("request", request);
-      setVariable("session", request.getSession(false));
-    }
   }
 
   public ELEnvironment(String prefix, Class<?> staticFunctionProvider) throws Exception {
