@@ -292,11 +292,21 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       }
       subjectSettingsClause.append("(");
       if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
-        // resolve inline
-        subjectSettingsClause.append(columnExpression + " in (");
-        // replace possible ' by space and wrap into ' and enumerate
-        subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
-        subjectSettingsClause.append(")");
+        if (ft.getOp().equals("like")) {
+          int i = 0;
+          for (String p : permissions) {
+            if (i++ > 0)
+              subjectSettingsClause.append(" or ");
+            subjectSettingsClause.append(columnExpression + " like '" + p.replace('*', '%').replace('\'', ' ') + "'");
+          }
+        }
+        else {
+          // resolve inline
+          subjectSettingsClause.append(columnExpression + " in (");
+          // replace possible ' by space and wrap into ' and enumerate
+          subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
+          subjectSettingsClause.append(")");
+      }
       } else {
         // resolve via subselect
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
