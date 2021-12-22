@@ -664,7 +664,6 @@ bcdui.core = Object.assign(bcdui.core,
           if (currentElement.nodeType == 2) {
             currentElement = bcdui.util.xml.getParentNode(currentElement);
           }
-          var hasChanged = false;
           while (currentElement) {
             if ((currentElement.baseName || currentElement.localName) == 'R' && currentElement.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs) {
               /*
@@ -672,15 +671,37 @@ bcdui.core = Object.assign(bcdui.core,
                */
               currentElement = bcdui.util.xml.renameElement(currentElement, "wrs:M");
               bcdui.wrs.wrsUtil.createWrsONodes(currentElement);
-              hasChanged = true;
+              break;
             }
             currentElement = currentElement.parentNode;
           }
-          if (hasChanged) {
+          if (currentElement != null) {
             /*
              * The reference to "node" is no longer valid since wrs:R has been renamed to wrs:M.
              */
             node = baseElement.selectSingleNode(path);
+
+            // let's check if the user accidently used a wrs:R in the path
+            // in this case the selectSingleNode selected a wrong node (either a different wrs:R since the actual one was altered to wrs:M or null)
+            // to test this, we went back from the newly selected node to the belonging row and check if this is the wrs:M which we've just created
+            // if we don't find a match, we throw an error.
+            // issue example: createElementWithPrototype("/*/wrs:Data/wrs:R[1]/wrs:C[1]").text="foobar" where the wrs initially contains 2 wrs:R
+            // this would alter the 1st wrs:R to wrs:M and would write "foobar" to the C of the second (now one and only) wrs:R.
+            // So always use wrs:* for rows!
+            var testElement = node;
+            if (testElement.nodeType == 2) {
+              testElement = bcdui.util.xml.getParentNode(testElement);
+            }
+            var found = false;
+            while (testElement) {
+              if ((testElement.baseName || testElement.localName) == 'M' && testElement.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs) {
+                 found = (testElement === currentElement);
+                 break;
+              }
+              testElement = testElement.parentNode;
+            }
+            if (!found)
+              throw new Error("Xpath " + path + " is not suitable for createElementWithPrototype. Avoid wrs:R and use wrs:* instead."); 
           }
         }
 
