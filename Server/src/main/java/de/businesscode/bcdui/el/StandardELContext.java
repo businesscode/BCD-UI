@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ public class StandardELContext extends ELContext {
     this.functionMapper = new StandardFunctionMapper(prefix, staticFunctionProvider);
     CompositeELResolver elResolver = new CompositeELResolver();
     elResolver.add(new ArrayELResolver());
+    elResolver.add(new MapELResolver()); // needs to be added before BeanELResolver, otherwise you run into Property Not Found exceptions
     elResolver.add(new BeanELResolver());
     elResolver.add(new ListELResolver());
-    elResolver.add(new MapELResolver());
     this.elResolver = elResolver;
   }
 
