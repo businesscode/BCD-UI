@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
@@ -48,6 +47,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import de.businesscode.util.xml.SecureXmlFactory;
 
 public class Utils {
   private static String bcduiVersion;
@@ -68,7 +69,7 @@ public class Utils {
 
   public static void injectDOMContentInXMLStreamWriter(XMLStreamWriter writer, Node node) throws TransformerException {
     if (node != null && node.getNodeType() == Node.ELEMENT_NODE) {
-      TransformerFactory.newInstance().newTransformer().transform(new DOMSource(node), new StAXResult(generateUnClosableWriter(writer)));
+      SecureXmlFactory.newTransformerFactory().newTransformer().transform(new DOMSource(node), new StAXResult(generateUnClosableWriter(writer)));
     }
   }
 
@@ -106,7 +107,7 @@ public class Utils {
    */
   public static String serializeElement(Element element) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
     StringWriter writer = new StringWriter();
-    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(element), new StreamResult(writer));
+    SecureXmlFactory.newTransformerFactory().newTransformer().transform(new DOMSource(element), new StreamResult(writer));
     return writer.toString();
   }
 
