@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,12 @@
 package de.businesscode.bcdui.web.filters;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,6 +47,7 @@ import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
+import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
 import de.businesscode.util.SOAPFaultMessage;
 import de.businesscode.util.Utils;
 
@@ -66,6 +72,8 @@ public class RequestLifeCycleFilter implements Filter {
   public static final String MDC_KEY_BCD_PAGEHASH = "BCD.pageHash";
   public static final String MDC_KEY_IS_CLIENT_LOG = "BCD.isClientLog";
   public static final String MDC_KEY_SESSION_ID = "BCD.httpSessionId";
+  private static final Pattern pattern = Pattern.compile("\\$\\{" + SessionAttributesManager.BCD_EL_USER_BEAN +"\\.(\\w+)\\}");
+
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
   private Logger log = getLogger();
@@ -89,6 +97,34 @@ public class RequestLifeCycleFilter implements Filter {
     request.setCharacterEncoding("UTF-8");
     response.setCharacterEncoding("UTF-8");
     requestTaggingFlag.set(true);
+
+    // when url uses ${BCD_EL_USER_BEAN} token, replace token with hashmap looked up value forward new url
+    String decode = URLDecoder.decode(request.getRequestURI(), "UTF-8").substring(request.getContextPath().length());
+    if (decode.indexOf("${" + SessionAttributesManager.BCD_EL_USER_BEAN +".") > -1) {
+      try {
+        String s = decode;
+        HashMap<String, String> replaceMap = new HashMap<>();
+        Matcher matcher = pattern.matcher(s);
+        while (matcher.find()) {
+          String key = matcher.group(1);
+          if (key != null && ! key.isEmpty()) {
+            s = s.substring(matcher.start() + 1);
+            matcher = pattern.matcher(s);
+            // * as user right value will be replaced with an empty string during url replacement
+            String value = SessionAttributesManager.getBeanValue(key);
+            replaceMap.put("${" + SessionAttributesManager.BCD_EL_USER_BEAN + "." + key + "}", "*".equals(value) ? "" : value);
+          }
+        }
+        for (Map.Entry<String, String> set : replaceMap.entrySet())
+          decode = decode.replace(set.getKey(), set.getValue());
+        decode = decode.replace("//","/");
+        request.getRequestDispatcher(decode).forward(request, response);
+        return;
+      }
+      catch (Exception e) {
+        log.warn("failed to forward url", e);
+      }
+    }
 
     String url = request.getRequestURL().toString();
 

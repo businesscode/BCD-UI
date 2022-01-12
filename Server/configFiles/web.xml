@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -124,7 +124,8 @@
     </init-param>
     <init-param>
       <param-name>ExcludeExtensions</param-name>
-      <param-value>.jsp .html</param-value> <!-- Let deep links lead to a server request, which may in turn redirect to login -->
+      <param-value>.jsp .html</param-value> <!-- Let deep links lead to a 
+  server request, which may in turn redirect to login -->
     </init-param>
   </filter>
   <filter-mapping>
@@ -194,6 +195,26 @@
     <url-pattern>/bcdui/servletsCached/I18nServlet/*</url-pattern>
     <url-pattern>/bcdui/servletsSessionCached/I18nServlet/*</url-pattern>
   </servlet-mapping>
+
+  <!-- Allows setting bcdUserBean name/value pairs
+  <servlet>
+    <servlet-name>bcdui4.SessionAttributesManager</servlet-name>
+    <servlet-class>de.businesscode.bcdui.web.servlets.SessionAttributesManager</servlet-class>
+    <init-param>
+      <param-name>ALLOWED_ATTRIBUTES</param-name>
+      <param-value>comma separated list of allowed attributes, e.g. instanceId,country</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ALLOWED_VALUES</param-name>
+      <param-value>attribute: space separated list of allowed attributes. Multiple attributes can be listed comma separated, e.g. country:DE FR ES,instanceId: BusinessCode</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bcdui4.SessionAttributesManager</servlet-name>
+    <url-pattern>/SessionAttributesManager/*</url-pattern>
+  </servlet-mapping>
+ -->
 
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>

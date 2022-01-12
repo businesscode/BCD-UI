@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
+import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -131,6 +133,14 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
         }
         else
           throw new SecurityException("Ambiguous value for enforced " + eBi.biId );
+      }
+      // in case of a BCD_EL_USER_BEAN based filtertype, check if the value is allowed by looking up the BCD_EL_USER_BEAN hashmap
+      else if (value != null && st != null && st.getName().startsWith(SessionAttributesManager.BCD_EL_USER_BEAN + ":")) {
+        String keyName = st.getName().substring((SessionAttributesManager.BCD_EL_USER_BEAN + ":").length());
+        if (value.equals(SessionAttributesManager.getBeanValue(keyName)) || "*".equals(SessionAttributesManager.getBeanValue(keyName)))
+          foundMatch = true;    
+        else
+          foundMissMatch = true;
       }
       else if (st != null && st.getOp().equals("like")) {
         boolean likeMatch = false;

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import de.businesscode.bcdui.binding.subjectFilter.SubjectFilterNode;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
+import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
 
 /**
  * Returns a where clause based on the SubjectFilters of the BindingSet and the current Subject's permissions Initially taken from WrsSqlGenerator. For change
@@ -232,12 +233,17 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     String bRef = ft.getBindingItems().getC().getBRef();
 
     // Either this is attached as an attribute to our session
-    final String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
+    String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
 
     // in case of a (W)rite-only-check filter type, we can skip resolving
     if ("W".equalsIgnoreCase(ft.getMode()))
       return true;
 
+    // in case of a BCD_EL_USER_BEAN filterType, set the forced value from the BCD_EL_USER_BEAN hashmap
+    if (ft.getName().startsWith(SessionAttributesManager.BCD_EL_USER_BEAN + ":")) {
+      String keyName = ft.getName().substring((SessionAttributesManager.BCD_EL_USER_BEAN + ":").length());
+      sessionFilterValue = SessionAttributesManager.getBeanValue(keyName);
+    }
     if (sessionFilterValue != null) {
       resolveWithValue(boundVariables, sqlClause, ft, bRef, sessionFilterValue, connective);
       return true;

@@ -63,6 +63,7 @@ and needs also to be updated sql expression strings compiled with SQLEngine::tra
 * new SubjectFilterType mode attribute to specify how this filter type should be enabled. on read, write of both (default)
 * introduce UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
 * fix Postgres (empty) CLOB and BLOB reading
+* allow client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
 
 
 Layout:
