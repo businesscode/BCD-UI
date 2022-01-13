@@ -124,8 +124,7 @@
     </init-param>
     <init-param>
       <param-name>ExcludeExtensions</param-name>
-      <param-value>.jsp .html</param-value> <!-- Let deep links lead to a 
-  server request, which may in turn redirect to login -->
+      <param-value>.jsp .html</param-value> <!-- Let deep links lead to a server request, which may in turn redirect to login -->
     </init-param>
   </filter>
   <filter-mapping>
