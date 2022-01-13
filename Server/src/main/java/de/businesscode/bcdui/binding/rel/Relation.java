@@ -273,20 +273,21 @@ public class Relation {
       // Per default the first is left, the second is searched on the right side
       String side = curElement.getAttribute("side");
       if( "".equals(side) || "left".equals(side) ) {
-        String nameA = curElement.getAttribute("name");
-        curConstraint.addColumn(getLeftBindingSet().get(nameA));
-
+        String nameLeft = curElement.getAttribute("name");
         curElement = (Element) constrChildNodes.item(1);
-        String nameB = curElement.getAttribute("name");
-        curConstraint.addColumn(new BindingItemFromRel(rightBindingSet.get(nameB), this, nameB, null));
-      } 
+        String nameRight = curElement.getAttribute("name");
+
+        curConstraint.addColumn(getLeftBindingSet().get(nameLeft));
+        curConstraint.addColumn(new BindingItemFromRel(rightBindingSet.get(nameRight), this, nameRight, null));
+      }
+      // other case is that right is first, and the second is searched on the left side
       else if( "right".equals(side) ) {
-        String nameA = curElement.getAttribute("name");
-        curConstraint.addColumn(rightBindingSet.get(nameA));
-
+        String nameRight = curElement.getAttribute("name");
         curElement = (Element) constrChildNodes.item(1);
-        String nameB = curElement.getAttribute("name");
-        curConstraint.addColumn(new BindingItemFromRel(leftBindingSet.get(nameB), this, nameB, null));
+        String nameLeft = curElement.getAttribute("name");
+
+        curConstraint.addColumn(getLeftBindingSet().get(nameLeft));
+        curConstraint.addColumn(new BindingItemFromRel(rightBindingSet.get(nameRight), this, nameRight, null));
       }
     }
     else if (constraintNode.getLocalName().equals("IsNull")) {
