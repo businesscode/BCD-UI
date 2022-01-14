@@ -201,7 +201,7 @@
       Makes it faster and logic can rely on data being existing
      -->
     <xsl:choose>
-      <xsl:when test="/*/wrs:Data/wrs:R/wrs:*">
+      <xsl:when test="/*/wrs:Data/wrs:*/wrs:*">
         <xsl:apply-templates select="$htmlBuilderTemplate/*/*" mode="generateXSLT"/>
         <xsl:apply-templates select="$htmlHeaderBuilderTemplate/*/*[local-name()!='import']" mode="generateXSLT"/>
       </xsl:when>
