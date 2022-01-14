@@ -50,6 +50,8 @@
   background-color: inherit;
   @extend .noselect;
 
+  .bcdGridSelection { z-index: 10; }
+
   .bcdGridTable {
     border-collapse: collapse;
     border-spacing: 0px;
@@ -83,6 +85,7 @@
     }
 
     .bcdGridBody {
+      display: contents;
       th, td {
         margin:         0px;
         vertical-align: middle;
