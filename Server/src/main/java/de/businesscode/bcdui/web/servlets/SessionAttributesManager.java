@@ -144,7 +144,7 @@ public class SessionAttributesManager extends HttpServlet {
       if (allowedAttributes.contains(name)) {
 
         // add bcdBeanUser.name entries as HashMap session variable "bcdBeanUser" where the key/value pairs
-        // are kept without the prefix. ELEnvironment can evaluate these entries (e.g. in requestLifeCycle)
+        // are kept without the prefix.
         boolean error = true;
         Subject subject = SecurityUtils.getSubject();
         // check value against list of allowed values or subject settings user rights
