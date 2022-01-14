@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
@@ -77,7 +76,6 @@ import org.xml.sax.InputSource;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.el.ELEnvironment;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.sqlengine.SQLEngine;
@@ -184,18 +182,6 @@ public class ZipLet extends HttpServlet {
   }
 
   /**
-   * Resolves EL expressions in the specified data.
-   * @param data The data containing the EL expressions.
-   * @param request The request object which is added to the variables of the EL context.
-   * @return The data with all EL expressions resolved.
-   */
-  protected static String resolveELExpressions(String data, HttpServletRequest request) throws Exception {
-    if (!data.contains("${") && !data.contains("#{")) return data;
-    ELEnvironment environment = new ELEnvironment(request);
-    return environment.eval(data).toString();
-  }
-
-  /**
    * Decompresses the XML document given in the "data" parameter and returns it
    * in the response object.
    * @param request The request holding the "data" parameter to be decoded.
@@ -207,20 +193,10 @@ public class ZipLet extends HttpServlet {
       //ServletUtils.setExpirationHeader(response, CacheType.STATIC_RESOURCE);
       response.setContentType("text/xml");
       response.setCharacterEncoding("UTF-8");
-      String expr = request.getParameter("expr");
       String xml = request.getParameter("xml");
       if (xml != null) {
         String compressedString = compress(xml);
         response.getWriter().write("<data>" + compressedString + "</data>");
-      } else if (expr != null) {
-        XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(response.getWriter());
-        writer.writeStartDocument();
-        writer.writeStartElement("el-expression-result");
-        writer.writeAttribute("expr", expr);
-        writer.writeCharacters(resolveELExpressions(expr, request));
-        writer.writeEndElement();
-        writer.writeEndDocument();
-        writer.close();
       } else {
         Document doc = decodeAndDecompressToXML(request.getParameter("data"), request);
         SecureXmlFactory.newTransformerFactory().newTransformer().transform(
@@ -637,15 +613,13 @@ public class ZipLet extends HttpServlet {
       String data = compressed.startsWith("x")
           ? new String(decodeBytes(compressed.substring(1)),"UTF-8")
           : decodeStringWithAlphabetMapping(compressed.substring(1));
-      ByteArrayInputStream input = new ByteArrayInputStream(resolveELExpressions(uncompressXMLString(data), request).getBytes("UTF-8"));
+      ByteArrayInputStream input = new ByteArrayInputStream(uncompressXMLString(data).getBytes("UTF-8"));
       Document doc = builder.parse(input);
       return doc;
     }
 
-    Document doc = builder.parse(new ByteArrayInputStream(resolveELExpressions(new String(
-        IOUtils.toByteArray(new GZIPInputStream(
-            new ByteArrayInputStream(decodeBytes(compressed)))), "UTF-8"
-        ), request).getBytes("UTF-8")));
+    Document doc = builder.parse(new ByteArrayInputStream(new String(
+        IOUtils.toByteArray(new GZIPInputStream(new ByteArrayInputStream(decodeBytes(compressed)))), "UTF-8").getBytes("UTF-8")));
     return doc;
   }
 
@@ -758,10 +732,10 @@ public class ZipLet extends HttpServlet {
       String data = compressed.startsWith("x")
           ? new String(decodeBytes(compressed.substring(1)),"UTF-8")
           : decodeStringWithAlphabetMapping(compressed.substring(1));
-      in = new ByteArrayInputStream(resolveELExpressions(uncompressXMLString(data), request).getBytes("UTF-8"));
+      in = new ByteArrayInputStream(uncompressXMLString(data).getBytes("UTF-8"));
     } else {
       InputStream inTemp = new GZIPInputStream(new ByteArrayInputStream(decodeBytes(compressed)));
-      in = new ByteArrayInputStream(resolveELExpressions(new String(IOUtils.toByteArray(inTemp),"UTF-8"), request).getBytes("UTF-8"));
+      in = new ByteArrayInputStream(new String(IOUtils.toByteArray(inTemp),"UTF-8").getBytes("UTF-8"));
     }
 
     XMLEventReader reader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(new StreamSource(in));
