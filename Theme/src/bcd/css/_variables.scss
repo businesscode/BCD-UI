@@ -84,3 +84,12 @@ $tree-color-cell_l1:            lighten($tree-color-cell, 25%) !default;
 $tree-color-cell_l2:            lighten($tree-color-cell, 35%) !default;
 $tree-color-cell_l3:            lighten($tree-color-cell, 45%) !default;
 $tree-color-cell-border:        darken($tree-color-cell, 25%) !default;
+
+// DE grid compatibility
+$font-size-default:             11px !default;
+$cube-hover-color-body:         $cube-sections-color-head !default;
+$grid-color-cell:               #d8d8d8 !default;
+$grid-hover-color-body:         $corporate-color !default;
+$grid-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
+$grid-color-cell-even:          lighten($grid-color-cell, 8%) !default;
+$grid-color-cell-odd:           lighten($grid-color-cell, 15%) !default;
