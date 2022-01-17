@@ -9,7 +9,6 @@ Some changes are not backward compatible and may require code change in the proj
 ==== Release 5_6_0 ...in progress
 
 .Major new features:
-*
 
 Incompatibilities:
 
@@ -18,6 +17,12 @@ Incompatibilities:
 ** bnd:Coalesce in Binding files was removed
 ** getTableName() was renamed to getTableReference()
 and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
+
+.Server:
+* allow client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
+* introduce UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
+* added document uploader classes
+
 
 ==== Release 5_5_0
 
@@ -61,10 +66,7 @@ and needs also to be updated sql expression strings compiled with SQLEngine::tra
 
 .Server:
 * new SubjectFilterType mode attribute to specify how this filter type should be enabled. on read, write of both (default)
-* introduce UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
 * fix Postgres (empty) CLOB and BLOB reading
-* allow client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
-
 
 Layout:
 * introduced right sidebar
