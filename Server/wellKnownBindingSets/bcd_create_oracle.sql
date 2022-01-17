@@ -212,3 +212,193 @@ CREATE TABLE bcd_comment
    last_modified_at  timestamp,
    last_modified_by  VARCHAR2(256)
 );
+
+-- data uploader
+DROP TABLE bcd_dataupload_control;
+CREATE TABLE bcd_dataupload_control
+(
+   UPLOAD_ID         VARCHAR2(128) NOT NULL PRIMARY KEY,
+   TS                TIMESTAMP(6)  NOT NULL,
+   SOURCE_NAME       VARCHAR2(128) NOT NULL,
+   USER_ID           VARCHAR2(128) NOT NULL,
+   USER_COMMENT      VARCHAR2(4000 CHAR),
+   FILE_BLOB         BLOB          NOT NULL,
+
+   -- DATA FORMAT
+   COLUMN_COUNT      INTEGER,
+   ROW_COUNT      INTEGER,
+   DECIMAL_SEPARATOR CHAR(1),
+   HAS_HEADER_ROW    CHAR(1),
+   DATE_FORMAT       VARCHAR(16),
+
+   -- CSV imports
+   DELIMITER         CHAR(1),
+   COLUMN_STARTINGS  VARCHAR2(256),
+   ENCODING          VARCHAR2(20),
+   QUOTE_CHAR        VARCHAR2(1),
+
+   -- Spreadsheet
+   SHEET_NAME        VARCHAR2(64),
+   SHEET_RANGE       VARCHAR2(64),
+
+   -- Target BindingSet
+   TARGET_BS         VARCHAR2(256),
+   MAPPING           CLOB
+);
+
+
+DROP TABLE bcd_dataupload_controlstep;
+CREATE TABLE bcd_dataupload_controlstep
+(
+   UPLOAD_ID         VARCHAR2(128)  NOT NULL,
+   TS                TIMESTAMP(6)   NOT NULL,
+   USER_ID           VARCHAR2(128) NOT NULL,
+   STEP              VARCHAR2(128)  NOT NULL,
+   RC                INTEGER        NOT NULL,
+   RC_MESSAGE        VARCHAR2(4000 CHAR)
+);
+
+
+DROP TABLE bcd_dataupload_rowcol;
+CREATE TABLE bcd_dataupload_rowcol
+(
+   UPLOAD_ID         VARCHAR2(128)  NOT NULL,
+   ROW_NUMBER        INTEGER        NOT NULL,
+
+   COL_1             VARCHAR2(4000 CHAR),
+   COL_2             VARCHAR2(4000 CHAR),
+   COL_3             VARCHAR2(4000 CHAR),
+   COL_4             VARCHAR2(4000 CHAR),
+   COL_5             VARCHAR2(4000 CHAR),
+   COL_6             VARCHAR2(4000 CHAR),
+   COL_7             VARCHAR2(4000 CHAR),
+   COL_8             VARCHAR2(4000 CHAR),
+   COL_9             VARCHAR2(4000 CHAR),
+   COL_10            VARCHAR2(4000 CHAR),
+
+   COL_11            VARCHAR2(4000 CHAR),
+   COL_12            VARCHAR2(4000 CHAR),
+   COL_13            VARCHAR2(4000 CHAR),
+   COL_14            VARCHAR2(4000 CHAR),
+   COL_15            VARCHAR2(4000 CHAR),
+   COL_16            VARCHAR2(4000 CHAR),
+   COL_17            VARCHAR2(4000 CHAR),
+   COL_18            VARCHAR2(4000 CHAR),
+   COL_19            VARCHAR2(4000 CHAR),
+   COL_20            VARCHAR2(4000 CHAR),
+
+   COL_21            VARCHAR2(4000 CHAR),
+   COL_22            VARCHAR2(4000 CHAR),
+   COL_23            VARCHAR2(4000 CHAR),
+   COL_24            VARCHAR2(4000 CHAR),
+   COL_25            VARCHAR2(4000 CHAR),
+   COL_26            VARCHAR2(4000 CHAR),
+   COL_27            VARCHAR2(4000 CHAR),
+   COL_28            VARCHAR2(4000 CHAR),
+   COL_29            VARCHAR2(4000 CHAR),
+   COL_30            VARCHAR2(4000 CHAR),
+
+   COL_31            VARCHAR2(4000 CHAR),
+   COL_32            VARCHAR2(4000 CHAR),
+   COL_33            VARCHAR2(4000 CHAR),
+   COL_34            VARCHAR2(4000 CHAR),
+   COL_35            VARCHAR2(4000 CHAR),
+   COL_36            VARCHAR2(4000 CHAR),
+   COL_37            VARCHAR2(4000 CHAR),
+   COL_38            VARCHAR2(4000 CHAR),
+   COL_39            VARCHAR2(4000 CHAR),
+   COL_40            VARCHAR2(4000 CHAR),
+
+   COL_41            VARCHAR2(4000 CHAR),
+   COL_42            VARCHAR2(4000 CHAR),
+   COL_43            VARCHAR2(4000 CHAR),
+   COL_44            VARCHAR2(4000 CHAR),
+   COL_45            VARCHAR2(4000 CHAR),
+   COL_46            VARCHAR2(4000 CHAR),
+   COL_47            VARCHAR2(4000 CHAR),
+   COL_48            VARCHAR2(4000 CHAR),
+   COL_49            VARCHAR2(4000 CHAR),
+   COL_50            VARCHAR2(4000 CHAR),
+
+   COL_51            VARCHAR2(4000 CHAR),
+   COL_52            VARCHAR2(4000 CHAR),
+   COL_53            VARCHAR2(4000 CHAR),
+   COL_54            VARCHAR2(4000 CHAR),
+   COL_55            VARCHAR2(4000 CHAR),
+   COL_56            VARCHAR2(4000 CHAR),
+   COL_57            VARCHAR2(4000 CHAR),
+   COL_58            VARCHAR2(4000 CHAR),
+   COL_59            VARCHAR2(4000 CHAR),
+   COL_60            VARCHAR2(4000 CHAR),
+
+   COL_61            VARCHAR2(4000 CHAR),
+   COL_62            VARCHAR2(4000 CHAR),
+   COL_63            VARCHAR2(4000 CHAR),
+   COL_64            VARCHAR2(4000 CHAR),
+   COL_65            VARCHAR2(4000 CHAR),
+   COL_66            VARCHAR2(4000 CHAR),
+   COL_67            VARCHAR2(4000 CHAR),
+   COL_68            VARCHAR2(4000 CHAR),
+   COL_69            VARCHAR2(4000 CHAR),
+   COL_70            VARCHAR2(4000 CHAR)
+);
+
+DROP TABLE bcd_dataupload_validation;
+CREATE TABLE bcd_dataupload_validation
+(
+  UPLOAD_ID  VARCHAR2(128) NOT NULL,
+  ROW_NUMBER INTEGER      NOT NULL,
+  COL_NUMBER INTEGER      NOT NULL,
+  SEVERITY   INTEGER      NOT NULL,
+  MESSAGE    VARCHAR2(128) NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION bcd_is_integer( p_str IN VARCHAR2 )
+  RETURN INTEGER DETERMINISTIC PARALLEL_ENABLE
+IS
+  l_num NUMBER;
+BEGIN
+  l_num := to_number( p_str, '99G999G999D999999999' );
+  RETURN 1;
+EXCEPTION
+  WHEN Others THEN
+    RETURN 0;
+END bcd_is_integer;
+
+CREATE OR REPLACE FUNCTION bcd_is_number( p_str IN VARCHAR2 )
+  RETURN INTEGER DETERMINISTIC PARALLEL_ENABLE
+IS
+  l_num NUMBER;
+BEGIN
+  l_num := to_number( p_str );
+  RETURN 1;
+EXCEPTION
+  WHEN Others THEN
+    RETURN 0;
+END bcd_is_number;
+
+
+CREATE OR REPLACE FUNCTION bcd_is_date( p_str IN VARCHAR2 )
+  RETURN INTEGER DETERMINISTIC PARALLEL_ENABLE
+IS
+  l_num DATE;
+BEGIN
+  l_num := to_date( p_str );
+  RETURN 1;
+EXCEPTION
+  WHEN Others THEN
+    RETURN 0;
+END bcd_is_date;
+
+
+CREATE OR REPLACE FUNCTION bcd_is_timestamp( p_str IN VARCHAR2 )
+  RETURN INTEGER DETERMINISTIC PARALLEL_ENABLE
+IS
+  l_num TIMESTAMP;
+BEGIN
+  l_num := to_date( p_str );
+  RETURN 1;
+EXCEPTION
+  WHEN Others THEN
+    RETURN 0;
+END bcd_is_timestamp;

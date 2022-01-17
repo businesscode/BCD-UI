@@ -213,6 +213,184 @@ CREATE TABLE bcd_comment
    last_modified_by  VARCHAR(256)
 );
 
+-- data uploader
+DROP TABLE  bcd_dataupload_control;
+CREATE TABLE bcd_dataupload_control
+(
+   upload_id          varchar(128)    NOT NULL,
+   ts                 timestamp       NOT NULL,
+   source_name        varchar(128)    NOT NULL,
+   user_id            varchar(128)    NOT NULL,
+   user_comment       varchar(4000),
+   file_blob          bytea           NOT NULL,
+   column_count       integer,
+   row_count          integer,
+   decimal_separator  char(1),
+   has_header_row     char(1),
+   date_format        varchar(16),
+   delimiter          char(1),
+   column_startings   varchar(256),
+   encoding           varchar(20),
+   quote_char         varchar(1),
+   sheet_name         varchar(64),
+   sheet_range        varchar(64),
+   target_bs          varchar(256),
+   mapping            text
+);
+
+DROP TABLE bcd_dataupload_controlstep;
+CREATE TABLE bcd_dataupload_controlstep
+(
+   upload_id   varchar(128)    NOT NULL,
+   ts          timestamp       NOT NULL,
+   user_id     varchar(128)    NOT NULL,
+   step        varchar(128)    NOT NULL,
+   rc          integer         NOT NULL,
+   rc_message  varchar(4000)
+);
+
+DROP TABLE bcd_dataupload_rowcol;
+CREATE TABLE bcd_dataupload_rowcol
+(
+   upload_id   varchar(128)    NOT NULL,
+   row_number  integer         NOT NULL,
+   col_1       varchar(4000),
+   col_2       varchar(4000),
+   col_3       varchar(4000),
+   col_4       varchar(4000),
+   col_5       varchar(4000),
+   col_6       varchar(4000),
+   col_7       varchar(4000),
+   col_8       varchar(4000),
+   col_9       varchar(4000),
+   col_10      varchar(4000),
+   col_11      varchar(4000),
+   col_12      varchar(4000),
+   col_13      varchar(4000),
+   col_14      varchar(4000),
+   col_15      varchar(4000),
+   col_16      varchar(4000),
+   col_17      varchar(4000),
+   col_18      varchar(4000),
+   col_19      varchar(4000),
+   col_20      varchar(4000),
+   col_21      varchar(4000),
+   col_22      varchar(4000),
+   col_23      varchar(4000),
+   col_24      varchar(4000),
+   col_25      varchar(4000),
+   col_26      varchar(4000),
+   col_27      varchar(4000),
+   col_28      varchar(4000),
+   col_29      varchar(4000),
+   col_30      varchar(4000),
+   col_31      varchar(4000),
+   col_32      varchar(4000),
+   col_33      varchar(4000),
+   col_34      varchar(4000),
+   col_35      varchar(4000),
+   col_36      varchar(4000),
+   col_37      varchar(4000),
+   col_38      varchar(4000),
+   col_39      varchar(4000),
+   col_40      varchar(4000),
+   col_41      varchar(4000),
+   col_42      varchar(4000),
+   col_43      varchar(4000),
+   col_44      varchar(4000),
+   col_45      varchar(4000),
+   col_46      varchar(4000),
+   col_47      varchar(4000),
+   col_48      varchar(4000),
+   col_49      varchar(4000),
+   col_50      varchar(4000),
+   col_51      varchar(4000),
+   col_52      varchar(4000),
+   col_53      varchar(4000),
+   col_54      varchar(4000),
+   col_55      varchar(4000),
+   col_56      varchar(4000),
+   col_57      varchar(4000),
+   col_58      varchar(4000),
+   col_59      varchar(4000),
+   col_60      varchar(4000),
+   col_61      varchar(4000),
+   col_62      varchar(4000),
+   col_63      varchar(4000),
+   col_64      varchar(4000),
+   col_65      varchar(4000),
+   col_66      varchar(4000),
+   col_67      varchar(4000),
+   col_68      varchar(4000),
+   col_69      varchar(4000),
+   col_70      varchar(4000)
+);
+
+DROP TABLE bcd_dataupload_validation;
+CREATE TABLE bcd_dataupload_validation
+(
+   upload_id   varchar(128)   NOT NULL,
+   row_number  integer        NOT NULL,
+   col_number  integer        NOT NULL,
+   severity    integer        NOT NULL,
+   message     varchar(128)   NOT NULL,
+   descr       varchar(255)
+);
+
+
+CREATE OR REPLACE FUNCTION bcd_is_number(text) RETURNS INTEGER AS $$
+DECLARE x NUMERIC;
+BEGIN
+    x = $1::NUMERIC;
+    RETURN 1;
+EXCEPTION WHEN others THEN
+    RETURN 0;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+
+CREATE OR REPLACE FUNCTION bcd_is_integer(text) RETURNS INTEGER AS $$
+DECLARE x INTEGER;
+BEGIN
+    x = $1::INTEGER;
+    RETURN 1;
+EXCEPTION WHEN others THEN
+    RETURN 0;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+
+-- Note: This will also accept a timestamp with time = 00:00:00, find a better way
+CREATE OR REPLACE FUNCTION bcd_is_date(text) RETURNS INTEGER AS $$
+DECLARE x DATE;
+BEGIN
+    x = $1::DATE;
+    IF CAST( CAST(x AS DATE) AS TIMESTAMP) <> CAST($1 AS TIMESTAMP) THEN
+      RETURN 0;
+    ELSE
+      RETURN 1;
+    END IF;
+EXCEPTION WHEN others THEN
+    RETURN 0;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+
+CREATE OR REPLACE FUNCTION bcd_is_timestamp(text) RETURNS INTEGER AS $$
+DECLARE x TIMESTAMP;
+BEGIN
+    x = $1::TIMESTAMP;
+    RETURN 1;
+EXCEPTION WHEN others THEN
+    RETURN 0;
+END;
+$$
+LANGUAGE plpgsql IMMUTABLE;
+
+
 -- geo
 -- As admin login to right database; creates postgis in public schema, make sure publich is ih user's search path
 -- CREATE EXTENSION postgis;

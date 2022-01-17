@@ -1,0 +1,11 @@
+<BindingSet id="bcd_dataupload_validation" table="BCD_DATAUPLOAD_VALIDATION"
+  xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+
+  <C id="uploadId"><Column>UPLOAD_ID</Column></C>
+  <C id="rowNumber"><Column>ROW_NUMBER</Column></C>
+  <C id="colNumber"><Column>COL_NUMBER</Column></C>
+  <C id="severity"><Column>SEVERITY</Column></C>
+  <C id="message"><Column>MESSAGE</Column></C>
+  <C id="descr"><Column>DESCR</Column></C>
+
+</BindingSet>

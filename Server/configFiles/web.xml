@@ -215,6 +215,23 @@
   </servlet-mapping>
  -->
 
+<!--  Data Upload Servlet
+  <servlet>
+    <servlet-name>bcdui4.DataUploadServlet</servlet-name>
+    <servlet-class>de.businesscode.bcdui.upload.data.UploadServlet</servlet-class>
+    <init-param>
+      <param-name>Steps</param-name>
+      <param-value>
+        MY_STEP_NAME: de.my.package.ClassName;
+      </param-value>
+    </init-param
+  </servlet>
+   <servlet-mapping>
+    <servlet-name>bcdui4.DataUploadServlet</servlet-name>
+    <url-pattern>/bcdui/servlets/DataUploadServlet/*</url-pattern>
+  </servlet-mapping> 
+-->
+
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>
     <servlet-name>bcdui4.WrsServlet</servlet-name>

@@ -1,0 +1,99 @@
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<BindingSet id="bcd_dataupload_rowcol" table="BCD_DATAUPLOAD_ROWCOL" allowSelectAllColumns="true"
+  xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+
+  <C id="uploadId"  isKey="true"><Column>UPLOAD_ID</Column></C>
+  <C id="rowNumber" isKey="true"><Column>ROW_NUMBER</Column></C>
+
+  <C id="col_1"><Column>COL_1</Column></C>
+  <C id="col_2"><Column>COL_2</Column></C>
+  <C id="col_3"><Column>COL_3</Column></C>
+  <C id="col_4"><Column>COL_4</Column></C>
+  <C id="col_5"><Column>COL_5</Column></C>
+  <C id="col_6"><Column>COL_6</Column></C>
+  <C id="col_7"><Column>COL_7</Column></C>
+  <C id="col_8"><Column>COL_8</Column></C>
+  <C id="col_9"><Column>COL_9</Column></C>
+  <C id="col_10"><Column>COL_10</Column></C>
+
+  <C id="col_11"><Column>COL_11</Column></C>
+  <C id="col_12"><Column>COL_12</Column></C>
+  <C id="col_13"><Column>COL_13</Column></C>
+  <C id="col_14"><Column>COL_14</Column></C>
+  <C id="col_15"><Column>COL_15</Column></C>
+  <C id="col_16"><Column>COL_16</Column></C>
+  <C id="col_17"><Column>COL_17</Column></C>
+  <C id="col_18"><Column>COL_18</Column></C>
+  <C id="col_19"><Column>COL_19</Column></C>
+  <C id="col_20"><Column>COL_20</Column></C>
+
+  <C id="col_21"><Column>COL_21</Column></C>
+  <C id="col_22"><Column>COL_22</Column></C>
+  <C id="col_23"><Column>COL_23</Column></C>
+  <C id="col_24"><Column>COL_24</Column></C>
+  <C id="col_25"><Column>COL_25</Column></C>
+  <C id="col_26"><Column>COL_26</Column></C>
+  <C id="col_27"><Column>COL_27</Column></C>
+  <C id="col_28"><Column>COL_28</Column></C>
+  <C id="col_29"><Column>COL_29</Column></C>
+  <C id="col_30"><Column>COL_30</Column></C>
+
+  <C id="col_31"><Column>COL_31</Column></C>
+  <C id="col_32"><Column>COL_32</Column></C>
+  <C id="col_33"><Column>COL_33</Column></C>
+  <C id="col_34"><Column>COL_34</Column></C>
+  <C id="col_35"><Column>COL_35</Column></C>
+  <C id="col_36"><Column>COL_36</Column></C>
+  <C id="col_37"><Column>COL_37</Column></C>
+  <C id="col_38"><Column>COL_38</Column></C>
+  <C id="col_39"><Column>COL_39</Column></C>
+  <C id="col_40"><Column>COL_40</Column></C>
+
+  <C id="col_41"><Column>COL_41</Column></C>
+  <C id="col_42"><Column>COL_42</Column></C>
+  <C id="col_43"><Column>COL_43</Column></C>
+  <C id="col_44"><Column>COL_44</Column></C>
+  <C id="col_45"><Column>COL_45</Column></C>
+  <C id="col_46"><Column>COL_46</Column></C>
+  <C id="col_47"><Column>COL_47</Column></C>
+  <C id="col_48"><Column>COL_48</Column></C>
+  <C id="col_49"><Column>COL_49</Column></C>
+  <C id="col_50"><Column>COL_50</Column></C>
+
+  <C id="col_51"><Column>COL_51</Column></C>
+  <C id="col_52"><Column>COL_52</Column></C>
+  <C id="col_53"><Column>COL_53</Column></C>
+  <C id="col_54"><Column>COL_54</Column></C>
+  <C id="col_55"><Column>COL_55</Column></C>
+  <C id="col_56"><Column>COL_56</Column></C>
+  <C id="col_57"><Column>COL_57</Column></C>
+  <C id="col_58"><Column>COL_58</Column></C>
+  <C id="col_59"><Column>COL_59</Column></C>
+  <C id="col_60"><Column>COL_60</Column></C>
+
+  <C id="col_61"><Column>COL_61</Column></C>
+  <C id="col_62"><Column>COL_62</Column></C>
+  <C id="col_63"><Column>COL_63</Column></C>
+  <C id="col_64"><Column>COL_64</Column></C>
+  <C id="col_65"><Column>COL_65</Column></C>
+  <C id="col_66"><Column>COL_66</Column></C>
+  <C id="col_67"><Column>COL_67</Column></C>
+  <C id="col_68"><Column>COL_68</Column></C>
+  <C id="col_69"><Column>COL_69</Column></C>
+  <C id="col_70"><Column>COL_70</Column></C>
+
+</BindingSet>

@@ -1,0 +1,52 @@
+<!--
+  Copyright 2010-2017 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!-- Created once per file upload -->
+<BindingSet id="bcd_dataupload_control" table="BCD_DATAUPLOAD_CONTROL" allowSelectAllColumns="true"
+  xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+
+<!-- Information about the upload -->
+  <C id="uploadId" caption="Upload id" isKey="true"><Column>UPLOAD_ID</Column></C>
+  <C id="ts" caption="Date"><Column>TS</Column></C>
+  <C id="sourceName" caption="Source" type-name="VARCHAR"><Column>SOURCE_NAME</Column></C>
+  <C id="userId" caption="User"><Column>USER_ID</Column></C>
+  <C id="userComment" caption="Comment"><Column>USER_COMMENT</Column></C>
+
+  <!-- The upload itself -->
+  <C id="fileBlob" caption="File"><Column>FILE_BLOB</Column></C>
+
+  <!-- Format of the uploaded data -->
+  <C id="columnCount" caption="Columns" type-name="INTEGER"><Column>COLUMN_COUNT</Column></C>
+  <C id="rowCount" caption="Rows" type-name="INTEGER"><Column>ROW_COUNT</Column></C>
+  <C id="hasHeaderRow" caption="Has header" type-name="BOOLEAN"><Column>HAS_HEADER_ROW</Column></C>
+  <C id="decimalSeparator" caption="Dec. sep." type-name="CHAR"><Column>DECIMAL_SEPARATOR</Column></C>
+  <C id="dateFormat" caption="Date format"><Column>DATE_FORMAT</Column></C>
+
+  <!-- CSV relevant only -->
+  <C id="encoding" caption="Encoding"><Column>ENCODING</Column></C>
+  <C id="delimiter" caption="Delimitter" type-name="CHAR"><Column>DELIMITER</Column></C>
+  <C id="columnStartings" caption="Fix colums"><Column>COLUMN_STARTINGS</Column></C>
+  <C id="quoteChar" caption="Quote char" type-name="CHAR"><Column>QUOTE_CHAR</Column></C>
+
+  <!-- Excel relevant only -->
+  <C id="sheetName" caption="Sheet name"><Column>SHEET_NAME</Column></C>
+  <C id="sheetRange" caption="Sheet range"><Column>SHEET_RANGE</Column></C>
+
+  <!-- Mapping into target_bs -->
+  <C id="targetBs" caption="Target table"><Column>TARGET_BS</Column></C>
+  <C id="mapping" caption="Mapping"><Column>MAPPING</Column></C>
+  <C id="mappingAsXml" escapeXML="false"><Column>MAPPING</Column></C>
+
+</BindingSet>
