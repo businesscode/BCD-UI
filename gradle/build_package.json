@@ -1,6 +1,6 @@
 {
   "name": "bcdui-build-tools-dependencies",
-  "version": "5.5.0",
+  "version": "5.6.0",
   "description": "BCD-UI is a full-stack framework for building business applications",
   "author":      "BusinessCode GmbH, Germany",
   "license":     "Apache-2.0",
