@@ -275,7 +275,7 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
           var bodyWidth    = jQuery("body").width();
           var scrollX      = jQuery("html").scrollLeft() > jQuery("body").scrollLeft() ? jQuery("html").scrollLeft() : jQuery("body").scrollLeft();
           var newWidth = bodyWidth;
-          if (scrollX + bodyWidth >= docWidth)
+          if (scrollX > 0 && bodyWidth < docWidth)
             newWidth = docWidth;
           jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", newWidth + "px");
         }
