@@ -234,19 +234,6 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     this.totalRowCountDp = null; 
 
-    if (this.serverSidedPagination) {
-      var reqMw = new bcdui.core.ModelWrapper({
-        inputModel: this.config,
-        parameters: { statusModel: this.statusModel, gridModelId: this.gridModel.id },
-        chain: bcdui.contextPath+"/bcdui/js/component/grid/requestTotalRowCount.xslt"
-      });
-      this.totalRowCountDp = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
-    }
-    else
-      this.totalRowCountDp =  new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Data><wrs:R><wrs:C>0</wrs:C></wrs:R></wrs:Data></wrs:Wrs>");
-
-    this.totalRowCountDp.execute();
-
     var validationParameters = {
         source: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_source", name: "source", value: ""})
       , changes: new bcdui.core.ConstantDataProvider({id: this.id + "_afterChange_changes", name: "changes", value: []})
@@ -343,6 +330,24 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
     // add onChange listener on enhancedConfiguration and collect optionsModel information
     this.getEnhancedConfiguration().onceReady(function(){
+
+      if (this.serverSidedPagination) {
+        
+        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id };
+        var countColumnBRef = this.config.read("/*/grid:SelectColumns/wrq:Columns//wrq:C[@totalCounter='true']/@bRef");
+        if (countColumnBRef)
+          totalParams.countColumnBRef = countColumnBRef;
+  
+        var reqMw = new bcdui.core.ModelWrapper({
+          inputModel: this.config,
+          parameters: totalParams,
+          chain: bcdui.contextPath+"/bcdui/js/component/grid/requestTotalRowCount.xslt"
+        });
+        this.totalRowCountDp = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
+      }
+      else
+        this.totalRowCountDp = new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Data><wrs:R><wrs:C>0</wrs:C></wrs:R></wrs:Data></wrs:Wrs>");;
+      this.totalRowCountDp.execute();
 
       this.removeOnSaveColumnIds = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@removeOnSave='true']")).map(function(e) {
         if (e.getAttribute("isKey") == "true")

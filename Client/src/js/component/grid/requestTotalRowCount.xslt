@@ -28,6 +28,7 @@
   <xsl:param name="statusModel" select="/*[1=0]"/>
   <xsl:param name="columnFilterModel" select="/*[1=0]"/>
   <xsl:param name="gridModelId"/>
+  <xsl:param name="countColumnBRef" select="/*/grid:SelectColumns/wrq:Columns//wrq:C[1]/@bRef"/>
 
   <xsl:variable name="excludedStatusFilterBrefs" select="/*/grid:SelectColumns/grid:FilterExclude/@bRefs"/>
 
@@ -36,7 +37,7 @@
     <wrq:WrsRequest>
       <wrq:Select>
         <wrq:Columns>
-          <wrq:C aggr="count" bRef="{/*/grid:SelectColumns/wrq:Columns//wrq:C[1]/@bRef}"/>
+          <wrq:C aggr="count" bRef="{$countColumnBRef}"/>
         </wrq:Columns>
         <wrq:From><xsl:copy-of select="/*/wrq:BindingSet"/></wrq:From>
         <f:Filter>
