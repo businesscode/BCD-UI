@@ -15,9 +15,6 @@
 */
 package de.businesscode.util;
 
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-
 public class ThreadUtils {
   /**
    * looksup a first matching thread by regular expression
@@ -44,37 +41,5 @@ public class ThreadUtils {
     }
     // no matching thread found
     return null;
-  }
-  
-  /**
-   * debugging utility: prints out all thread-locals
-   * 
-   * @param source
-   * @param writer
-   */
-  public static void printThreadLocals(String source, PrintWriter writer) {
-    try {
-      Thread t = Thread.currentThread();
-      StringBuilder sb = new StringBuilder("--- listing thread locals from " + t.getName() + "#" + t.getId() + " (source:"+source+") ---\n");
-      
-      Field field1 = Thread.class.getDeclaredField("threadLocals");
-      field1.setAccessible(true);
-      Object o1 = field1.get(t);
-      Field field2 = o1.getClass().getDeclaredField("table");
-      field2.setAccessible(true);
-      Object[] o2 = (Object[]) field2.get(o1);
-      for (Object temp : o2) {
-          if (temp != null) {
-              Field field3 = temp.getClass().getDeclaredField("value");
-              field3.setAccessible(true);
-              Object o3 = field3.get(temp);
-              sb.append(o3);
-          }
-      }
-      sb.append("\n--- --- ---\n");
-      writer.append(sb.toString());
-    } catch (Exception e) {
-      throw new RuntimeException("failed to list thread-locals", e);
-    }
   }
 }
