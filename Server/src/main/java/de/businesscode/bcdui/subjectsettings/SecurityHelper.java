@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 */
 package de.businesscode.bcdui.subjectsettings;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -31,6 +29,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.realm.BcdShiroHelper;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -297,8 +296,6 @@ public class SecurityHelper {
    *
    * @param subject
    *          the subject must be authenticated
-   * @param permissionType
-   *          to retrieve permissions for
    * @return empty/non-empty set of permissions
    *
    * @throws SecurityException
@@ -341,19 +338,9 @@ public class SecurityHelper {
 
     Set<String> valueSet = new HashSet<>();
 
-    final Method queryMethod;
     try {
-      queryMethod = AuthorizingRealm.class.getDeclaredMethod("getAuthorizationInfo", PrincipalCollection.class);
-      queryMethod.setAccessible(true);
       dsm.getRealms().stream().filter(r -> r instanceof AuthorizingRealm).forEach(r -> {
-        final Object queryResult;
-        try {
-          queryResult = queryMethod.invoke(r, principals);
-        } catch (InvocationTargetException ite) {
-          throw new RuntimeException("invocation of '" + queryMethod.getName() + "' on Realm of type " + r.getClass().getName() + "failed", ite.getTargetException());
-        } catch (Exception e) {
-          throw new RuntimeException("failed to invoke method '" + queryMethod.getName() + "' on Realm of type " + r.getClass().getName(), e);
-        }
+        final Object queryResult = BcdShiroHelper.getAuthorizationInfo((AuthorizingRealm)r, principals);
         // no AuthorizationInfo returned
         if(queryResult == null){
           return;
@@ -365,7 +352,7 @@ public class SecurityHelper {
         }
       });
     } catch (Exception e) {
-      throw new RuntimeException("failed to retrieve pemissions", e);
+      throw new RuntimeException("failed to retrieve permissions", e);
     }
     return valueSet;
   }
