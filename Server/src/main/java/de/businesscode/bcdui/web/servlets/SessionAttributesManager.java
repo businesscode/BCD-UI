@@ -163,6 +163,5 @@ public class SessionAttributesManager extends HttpServlet {
       }
     }
     log.debug(message);
-    response.getWriter().append(message);
   }
 }

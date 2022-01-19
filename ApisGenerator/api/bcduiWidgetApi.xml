@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -221,7 +221,7 @@
         </Param>
         <Impl>
           <Jsp allowsChildren="true">
-            <AddCode><![CDATA[<span id="${targetHTMLElementId}_bodyArea" style="display:none">
+            <AddCode><![CDATA[<span id="<c:out value="${targetHTMLElementId}"/>_bodyArea" style="display:none">
   <jsp:doBody/>
 </span>]]></AddCode>
           </Jsp>
