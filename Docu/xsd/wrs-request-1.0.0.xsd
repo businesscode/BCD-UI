@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
   limitations under the License.
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  elementFormDefault="qualified" attributeFormDefault="unqualified"
-  targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
-  xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
-  xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
-  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+           elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+           xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+           xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+           xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
   <xs:annotation>
     <xs:documentation>
     </xs:documentation>
@@ -36,18 +36,26 @@
     <xs:sequence>
       <xs:element name="Header" type="tns:TypeHeader" minOccurs="0">
       </xs:element>
-      <xs:element name="Select" type="tns:TypeSelect">
-        <xs:annotation><xs:documentation>Definition of the returned content.</xs:documentation></xs:annotation>
-        <xs:key name="selectedbRefs">
-          <xs:selector xpath="tns:Columns/tns:C" />
-          <xs:field xpath="@bRef" />
-        </xs:key>
-        <xs:keyref name="selectedbRefsInGrouping" refer="tns:selectedbRefs">
-          <xs:annotation><xs:documentation>All @bRef in grouping must also be part of select clause.</xs:documentation></xs:annotation>
-          <xs:selector xpath="tns:Grouping/tns:C" />
-          <xs:field xpath="@bRef" />
-        </xs:keyref>
+
+      <!-- CTE -->
+      <xs:element name="With" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Cte">
+              <xs:complexType>
+                <xs:group ref="tns:GroupFullSelect"/>
+                <xs:attribute name="alias" type="tns:AttrTypeAlias" use="required">
+                  <xs:annotation><xs:documentation>Use for wrq:Ref/@alias and its bRefs like alias.bRefName</xs:documentation></xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
+
+      <!-- Full Select -->
+      <xs:group ref="tns:GroupFullSelect">
+      </xs:group>
     </xs:sequence>
     <xs:anyAttribute namespace="##other" processContents="lax" />
   </xs:complexType>
@@ -65,6 +73,33 @@
     </xs:sequence>
   </xs:complexType>
 
+  <!-- A full select is SELECT [UNION SELECT]* -->
+  <xs:group name="GroupFullSelect">
+    <xs:sequence>
+      <xs:element name="Select" type="tns:TypeSelect">
+      </xs:element>
+      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+        <xs:choice>
+          <xs:element name="Union"        type="xs:string" fixed=""/>
+          <xs:element name="UnionAll"     type="xs:string" fixed=""/>
+          <xs:element name="Except"       type="xs:string" fixed=""/>
+          <xs:element name="ExceptAll"    type="xs:string" fixed=""/>
+          <xs:element name="Intersect"    type="xs:string" fixed=""/>
+          <xs:element name="IntersectAll" type="xs:string" fixed=""/>
+        </xs:choice>
+        <xs:element name="Select" type="tns:TypeSelect">
+        </xs:element>
+      </xs:sequence>
+    </xs:sequence>
+  </xs:group>
+
+  <!-- Format for aliases for table references and columns -->
+  <xs:simpleType name="AttrTypeAlias">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z]+[A-Za-z0-9_\-]*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="Columns" type="tns:TypeSelectColumns">
     <xs:annotation><xs:documentation>List of requested wrs:Wrs columns.</xs:documentation></xs:annotation>
   </xs:element>
@@ -76,11 +111,14 @@
       </xs:element>
       <xs:element ref="tns:Columns" minOccurs="0">
         <xs:annotation><xs:documentation>
-            List of requested wrs:Wrs columns. If empty all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
+          List of requested wrs:Wrs columns. If empty, all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
         </xs:documentation></xs:annotation>
       </xs:element>
-      <xs:element name="From" type="tns:TypeFrom">
-        <xs:annotation><xs:documentation>Source of the data.</xs:documentation></xs:annotation>
+      <xs:element name="From">
+        <xs:annotation><xs:documentation>Source of data. Can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause.</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:group ref="tns:GroupTableReference"></xs:group>
+        </xs:complexType>
       </xs:element>
       <xs:element ref="f:Filter" minOccurs="0">
         <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
@@ -98,13 +136,16 @@
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">
       <xs:annotation>
-        <xs:documentation>First row == 1. If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart=1.</xs:documentation>
+        <xs:documentation>First row == 1. If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart>1.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rowEnd" type="xs:int">
       <xs:annotation>
         <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with filled a header will be returned, no SQL will be performed.</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+      <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
 
@@ -165,15 +206,20 @@
   <xs:complexType name="TypeSelectColumns">
     <xs:sequence maxOccurs="unbounded" minOccurs="0">
       <xs:element name="C" type="tns:TypeSelectColumn">
-        <xs:annotation><xs:documentation>A plain or virtual BindingItem.</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>
+          A plain or virtual BindingItem.
+          You may add any additional attribute, it will be carried over to the corresponding wrs:Header/wrs:Columns/wrs:C.
+          If you overwrite one of the attributes of bnd:C, your attribute value will be overwrite the server value (as long as it is not security relevant).
+        </xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
   </xs:complexType>
 
 
   <xs:complexType name="TypeColumn">
-    <xs:attribute name="bRef" type="xs:NCName" use="required"/>
-    <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
+    <xs:attribute name="bRef" type="xs:NCName" use="required">
+      <xs:annotation><xs:documentation>Referenced BindingItem, may be preceded by the table reference alias.</xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
 
@@ -207,7 +253,11 @@
               but the id of the new VirtualBindingItem created here based on the calc.
             </xs:documentation></xs:annotation>
           </xs:element>
-          <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation><xs:documentation>
+              In SQL behaves like a normal wrq:C but becomes an attribute on its parent wrs:C instead of a wrs:C of its own.
+            </xs:documentation></xs:annotation>
+          </xs:element>
         </xs:sequence>
         <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
           <xs:annotation><xs:documentation>
@@ -221,7 +271,22 @@
             being returned as an escaped string. True, is default.
           </xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attribute name="caption" type="xs:string" use="optional"/>
+        <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+          <xs:annotation><xs:documentation>
+            Alias to address the column under a different name, useful in cases like sub selects of joins.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="caption" type="xs:string" use="optional">
+          <xs:annotation><xs:documentation>
+            Caption to be used by UI and in exports. If not set it is inherited from the underlying BindingSet / Select.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:anyAttribute processContents="lax">
+          <xs:annotation><xs:documentation>
+            Any given attribute will be copied to the Wrs as is.
+            If it is one of the attributes of bnd:C, it overwrites the value given at the server.
+          </xs:documentation></xs:annotation>
+        </xs:anyAttribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -237,26 +302,91 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:complexType name="TypeFrom">
+  <!-- wrq:From can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause -->
+  <xs:group name="GroupTableReference">
     <xs:sequence>
-      <xs:element ref="tns:BindingSet"/>
+      <!-- Table reference -->
+      <xs:choice>
+        <xs:group ref="tns:GroupFullSelect"></xs:group>
+        <xs:element name="BindingSet" type="tns:TypeBindingSet">
+          <xs:annotation><xs:documentation>Name of source BindingSet</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="Ref" type="tns:TypeRef">
+          <xs:annotation><xs:documentation>Can reference wrq:Select/@alias, wrq:Cte/@alias or wrq:BindingSet/@alias</xs:documentation></xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <!-- Join -->
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="InnerJoin"      type="tns:TypeJoin"/>
+        <xs:element name="FullOuterJoin"  type="tns:TypeJoin"/>
+        <xs:element name="LeftOuterJoin"  type="tns:TypeJoin"/>
+        <xs:element name="RightOuterJoin" type="tns:TypeJoin"/>
+      </xs:choice>
     </xs:sequence>
-  </xs:complexType>
+  </xs:group>
 
-  <xs:element name="BindingSet" type="tns:TypeBindingSet"/>
-
+  <!-- Referencing a bnd:BindingSet and defining an optional alias -->
   <xs:complexType name="TypeBindingSet">
     <xs:simpleContent>
       <xs:extension base="xs:NCName">
         <xs:attribute name="url" type="xs:string" use="optional">
           <xs:annotation>
-            <xs:documentation>Custom WrsServlet path relatively to contextPath</xs:documentation>
+            <xs:documentation>Custom WrsServlet path relatively to contextPath safd</xs:documentation>
           </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+          <xs:annotation><xs:documentation>Can be referenced in bRefs like alias.bRefName and in wrq:Ref/@alias</xs:documentation></xs:annotation>
         </xs:attribute>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
 
+  <!-- Referencing a a Cte -->
+  <xs:complexType name="TypeRef">
+    <xs:attribute name="alias" type="tns:AttrTypeAlias" use="required">
+      <xs:annotation><xs:documentation>Can reference wrq:Cte/@alias</xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- A table reference with a join clause -->
+  <xs:complexType name="TypeJoin">
+    <xs:sequence>
+      <xs:group ref="tns:GroupTableReference"></xs:group>
+      <xs:group ref="tns:GroupJoinFilter" maxOccurs="unbounded"></xs:group>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Join condition. Links values of a left part of a join to the one of the right part -->
+  <xs:complexType name="TypeOn">
+    <xs:attribute name="left" type="xs:NCName" use="required">
+      <xs:annotation><xs:documentation>Left bRef with alias</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="right" type="xs:NCName" use="required">
+      <xs:annotation><xs:documentation>Right bRef with alias</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="op" type="f:TypeSQLOperators" use="optional" default="=">
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- A recursive wrq:And/wrq:Or connected list of wrq:On clauses -->
+  <xs:group name="GroupJoinFilter">
+    <xs:choice>
+      <xs:element name="And" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:group ref="tns:GroupJoinFilter"></xs:group>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Or" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:group ref="tns:GroupJoinFilter"></xs:group>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="On" type="tns:TypeOn" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <!-- wrq:GroupBy clause -->
   <xs:complexType name="TypeGrouping">
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
@@ -289,7 +419,16 @@
 
   <xs:complexType name="TypeOrdering">
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="C" type="tns:TypeColumn"/>
+      <xs:element name="C">
+        <xs:complexType>
+          <xs:complexContent>
+            <xs:extension base="tns:TypeColumn">
+              <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
+              <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional"/>
+            </xs:extension>
+          </xs:complexContent>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
@@ -409,7 +548,7 @@
   </xs:element>
 
   <!--
-    Operator types, providing as a result themsevles a value
+    Operator types, providing as a result themselves a value
    -->
   <xs:complexType name="MultiOperatorType">
     <xs:complexContent>
