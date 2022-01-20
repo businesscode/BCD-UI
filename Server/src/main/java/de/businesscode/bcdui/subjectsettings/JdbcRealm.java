@@ -396,13 +396,13 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   public static void main(String[] args) throws Throwable{
     String clearPasswd = args.length>0?args[0]:null;
     if(clearPasswd==null||clearPasswd.isEmpty()) {
-      System.out.println("login passwd:");
+      System.out.println("Enter value:");
       try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))){
         clearPasswd = br.readLine();
       }
     }
     String[] salted = generatePasswordHashSalt(clearPasswd, DEFAULT_HASH_ITERATIONS);
-    System.out.println(String.format("hash-iterations:%s\npasswd hash:%s\nsalt:%s\n", DEFAULT_HASH_ITERATIONS, salted[0], salted[1]));
+    System.out.println(String.format("hash-iterations:%s\nhash:%s\nsalt:%s\n", DEFAULT_HASH_ITERATIONS, salted[0], salted[1]));
   }
 
   /**
