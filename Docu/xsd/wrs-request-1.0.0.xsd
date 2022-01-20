@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2017 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@
             <xs:element name="Cte">
               <xs:complexType>
                 <xs:group ref="tns:GroupFullSelect"/>
-                <xs:attribute name="alias" type="tns:AttrTypeAlias" use="required">
+                <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="required">
                   <xs:annotation><xs:documentation>Use for wrq:Ref/@alias and its bRefs like alias.bRefName</xs:documentation></xs:annotation>
                 </xs:attribute>
               </xs:complexType>
@@ -93,13 +93,6 @@
     </xs:sequence>
   </xs:group>
 
-  <!-- Format for aliases for table references and columns -->
-  <xs:simpleType name="AttrTypeAlias">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="[A-Za-z]+[A-Za-z0-9_\-]*"/>
-    </xs:restriction>
-  </xs:simpleType>
-
   <xs:element name="Columns" type="tns:TypeSelectColumns">
     <xs:annotation><xs:documentation>List of requested wrs:Wrs columns.</xs:documentation></xs:annotation>
   </xs:element>
@@ -107,7 +100,10 @@
   <xs:complexType name="TypeSelect">
     <xs:sequence>
       <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
-        <xs:annotation><xs:documentation>Allow top-n restriction in terms of dimensions and a measure</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>
+          Only available in BCD-UI Enterprise Edition.
+          Allow top-n restriction in terms of dimensions and a measures.
+        </xs:documentation></xs:annotation>
       </xs:element>
       <xs:element ref="tns:Columns" minOccurs="0">
         <xs:annotation><xs:documentation>
@@ -144,7 +140,7 @@
         <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with filled a header will be returned, no SQL will be performed.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+    <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
       <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -160,13 +156,12 @@
             <xs:element name="LevelRef" maxOccurs="unbounded">
               <xs:annotation><xs:documentation>Dimension regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
               <xs:complexType>
-                <xs:attribute name="bRef"/>
-                <xs:attribute name="caption"/>
-                <xs:attribute name="topNPartitionBy" type="xs:boolean" default="false">
+                <xs:attribute name="bRef" type="xs:NCName" use="required">
+                  <xs:annotation><xs:documentation>Reference to a dimension of the query.</xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="partition" type="xs:boolean" default="false">
                   <xs:annotation><xs:documentation>
-                    Only available in Enterprise Edition and only of relevance if used within TopNDimMember.
-                    If true the Rank() of the measure is determined partitioned by the level.
-                    Use this for example to create partioned top-n, like all top 2 products for each country individually.
+                    If true, the top-n values are partitioned by this level.
                   </xs:documentation></xs:annotation>
                 </xs:attribute>
               </xs:complexType>
@@ -271,7 +266,7 @@
             being returned as an escaped string. True, is default.
           </xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+        <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
           <xs:annotation><xs:documentation>
             Alias to address the column under a different name, useful in cases like sub selects of joins.
           </xs:documentation></xs:annotation>
@@ -334,7 +329,7 @@
             <xs:documentation>Custom WrsServlet path relatively to contextPath safd</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="alias" type="tns:AttrTypeAlias" use="optional">
+        <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
           <xs:annotation><xs:documentation>Can be referenced in bRefs like alias.bRefName and in wrq:Ref/@alias</xs:documentation></xs:annotation>
         </xs:attribute>
       </xs:extension>
@@ -343,7 +338,7 @@
 
   <!-- Referencing a a Cte -->
   <xs:complexType name="TypeRef">
-    <xs:attribute name="alias" type="tns:AttrTypeAlias" use="required">
+    <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="required">
       <xs:annotation><xs:documentation>Can reference wrq:Cte/@alias</xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -548,7 +543,7 @@
   </xs:element>
 
   <!--
-    Operator types, providing as a result themselves a value
+    Operator types, providing as a result themsevles a value
    -->
   <xs:complexType name="MultiOperatorType">
     <xs:complexContent>

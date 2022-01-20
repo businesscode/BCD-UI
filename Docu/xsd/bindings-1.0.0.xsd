@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2021 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -132,6 +132,13 @@
     </xs:sequence>
   </xs:complexType>
 
+  <!-- Simple id for bRefs for example. Same as NCName, but without . -->
+  <xs:simpleType name="AttrTypeSimpleId">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z]+[A-Za-z0-9_\-]*"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:complexType name="TypeBindingItemBase">
     <xs:sequence>
       <xs:element ref="wrs:References" minOccurs="0">
@@ -140,7 +147,7 @@
         </xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="id" type="xs:NCName" use="required">
+    <xs:attribute name="id" type="tns:AttrTypeSimpleId" use="required">
       <xs:annotation><xs:documentation>
         BindingItem-id, unique within this BindingSet. Make sure that all semantically equal a database columns
         have the same id across all BindingSets. For example all occurrences of pick-up locations in all tables, this allows for easier building filter, drill etc.
@@ -209,8 +216,8 @@
         <xs:sequence>
           <xs:element name="Column" type="xs:string">
             <xs:annotation><xs:documentation>
-                A valid column or column expression to be used when reading this BindingItem.
-              </xs:documentation></xs:annotation>
+              A valid column or column expression to be used when reading this BindingItem.
+            </xs:documentation></xs:annotation>
           </xs:element>
         </xs:sequence>
       </xs:extension>
@@ -232,7 +239,7 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
-  
+
   <xs:complexType name="TypeSubjectFilters">
     <xs:annotation><xs:documentation>This feature enables row-level security and requires enterprise edition</xs:documentation></xs:annotation>
     <xs:choice minOccurs="1" maxOccurs="unbounded">
@@ -398,9 +405,9 @@
       </xs:element>
     </xs:sequence>
     <xs:attribute name="class" type="xs:string" use="required">
-    <xs:annotation><xs:documentation>
-      implementation inheriting from the de.businesscode.bcdui.binding.write.WriteProcessingCallback class
-    </xs:documentation></xs:annotation>
+      <xs:annotation><xs:documentation>
+        implementation inheriting from the de.businesscode.bcdui.binding.write.WriteProcessingCallback class
+      </xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
 
@@ -408,179 +415,179 @@
 
 
   <xs:complexType name="TypeRelation">
-      <xs:sequence>
-        <xs:element name="DefaultImports" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              This element causes all BindingItems of the sourceBindingSet to be
-              imported. Also, this element allows the user to set an import prefix.
-              You have to use DefaultImports or Imports element in a Relation.
-            </xs:documentation>
-          </xs:annotation>
-          <xs:complexType>
-            <xs:attribute name="prefix" type="xs:NCName">
+    <xs:sequence>
+      <xs:element name="DefaultImports" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            This element causes all BindingItems of the sourceBindingSet to be
+            imported. Also, this element allows the user to set an import prefix.
+            You have to use DefaultImports or Imports element in a Relation.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="prefix" type="xs:NCName">
+            <xs:annotation>
+              <xs:documentation>
+                The prefix for the imported columns (e.g. "orig_"). This is
+                useful when the same table is joined multiple times, for example
+                to resolve origin and destination location.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Imports" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The list of imported BindingItems from the sourceBindingSet. In
+            contrast to the DefaultImports element this element is used to
+            import single items and individually set the names of them.
+            You have to use DefaultImports or Imports element in a Relation.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="ImportItem">
               <xs:annotation>
                 <xs:documentation>
-                  The prefix for the imported columns (e.g. "orig_"). This is
-                  useful when the same table is joined multiple times, for example
-                  to resolve origin and destination location.
+                  Represents a single imported BindingItem taken from the
+                  sourceBindingSet.
                 </xs:documentation>
               </xs:annotation>
-            </xs:attribute>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="Imports" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              The list of imported BindingItems from the sourceBindingSet. In
-              contrast to the DefaultImports element this element is used to
-              import single items and individually set the names of them.
-              You have to use DefaultImports or Imports element in a Relation.
-            </xs:documentation>
-          </xs:annotation>
-          <xs:complexType>
-            <xs:sequence minOccurs="0" maxOccurs="unbounded">
-              <xs:element name="ImportItem">
-                <xs:annotation>
-                  <xs:documentation>
-                    Represents a single imported BindingItem taken from the
-                    sourceBindingSet.
-                  </xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                  <xs:choice>
-                    <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-                    <xs:element name="Coalesce">
-                      <xs:annotation>
-                        <xs:documentation>
-                          This element contains an ordered list of BindingItemRefs
-                          or constant values which are sequentially evaluated. The
-                          first non-null element becomes the value of the new
-                          ImportItem.
-                        </xs:documentation>
-                      </xs:annotation>
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-                          <xs:choice maxOccurs="unbounded">
-                            <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-                            <xs:element name="Value" type="xs:string">
-                              <xs:annotation>
-                                <xs:documentation>A constant value.</xs:documentation>
-                              </xs:annotation>
-                            </xs:element>
-                          </xs:choice>
-                        </xs:sequence>
-                      </xs:complexType>
-                      <xs:unique name="CoalesceBindingItemRefUniqueness">
-                        <xs:selector xpath="BindingItemRef"/>
-                        <xs:field xpath="@name"/>
-                      </xs:unique>
-                    </xs:element>
-                  </xs:choice>
-                  <xs:attribute name="name" type="xs:ID" use="required">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                  <xs:element name="Coalesce">
                     <xs:annotation>
                       <xs:documentation>
-                        The name the BindingItem is published as.
+                        This element contains an ordered list of BindingItemRefs
+                        or constant values which are sequentially evaluated. The
+                        first non-null element becomes the value of the new
+                        ImportItem.
                       </xs:documentation>
                     </xs:annotation>
-                  </xs:attribute>
-                  <xs:attribute name="caption" type="xs:string">
-                    <xs:annotation>
-                      <xs:documentation>Optional attribute to overwrite the caption of the referenced binding item or coalesce item</xs:documentation>
-                    </xs:annotation></xs:attribute>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="Condition" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              Defines how the binding sets are joined together. Please note that
-              BindingSets must have a 1:[0..1] relationship.
-            </xs:documentation>
-          </xs:annotation>
-          <xs:complexType>
-            <xs:group ref="tns:booleanExpression"/>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-      <xs:attribute name="rightBindingSet" type="xs:NCName" use="required">
+                    <xs:complexType>
+                      <xs:sequence>
+                        <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                        <xs:choice maxOccurs="unbounded">
+                          <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
+                          <xs:element name="Value" type="xs:string">
+                            <xs:annotation>
+                              <xs:documentation>A constant value.</xs:documentation>
+                            </xs:annotation>
+                          </xs:element>
+                        </xs:choice>
+                      </xs:sequence>
+                    </xs:complexType>
+                    <xs:unique name="CoalesceBindingItemRefUniqueness">
+                      <xs:selector xpath="BindingItemRef"/>
+                      <xs:field xpath="@name"/>
+                    </xs:unique>
+                  </xs:element>
+                </xs:choice>
+                <xs:attribute name="name" type="xs:ID" use="required">
+                  <xs:annotation>
+                    <xs:documentation>
+                      The name the BindingItem is published as.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="caption" type="xs:string">
+                  <xs:annotation>
+                    <xs:documentation>Optional attribute to overwrite the caption of the referenced binding item or coalesce item</xs:documentation>
+                  </xs:annotation></xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Condition" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            The binding set that is joined with this one.
+            Defines how the binding sets are joined together. Please note that
+            BindingSets must have a 1:[0..1] relationship.
           </xs:documentation>
         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="type" default="leftOuter">
-        <xs:annotation>
-          <xs:documentation>
-            The type of relationship between this an the sourceBindingSet.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="leftOuter">
-              <xs:annotation>
-                <xs:documentation>A 1:[0..1] relationship.</xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="rightOuter">
-              <xs:annotation>
-                <xs:documentation>A [0..1]:1 relationship.</xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="inner">
-              <xs:annotation>
-                <xs:documentation>
-                  A 1:1 relationship. Non-matching rows are deleted from the result.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="toCaseExpression" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            The binding set that is joined with this one.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
+        <xs:complexType>
+          <xs:group ref="tns:booleanExpression"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="rightBindingSet" type="xs:NCName" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The binding set that is joined with this one.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" default="leftOuter">
+      <xs:annotation>
+        <xs:documentation>
+          The type of relationship between this an the sourceBindingSet.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="leftOuter">
+            <xs:annotation>
+              <xs:documentation>A 1:[0..1] relationship.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="rightOuter">
+            <xs:annotation>
+              <xs:documentation>A [0..1]:1 relationship.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="inner">
+            <xs:annotation>
+              <xs:documentation>
+                A 1:1 relationship. Non-matching rows are deleted from the result.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="toCaseExpression" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>
+          The binding set that is joined with this one.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
 
   </xs:complexType>
 
   <xs:complexType name="TypeBindingItemRef">
-   <xs:attribute name="name" type="xs:NCName" use="required">
-     <xs:annotation>
-       <xs:documentation>
-         The name of the binding item inside the referenced binding set.
-       </xs:documentation>
-     </xs:annotation>
-   </xs:attribute>
-   <xs:attribute name="side" default="right">
-     <xs:annotation>
-       <xs:documentation>
-         The binding set that is being referenced. If omitted, the first item defaults to the
-         left side, the second one to the right side.
-       </xs:documentation>
-     </xs:annotation>
-     <xs:simpleType>
-       <xs:restriction base="xs:string">
-         <xs:enumeration value="left">
-           <xs:annotation>
-             <xs:documentation>reference to the left BindingSet of the Relation</xs:documentation>
-           </xs:annotation>
-         </xs:enumeration>
-         <xs:enumeration value="right">
-           <xs:annotation>
-             <xs:documentation>reference to the right BindingSet of the Relation.</xs:documentation>
-           </xs:annotation>
-         </xs:enumeration>
-       </xs:restriction>
-     </xs:simpleType>
-   </xs:attribute>
+    <xs:attribute name="name" type="xs:NCName" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The name of the binding item inside the referenced binding set.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="side" default="right">
+      <xs:annotation>
+        <xs:documentation>
+          The binding set that is being referenced. If omitted, the first item defaults to the
+          left side, the second one to the right side.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="left">
+            <xs:annotation>
+              <xs:documentation>reference to the left BindingSet of the Relation</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+          <xs:enumeration value="right">
+            <xs:annotation>
+              <xs:documentation>reference to the right BindingSet of the Relation.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
 
 
@@ -639,8 +646,8 @@
       <xs:element name="GT">
         <xs:annotation>
           <xs:documentation>
-             Tests if the values of the left BindingItemRef greater than the right BindingItemRef. The corresponding
-             join condition looks like "A&gt;B".
+            Tests if the values of the left BindingItemRef greater than the right BindingItemRef. The corresponding
+            join condition looks like "A&gt;B".
           </xs:documentation>
         </xs:annotation>
         <xs:complexType>
