@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -157,6 +157,19 @@ public class BCDUIConfig extends HttpServlet {
           if (! onceOuter)
             writer.println("]");
         }
+
+        // write bcdUserBeans bcdui.config.clientRights object values
+        if (subject.getSession() != null) {
+          Map<String, String> bean = (HashMap<String, String>)subject.getSession().getAttribute(SessionAttributesManager.BCD_EL_USER_BEAN);
+          if (bean != null) {
+            boolean comma = ! sortedPerms.isEmpty();
+            for (Map.Entry<String, String> entry : bean.entrySet()) {
+              writer.println((comma ? "," : "") + entry.getKey() + ": [\"" + entry.getValue() + "\"]");
+              comma = true;
+            }
+          }
+        }
+
         writer.println("}");
       }
     }
