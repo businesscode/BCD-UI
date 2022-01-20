@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class SqlFromSubSelect
 
     // SELECTs which go to a non-virtual BindingSet support rowStart > 1
     // Currently only for top-level selects from BindingSet
-    if( rowStart > 1 && (rowEnd == -1 || rowEnd > rowStart) ) {
+    if( rowStart > 1 && (rowEnd == -1 || rowEnd >= rowStart) ) {
       XPath xp = XPathUtils.newXPathFactory().newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
       xp.setNamespaceContext(nsContext);
@@ -226,7 +226,7 @@ public class SqlFromSubSelect
       subjectSettingsClause = subjectSettingsStmt.getStatement();
       boundVariables.addAll(subjectSettingsStmt.getFilterItems());
     } else {
-      System.out.println("Unsave access"); // TODO);
+      System.out.println("Unsafe access"); // TODO);
     }
 
     // Now combine the two restrictions (Filter and SubjectSettings) into one WHERE clause
