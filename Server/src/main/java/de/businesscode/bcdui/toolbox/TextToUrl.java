@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.servlet.ServletConfig;
@@ -32,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * This servlet allows POSTing a text and retrieve it (up to 24h) later via GET under a given name
@@ -94,7 +94,7 @@ public class TextToUrl extends HttpServlet
 
       // print response
       resp.setContentType("text/xml");
-      resp.getWriter().print("<response><name>"+name+"</name></response>");
+      resp.getWriter().print("<response><name>"+StringEscapeUtils.escapeXml(name)+"</name></response>");
       resp.getWriter().close();
 
     } catch (SQLException e) {
@@ -130,9 +130,9 @@ public class TextToUrl extends HttpServlet
 
       resp.setContentType(mimeType);
       if( rs.next() )
-        resp.getOutputStream().print(rs.getString(1));
+        resp.getOutputStream().print("<response><value>"+StringEscapeUtils.escapeXml(rs.getString(1))+"</value></response>");
       else
-        resp.getOutputStream().print("<error>No text found for '"+name+"' in scope '"+getInitParameter(INIT_SCOPE)+"'</error>");
+        resp.getOutputStream().print("<error>No text found for '"+StringEscapeUtils.escapeXml(name)+"' in scope '"+getInitParameter(INIT_SCOPE)+"'</error>");
 
       resp.getOutputStream().close();
     } catch (SQLException e) {

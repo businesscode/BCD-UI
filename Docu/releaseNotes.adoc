@@ -17,6 +17,7 @@ Incompatibilities:
 ** bnd:Coalesce in Binding files was removed
 ** getTableName() was renamed to getTableReference()
 and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
+** TextToUrl servlet returns found value in an XML element now
 
 .Server:
 * allow client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
