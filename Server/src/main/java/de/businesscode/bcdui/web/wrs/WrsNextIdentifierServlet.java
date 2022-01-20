@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
-
+import org.apache.commons.lang.StringEscapeUtils;
 /**
  * provides next identifier - table based id generator,
  * binding-set: bcd_identifier
@@ -78,7 +78,7 @@ public class WrsNextIdentifierServlet extends HttpServlet {
       log.trace("got next identifier for scope " + scope + ": " + nextId);
 
       // @formatter:off
-      StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?><NextIdentifier xmlns=\"http://www.businesscode.de/schema/bcdui/bindings-1.0.0\" scope=\"" + scope + "\" blockSize=\"" + blockSize + "\">");
+      StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?><NextIdentifier xmlns=\"http://www.businesscode.de/schema/bcdui/bindings-1.0.0\" scope=\"" + StringEscapeUtils.escapeXml(scope) + "\" blockSize=\"" + blockSize + "\">");
       // @formatter:on
 
       sb.append(nextId);
