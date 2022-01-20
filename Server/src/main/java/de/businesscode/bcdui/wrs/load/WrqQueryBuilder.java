@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.util.StandardNamespaceContext;
+import de.businesscode.util.XPathUtils;
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -30,6 +32,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 
 /**
  * Takes a full Wrq query, formally a "select-statement" and generates SQL from it
@@ -87,7 +93,6 @@ public class WrqQueryBuilder
     // Handle the CTEs
     // TODO Cte must be children of With
     NodeList withClauseNodes = wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Cte");
-    String connect = "WITH ";
     try {
       // We need the database source to clarify which database dialect to apply
       // We just take the one from the first non-virtual BindingSet we find
@@ -95,21 +100,48 @@ public class WrqQueryBuilder
       BindingSet firstSbs = bindings.get(firstBindingSet.getTextContent().trim(), Collections.emptySet());
       jdbcResourceName = firstSbs.getJdbcResourceName();
 
+      // WITH or WITH RECURSIVE depending on whether we have a self-referencing CTE for some database
+      String connect = "WITH ";
+      Element withNode = (Element)wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "With").item(0);
+      XPath xp = XPathUtils.newXPathFactory().newXPath();
+      StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
+      xp.setNamespaceContext(nsContext);
+      XPathExpression bindingSetXpathExpr = xp.compile("./wrq:Cte[@alias=.//wrq:Ref/@alias]");
+      boolean isRecursive = withNode != null && ((NodeList)bindingSetXpathExpr.evaluate(withNode, XPathConstants.NODESET)).getLength() > 0;
+      DatabaseCompatibility dbCompat = DatabaseCompatibility.getInstance();
+      if( isRecursive && dbCompat.dbNeedsRecursiveInWithClause(jdbcResourceName) ) connect += "RECURSIVE ";
+
       // Loop over CTEs
       for( int cte=0; cte<withClauseNodes.getLength(); cte++ ) {
         StringBuilder sql = new StringBuilder();
         sql.append(connect);
         connect = ", ";
-        
+
         // Write SQL
         Element cteElem = (Element)withClauseNodes.item(cte);
         SqlFromFullSelect sqlFomFullSelect = new SqlFromFullSelect( this, null, cteElem );
         resolvedBindingSets.addAll(sqlFomFullSelect.getResolvedBindingSets());
         SQLStatementWithParams stmtWp = sqlFomFullSelect.getSelectStatement();
+        
+        // Alias of CTE
+        sql.append( sqlFomFullSelect.getRepresentingBindingSet().getSqlAlias() );
+        
+        // List columns may be necessary like "WITH RECURSIVE cte1(v1, v2, v3) AS" depending on database
+        if( isRecursive && dbCompat.dbNeedsColumnListForRecursiveWithClause(jdbcResourceName) ) {
+          String vConnect = "(";
+          for( int v=1; v<=sqlFomFullSelect.getSelectedBindingItems().size(); v++ ) {
+            sql.append(vConnect).append("v"+v);
+            vConnect = ", ";
+          }
+          sql.append(")");
+        }
 
-        sql.append( sqlFomFullSelect.getRepresentingBindingSet().getSqlAlias() + " AS ( ");
+        // The select itself
+        sql.append(" AS ( ");
         sql.append( stmtWp.getStatement() );
         sql.append(" ) ");
+
+        // Append this whole CTE
         stmtWP.append( sql.toString(), stmtWp.getFilterItems(), sqlFomFullSelect.getRepresentingBindingSet() );
 
         // Register a virtual BindingSet for this CTE for our alias

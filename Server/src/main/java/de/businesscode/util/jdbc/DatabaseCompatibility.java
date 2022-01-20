@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -130,9 +130,10 @@ public class DatabaseCompatibility
    * @param bs
    * @return
    */
-  public boolean dbNeedsColumnListInWithClause(String jdbcResourceName)
+  public boolean dbNeedsColumnListForRecursiveWithClause(String jdbcResourceName)
   {
-    return false;
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    return product.contains("oracle") || product.contains("redshift");
   }
   /**
    * Some data bases only allow for a single select clause
@@ -142,6 +143,16 @@ public class DatabaseCompatibility
   public boolean dbAllowsMultiWithClauses(String jdbcResourceName)
   {
     return true;
+  }
+
+  /**
+   * Some databases need WITH RECURSIVE for recursive queries, some do not understand it
+   * @param jdbcResourceName
+   * @return
+   */
+  public boolean dbNeedsRecursiveInWithClause(String jdbcResourceName) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    return ! (product.contains("oracle") || product.contains("microsoft sql server"));
   }
 
   /**
