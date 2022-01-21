@@ -106,7 +106,7 @@ public class WrqQueryBuilder
       XPath xp = XPathUtils.newXPathFactory().newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
       xp.setNamespaceContext(nsContext);
-      XPathExpression bindingSetXpathExpr = xp.compile("./wrq:Cte[@alias=.//wrq:Ref/@alias]");
+      XPathExpression bindingSetXpathExpr = xp.compile("./wrq:Cte[@alias=.//wrq:CteRef/text()]");
       boolean isRecursive = withNode != null && ((NodeList)bindingSetXpathExpr.evaluate(withNode, XPathConstants.NODESET)).getLength() > 0;
       DatabaseCompatibility dbCompat = DatabaseCompatibility.getInstance();
       if( isRecursive && dbCompat.dbNeedsRecursiveInWithClause(jdbcResourceName) ) connect += "RECURSIVE ";
@@ -200,14 +200,13 @@ public class WrqQueryBuilder
   /**
    * Set the BindingSet for a user provided table expression alias
    * @param wrqAlias
-   * @param bindingSet
    */
   public boolean hasCteBindingSetForWrqAlias(String wrqAlias) {
     return wrqBindingSetForWrqAlias.containsKey(wrqAlias);
   }
 
   /**
-   * Helps u use i sin batch environments when not using Bindings.getInstance()
+   * Helps us use it in batch environments when not using Bindings.getInstance()
    * @return
    */
   public Bindings getBindings() {

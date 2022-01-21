@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
@@ -195,4 +196,10 @@ public interface BindingSet extends Cloneable, Serializable {
    * @return
    */
   List<Class<? extends Modifier>> getWrqModifiers();
+  
+  /**
+   * All non-virtual BindingSets that were used at the end, BindingGroups are being resolved to the actually used BindingSets
+   * @return
+   */
+  Set<StandardBindingSet> getResolvedBindingSets();
 }

@@ -101,7 +101,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
       switch(fromChild.getLocalName()) {
 
         // A (Virtual)BindingSet
-        case "Ref":
+        case "CteRef":
         case "BindingSet":
         case "Select": {
           addTableFactor(fromChild, sqlStatementWithParams, allRawBRefsInclJoin, selectAll);
@@ -256,7 +256,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
           sbs.getSubjectFilters().enrichBindingItems(allRawBRefsWoAlias);
         }
 
-        bs = WrqBindingSetFromStandardBindingSet.create(currentSelect, sbs);
+        bs = WrqBindingSetRef.create(currentSelect, sbs);
         
         currentSelect.addBindingSetForWrqAlias(wrqAlias, bs);
         sqlStatementWithParams.append(sbs.getTableReference(allRawBRefsWoAlias, bs.getSqlAlias())).append(" ");
@@ -269,9 +269,11 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         sqlStatementWithParams.append(" ( ").append(sqlFromFulSelect.getSelectStatement()).append(" ) ").append( bs.getSqlAlias() );
         break;
       }
-      case "Ref": {
-        bs = currentSelect.getWrqQueryBuilder().getCteBindingSetForWrqAlias(wrqAlias);
-        sqlStatementWithParams.append( bs.getSqlAlias() );
+      case "CteRef": {
+        WrqBindingSet cteBs = currentSelect.getWrqQueryBuilder().getCteBindingSetForWrqAlias(teElem.getTextContent());
+        bs = WrqBindingSetRef.create(currentSelect, cteBs);
+        currentSelect.addBindingSetForWrqAlias(wrqAlias, bs);
+        sqlStatementWithParams.append( cteBs.getSqlAlias() ).append(" ").append( bs.getSqlAlias() );
         break;
       }
       

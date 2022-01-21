@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 package de.businesscode.bcdui.binding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.util.WebUtils;
@@ -173,7 +176,8 @@ public class StandardBindingSet implements BindingSet {
   /**
    * Generate the part of the where clause that is reflecting the bnd:BindingSet/bnd:SubjectSettings/bnd:SubjectFilters
    * @param wrqInfo
-   * @param tableAlias
+   * @param wrqAlias
+   * @param sqlAlias
    * @return
    * @throws BindingException
    */
@@ -185,7 +189,7 @@ public class StandardBindingSet implements BindingSet {
     if( hasSubjectFilters() && sqlConditionGeneratorClass != null ) {
       
       if( !WebUtils.isHttp(SecurityUtils.getSubject()) ) {
-        System.out.println("Unsave access"); // TODO);
+        System.out.println("Unsafe access"); // TODO);
       } else {
         SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, 
               new Class<?>[]{BindingSet.class, WrqInfo.class, List.class, String.class, String.class},
@@ -356,7 +360,6 @@ public class StandardBindingSet implements BindingSet {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.BindingSet#getBindingItems()
    */
   public Collection<BindingItem> getBindingItems() {
     return bindingItems.values();
@@ -439,5 +442,14 @@ public class StandardBindingSet implements BindingSet {
     SQLStatementWithParams sqlStatementWithParams = new SQLStatementWithParams(tableName);
     return sqlStatementWithParams;
   }
+
+  /**
+   * List of use StandardBindingSets
+   * @return
+   */
+  public Set<StandardBindingSet> getResolvedBindingSets() {
+    return new HashSet<StandardBindingSet>(Arrays.asList(this));
+  }
+
 
 }

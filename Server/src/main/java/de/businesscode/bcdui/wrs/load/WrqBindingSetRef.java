@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,16 +23,17 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.StandardBindingSet;
 
 /**
- * Wrapper for a StandardBindingSet in the current query, mainly adds the sql table alias
+ * Wrapper for BindingSets that can be referenced more than one in a query, mainly adds the sql table alias for the current occurrence
+ * This can be a StandardBindingSet and a CTE
  * Implements WrqBindingSet
  */
-public class WrqBindingSetFromStandardBindingSet implements InvocationHandler {
+public class WrqBindingSetRef implements InvocationHandler {
 
-  private static final long serialVersionUID = -1997230422644708377L;
-  private final StandardBindingSet underlyingBindingSet;
+  private final BindingSet underlyingBindingSet;
   protected String sqlAlias;
   protected Set<StandardBindingSet> resolvedBindingSets = new HashSet<>();
   protected final SqlFromSubSelect currentSelect;
@@ -40,15 +41,15 @@ public class WrqBindingSetFromStandardBindingSet implements InvocationHandler {
   /**
    * Proxy factory
    * @param currentSelect
-   * @param standardBindingSet
+   * @param underlyingBindingSet
    * @return
    * @throws Exception 
    */
-  public static WrqBindingSet create(SqlFromSubSelect currentSelect, StandardBindingSet standardBindingSet) {
+  public static WrqBindingSet create(SqlFromSubSelect currentSelect, BindingSet underlyingBindingSet) {
     WrqBindingSet bs = (WrqBindingSet)Proxy.newProxyInstance(
         WrqBindingSet.class.getClassLoader(),
         new Class[] { WrqBindingSet.class },
-        new WrqBindingSetFromStandardBindingSet(currentSelect, standardBindingSet));
+        new WrqBindingSetRef(currentSelect, underlyingBindingSet));
     return bs;
   }
   
@@ -57,14 +58,17 @@ public class WrqBindingSetFromStandardBindingSet implements InvocationHandler {
    * @param currentSelect
    * @throws Exception
    */
-  private WrqBindingSetFromStandardBindingSet(SqlFromSubSelect currentSelect, StandardBindingSet standardBindingSet) {
+  private WrqBindingSetRef(SqlFromSubSelect currentSelect, BindingSet underlyingBindingSet) {
     
     this.currentSelect = currentSelect;
-    underlyingBindingSet = standardBindingSet;
-    resolvedBindingSets.add( standardBindingSet );
+    this.underlyingBindingSet = underlyingBindingSet;
+    resolvedBindingSets.addAll( underlyingBindingSet.getResolvedBindingSets() );
     sqlAlias = currentSelect.getNextTableSqlAlias();
   }
-
+  
+  /**
+   * Pass calls to our underlying BindignSet
+   */
   @Override
   public Object invoke(Object obj, Method method, Object[] args)
       throws Throwable
@@ -77,7 +81,13 @@ public class WrqBindingSetFromStandardBindingSet implements InvocationHandler {
       }
 
       else if( "getSubjectFilterExpression".equals( method.getName() ) ) {
-        return underlyingBindingSet.getSubjectFilterExpression(currentSelect.getWrqInfo(), currentSelect.getSelectElem().getAttribute("alias"), sqlAlias);
+        if( underlyingBindingSet instanceof StandardBindingSet ) {
+          return ((StandardBindingSet)underlyingBindingSet).getSubjectFilterExpression(currentSelect.getWrqInfo(), currentSelect.getSelectElem().getAttribute("alias"), sqlAlias);
+        } else if (underlyingBindingSet instanceof WrqBindingSet) {
+          return ((WrqBindingSet)underlyingBindingSet).getSubjectFilterExpression(currentSelect.getWrqInfo());
+        } else {
+          throw new InvocationTargetException( new Exception("Unknown type of BindingSet " + underlyingBindingSet.getName() ) );
+        }
       }
 
       else if( "getResolvedBindingSets".equals( method.getName() ) ) {
@@ -85,10 +95,12 @@ public class WrqBindingSetFromStandardBindingSet implements InvocationHandler {
       }
       
       // Default action for the rest
-      else
+      else {
         return method.invoke(underlyingBindingSet, args);
+      }
 
     } catch ( InvocationTargetException e ) {
+      // Provide the original error
       throw e.getCause();
     }
 

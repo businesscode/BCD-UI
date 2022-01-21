@@ -306,8 +306,8 @@
         <xs:element name="BindingSet" type="tns:TypeBindingSet">
           <xs:annotation><xs:documentation>Name of source BindingSet</xs:documentation></xs:annotation>
         </xs:element>
-        <xs:element name="Ref" type="tns:TypeRef">
-          <xs:annotation><xs:documentation>Can reference wrq:Select/@alias, wrq:Cte/@alias or wrq:BindingSet/@alias</xs:documentation></xs:annotation>
+        <xs:element name="CteRef" type="tns:TypeCteRef">
+          <xs:annotation><xs:documentation>References a wrq:Cte/@alias</xs:documentation></xs:annotation>
         </xs:element>
       </xs:choice>
       <!-- Join -->
@@ -336,11 +336,15 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <!-- Referencing a a Cte -->
-  <xs:complexType name="TypeRef">
-    <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="required">
-      <xs:annotation><xs:documentation>Can reference wrq:Cte/@alias</xs:documentation></xs:annotation>
-    </xs:attribute>
+  <!-- Referencing a Cte -->
+  <xs:complexType name="TypeCteRef">
+    <xs:simpleContent>
+      <xs:extension base="bnd:AttrTypeSimpleId">
+        <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
+          <xs:annotation><xs:documentation>References a wrq:Cte/@alias</xs:documentation></xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <!-- A table reference with a join clause -->
