@@ -283,6 +283,7 @@ public class WrqFilter2Sql
   private static final Map<String, String> operatorMapping;
   static {
     operatorMapping = new HashMap<String, String>();
+    operatorMapping.put("=", "=");
     operatorMapping.put(">", ">");
     operatorMapping.put(">=", ">=");
     operatorMapping.put("<", "<");
@@ -301,4 +302,9 @@ public class WrqFilter2Sql
     connectiveMapping.put("and", "AND");
     connectiveMapping.put("or", "OR");
   }
+  
+  public static String getOperatorMapping(String op) {
+    return operatorMapping.get(op);
+  }
+  
 }

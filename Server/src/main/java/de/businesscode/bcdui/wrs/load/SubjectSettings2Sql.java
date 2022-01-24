@@ -28,6 +28,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Element;
 
+import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -96,13 +97,15 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
 
   /**
    * helper to create SubjectSettings element carrying value attribute from plain values which are used for prepared statement parameterization
-   * @param psValues
-   * @param boundVariables
+   * @param bRef            - used for jdbc type determination
+   * @param psValues        - list of allowed values
+   * @param boundVariables  - virtual parameters
    */
-  private void writeParams(List<String> psValues, List<Element> boundVariables) {
+  private void writeParams(String bRef, List<String> psValues, List<Element> boundVariables) {
     psValues.forEach(p -> {
       Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
       e.setAttribute("value", p);
+      e.setAttribute("bRef", bRef);
       boundVariables.add(e);
     });
   }
@@ -273,7 +276,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     if (subjectSettingsClause.length() > 0) {
       subjectSettingsClause.append(" " + connective.getSymbol() + " ");
     }
-    generateCondition(subjectSettingsClause, subject, ft, boundVariables, filterType, permissions, bindingSet.get(bRef).getQColumnExpression(sqlAlias));
+    generateCondition(subjectSettingsClause, subject, ft, boundVariables, filterType, permissions, bindingSet.get(bRef));
   }
 
   /**
@@ -285,10 +288,12 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param boundVariables
    * @param filterType - filter type name
    * @param permissions - permissions granted by subject
-   * @param columnExpression - the column expression to participate in condition
+   * @param bi - the BindinItem on which the permission is to apply
    */
   protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, List<Element> boundVariables, String filterType,
-      Set<String> permissions, String columnExpression) {
+      Set<String> permissions, BindingItem bi) 
+  {
+    String columnExpression = bi.getQColumnExpression(sqlAlias);
     if(permissions.isEmpty() && ft.isIsNullAllowsAccess()) {
       // no permission, yet select null-values
       subjectSettingsClause.append(columnExpression).append(" IS NULL");
@@ -297,28 +302,36 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         columnExpression = "$col$ IS NULL OR $col$".replace("$col$", columnExpression);
       }
       subjectSettingsClause.append("(");
+
+      // If only few distinct values are allowed, we do not join with bcd_sec_subjectsettings but set values directly in a prepared statement
       if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
-        if (ft.getOp().equals("like")) {
-          int i = 0;
-          for (String p : permissions) {
-            if (i++ > 0)
-              subjectSettingsClause.append(" or ");
-            subjectSettingsClause.append(columnExpression + " like '" + p.replace('*', '%').replace('\'', ' ') + "'");
+
+        // One expression for all values for "IN" and a single "="
+        if( ft.getOp().contains("in") 
+            || ( (ft.getOp()==null || ft.getOp().equals("=")) && permissions.size()>1) ) {
+          subjectSettingsClause.append(columnExpression).append(" in (").append( permissions.stream().map(p2 -> "?").collect(Collectors.joining(",")) ).append(")");
+        } 
+        // List of OR-ed expressions
+        else {
+          String sqlOp = ft.getOp()==null ? "=" : WrqFilter2Sql.getOperatorMapping(ft.getOp());
+          for( int pIdx=0; pIdx<permissions.size(); pIdx++) {
+            if( pIdx > 0 ) subjectSettingsClause.append(" OR ");
+            subjectSettingsClause.append(columnExpression).append(" ").append(sqlOp).append(" ? ");
           }
         }
-        else {
-          // resolve inline
-          subjectSettingsClause.append(columnExpression + " in (");
-          // replace possible ' by space and wrap into ' and enumerate
-          subjectSettingsClause.append(permissions.stream().map(p -> "'" + p.replace('\'', ' ') + "'").collect(Collectors.joining(",")));
-          subjectSettingsClause.append(")");
+
+        // Append the parameters. Per convention in BCD-UI LIKE: operator * means SQL %
+        List<String> perms = ft.getOp().equals("like") ? 
+            permissions.stream().map(p1 -> p1.replace('*', '%')).collect(Collectors.toList()) : permissions.stream().collect(Collectors.toList());
+        writeParams(bi.getId(), perms, boundVariables);
       }
-      } else {
-        // resolve via subselect
+
+      // Resolve via subselect if we have many permission values
+      else {
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
         subjectSettingsClause.append(columnExpression + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
-        writeParams(Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
+        writeParams(bi.getId(), Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }
       subjectSettingsClause.append(")");
     }
