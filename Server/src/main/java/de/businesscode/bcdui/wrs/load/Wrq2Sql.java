@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -126,8 +127,10 @@ public class Wrq2Sql implements ISqlGenerator
     
     wrqQueryBuilder = new WrqQueryBuilder(this, bindings, requestDoc.getDocumentElement());
     
-    // Are we allowed to real all used BindingSets? Will throw otherwise
-    if( WebUtils.isHttp(SecurityUtils.getSubject()) ) {
+    // Are we allowed to read all used BindingSets? Will throw otherwise
+    Subject subject = null;
+    try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
+    if (subject != null && WebUtils.isHttp(subject)) {
       wrqQueryBuilder.assurePermittedOnAllResolvedBindingSets(SECURITY_OPS.read);
     }
   }

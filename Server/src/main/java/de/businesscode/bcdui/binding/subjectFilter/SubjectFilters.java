@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -79,21 +79,25 @@ public class SubjectFilters {
     // add possible missing subject filter bRef to add missing joins
     // can only be done here since subject filter bRefs are only known after binding parsing
     // If the user has any-right "*" for a SubjectFilter, we do not need any join
-    Subject subject = SecurityUtils.getSubject();
-    // TODO: what to do in case subject is not authenticated? 
-    Session session = subject.getSession(false);
-    SubjectSettings settings = SubjectSettings.getInstance();
-    getPlainFilters().forEach(sf -> {
-      SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
-      // we have a wildcard in session
-      if("*".equals(settings.getFilterTypeValue(session, ft))){
-        return;
-      }
-      // we have a wildcard in subject settings
-      if (subject.isPermitted(settings.getFilterType(ft) + ":*"))
-        return;
-      brefs.add(ft.getBindingItems().getC().getBRef());
-    });
+    Subject s = null;
+    try { s = SecurityUtils.getSubject(); }catch (Exception e) {/* no shiro at all */}
+    if (s != null) {
+      Subject subject = s;
+      // TODO: what to do in case subject is not authenticated? 
+      Session session = subject.getSession(false);
+      SubjectSettings settings = SubjectSettings.getInstance();
+      getPlainFilters().forEach(sf -> {
+        SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
+        // we have a wildcard in session
+        if("*".equals(settings.getFilterTypeValue(session, ft))){
+          return;
+        }
+        // we have a wildcard in subject settings
+        if (subject.isPermitted(settings.getFilterType(ft) + ":*"))
+          return;
+        brefs.add(ft.getBindingItems().getC().getBRef());
+      });
+    }
   }
 
   /**

@@ -27,6 +27,7 @@ import de.businesscode.util.xml.SecureXmlFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.w3c.dom.Element;
 
@@ -221,7 +222,9 @@ public class SqlFromSubSelect
 
     // Take care for row level security
     String subjectSettingsClause = "";
-    if( WebUtils.isHttp(SecurityUtils.getSubject()) ) {
+    Subject subject = null;
+    try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
+    if( subject != null && WebUtils.isHttp(SecurityUtils.getSubject()) ) {
       SQLStatementWithParams subjectSettingsStmt = wrqInfo.getResultingBindingSet().getSubjectFilterExpression(wrqInfo);
       subjectSettingsClause = subjectSettingsStmt.getStatement();
       boundVariables.addAll(subjectSettingsStmt.getFilterItems());
