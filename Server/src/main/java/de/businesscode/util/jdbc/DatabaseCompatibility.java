@@ -135,15 +135,6 @@ public class DatabaseCompatibility
     String product = getDatabaseProductNameLC(jdbcResourceName);
     return product.contains("oracle") || product.contains("redshift");
   }
-  /**
-   * Some data bases only allow for a single select clause
-   * @param bs
-   * @return
-   */
-  public boolean dbAllowsMultiWithClauses(String jdbcResourceName)
-  {
-    return true;
-  }
 
   /**
    * Some databases need WITH RECURSIVE for recursive queries, some do not understand it
@@ -162,7 +153,7 @@ public class DatabaseCompatibility
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("teradata");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql");
   }
 
   /**
