@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.FileSystemException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -44,32 +46,30 @@ import de.businesscode.bcdui.vfs.provider.database.DatabaseFileSystemConfigBuild
 import de.businesscode.util.SOAPFaultMessage;
 
 /**
- * This class serves static resources like JS or HTML pages from the
- * file system and the classpath. Therefore it extends the functionality
- * of the default servlet which can only serve resources from the file
- * system. This servlet will at first try to locate the requested resource
- * on the file system and if it fails it will use the Class.getResource
- * method to search the classpath. In the latter case the source path
- * gets a prefix <b>/bcduiWebapp</b>. For example when the requested resource
- * is "/web/sha1.js", the servlet will first try the file access and then
- * try to get the resource "/bcduiWebapp/web/sha1.js" from the classpath.
- * <br>
- * To integrate it in the web.xml with bcdui you can use the following
- * declarations:
+ * This class enables the use of the database-backed virtual file system and jar files as source for seemingly static resources.
+ * Normal static files are located on the filesystem within the webapps root, put there when the server extracts the app.war file.
+ * Static files are requested by /appContext/some/path/someFile.txt for example.
+ * This class makes files under such an address available, which really come from the database or a jar (and classpath in general) within the app.war instead.
+ * Main usage is the virtual file system and making BCD-UI static files like js and xslt available from bcd-ui-core.jar within app.war.
+ * The search order is: First vfs, then file system (on server this is normal file from the war), then jar files.
+ * Note: Since vfs caches the file list from the database (not the actual content), a lookup in vfs is no performance hit.
  *
  * {@code
  *  <servlet>
  *    <servlet-name>staticResourceServlet</servlet-name>
  *    <servlet-class>de.businesscode.web.StaticResourceServlet</servlet-class>
+ *    <init-param>
+ *      <param-name>vfsFileExtensions</param-name> <!-- Extensions that can be overwritten in vfs -->
+ *      <param-value>xml txt vfsxml pdf png gif jpg jpeg svg doc docx xls xlsx csv zip</param-value>
+ *    </init-param>
  *  </servlet>
- *
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.js</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.css</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.xslt</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.xsl</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.dtd</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.gif</url-pattern></servlet-mapping>
- *  <servlet-mapping><servlet-name>staticResourceServlet</servlet-name><url-pattern>*.jpg</url-pattern></servlet-mapping>
+ *  <!-- Add any URL for the virtual file system here -->
+ *  <servlet-mapping>
+ *    <servlet-name>bcdui4.StaticResourceServlet</servlet-name>
+ *    <url-pattern>/bcdui/*</url-pattern>
+ *    <url-pattern>/vfs/*</url-pattern>
+ *    <url-pattern>*.vfsxml</url-pattern>
+ *  </servlet-mapping>
  * }
  */
 public class StaticResourceServlet extends HttpServlet {
@@ -99,6 +99,10 @@ public class StaticResourceServlet extends HttpServlet {
    * init parameter name to set VFS file extensions
    */
   private String vfsFileExtensionsInitParamName="vfsFileExtensions";
+  
+  // For removal of bcduiApiStubs removal
+  private final Pattern patternImportBcduiApiStubs     = Pattern.compile("^import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.; *$");
+  private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
@@ -120,6 +124,7 @@ public class StaticResourceServlet extends HttpServlet {
    */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
     // entry the resource resolving
     Resource resource = StaticResourceProvider.fetchResource(getServletContext(), req);
     if (resource.notFound()) {
@@ -140,6 +145,13 @@ public class StaticResourceServlet extends HttpServlet {
     }
 
     byte[] data = resource.getData();
+
+    // Remove import {bcdui} from "bcduiApiStubs.js" from js files
+    if( req.getRequestURI().endsWith(".js") ) {
+      String asString = new String(Arrays.copyOfRange(data, 0, patternImportBcduiApiStubsSearchLen));
+      Matcher matcher = patternImportBcduiApiStubs.matcher(asString);
+      if( matcher.find() ) Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+    }
 
     resp.setContentLength(data.length);
     resp.getOutputStream().write(data);
@@ -254,13 +266,13 @@ public class StaticResourceServlet extends HttpServlet {
     }
 
     /**
-     * try to fetch resourso from overriddden source folder
+     * try to fetch resource from overridden source folder
      */
     private static Resource fetchOverriddenResource(ServletContext context, String fullyQualifiedPath){
       Resource res = null;
       File overwriteFile = new File( context.getRealPath( "/"+bcduiOverwriteDefaultFolderName+"/" + fullyQualifiedPath.substring( LIBRARY_PREFIX_LENGTH  ) ) );
       if( overwriteFile.exists() ) {
-        log.trace( "fetching overrridden resource from file system: " + overwriteFile.getAbsolutePath());
+        log.trace( "fetching overridden resource from file system: " + overwriteFile.getAbsolutePath());
         res = new LocalResource( fullyQualifiedPath, overwriteFile, null );
       }
       return res;
@@ -312,7 +324,7 @@ public class StaticResourceServlet extends HttpServlet {
           }
         }
       }
-      //---- at least look into jars
+      //---- at last look into jars
       if(res == null){// resolve from classPath(JAR)
         String classPathSource = classPathPrefix + fullyQualifiedPath;
         URL url = Resource.class.getResource(classPathSource);
