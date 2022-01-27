@@ -77,21 +77,6 @@ public class StaticResourceServlet extends HttpServlet {
   static Logger log = LogManager.getLogger(StaticResourceServlet.class);
 
   /**
-   * All classpath resource lookups get this prefix.
-   */
-  public static final String classPathPrefix = "";
-
-  static final String LIBRARY_PREFIX       = "/"+BCDUIConfig.LIB_ROOT_FOLDER_NAME+"/";
-  static final int    LIBRARY_PREFIX_LENGTH = LIBRARY_PREFIX.length();
-
-  /**
-   * if overridden source folder exist
-   */
-  static boolean existOverridden=false;
-  static String bcduiOverwriteDefaultFolderName="bcduiOverwrite";
-  private String bcduiOverwriteFolderName=bcduiOverwriteDefaultFolderName;
-  private final String bcduiOverwriteFolderInitParamName="bcduiOverwriteFolderName";
-  /**
    * file extensions to be served from VFS
    */
   static String[] vfsFileExtensions={"xml","txt"};//default values
@@ -100,23 +85,18 @@ public class StaticResourceServlet extends HttpServlet {
    */
   private String vfsFileExtensionsInitParamName="vfsFileExtensions";
   
-  // For removal of bcduiApiStubs removal
-  private final Pattern patternImportBcduiApiStubs     = Pattern.compile("^import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.; *$");
+  // For removal of bcduiApiStubs imports
+  private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
   private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
 
-    if(getInitParameter(bcduiOverwriteFolderInitParamName) != null){
-      bcduiOverwriteFolderName = getInitParameter(bcduiOverwriteFolderInitParamName);
-    }
     if(getInitParameter(vfsFileExtensionsInitParamName) != null){// override default values
       vfsFileExtensions = getInitParameter(vfsFileExtensionsInitParamName).split(" ");
     }
     Arrays.sort(vfsFileExtensions);// for binary searching
-
-    existOverridden = config.getServletContext().getRealPath( "/"+bcduiOverwriteFolderName) != null;
   }
 
   /**
@@ -164,7 +144,7 @@ public class StaticResourceServlet extends HttpServlet {
   }
 
   /**
-   * provider interface to resolve a {@link IResource}
+   * provider interface to resolve a {@link Resource}
    */
   public static interface ResourceProvider {
     /**
@@ -204,7 +184,7 @@ public class StaticResourceServlet extends HttpServlet {
    * a static resource provider singleton
    */
   public static class StaticResourceProvider implements ResourceProvider {
-    private final static ResourceProvider vfsResrouceProvider = Configuration.getClassInstance(Configuration.OPT_CLASSES.VFSRESOURCEPROVIDER, new Class<?>[]{});
+    private final static ResourceProvider vfsResourceProvider = Configuration.getClassInstance(Configuration.OPT_CLASSES.VFSRESOURCEPROVIDER, new Class<?>[]{});
     private static StaticResourceProvider instance;
     public synchronized static StaticResourceProvider getInstance(){
       if(instance == null){
@@ -266,19 +246,6 @@ public class StaticResourceServlet extends HttpServlet {
     }
 
     /**
-     * try to fetch resource from overridden source folder
-     */
-    private static Resource fetchOverriddenResource(ServletContext context, String fullyQualifiedPath){
-      Resource res = null;
-      File overwriteFile = new File( context.getRealPath( "/"+bcduiOverwriteDefaultFolderName+"/" + fullyQualifiedPath.substring( LIBRARY_PREFIX_LENGTH  ) ) );
-      if( overwriteFile.exists() ) {
-        log.trace( "fetching overridden resource from file system: " + overwriteFile.getAbsolutePath());
-        res = new LocalResource( fullyQualifiedPath, overwriteFile, null );
-      }
-      return res;
-    }
-
-    /**
      * Gets the resource associated with a specific path.
      * @param context The servlet context used to locate the files if it is a file resource.
      * @param fullyQualifiedPath The full path (without the context path) to the resource,
@@ -287,10 +254,7 @@ public class StaticResourceServlet extends HttpServlet {
      * searching ordering:
      * 1. DB (virtual file system)
      * 2. HD Filesystem
-     *      |
-     *      2a. in bcdui overridden folder -&gt; bcdui sourcen
-     *      2b. in filesystem -&gt; bcdui or report/...
-     * 3. JAR
+     * 2. JAR
      *
      *
      * @return The resource which is always non-null. Use the notFound() method to test if
@@ -302,38 +266,29 @@ public class StaticResourceServlet extends HttpServlet {
       Resource res = null;
       //----
       String ext = fullyQualifiedPath.substring(fullyQualifiedPath.lastIndexOf('.')+1);
-      if(vfsResrouceProvider != null && virtualFileSystemBindingSet != null
+      if(vfsResourceProvider != null && virtualFileSystemBindingSet != null
           && Arrays.binarySearch(vfsFileExtensions, ext) >= 0 ){// contains supported extension
 
-        res = vfsResrouceProvider.getResource(context, fullyQualifiedPath);
+        res = vfsResourceProvider.getResource(context, fullyQualifiedPath);
       }
       //----
-      if (context.getRealPath(fullyQualifiedPath) != null && res == null) {// file found in fileSystem, either get it from original or from overridden bcdui folder
+      if (context.getRealPath(fullyQualifiedPath) != null && res == null) {
 
-        //check if path of type "/bcdui/..."
-        if( existOverridden && fullyQualifiedPath.startsWith( LIBRARY_PREFIX ) ) {
-          log.trace("try to fetch resource from overridden folder: " + fullyQualifiedPath);
-          res = fetchOverriddenResource(context, fullyQualifiedPath);
-        }
-
-        if (res == null) {// else static sources from file system
-          File file = new File(context.getRealPath(fullyQualifiedPath));
-          if (file.exists()) {
-            log.trace("fetching resource from file system: " + file.getAbsolutePath());
-            res = new LocalResource(fullyQualifiedPath, file, null);
-          }
+        File file = new File(context.getRealPath(fullyQualifiedPath));
+        if (file.exists()) {
+          log.trace("fetching resource from file system: " + file.getAbsolutePath());
+          res = new LocalResource(fullyQualifiedPath, file, null);
         }
       }
       //---- at last look into jars
       if(res == null){// resolve from classPath(JAR)
-        String classPathSource = classPathPrefix + fullyQualifiedPath;
-        URL url = Resource.class.getResource(classPathSource);
+        URL url = Resource.class.getResource(fullyQualifiedPath);
 
         if (url == null) {
           log.trace("resource not found: " + fullyQualifiedPath);
         }
         res = new LocalResource(fullyQualifiedPath, null, url);
-        log.trace("fetching resource from classpath: " + classPathSource);
+        log.trace("fetching resource from classpath: " + fullyQualifiedPath);
       }
 
       return res;
