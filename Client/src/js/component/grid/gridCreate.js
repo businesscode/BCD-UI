@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -593,10 +593,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
     // show common buttons and pagination when rendering is done and add action trigger hooks
     this.onceReady(function() {
-  	  var self = this;
+      var self = this;
       jQuery("#" + this.htTargetHtmlId).closest(".bcdGrid").find(".bcdGridHead").show();
       jQuery("#" + this.htTargetHtmlId).closest(".bcdGrid").find(".bcdGridFoot").show();
-      jQuery("#"+ targetHtml).on("bcdGrid:save", function() {self.actionSave();	});
+      jQuery("#"+ targetHtml).on("bcdGrid:save", function() {self.actionSave(); });
       jQuery("#"+ targetHtml).on("bcdGrid:reset", function() { self.actionReset(); });
       jQuery("#"+ targetHtml).on("bcdGrid:addRow", function(event, memo) { self.actionAddRow(memo); });
       jQuery("#" + targetHtml).on("bcdGrid:sortColumn", function(event, memo) { jQuery("#" + targetHtml).trigger("gridActions:columnSort", memo); });
@@ -1122,8 +1122,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if ("|TIMESTAMP|TIME".indexOf(typeName) != -1)
         type = "time";
 
-	  var rendererFct = renderer ? (renderer.text.indexOf("bcdui") == 0 && renderer.text.indexOf("bcdui.") != 0 ? "bcdui.component.grid.GridRenderer."+renderer.text : renderer.text) : "";
-	  var editorFct = editor ? (editor.text.indexOf("bcdui") == 0  && renderer.text.indexOf("bcdui.") != 0  ? "bcdui.component.grid.GridEditor."+editor.text : editor.text) : "";
+      var rendererFct = renderer ? (renderer.text.indexOf("bcdui") == 0 && renderer.text.indexOf("bcdui.") != 0 ? "bcdui.component.grid.GridRenderer."+renderer.text : renderer.text) : "";
+      var editorFct = editor ? (editor.text.indexOf("bcdui") == 0  && renderer.text.indexOf("bcdui.") != 0  ? "bcdui.component.grid.GridEditor."+editor.text : editor.text) : "";
 
       var colHeader = {
           data:       domProperty(this, id)
@@ -1410,7 +1410,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       // add bcdRowIdents (needs to get updated due to column sorting)
       var offsetRow = this._getRenderedRowRange().start;
-      jQuery("#" + this.htTargetHtmlId +" .ht_master").find("tbody tr").each(function(index, value) {
+      jQuery("#" + this.htTargetHtmlId +" .ht_master").find(".htCore > tbody > tr").each(function(index, value) {
         var rowIdx = this.hotInstance.toPhysicalRow(offsetRow + index);
         var row = this.hotInstance.getSourceDataAtRow(rowIdx);
         if (row)
@@ -1615,8 +1615,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
      */
     function beforeRender(isForced) {
 
-			// not using afterInit here to setup hotInstance etc because it is actually fired AFTER beforeRender
-			// so we use this hook, keep in mind that a gridModel refresh triggers an execute of the grid renderer
+      // not using afterInit here to setup hotInstance etc because it is actually fired AFTER beforeRender
+      // so we use this hook, keep in mind that a gridModel refresh triggers an execute of the grid renderer
       // and this will change the hotInstance, so we need to refresh it
       // depending on the used column width settings, afterGetColHeader might be called even earlier
 
@@ -2058,7 +2058,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       , afterInit: function() { setTimeout(function(){this.render();}.bind(this)); } // one initial refresh to correctly set width/height
     };
 
-		// add code/caption handling for copy/paste
+    // add code/caption handling for copy/paste
     if (this.hasReferences) {
       createArgs["beforeCopy"]  = beforeCopy.bind(this); 
       createArgs["beforeCut"]   = beforeCut.bind(this);
@@ -2309,7 +2309,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.hiddenColumns.forEach(function(hiddenCol) {
       var xHiddenCol = hiddenCol - range.start + offset;
       var headerCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master, #" + this.htTargetHtmlId +" .ht_clone_top").find("thead tr th:nth-child(" + xHiddenCol + ")");
-      var bodyCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master tbody tr td:nth-child(" + xHiddenCol + ")");
+      var bodyCellsToHide = jQuery("#" + this.htTargetHtmlId +" .ht_master .htCore > tbody > tr td:nth-child(" + xHiddenCol + ")");
       headerCellsToHide.addClass("bcdClosed");
       bodyCellsToHide.addClass("bcdClosed");
     }.bind(this));
@@ -2573,7 +2573,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     table.append("<div class='bcdGridFoot' style='display:none'></div>");
     var buttonCell = jQuery(table).find(this.topMode ? ".bcdGridHead" : ".bcdGridFoot");
 
-	if (this.defaultButtons) {
+  if (this.defaultButtons) {
       if (this.allowNewRows) 
         buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
       buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
