@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
  * Support for bcd_log_login logging
@@ -66,7 +67,8 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
     Session session = SecurityUtils.getSubject().getSession(); 
     session.setAttribute("BCD_LOGIN_USER", userLogin);
     session.setAttribute("BCD_LOGIN_RESULT", result);
-    String userId = SecurityHelper.getUserId(info);
-    SecurityHelper.setBcdUserIdSubjectFilterValue(userId);
+
+    // set value for bcd_userId subject setting filter
+    SubjectPreferences.setPermission("bcd_userId:userId", SecurityHelper.getUserId(info));
   }
 }

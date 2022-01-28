@@ -18,7 +18,9 @@ package de.businesscode.bcdui.web.filters;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,16 +40,17 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.SessionSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
+import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
-import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
 import de.businesscode.util.SOAPFaultMessage;
 import de.businesscode.util.Utils;
 
@@ -72,7 +75,7 @@ public class RequestLifeCycleFilter implements Filter {
   public static final String MDC_KEY_BCD_PAGEHASH = "BCD.pageHash";
   public static final String MDC_KEY_IS_CLIENT_LOG = "BCD.isClientLog";
   public static final String MDC_KEY_SESSION_ID = "BCD.httpSessionId";
-  private static final Pattern pattern = Pattern.compile("\\$\\{" + SessionAttributesManager.BCD_EL_USER_BEAN +"\\.(\\w+)\\}");
+  private static final Pattern pattern = Pattern.compile("\\$\\{bcdClient:(\\w+)\\}");
 
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
@@ -98,31 +101,36 @@ public class RequestLifeCycleFilter implements Filter {
     response.setCharacterEncoding("UTF-8");
     requestTaggingFlag.set(true);
 
-    // when url uses ${BCD_EL_USER_BEAN} token, replace token with hashmap looked up value forward new url
+    // when url uses ${bcdClient:} token, replace token with permission looked up value forward new url
     String decode = URLDecoder.decode(request.getRequestURI(), "UTF-8").substring(request.getContextPath().length());
-    if (decode.indexOf("${" + SessionAttributesManager.BCD_EL_USER_BEAN +".") > -1) {
-      try {
-        String s = decode;
-        HashMap<String, String> replaceMap = new HashMap<>();
-        Matcher matcher = pattern.matcher(s);
-        while (matcher.find()) {
-          String key = matcher.group(1);
-          if (key != null && ! key.isEmpty()) {
-            s = s.substring(matcher.start() + 1);
-            matcher = pattern.matcher(s);
-            // * as user right value will be replaced with an empty string during url replacement
-            String value = SessionAttributesManager.getBeanValue(key);
-            replaceMap.put("${" + SessionAttributesManager.BCD_EL_USER_BEAN + "." + key + "}", "*".equals(value) ? "" : value);
+    if (decode.indexOf("${bcdClient:") > -1) {
+      Subject subject = null;
+      try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
+      if (subject != null) {
+        try {
+          String s = decode;
+          HashMap<String, String> replaceMap = new HashMap<>();
+          Matcher matcher = pattern.matcher(s);
+          while (matcher.find()) {
+            String key = matcher.group(1);
+            if (key != null && ! key.isEmpty()) {
+              s = s.substring(matcher.start() + 1);
+              matcher = pattern.matcher(s);
+              // * as user right value will be replaced with an empty string during url replacement
+              List<String> permissions =  new ArrayList<>(SecurityHelper.getPermissions(subject, "bcdClient:" + key));
+              String value = ! permissions.isEmpty() ? permissions.get(0) : "";
+              replaceMap.put("${bcdClient:" + key + "}", "*".equals(value) ? "" : value);
+            }
           }
+          for (Map.Entry<String, String> set : replaceMap.entrySet())
+            decode = decode.replace(set.getKey(), set.getValue());
+          decode = decode.replace("//","/");
+          request.getRequestDispatcher(decode).forward(request, response);
+          return;
         }
-        for (Map.Entry<String, String> set : replaceMap.entrySet())
-          decode = decode.replace(set.getKey(), set.getValue());
-        decode = decode.replace("//","/");
-        request.getRequestDispatcher(decode).forward(request, response);
-        return;
-      }
-      catch (Exception e) {
-        log.warn("failed to forward url", e);
+        catch (Exception e) {
+          log.warn("failed to forward url", e);
+        }
       }
     }
 

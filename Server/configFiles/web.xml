@@ -60,16 +60,6 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
-  <!-- Allows setting subjectFilters -->
-  <filter>
-    <filter-name>bcdui4.SubjectSettingsFilter</filter-name>
-    <filter-class>de.businesscode.bcdui.web.filters.SubjectSettingsFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>bcdui4.SubjectSettingsFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-
   <!-- Handle zipped guiStatus and request documents -->
   <filter>
     <filter-name>bcdui4.UnZipFilter</filter-name>
@@ -195,25 +185,16 @@
     <url-pattern>/bcdui/servletsSessionCached/I18nServlet/*</url-pattern>
   </servlet-mapping>
 
-  <!-- Allows setting bcdUserBean name/value pairs
+  <!-- allows setting user permissions from bcdui\conf\subjectPreferences.xml -->
   <servlet>
-    <servlet-name>bcdui4.SessionAttributesManager</servlet-name>
-    <servlet-class>de.businesscode.bcdui.web.servlets.SessionAttributesManager</servlet-class>
-    <init-param>
-      <param-name>ALLOWED_ATTRIBUTES</param-name>
-      <param-value>comma separated list of allowed attributes, e.g. instanceId,country</param-value>
-    </init-param>
-    <init-param>
-      <param-name>ALLOWED_VALUES</param-name>
-      <param-value>attribute: space separated list of allowed attributes. Multiple attributes can be listed comma separated, e.g. country:DE FR ES,instanceId: BusinessCode</param-value>
-    </init-param>
+    <servlet-name>bcdui4.SubjectPreferences</servlet-name>
+    <servlet-class>de.businesscode.bcdui.web.servlets.SubjectPreferences</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
-    <servlet-name>bcdui4.SessionAttributesManager</servlet-name>
-    <url-pattern>/SessionAttributesManager/*</url-pattern>
+    <servlet-name>bcdui4.SubjectPreferences</servlet-name>
+    <url-pattern>/SubjectPreferences/*</url-pattern>
   </servlet-mapping>
- -->
 
 <!--  Data Upload Servlet
   <servlet>

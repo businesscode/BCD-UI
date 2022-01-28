@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -40,12 +40,9 @@ import org.apache.shiro.session.Session;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
-import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType.BindingItems;
-import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType.BindingItems.C;
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
-import de.businesscode.bcdui.web.i18n.I18n;
 
 /**
  * Subject settings are session settings in web and non-web environments
@@ -86,7 +83,6 @@ public class SubjectSettings extends SubjectSettingsConfig {
           String confPath = (String)BareConfiguration.getInstance().getConfigurationParameterOrNull(Configuration.CONFIG_FILE_PATH_KEY);
           if(confPath == null){
             singelton = new SubjectSettings();
-            singelton.initImplicitFilters();
           }else{
             try {
               FileInputStream file = new FileInputStream(confPath+File.separator+"subjectSettings.xml");
@@ -95,7 +91,6 @@ public class SubjectSettings extends SubjectSettingsConfig {
               SubjectSettings s = (SubjectSettings)u.unmarshal( file );
               file.close();
               s.wasConfigured=true;
-              s.initImplicitFilters();
 
               singelton = s;
               // early init of the map here in same thread while stream is open
@@ -151,49 +146,6 @@ public class SubjectSettings extends SubjectSettingsConfig {
     return subjectFilterTypeMap.get(type);
   }
 
-  /**
-   * setup implicit filters
-   */
-  private void initImplicitFilters() {
-
-    // Array of implicit filters: type name, binding column, IsClientControlled, IsNullAllowsAccess
-    String implicitFilters[][] = {
-       {I18n.SUBJECT_FILTER_TYPE, "bcd_lang", "true", "false"}
-      ,{SecurityHelper.SUBJECT_FILTER_TYPE_BCDUSERID, "bcd_userId", "false", "true"}
-    };
-    
-    for (int i = 0; i < implicitFilters.length; i++) {
-
-      String type = implicitFilters[i][0];
-      String column = implicitFilters[i][1];
-      boolean clientControlled = Boolean.parseBoolean(implicitFilters[i][2]);
-      boolean nullAllowed = Boolean.parseBoolean(implicitFilters[i][3]);
-
-      SubjectFilterTypes types = getSubjectFilterTypes();
-      if (types == null || !types.getSubjectFilterType().stream().anyMatch(f -> type.equals(f.getName()))) {
-        if (types == null) {
-          types = new SubjectFilterTypes();
-          setSubjectFilterTypes(types);
-        }
-        SubjectFilterType implFilter = new SubjectFilterType();
-        implFilter.setIsClientControlled(clientControlled);
-        implFilter.setIsNullAllowsAccess(nullAllowed);
-        implFilter.setName(type);
-        implFilter.setOp("=");
-        C c = new C();
-        c.setBRef(column);
-        BindingItems bi = new BindingItems();
-        bi.setC(c);
-        implFilter.setBindingItems(bi);
-  
-        getSubjectFilterTypes().getSubjectFilterType().add(implFilter);
-        log.debug("'" + type + "': implict filter added.");
-      } else {
-        log.debug("'" + type + "': filter defined in context.");
-      }
-    }
-  }
-
   // Allow to check whether there are also rights stored in db
   // Otherwise they may be given as subject attributes
   public static boolean rightsInDbAvailable() {
@@ -219,61 +171,6 @@ public class SubjectSettings extends SubjectSettingsConfig {
     String type = subjectFilterType.getType();
     // would be better if SubjectFilterType.getType() did this lookup, but its generated hence need jaxb to support custom getters
     return type != null ? type : subjectFilterType.getName();
-  }
-
-  /**
-   * returns permission mapped for given filter type from the user session
-   *
-   * @param session - which may be null, then this method returns null
-   * @param subjectFilterType - to lookup permission for in the session
-   * @return value for the permission or null if none found
-   */
-  public String getFilterTypeValue(Session session, SubjectFilterType subjectFilterType){
-    if(session == null)return null;
-    Object value = session.getAttribute(permissionAttributePrefix + getFilterType(subjectFilterType));
-    return value == null ? null : value.toString();
-  }
-
-  /**
-   * returns permission mapped for given filter type from the user session
-   *
-   * @param session
-   *          - which may be null, then this method returns null
-   * @param subjectFilterTypeName
-   *          - to lookup permission for in the session
-   * @return value for the permission or null if none found
-   */
-  public String getFilterTypeValue(Session session, String subjectFilterTypeName) {
-    if (session == null)
-      return null;
-    final SubjectFilterType filterType = getSubjectFilterTypeByName(subjectFilterTypeName);
-    if (filterType != null) {
-      return getFilterTypeValue(session, filterType);
-    }
-    return null;
-  }
-
-  /**
-   * sets a value of given subjectFilterType
-   * 
-   * @param session, must not be null
-   * @param subjectFilterType
-   */
-  public void setFilterTypeValue(Session session, SubjectFilterType subjectFilterType, Object value){
-    session.setAttribute(permissionAttributePrefix + getFilterType(subjectFilterType), value);
-  }
-
-  /**
-   * sets a value of given subjectFilterType
-   * 
-   * @param session
-   * @param subjectFilterTypeName
-   * @param value
-   */
-  public void setFilterTypeValue(Session session, String subjectFilterTypeName, String value){
-    SubjectFilterType filterType = getSubjectFilterTypeByName(subjectFilterTypeName);
-    if (filterType != null)
-      session.setAttribute(permissionAttributePrefix + getFilterType(filterType), value);
   }
 
   /**

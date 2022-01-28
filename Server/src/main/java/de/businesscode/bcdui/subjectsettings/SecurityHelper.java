@@ -42,8 +42,6 @@ import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
  */
 public class SecurityHelper {
 
-  public static final String SUBJECT_FILTER_TYPE_BCDUSERID = "bcd_userId:userId";
-
   private static Logger log = LogManager.getLogger(SecurityHelper.class);
 
   /**
@@ -330,9 +328,6 @@ public class SecurityHelper {
    * @return
    */
   private static Set<String> extractFromAuthorizationInfo(Subject subject, InfoCollector collector) {
-    if (!subject.isAuthenticated()) {
-      throw new SecurityException("subject is not authenticated");
-    }
     final PrincipalCollection principals = subject.getPrincipals();
     DefaultSecurityManager dsm = (DefaultSecurityManager) SecurityUtils.getSecurityManager();
 
@@ -355,11 +350,5 @@ public class SecurityHelper {
       throw new RuntimeException("failed to retrieve permissions", e);
     }
     return valueSet;
-  }
-
-  public static void setBcdUserIdSubjectFilterValue(String userId) {
-    Session session = getSession();
-    if (session != null)
-      SubjectSettings.getInstance().setFilterTypeValue(session, SUBJECT_FILTER_TYPE_BCDUSERID, userId);
   }
 }

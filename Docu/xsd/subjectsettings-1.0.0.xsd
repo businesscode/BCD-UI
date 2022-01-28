@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -159,12 +159,6 @@
         Overwrites the filter type to map to in [bcd_sec_user_settings].right_type, i.e. you can define different filters
         all mapped to same type to realize relations like having origin_country or destination_country permission set
         defined by 'country' acl.
-      </documentation></annotation>
-    </attribute>
-    <attribute name="isClientControlled" use="optional" type="boolean" default="false">
-      <annotation><documentation>
-        Allows this subject filter to be set/overridden from client, such filters shall not be used to restrict access to data 
-        or operations as they are inherently insecure.
       </documentation></annotation>
     </attribute>
     <attribute name="isNullAllowsAccess" use="optional" type="boolean" default="false">

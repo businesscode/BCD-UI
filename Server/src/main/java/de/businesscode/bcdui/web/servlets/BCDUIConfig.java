@@ -53,7 +53,6 @@ import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
-import de.businesscode.bcdui.web.filters.SubjectSettingsFilter;
 import de.businesscode.bcdui.web.i18n.I18n;
 import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.util.StandardNamespaceContext;
@@ -157,19 +156,6 @@ public class BCDUIConfig extends HttpServlet {
           if (! onceOuter)
             writer.println("]");
         }
-
-        // write bcdUserBeans bcdui.config.clientRights object values
-        if (subject.getSession() != null) {
-          Map<String, String> bean = (HashMap<String, String>)subject.getSession().getAttribute(SessionAttributesManager.BCD_EL_USER_BEAN);
-          if (bean != null) {
-            boolean comma = ! sortedPerms.isEmpty();
-            for (Map.Entry<String, String> entry : bean.entrySet()) {
-              writer.println((comma ? "," : "") + entry.getKey() + ": [\"" + entry.getValue() + "\"]");
-              comma = true;
-            }
-          }
-        }
-
         writer.println("}");
       }
     }
@@ -180,8 +166,6 @@ public class BCDUIConfig extends HttpServlet {
     }
 
     writer.println("  , sessionHash: \"" + ( getSessionHash(request) ) + "\"");
-    // expose parameter names to the client so the client-API knows how to provide them
-    writer.println("  , security: { subjectSettingsFilter: { \"httpParamFilterName\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_NAME + "\", \"httpParamFilterValue\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_VALUE + "\" } } ");
     writer.println("  , i18n: { \"langSubjectFilterName\":\"" + I18n.SUBJECT_FILTER_TYPE + "\", \"lang\" : \"" + getLang(request) + "\"}");
     writer.println("  , debug: " + isDebug);
     writer.println("  , isDebug: " + isDebug);

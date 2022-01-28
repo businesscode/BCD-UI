@@ -40,7 +40,6 @@ import de.businesscode.bcdui.binding.subjectFilter.SubjectFilterNode;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
-import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
 
 /**
  * Returns a where clause based on the SubjectFilters of the BindingSet and the current Subject's permissions Initially taken from WrsSqlGenerator. For change
@@ -235,22 +234,11 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
     String bRef = ft.getBindingItems().getC().getBRef();
 
-    // Either this is attached as an attribute to our session
-    String sessionFilterValue = settings.getFilterTypeValue(subject.getSession(false), ft);
-
     // in case of a (W)rite-only-check filter type, we can skip resolving
     if ("W".equalsIgnoreCase(ft.getMode()))
       return true;
 
-    // in case of a BCD_EL_USER_BEAN filterType, set the forced value from the BCD_EL_USER_BEAN hashmap
-    if (ft.getName().startsWith(SessionAttributesManager.BCD_EL_USER_BEAN + ":")) {
-      String keyName = ft.getName().substring((SessionAttributesManager.BCD_EL_USER_BEAN + ":").length());
-      sessionFilterValue = SessionAttributesManager.getBeanValue(keyName);
-    }
-    if (sessionFilterValue != null) {
-      resolveWithValue(boundVariables, sqlClause, ft, bRef, sessionFilterValue, connective);
-      return true;
-    } else if (SubjectSettings.rightsInDbAvailable()) {
+    if (SubjectSettings.rightsInDbAvailable()) {
       resolveByUserRightsTable(boundVariables, sqlClause, subject, ft, bRef, connective, settings.getFilterType(ft));
       return true;
     } else {
@@ -333,47 +321,6 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller
         writeParams(bi.getId(), Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }
-      subjectSettingsClause.append(")");
-    }
-  }
-
-  private void resolveWithValue(List<Element> boundVariables, StringBuilder subjectSettingsClause, SubjectFilterType ft, String bRef, final String sessionFilterValue,
-      Connective connective) throws BindingNotFoundException {
-
-    if (sessionFilterValue == null || sessionFilterValue.isEmpty()) {
-      throw new RuntimeException("value must not be empty or null");
-    }
-
-    // Compliant with shiro, '*' means no restriction
-    if ("*".equals(sessionFilterValue)) {
-      writeCanonicalConnective(subjectSettingsClause, connective, true);
-      return;
-    }
-
-    // Otherwise extend the where clause
-    if (subjectSettingsClause.length() > 0) {
-      subjectSettingsClause.append(" " + connective.getSymbol() + " ");
-    }
-
-    // in case of implicit value with isIsNullAllowsAccess, we need to construct x is null or x is value 
-    if (ft.isIsNullAllowsAccess()) {
-      subjectSettingsClause.append("($col$ IS NULL OR ".replace("$col$", bindingSet.get(bRef).getQColumnExpression(sqlAlias)));
-    }
-
-    // Make sure the bRef we are working on is known, even if it did not appear elsewhere so far
-    if (!wrqInfo.getAllBRefs().containsKey(wrqAlias+"."+bRef)) {
-      String fullbRef = wrqAlias.isEmpty() ? bRef : wrqAlias+"."+bRef;
-      wrqInfo.getAllBRefs().put(fullbRef, new WrqBindingItem(wrqInfo, bRef, bindingSet.get(bRef), "v" + (wrqInfo.aliasCounter++), false));
-    }
-
-    Element e = wrqInfo.getOwnerDocument().createElement("SubjectSettings");
-    e.setAttribute("op", ft.getOp());
-    e.setAttribute("bRef", bRef);
-    e.setAttribute("value", sessionFilterValue);
-    subjectSettingsClause.append(WrqFilter2Sql.generateSingleColumnExpression(wrqInfo, e, boundVariables, wrqInfo.getOwnerDocument(), false));
-
-    // in case of implicit value with isIsNullAllowsAccess, we have an open bracket, so close it
-    if (ft.isIsNullAllowsAccess()) {
       subjectSettingsClause.append(")");
     }
   }

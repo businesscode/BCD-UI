@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -567,42 +567,6 @@ bcdui.util =
     return b();
   }
 }
-
-/**
- * SubjectSettings related package.
- * @namespace bcdui.subjectSettings
- */
-bcdui.subjectSettings = Object.assign(bcdui.subjectSettings,
-/** @lends bcdui.subjectSettings */
-{
-    /**
-     * This function sets filter value and reloads the page at given URL in one go,
-     * it is handy, i.e. if you want to make a fresh reload after changing subject
-     * filter. You are allowed to set a subject filter which is defined as 'isClientControlled',
-     * only.
-     * 
-     * @param {object} filters - the filter/value map
-     * @param {string} [url] - the target URL to relocate to, if not set, refers to current location.
-     * 
-     */
-    setSubjectFilterAndReload : (filters, url) => {
-      url = url||location.href;
-
-      // clean filter params
-      url = bcdui.core.setUrlParameter(url, bcdui.config.security.subjectSettingsFilter.httpParamFilterName);
-      url = bcdui.core.setUrlParameter(url, bcdui.config.security.subjectSettingsFilter.httpParamFilterValue);
-
-      // encode filter params
-      url = Object.keys(filters).reduce((url, filterName) => {
-        url = bcdui.core.setUrlParameter(url, bcdui.config.security.subjectSettingsFilter.httpParamFilterName, filterName, false, true);
-        url = bcdui.core.setUrlParameter(url, bcdui.config.security.subjectSettingsFilter.httpParamFilterValue, filters[filterName], false, true);
-
-        return url;
-      }, url);
-      // relocate
-      location.href = url;
-    }
-});
 
 //Dummy implementation in case validation is not loaded
 //This is overwritten with real functionality if apiValidate package is loaded

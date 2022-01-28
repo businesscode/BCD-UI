@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2018 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.web.i18n;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
@@ -27,14 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
-import org.apache.shiro.session.Session;
-
 import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.BcdUiApplicationContextListener;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
  *
@@ -91,12 +88,12 @@ public class I18n {
    * @param defaultLocale
    * @return currently set locale or the defaultLocale
    */
-  public static Locale getLocale(Session session, Locale defaultLocale) {
-    if (session != null) {
-      String lang = SubjectSettings.getInstance().getFilterTypeValue(session, SUBJECT_FILTER_TYPE);
-      if (lang != null && !lang.isEmpty()) {
+  public static Locale getLocale(Locale defaultLocale) {
+    ArrayList<String> values = (ArrayList<String>)SubjectPreferences.getPermission(SUBJECT_FILTER_TYPE);
+    if (! values.isEmpty()) {
+      String lang = values.get(0);
+      if (!lang.isEmpty())
         return new Locale(lang);
-      }
     }
     return defaultLocale;
   }
@@ -106,12 +103,7 @@ public class I18n {
    *         client information, and fallback to default language as per configuration.
    */
   public static Locale getUserLocale(HttpServletRequest request) {
-    Locale locale = null;
-    try {
-      locale = getLocale(SecurityUtils.getSubject().getSession(false), null);
-    }catch(UnavailableSecurityManagerException e) {
-      ; // shiro not in use
-    }
+    Locale locale = getLocale(null);
     if (locale == null) { // take from request
       locale = getLocale(request, null);
     }
@@ -127,8 +119,8 @@ public class I18n {
    * @param session
    * @param locale
    */
-  public static void setLocale(Session session, Locale locale) {
-    SubjectSettings.getInstance().setFilterTypeValue(session, SUBJECT_FILTER_TYPE, locale.getLanguage());
+  public static void setLocale(Locale locale) {
+    SubjectPreferences.setPermission(SUBJECT_FILTER_TYPE, locale.getLanguage());
   }
 
   /**

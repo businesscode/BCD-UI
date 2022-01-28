@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2022 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<cnf:SessionBean xmlns:cnf="http://www.businesscode.de/schema/bcdui/config-1.0.0">
+  <cnf:Settings>
+
+    <!-- define a user permission and take the allowed values from a different user permission -->
+    <cnf:Setting name="perm:value">
+      <cnf:SourceSetting name="otherperm:othervalue"/>
+    </cnf:Setting>
+
+    <!-- define a user permission by giving a list of allowed values -->
+    <cnf:Setting name="perm2:value2" multi="true"> <!-- use multi=true to allow setting more and one value-->
+      <cnf:Values>
+        <cnf:Value>value 1</cnf:Value>
+        <cnf:Value default="true">value default</cnf:Value> <!-- use default attribute to specify default one -->
+        <cnf:Value>value 2</cnf:Value>
+      </cnf:Values>
+    </cnf:Setting>
+
+    <!-- needed when using bcdui.i18n.switchLanguage -->
+    <cnf:Setting name="bcd_i18n:lang">
+      <cnf:Values>
+        <cnf:Value>*</cnf:Value>
+      </cnf:Values>
+    </cnf:Setting>
+
+  </cnf:Settings>
+</cnf:SessionBean>

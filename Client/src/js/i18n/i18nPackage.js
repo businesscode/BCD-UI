@@ -424,7 +424,13 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    * @param {string} lang - the language code
    */
   switchLanguage: function(lang){
-    bcdui.subjectSettings.setSubjectFilterAndReload({[bcdui.config.i18n.langSubjectFilterName]:lang});
+    jQuery.ajax({
+      method: "GET",
+      url : bcdui.contextPath+ "/UserPermissions?value="+lang+"&name=bcd_i18n:lang",
+      success : function (data, successCode, jqXHR) {
+        location.href = location.href;
+      }
+    });
   }
 });
 
