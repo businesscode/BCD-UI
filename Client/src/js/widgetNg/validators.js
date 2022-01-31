@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@
  * validation function MUST not run asynchronously! it is expected to block and return once validation is done.
  * the argument object is arbitrary and defined by particular validation function.
  *
+ * @namespace bcdui.widgetNg.validation
+ */
+/**
+ * Validators for new generation of Widgets
+ * @namespace bcdui.widgetNg.validation.validators
  */
 
 /**

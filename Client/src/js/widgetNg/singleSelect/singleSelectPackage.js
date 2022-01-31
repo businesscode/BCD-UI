@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -401,7 +401,7 @@
     /**
      * syncs current input value (or optionally given value) of the widget into model
      *
-     * @param optNewValue {String?} if this value is given, the input control will be updated by this value and then synced to model
+     * @param {String?} optNewValue if this value is given, the input control will be updated by this value and then synced to model
      *                              otherwise current controls value is synced to the model
      *
      * @static
@@ -482,7 +482,7 @@ bcdui.widgetNg.singleSelect = Object.assign(bcdui.widgetNg.singleSelect,
   /**
    * initializes the widget according to the API
    *
-   * @param element {Element} to initialize from
+   * @param {DomElement} element to initialize from
    * @private
    */
   init : function(htmlElement){

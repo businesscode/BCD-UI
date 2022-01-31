@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ bcdui.core.AbstractExecutable = class
    * Counter-part of the "_extractStatusListFromArgs" function which is responsible
    * for extracting the listener from the args object. It is also used by the status
    * functions.
-   * @param args {object} - The args can either be a {@link bcdui.core.StatusListener StatusListener} object, a function or a
+   * @param {Object} args - The args can either be a {@link bcdui.core.StatusListener StatusListener} object, a function or a
    * parameter map with a "listener" property holding a StatusListener or function.
    * @return {Function|bcdui.core.StatusListener} The listener taken from the args.
    * @throws Error An error is thrown when no status listener can be extracted.
@@ -206,7 +206,7 @@ bcdui.core.AbstractExecutable = class
   /**
    * @typedef {object} AddStatusListenerParam
    * @property {(function|bcdui.core.StatusListener)} listener - A function or StatusListener object representing the listener action.
-   * @property {bcdui.core.Status=} status - The status it should listen to. 
+   * @property {bcdui.core.Status} status - The status it should listen to.
    *   If it is missing the listener is executed on all status transitions, otherwise it is executed when the status is set to the specified status.
    * @property{boolean} [onlyOnce=false] - A boolean variable indicating that the listener should be automatically removed after it has been executed. 
    */   

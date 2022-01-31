@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ bcdui.core.XMLLoader = class
   /**
    * Sets the xml:base attribute of the document element of the doc provided as
    * argument.
-   * @param {XMLDocument} doc The XML document the xml:base attribute should be set on.
+   * @param {DomDocument} doc The XML document the xml:base attribute should be set on.
    * @param {string} base The value of the xml:base attribute.
    * @private
    */
@@ -75,7 +75,7 @@ bcdui.core.XMLLoader = class
    * Finds the elements identified by a specific XPointer within the provided
    * XML document. This function is used for XInclude resolution to select the
    * elements that replace the XInclude after loading.
-   * @param {XMLDocument} doc The document the xPointer is applied on.
+   * @param {DomDocument} doc The document the xPointer is applied on.
    * @param {string} xPointer An xPointer selecting elements out of a document. If it
    * is null it is considered to be equal to "element(/1)".
    * @return {Array} The list of elements matching the xPointer.
@@ -104,8 +104,8 @@ bcdui.core.XMLLoader = class
    * default namespace if there is one. Sample: HTML tags without namespace xi:included in an XSLT variable body
    * would become (invalid) xslt elements. Thus: Always declare namespaces in documents to be included
    * @param {object} args
-   * @param {XMLElement} args.xinclude The XInclude to be replaced with its result.
-   * @param {XMLDocument} args.xincludeDoc The XML document loaded from the href denoted by the XInclude.
+   * @param {DomElement} args.xinclude The XInclude to be replaced with its result.
+   * @param {DomDocument} args.xincludeDoc The XML document loaded from the href denoted by the XInclude.
    * @param {String} args.xincludeUrl The absolute URL the xincludeDoc has been loaded from. This is only for debugging.
    * @param {Function?} args.preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
    * @private
@@ -192,7 +192,7 @@ bcdui.core.XMLLoader = class
   /**
    * @private
    * @param {String}      args.xPath
-   * @param {XMLDocument} args.doc
+   * @param {DomDocument} args.doc
    * @param {function}    args.onSuccess
    * @param {function?}   args.onFailure Optional, called with a message as param, otherwise, an exception is thrown
    */
@@ -213,7 +213,7 @@ bcdui.core.XMLLoader = class
    * parameter. To load nested XInclude element this function uses the "load" function.
    * If no XInclude is found it directly calls the "onSuccess" function with "doc" as argument.
    * @param {object} args
-   * @param {XMLDocument} args.doc The XML document the XIncludes should be processed on.
+   * @param {DomDocument} args.doc The XML document the XIncludes should be processed on.
    * @param {Function?} args.onSuccess An optional callback which is executed after successful operation
    * @param {Function?} args.onFailure Optional, called with a message as param, otherwise, an exception is thrown
    * @param {Function?} args.preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
@@ -271,7 +271,7 @@ bcdui.core.XMLLoader = class
     }
 
   /**
-   * @param xmlElement
+   * @param {DomElement} xmlElement
    * @returns {string}
    * @private
    */
@@ -299,7 +299,7 @@ bcdui.core.XMLLoader = class
    * Parameters to the function:
    *
    * @param {Object} args The parameter map must contain:
-   * @param {XMLDocument} args.doc
+   * @param {DomDocument} args.doc
    * @return null or result object (read above)
    * @private
    */
@@ -427,7 +427,7 @@ bcdui.core.XMLLoader = class
    * @param {Object} args The parameter map must contain:
    * @param {String} args.url The URL the XML document comes from.
    * @param {Boolean} args.isSync Set to FALSE / TRUE to enable sync/async request. Default is FALSE.
-   * @param {XMLDocument} args.doc The document to be posted to the server.
+   * @param {DomDocument} args.doc The document to be posted to the server.
    * @param {Function}args.onSuccess A function called when the request has finished
    *         loading. This function gets the XML document as argument.
    * @param {Function} [args.onFailure] Optional, called with the transport object as param, otherwise, an exception is thrown
@@ -525,7 +525,7 @@ bcdui.core.XMLLoader = class
    * @param args.onSuccess</li>
    * @param args.onFailure TODO handling
    *
-   * @param {Document} resultDoc
+   * @param {DomDocument} resultDoc
    */
   _asyncTransformToXMLPostProcess( args, resultDoc )
     {
@@ -606,7 +606,7 @@ bcdui.core.XMLLoader = class
    * Happens for example if a included file had paths relative to its position (xml:base) but is now in a
    * file with a different position. The hrefs should then be relative to the new postion (=baseURL)
    * An absolute path is expected to begin below the contextPath
-   * @param {XMLDocument} doc The document to work on
+   * @param {DomDocument} doc The document to work on
    * @param {String} baseURL, the new base URL to which all relative href in the doc should be calculated.
    * @private
    */

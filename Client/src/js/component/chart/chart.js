@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -223,8 +223,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {string}   [args.caption]       - Axis caption
    * @param {string}   [args.unit]          - Unit like € or sec. If '%', values are shown as percent. Use '% ' to show percent without dividing by 100
    * @param {string}   [args.layoutFlow]    - css value
-   * @param {numberic} [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
-   * @param {numberic} [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
+   * @param {numeric}  [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
+   * @param {numeric}  [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    * @param {boolean}  [args.showGrid=true] - If false, no horizontal grid is shown but only small lines next to the y-axis values
    */
   setYAxis1( args )
@@ -239,8 +239,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {string}   [args.caption]       - Axis caption
    * @param {string}   [args.unit]          - Unit like € or sec. If '%', values are shown as percent. Use '% ' to show percent without dividing by 100
    * @param {string}   [args.layoutFlow]    - css value
-   * @param {numberic} [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
-   * @param {numberic} [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
+   * @param {numeric}  [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
+   * @param {numeric}  [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    */
   setYAxis2( args )
   {
@@ -266,7 +266,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {Object} args - Parameter object
    * @param {integer}           [args.yAxis1Or2]                - 1 for left and 2 for right axis
    * @param {numeric[]}         [args.yData]                    - Data array or provide yDataInfo
-   * @param {nodeset}           [args.yDataInfo]                - XML nodeset with data
+   * @param {DomNodeSet}        [args.yDataInfo]                - XML nodeset with data
    * @param {numeric[]}         [args.sizeData]                 - 2nd value for scattered charts
    * @param {numeric[]}         [args.xValues]                  - For x-y charts
    * @param {(integer|string)}  [args.chartType]                - Either name or numeric value for chart type
@@ -274,7 +274,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {string}            [args.dashstyle]                - Dash style
    * @param {string[]}          [args.baseColors]               - Colors defining the tones of the generated colors, for example in case of a pie chart
    * @param {string}            [args.caption]                  - Series caption
-   * @param {numeric}           [args.width]                    - Line width</li>
+   * @param {numeric}            [args.width]                    - Line width</li>
    * @param {(function|string)} [args.onClick]                  - Either a function or the name of a function
    * @param {boolean}           [args.toSeriesPercentage=false] - If true, each value is represented by its percentage value of the full series.
    */
@@ -913,7 +913,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * (means 0.5 for 7 or 20 for 500 for example)
    * minValue: value to start with so that minValue+n*width will be 0
    * length: number steps along axisLength when stepsize gridWidth
-   * @param args {Object}
+   * @param {Object} args
    * @param args.axisLength
    * @param args.minValue
    * @private
@@ -1151,7 +1151,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   /**
    * returns concatenated css class name(s) of current element
    * like: chartXAxis trendDivTypeChartXAxis26
-   * @param args {Object}
+   * @param {Object} args
    * @param args.suff         - suffix of cssClassName
    * @param args.axisName     - X or Y axis
    * @param args.axisCssClass - default cssClass of the axis
@@ -1605,7 +1605,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   }
 
   /**
-   * @param statusEvent {StatusEvent}
+   * @param {bcdui.core.StatusEvent} statusEvent
    * @private
    */
  _statusTransitionHandler(statusEvent)

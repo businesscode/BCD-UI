@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -129,8 +129,12 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     }
 
     getClassName() {return "bcdui.core.DataProvider";}
-    
-    _statusTransitionHandlerDp(/* StatusEvent */ statusEvent)
+
+  /**
+   * @param statusEvent
+   * @private
+   */
+  _statusTransitionHandlerDp(/* StatusEvent */ statusEvent)
     {
       if (statusEvent.getStatus().equals(this.savingStatus)) {
         /*

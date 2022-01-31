@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -217,7 +217,7 @@ bcdui.component.chart.TypeColorProviderBaseColors = class extends bcdui.componen
   /**
    * Constructor of bcdui.component.chart.TypeColorProviderBaseColors, called by prototype.
    * @constructs
-   * @param args {Object}
+   * @param {Object} args
    * @param args.count - how many colors are to be constructed from the base colors
    * @param args.baseColors - space separated list of base colors
    * @private

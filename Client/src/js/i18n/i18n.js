@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@
 bcdui.i18n.MessageCatalog = class
 {
   /**
-   * @param args {Object} Parameter object with property "document" with catalog
+   * @param {Object} args Parameter object with property "document" with catalog
    * entries.
    * @private
    */

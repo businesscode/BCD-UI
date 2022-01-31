@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
   /**
    * The initialization function called by multiSelect.xslt.
    * @function
-   * @param {HTMLElement} e The element the multiSelect is based on.
+   * @param {HtmlElement} e The element the multiSelect is based on.
    * @method
    * @private
    */

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ bcdui.widget.MouseTracker = class
    * specified base element until the {@link #stop()} method is executed.
    * @constructs
    * @param {Object} args The argument map offers the following properties:
-   * @param {HTMLElement|String} args.baseElement  The id or HTML element that contains
+   * @param {HtmlElement|String} args.baseElement  The id or HTML element that contains
    *         the sub-elements the mouse enter / leave events should be tracked on.
    *         It is recommended to use an HTML DIV element as base element.
    * @param {Function} [args.onEnter]  The function to be executed when an observed
@@ -95,7 +95,7 @@ bcdui.widget.MouseTracker = class
    *         that should be observed for the onEnter / onLeave events. It is often
    *         TD or TR so that moving the mouse over table cells / rows inside the
    *         base element is observed. If omitted every child element is observed.
-   * @param {Integer}[args.delay] The duration in milliseconds defining how long the
+   * @param {integer}[args.delay] The duration in milliseconds defining how long the
    *         events should be idle until the provided function is triggered. The
    *         default value is 200.
    */

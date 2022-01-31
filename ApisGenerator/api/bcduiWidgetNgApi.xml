@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
         <Type name="string">
           <Doc>an arbitrary string</Doc>
         </Type>
-        <Type name="xpath">
+        <Type name="xPath">
           <Doc>an arbitrary xpath allowing $ references i.e. $guiStatus</Doc>
         </Type>
         <Type name="integer">
@@ -138,11 +138,11 @@
         <Param name="href" type="url" required="false">
           <Doc>HTML href</Doc>
         </Param>
-        <Param name="optionsModelXPath" type="xpath">
+        <Param name="optionsModelXPath" type="xPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
-        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+        <Param name="optionsModelRelativeValueXPath" type="xPath" default=".">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
             values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
@@ -493,7 +493,7 @@
           [No ID/Caption mapping is available here.]
         </Doc>
         <!-- put this parameter here (although provided through hasCaptions API, the suggestInput does not support the hasCaptions-API fully yet -->
-        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+        <Param name="optionsModelRelativeValueXPath" type="xPath" default=".">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values
           </Doc>
@@ -551,7 +551,7 @@
             Do not use @caption, use id for caption as well. The caption mode is disabled.
           </Doc>
         </Param>
-        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+        <Param name="optionsModelRelativeValueXPath" type="xPath" default=".">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
             values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
@@ -597,7 +597,7 @@
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
         </Param>
-        <Param name="optionsModelRelativeValueXPath" type="xpath">
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values
           </Doc>
@@ -635,7 +635,7 @@
             Delimiter used for WRS read and write. Default is a slash.
           </Doc>       
         </Param>
-        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
+        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xPath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' which can be used to filter options model items
 	        </Doc>
@@ -663,10 +663,10 @@
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]. If you specify an optionsmodelxpath, the box automatically acts as source.</Doc>
         </Param>
-        <Param name="optionsModelRelativeValueXPath" type="xpath">
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
           <Doc>xPath expression relative to 'optionsModelXPath' providing values</Doc>
         </Param>
-        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xpath">
+        <Param name="optionsModelRelativeFilterPredicate" required="false" type="xPath">
           <Doc>xPath expression relative to 'optionsModelXPath' which can be used to filter options model items</Doc>       
         </Param>
         <Param name="targetModelXPath" required="false" type="writableModelXPath">
@@ -914,13 +914,13 @@ the data that is actually placed in XML.
             Target xPath to write the far:ConfiguratorLayout configuration into.
           </Doc>
         </Param>
-        <Param name="dimensions_optionsModelXPath" type="xpath" required="true">
+        <Param name="dimensions_optionsModelXPath" type="xPath" required="true">
           <Doc>
             items considered dimensions, xpath must reference the caption attribute on the item-set; Reference deep link to items 
             (including levels) in case you have hierarhical structure i.e. $config/far:Configurator/far:Dimensions//* /@caption
           </Doc>
         </Param>
-        <Param name="dimensions_optionsModelRelativeValueXPath" type="xpath" required="true">
+        <Param name="dimensions_optionsModelRelativeValueXPath" type="xPath" required="true">
           <Doc>
             xpath relative to 'dimensions_optionsModelXPath' that references a value attribute, i.e. '../@value'
           </Doc>
@@ -930,13 +930,13 @@ the data that is actually placed in XML.
             tree configuration object (see component documentation)
           </Doc>
         </Param>
-        <Param name="measures_optionsModelXPath" type="xpath" required="true">
+        <Param name="measures_optionsModelXPath" type="xPath" required="true">
           <Doc>
             items considered dimensions, xpath must reference the caption attribute on the item-set; Reference deep link to items 
             (including levels) in case you have hierarhical structure i.e. $config/far:Configurator/far:Dimensions//* /@caption
           </Doc>
         </Param>
-        <Param name="measures_optionsModelRelativeValueXPath" type="xpath" required="true">
+        <Param name="measures_optionsModelRelativeValueXPath" type="xPath" required="true">
           <Doc>
             xpath relative to 'dimensions_optionsModelXPath' that references a value attribute, i.e. '../@value'
           </Doc>
@@ -962,12 +962,12 @@ the data that is actually placed in XML.
             root conjunction whereas there is no such restriction when using another (or custom) element as a target element.
           </Doc>
         </Param>
-        <Param name="bRefOptionsModelXPath" type="xpath" required="true">
+        <Param name="bRefOptionsModelXPath" type="xPath" required="true">
           <Doc>
             xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display.
           </Doc>
         </Param>
-        <Param name="bRefOptionsModelRelativeValueXPath" type="xpath" required="false">
+        <Param name="bRefOptionsModelRelativeValueXPath" type="xPath" required="false">
           <Doc>
             xPath expression relative to 'bRefOptionsModelXpath' providing values for options to display, if this is defined,
             values referenced by bRefOptionsModelXpath are treated as captions.
@@ -987,7 +987,7 @@ the data that is actually placed in XML.
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]. If not provided, the widget is not linked to discrete
           values, in this case the min/max options has to be provided.</Doc>
         </Param>
-        <Param name="optionsModelRelativeValueXPath" type="xpath" default=".">
+        <Param name="optionsModelRelativeValueXPath" type="xPath" default=".">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
             values referenced by optionsModelXPath are treated as captions.
@@ -1008,12 +1008,12 @@ the data that is actually placed in XML.
             If enabled, the slider will operate in range-selection mode, providing min/max handles to define a range.
           </Doc>
         </Param>
-        <Param name="relativeTargetXPathMin" type="xpath" default="/min">
+        <Param name="relativeTargetXPathMin" type="xPath" default="/min">
           <Doc>
             When operating in range-mode, this defines the relative xpath to targetModelXPath, to write the 'min' value. This option not defined in non-range mode.
           </Doc>
         </Param>
-        <Param name="relativeTargetXPathMax" type="xpath" default="/max">
+        <Param name="relativeTargetXPathMax" type="xPath" default="/max">
           <Doc>
             When operating in range-mode, this defines the relative xpath to targetModelXPath, to write the 'max' value. This option not defined in non-range mode.
           </Doc>

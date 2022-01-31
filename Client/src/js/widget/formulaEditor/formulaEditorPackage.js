@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 {
   /**
    * Initialization of the whole widget. For creation @see {@link bcdui.widget.createFormulaEditor}
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   init: function(containerHtmlElement) {
@@ -104,8 +104,8 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Initialization of validation wrapper. Using to show tooltip with custom validation results
-   * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param tooltipListener {Function} Listener which controls the tool tip.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
+   * @param {Function} tooltipListener Listener which controls the tool tip.
    * @private
    */
   _initValidateWrapper: function(containerHtmlElement)
@@ -118,7 +118,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Update (plus validate if needed) listener initialization.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   _initUpdaterViewFromXMLData: function(containerHtmlElement)
@@ -135,16 +135,16 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Retrieves the common target and options data.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    * @return The map contains the following properties:
    * <ul>
    *   <li>targetModelId: {String} The identifier of target model.</li>
-   *   <li>targetModel: {DataProvider} The target model.</li>
+   *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
    *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
-   *   <li>doc: {XMLDocument} The XML data of provider.</li>
+   *   <li>doc: {DomDocument} The XML data of provider.</li>
    *   <li>optionsModelId: {String} The identifier of options model.</li>
-   *   <li>optionsModel: {DataProvider} The options model.</li>
+   *   <li>optionsModel: {bcdui.core.DataProvider} The options model.</li>
    *   <li>optionsModelXPath: {String} The XPath in whole XML options data.</li>
    *   <li>optionsModelRelativeValueXPath: {String} The relative XPath in whole XML options data.</li>
    * </ul>
@@ -175,7 +175,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Fires when formula changed. Will call updating XML formula model
-   * @param InputField {HTMLElement} The input element which contains formula.
+   * @param {HtmlElement} InputField The input element which contains formula.
    * @private
    */
   _onFormulaChanged: function(containerHtmlElement)
@@ -193,13 +193,13 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Updates the XML model data. Parses formula and if success put tree under targetModelXPath
    * @private
-   * @param formula {String} formula value.
-   * @param targetModel {DataProvider} The target model.
-   * @param targetModelXPath {String} The XPath in whole XML model data.
-   * @param optionsModel {DataProvider?} The options model with variables for formula.
-   * @param optionsModelXPath {String?} The XPath to variable in whole XML options data.
-   * @param optionsModelRelativeValueXPath {String?} Relative path to caption of variable in options model
-   * @param skipServerSidedFunctions {Boolean} Set to true to disable usage of server sided functions like CntDist. Default is false.
+   * @param {String} formula formula value.
+   * @param {bcdui.core.DataProvider} targetModel The target model.
+   * @param {String} targetModelXPath The XPath in whole XML model data.
+   * @param {bcdui.core.DataProvider?} optionsModel The options model with variables for formula.
+   * @param {String?} optionsModelXPath The XPath to variable in whole XML options data.
+   * @param {String?} optionsModelRelativeValueXPath Relative path to caption of variable in options model
+   * @param {Boolean} skipServerSidedFunctions Set to true to disable usage of server sided functions like CntDist. Default is false.
    */
   _updateXMLDoc: function(formula, targetModel, targetModelXPath, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, skipVariablesValidation, skipServerSidedFunctions)
     {
@@ -244,8 +244,8 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Return formula tree if formula successfully parsed, and input string if formula not parsed
-   * @param targetModel {DataProvider} The target model.
-   * @param targetModelXPath {String} The XPath in whole XML model data.
+   * @param {bcdui.core.DataProvider} targetModel The target model.
+   * @param {String} targetModelXPath The XPath in whole XML model data.
    * @private
    */
   readFormula: function(targetModel, targetModelXPath)
@@ -262,9 +262,9 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Updates the XML attribute @userInput in model (will call only validation and will not generate xml).
    * @private
-   * @param formula {String} formula value.
-   * @param targetModel {DataProvider} The target model.
-   * @param targetModelXPath {String} The XPath in whole XML model data.
+   * @param {String} formula formula value.
+   * @param {bcdui.core.DataProvider} targetModel The target model.
+   * @param {String} targetModelXPath The XPath in whole XML model data.
    */
   _setUnparsedFormula: function(formula, targetModel, targetModelXPath)
     {
@@ -277,8 +277,8 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Insert selected variable to input field.
    * @private
-   * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param variablesModelId {string} The variables model identifier.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
+   * @param {string} variablesModelId The variables model identifier.
    */
   _insertVariableFromModel: function(containerHtmlElement, variablesModelId)
     {
@@ -295,8 +295,8 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Insert text to formula input field.
    * @private
-   * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param variable {string?} custom text.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
+   * @param {string?} variable custom text.
    */
   _insertText: function(containerHtmlElement, variable)
     {
@@ -324,7 +324,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Returns caret position of input field
-   * @param inputField {HTMLElement} html input element.
+   * @param {HtmlElement} inputField html input element.
    * @private
    */
   _getCaret: function(inputField)
@@ -359,7 +359,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * parsing formula by calling external formula parser
    * @param {string} formula The actual formula.
-   * @param {dataProvider} optionsModel The dataprovider holding the XML options.
+   * @param {bcdui.core.DataProvider} optionsModel The dataprovider holding the XML options.
    * @param {string} optionsModelXPath The XPath in whole XML options data.
    * @param {string} optionsModelRelativeValueXPath The relative XPath in whole XML options data.
    * @param {boolean} doNotValidateContent Do not validate content.
@@ -375,7 +375,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Updates the displayed value of formula from model XML data.
    * @private
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    */
   _updateViewFromXMLData: function(containerHtmlElement)
     {
@@ -392,7 +392,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Formula validator
    * @private
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    */
   _validateValue: function(containerHtmlElement)
     {
@@ -457,7 +457,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Adds to the date input field key observers: onkeyup and onkeydown.
    * @private
-   * @param input {HTMLElement} Date field - year, month or day.
+   * @param {HtmlElement} input Date field - year, month or day.
    */
   _addKeyObservers: function(containerHtmlElement, input)
     {

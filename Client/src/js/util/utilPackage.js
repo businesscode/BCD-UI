@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -81,8 +81,8 @@ bcdui.util =
         
   /**
    * Logic derived from PrototypeJs library clone the position of one element (source) to another
-   * @param {HTMLElement} element - The element which is moved to the cloned position
-   * @param {HTMLElement} source - The element of which the position is cloned
+   * @param {HtmlElement} element - The element which is moved to the cloned position
+   * @param {HtmlElement} source - The element of which the position is cloned
    * @param args
    * @returns The moved target element
    * @private
@@ -120,7 +120,7 @@ bcdui.util =
 
   /**
    * Logic derived from PrototypeJs library to provide the offset of an element to its closed ancestor
-   * @param {HTMLElement} element
+   * @param {HtmlElement} element
    * @returns Object with properties 'left' and 'top'
    * @private
    */
@@ -147,7 +147,7 @@ bcdui.util =
 
   /**
    * Logic derived from PrototypeJs library to provide the offset of an element from the top left of document
-   * @param {HTMLElement} element
+   * @param {HtmlElement} element
    * @returns Object with properties 'left' and 'top'
    * @private
    */
@@ -394,7 +394,7 @@ bcdui.util =
    * Find a single element in HTML, sets an id if not there and returns the id.
    * Also understands deprecated args.targetHTMLElementId and args.targetHtmlElementId instead instead of args.targetHtml and ids without leading '#' for backward compatibility
    * @param {Object} args Parameter Object
-   * @param {string|HTMLElement|jQuery} args.targetHtml A CSS selector, or a plain HTMLElement or a jQuery element list. If there are multiple matching elements, the id of the first is used.
+   * @param {string|HtmlElement|jQuery} args.targetHtml A CSS selector, or a plain HtmlElement or a jQuery element list. If there are multiple matching elements, the id of the first is used.
    * @param {boolean} [args.doReturnElement=false]  Return an element instead of the ID, is only compatible when using args.targetHtml
    * @returns The id of the targetHtml or the element if args.doReturnElement=true
    * @private

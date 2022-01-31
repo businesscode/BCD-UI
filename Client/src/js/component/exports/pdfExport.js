@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -70,12 +70,12 @@ bcdui.component.exports.PDFExport = class
    * Creates a new PDFExport instance.
    * @constructs
    * @param {Object} args - The constructor argument map offers the following properties:
-   * @param {(HTMLElement|HTMLElement[]|String)} args.rootElement - The HTML element to be exported either
+   * @param {(HtmlElement|HtmlElement[]|String)} args.rootElement - The HTML element to be exported either
    *         given as the element itself or its HTML ID. In the latter case the element
    *         does not need to exist before the execute() method is called.
    *         OR a space separated list of ids OR an array with ids or elements or a mixture,
    *         which are then included in the export in the given order.
-   * @param {HTMLElement | String} [args.form] - The HTML Form element used for sending the
+   * @param {HtmlElement | String} [args.form] - The HTML Form element used for sending the
    *         export request to the server. 
    *         It must use POST because the logic is restricted to POST due to security considerations.
    *         If omitted an appropriate Form is created by this class.</li>

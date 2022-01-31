@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
 /** @lends bcdui.component.chart */
 {
   /**
-   * Helper for creating a chart with controller from a jsp tag, interannly instantating XmlChart
-   * @param args {Object}
+   * Helper for creating a chart with controller from a jsp tag, internally instantiating XmlChart
+   * @param {Object} args
    * @param args.id
    * @param args.metaDataModel
    * @param args.targetHtmlElementId

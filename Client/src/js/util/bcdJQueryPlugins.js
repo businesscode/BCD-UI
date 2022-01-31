@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2018 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@
   /**
    * Locates and wraps an element by its id
    *
-   * @param {element|string}  idOrElement Either an element to wrap to jQuery object or an id (without '#')
+   * @param {HtmlElement|string}  idOrElement Either an element to wrap to jQuery object or an id (without '#')
    * @returns {object} jQuery object
    *
    * @static

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ bcdui.core.lifecycle =
    * @param {Object} args
    * @param {boolean} [args.cleanXPath]            - Additional XPath to be cleaned from the guiStatus
    * @param {boolean} [args.validateFilters=false] - True or false whether or not to check IsValid flags of guiStatus filters
-   * @param {document} [args.statusDocument=bcdui.wkModels.guiStatus] - optionally, other statusDocument than guiStatus
+   * @param {DomDocument} [args.statusDocument=bcdui.wkModels.guiStatus] - optionally, other statusDocument than guiStatus
    * @param {boolean} [args.removeAllParams=false] - True or false whether or not to remove all url parameters first
    */
   applyAction: function(args)
@@ -154,7 +154,7 @@ bcdui.core.lifecycle =
      * Jumps to another url optionally setting status document, this function is executed asynchronously.
      *
      * @param {url} href - target URL to jump to.
-     * @param {document} [statusDocument] - status document to pass as guiStatusGZ parameter to href.
+     * @param {DomDocument} [statusDocument] - status document to pass as guiStatusGZ parameter to href.
      */
     jumpTo: function(href, statusDocument) {
       const go = (statusDocGZ) => { // always defer

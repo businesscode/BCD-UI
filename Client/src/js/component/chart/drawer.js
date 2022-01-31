@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -182,7 +182,7 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
    * @constructs
    * Constructor of bcdui.component.chart.SVGDrawer
    * @param {Object} args - Parameter object
-   * @param {Document} args.doc               - Document for creating the SVG drawing
+   * @param {DomDocument} args.doc               - Document for creating the SVG drawing
    * @param {Object}   [args.scale=x:1,y:1]   - Default is no scaling \{ x: 1, y: 1\}
    * @param {Object}   [args.transform]       - Default is no shifting \{ x: 0, y: 0 \}
    * @param {function} [args.createToolTipCb] - Call back getting the source element, returning the tool tip HTML</li>

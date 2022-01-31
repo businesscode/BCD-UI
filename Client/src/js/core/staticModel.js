@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -32,19 +32,13 @@
    */
 bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 {
-
   /**
-   * @description
-   * Create a StaticModel and provide the data.
-
-  /**
-   * @typedef {object} StaticModelParam
-   * @property {string}                 [id]              - Globally unique id for use in declarative contexts, ignored if args.data is not set
-   * @property {(string|object|Document)} [data="</Empty>"] - And XML string, which is parsed, an XML Document or a JSON object or any other kind of data
+   * @typedef {Object} StaticModelParam
+   * @property {string}                 [id] - Globally unique id for use in declarative contexts, ignored if args.data is not set
+   * @property {(string|Object|DomDocument)} data - An XML string, which is parsed, a DOM document </p>or a parameter map
    */
-
   /**
-   * @param {(string|StaticModelParam|Document)} args - An XML string, which is parsed, a DOM document or a parameter map
+   * @param {(string|StaticModelParam|DomDocument)} args - And XML string, which is parsed, an XML Document or a JSON object or any other kind of data
    * @example
    * // Provide data as a {@link bcdui.core.DataProvider DataProvider}
    * var myModel = new bcdui.core.StaticModel( "<Root myAttr='Test'></Root>" );
@@ -55,6 +49,8 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
    * var myModel = new bcdui.core.StaticModel({ id: "dayModel", data: "<Values> <V>Mon</V> <V>Wed</V> </Values>" });
    * myModel.execute();
    * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
+   * @description
+   * Create a StaticModel and provide the data.
    */
   constructor(args)
     {
@@ -219,7 +215,7 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
     }
 
   /**
-   * @return {XMLDocument} The data document provided in the constructor.
+   * @return {DomDocument} The data document provided in the constructor.
    */
   getData()
     {

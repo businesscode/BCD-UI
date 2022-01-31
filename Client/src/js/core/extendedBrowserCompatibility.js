@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * This is useful if a namespace is only used within a XPath within a generated XSLT, such namespaces do not survive per se, 
      * i.e. the namespaces do not survive if not used except within xPaths
      * And also, if a document is cut out from another, like the aggregators in the scorecard, they do not contain all namespaces needed
-     * @param {DOMDocument} doc - The XML document to add the namespaces on
+     * @param {DomElement} doc - The XML document to add the namespaces on
      * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
      */
     _addDefaultNamespaceAttributesToDocumentElement: function(/* XMLDocument */ doc, except )
@@ -131,8 +131,8 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * inherit the host documents default namespace, for example HTML tags of undeclared namespace would become xsl elements
      * if the generated XSLT has xslt as the default namespace, which often happens. Thus: always declare HTML namespaces as well for Chrome
 
-     * @param {object}      args - An argument map containing the following elements:
-     * @param {XMLDocument} args.model The XSLT document the XSLTProcessor instance should be
+     * @param {Object}      args - An argument map containing the following elements:
+     * @param {DomDocument} args.model The XSLT document the XSLTProcessor instance should be
      * @param {function}    args.callBack The callback function executed when the processor has been created. It takes the processor instance as argument
      * @param {boolean}     args.isGenerated is generated XSLT
     */
@@ -197,7 +197,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * Replaces the document function with the help of exslt:node-set(), merging the content into the
      * host xslt into a variable (xslt content gets a different namespace) and having another variable
      * getting that via node-set() and replacing document('url')/ by $data_something/
-     * @param {XMLDocument} doc The document to work on
+     * @param {DomDocument} doc The document to work on
      * @param {Function} fn Function to call after finishing (this is asynchronous as we actually load the documents
      * which are addressed in the document function and what they include
      * @private
@@ -277,7 +277,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
     /**
      * This is a helper to solve the problem that webkit does not support xsl import function.
      * Don't use this directly, use createXsltProcessor instead
-     * @param {XMLDocument} doc The document to work on
+     * @param {DomDocument} doc The document to work on
      * @param {Function} fn callback after finishing
      * @private
      */
@@ -385,7 +385,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
 
   /**
    * Asynchronous creation of an XSLTProcessor object from a DOM document.
-   * @param {XMLDocument} domDocument The XSLT document the XSLTProcessor instance should be
+   * @param {DomDocument} domDocument The XSLT document the XSLTProcessor instance should be
    * created from.
    * @param {Function} fn The callback function executed when the processor has been created. It
    * takes the processor instance as argument.

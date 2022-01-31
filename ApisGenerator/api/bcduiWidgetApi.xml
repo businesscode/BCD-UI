@@ -145,7 +145,7 @@
       </Api>
       
       <Api name="hasCaptions" extends="hasOptions">
-        <Param name="optionsModelRelativeValueXPath" type="xpath">
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
             values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
@@ -153,7 +153,7 @@
         </Param>
       </Api>
       <Api name="hasCaptionsNotRequired" extends="hasOptionsNotRequired">
-        <Param name="optionsModelRelativeValueXPath" type="xpath">
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
             values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
@@ -310,7 +310,7 @@
         <Param name="targetModelXPath" required="true" type="writableModelXPath">
           <Doc>The targetModelXPath for the dimensionChooser acts slightly different than for other widgets. The path points a node which will hold the value for the selected level. The widget builds up filter expressions automatically, so your targetXPath doesn't need any f:Expression statements, e.g. /*/guiStatus:Dimension[@id='dimensionChooser']/@value.</Doc>
         </Param>
-        <Param name="dimension" type="xpath" required="true">
+        <Param name="dimension" type="xPath" required="true">
           <Doc>
             Unique name to select a dimension from the dimension model (located at '/bcdui/conf/dimensions.xml'.
           </Doc>

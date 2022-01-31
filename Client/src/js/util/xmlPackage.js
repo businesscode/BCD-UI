@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,9 +39,9 @@ bcdui.util.xml =
     /**
      * Copies all child elements and attributes from a source XML element to a target
      * XML element.
-     * @param {Element} targetElement The element the content (child elements + attributes) of the
+     * @param {HtmlElement} targetElement The element the content (child elements + attributes) of the
      * source element should be copied to.
-     * @param {Element} sourceElement The source for the elements and attributes copied under the
+     * @param {HtmlElement} sourceElement The source for the elements and attributes copied under the
      * target element.
      * @return {Element} The targetElement.
      */
@@ -69,7 +69,7 @@ bcdui.util.xml =
      * a comment, text node etc.) or null if there is no sibling element. If the function
      * is supported by the browser (e.g. FireFox) the native implementation is used. In
      * other browsers (e.g. Internet Explorer) it is computed here.
-     * @param {XMLElement} element
+     * @param {DomElement} element
      * @return {Element} The element immediately following the specified element or
      * null if there is no such element.
      */
@@ -116,9 +116,9 @@ bcdui.util.xml =
   /**
    * Renames an XML element and optionally filters its child elements (which is
    * useful in conjunction with the wrs-Format).
-   * @param {Element} element - The XML element to be renamed.
+   * @param {DomElement} element - The XML element to be renamed.
    * @param {string} newName - The new name of the XML element.
-   * @return {XMLElement} The renamed XML element.
+   * @return {DomElement} The renamed XML element.
    */
   renameElement: function( element, newName)
     {
@@ -149,7 +149,7 @@ bcdui.util.xml =
     /**
      * Removes XML elements from a DOM document. These XML elements are identified
      * with an XPath.
-     * @param {XMLDocument | DataProvider } doc - The document the XPath specified in the "path"
+     * @param {DomDocument | bcdui.core.DataProvider } doc - The document the XPath specified in the "path"
      * argument is evaluated on.
      * @param {writableModelXPath | String} path - The XPath pointing to the nodes to be removed.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
@@ -191,7 +191,7 @@ bcdui.util.xml =
      * to be computed. For example it is not allowed to specify "//" in the XPath
      * and the "or" conjunction cannot be used.
      * </p>
-     * @param {XMLDocument | XMLElement | DataProvider} baseElement - The DOM document or the XML element the path is evaluated on.
+     * @param {DomDocument | DomElement | bcdui.core.DataProvider} baseElement - The DOM document or the XML element the path is evaluated on.
      * @param {modelXPath | String} path - The XPath identifying the element to be retrieved or
      * created.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
@@ -208,7 +208,7 @@ bcdui.util.xml =
      * Determines the parent element of a node, no matter if it is an attribute node
      * or an element. It is quite useful especially for attribute nodes, because the
      * parentNode property does not work on them.
-     * @param {XMLElement | XMLAttribute} node
+     * @param {DomElement | DomAttribute} node
      * @return {Element} The parent element of the specified node.
      */
     getParentNode: function( node)
@@ -239,7 +239,7 @@ bcdui.util.xml =
    * Parses an XML document and register well-known namespaces and their prefixes to enable
    * xPath lookups thru JS API, i.e. document.selectSingleNode("/wrs:Wrs/wrs:Header").
    *
-   * @param {string|document|node}  doc   XML Document as a String or Document or Node. If a document or a node is provided, they are cloned. A node is re-built as a document.
+   * @param {string|DomDocument|DomElement|DomAttribute}  doc   XML Document as a String or Document or Node. If a document or a node is provided, they are cloned. A node is re-built as a document.
    * @return wrapped Document with namespace resolver and .selectSingleNode(), .selectNodes() API
    */
   parseDocument : function(doc){

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    *
    * @param {Object} args - Parameter object
    * @param {targetHtmlRef} args.targetHtml          - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
-   * @param {HTMLElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
+   * @param {HtmlElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
    * @param {string} args.i18nModelId                - model with i18n entries, default "bcdI18nModel"
    * @param {string} args.display                    - original css 'display' value of the HTML element to be set after translation
    * @returns translation time
@@ -196,9 +196,9 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    *
    * @param {Object} args - Parameter object
    * @param {targetHtmlRef}        args.targetHtml   - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
-   * @param {HTMLElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
+   * @param {HtmlElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
    * @param {Object}               args.catalog      - Catalog with i18n entries
-   * @param {boolean}              args.doDefer=true - If true, in case at time of syncTranslateHTMLElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
+   * @param {boolean}              args.doDefer=true - If true, in case at time of syncTranslateHtmlElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
    */
   syncTranslateHTMLElement: function(args){
       if(!args) args={};

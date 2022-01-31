@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -125,9 +125,9 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "  var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
-  var allowedParamTypes = ["string", "boolean", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer", "stringList"];
+  var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer", "stringList"];
   // for default values we have to distinguish between literals and string values
-  var stringParamTypes = ["string", "xpath", "i18nToken", "modelXPath", "writableModelXPath", "enum", "stringList"];
+  var stringParamTypes = ["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enum", "stringList"];
   params.filter( function( param ) {
     // id attribute refers to the html tag, not the object. Use objectId for that
     if( param.name.indexOf(".") === -1 || param.name === "args.id" )

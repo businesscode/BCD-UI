@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,15 +30,20 @@ var helper = require('jsdoc/util/templateHelper');
 
 exports.publish = function(taffyData, opts, tutorials) 
 {
-  var result = ""
+  var result = "";
 
-  // Debug helper
-  // console.log( JSON.stringify( taffyData({longname: "bcdui.component.chart"}).get() ) );
+  // Debugging tuffy sample
+  //console.log( JSON.stringify( taffyData({longname: "bcdui.component.chart.XmlChart"}).get() ) );
 
   // Namespaces and static functions
   result += printNamespaces( taffyData, opts );
 
-  var allClasses = find( taffyData, { kind: "class", access: { "!is": "private" }, virtual: { "!is": true } } );
+  // Make all self defined JsDoc types available
+  taffyData({kind: "typedef"}).get().forEach( function(typedef) {
+    result += typedef.comment + newLine(0);
+  });
+
+  var allClasses = find( taffyData, { kind: "class", access: { "!is": "private" } } );
 
   // For some reason TaffyDB contains classes multiple times (up to 3) and some occurrences are unclean
   // It could well be that it has an issue with our way to annotate them with ja-doc.
@@ -87,24 +92,25 @@ function printClass( taffyData, clazz )
   result += newLine(0);
 
   // Add the documentation for the class
-  if (clazz.classdesc && clazz.description){
-    result += "/**" + newLine(1);
-
-    if( clazz.classdesc )
-      result += clazz.classdesc + newLine(1);
-    if (clazz.description)
-      result += clazz.description + newLine(0);
-    if (clazz.examples)
-      result += printCommentExamples( clazz.examples, clazz, "Constructor" );
-    result += "*/" + newLine(0)
-  }
+  // This is before the class definition and is used by IDEA.
+  // Eclipse 2021-12 and VSC 1.63 need get a copy at the constructor below
+  result += "/**" + newLine(1);
+  result += printExternalLink("https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html")+newLine(1);
+  if( clazz.classdesc )
+    result += "@description " + clazz.classdesc.replace(/(\r?\n|\r)/gm," ") + newLine(1);
+  if (clazz.description)
+    result += "@description " + clazz.description.replace(/(\r?\n|\r)/gm," ") + newLine(1);
+  if (clazz.examples)
+    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+  if (clazz.augments)
+    result += "@extends " + clazz.augments[0]  + newLine(0);;
+  result += "*/" + newLine(0)
 
   // The name of the class is stored in the variable .longname.
   // Some longnames contain a ~ which needs to be removed
-  if (clazz.longname.includes("~")){
-    var name_adjusted = clazz.longname.split("~")[1]
-  }else{
-    var name_adjusted = clazz.longname
+  var name_adjusted = clazz.longname;
+  if (name_adjusted.includes("~")){
+    name_adjusted = name_adjusted.split("~")[1]
   }
 
   // Start -> Print out Class
@@ -118,25 +124,41 @@ function printClass( taffyData, clazz )
   result += "{" + newLine(1);
 
   // ... add Constructor parameter
-  if (clazz.params && clazz.params.length !== 0){
-    result += "/**" + newLine(1);
-    result += printCommentParams(clazz.params, clazz, "Constructor");
-    result += "  */" + newLine(1);
-  }
+  result += "/**" + newLine(1);
+
+  result += printCommentParams(clazz.params, clazz, "Constructor");
+
+  // Eclipse 2021-12 an VSC expect the class description at the constructor.
+  // We print it after the params because for IDEA this is repeated for each param and after it is better to read
+  result += printExternalLink("https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html")+newLine(1);
+  if( clazz.classdesc )
+    result += "@description " + clazz.classdesc.replace(/ *(\r?\n|\r) */gm," ") + newLine(1);
+  if (clazz.description)
+    result += "@description " + clazz.description.replace(/( *\r?\n|\r *)/gm," ") + newLine(1);
+  if (clazz.examples)
+    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+  if (clazz.augments)
+    result += "@extends " + clazz.augments[0]  + newLine(1);;
+
+  result += "  */" + newLine(1);
 
   // ... add the Constructor
   result += "constructor("
+  var paramList = "";
   if(clazz.params && clazz.params.length !== 0){
     clazz.params.forEach( function(param) {
       if (param.name.includes('.')) return;
-      result += param.name + ", ";
+      paramList += param.name + ", ";
     })
-    result = result.slice(0, -2);
+    paramList = paramList.slice(0, -2);
   }
 
-  result += "){}" + newLine(1);
+  result += paramList+"){"
+  if( clazz.augments ) result += " super("+paramList+"); "; // Avoid missing arg warning in Eclipse
+  else result += " console.log("+paramList+"); "; // Avoid unused arg warning in Eclipse
+  result += "}" + newLine(1);
 
-  // ...for each method, print the method
+  // ...for each method, print the methods
   var methods = find(taffyData,{ kind: "function", memberof: name_adjusted });
   methods = methods.filter( function(m){ return m.access !== "private" } );
   methods.sort( function(m1, m2){ return m1.name > m2.name } );
@@ -148,7 +170,6 @@ function printClass( taffyData, clazz )
   // ... add all methods that are inherited from the parent class
   var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
   inheritedMethods.forEach( function(method, methodIdx) {
-
     result += printMethod_forClasses(method, methodIdx, clazz, method.name ) + newLine(1)
   });
 
@@ -173,10 +194,10 @@ function printMethod_forClasses(method, methodIdx, clazz, name)
   // Add the documentation for the method, but only if the documentation actually exists.
   if (method.description || (method.params && method.params.length !== 0)) {
     result = "/**" + newLine(1);
-    result += "<p><b>@see</b> <a href='https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name+"'>Online help</a></p>"+newLine(0);
+    result += printExternalLink("https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name)+newLine(1);
 
     if (method.description)
-      result += method.description + newLine(1);
+      result += "@description " + formatDescription(method.description) + newLine(1);
 
     // ... add the params
     result += printCommentParams(method.params, clazz, method);
@@ -197,18 +218,20 @@ function printMethod_forClasses(method, methodIdx, clazz, name)
 
   // Create the method
   result += name + "(";
+  var paramList = "";
   if (method.params){
     method.params.forEach(function (param){
       if (param.name.includes('.')) return;
-      result += param.name + ",";
+      paramList += param.name + ",";
     })
     if (method.params.length != 0) {
-      result = result.slice(0, -1);
+      paramList = paramList.slice(0, -1);
     }
   }
 
   // Close the bracket
-  result += "){}";
+  if( paramList!=="" ) result += paramList+") { console.log("+paramList+"); }"; // Avoid unused var warning (in Eclipse)
+  else result += ") {}";
 
   return result;
 }
@@ -219,7 +242,7 @@ function printMethod_forClasses(method, methodIdx, clazz, name)
 function printNamespaces( taffyData, opts )
 {
   var allNamespaces = find( taffyData, { kind: "namespace", access: { "!is": "private" }  } );
-  // Make sure namespaces are defined buttom up
+  // Make sure namespaces are defined bottom up
   allNamespaces = allNamespaces.sort( function(a,b){ return a.longname.localeCompare(b.longname) } )
 
   var result = "";
@@ -236,8 +259,9 @@ function printNamespaces( taffyData, opts )
     }
 
     result += newLine(0) + "/**" + newLine(0);
+    result += " * " + printExternalLink("https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+namespace.longname+".html") + newLine(0);;
     if( namespace.description )
-      result += stringCleaner(namespace.description) + newLine(0);
+      result += " * @description " + formatDescription(namespace.description) + newLine(0);
     result += " * @namespace " + newLine(0);
     result += " */" + newLine(0);
     if( namespace.longname.indexOf(".") === -1 )
@@ -246,6 +270,7 @@ function printNamespaces( taffyData, opts )
 
     result += printProperties( taffyData, namespace.longname );
 
+    // Now list the static functions of this namespace
     var methods = find(taffyData,{ kind: "function", memberof: namespace.longname });
     methods = methods.filter( function(m){ return m.access !== "private" } );
     methods.sort( function(m1, m2){ return m1.name > m2.name } );
@@ -259,33 +284,37 @@ function printNamespaces( taffyData, opts )
   return result;
 }
 
+/**
+ * Static package functions
+ * @param method
+ * @param methodIdx
+ * @param clazz
+ * @param tempAlias
+ * @returns {string}
+ */
 function printMethods_forNamespace(method, methodIdx, clazz, tempAlias)
 {
   var result = "/**"+newLine(0);
-  // Eclipse (oxygen, tern), wants us to start with the description
-  // They also fail if the are new lines in the cell and the also want two spaces after a sentence dot
-  result += "<p><b>@see</b> <a href='https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name+"'>Online help</a></p>"+newLine(0);
-  result += "<b>@description</b>"+newLine(0);
-  result += multilineStringToTable(method.description);
+
+  // IDEA 2021.1.3 will repeat the full description for each param, so we start with the param description here
+  // to make it easier to read
+  result += printCommentParams( method.params, clazz, method );
+
+  result += printExternalLink("https://businesscode.github.io/BCD-UI-Docu/jsdoc/"+clazz.longname+".html#"+(method.scope==="static"?".":"")+method.name)+newLine(1);
+  result += "@description " + formatDescription(method.description)+newLine(1);
   // IDEA (2012.2) needs @method (to show type) and @memberOf (to understand it belongs to the class)
-  result += printCommentParamsAsTable( method.params, clazz, method );
-  result += "<table border='0' cellpadding=\"0\" cellspacing=\"0\">";
-  result += "<tr><td><b>@method</b> "+method.name+"</td></tr>"+newLine(0);
-  result += "<tr><td><b>@memberOf</b> "+clazz.longname+(method.scope!=="static" ? ".prototype" : "")+"</td></tr>"+newLine(0);
+  result += "@method "+method.name+newLine(0);
   if( method.virtual )
-    result += "<tr><td><b>@abstract</b> Use a concrete subclass</td></tr>"+newLine(0); // Wired enough, Eclipse needs a random string here to not indent the next tag
+    result += "@abstract Use a concrete subclass"+newLine(0); // Wired enough, Eclipse needs a random string here to not indent the next tag
   if( method.inherits )
-    result += "<tr><td><b>@inherits</b> "+method.inherits+"</td></tr>"+newLine(0);
+    result += "@inherits "+method.inherits+newLine(0);
   if( method.overrides )
-    result += "<tr><td><b>@overrides</b> "+method.overrides+"</td></tr>"+newLine(0);
+    result += "@overrides "+method.overrides+newLine(0);
   if( method.deprecated )
-    result += "<tr><td><b>@deprecated</b> "+ method.deprecated+"</td></tr>"+newLine(0);
-  result += "</table>";
+    result += "@deprecated "+ method.deprecated+newLine(0);
   // IDEA prefers samples before parameters
   result += printCommentExamplesMandatories( method, clazz );
   result += printCommentExamples( method.examples, clazz, method );
-  // Since tern ignores the param descriptions and they are hard to read in IDEA, we also include them here in the comment as a table
-  result += printCommentParams( method.params, clazz, method );
 
   if( method.returns ) {
     var ret = method.returns[0];
@@ -304,16 +333,18 @@ function printMethods_forNamespace(method, methodIdx, clazz, tempAlias)
   if( method.scope !== "static" )
     result += ".prototype";
   result += "."+method.name+" = function(";
+  var paramList = "";
   if( method.params ) {
     method.params.filter(function(param) {
       return param.name && param.name.indexOf(".")===-1
     }).forEach( function(param, paramIdx) {
-      result += paramIdx > 0 ? ", " : " ";
-      result += param.name;
+      paramList += paramIdx > 0 ? ", " : "";
+      paramList += param.name;
     });
-    result += " ";
   }
-  result += "){};"+newLine(0)+newLine(0);
+  // Add a console.log to prevent unused var when file is validated (by Eclipse)
+  if( paramList !== "" ) result += paramList+") { console.log("+paramList+"); };"+newLine(0)+newLine(0);
+  else result += ") {};"+newLine(0)+newLine(0);
 
   result += newLine(0);
 
@@ -398,44 +429,12 @@ function printCommentParams( params, clazz, method )
     } else
       console.warn("Missing param name at " + clazz.longname + "." + method.name);
     if (param.description)
-      result += "  " + param.description;
+      result += "  " + formatDescription(param.description);
     result += newLine(1);
   });
 
   return result;
 }
-
-/**
- * Print the comment section for the parameters as an HTML table, not as a JSDoc
- * This is very compact (name, type + descrition in one cell) fly-overoptimized
- * @param params
- * @param clazz
- * @param method
- * @returns {String}
- */
-function printCommentParamsAsTable( params, clazz, method )
-{
-  if( !params || params.length===0)
-    return "";
-
-  var result = "<b>@parameters</b>"+newLine(0);
-  result += "<table border='0'>" + newLine(0);
-  params.forEach( function(param) {
-    result += "<tr>";
-    var paramText = param.name;
-    if( param.defaultvalue )
-      paramText += "=" + param.defaultvalue;
-    if( param.optional )
-      paramText = "["+paramText+"]";
-    result += "<td>"+paramText+"</td>";
-    result += "<td>"+printCommentDataTypes(param.type)+"&nbsp;&nbsp;";
-    result += (param.description?stringCleaner(param.description,true):"")+"</td></tr>";
-  });
-  result += "</table>" + newLine(0);
-
-  return result;
-}
-
 
 /**
  * Print a {type} or {(type1|type2)} for the comment section
@@ -462,7 +461,7 @@ function printCommentExamples( examples )
 {
   var result = "";
   if( examples )
-    examples.forEach( function(example) { result+=multilineStringToTable("<b>@example</b>"+newLine(0)+example.replace(/</g, "&lt;")) } );
+    examples.forEach( function(example) { result += printExample(example) } );
   return result;
 }
 
@@ -475,9 +474,9 @@ function printCommentExamplesMandatories( method, clazz )
   if( ! method.params || method.params.length < 2 )
     return "";
 
-  // generate a sample. Eclupse needs leading spaces to show comment as a comment
+  // generate a sample. VSC 16.3 will only show leading spaces for the first row, so we do not write them here at all
   var instName = "my" + clazz.name;
-  var result = "  // Sample using the mandatory parameters"+newLine(0);
+  var result = "// Sample using the mandatory parameters"+newLine(0);
   if( method === clazz ) {
     if( clazz.virtual )
       return "";
@@ -512,42 +511,49 @@ function printCommentExamplesMandatories( method, clazz )
     result += " }";
   result += " );";
 
-  return multilineStringToTable("<b>@example</b>"+newLine(0)+result.replace(/</g, "&lt;"));
+  return printExample(result);
 
 }
 
-
 /**
- * Eclipse (oxygen with tern) and IDEA (2012.2) have issues with new lines
- * Eclipse tends to ignore the rest of the comment and IDEA ignores the newLines themselves
- * To make comments better to read, we turn them into a table with rows for each new line
- * if they span multiple lines and don't contain table, ol, ul or dl tags to keep their formatting
+ * Needed cleanup for descriptions
+ * a) XML samples with @ are misinterpreted as jsdoc tags, we escape them, Some like {@link are valid, so only those looking like xml (testcase dp.write())
+ * b) IDEA as of beginning 2022 has issues (WEB-18474) with multi-line descriptions. They lead to repeated description at the other params. (tescase each args.x param when ctrl-space within {})
+ * c) VSC 1.63 does cut multiline descriptions at the first html tag (testcase bcdui.core).
+ *    While it still does ignore html tags, it destroys the intended format but this way it is at least visible as unformatted text
  * @param text
- * @returns {*}
  */
-function multilineStringToTable(text)
+function formatDescription(text)
 {
   if( !text )
     return "";
-  if( text.indexOf("</table") === -1 && text.indexOf("</ol") === -1 && text.indexOf("</ul") === -1 && text.indexOf("</dl") === -1
-      && (text.indexOf("\n") !== -1 || text.indexOf("\r") !== -1) ) {
-    text =  stringCleaner( text );
-    var result = "<table border='0' cellspacing='0' cellpadding='0'><tr><td>" + newLine(0);
-    result += text.replace(/\r?\n|\r/g,"</td></tr><tr><td>") + newLine(0);
-    result += "</td></tr></table>" + newLine(0);
-    return result;
-  } else
-    return stringCleaner( text, true ) + newLine(0);
+  return text.replace(/( |\/|,|\[)@/g,"$1&commat;").replace(/ *(\r?\n|\r) */gm," ");
 }
 
 /**
- * Eclipse Oxygen+Tern have issues with a point followed by a single space and leading spaces. Everything after that tends to be ignored.
- * Also they have issues with new lines in JSDoc text, text can be turned in a one-liner, if needed
- * @param text
+ * IDEA understands @link, VSC 1.63 and Eclipse 2021-12 doe not, so we create both here
+ * Internal links do nor work for Eclipse anyway, so we just tak care here for external ones
+ * @param link
  */
-function stringCleaner( text, makeOneLiner )
-{
-  if( makeOneLiner )
-    text = text.replace(/(\r?\n|\r)/gm,"");
-  return text.replace(/^(\r?\n|\r)/gm,"").replace(/\. /g,".  ").replace(/^ +/gm,"");
+function printExternalLink(link) {
+  var result = "@see [Online Api]("+link+") {@link "+link+" Online Api}";
+  return result;
+}
+
+/**
+ * VSC 1.63 and IDEA 2021-1-3 work fine with the @example tag including format and syntax highlighting
+ * But Eclipse 2022-1 does not show the source code formatted (not even monospaced) and drops line breaks
+ * We surround samples with <pre> to better support Eclipse. VSC is still ok when the tag is part of a comment
+ * IDEA sadly looses syntax highlighting for this best tradeoff between the supported IDEs
+ * @param example
+ * @returns {string}
+ */
+function printExample(example) {
+  let isHtml = example.match(/ *</);
+  var result = "@example"+newLine(1);
+  result += isHtml ?  "<-- <pre> -->" : "//<pre>";
+  result += newLine(1)+example+newLine(1);
+  result += isHtml ?  "<-- </pre> -->" : "//</pre>";
+  result += newLine(1);
+  return result;
 }

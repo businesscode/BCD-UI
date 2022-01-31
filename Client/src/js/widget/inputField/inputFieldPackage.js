@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
    * The initialization function called by inputField.xslt.
    * For parameters, see widgetPackage.js
    * @function
-   * @param {HTMLElement} e The element the input field is based on.
+   * @param {HtmlElement} e The element the input field is based on.
    * @private
    */
   init: function(e)
@@ -356,7 +356,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
     /**
      * Prepares the input field for data input, especially when no value is selected
      * I.e. remove any user-hint and possibly set * according to wildcards
-     * @param {HTMLElement|ID} elementOrId
+     * @param {HtmlElement|ID} elementOrId
      * @private
      */
     _prepareForInput: function( elementOrId, newText )
@@ -441,7 +441,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
     /**
      * sets cursor at the end of value of the HTML Element
      * @private
-     * @param {HTMLElement | ID} elementOrId
+     * @param {HtmlElement | ID} elementOrId
      */
     _setCursorPosition: function( elementOrId, newPos ){
       var el = bcdui._migPjs._$(elementOrId);
@@ -1471,7 +1471,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
 
     /**
      * Set default parameters
-     * @param {HTMLElement} htmlElement The element the input field is based on.
+     * @param {HtmlElement} htmlElement The element the input field is based on.
      * @private
      */
     _adjustDefaultParameters: function(htmlElement){

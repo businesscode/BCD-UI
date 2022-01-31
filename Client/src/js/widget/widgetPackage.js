@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ jQuery.extend(bcdui.widget,
    * @param {targetHtmlRef} args.targetHtml                       An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
    * @param {string}        [args.id]                             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {modelXPath}    [args.optionsModelXPath]              xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]
-   * @param {xpath}         [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+   * @param {xPath}         [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.optionsModelIsSuggestionOnly]   If true, values different from the options model can are allowed. Default is that, if an optionsModel is given, only values from that model are allowed.
    * @param {writableModelXPath} [args.additionalFilterXPath]     An additional XPath created, kept up-to-date during writing, not only when a final value us choosen, not listened on. Usually used to control a server-side filtered options model.
    * @param {boolean}       [args.keepEmptyValueExpression=false] A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
@@ -621,7 +621,7 @@ jQuery.extend(bcdui.widget,
      }
     },
     /**
-     * @param {DataProvider} targetModel
+     * @param {bcdui.core.DataProvider} targetModel
      * @param {String} targetModelXPath
      * @param {String} value
      * @param {Boolean} [keepEmptyValueExpression]
@@ -635,8 +635,8 @@ jQuery.extend(bcdui.widget,
 
   /**
    * @private
-   * @param {DataProvider} targetModel
-   * @param {DataProvider} targetModelXPath
+   * @param {bcdui.core.DataProvider} targetModel
+   * @param {bcdui.core.DataProvider} targetModelXPath
    * @param {String} value
    * @param {String} caption
    * @param {Boolean} [keepEmptyValueExpression]
@@ -739,7 +739,7 @@ jQuery.extend(bcdui.widget,
 
   /**
    * Creates WRS modified row
-   * @param {XMLNode} originNode
+   * @param {XmlNode} originNode
    * @param {Model} targetModel
    * @private
    */
@@ -1420,7 +1420,7 @@ jQuery.extend(bcdui.widget,
     },
 
   /**
-   * @param {HTMLElement} baseElement
+   * @param {HtmlElement} baseElement
    * @private
    */
   _computeRowAndColIdents: function(baseElement)
@@ -1504,7 +1504,7 @@ jQuery.extend(bcdui.widget,
    * of the targetRenderer's contentDiv is left.
    *
    * @param args The parameter map contains the following properties:
-   * @param {String|DataProvider} args.tooltipRendererId The renderer responsible
+   * @param {String|bcdui.core.DataProvider} args.tooltipRendererId The renderer responsible
    *          for generating the tooltip content. When the "tableMode" parameter
    *          is true this renderer will get two additional parameters "bcdRowIdent"
    *          and "bcdColIdent". These parameters come from the table cell the mouse
@@ -1516,9 +1516,9 @@ jQuery.extend(bcdui.widget,
    * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML and added
    *          as parameters on the tooltipRenderer.
-   * @param {Integer} [args.delay] The delay in Milliseconds that the tooltip should wait
+   * @param {integer} [args.delay] The delay in Milliseconds that the tooltip should wait
    *          before it appears.
-   * @param {Integer} [args.offset] Offset value which is used to position the tooltip
+   * @param {integer} [args.offset] Offset value which is used to position the tooltip
    *          relatively to the mouse pointer, if not given it's determined automatically
    * @private
    */
@@ -1593,9 +1593,9 @@ jQuery.extend(bcdui.widget,
   /**
    * Finds the inner most occurrence of an attribute
    * starting at the startElement following its anchestor axis to maximal endElement
-   * @param {HTMLElement} startElement
+   * @param {HtmlElement} startElement
    * @param {String} attrName
-   * @param {HTMLElement} endElement
+   * @param {HtmlElement} endElement
    * @return value of the attribute, null if attribute was not found
    * @private
    */
@@ -1617,13 +1617,13 @@ jQuery.extend(bcdui.widget,
    * to the attachTooltipRenderer function, but it is triggered with onClick and it
    * provides the contextId parameter to the stylesheet.
    * @param args The parameter map
-   * @param {String|DataProvider} args.contextMenuRendererId The renderer responsible
+   * @param {String|bcdui.core.DataProvider} args.contextMenuRendererId The renderer responsible
    *          for generating the context menu. Usually the HTML rendering is done
    *          by the default contextMenu.xslt stylesheet.
-   * @param {String|DataProvider} args.targetHtmlElement The renderer the context menu is to be attached to. (or give targetRendererId)</li>
+   * @param {String|bcdui.core.DataProvider} args.targetHtmlElement The renderer the context menu is to be attached to. (or give targetRendererId)</li>
    * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML.
-   * @param {Integer} [args.offset] Offset value which is used to position the contextMenu
+   * @param {integer} [args.offset] Offset value which is used to position the contextMenu
    *          relatively to the mouse pointer, if not given it's determined automatically
    * @private
    */
@@ -1924,7 +1924,7 @@ jQuery.extend(bcdui.widget,
    *        - add listener to the target model on the mandatoryXPath - call args.onMandatoryChanged
    *
    * @param args The parameter map
-   * @param {HTMLElement} args.htmlElement htmlTargetElement to work on
+   * @param {HtmlElement} args.htmlElement htmlTargetElement to work on
    * @param {function} args.onMandatoryChanged the callback function - will be called on mandatory changed
    * @private
    */
@@ -1987,7 +1987,7 @@ jQuery.extend(bcdui.widget,
      * Calculate mandatoryXPath for given targetModel and targetModelXPath.
      * The model should be ready.
      *
-     * @param {DataProvider} targetModel
+     * @param {bcdui.core.DataProvider} targetModel
      * @param {String} targetModelXPath
      * @return String - the calculated @mandatory xPath
      *
@@ -2022,7 +2022,7 @@ jQuery.extend(bcdui.widget,
 
     /**
      * Checks WRS mode.
-     * @param doc {Document} The XML document.
+     * @param {DomDocument} doc The XML document.
      * @returns {Boolean} True in WRS mode.
      * @private
      */
@@ -2033,12 +2033,12 @@ jQuery.extend(bcdui.widget,
 
     /**
      * Extracts and returns the row and column indexes from WRS xpath.
-     * @param targetModel {DataProvider} The target model.
-     * @param targetModelXPath {String} The XPath in whole XML model data.
+     * @param {bcdui.core.DataProvider} targetModel The target model.
+     * @param {String} targetModelXPath The XPath in whole XML model data.
      * @return The map contains the following properties:
      * <ul>
-     *   <li>row: {Integer} Row index.</li>
-     *   <li>col: {Integer} Column index.</li>
+     *   <li>row: {integer} Row index.</li>
+     *   <li>col: {integer} Column index.</li>
      * </ul>
      * @private
      */
@@ -2053,8 +2053,8 @@ jQuery.extend(bcdui.widget,
 
   /**
    * @param {Event} event
-   * @param {DataProvider} renderer
-   * @param {HTMLElement} targetElement
+   * @param {bcdui.core.DataProvider} renderer
+   * @param {HtmlElement} targetElement
    * @private
    */
   _setIdents: function(event, renderer, targetElement)
@@ -2156,10 +2156,10 @@ jQuery.extend(bcdui.widget,
     /**
      * injectFilter in table
      * @param {Object}        args                                        The parameter map contains the following properties.
-     * @param {htmlElement}   args.tableElement                           The HTML Table Element which you want to use for injection
+     * @param {HtmlElement}   args.tableElement                           The HTML Table Element which you want to use for injection
      * @param {writableModelXPath}  args.targetModelXPath                 The xPath pointing to the root-node this widget will place entered selected items into
-     * @param {dataProvider}  args.inputModel                             WRS datamodel representing the table columns
-     * @param {dataProvider}  [args.statusModel=bcdui.wkModels.guiStatus] StatusModel where the widget will write its content to.
+     * @param {bcdui.core.DataProvider}  args.inputModel                             WRS datamodel representing the table columns
+     * @param {bcdui.core.DataProvider}  [args.statusModel=bcdui.wkModels.guiStatus] StatusModel where the widget will write its content to.
      * @param {boolean}       [args.useCustomHeaderRenderer=false]        Set to true when your code adds bcdFilterButton classes on its own (e.g. grid)
      * @param {function}      [args.callback]                             Function which will be executed after a change of the filters have been performed
      * @param {function}      [args.getCaptionForColumnValue]             Function (colIdx, colValue) which returns the rendered caption for the cell. By default standard wrs @caption, wrs:references and unit/scale handling is supported already. Deprecated (prefer valueCaptionProvider parameter). 
@@ -2723,7 +2723,7 @@ jQuery.extend(bcdui.widget,
     /**
      * Create fixed table header by adding a fixed copy of the original
      * Its size is derived from the "original" header, still in place for the table
-     * @param {htmlElement}   tableElement    the table html element 
+     * @param {HtmlElement}   tableElement    the table html element
      * @param {string}        rendererId      Id of the renderer to work on
      * @param {boolean}       storeSize       Decide whether the action is to be called synchronous or not
      * @param {boolean}       enableColumnFilters Set to true if you wnat to enable column filters, too
@@ -2811,7 +2811,7 @@ jQuery.extend(bcdui.widget,
 
     /**
      * recalculates the height and width of the fixed header
-     * @param {htmlElement} tableElement - the container holding .bcdTableHeadHolder
+     * @param {HtmlElement} tableElement - the container holding .bcdTableHeadHolder
      * @param {boolean} noFinalRefresh - flag to skip a 2nd run of recalc to avoid some possible browser redraw flaws
      * @private
      */
@@ -3513,11 +3513,11 @@ bcdui.widget.validationToolTip = class
 
   /**
    * Tool tip listener initialization and registering.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
-   * @param {dataProvider} targetModel
+   * @param {HtmlElement} containerHtmlElement Widget container element.
+   * @param {bcdui.core.DataProvider} targetModel
    * @param {string} targetModelId identifier of model that should be tracked
    * @param {string} targetModelXPath xpath of model that should be tracked
-   * @param {XMLDocument} doc XMLDocument of the targetModel 
+   * @param {DomDocument} doc XMLDocument of the targetModel
    * @param {HtmlElement} containerHtmlElement html container with binded control
    * @returns {Function} Listener which controls the tool tip.
    * @private
@@ -3568,7 +3568,7 @@ bcdui.widget.validationToolTip = class
 
     /**
      * Validation visualiser (adding bcdInvalid class to source html container if validation failed)
-     * @param {HTMLElement}  containerHtmlElement Widget container element.
+     * @param {HtmlElement}  containerHtmlElement Widget container element.
      * @param {string} targetModelId id of targetModel which holds the validationResult
      * @param {string} xpath xpath to the value
      * @private

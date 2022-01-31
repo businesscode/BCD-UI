@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@
   /**
    * check if current postfixValue is in optionsModel
    * if so, switch filters to this value, otherwise use 1st entry of optionsModel
-   * @param config {Object} config object holding information about target, options, etc.
+   * @param {Object} config config object holding information about target, options, etc.
    * @private
    */
   _validateAndSwithPostfix: function(config) {
@@ -120,7 +120,7 @@
   /**
    * Switch periodchooser to a different period_type
    * by replacing the bRef attributes and the bcdPostfix attribute
-   * @param id {String} id of the period chooser widget
+   * @param {String} id id of the period chooser widget
    * @param period_type {String} new period_type
    */
   switchPostfix: function(id, period_type, alreadyReplaced) {
@@ -168,7 +168,7 @@
 
   /**
    * Initialization of the whole widget.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   
@@ -281,7 +281,7 @@
 
   /**
    * Common init function but currently kept as single-entry point for custom rendered periodchoosers 
-   * @param {htmlElement} containerHtmlElement - periodChooser
+   * @param {HtmlElement} containerHtmlElement - periodChooser
    * @private
    */
   _initElement: function(containerHtmlElement) {
@@ -533,7 +533,7 @@
     },
     /**
    * Initialization of validation wrapper.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   _initValidateWrapper: function(containerHtmlElement)
@@ -572,7 +572,7 @@
 
   /**
    * Update (plus validate if needed) listener initialization.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   _initUpdaterViewFromXMLData: function(containerHtmlElement, validationTooltip)
@@ -598,7 +598,7 @@
 
   /**
    * Checks WRS mode.
-   * @param {Document} doc The XML document.
+   * @param {DomDocument} doc The XML document.
    * @returns {Boolean} True in WRS mode.
    * @private
    */
@@ -609,7 +609,7 @@
 
   /**
    * Is output result should be formatted as period
-   * @param containerHtmlElement {HTMLElement}
+   * @param {HtmlElement} containerHtmlElement
    * @returns {Boolean} True if results will be periods.
    * @private
    */
@@ -620,13 +620,13 @@
   /**
    * Retrieves the common target data.
    * @private
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @return The map contains the following properties:
    * <ul>
    *   <li>targetModelId: {String} The identifier of target model.</li>
-   *   <li>targetModel: {DataProvider} The target model.</li>
+   *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
    *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
-   *   <li>doc: {XMLDocument} The XML data of provider.</li>
+   *   <li>doc: {DomDocument} The XML data of provider.</li>
    * </ul>
    */
   _getTargetData: function(containerHtmlElement)
@@ -664,8 +664,8 @@
   /**
    * Retrieve the hidden field related to the certain "displayed value" span ("From" or "To").
    * @private
-   * @param span {HTMLElement} The element (span in our case) which displays period value.
-   * @returns {HTMLElement} The appropriate hidden field.
+   * @param {HtmlElement} span The element (span in our case) which displays period value.
+   * @returns {HtmlElement} The appropriate hidden field.
    */
   _getHiddenFieldBySpanValue: function(span)
     {
@@ -675,7 +675,7 @@
   /**
    * Fires when new period selected.
    * @private
-   * @param hiddenInputField {HTMLElement} The hidden input element which contains internal representation of period value.
+   * @param {HtmlElement} hiddenInputField The hidden input element which contains internal representation of period value.
    */
   _onPeriodSelected: function(hiddenInputField)
     {
@@ -730,9 +730,9 @@
   /**
    * Updates the WRS XML model data ("To date" not supported).
    * @private
-   * @param fromDate {String} The "from" period value.
-   * @param targetModel {DataProvider} The target model.
-   * @param targetModelXPath {String} The XPath in whole XML model data.
+   * @param {String} fromDate The "from" period value.
+   * @param {bcdui.core.DataProvider} targetModel The target model.
+   * @param {String} targetModelXPath The XPath in whole XML model data.
    */
   _updateWrsXMLDoc: function(fromDate, targetModel, targetModelXPath)
     {
@@ -780,8 +780,8 @@
   /**
    * Updates the XML model data.
    * @private
-   * @param fromDate {String} The "from" period value.
-   * @param toDate {String} The "to" period value.
+   * @param {String} fromDate The "from" period value.
+   * @param {String} toDate The "to" period value.
    * @param pcConfig
    * @param {String} pcConfig.targetModelId  The identifier of target model.
    * @param {String} pcConfig.targetModelXPath  The XPath in whole XML model data.
@@ -843,8 +843,8 @@
   /**
    * Shows the pop-up calendar.
    * @private
-   * @param {HTMLElement} htmlElement  The element (span in our case) which displays period value.
-   * @param {HTMLElement} hiddenInputField  The hidden input element which contains internal representation of period value.
+   * @param {HtmlElement} htmlElement  The element (span in our case) which displays period value.
+   * @param {HtmlElement} hiddenInputField  The hidden input element which contains internal representation of period value.
    * @param dateOrder \{"from", "to"\} for what date popup will shown
    */
   _showPopup: function(htmlElement, hiddenInputField, dateOrder)
@@ -902,7 +902,7 @@
 
   /**
    * Updates the displayed value of period chooser from model XML data.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
    */
   _updateViewFromXMLData: function(containerHtmlElement)
@@ -950,9 +950,9 @@
   /**
    * Fills the certain date field (year, month or day) if field value isn't equals calculated date value.
    * @private
-   * @param field {HTMLElement} The one of date field - year, month or day.
-   * @param date {Array} The array of strings with date's elements - year, month or day.
-   * @param i {Integer} Index to access to the date array.
+   * @param {HtmlElement} field The one of date field - year, month or day.
+   * @param {Array} date The array of strings with date's elements - year, month or day.
+   * @param {integer} i Index to access to the date array.
    */
   _fillDateFieldIfNeeded: function(field, date, i)
     {
@@ -966,9 +966,9 @@
     /**
      * Fills the certain time field (hour, minute or second) if field value isn't equals calculated date value.
      * @private
-     * @param field {HTMLElement} The html input element of the date field - hour, minute or seconds.
-     * @param time {Array} The array of strings with time elements - hour, minute or seconds.
-     * @param i {Integer} Index of the time field array to get filled
+     * @param {HtmlElement} field The html input element of the date field - hour, minute or seconds.
+     * @param {Array} time The array of strings with time elements - hour, minute or seconds.
+     * @param {integer} i Index of the time field array to get filled
      */
     _fillTimeFieldIfNeeded: function(field, time, i)
     {
@@ -982,8 +982,8 @@
       },
   /**
    * @private
-   * @param doc {XmlDocument} The target model.
-   * @param xPath {String} The XPath to concrete date in whole XML model data.
+   * @param {DomDocument} doc The target model.
+   * @param {String} xPath The XPath to concrete date in whole XML model data.
    * @returns {String} "from" or "to" date from model (date which specified in xPath).
    */
   _getDateFromAttr: function(doc, xPath)
@@ -1165,7 +1165,7 @@
     },
 
     /**
-     * @param firstSelectableDay {String} The first selectable day value (if given)
+     * @param {String} firstSelectableDay The first selectable day value (if given)
      * @private
      */
   _getNow: function(firstSelectableDay) {
@@ -1190,7 +1190,7 @@
     
   /**
    * OnFocus event listener of date fields - year, month and day.
-   * @param inputElement {HTMLElement} The one of date field - year, month or day.
+   * @param {HtmlElement} inputElement The one of date field - year, month or day.
    * @private
    */
   _onFocusInput: function(inputElement)
@@ -1334,7 +1334,7 @@
   /**
    * OnBlur event listener of date fields - year, month, day, hour, minute, second.
    * @private
-   * @param inputElement {HTMLElement} The one of date field - year, month, day, hour, minute, second.
+   * @param {HtmlElement} inputElement The one of date field - year, month, day, hour, minute, second.
    */
   _onBlurInput: function(inputElement)
     {
@@ -1400,7 +1400,7 @@
   /**
    * Increases period and write new value to the model.
    * @private
-   * @param value {Integer} The delta value.
+   * @param {integer} value The delta value.
    * @param pcConfig
    * @param pcConfig.targetModelId {String} The identifier of target model.
    * @param pcConfig.targetModelXPath {String} The XPath in whole XML model data.
@@ -1650,7 +1650,7 @@
    * A transformer, taking the input, leaving everything 1:1 except a period filter, which is transformed to a range
    * with the given date or range end as the end and keeping the input period type
    * @param parameters
-   * @param parameters.rangeSize {Integer} Size of the range.
+   * @param parameters.rangeSize {integer} Size of the range.
    * @param parameters.targetModelXPath {String} The xPath pointing to the period filter within the transformed document.
    */
   periodToRangeTransformator: function( doc, parameters )
@@ -1770,8 +1770,8 @@
   /**
    * Extracts and returns the row and column indexes from WRS xpath.
    * @private
-   * @param targetModel {DataProvider} The target model.
-   * @param targetModelXPath {String} The XPath in whole XML model data.
+   * @param {bcdui.core.DataProvider} targetModel The target model.
+   * @param {String} targetModelXPath The XPath in whole XML model data.
    * @return The map contains the following properties or null if data is not available
    * <ul>
    *   <li>row: {Integer} Row index.</li>
@@ -1792,7 +1792,7 @@
   /**
    * Adds to the date input field key observers: onkeyup and onkeydown.
    * @private
-   * @param input {HTMLElement} Date field - year, month or day.
+   * @param {HtmlElement} input Date field - year, month or day.
    */
   _addKeyObservers: function(input)
     {
@@ -1867,7 +1867,7 @@
   /**
    * Completes the date field. For month or day field when there's an one-digit value in it the leading
    * zero is added. For year field when there's non four-digits value in it the value completed to 2000 year.
-   * @param input {HTMLElement} Date field - year, month or day.
+   * @param {HtmlElement} input Date field - year, month or day.
    * @private
    */
   _completeDateField: function(input)
@@ -1888,7 +1888,7 @@
   /**
    * Calculate and activate "next" date field relative the current active field.
    * If last field selected moves to first PeriodChooser field
-   * @param input {HTMLElement} Current active date field - year, month or day.
+   * @param {HtmlElement} input Current active date field - year, month or day.
    * @private
    */
   _nextPCField: function(input)
@@ -1921,7 +1921,7 @@
   /**
    * Calculate and activate "next" date field relative the current active field.
    * if last field selected moves to next widget
-   * @param input {HTMLElement} Current active date field - year, month or day.
+   * @param {HtmlElement} input Current active date field - year, month or day.
    * @private
    */
   _nextField: function(input)
@@ -1979,7 +1979,7 @@
   /**
    * Calculate and activate "previous" date field relative the current active field.
    * if first field selected moves to previous widget
-   * @param input {HTMLElement} Current active date field - year, month or day.
+   * @param {HtmlElement} input Current active date field - year, month or day.
    * @private
    */
   _prevField: function(input)
@@ -2036,7 +2036,7 @@
 
   /**
    * Checks if elem is visible
-   * @param elem {HTMLElement} - Input
+   * @param {HtmlElement} elem - Input
    * @private
    */
   _isVisible: function(elem){
@@ -2047,7 +2047,7 @@
   },
 
   /**
-   * @param code {Integer} Key code.
+   * @param {integer} code Key code.
    * @returns {Boolean} "True" if key code represents printable symbol.
    * @private
    */
@@ -2210,7 +2210,7 @@
     /**
      * adds/overwrites dateFrom/dateTo attributes on periodChoosers filter nodes (outer And)
      * based on the currently available filters
-     * @param {Document} targetModelDoc containing the filter nodes which needs to get worked on
+     * @param {DomDocument} targetModelDoc containing the filter nodes which needs to get worked on
      */
     rebuildDateFromDateToFromFilter: function(targetModelDoc) {
 

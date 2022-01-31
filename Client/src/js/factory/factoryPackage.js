@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -352,7 +352,7 @@ bcdui.factory = Object.assign(bcdui.factory,
 
   /**
    * JSP/SXLT/API factory for {@link bcdui.core.ModelUpdater}
-   * @param args {Object}
+   * @param {Object} args
    * @private
    */
   createModelUpdater: function(args)
@@ -427,7 +427,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    *          apply one single XSLT style sheet. It contains the URL pointing to
    *          it. If this parameter is set the 'chain' and 'stylesheetModel' parameters
    *          must be omitted.
-   * @param {String|DataProvider|SymLink} [args.stylesheetModel] A model providing the stylesheet
+   * @param {String|bcdui.core.DataProvider|SymLink} [args.stylesheetModel] A model providing the stylesheet
    *          of the renderer. If specified the parameters 'url' and 'chain' are
    *          invalid.
    * @return {bcdui.factory.SymLink} A reference to the renderer (TransformationChain object).
@@ -639,7 +639,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    * has a specific set of states and transitions between them. They are documented in
    * the respective component (such as the TransformationChain class).
    * @param {Object} args The parameter map contains the following properties:
-   * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
    *          added to.
    * @param {Function|StatusListener} args.listener A function or StatusListener object
    *         representing the listener action.
@@ -696,7 +696,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    * any change or on a change in a specific XPath result.
    *
    * @param {Object} args The parameter map contains the following properties:
-   * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
    *          added to.
    * @param {(Function|Object)} [args.listener]  A synonym for 'callback'.
    * @param {String} [args.side] Whether the listener is called before or after, default is after.
@@ -740,7 +740,7 @@ bcdui.factory = Object.assign(bcdui.factory,
      * by a listener function.
      *
      * @param args The parameter map contains the following properties:
-     * @param {DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+     * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
      *          added to.
      * @param args.id: Id of the listener
      * @param args.listener the function/listener itself
@@ -768,9 +768,9 @@ bcdui.factory = Object.assign(bcdui.factory,
    * function and therefore it inherits all parameters from it. The only additional
    * parameter required is the "targetModel" parameter described below.
    * @param args The parameter map
-   * @param {DataProvider|SymLink|String} args.targetModel  The ID of the Model
+   * @param {bcdui.core.DataProvider|SymLink|String} args.targetModel  The ID of the Model
    *          (DataProvider) whose content is supposed to be transformed.
-   * @param {DataProvider|SymLink|String} [args.chain] from modelWrapper - A DataProvider (or SymLink or
+   * @param {bcdui.core.DataProvider|SymLink|String} [args.chain] from modelWrapper - A DataProvider (or SymLink or
    *          its ID) which contains the list of style sheets that make up the
    *          transformation chain of this renderer. This DataProvider must
    *          contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
@@ -778,10 +778,10 @@ bcdui.factory = Object.assign(bcdui.factory,
    * @param {String}[args.url] from modelWrapper - This parameter can be set when the renderer should only
    *          apply one single XSLT style sheet. It contains the URL pointing to
    *          it. If this parameter is set the 'chain' parameter must be omitted.
-   * @param {DataProvider|SymLink} [args.inputModel]  from modelWrapper - The DataProvider instance that
+   * @param {bcdui.core.DataProvider|SymLink} [args.inputModel]  from modelWrapper - The DataProvider instance that
    *          becomes the input of the transformation chain. If omitted the first
    *          element of the dataProviders[] array is the input.
-   * @param {DataProvider|SymLink[]} [args.dataProviders]  from modelWrapper - An array of DataProviders passed to
+   * @param {bcdui.core.DataProvider|SymLink[]} [args.dataProviders]  from modelWrapper - An array of DataProviders passed to
    *          the transformation chain. These data providers can be access in the
    *          transformation style sheets with xsl:param.
    * @param {Object}[args.parameters] from modelWrapper - A mapping from parameter names to DataProviders (or

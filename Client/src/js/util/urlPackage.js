@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ extractFolderFromURL: function( url)
  * Resolves a URL with its correct xml:base. To compute the xml:base for the
  * URL it may be necessary to resolve the xml:base with its ancestor xml:base
  * elements unless one of them is an absolute URL.
- * @param {XMLElement} xmlElement The point where the xml:base resolution should
+ * @param {DomElement} DomElement The point where the xml:base resolution should
  * start.
  * @param {string} url The URL to be resolved.
  * @return {string} The URL resolved with all xml:base elements of the element
