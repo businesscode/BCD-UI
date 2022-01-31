@@ -421,6 +421,8 @@ bcdui.i18n = Object.assign(bcdui.i18n,
 
   /**
    * reloads entire page in a given language
+   * this function requires the mapped SubjectPreferences servlet and a subjectPreferences.xml holding
+   * an entry for <cnf:Setting name="bcd_i18n:lang">
    * @param {string} lang - the language code
    */
   switchLanguage: function(lang){
