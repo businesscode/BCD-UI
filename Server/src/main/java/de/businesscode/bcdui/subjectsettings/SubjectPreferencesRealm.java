@@ -61,29 +61,34 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     // userSelectedSubjectSettings permission
     HashMap<String, ArrayList<String>> permissionMap = (HashMap<String, ArrayList<String>>)getPermissionMap();
 
-    // no entries yet, set default values
-    if (permissionMap.isEmpty()) {
+    // set default values if necessary (i.e. value not yet in permissionMap)
+    if (permissionMap.get("bcdDummy") == null) {
 
       // we add one dummy permission so that a re-entry (e.g. via SecurityHelper.getPermissions) is ignored
+      // and we also use it as marker that default values were injected (per user)
       ArrayList<String> dummy = new ArrayList<>();
       dummy.add("bcdDummy");
       permissionMap.put("bcdDummy", dummy);
 
       // defaults from (static) default values, simply loop over defaultValues from UserSelectedSubjectSettings
       SubjectPreferences.defaultValues.forEach((key, value) -> {
-        ArrayList<String> values = new ArrayList<>();
-        values.add(value);
-        permissionMap.put(key, values);
+        if (permissionMap.get(key) == null) {
+          ArrayList<String> values = new ArrayList<>();
+          values.add(value);
+          permissionMap.put(key, values);
+        }
       });
 
       // defaults from user permissions, get permissions for value, sort, take first as default
       SubjectPreferences.valueSources.forEach((key, value) -> {
-        List<String> sortedPerm = new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), value));
-        sortedPerm.sort(String::compareToIgnoreCase);
-        if (! sortedPerm.isEmpty()) {
-          ArrayList<String> values = new ArrayList<>();
-          values.add(sortedPerm.get(0));
-          permissionMap.put(key, values);
+        if (permissionMap.get(key) == null) {
+          List<String> sortedPerm = new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), value));
+          sortedPerm.sort(String::compareToIgnoreCase);
+          if (! sortedPerm.isEmpty()) {
+            ArrayList<String> values = new ArrayList<>();
+            values.add(sortedPerm.get(0));
+            permissionMap.put(key, values);
+          }
         }
       });
     }
