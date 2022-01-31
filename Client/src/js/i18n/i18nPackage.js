@@ -426,7 +426,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
   switchLanguage: function(lang){
     jQuery.ajax({
       method: "GET",
-      url : bcdui.contextPath+ "/UserPermissions?value="+lang+"&name=bcd_i18n:lang",
+      url : bcdui.contextPath+ "/SubjectPreferences?value="+lang+"&name=bcd_i18n:lang",
       success : function (data, successCode, jqXHR) {
         location.href = location.href;
       }

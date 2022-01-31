@@ -94,10 +94,10 @@ public class SubjectPreferences extends HttpServlet {
             NodeList values = ((Element)node).getElementsByTagNameNS(CONFIGNAMESPACEURI, "Value");
             NodeList sources = ((Element)node).getElementsByTagNameNS(CONFIGNAMESPACEURI, "SourceSetting");
             
-            // we have a SourceSetting, so rememeber the source
+            // we have a SourceSetting, so remember the source, self referencing is not allowed
             if (sources.getLength() > 0) {
               String subjectSetting = ((Element)sources.item(0)).getAttribute("name");
-              if (subjectSetting != null && ! subjectSetting.isEmpty())
+              if (subjectSetting != null && ! subjectSetting.isEmpty() && !name.equals(subjectSetting))
                 valueSources.put(name, subjectSetting);
             }
 
@@ -198,7 +198,7 @@ public class SubjectPreferences extends HttpServlet {
         ArrayList<String> values = new ArrayList<>();
         for (String v : singleValues) {
   
-          // is the value in the allowed list of values
+          // is the value in the allowed list of values (* indicates permission)
           boolean valueOk = allowedValues.get(name) != null && (allowedValues.get(name).contains(v.trim()) || allowedValues.get(name).contains("*"));
 
           if (! valueOk) {
