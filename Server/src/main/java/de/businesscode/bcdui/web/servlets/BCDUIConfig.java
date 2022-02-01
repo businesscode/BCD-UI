@@ -120,44 +120,44 @@ public class BCDUIConfig extends HttpServlet {
           return "\"" + StringEscapeUtils.escapeJavaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
         }).collect(Collectors.joining(",")));
         writer.println("  }");
-
-        // write bcdClient security settings as bcdui.config.clientRights object values
-        writer.println("  , clientRights: {");
-
-        List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
-        Collections.sort(sortedPerms);
-
-        if (! sortedPerms.isEmpty()) {
-          boolean onceInner = true;
-          boolean onceOuter = true;
-          String lastRight = "";
-          for (String s : sortedPerms) {
-            int x = s.indexOf(":");
-            String right = (x != -1 ? s.substring(0, x) : s).trim();
-            String value = (x != -1 ? s.substring(x + 1) : "").trim();
-            boolean isBoolean = "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
-            boolean isInteger = false;
-            try { Integer.parseInt(value); isInteger = true; } catch (Exception e) {}
-            if (! right.isEmpty()) {
-              if (lastRight.isEmpty()) {
-                writer.println((onceOuter ? "" : ",") + right + ": [");
-                onceOuter = false;
-              }
-              else if (!lastRight.equals(right)) {
-                writer.println("]");
-                writer.println("," + right + ": [");
-                onceInner = true;
-              }
-              writer.println((onceInner ? "" : ",") + (isInteger || isBoolean ? ( "" + value.toLowerCase() + "") : ( "\"" + value + "\"")));
-              onceInner = false;
-              lastRight = right;
-            }
-          }
-          if (! onceOuter)
-            writer.println("]");
-        }
-        writer.println("}");
       }
+
+      // write bcdClient security settings as bcdui.config.clientRights object values
+      writer.println("  , clientRights: {");
+
+      List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
+      Collections.sort(sortedPerms);
+
+      if (! sortedPerms.isEmpty()) {
+        boolean onceInner = true;
+        boolean onceOuter = true;
+        String lastRight = "";
+        for (String s : sortedPerms) {
+          int x = s.indexOf(":");
+          String right = (x != -1 ? s.substring(0, x) : s).trim();
+          String value = (x != -1 ? s.substring(x + 1) : "").trim();
+          boolean isBoolean = "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
+          boolean isInteger = false;
+          try { Integer.parseInt(value); isInteger = true; } catch (Exception e) {}
+          if (! right.isEmpty()) {
+            if (lastRight.isEmpty()) {
+              writer.println((onceOuter ? "" : ",") + right + ": [");
+              onceOuter = false;
+            }
+            else if (!lastRight.equals(right)) {
+              writer.println("]");
+              writer.println("," + right + ": [");
+              onceInner = true;
+            }
+            writer.println((onceInner ? "" : ",") + (isInteger || isBoolean ? ( "" + value.toLowerCase() + "") : ( "\"" + value + "\"")));
+            onceInner = false;
+            lastRight = right;
+          }
+        }
+        if (! onceOuter)
+          writer.println("]");
+      }
+      writer.println("}");
     }
     catch (UnavailableSecurityManagerException e) { // don't use shiro at all?
       writer.println("  , isAuthenticated: false");
