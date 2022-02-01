@@ -34,6 +34,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -158,9 +159,13 @@ public class SubjectPreferences extends HttpServlet {
   public static void setPermission(String name, List<String> values) {
     Subject subject = SecurityUtils.getSubject();
 
+    Session session = subject.getSession(false);
+    if (session == null)
+      session = subject.getSession();
+
     // in case we're not yet logged in, use a guest principal
-    if (subject.getSession().getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null)
-      subject.getSession().setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, new SimplePrincipalCollection("bcd-guest", "bcd-guest"));          
+    if (session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null)
+      session.setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, new SimplePrincipalCollection("bcd-guest", "bcd-guest"));          
 
     // get current permission map from UserSelectedSubjectSettingsRealm modify it and set it again 
     ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> {
