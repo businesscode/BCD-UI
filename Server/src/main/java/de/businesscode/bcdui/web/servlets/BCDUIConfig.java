@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -50,7 +50,6 @@ import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
-import de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
@@ -126,13 +125,14 @@ public class BCDUIConfig extends HttpServlet {
       // write bcdClient security settings as bcdui.config.clientRights object values
       writer.println("  , clientRights: {");
 
-      // do a dummy SubjectPreferences.getPermission so that not yet defaulted subject preferences
-      // gets their default values.
-      SubjectPreferences.getPermission(SubjectPreferencesRealm.PERMISSION_MAP_INIT_TOKEN);
-
-      List<String> sortedPerms = new ArrayList<>(SecurityHelper.getPermissions(subject, "bcdClient"));
+      // get bcdClient permissions once via subjectPreferences (so you directly got values on very 1st request)
+      // and once via SecurityHelper use HashSet to avoid duplicates (after 1st request)
+      HashSet<String> clientSubjectPreferences = new HashSet<>(SubjectPreferences.getPermissionList("bcdClient:", true));
+      HashSet<String> clientPermissions = new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient"));
+      clientPermissions.addAll(clientSubjectPreferences);
+      ArrayList<String> sortedPerms = new ArrayList<>(clientPermissions);
       Collections.sort(sortedPerms);
-
+      
       if (! sortedPerms.isEmpty()) {
         boolean onceInner = true;
         boolean onceOuter = true;

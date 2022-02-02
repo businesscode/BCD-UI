@@ -45,12 +45,12 @@ import org.apache.shiro.subject.Subject;
 import de.businesscode.bcdui.logging.SessionSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger;
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
-import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
 import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
 import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 import de.businesscode.util.SOAPFaultMessage;
 import de.businesscode.util.Utils;
 
@@ -117,7 +117,8 @@ public class RequestLifeCycleFilter implements Filter {
               s = s.substring(matcher.start() + 1);
               matcher = pattern.matcher(s);
               // * as user right value will be replaced with an empty string during url replacement
-              List<String> permissions =  new ArrayList<>(SecurityHelper.getPermissions(subject, "bcdClient:" + key));
+              // use SubjectPreferences.getPermissionList to even get values on very 1st request
+              List<String> permissions =  new ArrayList<>(SubjectPreferences.getPermissionList("bcdClient:" + key));
               String value = ! permissions.isEmpty() ? permissions.get(0) : "";
               replaceMap.put("${bcdClient:" + key + "}", "*".equals(value) ? "" : value);
             }

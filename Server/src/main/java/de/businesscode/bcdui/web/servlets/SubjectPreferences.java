@@ -136,7 +136,12 @@ public class SubjectPreferences extends HttpServlet {
   // gets a list of current permissions for a given permission name
   // don't mix this with SecurityHelper's getPermission. This function looks up
   // the subjectPreferences map by given key name
-  public static List<String> getPermission(String name) {
+  public static List<String> getPermissionList(String name) {
+    return SubjectPreferences.getPermissionList(name, false);
+  }
+  // same as above but if getSubList is true, you can ask for subkeys.
+  // e.g. "bcdClient:", true and bcdClient:example1:value1 is available, it returns example1:value1
+  public static List<String> getPermissionList(String name, boolean getSubList) {
 
     final ArrayList<String> values = new ArrayList<>();
 
@@ -144,9 +149,23 @@ public class SubjectPreferences extends HttpServlet {
     // modify it and set it again. Trigger isPermitted() to get permissions active 
     ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> {
       HashMap<String, ArrayList<String>> permMap = (HashMap<String, ArrayList<String>>)((SubjectPreferencesRealm)r).getPermissionMap();
-      ArrayList<String> vs =  permMap.get(name);
-      if (vs != null)
-        vs.forEach((s) -> { values.add(s); });
+
+      if (getSubList) {
+        for (Map.Entry<String,ArrayList<String>> entry : permMap.entrySet()) {
+          String key = entry.getKey();
+          if (key.startsWith(name)) {
+            ArrayList<String> vs =  permMap.get(key);
+            String sub = key.substring(name.length());
+            if (vs != null)
+              vs.forEach((s) -> { values.add(sub + ":" + s); });
+          }
+        }
+      }
+      else {
+        ArrayList<String> vs =  permMap.get(name);
+        if (vs != null)
+          vs.forEach((s) -> { values.add(s); });
+      }
     });
 
     return values;
