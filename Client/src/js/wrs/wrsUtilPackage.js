@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
   limitations under the License.
 */
 "use strict";
+
+/**
+ * Package for functionality around Wrs format
+ * @namespace bcdui.wrs
+ */
+
 /**
  * Utility functions for working with wrs:Wrs documents from JavaScript.
  * These are mainly JavaScript wrappers around XML library found a bcdui/xslt
  * @namespace bcdui.wrs.wrsUtil
  */
-bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil, 
+bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 /** @lends bcdui.wrs.wrsUtil */
 {
 
@@ -220,7 +226,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * Creates the wrs:O elements based as copies of the wrs:C elements
    * @param wrsRow The row the wrs:O elements should be inserted at.
-   * @return {XMLElement} The wrsRow element.
+   * @return {DomElement} The wrsRow element.
    * @private
    */
   createWrsONodes: function(wrsRow)
@@ -378,7 +384,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * Helper to removes a row in the wrs format. Therefore the element must either be a
    * wrs:R, wrs:I, wrs:M or wrs:D element. wrs:I rows are simply removed, wrs:R rows become wrs:D, wrs:D rows remain untouched
    * 
-   * @param {XMLElement} element - The wrs row to be deleted.
+   * @param {DomElement} element - The wrs row to be deleted.
    * @return {Boolean} True, if the element has been a valid wrs element
    * which is applicable for this function (wrs:R, wrs:I, wrs:M or wrs:D) or
    * false otherwise.
@@ -430,7 +436,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
   /**
    * @param {bcdui.core.DataProvider} model - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @param {Element|string}          row   - Row element or row-id to be duplicated
+   * @param {DomElement|string}       row   - Row element or row-id to be duplicated
    * @param {boolean}                 [propagateUpdate=true] - If false, model is not fired
    * @param {function}                [fn]                   - Callback function called after operation
    */
@@ -786,7 +792,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * Generates metadata JS object from a Wrs document
    *
-   * @param {document} wrsDoc - WRS Document to build a header from
+   * @param {DomDocument} wrsDoc - WRS Document to build a header from
    * @return {object} with { [column-id] : {object-with-attrs from wrs:Column/wrs:C} }
    */
   generateWrsHeaderMeta : function(wrsDoc){
@@ -830,7 +836,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * This is faster using the XLST with the same name except for Webkit, where this is faster
    * 
    * @param {string|bcdui.core.DataProvider} input - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @returns {XMLDocument} The transposed document
+   * @returns {DomDocument} The transposed document
    */
   transposeGrouping: function( input )
   {
@@ -1039,10 +1045,10 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * the validationDoc can be provided as NULL to remove the validationResult Wrs from previous validation;
    * the validationId is mandatory to provide to uniquelly identify the subject of validation.
    * 
-   * @param {Element|Document}  wrsRootNode           - Wrs itself or an element containing Wrs (i.e. Wrs document)
-   *                                                    where to replace the validation result in
-   * @param {Element|Document}  validationResultNode  - wrs:ValidationResult (or container with it) containing wrs:Wrs element(s) (which obligatory is tagged with bcdValidationId attribute)
-   *                                                    if NULL, then the possible existing validationResult is effectively removed from wrs document
+   * @param {DomElement|DomDocument}  wrsRootNode           - Wrs itself or an element containing Wrs (i.e. Wrs document)
+   *                                                          where to replace the validation result in
+   * @param {DomElement|DomDocument}  validationResultNode  - wrs:ValidationResult (or container with it) containing wrs:Wrs element(s) (which obligatory is tagged with bcdValidationId attribute)
+   *                                                          if NULL, then the possible existing validationResult is effectively removed from wrs document
    * @param {string}            validationId          - the validationId of the validation result Wrs to replace
    */
   replaceValidationResult : function(wrsRootNode, validationResultNode, validationId){
@@ -1110,7 +1116,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * Phsyically drops columns from Wrs
    * 
-   * @param {Element}  wrs  - WRSRootNode: Pointing to wrs:Wrs
+   * @param {DomElement}  wrs  - WRSRootNode: Pointing to wrs:Wrs
    * @param {string[]} colIdArray   - Array of column-ids to remove
    * 
    */
@@ -1198,7 +1204,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * delete rows identified by the column value(s)
    * 
-   * @param {document|element}  wrs         the Wrs document
+   * @param {DomDocument|DomElement}  wrs    the Wrs document
    * @param {number|string}     colIdOrPos  column id or position
    * @param {array}             values      array of string values to lookup
    */
@@ -1288,7 +1294,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    */
   /**
    * @typedef {object} PostWrsParam
-   * @property {XMLDocument|XMLDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[]}          args.wrsDoc - Document(s) / DataProvider
+   * @property {DomDocument|DomDocument[]|bcdui.core.DataProvider|bcdui.core.DataProvider[]}          args.wrsDoc - Document(s) / DataProvider
    * @property {function}                           [onSuccess]              - Callback on success, is called after successful POST or if POST was not issued due to to changes in the document 
    * @property {function}                           [onFailure]              - Callback on failure, is called if error occurs
    * @property {function}                           [onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
@@ -1421,7 +1427,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
   /**
    * applies number rounding at defined wrs:Header/wrs:Columns/wrs:C/@scale
-   * @param {document} wrsDoc - the Wrs document to apply changes on
+   * @param {DomDocument} wrsDoc - the Wrs document to apply changes on
    * @return wrsDoc
    */
   applyScale : wrsDoc => {
@@ -1442,7 +1448,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * @param {string} expression - the expression to parse
    * @param {object} params - the expression to parse
-   * @return {document} containing parsed expression
+   * @return {DomDocument} containing parsed expression
    * @example
    *   
    *   bcdui.wrs.wrsUtil.parseFilterExpression("country = :country or (revenue >= :revenue or today = :today and allow='true' or string='a and b')",{
@@ -1532,7 +1538,7 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
    *      obj.Wrs.Data.R[1].C[1].t$, if there are attributes obj.Wrs.Data.R[1].C[1].attrName
    *
    * TODO namespaces
-   * @param   {XMLDocument} args - wrs:Wrs XML Document to be translated into a JavaScript object
+   * @param   {DomDocument} args - wrs:Wrs XML Document to be translated into a JavaScript object
    * @returns {Object}
    */
   domToJs: function( arg )

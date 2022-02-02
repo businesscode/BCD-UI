@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -469,7 +469,7 @@ bcdui.widgetNg.slider = Object.assign(bcdui.widgetNg.slider,
   /**
    * initializes the widget according to the API
    * 
-   * @param htmlElement {Element} to initialize from
+   * @param {HtmlElement} htmlElement to initialize from
    * @private
    */
   init : function(htmlElement) {

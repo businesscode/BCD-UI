@@ -161,7 +161,7 @@
     <servlet-name>bcdui4.StaticResourceServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.StaticResourceServlet</servlet-class>
     <init-param>
-      <param-name>vfsFileExtensions</param-name>
+      <param-name>vfsFileExtensions</param-name> <!-- Extensions that can be overwritten in vfs -->
       <param-value>xml txt vfsxml pdf png gif jpg jpeg svg doc docx xls xlsx csv zip</param-value>
     </init-param>
   </servlet>
@@ -229,7 +229,7 @@
     <url-pattern>/bcdui/servletsSessionCached/WrsServlet/*</url-pattern>
   </servlet-mapping>
 
-  <!-- Export in cvs format, efficient, common but with issues in combination with Excel and data formats -->
+  <!-- Export in csv format, efficient, common but with issues in combination with Excel and data formats -->
   <servlet>
     <servlet-name>bcdui4.CsvServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.wrs.CsvServlet</servlet-class>
@@ -276,7 +276,7 @@
     <url-pattern>/bcdui/servletsSessionCached/ExcelExportServlet/*</url-pattern>
   </servlet-mapping>
 
-  <!-- Per page request context infomation -->
+  <!-- Per page request context information -->
   <servlet>
     <servlet-name>bcdui4.BCDUIConfig</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.BCDUIConfig</servlet-class>
@@ -385,9 +385,17 @@
     <env-entry-value>en</env-entry-value>
   </env-entry>
 
-  <!-- This is also used by shiro's default web session manager -->
+  <!--
+    This timeout is also used by shiro's default web session manager
+    Also we close various cookie security holes. (OWASP WSTG-SESS-02, -04, -07, -09)
+  -->
   <session-config>
     <session-timeout>30</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+      <secure>true</secure>
+    </cookie-config>
+    <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
 </web-app>

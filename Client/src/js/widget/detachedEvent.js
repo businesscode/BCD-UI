@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ bcdui.widget.DetachedEvent = class
    * @member bcdui.widget.DetachedEvent
    * @param {Event} event The event object that should be the base for this
    * object.
-   * @param {HTMLElement} [element] The source element of the event if it should
+   * @param {HtmlElement} [element] The source element of the event if it should
    * not be derived from the provided event.
-   * @param {HTMLElement} [endElement] The optional end element for the findAttribute
+   * @param {HtmlElement} [endElement] The optional end element for the findAttribute
    * method. No attribute on of an ancestor of this element is returned by
    * findAttribute.
    */
@@ -87,7 +87,7 @@ bcdui.widget.DetachedEvent = class
 
   /**
    * Getter for the event origin element.
-   * @return {HTMLElenet} The element that caused the event.
+   * @return {HtmlElement} The element that caused the event.
    */
   element()
     {

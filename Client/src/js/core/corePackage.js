@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ bcdui.core = Object.assign(bcdui.core,
   /**
    * Removes XML elements from a DOM document. These XML elements are identified
    * with an XPath.
-   * @param {XMLDocument|XMLElement|DataProvider} doc - The document the XPath specified in the "path"
+   * @param {DomDocument|DomElement|bcdui.core.DataProvider} doc - The document the XPath specified in the "path"
    * argument is evaluated on.
    * @param {string} path - The XPath pointing to the nodes to be removed.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
@@ -294,8 +294,8 @@ bcdui.core = Object.assign(bcdui.core,
   /**
    * Removes the xml:base attribute from all XML elements. This is useful for example
    * in FireFox and Chrome, because they do not allow xml:base to occur in XSLT documents.
-   * @param {XMLDocument} doc - The document the xml:base attributes should be removed from.
-   * @return {document} The doc passed as argument for convenience.
+   * @param {DomDocument} doc - The document the xml:base attributes should be removed from.
+   * @return {DomDocument} The doc passed as argument for convenience.
    * @private
    */
   removeXMLBase: function(/* XMLDocument */ doc)
@@ -471,8 +471,8 @@ bcdui.core = Object.assign(bcdui.core,
 
   /**
    * An auxiliary function for createElementWithPrototype and removeXPath.
-   * @param {XMLDocument | DataProvider} doc The document or the data provider giving the requested document or element.
-   * @returns {XMLDocument|XMLElement} The element belonging to the specified param.
+   * @param {DomDocument | bcdui.core.DataProvider} doc The document or the data provider giving the requested document or element.
+   * @returns {DomDocument|DomElement} The element belonging to the specified param.
    * @private
    */
   _getDocParameter: function( doc)
@@ -594,7 +594,6 @@ bcdui.core = Object.assign(bcdui.core,
     },
 
   /**
-   * <p>
    * This function works similar to selectSingleNode in that executes an XPath
    * on a DOMDocument or XML element and returns an XML element. However if the
    * element does not exists it creates XML elements on the XPath so that the XPath
@@ -618,9 +617,8 @@ bcdui.core = Object.assign(bcdui.core,
    * XPaths because otherwise the inversion of the XPath would be too complicated
    * to be computed. For example it is not allowed to specify "//" in the XPath
    * and the "or" conjunction cannot be used.
-   * </p>
    * If you want to modify an existing wrs cell, bcdui.wrs.wrsUtil.setCellValue might be a more convenient function to use.
-   * @param {XMLDocument|XMLElement|DataProvider} baseElement - The Dataprovider, DOM document or the XML element the path is evaluated on.
+   * @param {DomDocument|DomElement|bcdui.core.DataProvider} baseElement - The Dataprovider, DOM document or the XML element the path is evaluated on.
    * @param {string} path - The XPath identifying the element to be retrieved or
    * created.
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
@@ -959,11 +957,11 @@ bcdui.core = Object.assign(bcdui.core,
    *     /Root/Items/Item/@value
    * ; in both cases there is one item per value, but it is stored in the item text in the first
    * example and in the value attribute in the second one.
-   * @param { XMLDocument | DataProvider} doc The document the targetXPath is based on.
+   * @param { DomDocument | bcdui.core.DataProvider} doc The document the targetXPath is based on.
    * @param {String} targetXPath The XPath pointing to the elements to be synchronized with the values.
    * @param {Array} values A string array containing the values to be stored in the elements under the
    * targetXPath.
-   * @return {Integer} The number of elements created, modified or deleted by this function.
+   * @return {integer} The number of elements created, modified or deleted by this function.
    * @private
    */
   _syncMultipleValues: function( doc, targetXPath, values)

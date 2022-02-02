@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ bcdui.core.transformators =
    * For XSLT an XSLT stylesheet document is to be provided
    * For JS the function name or a function reference can be used
    * @param args The parameter map:
-   * @params {String|function} args.procFkt The js function to be used for processing.
-   * @params {function} args.callback Callback called once the processor is created
+   * @param {String|function} args.procFkt The js function to be used for processing.
+   * @param {function} args.callback Callback called once the processor is created
    * @private
    */
   factory: function( transformerFactory, args ) {

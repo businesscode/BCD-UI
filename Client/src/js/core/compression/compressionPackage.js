@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -376,7 +376,7 @@ bcdui.core.compression = {
 
   /**
    * Serializes the specified DOM document and removes all comments from it.
-   * @param doc {DOMDocument} The document to be serialized without comments.
+   * @param {DomDocument} doc The document to be serialized without comments.
    * @return The string representation of the XML document.
    * @see #compressDOMDocument
    * @private
@@ -403,7 +403,7 @@ bcdui.core.compression = {
    * therefore max guiStatusGZ length:
    * max URL length minus path length
    *
-   * @param {XMLDocument} doc - The DOM document to be compressed.
+   * @param {DomDocument} doc - The DOM document to be compressed.
    * @param {function} fn - The callback function executed when the compression succeeds. This
    * function gets a string argument with the compressed document.
    * @param {function} [errorFn]

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ bcdui.widget.menu.Menu = class
 {
   /**
    * @param args
-   * @param {String|HTMLElement} args.rootIdOrElement         root Node of the menu (ul)
+   * @param {String|HtmlElement} args.rootIdOrElement         root Node of the menu (ul)
    * @param {String} args.name                                name of the variable that stores the result
    *                                                           of this constructor function
    * @param {function} args.customConfigFunction              optional config function to override the default settings

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
   /**
    * Produces a WYSIWYG pdf export of a windows.document subtree, needs pdf extension, part of EnterpriseEdition
    * @param {Object} args The parameter map contains the following properties:
-   * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
+   * @param {(string|HtmlElement)}  args.rootElement                  - The id of or the root element itself
    * @param {string}                [args.fileName=report.pdf]         - The name of the returned pdf
    * @param {string[]|string}       [args.css]                        - An array or space separated list of URLs containing CSS files to be used, relative the the current page.
    * This allows using different styling on export than on the page. You can also use an bcdPdfStyle for inline style only to be applied on export.
@@ -193,7 +193,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
   /**
    * Produces a WYSIWYG Excel export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
-   * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
+   * @param {(string|HtmlElement)}  args.rootElement                  - The id of or the root element itself
    * @param {string}                [args.fileName=export(_timestamp).xsl] - The name of the returned Excel document
    */
   exportWysiwygAsExcel: function( args )
@@ -243,7 +243,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
   /**
    * Produces a WYSIWYG image export of a windows.document subtree, needs pdf extension, part of EnterpriseEdition
    * @param {Object} args The parameter map contains the following properties:
-   * @param {(string|HTMLElement)}  args.rootElement                  - The id of or the root element itself
+   * @param {(string|HtmlElement)}  args.rootElement                  - The id of or the root element itself
    * @param {string}                [args.fileName=report.format]     - The name of the returned image
    * @param {string}                [format=png]                      - Image format, supported are 'jpg', 'png', 'bmp' or 'gif'
    * @param {string[]|string}       [args.css]                        - An array or space separated list of URLs containing CSS files to be used, relative the the current page.
@@ -267,7 +267,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
 
   /**
    * prepares selected columns export, optionally saves data to vfs 
-   * @param {HTMLElement} element - html element within the bcdExportColumnsDialog
+   * @param {HtmlElement} element - html element within the bcdExportColumnsDialog
    * @param {boolean} doSave      - if true, save current selection to vfs 
    * @private
    */

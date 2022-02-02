@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,30 +15,43 @@
   limitations under the License.
 -->
 <!--
-  Sample context xml for tomcat
-  - for 8.5 and default data source see https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html
-  - for 8.5 and org.apache.tomcat.jdbc.pool.DataSourceFactory see https://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html
+  BCD-UI sample context xml for tomcat
   - Values in ${} need to be set. Either replace them with their values or set system properties to Tomcat's runtime like
      -Dmyproj_bcdui_disableCache=false
      -Dmyproj_db_url=SomeDbJdbcUrl
      -Dmyproj_db_username=SomeUsername
      -Dmyproj_db_password=SomePassword
+  - Adjust removeAbandonedTimeout to the longest query allowed
+  - for 8.5 and default data source see https://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html
+  - for 8.5 and org.apache.tomcat.jdbc.pool.DataSourceFactory see https://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html
 -->
 <Context>
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 
-  <!-- Disabling cache means: Client files and configuration files keep being read every time, true is usefull for development, false for production -->
+  <!-- Prevent cross side cookie attacks (OWASP WSTG-SESS-05) -->
+  <CookieProcessor sameSiteCookies="strict" />
+
+  <!-- This controls how often dbProperties are read from database. 5 min is default -->
+  <!-- Environment name="bcdui/config/dbProperties/reloadFrequencySeconds " type="java.lang.Integer" value="300"/ -->
+
+  <!-- Logging to bcd_log_xxx in db is done async. You can fine tune how long it may be delayed max separately for XXX=access|error|login|session|sql.
+       The values shown are the defaults (same for all) -->
+  <!-- Environment name="bcdui/loggers/db/XXX/queueSize" type="java.lang.Integer" value="10"/>
+  <Environment name="bcdui/loggers/db/XXX/queueSleepMs" type="java.lang.Long" value="10000"/ -->
+
+  <!-- IIS has a limit also for http request URLs, i.e. data requests, set this flag to true to compress all data request -->
+  <!-- Environment name="bcdui/serverHasRequestUrlLimit" type="java.lang.Boolean" value="false"/ -->
+
+  <!-- Disabling cache means: Client files and configuration files keep being read every time, true is useful for development, false for production -->
   <Environment name="bcdui/disableCache" type="java.lang.Boolean" value="${myproj_bcdui_disableCache}"/>
 
-  <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one is used -->
+  <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one of the ones below us used -->
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
-  
-   <!-- IIS has a limit also for http request URLs, i.e. data requests, set this flag to true to compress all data request -->
-  <Environment name="bcdui/serverHasRequestUrlLimit" type="java.lang.Boolean" value="false"/>
 
   <!-- Some sample DB connections. Replace all values with XX in their name
-    maxTotal, maxWaitMillis, removeAbandonedOnBorrow, connectionInitSqls are names only needed for 7,8 installations not using the recommended org.apache.tomcat.jdbc.pool.DataSourceFactory -->
+    Attribute names are assuming recommended org.apache.tomcat.jdbc.pool.DataSourceFactory (Apache Java Database Connection Poo).
+    From older data sources (Apache DBCP) migrate these: maxTotal, maxWaitMillis, removeAbandonedOnBorrow, connectionInitSqls to the names below -->
 
   <!-- Sample for Oracle
        -Dmyproj_db_url=jdbc:oracle:thin:@serverXX:1521:dbInstanceXX
@@ -46,18 +59,18 @@
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="15" maxTotal="15"
-    maxIdle ="-1"
-    maxWait="15000" maxWaitMillis="15000"
+    maxActive="15"
+    minIdle ="2"
+    maxIdle ="5"
+    maxWait="15000"
     logAbandoned="true"
-    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandoned="true"
     removeAbandonedTimeout="300"
     validationQuery="select 1 from dual"
     testOnBorrow="true"
     driverClassName="oracle.jdbc.OracleDriver"
     connectionProperties="defaultRowPrefetch=100;"
     initSQL="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
-    connectionInitSqls="ALTER SESSION SET NLS_SORT='BINARY' NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT='YYYY-MM-DD HH24:MI:SS.FF'"
     url="${myproj_db_url}"
     username="${myproj_db_username}"
     password="${myproj_db_password}" />
@@ -70,10 +83,11 @@
     auth="Container"
     type="javax.sql.DataSource"
     maxActive="15" maxTotal="15"
+    minIdle ="2"
     maxIdle ="5"
-    maxWait="15000" maxWaitMillis="15000"
+    maxWait="15000"
     logAbandoned="true"
-    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    removeAbandoned="true"
     removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
@@ -84,15 +98,17 @@
   -->
 
   <!-- Sample for PostgreSQL
-       -Dmyproj_db_url=jdbc:postgresql://postgresserver:5432/dbNameXX
+       -Dmyproj_db_url=jdbc:postgresql://sqlserverXX:5432/dbNameXX?sslmode=require
   <Resource name="jdbc/connectionPostgres"
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="15" maxTotal="15"
+    maxActive="15"
+    minIdle ="2"
     maxIdle ="5"
-    maxWait="15000" maxWaitMillis="15000"
-    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    maxWait="15000"
+    logAbandoned="true"
+    removeAbandoned="true"
     removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
@@ -104,20 +120,40 @@
 
   <!-- Sample for MySql
      -Dmyproj_db_url=jdbc:mysql://serverXX:3306/dbnameXX?sessionVariables=sql_mode='NO_BACKSLASH_ESCAPES,ANSI'
-     Not fully supported, for example no col-totals in cube due to missing grouping sets
-     and no partitioning (row-from-to reading) due to missing ranking functionality
   <Resource name="jdbc/connectionMySql"
     factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
     auth="Container"
     type="javax.sql.DataSource"
-    maxActive="15" maxTotal="15"
+    maxActive="15"
+    minIdle ="2"
     maxIdle ="5"
-    maxWait="15000" maxWaitMillis="15000"
-    removeAbandoned="true" removeAbandonedOnBorrow="true"
+    maxWait="15000"
+    logAbandoned="true"
+    removeAbandoned="true"
     removeAbandonedTimeout="300"
     validationQuery="select 1"
     testOnBorrow="true"
     driverClassName="com.mysql.cj.jdbc.Driver"
+    url="${myproj_db_url}"
+    username="${myproj_db_username}"
+    password="${myproj_db_password}" />
+  -->
+  <!-- Sample for Redshift
+     -Dmyproj_db_url=jdbc:redshift://serverXX.redshift.amazonaws.com:5439/dbnameXX;ssl=true'
+  <Resource name="jdbc/connectionRedshift"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+    auth="Container"
+    type="javax.sql.DataSource"
+    maxActive="15"
+    minIdle ="2"
+    maxIdle ="5"
+    maxWait="15000"
+    logAbandoned="true"
+    removeAbandoned="true"
+    removeAbandonedTimeout="300"
+    validationQuery="select 1"
+    testOnBorrow="true"
+    driverClassName="com.amazon.redshift.jdbc.Driver"
     url="${myproj_db_url}"
     username="${myproj_db_username}"
     password="${myproj_db_password}" />

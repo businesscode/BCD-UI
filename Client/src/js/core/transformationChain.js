@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -412,7 +412,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * This is called once for each chain.phases.xslt. If a xslt itself creates a stylesheet which is executed, this is done
    * in xml post processing, not here
    * @param {Object} xslt transformation rule from this.chain.phases.xslt to be executed
-   * @param {(XMLDocument|Object)} input the input to be transformed
+   * @param {(DomDocument|Object)} input the input to be transformed
    * @private
    */
   _runTransformation(/* object */ xslt, /* object */ input )
@@ -578,7 +578,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Adds a new data provider to the list which becomes the new primary model
    * of the transformation chain.
-   * @param {DataProvider} primaryModel the new primary model of the transformation chain.
+   * @param {bcdui.core.DataProvider} primaryModel the new primary model of the transformation chain.
    */
   setPrimaryModel(primaryModel)
     {
@@ -957,7 +957,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
  /**
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderer are not executed explicitly but they start on creation and execute their dependencies (i.e. parameters) automatically unless they are already {@link bcdui.core.AbstractExecutable#isReady ready}.
+   * Renderer execute() automatically on creation, and as usual execute their dependencies (i.e. parameters) automatically.
    * @extends bcdui.core.TransformationChain
    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
@@ -1064,7 +1064,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 
   /**
    * Sets the target html element where the renderer places its output
-   * @param targetHtmlElement {HtmlElement} target html element
+   * @param {HtmlElement} targetHtmlElement target html element
    */
   setTargetHtml(targetHtmlElement)
   {
@@ -1122,7 +1122,7 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
  /**
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, replacing its targetModel's content with the result of the transformation applied to it.
    * Can be applied to all concrete subclasses of {@link bcdui.core.AbstractUpdatableModel AbstractUpdatableModel}, 
-   * like {@link bcdui.core.bcdui.core.StaticModel StaticModel} or {@link bcdui.core.SimpleModel SimpleModel}
+   * like {@link bcdui.core.StaticModel StaticModel} or {@link bcdui.core.SimpleModel SimpleModel}
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
   */
 bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain

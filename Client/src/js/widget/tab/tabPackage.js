@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
        * @param {Object} args
        * @param {String} args.id
        * @param {String} args.name
-       * @param {(String|HTMLElement)} args.idOrElement
+       * @param {(String|HtmlElement)} args.idOrElement
        *
        */
       constructor(args)
@@ -240,7 +240,7 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
 
     /**
      * Set default parameters
-     * @param {HTMLElement} htmlElement The element the tab is based on.
+     * @param {HtmlElement} htmlElement The element the tab is based on.
      * @private
      */
     _adjustDefaultParameters: function(HTMLElement) {}

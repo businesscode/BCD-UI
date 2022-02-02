@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -336,7 +336,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
    * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
-   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
+   * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHtmlElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
@@ -360,24 +360,24 @@ bcdui.component = Object.assign(bcdui.component,
    *     , rankingTargetHtmlElementId: "rankingDiv"
    *   });
    * @example
-   *  &lt;div class='container_24 bcdCubeDndMatrix'>
-   *    &lt;div class='grid_24'>
-   *      &lt;div class='grid_3 omega bcdCurrentRowDimensionList alpha'>&lt;/div>
-   *      &lt;div class='grid_3 omega bcdCurrentColMeasureList'>&lt;/div>
-   *      &lt;div class='grid_3 omega'>
-   *        &lt;div class='bcdCurrentColDimensionList'>&lt;/div>
-   *        &lt;div class='bcdCurrentMeasureList'>&lt;/div>
-   *      &lt;/div>
-   *      &lt;div class='grid_5 omega'>
-   *        &lt;div class='bcdHeader'>Dimensions&lt;/div>
-   *        &lt;div class='bcdDimensionList'>&lt;/div>
-   *      &lt;/div>
-   *      &lt;div class='grid_5 omega'>
-   *        &lt;div class='bcdHeader'>Measures&lt;/div>
-   *        &lt;div class='bcdMeasureList'>&lt;/div>
-   *      &lt;/div>
-   *    &lt;/div>
-   *  &lt;/div> 
+   *  <div class='container_24 bcdCubeDndMatrix'>
+   *    <div class='grid_24'>
+   *      <div class='grid_3 omega bcdCurrentRowDimensionList alpha'></div>
+   *      <div class='grid_3 omega bcdCurrentColMeasureList'></div>
+   *      <div class='grid_3 omega'>
+   *        <div class='bcdCurrentColDimensionList'></div>
+   *        <div class='bcdCurrentMeasureList'></div>
+   *      </div>
+   *      <div class='grid_5 omega'>
+   *        <div class='bcdHeader'>Dimensions</div>
+   *        <div class='bcdDimensionList'></div>
+   *      </div>
+   *      <div class='grid_5 omega'>
+   *        <div class='bcdHeader'>Measures</div>
+   *        <div class='bcdMeasureList'></div>
+   *      </div>
+   *    </div>
+   *  </div>
    *
    */
   createCubeConfigurator: function(/* Object */ args){

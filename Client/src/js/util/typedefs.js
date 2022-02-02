@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,7 +57,48 @@ jQuery.extend( true, bcdui, {
 });
 
 /**
- * @typedef {url|js-function|Array.<(url|js-function)>|bcdui.core.DataProvider} chainDef
+ * @typedef {Number} integer
+ * @description
+ * Integer
+ */
+/**
+ * @typedef {Object} enum
+ * @description
+ * Enumeration
+ */
+/**
+ * @typedef {Object} DomDocument
+ * @description
+ * DomDocument
+ */
+/**
+ * @typedef {Object} DomElement
+ * @description
+ * DomElement
+ */
+/**
+ * @typedef {Object} DomAttribute
+ * @description
+ * DomAttribute
+ */
+/**
+ * @typedef {Object} DomNodeSet
+ * @description
+ * A DomNodeSet
+ */
+/**
+ * @typedef {Object} HtmlElement
+ * @description
+ * HtmlElement
+ */
+/**
+ * @typedef {Object} SymLink
+ * @description
+ * Symlink
+ */
+
+/**
+ * @typedef {url|Function|Array.<(url|Function)>|bcdui.core.DataProvider} chainDef
  * @description
  * Defines the transformation steps of a transformation chain, like {@link bcdui.core.ModelWrapper} or {@link bcdui.core.Renderer}.
  * <br/>Can be: url | function | Array<(url|function)> | bcdui.core.DataProvider
@@ -95,7 +136,7 @@ jQuery.extend( true, bcdui, {
 
 
 /**
- * @typedef {string|HTMLElement|jQuery} targetHtmlRef
+ * @typedef {string|HtmlElement|jQuery} targetHtmlRef
  * @description
  * Any reference to an existing HTML element: Can be a DOM element, a jQuery object, a css selector or a plain id of an element.
  * The referenced element *must*  be attached to html document unless the reference itself is a DOM element.

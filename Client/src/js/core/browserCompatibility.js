@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ bcdui.core.browserCompatibility = {
       },
 
     /**
-     * @return {Document} A new DOM document
+     * @return {DomDocument} A new DOM document
      */
     newDOMDocument: function()
       {
@@ -57,8 +57,8 @@ bcdui.core.browserCompatibility = {
       },
 
     /**
-     * @param {Document} doc - To be cloned
-     * @return {Document} A clone of the given DOM document
+     * @param {DomDocument} doc - To be cloned
+     * @return {DomDocument} A clone of the given DOM document
      */
     cloneDocument: function(doc){
       if( ! doc.nodeType )
@@ -70,7 +70,7 @@ bcdui.core.browserCompatibility = {
      * Parses given xml string and creates a DOMDocument out of it.
      * @param {string} serializedDoc A serialized XML document.
      * @param {string} msg Optional for better error message.
-     * @return {DOMDocument} The DOMDocument parsed from the serialized document string.
+     * @return {DomDocument} The DOMDocument parsed from the serialized document string.
      */
     createDOMFromXmlString: function(serializedDoc,msg)
       {
@@ -111,7 +111,7 @@ bcdui.core.browserCompatibility = {
      * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
      * @param {string} name The element name which may contain a well-known prefix.
      * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
-     * @returns {XMLElement} The new XMLElement.
+     * @returns {DomElement} The new XMLElement.
      */
     appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
     {
@@ -136,7 +136,7 @@ bcdui.core.browserCompatibility = {
     /**
      * Asynchronous creation of an XSLTProcessor object from a DOM document.
      * @param {object}   args - An argument map containing the following elements:
-     * @param {XMLDocument} args.model The XSLT document the XSLTProcessor instance should be
+     * @param {DomDocument} args.model The XSLT document the XSLTProcessor instance should be
      * @param {function} args.callBack The callback function executed when the processor has been created. It takes the processor instance as argument
      * @param {string}   args.callerDebug Additional (debug) information from the caller for logging 
      */
@@ -338,7 +338,7 @@ if (bcdui.browserCompatibility.isIE) {
      * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
      * @param {string} name The element name which may contain a well-known prefix.
      * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
-     * @returns {XMLElement} The new XMLElement.
+     * @returns {DomElement} The new XMLElement.
      */
     appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
       {
@@ -414,7 +414,7 @@ if (bcdui.browserCompatibility.isIE) {
       },
 
     /**
-     * @param {XMLDocument} domDocument
+     * @param {DomDocument} domDocument
      * @private
      */
     setSelectionNamespaces: function(domDocument)

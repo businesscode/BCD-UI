@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -771,7 +771,8 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
    * opening calcNode editor for edit current formula
    * @param targetModelId
    * @param cubeId
-   * @param args { calcId }
+   * @param args
+   * @param args.calcId
    */
   editUserMeasure: function( targetModelId, cubeId, args ){
     var targetModelXPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Measures/*/dm:Measure[@id='" + args.calcId + "']";
@@ -783,7 +784,8 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
    * deleting userCalc node from measures
    * @param targetModelId
    * @param cubeId
-   * @param args { calcId }
+   * @param args
+   * @param args.calcId
    */
   deleteUserMeasure: function( targetModelId, cubeId, args ){
     var xPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Measures/*/dm:Measure[@id='" + args.calcId + "']";

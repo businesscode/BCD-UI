@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
    * @param {modelXPath} [args.uniqueOptionsModelXPath]           -
    * variables for the formula editor. The parameter "optionsModelRelativeValueXPath" can optionally
    * be set to define non-visible values belonging to the visible options denoted by this XPath.
-   * @param {xpath}    [args.optionsModelRelativeValueXPath]      - If specified this XPath is applied to each node returned by the "optionsModelXPath" to get a non-visible value to
+   * @param {xPath}    [args.optionsModelRelativeValueXPath]      - If specified this XPath is applied to each node returned by the "optionsModelXPath" to get a non-visible value to
    * be written to the target node. When no "optionsModelRelativeValueXPath" is given there is no distinction between the caption and value of each option.
    * @param {string}   [args.dialogCaption]                       - Caption of dialog window, it will be used as i18n key to translate the caption.
    * @param {boolean}  [args.isFormatOptionsVisible=true]         - Show format fields (format, scale, percent)
@@ -377,15 +377,15 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
 
   /**
    * Retrieves the common target and options data.
-   * @param containerHtmlElement {HTMLElement} Widget container element.
+   * @param {HtmlElement} containerHtmlElement Widget container element.
    * @return The map contains the following properties:
    * <ul>
    *   <li>targetModelId: {String} The identifier of target model.</li>
-   *   <li>targetModel: {DataProvider} The target model.</li>
+   *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
    *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
-   *   <li>doc: {XMLDocument} The XML data of provider.</li>
+   *   <li>doc: {DomDocument} The XML data of provider.</li>
    *   <li>tempTargetModelId: {String} The identifier of temporary model.</li>
-   *   <li>tempTargetModelXPath: {DataProvider} The XPath in whole temporary model.</li>
+   *   <li>tempTargetModelXPath: {bcdui.core.DataProvider} The XPath in whole temporary model.</li>
    * </ul>
    * @private
    */

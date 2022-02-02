@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -309,7 +309,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param args {Object}
+   * @param {Object} args
    * @param args.seriesInd - index of series to be removed
    * @return count of removed nodes or null
    * @private
@@ -324,7 +324,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans Series YData Node, deletes children Value nodes
-   * @param args {Object}
+   * @param {Object} args
    * @param args.yData
    * @param args.seriesInd, index of series to be removed
    * @return count of removed nodes or null
@@ -394,7 +394,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   }
 
   /**
-   * @param statusEvent {StatusEvent}
+   * @param {bcdui.core.StatusEvent} statusEvent
    * @private
    */
  _statusTransitionHandler(statusEvent) {

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ bcdui.core.StatusEvent = class
    * The constructor creating a new StatusEvent object.
    * @param {Object}            args          - This parameter map must contain two properties:
    * @param {Object}            args.source   - The object the status transition happened
-   * @param {bcdui.core.Status} args,newStatus - The new status of the source object
+   * @param {bcdui.core.Status} args.newStatus - The new status of the source object
    */
   constructor( args)
     {

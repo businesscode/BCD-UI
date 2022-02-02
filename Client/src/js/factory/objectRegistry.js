@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@
    * Retrieves a DataProvider from the ObjectRegistry by the provided id.
    * Use this if you need access from JavaScript to objects, which where created via XSLT, XAPI or JSP.
    * 
-   * @param {string|bcdui.factory.SymLink} id - The object to be resolved from the registry.
+   * @param {string|SymLink} id - The object to be resolved from the registry.
    * @return {bcdui.core.DataProvider} The object registered under the id or null if no such object exists.
    */
   getObject(id) {

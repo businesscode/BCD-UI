@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@ bcdui.util.datetime =
   /**
    * Shifts the given period by the given value
    * The value is assumed to have the same period type (qu, mo, dy) as startDate and endDate
-   * @param {Int} value -  An integer of how many perionds the input is to be shifted. Negative values are allowed.
+   * @param {integer} value -  An integer of how many periods the input is to be shifted. Negative values are allowed.
    * @param {Date} startDate
    * @param {Date} endDate
    */
@@ -226,7 +226,7 @@ bcdui.util.datetime =
    * Calculates The year of the ISO week the date lies within. This can be different from
    * the year of the date, especially when the year has 53 ISO weeks.
    * @param {(Date|string)} date - date for which to determine the CW
-   * @returns {Integer} cwYr
+   * @returns {integer} cwYr
    */
   getISOWeekYear: function( date)
     {
@@ -247,7 +247,7 @@ bcdui.util.datetime =
   /**
    * Calculates the ISO week number the date belongs to. Derived from Klaus Tondering's Calendar document.
    * @param {(Date|string)} date - date for which to determine the CW
-   * @returns {Integer} cw
+   * @returns {integer} cw
    */
   getISOWeekNumber: function( date)
     {
