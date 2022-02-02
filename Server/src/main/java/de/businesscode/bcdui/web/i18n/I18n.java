@@ -17,6 +17,7 @@ package de.businesscode.bcdui.web.i18n;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -27,8 +28,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.apache.logging.log4j.LogManager;
 import de.businesscode.bcdui.binding.exc.BindingException;
+import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.web.BcdUiApplicationContextListener;
 import de.businesscode.bcdui.web.servlets.SubjectPreferences;
@@ -89,7 +93,8 @@ public class I18n {
    * @return currently set locale or the defaultLocale
    */
   public static Locale getLocale(Locale defaultLocale) {
-    ArrayList<String> values = (ArrayList<String>)SubjectPreferences.getPermission(SUBJECT_FILTER_TYPE);
+    Subject subject = SecurityUtils.getSubject();
+    List<String> values = new ArrayList<>(SecurityHelper.getPermissions(subject, SUBJECT_FILTER_TYPE));
     if (! values.isEmpty()) {
       String lang = values.get(0);
       if (!lang.isEmpty())
