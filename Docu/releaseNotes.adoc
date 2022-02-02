@@ -7,23 +7,37 @@ The following release notes allow following BCD-UI's updates and to judge whethe
 Some changes are not backward compatible and may require code change in the project. They are listed here as well.
 
 ==== Release 5_6_0 ...in progress
-
 .Major new features:
+** Added support for joins, CTEs, set operators and sub-selects to Wrq
+** SubjectPreferences for user-chosen SubjectSettings
+** Api stubs for JavaScript auto-suggest and inline help in IDEs
+** Fully supporting MySQL and Redshift now
+** Security improvements
 
-Incompatibilities:
-
+.Incompatibilities:
 ** Move shiro settings from web.xml to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before shiro filter, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
-** WrqModifier process() does not any more return a fragment in some cases but do now always work on the input document
+** Add security features regarding cookies to context.xml and web.xml
+** Add SubjectFilters to bcd_virtualfilesystem
+** WrqModifier process() does not any more return a fragment in some cases but does now always work on the input document
 ** bnd:Coalesce in Binding files was removed
 ** getTableName() was renamed to getTableReference()
 and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
 ** TextToUrl servlet returns found value in an XML element now
 
 .Server:
-* allow client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
-* introduce UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
-* added document uploader classes
+* Wrq does support CTE common table expressions, joins and unions now
+* Allowing client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
+* Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
+* Database syntax does fuly support MySQL and Redshift now
 
+.Security
+* New cookie settings in context.xml and web.xml
+* Preventing some possible injections in server responses
+* SubjectFilter can now be applied to virtual file system
+* SubjectFilters resolved inline (i.e. value list) are using prepared statements now
+
+.Development
+* Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest
 
 ==== Release 5_5_0
 
@@ -46,13 +60,13 @@ and needs also to be updated sql expression strings compiled with SQLEngine::tra
 ** createFixedTableHeader uses new css classes, ensure your theme includes them
 ** bcdui.util.xml.parseFilterExpression was moved to bcdui.wrs.wrsUtil.parseFilterExpression
 
-* Config
-** In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
-** Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
-** Use Server/configFiles/log4j2.xml (instead of log4j.properties)
-** Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
-** bindingItem skipWriteCheck attribute (to bypass subject settings write checks) was removed. Use the new mode (R|W|RW) attribute on SubjectFilterType instead
-** for new themes, guiStatus:bcdSideBarPin was changed to guiStatus:bcdSideBarPin-left and guiStatus:bcdSideBarPin-right in case you preset a collapsed/expanded sidebar
+.Config
+* In web.xml: add invalidRequest.blockSemicolon = false and check for other changes in Server/configFiles/web.xml
+* Ensure to update dependency jars, see Docu/development/bcdui_dependencies.gradle
+* Use Server/configFiles/log4j2.xml (instead of log4j.properties)
+* Wrq2SqlServlet has restricted access permissions now requiring bcdAdmin:ImplementationDetails as it reveals implementation details (actual names of db objects)
+* bindingItem skipWriteCheck attribute (to bypass subject settings write checks) was removed. Use the new mode (R|W|RW) attribute on SubjectFilterType instead
+* for new themes, guiStatus:bcdSideBarPin was changed to guiStatus:bcdSideBarPin-left and guiStatus:bcdSideBarPin-right in case you preset a collapsed/expanded sidebar
 
 .All versions of 3rd party libraries for runtime, are listed in
 * bcdui_dependencies.gradle for java
