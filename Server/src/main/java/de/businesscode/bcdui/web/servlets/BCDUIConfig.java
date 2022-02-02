@@ -50,6 +50,7 @@ import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
+import de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
@@ -125,7 +126,11 @@ public class BCDUIConfig extends HttpServlet {
       // write bcdClient security settings as bcdui.config.clientRights object values
       writer.println("  , clientRights: {");
 
-      List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
+      // do a dummy SubjectPreferences.getPermission so that not yet defaulted subject preferences
+      // gets their default values.
+      SubjectPreferences.getPermission(SubjectPreferencesRealm.PERMISSION_MAP_INIT_TOKEN);
+
+      List<String> sortedPerms = new ArrayList<>(SecurityHelper.getPermissions(subject, "bcdClient"));
       Collections.sort(sortedPerms);
 
       if (! sortedPerms.isEmpty()) {

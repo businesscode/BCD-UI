@@ -28,7 +28,11 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DefaultSubjectContext;
 
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig.UserSettingsDefaults;
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig.UserSettingsDefaults.Default;
@@ -36,6 +40,8 @@ import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 
 public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingRealm {
+  
+  public static final String PERMISSION_MAP_INIT_TOKEN = "bcdPermMapInit";
 
   @Override
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
@@ -58,19 +64,19 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
       }
     }
 
-    // userSelectedSubjectSettings permission
+    // SubjectPreferences permission
     HashMap<String, ArrayList<String>> permissionMap = (HashMap<String, ArrayList<String>>)getPermissionMap();
 
     // set default values if necessary (i.e. value not yet in permissionMap)
-    if (permissionMap.get("bcdDummy") == null) {
+    if (permissionMap.get(PERMISSION_MAP_INIT_TOKEN) == null) {
 
       // we add one dummy permission so that a re-entry (e.g. via SecurityHelper.getPermissions) is ignored
       // and we also use it as marker that default values were injected (per user)
       ArrayList<String> dummy = new ArrayList<>();
-      dummy.add("bcdDummy");
-      permissionMap.put("bcdDummy", dummy);
+      dummy.add(PERMISSION_MAP_INIT_TOKEN);
+      permissionMap.put(PERMISSION_MAP_INIT_TOKEN, dummy);
 
-      // defaults from (static) default values, simply loop over defaultValues from UserSelectedSubjectSettings
+      // defaults from (static) default values, simply loop over defaultValues from SubjectPreferences
       SubjectPreferences.defaultValues.forEach((key, value) -> {
         if (permissionMap.get(key) == null) {
           ArrayList<String> values = new ArrayList<>();
@@ -104,22 +110,47 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     return authorizationInfo;
   }
 
+  // returns the permission map in any case
+  // if it's not yet created, it is created and the permissions are refreshed as
+  // an initial default-injecting process 
   public Map<String, ArrayList<String>> getPermissionMap() {
-    HashMap<String, ArrayList<String>> permissionMap = (HashMap<String, ArrayList<String>>)SecurityUtils.getSubject().getSession().getAttribute("bcdPermMap");
+    Subject subject = SecurityUtils.getSubject();
+    Session session = subject.getSession(false);
+    if (session == null)
+      session = subject.getSession();
+
+    HashMap<String, ArrayList<String>> permissionMap = (HashMap<String, ArrayList<String>>)session.getAttribute("bcdPermMap");
+
     /// map does not exist yet, add an empty one
     if (permissionMap == null) {
       permissionMap = new HashMap<>();
-      SecurityUtils.getSubject().getSession().setAttribute("bcdPermMap", permissionMap);
+      session.setAttribute("bcdPermMap", permissionMap);
+      refreshPermissions(session);
     }
     return permissionMap;
   }
 
-  public void activatePermissions(PrincipalCollection principals, Map<String, ArrayList<String>> permissionMap) {
-    SecurityUtils.getSubject().getSession().setAttribute("bcdPermMap", permissionMap);
+  // sets the provided map as new permisson map and refreshes permissions
+  public void setPermissionMap(Map<String, ArrayList<String>> permissionMap) {
+    Subject subject = SecurityUtils.getSubject();
+    Session session = subject.getSession(false);
+    if (session == null)
+      session = subject.getSession();
+
+    session.setAttribute("bcdPermMap", permissionMap);
+    refreshPermissions(session);
+  }
+
+  public void refreshPermissions(Session session) {
+
+    // in case we're not yet logged in, use a guest principal, otherwise
+    // doGetAuthorizationInfo won't get triggered at all
+    if (session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null)
+      session.setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, new SimplePrincipalCollection("bcd-guest", "bcd-guest"));          
 
     // clear cache and send dummy isPermitted so that doGetAuthorizationInfo is actually called
-    this.clearCache(principals);
-    SecurityUtils.getSubject().isPermitted("bcdDummy:bcdDummy");
+    this.clearCache(SecurityUtils.getSubject().getPrincipals());
+    SecurityUtils.getSubject().isPermitted(PERMISSION_MAP_INIT_TOKEN);
   }
 
   @Override

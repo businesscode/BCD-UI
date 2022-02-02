@@ -32,10 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.support.DefaultSubjectContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -68,6 +65,8 @@ public class SubjectPreferences extends HttpServlet {
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
     documentBuilderFactory.setNamespaceAware(true);
+    
+    // read and parse the configuration
     
     InputStream is = getServletContext().getResourceAsStream("/bcdui/conf/subjectPreferences.xml");
 
@@ -134,6 +133,9 @@ public class SubjectPreferences extends HttpServlet {
     }
   }
 
+  // gets a list of current permissions for a given permission name
+  // don't mix this with SecurityHelper's getPermission. This function looks up
+  // the subjectPreferences map by given key name
   public static List<String> getPermission(String name) {
 
     final ArrayList<String> values = new ArrayList<>();
@@ -150,28 +152,20 @@ public class SubjectPreferences extends HttpServlet {
     return values;
   }
 
+  // sets (and activates) a single permission value
   public static void setPermission(String name, String value) {
     ArrayList<String> values = new ArrayList<>();
     values.add(value);
     SubjectPreferences.setPermission(name, values);
   }
 
+  // sets (and activates) a single permission value list
   public static void setPermission(String name, List<String> values) {
-    Subject subject = SecurityUtils.getSubject();
-
-    Session session = subject.getSession(false);
-    if (session == null)
-      session = subject.getSession();
-
-    // in case we're not yet logged in, use a guest principal
-    if (session.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null)
-      session.setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, new SimplePrincipalCollection("bcd-guest", "bcd-guest"));          
-
-    // get current permission map from UserSelectedSubjectSettingsRealm modify it and set it again 
+    // get current permission map from SubjectPreferencesRealm modify it and set it again 
     ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> {
       HashMap<String, ArrayList<String>> permMap = (HashMap<String, ArrayList<String>>)((SubjectPreferencesRealm)r).getPermissionMap();
       permMap.put(name, (ArrayList<String>)values);
-      ((SubjectPreferencesRealm)r).activatePermissions(subject.getPrincipals(), permMap);
+      ((SubjectPreferencesRealm)r).setPermissionMap(permMap);
     });
   }
   
