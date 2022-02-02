@@ -93,12 +93,15 @@ public class I18n {
    * @return currently set locale or the defaultLocale
    */
   public static Locale getLocale(Locale defaultLocale) {
-    Subject subject = SecurityUtils.getSubject();
-    List<String> values = new ArrayList<>(SecurityHelper.getPermissions(subject, SUBJECT_FILTER_TYPE));
-    if (! values.isEmpty()) {
-      String lang = values.get(0);
-      if (!lang.isEmpty())
-        return new Locale(lang);
+    Subject subject = null; 
+    try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
+    if (subject != null) {
+      List<String> values = new ArrayList<>(SecurityHelper.getPermissions(subject, SUBJECT_FILTER_TYPE));
+      if (! values.isEmpty()) {
+        String lang = values.get(0);
+        if (!lang.isEmpty())
+          return new Locale(lang);
+      }
     }
     return defaultLocale;
   }
