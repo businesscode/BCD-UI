@@ -137,33 +137,17 @@ $h6-font-size:                $bcd-font-size-base !default;
 #bcdDropDownButton {
   position: absolute;
   z-index:  $z-index-flyover;
-  
-  .bcdButton {
-    @extend .btn-secondary;
-    background-color: $secondary-button-color;
-    border-color: $secondary-button-color;
-  }
 }
 #bcdDropDownButton {
   ul {
     padding: 0;
-    margin: .4em 0 0 -1.4em;
+    margin: 0 0 0 -1.4em;
     list-style-type: none;
     li {
-      margin-bottom: 0.1em;
+      margin-top: 0.1em;
     }
   }
 }
-#bcdDropDownButton,
-.bcdDropDownButton {
-  a {
-    color: inherit;
-    text-decoration: none;
-    .opened:after { content: "\25B2"; }
-    .closed:after { content: "\25BC"; }
-  }
-}
-
 
 /*********************************************************************************************************************/
 /* Flyovers */
@@ -951,6 +935,10 @@ $h6-font-size:                $bcd-font-size-base !default;
 
     li { padding: 0; position: relative; cursor: default;}
     .bcdItem { display: inline-block; width: 100%; cursor: pointer; white-space: normal;}
+
+    .ui-node-expanded .bcdItem { width: auto; }
+    .ui-node-collapsed .bcdItem { width: auto; }
+
     .ui-selected {
       @include bcdSelected();
     }
