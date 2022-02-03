@@ -128,7 +128,7 @@ public class BCDUIConfig extends HttpServlet {
       // get bcdClient permissions once via subjectPreferences (so you directly got values on very 1st request)
       // and once via SecurityHelper use HashSet to avoid duplicates (after 1st request)
       HashSet<String> clientSubjectPreferences = new HashSet<>(SubjectPreferences.getPermissionList("bcdClient:", true));
-      HashSet<String> clientPermissions = new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient"));
+      HashSet<String> clientPermissions = subject.isAuthenticated() ? new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient")) : new HashSet<>();
       clientPermissions.addAll(clientSubjectPreferences);
       ArrayList<String> sortedPerms = new ArrayList<>(clientPermissions);
       Collections.sort(sortedPerms);

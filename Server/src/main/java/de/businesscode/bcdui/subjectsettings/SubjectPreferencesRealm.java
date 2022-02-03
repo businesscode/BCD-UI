@@ -115,18 +115,20 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     if (! permissionMap.containsKey(PERMISSION_MAP_TOKEN)) {
       permissionMap.put(PERMISSION_MAP_TOKEN, new ArrayList<>());
       
-      // defaults from user permissions, get permissions for value, sort, take first as default
-      for (Map.Entry<String,String> entry : SubjectPreferences.valueSources.entrySet()) {
-        String key = entry.getKey();
-        String value = entry.getValue();
-        if (permissionMap.get(key) == null) {
-          List<String> sortedPerm = new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), value));
-          sortedPerm.sort(String::compareToIgnoreCase);
-          if (! sortedPerm.isEmpty()) {
-            ArrayList<String> values = new ArrayList<>();
-            values.add(sortedPerm.get(0));
-            permissionMap.put(key, values);
-            doRefresh = true;
+      if (subject.isAuthenticated() && ! SubjectPreferences.valueSources.isEmpty() ) {
+        // defaults from user permissions, get permissions for value, sort, take first as default
+        for (Map.Entry<String,String> entry : SubjectPreferences.valueSources.entrySet()) {
+          String key = entry.getKey();
+          String value = entry.getValue();
+          if (permissionMap.get(key) == null) {
+            List<String> sortedPerm = new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), value));
+            sortedPerm.sort(String::compareToIgnoreCase);
+            if (! sortedPerm.isEmpty()) {
+              ArrayList<String> values = new ArrayList<>();
+              values.add(sortedPerm.get(0));
+              permissionMap.put(key, values);
+              doRefresh = true;
+            }
           }
         }
       }

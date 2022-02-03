@@ -328,6 +328,9 @@ public class SecurityHelper {
    * @return
    */
   private static Set<String> extractFromAuthorizationInfo(Subject subject, InfoCollector collector) {
+    if (!subject.isAuthenticated()) {
+      throw new SecurityException("subject is not authenticated");
+    }
     final PrincipalCollection principals = subject.getPrincipals();
     DefaultSecurityManager dsm = (DefaultSecurityManager) SecurityUtils.getSecurityManager();
 
