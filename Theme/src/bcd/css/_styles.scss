@@ -935,6 +935,10 @@ $h6-font-size:                $bcd-font-size-base !default;
 
     li { padding: 0; position: relative; cursor: default;}
     .bcdItem { display: inline-block; width: 100%; cursor: pointer; white-space: normal;}
+
+    .ui-node-expanded .bcdItem { width: auto; }
+    .ui-node-collapsed .bcdItem { width: auto; }
+
     .ui-selected {
       @include bcdSelected();
     }
