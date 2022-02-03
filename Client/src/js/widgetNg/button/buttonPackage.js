@@ -170,8 +170,13 @@
 
       bcdui.factory.objectRegistry.withReadyObjects(config.optionsModelId, function(){
 
+        var outer = el.closest(".bcdButton");
+        var outerpadL = parseInt(outer.css("paddingLeft"), 10);
+        var outerborL = parseInt(el.css("borderLeftWidth"), 10);
+        outerpadL = !outerpadL || outerpadL == "" || isNaN(outerpadL) ? 0 : outerpadL;
+        outerborL = !outerborL || outerborL == "" || isNaN(outerborL) ? 0 : outerborL;
+
         // get padding and offset to clone buttons
-        var offset = el.offset();
         var padL = parseInt(el.css("paddingLeft"), 10);
         var padR = parseInt(el.css("paddingRight"), 10);
         padL = !padL || padL == "" || isNaN(padL) ? 0 : padL;
@@ -180,6 +185,7 @@
         var borR = parseInt(el.css("borderRightWidth"), 10);
         borL = !borL || borL == "" || isNaN(borL) ? 0 : borL;
         borR = !borR || borR == "" || isNaN(borR) ? 0 : borR;
+        var left = (outer.offset().left + outerpadL + outerborL);
 
         // build flyover div, add options
         var dropDown = "<div id='bcdDropDownButton' style='display: none'><ul>"
@@ -192,7 +198,7 @@
             idValue = idValue != null ? idValue.text : idValue;
           }
           idValue = bcdui.util.escapeHtml(idValue);
-          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton'><a href='#' style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
+          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton btn-primary'><a href='#' style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
           i++;
         });
         dropDown += "</ul></div>";
@@ -224,7 +230,7 @@
           }
         });
         // set x/y pos to bottom left of the button and show drop down
-        jQuery("#bcdDropDownButton").css({top: offset.top + el.outerHeight(), left: offset.left});
+        jQuery("#bcdDropDownButton").css({top: outer.offset().top + outer.outerHeight(), left: left, fontSize: el.css("fontSize")});
         jQuery("#bcdDropDownButton").show();
       });
     }
