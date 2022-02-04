@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -53,7 +53,6 @@ import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
-import de.businesscode.bcdui.web.filters.SubjectSettingsFilter;
 import de.businesscode.bcdui.web.i18n.I18n;
 import de.businesscode.bcdui.web.taglib.webpage.Functions;
 import de.businesscode.util.StandardNamespaceContext;
@@ -121,57 +120,49 @@ public class BCDUIConfig extends HttpServlet {
           return "\"" + StringEscapeUtils.escapeJavaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
         }).collect(Collectors.joining(",")));
         writer.println("  }");
-
-        // write bcdClient security settings as bcdui.config.clientRights object values
-        writer.println("  , clientRights: {");
-
-        List<String> sortedPerms = new ArrayList<String>(SecurityHelper.getPermissions(subject, "bcdClient"));
-        Collections.sort(sortedPerms);
-
-        if (! sortedPerms.isEmpty()) {
-          boolean onceInner = true;
-          boolean onceOuter = true;
-          String lastRight = "";
-          for (String s : sortedPerms) {
-            int x = s.indexOf(":");
-            String right = (x != -1 ? s.substring(0, x) : s).trim();
-            String value = (x != -1 ? s.substring(x + 1) : "").trim();
-            boolean isBoolean = "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
-            boolean isInteger = false;
-            try { Integer.parseInt(value); isInteger = true; } catch (Exception e) {}
-            if (! right.isEmpty()) {
-              if (lastRight.isEmpty()) {
-                writer.println((onceOuter ? "" : ",") + right + ": [");
-                onceOuter = false;
-              }
-              else if (!lastRight.equals(right)) {
-                writer.println("]");
-                writer.println("," + right + ": [");
-                onceInner = true;
-              }
-              writer.println((onceInner ? "" : ",") + (isInteger || isBoolean ? ( "" + value.toLowerCase() + "") : ( "\"" + value + "\"")));
-              onceInner = false;
-              lastRight = right;
-            }
-          }
-          if (! onceOuter)
-            writer.println("]");
-        }
-
-        // write bcdUserBeans bcdui.config.clientRights object values
-        if (subject.getSession() != null) {
-          Map<String, String> bean = (HashMap<String, String>)subject.getSession().getAttribute(SessionAttributesManager.BCD_EL_USER_BEAN);
-          if (bean != null) {
-            boolean comma = ! sortedPerms.isEmpty();
-            for (Map.Entry<String, String> entry : bean.entrySet()) {
-              writer.println((comma ? "," : "") + entry.getKey() + ": [\"" + entry.getValue() + "\"]");
-              comma = true;
-            }
-          }
-        }
-
-        writer.println("}");
       }
+
+      // write bcdClient security settings as bcdui.config.clientRights object values
+      writer.println("  , clientRights: {");
+
+      // get bcdClient permissions once via subjectPreferences (so you directly got values on very 1st request)
+      // and once via SecurityHelper use HashSet to avoid duplicates (after 1st request)
+      HashSet<String> clientSubjectPreferences = new HashSet<>(SubjectPreferences.getPermissionList("bcdClient:", true));
+      HashSet<String> clientPermissions = subject.isAuthenticated() ? new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient")) : new HashSet<>();
+      clientPermissions.addAll(clientSubjectPreferences);
+      ArrayList<String> sortedPerms = new ArrayList<>(clientPermissions);
+      Collections.sort(sortedPerms);
+      
+      if (! sortedPerms.isEmpty()) {
+        boolean onceInner = true;
+        boolean onceOuter = true;
+        String lastRight = "";
+        for (String s : sortedPerms) {
+          int x = s.indexOf(":");
+          String right = (x != -1 ? s.substring(0, x) : s).trim();
+          String value = (x != -1 ? s.substring(x + 1) : "").trim();
+          boolean isBoolean = "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
+          boolean isInteger = false;
+          try { Integer.parseInt(value); isInteger = true; } catch (Exception e) {}
+          if (! right.isEmpty()) {
+            if (lastRight.isEmpty()) {
+              writer.println((onceOuter ? "" : ",") + right + ": [");
+              onceOuter = false;
+            }
+            else if (!lastRight.equals(right)) {
+              writer.println("]");
+              writer.println("," + right + ": [");
+              onceInner = true;
+            }
+            writer.println((onceInner ? "" : ",") + (isInteger || isBoolean ? ( "" + value.toLowerCase() + "") : ( "\"" + value + "\"")));
+            onceInner = false;
+            lastRight = right;
+          }
+        }
+        if (! onceOuter)
+          writer.println("]");
+      }
+      writer.println("}");
     }
     catch (UnavailableSecurityManagerException e) { // don't use shiro at all?
       writer.println("  , isAuthenticated: false");
@@ -180,8 +171,6 @@ public class BCDUIConfig extends HttpServlet {
     }
 
     writer.println("  , sessionHash: \"" + ( getSessionHash(request) ) + "\"");
-    // expose parameter names to the client so the client-API knows how to provide them
-    writer.println("  , security: { subjectSettingsFilter: { \"httpParamFilterName\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_NAME + "\", \"httpParamFilterValue\":\"" + SubjectSettingsFilter.PARAM_NAME_FILTER_VALUE + "\" } } ");
     writer.println("  , i18n: { \"langSubjectFilterName\":\"" + I18n.SUBJECT_FILTER_TYPE + "\", \"lang\" : \"" + getLang(request) + "\"}");
     writer.println("  , debug: " + isDebug);
     writer.println("  , isDebug: " + isDebug);

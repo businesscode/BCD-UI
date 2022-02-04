@@ -421,10 +421,18 @@ bcdui.i18n = Object.assign(bcdui.i18n,
 
   /**
    * reloads entire page in a given language
+   * this function requires the mapped SubjectPreferences servlet and a subjectPreferences.xml holding
+   * an entry for <cnf:Setting name="bcd_i18n:lang">
    * @param {string} lang - the language code
    */
   switchLanguage: function(lang){
-    bcdui.subjectSettings.setSubjectFilterAndReload({[bcdui.config.i18n.langSubjectFilterName]:lang});
+    jQuery.ajax({
+      method: "GET",
+      url : bcdui.contextPath+ "/SubjectPreferences?value="+lang+"&name=bcd_i18n:lang",
+      success : function (data, successCode, jqXHR) {
+        location.href = location.href;
+      }
+    });
   }
 });
 

@@ -27,7 +27,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Node;
 
@@ -84,14 +83,9 @@ public class SubjectFilters {
     if (s != null) {
       Subject subject = s;
       // TODO: what to do in case subject is not authenticated? 
-      Session session = subject.getSession(false);
       SubjectSettings settings = SubjectSettings.getInstance();
       getPlainFilters().forEach(sf -> {
         SubjectFilterType ft = settings.getSubjectFilterTypeByName(sf.getType());
-        // we have a wildcard in session
-        if("*".equals(settings.getFilterTypeValue(session, ft))){
-          return;
-        }
         // we have a wildcard in subject settings
         if (subject.isPermitted(settings.getFilterType(ft) + ":*"))
           return;

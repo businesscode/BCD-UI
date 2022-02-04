@@ -23,12 +23,14 @@ Some changes are not backward compatible and may require code change in the proj
 ** getTableName() was renamed to getTableReference()
 and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
 ** TextToUrl servlet returns found value in an XML element now
+** removed SubjectSettingsFilter, SessionAttributesManager, SessionAttribute servlet, bcdui.config.security, client sided setting is done now via SubjectPreferences with bcdui/conf/subjectPreferences.xml as config.
+* ensure adding bcd_userId:userId and bcd_i18n:lang to subjectSettings.xml
 
 .Server:
 * Wrq does support CTE common table expressions, joins and unions now
-* Allowing client sided setting of bcdUserBean values via subjectAttributeManager servlet. ${bcdUserBean:name} in urls will be replaced and forwarded. Server sided read/write security via SubjectFilterType "bcdUserBean:name".
-* Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.DefaultSettingsRealm to your realms)
-* Database syntax does fuly support MySQL and Redshift now
+* allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
+* Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
+* Database syntax does fully support MySQL and Redshift now
 
 .Security
 * New cookie settings in context.xml and web.xml

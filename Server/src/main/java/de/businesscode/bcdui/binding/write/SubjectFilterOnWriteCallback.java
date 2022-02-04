@@ -29,8 +29,6 @@ import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
-import de.businesscode.bcdui.web.servlets.SessionAttributesManager;
-
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -134,14 +132,11 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
         else
           throw new SecurityException("Ambiguous value for enforced " + eBi.biId );
       }
-      // in case of a BCD_EL_USER_BEAN based filtertype, check if the value is allowed by looking up the BCD_EL_USER_BEAN hashmap
-      else if (value != null && st != null && st.getName().startsWith(SessionAttributesManager.BCD_EL_USER_BEAN + ":")) {
-        String keyName = st.getName().substring((SessionAttributesManager.BCD_EL_USER_BEAN + ":").length());
-        if (value.equals(SessionAttributesManager.getBeanValue(keyName)) || "*".equals(SessionAttributesManager.getBeanValue(keyName)))
-          foundMatch = true;    
-        else
-          foundMissMatch = true;
+      // we have no value but we allow it since the SubjectFilterType got IsNullAllowsAccess
+      else if ((value == null || value.isEmpty()) && (st != null && st.isIsNullAllowsAccess())) {
+        foundMatch = true;
       }
+      // check if we match permissions by "like"  
       else if (st != null && st.getOp().equals("like")) {
         boolean likeMatch = false;
         for (String perm : eBi.permissions) {
@@ -151,12 +146,13 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
           if (likeMatch)
             break;
         }
-        if (! likeMatch && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null)
+        if (! likeMatch && ! eBi.permissions.contains("*"))
           foundMissMatch = true;
         else
           foundMatch = true;
       }
-      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*") && SubjectSettings.getInstance().getFilterTypeValue(SecurityHelper.getSession(), eBi.permissionType) == null)
+      // default check if value is permitted
+      else if( ! eBi.permissions.contains(value) && ! eBi.permissions.contains("*"))
         foundMissMatch = true;
       else
         foundMatch = true;
