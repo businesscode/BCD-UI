@@ -100,7 +100,7 @@ public class I18n {
       List<String> values = new ArrayList<>(SubjectPreferences.getPermissionList(SUBJECT_FILTER_TYPE));
       if (! values.isEmpty()) {
         String lang = values.get(0);
-        if (!lang.isEmpty())
+        if (!lang.isEmpty() && ! "*".equals(lang))
           return new Locale(lang);
       }
     }
