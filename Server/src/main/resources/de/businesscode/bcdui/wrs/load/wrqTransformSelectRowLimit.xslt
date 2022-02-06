@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,10 +39,10 @@
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 
-  <xsl:param name="allBindingItems"></xsl:param>
-  <xsl:param name="allKeyBindingItems"></xsl:param>
+  <xsl:param name="allBindingItems"/>
+  <xsl:param name="allKeyBindingItems"/>
 
-  <xsl:key name="implicitBRefs" match="/*/f:Filter//f:Expression | /*/wrq:Grouping//wrq:C | /*/wrq:Having//wrq:C | /*/wrq:Ordering/wrq:Cf" use="@bRef"/>
+  <xsl:key name="implicitBRefs" match="/*/f:Filter//f:Expression | /*/wrq:Grouping//wrq:C | /*/wrq:Having//wrq:C | /*/wrq:Ordering/wrq:C" use="@bRef"/>
 
   <!--
     Match our root, which needs to be a wrs:Select
@@ -133,13 +133,13 @@
                               <wrq:ValueRef idRef="{@bRef}"/>
                             </xsl:for-each>
                           </xsl:when>
-                          <xsl:otherwise>
+                          <!-- Unless we have groupings, we implicitly order by the key -->
+                          <xsl:when test="not(./wrq:Grouping//wrq:C)">
                             <xsl:call-template name="valueRefList">
                               <xsl:with-param name="bRefList" select="$allKeyBindingItems"/>
                             </xsl:call-template>
-                          </xsl:otherwise>
+                          </xsl:when>
                         </xsl:choose>
-
 
                       </wrq:OrderBy>
                     </wrq:RowNumber>
@@ -169,13 +169,14 @@
             <xsl:when test="count(./wrq:Ordering/wrq:C) != 0">
               <xsl:copy-of select="./wrq:Ordering"/>
             </xsl:when>
-            <xsl:otherwise>
+            <!-- Unless we have groupings, we implicitly order by the key -->
+            <xsl:when test="not(./wrq:Grouping//wrq:C)">
               <wrq:Ordering>
                 <xsl:call-template name="colList">
                   <xsl:with-param name="bRefList" select="$allKeyBindingItems"/>
                 </xsl:call-template>
               </wrq:Ordering>
-            </xsl:otherwise>
+            </xsl:when>
           </xsl:choose>
 
         </xsl:when>
@@ -190,7 +191,7 @@
 
   <!-- 
     Generate a list of wrq:C / wrq:ValueRef based on a string with a space separated list of bRefs
-    Recurse into bRefList / valueRefList which is the space separated list of bRefs to be created
+    Recurse into bRefList / valueRefList which is a space-separated list of bRefs to be created
     -->
   <xsl:template name="colList">
     <xsl:param name="bRefList"/>
