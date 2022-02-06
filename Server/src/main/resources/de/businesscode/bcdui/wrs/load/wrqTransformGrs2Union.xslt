@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -158,14 +158,18 @@
                     <wrq:CastAsBRef bRef="{@bRef}">
                       <wrq:Max>
                         <wrq:MakeNull>
-                          <wrq:ValueRef idRef="{@bRef}"/> <!-- While this value is null at the end, we need its reference for calculation of Other -->
+                          <wrq:ValueRef idRef="{@bRef}"/> <!-- While this value is null at the end, we need its reference for calculation of Other in TOP-N  --> 
                         </wrq:MakeNull>
                       </wrq:Max>
                     </wrq:CastAsBRef>
                   </wrq:Calc>
                   <!-- Corresponds to GROUPING() function -->
                   <wrq:A name="bcdGr" id="{concat('bcd_virt_',position())}">
-                    <wrq:Calc><wrq:Value>1</wrq:Value></wrq:Calc>
+                    <wrq:Calc>
+                      <wrq:CastAsNumeric>
+                        <wrq:Value>1</wrq:Value>
+                      </wrq:CastAsNumeric>
+                    </wrq:Calc>
                   </wrq:A>
                   
                   <!-- Keep all user wrq:A, like caption etc, but nullify them with the right type -->
@@ -188,7 +192,11 @@
                 <xsl:copy>
                   <xsl:copy-of select="@*"/>
                   <wrq:A name="bcdGr" id="{concat('bcd_virt_',position())}">
-                    <wrq:Calc><wrq:Value>0</wrq:Value></wrq:Calc>
+                    <wrq:Calc>
+                      <wrq:CastAsNumeric>
+                        <wrq:Value>0</wrq:Value>
+                      </wrq:CastAsNumeric>
+                    </wrq:Calc>
                   </wrq:A>
                   <!-- Keep all user wrq:A, like caption etc -->
                   <xsl:copy-of select="wrq:A"/>

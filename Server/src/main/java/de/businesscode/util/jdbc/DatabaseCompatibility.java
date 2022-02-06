@@ -133,7 +133,7 @@ public class DatabaseCompatibility
   public boolean dbNeedsColumnListForRecursiveWithClause(String jdbcResourceName)
   {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("redshift");
+    return product.contains("oracle") || product.contains("redshift") || product.contains("h2");
   }
 
   /**
