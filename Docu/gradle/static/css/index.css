@@ -311,3 +311,8 @@ hr {
   margin-top: 150px;
   margin-bottom: 30px;
 }
+
+h1 .bcd-dyn-replace-current-version-date {
+  font-size: 14pt;
+  margin-left: 6px;
+}

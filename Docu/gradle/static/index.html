@@ -1,5 +1,5 @@
 <!--
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
     @import 
       url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
   </style>
-  
 </head>
 
 <body>
@@ -52,7 +51,7 @@
     <img src="images/bcd-logo-blue.png" alt="Logo BCD" />
   </div>
   
-  <h1>BCD-UI</h1>
+  <h1>BCD-UI<span class="bcd-dyn-replace-current-version-date"></span></h1>
   <h2>an advanced full-stack<br>
     user interface library.</h2>
   
@@ -126,7 +125,7 @@
     
   <div class="footer">
     <div class="footer-claim">
-      Do you want to know more about BCD Suite?
+      Do you want to know more about BCD-Suite?
     </div>
 
     <div class="row">
@@ -149,12 +148,17 @@
 
     </div>
     <div class="copy">
-      &copy; 2021 BusinessCode GmbH. All rights reserved.
+      &copy; 2022 BusinessCode GmbH. All rights reserved.
     </div>
   
   </div>
 </div>
   
 </body>
-  
+
+<script>
+  <!-- Dynamically replace version and date when displayed to keep sources as stable as possible -->
+  document.querySelector(".bcd-dyn-replace-current-version-date").textContent = "--bcd-dyn-replace-current-version-date--";
+</script>
+
 </html>

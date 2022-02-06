@@ -1,6 +1,6 @@
 {
   "templates": {
-    "applicationName": "BCD-UI",
+    "applicationName": "BCD-UI <span class='bcd-dyn-replace-current-version-date'></span>",
     "default": {
       "outputSourceFiles": false
     },

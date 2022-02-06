@@ -438,3 +438,8 @@ code {
   background-size: 100%;
   padding-top: 150px;
 }
+
+h3 .bcd-dyn-replace-current-version-date {
+  font-size: 10pt;
+  margin-left: 6px;
+}

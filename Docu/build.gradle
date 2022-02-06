@@ -67,6 +67,11 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
       from "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/jaguarjs/static"
       into targetDir
     }
+
+    // Dynamically replace version and date when displayed to keep sources as stable as possible
+    new File("$targetDir/scripts/jaguar.js").text += """
+      \nlet version = "--bcd-dyn-replace-current-version-date--"; document.querySelector('.bcd-dyn-replace-current-version-date').textContent = version;
+      """
   }
 }
 

@@ -30,7 +30,8 @@ var helper = require('jsdoc/util/templateHelper');
 
 exports.publish = function(taffyData, opts, tutorials) 
 {
-  var result = "";
+  var result = "// This file contains BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine(0);
+  result += "// BCD-UI version --bcd-dyn-replace-current-version-date--"+ newLine(0) + newLine(0);
 
   // Debugging tuffy sample
   //console.log( JSON.stringify( taffyData({longname: "bcdui.component.chart.XmlChart"}).get() ) );
@@ -69,9 +70,7 @@ exports.publish = function(taffyData, opts, tutorials)
     }); // class
   });
 
-  // Hiding local symbols
-  result = "// This file contains BCD-UI Javascript Api stubs for IDE autosuggest"+ newLine(0) + result + newLine(0);
-
+  // Export bcdui package root, hiding local symbols
   result = result + "export { bcdui };" + newLine(0);
 
   fs.mkPath(opts.destination);
