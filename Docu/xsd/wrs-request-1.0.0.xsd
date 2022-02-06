@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@
     <xs:sequence>
       <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
         <xs:annotation><xs:documentation>
-          Only available in BCD-UI Enterprise Edition.
+          Requires BCD-UI EnterpriseEdition.
           Allow top-n restriction in terms of dimensions and a measures.
         </xs:documentation></xs:annotation>
       </xs:element>
@@ -132,12 +132,15 @@
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">
       <xs:annotation>
-        <xs:documentation>First row == 1. If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart>1.</xs:documentation>
+        <xs:documentation>
+          Requires EnterpriseEdition. First row == 1.
+          If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
+        </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rowEnd" type="xs:int">
       <xs:annotation>
-        <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with filled a header will be returned, no SQL will be performed.</xs:documentation>
+        <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with a filled wrq:Header will be returned, no SQL will be performed.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
@@ -326,7 +329,7 @@
       <xs:extension base="xs:NCName">
         <xs:attribute name="url" type="xs:string" use="optional">
           <xs:annotation>
-            <xs:documentation>Custom WrsServlet path relatively to contextPath safd</xs:documentation>
+            <xs:documentation>Custom WrsServlet path relatively to contextPath</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
@@ -491,8 +494,11 @@
   <xs:complexType name="TypeAnalyticFct">
     <xs:sequence>
       <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="3"/>
-      <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0"/>
+      <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0">
+        <xs:annotation><xs:documentation>Requires BCD-UI EnterpriseEdition</xs:documentation></xs:annotation>
+      </xs:element>
       <xs:element name="OrderBy" minOccurs="0">
+        <xs:annotation><xs:documentation>Requires EnterpriseEdition</xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:complexContent>
             <xs:extension base="tns:MultiOperatorType">
@@ -608,5 +614,24 @@
   <xs:element name="Count" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Distinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="CountDistinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="MakeNull" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Effectively makes its content null. Useful when a wrq:ValueRef is need but should be substituted by null.</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="CastAsVarchar" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to VARCHAR.</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="CastAsNumeric" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to DECIMAL.</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="CastAsBRef" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to the type of the given bRef.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:UnaryOperatorType">
+          <xs:attribute name="bRef" use="required"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>

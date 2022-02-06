@@ -64,7 +64,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
 
 /**
  * Used by shiro framework for retrieving authentication and authorization from the database
- * Relies on fe_user_rights and fe_user BindingSets providing support for plaintext (backwards compatibility)
+ * Relies on bcd_sec_user and bcd_sec_user_settings BindingSets providing support for plaintext (backwards compatibility)
  * and salted/hashed passwords using SHA256 hashing. The default hash iteration is 1024 and can be adjusted in shiro ini by setting
  * .hashIterations property. The default mode is hashed/salted, which can be disabled by setting .hashSalted=false
  * in shiro configuration when declaring this realm. When creating new password please use {@link #generatePasswordHashSalt(String, int)}
@@ -299,7 +299,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
   /*
    * Return user's permissions
-   * Of fe_user_rights use right_type as first part and append right_value as second part if it exists
+   * Of bcd_sec_user_settings use right_type as first part and append right_value as second part if it exists
    *
    * @see org.apache.shiro.realm.jdbc.JdbcRealm#getPermissions(java.sql.Connection, java.lang.String, java.util.Collection)
    * @Override

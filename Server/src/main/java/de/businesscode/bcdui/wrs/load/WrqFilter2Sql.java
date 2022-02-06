@@ -224,7 +224,7 @@ public class WrqFilter2Sql
       colExpr = bindingItem.getQColumnExpression(false);
     }
 
-    // In operator does not support ? syntax
+    // IN operator needs a list of ?
     if( "IN".equals(operator) || "NOT IN".equals(operator) ) {
       String[] values = valueElement.getAttribute("value").split(",");
       StringBuffer qm = new StringBuffer("(");
