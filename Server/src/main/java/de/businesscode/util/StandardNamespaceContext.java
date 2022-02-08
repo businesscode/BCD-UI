@@ -107,7 +107,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String EXSLTDATE_NAMESPACE    = "http://exslt.org/dates-and-times";
   public static final String TREE_PREFIX            = "tree";
   public static final String TREE_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/tree-1.0.0";
-
+  public static final String CONFIG_PREFIX          = "cnf";
+  public static final String CONFIG_NAMESPACE       = "http://www.businesscode.de/schema/bcdui/config-1.0.0";
   /**
    * Constructor for singelton
    */
@@ -146,6 +147,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XSLTFORMULAR_PREFIX, XSLTFORMULAR_NAMESPACE);
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
     mapping.put(TREE_PREFIX,         TREE_NAMESPACE);
+    mapping.put(CONFIG_PREFIX,       CONFIG_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();
