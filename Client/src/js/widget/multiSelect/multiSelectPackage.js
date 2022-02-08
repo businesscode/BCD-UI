@@ -153,6 +153,9 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
         delimiter:                      htmlElement.getAttribute("bcdDelimiter"),
         itemName:                       htmlElementId + "_bcdui_option"
       };
+
+      var isWrsModel = (args.targetModel.getData().selectSingleNode("/wrs:Wrs") != null);
+
       if ( evtSrc && evtSrc.id == htmlElement.getAttribute("bcdOptionsModelId")){
         bcdui.factory.objectRegistry.withReadyObjectsNoExecute( args.optionsModel, function() {
           var optionsModelNodes = args.optionsModel.getData().selectNodes(args.optionsModelXPath);
@@ -190,7 +193,6 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
 
           //  test if we have the values from target model still in options model, if not and if the target model
           // isn't a wrs remove it. (This removes filter expressions in case of updated optionsmodel)
-          var isWrsModel = (args.targetModel.getData().selectSingleNode("/wrs:Wrs") != null ? true:false);
           if(!isWrsModel){
             var found = false;
             jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath))
@@ -231,7 +233,11 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
         }:function(map, e) { var v = e.nodeValue || e.text; map[v] = v; return map; };
 
         var values = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath));
-        var selectedValues = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath)).reduce(mapFunc, {});
+        var selectedValues = jQuery.makeArray(args.targetModel.getData().selectNodes(args.targetModelXPath))
+        // in case of a WRS model (and assuming the targetModelXPath selects C elements, we need to get rid of possible wrs:D elements since they were deselected)
+        if (isWrsModel)
+          selectedValues = selectedValues.filter(function(e) { return "D" != (e.parentNode.baseName || e.parentNode.localName);});
+        selectedValues = selectedValues.reduce(mapFunc, {});
 
         values.length > 0 ? jQuery(args.htmlElement).closest(".bcdMultiSelect").addClass("bcdActiveFilter") : jQuery(args.htmlElement).closest(".bcdMultiSelect").removeClass("bcdActiveFilter");
 
