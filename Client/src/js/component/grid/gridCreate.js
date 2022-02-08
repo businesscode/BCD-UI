@@ -670,7 +670,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         cellError |= 1;
 
       // INTEGER CHECK
-      if ((checkBits & 2) && value.replace(/[0-9]/g, "").length != 0)
+      if ((checkBits & 2) && value.replace(/[0-9\-]/g, "").length != 0)
         cellError |= 2;
 
       // DISPLAY SIZE CHECK
