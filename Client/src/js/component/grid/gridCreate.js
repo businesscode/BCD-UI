@@ -1919,7 +1919,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         for (var i = 0; i < amount; i++) {
           // if hot added an incomplete data source element for the new row, we need to fix it by adding wrs:I/C on our own
           // in case of pasting it seems that afterCreateRow is called an additional time on the same row so we need to assure to skip this 
-          if (typeof row.r === "undefined" || typeof row.r.nodeTyoe === "undefined") {
+          if (typeof row.r === "undefined" || typeof row.r.nodeType === "undefined") {
             row.r = bcdui.core.createElementWithPrototype(this.gridModel.getData(), "/*/wrs:Data/wrs:I[@id='I_" + (nextRow + i) + "']");
 
             // we clean the inserted C elements for alignment since createElementWithPrototype might have set the first referenced item (insertRow.xslt does not do this with setDefaultValue=false)
