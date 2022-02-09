@@ -1321,7 +1321,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
         var d = doc;
         if (typeof doc.getData != "undefined")
           d = doc.getData();
-        var targetWrsDoc = d.selectSingleNode("/wrs:Wrs[wrs:Data/wrs:*[not(wrs:R)]]");
+        var targetWrsDoc = d.selectSingleNode("/wrs:Wrs");
         if(targetWrsDoc){
           args.wrsDoc.documentElement.appendChild(
             args.wrsDoc.importNode(targetWrsDoc, true)
@@ -1329,6 +1329,9 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
         }
       });
     }
+
+    // only care about wrs:M|I|D
+    bcdui.core.removeXPath(args.wrsDoc, "//wrs:Data/wrs:R", false);
 
     var sendModel = new bcdui.core.StaticModel({
       data: new XMLSerializer().serializeToString(args.wrsDoc)
