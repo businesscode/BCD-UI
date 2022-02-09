@@ -66,7 +66,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  * Used by shiro framework for retrieving authentication and authorization from the database
  * Relies on bcd_sec_user and bcd_sec_user_settings BindingSets providing support for plaintext (backwards compatibility)
  * and salted/hashed passwords using SHA256 hashing. The default hash iteration is 1024 and can be adjusted in shiro ini by setting
- * .hashIterations property. The default mode is hashed/salted, which can be disabled by setting .hashSalted=false
+ * .hashIterations property. The default mode is hashed/salted, which can be disabled by not having a binding item password_salt in bcd_sec_user
  * in shiro configuration when declaring this realm. When creating new password please use {@link #generatePasswordHashSalt(String, int)}
  * method of this class.
  */
