@@ -17,7 +17,6 @@ package de.businesscode.bcdui.web.servlets;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
@@ -44,8 +42,6 @@ import org.xml.sax.SAXException;
 
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm;
-import de.businesscode.bcdui.wrs.IRequestOptions;
-import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.WrsDataWriter;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.xml.SecureXmlFactory;
@@ -156,7 +152,7 @@ public class SubjectPreferences extends HttpServlet {
 
     SubjectPreferencesRealm realm = getSubjectPreferencesRealm();
     if (realm != null) {
-      HashMap<String, ArrayList<String>> permMap = (HashMap<String, ArrayList<String>>)realm.getPermissionMap();
+      HashMap<String, ArrayList<String>> permMap = new HashMap<>(realm.getPermissionMap());
 
       if (getSubList) {
         for (Map.Entry<String,ArrayList<String>> entry : permMap.entrySet()) {
@@ -198,7 +194,7 @@ public class SubjectPreferences extends HttpServlet {
   // get realm's permission map
   public static Map<String, ArrayList<String>> getPermissionMap() {
     SubjectPreferencesRealm realm = getSubjectPreferencesRealm();
-    return (realm != null) ? realm.getPermissionMap() : new HashMap<>();
+    return (realm != null) ? new HashMap<>(realm.getPermissionMap()) : new HashMap<>();
   }
 
   // sets realm's permission map
@@ -212,7 +208,7 @@ public class SubjectPreferences extends HttpServlet {
   public static void setPermission(String name, List<String> values) {
     SubjectPreferencesRealm realm = getSubjectPreferencesRealm();
     if (realm != null) {
-      HashMap<String, ArrayList<String>> permMap = (HashMap<String, ArrayList<String>>) realm.getPermissionMap();
+      HashMap<String, ArrayList<String>> permMap = new HashMap<>(realm.getPermissionMap());
       permMap.put(name, (ArrayList<String>)values);
       realm.setPermissionMap(permMap);
     }
@@ -228,7 +224,7 @@ public class SubjectPreferences extends HttpServlet {
     InputStream is = req.getInputStream();
     boolean refreshList = false;
 
-    HashMap<String, ArrayList<String>> permMap = (HashMap<String, ArrayList<String>>) SubjectPreferences.getPermissionMap();
+    HashMap<String, ArrayList<String>> permMap = new HashMap<>(SubjectPreferences.getPermissionMap());
     
     // update permissionMap based on wrs:I/D/R rows in the posted wrs
 
