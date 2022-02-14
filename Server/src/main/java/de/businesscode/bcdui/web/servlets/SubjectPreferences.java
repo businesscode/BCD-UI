@@ -161,16 +161,16 @@ public class SubjectPreferences extends HttpServlet {
             ArrayList<String> vs =  permMap.get(key);
             String sub = key.substring(name.length());
             if (vs != null)
-              vs.forEach((s) -> { values.add(sub + ":" + s); });
+              vs.forEach(s -> values.add(sub + ":" + s));
           }
         }
       }
       else {
         ArrayList<String> vs =  permMap.get(name);
         if (vs != null)
-          vs.forEach((s) -> { values.add(s); });
+          vs.forEach(s -> values.add(s));
       }
-    };
+    }
 
     return values;
   }
@@ -178,9 +178,7 @@ public class SubjectPreferences extends HttpServlet {
   // get the subjectPreferencesRealm
   private static SubjectPreferencesRealm getSubjectPreferencesRealm() {
     ArrayList<SubjectPreferencesRealm> realms = new ArrayList<>();
-    ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> {
-      realms.add((SubjectPreferencesRealm)r);
-    });
+    ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> realms.add((SubjectPreferencesRealm)r));
     return realms.isEmpty() ? null : realms.get(0);
   }
 
@@ -217,6 +215,36 @@ public class SubjectPreferences extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+    // either name/value parameter pair to set (replace any of the preferences matching the name)
+    String nameParam = req.getParameter("name");
+    String valueParam = req.getParameter("value");
+    valueParam = valueParam != null ? valueParam : "";
+    nameParam = nameParam != null ? nameParam : "";
+
+    if (! nameParam.isEmpty()) {
+      // check if the name is allowed
+      if (allowedAttributes.contains(nameParam)) {
+
+        ArrayList<String> values = new ArrayList<>();
+
+        // multi values are separated by comma
+        for (String v : valueParam.split(",")) {
+  
+          if (testValue(nameParam, v))
+            values.add(v.trim());
+
+          // for not multi sets, we exit here
+          if (! allowedMulti.contains(nameParam))
+            break;
+        }
+        // we have some permissions, so set them
+        if (! values.isEmpty()) {
+          SubjectPreferences.setPermission(nameParam, values);
+        }
+      }
+      return;
+    }
+    // or a WRS with WRS:I/M/D rows
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
     documentBuilderFactory.setNamespaceAware(true);
@@ -244,23 +272,23 @@ public class SubjectPreferences extends HttpServlet {
             HashMap<String, String> columns = new HashMap<>();
             for (int i = 0; i < headerColumns.getLength(); i++)
               columns.put(((Element)headerColumns.item(i)).getAttribute("id"), ((Element)headerColumns.item(i)).getAttribute("pos")); 
-            int right_type_idx = -1;
-            int right_value_idx = -1;
+            int rightTypeIdx = -1;
+            int rightValueIdx = -1;
             try {
-              right_type_idx = Integer.parseInt(columns.get("right_type")) - 1;
-              right_value_idx = Integer.parseInt(columns.get("right_value")) - 1;
+              rightTypeIdx = Integer.parseInt(columns.get("right_type")) - 1;
+              rightValueIdx = Integer.parseInt(columns.get("right_value")) - 1;
             }catch (NumberFormatException e) {/* ignore */ }
 
             // not found well known columns, end here
-            if (right_type_idx == -1 || right_value_idx == -1)
+            if (rightTypeIdx == -1 || rightValueIdx == -1)
               return;
 
             // remove wrs:D from permission map
             NodeList removedEntries = doc.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "D");
             for (int i = 0;  i < removedEntries.getLength(); i++) {
               NodeList values = ((Element)removedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
-              String right = (right_type_idx <  values.getLength()) ? values.item(right_type_idx).getTextContent() : "";
-              String value = (right_value_idx <  values.getLength()) ? values.item(right_value_idx).getTextContent() : ""; 
+              String right = (rightTypeIdx <  values.getLength()) ? values.item(rightTypeIdx).getTextContent() : "";
+              String value = (rightValueIdx <  values.getLength()) ? values.item(rightValueIdx).getTextContent() : ""; 
 
               if (! right.isEmpty() && ! value.isEmpty()) {
                 ArrayList<String> curValues = permMap.get(right);
@@ -286,10 +314,10 @@ public class SubjectPreferences extends HttpServlet {
             for (int i = 0;  i < modifiedEntries.getLength(); i++) {
               NodeList values = ((Element)modifiedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
               NodeList oldValues = ((Element)modifiedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "O");
-              String right = (right_type_idx <  values.getLength()) ? values.item(right_type_idx).getTextContent() : "";
-              String value = (right_value_idx <  values.getLength()) ? values.item(right_value_idx).getTextContent() : ""; 
-              String oldRight = (right_type_idx <  oldValues.getLength()) ? oldValues.item(right_type_idx).getTextContent() : "";
-              String oldValue = (right_value_idx <  oldValues.getLength()) ? oldValues.item(right_value_idx).getTextContent() : ""; 
+              String right = (rightTypeIdx <  values.getLength()) ? values.item(rightTypeIdx).getTextContent() : "";
+              String value = (rightValueIdx <  values.getLength()) ? values.item(rightValueIdx).getTextContent() : ""; 
+              String oldRight = (rightTypeIdx <  oldValues.getLength()) ? oldValues.item(rightTypeIdx).getTextContent() : "";
+              String oldValue = (rightValueIdx <  oldValues.getLength()) ? oldValues.item(rightValueIdx).getTextContent() : ""; 
               if (! right.isEmpty() && ! value.isEmpty() && ! oldRight.isEmpty() && ! oldValue.isEmpty() && oldRight.equals(right)) {
                 ArrayList<String> curValues = permMap.get(right);
                 // update old value to new value (if allowed) and old value exists and new one does not exist
@@ -306,18 +334,16 @@ public class SubjectPreferences extends HttpServlet {
             NodeList insertedEntries = doc.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "I");
             for (int i = 0;  i < insertedEntries.getLength(); i++) {
               NodeList values = ((Element)insertedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
-              String right = (right_type_idx <  values.getLength()) ? values.item(right_type_idx).getTextContent() : "";
-              String value = (right_value_idx <  values.getLength()) ? values.item(right_value_idx).getTextContent() : ""; 
+              String right = (rightTypeIdx <  values.getLength()) ? values.item(rightTypeIdx).getTextContent() : "";
+              String value = (rightValueIdx <  values.getLength()) ? values.item(rightValueIdx).getTextContent() : ""; 
               if (! right.isEmpty() && ! value.isEmpty()) {
                 ArrayList<String> curValues = permMap.get(right);
                 // add new value if allowed
-                if (curValues != null && ! curValues.contains(value) && testValue(right, value)) {
-                  // add a new entry only if multi is allowed or it's the one and only entry
-                  if (allowedMulti.contains(right) || (curValues.isEmpty() && ! allowedMulti.contains(right))) {
-                    curValues.add(value);
-                    permMap.put(right, curValues);
-                    refreshList = true;
-                  }
+                // add a new entry only if multi is allowed or it's the one and only entry
+                if ((curValues != null && ! curValues.contains(value) && testValue(right, value)) && (allowedMulti.contains(right) || (curValues.isEmpty() && ! allowedMulti.contains(right)))) {
+                  curValues.add(value);
+                  permMap.put(right, curValues);
+                  refreshList = true;
                 }
               }
             }
@@ -363,116 +389,73 @@ public class SubjectPreferences extends HttpServlet {
       return;
     }
 
-    String pathInfo = request.getPathInfo();
-    boolean possible = pathInfo != null && pathInfo.length() > 0 && "possible".equals(pathInfo.substring(1));
-    String name = request.getParameter("name");
-    String value = request.getParameter("value");
-    value = value != null ? value : "";
-    name = name != null ? name : "";
+    XMLStreamWriter writer = null;
+    try {
+      writer = XMLOutputFactory.newInstance().createXMLStreamWriter(response.getWriter());
+      writer.writeStartDocument();
+      writer.writeStartElement("Wrs");
+      writer.writeDefaultNamespace(WrsDataWriter.WRS_XML_NAMESPACE);
 
-    // multi values are separated by comma
-    String[] singleValues = value.split(",");
+      writer.writeStartElement("Header");
 
-    if (! name.isEmpty()) {
+      writer.writeStartElement("Columns");
+      writer.writeStartElement("C");
+      writer.writeAttribute("pos", "1");
+      writer.writeAttribute("id", "right_type");
+      writer.writeEndElement();
+      writer.writeStartElement("C");
+      writer.writeAttribute("pos", "2");
+      writer.writeAttribute("id", "right_value");
+      writer.writeEndElement();
+      writer.writeStartElement("C");
+      writer.writeAttribute("pos", "3");
+      writer.writeAttribute("id", "right_active");
+      writer.writeEndElement();
+      writer.writeEndElement();
 
-      String message = "";
+      writer.writeEndElement();
 
-      // check if the name is allowed
-      if (allowedAttributes.contains(name)) {
-        
-        ArrayList<String> values = new ArrayList<>();
-        for (String v : singleValues) {
-  
-          if (testValue(name, v))
-            values.add(v.trim());
+      writer.writeStartElement("Data");
+      
+      int id = 0;
+      for (String a : allowedAttributes) {
 
-          // for not multi sets, we exit here
-          if (! allowedMulti.contains(name))
-            break;
-        }
-        // we have some permissions, so set them
-        if (! values.isEmpty()) {
-          setPermission(name, values);
-          message = "The attribute name '" + name +  "' was set to " + values.toString();
-        }
-        else
-          message = "The attribute name '" + name +  "' can not be set to '" + value + "'";
-      }
-      else
-        message = "The attribute name '" + name + "' is not allowed by the configuration.";
+        ArrayList<String> values = null;
+        ArrayList<String> permList = new ArrayList<>(getPermissionList(a));
+        values = (subject.isAuthenticated() && valueSources.containsKey(a)) ? new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), valueSources.get(a))) : allowedValues.get(a);
+          
+        if (values != null && ! values.isEmpty()) {
+          
+          for (String v : values) {
+            writer.writeStartElement("R");
+            writer.writeAttribute("id", "R" + ++id);
 
-      log.debug(message);
+            writer.writeStartElement("C");
+            writer.writeCharacters(a);
+            writer.writeEndElement();
 
-    }
-    // if no name/value param is available print out the currently active settings in wrs format
-    // in case "possible" is requested, print out all available ones and mark active ones
-    else {
-      XMLStreamWriter writer = null;
-      try {
-        writer = XMLOutputFactory.newInstance().createXMLStreamWriter(response.getWriter());
-        writer.writeStartDocument();
-        writer.writeStartElement("Wrs");
-        writer.writeDefaultNamespace(WrsDataWriter.WRS_XML_NAMESPACE);
-
-        writer.writeStartElement("Header");
-
-        writer.writeStartElement("Columns");
-        writer.writeStartElement("C");
-        writer.writeAttribute("pos", "1");
-        writer.writeAttribute("id", "right_type");
-        writer.writeEndElement();
-        writer.writeStartElement("C");
-        writer.writeAttribute("pos", "2");
-        writer.writeAttribute("id", "right_value");
-        writer.writeEndElement();
-        writer.writeEndElement();
-
-        writer.writeEndElement();
-
-        writer.writeStartElement("Data");
-        
-        int id = 0;
-        for (String a : allowedAttributes) {
-
-          ArrayList<String> values = null;
-          ArrayList<String> permList = new ArrayList<>(getPermissionList(a));
-          if (possible)
-            values = (subject.isAuthenticated() && valueSources.containsKey(a)) ? new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), valueSources.get(a))) : allowedValues.get(a);
-          else
-            values = permList;
+            writer.writeStartElement("C");
+            writer.writeCharacters(v);
+            writer.writeEndElement();
             
-          if (values != null && ! values.isEmpty()) {
-            
-            for (String v : values) {
-              writer.writeStartElement("R");
-              writer.writeAttribute("id", "R" + ++id);
+            writer.writeStartElement("C");
+            writer.writeCharacters("" + permList.contains(v));
+            writer.writeEndElement();
 
-              if (permList.contains(v))
-                writer.writeAttribute("active", "true");
-
-              writer.writeStartElement("C");
-              writer.writeCharacters(a);
-              writer.writeEndElement();
-
-              writer.writeStartElement("C");
-              writer.writeCharacters(v);
-              writer.writeEndElement();
-
-              writer.writeEndElement();
-            }
+            writer.writeEndElement();
           }
         }
+      }
 
-        writer.writeEndElement();
+      writer.writeEndElement();
 
-        writer.writeEndDocument();
-      }
-      catch (Exception e) {
-        log.warn("failed to write subject preferences information", e);
-      }
-      finally {
-        try { if (writer !=null) writer.close(); } catch (Exception ex) { log.warn("failed to close writer", ex); }
-      }
+      writer.writeEndDocument();
+    }
+    catch (Exception e) {
+      log.warn("failed to write subject preferences information", e);
+    }
+    finally {
+      try { if (writer !=null) writer.close(); } catch (Exception ex) { log.warn("failed to close writer", ex); }
     }
   }
 }

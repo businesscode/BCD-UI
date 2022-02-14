@@ -193,7 +193,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.SubjectPreferences</servlet-name>
-    <url-pattern>/SubjectPreferences/*</url-pattern>
+    <url-pattern>/bcdui/servlets/SubjectPreferences/*</url-pattern>
   </servlet-mapping>
 
 <!--  Data Upload Servlet
