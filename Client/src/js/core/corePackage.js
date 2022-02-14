@@ -686,17 +686,19 @@ bcdui.core = Object.assign(bcdui.core,
             // issue example: createElementWithPrototype("/*/wrs:Data/wrs:R[1]/wrs:C[1]").text="foobar" where the wrs initially contains 2 wrs:R
             // this would alter the 1st wrs:R to wrs:M and would write "foobar" to the C of the second (now one and only) wrs:R.
             // So always use wrs:* for rows!
-            var testElement = node;
-            if (testElement.nodeType == 2) {
-              testElement = bcdui.util.xml.getParentNode(testElement);
-            }
             var found = false;
-            while (testElement) {
-              if ((testElement.baseName || testElement.localName) == 'M' && testElement.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs) {
-                 found = (testElement === currentElement);
-                 break;
+            var testElement = node;
+            if (testElement != null) {
+              if (testElement.nodeType == 2) {
+                testElement = bcdui.util.xml.getParentNode(testElement);
               }
-              testElement = testElement.parentNode;
+              while (testElement) {
+                if ((testElement.baseName || testElement.localName) == 'M' && testElement.namespaceURI == bcdui.core.xmlConstants.namespaces.wrs) {
+                   found = (testElement === currentElement);
+                   break;
+                }
+                testElement = testElement.parentNode;
+              }
             }
             if (!found)
               throw new Error("Xpath " + path + " is not suitable for createElementWithPrototype. Avoid wrs:R and use wrs:* instead."); 
