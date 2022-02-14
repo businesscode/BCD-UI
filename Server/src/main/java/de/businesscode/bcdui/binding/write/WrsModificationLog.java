@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -49,9 +49,9 @@ public class WrsModificationLog extends WrsModificationCallback {
     super.initialize();
 
     final Set<BindingItemConfig> referenceList = new HashSet<BindingItemConfig>();
-    referenceList.add(new BindingItemConfig("bcdUpdateStamp", "${bcdBean.creationStamp}", BindingItemConfig.CONFIG_IGNORE.never, false));
+    referenceList.add(new BindingItemConfig("bcdUpdateStamp", "${bcdBean.currentTimestampUtc}", BindingItemConfig.CONFIG_IGNORE.never, false));
     referenceList.add(new BindingItemConfig("bcdUpdateBy", "${bcdBean.userLogin}", BindingItemConfig.CONFIG_IGNORE.never, false));
-    referenceList.add(new BindingItemConfig("bcdCreateStamp", "${bcdBean.creationStamp}", BindingItemConfig.CONFIG_IGNORE.update, false));
+    referenceList.add(new BindingItemConfig("bcdCreateStamp", "${bcdBean.currentTimestampUtc}", BindingItemConfig.CONFIG_IGNORE.update, false));
     referenceList.add(new BindingItemConfig("bcdCreateBy", "${bcdBean.userLogin}", BindingItemConfig.CONFIG_IGNORE.update, false));
 
     /*

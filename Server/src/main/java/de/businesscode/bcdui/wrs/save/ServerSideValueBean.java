@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,9 +59,9 @@ public interface ServerSideValueBean {
   String getSessionId();
 
   /**
-   * the creation stamp of the value bean, this stamp remains stable during lifecycle of this bean
+   * the current stamp of the value bean, this stamp remains stable during lifecycle of this bean
    *
-   * @return date rendered as ISO12 w/o timezone: yyyy-MM-dd HH:mm:ss
+   * @return date rendered as ISO12 in UTC timezone: yyyy-MM-dd HH:mm:ss
    */
-  String getCreationStamp();
+  String getCurrentTimestampUtc();
 }

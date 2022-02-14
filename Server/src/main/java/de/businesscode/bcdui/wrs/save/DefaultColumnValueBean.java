@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package de.businesscode.bcdui.wrs.save;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,8 +53,8 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
   private String refererUrl = null;
   private String userName = null, userLogin = null, userId = null;
   private Logger log;
-  private Date creationStamp = new Date();
-  private final String creationStampString;
+  private Date currentTimestampUtc = new Date();
+  private final String currentTimestampUtcString;
 
   public DefaultColumnValueBean(IRequestOptions requestOptions, Logger log){
     this.log = log;
@@ -74,7 +75,9 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
     }catch(Exception e){
       ;// swallow
     }
-    this.creationStampString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(creationStamp);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    this.currentTimestampUtcString = sdf.format(currentTimestampUtc);
   }
 
   private Document parseGuiStatusDoc(String refUrl, ServletContext servletCtx, HttpServletRequest request) {
@@ -158,8 +161,8 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
   }
 
   @Override
-  public String getCreationStamp() {
-    return creationStampString;
+  public String getCurrentTimestampUtc() {
+    return currentTimestampUtcString;
   }
 
   @Override
