@@ -40,8 +40,9 @@ import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 
 public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingRealm {
-  
-  public static final String PERMISSION_MAP_TOKEN = "bcdPermMapReentry";
+
+  public static final String PERMISSION_MAP_TOKEN = "bcdPermissionMapToken";
+  public static final String PERMISSION_MAP_SESSION_ATTRIBUTE = "bcdPermMap";
 
   @Override
   protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection arg0) {
@@ -91,53 +92,28 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     boolean doRefresh = false;
 
     /// map does not exist yet, add an empty one
-    if (session.getAttribute("bcdPermMap") == null) {
+    if (session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE) == null) {
       permissionMap = new HashMap<>();
 
       // defaults from (static) default values, simply loop over defaultValues from SubjectPreferences
-      for (Map.Entry<String,String> entry : SubjectPreferences.defaultValues.entrySet()) {
+      for (Map.Entry<String,ArrayList<String>> entry : SubjectPreferences.defaultValues.entrySet()) {
         String key = entry.getKey();
-        String value = entry.getValue();
-        if (permissionMap.get(key) == null) {
+        ArrayList<String> defaults = entry.getValue();
+        if (! permissionMap.containsKey(key)) {
           ArrayList<String> values = new ArrayList<>();
-          values.add(value);
+          for (String defaultValue : defaults) {
+            values.add(defaultValue);
+          }
           permissionMap.put(key, values);
           doRefresh = true;
         }
       }
     }
     else
-      permissionMap = new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute("bcdPermMap"));
-
-    // try to add default values for valueSources
-    // since they might become active on user login, we need to check the default setting over and over again
-
-    // PERMISSION_MAP_TOKEN checks for a retry which can eb toggled below via getPermissions
-    if (session.getAttribute(PERMISSION_MAP_TOKEN) == null) {
-      session.setAttribute(PERMISSION_MAP_TOKEN, "true");
-      
-      if (subject.isAuthenticated() && ! SubjectPreferences.valueSources.isEmpty() ) {
-        // defaults from user permissions, get permissions for value, sort, take first as default
-        for (Map.Entry<String,String> entry : SubjectPreferences.valueSources.entrySet()) {
-          String key = entry.getKey();
-          String value = entry.getValue();
-          if (permissionMap.get(key) == null) {
-            List<String> sortedPerm = new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), value));
-            sortedPerm.sort(String::compareToIgnoreCase);
-            if (! sortedPerm.isEmpty()) {
-              ArrayList<String> values = new ArrayList<>();
-              values.add(sortedPerm.get(0));
-              permissionMap.put(key, values);
-              doRefresh = true;
-            }
-          }
-        }
-      }
-    }
-    session.removeAttribute(PERMISSION_MAP_TOKEN);
+      permissionMap = new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE));
 
     if (doRefresh) {
-      session.setAttribute("bcdPermMap", permissionMap);
+      session.setAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE, permissionMap);
       refreshPermissions(session);
     }
     return permissionMap;
@@ -150,7 +126,7 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     if (session == null)
       session = subject.getSession();
 
-    session.setAttribute("bcdPermMap", permissionMap);
+    session.setAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE, permissionMap);
     refreshPermissions(session);
   }
 

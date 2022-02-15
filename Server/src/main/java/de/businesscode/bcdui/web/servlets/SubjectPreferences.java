@@ -56,8 +56,9 @@ public class SubjectPreferences extends HttpServlet {
   private static final ArrayList<String> allowedAttributes = new ArrayList<>();
   private static final HashMap<String, ArrayList<String>> allowedValues = new HashMap<>();
   private static final List<String> allowedMulti = new ArrayList<>();
+  private static final List<String> preventEmptyValues = new ArrayList<>();
 
-  public static final Map<String, String> defaultValues = new HashMap<>();
+  public static final Map<String, ArrayList<String>> defaultValues = new HashMap<>();
   public static final Map<String, String> valueSources = new HashMap<>();
 
   @Override
@@ -91,6 +92,10 @@ public class SubjectPreferences extends HttpServlet {
               // remember if the setting allows multi set options
               if ("true".equals(((Element)(node)).getAttribute("multi")))
                 allowedMulti.add(name);
+
+              // remember if the setting has a preventEmpty setting
+              if ("true".equals(((Element)(node)).getAttribute("preventEmpty")))
+                preventEmptyValues.add(name);
             }
 
             NodeList values = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Value");
@@ -106,7 +111,7 @@ public class SubjectPreferences extends HttpServlet {
             // or we have a list of allowed values, so take them as allowed values
             else if (values.getLength() > 0) {
               ArrayList<String> foundValues = new ArrayList<>();
-              String defaultValue = null;
+              ArrayList<String> foundDefaultValues = new ArrayList<>();
               for (int v = 0; v < values.getLength(); v++) {
                 Node vNode = values.item(v);
                 if ("Value".equals(vNode.getLocalName()) && StandardNamespaceContext.CONFIG_NAMESPACE.equals(vNode.getNamespaceURI())) {
@@ -114,16 +119,23 @@ public class SubjectPreferences extends HttpServlet {
                   
                   // remember if value is the default one
                   if ("true".equals(((Element)vNode).getAttribute("default")))
-                    defaultValue = value;
+                    foundDefaultValues.add(value);
                   if (value != null && ! value.isEmpty())
                     foundValues.add(value);
                 }
               }
               if (! foundValues.isEmpty()) {
-                // sort values alphabetically (cosmetics) and take the first one if no default is specified as default
-                foundValues.sort(String::compareToIgnoreCase);
                 allowedValues.put(name, foundValues);
-                defaultValues.put(name, defaultValue != null && ! defaultValue.isEmpty() ? defaultValue : foundValues.get(0));
+
+                // remember default values. Multi defaults are only possible if the subjectPreference is a multi-allowed one
+                if (! foundDefaultValues.isEmpty()) {
+                  if (allowedMulti.contains(name)) {
+                    defaultValues.put(name, foundDefaultValues);
+                  }
+                  else {
+                    defaultValues.put(name, new ArrayList<>(foundDefaultValues.subList(0, 1)));
+                  }
+                }
               }
             }
           }
@@ -295,14 +307,12 @@ public class SubjectPreferences extends HttpServlet {
                 if (curValues != null && curValues.contains(value)) {
                   curValues.remove(value);
 
-                  // in case the last entry was removed add the default one
-                  // (static values only since valueSources based ones get filled in automatically on realm's getPermissionMap) 
-                  if (curValues.isEmpty()) {
-                    String defaultValue = defaultValues.get(right);
-                    if (defaultValue != null)
+                  // in case the last entry was removed add the default one(s) (but only if preventEmpty is set to true)
+                  if (curValues.isEmpty() && defaultValues.containsKey(right) && preventEmptyValues.contains(right)) {
+                    for (String defaultValue : defaultValues.get(right)) {
                       curValues.add(defaultValue);
+                    }
                   }
-
                   permMap.put(right, curValues);
                   refreshList = true;
                 }
@@ -439,7 +449,7 @@ public class SubjectPreferences extends HttpServlet {
             writer.writeEndElement();
             
             writer.writeStartElement("C");
-            writer.writeCharacters("" + permList.contains(v));
+            writer.writeCharacters(permList.contains(v) ? "1" : "0");
             writer.writeEndElement();
 
             writer.writeEndElement();
