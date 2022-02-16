@@ -189,8 +189,16 @@ public class SubjectPreferences extends HttpServlet {
 
   // get the subjectPreferencesRealm
   private static SubjectPreferencesRealm getSubjectPreferencesRealm() {
+
+    DefaultSecurityManager securityManager = null;
+    try { securityManager = ((DefaultSecurityManager) SecurityUtils.getSecurityManager()); }
+    catch (Exception e) {
+      /* no security manager available */
+      return null;
+    }
+
     ArrayList<SubjectPreferencesRealm> realms = new ArrayList<>();
-    ((DefaultSecurityManager) SecurityUtils.getSecurityManager()).getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> realms.add((SubjectPreferencesRealm)r));
+    securityManager.getRealms().stream().filter(r -> r instanceof SubjectPreferencesRealm).forEach(r -> realms.add((SubjectPreferencesRealm)r));
     return realms.isEmpty() ? null : realms.get(0);
   }
 
