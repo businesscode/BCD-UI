@@ -19,12 +19,12 @@
 
     <!-- define a user permission and take the allowed values from a different user permission -->
     <cnf:Setting name="perm:value">
-      <cnf:SourceSetting name="otherperm:othervalue"/>
+      <cnf:SourceSetting name="otherperm:othervalue"  multi="false|true"/> <!-- use multi=true to allow setting more than one value-->
     </cnf:Setting>
 
     <!-- define a user permission by giving a list of allowed values -->
-    <cnf:Setting name="perm2:value2" multi="true"> <!-- use multi=true to allow setting more and one value-->
-      <cnf:Values>
+    <cnf:Setting name="perm2:value2">
+      <cnf:Values multi="false|true"> <!-- use multi=true to allow setting more than one value-->
         <cnf:Value>value 1</cnf:Value>
         <cnf:Value default="true">value default</cnf:Value> <!-- use default attribute to specify default one -->
         <cnf:Value>value 2</cnf:Value>

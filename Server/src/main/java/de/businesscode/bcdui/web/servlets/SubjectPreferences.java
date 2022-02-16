@@ -89,13 +89,17 @@ public class SubjectPreferences extends HttpServlet {
             if (name != null) {
               allowedAttributes.add(name);
 
-              // remember if the setting allows multi set options
-              if ("true".equals(((Element)(node)).getAttribute("multi")))
-                allowedMulti.add(name);
-
               // remember if the setting has a preventEmpty setting
               if ("true".equals(((Element)(node)).getAttribute("preventEmpty")))
                 preventEmptyValues.add(name);
+            }
+
+            // look for multi setting
+            NodeList outerValues = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Values");
+            if (outerValues.getLength() >0) {
+              // remember if the setting allows multi set options
+              if ("true".equals(((Element)outerValues.item(0)).getAttribute("multi")))
+                allowedMulti.add(name);
             }
 
             NodeList values = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Value");
@@ -104,8 +108,13 @@ public class SubjectPreferences extends HttpServlet {
             // we have a SourceSetting, so remember the source, self referencing is not allowed
             if (sources.getLength() > 0) {
               String subjectSetting = ((Element)sources.item(0)).getAttribute("name");
-              if (subjectSetting != null && ! subjectSetting.isEmpty() && !name.equals(subjectSetting))
+              if (subjectSetting != null && ! subjectSetting.isEmpty() && !name.equals(subjectSetting)) {
                 valueSources.put(name, subjectSetting);
+
+                // look for multi setting
+                if ("true".equals(((Element)sources.item(0)).getAttribute("multi")))
+                  allowedMulti.add(name);
+              }
             }
 
             // or we have a list of allowed values, so take them as allowed values
@@ -356,9 +365,10 @@ public class SubjectPreferences extends HttpServlet {
               String value = (rightValueIdx <  values.getLength()) ? values.item(rightValueIdx).getTextContent() : ""; 
               if (! right.isEmpty() && ! value.isEmpty()) {
                 ArrayList<String> curValues = permMap.get(right);
+                curValues = curValues != null ? curValues : new ArrayList<>();
                 // add new value if allowed
                 // add a new entry only if multi is allowed or it's the one and only entry
-                if ((curValues != null && ! curValues.contains(value) && testValue(right, value)) && (allowedMulti.contains(right) || (curValues.isEmpty() && ! allowedMulti.contains(right)))) {
+                if (! curValues.contains(value) && testValue(right, value) && (allowedMulti.contains(right) || (curValues.isEmpty() && ! allowedMulti.contains(right)))) {
                   curValues.add(value);
                   permMap.put(right, curValues);
                   refreshList = true;
