@@ -312,7 +312,7 @@
           for(var name in opts){
             el.setAttribute(name, opts[name]);
           }
-          el.innerHTML = valueObject.caption;
+          el.innerHTML = bcdui.util.escapeHtml(valueObject.caption);
 
           dataListEl.appendChild(el);
         },
