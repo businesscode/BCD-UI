@@ -2210,7 +2210,7 @@ jQuery.extend(bcdui.widget,
             var tooltip = "<div class='bcdFilterTooltip'><p bcdTranslate='bcd_widget_filter_filter'></p><ul>";
             values.forEach(function(e) {
               var inputText = (e == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) : e);
-              inputText = (e == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : inputText);
+              inputText = (e == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : bcdui.util.escapeHtml(inputText));
               tooltip += "<li>" + bcdui.widget._getTooltipFilterOption(inputText) + "</li>";
             });
             tooltip += "</ul></div>";
@@ -2530,7 +2530,7 @@ jQuery.extend(bcdui.widget,
         var checkStatus = isEnabled ? " checked" : "";
         var cssClass = isFiltered ? " class='bcdDisabled'" : (e.getAttribute("caption") == "\uE0F1" || e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty) ? " class='bcdItalic'" : "";
         var inputText = e.getAttribute("caption") == bcdui.core.magicChar.dimEmpty ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_emptyValue"})) :  e.getAttribute("caption");
-        inputText = e.getAttribute("caption") == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : inputText;  
+        inputText = e.getAttribute("caption") == "\uE0F1" ? bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_totalValue"})) : bcdui.util.escapeHtml(inputText);  
         if ((showAll && ! isCurrentlyFiltered) || (isEnabled && ! isCurrentlyFiltered) || (! showAll && ! isFiltered && ! isCurrentlyFiltered))
           multiSelect += "<div><input type='checkbox' name='" + e.getAttribute("caption") + "' value='" + e.getAttribute("id") + "'" + checkStatus + "></input><span" + cssClass + ">" +   bcdui.widget._getSingleFilterOption(inputText) + "</span></div>";
       });
