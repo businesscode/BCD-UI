@@ -40,6 +40,7 @@ import de.businesscode.bcdui.binding.subjectFilter.SubjectFilterNode;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
  * Returns a where clause based on the SubjectFilters of the BindingSet and the current Subject's permissions Initially taken from WrsSqlGenerator. For change
@@ -292,7 +293,8 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       subjectSettingsClause.append("(");
 
       // If only few distinct values are allowed, we do not join with bcd_sec_subjectsettings but set values directly in a prepared statement
-      if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE) {
+      // for subjectPreferences (which never come from the DB), we also use in/or
+      if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE || SubjectPreferences.isAllowedAttribute(ft.getName())) {
 
         // One expression for all values for "IN" and a single "="
         if( ft.getOp().contains("in") 
