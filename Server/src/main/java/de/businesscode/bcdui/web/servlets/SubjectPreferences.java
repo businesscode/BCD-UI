@@ -48,6 +48,17 @@ import de.businesscode.util.xml.SecureXmlFactory;
 
 import org.apache.logging.log4j.LogManager;
 
+/*
+ * This servlet allows setting of SubjectPreferences which are actually shiro user permissions. The permissions and their
+ * values which can be set are restricted. The xml file "/bcdui/conf/subjectPreferences.xml" holds information about such restrictions.
+ * They can be either static ones or they can reference rights from bcd_sec_user_settings.
+ * 
+ * Calling this servlet via GET returns a WRS holding the currently available rights and
+ * an indicator showing which one is active. 
+ * 
+ * Calling this servlet via POST allows modifying the permisson rights map via WRS:I/D/M
+ * 
+ */
 public class SubjectPreferences extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
@@ -154,6 +165,11 @@ public class SubjectPreferences extends HttpServlet {
         log.error("can't parse subjectPreferences.xml", e);
       }
     }
+  }
+  
+  // return indicator if a given right name is part of subjectPreferences
+  public static boolean isAllowedAttribute(String name) {
+    return allowedAttributes.contains(name);
   }
 
   // gets a list of current permissions for a given permission name

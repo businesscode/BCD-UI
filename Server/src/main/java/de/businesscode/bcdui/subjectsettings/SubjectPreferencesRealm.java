@@ -38,7 +38,15 @@ import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig.UserSe
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig.UserSettingsDefaults.Default;
 import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
-
+/*
+ * This AuthorizingRealm is the counter part to the SubjectPreferences servlet.
+ * It allows
+ *   a) setting of subjectSettings UserSettingsDefault values
+ *   b) setting of subjectPreferences
+ *   
+ * For subjectPreferences, default values for static rights are filled on the
+ * first getPermissionMap call.
+ */
 public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingRealm {
 
   public static final String PERMISSION_MAP_TOKEN = "bcdPermissionMapToken";
@@ -113,7 +121,10 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
       permissionMap = new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE));
 
     if (doRefresh) {
+      // finally attach new map to session
       session.setAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE, permissionMap);
+
+      // and activate it
       refreshPermissions(session);
     }
     return permissionMap;
