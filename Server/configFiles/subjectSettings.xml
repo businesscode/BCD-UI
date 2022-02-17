@@ -33,6 +33,13 @@
       </BindingItems>
     </SubjectFilterType>
 
+    <SubjectFilterType name="vfsPathLimit" op="like">
+      <Caption>vfs path limitations</Caption>
+      <BindingItems>
+        <C bRef="path"/>
+      </BindingItems>
+    </SubjectFilterType>
+
     <!-- SubjectFilter Types for BCDUI Subject Preferences -->
     <SubjectFilterType name="bcd_userId:userId" isNullAllowsAccess="true">
       <Caption>Logged in User Id</Caption>

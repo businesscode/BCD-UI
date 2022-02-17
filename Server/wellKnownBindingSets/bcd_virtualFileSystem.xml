@@ -30,6 +30,7 @@
     </Security>
     <SubjectFilters>
       <SubjectFilter type="bcd_userId:userId"/>
+      <SubjectFilter type="vfsPathLimit"/>
     </SubjectFilters>
   </SubjectSettings>
 
