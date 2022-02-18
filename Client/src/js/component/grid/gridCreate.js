@@ -1131,8 +1131,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , readOnly:   this.isReadOnly || hc.getAttribute("readOnly") == "true" || hc.getAttribute("isHidden") == "true" // hidden columns will be readonly to avoid copy/paste overwrites
         , format:     format
         , allowEmpty: hc.getAttribute("nullable") != "0" // nullable is an xs:Bit
-        , rendererX:  rendererFct != "" ? rendererFct.split(".").reduce( function( fkt, renderF ) { return fkt[renderF] }, window ) : null
-        , editor:    editorFct != "" ? editorFct.split(".").reduce( function( fkt, editorF ) { return fkt[editorF] }, window ) : null
+        , rendererX:  rendererFct != "" ? rendererFct.split(".").reduce( function( fkt, renderF ) { return fkt[renderF] }, window ) : null
+        , editor:    editorFct != "" ? editorFct.split(".").reduce( function( fkt, editorF ) { return fkt[editorF] }, window ) : null
         , validator: null // we handle validation in afterChange hook
         , editorParameter: {}
         , rendererParameter: {}
@@ -3335,7 +3335,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
    * @param {boolean}                 [args.allowNewRows=true]                              - Allows inserting new cells via default contextMenu or drag/paste 
    * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
-   * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)   * @private
+   * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
    * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
    * @private
    */
