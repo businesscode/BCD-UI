@@ -3120,7 +3120,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     // in case of pagination, we calc the needed page numer and jump to it if necessary
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    if (gotPagination) {
+    if (gotPagination && this.rowIdMapFull[rowId]) {
       var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
       var page = 1 + Math.floor(this.rowIdMapFull[rowId] / pageSize);
 
