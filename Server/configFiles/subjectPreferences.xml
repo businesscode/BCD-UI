@@ -14,16 +14,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<cnf:SessionPreferences xmlns:cnf="http://www.businesscode.de/schema/bcdui/config-1.0.0">
+<cnf:SessionPreferences xmlns:cnf="http://www.businesscode.de/schema/bcdui/config-1.0.0" cookieName="bcdSubjectPreferences" cookiePath="/bcdui">
+<!-- when specifying cookieName, values are kept in a cookie of that name, optionally set cookiePath (relatively to webApp) -->
   <cnf:Settings>
 
     <!-- define a user permission and take the allowed values from a different user permission -->
     <cnf:Setting name="perm:value">
-      <cnf:SourceSetting name="otherperm:othervalue"  multi="false|true"/> <!-- use multi=true to allow setting more than one value-->
+       <!-- use multi=true to allow setting more than one value -->
+       <!-- defaults is comma separated list of defaults or #bcdAllAllowed# for all possible -->
+      <cnf:SourceSetting name="otherperm:othervalue" multi="false|true" defaults="yourdefaults"/>
     </cnf:Setting>
 
     <!-- define a user permission by giving a list of allowed values -->
-    <cnf:Setting name="perm2:value2">
+    <cnf:Setting name="perm2:value2" emptyAllowed="false|true"> <!-- use emptyAllowed = true to allow an empty selection for a rightType -->
       <cnf:Values multi="false|true"> <!-- use multi=true to allow setting more than one value-->
         <cnf:Value>value 1</cnf:Value>
         <cnf:Value default="true">value default</cnf:Value> <!-- use default attribute to specify default one -->
@@ -34,7 +37,7 @@
     <!-- needed when using bcdui.i18n.switchLanguage -->
     <cnf:Setting name="bcd_i18n:lang">
       <cnf:Values>
-        <cnf:Value>*</cnf:Value>
+        <cnf:Value default="true">en</cnf:Value>
       </cnf:Values>
     </cnf:Setting>
 

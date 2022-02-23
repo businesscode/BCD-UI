@@ -100,25 +100,24 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
     boolean doRefresh = false;
 
     /// map does not exist yet, add an empty one
-    if (session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE) == null) {
-      permissionMap = new HashMap<>();
+    permissionMap = (session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE) == null) ? new HashMap<>() : new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE));
 
-      // defaults from (static) default values, simply loop over defaultValues from SubjectPreferences
-      for (Map.Entry<String,ArrayList<String>> entry : SubjectPreferences.defaultValues.entrySet()) {
-        String key = entry.getKey();
-        ArrayList<String> defaults = entry.getValue();
-        if (! permissionMap.containsKey(key)) {
-          ArrayList<String> values = new ArrayList<>();
-          for (String defaultValue : defaults) {
-            values.add(defaultValue);
+    // check all allowed attributes which are not yet taken over into the perm map
+    // avoid re-entry by using the PERMISSION_MAP_TOKEN since getDefaultValue might trigger doGetAuthorizationInfo via
+    // testValue -> subject.isPermitted
+    if (session.getAttribute(PERMISSION_MAP_TOKEN) == null) {
+      session.setAttribute(PERMISSION_MAP_TOKEN, "true");
+      for (String rightType : SubjectPreferences.allowedRightTypes) {
+        if (! permissionMap.containsKey(rightType)) {
+          ArrayList<String> defaultRightValues = new ArrayList<>(SubjectPreferences.getDefaultValues(rightType, false));
+          if (! defaultRightValues.isEmpty()) {
+            permissionMap.put(rightType, defaultRightValues);
+            doRefresh = true;
           }
-          permissionMap.put(key, values);
-          doRefresh = true;
         }
       }
+      session.removeAttribute(PERMISSION_MAP_TOKEN);
     }
-    else
-      permissionMap = new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute(PERMISSION_MAP_SESSION_ATTRIBUTE));
 
     if (doRefresh) {
       // finally attach new map to session

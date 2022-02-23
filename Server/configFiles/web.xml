@@ -189,6 +189,10 @@
   <servlet>
     <servlet-name>bcdui4.SubjectPreferences</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.servlets.SubjectPreferences</servlet-class>
+    <init-param>
+      <param-name>cookieMaxAge</param-name>
+      <param-value>31536000</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
