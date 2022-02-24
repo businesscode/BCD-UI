@@ -50,7 +50,8 @@ public class ExportServlet extends HttpServlet {
         log.warn("Servlet init parameter 'MaxRows' for "+getServletName()+" could not be parsed");
       }
     }
-    log.info("Using "+maxRowsDefault+" for export MaxRows, unless overwritten on user level.");
+    String source = this.getClass().getName().substring(1 + this.getClass().getName().lastIndexOf("."));
+    log.info(source + " using "+maxRowsDefault+" for export MaxRows, unless overwritten on user level.");
   }
 
   /**
