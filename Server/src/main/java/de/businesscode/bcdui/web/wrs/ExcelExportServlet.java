@@ -94,7 +94,9 @@ public class ExcelExportServlet extends ExportServlet {
     // write response header
     resp.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     if (req.getPathInfo() != null) {
-      resp.addHeader("Content-Disposition", "attachment; filename=" + req.getPathInfo().substring(1));
+      String fileName = req.getPathInfo().substring(1);
+      fileName = fileName.replaceAll("[^A-Za-z0-9_\\-\\.\\ ]", "_");
+      resp.addHeader("Content-Disposition", "attachment; filename=" + fileName);
     }
     // do export
     try {

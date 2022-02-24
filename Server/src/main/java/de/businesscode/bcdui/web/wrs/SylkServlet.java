@@ -69,7 +69,9 @@ public class SylkServlet extends ExportServlet {
     /* if we've got a "filename" on pathinfo - we instruct the browser to handle it as a download */
     String pathInfo;
     if((pathInfo=request.getPathInfo()) != null){
-      response.setHeader("Content-Disposition", "attachment; filename=" + pathInfo.substring(1).replaceAll("\\/", ""));
+      String fileName = pathInfo.substring(1).replaceAll("\\/", "");
+      fileName = fileName.replaceAll("[^A-Za-z0-9_\\-\\.\\ ]", "_");
+      response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
     }
     SylkDataWriter dataWriter = null;
     try {
