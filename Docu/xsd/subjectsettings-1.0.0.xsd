@@ -26,8 +26,16 @@
     </appinfo>
   </annotation>
 
-  <!-- root element -->
-  <element name="SubjectSettingsConfig" type="tns:SubjectSettingsConfig"></element>
+  <!--
+    SubjectSettingsConfig
+    Root element server side config in WEB-INF/bcdui/subjectSettings.xml
+    -->
+  <element name="SubjectSettingsConfig" type="tns:SubjectSettingsConfig">
+    <annotation><documentation>
+      Root element for WEB-INF/bcdui/subjectSettings.xml. Defines the available SubjectSettings for use in bnd:BindingsSet/bnd:SubjectSettings for example.
+      In addition to these, SubjectPreferences, which are user-selectable SubjectSettings as defined in /bcdui/conf/subjectPreferences.xml exist.
+    </documentation></annotation>
+  </element>
 
   <complexType name="Security">
     <annotation>
@@ -135,7 +143,7 @@
               <annotation><documentation>Where to find the allowed values.</documentation></annotation>
             </element>
           </sequence>
-          <attribute name="isMulti" type="boolean">
+          <attribute name="multi" type="boolean">
             <annotation><documentation>If true, multiple values can be assigned to the user.</documentation></annotation>
           </attribute>
           <attribute name="addAllOption" type="boolean">
@@ -163,7 +171,7 @@
     </attribute>
     <attribute name="isNullAllowsAccess" use="optional" type="boolean" default="false">
       <annotation><documentation>
-      Enables null-value evaluation on data to be filtered. i.e. when using boolish security flags like 'isRestricted' you can set it to null value
+      Enables null-value evaluation on data to be filtered. i.e. when using boolean security flags like 'isRestricted' you can set it to null value
       and set this attribute to true to allow accessing the data.
       </documentation></annotation>
     </attribute>
@@ -182,7 +190,7 @@
       <element name="Ldap" minOccurs="0" maxOccurs="0"/>
       <element name="SubjectSettings" minOccurs="0">
         <annotation><documentation>
-        enable SubjectSettings for authentication, please set Shiro realm to de.businesscode.bcdui.subjectsettings.JdbcRealm
+        Enable SubjectSettings for authentication, please set Shiro realm to de.businesscode.bcdui.subjectsettings.JdbcRealm
         </documentation></annotation>
         <complexType/>
       </element>
@@ -222,4 +230,138 @@
       <enumeration value="bitand"/>
     </restriction>
   </simpleType>
+
+  <!--
+    SubjectPreferencesConfig
+    Root element of the SubjectPreferences config in /bcdui/conf/subjectPreferences.xml
+    -->
+  <element name="SubjectPreferencesConfig" type="tns:SubjectPreferencesConfig">
+    <annotation><documentation>
+      Root element for /bcdui/conf/subjectPreferences.xm.
+      SubjectPreferences introduce SubjectSetting types that a user can dynamically change within defined boundaries.
+      They exist in addition to SubjectSettings defined in WEB-INF/bcdui/subjectSettings.xml.
+    </documentation></annotation>
+  </element>
+
+  <complexType name="SubjectPreferencesConfig">
+    <sequence>
+      <element name="Settings" minOccurs="0">
+        <annotation><documentation>
+          A SubjectPreferences introduced.
+        </documentation></annotation>
+        <complexType>
+          <sequence>
+
+            <!-- An individual introduced SubjectPreference type -->
+            <element name="Setting" minOccurs="0" maxOccurs="unbounded">
+              <complexType>
+                <sequence>
+                  <choice>
+
+                    <!-- A Hard coded values -->
+                    <element name="Values">
+                      <annotation><documentation>
+                        The allowed values a user may choose from are provided in a fixed set of values here.
+                      </documentation></annotation>
+                      <complexType>
+                        <sequence>
+                          <element name="Value" maxOccurs="unbounded">
+                            <annotation><documentation>
+                              A value that can be selected by the user.
+                              Star '*' means all (other) available values mentioned here are selected at the same time.
+                            </documentation></annotation>
+                            <complexType>
+                              <simpleContent>
+                                <extension base="string">
+                                  <attribute name="default" default="false">
+                                    <annotation><documentation>
+                                      If true, this value is to be used a default value when no cookie is given or the user removes the last value.
+                                    </documentation></annotation>
+                                  </attribute>
+                                </extension>
+                              </simpleContent>
+                            </complexType>
+                          </element>
+                        </sequence>
+
+                        <!-- Attribute of Values -->
+                        <attribute name="isMulti" default="false">
+                          <annotation><documentation>
+                            If true, is it allowed to select multiple values for the SubjectPreference introduced here.
+                          </documentation></annotation>
+                        </attribute>
+                        <attribute name="preventEmpty" default="false">
+                          <annotation><documentation>
+                            If true, the defaults are set not only at the beginning at the session when no cookie is given but also when the user deselects all values.
+                          </documentation></annotation>
+                        </attribute>
+                      </complexType>
+                    </element>
+
+                    <!-- B Dynamic values from bcd_sec_user_settings -->
+                    <element name="SourceSetting">
+                      <annotation><documentation>
+                        The allowed values a user may choose from are controlled by his/her entries in bcd_sec_user_settings.
+                      </documentation></annotation>
+                      <complexType>
+                        <attribute name="ref" use="required">
+                          <annotation><documentation>
+                            The right_type in bcd_sec_user_settings from which the allowed values are derived.
+                          </documentation></annotation>
+                        </attribute>
+                        <attribute name="isMulti" default="false">
+                          <annotation><documentation>
+                            If true, it is allowed to select multiple values for the SubjectPreference introduced here.
+                          </documentation></annotation>
+                        </attribute>
+                        <attribute name="defaults" default="false">
+                          <annotation><documentation>
+                            Space separated list of values used as the default (no cookie or last value removed and emptyAllowed=false).
+                            Special value #bcdAllAllowed# means default to all values the user has been assigned in bcd_sec_user_settings for the right_type referenced by @name
+                          </documentation></annotation>
+                        </attribute>
+                        <attribute name="preventEmpty" default="false">
+                          <annotation><documentation>
+                            If true, the defaults are set not only at the beginning at the session when no cookie is given but also when the user deselects all values.
+                          </documentation></annotation>
+                        </attribute>
+                      </complexType>
+                    </element>
+
+                  </choice>
+                </sequence>
+
+                <!-- Attribute of Setting -->
+                <attribute name="name" use="required">
+                  <annotation><documentation>
+                    Refers to the SubjectSetting type introduced by this preference. Referenced by its name same as a right_type from bcd_sec_user_settings.
+                  </documentation></annotation>
+                </attribute>
+                <attribute name="caption" use="optional">
+                  <annotation><documentation>
+                    Caption which can be used in a widget.
+                  </documentation></annotation>
+                </attribute>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+
+    <!-- Attributes of SubjectPreferencesConfig -->
+    <attribute name="cookieName">
+      <annotation><documentation>
+        If not empty, SubjectPreferences are stored in a cookie (with this name) across sessions. In that case defaults are not used by the settings stored in the cookie.
+      </documentation></annotation>
+    </attribute>
+    <attribute name="cookiePath" default="/bcdui">
+      <annotation><documentation>
+        Where the cookie is transferred to.
+        Default /bcdui will be enough in most cases as its values is stored on session level at the server after it was first sent.
+        Root is the application's context path.
+      </documentation></annotation>
+    </attribute>
+  </complexType>
+
 </schema>

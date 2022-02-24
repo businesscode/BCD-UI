@@ -68,7 +68,7 @@ import org.apache.logging.log4j.LogManager;
  * Calling this servlet via GET returns a WRS holding the currently available rights and
  * an indicator showing which one is active. 
  * 
- * Calling this servlet via POST allows modifying the permisson rights map via WRS:I/D/M
+ * Calling this servlet via POST allows modifying the permission rights map via WRS:I/D/M
  * 
  */
 public class SubjectPreferences extends HttpServlet {
@@ -78,8 +78,8 @@ public class SubjectPreferences extends HttpServlet {
 
   public static final List<String> allowedRightTypes = new ArrayList<>();
   private static final HashMap<String, ArrayList<String>> allowedRightValues = new HashMap<>();
-  private static final List<String> multiRightTypes = new ArrayList<>();
-  private static final List<String> emptyAllowedRightTypes = new ArrayList<>();
+  private static final List<String> isMultiRightTypes = new ArrayList<>();
+  private static final List<String> preventEmptyRightTypes = new ArrayList<>();
 
   private static final Map<String, ArrayList<String>> defaultRightValues = new HashMap<>();
   private static final Map<String, String> rightValueSources = new HashMap<>();
@@ -130,7 +130,7 @@ public class SubjectPreferences extends HttpServlet {
           }
 
           // parse Settings
-          NodeList settings = doc.getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Setting");
+          NodeList settings = doc.getElementsByTagNameNS(StandardNamespaceContext.SECURITY_NAMESPACE, "Setting");
           for (int n = 0; n < settings.getLength(); n++) {
             Node node = settings.item(n);
             
@@ -138,14 +138,10 @@ public class SubjectPreferences extends HttpServlet {
             String rightType = ((Element)(node)).getAttribute("name");
             if (!rightType.isEmpty()) {
               allowedRightTypes.add(rightType);
-
-              // remember if the setting has a emptyAllowed setting
-              if ("true".equals(((Element)(node)).getAttribute("emptyAllowed")))
-                emptyAllowedRightTypes.add(rightType);
             }
 
-            NodeList values = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Value");
-            NodeList sources = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "SourceSetting");
+            NodeList values = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.SECURITY_NAMESPACE, "Value");
+            NodeList sources = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.SECURITY_NAMESPACE, "SourceSetting");
 
             ArrayList<String> foundDefaultValues = new ArrayList<>();
 
@@ -154,13 +150,17 @@ public class SubjectPreferences extends HttpServlet {
 
               Element sourceSetting = (Element)sources.item(0);
 
-              String subjectSetting = sourceSetting.getAttribute("name");
+              String subjectSetting = sourceSetting.getAttribute("ref");
               if (! subjectSetting.isEmpty() && !rightType.equals(subjectSetting)) {
                 rightValueSources.put(rightType, subjectSetting);
 
                 // look for multi setting
-                if ("true".equals(sourceSetting.getAttribute("multi")))
-                  multiRightTypes.add(rightType);
+                if ("true".equals(sourceSetting.getAttribute("isMulti")))
+                  isMultiRightTypes.add(rightType);
+
+                // remember if the setting has a preventEmpty setting
+                if ("true".equals((sourceSetting).getAttribute("preventEmpty")))
+                  preventEmptyRightTypes.add(rightType);
 
                 // remember defaults values when given as comma separated defaults attribute
                 String defaults = sourceSetting.getAttribute("defaults");
@@ -173,7 +173,7 @@ public class SubjectPreferences extends HttpServlet {
 
                   // multi defaults are only possible if the subjectPreference is a multi-allowed one
                   if (! foundDefaultValues.isEmpty())
-                    defaultRightValues.put(rightType, (multiRightTypes.contains(rightType) ? foundDefaultValues : new ArrayList<>(foundDefaultValues.subList(0, 1))));
+                    defaultRightValues.put(rightType, (isMultiRightTypes.contains(rightType) ? foundDefaultValues : new ArrayList<>(foundDefaultValues.subList(0, 1))));
                 }
               }
             }
@@ -182,18 +182,21 @@ public class SubjectPreferences extends HttpServlet {
             else if (values.getLength() > 0) {
 
               // look for multi setting (on parent Values node)
-              NodeList outerValues = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.CONFIG_NAMESPACE, "Values");
+              NodeList outerValues = ((Element)node).getElementsByTagNameNS(StandardNamespaceContext.SECURITY_NAMESPACE, "Values");
               if (outerValues.getLength() > 0) {
                 // remember if the setting allows multi set options
-                if ("true".equals(((Element)outerValues.item(0)).getAttribute("multi")))
-                  multiRightTypes.add(rightType);
+                if ("true".equals(((Element)outerValues.item(0)).getAttribute("isMulti")))
+                  isMultiRightTypes.add(rightType);
+                // remember if the setting has a preventEmpty setting
+                if ("true".equals(((Element)outerValues.item(0)).getAttribute("preventEmpty")))
+                  preventEmptyRightTypes.add(rightType);
               }
 
               // read allowed values and possibly marked default ones
               ArrayList<String> foundValues = new ArrayList<>();
               for (int v = 0; v < values.getLength(); v++) {
                 Node vNode = values.item(v);
-                if ("Value".equals(vNode.getLocalName()) && StandardNamespaceContext.CONFIG_NAMESPACE.equals(vNode.getNamespaceURI())) {
+                if ("Value".equals(vNode.getLocalName()) && StandardNamespaceContext.SECURITY_NAMESPACE.equals(vNode.getNamespaceURI())) {
                   String value = vNode.getTextContent();
                   
                   // remember if value is the default one
@@ -208,7 +211,7 @@ public class SubjectPreferences extends HttpServlet {
 
                 //multi defaults are only possible if the subjectPreference is a multi-allowed one
                 if (! foundDefaultValues.isEmpty())
-                  defaultRightValues.put(rightType, (multiRightTypes.contains(rightType) ? foundDefaultValues : new ArrayList<>(foundDefaultValues.subList(0, 1))));
+                  defaultRightValues.put(rightType, (isMultiRightTypes.contains(rightType) ? foundDefaultValues : new ArrayList<>(foundDefaultValues.subList(0, 1))));
               }
             }
           }
@@ -332,7 +335,7 @@ public class SubjectPreferences extends HttpServlet {
             rightValues.add(v.trim());
 
           // for not multi sets, we exit here
-          if (! multiRightTypes.contains(rightTypeParam))
+          if (! isMultiRightTypes.contains(rightTypeParam))
             break;
         }
         // we have some permissions, so set them
@@ -398,8 +401,8 @@ public class SubjectPreferences extends HttpServlet {
                 if (rightValues != null && rightValues.contains(rightValue)) {
                   rightValues.remove(rightValue);
 
-                  // in case the last entry was removed add the default one(s) (but only if emptyAllowed is not set)
-                  if (rightValues.isEmpty() && ! emptyAllowedRightTypes.contains(rightType)) {
+                  // in case the last entry was removed add the default one(s) (but only if preventEmpty is not set)
+                  if (rightValues.isEmpty() && preventEmptyRightTypes.contains(rightType)) {
                     rightValues = new ArrayList<>(SubjectPreferences.getDefaultValues(rightType, true));
                   }
                   permissionMap.put(rightType, rightValues);
@@ -440,7 +443,7 @@ public class SubjectPreferences extends HttpServlet {
                 rightValues = rightValues != null ? rightValues : new ArrayList<>();
                 // add new value if allowed
                 // add a new entry only if multi is allowed or it's the one and only entry
-                if (! rightValues.contains(rightValue) && testValue(rightType, rightValue) && (multiRightTypes.contains(rightType) || (rightValues.isEmpty() && ! multiRightTypes.contains(rightType)))) {
+                if (! rightValues.contains(rightValue) && testValue(rightType, rightValue) && (isMultiRightTypes.contains(rightType) || (rightValues.isEmpty() && ! isMultiRightTypes.contains(rightType)))) {
                   rightValues.add(rightValue);
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
@@ -691,6 +694,6 @@ public class SubjectPreferences extends HttpServlet {
     }
 
     // limit to max 1 in case of the setting does not allow setting multiple values
-    return (defaultValues.size() > 1 && ! SubjectPreferences.multiRightTypes.contains(rightType)) ? new ArrayList<>(defaultValues.subList(0, 1)) : defaultValues;
+    return (defaultValues.size() > 1 && ! SubjectPreferences.isMultiRightTypes.contains(rightType)) ? new ArrayList<>(defaultValues.subList(0, 1)) : defaultValues;
   }
 }

@@ -14,32 +14,33 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<cnf:SessionPreferences xmlns:cnf="http://www.businesscode.de/schema/bcdui/config-1.0.0" cookieName="bcdSubjectPreferences" cookiePath="/bcdui">
-<!-- when specifying cookieName, values are kept in a cookie of that name, optionally set cookiePath (relatively to webApp) -->
-  <cnf:Settings>
+<!--
+  Define SubjectPreferences, i.e. user-changeable SubjectSettings
+  when specifying cookieName, values are kept in a cookie of that name, optionally set cookiePath (relatively to webApp)
+  -->
+<sec:SubjectPreferencesConfig xmlns:sec="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0"
+  cookieName="bcdSubjectPreferences" cookiePath="/bcdui">
+  <sec:Settings>
 
-    <!-- define a user permission and take the allowed values from a different user permission -->
-    <cnf:Setting name="perm:value">
-       <!-- use multi=true to allow setting more than one value -->
-       <!-- defaults is comma separated list of defaults or #bcdAllAllowed# for all possible -->
-      <cnf:SourceSetting name="otherperm:othervalue" multi="false|true" defaults="yourdefaults"/>
-    </cnf:Setting>
+    <!--
+      Sample for a preferences with possible values derived from the entries in bcd_sec_user_settings for the user
+      isMulti allows selecting multiple values at the same time
+      Defaults are applied on session start when there is no cookie or then the last setting is removed and preventEmpty=true
+    <sec:Setting name="mynew:permType">
+      <sec:SourceSetting ref="someother:setting" isMulti="true" defaults="yourdefaults"/>
+    </sec:Setting>
+      -->
 
-    <!-- define a user permission by giving a list of allowed values -->
-    <cnf:Setting name="perm2:value2" emptyAllowed="false|true"> <!-- use emptyAllowed = true to allow an empty selection for a rightType -->
-      <cnf:Values multi="false|true"> <!-- use multi=true to allow setting more than one value-->
-        <cnf:Value>value 1</cnf:Value>
-        <cnf:Value default="true">value default</cnf:Value> <!-- use default attribute to specify default one -->
-        <cnf:Value>value 2</cnf:Value>
-      </cnf:Values>
-    </cnf:Setting>
+    <!--
+      Sample for a preferences with possible values listed as a fixed list
+    <sec:Setting name="bcd_i18n:lang">
+      <sec:Values>
+        <sec:Value default="true">en</sec:Value>
+        <sec:Value>de</sec:Value>
+        <sec:Value>fr</sec:Value>
+      </sec:Values>
+    </sec:Setting>
+      -->
 
-    <!-- needed when using bcdui.i18n.switchLanguage -->
-    <cnf:Setting name="bcd_i18n:lang">
-      <cnf:Values>
-        <cnf:Value default="true">en</cnf:Value>
-      </cnf:Values>
-    </cnf:Setting>
-
-  </cnf:Settings>
-</cnf:SessionPreferences>
+  </sec:Settings>
+</sec:SubjectPreferencesConfig>
