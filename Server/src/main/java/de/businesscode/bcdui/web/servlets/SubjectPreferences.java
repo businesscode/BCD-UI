@@ -389,6 +389,8 @@ public class SubjectPreferences extends HttpServlet {
             if (rightTypeIdx == -1 || rightValueIdx == -1)
               return;
 
+            ArrayList<String> possiblyEmptyRights = new ArrayList<>();
+
             // remove wrs:D from permission map
             NodeList removedEntries = doc.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "D");
             for (int i = 0;  i < removedEntries.getLength(); i++) {
@@ -400,11 +402,7 @@ public class SubjectPreferences extends HttpServlet {
                 ArrayList<String> rightValues = permissionMap.get(rightType);
                 if (rightValues != null && rightValues.contains(rightValue)) {
                   rightValues.remove(rightValue);
-
-                  // in case the last entry was removed add the default one(s) (but only if preventEmpty is not set)
-                  if (rightValues.isEmpty() && preventEmptyRightTypes.contains(rightType)) {
-                    rightValues = new ArrayList<>(SubjectPreferences.getDefaultValues(rightType, true));
-                  }
+                  possiblyEmptyRights.add(rightType);
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
@@ -426,6 +424,7 @@ public class SubjectPreferences extends HttpServlet {
                 if (rightValues != null && ! rightValues.contains(rightValue) && rightValues.contains(oldValueValue) && testValue(rightType, rightValue)) {
                   rightValues.remove(oldValueValue);
                   rightValues.add(rightValue);
+                  possiblyEmptyRights.add(oldRightType);
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
@@ -448,6 +447,16 @@ public class SubjectPreferences extends HttpServlet {
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
+              }
+            }
+
+            // check possible empty rights
+            // in case the last entry was removed (after wrs:D / wrs:M) add the default one(s) (but only if preventEmpty is not set)
+            for (String emptyRightType : possiblyEmptyRights) {
+              ArrayList<String> rightValues = permissionMap.get(emptyRightType);
+              if (rightValues.isEmpty() && preventEmptyRightTypes.contains(emptyRightType)) {
+                rightValues = new ArrayList<>(SubjectPreferences.getDefaultValues(emptyRightType, true));
+                permissionMap.put(emptyRightType, rightValues);
               }
             }
           }
