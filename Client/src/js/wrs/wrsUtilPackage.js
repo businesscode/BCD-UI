@@ -731,7 +731,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     var itemByIdMap = {};
     var bRefs = [];
     // build item map and bRefs
-    for(var i=0,imax=bRefNodes.length; i<imax; i++){
+    var imax = bRefNodes.length;
+    for(var i=0; i<imax; i++){
       var node = bRefNodes.item(i);
       var id=node.getAttribute("id");
       itemByIdMap[id] = node;
@@ -754,7 +755,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     /*
      * for every row
      */
-    for(var i=0,imax=rowNodes.length; i<imax; i++){
+    var imax = rowNodes.length;
+    for(var i=0; i<imax; i++){
       var rowNode = rowNodes.item(i);
       var rowId = rowNode.getAttribute("id");
       /*
@@ -799,7 +801,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     var map = {};
     var nodes = wrsDoc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C");
 
-    for(var i=0,imax=nodes.length; i<imax; i++){
+    var imax = nodes.length;
+    for(var i=0; i<imax; i++){
       var node = nodes.item(i);
       var attrMap = map[node.getAttribute("id")] = {};
       for(var a of Array.from(node.attributes)){
@@ -1138,7 +1141,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     var headerCols = wrs.selectNodes("wrs:Header/wrs:Columns/wrs:C");
     // build pos array, drop cols and rewrite @pos
     var posOffset=0;
-    for(var i=0,imax=headerCols.length; i<imax; i++){
+    var imax = headerCols.length;
+    for(var i=0; i<imax; i++){
       var wrsC = headerCols.item(i);
 
       // rewrite @pos
@@ -1161,7 +1165,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     // drop data cols
     var posString = "|" + posArray.join("|") + "|";
     var deleteNodes=function(nodeSet){ // helper func
-      for(var i=0,imax=nodeSet.length;i<imax;i++){
+    var imax = nodeSet.length;
+      for(var i=0;i<imax;i++){
         var node=nodeSet.item(i);
         node.parentNode.removeChild(node);
       }
@@ -1229,7 +1234,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
     var rowNodes = wrs.selectNodes("/*/wrs:Data/wrs:*[ not(self::D) and contains('" + inset + "', concat('"+delim+"', wrs:C["+colPos+"], '"+delim+"')) ]");
 
-    for(var i=0,imax=rowNodes.length; i<imax; i++){
+    var imax = rowNodes.length;
+    for(var i=0; i<imax; i++){
       bcdui.wrs.wrsUtil.deleteWrsRow(rowNodes.item(i));
     }
   },
@@ -1265,7 +1271,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     if(wrsRowType=="M"){
       // first attach wrs:C with wrs:O then attach wrs:R to doc
       var cols = rowNode.selectNodes("wrs:O");
-      for(var i=0,imax=cols.length; i<imax; i++){
+      var imax = cols.length;
+      for(var i=0; i<imax; i++){
         bcdui.util.xml.cloneElementContent(
           bcdui.core.browserCompatibility.appendElementWithPrefix(wrsR, "wrs:C"),
           cols.item(i)
@@ -1274,7 +1281,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     } else {  // wrs:D
       // simply re-attach wrs:C
       var cols = rowNode.selectNodes("wrs:C");
-      for(var i=0,imax=cols.length; i<imax; i++){
+      var imax = cols.length;
+      for(var i=0; i<imax; i++){
         wrsR.appendChild(cols.item(i));
       }
     }
