@@ -794,15 +794,15 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
     {
       // decide which servlet url to use:
       // prio (from hi to low): model url argument, @url binding set attribute, standard
-      var binding = this.requestModel.getData().selectSingleNode("//wrq:BindingSet");
+      var root = this.requestModel.getData().selectSingleNode("/wrq:WrsRequest");
       this.modelURL = bcdui.core.webRowSetServletPath;
       if(this.uri){
         this.modelURL += "/" + this.uri;
       }
       if (this.modelURLArg != "")
         this.modelURL = this.modelURLArg;
-      else if (binding != null && binding.getAttribute("url"))
-        this.modelURL = bcdui.contextPath + binding.getAttribute("url");
+      else if (root != null && root.getAttribute("url"))
+        this.modelURL = bcdui.contextPath + root.getAttribute("url");
 
       this.value = this.modelURL + (this.modelURL.indexOf("?")==-1 ? "?" : "&") + "guiStatusGZ=" + compressedString;
       // attach sessionHash if forced or the URL contains well-known classifier for session cached resources
