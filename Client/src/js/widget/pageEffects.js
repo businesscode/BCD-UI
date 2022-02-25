@@ -615,6 +615,41 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
     }
   },
   
+  /**
+   * Returns the current status of the left or right sidebar and offers to expand/collapse it 
+   * @param {Object} args The parameter map contains the following properties.
+   * @param {boolean} [args.side=left] - get or set status of left or right sidebar
+   * @param {boolean} [args.visible] - set to false if the sidebar should collapse
+   * @return an object holding the current status of the selected sidebar  
+   */
+  sideBarStatus: function(args) {
+    args = args || {};
+    var doShow = args.visible;
+    var isLeft = args.side != "right";
+    var cssClass = isLeft ? "bcd__sidebar-left" : "bcd__sidebar-right";
+    var direction = isLeft ? "left" : "right";
+    var container = jQuery("." + cssClass + "-collaps-toggle");
+    
+    if ((typeof args.visible == "undefined")
+    || (doShow && container.hasClass("is-active"))
+    || (!doShow && !container.hasClass("is-active")))
+      return {side: isLeft ? "left":"right", visible: container.hasClass("is-active")};
+
+    var collapseClass = "bcd__vertical-split--sidebar-collapsed-"+direction;
+
+    jQuery(container).toggleClass('is-active');
+    jQuery('.bcd__vertical-split').toggleClass(collapseClass);
+
+    // remove hover class, too
+    if (jQuery('.bcd__vertical-split').hasClass(collapseClass))
+      jQuery('.'+ cssClass).removeClass("hover");
+
+    // write new status 
+    bcdui.wkModels.guiStatus.write("/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-"+direction, jQuery('.bcd__vertical-split').hasClass(collapseClass) ? "0" : "1", true);
+
+    return {side: isLeft ? "left":"right", visible: container.hasClass("is-active")};
+  },
+
   _repositionFooter: function() {
     var newTop = jQuery(window).height() - jQuery("#bcdFooterArea").height();
     if (jQuery("#bcdBodyContainer").length > 0 && newTop < jQuery("#bcdBodyContainer").offset().top + jQuery("#bcdBodyContainer").outerHeight() + 10)
