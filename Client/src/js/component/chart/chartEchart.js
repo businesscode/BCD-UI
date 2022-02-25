@@ -594,7 +594,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             let series = opts.series[stackedSeriesIdxs[ser]];
             let nf = getNumFormatter(3, stackedUnit);
             series.data[cat].bcdOrig = nf( series.data[cat].value );
-            series.data[cat].value   = series.data[cat].value / sum;
+            series.data[cat].value = Math.floor(1000 * (series.data[cat].value / sum)) / 1000;
           }
         }
 
