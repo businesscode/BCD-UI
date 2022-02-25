@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -61,12 +61,16 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String CUST_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/customization-1.0.0";
   public static final String CSV_PREFIX             = "csv";
   public static final String CSV_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/csv-1.0.0";
+  public static final String CONFIG_PREFIX          = "cnf";
+  public static final String CONFIG_NAMESPACE       = "http://www.businesscode.de/schema/bcdui/config-1.0.0";
   public static final String CTX_PREFIX             = "ctx";
   public static final String CTX_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0";
   public static final String DM_PREFIX              = "dm";
   public static final String DM_NAMESPACE           = "http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0";
   public static final String EXSLT_PREFIX           = "exslt";
   public static final String EXSLT_NAMESPACE        = "http://exslt.org/common";
+  public static final String EXSLTDATE_PREFIX       = "date";
+  public static final String EXSLTDATE_NAMESPACE    = "http://exslt.org/dates-and-times";
   public static final String FILTER_PREFIX          = "f";
   public static final String FILTER_NAMESPACE       = "http://www.businesscode.de/schema/bcdui/filter-1.0.0";
   public static final String GML_PREFIX             = "gml";
@@ -89,6 +93,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String SOAPENV_NAMESPACE      = "http://www.w3.org/2003/05/soap-envelope";
   public static final String TEXTNAV_PREFIX         = "txtnav";
   public static final String TEXTNAV_NAMESPACE      = "http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0";
+  public static final String TREE_PREFIX            = "tree";
+  public static final String TREE_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/tree-1.0.0";
   public static final String WRS_PREFIX             = "wrs";
   public static final String WRS_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/wrs-1.0.0";
   public static final String WRSREQUEST_PREFIX      = "wrq";
@@ -103,12 +109,6 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String XSLTFORMULAR_NAMESPACE = "http://www.businesscode.de/schema/bcdui/xsltFormulas-1.0.0";
   public static final String XSLTPARAMS_PREFIX      = "xp";
   public static final String XSLTPARAMS_NAMESPACE   = "http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0";
-  public static final String EXSLTDATE_PREFIX       = "date";
-  public static final String EXSLTDATE_NAMESPACE    = "http://exslt.org/dates-and-times";
-  public static final String TREE_PREFIX            = "tree";
-  public static final String TREE_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/tree-1.0.0";
-  public static final String CONFIG_PREFIX          = "cnf";
-  public static final String CONFIG_NAMESPACE       = "http://www.businesscode.de/schema/bcdui/config-1.0.0";
   /**
    * Constructor for singelton
    */
@@ -120,7 +120,9 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(CALC_PREFIX,         CALC_NAMESPACE);
     mapping.put(CHAIN_PREFIX,        CHAIN_NAMESPACE);
     mapping.put(CHART_PREFIX,        CHART_NAMESPACE);
+    mapping.put(CONFIG_PREFIX,       CONFIG_NAMESPACE);
     mapping.put(CSV_PREFIX,          CSV_NAMESPACE);
+    mapping.put(CTX_PREFIX,          CTX_NAMESPACE);
     mapping.put(CUBE_PREFIX,         CUBE_NAMESPACE);
     mapping.put(GRID_PREFIX,         GRID_NAMESPACE);
     mapping.put(CUST_PREFIX,         CUST_NAMESPACE);
@@ -139,6 +141,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(SECURITY_PREFIX,     SECURITY_NAMESPACE);
     mapping.put(SOAPENV_PREFIX,      SOAPENV_NAMESPACE);
     mapping.put(TEXTNAV_PREFIX,      TEXTNAV_NAMESPACE);
+    mapping.put(TREE_PREFIX,         TREE_NAMESPACE);
     mapping.put(WRSREQUEST_PREFIX,   WRSREQUEST_NAMESPACE);
     mapping.put(WRS_PREFIX,          WRS_NAMESPACE);
     mapping.put(XAPI_PREFIX,         XAPI_NAMESPACE);
@@ -146,8 +149,6 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XI_PREFIX,           XI_NAMESPACE);
     mapping.put(XSLTFORMULAR_PREFIX, XSLTFORMULAR_NAMESPACE);
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
-    mapping.put(TREE_PREFIX,         TREE_NAMESPACE);
-    mapping.put(CONFIG_PREFIX,       CONFIG_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();

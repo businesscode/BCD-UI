@@ -461,8 +461,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * removes given xPath
-   * @param {string} xPath - xPath pointing to value 
+   * Deletes data at a given xPath from the model
+   * @param {string} xPath - xPath pointing to the value
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {boolean} [fire=false] - if true a fire is triggered to notify data modification listener
    */
@@ -520,7 +520,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @property {string} [callback] - listener function
    */
   /**
-   * @param {(string|function|RemoveDataListenerParam)} listenerObject - Either a listener function or id or a parameter map
+   * @param {(string|function|RemoveDataListenerParam)} listenerObject - Either a listener function or id or a parameter map. Listeners are added with onChange()
   */
   removeDataListener(listenerObject) {
 
@@ -557,7 +557,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @property {string}   [id] - listener id (only needed for removeDataListener usability)
    */
    /**
-   * @param {(function|OnChangeParam)} listenerObject - Either a function to be called after changes or a parameter map
+   * @param {(function|OnChangeParam)} listenerObject - Either a function to be called after changes or a parameter map. Listeners can be removed with removeDataListener()
    * @param {string}   [trackingXPath] - xPath to monitor to monitor for changes
   */
   onChange(listenerObject, trackingXPath) {
@@ -706,9 +706,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * see {@link bcdui.core.AbstractExecutable#isReady isReady()} and {@link bcdui.core.DataProvider#onChange fire()}.
    * @returns {boolean}
    */
-  isClear() {
+  isClean() {
     return (! this._uncommitedWrites && this.isReady());
   }
+
+  /**
+   * For backward compatibility only
+   * @returns {boolean}
+   * @private
+   */
+  isClean() { return this.isClean(); }
 
   /**
    * asynchronously fetch data for this data provider.

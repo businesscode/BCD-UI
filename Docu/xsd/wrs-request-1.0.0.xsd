@@ -41,7 +41,7 @@
       <xs:element name="With" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="Cte">
+            <xs:element name="Cte" minOccurs="0" maxOccurs="unbounded">
               <xs:complexType>
                 <xs:group ref="tns:GroupFullSelect"/>
                 <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="required">
@@ -106,7 +106,7 @@
     <xs:sequence>
       <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
         <xs:annotation><xs:documentation>
-          Requires BCD-UI EnterpriseEdition.
+          Requires BCD-UI Enterprise-Edition.
           Allow top-n restriction in terms of dimensions and a measures.
         </xs:documentation></xs:annotation>
       </xs:element>
@@ -138,7 +138,7 @@
     <xs:attribute name="rowStart" type="xs:int" use="optional">
       <xs:annotation>
         <xs:documentation>
-          Requires EnterpriseEdition. First row == 1.
+          Requires Enterprise-Edition. First row == 1.
           If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
         </xs:documentation>
       </xs:annotation>
@@ -495,10 +495,10 @@
     <xs:sequence>
       <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="3"/>
       <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0">
-        <xs:annotation><xs:documentation>Requires BCD-UI EnterpriseEdition</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
       </xs:element>
       <xs:element name="OrderBy" minOccurs="0">
-        <xs:annotation><xs:documentation>Requires EnterpriseEdition</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>Requires Enterprise-Edition</xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:complexContent>
             <xs:extension base="tns:MultiOperatorType">

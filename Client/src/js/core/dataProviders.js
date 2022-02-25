@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -819,7 +819,7 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
    */
   _executeImpl()
   {
-    if(this.requestModel.isClear())
+    if(this.requestModel.isClean())
       this.setStatus(this.transformingStatus);
     else {
       this.setStatus(this.waitingForParameterStatus);

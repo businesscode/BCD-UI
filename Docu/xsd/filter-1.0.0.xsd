@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -68,7 +68,11 @@
       <xs:enumeration value="&lt;="/>
       <xs:enumeration value="&lt;>"/>
       <xs:enumeration value="!="/>
-      <xs:enumeration value="like"/>
+      <xs:enumeration value="like">
+        <xs:annotation><xs:documentation>
+          Note: Star '*' is used as wild card for like.
+        </xs:documentation></xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="notLike"/>
       <xs:enumeration value="in"/>
       <xs:enumeration value="notIn"/>

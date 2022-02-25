@@ -211,7 +211,8 @@ bcdui.core.AbstractExecutable = class
    * @property{boolean} [onlyOnce=false] - A boolean variable indicating that the listener should be automatically removed after it has been executed. 
    */   
    /**
-   * @param {(function|StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map
+    * Listen for any status to be reached. For use cases with the ready status (by far the most common), see onReady() and onceReady() convenience functions.
+    * @param {(function|StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map
    */
   addStatusListener(args)
     {
@@ -542,7 +543,7 @@ bcdui.core.AbstractExecutable = class
     }
     
     /**
-     * Add callback to AbstractExecutable which is triggered exactly once when ready state is reached
+     * Add callback to AbstractExecutable which is triggered exactly once when ready state is reached the next time
      * or immediately (but still async) when the AbstractExecutable is already ready
      * 
      */
@@ -554,7 +555,7 @@ bcdui.core.AbstractExecutable = class
      */
 
      /**
-     * @param {(function|OnceReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map
+     * @param {(function|OnceReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map. To listen for other states see addStatusListener()
      * 
      */
     onceReady(listenerObject)
@@ -575,7 +576,7 @@ bcdui.core.AbstractExecutable = class
      }
     
   /**
-   * Add callback for AbstractExecutables, which is triggered when ready state is reached
+   * Add callback for AbstractExecutables, which is triggered each time the ready state is reached
    * 
    * Please note: the callback routines are always called asynchronously (even if ready state is already given)
    */
@@ -588,7 +589,7 @@ bcdui.core.AbstractExecutable = class
    * @property {boolean}  [executeIfNotReady=false] - do execute {@link bcdui.core.AbstractExecutable} if it's not ready
    */
   /**
-   * @param {(function|OnReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map
+   * @param {(function|OnReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map. To listen for other states see addStatusListener()
    * 
    */
   onReady(listenerObject)

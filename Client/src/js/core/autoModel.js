@@ -22,14 +22,14 @@
 bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 {
   /**
-   * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-styleshhet.
+   * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-stylesheet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
    * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.
    * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs in $guiStatus f:Filter to be used as filters. TODO: add static
    * @param {string}                  [args.orderByBRefs]                 - Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. A minus(-) sign at the end indicates descending sorting.
    * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in $guiStatus f:Filter to be used as filters for initial, very first request only. Unlike filterBRefs, these filter values are not monitored for changes.
-   * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the automodel gets data. Until available, no request will be run.
-   * @param {boolean}                 [args.isDistinct=false]             - If true, a group by is generated across all columns by default wrq-stylesheet. Parameter .groupByBRefs is ignored in this case.
+   * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the AutoModel gets data. Until available, no request will be run.
+   * @param {boolean}                 [args.isDistinct=false]             - If true, a group-by across all columns is generated. Parameter .groupByBRefs is ignored in this case.
    * @param {boolean}                 [args.useCaptions=false]            - If true, caption = bRef+'_caption will be used.
    * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
    * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
@@ -43,8 +43,8 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
-   * @param {DomDocument|DomElement}  [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd.
-   *    This node can also easily be created in place with {@link bcdui.wrs.wrsUtil.parseFilterExpression}, see sample below.
+   * @param {DomDocument|DomElement|string}  [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd
+   *     or a string as required by {@link bcdui.wrs.wrsUtil.parseFilterExpression} or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.
    * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
    * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
    * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
@@ -55,7 +55,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
    * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("country='DE'") });
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: "country='DE'" });
    */
   constructor(args)
     {
@@ -117,6 +117,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
        }
 
        if(args.filterElement){
+         if( typeof args.filterElement === "string" ) args.filterElement = bcdui.wrs.wrsUtil.parseFilterExpression(args.filterElement);
          wrapperChain = wrapperChain.concat(doc => {
            doc.selectSingleNode("//f:Filter").appendChild(doc.importNode(args.filterElement.selectSingleNode("f:*"), true))
            return doc;

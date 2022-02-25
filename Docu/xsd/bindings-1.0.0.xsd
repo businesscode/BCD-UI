@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@
 
   <xs:element name="BindingSetGroup" type="tns:TypeBindingSetGroup">
     <xs:annotation><xs:documentation>
-      A BCD-UI EnterpriseEdition extension, supporting a best-match approach for similar data depending on the actual request.
+      Requires BCD-UI Enterprise-Edition. Supporting a best-match approach for similar data depending on the actual request.
       This is used to support different levels of aggregation in a transparent way.
     </xs:documentation></xs:annotation>
   </xs:element>
@@ -124,7 +124,13 @@
             Sample: &lt;xi:include href="include/common_geo_dims.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
           </xs:documentation></xs:annotation>
         </xs:element>
-        <xs:element name="Relation" type="tns:TypeRelation" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Relation" type="tns:TypeRelation" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation><xs:documentation>
+            A bnd:Relation is an optional join with another bnd:BindingSet.
+            Note that the join is only triggered if a column from the bnd:Relation is explicitly requested in any part of the query (including SubjectSettings).
+            This behaviour is different from a wrs:Join or a view.
+          </xs:documentation></xs:annotation>
+        </xs:element>
       </xs:sequence>
       <xs:element name="SubjectSettings" type="tns:TypeSubjectSettings" minOccurs="0" maxOccurs="1" />
       <xs:element name="WrqModifiers" type="tns:TypeWrqModifiers" minOccurs="0" />
@@ -235,13 +241,13 @@
         </xs:annotation>
       </xs:element>
       <xs:element name="SubjectFilters" type="tns:TypeSubjectFilters" minOccurs="0" maxOccurs="1">
-        <xs:annotation><xs:documentation>This feature enables row-level security and is implemented in enterprise edition</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>This feature enables row-level security. Requires BCD-UI Enterprise Edition</xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="TypeSubjectFilters">
-    <xs:annotation><xs:documentation>This feature enables row-level security and requires enterprise edition</xs:documentation></xs:annotation>
+    <xs:annotation><xs:documentation>This feature enables row-level security. Requires BCD-UI Enterprise Edition</xs:documentation></xs:annotation>
     <xs:choice minOccurs="1" maxOccurs="unbounded">
       <xs:element name="SubjectFilter" type="tns:TypeSubjectFilter"></xs:element>
       <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
