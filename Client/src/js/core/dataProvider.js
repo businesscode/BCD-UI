@@ -715,7 +715,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @returns {boolean}
    * @private
    */
-  isClean() { return this.isClean(); }
+  isClear() { return this.isClean(); }
 
   /**
    * asynchronously fetch data for this data provider.
