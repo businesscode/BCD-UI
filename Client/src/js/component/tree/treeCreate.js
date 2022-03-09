@@ -33,6 +33,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
   * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
   * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
+  * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider, used as a transformation parameters.
    */
   constructor(args) {
 
@@ -56,13 +57,14 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
       , parameters: {statusModel: statusModel }
     });
     
+    var rendererParams = args.parameters || {};
     // the actual renderer
     var bcdPreInit = args ? args.bcdPreInit : null;
     super({
       id: id,
       inputModel: enhancedConfiguration,
       targetHtml: targetHtml,
-      parameters: { statusModel: statusModel },
+      parameters: jQuery.extend(rendererParams, {statusModel: statusModel}),
       bcdPreInit: function(){
         if (bcdPreInit)
           bcdPreInit.call(this);
@@ -75,6 +77,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
     this.id = id;
     this.targetHtml = targetHtml;
     this.config = config;
+    this.rendererParams = rendererParams;
 
     this.persistent = true;
     if (args.persistent === false)
@@ -279,6 +282,15 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
         
         // render data using default htmlBuilder (enhanceHtml just for calling bcdOnLoad to add the buttons)
         var targetElement = (typeof args.targetHtml == "string" ? jQuery("#" + args.targetHtml) : jQuery(args.targetHtml)).get(0);
+        
+        var params = {
+          /* htmlBuilder specific */
+            sortRows:false
+          , sortColumns:false
+          , makeRowSpan: false
+          , makeColSpan: false
+        };
+
         var renderer = new bcdui.core.Renderer({
             targetHtml: targetElement
           , inputModel: nodeModel
@@ -307,14 +319,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
                 eval(jsFunct)(element);
 
             }.bind(this, this.id, nodeModel.id, nodeId, root.getAttribute("postHtmlAttachProcess"))
-          , parameters: {
-
-            /* htmlBuilder specific */
-              sortRows:false
-            , sortColumns:false
-            , makeRowSpan: false
-            , makeColSpan: false
-            }
+          , parameters: jQuery.extend(params, this.rendererParams)
         });
 
         // if the renderer is done, we check if one or more of the tree rows should be opened
