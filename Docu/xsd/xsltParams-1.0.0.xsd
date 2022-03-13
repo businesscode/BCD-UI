@@ -50,6 +50,9 @@
       <element name="DeleteRows" type="tns:DeleteRowsParamType" minOccurs="0" maxOccurs="unbounded">
         <annotation><documentation>Parameters for removing rows</documentation></annotation>
       </element>
+      <element name="DuplicateRows" type="tns:DuplicateRowsParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation><documentation>Parameters for duplicating rows</documentation></annotation>
+      </element>
       <element name="Restore" type="tns:RestoreParamType" minOccurs="0" maxOccurs="unbounded">
         <annotation><documentation>For restore.xslt to restore a block of cells mark as modified or deleted within a WRS.</documentation></annotation>
       </element>
@@ -71,7 +74,7 @@
       <element name="Paste" type="tns:PasteParamType" minOccurs="0" maxOccurs="unbounded">
         <annotation><documentation>Parameters for pasting rows into WRS</documentation></annotation>
       </element>
-      <element name="Paginate" type="tns:PaginateParamType" minOccurs="0" maxOccurs="unbounded">
+      <element ref="tns:Paginate" minOccurs="0" maxOccurs="unbounded">
         <annotation><documentation>Pagination of WRS</documentation></annotation>
       </element>
       <element name="Merge" minOccurs="0" maxOccurs="unbounded">
@@ -158,13 +161,13 @@
   <group name="RowRange">
     <sequence>
       <choice>
-        <element ref="tns:RowStartPos">
+        <element ref="tns:RowStartPos" minOccurs="0">
           <annotation><documentation>
             Pos of first row number to be deleted (starting at 1). Default is 1.
             If neither start pos nor start id is given, document start is used.
           </documentation></annotation>
         </element>
-        <element ref="tns:RowStartId">
+        <element ref="tns:RowStartId" minOccurs="0">
           <annotation><documentation>
             Id of first row number to be deleted.
             If neither start pos nor start id is given, document start is used.
@@ -251,6 +254,17 @@
   </complexType>
 
   <!--
+    DuplicateRows
+  -->
+  <complexType name="DuplicateRowsParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <group ref="tns:RowRange"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <!--
     Paginate
   -->
   <complexType name="PaginateParamType">
@@ -282,6 +296,8 @@
       </extension>
     </complexContent>
   </complexType>
+
+  <element name="Paginate" type="tns:PaginateParamType"/>
 
   <!--
     AutoFilter
@@ -681,6 +697,7 @@
           <element name="MakeEvenOddColoring" type="boolean" minOccurs="0"/>
           <element name="MakeRowSpan"         type="boolean" minOccurs="0"/>
           <element name="MakeColSpan"         type="boolean" minOccurs="0"/>
+          <element name="ShowDeletedRows"     type="boolean" minOccurs="0"/>
           <element name="EmptyMessage"        type="string" minOccurs="0">
             <annotation><documentation>
               i18n key which is shown when report query did not return any data, default is bcd_EmptyReport 
