@@ -164,12 +164,10 @@
         If true, the whole text content of the Column element is set into double quotes when generating SQL and used as a column name.
       </xs:documentation></xs:annotation>
     </xs:attribute>
-    <xs:attribute name="caption" type="xs:string" />
-    <xs:attribute name="isKey" type="xs:boolean" default="false" />
-    <xs:attributeGroup ref="tns:DataType"/>
-    <xs:attribute name="isReadOnly" type="xs:boolean">
+    <xs:attribute name="isKey" type="xs:boolean" default="false">
       <xs:annotation><xs:documentation>
-        This is only evaluated by the client, server does not check this.
+        If true, this BindingItem is used as a key in update and delete operations wrs:M and wrs:D.
+        The key BindingItems are also used during server side pagination as sorting criteria.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="escapeXML" type="xs:boolean" default="true">
@@ -179,28 +177,45 @@
         Consider creating two BindingItems for the same database column if you need to access it in two different ways.
       </xs:documentation></xs:annotation>
     </xs:attribute>
-    <xs:attribute name="aggr" type="wrq:TypeSQLAggregations">
-      <xs:annotation><xs:documentation>
-        Used as default aggregation, if not defined in wrq:Wrq. If both are not given, MAX() is used for VARCHAR and DATE, SUM() is used for all others.
-        Note that 'none' is also allowed: When reading the BindingItem in an aggregation, the aggregation function must be hard-coded in b:BindingItem/b:Column.
-      </xs:documentation></xs:annotation>
-    </xs:attribute>
     <xs:attribute name="skipStartupRead" type="xs:boolean" default="false">
       <xs:annotation><xs:documentation>
         Skip reading this column on startup with a dummy request.
         All other items are read on startup. Attributes like type-name are set from this reading if they are not given in the BindingSet document.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attributeGroup ref="tns:RequestOverwritable">
+      <xs:annotation><xs:documentation>
+        A set of attributes that can be overwritten in a wrs request.
+      </xs:documentation></xs:annotation>
+    </xs:attributeGroup>
     <xs:anyAttribute namespace="http://www.businesscode.de/schema/bcdui/customization-1.0.0" processContents="skip">
       <xs:annotation><xs:documentation>
-        this namespace, with well-known prefix 'cust' may be used to define custom attributes to access them on the client
+        The customization namespace, with 'cust' may be used to define custom attributes for use on the client.
       </xs:documentation></xs:annotation>
     </xs:anyAttribute>
   </xs:complexType>
 
+  <xs:attributeGroup name="RequestOverwritable">
+    <xs:attributeGroup ref="tns:DataType"/>
+    <xs:attribute name="aggr" type="wrq:TypeSQLAggregations">
+      <xs:annotation><xs:documentation>
+        Used as default aggregation, if not defined in wrq:Wrq. If both are not given, MAX() is used for VARCHAR and DATE, SUM() is used for all others.
+        Note that 'none' is also allowed: When reading the BindingItem in an aggregation, the aggregation function must be hard-coded in b:BindingItem/b:Column.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string" />
+    <xs:attribute name="isReadOnly" type="xs:boolean">
+      <xs:annotation><xs:documentation>
+        This is only evaluated by the client, server does not check this.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
   <xs:attributeGroup name="DataType">
     <xs:attribute name="type-name"    type="tns:ColumnTypeName" />
-    <xs:attribute name="display-size" type="xs:nonNegativeInteger" />
+    <xs:attribute name="display-size" type="xs:nonNegativeInteger">
+      <xs:annotation><xs:documentation>Evaluated by client only.</xs:documentation></xs:annotation>
+    </xs:attribute>
     <xs:attribute name="scale"        type="xs:integer">
       <xs:annotation>
         <xs:documentation>
@@ -208,12 +223,15 @@
           A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
           B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
           C) Samples (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5.
+          Evaluated by client only.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="signed"       type="xs:boolean" />
     <xs:attribute name="nullable"     type="tns:Bit" />
-    <xs:attribute name="unit"         type="xs:string" />
+    <xs:attribute name="unit"         type="xs:string">
+      <xs:annotation><xs:documentation>Evaluated by client only.</xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <xs:complexType name="TypeBindingItem">

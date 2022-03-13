@@ -19,17 +19,38 @@
            targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
+           xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
            xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
   <xs:annotation>
     <xs:documentation>
+      Documentation on BCD-UI's wrs request for data retrieval.
     </xs:documentation>
   </xs:annotation>
 
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"/>
 
   <xs:element name="WrsRequest" type="tns:TypeWrsRequest">
-    <xs:annotation><xs:documentation>A request to the WrsServlet for a wrs:Wrs document</xs:documentation></xs:annotation>
+    <xs:annotation><xs:documentation>A request to the standard WrsServlet for a wrs:Wrs document</xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:element name="WrsService">
+    <xs:annotation><xs:documentation>
+      A request addressing a custom service instead of the default WrsServlet.
+      Such a service returns a Wrs and is a custom class registered in web.xml for init param "UserServices".
+      This can have any xml content which is understood by your service class.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" processContents="skip">
+          <xs:annotation><xs:documentation>This can have any xml content which is understood by your service class. 2</xs:documentation></xs:annotation>
+        </xs:any>
+      </xs:sequence>
+      <xs:attribute name="serviceName">
+        <xs:annotation><xs:documentation>Registered service to be used</xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
   </xs:element>
 
   <xs:complexType name="TypeWrsRequest">
@@ -54,7 +75,7 @@
       </xs:element>
 
       <!-- Full Select -->
-      <xs:group ref="tns:GroupFullSelect">
+      <xs:group ref="tns:GroupFullSelect" minOccurs="0">
       </xs:group>
     </xs:sequence>
     <xs:attribute name="url" type="xs:string" use="optional">
@@ -133,6 +154,14 @@
         </xs:documentation></xs:annotation>
       </xs:element>
       <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
+      <xs:element name="Vdms" type="tns:TypeVdms" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Virtual dimension members defined here allow for collapsing dimension members (i.e. actual values of a dimension) into an artificial value.
+            For example collapse countries "NL", "BE", and "LX" into "BeNeLux".
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
     <xs:attribute name="id" type="xs:ID"/>
     <xs:attribute name="rowStart" type="xs:int" use="optional">
@@ -164,13 +193,16 @@
             <xs:element name="LevelRef" maxOccurs="unbounded">
               <xs:annotation><xs:documentation>Dimension regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
               <xs:complexType>
-                <xs:attribute name="bRef" type="xs:NCName" use="required">
+                <xs:attribute name="bRef" type="xs:NCName" use="optional">
                   <xs:annotation><xs:documentation>Reference to a dimension of the query.</xs:documentation></xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="partition" type="xs:boolean" default="false">
                   <xs:annotation><xs:documentation>
                     If true, the top-n values are partitioned by this level.
                   </xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="caption" type="xs:string">
+                  <xs:annotation><xs:documentation>Human readable caption.</xs:documentation></xs:annotation>
                 </xs:attribute>
               </xs:complexType>
             </xs:element>
@@ -212,7 +244,7 @@
         <xs:annotation><xs:documentation>
           A plain or virtual BindingItem.
           You may add any additional attribute, it will be carried over to the corresponding wrs:Header/wrs:Columns/wrs:C.
-          If you overwrite one of the attributes of bnd:C, your attribute value will be overwrite the server value (as long as it is not security relevant).
+          If you overwrite one of the attributes of bnd:BindingSet/bnd:C, your attribute value will overwrite the server value (as long as it is not security relevant).
         </xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
@@ -220,54 +252,55 @@
 
 
   <xs:complexType name="TypeColumn">
-    <xs:attribute name="bRef" type="xs:NCName" use="required">
-      <xs:annotation><xs:documentation>Referenced BindingItem, may be preceded by the table reference alias.</xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element name="Calc" type="tns:TypeCalc" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          This is a server-calculation if wrq:Calc is given. @bRef is then not referring to a BindingItem within a BindingSet,
+          but the id of the new VirtualBindingItem created here based on the calc.
+        </xs:documentation></xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="bRef" type="xs:string" use="optional">
+      <xs:annotation><xs:documentation>
+        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child, then provide an @id.
+      </xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
 
-
+  <!-- Type of wrq:A elements -->
   <xs:complexType name="TypeColumnAttribute">
     <xs:sequence>
       <xs:element name="Calc" type="tns:TypeCalc" minOccurs="0"/>
     </xs:sequence>
-    <xs:attribute name="bRef" type="xs:NCName" use="required"/>
-    <xs:attribute name="name" type="xs:NCName" use="required"/>
-    <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
+    <xs:attribute name="bRef" type="xs:NCName" use="optional">
       <xs:annotation><xs:documentation>
-        If not given, BindingSet/BindingItem/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
-        All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
     <xs:attribute name="skipForTotals" type="xs:boolean" use="optional" default="false">
       <xs:annotation><xs:documentation>
         Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e. when their parent wrs:C does not have a unique value.
         With @skipForTotals, they can also be nulled-out for sub-totals of their parent wrs:C.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attributeGroup ref="bnd:RequestOverwritable">
+      <xs:annotation><xs:documentation>
+        These attributes default to the values of the BindingSet, but can be overwritten in the request.
+      </xs:documentation></xs:annotation>
+    </xs:attributeGroup>
   </xs:complexType>
 
   <xs:complexType name="TypeSelectColumn">
     <xs:complexContent>
       <xs:extension base="tns:TypeColumn">
         <xs:sequence maxOccurs="unbounded" minOccurs="0">
-          <xs:element name="Calc" type="tns:TypeCalc" minOccurs="0">
-            <xs:annotation><xs:documentation>
-              This is a server-calculation if wrq:Calc is given. @bRef is then not referring to a BindingItem within a BindingSet,
-              but the id of the new VirtualBindingItem created here based on the calc.
-            </xs:documentation></xs:annotation>
-          </xs:element>
           <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
               In SQL behaves like a normal wrq:C but becomes an attribute on its parent wrs:C instead of a wrs:C of its own.
             </xs:documentation></xs:annotation>
           </xs:element>
         </xs:sequence>
-        <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
-          <xs:annotation><xs:documentation>
-            If not given, BindingSet/BindingItem/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
-            All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
-          </xs:documentation></xs:annotation>
-        </xs:attribute>
         <xs:attribute name="escapeXml" type="xs:boolean" default="true" use="optional">
           <xs:annotation><xs:documentation>
             If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e. it will be part of the returning Wrs/Data/R/C instead of
@@ -279,11 +312,11 @@
             Alias to address the column under a different name, useful in cases like sub selects of joins.
           </xs:documentation></xs:annotation>
         </xs:attribute>
-        <xs:attribute name="caption" type="xs:string" use="optional">
+        <xs:attributeGroup ref="bnd:RequestOverwritable">
           <xs:annotation><xs:documentation>
-            Caption to be used by UI and in exports. If not set it is inherited from the underlying BindingSet / Select.
+            These attributes default to the values of the BindingSet, but can be overwritten in the request.
           </xs:documentation></xs:annotation>
-        </xs:attribute>
+        </xs:attributeGroup>
         <xs:anyAttribute processContents="lax">
           <xs:annotation><xs:documentation>
             Any given attribute will be copied to the Wrs as is.
@@ -301,9 +334,23 @@
       <xs:enumeration value="max"></xs:enumeration>
       <xs:enumeration value="avg"></xs:enumeration>
       <xs:enumeration value="count"></xs:enumeration>
-      <xs:enumeration value="none"></xs:enumeration>
+      <xs:enumeration value="GROUPING">
+        <xs:annotation><xs:documentation>
+          Flag 0/1 which indicates whether the current row is a (sub)-total in respect of this BindingItem.
+          For Redshift and MySql (only) this is a simple null test.
+        </xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="none">
+        <xs:annotation><xs:documentation>
+          Explicitly suppress any aggregation, including defaults.
+          Use case sample: Rely on the aggregation being done in the column expression of the BindingItem.
+        </xs:documentation></xs:annotation>
+      </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
+
+  <!-- We make this a global element in our namespace as we refer to it for example from cube schema. -->
+  <xs:element name="BindingSet" type="tns:TypeBindingSet"/>
 
   <!-- wrq:From can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause -->
   <xs:group name="GroupTableReference">
@@ -311,7 +358,7 @@
       <!-- Table reference -->
       <xs:choice>
         <xs:group ref="tns:GroupFullSelect"></xs:group>
-        <xs:element name="BindingSet" type="tns:TypeBindingSet">
+        <xs:element ref="tns:BindingSet">
           <xs:annotation><xs:documentation>Name of source BindingSet</xs:documentation></xs:annotation>
         </xs:element>
         <xs:element name="CteRef" type="tns:TypeCteRef">
@@ -426,7 +473,12 @@
           <xs:complexContent>
             <xs:extension base="tns:TypeColumn">
               <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
-              <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional"/>
+              <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
+                <xs:annotation><xs:documentation>
+                  If not given, BindingSet/C/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
+                  All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+                </xs:documentation></xs:annotation>
+              </xs:attribute>
             </xs:extension>
           </xs:complexContent>
         </xs:complexType>
@@ -440,6 +492,48 @@
       <xs:enumeration value="asc"/>
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:complexType name="TypeVdms">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Vdm" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Defines which database values of a @bRef should be collapsed into what values.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="VdmMap" minOccurs="0" maxOccurs="unbounded">
+              <xs:annotation><xs:documentation>
+                Collapses all values from @from to a new value given by @to.
+              </xs:documentation></xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="from" type="xs:string" use="required">
+                  <xs:annotation><xs:documentation>
+                    Semicolon (;) separated list of values to collapse into @to.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="to" type="xs:string">
+                  <xs:annotation><xs:documentation>
+                    Value of the created virtual dimension member combining the values listed in @from.
+                  </xs:documentation></xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <!-- Attributes from wrq:Vdm -->
+          <xs:attribute name="bRef" type="xs:NCName">
+            <xs:annotation><xs:documentation>
+              BindingItem to act on.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="rest" type="xs:string" use="optional">
+            <xs:annotation><xs:documentation>
+              Value representing all values not mapped in a wrq:VdmMap.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
   <xs:complexType name="TypeExportCsv">
     <xs:complexContent>
@@ -498,7 +592,7 @@
         <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
       </xs:element>
       <xs:element name="OrderBy" minOccurs="0">
-        <xs:annotation><xs:documentation>Requires Enterprise-Edition</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:complexContent>
             <xs:extension base="tns:MultiOperatorType">
@@ -543,7 +637,7 @@
           </xs:attribute>
           <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
             <xs:annotation><xs:documentation>
-              It is preferred to use wrq: aggregators surrounding the ValueRef instead of usign this attribute. If given, the wrq: aggregator is used and this ignored.
+              It is preferred to use wrq: aggregators surrounding the ValueRef instead of using this attribute. If given, the wrq: aggregator is used and this ignored.
               If non is given, SUM() is used in all cases, note: that default fails for non-numeric values.
             </xs:documentation></xs:annotation>
           </xs:attribute>
@@ -606,14 +700,19 @@
   <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
-  <xs:element name="Max" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
 
-  <!-- One argument -->
+  <!-- One argument aggregators -->
   <xs:element name="Sum" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="Max" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Avg" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Count" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Distinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="CountDistinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+  <!-- One argument operators -->
+  <xs:element name="Niz" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>NULL if zero.</xs:documentation></xs:annotation>
+  </xs:element>
   <xs:element name="MakeNull" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Effectively makes its content null. Useful when a wrq:ValueRef is need but should be substituted by null.</xs:documentation></xs:annotation>
   </xs:element>

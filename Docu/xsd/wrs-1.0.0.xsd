@@ -114,7 +114,20 @@
 
   <xs:complexType name="HeaderType">
     <xs:sequence>
-      <xs:element name="BindingSet" type="xs:string" minOccurs="0" />
+      <xs:element name="BindingSet" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>Data Source</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:NCName">
+              <xs:attribute name="alias" type="xs:string">
+                <xs:annotation><xs:documentation>
+                  Alias of the BindingSet used in this query.
+                </xs:documentation></xs:annotation>
+              </xs:attribute>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="KeySet" type="tns:KeySetType" minOccurs="0" />
       <xs:element ref="tns:Columns"/>
       <xs:element name="ValidationResult" type="tns:ValidationResultType" minOccurs="0" maxOccurs="1"/>
@@ -140,9 +153,9 @@
     <xs:complexContent>
       <xs:extension base="tns:WrsType">
         <xs:attribute name="bcdValidationId" type="xs:string">
-        <xs:annotation><xs:documentation>
-          the ID of validation which uniquelly identifies it
-        </xs:documentation></xs:annotation>
+          <xs:annotation><xs:documentation>
+            the ID of validation which uniquelly identifies it
+          </xs:documentation></xs:annotation>
         </xs:attribute>
       </xs:extension>
     </xs:complexContent>
@@ -166,39 +179,64 @@
   </xs:complexType>
 
   <xs:complexType name="MetaDataColumnType">
-    <xs:complexContent>
-      <xs:extension base="b:TypeBindingItemBase">
-        <xs:sequence>
-          <xs:element name="A" minOccurs="0" maxOccurs="unbounded">
-          <xs:annotation><xs:documentation>
-            Definition for a Data/R/C/@aName attribute in the data for the parent column.
-          </xs:documentation></xs:annotation>
-            <xs:complexType>
-              <xs:complexContent>
-                <xs:extension base="b:TypeBindingItemBase">
-                  <xs:attribute name="name" type="xs:NMTOKEN" use="required">
-                    <xs:annotation><xs:documentation>
-                      Name of this attribute as found in the actual data Data/R/C/@aName.
-                    </xs:documentation></xs:annotation>
-                  </xs:attribute>
-                </xs:extension>
-              </xs:complexContent>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
-        <xs:attribute name="pos" type="xs:int" use="required" />
-        <xs:attribute name="dimId" type="xs:string">
-          <xs:annotation><xs:documentation>
-            If given, this column represents the given id. Especially useful to recognize dimension columns.
-          </xs:documentation></xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="valueId" type="xs:string">
-          <xs:annotation><xs:documentation>
-            If given, this column represents the given value. Especially useful if the value is repeated due to column dimensions.
-          </xs:documentation></xs:annotation>
-        </xs:attribute>
-      </xs:extension>
-    </xs:complexContent>
+    <xs:sequence>
+
+      <!-- wrs:A -->
+      <xs:element name="A" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation><xs:documentation>
+          Definition for attributes at wrs:C elements like Data/R/C/@aName
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <!-- We can overwrite BindingSet defaults here -->
+          <xs:attributeGroup ref="b:RequestOverwritable"/>
+          <!-- Additional attributes -->
+          <xs:attribute name="name" type="xs:NMTOKEN" use="required">
+            <xs:annotation><xs:documentation>
+              Name of this attribute as found in the actual data Data/R/C/@aName.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="id" type="xs:NCName" use="optional">
+            <xs:annotation><xs:documentation>
+              Unique id to identify the attribute, defaults to bRef.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="bRef" type="xs:NCName" use="optional">
+            <xs:annotation><xs:documentation>
+              Name of referenced BindingItem. May be missing if only @id is given for example in case of wrq:Calc.
+            </xs:documentation></xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <!-- wrs:C attributes -->
+    <!-- We can overwrite BindingSet defaults here -->
+    <xs:attributeGroup ref="b:RequestOverwritable"/>
+    <xs:attribute name="id" type="xs:NCName" use="optional">
+      <xs:annotation><xs:documentation>
+        Unique id to identify the attribute, defaults to bRef.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bRef" type="xs:NCName" use="optional">
+      <xs:annotation><xs:documentation>
+        Name of referenced BindingItem. May be missing if only @id is given for example in case of wrq:Calc.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pos" type="xs:int" use="required">
+      <xs:annotation><xs:documentation>
+        Position starting with 1 of this column. Useful for xPath expressions.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dimId" type="xs:string">
+      <xs:annotation><xs:documentation>
+        If given, this column represents the given id. Especially useful to recognize dimension columns.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="valueId" type="xs:string">
+      <xs:annotation><xs:documentation>
+        If given, this column represents the given value. Especially useful if the value is repeated due to column dimensions.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="DataType">
