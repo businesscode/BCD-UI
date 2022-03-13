@@ -75,16 +75,63 @@
           <xs:attribute type="xs:string" name="orderByBRefs">
             <xs:annotation><xs:documentation>Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. A minus(-) sign at the end indicates descending sorting.</xs:documentation></xs:annotation>
           </xs:attribute>
-	      <xs:attribute type="xs:boolean" default="true" name="visible">
+	        <xs:attribute type="xs:boolean" default="true" name="visible">
             <xs:annotation><xs:documentation>If false, level does not appear in the drop down list but can be used as a dependency for a different level.</xs:documentation></xs:annotation>
           </xs:attribute>
-                </xs:complexType>
+        </xs:complexType>
       </xs:element>
     </xs:sequence>
  </xs:complexType>
 
 
+  <xs:element name="DocUploadConfiguration" type="tns:DocUploadConfigurationType"/>
 
+  <xs:complexType name="DocUploadConfigurationType">
+    <xs:annotation><xs:documentation>Configuration for the document upload component.</xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element name="Scopes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Scope" minOccurs="1" maxOccurs="unbounded">
+              <xs:annotation><xs:documentation>
+                A Scope is the entity type documents of this scope belong to.
+                Samples are customers, containers and KPIs.
+                When uploaded, showing documents, you will provide the scope and the instance id, like the customer id to express,
+                where the document belongs to.
+              </xs:documentation></xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Category" minOccurs="1" maxOccurs="unbounded">
+                    <xs:annotation><xs:documentation>
+                      Documents fall in different categories such as invoice, POD or KPI documentation.
+                      This is used to display them together in the component and define whether they are mandatory.
+                    </xs:documentation></xs:annotation>
+                    <xs:complexType>
+                      <xs:attribute name="id" type="xs:NCName" use="required">
+                        <xs:annotation><xs:documentation>Category id.</xs:documentation></xs:annotation>
+                      </xs:attribute>
+                      <xs:attribute name="required" type="xs:boolean" default="false">
+                        <xs:annotation><xs:documentation>Whether it is mandatory to have a document of this category.</xs:documentation></xs:annotation>
+                      </xs:attribute>
+                      <xs:attribute name="caption" type="xs:string">
+                        <xs:annotation><xs:documentation>Caption used in a chooser.</xs:documentation></xs:annotation>
+                      </xs:attribute>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+                <xs:attribute name="id" type="xs:NCName" use="required">
+                  <xs:annotation><xs:documentation>Scope id.</xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="caption" type="xs:string">
+                  <xs:annotation><xs:documentation>Caption used in a chooser.</xs:documentation></xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 
  <xs:element name="SQLTypes" type="tns:SQLTypesType"/>
 
