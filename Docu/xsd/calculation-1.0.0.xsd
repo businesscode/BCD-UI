@@ -19,10 +19,12 @@
   targetNamespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   xmlns:tns="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   xmlns:b="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
-  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0">
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
 
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
 
   <xs:annotation>
     <xs:documentation>
@@ -31,15 +33,17 @@
   </xs:annotation>
 
   <xs:element name="Calc" type="tns:CalcType">
-    <xs:annotation>
-      <xs:documentation>Container for all reference data needed for the scorecard. Consider including re-used parts with xs:include.</xs:documentation>
-    </xs:annotation>
+    <xs:annotation><xs:documentation>
+      Container for all reference data needed for the scorecard. Consider including re-used parts with xs:include.
+      calc:* children are executed at the client, wrs:* children turn into a sql expression.
+    </xs:documentation></xs:annotation>
   </xs:element>
 
   <xs:complexType name="CalcType">
-    <xs:sequence>
+    <xs:choice>
       <xs:element ref="tns:CalculatedValue" minOccurs="0"/>
-    </xs:sequence>
+      <xs:element ref="wrq:CalculatedValue" minOccurs="0"/>
+    </xs:choice>
 
     <xs:attribute name="id" use="optional">
       <xs:annotation>
@@ -88,10 +92,11 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="tns:CalculatedValueType">
-          <xs:attribute name="idRef" type="xs:NCName" use="required">
+          <xs:attribute name="idRef" type="xs:string" use="required">
             <xs:annotation><xs:documentation>
               Id of the referenced data item, which is usually references a binding-item ( bRef ).
               In scc:Kpi/calc:Calc the format is [myMeasureId].[myMeasurePropertyId]. This attribute is omitted if @dmRef is used.
+              If referencing a (sub)-total, precede with &#xE0F0;1C| for example.
             </xs:documentation></xs:annotation>
           </xs:attribute>
           <xs:attribute name="aggr">
@@ -115,7 +120,10 @@
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
-          <xs:element ref="tns:CalculatedValue" minOccurs="2" maxOccurs="unbounded"/>
+          <xs:choice minOccurs="2" maxOccurs="unbounded">
+            <xs:element ref="tns:CalculatedValue" minOccurs="1"/>
+            <xs:element ref="wrq:CalculatedValue" minOccurs="1"/>
+          </xs:choice>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -125,8 +133,10 @@
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
-          <xs:element ref="tns:CalculatedValue"/>
-          <xs:element ref="tns:CalculatedValue"/>
+          <xs:choice minOccurs="2" maxOccurs="2">
+            <xs:element ref="tns:CalculatedValue"/>
+            <xs:element ref="wrq:CalculatedValue"/>
+          </xs:choice>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -136,7 +146,10 @@
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
-          <xs:element ref="tns:CalculatedValue"/>
+          <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element ref="tns:CalculatedValue"/>
+            <xs:element ref="wrq:CalculatedValue"/>
+          </xs:choice>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -201,12 +214,12 @@
         <xs:extension base="tns:CalculatedValueType">
           <xs:attribute name="idRef">
             <xs:annotation><xs:documentation>
-              The form is agg_<idOfMyAggregator>_$.<idOfMyProperty> which is extended by the current KPI's first measure.
+              The form is agg_&lt;idOfMyAggregator>_$.&lt;idOfMyProperty> which is extended by the current KPI's first measure.
             </xs:documentation></xs:annotation>
           </xs:attribute>
           <xs:attribute name="bindingItemId">
             <xs:annotation><xs:documentation>
-              The form is agg_<aggregatorId>_<measureId>.<propertyId>. If this is specified, idRef is ignored.
+              The form is agg_&lt;aggregatorId>_&lt;measureId>.&lt;propertyId>. If this is specified, idRef is ignored.
             </xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>
