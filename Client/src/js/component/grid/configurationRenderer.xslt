@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@
       <!-- either take config or wrs column information -->
       <grid:Columns>
         <xsl:choose>
-          <xsl:when test="/*/grid:SelectColumns/wrq:Columns//wrq:C">
-            <xsl:for-each select="/*/grid:SelectColumns/wrq:Columns//wrq:C">
+          <xsl:when test="/*/grid:SelectColumns//grid:C">
+            <xsl:for-each select="/*/grid:SelectColumns//grid:C">
               <xsl:call-template name="generateColumn">
                 <xsl:with-param name="bRef" select="@bRef"/>
               </xsl:call-template>
@@ -82,7 +82,7 @@
   <xsl:template name="generateColumn">
     <xsl:param name="bRef"/>
       <xsl:variable name="wrsC" select="$gridModel/*/wrs:Header/wrs:Columns/wrs:C[@id=$bRef]"/>
-      <wrq:C bRef="{$bRef}" pos="{$wrsC/@pos}">
+      <grid:C bRef="{$bRef}" pos="{$wrsC/@pos}">
         <xsl:variable name="colCaption" select="@caption|$wrsC/@caption"/>
         <xsl:variable name="typeName" select="@type-name|$wrsC/@type-name"/>
         <xsl:variable name="isNumeric" select="contains('|BIGINT|BIT|DECIMAL|DOUBLE|FLOAT|INTEGER|NUMERIC|REAL|SMALLINT|TINYINT|', concat('|', $typeName, '|'))"/>
@@ -176,6 +176,6 @@
           <xsl:copy-of select="grid:Validator/grid:Param"/>
         </grid:Validator>
 
-      </wrq:C>
+      </grid:C>
   </xsl:template>
 </xsl:stylesheet>

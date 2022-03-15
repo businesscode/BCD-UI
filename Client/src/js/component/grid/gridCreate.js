@@ -334,7 +334,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if (this.serverSidedPagination) {
         
         var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id };
-        var countColumnBRef = this.config.read("/*/grid:SelectColumns/wrq:Columns//wrq:C[@totalCounter='true']/@bRef");
+        var countColumnBRef = this.config.read("/*/grid:SelectColumns//grid:C[@totalCounter='true']/@bRef");
         if (countColumnBRef)
           totalParams.countColumnBRef = countColumnBRef;
   
@@ -349,7 +349,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.totalRowCountDp = new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Data><wrs:R><wrs:C>0</wrs:C></wrs:R></wrs:Data></wrs:Wrs>");;
       this.totalRowCountDp.execute();
 
-      this.removeOnSaveColumnIds = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@removeOnSave='true']")).map(function(e) {
+      this.removeOnSaveColumnIds = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@removeOnSave='true']")).map(function(e) {
         if (e.getAttribute("isKey") == "true")
           throw new Error("removeOnSave is not allowed on a key column: " + this.id);
         return e.getAttribute("id");
@@ -381,7 +381,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
       var keyColumns = "";
       this.keyColumns = new Array();
-      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@isKey='true']/@id")).forEach(function(e) { keyColumns += "<C bRef='" + e.text + "'/>"; this.keyColumns.push(e.text) }.bind(this));
 
       if (!this.isReadOnly && this.keyColumns.length == 0)
         throw new Error("GridModel needs at least one key column: " + this.id);    
@@ -395,25 +395,25 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       
       // validate GridModel against GridConfig (problems can only occur if you provide a gridModel yourself and an own config)
       var j = 1;
-      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(e) {
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C")).forEach(function(e) {
         if (this.gridModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + j++ + "' and @id='" + e.getAttribute("bRef") + "']") == null)
           throw new Error("GridConfiguration holds column which isn't in GridModel (or wrong position): " + this.id + " " + e.getAttribute("bRef"));
       }.bind(this));
       j = 1;
       Array.from(this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(e) {
-        if (this.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + j++ + "' and @bRef='" + e.getAttribute("id") + "']") == null)
+        if (this.getEnhancedConfiguration().query("/*/grid:Columns/grid:C[position()='" + j++ + "' and @bRef='" + e.getAttribute("id") + "']") == null)
           throw new Error("GridModel holds column which isn't in GridConfiguration (or wrong position): " + this.id + " " + e.getAttribute("id"));
       }.bind(this));
   
       this.getEnhancedConfiguration().onChange( { callback: function() {this.gridModel.execute(true);}.bind(this) } );
-      this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
+      this.hasReferences = this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[grid:Editor/grid:Param[@name='optionsModelXPath']]").length > 0;
   
       this.optionsModelInfo = {};
       var optionsModels = new Array();
   
       this.colsWithReferences = new Array();
       this.colsWithReferencesInfo = new Array();
-      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[grid:Editor/grid:Param[@name='optionsModelXPath']]")).forEach(function(cNode){
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[grid:Editor/grid:Param[@name='optionsModelXPath']]")).forEach(function(cNode){
         var optionsModelXPath = cNode.selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelXPath']");
         optionsModelXPath = optionsModelXPath == null ? null : optionsModelXPath.getAttribute("value");
         var optionsModelRelativeValueXPath = cNode.selectSingleNode("./grid:Editor/grid:Param[@name='optionsModelRelativeValueXPath']");
@@ -431,10 +431,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               var vc = parseInt(v.substring(1), 10);
               // either we reference an id
               if (typeof this.wrsHeaderMeta[v] != "undefined")
-                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+this.wrsHeaderMeta[v].pos+"']/@id", ""));
+                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/grid:C[position()='"+this.wrsHeaderMeta[v].pos+"']/@id", ""));
               // or an index (c1, c2,...)
               else if (v.length > 1 & v[0] == "c" && ! isNaN(vc))
-                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[position()='"+vc+"']/@id", ""));
+                dependendOnCols.push(this.getEnhancedConfiguration().read("/*/grid:Columns/grid:C[position()='"+vc+"']/@id", ""));
               else
                 throw new Error("illegal row dependency value " + this.id + " " + v);
             }
@@ -465,7 +465,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       var dependendToReference = function(dep) {
         this.optionsModelInfo[dep].dependendOnCols.forEach(function(e) {
           if (this.optionsModelInfo[e].referencedByCols.indexOf(dep) == -1) {
-            var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@id='"+dep+"']/@pos", "0"), 10);
+            var colIdx = parseInt(this.getEnhancedConfiguration().read("/*/grid:Columns/grid:C[@id='"+dep+"']/@pos", "0"), 10);
             if (this.colsWithReferences.indexOf("" + colIdx))
               this.optionsModelInfo[e].referencedByCols.push(colIdx);
           }
@@ -771,7 +771,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , "bcd_ValidReferences"
         , "bcd_ValidDocument"
       ];
-      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C")).forEach(function(hNode){
+      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C")).forEach(function(hNode){
         var type       = hNode.getAttribute("type-name");
         var nullable   = hNode.getAttribute("nullable");
         var id         = hNode.getAttribute("id");
@@ -1085,7 +1085,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     // Loop over wrs:Columns/wrs:C and create handsontable's column information
     this.htOptions.colHeaders = [];
     this.htOptions.columns = [];
-    Array.prototype.forEach.call( this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C"), function(hc, idx) {
+    Array.prototype.forEach.call( this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C"), function(hc, idx) {
       // Create header captions
       var id      = hc.getAttribute("id") || "";
       var caption = hc.getAttribute("caption") || id;
@@ -1216,7 +1216,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var sortedValues = null;
     if (this.sortDirection != null && this.sortColumn != null) {
 
-      var type = this.getEnhancedConfiguration().read("/*/grid:Columns/wrq:C[@pos='" + this.sortColumn + "']/@type-name", "");
+      var type = this.getEnhancedConfiguration().read("/*/grid:Columns/grid:C[@pos='" + this.sortColumn + "']/@type-name", "");
       var isNumeric = ("DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL|INTEGER").indexOf(type) != -1;
       var references = this.optionsModelInfo[this.wrsHeaderIdByPos["" + this.sortColumn] || ""];
 
@@ -1625,7 +1625,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.hotInstance.getBCDUIGrid = function() { return this; }.bind(this);
 
       // support C element classes
-      var headerColumns = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C"));
+      var headerColumns = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C"));
       if (headerColumns.length > 0) {
         this.hotInstance.headerCss = new Array();
         headerColumns.forEach(function(e){
@@ -1694,7 +1694,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           // but only real hidden ones which are placed at the end of the grid, not hidden ones which exists due to groupcollapsing
           // the totalColumns value is used e.g. to check if the last visible column is clicked and then the little lasso square is put inside and not overlapping
           if (key == "totalColumns" && self.hiddenColumns)
-            v -= self.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']").length;
+            v -= self.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@isHidden='true']").length;
 
           if (key != "columnHeaders")
             return v;
@@ -2421,7 +2421,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
 
     var matrix = new Array();
-    buildMatrix(matrix, 0, 0, this.config.query("/*/grid:SelectColumns/wrq:Columns"), this.config.queryNodes("/*/grid:SelectColumns/wrq:Columns//wrq:C").length);
+    buildMatrix(matrix, 0, 0, this.config.query("/*/grid:SelectColumns"), this.config.queryNodes("/*/grid:SelectColumns//grid:C").length);
 
     if (args.matrixOnly)
       return matrix;
@@ -2771,7 +2771,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
           var isDocument = false;
           if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos != "undefined")
-            isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/wrq:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
+            isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/grid:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
           doc.selectSingleNode("/*/wrs:Data").setAttribute("isDocument", "" + isDocument);
           
           var references = grid.optionsModelInfo[argsTooltip.bcdColIdent];
@@ -2989,7 +2989,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             , chain: function(doc) {
 
                 // get rid of hidden ones
-                var hiddenOnes = Array.from(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/wrq:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
+                var hiddenOnes = Array.from(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
                 if (hiddenOnes.length > 0) {
                   var firstHidden = hiddenOnes.sort()[0];
                   bcdui.core.removeXPath(doc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);

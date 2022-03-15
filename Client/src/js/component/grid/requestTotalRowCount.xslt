@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
   <xsl:param name="statusModel" select="/*[1=0]"/>
   <xsl:param name="columnFilterModel" select="/*[1=0]"/>
   <xsl:param name="gridModelId"/>
-  <xsl:param name="countColumnBRef" select="/*/grid:SelectColumns/wrq:Columns//wrq:C[1]/@bRef"/>
+  <xsl:param name="countColumnBRef" select="/*/grid:SelectColumns//grid:C[1]/@bRef"/>
 
   <xsl:variable name="excludedStatusFilterBrefs" select="/*/grid:SelectColumns/grid:FilterExclude/@bRefs"/>
 

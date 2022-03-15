@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -61,11 +61,11 @@
           </xsl:if>
         </xsl:if>
         <wrq:Columns>
-          <xsl:for-each select="/*/grid:SelectColumns/wrq:Columns//wrq:C">
-            <xsl:copy>
+          <xsl:for-each select="/*/grid:SelectColumns//grid:C">
+            <wrq:C>
               <xsl:copy-of select="@*"/>
               <xsl:copy-of select="wrq:A"/>
-            </xsl:copy>
+            </wrq:C>
           </xsl:for-each>
         </wrq:Columns>
         <wrq:From><xsl:copy-of select="/*/wrq:BindingSet"/></wrq:From>
@@ -97,7 +97,11 @@
               </wrq:C>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:copy-of select="/*/grid:OrderColumns/wrq:Columns/*"/>
+              <xsl:for-each select="/*/grid:OrderColumns/grid:C">
+                <wrq:C>
+                  <xsl:copy-of select="@*"/>
+                </wrq:C>
+              </xsl:for-each>
             </xsl:otherwise>
           </xsl:choose>
 
@@ -106,11 +110,11 @@
         <!-- GROUP BY if requested -->
         <xsl:if test="/*/grid:SelectColumns/@isDistinct = 'true'">
           <wrq:Grouping>
-            <xsl:for-each select="/*/grid:SelectColumns/wrq:Columns//wrq:C">
-              <xsl:copy>
+            <xsl:for-each select="/*/grid:SelectColumns//grid:C">
+              <wrq:C>
                 <xsl:copy-of select="@*"/>
                 <xsl:copy-of select="wrq:A"/>
-              </xsl:copy>
+              </wrq:C>
             </xsl:for-each>
           </wrq:Grouping>
         </xsl:if>

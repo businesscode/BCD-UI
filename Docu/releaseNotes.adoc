@@ -29,6 +29,7 @@ and needs also to be updated sql expression strings compiled with SQLEngine::tra
 * bcd_virtualFileSystem additionally got vfsPathLimit SubjectFilter which limits read/write access on the VFS. Ensure to add user rights (or default values) for:
 at least cube template writing /vfs/reports/*, detail export column selects /vfs/exports/*, docUploads /vfs/documents/*. Writing vfs bindings could be achieved via /WEB-INF/*/virtual/*.
 * WRS request optional url attribute at bindingSet to pick servlet is moved to root WrsRequest element
+* grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
 
 .Server:
 * Wrq does support CTE common table expressions, joins and unions now

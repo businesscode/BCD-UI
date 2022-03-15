@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@
     <wrs:C>
       <xsl:copy-of select="@*"/>
       <xsl:choose>
-        <xsl:when test="$config/*/grid:SelectColumns/wrq:Columns//wrq:C[@bRef=$id]/wrs:References">
-          <xsl:copy-of select="$config/*/grid:SelectColumns/wrq:Columns//wrq:C[@bRef=$id]/wrs:References"/>
+        <xsl:when test="$config/*/grid:SelectColumns//grid:C[@bRef=$id]/wrs:References">
+          <xsl:copy-of select="$config/*/grid:SelectColumns//grid:C[@bRef=$id]/wrs:References"/>
           <xsl:apply-templates select="*[not(name()='/wrs:References')]"></xsl:apply-templates>
         </xsl:when>
         <xsl:otherwise>
