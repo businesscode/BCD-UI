@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2022 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  Configuration of the Grid component
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+           xmlns:tns="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+           xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+           xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0">
+  <xs:annotation><xs:documentation>
+    Documentation on BCD-UI's Grid component.
+  </xs:documentation></xs:annotation>
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"/>
+
+  <!-- Root -->
+  <xs:element name="GridConfiguration">
+    <xs:annotation><xs:documentation>
+      Configuration for BCD-UI's Grid component.
+    </xs:documentation></xs:annotation>
+
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="wrq:BindingSet">
+          <xs:annotation><xs:documentation>Source of the data.</xs:documentation></xs:annotation>
+        </xs:element>
+
+        <xs:element ref="xp:Paginate" minOccurs="0">
+          <xs:annotation><xs:documentation>Data Pagination.</xs:documentation></xs:annotation>
+        </xs:element>
+
+        <xs:element name="SelectColumns">
+          <xs:annotation><xs:documentation>Columns to work with. May be invisible or non-editable.</xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:element ref="tns:Group">
+              </xs:element>
+              <xs:element ref="tns:C">
+              </xs:element>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OrderColumns" minOccurs="0">
+          <xs:complexType>
+            <xs:annotation><xs:documentation>Sort order of the data.</xs:documentation></xs:annotation>
+            <xs:sequence>
+              <xs:element name="C" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="bRef" use="required"/>
+                  <xs:attribute name="order">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value="asc"/>
+                        <xs:enumeration value="desc"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+    </xs:complexType>
+
+  </xs:element>
+
+  <!-- A column -->
+  <xs:element name="C">
+    <xs:annotation><xs:documentation>Data column of the grid.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+
+        <!-- Renderer to show element in non-edit mode -->
+        <xs:element name="Renderer" minOccurs="0">
+          <xs:annotation><xs:documentation>Handles non-generic ways to display the data, like icons.</xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="type">
+              <xs:annotation><xs:documentation>A registered grid renderer type to be used for this column.</xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- Editor -->
+        <xs:element name="Editor" minOccurs="0">
+          <xs:annotation><xs:documentation>Handles non-generic ways to edit the data.</xs:documentation></xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Param" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>A parameter for the editor of the referenced type. Each editor type has a different set of parameters.</xs:documentation></xs:annotation>
+                <xs:complexType>
+                  <xs:attribute name="name">
+                    <xs:annotation><xs:documentation>The name of the parameter.</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="value">
+                    <xs:annotation><xs:documentation>The parameter value.</xs:documentation></xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="type">
+              <xs:annotation><xs:documentation>A registered grid editor type to be used for this column.</xs:documentation></xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+
+      <xs:attribute name="bRef" use="required">
+        <xs:annotation><xs:documentation>Referenced BindingItem.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="isKey">
+        <xs:annotation><xs:documentation>If true, values in these columns need to be unique.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="caption">
+        <xs:annotation><xs:documentation>Caption of the column. Consider i18n with the help of the  <![CDATA[&;#xE0FF;]]> prefix.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="isReadOnly">
+        <xs:annotation><xs:documentation>If true, the user cannot change this column.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="class">
+        <xs:annotation><xs:documentation>An extra css class to be used.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="width">
+        <xs:annotation><xs:documentation>With of the column. Not to be confused with display-size, which is the width of the data.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="isHidden" type="xs:boolean">
+        <xs:annotation><xs:documentation>If true, data is not displayed. Use case is a generated id.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="isCheckbox" type="xs:boolean">
+        <xs:annotation><xs:documentation>Render as a checkbox.</xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Collapsable headers -->
+  <xs:element name="Group">
+    <xs:annotation><xs:documentation>Allows for header nesting and column group collapsing.</xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="tns:Group"></xs:element>
+          <xs:element ref="tns:C"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="caption" type="xs:string">
+        <xs:annotation><xs:documentation>Caption of this group. Consider i18n with the help of the <![CDATA[&;#xE0FF;]]> prefix.</xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="collapsed" type="xs:boolean">
+        <xs:annotation><xs:documentation>If thue, the columns are not shown initially but a '+' to expand this group.</xs:documentation></xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+
+</xs:schema>

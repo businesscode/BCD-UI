@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
   <uri name="http://www.businesscode.de/schema/bcdui/cube-2.0.0"            uri="cube-2.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"         uri="dimmeas-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/filter-1.0.0"          uri="filter-1.0.0.xsd"/>
+  <uri name="http://www.businesscode.de/schema/bcdui/grid-1.0.0"            uri="grid-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"       uri="guiStatus-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/menu-1.0.0"            uri="menu-1.0.0.xsd"/>
   <uri name="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"        uri="renderer-1.0.0.xsd"/>
