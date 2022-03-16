@@ -141,7 +141,7 @@
   <!-- Simple id for bRefs for example. Same as NCName, but without . -->
   <xs:simpleType name="AttrTypeSimpleId">
     <xs:restriction base="xs:string">
-      <xs:pattern value="[A-Za-z]+[A-Za-z0-9_\-]*"></xs:pattern>
+      <xs:pattern value="[A-Za-z_]+[_A-Za-z0-9_\-]*"></xs:pattern>
     </xs:restriction>
   </xs:simpleType>
 
@@ -149,7 +149,7 @@
     <xs:sequence>
       <xs:element ref="wrs:References" minOccurs="0">
         <xs:annotation><xs:documentation>
-          Used by the client to restrict the possible values of this column to a enumeration, see definition of wrs:References for details.
+          Used by the client to restrict the possible values of this column to an enumeration, see definition of wrs:References for details.
         </xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
@@ -157,6 +157,7 @@
       <xs:annotation><xs:documentation>
         BindingItem-id, unique within this BindingSet. Make sure that all semantically equal a database columns
         have the same id across all BindingSets. For example all occurrences of pick-up locations in all tables, this allows for easier building filter, drill etc.
+        Note: Do not use '.' in the name as it is used for alias prefixes in wrq.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="columnQuoting" type="xs:boolean" default="false">
