@@ -250,6 +250,7 @@ bcdui = Object.assign(bcdui,
 
               // If we call bcdui.widget.showModalBox too early, we will get a ModalBox related error instead of the real error
               bcdui.core.ready( function() {
+                jQuery.unblockUI();
                 bcdui.widget.showModalBox({
                   title: this.errorMessageCaption
                   , message: "<div class='bcdSysError'>" + this.emailMessageLine + "<br/>" + this.emailMessageLink + addInfo + "</div>"
