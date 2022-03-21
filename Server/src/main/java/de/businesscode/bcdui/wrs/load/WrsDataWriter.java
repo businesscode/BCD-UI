@@ -56,6 +56,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
   private XMLStreamWriter writer;
   //
   private boolean maxRowsExceed = false;
+  private boolean errorDuringQuery = false;
   private final DateFormat xmlTimeStampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   private final DateFormat xmlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
   private final Transformer transformer;
@@ -144,6 +145,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     this.maxRowsExceed = maxRowsExceed;
   }
 
+  private final boolean isErrorDuringQuery() {
+    return errorDuringQuery;
+  }
+  private final void setErrorDuringQuery(boolean errorDuringQuery) {
+    this.errorDuringQuery = errorDuringQuery;
+  }
   // ================================================================================================
 
   /**
@@ -226,8 +233,15 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     // data
     writeWrsData();
     //
-    // marker MaxRowsExceeded
-    if (isMaxRowsExceed()) {
+    // marker MaxRowsExceeded or write error marker
+    if (isErrorDuringQuery()) {
+      getWriter().writeStartElement("Footer");
+      getWriter().writeStartElement("ErrorDuringQuery");
+      getWriter().writeCharacters("true");
+      getWriter().writeEndElement(); // ErrorDuringQuery
+      getWriter().writeEndElement(); // Footer
+    }
+    else if (isMaxRowsExceed()) {
       writeWrsMaxRowsExceeded(getGenerator().getMaxRows());
     }
     //
@@ -356,10 +370,11 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     getWriter().writeStartElement("Data");
     //
     setMaxRowsExceed(false);
+    setErrorDuringQuery(false);
     int maxRows = getGenerator().getMaxRows();
     int rowNum = 0;
     //
-    while (getResultSet().next()) {
+    while (!isErrorDuringQuery() && getResultSet().next()) {
       rowNum++;
       //
       if (maxRows > 0 && rowNum > maxRows) {
@@ -383,8 +398,19 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     getWriter().writeStartElement("R");
     writeWrsDataRowAttributes(rowNum);
     //
+    int c = 0;
     for (WrsBindingItem item : getGenerator().getSelectedBindingItems()) {
       writeWrsDataRowColumn(item);
+      c++;
+      if (isErrorDuringQuery()) {
+        // write missing C elements in case of an error
+        int missingCs = getGenerator().getSelectedBindingItems().size() - c;
+        for (int i = 0; i < missingCs; i++) {
+          getWriter().writeStartElement("C");
+          getWriter().writeEndElement(); // C
+        }
+        break;
+      }
     }
     //
     // TODO Impl write embedded rows. Later
@@ -413,8 +439,13 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
    */
   protected void writeWrsDataRowColumn(WrsBindingItem item) throws Exception {
     getWriter().writeStartElement("C");
-    writeWrsDataRowColumnAttributes(item);
-    writeWrsDataRowColumnValue(item.getJDBCDataType(), item.getColumnNumber());
+    try {
+      writeWrsDataRowColumnAttributes(item);
+      writeWrsDataRowColumnValue(item.getJDBCDataType(), item.getColumnNumber());
+    }
+    catch (Exception e){
+      setErrorDuringQuery(true);
+    }
     getWriter().writeEndElement(); // C
   }
 
