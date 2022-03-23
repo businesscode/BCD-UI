@@ -80,7 +80,7 @@ task bcduiGensrcJsXsltXapiJspTagApis {
         ant.call(path: "/*//File[@outputFormat='xml']/*", buffer: "content") {
           ant.param( name: 'name', path: '../@name')
           ant.actions {
-            ant.xmltask( sourcebuffer: "content", dest: "$buildDir/"+'@{name}', encoding: "UTF-8" )
+            ant.xmltask( sourcebuffer: "content", dest: "$buildDir/"+'@{name}', encoding: "UTF-8", indent:"false" )
           }
         }
       }
