@@ -16,7 +16,6 @@
 package de.businesscode.bcdui.subjectsettings;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,18 +31,18 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.apache.shiro.session.Session;
-
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
 import de.businesscode.bcdui.subjectsettings.config.SubjectSettingsConfig;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
-
+import de.businesscode.util.xml.SecureXmlFactory;
+import org.w3c.dom.Document;
 /**
  * Subject settings are session settings in web and non-web environments
  * It covers rights, i18n settings and so on
@@ -85,11 +84,13 @@ public class SubjectSettings extends SubjectSettingsConfig {
             singelton = new SubjectSettings();
           }else{
             try {
-              FileInputStream file = new FileInputStream(confPath+File.separator+"subjectSettings.xml");
+              DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
+              documentBuilderFactory.setXIncludeAware(true);
+              documentBuilderFactory.setNamespaceAware(true);
+              Document doc = documentBuilderFactory.newDocumentBuilder().parse(confPath+File.separator+"subjectSettings.xml");
               JAXBContext jc = JAXBContext.newInstance( SubjectSettings.class );
               Unmarshaller u = jc.createUnmarshaller();
-              SubjectSettings s = (SubjectSettings)u.unmarshal( file );
-              file.close();
+              SubjectSettings s = (SubjectSettings)u.unmarshal( doc );
               s.wasConfigured=true;
 
               singelton = s;

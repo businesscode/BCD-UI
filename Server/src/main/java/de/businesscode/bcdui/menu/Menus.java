@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,17 +27,22 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import de.businesscode.bcdui.menu.config.Entry;
 import de.businesscode.bcdui.menu.config.Include;
 import de.businesscode.bcdui.menu.config.Menu;
 import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
  * A singleton container class for all the menus defined in the application.<br>
@@ -250,6 +255,9 @@ public class Menus {
       throw new RuntimeException("Can not read menu files from " + defaultMenuFolderPath  + ". The path is not a directory.");
     }
 
+    DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
+    documentBuilderFactory.setXIncludeAware(true);
+    documentBuilderFactory.setNamespaceAware(true);
 
     for (int i = 0; i < menuFiles.length; i++) {
       if (menuFiles[i].isDirectory()) {
@@ -261,10 +269,12 @@ public class Menus {
 
       FileInputStream fi = null;
       try {
-        fi = new FileInputStream(menuFiles[i]);
-        Menu curMenu = (Menu)jaxbUnmarshaller.unmarshal(fi);
+        Document doc = documentBuilderFactory.newDocumentBuilder().parse(menuFiles[i]);
+        Menu curMenu = (Menu)jaxbUnmarshaller.unmarshal(doc);
         menuMap.put(curMenu.getId(), curMenu);
       }
+      catch (SAXException e) { }
+      catch (ParserConfigurationException e) { }
       finally{if(fi != null)fi.close();}
     }
   }
