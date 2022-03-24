@@ -16,7 +16,8 @@
 package de.businesscode.bcdui.wrs.save;
 
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -376,9 +377,9 @@ public class DatabaseWriter {
             if (isNull)
               stm.setNull(paramNo, Types.CLOB);
             else {
-              byte bytes[] = value.getBytes(StandardCharsets.UTF_8);
-              StringReader reader = new StringReader(new String(bytes, StandardCharsets.UTF_8));
+              Reader reader = new InputStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
               stm.setCharacterStream(paramNo, reader, value.length() /* number of characters, not bytes length */);  // TERADATA only supports the 3 parameters method of setCharacterStream
+              reader.close();
             }
             break;
           case Types.SQLXML:
