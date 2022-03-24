@@ -205,10 +205,10 @@ public class I18n {
    * @param request
    * @param locale
    */
-  private static void setLocaleCookie(HttpServletResponse response, Locale locale) {
+  private static void setLocaleCookie(HttpServletRequest request, HttpServletResponse response, Locale locale) {
     Cookie cookie = new Cookie(HTTP_COOKIE_LANG, locale.getLanguage());
     cookie.setMaxAge(60 * 60 * 24 * 365);
-    cookie.setPath("/");
+    cookie.setPath(request.getContextPath());
     cookie.setComment("Preferred Language");
 
     try {
