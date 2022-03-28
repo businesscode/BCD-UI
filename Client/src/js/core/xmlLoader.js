@@ -374,6 +374,10 @@ bcdui.core.XMLLoader = class
                   });
                   throw "failed to parse XML";
                 }
+
+                if (dataDoc.selectSingleNode("/*/wrs:Footer/wrs:ErrorDuringQuery[.='true']") != null)
+                  console.warn("Error while reading rows of request: " + args.url);
+
                 var soapFaultResult =  args.skipSoapFault ? 0 : this._checkForSOAPFault( {doc: dataDoc} );
                 if( !soapFaultResult ) {
                   this._setXMLBase(dataDoc, bcdui.util.url.translateRelativeURL(location.href, args.url));

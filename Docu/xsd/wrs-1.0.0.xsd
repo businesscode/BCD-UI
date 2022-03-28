@@ -291,6 +291,17 @@
       Additional information about the Wrs
     </xs:documentation></xs:annotation>
     <xs:sequence>
+      <xs:element name="ErrorDuringQuery" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          An exception happened (e.g. db connection drop) during getting the data. The returned WRS is still a valid XML, the last row is filled up with empty C elements.
+        </xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:boolean">
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="MaxRowsExceeded" minOccurs="0">
         <xs:annotation><xs:documentation>
           Not all rows included due to restriction either by a server side setting of via the wrq:WrsRequest
