@@ -3,9 +3,10 @@
 
 === Release Notes
 
-The following release notes allow following BCD-UI's updates and to judge whether migrating to a newer version is worth it.
-Some changes are not backward compatible and may require code change in the project. They are listed here as well.
+The following release notes allow following BCD-UI's ongoing development. +
+Potentially breaking changes are listed under _Incompatibilities_.
 
+___
 ==== Release 5_6_0 ...in progress
 .Major new features:
 ** Added support for joins, CTEs, set operators and sub-selects to Wrq
@@ -14,26 +15,9 @@ Some changes are not backward compatible and may require code change in the proj
 ** Fully supporting MySQL and Redshift now
 ** Security improvements
 
-.Incompatibilities:
-** Move shiro settings from web.xml to WEB-INF/shiro.ini, add <listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener> before shiro filter, update shiro filter from org.apache.shiro.web.servlet.IniShiroFilter to org.apache.shiro.web.servlet.ShiroFilter
-** Add security features regarding cookies to context.xml and web.xml
-** Add SubjectFilters to bcd_virtualfilesystem
-** WrqModifier process() does not any more return a fragment in some cases but does now always work on the input document
-** bnd:Coalesce in Binding files was removed
-** getTableName() was renamed to getTableReference()
-and needs also to be updated sql expression strings compiled with SQLEngine::transform()  "... $k.getTableName()..." -> $k.getTableReference() or simply $k
-** TextToUrl servlet returns found value in an XML element now
-** removed SubjectSettingsFilter, SessionAttributesManager, SessionAttribute servlet, bcdui.config.security, client sided setting is done now via SubjectPreferences with bcdui/conf/subjectPreferences.xml as config.
-* ensure adding bcd_userId:userId and bcd_i18n:lang to subjectSettings.xml
-* removed bcdBean creationStamp, use bcdBean.currentTimestampUtc instead which is the date string in UTC timezone
-* bcd_virtualFileSystem additionally got vfsPathLimit SubjectFilter which limits read/write access on the VFS. Ensure to add user rights (or default values) for:
-at least cube template writing /vfs/reports/*, detail export column selects /vfs/exports/*, docUploads /vfs/documents/*. Writing vfs bindings could be achieved via /WEB-INF/*/virtual/*.
-* WRS request optional url attribute at bindingSet to pick servlet is moved to root WrsRequest element
-* grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
-
 .Server:
 * Wrq does support CTE common table expressions, joins and unions now
-* allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
+* Allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
 * Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
 * Database syntax does fully support MySQL and Redshift now
 
@@ -46,6 +30,28 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 .Development
 * Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest
 
+
+.Incompatibilities:
+** Move shiro settings from web.xml to WEB-INF/shiro.ini, add +
+`<listener><listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class></listener>` +
+before shiro filter, +
+update shiro filter from `org.apache.shiro.web.servlet.IniShiroFilter` to `org.apache.shiro.web.servlet.ShiroFilter`
+** Add security features regarding cookies to context.xml and web.xml
+** Add SubjectFilters to `bcd_virtualfilesystem.xml` BindingSet
+** WrqModifier process() does not any more return a fragment in some cases but does now always work on the input document
+** bnd:Coalesce in Binding files was removed
+** For SQL engine, i.e. plain SQL-code with referencing BindingSets translated with `SQLEngine::transform()`, getTableName() was renamed to getTableReference() +
+to reference the table $t (note: without `.getTableReference()` is preferred anyway)
+** TextToUrl servlet returns found value in an XML element now
+** removed SubjectSettingsFilter, SessionAttributesManager, SessionAttribute servlet, bcdui.config.security, client sided setting is done now via SubjectPreferences with bcdui/conf/subjectPreferences.xml as config.
+* Ensure adding bcd_userId:userId and bcd_i18n:lang to subjectSettings.xml
+* Removed bcdBean creationStamp, use bcdBean.currentTimestampUtc instead which is the date string in UTC timezone
+* bcd_virtualFileSystem additionally got vfsPathLimit SubjectFilter which limits read/write access on the VFS. Ensure to add user rights (or default values) for:
+at least cube template writing /vfs/reports/*, detail export column selects /vfs/exports/*, docUploads /vfs/documents/*. Writing vfs bindings could be achieved via /WEB-INF/*/virtual/*.
+* WRS request optional url attribute at `BindingSet` to pick servlet is moved to root WrsRequest element
+* Grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
+
+___
 ==== Release 5_5_0
 
 .Major new features:
@@ -58,13 +64,13 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 
 .Incompatibilities:
 * Client
-** Due to a security fix in latest jQuery, be sure you don't use self closing html elements in jQuery.append()/etc. (Example: <span/> -> <span></span>)
-** echart uses new default colors, ensure to set colors in your projects and don't rely on default coloring
+** Due to a security fix in the latest jQuery, self-closing html elements in jQuery.append() etc. are no longer allowed (Example: <span/> -> <span></span>)
+** ChartEchart component uses new default colors, ensure to set colors in your projects and don't rely on default coloring
 ** Due to fontawesome/bootstrap/nouislider update, you need to rebuild your themes jar
 ** Grid pagination/action buttons are now in divs, so you may need to check your styling
 ** Grid editor bcduiSingleSelect was removed, use bcduiSimpleDropDown instead
 ** Moved QuickEdit to package bcdui.widgetNg
-** createFixedTableHeader uses new css classes, ensure your theme includes them
+** createFixedTableHeader() uses new css classes, ensure your theme includes them
 ** bcdui.util.xml.parseFilterExpression was moved to bcdui.wrs.wrsUtil.parseFilterExpression
 
 .Config
@@ -92,7 +98,7 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 
 Layout:
 * introduced right sidebar
-* no need to add bcd__sidebar-left-collaps-toggle etc divs/classes. Specify bcdEffectCollapse class at your bcd__sidebar-*__inner element
+* no need to add bcd__sidebar-left-collapse-toggle etc. divs/classes. Specify bcdEffectCollapse class at your bcd__sidebar-*__inner element
 
 .Components:
 * Cube
@@ -114,7 +120,7 @@ Layout:
 ** calc:AspectRef can directly address a bindingItemId now
 
 * Charts
-** align echart adapter to support getData() and set chart:ChartsDrawn
+** align ChartEchart adapter to support getData() and set chart:ChartsDrawn
 ** fix configurationFromWRS to correctly use unit and caption information in case of a standard cube (1rowDim/1colDim/1measure)
 
 .Widgets
@@ -137,6 +143,7 @@ Layout:
 .Utils
 * bcdui.util.getUuid() returns you an uuid
 
+___
 ==== Release 5_4_0
 
 .Major new features:
@@ -150,7 +157,7 @@ Layout:
 . Components: Scorecard, Cube, Charts, Export, Grid, Tree
 * Added Grid Component
 * Added Tree Component
-* Added collapse/expand functionaly to cubes
+* Added collapse/expand functionality to cubes
 * Reorganized CubeContextMenu and added hard toggle column sort
 * Charts support for dark themes
 * Charts removed some chart background grid elements for less crowded charts
@@ -177,8 +184,8 @@ The Renderer either works directly with the specified element or (in case of spe
 * menu.xml: added implicit i18n support for title, caption attributes; please, take a look at "incompatibilites" as well.
 * Introduce body bcdSingletonHolder div where bcdCalendar, bcdAutocompletionBox, etc should be attached
 * tab menu fires custom events (bcd:widget.tab.hide bcd:widget.tab.show) on the single tab areas
-* inputField gets hideWildcardChar option to not attach asterisk characters (dimchooser supports it via dimconfig)
-* tabMenu can be persisten
+* inputField gets hideWildcardChar option to not attach asterisk characters (DimsionChooser supports it via dimconfig)
+* tabMenu can be persisted
 * New PasteList widget with support of in-clause
 
 . Core
@@ -188,7 +195,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * SimpleModel: add saveChain/Parameters to be able to modify save actions
 * DataProvider: added support for xpath with placeholders/fill parameters for query/queryNodes/read/write/remove operations. Mainly for handling quote/apostrophe issues when dynamically building up xPath Expressions
     Example: bcdui.wkModels.guiStatus.read("//guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"]);
-* BindingSet Relation added IsLike condition for joins
+* `BindingSet` Relation added IsLike condition for joins
 * filterRowsTemplate gets enhancement of condition attributes and filterlists
 * moved save handling from SimpleModel to DataProvider
 * New bnd:BindingSet/bnd:C/@skipStartupRead attribute. If set to true, this BindingItem is not read on startup
@@ -217,8 +224,8 @@ The Renderer either works directly with the specified element or (in case of spe
 . Server
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Add notLike and notIn operators to f:Filter, including universal filter widget
-* Wrq where and having clause does now understand virual binding items: f:Expression/@bRef referencing a wrq:Columns/wrq:C which is having a wrq:Calc expressing, are now using that wrq:Calc expression
-* New /bnd:BindingSet/bnd:C/@skipStartupRead to allow skipping an binding item at inital read on startup
+* Wrq where and having clause does now understand virtual binding items: f:Expression/@bRef referencing a wrq:Columns/wrq:C which is having a wrq:Calc expressing, are now using that wrq:Calc expression
+* New /bnd:BindingSet/bnd:C/@skipStartupRead to allow skipping an binding item at initial read on startup
 . Build / Dev / Docu
 * In Eclipse, sub-projects Client, Server, Theme etc now have names BCD-UI--SubProjectName to keep them together in the navigation tree
 * Switched to gradle 4.2, added gradle wrapper, updated nodeJs to 6.11
@@ -240,8 +247,8 @@ The Renderer either works directly with the specified element or (in case of spe
 * Charts: Moved VML drawer to BCD-UI-DE
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
-** CubeContextMenu, Sort Measre is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort
-** If a template is selected and then maually modified later, cube:Layout/@name and @description attributes are appeded with ' - '+bcd_Edit_Modified
+** CubeContextMenu, Sort Measure is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort
+** If a template is selected and then manually modified later, cube:Layout/@name and @description attributes are appeded with ' - '+bcd_Edit_Modified
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 * New entries for Eclipse injection to support ECMA5 transpiled sources, see Docu/development/eclipseInjected.xml
 * Widgets: navpath generation is turned off by default, use widget's enableNavPath attribute to turn it on
@@ -254,12 +261,13 @@ The Renderer either works directly with the specified element or (in case of spe
 ** Also add bcdui/i18n/default/lang if you want another default language than en, see web.xml
 * removed bcdui.widget._createTopLevelElement function, switch to use bcdui.util.getSingletonElement
 * SubjectFilters are now also applied on writing, details see above
-* bcd_user_sec writing is now secured if using the new BindingSet xml
-* Signiture of WriteProcessingCallback#processEndRow changed
+* bcd_user_sec writing is now secured if using the new `BindingSet` xml
+* Signature of WriteProcessingCallback#processEndRow changed
 * FAR module is optional, specify it in your bcduiLoadFiles attribute
 * Increased timeout for bcd_sec_usersettings is now 1 hour, was 2 min
 * In some cases requestDocumentBuilder.xslt, also used in AutoModel, did not limit the bRefs from filters to those given in the list, no it does. If setup incorrectly before, they are missing now.
 
+___
 ==== Release 5_2_0
 
 .Major new features:
@@ -284,6 +292,7 @@ The Renderer either works directly with the specified element or (in case of spe
 . LoginServlet was removed, adjust web.xml and let loginform have action=""
 . bcdui.utils.wrsUtils.postWrs: onSuccessCb, onFailureCb become onSuccess, onFailure
 
+___
 ==== Release 5_1_0
 
 .Major new features:
@@ -328,6 +337,7 @@ The Renderer either works directly with the specified element or (in case of spe
   both using the DataProviderWithXPathNodes
 . If you used cubeConfigurator's isDefaultHtmlLayout='false' before, you need to provide bcdCubeDndMatrix container yourself
 
+___
 ==== Release 5_0_0
 
 Major new features:
@@ -345,6 +355,7 @@ Incompatibilities:
 Internal:
 . Switched scorecard and cube dnd to 960 grid for defaultHtml Layout
 
+___
 ==== Release 4_6_1
 
 Major new features:
@@ -388,16 +399,16 @@ Major new features:
 
 Incompatibilities:
 . Cube measure sort is only available when no VDMs or column dimensions are available
-. Dimchooser works on bcdDimension attributes now, f:Or[@id] is replaced with bcdDimension, f:And[@id] attribute was removed
-. Dimchooser's configuration model has renderer namespace and filterCondition element is aligned to FilterCondition
+. DimensionChooser works on bcdDimension attributes now, f:Or[@id] is replaced with bcdDimension, f:And[@id] attribute was removed
+. DimensionChooser's configuration model has renderer namespace and filterCondition element is aligned to FilterCondition
 . buildPeriodFilters.xslt was removed
 . PeriodChooser/formulaEditor, removed use of bcdWidgetId and removed legacy id bcdContainer_ prefix
 . Remove de.businesscode.bcdui.web.errorLogging.BuiErrorLogAppender from log4j.properties to avoid double logging
-. SubjectFilter elements in a BindingSet document must be collected inside the SubjectFilters root element
+. SubjectFilter elements in a `BindingSet` document must be collected inside the SubjectFilters root element
 . Aligned columns in bcd_log_* tables. Double check yours against the well known ones in BCDUI
-. Renamed bcd_error_logging bindingSet to bcd_log_error
+. Renamed bcd_error_logging `BindingSet` to bcd_log_error
 . Renamed WidgetNG button onclick to onClickAction to avoid customTags issue with html onclick
-. Please double check log4j.properties and web.xml for updated logging entries (session logging needs web.xml listener and shiro authenticator listener)
+. Please double-check log4j.properties and web.xml for updated logging entries (session logging needs web.xml listener and shiro authenticator listener)
 . Log tables need a log_time column which uses a default timestamp
 . bcd_log_page renamed to bcd_log_pageperformance
 . When using cellAndGuiStatusFilter via filterFromCell.xslt, period filters don't have @dateFrom/To attributes anymore
@@ -408,6 +419,7 @@ Incompatibilities:
 . Removed ActiveX base client ide exports
 . legacy themes need #bcdChartToolTip setting
 
+___
 ==== Release 4_6_0
 
 Major new features:
@@ -417,7 +429,7 @@ Major new features:
 * Removed all global JS symbols except bcdui and guiStatus
 * Clear separation of public and private JS API calls via JSDoc
 * Generating jsApiStubs with public API for IDE support
-* Introduced file goups allowing to load only parts of BCD-UI
+* Introduced file groups allowing to load only parts of BCD-UI
 * Introduced targetHtml attribute which supports dom/jquery elements, selectors and ids for renderers and widgets
 * Introduced HTML custom elements for renderers and widgets
 
@@ -425,7 +437,7 @@ Major new features:
 
 * Cube can now be instantiated as a class via new.
 * New parameter 'contextMenu' for Cube and Scorecard allows to provide a custom url. true means default context menu, false is default and means no context menu.
-* Export: 'no export' messsage is now i18n and supports custom messages.
+* Export: 'no export' message is now i18n and supports custom messages.
 * Scorecard aspects: Introduced calc:ExtensionRef as a reference to a fix value in scc:Extensions.
 * Added common dm:DetailData specification for scorecard and cube.
 * Introducing config attribute as a replacement for metaData, metaDataModel
@@ -440,7 +452,7 @@ Major new features:
 * Added various functions to dataProviders (write, read, remove, query, queryNodes, fire, onChange, removeDataListener, serialize)
 * Added widget functions i18nAlert, i18nConfirm
 * Added onReady and onceReady functions to AbstractExecutable
-* Introduced DataProvier.fire(), removed need for having before/after listener sides. Handling is now done 'after' modification only
+* Introduced DataProvider.fire(), removed need for having before/after listener sides. Handling is now done 'after' modification only
 * DataProviderHolder can now be instantiated without a source and the source can be provided later
 * DataProviders are firing onChange() when getting in ready status
 * DataProvider write(), remove() set uncommitted-writes flag. Executing leads to WaitingForUncomittedChanges status (not ready) in this case until fire() is called. Fire and SimpleModel data load resets flag and sets ready.
@@ -515,7 +527,7 @@ Incompatibilities:
 * Removed bcdui.easing package
 * AutoModel isDistinct default value is false now
 * DataProviderWithXPath, DataProviderWithXPathNodes both don't auto create xpath anymore (was done via obsolete fireBeforeDataModification)
-* Fixed typo in bcdui.i18n.syncTranslateFormateMessage and translateFormateMessage to syncTranslateFormatMessage and translateFormatMessage
+* Fixed typo in bcdui.i18n.syncTranslateFormatMessage and translateFormatMessage to syncTranslateFormatMessage and translateFormatMessage
 * Renamed afterDataModification to callback
 * paramBag moved to bcdui.core.paramBag
 
@@ -524,10 +536,11 @@ Incompatibilities:
 * Added bcd prefix to .sidebar* .grip* css classes
 * Switched from bcdTitleArea, bcdSideBarItem, bcdSideBarItemHeader, bcdSideBarItemBody, bcdSideBarItemCaption to bcdSection, bcdItem, bcdSectionCaption, bcdCaption
 * bcdSideBarEffect, bcdSideBarGrip*, bcdSideBarArea divs are automatically created if needed, so remove them in your code
-* HtmlBuilderTemplate does not render specific bcdEven/bcdOdd classes anymore, odd/even is nown handled via css n-th child
-* Pageeffects are handled via class attributes (bcdEffect...) at bcdSideBarContainer. No need to call init with arguments anymore.
+* HtmlBuilderTemplate does not render specific bcdEven/bcdOdd classes anymore, odd/even is now handled via css n-th child
+* PageEffects are handled via class attributes (bcdEffect...) at bcdSideBarContainer. No need to call init with arguments anymore.
 
 
+___
 ==== Release 4_5_7
 
 Major new features:
@@ -538,7 +551,7 @@ Major new features:
 * cubeDragNDrop is now based on connectables
 * improved cube ranking area rendering and using widgetNGs now
 * improved chart from cube (multi-axis, better captions, more dimension/measure combinations)
-* simplified class generation (bcdEven/Odd/Total) for htmlbuilder
+* simplified class generation (bcdEven/Odd/Total) for HtmlBuilder
 * grid context menu can be limited to grid table only (not pagination etc) by setting context id "innerGrid" to contextmenu
 * Upload Module: FileValidate got new APIs: runValidateSql() and customValidateReferenceData() to alleviate creation of validation SQLs.
 
@@ -556,7 +569,7 @@ Major new features:
 * bcdui.core.ready waits for jQuery to be ready. Avoids Prototype/IE8/cache issues with e.g. staticModel defered init
 * static models without a data attribute are generated as empty models
 * added Promise polyfill
-* modelupdater, automodel are also available as core functions now, not only via factory
+* `ModelUpdater`, `AutoModel` are also available as core functions now, not only via factory
 * removal of prototype.js (keep copy of patched version in external libs)
 * removal of IE version less than 8 specific code (iframe, scroll offsets)
 * ie8 support only via included modules (bcdui/module/extensions/ie8Polyfills.js)
@@ -580,7 +593,7 @@ Major bug fixes:
 
 . fixed cube tag to support template manager without the need of a ranking editor
 . dimchooser should not initially clean its targetmodel
-. cube toggle hideTotals accidently removes all rows (chrome only)
+. cube toggle hideTotals accidentally removes all rows (chrome only)
 . Tree renderer.xslt provided a wrong param colNo (off-by-one) to template renderHeaderColumnToken, which is used for specific cell renderer
 . A Scorecard having kpis as columns, did show kpi-id instead of kpi caption in the output plus aspects were not treated correctly in some cases
 
@@ -612,8 +625,9 @@ Incompatibilities:
 . htmlbuilder bcdEven/Odd/Total simplification needs legacy theme updates
 . strict camelCase for cubeConfigurator attributes: isDefaultHtmlLayout, rankingTargetHtmlElementId, templateTargetHtmlElementId and summaryTargetHtmlElementId
 . cubeDND now strictly takes data from /*/cube:Dimensions/dm:LevelRef if present, otherwise from //dm:Dimensions/dm:LevelRef and from */cube:Measures/dm:MeasureRef if present, otherwise from //dm:Measures/dm:Measure
-. the uploadFileValidateCommit.tag now loads the error data from 'upload_FailedRows_noHead' BindingSet and not 'upload_FailedRows_plusHead' - only the binding reference has changed, anything else remains.
+. the uploadFileValidateCommit.tag now loads the error data from 'upload_FailedRows_noHead' `BindingSet` and not 'upload_FailedRows_plusHead' - only the binding reference has changed, anything else remains.
 
+___
 ==== Release 4_5_6
 
 Major new features:
@@ -633,11 +647,11 @@ Major new features:
 . Widgets
 
 * New css classes for menu bcdActive and bcdActivePath to highlight the currently selected item/page
-* Cube ranking and template editors, blind up/down and popcalendar uses utf8 characters (via css content) instead of images
+* Cube ranking and template editors, blind up/down and PopUpCalendar uses utf8 characters (via css content) instead of images
 * User Messages Viewer renders last_modified information in second column
 * Added jqueryui modules tab and selectable
 * Detail export allows providing detail export filename as /wrq:WrsRequest/@bcdFileName
-* Treeview is not listening on its status in guiStatus
+* TreeView is not listening on its status in guiStatus
 * new SideBySideChooser WidgetNG
 
 . Core
@@ -655,7 +669,7 @@ Major new features:
 . Themes
 
 * Introducing new SCSS/960 grid based themes. Properties file can have two new properties:
-"distribution.theme.inherit" which may point to a differnet theme name from where images are merged into the theme
+"distribution.theme.inherit" which may point to a different theme name from where images are merged into the theme
 and "distribution.theme.legacy" which can be set to true for old style themes.
 
 . Security / Bindings / WebRowSet
@@ -665,7 +679,7 @@ and "distribution.theme.legacy" which can be set to true for old style themes.
 
 Major bug fixes:
 
-. close unmanaged connection in ziplet
+. close unmanaged connection in `ZipLet`
 
 Incompatibilities:
 
@@ -683,6 +697,7 @@ tr/@bcdLeaf="true" is also gone, check class bcdLeaf instead. In general, header
 
 . When overwriting htmlBuilder with specificRenderers, you also have to apply htmlHeaderBuilderTemplate.xslt now, before it was only htmlBuilderTemplate.xslt in the container xslt.
 
+___
 ==== Release 4_5_5
 
 Major new features:
@@ -690,7 +705,7 @@ Major new features:
 . Scorecard, Cube, Grid, Charts
 
 * cmp:Grid has got more configuration parameters
-* cmp:Grid supports LOV references which are defined at BindingSet level
+* cmp:Grid supports LOV references which are defined at `BindingSet` level
 * cmp:Grid supports i18n-tag in @caption on the BindingItem, just set the caption to "&amp;xE0FF;admin.role.description" (the first character &amp;xE0FF; is bcdui.i18n.TAG character)
 * SYLK Excel Export prefers given wrq:C caption attribute over binding item caption attribute
 
@@ -710,7 +725,7 @@ Major new features:
 * wrsUtils Package: bcdui.wrs.wrsUtil.getNextIdentifier(),
 API support for table-based sequencing; requires well-known binding set: bcd_identifier and
 the servlet in web.xml
-* BindingSet / WRS: wrs:References nodes which are defined in a BindingSet are now also pushed to the client and are available inside the WRS
+* `BindingSet` / WRS: wrs:References nodes which are defined in a `BindingSet` are now also pushed to the client and are available inside the WRS
 * Changes on 3rdParty libs:
 
 * Added ECMA5 lanuage feature polyfill ddr-ecma5.js
@@ -730,6 +745,7 @@ Incompatibilities:
 . Several styling attributes like menuHoverForegroundColor where removed because they were never used, theme is handling menu styles
 . Grid Component: the default root rendering stylesheet is now /bcdui/component/grid/grid.xslt , the file /bcdui/component/grid/gridExt.xslt is dropped.
 
+___
 ==== Release 4_5_4
 
 Major new features:
@@ -783,6 +799,7 @@ For bindings refresh use /bcdui/servlets/CacheManager?action=refreshAll
 . WidgetNG API: parameter 'disableResetControl' changed its default value to 'true', so widget's supporting this flag will not display reset controls per default.
 . i18n data : is loaded from URL /bcdui/servletsSessionCached/WrsServlet/* to support session-scoped caching. Please bind your WrsServlet also to that URL
 
+___
 ==== Release 4_5_3
 
 Major new features:
@@ -826,6 +843,7 @@ Incompatibilities:
 . bcd_virtualFileSystem binding item requires new isServer item/column and WriteProcessing settings
 . css/js jquery includes which use *.min.* variant need to use the not 'min' version now
 
+___
 ==== Release 4_5_2
 
 Major new features:
@@ -843,7 +861,7 @@ Major new features:
 . Security / Bindings / WebRowSet
 
 * WrsServlet does now support server calculations for column expressions: wrs:Select/wrs:Columns/wrs:C/wrq:Calc/wrq:* winning over wrs:C/@aggr.
-* BindingSet implements &lt;WriteProcessing/Callbacks/&gt; for writing serverside bound values. Read more in <<DocBinding,Bindings>>
+* `BindingSet` implements &lt;WriteProcessing/Callbacks/&gt; for writing serverside bound values. Read more in <<DocBinding,Bindings>>
 
 
 Major bug fixes:
@@ -865,8 +883,9 @@ Incompatibilities:
 . bnd:BindingSet / bnd:SubjectFilter: the bindings definition has changed (see bindings.xsd), bnd:SubjectFilter element is now a child element of bnd:SubjectSettings,
 and was a direct child of bnd:BindingSet before. The bnd:Security-Element is now bound to bindings-namespace, was defined in scope of subjectSettings-namespace before.
 . Scriptaculous was removed.
-. DefaultWriteValue support dropped: &lt;logPage/&gt; tag uses different BindingSet definition based on WrsModificationCallback, please update bcd_log_page.xml BindingSet.
+. DefaultWriteValue support dropped: &lt;logPage/&gt; tag uses different `BindingSet` definition based on WrsModificationCallback, please update bcd_log_page.xml BindingSet.
 
+___
 ==== Release 4_5_1
 
 Major new features:
@@ -912,12 +931,13 @@ Incompatibilities:
 and was child of BindingSet before.
 . BindingSet / WRS write-protection: if you have a subjectSettings.xml configuration in your project the Binding will be write-protected and
 you'll have to set up Security for each Bindings in order to be able to update data, please consult the <<DocSecurity,Security>> paper for more information.
-. Property _.xml_ (node.xml and document.xml) is not longer available. Use standard XMLSerializer instead. In *.js replace (most of):
+. Property _.xml_ (node.xml and document.xml) is no longer available. Use standard XMLSerializer instead. In *.js replace (most of):
  `([\w]+[\w\.0-9\[\]\(\)]*)\.xml(?![\w"'( *=)])`  with:  `new XMLSerializer().serializeToString(\1)` 
-. RequestDocumentDataProvider is not longer autorefreshing itself unless isAutoRefresh is set on init or via setIsAutoRefresh(). This is now automatically done by a model if it is itself autoRefresh.
+. RequestDocumentDataProvider is not longer auto-refreshing itself unless isAutoRefresh is set on init or via setIsAutoRefresh(). This is now automatically done by a model if it is itself autoRefresh.
 . bcd_virtualfilesytem BindingSet was renamed (it has now a bcd_ prefix).
 . commons-dbutils-1.5.jar is now also needed as a new jar in WEB-INF/lib.
 
+___
 ==== Release 4_5_0
 
 Major new features:
@@ -961,6 +981,7 @@ I you see wrong formats in a report's output, make sure the renderer also uses t
 . Timing: Asynchronous actions do now run with less delay for performance reasons. Incorrect order of actions or missing sync can now break if they did relay on a higher (never guaranteed) delay.
 . Dimchooser emptyValue and clearOption strings are now only valid for the input fields below level. For level you need to use emptyValueLevel and clearOptionLevel.
 
+___
 ==== Release 4_3_3_a
 
 Major new features:
@@ -975,7 +996,7 @@ Major new features:
 . Widgets
 
 * Loading message is now slightly delayed when an option model gets revalidated so that choosers do not flicker anymore if their values stays valid and the option model revalidation is quick (no server load)
-* ClearOption and emptyValue of dimensionchooser to now affect all inputs of that chooser (not just level select)
+* ClearOption and emptyValue of DimensionChooser to now affect all inputs of that chooser (not just level select)
 
 
 Major bug fixes:
@@ -989,6 +1010,7 @@ Incompatibilities:
 . As always, check BCD-UI\src\js\bcdui\i18n\messages.xml for changes regarding well-known messages.
 . The WrsDataWriter doesn't support SQLXML type anymore. See BindingItem/@escapeXML.
 
+___
 ==== Release 4_3_3
 
 Major new features:
@@ -1029,6 +1051,7 @@ Incompatibilities:
 . For charts, classsname bcdEmptyChart and i18n key bcd_EmptyChart are now aligned with convention.
 . Removed firebug lite, xPather and debug area, as all browsers offer generic debug support today.
 
+___
 ==== Release 4_3_2
 
 Major new features:
@@ -1079,6 +1102,7 @@ Incompatibilities:
 .  BindingSet: now the default BindingItem's type is obtained from associated table's column during initialization and can be overridden implicitly by
  defining the @type-name on a BindingItem. Previously a BindingItem which did no have a @type-name was implicitly set to VARCHAR.
 
+___
 ==== Release 4_3_1
 
 Major new features:
@@ -1160,6 +1184,7 @@ removed private _defaultExportServletURL for WYSIWYG exports.
 . For chome and safari, only use bcdxml:XsltNop for generating 1:1 XSLT, do not use empty xslt output.
 . All i18n entries now have the same prefix (bcd_), so some had to be changed, check messages.xml. Also, bcd_EmptyString was unused and removed from i18n.
 
+___
 ==== Release 4_3_0
 
 Major new features:
@@ -1267,6 +1292,7 @@ Later changes:
 
 . For several cube and chart related sources, the tag V_3_4_0 was adjusted later for new featues and fixes.
 
+___
 ==== Release 4_2_1
 
 Major new features:
@@ -1369,6 +1395,7 @@ Incompatibilities:
 . Moved JS factory for createCube from bcdui.factory to bcdui.component
 . checkBox tag and js factory were removed as this is better replaced by multiSelect plus a staticModel
 
+___
 ==== Release 4_2_0
 
 Major new features:
@@ -1432,6 +1459,7 @@ Incompatibilities:
 . Data providers are not longer created as global variables, thus write $getObject("myModel").xx instead of myModel.xx
 . Parameter rendererId was removed from all widgets Tag- and JS-API. The internal renderer has now always the id = bcdrenderer_&lt;widgetId&gt;
 
+___
 ==== Release 4_1_4
 
 Major new features:
@@ -1446,6 +1474,7 @@ Major bug fixes:
 
 . Handling of all-NaN or all-0 series in charts.
 
+___
 ==== Release 4_1_3
 
 Major new features:
@@ -1479,6 +1508,7 @@ Incompatibilities:
 
 . In bar charts, bars will now become wider if there is enough space
 
+___
 ==== Release 4_1_2
 
 Major new features:
@@ -1551,6 +1581,7 @@ Incompatibilities:
 . Context menu tag parameters have been aligned with tooltip tag.
 . The default orientation for PDF generation is changed to portrait; before it was landscape.
 
+___
 ==== Release 4_1_1
 
 Major new features:
@@ -1586,6 +1617,7 @@ Incompatibilities:
 . Removed a:button, because there is already w:button.
 . w:button does not have onClickAction anymore; instead the action is supplied in the tag body.
 
+___
 ==== Release 4_1_0
 
 Major new features:
@@ -1617,6 +1649,7 @@ i.e. the user is not supposed to close them and a commit at the end of the reque
 . applyButton.tag was removed, use button.tag with apply.tag in its body
 . a:button and w:button where merged, onClick attribute was removed, write onClick code in body of tag now
 
+___
 ==== Release 4_0_9
 
 Major new features:
@@ -1631,6 +1664,7 @@ Modifications. This release requires the following changes when upgrading from e
 
 . menu namespace follows now standard
 
+___
 === Release Notes BCD-UI
 
 BCD-UI 4 brings the following major improvements:
@@ -1652,7 +1686,7 @@ logically together. This eases debugging as well as meaningful performance monit
 Caching:: The caching strategies where harmonized and do now allow an easier and more consistent specification of what is to be cached at server and client.
  Cached data can now be stored on file system and in database.
 
-==== New declarative featues
+==== New declarative features
 
 Many features which required custom code in the previous library can now be accessed declarative
 

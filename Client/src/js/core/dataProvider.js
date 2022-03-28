@@ -54,8 +54,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * the name property. This property is filled from the "args" parameter
    * map or set to the "id" if there is no "args.name" value in the map.
    * <p>
-   *   In contrast to the id property the name does not need to be globally unique.
-   *   Instead it should be unique within the scope it is used for. For example
+   *   In contrast to the id property the name does not need to be globally unique,
+   *   Instead, it should be unique within the scope it is used for. For example
    *   if the data provider is passed to a {@link bcdui.core.TransformationChain} the name should
    *   be unique for within this TransformationChain object.
    * </p>
@@ -520,7 +520,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @property {string} [callback] - listener function
    */
   /**
-   * @param {(string|function|RemoveDataListenerParam)} listenerObject - Either a listener function or id or a parameter map. Listeners are added with onChange()
+   * @param {(string|function|RemoveDataListenerParam)} listenerObject - Either a listener function or id or a parameter map {@link RemoveDataListenerParam}. Listeners are added with onChange()
   */
   removeDataListener(listenerObject) {
 
@@ -557,7 +557,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @property {string}   [id] - listener id (only needed for removeDataListener usability)
    */
    /**
-   * @param {(function|OnChangeParam)} listenerObject - Either a function to be called after changes or a parameter map. Listeners can be removed with removeDataListener()
+   * @param {(function|OnChangeParam)} listenerObject - Either a function to be called after changes or a parameter map {@link OnChangeParam}. Listeners can be removed with removeDataListener()
    * @param {string}   [trackingXPath] - xPath to monitor to monitor for changes
   */
   onChange(listenerObject, trackingXPath) {

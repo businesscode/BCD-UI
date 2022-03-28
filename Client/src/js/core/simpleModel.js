@@ -35,7 +35,7 @@
  *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</li>
  *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</li>
  *  </table>
- *  All other content are just loaded as plain text.
+ *  All other content is just loaded as plain text.
  * @example
  * // Load plain content and use it in a renderer
  * var bookModel = new bcdui.core.SimpleModel( "../docs/allBooks.xml" );
@@ -66,11 +66,11 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
    * @property {string}                                        [id]                  - Globally unique id for used in declarative contexts
    * @property {boolean}                                       [isAutoRefresh=false] - If true, each change of args.urlProvider triggers a reload of the model
    * @property {string}                                        [mimeType=auto]       - Mimetype of the expected data. If "auto" or none is given it is derived from the url
-   * @property {SimpleModelParamSaveOptions}                   [saveOptions]         - An argument map for save options
+   * @property {SimpleModelParamSaveOptions}                   [saveOptions]         - An argument map for save options {@link SimpleModelParamSaveOptions}
    */
 
    /**
-   * @param {(string|SimpleModelParam)}                       args - An url for the data or an argument map
+   * @param {(string|SimpleModelParam)}                       args - An url for the data or an argument map {@link SimpleModelParam}
    */
 
   constructor(args)

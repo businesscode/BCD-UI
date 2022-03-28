@@ -20,21 +20,21 @@
     param
     from scc:Aspects/scc:Aspect/scc:BcdAspectWrqBuilder
       see xsd http://www.businesscode.de/schema/bcdui/scorecard-1.0.0
-    from scc/Layout/scc:ApectRefs/scc:ApectRefs
-      @allPeriods (default false) If the aspect data has the period in its dimensions, we we read it grouped by, 
+    from scc/Layout/scc:AspectRefs/scc:AspectRefs
+      @allPeriods (default false) If the aspect data has the period in its dimensions, we read it grouped by,
         otherwise we _repeat_ the value of the period end for all periods
 
   bcdYtd:
     Assumes yr/mo or cwyr/cw or dy as periods
-    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+    scc:Layout/@removeEmptyCells="true" allows clearing empty wrs:C if value is repeated as a column
   
   bcdPreviousPeriod:
     Previous period's kpi value
-    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+    scc:Layout/@removeEmptyCells="true" allows clearing empty wrs:C if value is repeated as a column
 
   bcdTrend:
     Current / previous kpi value
-    scc:Layout/@removeEmptyCells="true" allows to clear empty wrs:C if value is repeated as a column
+    scc:Layout/@removeEmptyCells="true" allows clearing empty wrs:C if value is repeated as a column
 
   bcdRawValues:
     Adds the raw indicator and total values (% KPIs with a basic div x/y only)
@@ -107,7 +107,7 @@
             <xsl:with-param name="string" select="$aspectDef/scc:BcdAspectWrqBuilder/@dimensions"/>
           </xsl:call-template>
         </xsl:variable>
-        <!-- This are our dimensions, as declared in aspect definition -->
+        <!-- These are our dimensions, as declared in aspect definition -->
         <xsl:variable name="dimensionsBRef" select="exslt:node-set($dimensionsString)/*/wrs:Data/wrs:R/wrs:C"/>
         <!-- We join over all our dim columns, which appear id sc breakdown, we rely on a setup where all others are part of the filter or should be null -->
         <xsl:variable name="joinBRefs"   select="/*/scc:Layout/scc:Dimensions//dm:LevelRef[@bRef=$dimensionsBRef]/@bRef"/>
@@ -123,7 +123,7 @@
                   <wrq:C bRef="{.}" dimId="{.}"/>
                 </xsl:for-each>
 
-                <!-- Period dimension, we nail yr etc to the upper end of the period or just the selected value. Making sure yr/cwyr are always first, i.e. before mo etc -->
+                <!-- Period dimension, we nail yr etc. to the upper end of the period or just the selected value. Making sure yr/cwyr are always first, i.e. before mo etc -->
                 <xsl:if test="$onlyOnePeriod">
                   <xsl:for-each select="$filter//f:Expression[(@bRef='yr' or @bRef='cwyr') and (@op='&lt;=' or (@op='=' and ../f:Expression[@op='&lt;=']))]">
                     <xsl:if test="@bRef = $doc/*/scc:Layout/scc:Dimensions//dm:LevelRef/@bRef">
@@ -174,7 +174,7 @@
                 <xsl:for-each select="$dimensionsBRef">
                   <xsl:choose>
 
-                    <!-- 1) We nail period to the end of the period, unless we want a break down (currently only yr and mo are supported) -->
+                    <!-- 1) We nail period to the end of the period, unless we want a breakdown (currently only yr and mo are supported) -->
                     <xsl:when test=".='yr' and ($onlyOnePeriod or not(.=$joinBRefs))">
                       <f:Expression bRef="yr" op="=" value="{substring($statusModel//f:Expression[(@bRef='yr' or @bRef='cwyr' or @bRef='dy') and (@op='&lt;=' or @op='=')]/@value,1,4)}" />
                     </xsl:when>
@@ -187,7 +187,7 @@
 
                     <!-- 2) We want a period breakdown or we are not period related-->
                     <xsl:when test=".='mo' or .='qr' or .='cwyr'">
-                      <!-- In these cases we rely having copied the period filter already for yr/cwyr -->
+                      <!-- In these cases we rely on having copied the period filter already for yr/cwyr -->
                     </xsl:when>
                     <!-- Copy the original filter, if they are part of break-down, otherwise we need the 'global' one in respect of this dimension 
                          (later we can support an aggregation as an alternative) -->

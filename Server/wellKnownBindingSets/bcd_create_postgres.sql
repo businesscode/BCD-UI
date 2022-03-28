@@ -392,7 +392,7 @@ LANGUAGE plpgsql IMMUTABLE;
 
 
 -- geo
--- As admin login to right database; creates postgis in public schema, make sure publich is ih user's search path
+-- As admin login to right database; creates postgis in public schema, make sure public is in user's search path
 -- CREATE EXTENSION postgis;
 -- SHOW search_path;
 -- ALTER USER "KEPDEMOGUI" SET search_path = "KEPDEMOGUI",public;

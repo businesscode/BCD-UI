@@ -30,10 +30,10 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in $guiStatus f:Filter to be used as filters for initial, very first request only. Unlike filterBRefs, these filter values are not monitored for changes.
    * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the AutoModel gets data. Until available, no request will be run.
    * @param {boolean}                 [args.isDistinct=false]             - If true, a group-by across all columns is generated. Parameter .groupByBRefs is ignored in this case.
-   * @param {boolean}                 [args.useCaptions=false]            - If true, caption = bRef+'_caption will be used.
+   * @param {boolean}                 [args.useCaptions=false]            - If true, @bRef+'_caption' will be used as bRef for the caption.
    * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
    * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
-   * @param {number}                  [args.maxRows]                      - Optional, Limits the request to n rows. Use distinct if you need a certain order.
+   * @param {number}                  [args.maxRows]                      - Optional, limits the request to n rows. Use distinct if you need a certain order.
    *
    * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.

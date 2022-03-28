@@ -212,7 +212,7 @@ bcdui.core.AbstractExecutable = class
    */   
    /**
     * Listen for any status to be reached. For use cases with the ready status (by far the most common), see onReady() and onceReady() convenience functions.
-    * @param {(function|StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map
+    * @param {(function|StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map {@link AddStatusListenerParam}
    */
   addStatusListener(args)
     {
@@ -234,7 +234,7 @@ bcdui.core.AbstractExecutable = class
    * @property {bcdui.core.Status}                  status   - The status this listener is listening to. If it is missing it is assumed that the listener belongs to the global scope.
    */
   /**
-   * @param { function|StatusListener|RemoveStatusListenerParam} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map.
+   * @param { function|StatusListener|RemoveStatusListenerParam} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map {@link RemoveStatusListenerParam}.
    */
   removeStatusListener( args)
     {
@@ -555,8 +555,8 @@ bcdui.core.AbstractExecutable = class
      */
 
      /**
-     * @param {(function|OnceReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map. To listen for other states see addStatusListener()
-     * 
+     * @param {(function|OnceReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map {@link OnceReadyParam}. To listen for other states see addStatusListener()
+     * @example myModel.onceReady({onSuccess: myCallback, executeIfNotReady: true})
      */
     onceReady(listenerObject)
      {
@@ -589,8 +589,8 @@ bcdui.core.AbstractExecutable = class
    * @property {boolean}  [executeIfNotReady=false] - do execute {@link bcdui.core.AbstractExecutable} if it's not ready
    */
   /**
-   * @param {(function|OnReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map. To listen for other states see addStatusListener()
-   * 
+   * @param {(function|OnReadyParam)} listenerObject - Either a function to be called on ready status (i.e. onSuccess) or a parameter map {@link OnReadyParam}. To listen for other states see addStatusListener()
+   * @example myModel.onReady({onSuccess: function(){ console.log("ready") }, executeIfNotReady: true, onlyFuture: true})
    */
   onReady(listenerObject)
     {

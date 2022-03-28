@@ -189,9 +189,9 @@ bcdui.i18n = Object.assign(bcdui.i18n,
 
   /**
    * Translates the given over HTML element or the whole document
-   * without waiting for i18nModel, we rely on it being loaded and executed before before. If
+   * without waiting for i18nModel, we rely on it being loaded and executed before. If
    * the catalog is not initialized up to this moment (the catalog
-   * initialization is asychronous) then translation is optionally scheduled to a point
+   * initialization is asynchronous) then translation is optionally scheduled to a point
    * when the catalog is loaded.
    *
    * @param {Object} args - Parameter object
@@ -215,7 +215,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
           }.bind(this));
         }
 
-        bcdui.log.warn("bcdui.i18n.syncTranslateHTMLElement() called to early. Catalog not initialized yet. Translation defered: " + args.doDefer);
+        bcdui.log.warn("bcdui.i18n.syncTranslateHTMLElement() called to early. Catalog not initialized yet. Translation deferred: " + args.doDefer);
 
         return null;
       }
