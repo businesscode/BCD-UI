@@ -67,7 +67,7 @@
       jQuery("<span class='bcdLoading'></span>").appendTo(this.element); // use element to indicate loading, rather than class on targetHtml
 
       if (!this.options.labelRenderingFunctionTargetHtml) {
-        this.options.labelRenderingFunctionTargetHtml = jQuery("<div class='bcd-slider-label'></label>").appendTo(this.element); // render the state of the widget
+        this.options.labelRenderingFunctionTargetHtml = jQuery("<div class='bcd-slider-label'></div>").appendTo(this.element); // render the state of the widget
       } else {
         this.options.labelRenderingFunctionTargetHtml = jQuery(this.options.labelRenderingFunctionTargetHtml);
       }
