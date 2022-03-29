@@ -2389,6 +2389,24 @@ jQuery.extend(bcdui.widget,
             var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
             return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) < parseFloat(value)) : (cellValue < value);
           };
+          bcdui.widget._bcdFilter.isbiggerorequal = function(cellValue, value)   {
+            if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+              return false;
+            if (value == "")
+              return true;
+            var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) >= parseFloat(value)) : (cellValue >= value);
+          };
+          bcdui.widget._bcdFilter.issmallerorequal = function(cellValue, value)  {
+            if (cellValue == bcdui.core.magicChar.dimEmpty || cellValue == "\uE0F1")
+              return false;
+            if (value == "")
+              return true;
+            var isNumberCell = cellValue.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
+            return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) <= parseFloat(value)) : (cellValue <= value);
+          };
 
           // build dialog template
           jQuery(".bcdFilterDialog").remove();
@@ -2403,6 +2421,8 @@ jQuery.extend(bcdui.widget,
           , ["bcd_widget_filter_endsWith"  , "endswith"]
           , ["bcd_widget_filter_isBigger"  , "isbigger"]
           , ["bcd_widget_filter_isSmaller" , "issmaller"]
+          , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal"]
+          , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal"]
             // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
   //        , ["bcd_widget_filter_isEmpty"   , "isempty"]
   //        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
