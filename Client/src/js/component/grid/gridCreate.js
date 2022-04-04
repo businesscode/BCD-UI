@@ -2023,7 +2023,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             }
           }
         }
-        this._handleCollapsedHeader();
+        this._handleCollapsedHeader(true);
       }.bind(this));
     }
 
@@ -2185,7 +2185,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
    * hide/show grouped columns depending on its state, fix colspans etc, also used for explicitly hidden columns
    * @private
    */
-  _handleCollapsedHeader() {
+  _handleCollapsedHeader(byClick) {
 
     var offset = this.hotInstance.hasRowHeaders() ? 2 : 1; // nth child starts with 1, and an additional +1 for rowheaders
     var range = this._getRenderedColumnsRange();
@@ -2375,13 +2375,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // also do one single rerender for cleaning up artifacts 
     this.hotInstance.view.wt.wtOverlays.adjustElementsSize(true);
-/*    if (! this.reRenderOnce) {
+    if (byClick && ! this.reRenderOnce) {
       this.reRenderOnce = true;
       this.hotInstance.render();
     }
     else
       this.reRenderOnce = false;
-*/  }
+  }
 
   /**
    * builds up a tr/th html which is based on the grid:Group definitions in the configuration
