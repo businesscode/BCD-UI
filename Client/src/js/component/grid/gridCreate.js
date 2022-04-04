@@ -2677,10 +2677,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           else { 
             this.serverSidedRefresh = true;
 
+            this._blindGrid()
             this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
               this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
                 this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
                   // signal readiness
+                  this._unBlindGrid()
                   holder.setSource(bcdui.wkModels.guiStatus);  
                 }.bind(this)});
                 this.gridModel.execute(true);
