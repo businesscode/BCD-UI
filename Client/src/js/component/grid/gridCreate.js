@@ -994,22 +994,6 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
     return refValue;
   }
-  /**
-   * function which is put in front of a renderer
-   * @return object with colId, colIdx, rowId and the gridModel value at that position or null in case of not available
-   * @private
-   */
-  _getGridModelValues(rowIdx, col, value) {
-    rowIdx = this.hotInstance.toPhysicalRow(rowIdx);
-    var row = this.hotInstance.getSourceDataAtRow(rowIdx);
-    if (row && row.r && this.gridModel) {
-      var colIdx = this.hotInstance.toPhysicalColumn(col);
-      var colId = this.wrsHeaderIdByPos["" + (colIdx + 1)] || "";
-      var rowId = row.r.getAttribute("id");
-      return {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: this.gridModel.read("/*/wrs:Data/wrs:*[@id='" + rowId + "']/wrs:C[position()='"+(colIdx+1)+"']", "")};
-    }
-    return null;
-  }
 
   /**
    * transforms the wrs data into a js array which handsontable understands. Also prepares data types and formats.
@@ -1159,19 +1143,28 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           colHeader["width"] = "" + w + "px";
       }
 
-      // for cells with references, we encapsule the renderer with a reference getter function  
-      if (renderer && renderer.selectSingleNode("..").getAttribute("gotReferences") === "true") {
+      // for cells with references or custom renderers, we encapsule the renderer with a reference getter and gridValues function  
+      if (renderer) {
         colHeader["renderer"] = function(instance, td, row, col, prop, value, cellProperties) {
-          var newValue = this._renderByReference(row, col, value);
-          var gridValues = this._getGridModelValues(row, col, value);
-          return colHeader["rendererX"](instance, td, row, col, prop, newValue, cellProperties, gridValues);
-        }.bind(this);
-      }
-      // for custom renderers, we also add the gridValues helper
-      else if (renderer) {
-        colHeader["renderer"] = function(instance, td, row, col, prop, value, cellProperties) {
-          var gridValues = this._getGridModelValues(row, col, value);
-          return colHeader["rendererX"](instance, td, row, col, prop, value, cellProperties, gridValues);
+          var rowIdx = this.hotInstance.toPhysicalRow(row);
+          var colIdx = this.hotInstance.toPhysicalColumn(col);
+          var colId = this.wrsHeaderIdByPos["" + (colIdx + 1)] || "";
+          var r = this.hotInstance.getSourceDataAtRow(rowIdx);
+          var refValue = value;
+          var rowId = null;
+          if (r) {
+            rowId = r.r.getAttribute("id");
+
+            if (renderer.selectSingleNode("..").getAttribute("gotReferences") === "true") {
+              var references = this.optionsModelInfo[colId];
+              if (references != null) {
+                refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
+                if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                  refValue = value;
+              }
+            }
+          }
+          return colHeader["rendererX"](instance, td, row, col, prop, refValue, cellProperties, {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: value});
         }.bind(this);
       }
       else
@@ -1463,12 +1456,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   model.execute();
                 }
                 else {
-                  var values = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[" + colIdx + "]")).map(function(e) { return e.text; });
+                  var filteredValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[@filtered]/wrs:C[number(" + colIdx + ")]")).map(function(e) { return e.text; });
+                  var values = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).map(function(e) { return e.text; });
                   values = values.filter(function(e, idx){return values.indexOf(e) == idx}).map(function(e) {
                     return {
                       value: e
                     , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                    , isFiltered: inputModel.query("/*/wrs:Data/wrs:*[wrs:C[" + colIdx + "][.='{{=it[0]}}']]/@filtered", [e]) != null
+                    , isFiltered: filteredValues.indexOf(e) != -1
                     };
                   });
                   resolve(values);
@@ -1923,7 +1917,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             row.r = bcdui.core.createElementWithPrototype(this.gridModel.getData(), "/*/wrs:Data/wrs:I[@id='I_" + (nextRow + i) + "']");
 
             // we clean the inserted C elements for alignment since createElementWithPrototype might have set the first referenced item (insertRow.xslt does not do this with setDefaultValue=false)
-            var e = bcdui.core.createElementWithPrototype(row.r, "./wrs:C[" + this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length +"]");
+            var e = bcdui.core.createElementWithPrototype(row.r, "./wrs:C[number(" + this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length +")]");
             Array.from(e.parentNode.selectNodes("./wrs:C")).forEach(function(cElement) {
               cElement.text = "";
               bcdui.core.browserCompatibility.appendElementWithPrefix(cElement, "wrs:null");
@@ -2381,13 +2375,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // also do one single rerender for cleaning up artifacts 
     this.hotInstance.view.wt.wtOverlays.adjustElementsSize(true);
-    if (! this.reRenderOnce) {
+/*    if (! this.reRenderOnce) {
       this.reRenderOnce = true;
       this.hotInstance.render();
     }
     else
       this.reRenderOnce = false;
-  }
+*/  }
 
   /**
    * builds up a tr/th html which is based on the grid:Group definitions in the configuration
