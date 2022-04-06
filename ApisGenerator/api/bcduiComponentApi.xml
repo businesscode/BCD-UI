@@ -581,6 +581,18 @@
             XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
           </Doc>
         </Param>
+        <Param name="requestPostChain" type="dataProvider" isJSPChild="paramBag.requestPostChain">
+          <Doc>
+            A DataProvider which contains the list of style sheets that make up the transformation
+            chain of this renderer. This DataProvider must contain an XML document satisfying the
+            XML Schema 'chain-1.0.0.xsd'. The 'url' attribute and 'chain' tag are mutually exclusive.
+          </Doc>
+        </Param>
+        <Param name="serverSidedPagination" type="boolean" default="false">
+          <Doc>
+            Set to true if you want to enable server sided pagination.
+          </Doc>
+        </Param>
       <!--    
         <Param name="saveParameters"></Param>
         <Param name="loadParameters"></Param>
@@ -677,11 +689,6 @@
         <Param name="defaultButtons" type="boolean" default="false">
           <Doc>
             Set to false if you want to hide the default buttons reset/delete/save.
-          </Doc>
-        </Param>
-        <Param name="serverSidedPagination" type="boolean" default="false">
-          <Doc>
-            Set to true if you want to enable server sided pagination.
           </Doc>
         </Param>
         <Param name="paginationSize" type="integer" default="20">

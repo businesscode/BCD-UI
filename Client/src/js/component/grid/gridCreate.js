@@ -57,6 +57,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
   * @param {Object}                  [args.loadParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
   * @param {Object}                  [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
+  * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
  */
   constructor(args) {
     // Evaluate default parameters
@@ -67,6 +68,15 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     var serverSidedPagination = args.serverSidedPagination || false;
 
     // Create our RequestDocumentDataProvider from configuration
+
+    var finalChain = [bcdui.contextPath+"/bcdui/js/component/grid/request.xslt"];
+    if (args.requestPostChain) {
+      if (Array.isArray(args.requestPostChain))
+        finalChain = finalChain.concat(args.requestPostChain);
+      else
+        finalChain.push(args.requestPostChain);
+    }
+
     var reqMw = new bcdui.core.ModelWrapper({
       inputModel: config,
       parameters: {
@@ -75,7 +85,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
       , serverSidedPagination: "" + (serverSidedPagination || false)
       , gridModelId: id
       },
-      chain: bcdui.contextPath+"/bcdui/js/component/grid/request.xslt"
+      chain: finalChain
     });
 
     // Load our data
@@ -128,10 +138,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
+  * @param {Object}                  [args.columnFiltersCustomFilter]                       - CustomColumnFilter functions passed to column filter
   * @param {boolean}                 [args.defaultButtons=true]                             - Set to false if you want to hide the default buttons reset/delete/save
   * @param {boolean}                 [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
+  * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -177,6 +189,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , validationParameters: validationParameters
         , serverSidedPagination: serverSidedPagination
         , pagerModel: pagerHolder
+        , requestPostChain : args.requestPostChain
       });
     }
     else
@@ -215,6 +228,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
     );
+    this.columnFiltersCustomFilter = args.columnFiltersCustomFilter;
     this.pager = pager;
     this.defaultButtons = args.defaultButtons !== false;
     this.id = id
@@ -280,7 +294,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (this.isReadOnly)
       this.allowNewRows = false;
   
-    this.rowDependencyRegEx = /\$grid\.([A-Za-z0-9_]+)/g;
+    this.rowDependencyRegEx = /\$grid\.(\w+)/g;
   
     this.columnFilters = args.columnFilters || false;
     this.maxHeight = args.hotArgs && args.hotArgs.height ? undefined : args.maxHeight;
@@ -332,21 +346,29 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.getEnhancedConfiguration().onceReady(function(){
 
       if (this.serverSidedPagination) {
-        
-        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id };
+        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder };
         var countColumnBRef = this.config.read("/*/grid:SelectColumns//grid:C[@totalCounter='true']/@bRef");
         if (countColumnBRef)
           totalParams.countColumnBRef = countColumnBRef;
-  
+          
+        var finalChain = [bcdui.contextPath+"/bcdui/js/component/grid/requestTotalRowCount.xslt"];
+        if (args.requestPostChain) {
+          if (Array.isArray(args.requestPostChain))
+            finalChain = finalChain.concat(args.requestPostChain);
+          else
+            finalChain.push(args.requestPostChain);
+        }
+
         var reqMw = new bcdui.core.ModelWrapper({
           inputModel: this.config,
           parameters: totalParams,
-          chain: bcdui.contextPath+"/bcdui/js/component/grid/requestTotalRowCount.xslt"
+          chain: finalChain
         });
         this.totalRowCountDp = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
       }
       else
-        this.totalRowCountDp = new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Data><wrs:R><wrs:C>0</wrs:C></wrs:R></wrs:Data></wrs:Wrs>");;
+        this.totalRowCountDp = new bcdui.core.StaticModel("<wrs:Wrs xmlns:wrs=\"http://www.businesscode.de/schema/bcdui/wrs-1.0.0\"><wrs:Data><wrs:R><wrs:C>0</wrs:C></wrs:R></wrs:Data></wrs:Wrs>");
+
       this.totalRowCountDp.execute();
 
       this.removeOnSaveColumnIds = Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@removeOnSave='true']")).map(function(e) {
@@ -364,7 +386,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           else
             newSaveChain.push(this.gridModel.saveOptions.saveChain);
 
-          newSaveChain.push(function(doc, args) {
+          newSaveChain.push(function(doc) {
             bcdui.wrs.wrsUtil.deleteColumns(doc, this.removeOnSaveColumnIds)
             return doc;
           }.bind(this));
@@ -1433,14 +1455,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , targetModelXPath: targetModelXPath
           , statusModel: this.statusModel
           , useCustomHeaderRenderer: true
+          , columnFiltersCustomFilter: this.columnFiltersCustomFilter
           , valueCaptionProvider: function(inputModel, colIdx) {
-              return new Promise(function(resolve, reject) {
+             return new Promise(function(resolve, reject) {
                 if (self.serverSidedPagination) {
-                  // if data is cached, we need to update the isFiltered attrivute only
+                  // if data is cached, we need to update the isFiltered attribute only
                   if (self.colValuesCache && self.colValuesCache["" + colIdx]) {
                     var colName0 = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
                     self.colValuesCache["" + colIdx].forEach(function(e) {
-                      e.isFiltered = self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']/f:Expression[@bRef='"+colName0+"' and @value='"+e.text+"']") == null
+                      e.isFiltered = self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']/f:Expression[@bRef='"+colName0+"' and @value='{{=it[0]}}']", [e.value]) == null
                     });
                     resolve(self.colValuesCache["" + colIdx]);
                   }
@@ -1449,20 +1472,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     var colName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
                     var reqMw = new bcdui.core.ModelWrapper({
                       inputModel: self.config,
-                      parameters: { statusModel: self.statusModel, binding: self.binding, bRef: colName, gridModelId: self.gridModel.id },
+                      parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: colName, gridModelId: self.gridModel.id },
                       chain: bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
                     });
                     var model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
+                    self._blindGrid();
                     model.onceReady(function() {
                       var colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).map(function(e) {
                         return {
                           value: e.text
                         , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e.text) : e.text
-                        , isFiltered: self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']/f:Expression[@bRef='"+colName+"' and @value='"+e.text+"']") == null
+                        , isFiltered: self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']/f:Expression[@bRef='"+colName+"' and @value='{{=it[0]}}']", [e.text]) == null
                         };
                       });
                       // we don't need to add the wrs:I/wrs:M here since filtering does require a save changes before filtering.
                       self.colValuesCache["" + colIdx] = colValues;
+                      self._unBlindGrid();
                       resolve(colValues);
                     });
                     model.execute();
@@ -1494,6 +1519,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 return this.wrsHeaderMeta[e.text].pos;
               }.bind(this));
 
+              // in case we got a customColumnFilter filtering option, it will provide an own gridFilterRowFunction
+              // build a lookup object to call it if necessary
+              var colsWithFilterFunctions =  {};
+              Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:Or[f:Expression]/@id")).forEach(function(e) {
+                var bRef = e.text;
+                var condition = this.statusModel.read(targetModelXPath + "/f:Or[@id='"+bRef+"']/@condition", "");
+                var customFilter = this.columnFiltersCustomFilter ? this.columnFiltersCustomFilter.filter(function(f) { return f.bRef == bRef; }) : [];
+                var operations = customFilter.length > 0 ? customFilter[0].operations.filter(function(f){ return f.id == condition; }) : []; 
+                colsWithFilterFunctions[bRef]= (operations.length > 0 && operations[0].gridFilterRowFunction) ? {funct: operations[0].gridFilterRowFunction, filter: this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']")} : null;
+              }.bind(this));
+
               // mark filtered cells
               Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*")).forEach(function(e) {
                 var factor = (e.localName||e.baseName) === "M" ? 2 : 1;
@@ -1503,9 +1539,21 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   if (colsWithFilter.indexOf("" + (i+1)) != -1) {
                     var bRef = this.wrsHeaderIdByPos["" + (i + 1)] || "";
                     var value = (wrsC[i * factor].text);
-                    if (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[value]) == null) {
-                      e.setAttribute("filtered", "true");
-                      break;
+
+                    // now decide if we call the normal filter lookup or a custom function
+                    // custom function gets the grid wrs header meta data, the current row and the belonging filterNodes and has to return true if row should be filtered
+                    var custom = colsWithFilterFunctions[bRef];
+                    if (custom && custom.funct) {
+                      if (custom.funct(this.wrsHeaderMeta, e, custom.filter)) {
+                        e.setAttribute("filtered", "true");
+                        break;
+                      }
+                    }
+                    else {
+                      if (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[value]) == null) {
+                        e.setAttribute("filtered", "true");
+                        break;
+                      }
                     }
                   }
                 }
@@ -2367,10 +2415,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     // let handsontable recalculate width of all wider elements
     // since widths are stored in the AutoColumnSize plugin and used in sumCellSizes getColumnWidth operations
     // we need to update our newly calculated widths there
+    var cgs = jQuery("#" + this.htTargetHtmlId +" .ht_master colgroup col");
     var acsPlug = this.hotInstance.getPlugin("AutoColumnSize");
     if (acsPlug != null && acsPlug.widths) {
       var c1 = 0;
-      var cgs = jQuery("#" + this.htTargetHtmlId +" .ht_master colgroup col");
       acsPlug.widths.forEach(function(e1, i) {
         // col elements have a weird counting, hidden columns are not in the list, so the cols are shifted and only represent visible ones
         // acsPlug.widths are real columns though, so we set hidden ones to 0 and only take the col element width from the visible ones 
@@ -2607,7 +2655,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         var holder = new bcdui.core.DataProviderHolder();
         var dataKey = "";
 
-        // in case we got server sided pagination and not the "ALL" pages mode on, we buffer page data 
+        // in case we got server sided pagination and not the "ALL" pages mode on, we buffer page data
+        var newStart = -1; 
         if (this.serverSidedPagination) {
 
           // delete stored errors, we're rebuilding validationResult so we don't need memorized errors to be readded
@@ -2621,7 +2670,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           // now determine new page key (which was just selected)
           var y2 = curPage != -1 ? pageSize * curPage : -1;
           var y1 = curPage != -1 ? y2 - pageSize + 1 : 1;
-          var newStart = (y1 > 0 && y2 > 0) ? y1 : -1;
+              newStart = (y1 > 0 && y2 > 0) ? y1 : -1;
           var newEnd = (y2 > 0) ? y2 : -1;
           var newKey = "P" + newStart + "_" + newEnd;
 
@@ -3304,6 +3353,9 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object}                  [args.validationParameters]                            - An object, where each property holds a DataProvider, used as a transformation parameters.
    * @param {chainDef}                [args.loadChain]                                       - The definition of the transformation chain
    * @param {Object}                  [args.loadParameters]                                  - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @param {Object}                  [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
+   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
+   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
    * @private
    */
   createGridModel: function( args )
@@ -3312,15 +3364,18 @@ bcdui.component = Object.assign(bcdui.component,
     args.config = args.config || args.metaDataModel;
     bcdui.factory.objectRegistry.withObjects( [args.config, args.statusModel, args.saveChain, args.validationChain, args.loadChainn ],  function() {
       new bcdui.component.grid.GridModel( {
-        config:               bcdui.factory.objectRegistry.getObject(args.config),
-        id:                   args.id,
-        statusModel:          bcdui.factory.objectRegistry.getObject(args.statusModel),
-        saveChain:            bcdui.factory.objectRegistry.getObject(args.saveChain),
-        saveParameters:       args.saveParameters,
-        validationChain:      bcdui.factory.objectRegistry.getObject(args.validationChain),
-        validationParameters: args.validationParameters,
-        loadChain:            bcdui.factory.objectRegistry.getObject(args.loadChain),
-        loadParameters:       args.loadParameters
+        config:                bcdui.factory.objectRegistry.getObject(args.config),
+        id:                    args.id,
+        statusModel:           bcdui.factory.objectRegistry.getObject(args.statusModel),
+        saveChain:             bcdui.factory.objectRegistry.getObject(args.saveChain),
+        saveParameters:        args.saveParameters,
+        validationChain:       bcdui.factory.objectRegistry.getObject(args.validationChain),
+        validationParameters:  args.validationParameters,
+        loadChain:             bcdui.factory.objectRegistry.getObject(args.loadChain),
+        loadParameters:        args.loadParameters,
+        serverSidedPagination: args.serverSidedPagination,
+        pagerModel:            bcdui.factory.objectRegistry.getObject(args.pagerModel),
+        requestPostChain:      bcdui.factory.objectRegistry.getObject(args.requestPostChain)
       });
     });
     return { refId: args.id, symbolicLink: true };
@@ -3348,6 +3403,13 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
    * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
    * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
+   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
+   * @param {Object}                  [args.columnFiltersCustomFilter]                       - CustomColumnFilter functions passed to column filter
+   * @param {boolean}                 [args.defaultButtons=true]                             - Set to false if you want to hide the default buttons reset/delete/save
+   * @param {boolean}                 [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
+   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
+   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
+   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
    * @private
    */
   createGrid: function( args )
@@ -3375,7 +3437,14 @@ bcdui.component = Object.assign(bcdui.component,
         allowNewRows:         args.allowNewRows || args.allowNewCells,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
-        isReadOnly:           args.isReadOnly
+        isReadOnly:           args.isReadOnly,
+        columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
+        columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
+        defaultButtons:                        args.defaultButtons,
+        serverSidedPagination:                 args.serverSidedPagination,
+        paginationSize:                        args.paginationSize,
+        paginationAllPages:                    args.paginationAllPages,
+        requestPostChain:                      bcdui.factory.objectRegistry.getObject(args.requestPostChain)
       });
     });
     return { refId: args.id, symbolicLink: true };
