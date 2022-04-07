@@ -77,6 +77,7 @@
                       </xsl:otherwise>
                     </xsl:choose>
                   </xsl:copy>
+                  <xsl:copy-of select="wrq:A"/>
                 </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
