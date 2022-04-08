@@ -100,7 +100,7 @@ public class Wrq2Sql implements ISqlGenerator
     // For backward compatibility and to avoid running each statement with a limit because of the global set row limit
     // If we have a) a single Select in Wrq and it has b) rowEnd>0 but c) no rowStart>1, we handle that when streaming the result, not in SQL
     effectiveMaxRows = options.getMaxRows();
-    if( selectElems.getLength() == 1 && rowEnd > 0 && rowStart <=1 ) {
+    if( selectElems.getLength() == 1 && rowEnd >= 0 && rowStart <=1 ) {
       effectiveMaxRows = Math.min( rowEnd, options.getMaxRows() );  // We can ignore rowStart as it is <= 1
     }
 

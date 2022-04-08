@@ -92,11 +92,11 @@ public class SqlFromSubSelect
     String rowStartAttrStr = selectElem.getAttribute("rowStart");
     if( ! rowStartAttrStr.isEmpty() ) rowStart = Integer.parseInt(rowStartAttrStr);
     String rowEndAttrStr = selectElem.getAttribute("rowEnd");
-    rowEnd = wrqQueryBuilder.getMaxRows();
+    rowEnd = wrqQueryBuilder.getMaxRows() + (rowStart > 1 ? rowStart - 1 : 0);
     if( ! rowEndAttrStr.isEmpty() ) {
-      int rowEndAttr = Integer.parseInt(rowEndAttrStr);
-      if( rowEndAttr > 0 && rowEnd >= 0  ) rowEnd = Math.min(rowEnd, Integer.parseInt(rowEndAttrStr) );
-      if( rowEndAttr > 0 && rowEnd < 0  ) rowEnd = Integer.parseInt(rowEndAttrStr);
+      int rowEndAttr = Integer.parseInt(rowEndAttrStr) + rowStart;
+      if( rowEndAttr >= 0 && rowEnd >= 0 ) rowEnd = Math.min(rowEnd, Integer.parseInt(rowEndAttrStr) );
+      if( rowEndAttr >= 0 && rowEnd < 0 ) rowEnd = Integer.parseInt(rowEndAttrStr);
     }
 
     // SELECTs which go to a non-virtual BindingSet support rowStart > 1
