@@ -54,8 +54,8 @@ import de.businesscode.util.xml.SecureXmlFactory;
 public class Wrq2Sql implements ISqlGenerator
 {
   protected final Bindings bindings;         // We are not using Bindings.getInstance() to allow running in a batch program
-  protected int rowStart = 0;
   protected int effectiveMaxRows = -1;
+  protected int clientProvidedMaxRows = Integer.MAX_VALUE;
   protected WrqQueryBuilder wrqQueryBuilder;
   protected final Document requestDoc;
   
@@ -88,16 +88,20 @@ public class Wrq2Sql implements ISqlGenerator
         || requestDoc.getDocumentElement().getFirstChild() == null ) {
       return;
     }
-    
-    // Special case for backward compatibility of behavior:
-    // If we have a) a single Select in Wrq and it has b) rowEnd and c) no rowStart, we handle that when streaming the result, not in SQL
-    effectiveMaxRows = options.getMaxRows();
+
+    // Let's find out, how many rows the user requested. Note, this may be more than allowed
     NodeList selectElems = requestDoc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select");
-    if( selectElems.getLength() == 1                                            // If multiple, it is handles in SQL for each SELECT
-        && ( ((Element)selectElems.item(0)).getAttribute("rowStart").isEmpty()  // If rowStart is given (and > 1), it is handled in SQL
-              || Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowStart")) <= 1 )
-        && !((Element)selectElems.item(0)).getAttribute("rowEnd").isEmpty() ) {
-      effectiveMaxRows = Math.min( Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowEnd") ), effectiveMaxRows );
+    int rowStart = 1, rowEnd = Integer.MAX_VALUE;
+    try{ rowStart = Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowStart")); if( rowStart < 0 ) rowStart = 1; } catch(Exception e){};
+    try{ rowEnd = Integer.parseInt( ((Element)selectElems.item(0)).getAttribute("rowEnd")); if( rowEnd < 0 ) rowEnd = Integer.MAX_VALUE;} catch(Exception e){}
+    clientProvidedMaxRows = rowEnd - rowStart + 1;
+
+    // Special case
+    // For backward compatibility and to avoid running each statement with a limit because of the global set row limit
+    // If we have a) a single Select in Wrq and it has b) rowEnd>0 but c) no rowStart>1, we handle that when streaming the result, not in SQL
+    effectiveMaxRows = options.getMaxRows();
+    if( selectElems.getLength() == 1 && rowEnd > 0 && rowStart <=1 ) {
+      effectiveMaxRows = Math.min( rowEnd, options.getMaxRows() );  // We can ignore rowStart as it is <= 1
     }
 
     // This is modifying the Wrq when it uses Grouping SETs but they are not supported by the current database
@@ -175,14 +179,12 @@ public class Wrq2Sql implements ISqlGenerator
     else return new LinkedList<>();
   }
   @Override
-  public int getStartRow() {
-    return rowStart;
-  }
-  @Override
   public int getMaxRows()
   {
     return effectiveMaxRows;
   }
+  @Override
+  public int getClientProvidedMaxRows() { return clientProvidedMaxRows; };
   @Override
   public boolean isEmpty() {
     return (getSelectStatement() == null);

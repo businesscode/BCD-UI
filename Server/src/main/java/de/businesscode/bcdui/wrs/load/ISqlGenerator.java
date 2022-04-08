@@ -57,18 +57,18 @@ public interface ISqlGenerator {
   List<WrsBindingItem> getSelectedBindingItems() throws Exception;
 
   /**
-   * getStartRow
-   *
-   * @return the start row from the request document
-   */
-  int getStartRow();
-
-  /**
    * getMaxRows
    *
-   * @return the max rows from the request document, -1 if no limit
+   * @return the max rows from the request document and server side settings, -1 if no limit
    */
   int getMaxRows();
+
+  /**
+   * getQueryMaxRows
+   *
+   * @return max rows purely driven by the query, ignoring other limits
+   */
+  int getClientProvidedMaxRows();
 
   /**
    * @return the selectStatement

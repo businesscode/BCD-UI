@@ -304,7 +304,8 @@
       </xs:element>
       <xs:element name="MaxRowsExceeded" minOccurs="0">
         <xs:annotation><xs:documentation>
-          Not all rows included due to restriction either by a server side setting of via the wrq:WrsRequest
+          Not all rows included due to restriction either by a server side setting.
+          If the limit comes from the query (@rowEnd), this footer is not written.
         </xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:simpleContent>

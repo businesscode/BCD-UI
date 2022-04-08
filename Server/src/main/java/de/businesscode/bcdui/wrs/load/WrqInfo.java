@@ -152,22 +152,6 @@ public class WrqInfo
       this.selectElem = null;
   }
 
-  /**
-   * @see de.businesscode.bcdui.wrs.load.ISqlGenerator#getStartRow()
-   */
-  protected int getStartRow() {
-    try {
-      String attribute = selectElem.getAttribute("startRow");
-      if( attribute.isEmpty() )
-        return 1;
-      else
-        return Integer.parseInt(attribute);
-    }
-    catch (Exception e) {
-    }
-    return 1; // default
-  }
-
   protected boolean isEmpty()
   {
     return selectElem == null;

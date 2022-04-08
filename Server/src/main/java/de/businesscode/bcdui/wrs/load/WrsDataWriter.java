@@ -238,7 +238,8 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     if (isErrorDuringQuery()) {
       writeWrsErrorDuringQuery();
     }
-    else if (isMaxRowsExceed()) {
+    // In case there are more rows than are delivered and requested
+    else if (isMaxRowsExceed() && getGenerator().getClientProvidedMaxRows() > getGenerator().getMaxRows()) {
       writeWrsMaxRowsExceeded(getGenerator().getMaxRows());
     }
     //
@@ -357,7 +358,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     getWriter().writeEndElement(); // SelectedBindingSet
     //
     getWriter().writeStartElement("Url");
-    getWriter().writeCharacters(getOptions().getRequestUrl());
+    // getWriter().writeCharacters(getOptions().getRequestUrl());
     getWriter().writeEndElement(); // Url
     //
     getWriter().writeEndElement(); // Debug
@@ -376,7 +377,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     //
     while (!isErrorDuringQuery() && getResultSet().next()) {
       rowNum++;
-      //
+      // Do not send more rows than are allowed and requested
       if (maxRows > 0 && rowNum > maxRows) {
         setMaxRowsExceed(true);
         break;

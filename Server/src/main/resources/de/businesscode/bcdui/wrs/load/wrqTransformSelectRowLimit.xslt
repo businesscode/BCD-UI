@@ -157,10 +157,10 @@
           </wrq:From>
 
           <f:Filter>
-            <xsl:if test="./@rowStart">
+            <xsl:if test="number(./@rowStart)>1">
               <f:Expression bRef="bcdPagination" op=">=" value="{./@rowStart}"/>
             </xsl:if>
-            <xsl:if test="./@rowEnd">
+            <xsl:if test="number(./@rowEnd)>=0">
               <f:Expression bRef="bcdPagination" op="&lt;=" value="{./@rowEnd}"/>
             </xsl:if>
           </f:Filter>

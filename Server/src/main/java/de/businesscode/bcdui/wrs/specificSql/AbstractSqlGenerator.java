@@ -92,16 +92,14 @@ abstract public class AbstractSqlGenerator implements ISqlGenerator
     return requestedBindingSetNames;
   }
 
-  
-  @Override
-  public int getStartRow() {
-    return 0;
-  }
 
   @Override
   public int getMaxRows() {
     return 2048;
   }
+
+  @Override
+  public int getClientProvidedMaxRows() { return 4098; };
 
   @Override
   public SQLStatementWithParams getSelectStatement() {
