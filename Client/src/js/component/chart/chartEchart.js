@@ -36,7 +36,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * @constructs
    * @param {Object} args - Parameter object:
    * @param {targetHtmlRef} args.targetHtml                       - Where to place the chart
-   * @param {bcdui.core.DataProvider} args.config                 - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
+   * @param {bcdui.core.DataProvider} args.config                 - Definition if the chart according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
    * @param {Object} args.options                                 - Options of ECharts, extending / being merged with the options deried from config
    */
   constructor(args)
@@ -595,7 +595,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
             let series = opts.series[stackedSeriesIdxs[ser]];
             let nf = getNumFormatter(3, stackedUnit);
             series.data[cat].bcdOrig = nf( series.data[cat].value );
-            series.data[cat].value   = series.data[cat].value / sum;
+            series.data[cat].value = Math.floor(1000 * (series.data[cat].value / sum)) / 1000;
           }
         }
 
@@ -988,8 +988,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           }
         }
       }
-      if (! seriesGotData)
+      if (! seriesGotData) {
+        // user might have merged in a null series, so we need to check for existance again
+        if (! opts.series[s])
+          opts.series[s] = {};
         opts.series[s].removeMe = true;
+      }
     }
 
     // remove series which don't have data
@@ -997,6 +1001,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
     if( foundData ) {
       myChart.setOption(opts, true);
+      bcdui.core.createElementWithPrototype( this.config, "/*/chart:Computed/chart:ChartsDrawn").text = "true";
     }
     else {
       let msg = bcdui.i18n.syncTranslateFormatMessage("bcd_EmptyChart");
@@ -1118,6 +1123,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * Export an EChart as PNG
    * @param targetHtml  - Html element where the chart is found
    * @param name        - File name: name+".png"
+   * @static
    */
   static saveAsImage(targetHtml, name) {
     // use configuration item and data specified to show chart
@@ -1206,4 +1212,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           e = H - h;
       return e ? v + e * (ascArr[h] - v) : v;
   }
+
+  /**
+   * @return definition DOM document
+   */
+  getData(){
+    return this.config.getData();
+  }
+
 };
