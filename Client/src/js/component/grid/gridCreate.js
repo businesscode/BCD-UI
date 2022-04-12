@@ -596,8 +596,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
         // first, find unique optionModels/optionModelXPaths
         var uniquePaths = [];
-        for (var om in this.optionsModelInfo)
-          uniquePaths.push(this.optionsModelInfo[om].optionsModelId + "\uE0F0" + this.optionsModelInfo[om].optionsModelXPath + "\uE0F0" + this.optionsModelInfo[om].optionsModelRelativeValueXPath);
+        for (var om in this.optionsModelInfo) {
+          var rel = this.optionsModelInfo[om].optionsModelRelativeValueXPath || ""; 
+          uniquePaths.push(this.optionsModelInfo[om].optionsModelId + "\uE0F0" + this.optionsModelInfo[om].optionsModelXPath + "\uE0F0" + rel);
+        }
         uniquePaths = uniquePaths.filter(function(e, idx){return uniquePaths.indexOf(e) == idx});
 
         // generate code/caption maps for such unique paths
@@ -607,11 +609,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           var optionsModel = bcdui.factory.objectRegistry.getObject(o[0]);
           var codeCaptionMap = {};
           var captionCodeMap = {};
-          var captionXPath = (o[1] + (o[2] != null ? ("[" + o[2]) : "") + "[.='{{=it[0]}}']" + (o[2] != null ? "]" : "")).replace(this.rowDependencyRegEx, "");
-          var valueXPath = (o[1] + (o[2] != null ? "/" + o[2] : "")).replace(this.rowDependencyRegEx, "");
+          var captionXPath = (o[1] + (o[2] != "" ? ("[" + o[2]) : "") + "[.='{{=it[0]}}']" + (o[2] != "" ? "]" : "")).replace(this.rowDependencyRegEx, "");
+          var valueXPath = (o[1] + (o[2] != "" ? "/" + o[2] : "")).replace(this.rowDependencyRegEx, "");
           Array.from(optionsModel.queryNodes(valueXPath)).forEach(function(optRaw){
             var option = optRaw.nodeType == 3 ? optRaw.nodeValue : optRaw.text;
-            var caption = o[2] != null ? optionsModel.read(captionXPath, [option]) : option;
+            var caption = o[2] != "" ? optionsModel.read(captionXPath, [option]) : option;
             codeCaptionMap[bcdui.util.escapeHtml(option)] = caption;
             captionCodeMap[bcdui.util.escapeHtml(caption)] = option;
           }.bind(this));
@@ -620,7 +622,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
         // finally assign the maps
         for (var m in this.optionsModelInfo) {
-          var key = this.optionsModelInfo[m].optionsModelId + "\uE0F0" + this.optionsModelInfo[m].optionsModelXPath + "\uE0F0" + this.optionsModelInfo[m].optionsModelRelativeValueXPath;
+          var relative = this.optionsModelInfo[m].optionsModelRelativeValueXPath || "";
+          var key = this.optionsModelInfo[m].optionsModelId + "\uE0F0" + this.optionsModelInfo[m].optionsModelXPath + "\uE0F0" + relative;
           this.optionsModelInfo[m].codeCaptionMap = uniqueCodeCaptionMaps[key].codeCaptionMap;
           this.optionsModelInfo[m].captionCodeMap = uniqueCodeCaptionMaps[key].captionCodeMap;
         }
