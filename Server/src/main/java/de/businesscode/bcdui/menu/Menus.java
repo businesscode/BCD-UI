@@ -133,7 +133,6 @@ public class Menus {
    *
    * Method checkUserPermissions
    * @param menuEntry
-   * @param secMenuEntry
    * @param userSubject
    */
   private List<Entry> checkUserPermissions(List<Entry> menuEntry, Subject userSubject) {
@@ -159,9 +158,10 @@ public class Menus {
   /**
    * 1. not permitted Entry or null if all are permitted
    *
-   * Method getFirstNonepermited
+   * Method getFirstNonPermitted
    *
-   * @param entryNotNull
+   * @param entry
+   * @param parentEntry
    * @param userSubject
    * @return
    */
@@ -257,7 +257,6 @@ public class Menus {
 
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
-    documentBuilderFactory.setNamespaceAware(true);
 
     for (int i = 0; i < menuFiles.length; i++) {
       if (menuFiles[i].isDirectory()) {

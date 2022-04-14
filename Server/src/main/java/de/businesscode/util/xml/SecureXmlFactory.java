@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ public abstract class SecureXmlFactory {
       }
     });
 
+    factory.setNamespaceAware(true);
     factory.setXIncludeAware(false);
     factory.setExpandEntityReferences(false);
     factory.setValidating(false);
@@ -109,7 +110,7 @@ public abstract class SecureXmlFactory {
 
     factory.setXIncludeAware(false);
     factory.setValidating(false);
-
+    factory.setNamespaceAware(true);
     return factory;
   }
 
@@ -169,28 +170,6 @@ public abstract class SecureXmlFactory {
     });
 
     return reader;
-  }
-
-  /**
-   * fluent method to enable namespace awareness
-   *
-   * @param factory
-   * @return
-   */
-  public static SAXParserFactory enableNamespaceAware(SAXParserFactory factory) {
-    factory.setNamespaceAware(true);
-    return factory;
-  }
-
-  /**
-   * fluent method to enable namespace awareness
-   *
-   * @param factory
-   * @return
-   */
-  public static DocumentBuilderFactory enableNamespaceAware(DocumentBuilderFactory factory) {
-    factory.setNamespaceAware(true);
-    return factory;
   }
 
 }

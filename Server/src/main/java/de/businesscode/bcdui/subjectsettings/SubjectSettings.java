@@ -86,7 +86,6 @@ public class SubjectSettings extends SubjectSettingsConfig {
             try {
               DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
               documentBuilderFactory.setXIncludeAware(true);
-              documentBuilderFactory.setNamespaceAware(true);
               Document doc = documentBuilderFactory.newDocumentBuilder().parse(confPath+File.separator+"subjectSettings.xml");
               JAXBContext jc = JAXBContext.newInstance( SubjectSettings.class );
               Unmarshaller u = jc.createUnmarshaller();

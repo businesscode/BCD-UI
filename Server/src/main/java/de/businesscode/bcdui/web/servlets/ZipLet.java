@@ -598,7 +598,6 @@ public class ZipLet extends HttpServlet {
       return null;
     }
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
-    documentBuilderFactory.setNamespaceAware(true);
     DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 
     String compressed = compressedString;
@@ -707,7 +706,7 @@ public class ZipLet extends HttpServlet {
 
     DocumentBuilderFactory factory = SecureXmlFactory.newDocumentBuilderFactory();
     factory.setXIncludeAware(true);
-    factory.setNamespaceAware(true);
+
     // By default this is true and therefore there will be an xml:base attribute
     // set in the included document which points to the server's file system.
     // However we do not want this information to go to the client.

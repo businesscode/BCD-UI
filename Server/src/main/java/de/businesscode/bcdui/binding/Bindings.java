@@ -170,7 +170,6 @@ public class Bindings {
     //
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
-    documentBuilderFactory.setNamespaceAware(true);
 
     // Read each file, each file gives a BindingSet
     for (int file = 0; file < bindingFiles.length; file++) {

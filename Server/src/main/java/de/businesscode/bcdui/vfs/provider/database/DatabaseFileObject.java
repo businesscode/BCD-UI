@@ -164,7 +164,7 @@ public class DatabaseFileObject extends AbstractFileObject {
     + "<Ordering><C bRef=\"isServer\" order=\"desc\"/></Ordering>"
     + "</Select></WrsRequest>";
     StringReader strReader = new StringReader(reqSql);
-    Document doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().parse(new InputSource(strReader));
+    Document doc = SecureXmlFactory.newDocumentBuilderFactory().newDocumentBuilder().parse(new InputSource(strReader));
     IRequestOptions options = new RequestOptions(-1);
     options.setRequestDoc(doc);
     VFSDataWriter dataWriter = new VFSDataWriter(){};

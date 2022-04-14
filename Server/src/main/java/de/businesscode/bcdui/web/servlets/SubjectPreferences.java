@@ -105,8 +105,7 @@ public class SubjectPreferences extends HttpServlet {
     
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
-    documentBuilderFactory.setNamespaceAware(true);
-    
+
     // read and parse the configuration
     
     InputStream is = getServletContext().getResourceAsStream("/bcdui/conf/subjectPreferences.xml");
@@ -353,7 +352,6 @@ public class SubjectPreferences extends HttpServlet {
     // or a WRS with WRS:I/M/D rows
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
-    documentBuilderFactory.setNamespaceAware(true);
 
     InputStream is = req.getInputStream();
     boolean refreshList = false;

@@ -95,7 +95,6 @@ public class UploadControl implements AutoCloseable
     Connection con = getManagedUploadConnection(STEP_ID);
     try {
       DocumentBuilderFactory dbf = SecureXmlFactory.newDocumentBuilderFactory();
-      dbf.setNamespaceAware(true);
       DocumentBuilder db = dbf.newDocumentBuilder();
       mapping = db.newDocument();
       Element bs = mapping.createElementNS(StandardNamespaceContext.BINDINGS_NAMESPACE, "BindingSet");
@@ -189,7 +188,6 @@ public class UploadControl implements AutoCloseable
         targetBs = rs.getString(sqlEngine.getIndex("targetBs"));
         String mappingStr = rs.getString(sqlEngine.getIndex("mapping"));
         DocumentBuilderFactory dbf = SecureXmlFactory.newDocumentBuilderFactory();
-        dbf.setNamespaceAware(true);
         DocumentBuilder db = dbf.newDocumentBuilder();
         if(mappingStr != null ) {
           mapping = db.parse(IOUtils.toInputStream(mappingStr, StandardCharsets.UTF_8));

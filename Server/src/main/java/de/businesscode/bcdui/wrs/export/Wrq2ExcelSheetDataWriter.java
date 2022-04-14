@@ -70,7 +70,6 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
     // Turn the subtree into a DOM, so that we can hand it over to the DataLoader
     try {
       DocumentBuilderFactory factory = SecureXmlFactory.newDocumentBuilderFactory();
-      factory.setNamespaceAware(true);
       DocumentBuilder builder = factory.newDocumentBuilder();
       StringWriter stringWriter = new StringWriter();
 

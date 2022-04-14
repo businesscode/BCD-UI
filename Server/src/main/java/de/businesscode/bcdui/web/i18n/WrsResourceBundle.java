@@ -58,7 +58,7 @@ class WrsResourceBundle extends MapResourceBundle {
     logger.debug("parse for locale: " + locale);
     Map<String, String> keyMap = new HashMap<>();
     try {
-      Document doc = SecureXmlFactory.enableNamespaceAware(SecureXmlFactory.newDocumentBuilderFactory()).newDocumentBuilder().parse(is);
+      Document doc = SecureXmlFactory.newDocumentBuilderFactory().newDocumentBuilder().parse(is);
 
       // select only those /*/wrs:Data/wrs:* having lang set to locale provided
       XPath keyRowsXPath = XPathFactory.newInstance().newXPath();
