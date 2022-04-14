@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -104,9 +104,7 @@ public class SqlFromFullSelect
 
       // Can be the final wrq:Ordering
       else if( "Ordering".equals( childElement.getLocalName()) ) {
-        XPath xp = XPathUtils.newXPathFactory().newXPath();
-        StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-        xp.setNamespaceContext(nsContext);
+        XPath xp = XPathUtils.newXPath();
         XPathExpression orderingCXpathExpr = xp.compile("wrq:C");
         NodeList wrqCs = (NodeList)orderingCXpathExpr.evaluate(childElement, XPathConstants.NODESET);
         String concat = " ORDER BY ";

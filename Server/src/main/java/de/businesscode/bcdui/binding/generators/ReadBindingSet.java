@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -144,8 +144,7 @@ public class ReadBindingSet implements Runnable {
         bs.setAllowSelectAllColumns(true);
       }
 
-      XPath xPath = XPathUtils.newXPathFactory().newXPath();
-      xPath.setNamespaceContext(nsContext);
+      XPath xPath = XPathUtils.newXPath();
       String xPathNS = nsContext.getXMLPrefix(BINDINGS_NAMESPACE);
 
       NodeList biSet = (NodeList) xPath.evaluate("/" + xPathNS + "BindingSet//" + xPathNS + "C", bindingDoc, XPathConstants.NODESET);

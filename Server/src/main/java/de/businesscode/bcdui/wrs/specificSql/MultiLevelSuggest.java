@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import de.businesscode.util.XPathUtils;
  */
 public class MultiLevelSuggest extends AbstractSqlGenerator
 {
-  private final XPath xp = XPathUtils.newXPathFactory().newXPath();
+  private final XPath xp = XPathUtils.newXPath();
   private final Element wrq; // Root of the query doc
   private final List<String> selectList = new LinkedList<String>();
   boolean useCaption = false;

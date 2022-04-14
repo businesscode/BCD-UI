@@ -102,9 +102,7 @@ public class SqlFromSubSelect
     // SELECTs which go to a non-virtual BindingSet support rowStart > 1
     // Currently only for top-level selects from BindingSet
     if( rowStart > 1 && (rowEnd == -1 || rowEnd >= rowStart) ) {
-      XPath xp = XPathUtils.newXPathFactory().newXPath();
-      StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-      xp.setNamespaceContext(nsContext);
+      XPath xp = XPathUtils.newXPath();
       XPathExpression bindingSetXpathExpr = xp.compile("./wrq:From/wrq:BindingSet/text()");
       String bindingSetName = (String)bindingSetXpathExpr.evaluate(selectElem, XPathConstants.STRING);
       if( ! bindingSetName.isEmpty() ) {

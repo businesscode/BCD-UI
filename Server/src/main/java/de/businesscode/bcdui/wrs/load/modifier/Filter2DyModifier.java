@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,9 +47,7 @@ public class Filter2DyModifier implements Modifier
   private Element filterElem;
 
   public Filter2DyModifier() {
-    xp = XPathUtils.newXPathFactory().newXPath();
-    StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-    xp.setNamespaceContext(nsContext);
+    xp = XPathUtils.newXPath();
   }
   
   public void process(Element selectElem) throws ParserConfigurationException 

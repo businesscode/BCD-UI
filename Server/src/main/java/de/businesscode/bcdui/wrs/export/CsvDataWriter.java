@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,9 +48,8 @@ public abstract class CsvDataWriter extends AbstractDataWriter implements IDataW
   public CsvDataWriter() {
     super();
     try {
-      XPath xp = XPathUtils.newXPathFactory().newXPath();
+      XPath xp = XPathUtils.newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-      xp.setNamespaceContext(nsContext);
       //
       String wrq = nsContext.getXMLPrefix(StandardNamespaceContext.WRSREQUEST_NAMESPACE);
       //

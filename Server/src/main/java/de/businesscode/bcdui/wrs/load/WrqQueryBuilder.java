@@ -103,9 +103,7 @@ public class WrqQueryBuilder
       // WITH or WITH RECURSIVE depending on whether we have a self-referencing CTE for some database
       String connect = "WITH ";
       Element withNode = (Element)wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "With").item(0);
-      XPath xp = XPathUtils.newXPathFactory().newXPath();
-      StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-      xp.setNamespaceContext(nsContext);
+      XPath xp = XPathUtils.newXPath();
       XPathExpression bindingSetXpathExpr = xp.compile("./wrq:Cte[@alias=.//wrq:CteRef/text()]");
       boolean isRecursive = withNode != null && ((NodeList)bindingSetXpathExpr.evaluate(withNode, XPathConstants.NODESET)).getLength() > 0;
       DatabaseCompatibility dbCompat = DatabaseCompatibility.getInstance();

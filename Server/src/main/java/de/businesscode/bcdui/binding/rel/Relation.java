@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,17 +48,17 @@ import de.businesscode.util.XPathUtils;
  * Often this will be joined reference data tables
  */
 public class Relation {
-  
+
   public static enum TYPE {
     inner, leftOuter, rightOuter
   }
-  
+
   // Parked here during reading of BindingSets
   // Evaluated only later during first access since only when we know the referenced BindingSet was also read
   NodeList importItemNodes = null;
   NodeList constraintNodes = null;
   NodeList conditionNode   = null;
-   
+
   private StandardBindingSet rightBindingSet;
   private String rightBindingSetName;
 
@@ -102,7 +102,7 @@ public class Relation {
    * getLeftBindingSet
    *
    * @return
-   * @throws BindingException 
+   * @throws BindingException
    */
   public BindingSet getLeftBindingSet() throws BindingException {
     if( leftBindingSet==null ) leftBindingSet = Bindings.getInstance().get(leftBindingSetName, Collections.emptySet());
@@ -190,9 +190,8 @@ public class Relation {
 
     setRightBindingSetName(tmp);
 
-    XPath xPath = XPathUtils.newXPathFactory().newXPath();
+    XPath xPath = XPathUtils.newXPath();
     StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-    xPath.setNamespaceContext(nsContext);
     String xPathNS = nsContext.getXMLPrefix(StandardNamespaceContext.BINDINGS_NAMESPACE);
 
     //
@@ -206,8 +205,8 @@ public class Relation {
       // in this case we can't init ImportItem of the Relation
       // we must do it by calling the Relation
       defaultImportBRefPrefix = prefix;
-    } 
-    
+    }
+
     // Otherwise the elements are listed explicitly
     else {
 
@@ -241,7 +240,7 @@ public class Relation {
    */
   private AbstractConstrain resolveConstraint(Element constraintNode, AbstractConstrain parentConstraint) throws BindingException, XPathExpressionException {
     AbstractConstrain curConstraint = null;
-    NodeList constrChildNodes = (NodeList) XPathUtils.newXPathFactory().newXPath().compile("*").evaluate(constraintNode, XPathConstants.NODESET);
+    NodeList constrChildNodes = (NodeList) XPathUtils.newXPath().compile("*").evaluate(constraintNode,XPathConstants.NODESET);
 
     if (constrChildNodes == null || constrChildNodes.getLength() == 0)
       return null;
@@ -336,8 +335,8 @@ public class Relation {
    * getCondition
    *
    * @return
-   * @throws XPathExpressionException 
-   * @throws BindingException 
+   * @throws XPathExpressionException
+   * @throws BindingException
    */
   public Condition getCondition() throws BindingException {
 
@@ -346,7 +345,7 @@ public class Relation {
     if( retCondition!= null ) {
       return retCondition;
     }
-    
+
     // Lazy initialize. Make sure done only once
     synchronized(this) {
       try {
@@ -354,11 +353,11 @@ public class Relation {
         if( retCondition != null ) {
           return retCondition;
         }
-        
+
         // <Condition>
         retCondition = new Condition();
-  
-        NodeList constraintNodes = (NodeList) XPathUtils.newXPathFactory().newXPath().compile("*").evaluate(conditionNode.item(0), XPathConstants.NODESET);
+
+        NodeList constraintNodes = (NodeList) XPathUtils.newXPath().compile("*").evaluate(conditionNode.item(0), XPathConstants.NODESET);
         // resolve all constraints
         if (constraintNodes != null && constraintNodes.getLength() > 0) {
           for (int con = 0; con < constraintNodes.getLength(); con++) {
@@ -377,7 +376,7 @@ public class Relation {
 
       condition = retCondition;
     }
-    
+
     return retCondition;
   }
 
@@ -479,7 +478,7 @@ public class Relation {
     String str;
     if (isLeftOuter())
       str = " LEFT OUTER JOIN ";
-    else if (isRightOuter()) 
+    else if (isRightOuter())
       str = " RIGHT OUTER JOIN ";
     else
       str = " INNER JOIN ";
@@ -494,7 +493,7 @@ public class Relation {
    * @throws BindingException
    */
   public List<BindingItemFromRel> getImportItems() throws BindingNotFoundException {
-    
+
     // Usually we just return what we have (after initial call)
     List<BindingItemFromRel> importsRet = imports;
     if( importsRet != null ) {
@@ -519,19 +518,19 @@ public class Relation {
           BindingItemFromRel bfr = new BindingItemFromRel( bi, this, defaultImportBRefPrefix+bi.getId(), null );
           importsRet.add(bfr);
         }
-      } 
-      
+      }
+
       // Individually listed and named items
       else if( importItemNodes != null ) {
         for (int imp = 0; imp < importItemNodes.getLength(); imp++) {
           Element importNodeEl = (Element) importItemNodes.item(imp);
-          
+
           String importName = importNodeEl.getAttribute("name");
-          String importCaption = importNodeEl.hasAttribute( "caption") ? importNodeEl.getAttribute( "caption") : null; 
-          
+          String importCaption = importNodeEl.hasAttribute( "caption") ? importNodeEl.getAttribute( "caption") : null;
+
           Element importFirstChild = (Element) importNodeEl.getElementsByTagName("BindingItemRef").item(0);// FirstChild();
           String refName = importFirstChild.getAttribute("name");
-          
+
           BindingItemFromRel bfr = new BindingItemFromRel(getSourceBindingSet().get(refName), this, importName, importCaption);
           importsRet.add(bfr);
         }
@@ -550,7 +549,7 @@ public class Relation {
    * @throws BindingException
    */
   public boolean importsContainItem(String key) throws BindingException {
-    
+
     return getImportItems().stream().anyMatch( bfr -> bfr.getId().equalsIgnoreCase(key) );
   }
 
@@ -562,7 +561,7 @@ public class Relation {
    * @throws BindingException
    */
   public BindingItemFromRel getImportItemByName(String key) throws BindingException {
-  
+
     return getImportItems().stream().filter( bfr -> bfr.getId().equalsIgnoreCase(key) ).findFirst().orElse(null);
   }
 
@@ -575,7 +574,7 @@ public class Relation {
   public List<String> getAllImportItemNames() throws BindingNotFoundException {
     if (getImportItems() == null)
       return null;
-    
+
     return Arrays.asList( getImportItems().stream().map( bfr -> bfr.getId() ).toArray( String[]::new ) );
   }
 
@@ -651,7 +650,7 @@ public class Relation {
   public String getTableAlias(String mainTableAlias) {
     return mainTableAlias+tableAliasPostfix;
   }
-  
+
   public boolean isDefaultImport() {
     return defaultImportBRefPrefix != null;
   }

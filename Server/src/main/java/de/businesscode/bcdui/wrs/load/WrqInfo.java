@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -105,9 +105,7 @@ public class WrqInfo
   public WrqInfo( SqlFromSubSelect currentSelect, Element selectElem ) throws Exception
   {
     try {
-      xp = XPathUtils.newXPathFactory().newXPath();
-      StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-      xp.setNamespaceContext(nsContext);
+      xp = XPathUtils.newXPath();
       fromChildXpathExpr       =  xp.compile("./wrq:From/wrq:*");
       filterXpathExpr =           xp.compile("./f:Filter");
       groupByRootXpathExpr =      xp.compile("./wrq:Grouping");     // grouping columns or functions

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,9 +44,8 @@ public abstract class SylkDataWriter extends AbstractDataWriter implements IData
   
   public void setAddInf(IRequestOptions options) {
     try {
-      XPath xp = XPathUtils.newXPathFactory().newXPath();
+      XPath xp = XPathUtils.newXPath();
       StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-      xp.setNamespaceContext(nsContext);
       //
       String wrq = nsContext.getXMLPrefix(StandardNamespaceContext.WRSREQUEST_NAMESPACE);
       //
@@ -81,7 +80,7 @@ public abstract class SylkDataWriter extends AbstractDataWriter implements IData
   }
 
   /**
-   * @param applicationURL
+   * @param addInfo
    *          the applicationURL to set
    */
   public final void setAddInfo(String addInfo) {

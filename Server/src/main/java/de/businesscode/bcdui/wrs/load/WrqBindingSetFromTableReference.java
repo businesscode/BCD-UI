@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import de.businesscode.util.XPathUtils;
  */
 public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
-  protected final XPath xp = XPathUtils.newXPathFactory().newXPath();
   protected static final long serialVersionUID = -339592266521077317L;
 
   protected Map<String, BindingItem> importedBindingItems = new LinkedHashMap<String, BindingItem>(new HashMap<String, BindingItem>());
@@ -92,8 +91,6 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     allRawBRefsInclJoin.addAll(allRawBRefs);
 
     // Loop over the table factors
-    StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
-    xp.setNamespaceContext(nsContext);
     for( int fc=0; fc<fromChildNl.getLength(); fc++ ) {
       Element fromChild = (Element)fromChildNl.item(fc);
       if(!StandardNamespaceContext.WRSREQUEST_NAMESPACE.equals(fromChild.getNamespaceURI())) continue;
