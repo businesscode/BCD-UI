@@ -114,7 +114,10 @@
                         <xs:annotation><xs:documentation>Whether it is mandatory to have a document of this category.</xs:documentation></xs:annotation>
                       </xs:attribute>
                       <xs:attribute name="caption" type="xs:string">
-                        <xs:annotation><xs:documentation>Caption used in a chooser.</xs:documentation></xs:annotation>
+                        <xs:annotation><xs:documentation>Category caption.</xs:documentation></xs:annotation>
+                      </xs:attribute>
+                      <xs:attribute name="maxCount" type="xs:integer" default="1">
+                        <xs:annotation><xs:documentation>Maximum number of documents per category.</xs:documentation></xs:annotation>
                       </xs:attribute>
                     </xs:complexType>
                   </xs:element>

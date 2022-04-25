@@ -34,6 +34,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
+  * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
   
   */
   constructor(args){
@@ -91,6 +93,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 var fileExists = ("1" == e.selectSingleNode("wrs:C[" + fileExistsIndex + "]").text);
 
                 // filename and comment are part of the metaData
+                var uuid = category.getAttribute("uuid") || bcdui.util.getUuid();
                 var fileName = category.getAttribute("fileName") || "-";
                 var comment = category.getAttribute("comment") || "";
                 var fileSize = bcdui.util.escapeHtml(category.getAttribute("fileSize") || "0");
@@ -112,7 +115,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                   fSize = "-";
 
                 // add entry
-                bcdui.core.createElementWithPrototype(doc, "/*/Entry[@fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                bcdui.core.createElementWithPrototype(doc, "/*/Entry[@uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
@@ -126,25 +129,30 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     // the actual renderer call
     // we add a hidden fileinput before the actual targetHtml
     jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload._onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
+
+    var finalParams = {
+      config: config
+    , instance: args.instance
+    , scope: args.scope
+    , dataModel: dataModel
+    , infoModel: infoModel
+    , i18_view: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_View"}) || "VIEW"
+    , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
+    , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
+    , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
+    , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
+    , isIE: bcdui.browserCompatibility.isIE
+    };
+    if (args.renderParameters) {
+      jQuery.extend(finalParams, args.renderParameters);
+    }
+
     super({
         id: widgetId
       , targetHtml: jQuery("#" + targetHtml).find(".bcdDocUploader")
-      , chain: bcdui.contextPath + "/bcdui/js/component/docUpload/docUploadRenderer.xslt"
-      , parameters: {
-          config: config
-        , instance: args.instance
-        , scope: args.scope
-        , dataModel: dataModel
-        , infoModel: infoModel
-        , i18_view: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_View"}) || "VIEW"
-        , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
-        , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
-        , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
-        , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
-        , isIE: bcdui.browserCompatibility.isIE
-        }
-      }
-    );
+      , chain: args.renderChain || bcdui.contextPath + "/bcdui/js/component/docUpload/docUploadRenderer.xslt"
+      , parameters: finalParams
+    });
     
     // take over all models and information to instance
     this.targetHtml = targetHtml;
@@ -194,6 +202,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var rowId = area.attr("rowId") || "";
         var fileSize = area.attr("fileSize");
         var fileName = area.attr("fileName");
+        var uuid = area.attr("uuid");
 
         // remove fileExists flag before saving
         var fileExistsIndex  = parseInt(self.dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos", "0"), 10);
@@ -201,13 +210,13 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         bcdui.core.removeXPath(self.dataModel.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']", false);
 
         if (rowId) {
-          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
           self._saveData();
         }
         else {
           bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid());
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
             self._saveData();
@@ -253,6 +262,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           // add meta information on fileInput for later use
           container.parent().find("*[bcdRole=fileInput]").attr("catId", area.attr("catId"));
           container.parent().find("*[bcdRole=fileInput]").attr("rowId", area.attr("rowId"));
+          container.parent().find("*[bcdRole=fileInput]").attr("uuid", area.attr("uuid"));
           container.parent().find("*[bcdRole=fileInput]").attr("comment", area.attr("comment"));
           container.parent().find("*[bcdRole=fileInput]").click(); 
         }
@@ -270,21 +280,27 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   getUploadInfo() {
     var info = [];
     Array.from(this.config.queryNodes("/*/rnd:Scopes/rnd:Scope[@id='{{=it[0]}}']/rnd:Category",[this.scope])).forEach(function(e) {
-      var m = this.infoModel.query("/*/Entry[@catId='{{=it[0]}}']", [e.getAttribute("id")]);
+      var m = Array.from(this.infoModel.queryNodes("/*/Entry[@catId='{{=it[0]}}']", [e.getAttribute("id")]));
       var o = {
         id: "" + e.getAttribute("id")
       , caption: "" + e.getAttribute("caption")
       , required: "true" == (e.getAttribute("required") || "false")
-      , uploaded: "true" == (m != null && m.getAttribute("fileExists") || "false")
+      , uploaded: false
+      , fileInfo: []
       };
-      if (m != null) {
-        o["timestamp"] = m.getAttribute("ts");
-        o["user"] = m.getAttribute("ts");
-        o["name"] = m.getAttribute("fileName");
-        o["size"] = m.getAttribute("fileSize");
-        o["url"] = m.getAttribute("link");
-        o["comment"] = m.getAttribute("comment");
-      }        
+      m.forEach(function(entry) {
+        var q = {}
+        q["timestamp"] = entry.getAttribute("ts");
+        q["user"] = entry.getAttribute("user");
+        q["name"] = entry.getAttribute("fileName");
+        q["size"] = entry.getAttribute("fileSize");
+        q["uuid"] = entry.getAttribute("uuid");
+        q["url"] = entry.getAttribute("link");
+        q["comment"] = entry.getAttribute("comment");
+        if (! o["uploaded"])
+          o["uploaded"] = (entry.getAttribute("fileExists") == "true"); 
+        o["fileInfo"].push(q);
+      });
       info.push(o);
     }.bind(this));
     return info;
@@ -313,6 +329,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   _performAction(container, action, fileName) {
     var catId = jQuery(container).attr("catId") || "";
     var rowId = jQuery(container).attr("rowId") || "";
+    var uuid = jQuery(container).attr("uuid") || bcdui.util.getUuid();
     var comment = jQuery(container).attr("comment") || "";
     fileName = fileName || jQuery(container).attr("fileName");
     var fileSize = jQuery(container).attr("fileSize") || "0";
@@ -342,6 +359,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       // data is loaded (as base64), so start saving
       fr.onload = function() {
 
+        // reset fileInput so you can upload identically named files (onchange)
+        fileInput.val("");
+
         // data is in base64 format now
         var b64 = this.result.substring(this.result.indexOf("base64,") + "base64,".length);
 
@@ -362,7 +382,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           // create and fill the modified blob column C/O values
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "resourceBlob", b64);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
-          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
           self._saveData();
         }
 
@@ -371,7 +391,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "resourceBlob", b64);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
             self._saveData();
@@ -475,7 +495,7 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
         output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Scope"}) + "' and @id='scope' and @type-name='VARCHAR']/@pos", "1");
         output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Instance"}) + "' and @id='instance' and @type-name='VARCHAR']/@pos", "2");
         output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Loaded_Documents"}) + "' and @id='loaded' and @type-name='INTEGER']/@pos", "3");
-        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"'bcd_DocUploader_Number_Of_Documents"}) + "' and @type-name='INTEGER']/@pos", "4");
+        output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Number_Of_Categories"}) + "' and @type-name='INTEGER']/@pos", "4");
         output.write("/*/wrs:Header/wrs:Columns/wrs:C[@caption='" + bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Missing_Required"}) + "' and @id='missing_required' and @type-name='INTEGER']/@pos", "5");
 
         // the number of needed files is simply the number of categories for the current scope in the config file
