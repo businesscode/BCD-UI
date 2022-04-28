@@ -81,7 +81,7 @@
         separate them visually
       </xs:documentation>
     </xs:annotation>
-    <xs:choice minOccurs="1" maxOccurs="unbounded">
+    <xs:choice minOccurs="1" maxOccurs="999">
       <xs:element name="Entry" type="tns:ContextMenuEntry"></xs:element>
       <xs:element name="MenuSeparator" type="tns:MenuSeparator"></xs:element>
     </xs:choice>
@@ -97,7 +97,7 @@
     <xs:annotation>
       <xs:documentation>represents a contextMenu</xs:documentation>
     </xs:annotation>
-    <xs:choice maxOccurs="unbounded" minOccurs="1">
+    <xs:choice maxOccurs="999" minOccurs="1">
       <xs:element name="Entry" type="tns:ContextMenuEntry">
       </xs:element>
       <xs:element name="EntryGroup" type="tns:ContextMenuEntryGroup">
@@ -114,7 +114,7 @@
         defined with this element
       </xs:documentation>
     </xs:annotation>
-    <xs:choice maxOccurs="unbounded" minOccurs="0">
+    <xs:choice maxOccurs="999" minOccurs="0">
       <xs:element name="Entry" type="tns:ContextMenuEntry">
       </xs:element>
       <xs:element name="EntryGroup" type="tns:ContextMenuEntryGroup">

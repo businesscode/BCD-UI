@@ -45,7 +45,7 @@
           <xs:annotation><xs:documentation>If not given, all /*/dm:Dimensions/dm:LevelRef are offered.</xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element ref="dm:LevelRef" maxOccurs="unbounded"/>
+              <xs:element ref="dm:LevelRef" maxOccurs="999"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -53,7 +53,7 @@
           <xs:annotation><xs:documentation>If not given, all /*/dm:Measures/dm:Measure are offered.</xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element ref="dm:MeasureRef" maxOccurs="unbounded"/>
+              <xs:element ref="dm:MeasureRef" maxOccurs="999"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -64,7 +64,7 @@
           <xs:annotation><xs:documentation>Definition of measures that can be referenced in cube:MeasuresRefs.</xs:documentation></xs:annotation>
         </xs:element>
         <xs:element ref="dm:DetailDataDefaults" minOccurs="0"/>
-        <xs:element ref="xi:include" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="xi:include" minOccurs="0" maxOccurs="999"/>
       </xs:sequence>
     </xs:complexType>
     <xs:keyref name="topNMeasureRefId" refer="dm:measureUnique">
@@ -90,10 +90,10 @@
         </xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="TopNDimMember" maxOccurs="unbounded">
+            <xs:element name="TopNDimMember" maxOccurs="999">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element ref="dm:LevelRef" maxOccurs="unbounded" minOccurs="1"/>
+                  <xs:element ref="dm:LevelRef" maxOccurs="999" minOccurs="1"/>
                   <xs:element ref="dm:MeasureRef" maxOccurs="1" minOccurs="1"/>
                 </xs:sequence>
                 <xs:attribute name="n" type="xs:integer" use="required">
@@ -138,9 +138,9 @@
               </xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:choice maxOccurs="unbounded">
-                    <xs:element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element ref="dm:Measure" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:choice maxOccurs="999">
+                    <xs:element ref="dm:MeasureRef" minOccurs="0" maxOccurs="999"/>
+                    <xs:element ref="dm:Measure" minOccurs="0" maxOccurs="999"/>
                   </xs:choice>
                 </xs:sequence>
               </xs:complexType>
@@ -152,9 +152,9 @@
               </xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:choice maxOccurs="unbounded">
-                    <xs:element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
-                    <xs:element ref="dm:Measure" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:choice maxOccurs="999">
+                    <xs:element ref="dm:MeasureRef" minOccurs="0" maxOccurs="999"/>
+                    <xs:element ref="dm:Measure" minOccurs="0" maxOccurs="999"/>
                   </xs:choice>
                 </xs:sequence>
               </xs:complexType>
@@ -170,7 +170,7 @@
             <xs:element name="Rows" minOccurs="0">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="dm:LevelRef" minOccurs="0" maxOccurs="999"/>
                 </xs:sequence>
               </xs:complexType>
             </xs:element>
@@ -178,7 +178,7 @@
             <xs:element name="Columns" minOccurs="0">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <xs:element ref="dm:LevelRef" minOccurs="0" maxOccurs="999"/>
                 </xs:sequence>
               </xs:complexType>
             </xs:element>

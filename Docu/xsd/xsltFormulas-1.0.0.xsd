@@ -28,11 +28,11 @@
   </element>
   <complexType name="FormulasType">
     <sequence>
-      <element name="Formula" type="tns:Formula" maxOccurs="unbounded"/>
+      <element name="Formula" type="tns:Formula" maxOccurs="999"/>
     </sequence>
   </complexType>
   <complexType name="Formula" mixed="true">
-    <choice minOccurs="0" maxOccurs="unbounded">
+    <choice minOccurs="0" maxOccurs="999">
       <element name="v1" type="string"/>
       <element name="v2" type="string"/>
     </choice>

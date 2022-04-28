@@ -44,7 +44,7 @@
       <xs:element name="Series" maxOccurs="1" minOccurs="1">
         <xs:annotation><xs:documentation>root Series(plural) node with children</xs:documentation></xs:annotation>
         <xs:complexType>
-          <xs:sequence minOccurs="1" maxOccurs="unbounded">
+          <xs:sequence minOccurs="1" maxOccurs="999">
             <xs:annotation>
               <xs:documentation></xs:documentation>
             </xs:annotation>
@@ -55,7 +55,7 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="DrawSeriesLegend" type="tns:DrawSeriesLegend" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="Stacked" type="tns:Stacked" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      <xs:element name="Stacked" type="tns:Stacked" minOccurs="0" maxOccurs="999"></xs:element>
       <xs:element name="SeriesColors" type="tns:SeriesColors" maxOccurs="1" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Colors node to define colors of all series</xs:documentation>
@@ -186,7 +186,7 @@
   <xs:complexType name="XAxis">
     <xs:annotation><xs:documentation>Element defines the x-axis</xs:documentation></xs:annotation>
     <xs:choice>
-      <xs:element name="Categories" type="tns:Categories" maxOccurs="unbounded"></xs:element>
+      <xs:element name="Categories" type="tns:Categories" maxOccurs="999"></xs:element>
       <xs:element name="XValues" type="tns:XValues"></xs:element>
     </xs:choice>
     <xs:attributeGroup ref="tns:AxisAttrs"></xs:attributeGroup>
@@ -261,7 +261,7 @@
       </xs:documentation>
     </xs:annotation>
 
-    <xs:sequence maxOccurs="unbounded" minOccurs="1">
+    <xs:sequence maxOccurs="999" minOccurs="1">
       <xs:element name="XValues" type="tns:XValues" minOccurs="0">
       <xs:annotation>
         <xs:documentation>XValues per series. This is currently only available for polar charts.</xs:documentation>
@@ -426,8 +426,8 @@
       </xs:documentation>
     </xs:annotation>
 
-    <xs:sequence maxOccurs="unbounded" >
-      <xs:element name="Value" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    <xs:sequence maxOccurs="999" >
+      <xs:element name="Value" type="xs:string" maxOccurs="999" minOccurs="0"></xs:element>
     </xs:sequence>
 
     <xs:attributeGroup ref="tns:CategoriesAttrs"></xs:attributeGroup>
@@ -473,7 +473,7 @@
       The element may contain either attributes or Value nodes
       </xs:documentation>
     </xs:annotation>
-    <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+    <xs:sequence minOccurs="0" maxOccurs="999" >
       <xs:element name="Value"></xs:element>
     </xs:sequence>
     <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
@@ -488,7 +488,7 @@
     </xs:annotation>
 
     <xs:sequence>
-      <xs:element name="Value" type="xs:double" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      <xs:element name="Value" type="xs:double" minOccurs="0" maxOccurs="999"></xs:element>
     </xs:sequence>
 
     <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
@@ -499,7 +499,7 @@
     <xs:annotation>
       <xs:documentation>Providing color values for each x value.</xs:documentation>
     </xs:annotation>
-    <xs:sequence maxOccurs="unbounded" >
+    <xs:sequence maxOccurs="999" >
       <xs:element name="Value" type="tns:colorValue">
         <xs:annotation>
           <xs:documentation>color as hexadecimal value</xs:documentation>
@@ -639,7 +639,7 @@
     </xs:annotation>
     <xs:choice>
 
-      <xs:sequence minOccurs="1" maxOccurs="unbounded">
+      <xs:sequence minOccurs="1" maxOccurs="999">
         <xs:element name="Color" type="tns:colorValue">
           <xs:annotation>
             <xs:documentation>color as hexadecimal value</xs:documentation>
@@ -679,7 +679,7 @@
           <xs:documentation>colors based on well-known rgb colors</xs:documentation>
         </xs:annotation>
         <xs:complexType>
-          <xs:sequence minOccurs="0" maxOccurs="unbounded" >
+          <xs:sequence minOccurs="0" maxOccurs="999" >
             <xs:element name="Color" type="tns:wellKnownColorValue"></xs:element>
           </xs:sequence>
         </xs:complexType>

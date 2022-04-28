@@ -38,46 +38,46 @@
   </element>
 
   <complexType name="XSLTParametersType">
-    <choice minOccurs="0" maxOccurs="unbounded">
-      <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="unbounded">
+    <choice minOccurs="0" maxOccurs="999">
+      <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Deprecated, only to be used within Cube.</documentation></annotation>
       </element>
 
       <!-- We are listing them here instead of just tns:BaseParam because current Eclipse (less than 3.7) will validate but nut auto-suggest elements then -->
-      <element name="OrderCols" type="tns:OrderColsParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="OrderCols" type="tns:OrderColsParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for column reordering</documentation></annotation>
       </element>
-      <element name="DeleteRows" type="tns:DeleteRowsParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="DeleteRows" type="tns:DeleteRowsParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for removing rows</documentation></annotation>
       </element>
-      <element name="DuplicateRows" type="tns:DuplicateRowsParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="DuplicateRows" type="tns:DuplicateRowsParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for duplicating rows</documentation></annotation>
       </element>
-      <element name="Restore" type="tns:RestoreParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="Restore" type="tns:RestoreParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>For restore.xslt to restore a block of cells mark as modified or deleted within a WRS.</documentation></annotation>
       </element>
-      <element name="InsertEmptyRows" type="tns:InsertEmptyRowsParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="InsertEmptyRows" type="tns:InsertEmptyRowsParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for inserting empty rows</documentation></annotation>
       </element>
-      <element name="TransposeGrouping" type="tns:TransposeGroupingParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="TransposeGrouping" type="tns:TransposeGroupingParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>
           Convert one row dimension into a column dimension. I.e. the values of this input row become the headers of the resulting WRS.
           The column itself is removed, the other dimensions column remain untouched and all non-dimension cells are adjusted accordingly.
         </documentation></annotation>
       </element>
-      <element name="Join" type="tns:JoinParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="Join" type="tns:JoinParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for joining two WRS</documentation></annotation>
       </element>
-      <element name="Copy" type="tns:CopyParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="Copy" type="tns:CopyParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for coping rows from WRS</documentation></annotation>
       </element>
-      <element name="Paste" type="tns:PasteParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="Paste" type="tns:PasteParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Parameters for pasting rows into WRS</documentation></annotation>
       </element>
-      <element ref="tns:Paginate" minOccurs="0" maxOccurs="unbounded">
+      <element ref="tns:Paginate" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Pagination of WRS</documentation></annotation>
       </element>
-      <element name="Merge" minOccurs="0" maxOccurs="unbounded">
+      <element name="Merge" minOccurs="0" maxOccurs="999">
         <annotation><documentation>
           Parameters for merging a WRS into another WRS.
           No parameters here but a param - cDoc - is needed with the content to be merged into the input document.
@@ -86,28 +86,28 @@
         </documentation></annotation>
         <complexType></complexType>
       </element>
-      <element name="AutoFilter" type="tns:AutoFilterParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="AutoFilter" type="tns:AutoFilterParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>AutoFilter inputField of WRS</documentation></annotation>
       </element>
-      <element name="FilterXPath" type="tns:FilterXPathParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="FilterXPath" type="tns:FilterXPathParamType" minOccurs="0" maxOccurs="999">
         <annotation><documentation>Filter XPath</documentation></annotation>
       </element>
-      <element name="OrderRowsAndCols" type="tns:OrderRowsAndColsType" minOccurs="0" maxOccurs="unbounded">
+      <element name="OrderRowsAndCols" type="tns:OrderRowsAndColsType" minOccurs="0" maxOccurs="999">
         <annotation>
           <documentation>Ordering of rows and columns</documentation>
         </annotation>
       </element>
-      <element name="ColDims" type="tns:ColDimsType" minOccurs="0" maxOccurs="unbounded">
+      <element name="ColDims" type="tns:ColDimsType" minOccurs="0" maxOccurs="999">
         <annotation>
           <documentation>Creating a Wrs with col dimensions from a standard Wrs</documentation>
         </annotation>
       </element>
-      <element name="RemoveEmptyCells" type="tns:RemoveEmptyCellsParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="RemoveEmptyCells" type="tns:RemoveEmptyCellsParamType" minOccurs="0" maxOccurs="999">
         <annotation>
           <documentation>Parameters for removeEmptyCells. If enabled, rows and cols holding no measures are removed from Wrs.</documentation>
         </annotation>
       </element>
-      <element name="HtmlBuilder" type="tns:HtmlBuilderParamType" minOccurs="0" maxOccurs="unbounded">
+      <element name="HtmlBuilder" type="tns:HtmlBuilderParamType" minOccurs="0" maxOccurs="999">
         <annotation>
           <documentation>Parameters for HTML Builder style sheet</documentation>
         </annotation>
@@ -305,7 +305,7 @@
   <complexType name="AutoFilterParamType">
     <complexContent>
       <extension base="tns:BaseParamType">
-        <sequence minOccurs="1" maxOccurs="unbounded">
+        <sequence minOccurs="1" maxOccurs="999">
           <element ref="wrs:Columns" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Column that gets autoFilter as inputFilter
@@ -542,7 +542,7 @@
                   </documentation></annotation>
                   <complexType>
                     <sequence>
-                      <element name="C" minOccurs="0" maxOccurs="unbounded">
+                      <element name="C" minOccurs="0" maxOccurs="999">
                         <annotation><documentation>
                           Order according to the attributes
                         </documentation></annotation>
@@ -604,7 +604,7 @@
               <annotation><documentation>List of measures broken down by all dimensions</documentation></annotation>
               <complexType>
                 <sequence>
-                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="999"/>
                 </sequence>
               </complexType>
             </element>
@@ -612,7 +612,7 @@
               <annotation><documentation>List of measures broken down only by row dimensions</documentation></annotation>
               <complexType>
                 <sequence>
-                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <element ref="dm:MeasureRef" minOccurs="0" maxOccurs="999"/>
                 </sequence>
               </complexType>
             </element>
@@ -627,14 +627,14 @@
             <element name="Rows" minOccurs="0">
               <complexType>
                 <sequence>
-                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="999"/>
                 </sequence>
               </complexType>
             </element>
             <element name="Columns" minOccurs="0">
               <complexType>
                 <sequence>
-                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
+                  <element ref="dm:LevelRef" minOccurs="0" maxOccurs="999"/>
                 </sequence>
               </complexType>
             </element>
@@ -739,7 +739,7 @@
             </documentation></annotation>
             <complexType>
               <sequence>
-                <any namespace="##any" maxOccurs="unbounded"/>
+                <any namespace="##any" maxOccurs="999"/>
               </sequence>
             </complexType>
           </element>

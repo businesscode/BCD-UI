@@ -30,7 +30,7 @@
   <!-- root element -->
   <element name="Menu">
     <complexType>
-      <sequence maxOccurs="unbounded">
+      <sequence maxOccurs="999">
         <element ref="tns:Entry"></element>
       </sequence>
       <attribute name="id" type="ID" use="required"></attribute>
@@ -42,7 +42,7 @@
 
   <element name="Entry">
     <complexType>
-      <sequence maxOccurs="unbounded" minOccurs="0">
+      <sequence maxOccurs="999" minOccurs="0">
         <choice>
           <element ref="tns:Entry"/>
           <element ref="tns:include"></element>

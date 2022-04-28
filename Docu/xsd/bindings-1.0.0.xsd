@@ -69,7 +69,7 @@
 
   <xs:complexType  name="TypeBindingSetGroup">
     <xs:sequence>
-      <xs:element name="BindingSetRef" type="tns:TypeBindingSetRef" maxOccurs="unbounded"/>
+      <xs:element name="BindingSetRef" type="tns:TypeBindingSetRef" maxOccurs="999"/>
       <xs:element name="WrqModifiers" type="tns:TypeWrqModifiers" minOccurs="0" />
     </xs:sequence>
     <xs:attribute name="id" type="xs:ID" use="required" />
@@ -111,20 +111,20 @@
       In some aspects similar to an abstract base class.
     </xs:documentation></xs:annotation>
     <xs:sequence>
-      <xs:sequence maxOccurs="unbounded">
-        <xs:element name="C" type="tns:TypeBindingItem" minOccurs="0" maxOccurs="unbounded">
+      <xs:sequence maxOccurs="999">
+        <xs:element name="C" type="tns:TypeBindingItem" minOccurs="0" maxOccurs="999">
           <xs:annotation><xs:documentation>
             Standard mapping of a logical name to a column expression.
             Attributes (like type) defined here overwrite the values derived in the database. In not set, the default to the database values.
           </xs:documentation></xs:annotation>
         </xs:element>
-        <xs:element ref="xi:include" minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="xi:include" minOccurs="0" maxOccurs="999">
           <xs:annotation><xs:documentation>
             xi:include is useful to re-use parts of BindingSets, like common re-occurring dimensions, defined in a BindingInclude.
             Sample: &lt;xi:include href="include/common_geo_dims.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
           </xs:documentation></xs:annotation>
         </xs:element>
-        <xs:element name="Relation" type="tns:TypeRelation" minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Relation" type="tns:TypeRelation" minOccurs="0" maxOccurs="999">
           <xs:annotation><xs:documentation>
             A bnd:Relation is an optional join with another bnd:BindingSet.
             Note that the join is only triggered if a column from the bnd:Relation is explicitly requested in any part of the query (including SubjectSettings).
@@ -267,7 +267,7 @@
 
   <xs:complexType name="TypeSubjectFilters">
     <xs:annotation><xs:documentation>This feature enables row-level security. Requires BCD-UI Enterprise Edition</xs:documentation></xs:annotation>
-    <xs:choice minOccurs="1" maxOccurs="unbounded">
+    <xs:choice minOccurs="1" maxOccurs="999">
       <xs:element name="SubjectFilter" type="tns:TypeSubjectFilter"></xs:element>
       <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
       <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
@@ -275,7 +275,7 @@
   </xs:complexType>
 
   <xs:complexType name="TypeSubjectFilterConnective">
-    <xs:choice minOccurs="1" maxOccurs="unbounded">
+    <xs:choice minOccurs="1" maxOccurs="999">
       <xs:element name="SubjectFilter" type="tns:TypeSubjectFilter"></xs:element>
       <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
       <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
@@ -288,7 +288,7 @@
 
   <xs:complexType name="TypeSecurity">
     <xs:sequence>
-      <xs:element name="Operation" minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="Operation" minOccurs="1" maxOccurs="999">
         <xs:annotation>
           <xs:documentation>
             the operation defining the permission (shiros context) to the named operation supported by implementation.
@@ -376,7 +376,7 @@
 
   <xs:complexType name="TypeWrqModifiers">
     <xs:sequence>
-      <xs:element name="WrqModifier" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="WrqModifier" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           A WrqModifier implements de.businesscode.bcdui.wrs.load.modifier.Modifier and can modify the incoming wrsRequest (currently only the f:Filter part) just before SQL is generated.
           This is useful for example for server-side optimizations, like if you need to translate certain filters to optimize for table partitioning, without the need for the client to know about this.
@@ -413,14 +413,14 @@
 
   <xs:complexType name="TypeCallbacks">
     <xs:sequence>
-      <xs:element name="Callback" type="tns:TypeCallback" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="Callback" type="tns:TypeCallback" minOccurs="1" maxOccurs="999" />
     </xs:sequence>
   </xs:complexType>
 
 
   <xs:complexType name="TypeCallback">
     <xs:sequence>
-      <xs:element name="Param" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Param" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           Allowed attributes depend on the callback implementation. The order of Param elements may be meaningful, depending on callBack implementation.
         </xs:documentation></xs:annotation>
@@ -471,7 +471,7 @@
           </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-          <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:sequence minOccurs="0" maxOccurs="999">
             <xs:element name="ImportItem">
               <xs:annotation>
                 <xs:documentation>
@@ -494,7 +494,7 @@
                     <xs:complexType>
                       <xs:sequence>
                         <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
-                        <xs:choice maxOccurs="unbounded">
+                        <xs:choice maxOccurs="999">
                           <xs:element name="BindingItemRef" type="tns:TypeBindingItemRef"/>
                           <xs:element name="Value" type="xs:string">
                             <xs:annotation>
@@ -736,7 +736,7 @@
     </xs:annotation>
     <xs:sequence>
       <xs:group ref="tns:booleanExpression"/>
-      <xs:group ref="tns:booleanExpression" maxOccurs="unbounded"/>
+      <xs:group ref="tns:booleanExpression" maxOccurs="999"/>
     </xs:sequence>
     <xs:attribute name="negate" default="false" type="xs:boolean" />
   </xs:complexType>

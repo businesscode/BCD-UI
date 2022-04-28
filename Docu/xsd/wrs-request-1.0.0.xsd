@@ -62,7 +62,7 @@
       <xs:element name="With" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="Cte" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="Cte" minOccurs="0" maxOccurs="999">
               <xs:complexType>
                 <xs:group ref="tns:GroupFullSelect"/>
                 <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="required">
@@ -104,7 +104,7 @@
     <xs:sequence>
       <xs:element name="Select" type="tns:TypeSelect">
       </xs:element>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:sequence minOccurs="0" maxOccurs="999">
         <xs:choice>
           <xs:element name="Union"        type="xs:string" fixed=""/>
           <xs:element name="UnionAll"     type="xs:string" fixed=""/>
@@ -184,13 +184,13 @@
 
   <xs:complexType name="TopNDimMembers">
     <xs:sequence>
-      <xs:element name="TopNDimMember" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="TopNDimMember" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           A top-n restriction, for example show only those results, where ctr,center: sum(weight) is above the top 10.
         </xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="LevelRef" maxOccurs="unbounded">
+            <xs:element name="LevelRef" maxOccurs="999">
               <xs:annotation><xs:documentation>Dimension regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:attribute name="bRef" type="xs:NCName" use="optional">
@@ -239,7 +239,7 @@
   </xs:complexType>
 
   <xs:complexType name="TypeSelectColumns">
-    <xs:sequence maxOccurs="unbounded" minOccurs="0">
+    <xs:sequence maxOccurs="999" minOccurs="0">
       <xs:element name="C" type="tns:TypeSelectColumn">
         <xs:annotation><xs:documentation>
           A plain or virtual BindingItem.
@@ -294,8 +294,8 @@
   <xs:complexType name="TypeSelectColumn">
     <xs:complexContent>
       <xs:extension base="tns:TypeColumn">
-        <xs:sequence maxOccurs="unbounded" minOccurs="0">
-          <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="unbounded">
+        <xs:sequence maxOccurs="999" minOccurs="0">
+          <xs:element name="A" type="tns:TypeColumnAttribute" minOccurs="0" maxOccurs="999">
             <xs:annotation><xs:documentation>
               In SQL behaves like a normal wrq:C but becomes an attribute on its parent wrs:C instead of a wrs:C of its own.
             </xs:documentation></xs:annotation>
@@ -366,7 +366,7 @@
         </xs:element>
       </xs:choice>
       <!-- Join -->
-      <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:choice minOccurs="0" maxOccurs="999">
         <xs:element name="InnerJoin"      type="tns:TypeJoin"/>
         <xs:element name="FullOuterJoin"  type="tns:TypeJoin"/>
         <xs:element name="LeftOuterJoin"  type="tns:TypeJoin"/>
@@ -401,7 +401,7 @@
   <xs:complexType name="TypeJoin">
     <xs:sequence>
       <xs:group ref="tns:GroupTableReference"></xs:group>
-      <xs:group ref="tns:GroupJoinFilter" maxOccurs="unbounded"></xs:group>
+      <xs:group ref="tns:GroupJoinFilter" maxOccurs="999"></xs:group>
     </xs:sequence>
   </xs:complexType>
 
@@ -420,30 +420,30 @@
   <!-- A recursive wrq:And/wrq:Or connected list of wrq:On clauses -->
   <xs:group name="GroupJoinFilter">
     <xs:choice>
-      <xs:element name="And" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="And" minOccurs="0" maxOccurs="999">
         <xs:complexType>
           <xs:group ref="tns:GroupJoinFilter"></xs:group>
         </xs:complexType>
       </xs:element>
-      <xs:element name="Or" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Or" minOccurs="0" maxOccurs="999">
         <xs:complexType>
           <xs:group ref="tns:GroupJoinFilter"></xs:group>
         </xs:complexType>
       </xs:element>
-      <xs:element name="On" type="tns:TypeOn" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="On" type="tns:TypeOn" minOccurs="0" maxOccurs="999"/>
     </xs:choice>
   </xs:group>
 
 
   <!-- wrq:GroupBy clause -->
   <xs:complexType name="TypeGrouping">
-    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
+    <xs:sequence minOccurs="0" maxOccurs="999">
+      <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           BindingItem to be used for grouping. If used on combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
         </xs:documentation></xs:annotation>
       </xs:element>
-      <xs:element name="GroupingSets" type="tns:TypeGroupingSets" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="GroupingSets" type="tns:TypeGroupingSets" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           Allows creation of aggregations on different levels. if multiple wrq:GroupingSets are present, each combination of their sets is created.
         </xs:documentation></xs:annotation>
@@ -452,12 +452,12 @@
   </xs:complexType>
 
   <xs:complexType name="TypeGroupingSets">
-    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+    <xs:sequence minOccurs="0" maxOccurs="999">
       <xs:element name="Set">
         <xs:annotation><xs:documentation>Each set defines a different set of grouping-BIs</xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="999">
               <xs:annotation><xs:documentation>BindingItem to be used for grouping in this set.</xs:documentation></xs:annotation>
             </xs:element>
           </xs:sequence>
@@ -467,7 +467,7 @@
   </xs:complexType>
 
   <xs:complexType name="TypeOrdering">
-    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+    <xs:sequence minOccurs="0" maxOccurs="999">
       <xs:element name="C">
         <xs:complexType>
           <xs:complexContent>
@@ -494,14 +494,14 @@
   </xs:simpleType>
 
   <xs:complexType name="TypeVdms">
-    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="Vdm" minOccurs="0" maxOccurs="unbounded">
+    <xs:sequence minOccurs="0" maxOccurs="999">
+      <xs:element name="Vdm" minOccurs="0" maxOccurs="999">
         <xs:annotation><xs:documentation>
           Defines which database values of a @bRef should be collapsed into what values.
         </xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="VdmMap" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="VdmMap" minOccurs="0" maxOccurs="999">
               <xs:annotation><xs:documentation>
                 Collapses all values from @from to a new value given by @to.
               </xs:documentation></xs:annotation>
@@ -653,7 +653,7 @@
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
-          <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="unbounded"/>
+          <xs:element ref="tns:CalculatedValue" minOccurs="1" maxOccurs="999"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

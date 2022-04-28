@@ -26,14 +26,14 @@
   <element name="Status">
     <complexType>
       <sequence>
-        <any processContents="lax" minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        <any processContents="lax" minOccurs="0" maxOccurs="999" namespace="##other"/>
         <element name="Filter" minOccurs="0" type="f:TypeFilter"/>
         <element name="ClientSettings" minOccurs="0" type="tns:clientSettingsType"/>
       </sequence>
     </complexType>
   </element>
   <complexType name="clientSettingsType">
-    <sequence minOccurs="0" maxOccurs="unbounded">
+    <sequence minOccurs="0" maxOccurs="999">
       <any processContents="lax"/>
     </sequence>
   </complexType>

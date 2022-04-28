@@ -49,7 +49,7 @@
         <xs:element name="SelectColumns">
           <xs:annotation><xs:documentation>Columns to work with. May be invisible or non-editable.</xs:documentation></xs:annotation>
           <xs:complexType>
-            <xs:choice maxOccurs="unbounded">
+            <xs:choice maxOccurs="999">
               <xs:element ref="tns:Group">
               </xs:element>
               <xs:element ref="tns:C">
@@ -61,7 +61,7 @@
           <xs:complexType>
             <xs:annotation><xs:documentation>Sort order of the data.</xs:documentation></xs:annotation>
             <xs:sequence>
-              <xs:element name="C" maxOccurs="unbounded">
+              <xs:element name="C" maxOccurs="999">
                 <xs:complexType>
                   <xs:attribute name="bRef" use="required"/>
                   <xs:attribute name="order">
@@ -104,7 +104,7 @@
           <xs:annotation><xs:documentation>Handles non-generic ways to edit the data.</xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Param" maxOccurs="unbounded">
+              <xs:element name="Param" maxOccurs="999">
                 <xs:annotation><xs:documentation>A parameter for the editor of the referenced type. Each editor type has a different set of parameters.</xs:documentation></xs:annotation>
                 <xs:complexType>
                   <xs:attribute name="name">
@@ -155,7 +155,7 @@
     <xs:annotation><xs:documentation>Allows for header nesting and column group collapsing.</xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:choice maxOccurs="unbounded">
+        <xs:choice maxOccurs="999">
           <xs:element ref="tns:Group"></xs:element>
           <xs:element ref="tns:C"/>
         </xs:choice>
