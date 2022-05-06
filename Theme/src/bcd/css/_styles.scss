@@ -105,10 +105,6 @@ $h6-font-size:                $bcd-font-size-base !default;
 .statusNotReady,
 .bcdLoading {
   background: url("../images/loading.gif") top left no-repeat;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  overflow: visible !important;
 }
 
 /* indicating a component is busy and not ready to receive a user input */
