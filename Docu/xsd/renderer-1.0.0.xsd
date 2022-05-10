@@ -33,7 +33,7 @@
       <xs:documentation>DimChooserType describes the type of a dimension chooser configuration model</xs:documentation>
     </xs:annotation>
     <xs:sequence minOccurs="1">
-      <xs:element name="Level" minOccurs="0" maxOccurs="999">
+      <xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence minOccurs="0" maxOccurs="1">
             <xs:element name="FilterCondition">
@@ -92,7 +92,7 @@
       <xs:element name="Scopes">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="Scope" minOccurs="1" maxOccurs="999">
+            <xs:element name="Scope" minOccurs="1" maxOccurs="unbounded">
               <xs:annotation><xs:documentation>
                 A Scope is the entity type documents of this scope belong to.
                 Samples are customers, containers and KPIs.
@@ -101,7 +101,7 @@
               </xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="Category" minOccurs="1" maxOccurs="999">
+                  <xs:element name="Category" minOccurs="1" maxOccurs="unbounded">
                     <xs:annotation><xs:documentation>
                       Documents fall in different categories such as invoice, POD or KPI documentation.
                       This is used to display them together in the component and define whether they are mandatory.
@@ -168,7 +168,7 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Character">
-    <xs:sequence minOccurs="1" maxOccurs="999" >
+    <xs:sequence minOccurs="1" maxOccurs="unbounded" >
       <xs:element name="Type" type="tns:TypeType" />
     </xs:sequence>
   </xs:complexType>

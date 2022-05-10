@@ -44,7 +44,7 @@
     </documentation>
     </annotation>
     <sequence>
-      <element name="Operation" minOccurs="1" maxOccurs="999">
+      <element name="Operation" minOccurs="1" maxOccurs="unbounded">
         <annotation>
           <documentation>
             the operation defining the permission (shiros context) to the named operation supported by implementation.
@@ -78,7 +78,7 @@
       <element name="SubjectFilterTypes" minOccurs="0">
         <complexType>
           <sequence>
-            <element name="SubjectFilterType" type="tns:SubjectFilterType" minOccurs="0" maxOccurs="999">
+            <element name="SubjectFilterType" type="tns:SubjectFilterType" minOccurs="0" maxOccurs="unbounded">
               <annotation>
                 <documentation>
                   Each SubjectFilterType defines the BindingItem on which to apply the restriction and a BindingSet with the user's rights
@@ -92,7 +92,7 @@
       <element name="SubjectSettings" minOccurs="0" type="tns:SubjectSettingsType"/>
       <element name="UserSettingsDefaults" minOccurs="0" maxOccurs="1">
         <complexType>
-          <sequence minOccurs="0" maxOccurs="999">
+          <sequence minOccurs="0" maxOccurs="unbounded">
             <element name="Default">
               <annotation><documentation>
                 Sets a permission as a default for every user
@@ -253,7 +253,7 @@
           <sequence>
 
             <!-- An individual introduced SubjectPreference type -->
-            <element name="Setting" minOccurs="0" maxOccurs="999">
+            <element name="Setting" minOccurs="0" maxOccurs="unbounded">
               <complexType>
                 <sequence>
                   <choice>
@@ -265,7 +265,7 @@
                       </documentation></annotation>
                       <complexType>
                         <sequence>
-                          <element name="Value" maxOccurs="999">
+                          <element name="Value" maxOccurs="unbounded">
                             <annotation><documentation>
                               A value that can be selected by the user.
                               Star '*' means all (other) available values mentioned here are selected at the same time.

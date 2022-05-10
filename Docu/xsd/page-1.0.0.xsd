@@ -36,9 +36,9 @@
     <xs:sequence>
       <xs:element name="Body">
         <xs:complexType>
-          <xs:choice maxOccurs="999">
-            <xs:any processContents="lax" maxOccurs="999" namespace="http://www.w3.org/1999/xhtml"/>
-            <xs:any maxOccurs="999" namespace="http://www.businesscode.de/schema/bcdui/customization-1.0.0"/>
+          <xs:choice maxOccurs="unbounded">
+            <xs:any processContents="lax" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml"/>
+            <xs:any maxOccurs="unbounded" namespace="http://www.businesscode.de/schema/bcdui/customization-1.0.0"/>
           </xs:choice>
         </xs:complexType>
       </xs:element>

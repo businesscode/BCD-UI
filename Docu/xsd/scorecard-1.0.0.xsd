@@ -52,7 +52,7 @@
     <xs:complexType>
       <xs:sequence>
 
-        <xs:choice maxOccurs="999">
+        <xs:choice maxOccurs="unbounded">
 
           <!-- Current scorecard -->
           <xs:element ref="tns:Layout">
@@ -62,14 +62,14 @@
           </xs:element>
 
           <!-- Available Kpi definitions -->
-          <xs:element ref="tns:Kpis" minOccurs="0" maxOccurs="999">
+          <xs:element ref="tns:Kpis" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
               All KPIs used on the scorecard must be defined here. Consider using xi:include for this.
             </xs:documentation></xs:annotation>
           </xs:element>
 
           <!-- Category definitions -->
-          <xs:element ref="tns:CategoryTypes" minOccurs="0" maxOccurs="999">
+          <xs:element ref="tns:CategoryTypes" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
                 Definition of KPI categories. Categories group KPIs, they form a dimenion above the KPI level.
                 Each KPI can be assigned zero, one or many categories via the scc:Kpi/scc:Categories element.
@@ -78,20 +78,20 @@
           </xs:element>
 
           <!-- Available aspect definitions -->
-          <xs:element ref="tns:Aspects" minOccurs="0" maxOccurs="999">
+          <xs:element ref="tns:Aspects" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
               All aspects used on the scorecard must be defined here. Consider using xi:include for this
             </xs:documentation></xs:annotation>
           </xs:element>
 
           <!-- Available aggregator definitions -->
-          <xs:element ref="tns:Aggregators" minOccurs="0" maxOccurs="999">
+          <xs:element ref="tns:Aggregators" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
               All aggregators used in KPIs of the scorecard must be defined here. Consider using xi:include for this
             </xs:documentation></xs:annotation>
           </xs:element>
 
-          <xs:element ref="xi:include" minOccurs="0" maxOccurs="999">
+          <xs:element ref="xi:include" minOccurs="0" maxOccurs="unbounded">
             <xs:annotation><xs:documentation>
               All elements are allowed to be included from external files or reuse.
             </xs:documentation></xs:annotation>
@@ -127,7 +127,7 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:choice maxOccurs="999">
+        <xs:choice maxOccurs="unbounded">
           <xs:element ref="xi:include" minOccurs="0">
             <xs:annotation><xs:documentation>
               All elements are allowed to be included from external files or reuse.
@@ -156,7 +156,7 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Aggregator" type="tns:AggregatorType" minOccurs="1"  maxOccurs="999">
+        <xs:element name="Aggregator" type="tns:AggregatorType" minOccurs="1"  maxOccurs="unbounded">
           <xs:annotation><xs:documentation>
             Representing an Aggregator definition.
             An aggregator tells the system from where and how to derive KPI data associated with it.
@@ -177,7 +177,7 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Aspect" type="tns:AspectType" minOccurs="0"  maxOccurs="999">
+        <xs:element name="Aspect" type="tns:AspectType" minOccurs="0"  maxOccurs="unbounded">
           <xs:annotation><xs:documentation>
             An aspect is additional data about a Kpi. Can be the target or the YTD number of a Kpi.
             An Aspect is calculated for each individual KPI.
@@ -207,7 +207,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="KpiRef" minOccurs="0"  maxOccurs="999">
+            <xs:element name="KpiRef" minOccurs="0"  maxOccurs="unbounded">
               <xs:complexType>
                 <xs:attribute name="idRef" use="required">
                   <xs:annotation>
@@ -242,7 +242,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element ref="tns:AspectAbstractBase" minOccurs="1"  maxOccurs="999"/>
+            <xs:element ref="tns:AspectAbstractBase" minOccurs="1"  maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
         <xs:unique name="AspectKpiUnique">
@@ -285,7 +285,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="CategoryTypeRef" type="tns:RefType" minOccurs="1"  maxOccurs="999"/>
+            <xs:element name="CategoryTypeRef" type="tns:RefType" minOccurs="1"  maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -300,7 +300,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:any minOccurs="0" maxOccurs="999" processContents="lax"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
           </xs:sequence>
           <xs:anyAttribute processContents="lax"/>
         </xs:complexType>
@@ -312,7 +312,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:any minOccurs="0" maxOccurs="999" processContents="lax"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
           </xs:sequence>
           <xs:anyAttribute processContents="lax"/>
         </xs:complexType>
@@ -372,7 +372,7 @@
        to contain max one LevelKpi element and many LevelRef elements in any order,
        Especially true for @uniquenessNote -->
   <xs:complexType name="LevelListType">
-    <xs:choice minOccurs="0" maxOccurs="999">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="tns:LevelAbstractBase"/>
       <xs:element ref="dm:LevelRef"/>
     </xs:choice>
@@ -444,7 +444,7 @@
   <!-- Types for AspectRef and AspectKpi -->
   <xs:complexType name="AspectAbstractBaseType">
     <xs:sequence>
-      <xs:element name="AspectRef" minOccurs="0" maxOccurs="999">
+      <xs:element name="AspectRef" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:attribute name="idRef" type="xs:string" use="required">
           <xs:annotation><xs:documentation>
@@ -530,7 +530,7 @@
   <xs:element name="chooseCalc">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="whenExtension" maxOccurs="999"  minOccurs="0">
+        <xs:element name="whenExtension" maxOccurs="unbounded"  minOccurs="0">
           <xs:complexType>
             <xs:sequence>
               <xs:element ref="calc:Calc"/>
@@ -543,7 +543,7 @@
             </xs:attribute>
           </xs:complexType>
         </xs:element>
-        <xs:element name="whenKpiAttr" maxOccurs="999"  minOccurs="0">
+        <xs:element name="whenKpiAttr" maxOccurs="unbounded"  minOccurs="0">
           <xs:complexType>
             <xs:sequence>
               <xs:element ref="calc:Calc"/>
@@ -621,7 +621,7 @@
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:any minOccurs="0" maxOccurs="999" processContents="lax"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
           </xs:sequence>
           <xs:anyAttribute processContents="lax"/>
         </xs:complexType>
@@ -679,7 +679,7 @@
           </xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Property" minOccurs="0" maxOccurs="999">
+              <xs:element name="Property" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:attribute name="bRef" use="required"/>
                   <xs:attribute name="aggr" default="bcdSum">
@@ -745,7 +745,7 @@
       <xs:documentation>Representing an Aspect definition. An aspect is data shown together with the Kpi's value like last year's value or target.</xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:choice minOccurs="0" maxOccurs="999">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="calc:Calc">
           <xs:annotation>
             <xs:documentation>Calculation based on other aspects or kpi performance.</xs:documentation>
@@ -777,7 +777,7 @@
           </xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Property" maxOccurs="999">
+              <xs:element name="Property" maxOccurs="unbounded">
                 <xs:annotation><xs:documentation>
                   Properties to be read for this aspect. Dimensions are not listed here.
                 </xs:documentation></xs:annotation>
@@ -902,10 +902,10 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="CategoryType" maxOccurs="999">
+        <xs:element name="CategoryType" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Category" maxOccurs="999">
+              <xs:element name="Category" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:attribute name="id"/>
                   <xs:attribute name="caption"/>

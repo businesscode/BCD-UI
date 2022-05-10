@@ -111,7 +111,7 @@
           </xs:documentation></xs:annotation>
           <xs:complexType>
             <xs:sequence>
-              <xs:element ref="dm:Measure" maxOccurs="999"/>
+              <xs:element ref="dm:Measure" maxOccurs="unbounded"/>
             </xs:sequence>
           </xs:complexType>
           <xs:key name="measureUnique"><xs:selector xpath="tns:Measure"/><xs:field xpath="@id"/></xs:key>
@@ -154,7 +154,7 @@
                   item is ignored. To configure sorting please list references in far:Ordering
                 </xs:documentation></xs:annotation>
                 <xs:complexType>
-                  <xs:choice maxOccurs="999">
+                  <xs:choice maxOccurs="unbounded">
                     <xs:element ref="dm:LevelRef"/>
                     <xs:element ref="dm:MeasureRef"/>
                   </xs:choice>
@@ -166,7 +166,7 @@
                   default sorting is ASCENDING
                 </xs:documentation></xs:annotation>
                 <xs:complexType>
-                  <xs:choice maxOccurs="999">
+                  <xs:choice maxOccurs="unbounded">
                     <xs:element ref="dm:LevelRef"/>
                     <xs:element ref="dm:MeasureRef"/>
                   </xs:choice>

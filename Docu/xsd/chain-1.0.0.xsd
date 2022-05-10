@@ -32,7 +32,7 @@
   </element>
   <element name="Phase" type="tns:PhaseType"/>
   <complexType name="ChainType">
-    <choice maxOccurs="999">
+    <choice maxOccurs="unbounded">
       <element ref="tns:Phase" />
       <element name="Param" type="tns:ParamType"/>
       <any namespace="##other" processContents="lax"/>
@@ -40,7 +40,7 @@
   </complexType>
   <complexType name="PhaseType">
     <sequence>
-      <element name="Stylesheet" type="tns:StylesheetType" maxOccurs="999"/>
+      <element name="Stylesheet" type="tns:StylesheetType" maxOccurs="unbounded"/>
     </sequence>
     <attribute name="name" type="NCName" use="required"/>
   </complexType>
@@ -48,7 +48,7 @@
     <sequence>
       <element ref="xsl:stylesheet" minOccurs="0" maxOccurs="1"/>
       <element name="JsProcFct" minOccurs="0" maxOccurs="1" type="string"/>
-      <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="999"/>
+      <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
     <attribute name="url" type="anyURI" use="optional"/>
     <attribute name="jsProcFct" type="string" use="optional"/>

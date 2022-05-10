@@ -120,7 +120,7 @@
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
-          <xs:choice minOccurs="2" maxOccurs="999">
+          <xs:choice minOccurs="2" maxOccurs="unbounded">
             <xs:element ref="tns:CalculatedValue" minOccurs="1"/>
             <xs:element ref="wrq:CalculatedValue" minOccurs="1"/>
           </xs:choice>

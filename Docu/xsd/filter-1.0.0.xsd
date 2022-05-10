@@ -33,7 +33,7 @@
   </xs:element>
 
   <xs:complexType name="TypeFilter">
-    <xs:sequence minOccurs="0" maxOccurs="999">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="And" type="tns:TypeConnective" minOccurs="0"/>
       <xs:element name="Or" type="tns:TypeConnective" minOccurs="0"/>
       <xs:element name="Expression" type="tns:TypeExpression" minOccurs="0"/>

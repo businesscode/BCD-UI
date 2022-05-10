@@ -47,7 +47,7 @@
           For multiple Wrs, use wrs:Wrs/wrs:Header/rnd:Wrs2Excel instead.
         </xs:documentation></xs:annotation>
       </xs:element>
-      <xs:element name="Wrs" type="tns:WrsType" minOccurs="1" maxOccurs="999"/>
+      <xs:element name="Wrs" type="tns:WrsType" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="excelTemplateName">
       <xs:annotation><xs:documentation>
@@ -114,7 +114,7 @@
 
   <xs:complexType name="HeaderType">
     <xs:sequence>
-      <xs:element name="BindingSet" minOccurs="0" maxOccurs="999">
+      <xs:element name="BindingSet" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>Data Source</xs:documentation></xs:annotation>
         <xs:complexType>
           <xs:simpleContent>
@@ -163,13 +163,13 @@
   
   <xs:complexType name="ValidationResultType">
     <xs:sequence>
-      <xs:element name="Wrs" type="tns:ValidationResultWrsType" minOccurs="0" maxOccurs="999"/>
+      <xs:element name="Wrs" type="tns:ValidationResultWrsType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="MetaDataColumnsType">
     <xs:sequence>
-      <xs:element name="C" type="tns:MetaDataColumnType" minOccurs="0" maxOccurs="999" />
+      <xs:element name="C" type="tns:MetaDataColumnType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="colDimLevelIds">
       <xs:annotation><xs:documentation>
@@ -182,7 +182,7 @@
     <xs:sequence>
 
       <!-- wrs:A -->
-      <xs:element name="A" minOccurs="0" maxOccurs="999">
+      <xs:element name="A" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Definition for attributes at wrs:C elements like Data/R/C/@aName
         </xs:documentation></xs:annotation>
@@ -240,7 +240,7 @@
   </xs:complexType>
 
   <xs:complexType name="DataType">
-    <xs:choice minOccurs="0" maxOccurs="999">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="R" type="tns:RowType" />
       <xs:element name="M" type="tns:ModifyRowType" />
       <xs:element name="I" type="tns:RowType" />
@@ -250,13 +250,13 @@
 
   <xs:complexType name="RowType">
     <xs:sequence>
-      <xs:element name="C" type="tns:ColumnValueType" minOccurs="0" maxOccurs="999" />
+      <xs:element name="C" type="tns:ColumnValueType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     <xs:attribute name="id" type="xs:string" />
   </xs:complexType>
 
   <xs:complexType name="ModifyRowType">
-    <xs:sequence minOccurs="0" maxOccurs="999">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="C" type="tns:ColumnValueType" />
       <xs:element name="O" type="tns:ColumnValueType" />
     </xs:sequence>
@@ -274,7 +274,7 @@
     <xs:annotation>
       <xs:documentation>set of key binding items/columns</xs:documentation>
     </xs:annotation>
-    <xs:sequence minOccurs="0" maxOccurs="999">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="Key" type="tns:KeyType"></xs:element>
     </xs:sequence>
   </xs:complexType>

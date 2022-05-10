@@ -26,13 +26,13 @@
 
   <complexType name="CSVDataType">
     <sequence>
-      <element name="R" type="tns:RowType" minOccurs="0" maxOccurs="999"/>
+      <element name="R" type="tns:RowType" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
   </complexType>
 
   <complexType name="RowType">
     <sequence>
-      <element name="C" type="string" minOccurs="0" maxOccurs="999"/>
+      <element name="C" type="string" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
   </complexType>
 </schema>

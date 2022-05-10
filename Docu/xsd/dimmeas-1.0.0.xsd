@@ -52,12 +52,12 @@
       List of Dimension Level references to Levels defined in /bcdui/conf/dimensions.xml
     </xs:documentation></xs:annotation>
     <xs:sequence>
-      <xs:element ref="tns:DimensionRef" minOccurs="0" maxOccurs="999">
+      <xs:element ref="tns:DimensionRef" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           References all Levels within a Dimension.
         </xs:documentation></xs:annotation>
       </xs:element>
-      <xs:element ref="tns:LevelRef" minOccurs="0" maxOccurs="999"/>
+      <xs:element ref="tns:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -67,7 +67,7 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="tns:Measure" maxOccurs="999"/>
+        <xs:element ref="tns:Measure" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
     <xs:key name="measureUnique"><xs:selector xpath="tns:Measure"/><xs:field xpath="@id"/></xs:key>
@@ -81,7 +81,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="calc:Calc" minOccurs="0"/>
-        <xs:element ref="tns:DetailData" minOccurs="0" maxOccurs="999"/>
+        <xs:element ref="tns:DetailData" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="Categories" type="tns:Categories" minOccurs="0">
           <xs:annotation><xs:documentation>
             Assign specific categories to this Measure; the categories are defined globally in /bcdui/conf/categories.xml
@@ -134,7 +134,7 @@
   </xs:element>
   <xs:complexType name="TypeLevelRef">
     <xs:sequence>
-      <xs:element ref="cube:VDM" minOccurs="0" maxOccurs="999">
+      <xs:element ref="cube:VDM" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           A virtual dimension member is an artificial dimension value like "'BeNeLux' = 'NL'+'LU'+'BE'" with a calc applied to all measures.
           Important note: Better do not provide @scale or @unit for the calc:Calc of the VDM, then each measure's setting is used.
@@ -273,7 +273,7 @@
   <!-- ===================================================================== -->
   <xs:complexType name="TypeTranslations">
     <xs:sequence>
-      <xs:element name="DT" minOccurs="0" maxOccurs="999">
+      <xs:element name="DT" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Use this to translate LevelRef/@bRef values for a whole dimension into another dimension.
           See documentation of the cube for the allowed target dimensions.
@@ -293,7 +293,7 @@
           </xs:attribute>
         </xs:complexType>
       </xs:element>
-      <xs:element name="FT" minOccurs="0" maxOccurs="999">
+      <xs:element name="FT" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Use this to translate individual binding items
         </xs:documentation></xs:annotation>
@@ -302,7 +302,7 @@
           <xs:attribute name="to" type="xs:string"/>
         </xs:complexType>
       </xs:element>
-      <xs:element name="PT" minOccurs="0" maxOccurs="999">
+      <xs:element name="PT" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
           Use this to translate individual period based binding items
         </xs:documentation></xs:annotation>
@@ -340,7 +340,7 @@
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="DetailData" minOccurs="0" maxOccurs="999">
+        <xs:element name="DetailData" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
               <xs:element ref="tns:Translations" minOccurs="0">
@@ -466,10 +466,10 @@
   <xs:element name="Dimensions">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Dimension" minOccurs="0" maxOccurs="999">
+        <xs:element name="Dimension" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Hierarchy" minOccurs="0" maxOccurs="999">
+              <xs:element name="Hierarchy" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="Categories" type="tns:Categories" minOccurs="0">
@@ -478,7 +478,7 @@
                       You can still assign specific categories on a level overriding these defaults.
                       </xs:documentation></xs:annotation>
                     </xs:element>
-                    <xs:element name="Level" minOccurs="0" maxOccurs="999">
+                    <xs:element name="Level" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
                           <xs:element name="Categories" type="tns:Categories" minOccurs="0">
@@ -550,10 +550,10 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="CategoryType" minOccurs="0" maxOccurs="999">
+        <xs:element name="CategoryType" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Category" maxOccurs="999">
+              <xs:element name="Category" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:attribute name="id"/>
                   <xs:attribute name="caption"/>
