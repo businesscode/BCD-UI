@@ -2343,7 +2343,7 @@ jQuery.extend(bcdui.widget,
         provider(inputModel, index).then(function(values) {
 
           // generate optons model for the current provider
-          var multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values);
+          var multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values, useRefs);
 
           // filter functions
           bcdui.widget._bcdFilter = {}
@@ -2518,7 +2518,7 @@ jQuery.extend(bcdui.widget,
               // get data
               newProvider(inputModel, index).then(function(values) {
                 // build and update model
-                multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values);
+                multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values, useRefs);
                 var config = jQuery(".bcdFilterDialog").data("config");
                 if (config) {
                   config.multiSelectDataModel = multiSelectDataModel; 
@@ -2546,7 +2546,7 @@ jQuery.extend(bcdui.widget,
      * builds a static model with the filter options
      * @private
      */
-    _buildFilterOptionsModel: function(statusModel, rootXPath, id, inputModel, index, values) {
+    _buildFilterOptionsModel: function(statusModel, rootXPath, id, inputModel, index, values, useRefs) {
       // sort either numerical (by value) (in case of reference we can't be sure if it maps to a non numerical value, so use string sort then) or by string
       
       var typeName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + index + "']/@type-name", "");
