@@ -301,8 +301,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.columnSorting = true;
   
     // takeover set columnSorting
-    if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined")
+    if (this.hotArgs && typeof this.hotArgs.columnSorting != "undefined") {
       this.columnSorting = this.hotArgs.columnSorting;
+      delete this.hotArgs.columnSorting;
+    }
   
   
     // for singleSelect widget use via wrs:References, we need to have the id registered
@@ -1990,7 +1992,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
      * @param amount
      * @private
     */
-    function afterCreateRow(index, amount) { 
+    function afterCreateRow(index, amount, source) {
+
+     // this is triggered by observechanges when handsontable columnSort is still in the hot arguments
+     // we only need it for copy/paste and fill
+     if (source === "ObserveChanges.change")
+      return;
+
       var rowIdx = this.hotInstance.toPhysicalRow(index);
       var row = this.hotInstance.getSourceDataAtRow(rowIdx);
       if (row) {
