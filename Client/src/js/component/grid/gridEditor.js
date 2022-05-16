@@ -420,7 +420,7 @@ bcdui.component.grid.GridEditor.bcduiSimpleDropDown.prototype.prepare = function
   this.objectId = "bcduiSimpleDropDown";
   this.cssPath  = "#" + this.objectId + " select";
   this.value = "";
-  this.filterOptionsFunct = params.filterOptionsFunct ? params.filterOptionsFunct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
+  this.filterOptionsFunct = params.filterOptionsFunct ? params.filterOptionsFunct.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
   this.distinctOptions = params.distinctOptions === "true";
 
   this.createWidget = function(widgetParams) {
@@ -454,8 +454,12 @@ bcdui.component.grid.GridEditor.bcduiSimpleDropDown.prototype.prepare = function
     
     // support filtered values via user filterFunction, function is called with optionsArray for current column and has to return an array with valid ids
     if (this.filterOptionsFunct && this.instance.getBCDUIGrid()) {
-      var gridArgs = this.instance.getBCDUIGrid()._getGridModelValues(row, col, originalValue);
-      usedIds = this.filterOptionsFunct(this.instance, td, row, col, prop, originalValue, cellProperties, gridArgs, this.optionsArray[col]);
+      var rowIdx = this.instance.toPhysicalRow(row);
+      var colIdx = this.instance.toPhysicalColumn(col);
+      var colId = this.instance.getBCDUIGrid().wrsHeaderIdByPos["" + (colIdx + 1)] || "";
+      var r = this.instance.getSourceDataAtRow(rowIdx);
+      var rowId = r ? r.r.getAttribute("id") : null;
+      usedIds = this.filterOptionsFunct(this.instance, td, row, col, prop, originalValue, cellProperties, {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: this.instance.getBCDUIGrid().gridModel.read("/*/wrs:Data/wrs:*[@id='" + rowId + "']/wrs:C[position()='"+(colIdx+1)+"']", "")}, this.optionsArray[col]);
     }
 
     var distinctKeys = {};
@@ -560,7 +564,7 @@ bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.prepare = funct
   this.title = params.title || (gridModel ? gridModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='" + (this.cellProperties.prop.colIdx + 1) + "']/@caption", "") : "");
   this.statusModel = bcdui.factory.objectRegistry.getObject(statusModelId);
   this.renderer = bcdui.factory.objectRegistry.getObject(rendererId);
-  this.printFunct = params.xmlToString ? params.xmlToString.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
+  this.printFunct = params.xmlToString ? params.xmlToString.split(".").reduce( function( fkt, f ) { return fkt[f] }, window ) : null;
 
   // set gridModel and rowId to constant dataproviders if available
   var rowIdx = this.instance.toPhysicalRow(row);
