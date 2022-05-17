@@ -197,6 +197,27 @@ bcdui.util =
     "/": '&#x2f;'
   },
   
+  _reverseEntityMap : {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    '&quot;': '"',
+    '&#39;': "'",
+    '&#x2f;': "/"
+  },
+
+  /**
+   * 
+   * @param {string} string - Value to be unescaped
+   * @returns {string} unescaped string 
+   */
+  unescapeHtml : function(string) {
+    
+    var s = string;
+    for (var i in bcdui.util._reverseEntityMap)
+      s = s.replaceAll(i, bcdui.util._reverseEntityMap[i]);
+    return s;
+  },
   /**
    * 
    * @param {string} string - Value to be escaped
