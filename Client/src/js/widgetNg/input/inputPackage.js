@@ -153,7 +153,11 @@
           // before target is ready
           bcdui.factory.objectRegistry.withReadyObjects(config.target.modelId, function(){
             this._on( uiControl.control , {
-              blur : this.updateValue.bind(this,config.inputElementId)
+              blur : this.updateValue.bind(this,config.inputElementId),
+
+              // firefox does not focus the inputfield when clicking on up/down arrows in type=int input field. As a result, the blur event is not fired
+              // so focus the input field in any case when clicking
+              click: function(event) {jQuery(event.target).focus();}
             });
           }.bind(this));
         }
