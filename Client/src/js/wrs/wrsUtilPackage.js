@@ -217,8 +217,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
         }
       }
     };
-  
-    if(node.nodeName == "wrs:I"){
+
+    if((node.localName||node.baseName) == "I"){
       repairWrsI(node);
     }
   },

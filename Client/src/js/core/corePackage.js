@@ -726,7 +726,7 @@ bcdui.core = Object.assign(bcdui.core,
              * The XPath part contains a predicate.
              */
             var newNodeName = pathElementParts[1];
-            if (newNodeName == "*" || newNodeName == "wrs:*") {
+            if ((newNodeName.localName||newNodeName.baseName) == "*") {
               /*
                * We found a wildcard for a non-existent element.
                */
@@ -892,8 +892,8 @@ bcdui.core = Object.assign(bcdui.core,
       }
 
       // 'repair wrs:C in wrs:I, fill empty cells with wrs:null or take over reference value if available
-      if (currentNode && (currentNode.nodeName == "wrs:I" || (currentNode.parentNode != null && currentNode.parentNode.nodeName == "wrs:I"))) {
-        var curNode = currentNode.nodeName == "wrs:I" ? currentNode : currentNode.parentNode;
+      if (currentNode && ((currentNode.localName||currentNode.baseName) == "I" || (currentNode.parentNode != null && (currentNode.parentNode.localName||currentNode.parentNode.baseName) == "I"))) {
+        var curNode = (currentNode.localName||currentNode.baseName) == "I" ? currentNode : currentNode.parentNode;
         if (curNode != null) {
           var columns = curNode.selectNodes("wrs:C");
           for (var c = 0; c < columns.length; c++) {

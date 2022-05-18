@@ -654,7 +654,7 @@ jQuery.extend(bcdui.widget,
         return;
       }
       var oNode = targetModel.getData().selectSingleNode(targetModelXPath);
-      if( isWrsModel && oNode != null && oNode.parentNode.nodeName != "wrs:M"){// rename to WRS modify row
+      if( isWrsModel && oNode != null && (oNode.parentNode.localName||oNode.parentNode.baseName) != "M"){// rename to WRS modify row
         this._renameToModifiedRow(oNode, targetModel);
       }
 
@@ -744,7 +744,7 @@ jQuery.extend(bcdui.widget,
    * @private
    */
   _renameToModifiedRow:function( originNode, targetModel){
-    if(originNode.parentNode.nodeName != "I" && originNode.parentNode.nodeName != "wrs:I"){
+    if((originNode.parentNode.localName||originNode.parentNode.baseName) != "I"){
       var doc = originNode.ownerDocument;
       var newRow = bcdui.core.createElementWithPrototype(targetModel, "/wrs:Wrs/wrs:M");
       var children = originNode.parentNode.childNodes;
