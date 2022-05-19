@@ -726,7 +726,7 @@ bcdui.core = Object.assign(bcdui.core,
              * The XPath part contains a predicate.
              */
             var newNodeName = pathElementParts[1];
-            if ((newNodeName.localName||newNodeName.baseName) == "*") {
+            if (newNodeName == "*" || newNodeName == "wrs:*") {
               /*
                * We found a wildcard for a non-existent element.
                */
