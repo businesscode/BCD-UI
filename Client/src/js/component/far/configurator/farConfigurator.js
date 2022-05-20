@@ -180,9 +180,6 @@
         // clone
         targetElement.appendChild(srcElement.cloneNode(true));
       }
-      // according to bcduiWidget docu, get super-implementation aware of modification
-      this._targetUpdated();
-      // propagate update
       dstDp.fire();
     },
 

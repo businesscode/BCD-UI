@@ -412,9 +412,6 @@
         bcdui.core.createElementWithPrototype(dataProvider.getData(), xPath, true).text = value[0];
       }
 
-      // mask this update as self-update
-      this._targetUpdated();
-      // propagate update
       dataProvider.fire();
     },
 

@@ -690,7 +690,6 @@
           false,
           function(modelId, xPath){
             this._invalidModelNodeReset(modelId, xPath);
-            this._targetUpdated();
           }.bind(this,config.target.modelId, config.target.xPath)
       );
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.input._writeDataToXML: ...data written");

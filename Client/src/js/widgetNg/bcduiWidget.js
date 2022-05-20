@@ -264,10 +264,7 @@
 
     /**
      * If your widget supports targetModelXPath, you cann register a target modification callback which is 
-     * executed everytime the data in options.targetModelXPath changes. In order to prevent a cycle
-     * (i.e. your widget is updating targetModelXPath and then you usually do not want to get your
-     * modification callback executed), please call _targetUpdated() everytime you updating data
-     * in targetModelXPath BEFORE .fire()ing the data-provider.
+     * executed everytime the data in options.targetModelXPath changes.
      *
      * @param {function} callback The callback to execution upon model change
      * @private
@@ -290,31 +287,10 @@
           trackingXPath: target.xPath,
           htmlElementId: this.options.id
         });
-        this._modelListener.onUpdateCallback = function(){
-          var ts = this._getTargetSelector();
-          var currentSnapshot = ts.getDataProvider()._hashValueForListener(ts.xPath);
-          if ( !this._targetSnapshotHash || this._targetSnapshotHash !== currentSnapshot ){
-            callback();
-          }
-        }.bind(this);
+        this._modelListener.onUpdateCallback = callback;
         // register data update listener, once target model available
         bcdui.factory.addDataListener(this._modelListener);
       }
-    },
-
-    /**
-     * If you have registered a target modification callback via _setOnTargetModelChange(), then call
-     * this method everytime you write internal state into targetModelXPath and before issuing .fire() on
-     * the target data provider.
-     * @private
-     * @throws Throws an error if targetModelXPath option is not set 
-     */
-    _targetUpdated : function(){
-      if( !this.options.targetModelXPath ){
-        throw ".targetModelXPath is not set";
-      }
-      var ts = this._getTargetSelector();
-      this._targetSnapshotHash = ts.getDataProvider()._hashValueForListener(ts.xPath);
     },
 
     /**
