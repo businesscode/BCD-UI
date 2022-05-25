@@ -843,9 +843,11 @@
         // otherwise it would deselect items when you try to scroll
         if (   event.pageX > jQuery(event.target)[0].clientWidth + jQuery(event.target).offset().left
             || event.pageY > jQuery(event.target)[0].clientHeight + jQuery(event.target).offset().top
-        )
+        ) {
           jQuery(this).addClass("bcdNotSelectable");
-        else
+          // stop event propagation, for example for when this connectable is in a tooltip/flyover/etc so it is not hidden
+          event.preventDefault();
+        } else
           jQuery(this).removeClass("bcdNotSelectable");
 
         // Shift Key support
