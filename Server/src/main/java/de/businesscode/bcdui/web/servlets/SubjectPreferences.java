@@ -332,6 +332,10 @@ public class SubjectPreferences extends HttpServlet {
   
           if (testValue(rightTypeParam, v))
             rightValues.add(v.trim());
+          else {
+            resp.setStatus(403);
+            return;
+          }
 
           // for not multi sets, we exit here
           if (! isMultiRightTypes.contains(rightTypeParam))
@@ -345,10 +349,13 @@ public class SubjectPreferences extends HttpServlet {
           SubjectPreferences.setCookieMap(req, resp);
         }
       }
+      else
+        resp.setStatus(403);
       return;
     }
 
-    
+    boolean ok = true;
+
     // or a WRS with WRS:I/M/D rows
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
@@ -404,6 +411,8 @@ public class SubjectPreferences extends HttpServlet {
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
+                else
+                  ok = false;
               }
             }
 
@@ -426,7 +435,8 @@ public class SubjectPreferences extends HttpServlet {
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
-              }
+                else
+                  ok = false;              }
             }
 
             // insert wrs:I into permission map (if allowed)
@@ -445,11 +455,14 @@ public class SubjectPreferences extends HttpServlet {
                   permissionMap.put(rightType, rightValues);
                   refreshList = true;
                 }
+                else
+                  ok = false;
               }
             }
 
             // check possible empty rights
             // in case the last entry was removed (after wrs:D / wrs:M) add the default one(s) (but only if preventEmpty is not set)
+            // refreshList = true due to wrs:M / wrs:D already
             for (String emptyRightType : possiblyEmptyRights) {
               ArrayList<String> rightValues = permissionMap.get(emptyRightType);
               if (rightValues.isEmpty() && preventEmptyRightTypes.contains(emptyRightType)) {
@@ -464,6 +477,12 @@ public class SubjectPreferences extends HttpServlet {
         log.error("can't parse posted subjectPreferences data", e);
       }
     }
+
+    if (!ok) {
+      resp.setStatus(403);
+      return;
+    }
+  
     if (refreshList) {
       SubjectPreferences.setPermissionMap(permissionMap);
 

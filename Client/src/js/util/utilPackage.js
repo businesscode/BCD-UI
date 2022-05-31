@@ -586,6 +586,21 @@ bcdui.util =
     // https://gist.github.com/jed/982883
     var b = function (a) { return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b) };
     return b();
+  },
+
+  /**
+   * sets a subject preference
+   * @param {string}    name     The name of the subjectSetting
+   * @param {string}    value    The value of for the subjectSetting specified by the name parameter. Can be a comma-separated value list
+   * @param {function}  callback The function which is called after a successful call of the subjectPreferences servlet
+  */
+  setSubjectPreference: (name, value, callback) => {
+    var success = callback || function(){};
+    jQuery.ajax({
+      method: "POST",
+      url : bcdui.contextPath+ "/bcdui/servlets/SubjectPreferences?value="+bcdui.util.escapeHtml(value)+"&name=" + bcdui.util.escapeHtml(name),
+      success : success
+    });
   }
 }
 
