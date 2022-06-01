@@ -128,6 +128,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
       if ((value == null || value.isEmpty()) && (st != null && ! st.isIsNullAllowsAccess())) {
         if( eBi.permissions.size() == 1 && ! eBi.permissions.contains("*") ) {
           cValues.set(eBi.getIdx(), eBi.permissions.iterator().next() );
+          foundMatch = true; // we have a match, because we just set a value to an allowed value
         }
         else
           throw new SecurityException("Ambiguous value for enforced " + eBi.biId );
