@@ -46,6 +46,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.PageSqlLogger;
@@ -104,6 +105,15 @@ public class BCDUIConfig extends HttpServlet {
     // write authenticate information
     try {
       final Subject subject = SecurityUtils.getSubject();
+
+      // add possibly existing subjectPreferences Cookie to shiro session
+      Session shiroSession = subject != null ? subject.getSession(false) : null;
+      if (shiroSession != null && shiroSession.getAttribute(SubjectPreferences.COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE) == null) {
+        Map<String, ArrayList<String>> cookieMap = new HashMap<>(SubjectPreferences.getCookieMap(request));
+        if (! cookieMap.isEmpty())
+          shiroSession.setAttribute(SubjectPreferences.COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE, cookieMap);
+      }
+
       if(subject.isAuthenticated() ) {
         String userLogin = SecurityHelper.getUserLogin(subject);
         userLogin = (userLogin == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
@@ -116,6 +126,8 @@ public class BCDUIConfig extends HttpServlet {
 
         // write userRoles
         writer.println("  , userRoles : {");
+
+        // 'getRoles' triggers SubjectPreferences realm, too to get current settings
         writer.print(SecurityHelper.getRoles(subject).stream().map(s->{
           return "\"" + StringEscapeUtils.escapeJavaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
         }).collect(Collectors.joining(",")));
@@ -125,12 +137,7 @@ public class BCDUIConfig extends HttpServlet {
       // write bcdClient security settings as bcdui.config.clientRights object values
       writer.println("  , clientRights: {");
 
-      // get bcdClient permissions once via subjectPreferences (so you directly got values on very 1st request)
-      // and once via SecurityHelper use HashSet to avoid duplicates (after 1st request)
-      HashSet<String> clientSubjectPreferences = new HashSet<>(SubjectPreferences.getPermissionList("bcdClient:", true));
-      HashSet<String> clientPermissions = subject.isAuthenticated() ? new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient")) : new HashSet<>();
-      clientPermissions.addAll(clientSubjectPreferences);
-      ArrayList<String> sortedPerms = new ArrayList<>(clientPermissions);
+      ArrayList<String> sortedPerms = new ArrayList<>(subject.isAuthenticated() ? new HashSet<>(SecurityHelper.getPermissions(subject, "bcdClient")) : new HashSet<>());
       Collections.sort(sortedPerms);
       
       if (! sortedPerms.isEmpty()) {

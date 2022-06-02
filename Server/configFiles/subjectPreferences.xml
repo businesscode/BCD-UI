@@ -16,7 +16,7 @@
 -->
 <!--
   Define SubjectPreferences, i.e. user-changeable SubjectSettings
-  when specifying cookieName, values are kept in a cookie of that name, optionally set cookiePath (relatively to webApp)
+  when specifying cookieName, values are kept in a cookie of that name, optionally set cookiePath (relatively to webApp below /bcdui)
   -->
 <sec:SubjectPreferencesConfig xmlns:sec="http://www.businesscode.de/schema/bcdui/subjectsettings-1.0.0"
   cookieName="bcdSubjectPreferences" cookiePath="/bcdui">

@@ -242,15 +242,6 @@ public class RequestLifeCycleFilter implements Filter {
       }
     }
 
-    // add possibly existing subjectPreferences Cookie to shiro session
-    try {
-      org.apache.shiro.session.Session shiroSession = SecurityUtils.getSubject() != null ? SecurityUtils.getSubject().getSession(false) : null;
-      if (shiroSession != null) {
-        shiroSession.setAttribute(SubjectPreferences.COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE, new HashMap<>(SubjectPreferences.getCookieMap(request)));
-      }
-    }
-    catch (UnavailableSecurityManagerException e) { /* shiro isn't used at all */ }
-
     // log login once
     if (LoginSqlLogger.getInstance().isEnabled()) {
       try {
