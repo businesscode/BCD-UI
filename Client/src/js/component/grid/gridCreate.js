@@ -676,8 +676,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.gridModel.onChange(function() {
         if (this.serverSidedRefresh)
           delete this.serverSidedRefresh;
-        else
+        else {
+          // total count and refresh paginate widget
+          if (this.paginationRenderer) {
+            this.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+              var c = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
+              this.totalRowCountDp.write("/*/wrs:Data/wrs:*[1]/wrs:C[1]", c, true);
+              var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
+              var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+              if (1 + (curPage * pageSize) - pageSize > c && curPage > 1)
+                this.pager.write("//xp:Paginate/xp:PageNumber", curPage - 1, true);
+              else
+                this.paginationRenderer.execute();
+            }});
+          }
           this.execute();
+        }
       }.bind(this));
     }.bind(this) );
   }
