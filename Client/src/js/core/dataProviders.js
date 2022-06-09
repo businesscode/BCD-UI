@@ -393,7 +393,7 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
  * renaming a DataProvider before passing it to a TransformationChain so
  * that a DataProvider can be mapped to an arbitrary xsl:param element.
  * where the bcdui.core.DataProviderAlias' name is used as the xsl:param's name
- * @extends bcdui.core.DataProvider
+ * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
 

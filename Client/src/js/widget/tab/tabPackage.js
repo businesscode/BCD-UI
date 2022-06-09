@@ -14,6 +14,10 @@
   limitations under the License.
 */
 "use strict";
+
+/**
+ * @extends bcdui.core.DataProvider
+ */
 bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
     {
 

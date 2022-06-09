@@ -27,6 +27,7 @@
 /**
  * Create a text navigation based on http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0 XSD
  * @type {bcdui.component.textnavigation.TextNavigation}
+ * @extends bcdui.core.Renderer
  */
 bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Renderer
 {

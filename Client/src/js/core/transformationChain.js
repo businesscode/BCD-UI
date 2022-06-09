@@ -1124,6 +1124,7 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
    * Can be applied to all concrete subclasses of {@link bcdui.core.AbstractUpdatableModel AbstractUpdatableModel}, 
    * like {@link bcdui.core.StaticModel StaticModel} or {@link bcdui.core.SimpleModel SimpleModel}
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
+   * @extends bcdui.core.TransformationChain
   */
 bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 {

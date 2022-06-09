@@ -28,6 +28,7 @@
 /**
  * Create a chart based on http://www.businesscode.de/schema/bcdui/charts-1.0.0 XML
  * @type {bcdui.component.chart.ChartEchart}
+ * @extends bcdui.core.Renderer
  */
 bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 

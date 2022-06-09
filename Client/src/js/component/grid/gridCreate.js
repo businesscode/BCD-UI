@@ -40,7 +40,7 @@
 
 /**
  * Creates a GridModel
- * @extends bcdui.core.DataProvider
+ * @extends bcdui.core.SimpleModel
  */
 bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {

@@ -135,6 +135,7 @@ bcdui.core.transformators.IdentityTransformator = class
    * JsTransformator for Javascript transformators. 
    * A Javascript transformators is a function that receives the input as its first parameter and a object with properties as named parameters as the second parameter
    * For usage by TransformationChain
+   * @extends bcdui.core.transformators.IdentityTransformator
     */
 bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
@@ -168,6 +169,7 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
    *    jWrs with 61k cells, most having an attribute, 1.5MB source: IE11: 343ms, FF: 158ms, Chrome: 162ms
    *    jWrs with 250 cells, most having an attributes, 10k source: IE 11,9,8(fake ww): 14ms, FF: 15ms, Chrome: 13ms
    * For usage by TransformationChain
+   * @extends bcdui.core.transformators.IdentityTransformator
     */
 bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {  
@@ -203,6 +205,7 @@ bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.tran
  /**
    * JsTransformator
    * For usage by TransformationChain
+   * @extends bcdui.core.transformators.IdentityTransformator
     */
 bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {

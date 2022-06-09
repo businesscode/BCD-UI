@@ -225,6 +225,7 @@ bcdui.widget.menu.Menu = class
 
 /**
  * Menu
+ * @extends bcdui.widget.menu.MenuContainer
  */
  bcdui.widget.menu.MenuItem = class extends bcdui.widget.menu.MenuContainer
   {

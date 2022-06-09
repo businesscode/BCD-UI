@@ -20,6 +20,7 @@
    *
    * @method
    * @private
+   * @extends bcdui.widget.XMLDataUpdateListener
    */
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     {

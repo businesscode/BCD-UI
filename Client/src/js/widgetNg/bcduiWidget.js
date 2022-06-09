@@ -22,6 +22,7 @@
   /**
    * Listens to updates on the target model and syncs the value back to the widget
    * @private
+   * @extends bcdui.widget.XMLDataUpdateListener
    */
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     {

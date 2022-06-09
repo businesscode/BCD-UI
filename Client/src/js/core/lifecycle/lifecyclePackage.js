@@ -24,6 +24,7 @@ bcdui.wkModels = bcdui.wkModels || new Object();
  * Helper class for guiStatusEstablished construction
  * Gets only ready if you force it from outside, i.e. when cloning the guiStatus dataDoc
  * @private
+ * @extends bcdui.core.StaticModel
  */
 bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
 
