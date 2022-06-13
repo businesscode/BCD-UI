@@ -83,7 +83,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
     var placeholder = (e.getAttribute("bcdOptionsModelXPath") || "") != "" ? " placeholder='" + (bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_autoCompletionBox_loading"}) || "Loading...") + "'" : "";
     jQuery(e).append(
       "<input" + placeholder
-      + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='new-password'" : "")
+      + (e.getAttribute("bcdIsPassword") == "true" ? " type='password' autocomplete='off'" : " autocomplete='off'")
       + bcdui.widget._domFromBcdAttribute(e, "bcdTabIndex", "tabindex")
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
       + "></input>"
