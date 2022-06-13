@@ -29,6 +29,8 @@ import org.apache.logging.log4j.LogManager;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.vfs.FileSystemException;
+import de.businesscode.bcdui.cache.CacheFactory;
 
 /**
  *  Servlet to manage cache settings (VFS, Bindings): delete, reload
@@ -37,6 +39,7 @@ public class CacheManager extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private final String actionParameterName = "action";
   private final String refreshAllAction="refreshAll";
+  private final String refreshVFSAction = "refreshVFS";
   private final String regenerateAction="regenerateBindings";
 
   private final Logger log = LogManager.getLogger(getClass());
@@ -85,7 +88,11 @@ public class CacheManager extends HttpServlet {
    */
   protected String performAction(String action) throws ServletException {
     try {
-      if(refreshAllAction.equals(action)){
+      if (refreshVFSAction.equals(action)) {
+        refreshVFS();
+        executeCallBack(action);
+      }
+      else if(refreshAllAction.equals(action)){
         refreshAll();
         executeCallBack(action);
       }
@@ -95,7 +102,7 @@ public class CacheManager extends HttpServlet {
       }
       else
         return "unknown action:" + action + " valid values :" + refreshAllAction + " " + regenerateAction;
-    } catch (BindingException be) {
+    } catch (FileSystemException | BindingException be) {
       throw new ServletException(be);
     }
     return null;
@@ -125,6 +132,12 @@ public class CacheManager extends HttpServlet {
     log.trace("regenerated bindings");
   }
 
+  protected void refreshVFS() throws FileSystemException, BindingException {
+    CacheFactory.clearVFScache();
+    CacheFactory.registerVFSCatalog();
+    log.trace("refreshed vfs");
+  }
+  
   /**
    * if this.callBackClass is configured invoke the refresh() Method of the fresh created instance
    * if the class can't be instanciated it wont be tried again.
