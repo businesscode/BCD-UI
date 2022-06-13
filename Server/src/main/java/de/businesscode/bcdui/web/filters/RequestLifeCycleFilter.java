@@ -101,6 +101,18 @@ public class RequestLifeCycleFilter implements Filter {
     response.setCharacterEncoding("UTF-8");
     requestTaggingFlag.set(true);
 
+    String url = request.getRequestURL().toString();
+
+    // when user is already authenticated and you enter login page again then forward to contextPath
+    if (url.toLowerCase().endsWith("/login.html") || url.toLowerCase().endsWith("/login.jsp")) {
+      Subject subject = null;
+      try {
+        subject = SecurityUtils.getSubject();
+        if (subject.isAuthenticated())
+          response.sendRedirect(url.substring(0, url.lastIndexOf("/")));
+      } catch (Exception e) {/* no shiro at all */}
+    }
+
     // when url uses ${bcdClient:} token, replace token with permission looked up value forward new url
     String decode = URLDecoder.decode(request.getRequestURI(), "UTF-8").substring(request.getContextPath().length());
     if (decode.indexOf("${bcdClient:") > -1) {
@@ -134,8 +146,6 @@ public class RequestLifeCycleFilter implements Filter {
         }
       }
     }
-
-    String url = request.getRequestURL().toString();
 
     boolean isTransceiver = isTransceiverRequest(url);
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
