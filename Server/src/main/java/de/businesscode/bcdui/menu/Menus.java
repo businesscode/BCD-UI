@@ -91,11 +91,9 @@ public class Menus {
    * @return
    */
   public Menu getMenuByIdOrDefault(String menuId) {
-    Menu menu = null;
-    if(menuId == null || menuId == "")
+    Menu menu = menuMap.get(menuId);
+    if (menu == null)
       menu = getDefaultMenu();
-    else
-      menu = menuMap.get(menuId);
 
     try {
       Subject subject = SecurityUtils.getSubject();

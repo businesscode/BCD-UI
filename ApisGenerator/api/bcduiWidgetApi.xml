@@ -639,6 +639,11 @@
             Root menu HTML element (UL) id
           </Doc>
         </Param>
+        <Param name="menuId" type="string">
+          <Doc>
+            Optional menuId to use one specific menu out of the available ones. If not available, the default one is used.
+          </Doc>
+        </Param>
         <Param name="menuHandlerClassName" type="string">
           <Doc>
             Javascript menu handler class name, could extend bcdui.widget.menu.Menu.

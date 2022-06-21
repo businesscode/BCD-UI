@@ -906,6 +906,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.modelUrl]             Optional: URL where model get data from, allows reading a random xml file from the server.
    * @param {string}        [args.parameters]           Own action handler.
    * @param {string|chainDef}        [args.rendererUrl]          URL to XSLT stylesheet that renders the model or chain definition; default is "/bcdui/js/widget/menu/menu.xslt"
+   * @param {string}        [args.menuId]               Optional menuId to use one specific menu out of the available ones. If not available, the default one is used.
    * 
    */
   createMenu: function(args)
@@ -919,7 +920,7 @@ jQuery.extend(bcdui.widget,
           args.menuHandlerClassName = "bcdui.widget.menu.Menu";
       }
       if(!args.modelUrl ||args.modelUrl == ""){
-          args.modelUrl = bcdui.contextPath+"/bcdui/servlets/Menu";
+          args.modelUrl = bcdui.contextPath+"/bcdui/servlets/Menu" + (args.menuId ? "?menuId=" + args.menuId : "");
       }
 
       var _modelIdOrModelRef = (typeof args.modelId != "undefined" && args.modelId != null) ? args.modelId : bcdui.factory.createModel({url:args.modelUrl});
