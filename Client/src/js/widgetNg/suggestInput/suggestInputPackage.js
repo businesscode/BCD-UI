@@ -540,7 +540,10 @@
      */
     _applyValueFromDropDown : function(htmlElementId, bcdCaption, bcdId){
       try{
-        (bcdui._migPjs._$(htmlElementId).data("_args_").applyListItemSelectionFunction || this._applyValueFromDropDown_default)(this, htmlElementId, bcdCaption, bcdId);
+        if (bcdui._migPjs._$(htmlElementId).data("_args_").applyListItemSelectionFunction)
+          bcdui._migPjs._$(htmlElementId).data("_args_").applyListItemSelectionFunction(this, htmlElementId, bcdCaption, bcdId);
+        else
+          this._applyValueFromDropDown_default(this, htmlElementId, bcdCaption, bcdId);
       } catch (e) {
         window.console && window.console.warn("ignored caught exception", e);
       }

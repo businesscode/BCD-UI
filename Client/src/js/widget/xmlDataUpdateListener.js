@@ -134,7 +134,8 @@ bcdui.widget.XMLDataUpdateListener = class
    */
   unregister()
     {
-      bcdui.factory.objectRegistry.getObject(this._targetModelId).removeDataListener(this);
+      if (bcdui.factory.objectRegistry.getObject(this._targetModelId))
+        bcdui.factory.objectRegistry.getObject(this._targetModelId).removeDataListener(this);
       this.isUnRegistered = true;
     }
 };

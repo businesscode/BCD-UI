@@ -63,8 +63,10 @@
       }
 
       // ## now detach listeners
-      this.updateValueListener.unregister();
-      this.updateValueListener = null;
+      if (this.updateValueListener) {
+        this.updateValueListener.unregister();
+        this.updateValueListener = null;
+      }
     },
 
     /**
@@ -344,7 +346,7 @@
 
               var solelyValue = options[widgetInstance.options.placeholder ? 1 : 0].getAttribute("value");
               // escape stack
-              setTimeout( widgetInstance._syncWrite.bind(undefined,el, solelyValue) );
+              setTimeout( widgetInstance._syncWrite.bind(widgetInstance,el, solelyValue) );
             }
           }
         }.bind(undefined,el.get(0), dataListEl, this)
