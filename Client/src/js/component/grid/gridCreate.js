@@ -682,8 +682,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             this.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
               var c = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
               this.totalRowCountDp.write("/*/wrs:Data/wrs:*[1]/wrs:C[1]", c, true);
-              var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-              var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+              var curPage = this._getCurrentPage();
+              var pageSize = this._getCurrentPageSize();
               if (1 + (curPage * pageSize) - pageSize > c && curPage > 1)
                 this.pager.write("//xp:Paginate/xp:PageNumber", curPage - 1, true);
               else
@@ -1313,8 +1313,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.htOptions.data.splice(0, this.htOptions.data.length);  // splice to trigger hot's object listener, do not set it to []!
 
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
-    var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+    var curPage = this._getCurrentPage();
+    var pageSize = this._getCurrentPageSize();
 
     var wrsStart = ((curPage - 1) * pageSize) + 1;
     var wrsStop = wrsStart + pageSize - 1; 
@@ -1357,6 +1357,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.rowIdMap[row.getAttribute("id")] = index++;
       }.bind(this));
     }
+  }
+  
+  /**
+   * @private
+   */
+  _getCurrentPageSize() {
+    var cur = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+    return isNaN(cur) ? -1 : cur;
+  }
+  
+  /**
+   * @private
+   */
+  _getCurrentPage() {
+    var cur = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
+    return isNaN(cur) ? -1 : cur;
   }
 
   /**
@@ -2695,8 +2711,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.pager.onceReady(function() {
       this.pager.onChange(function() {
 
-        var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
-        var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
+        var pageSize = this._getCurrentPageSize();
+        var curPage = this._getCurrentPage();
 
         var holder = new bcdui.core.DataProviderHolder();
         var dataKey = "";
@@ -3225,9 +3241,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   jumpToRow(rowId, colPos) {
     // in case of pagination, we calc the needed page numer and jump to it if necessary
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
-    var curPage = parseInt(this.pager.read("//xp:Paginate/xp:PageNumber", "-1"), 10);
-    if (gotPagination && this.rowIdMapFull[rowId]) {
-      var pageSize = parseInt(this.getEnhancedConfiguration().read("//xp:Paginate/xp:PageSize", "-1"), 10);
+    var curPage = this._getCurrentPage();
+    if (gotPagination && typeof this.rowIdMapFull[rowId] != "undefined") {
+      var pageSize = this._getCurrentPageSize();
       var page = 1 + Math.floor(this.rowIdMapFull[rowId] / pageSize);
 
       // in case of serversided Pagination we use the current rowStart to determine the page
