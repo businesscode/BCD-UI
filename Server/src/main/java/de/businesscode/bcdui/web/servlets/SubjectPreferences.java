@@ -87,6 +87,8 @@ public class SubjectPreferences extends HttpServlet {
   private static final HashMap<String, String> cookieInfo = new HashMap<>();
   
   public static final String COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE = "bcdCookieMap";
+  
+  private static final int MAX_COOKIE_SIZE = 4000;
 
   private static int cookieMaxAge = 60 * 60 * 24 * 365;
   
@@ -619,11 +621,22 @@ public class SubjectPreferences extends HttpServlet {
       zip.write(mapString.toString().getBytes(StandardCharsets.UTF_8));
       zip.close();
 
-      Cookie cookie = new Cookie(name, Base64.getEncoder().encodeToString(bos.toByteArray()));
-      cookie.setPath(request.getContextPath() + path);
-      cookie.setHttpOnly(true);
-      cookie.setMaxAge(cookieMaxAge);
-      response.addCookie(cookie);
+      String content = Base64.getEncoder().encodeToString(bos.toByteArray());
+      
+      if (content.length() <= MAX_COOKIE_SIZE) { 
+        Cookie cookie = new Cookie(name, content);
+        cookie.setPath(request.getContextPath() + path);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(cookieMaxAge);
+        response.addCookie(cookie);
+      }
+      else {
+        Cookie cookie = new Cookie(name, "");
+        cookie.setPath(request.getContextPath() + path);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+      }
     }
     catch (Exception e) {
       LogManager.getLogger().error("can't encode cookie", e);
