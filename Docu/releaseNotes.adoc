@@ -50,6 +50,7 @@ to reference the table $t (note: without `.getTableReference()` is preferred any
 at least cube template writing /vfs/reports/*, detail export column selects /vfs/exports/*, docUploads /vfs/documents/*. Writing vfs bindings could be achieved via /WEB-INF/*/virtual/*.
 * WRS request optional url attribute at `BindingSet` to pick servlet is moved to root WrsRequest element
 * Grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
+* removed ZipLet decodeAndDecompressToXMLWithXInclude functionality. Update possible calls to decodeAndDecompressToXML.
 
 ___
 ==== Release 5_5_0

@@ -86,7 +86,7 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
       if(guiStatusGZ == null){
         return null;
       }
-      return ZipLet.decodeAndDecompressToXMLWithXInclude(guiStatusGZ, servletCtx, (HttpServletRequest) request);
+      return ZipLet.decodeAndDecompressToXML(guiStatusGZ, (HttpServletRequest) request);
     } catch (Exception e) {
       log.error("failed to parse refererGuiStatus", e);
       return null;

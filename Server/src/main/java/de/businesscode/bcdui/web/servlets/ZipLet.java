@@ -17,7 +17,6 @@ package de.businesscode.bcdui.web.servlets;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -31,8 +30,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -46,33 +43,18 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLEventFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Namespace;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -632,159 +614,6 @@ public class ZipLet extends HttpServlet {
   @Deprecated
   public static Document decodeAndDecompressToXML(String compressedString) throws Exception {
     return decodeAndDecompressToXML(compressedString, null);
-  }
-
-  /**
-   * This interface is use by the method "decodeAndDecompressToXMLWithXInclude" to resolve
-   * the xml:base elements to a meaningful value. This is required, because otherwise the
-   * Java xinclude mechanism cannot find the documents included with xinclude.
-   * @see ZipLet#decodeAndDecompressToXMLWithXInclude(String, XMLBaseAttributeResolver, HttpServletRequest)
-   */
-  public static interface XMLBaseAttributeResolver {
-
-    /**
-     * Transforms the (local) xml:base URI to an absolute URI on the server.
-     * @param uri The base URI from the status document.
-     * @return The absolute URI on the server.
-     */
-    public String resolve(String uri);
-  }
-
-  /**
-   * This is an xml:base attribute resolver using the servlet context method
-   * "getRealPath" to resolve it.
-   * @see ServletContext#getRealPath(String)
-   */
-  public static class ServletContextXMLBaseAttributeResolver implements XMLBaseAttributeResolver {
-    private ServletContext context = null;
-
-    public ServletContextXMLBaseAttributeResolver(ServletContext context) {
-      this.context = context;
-    }
-
-    @Override
-    public String resolve(String uri) {
-      if (uri.startsWith(context.getContextPath())) {
-        return new File(context.getRealPath(uri.substring(context.getContextPath().length() + 1))).toURI().toString();
-      }
-      return new File(context.getRealPath(uri)).toURI().toString();
-    }
-  }
-
-  /**
-   * Convenience method instantiating a SerlvetContextXMLBaseAttributeResolver and
-   * calling the overloaded method with the XMLBaseAttributeResolver argument.
-   * @see ZipLet#decodeAndDecompressToXMLWithXInclude(String, XMLBaseAttributeResolver, HttpServletRequest)
-   */
-  public static Document decodeAndDecompressToXMLWithXInclude(String compressedString, ServletContext context, HttpServletRequest request) throws Exception {
-    return decodeAndDecompressToXMLWithXInclude(compressedString, new ServletContextXMLBaseAttributeResolver(context), request);
-  }
-
-  /**
-   * Convenience method instantiating a SerlvetContextXMLBaseAttributeResolver and
-   * calling the overloaded method with the XMLBaseAttributeResolver argument.
-   * @see ZipLet#decodeAndDecompressToXMLWithXInclude(String, XMLBaseAttributeResolver, HttpServletRequest)
-   * @deprecated
-   */
-  @Deprecated
-  public static Document decodeAndDecompressToXMLWithXInclude(String compressedString, ServletContext context) throws Exception {
-    return decodeAndDecompressToXMLWithXInclude(compressedString, new ServletContextXMLBaseAttributeResolver(context), null);
-  }
-
-  /**
-   * Decodes the compressed status document and resolves the XInclude elements within it.
-   * Therefore it needs an auxiliary class to convert the xml:base elements of the xincludes
-   * to a useful value.
-   * @param compressedString The stringified encoding of the compressed XML document.
-   * @param resolver This class transforms the xml:base elements to absolute Server URIs.
-   * @return Uncompressed XML document with includes resolved.
-   */
-  private static Document decodeAndDecompressToXMLWithXInclude(String compressedString, XMLBaseAttributeResolver resolver, HttpServletRequest request) throws Exception {
-
-    if (compressedString == null || compressedString.isEmpty() )
-      return null;
-
-    DocumentBuilderFactory factory = SecureXmlFactory.newDocumentBuilderFactory();
-    factory.setXIncludeAware(true);
-
-    // By default this is true and therefore there will be an xml:base attribute
-    // set in the included document which points to the server's file system.
-    // However we do not want this information to go to the client.
-    factory.setFeature("http://apache.org/xml/features/xinclude/fixup-base-uris", false);
-    factory.setIgnoringComments(true);
-    DocumentBuilder builder = factory.newDocumentBuilder();
-
-    StringWriter stringWriter = new StringWriter();
-
-    InputStream in = null;
-
-    // since we might need to lookup a t-styled url, we now work on "compressed"
-    String compressed = compressedString;
-
-    // get stored long url for tiny url, could be removed by now, so check for null again
-    if (compressed.startsWith("t"))
-      compressed = makeBig(compressed);
-    if (compressed == null)
-      return null;
-
-    if (compressed.startsWith("x") || compressed.startsWith("z")) {
-      String data = compressed.startsWith("x")
-          ? new String(decodeBytes(compressed.substring(1)),"UTF-8")
-          : decodeStringWithAlphabetMapping(compressed.substring(1));
-      in = new ByteArrayInputStream(uncompressXMLString(data).getBytes("UTF-8"));
-    } else {
-      InputStream inTemp = new GZIPInputStream(new ByteArrayInputStream(decodeBytes(compressed)));
-      in = new ByteArrayInputStream(new String(IOUtils.toByteArray(inTemp),"UTF-8").getBytes("UTF-8"));
-    }
-
-    XMLEventReader reader = SecureXmlFactory.newXMLInputFactory().createXMLEventReader(new StreamSource(in));
-    XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(stringWriter);
-    XMLEventFactory eventFactory = XMLEventFactory.newInstance();
-    Namespace xIncludeNamespace = eventFactory.createNamespace("http://www.w3.org/2001/XInclude");
-    boolean withinInclude = false;
-    while (reader.hasNext()) {
-      XMLEvent event = reader.nextEvent();
-      if (withinInclude) {
-        if (event.isEndElement() && event.asEndElement().getName().getLocalPart().equals("include")) {
-          withinInclude = false;
-        }
-      } else if (event.isStartElement()) {
-        StartElement evt = event.asStartElement();
-        if (evt.getName().getLocalPart().equals("include")) {
-          withinInclude = true;
-          QName elementName = new QName(xIncludeNamespace.getNamespaceURI(), "include");
-          Collection<Attribute> attribues = new LinkedList<Attribute>();
-          boolean hasBaseAttribute = false;
-          for (Iterator<?> iter = evt.getAttributes(); iter.hasNext(); ) {
-            Attribute attr = (Attribute) iter.next();
-            if (attr.getName().getLocalPart().equals("base")) {
-              String newBase = resolver.resolve(attr.getValue());
-              if (attr.getValue().endsWith("/") && !newBase.endsWith(File.separator)) newBase += File.separator;
-              if (newBase != null) {
-                hasBaseAttribute = true;
-                attribues.add(
-                    eventFactory.createAttribute(
-                        new QName(XMLConstants.XML_NS_URI, "base", XMLConstants.XML_NS_PREFIX),
-                        newBase)
-                );
-              }
-            } else {
-              attribues.add(attr);
-            }
-          }
-          if (hasBaseAttribute) {
-            writer.add(eventFactory.createStartElement(elementName, attribues.iterator(), Collections.singleton(xIncludeNamespace).iterator()));
-            writer.add(eventFactory.createEndElement(elementName, null));
-          }
-        } else {
-          writer.add(event);
-        }
-      } else {
-        writer.add(event);
-      }
-    }
-
-    return builder.parse(new InputSource(new StringReader(stringWriter.toString())));
   }
 
   /**

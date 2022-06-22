@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -33,7 +32,6 @@ import org.w3c.dom.Document;
 import de.businesscode.bcdui.web.servlets.ZipLet;
 
 public class UnZipFilter implements Filter {
-  private ServletContext servletContext;
   private static final Logger log = LogManager.getLogger(UnZipFilter.class);
 
   /**
@@ -47,14 +45,6 @@ public class UnZipFilter implements Filter {
    */
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-    this.servletContext = filterConfig.getServletContext();
-  }
-
-  /**
-   * @return the servletContext
-   */
-  private ServletContext getServletContext() {
-    return servletContext;
   }
 
   /**
@@ -66,7 +56,7 @@ public class UnZipFilter implements Filter {
       String guiStatusGZ = request.getParameter("guiStatusGZ");
       if (guiStatusGZ != null) {
         try {
-          Document doc = ZipLet.decodeAndDecompressToXMLWithXInclude(guiStatusGZ, getServletContext(), (HttpServletRequest) request);
+          Document doc = ZipLet.decodeAndDecompressToXML(guiStatusGZ, (HttpServletRequest) request);
           request.setAttribute("guiStatusDoc", doc);
         }
         catch (Exception e) {
