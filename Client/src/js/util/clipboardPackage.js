@@ -39,7 +39,9 @@ bcdui.util.clipboard =
      * @param {string} data - Data to be copied to clipboard
      */
     copy: function(/* String */ data) {
-      if (bcdui.browserCompatibility.isIE) {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText(data);
+      else if (bcdui.browserCompatibility.isIE) {
         window.clipboardData.setData("Text", data);
       } else {
         bcdui.util.clipboard._buffer = data;
@@ -49,17 +51,20 @@ bcdui.util.clipboard =
 
     /**
      * Paste
-     * @returns {string} data - Data from clipboard
+     * @returns {Promise} - resolving with clipboard data
      */
     paste: function() {
-      var data;
-      if (bcdui.browserCompatibility.isIE) {
-        data = window.clipboardData.getData("Text");
-      } else {
-        data = bcdui.util.clipboard._buffer;
-      }
       bcdui.log.isTraceEnabled() && bcdui.log.trace("Pasted from clipboard: " + data);
-      return data;
+      return new Promise(function(resolve, reject) {
+        var data;
+        if (navigator && navigator.clipboard && navigator.clipboard.readText)
+          resolve(navigator.clipboard.readText());
+        else if (bcdui.browserCompatibility.isIE)
+          data = window.clipboardData.getData("Text");
+        else
+          data = bcdui.util.clipboard._buffer;
+        resolve(data)
+      });
     },
 
     /**
@@ -74,23 +79,29 @@ bcdui.util.clipboard =
      * clipboard.
      */
     pasteCSVasXML: function( data, emptyRowIfNoData) {
-      var plaintext = typeof data == "undefined" || data == null ? bcdui.util.clipboard.paste() : data;
-      var serializedXml = "<?xml version='1.0'?><CSVData xmlns=\"" + bcdui.core.xmlConstants.namespaces.csv + "\">";
-      if( plaintext != null && plaintext.length > 0){
-        plaintext = bcdui.util.xml.quoteXMLString(plaintext.replace(/\r?\n$/,"") /*  delete the last \r\n */ );
-        serializedXml += "<R><C>" + plaintext.replace(/\t/g,"</C><C>").replace(/\r?\n/g,"</C></R><R><C>") + "</C></R>";
-      }else if(emptyRowIfNoData){
-        serializedXml += "<R><C></C></R>";
-      }
-      serializedXml += "</CSVData>";
-      return serializedXml;
+      return new Promise(function(resolve, reject) {
+        bcdui.util.clipboard.paste().then(value => {
+          var plaintext = typeof data == "undefined" || data == null ? value : data;
+          var serializedXml = "<?xml version='1.0'?><CSVData xmlns=\"" + bcdui.core.xmlConstants.namespaces.csv + "\">";
+          if( plaintext != null && plaintext.length > 0){
+            plaintext = bcdui.util.xml.quoteXMLString(plaintext.replace(/\r?\n$/,"") /*  delete the last \r\n */ );
+            serializedXml += "<R><C>" + plaintext.replace(/\t/g,"</C><C>").replace(/\r?\n/g,"</C></R><R><C>") + "</C></R>";
+          }else if(emptyRowIfNoData){
+            serializedXml += "<R><C></C></R>";
+          }
+          serializedXml += "</CSVData>";
+          resolve(serializedXml);
+        })
+      });
     },
 
     /**
      *  Cleans the current clipboard
      */
     clearData: function(){
-      if (bcdui.browserCompatibility.isIE) {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText("");
+      else if (bcdui.browserCompatibility.isIE) {
         window.clipboardData.clearData();
       }
       else{
