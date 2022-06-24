@@ -302,33 +302,35 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
     if (typeof args.rowStartPos == "undefined" || args.rowStartPos == null || args.rowStartPos < 1)
       throw new Error("rowStartPos is required parameter");
-    var selection = {
-        colStartPos   : typeof args.colStartPos == "undefined" ? 1 : args.colStartPos,
-        colEndPos     : typeof args.colEndPos == "undefined" ? 1 : args.colEndPos,
-        rowStartPos   : args.rowStartPos,
-        rowEndPos     : typeof args.rowEndPos == "undefined" ? args.rowStartPos : args.rowEndPos,
-        clipboardData : new bcdui.core.DataProviderAlias( {
-          name: "clipboardData", 
-          source: new bcdui.core.StaticModel( { data : bcdui.util.clipboard.pasteCSVasXML() }) 
-        }),
-        columnSeparator : this._columnSeparator,
-        rowSeparator : this._rowSeparator,
-        transactionsNumber : this._transactionsNumber++
-    }
-
-    this.runStaticXSLT(
-      /* model */               model,
-      /* transformationId */    "wrs_defaultPasteTransformation",
-      /* transformationUrl */   this._wrsPasteTransformationURL,
-      /* parameters */          selection,
-      /* fn */                  function(result) {
-                                  model.dataDoc = result;
-                                  if (!(args.propagateUpdate === false))
-                                    model.fire();
-                                  if (typeof args.fn != 'undefined')
-                                    args.fn(result);
-                                }
-    );
+    bcdui.util.clipboard.pasteCSVasXML().then(value => {
+      var selection = {
+          colStartPos   : typeof args.colStartPos == "undefined" ? 1 : args.colStartPos,
+          colEndPos     : typeof args.colEndPos == "undefined" ? 1 : args.colEndPos,
+          rowStartPos   : args.rowStartPos,
+          rowEndPos     : typeof args.rowEndPos == "undefined" ? args.rowStartPos : args.rowEndPos,
+          clipboardData : new bcdui.core.DataProviderAlias( {
+            name: "clipboardData", 
+            source: new bcdui.core.StaticModel( { data : value }) 
+          }),
+          columnSeparator : this._columnSeparator,
+          rowSeparator : this._rowSeparator,
+          transactionsNumber : this._transactionsNumber++
+      }
+  
+      this.runStaticXSLT(
+        /* model */               model,
+        /* transformationId */    "wrs_defaultPasteTransformation",
+        /* transformationUrl */   this._wrsPasteTransformationURL,
+        /* parameters */          selection,
+        /* fn */                  function(result) {
+                                    model.dataDoc = result;
+                                    if (!(args.propagateUpdate === false))
+                                      model.fire();
+                                    if (typeof args.fn != 'undefined')
+                                      args.fn(result);
+                                  }
+      );
+    });
   },
 
   /**
@@ -350,34 +352,37 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
 
     if (typeof args.rowStartPos == "undefined" || args.rowStartPos == null || args.rowStartPos < 1)
       throw new Error("rowStartPos is required parameter");
-    var selection = {
-        colStartPos   : typeof args.colStartPos == "undefined" ? 1 : args.colStartPos,
-        colEndPos     : typeof args.colEndPos == "undefined" ? 1 : args.colEndPos,
-        rowStartPos   : args.rowStartPos,
-        rowEndPos     : typeof args.rowEndPos == "undefined" ? args.rowStartPos : args.rowEndPos,
-        clipboardData : new bcdui.core.DataProviderAlias( {
-            name: "clipboardData", 
-            source: new bcdui.core.StaticModel( { data : bcdui.util.clipboard.pasteCSVasXML() }) 
-          }),
-        columnSeparator : this._columnSeparator,
-        rowSeparator    : this._rowSeparator,
-        pasteAsNewRows  : 'true',
-        transactionsNumber : this._transactionsNumber++
-    }
 
-    this.runStaticXSLT(
-      /* model */               model,
-      /* transformationId */    "wrs_defaultPasteTransformation",
-      /* transformationUrl */   this._wrsPasteTransformationURL,
-      /* parameters */          selection,
-      /* fn */                  function(result) {
-                                  model.dataDoc = result;
-                                  if (!(args.propagateUpdate === false))
-                                    model.fire();
-                                  if (typeof args.fn != 'undefined')
-                                    args.fn(result);
-                                }
-    );
+    bcdui.util.clipboard.pasteCSVasXML().then(value => {
+      var selection = {
+          colStartPos   : typeof args.colStartPos == "undefined" ? 1 : args.colStartPos,
+          colEndPos     : typeof args.colEndPos == "undefined" ? 1 : args.colEndPos,
+          rowStartPos   : args.rowStartPos,
+          rowEndPos     : typeof args.rowEndPos == "undefined" ? args.rowStartPos : args.rowEndPos,
+          clipboardData : new bcdui.core.DataProviderAlias( {
+              name: "clipboardData", 
+              source: new bcdui.core.StaticModel( { data : value }) 
+            }),
+          columnSeparator : this._columnSeparator,
+          rowSeparator    : this._rowSeparator,
+          pasteAsNewRows  : 'true',
+          transactionsNumber : this._transactionsNumber++
+      }
+  
+      this.runStaticXSLT(
+        /* model */               model,
+        /* transformationId */    "wrs_defaultPasteTransformation",
+        /* transformationUrl */   this._wrsPasteTransformationURL,
+        /* parameters */          selection,
+        /* fn */                  function(result) {
+                                    model.dataDoc = result;
+                                    if (!(args.propagateUpdate === false))
+                                      model.fire();
+                                    if (typeof args.fn != 'undefined')
+                                      args.fn(result);
+                                  }
+      );
+    });
   },
 
   /**
