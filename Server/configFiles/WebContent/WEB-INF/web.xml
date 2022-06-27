@@ -54,6 +54,10 @@
   <filter>
     <filter-name>bcdui4.RequestLifeCycleFilter</filter-name>
     <filter-class>de.businesscode.bcdui.web.filters.RequestLifeCycleFilter</filter-class>
+    <init-param>
+      <param-name>ContentSecurityPolicy</param-name>
+      <param-value>default-src 'self' 'unsafe-eval' 'unsafe-inline' cdn.cookielaw.org; object-src 'none'</param-value>
+    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>bcdui4.RequestLifeCycleFilter</filter-name>

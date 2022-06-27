@@ -26,6 +26,7 @@ ___
 * Preventing some possible injections in server responses
 * SubjectFilter can now be applied to virtual file system
 * SubjectFilters resolved inline (i.e. value list) are using prepared statements now
+* RequestLifeCylce filter sets "Content-Security-Policy" (configurable via filter init param ContentSecurityPolicy)
 
 .Development
 * Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest

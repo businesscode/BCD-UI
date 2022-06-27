@@ -76,7 +76,8 @@ public class RequestLifeCycleFilter implements Filter {
   public static final String MDC_KEY_IS_CLIENT_LOG = "BCD.isClientLog";
   public static final String MDC_KEY_SESSION_ID = "BCD.httpSessionId";
   private static final Pattern pattern = Pattern.compile("\\$\\{bcdClient:(\\w+)\\}");
-
+  private static final String CONTENT_SECURITY_POLICY = "ContentSecurityPolicy";
+  private static final ArrayList<String> contentSecurityPolicy = new ArrayList<>();
 
   public static final String LOGGER_NAME = RequestLifeCycleFilter.class.getName();
   private Logger log = getLogger();
@@ -94,9 +95,11 @@ public class RequestLifeCycleFilter implements Filter {
     return (url == null ? "" : url).indexOf("servlets/FrontendLogTransceiver") > -1;
   }
 
-  private void doFilter(HttpServletRequest request,
-      HttpServletResponse response, FilterChain chain) throws IOException,
-      ServletException {
+  private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+    // set CSP Header
+    response.addHeader("Content-Security-Policy", contentSecurityPolicy.get(0));
+
     request.setCharacterEncoding("UTF-8");
     response.setCharacterEncoding("UTF-8");
     requestTaggingFlag.set(true);
@@ -333,5 +336,7 @@ public class RequestLifeCycleFilter implements Filter {
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
+    String csp = filterConfig.getInitParameter(CONTENT_SECURITY_POLICY);
+    contentSecurityPolicy.add(csp == null ? "default-src 'self' 'unsafe-eval' 'unsafe-inline' cdn.cookielaw.org; object-src 'none'" : csp);
   }
 }
