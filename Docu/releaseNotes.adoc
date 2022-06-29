@@ -20,6 +20,7 @@ ___
 * Allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
 * Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
 * Database syntax does fully support MySQL and Redshift now
+* Server sided access to bindings can optionally skip subject settings via backendCanBypassSubjectFilter attribute
 
 .Security
 * New cookie settings in context.xml and web.xml
@@ -49,6 +50,7 @@ to reference the table $t (note: without `.getTableReference()` is preferred any
 * Removed bcdBean creationStamp, use bcdBean.currentTimestampUtc instead which is the date string in UTC timezone
 * bcd_virtualFileSystem additionally got vfsPathLimit SubjectFilter which limits read/write access on the VFS. Ensure to add user rights (or default values) for:
 at least cube template writing /vfs/reports/*, detail export column selects /vfs/exports/*, docUploads /vfs/documents/*. Writing vfs bindings could be achieved via /WEB-INF/*/virtual/*.
+* when using subject filters in bcd_virtualFileSystem, you need bnd:BindingSet/sec:SubjectSettings/sec:SubjectFilters/@backendCanBypassSubjectFilter=true
 * WRS request optional url attribute at `BindingSet` to pick servlet is moved to root WrsRequest element
 * Grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
 * removed ZipLet decodeAndDecompressToXMLWithXInclude functionality. Update possible calls to decodeAndDecompressToXML.

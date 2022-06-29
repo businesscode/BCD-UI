@@ -139,6 +139,15 @@ public class ReadBindingSet implements Runnable {
       if (dbSourceName != null) {
         bs.setDbSourceName(dbSourceName);
       }
+
+      NodeList subjectFilters = bindingDoc.getDocumentElement().getElementsByTagNameNS(BINDINGS_NAMESPACE, "SubjectFilters");
+      if (subjectFilters.getLength() > 0) {
+        String backendCanBypassSubjectFilter = ((Element)subjectFilters.item(0)).getAttribute("backendCanBypassSubjectFilter");
+        if ("true".equals(backendCanBypassSubjectFilter)) {
+          bs.setBackendCanBypassSubjectFilter(true);
+        }
+      }
+
       String allowSelectAllColumns = bindingDoc.getDocumentElement().getAttribute("allowSelectAllColumns");
       if ("true".equals(allowSelectAllColumns)) {
         bs.setAllowSelectAllColumns(true);

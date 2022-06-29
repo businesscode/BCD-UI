@@ -61,6 +61,7 @@ public class StandardBindingSet implements BindingSet {
   private String tableName;
   private String dbSourceName;
   private boolean allowSelectAllColumns;
+  private boolean backendCanBypassSubjectFilter = false;
   private Map<String, BindingItem> bindingItems = new LinkedHashMap<String, BindingItem>(new HashMap<String, BindingItem>());
   private SubjectFilters subjectFilters;
   private final ArrayList<Relation> relations = new ArrayList<Relation>();
@@ -84,6 +85,7 @@ public class StandardBindingSet implements BindingSet {
     tableName = bs.tableName;
     dbSourceName = bs.dbSourceName;
     allowSelectAllColumns = bs.allowSelectAllColumns;
+    backendCanBypassSubjectFilter = bs.backendCanBypassSubjectFilter;
     bindingItems = bs.bindingItems;
     subjectFilters = bs.subjectFilters;
     relations.addAll(bs.relations);
@@ -188,8 +190,9 @@ public class StandardBindingSet implements BindingSet {
     final Class<?> sqlConditionGeneratorClass = Configuration.getClassoption(OPT_CLASSES.SUBJECTSETTINGS2SQL);
     if( hasSubjectFilters() && sqlConditionGeneratorClass != null ) {
       
-      if( !WebUtils.isHttp(SecurityUtils.getSubject()) ) {
-        System.out.println("Unsafe access"); // TODO);
+      if (!WebUtils.isHttp(SecurityUtils.getSubject())) {
+        if (!this.isBackendCanBypassSubjectFilter() )
+          throw new BindingException("The BindingSet " + this.getName() +" can't bypass SubjectFilters. Consider using bnd:BindingSet/sec:SubjectSettings/sec:SubjectFilters/@backendCanBypassSubjectFilter");
       } else {
         SqlConditionGenerator sqlConditionGen = Configuration.getClassInstance(sqlConditionGeneratorClass, 
               new Class<?>[]{BindingSet.class, WrqInfo.class, List.class, String.class, String.class},
@@ -240,6 +243,20 @@ public class StandardBindingSet implements BindingSet {
   public void setDbSourceName(String dbSourceName) {
     if (dbSourceName != null && dbSourceName.length() > 0)
       this.dbSourceName = dbSourceName;
+  }
+  
+  /**
+   * @see de.businesscode.bcdui.binding.BindingSet#isBackendCanBypassSubjectFilter()
+   */
+  public boolean isBackendCanBypassSubjectFilter() {
+    return backendCanBypassSubjectFilter;
+  }
+
+  /**
+   * @param allowSelectAllColumns the allowSelectAllColumns to set
+   */
+  public void setBackendCanBypassSubjectFilter(boolean backendCanBypassSubjectFilter) {
+    this.backendCanBypassSubjectFilter = backendCanBypassSubjectFilter;
   }
 
   /**

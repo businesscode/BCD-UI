@@ -222,12 +222,20 @@ public class SqlFromSubSelect
     String subjectSettingsClause = "";
     Subject subject = null;
     try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
-    if( subject != null && WebUtils.isHttp(SecurityUtils.getSubject()) ) {
-      SQLStatementWithParams subjectSettingsStmt = wrqInfo.getResultingBindingSet().getSubjectFilterExpression(wrqInfo);
-      subjectSettingsClause = subjectSettingsStmt.getStatement();
-      boundVariables.addAll(subjectSettingsStmt.getFilterItems());
-    } else {
-      System.out.println("Unsafe access"); // TODO);
+    if (subject != null) {
+      if (WebUtils.isHttp(SecurityUtils.getSubject())) {
+        SQLStatementWithParams subjectSettingsStmt = wrqInfo.getResultingBindingSet().getSubjectFilterExpression(wrqInfo);
+        subjectSettingsClause = subjectSettingsStmt.getStatement();
+        boundVariables.addAll(subjectSettingsStmt.getFilterItems());
+      }
+      else {
+        Iterator<StandardBindingSet> bsIterator = wrqInfo.getResultingBindingSet().getResolvedBindingSets().iterator();
+        while(bsIterator.hasNext()) {
+          StandardBindingSet bs = bsIterator.next();
+          if (! bs.isBackendCanBypassSubjectFilter())
+            throw new BindingException("The BindingSet " + bs.getName() +" can't bypass SubjectFilters. Consider using bnd:BindingSet/sec:SubjectSettings/sec:SubjectFilters/@backendCanBypassSubjectFilter");
+        }
+      }
     }
 
     // Now combine the two restrictions (Filter and SubjectSettings) into one WHERE clause

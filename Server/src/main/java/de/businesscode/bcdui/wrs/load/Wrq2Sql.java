@@ -43,6 +43,7 @@ import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.StandardBindingSet;
+import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -134,8 +135,17 @@ public class Wrq2Sql implements ISqlGenerator
     // Are we allowed to read all used BindingSets? Will throw otherwise
     Subject subject = null;
     try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
-    if (subject != null && WebUtils.isHttp(subject)) {
-      wrqQueryBuilder.assurePermittedOnAllResolvedBindingSets(SECURITY_OPS.read);
+    if (subject != null) {
+      if (WebUtils.isHttp(subject))
+        wrqQueryBuilder.assurePermittedOnAllResolvedBindingSets(SECURITY_OPS.read);
+      else {
+        NodeList bindingSets = requestDoc.getDocumentElement().getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "BindingSet");
+        for (int i = 0; i < bindingSets.getLength(); i++) {
+          BindingSet bs = bindings.get(bindingSets.item(i).getFirstChild().getTextContent().trim(), Collections.emptySet());
+          if (!bs.isBackendCanBypassSubjectFilter() )
+            throw new BindingException("The BindingSet " + bs.getName() +" can't bypass SubjectFilters. Consider using bnd:BindingSet/sec:SubjectSettings/sec:SubjectFilters/@backendCanBypassSubjectFilter");
+        }
+      }
     }
   }
 

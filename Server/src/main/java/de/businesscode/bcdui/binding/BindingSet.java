@@ -89,6 +89,12 @@ public interface BindingSet extends Cloneable, Serializable {
   public abstract String getJdbcResourceName();
 
   /**
+   * isBackendCanBypassSubjectFilter
+   * @return true if it is allowed for the backend to bypass SubjectFilters
+   */
+  public abstract boolean isBackendCanBypassSubjectFilter();
+  
+  /**
    * isAllowSelectAllColumns
    * @return true if it is allowed to select all columns from this BindingSet.
    */

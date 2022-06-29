@@ -272,6 +272,7 @@
       <xs:element name="And" type="tns:TypeSubjectFilterConnective"></xs:element>
       <xs:element name="Or" type="tns:TypeSubjectFilterConnective"></xs:element>
     </xs:choice>
+    <xs:attribute name="backendCanBypassSubjectFilter" type="xs:boolean" default="false"/>
   </xs:complexType>
 
   <xs:complexType name="TypeSubjectFilterConnective">
