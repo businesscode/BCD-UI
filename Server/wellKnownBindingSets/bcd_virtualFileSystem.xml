@@ -28,7 +28,7 @@
     <Security>
       <Operation permission="" name="write"/>
     </Security>
-    <SubjectFilters>
+    <SubjectFilters backendCanBypassSubjectFilter="true">
       <SubjectFilter type="bcd_userId:userId"/>
       <SubjectFilter type="vfsPathLimit"/>
     </SubjectFilters>
