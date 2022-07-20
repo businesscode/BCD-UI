@@ -2809,7 +2809,7 @@ jQuery.extend(bcdui.widget,
     createFixedTableHeader: function(args) {
       var storeSize = typeof args.storeSize != "undefined" ? args.storeSize : true;
       var tableElement =  jQuery(bcdui.factory.objectRegistry.getObject(args.rendererId).getTargetHtml()).find("table");
-      bcdui.widget._enableFixedTableHeader(tableElement, args.rendererId, storeSize, args.getCaptionForColumnValue);
+      bcdui.widget._enableFixedTableHeader(tableElement, args.rendererId, storeSize, args.enableColumnFilters, args.getCaptionForColumnValue);
     },
 
     /**
