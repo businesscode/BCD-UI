@@ -2897,7 +2897,7 @@ jQuery.extend(bcdui.widget,
       // if sidebar gets toggled, we resize
       bcdui.wkModels.guiStatus.onChange(function(){
         setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
-      }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin");
+      }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-left|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-right");
 
     },
 
@@ -2917,8 +2917,8 @@ jQuery.extend(bcdui.widget,
         jQuery(e).css("height", jQuery(origTableHead.find("tr").get(i)).outerHeight() + "px");
         jQuery(e).find("th, td").each(function(j, f) {
           var cell = jQuery(jQuery(origTableHead.find("tr").get(i)).find("th, td").get(j));
-          jQuery(f).css("height", cell.outerHeight() + "px");
-          jQuery(f).css("width", cell.outerWidth() + "px");
+          jQuery(f).css("height", cell.innerHeight() + "px");
+          jQuery(f).css("width", cell.innerWidth() + "px");
           if (storeSize) {
             bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", cell.outerHeight());
             bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", cell.outerWidth());
