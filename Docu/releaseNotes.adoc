@@ -22,6 +22,9 @@ ___
 * Database syntax does fully support MySQL and Redshift now
 * Server sided access to bindings can optionally skip subject settings via backendCanBypassSubjectFilter attribute
 
+.Client:
+* checkbox widget supports more than 1 and 0 via values parameter
+
 .Security
 * New cookie settings in context.xml and web.xml
 * Preventing some possible injections in server responses

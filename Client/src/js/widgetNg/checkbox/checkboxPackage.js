@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -76,6 +76,9 @@
       // init internal config
       var extendedConfig=null;
       var config = {
+          values: this.options.values || "1|0",
+          checkValue: (this.options.values || "1|0").split("|")[0],
+          uncheckValue: (this.options.values || "1|0").split("|")[1],
           target: bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath),
           extendedConfig: this.options.extendedConfig||{}
       };
@@ -166,11 +169,12 @@
     _syncValue: function(){
 
       // element still alive?
-      if (! this.element.data("_config_"))
+      var config = this.element.data("_config_");
+      if (! config)
         return;
 
       var value = this._readDataFromXML().value||"";
-      this.element.children("input").prop("checked", (value != null && ! !value.trim() && value != "0"))
+      this.element.children("input").prop("checked", (value != null && ! !value.trim() && value != config.uncheckValue))
       this.element.trigger(this.EVENT.SYNC_READ, {isValueEmpty : false});
     },
 
@@ -235,12 +239,12 @@
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: update via xpath : " + config.target.xPath + ", modelId: " + config.target.modelId);
 
-      var guiValue = this.element.children("input").prop("checked") ? "1" : "0";
+      var guiValue = this.element.children("input").prop("checked") ? config.checkValue : config.uncheckValue;
       var modelValue = this._readDataFromXML().value||"";
       // tells if current widget value differs from data value
       var hasValueChanged = guiValue != modelValue;
 
-      guiValue != "0" ? jQuery(this.element).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(this.element).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+      config.uncheckValue ? jQuery(this.element).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery(this.element).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui.widgetNg.checkbox.updateValue: modelValue: " + modelValue + ", guiValue: " + guiValue);
 
@@ -356,8 +360,11 @@ bcdui.widgetNg.checkbox = Object.assign(bcdui.widgetNg.checkbox,
       if (targetModel != null && targetXPath != null) {
         bcdui.factory.objectRegistry.withReadyObjects(targetModel, function() {
           var targetNode = bcdui.factory.objectRegistry.getObject(targetModel).getData().selectSingleNode(targetXPath);
-          var value = (targetNode == null ? "0" : targetNode.text);
-          callback(id, (value == "1" ? "&#10003;" : ""));
+          var config = e.element.data("_config_");
+          if (config) {
+            var value = (targetNode == null ? config.uncheckValue : targetNode.text);
+            callback(id, (value == config.checkValue ? "&#10003;" : ""));
+          }
         });
         return;
       }
