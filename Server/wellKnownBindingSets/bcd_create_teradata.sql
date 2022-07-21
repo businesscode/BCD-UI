@@ -212,3 +212,16 @@ CREATE TABLE bcd_comment
    last_modified_at  timestamp,
    last_modified_by  VARCHAR(256)
 );
+
+DROP TABLE BCD_FILES_DOWNLOAD;
+CREATE TABLE BCD_FILES_DOWNLOAD
+(
+   ID              VARCHAR(128),
+   UUID            VARCHAR(128),
+   CREATE_STAMP    TIMESTAMP,
+   FILE_NAME       VARCHAR(256),
+   REPORT_NAME     VARCHAR(256),
+   DOWNLOAD_LINK   VARCHAR(1024),
+   DOWNLOAD_COUNT  integer,
+   LAST_DOWNLOAD   TIMESTAMP
+);

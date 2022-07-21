@@ -221,6 +221,29 @@
   </servlet-mapping> 
 -->
 
+  <!-- Download servlet
+  <servlet>
+    <servlet-name>bcdui4.SchedulerDownload</servlet-name>
+    <servlet-class>de.businesscode.bcdui.toolbox.DownloadServlet</servlet-class>
+    <init-param>
+      <param-name>clearDaysFiles</param-name>
+      <param-value>14</param-value>
+    </init-param>
+    <init-param>
+      <param-name>clearDaysStats</param-name>
+      <param-value>60</param-value>
+    </init-param>
+    <init-param>
+      <param-name>downloadFolder</param-name>
+      <param-value>point to your download folder</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bcdui4.SchedulerDownload</servlet-name>
+    <url-pattern>/download/*</url-pattern>
+  </servlet-mapping>
+ -->
+
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>
     <servlet-name>bcdui4.WrsServlet</servlet-name>

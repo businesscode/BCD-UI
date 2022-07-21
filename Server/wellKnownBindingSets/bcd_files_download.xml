@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BindingSet xmlns="http://www.businesscode.de/schema/bcdui/bindings-1.0.0" id="bcd_files_download" table="bcd_files_download" allowSelectAllColumns="true">
+  <C id="id"               caption="Id"             type-name="VARCHAR"                     nullable="0" isKey="true"> <Column>id</Column>              </C>
+  <C id="uuid"             caption="UUID"           type-name="VARCHAR"                     nullable="0">              <Column>uuid</Column>            </C>
+  <C id="create_stamp"     caption="Create Stamp"   type-name="TIMESTAMP"                   nullable="0">              <Column>create_stamp</Column>    </C>
+  <C id="file_name"        caption="File Name"      type-name="VARCHAR"                     nullable="0">              <Column>file_name</Column>       </C>
+  <C id="report_name"      caption="Report Name"    type-name="VARCHAR"                     nullable="0">              <Column>report_name</Column>     </C>
+  <C id="download_link"    caption="Download Link"  type-name="VARCHAR"                     nullable="0">              <Column>download_link</Column>   </C>
+  <C id="download_count"   caption="Download Count" type-name="INTEGER"                     nullable="1">              <Column>download_count</Column>  </C>
+  <C id="last_download"    caption="Last Download"  type-name="TIMESTAMP"                   nullable="1">              <Column>last_download</Column>   </C>
+  
+  <SubjectSettings>
+    <Security>
+      <Operation permission="" name="write" />
+    </Security>
+  </SubjectSettings>
+
+</BindingSet>
