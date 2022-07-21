@@ -235,14 +235,25 @@
     </init-param>
     <init-param>
       <param-name>downloadFolder</param-name>
-      <param-value>point to your download folder</param-value>
+      <param-value>your absolute path to the download folder (sftp) or file path to local files</param-value>
     </init-param>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>bcdui4.SchedulerDownload</servlet-name>
-    <url-pattern>/download/*</url-pattern>
-  </servlet-mapping>
- -->
+    <init-param>
+      <param-name>sftpHost</param-name>
+      <param-value>your sftp host</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sftpPwd</param-name>
+      <param-value>your sftp password</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sftpUser</param-name>
+      <param-value>your sftp user name</param-value>
+    </init-param>
+    <init-param>
+      <param-name>sftpPort</param-name>
+      <param-value>your sftp port, default 22</param-value>
+    </init-param>
+-->
 
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>

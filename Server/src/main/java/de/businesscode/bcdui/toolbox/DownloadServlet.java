@@ -36,9 +36,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
-import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
 
@@ -62,6 +66,10 @@ public class DownloadServlet extends HttpServlet {
   private int CLEARDAYS_FILES = 14;
   private int CLEARDAYS_STATS = 60;
   private String DOWNLOADFOLDER;
+  private String SFTP_HOST;
+  private String SFTP_PWD;
+  private String SFTP_USER;
+  private int SFTP_PORT = 22;
   
   private static final Logger log = LogManager.getLogger(DownloadServlet.class);
   
@@ -82,14 +90,23 @@ public class DownloadServlet extends HttpServlet {
       if (config.getInitParameter("clearDaysStats") != null)
         log.warn("Parameter clearDaysStats for "+getServletName()+" could not be parsed");
     }
+    
+    DOWNLOADFOLDER = (String)config.getInitParameter("downloadFolder");
+
+    SFTP_HOST = (String)config.getInitParameter("sftpHost");
+    SFTP_PWD = (String)config.getInitParameter("sftpPwd");
+    SFTP_USER = (String)config.getInitParameter("sftpUser");
     try {
-      DOWNLOADFOLDER = (String)config.getInitParameter("downloadFolder");
+      SFTP_PORT = Integer.parseInt(config.getInitParameter("sftpPort"));
     }
     catch(Exception e) {
-      if (config.getInitParameter("downloadFolder") != null)
-        log.warn("Parameter downloadFolder for "+getServletName()+" could not be parsed");
+      if (config.getInitParameter("sftpPort") != null)
+        log.warn("Parameter sftpPort for "+getServletName()+" could not be parsed");
     }
-  
+
+    if (DOWNLOADFOLDER == null)
+      log.error("Parameter downloadFolder for "+getServletName()+" is missing");
+
   }
 
 protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -100,7 +117,12 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       DownloadInfo d = readFile(request.getPathInfo().substring(1));
       if (d.id != null) {
         updateFileCount(d);
-        downloadFile(d, response);
+
+        // either do sftp download or file download from local place
+        if (SFTP_HOST != null &&  SFTP_PWD != null && SFTP_USER != null)
+          downloadFileSFTP(d, response, SFTP_USER, SFTP_PWD, SFTP_HOST, SFTP_PORT);
+        else
+          downloadFile(d, response);
         cleanUpFiles();
         cleanUpStats();
       }
@@ -274,6 +296,60 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
     }
   }
   
+  private void downloadFileSFTP(DownloadInfo d, HttpServletResponse response, String username, String password, String host, int port) {
+    Session     session = null;
+    ChannelSftp channel = null;
+    OutputStream outStream = null;
+
+    String sourceFile = DOWNLOADFOLDER;
+    if (sourceFile.endsWith("/") || sourceFile.endsWith("\\"))
+      sourceFile = sourceFile.substring(0, sourceFile.length() - 1);
+    sourceFile += "/" + d.uuid;
+
+    try {
+      outStream = response.getOutputStream();
+
+      session = (new JSch()).getSession(username, host, port);
+      session.setPassword( password );
+      session.setConfig("StrictHostKeyChecking", "no");
+      session.setTimeout(20000);
+      session.connect();
+      channel = (ChannelSftp) session.openChannel("sftp");
+      channel.connect();
+
+      String mimeType = "application/octet-stream";
+      response.setContentType(mimeType);
+
+      SftpATTRS attr = channel.lstat(sourceFile);
+      response.setContentLength((int) attr.getSize());
+  
+      String headerKey = "Content-Disposition";
+      String headerValue = String.format("attachment; filename=\"%s\"", d.file_name);
+      response.setHeader(headerKey, headerValue);
+
+      channel.get( sourceFile, outStream );
+
+   } catch( Exception e ) {
+     log.error("Download of " + d.uuid + " failed.", e);
+   }
+    finally {
+      try {
+        if (outStream != null) {
+          outStream.close();
+          outStream = null;
+        }
+      }
+      catch (IOException e) {log.error("Download of " + d.uuid + " failed.", e);}
+      if( channel != null ) {
+         channel.disconnect();
+         channel = null;
+      }
+      if( session != null ) {
+         session.disconnect();
+         session = null;
+      }
+    }
+  }
 
   private Connection getControlConnection() throws Exception{
     BindingSet bs  = Bindings.getInstance().get(BCDFILESDOWNLOAD, new ArrayList<String>());

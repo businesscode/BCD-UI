@@ -59,6 +59,7 @@ dependencies {
   implementation ('org.apache.xmlbeans:xmlbeans:3.1.0') { transitive = false }
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
   implementation ('com.google.code.gson:gson:2.8.6') { transitive = false }
+  implementation ('com.jcraft:jsch:0.1.55') { transitive = false }
 
   // Only needed when using jsp
   // implementation ('javax.servlet:jstl:1.2') { transitive = false }
