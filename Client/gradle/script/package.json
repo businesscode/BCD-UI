@@ -16,7 +16,7 @@
     "modernizr":          "@version",
     "d3-format":          "@version",
     "jquery":             "git+https://github.com/jquery/jquery#@version",
-    "jquery-ui-dist":     "@version",
+    "jquery-ui-dist":     "git+https://github.com/jquery/jquery-ui#@version",
     "webcomponents":      "git+https://github.com/webcomponents/webcomponentsjs#@version",
     "handsontable":       "@version",
     "nouislider":         "@version",

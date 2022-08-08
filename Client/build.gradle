@@ -41,9 +41,9 @@ def es5Postfix        = '-es5'
 // This list is filtered by the entries in gradle.properties so that a user can remove them to get another version manually for example
 def js3rdPartyNpm = [
       "jquery":         [ fn: "jquery.js",             ofn: "jquery/dist/jquery.js",                         ofnm: "jquery/dist/jquery.min.js"],
-      "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/jquery-ui.js",                   ofnm: "jquery-ui-dist/jquery-ui.min.js"],
-                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/jquery-ui.css"],
-                          [ fn: "images",              ofn: "jquery-ui-dist/images"]
+      "jquery-ui-dist": [ [ fn: "jquery-ui.js",        ofn: "jquery-ui-dist/dist/jquery-ui.js",              ofnm: "jquery-ui-dist/dist/jquery-ui.min.js"],
+                          [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/dist/themes/base/jquery-ui.css"],
+                          [ fn: "images",              ofn: "jquery-ui-dist/dist/themes/base/images"]
                         ],
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
