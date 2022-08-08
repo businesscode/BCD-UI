@@ -1285,12 +1285,12 @@ bcdui.util.namespace("bcdui.widget.inputField",
             for( var i=0; i<levelNodes.length; i++ ) {
               var v = levelNodes.item(i).getAttribute("caption") ? levelNodes.item(i).getAttribute("caption") : levelNodes.item(i).text;
               if( !!v )
-                valueLevels.push(v.split(" "));
+                valueLevels.push(bcdui.util.escapeHtml(v).split(" "));
             }
           } else if ( node.nodeType === 1 ) {
-            valueLevels.push(node.text.split(" "));
+            valueLevels.push(bcdui.util.escapeHtml(node.text).split(" "));
           } else {
-            valueLevels.push(node.nodeValue.split(" "));
+            valueLevels.push(bcdui.util.escapeHtml(node.nodeValue).split(" "));
           }
 
           // Now we mark the matches, if search expression(s) are given          
