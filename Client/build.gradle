@@ -59,7 +59,7 @@ def js3rdPartyNpm = [
     ]
 js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
 
-def copyUnmodified = [ /* currently no files to be taken 1:1 */ ]
+def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 
 //**********************************
@@ -304,7 +304,7 @@ task bcduiClientJsFileGroups {
     else if (copyUnmodified[value.fn]) {
       // in case we want to explicitly keep a file 1:1 (no minimize, no ECMA5 transpile, we copy it
       copy {
-        from "${copyUnmodified[value.fn].ofn}"
+        from "$buildDir/../${copyUnmodified[value.fn].ofn}"
         into "$clientCombinedDir/$jsDistDir/3rdParty/"
         rename { value.fn }
       }
