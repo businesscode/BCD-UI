@@ -21,6 +21,7 @@ ___
 * Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
 * Database syntax does fully support MySQL and Redshift now
 * Server sided access to bindings can optionally skip subject settings via backendCanBypassSubjectFilter attribute
+* SendMail class added (new gradle dependencies javax.mail:mail, com.sun.activation)
 
 .Client:
 * checkbox widget supports more than 1 and 0 via values parameter
