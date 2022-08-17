@@ -209,6 +209,7 @@ public class I18n {
     Cookie cookie = new Cookie(HTTP_COOKIE_LANG, locale.getLanguage());
     cookie.setMaxAge(60 * 60 * 24 * 365);
     cookie.setPath(request.getContextPath());
+    cookie.setHttpOnly(true);
     cookie.setComment("Preferred Language");
 
     try {
