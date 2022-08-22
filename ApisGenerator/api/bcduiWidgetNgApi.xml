@@ -1070,6 +1070,20 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
+      <Api name="label" extends="widget">
+        <Doc>A BCD-UI label. If an optionsModelXPath is given, it will be rendered as an unordered list.</Doc>
+        <Param name="text" type="i18nToken" required="false">
+          String with the caption or an i18n-key-identifier.
+        </Param>
+        <Param name="caption" type="i18nToken" required="false">
+          String with the caption or an i18n-key-identifier. Overrides 'text' attribute
+        </Param>
+        <Param name="optionsModelXPath" type="xPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -1089,6 +1103,7 @@ the data that is actually placed in XML.
       <BcdObject name="universalFilter" implements="universalFilter" implementationPackage="bcdui.widgetNg.universalFilter"/>
       <BcdObject name="slider" implements="slider" implementationPackage="bcdui.widgetNg.slider"/>
       <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
+      <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

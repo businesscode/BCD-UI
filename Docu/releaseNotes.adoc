@@ -25,6 +25,7 @@ ___
 
 .Client:
 * checkbox widget supports more than 1 and 0 via values parameter
+* label widget added
 
 .Security
 * New cookie settings in context.xml and web.xml
