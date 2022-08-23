@@ -2842,20 +2842,20 @@ jQuery.extend(bcdui.widget,
       if (storeSize) {
         // initially take stored width/heights in case of a rerender. This avoids flickering (assuming number of cells did not change), but only needed
         // if you got manual refeshs like collapsable cubes clicks (maybe columnfilters, too)
-        bcdTableHeadHolder.find(".bcdConeTableHolder").attr("storeSize", "true");
+        bcdTableHeadHolder.find(".bcdCloneTableHolder").attr("storeSize", "true");
         bcdTableHeadHolder.find(".bcdCloneTableHolder").find("tr").each(function(i, e) {
           jQuery(e).find("th, td").each(function(j, f) {
             var h = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", "");
             var w = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", "");
             if (h != "")
-              jQuery(f).css("height", h + "px");
+              jQuery(f).css("height", h);
             if (w != "")
-              jQuery(f).css("width", w + "px");
+              jQuery(f).css("width", w);
           });
         });
         var ww = bcdui.wkModels.guiStatus.read("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/@w", "");
         if (ww != "")
-          bcdTableHeadHolder.find(".bcdCloneTableHolder table thead").css("width", ww + "px");
+          bcdTableHeadHolder.find(".bcdCloneTableHolder table thead").css("width", ww);
         bcdui.wkModels.guiStatus.remove("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']", true);
       }
 
@@ -2917,17 +2917,29 @@ jQuery.extend(bcdui.widget,
         jQuery(e).css("height", jQuery(origTableHead.find("tr").get(i)).outerHeight() + "px");
         jQuery(e).find("th, td").each(function(j, f) {
           var cell = jQuery(jQuery(origTableHead.find("tr").get(i)).find("th, td").get(j));
-          jQuery(f).css("height", cell.innerHeight() + "px");
-          jQuery(f).css("width", cell.innerWidth() + "px");
+          var paddingTop = parseFloat(jQuery(cell).css("padding-top"));
+          var paddingBottom = parseFloat(jQuery(cell).css("padding-bottom"));
+          paddingTop = isNaN(paddingTop) ? 0 : paddingTop;
+          paddingBottom = isNaN(paddingBottom) ? 0 : paddingBottom;
+          var paddingY = bcdTableHeadHolder.css("box-sizing") == "border-box" ? 0 : (paddingTop + paddingBottom);
+          var paddingLeft = parseFloat(jQuery(cell).css("padding-left"));
+          var paddingRight = parseFloat(jQuery(cell).css("padding-right"));
+          paddingLeft = isNaN(paddingLeft) ? 0 : paddingLeft;
+          paddingRight = isNaN(paddingRight) ? 0 : paddingRight;
+          var paddingX = bcdTableHeadHolder.css("box-sizing") == "border-box" ? 0 : (paddingLeft + paddingRight);
+          var cellWidth = (cell.innerWidth() - paddingX) + "px";
+          var cellHeight = (cell.innerHeight() - paddingY) + "px";
+          jQuery(f).css("height", cellHeight);
+          jQuery(f).css("width", cellWidth);
           if (storeSize) {
-            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", cell.outerHeight());
-            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", cell.outerWidth());
+            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@h", cellHeight);
+            bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/guiStatus:R[@id='r"+i+"']/guiStatus:C[@id='"+j+"']/@w", cellWidth);
           }
         });
         cloneTableHead.css("width", origTableHead.outerWidth() + "px");
       });
       if (storeSize)
-        bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/@w", origTableHead.outerWidth(), true);
+        bcdui.wkModels.guiStatus.write("/*/guiStatus:ClientSettings/guiStatus:FixedTable[@id='"+rendererId+"']/@w", origTableHead.outerWidth() + "px", true);
 
       // in case we have a horizontal scrolling table, we additionally set the display type to table
       // so the clone gets resized too
