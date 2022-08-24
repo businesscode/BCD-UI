@@ -65,10 +65,11 @@ public class DownloadServlet extends HttpServlet {
   private static final String BCDFILESDOWNLOAD= "bcd_files_download"; 
   private int CLEARDAYS_FILES = 14;
   private int CLEARDAYS_STATS = 60;
-  private String DOWNLOADFOLDER;
+  private String DOWNLOAD_FOLDER;
   private String SFTP_HOST;
   private String SFTP_PWD;
   private String SFTP_USER;
+  private String DOWNLOAD_PAGE;
   private int SFTP_PORT = 22;
   
   private static final Logger log = LogManager.getLogger(DownloadServlet.class);
@@ -91,7 +92,8 @@ public class DownloadServlet extends HttpServlet {
         log.warn("Parameter clearDaysStats for "+getServletName()+" could not be parsed");
     }
     
-    DOWNLOADFOLDER = (String)config.getInitParameter("downloadFolder");
+    DOWNLOAD_FOLDER = (String)config.getInitParameter("downloadFolder");
+    DOWNLOAD_PAGE = (String)config.getInitParameter("downloadPage");
 
     SFTP_HOST = (String)config.getInitParameter("sftpHost");
     SFTP_PWD = (String)config.getInitParameter("sftpPwd");
@@ -104,22 +106,32 @@ public class DownloadServlet extends HttpServlet {
         log.warn("Parameter sftpPort for "+getServletName()+" could not be parsed");
     }
 
-    if (DOWNLOADFOLDER == null)
+    if (DOWNLOAD_FOLDER == null)
       log.error("Parameter downloadFolder for "+getServletName()+" is missing");
 
   }
 
 protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    try {
+  
+    boolean doDownload = request.getParameter("download") != null || DOWNLOAD_PAGE == null || DOWNLOAD_PAGE.isEmpty();
+    
+    String uuid = request.getPathInfo();
+    uuid = uuid.substring(1);
 
-      String uuid = request.getPathInfo();
-      uuid = uuid.substring(1);
+    if (!doDownload) {
+      boolean gotParam = DOWNLOAD_PAGE.contains("?");
+      boolean absolute = DOWNLOAD_PAGE.toLowerCase().startsWith("http://") || DOWNLOAD_PAGE.toLowerCase().startsWith("https://");
+      response.sendRedirect((absolute ? "" : request.getContextPath()) + DOWNLOAD_PAGE + (gotParam ? "&" : "?") + "uuid=" + uuid);
+      return;
+    }
+
+    try {
       DownloadInfo d = readFile(request.getPathInfo().substring(1));
       if (d.id != null) {
         updateFileCount(d);
 
         // either do sftp download or file download from local place
-        if (SFTP_HOST != null &&  SFTP_PWD != null && SFTP_USER != null)
+        if (SFTP_HOST != null && SFTP_PWD != null && SFTP_USER != null && !SFTP_HOST.isEmpty() && !SFTP_PWD.isEmpty() && !SFTP_USER.isEmpty())
           downloadFileSFTP(d, response, SFTP_USER, SFTP_PWD, SFTP_HOST, SFTP_PORT);
         else
           downloadFile(d, response);
@@ -230,12 +242,17 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       while(rs.next())
         uuids.add(rs.getString("uuid"));
 
-      String downloadFolder = DOWNLOADFOLDER;
+      String downloadFolder = DOWNLOAD_FOLDER;
       if (downloadFolder.endsWith("/") || downloadFolder.endsWith("\\"))
         downloadFolder = downloadFolder.substring(0, downloadFolder.length() - 1);
 
       for (String uuid : uuids) {
-        Files.delete(new File(downloadFolder + File.separator + uuid).toPath());
+        try {
+          Files.delete(new File(downloadFolder + File.separator + uuid).toPath());
+        }
+        catch (IOException e) {
+          log.info("Deletion of " + uuid + " failed. Possibly still in stats but removed already");
+        }
       }
 
     }finally{
@@ -266,7 +283,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
 
   private void downloadFile(DownloadInfo d, HttpServletResponse response) {
 
-    String downloadFolder = DOWNLOADFOLDER;
+    String downloadFolder = DOWNLOAD_FOLDER;
     if (downloadFolder.endsWith("/") || downloadFolder.endsWith("\\"))
       downloadFolder = downloadFolder.substring(0, downloadFolder.length() - 1);
     
@@ -301,7 +318,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
     ChannelSftp channel = null;
     OutputStream outStream = null;
 
-    String sourceFile = DOWNLOADFOLDER;
+    String sourceFile = DOWNLOAD_FOLDER;
     if (sourceFile.endsWith("/") || sourceFile.endsWith("\\"))
       sourceFile = sourceFile.substring(0, sourceFile.length() - 1);
     sourceFile += "/" + d.uuid;

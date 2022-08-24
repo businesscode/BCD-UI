@@ -253,6 +253,10 @@
       <param-name>sftpPort</param-name>
       <param-value>your sftp port, default 22</param-value>
     </init-param>
+    <init-param>
+      <param-name>downloadPage</param-name>
+      <param-value>your download html page for redirect</param-value>
+    </init-param>
 -->
 
   <!-- Evaluates and executes WrsRequests to the database -->
