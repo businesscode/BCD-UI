@@ -592,6 +592,53 @@
         </Param>
       </Api>
 
+      <Api name="chipsChooser" extends="widget">
+        <Doc>
+          Offers a ChipsChooser where you can select items on a source side and move them to a target side
+        </Doc>
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values
+          </Doc>
+        </Param>
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="onBeforeChange" required="false" type="function">
+          <Doc>
+            Handler function triggered before change, if false is returned, the change is rejected
+            receives property map: {element = the widget element, dir = one of bcdui.widgetNg.chipsChooser.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}
+         </Doc>       
+        </Param>
+        <Param name="onChange" required="false" type="function">
+          <Doc>
+            Handler function triggered after change
+          </Doc>       
+        </Param>
+        <Param name="wrsInlineValueDelim" required="false" type="string">
+          <Doc>
+            Delimiter used for WRS read and write. Default is a slash.
+          </Doc>       
+        </Param>
+        <Param name="allowUnknownTargetValue" required="false" type="boolean">
+          <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
+        </Param>
+        <Param name="doSortOptions" required="false" type="boolean" default="true">
+          <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
+        </Param>
+        <Param name="onItemMoved" required="false" type="function">
+          <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
+        </Param>
+      </Api>
+      
       <Api name="sideBySideChooser" extends="widget">
         <Doc>
           Offers a SideBySiderChooser where you can select items on a source side and move them to a target side
@@ -677,6 +724,9 @@
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target</Doc>
         </Param>
+        <Param name="onItemMoved" required="false" type="function">
+          <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
+        </Param>
         <Param name="onBeforeChange" required="false" type="function">
           <Doc>Handler function triggered before change of this box only, if false is returned, the change is rejected
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}</Doc>       
@@ -718,6 +768,9 @@
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       
+        </Param>
+        <Param name="dblClick" required="false" type="boolean" default="true">
+          <Doc>If true, double clicking an item moves it. Default is true.</Doc>       
         </Param>
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
@@ -1097,6 +1150,7 @@ the data that is actually placed in XML.
       <BcdObject name="textArea" implements="textArea" implementationPackage="bcdui.widgetNg.textArea"/>
       <BcdObject name="pasteList" implements="pasteList" implementationPackage="bcdui.widgetNg.pasteList"/>
       <BcdObject name="sideBySideChooser" implements="sideBySideChooser" implementationPackage="bcdui.widgetNg.sideBySideChooser"/>
+      <BcdObject name="chipsChooser" implements="chipsChooser" implementationPackage="bcdui.widgetNg.chipsChooser"/>
       <BcdObject name="connectable" implements="connectable" implementationPackage="bcdui.widgetNg.connectable"/>
       <BcdObject name="scorecardConfigurator" implements="scorecardConfigurator" implementationPackage="bcdui.component.scorecard.scorecardConfigurator"/>
       <BcdObject name="farConfigurator" implements="farConfigurator" implementationPackage="bcdui.component.far.farConfigurator"/>

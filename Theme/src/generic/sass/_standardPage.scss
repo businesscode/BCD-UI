@@ -1828,3 +1828,68 @@ span.bcd-notification-warn {
 .bcdCloneTableHolder .bcdReport{
   margin-bottom: 0;
 }
+
+/* ******************************************************************* */
+/* chips */
+/* ******************************************************************* */
+
+$chips-text-color:  #3c5b7b !default;
+$chips-background-color:  #eceff2 !default;
+$chips-close-color: #c00 !default;
+
+.bcdChipChooser {
+  
+  ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
+  .bcdLower { height: 10em; }
+
+  .bcdMiddle {
+    span {
+      position: relative; cursor:pointer;
+      &:after {
+        font-family: 'Font Awesome 5 Free';
+        font-weight: bold;
+        color: #3c5b7b;
+        margin-left: .3em;
+        position: absolute;
+        right: 1em; 
+      }
+    }
+    .bcdDown:after { content: "\f078"; }
+    .bcdUp:after { content: "\f077";}
+   }
+
+  .bcdUpper {
+    li { margin: 0.3em; display: inline-block; }
+
+    .bcdConnectableHover,
+    .ui-selecting,
+    .ui-selected {
+      background-color: inherit !important;
+      .bcdItem,
+      .bcdCloseItem:after { background-color: $chips-text-color; color: $chips-background-color; }
+    }
+
+    .bcdItem {
+      padding: 0.1em 0.4em;
+      border: 1px solid $chips-text-color;
+      display: inline-block;
+      background-color: $chips-background-color;
+      color: $chips-text-color;
+      border-radius: 1em;
+      cursor: default;
+    }
+
+    .bcdCloseItem {
+      &:hover:after { color: $chips-close-color; }
+      &:after {
+        cursor: pointer;
+        content: "\f00d";
+        font-style: normal;
+        font-family: 'Font Awesome 5 Free';
+        font-weight: bold;
+        color: $chips-text-color;
+        margin-left: .3em;
+      }
+    }
+  }
+}

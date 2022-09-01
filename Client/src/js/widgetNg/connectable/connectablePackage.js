@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1161,13 +1161,15 @@
         });
 
         // add a double click handler to directly move item from source to main target or vice versa
-        this.container.on("dblclick", ".ui-selectee", function (event) {
-          var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
-          target = target.length > 0 ? target : self._getScopedTargetContainers();
-          var from = self.container; // we filter on li in this function, so use the outer box as 'from'
-          var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
-          self._moveSelectedItems(from, to);
-        });
+        if (self.options.dblClick) {
+          this.container.on("dblclick", ".ui-selectee", function (event) {
+            var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
+            target = target.length > 0 ? target : self._getScopedTargetContainers();
+            var from = self.container; // we filter on li in this function, so use the outer box as 'from'
+            var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
+            self._moveSelectedItems(from, to);
+          });
+        }
       }
     },
 

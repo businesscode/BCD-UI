@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -153,6 +153,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/singleSelect/singleSelectPackage.js"
         , "/js/widgetNg/connectable/connectablePackage.js"
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
+        , "/js/widgetNg/chipsChooser/chipsPackage.js"
         , "/js/widgetNg/universalFilter/universalFilterPackage.js"
         , "/js/widgetNg/slider/sliderPackage.js"
         , "/js/widgetNg/slider/typedSliders.js"
