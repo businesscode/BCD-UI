@@ -77,7 +77,7 @@
   <!-- We only run if requested, otherwise we create a XsltNop to indicate that our input is to be used as out output -->
   <xsl:template match="/*">
     <xsl:choose>
-      <xsl:when test="$paramSet='rowCol'">
+      <xsl:when test="$paramSet/@apply='rowCol'">
         <xsl:copy>
           <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>

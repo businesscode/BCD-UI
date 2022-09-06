@@ -294,12 +294,14 @@
         </xsl:if>
 
         <xp:RemoveEmptyCells>
-          <xsl:choose>
-            <xsl:when test="not(/*/cube:Layout/cube:Measures/*/*)">false</xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="/*/cube:Layout/@removeEmptyCells"/>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:attribute name="apply">
+            <xsl:choose>
+              <xsl:when test="not(/*/cube:Layout/cube:Measures/*/*)">false</xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="/*/cube:Layout/@removeEmptyCells"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute>
         </xp:RemoveEmptyCells>
 
         <xp:ExpandCollapseCells apply="{/*/cube:Layout/@expandCollapseCells}"/>
