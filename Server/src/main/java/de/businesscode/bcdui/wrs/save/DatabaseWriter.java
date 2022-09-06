@@ -16,8 +16,8 @@
 package de.businesscode.bcdui.wrs.save;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -28,6 +28,7 @@ import java.sql.SQLXML;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -60,6 +61,8 @@ public class DatabaseWriter {
   private Connection defaultConnection = null;
   private BindingItem[] columns = null;
   private Integer[] columnTypes = null;
+  private ArrayList<InputStreamReader> inputStreamReaders = null;
+  private ArrayList<ByteArrayInputStream> byteArrayInputStreams = null;
   private boolean[] isKeyColumn = null;
   private int maxBatchSize = 0;
   private Logger log = LogManager.getLogger(getClass().getCanonicalName());
@@ -90,6 +93,8 @@ public class DatabaseWriter {
    * @throws IllegalArgumentException if keyColumnNames does not contain all keys from bindingSetPr
    */
   public DatabaseWriter(BindingSet bindingSetPr, Connection defaultConnectionPr, BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames, int maxBatchSizePr) throws SQLException {
+    this.inputStreamReaders = new ArrayList<>();
+    this.byteArrayInputStreams = new ArrayList<>();
     this.bindingSet = bindingSetPr;
     this.defaultConnection = defaultConnectionPr;
     this.columns = columnsPr;
@@ -370,7 +375,8 @@ public class DatabaseWriter {
               stm.setNull(paramNo, Types.BLOB);
             else {
               byte decodeBytes[] = Base64.decode(value.getBytes(StandardCharsets.UTF_8));
-              stm.setBinaryStream(paramNo, new ByteArrayInputStream(decodeBytes));
+              byteArrayInputStreams.add(new ByteArrayInputStream(decodeBytes));
+              stm.setBinaryStream(paramNo, byteArrayInputStreams.get(byteArrayInputStreams.size() - 1));
             }
             break;
           case Types.CLOB:
@@ -378,7 +384,8 @@ public class DatabaseWriter {
               stm.setNull(paramNo, Types.CLOB);
             else {
               // TERADATA only supports the 3 parameters method of setCharacterStream
-              stm.setCharacterStream(paramNo, new InputStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8), value.length() /* number of characters, not bytes length */);
+              inputStreamReaders.add(new InputStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
+              stm.setCharacterStream(paramNo, inputStreamReaders.get(inputStreamReaders.size() - 1), value.length() /* number of characters, not bytes length */);
             }
             break;
           case Types.SQLXML:
@@ -724,6 +731,17 @@ public class DatabaseWriter {
       }
     }
     finally {
+
+      for (InputStreamReader reader : inputStreamReaders) {
+        try { reader.close(); } catch (IOException e) { log.warn("can't close inputStreamReader"); }
+      }
+      inputStreamReaders = null;
+      
+      for (ByteArrayInputStream stream : byteArrayInputStreams) {
+        try { stream.close(); } catch (IOException e) { log.warn("can't close byteArrayInputStream"); }
+      }
+      byteArrayInputStreams = null;
+
       Closer.closeAllSQLObjects(deleteStatement, insertStatement, updateStatement, updateStatementExceptKeyCols);
       deleteStatement = null;
       updateStatement = null;
