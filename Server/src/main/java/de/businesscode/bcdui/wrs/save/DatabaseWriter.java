@@ -377,9 +377,8 @@ public class DatabaseWriter {
             if (isNull)
               stm.setNull(paramNo, Types.CLOB);
             else {
-              Reader reader = new InputStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-              stm.setCharacterStream(paramNo, reader, value.length() /* number of characters, not bytes length */);  // TERADATA only supports the 3 parameters method of setCharacterStream
-              reader.close();
+              // TERADATA only supports the 3 parameters method of setCharacterStream
+              stm.setCharacterStream(paramNo, new InputStreamReader(new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8), value.length() /* number of characters, not bytes length */);
             }
             break;
           case Types.SQLXML:
