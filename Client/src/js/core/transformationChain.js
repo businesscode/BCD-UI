@@ -923,7 +923,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
             }, this);
             xsltModel.execute();
           } else {
-            this._singleChainTransformerLoaded(phase, phase.xslts[stylesheetNo]);
+            // also run asynchronously so that isLastOfChain is set
+            setTimeout(this._singleChainTransformerLoaded.bind(this,phase, phase.xslts[stylesheetNo]));
           }
           
         } // transformation loop
