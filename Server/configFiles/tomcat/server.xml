@@ -30,3 +30,27 @@
   nocompressionUserAgents="gozilla, traviata"
   compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
 />
+
+<!-- https connector
+<Connector
+  port="8443"
+  maxPostSize="8388608"
+  maxHttpHeaderSize="12000"
+  compression="on"
+  compressionMinSize="2048"
+  nocompressionUserAgents="gozilla, traviata"
+  compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
+
+  protocol="HTTP/1.1"
+  SSLEnabled="true"
+  maxThreads="150"
+  scheme="https"
+  secure="true"
+  keystoreFile="** path to your keystorefile **"
+  keystorePass="** password for your keystore **"
+  clientAuth="false"
+  sslProtocol="TLS"
+  sslVerifyClient="optional"
+  sslEnabledProtocols="TLSv1.2,TLSv1.1,SSLv2Hello"
+/>
+ -->
