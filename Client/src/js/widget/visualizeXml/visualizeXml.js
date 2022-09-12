@@ -153,6 +153,7 @@ bcdui.widget.visualizeXml =
    * @param {string}                  [args.title]        Title of the content box; if not provided, the title is set to the ID of the visualized model.
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
+   * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
    */
   visualizeModel: function(args) 
   {
@@ -162,6 +163,7 @@ bcdui.widget.visualizeXml =
 
     var preId = (args.idRef||args.inputModel.id) +"_visualizeModelTargetElementId";
     var rendererId = preId + "_renderer";
+    var stylesheetUrl = args.stylesheetUrl || (bcdui.contextPath + "/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt");
 
     // do nothing, in case this function was called twice on same model
     if(bcdui.factory.objectRegistry.getObject(rendererId)){
@@ -176,7 +178,7 @@ bcdui.widget.visualizeXml =
     bcdui.factory.createRenderer({
       id : rendererId
       , targetHtml: preId
-      , url: bcdui.contextPath + "/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt"
+      , url: stylesheetUrl
       , inputModel: args.idRef ? {refId: args.idRef} : args.inputModel
     });
     // update renderer on model updates
