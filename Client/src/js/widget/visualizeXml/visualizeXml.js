@@ -129,7 +129,7 @@ bcdui.widget.visualizeXml =
    * @private
    */
   _handleClick: function(evt) {
-    var e = window.event ? window.event.srcElement : evt.originalTarget;
+    var e = jQuery(evt.target).get(0);
     if (bcdui.widget.visualizeXml._getClassName(e)!="visXml_c") {
       e=e.parentNode;
       if (bcdui.widget.visualizeXml._getClassName(e)!="visXml_c") {
@@ -150,6 +150,7 @@ bcdui.widget.visualizeXml =
    *
    * @param {object}                  args                The argument map containing the following elements:
    * @param {targetHtmlRef}           args.targetHtml     Id of the html element where to show the output.
+   * @param {boolean}                 [args.initialCollapse=false] Initially collapses all nodes (except root) 
    * @param {string}                  [args.title]        Title of the content box; if not provided, the title is set to the ID of the visualized model.
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
@@ -173,24 +174,34 @@ bcdui.widget.visualizeXml =
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
 
-    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
+    jQuery("#" + args.targetHTMLElementId).append('<pre style="display:none" id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
 
-    bcdui.factory.createRenderer({
-      id : rendererId
+    bcdui.factory.objectRegistry.withReadyObjects(args.idRef || args.inputModel, function() {
+      new bcdui.core.Renderer({
+        id : rendererId
       , targetHtml: preId
-      , url: stylesheetUrl
-      , inputModel: args.idRef ? {refId: args.idRef} : args.inputModel
+      , chain: stylesheetUrl
+      , inputModel: bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel)
+      });
+
+      // optional initial collapse all subnodes
+      bcdui.factory.objectRegistry.getObject(rendererId).onceReady(function() {
+        if (args.initialCollapse)
+          jQuery(jQuery("#" + args.targetHtml).find("a").splice(1)).click();
+        jQuery("#" + args.targetHtml).find("pre").show();
+      });
+
+      // update renderer on model updates
+      if(args.inputModel){
+        args.inputModel.onChange(function(){
+          bcdui.factory.objectRegistry.getObject(rendererId).execute();
+        });
+      }else{
+        bcdui.factory.addDataListener({
+          idRef: args.idRef
+          , listener: function() { bcdui.factory.objectRegistry.getObject(rendererId).execute(); }
+        });
+      }
     });
-    // update renderer on model updates
-    if(args.inputModel){
-      args.inputModel.onChange(function(){
-        bcdui.factory.objectRegistry.getObject(rendererId).execute();
-      });
-    }else{
-      bcdui.factory.addDataListener({
-        idRef: args.idRef
-        , listener: function() { bcdui.factory.objectRegistry.getObject(rendererId).execute(); }
-      });
-    }
   }
 }
