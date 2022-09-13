@@ -45,7 +45,7 @@
     </xsl:if>
     <input type="hidden"/>
     <STYLE>
-      .visXml_c  {cursor:hand}
+      .visXml_c  {cursor:pointer}
       .visXml_b  {color:red; font-family:'Courier New'; font-weight:bold; text-decoration:none}
       .visXml_b_collaps {color:red; font-family:'Courier New'; font-weight:bold; text-decoration:none}
       .visXml_e  {margin-left:0em; text-indent:-0em; }
