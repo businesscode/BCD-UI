@@ -154,6 +154,7 @@ bcdui.widget.visualizeXml =
    * @param {string}                  [args.title]        Title of the content box; if not provided, the title is set to the ID of the visualized model.
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
+   * @param {boolean}                 [args.isAutoRefresh=true] Automatically redraw when model changes
    * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
    */
   visualizeModel: function(args) 
@@ -161,47 +162,27 @@ bcdui.widget.visualizeXml =
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.core._schema_visualizeModel_args);
     args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "visualizeModel_");
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_visualizeModel_args);
-
-    var preId = (args.idRef||args.inputModel.id) +"_visualizeModelTargetElementId";
-    var rendererId = preId + "_renderer";
+    var isAutoRefresh = typeof args.isAutoRefresh != "undefined" ? args.isAutoRefresh : true;
+    var id = bcdui.factory.objectRegistry.generateTemporaryIdInScope("visualizeModel_");
     var stylesheetUrl = args.stylesheetUrl || (bcdui.contextPath + "/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt");
-
-    // do nothing, in case this function was called twice on same model
-    if(bcdui.factory.objectRegistry.getObject(rendererId)){
-      return;
-    }
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
-
-    jQuery("#" + args.targetHTMLElementId).append('<pre style="display:none" id="' + preId + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
+    jQuery("#" + args.targetHTMLElementId).append('<pre style="display:none" id="' + id + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
 
     bcdui.factory.objectRegistry.withReadyObjects(args.idRef || args.inputModel, function() {
-      new bcdui.core.Renderer({
-        id : rendererId
-      , targetHtml: preId
-      , chain: stylesheetUrl
-      , inputModel: bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel)
-      });
+      var model = bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel);
+      var renderer = new bcdui.core.Renderer({ targetHtml: id, chain: stylesheetUrl, inputModel: model });
 
       // optional initial collapse all subnodes
-      bcdui.factory.objectRegistry.getObject(rendererId).onceReady(function() {
+      renderer.onceReady(function() {
         if (args.initialCollapse)
           jQuery(jQuery("#" + args.targetHtml).find("a").splice(1)).click();
         jQuery("#" + args.targetHtml).find("pre").show();
       });
 
-      // update renderer on model updates
-      if(args.inputModel){
-        args.inputModel.onChange(function(){
-          bcdui.factory.objectRegistry.getObject(rendererId).execute();
-        });
-      }else{
-        bcdui.factory.addDataListener({
-          idRef: args.idRef
-          , listener: function() { bcdui.factory.objectRegistry.getObject(rendererId).execute(); }
-        });
-      }
+      if (isAutoRefresh)
+        model.onChange(renderer.execute.bind(renderer));
     });
   }
 }
