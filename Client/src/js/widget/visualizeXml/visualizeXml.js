@@ -150,12 +150,12 @@ bcdui.widget.visualizeXml =
    *
    * @param {object}                  args                The argument map containing the following elements:
    * @param {targetHtmlRef}           args.targetHtml     Id of the html element where to show the output.
-   * @param {boolean}                 [args.initialCollapse=false] Initially collapses all nodes (except root) 
    * @param {string}                  [args.title]        Title of the content box; if not provided, the title is set to the ID of the visualized model.
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
    * @param {boolean}                 [args.isAutoRefresh=true] Automatically redraw when model changes
    * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
+   * @param {function}                [args.onReady]      onReady function for renderer
    */
   visualizeModel: function(args) 
   {
@@ -168,18 +168,14 @@ bcdui.widget.visualizeXml =
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
-    jQuery("#" + args.targetHTMLElementId).append('<pre style="display:none" id="' + id + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
+    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + id + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
 
     bcdui.factory.objectRegistry.withReadyObjects(args.idRef || args.inputModel, function() {
       var model = bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel);
       var renderer = new bcdui.core.Renderer({ targetHtml: id, chain: stylesheetUrl, inputModel: model });
-
-      // optional initial collapse all subnodes
-      renderer.onceReady(function() {
-        if (args.initialCollapse)
-          jQuery(jQuery("#" + args.targetHtml).find("a").splice(1)).click();
-        jQuery("#" + args.targetHtml).find("pre").show();
-      });
+      
+      if (typeof args.onReady == "function")
+        renderer.onReady(args.onReady.bind(renderer));
 
       if (isAutoRefresh)
         model.onChange(renderer.execute.bind(renderer));
