@@ -33,33 +33,11 @@ bcdui.widget.visualizeXml =
   /**
    * @private
    */
-  _getClassName: function( elem ) {
-    if( elem && elem.className )
-      return elem.className;
-    else if( elem && elem.getAttribute)
-      return elem.getAttribute("class");
-    else
-      return "";
-  },
-
-  /**
-   * @private
-   */
-  _setClassName: function( elem, classname ) {
-    if( elem.className )
-      elem.className = classname;
-    else
-      elem.setAttribute("class",classname);
-  },
-
-  /**
-   * @private
-   */
   _f: function(e){
-     if (bcdui.widget.visualizeXml._getClassName(e)=="visXml_ci") {
+     if (jQuery(e).hasClass("visXml_ci")) {
        if (e.firstChild.nodeValue.indexOf("\n")>0) _fix(e,"visXml_cb");
      }
-     if (bcdui.widget.visualizeXml._getClassName(e)=="visXml_di") {
+     if (jQuery(e).hasClass("visXml_di")) {
        if (e.firstChild.nodeValue.indexOf("\n")>0) _fix(e,"visXml_db");
      } e.id="";
   },
@@ -68,10 +46,10 @@ bcdui.widget.visualizeXml =
    * @private
    */
   _fix: function(e,cl){
-    bcdui.widget.visualizeXml._setClassName(e,cl);
+    jQuery(e).addClass(cl);
     e.style.display="";
     var j=e.parentNode.firstChild;
-    bcdui.widget.visualizeXml._setClassName(j,"visXml_c");
+    jQuery(j).addClass("visXml_c");
     var k=j.firstChild;
     k.style.visibility="visible";
     k.href="#";
@@ -112,7 +90,7 @@ bcdui.widget.visualizeXml =
     var contents=e.childNodes.item(1);
     if (mark.nodeValue.match(/\+$/)) {
       mark.nodeValue = mark.nodeValue.substring(0,mark.nodeValue.length-1)+ (bcdui.widget.visualizeXml._visualizeXml_CollapsSign.length!=0?bcdui.widget.visualizeXml._visualizeXml_CollapsSign:" ");
-      if (bcdui.widget.visualizeXml._getClassName(contents)=="visXml_db"||bcdui.widget.visualizeXml._getClassName(contents)=="visXml_cb") {
+      if (jQuery(contents).hasClass("visXml_db")||jQuery(contents).hasClass("visXml_cb")) {
         contents.style.display="";
       }
       else {
@@ -130,17 +108,17 @@ bcdui.widget.visualizeXml =
    */
   _handleClick: function(evt) {
     var e = jQuery(evt.target).get(0);
-    if (bcdui.widget.visualizeXml._getClassName(e)!="visXml_c") {
+    if (!jQuery(e).hasClass("visXml_c")) {
       e=e.parentNode;
-      if (bcdui.widget.visualizeXml._getClassName(e)!="visXml_c") {
+      if (!jQuery(e).hasClass("visXml_c")) {
         return;
       }
     }
     e=e.parentNode;
-    if (bcdui.widget.visualizeXml._getClassName(e)=="visXml_e") {
+    if (jQuery(e).hasClass("visXml_e")) {
       bcdui.widget.visualizeXml._ch(e);
     }
-    if (bcdui.widget.visualizeXml._getClassName(e)=="visXml_k") {
+    if (jQuery(e).hasClass("visXml_k")) {
       bcdui.widget.visualizeXml._ch2(e);
     }
   },
