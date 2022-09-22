@@ -2962,7 +2962,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
           , gridId: this.id
-          , gotExport: "" + (typeof bcdui.component.exports != "undefined")
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function")
           , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
           }
         });
@@ -3102,7 +3102,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
-        if (typeof bcdui.component.exports != "undefined") {
+        if (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") {
           bcdui.component.exports.exportToExcelTemplate({inputModel: 
             new bcdui.core.ModelWrapper({
               inputModel: this.gridModel
