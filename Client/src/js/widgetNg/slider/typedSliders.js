@@ -31,6 +31,12 @@
   var decToTime = window.decToTime = function(value) {
     var parts = value.toString().split(".");
     var min = ((Number("." + parts[1]) || 0) * 60).toFixed(0); // ratio to minute
+    // fix rouding issue to "min = 60" (e.g. (0.99999 * 60).toFixed(0))
+    if (min == "60") {
+      min = "00";
+      var hh = parseInt(parts[0], 10);
+      parts[0] = "" + ((hh == 23) ? 0 : hh + 1);
+    }
     // pad with zeroes
     min.length == 1 && (min = "0" + min);
     parts[0].length == 1 && (parts[0] = "0" + parts[0]);
