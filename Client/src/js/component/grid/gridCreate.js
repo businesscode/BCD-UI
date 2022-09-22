@@ -2890,7 +2890,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           doc.selectSingleNode("/*/wrs:Data").removeAttribute("mappedCaption");
 
           var isDocument = false;
-          if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos != "undefined")
+          if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent] != "undefined")
             isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/grid:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
           doc.selectSingleNode("/*/wrs:Data").setAttribute("isDocument", "" + isDocument);
           
