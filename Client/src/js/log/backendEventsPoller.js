@@ -98,12 +98,16 @@
 
   TypeBackendEventsPoller.prototype.fetchLoggingEvents = function(){
     var self = this;
+    var xhr = bcdui.core.browserCompatibility.jQueryXhr();
+    var xhrFactory = function() { return xhr };
     jQuery.ajax({
       method: "GET",
-      contentType: "text/xml",
+      contentType: "application/xml",
+      dataType: "text",
       url: this.config.url,
+      xhr: xhrFactory,
       success: function(response, statusTest, jqXHR) {
-        self.propagate(jqXHR.responseXML);
+        self.propagate(xhr.responseXML);
       },
       error: function(){
         bcdui.log.warn("failed to fetch logging events");

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 package de.businesscode.bcdui.web.clientLogging;
 
 import java.io.IOException;
-import java.io.Writer;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -39,22 +40,37 @@ public class FrontendLogTransceiver extends HttpServlet {
   private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
   private static final long serialVersionUID = 1L;
   private FrontendLogRecordPublisher proc = new FrontendLogRecordPublisher();
+  private static final String XMLCONSTANTS_NAMESPACES_LOG4J = "log4j";
 
   /*
    * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    resp.setHeader("Expires", "-1");
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+    resp.setHeader("Cache-Control", "no-cache");
+    resp.setHeader("Pragma", "no-cache");
+    resp.setDateHeader("Expires", -1);
 
     String sessionId = ServletUtils.getInstance().getSessionId(req);
-    Writer out = resp.getWriter();
-    out.append("<?xml version=\"1.0\"?><Data xmlns:log4j=\"log4j\">");
-    if(sessionId != null){
-      SingletonStringQueue.getInstance(sessionId).flush(out);
+    XMLStreamWriter out = null;
+    try {
+      out = XMLOutputFactory.newInstance().createXMLStreamWriter(resp.getWriter());
+      out.writeStartDocument();
+      out.writeStartElement("Data");
+      out.writeNamespace(XMLCONSTANTS_NAMESPACES_LOG4J, XMLCONSTANTS_NAMESPACES_LOG4J);
+      if(sessionId != null){
+        SingletonStringQueue.getInstance(sessionId).flush(out);
+      }
+      out.writeEndElement();
+      out.writeEndDocument();
     }
-    out.append("</Data>");
+    catch (Exception e) {
+      virtLoggerError.warn("failed to write xml", e);
+    }
+    finally {
+      try { if (out !=null) out.close(); } catch (Exception ex) { virtLoggerError.warn("failed to close writer", ex); }
+    }
   }
 
   /*

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 
 /**
@@ -55,6 +57,12 @@ class SingletonStringQueue extends ConcurrentLinkedQueue<String> {
     String s;
     while((s=poll()) != null){
       w.append(s);
+    }
+  }
+  public synchronized void flush(XMLStreamWriter w) throws XMLStreamException {
+    String s;
+    while((s=poll()) != null){
+      w.writeCData(s);
     }
   }
 }
