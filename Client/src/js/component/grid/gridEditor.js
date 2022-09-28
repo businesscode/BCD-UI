@@ -338,6 +338,9 @@ bcdui.component.grid.GridEditor.bcduiSimpleInput.prototype.prepare = function(ro
     var args = Object.assign({targetHtml: this.objectId},widgetParams);
     var html = "<input";
     html += args.maxlength ? " maxlength='" + args.maxlength + "'" : "";
+    html += args.type ? " type='" + args.type + "'" : "";
+    html += args.min ? " min='" + args.min + "'" : "";
+    html += args.max ? " max='" + args.max + "'" : "";
     html += "></input>"
     jQuery("#" + this.objectId).append(html);
     jQuery("#" + this.objectId + " input").val(this.value);
