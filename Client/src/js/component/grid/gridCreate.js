@@ -2947,6 +2947,21 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               var cellProperties = grid.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
               bcdui.factory.objectRegistry.getObject(grid.id + "_rowIsDisabled").value = "" + (cellProperties.indexOf("false") == -1);
             }
+
+            var selection = grid.hotInstance.getSelected();
+            if (selection && selection.length > 0 && selection[0].length == 4) {
+              var rowIds = [];
+              for (var curRow = selection[0][0]; curRow <= selection[0][2]; curRow++) {
+                var rowIdx = grid.hotInstance.toPhysicalRow(curRow);
+                var r = grid.hotInstance.getSourceDataAtRow(rowIdx);
+                if (r) {
+                  var rowId = r.r.getAttribute("id") || "";
+                  if (rowId != "")
+                    rowIds.push(rowId);
+                }
+              }
+              bcdui.factory.objectRegistry.getObject(grid.id + "_rowsSelected").value = rowIds.join(",");
+            }
           }
           return doc;
         };
@@ -2964,6 +2979,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , gridId: this.id
           , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function")
           , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
+          , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
         });
         bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
@@ -3050,6 +3066,29 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }.bind(this)});
       }.bind(this));
 
+      jQuery("#" + this.targetHtml).on("gridActions:rowDeleteSelected", function(evt, memo){
+        var rowIds = bcdui.factory.objectRegistry.getObject(this.id + "_rowsSelected").value;
+        if (rowIds) {
+          rowIds.split(",").forEach(function(rowId) {
+  
+            // don't allow deletion of a read-only rows
+            var row = this.rowIdMap[rowId];
+            var cellProperties = this.hotInstance.getCellMetaAtRow(row).map(function(e){ return "" + (e.readOnly || e.isHidden)});
+            if (cellProperties.indexOf("false") != -1) {
+    
+              bcdui.wrs.wrsUtil.deleteRow(this.gridModel, rowId, false);
+    
+              // remove possible existing errors for removed row, important for previously inserted and removed rows
+              // which then don't appear at all in the gridModel (and not as wrs:D)
+              if (this.wrsErrors)
+                delete this.wrsErrors[rowId];
+    
+              this._refreshGridData(rowId);
+            }
+          }.bind(this));
+        }
+      }.bind(this));
+
       jQuery("#" + this.targetHtml).on("gridActions:rowDelete", function(evt, memo){
         if (memo.rowId) {
 
@@ -3067,6 +3106,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
             this._refreshGridData(memo.rowId);
           }
+        }
+      }.bind(this));
+
+      jQuery("#" + this.targetHtml).on("gridActions:rowRestoreSelected", function(evt, memo){
+        var rowIds = bcdui.factory.objectRegistry.getObject(this.id + "_rowsSelected").value;
+        if (rowIds) {
+          rowIds.split(",").forEach(function(rowId) {
+            bcdui.wrs.wrsUtil.restore({model: this.gridModel,  propagateUpdate: false, rowStartPos: rowId, rowEndPos: rowId, colStartPos: 1, colEndPos: 1, fn: function(){this._refreshGridData(rowId, 0);}.bind(this)});
+          }.bind(this));
         }
       }.bind(this));
 
