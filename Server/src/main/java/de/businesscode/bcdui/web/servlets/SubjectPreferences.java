@@ -496,7 +496,7 @@ public class SubjectPreferences extends HttpServlet {
   // test if a given attribute + value is currently allowed or not
   public static boolean testValue(String rightType, String rightValue) {
     // is the value in the allowed list of values
-    boolean valueOk = allowedRightValues.get(rightType) != null && allowedRightValues.get(rightType).contains(rightValue.trim());
+    boolean valueOk = allowedRightValues.get(rightType) != null && (allowedRightValues.get(rightType).contains(rightValue.trim()) || allowedRightValues.get(rightType).contains("*"));
 
     if (! valueOk) {
       // if we're referencing a user permission for the allowed values, check if they are ok to use
