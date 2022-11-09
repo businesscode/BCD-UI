@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,8 +14,11 @@
   limitations under the License.
 */
 package de.businesscode.bcdui.vfs.provider.database;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
+import java.sql.Types;
 
 import de.businesscode.bcdui.wrs.load.AbstractDataWriter;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
@@ -24,6 +27,8 @@ import de.businesscode.util.jdbc.DatabaseCompatibility;
 public abstract class VFSDataWriter extends AbstractDataWriter implements IDataWriter {
 
   private static final String BCDVIRTUALFILESYSTEM = "bcd_virtualFileSystem";
+  private static final int CLOB_COLUMN = 2;
+  private static final int BLOB_COLUMN = 3;
 
   private InputStream iStr = null;
 
@@ -39,12 +44,23 @@ public abstract class VFSDataWriter extends AbstractDataWriter implements IDataW
     if (rs != null && rs.next()) {
 
       // First, try to use the clob content
-      iStr = DatabaseCompatibility.getInstance().getClobInputStream(BCDVIRTUALFILESYSTEM, rs, 2);
+      // if column is not a CLOB, read it as TEXT
+      if (rs.getMetaData().getColumnType(CLOB_COLUMN) == Types.CLOB)
+        iStr = DatabaseCompatibility.getInstance().getClobInputStream(BCDVIRTUALFILESYSTEM, rs, CLOB_COLUMN);
+      else {
+        String content = rs.getString(CLOB_COLUMN);
+        if (content != null)
+          iStr = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+      }
 
       // Otherwise use the binary content
       // the rs.getBinaryStream() cannot be accessed after the rs/stmt were closed so we read the content and put it in an new Stream
-      if (iStr == null)
-        iStr = DatabaseCompatibility.getInstance().getBlobInputStream(BCDVIRTUALFILESYSTEM, rs, 3);
+      if (iStr == null) {
+        // if column is not a BLOB, read it as bytes
+        iStr = (rs.getMetaData().getColumnType(BLOB_COLUMN) == Types.BLOB)
+            ? DatabaseCompatibility.getInstance().getBlobInputStream(BCDVIRTUALFILESYSTEM, rs, BLOB_COLUMN)
+            : new ByteArrayInputStream(rs.getBytes(BLOB_COLUMN));
+      }
     }
   }
 }
