@@ -566,13 +566,26 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 // if found key is not part of the modfied (client) ones, add unique key constraint error
                 if (oldKeys[key] != 1) {
                   // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
-                  var rowId = this.deepKeyCheckKeys[key];
-                  this.foundServerSidedKeys[key] = rowId;
-                  this.wrsValidateKeyColumns.forEach(function(col) {
-                    this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
-                    this.wrsErrors[rowId][col] |= 128;
-                    bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
-                  }.bind(this))
+                  let rowId = this.deepKeyCheckKeys[key];
+                  // pretty rare case where the SQL returned a different value than the requested key
+                  // this can happen with date/time columns where you ask for e.g. 05:00:00 and get 05:00:00.0000 or vice versa
+                  // in such a case, the rowId lookup fails 
+                  if (! rowId) {
+                    // try to find the right rowId by removing some special chars and zeros
+                    const cleanKey = key.replace(/[.:0]/g, ""); 
+                    for (let dk in this.deepKeyCheckKeys) {
+                      if (dk.replace(/[.:0]/g, "") == cleanKey)
+                        rowId = this.deepKeyCheckKeys[dk];
+                    }
+                  }
+                  if (rowId) {
+                    this.foundServerSidedKeys[key] = rowId;
+                    this.wrsValidateKeyColumns.forEach(function(col) {
+                      this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
+                      this.wrsErrors[rowId][col] |= 128;
+                      bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
+                    }.bind(this))
+                  }
                 }
               }.bind(this));
   
@@ -903,7 +916,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       columns = columns.concat(this.wrsValidateKeyColumnsPos); // let's include all key columns
 
     // make them distinct and sort them
-    columns = columns.filter(function(e, idx){return columns.indexOf(e) == idx}).sort();
+    columns = columns.filter(function(e, idx){return columns.indexOf(e) == idx}).sort(function(a, b){return a - b;});
 
     // no key cell changed, we only quickly check the cell
     if (! needKeyCheck) {
@@ -3159,7 +3172,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 // get rid of hidden ones
                 var hiddenOnes = Array.from(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
                 if (hiddenOnes.length > 0) {
-                  var firstHidden = hiddenOnes.sort()[0];
+                  var firstHidden = hiddenOnes.sort(function(a, b){return a - b;})[0];
                   bcdui.core.removeXPath(doc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);
                   bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:C[position() >= '" + firstHidden + "']", false);
                   bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:O[position() >= '" + firstHidden + "']", false);
