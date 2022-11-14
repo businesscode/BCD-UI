@@ -1484,8 +1484,18 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     function beforePaste(data, coords) {
       this.pastedRows = [];
       this.paste = true;
-      var fkt = captionToCode.bind(this, data, coords);
-      fkt();
+
+      // trim data
+      data.forEach(function(row) {
+        for (let x = 0; x < row.length; x++)
+          if (typeof row[x].trim == "function")
+            row[x] = row[x].trim();
+      });
+
+      if (this.hasReferences) {
+        const fkt = captionToCode.bind(this, data, coords);
+        fkt();
+      }
     }
     
     function afterColumnResize(currentColumn, newSize, isDoubleClick) { return; }
@@ -2192,9 +2202,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (this.hasReferences) {
       createArgs["beforeCopy"]  = beforeCopy.bind(this); 
       createArgs["beforeCut"]   = beforeCut.bind(this);
-      createArgs["beforePaste"] = beforePaste.bind(this) 
       createArgs["afterPaste"]  = afterPaste.bind(this);
     }
+    // capture beforePaste to trim and add code/caption handling for copy/paste
+    createArgs["beforePaste"] = beforePaste.bind(this) 
 
     // optionally limit cells (disable create-rows-on-drag)
     if (! this.allowNewRows) {
