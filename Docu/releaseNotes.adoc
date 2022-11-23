@@ -27,6 +27,7 @@ ___
 * checkbox widget supports more than 1 and 0 via values parameter
 * label widget added
 * chips widget added
+* sticky table (rows/cols) functionality added
 
 .Security
 * New cookie settings in context.xml and web.xml

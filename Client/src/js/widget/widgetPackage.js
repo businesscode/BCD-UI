@@ -3513,6 +3513,203 @@ jQuery.extend(bcdui.widget,
          
          jQuery("<div></div>").appendTo(bcdui.util.getSingletonElement("bcdui_dialog").empty()).dialog(args);
        });
+     },
+    /**
+     * make parts of the given table sticky 
+     * @param {Object}        args              
+     * @param {HtmlElement}   args.targetHtml     targetHtml containing/being table
+     * @param {integer}       [args.width]        the width of the table
+     * @param {integer}       [args.height]       the height of the table
+     * @param {boolean}       [args.header=true]  make header sticky
+     * @param {boolean}       [args.footer=false] make footer sticky
+     * @param {integer}       [args.nFirstCols]   make the first n columns sticky
+     * @param {integer}       [args.nFirstRows]   make the first n rows sticky
+     * @param {integer}       [args.nLastCols]    make the last n columns sticky
+     * @param {integer}       [args.nLastRows]    make the last n rows sticky
+     * @param {boolean}       [args.bcdDimension=false] make all dimension cells (cube) sticky (higher prio than other options)
+     */
+    stickyTable: function(args) {
+
+      const table = jQuery(args.targetHtml).find("table").addBack(args.targetHtml).first();
+      
+      args.header = typeof args.header != "undefined" ? args.header : true;
+
+      const dims = args.bcdDimension ? ("" + table.find("thead tr:first-child *.bcdDimension").length) : 0;
+      if (dims > 0) {
+        args.header = true;
+        args.footer = false;
+        args.nFirstCols = args.nLastCols = 0;
+      }
+
+      if (table.length == 0) throw new Error("no table for sticky table)");
+
+      // clean classes/left/top offsets
+      table.removeClass("bcdStickyTable bcdStickyHead bcdStickyFoot bcdStickyFirstColumn bcdStickyLastColumn bcdStickyLastRow bcdStickyFirstRow");
+      if (table.parent().hasClass("bcdStickyContainer")) {
+        table.parent().css("overflow", "inherit");
+        table.parent().css("width",    "inherit");
+        table.parent().css("height",   "inherit");
+      }
+      table.find(".bcdStickyNthCol").each(function(j, e) {jQuery(e).removeClass("bcdStickyNthCol"); jQuery(e).css("left", ""); jQuery(e).css("right", "");});
+      table.find(".bcdStickyNthRow").each(function(j, e) {jQuery(e).removeClass("bcdStickyNthRow"); jQuery(e).css("top", "");  jQuery(e).css("bottom", "");});
+
+      // handle checkboxes, they simply add classes
+      if (args.header)   table.addClass("bcdStickyTable bcdStickyHead");
+      if (args.footer)   table.addClass("bcdStickyTable bcdStickyFoot");
+
+      // handle width/height bei modifying the container around the table
+      if (args.width || args.height) {
+        if (args.width)  table.parent().css("width",  args.width);
+        if (args.height) table.parent().css("height", args.height);
+        table.parent().addClass("bcdStickyContainer").css("overflow", "auto");
+      }
+
+      // for dims it is assumed that they are the n-first columns in the first header row
+      const firstCols = parseInt(args.nFirstCols || ("" + dims), 10);
+      const firstRows = parseInt(args.nFirstRows || "0", 10);
+      const lastCols  = parseInt(args.nLastCols || "0", 10);
+      const lastRows  = parseInt(args.nLastRows || "0", 10);
+      table.addClass("bcdStickyTable");
+      ["thead", "tbody", "tfoot"].forEach(function(part) {bcdui.widget._scanTablePart(table.find(part), firstCols, firstRows, lastCols, lastRows, args.header, args.footer)});
+    },
+
+    /**
+     * run over table and decide which cells to make sticky
+     * @param {HtmlElement} el html element (either thead, tbody, tfoot)
+     * @param {integer} nFirstCols number of first columns to make sticky
+     * @param {integer} nFirstRows number of first rows to make sticky
+     * @param {integer} nLastCols number of last columns to make sticky
+     * @param {integer} nLastRows number of last rows to make sticky
+     * @param {boolean} stickyHeader header is sticky
+     * @param {boolean} stickyFooter footer is sticky
+     * @private
+     */
+     _scanTablePart: function(el, nFirstCols, nFirstRows, nLastCols, nLastRows, stickyHeader, stickyFooter) {
+
+      const element = jQuery(el);
+      const htmlEl = element.get(0);
+      const table  = element.closest("table");
+
+      if (!htmlEl)
+        return;
+
+      const top    = table.find("thead").length > 0 ? table.find("thead").outerHeight() : 0;
+      const bottom = table.find("tfoot").length > 0 ? table.find("tfoot").outerHeight() : 0;
+
+      // for now, no sticky rows for header/footer (looks weird)
+      if (htmlEl.nodeName == "THEAD" || htmlEl.nodeName == "TFOOT")
+        nFirstRows = nLastRows = 0;
+
+      // check if we can use css classes
+      let rowExit = nFirstRows == 0 && nLastRows == 0;
+      let colExit = nFirstCols == 0 && nLastCols == 0;
+      if (nFirstCols == 1 && element.find("tr >*[rowspan]").length == 0) {
+        table.addClass("bcdStickyFirstColumn");
+        colExit |= true;
+      }
+      if (nLastCols  == 1 && element.find("tr >*[rowspan]").length == 0) {
+        table.addClass("bcdStickyLastColumn");
+        colExit |= true;
+      }
+      if (nFirstRows == 1) {
+        table.addClass("bcdStickyFirstRow");
+        table.find("tbody tr:first-child").css("top", stickyHeader ? top : 0);
+        rowExit |= true;
+      }
+      if (nLastRows == 1) {
+        table.addClass("bcdStickyLastRow");
+        table.find("tbody tr:last-child").css("bottom", stickyFooter ? bottom : 0);
+        rowExit |= true;
+      }
+      if (nFirstCols > 1 || nLastCols > 1 || nFirstRows > 1 || nLastRows > 1) {
+        rowExit = colExit = false;
+        table.removeClass("bcdStickyFirstColumn bcdStickyLastColumn bcdStickyFirstRow bcdStickyLastRow");
+        if (htmlEl.nodeName == "TBODY") {
+          table.find("tbody tr:first-child").css("top", "");
+          table.find("tbody tr:last-child").css("bottom", "");
+        }
+      }
+      if (rowExit && colExit)
+        return;
+
+      // unfortunately css classes are not enough, run through table cells
+      const maxCols = nLastCols != 0 ? Infinity : nFirstCols != 0 ? nFirstCols : Infinity;
+      const maxRows = nFirstCols != 0 || nLastCols != 0 || nLastRows != 0 ? Infinity : nFirstRows != 0 ? nFirstRows : Infinity;
+
+      let posTop = [];       // remember top position of tr at pos y
+      let posLeft = [];      // remember left position or td/th at pos x
+      let cells = [];        // remember html cells
+      let m = [];            // flag matrix for scanTree
+      let maxCol = 0;        // determined max x index
+      let maxRow = 0;        // determined max y index
+      let lastColRight = 0;  // determined max x right position
+      let lastRowBottom = 0; // determined max y bottom position
+
+      const maxY = maxRows < htmlEl.rows.length ? maxRows : htmlEl.rows.length;
+      for (let y = 0; y < maxY; y++) {
+        const row = htmlEl.rows[y];
+
+        const maxX = maxCols < row.cells.length ? maxCols : row.cells.length;
+        for (let x = 0; x < maxX; x++) {
+          const cell = row.cells[x];
+          const theCell = jQuery(cell);
+          let xx = x
+
+          for (; m[y] && m[y][xx]; ++xx); // skip already determined cells
+
+          const innerMaxX = maxCols < xx + cell.colSpan ? maxCols : xx + cell.colSpan;
+          const innerMaxY = maxRows < y + cell.rowSpan ? maxRows : y + cell.rowSpan;
+          for (let tx = xx; tx < innerMaxX; ++tx) {
+            for (let ty = y; ty < innerMaxY; ++ty) {
+              m[ty] = m[ty] || [];
+              m[ty][tx] = true;
+
+              // +1 / -1 just for avoiding position() call when left/top was already determined to be 0 (posLeft[xx] = posLeft[xx] || ....)
+              posLeft[xx] = posLeft[xx] || (theCell.position().left + 1);
+              posTop[y]   = posTop[y]   || (theCell.parent().position().top + 1);
+
+              const props = {
+                c: theCell
+              , l: posLeft[xx] - 1
+              , t: posTop[y] - 1
+              , w: parseInt(theCell.outerWidth(), 10)
+              , h: parseInt(theCell.outerHeight(), 10)
+              , x: xx
+              , y: y
+              };
+              cells.push(props);
+
+              if (maxCol < xx) {
+                maxCol = xx
+                lastColRight = props.l + props.w;
+              }
+              if (maxRow < y) {
+                maxRow = y
+                lastRowBottom = props.t + props.h;
+              }
+            }
+          }
+        }
+      }
+
+      const maxNonStickyCol = maxCol - nLastCols;
+      const maxNonStickyRow = maxRow - nLastRows;
+
+      // modify css for collected cells 'at one go'
+      let yT = []; // remember rows where top is already set
+      let yB = []; // remember rows where bottom is already set
+      cells.forEach(function(cell) {
+        if (nFirstCols != 0 && cell.x < nFirstCols)       {cell.c.addClass("bcdStickyNthCol")         .css("left",   cell.l); }
+        if (nLastCols  != 0 && cell.x > maxNonStickyCol)  {cell.c.addClass("bcdStickyNthCol")         .css("right",  lastColRight - cell.l - cell.w);}
+        if (nFirstRows != 0 && cell.y < nFirstRows && ! yT[cell.y]) {
+          yT[cell.y] = true;
+          cell.c.parent().addClass("bcdStickyNthRow").css("top",    cell.t - (stickyHeader ? 0 : top ));
+        }
+        if (nLastRows != 0 && cell.y > maxNonStickyRow && ! yB[cell.y]) {
+          yB[cell.y] = true;
+          cell.c.parent().addClass("bcdStickyNthRow").css("bottom", lastRowBottom - cell.t - cell.h + (stickyFooter ? bottom : 0 ));
+        }
+      });
      }
 }); // namespace
 
