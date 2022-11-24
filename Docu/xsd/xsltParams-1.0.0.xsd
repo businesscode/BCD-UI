@@ -743,6 +743,43 @@
               </sequence>
             </complexType>
           </element>
+          <element name="CreateHeaderFilters" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables column filters</documentation></annotation>
+          </element>
+          <element name="ExpandCollapseCells" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables the possibility to expand or collapse cells</documentation></annotation>
+          </element>
+          <element name="CreateFixHeader" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables a fixed header (deprecated)</documentation></annotation>
+          </element>
+          <element name="StickyHeader" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables a sticky header</documentation></annotation>
+          </element>
+          <element name="StickyFooter" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables a sticky footer</documentation></annotation>
+          </element>
+          <element name="StickyDims" type="boolean" minOccurs="0" default="false">
+            <annotation><documentation>Enables sticky dimensions cells</documentation></annotation>
+          </element>
+          <element name="StickyWidth" type="string" minOccurs="0">
+            <annotation><documentation>Sets the width of the table's parent element</documentation></annotation>
+          </element>
+          <element name="StickyHeight" type="string" minOccurs="0">
+            <annotation><documentation>Sets the height of the table's parent element</documentation></annotation>
+          </element>
+          <element name="StickyFirstRows" type="integer" minOccurs="0">
+            <annotation><documentation>make the first n rows sticky</documentation></annotation>
+          </element>
+          <element name="StickyLastRows" type="integer" minOccurs="0">
+            <annotation><documentation>make the last n rows sticky</documentation></annotation>
+          </element>
+          <element name="StickyFirstCols" type="integer" minOccurs="0">
+            <annotation><documentation>make the first n columns sticky</documentation></annotation>
+          </element>
+          <element name="StickyLastCols" type="integer" minOccurs="0">
+            <annotation><documentation>make the last n columns sticky</documentation></annotation>
+          </element>
+
         </sequence>
       </extension>
 

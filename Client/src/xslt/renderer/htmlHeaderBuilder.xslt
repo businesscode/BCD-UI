@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -552,6 +552,19 @@
   <xsl:param name="createHeaderFilters" select="false()"/>
   <xsl:param name="createFixHeader" select="false()"/>
   <xsl:param name="expandCollapseCells" select="false()"/>
+
+  <!-- sticky table cells parameters -->  
+
+  <xsl:param name="stickyHeader"    select="'false'"/>
+  <xsl:param name="stickyFooter"    select="'false'"/>
+  <xsl:param name="stickyDims"      select="'false'"/>
+  <xsl:param name="stickyHeight"    select="''"/>
+  <xsl:param name="stickyWidth"     select="''"/>
+  <xsl:param name="stickyFirstCols" select="''"/>
+  <xsl:param name="stickyFirstRows" select="''"/>
+  <xsl:param name="stickyLastCols"  select="''"/>
+  <xsl:param name="stickyLastRows"  select="''"/>
+
   <xsl:template match="generator:VariablesForHeader" mode="generateXSLT">
   
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
@@ -588,6 +601,87 @@
       <xsl:attribute name="name">isCreateHeaderFilters</xsl:attribute>
       <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:CreateHeaderFilters='true' or $createHeaderFilters='true'"/>()</xsl:attribute>
     </xsl:element>
+
+    <!-- sticky table cells parameters -->
+
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyHeader</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:StickyHeader='true' or $stickyHeader='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyFooter</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:StickyFooter='true' or $stickyFooter='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyDims</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:StickyDims='true' or $stickyDims='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyHeight</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyHeight!=''">'<xsl:value-of select="$paramSet/xp:StickyHeight"/>'</xsl:when>
+          <xsl:when test="$stickyHeight!=''">'<xsl:value-of select="$stickyHeight"/>'</xsl:when>
+          <xsl:otherwise>'0'</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyWidth</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyWidth!=''">'<xsl:value-of select="$paramSet/xp:StickyWidth"/>'</xsl:when>
+          <xsl:when test="$stickyWidth!=''">'<xsl:value-of select="$stickyWidth"/>'</xsl:when>
+          <xsl:otherwise>'0'</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyFirstCols</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyFirstCols!=''"><xsl:value-of select="$paramSet/xp:StickyFirstCols"/></xsl:when>
+          <xsl:when test="$stickyFirstCols!=''"><xsl:value-of select="$stickyFirstCols"/></xsl:when>
+          <xsl:otherwise>0</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyFirstRows</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyFirstRows!=''"><xsl:value-of select="$paramSet/xp:StickyFirstRows"/></xsl:when>
+          <xsl:when test="$stickyFirstRows!=''"><xsl:value-of select="$stickyFirstRows"/></xsl:when>
+          <xsl:otherwise>0</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyLastCols</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyLastCols!=''"><xsl:value-of select="$paramSet/xp:StickyLastCols"/></xsl:when>
+          <xsl:when test="$stickyLastCols!=''"><xsl:value-of select="$stickyLastCols"/></xsl:when>
+          <xsl:otherwise>0</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyLastRows</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:StickyLastRows!=''"><xsl:value-of select="$paramSet/xp:StickyLastRows"/></xsl:when>
+          <xsl:when test="$stickyLastRows!=''"><xsl:value-of select="$stickyLastRows"/></xsl:when>
+          <xsl:otherwise>0</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyEnabled</xsl:attribute>
+      <xsl:attribute name="select">$stickyHeader or $stickyFooter or $stickyDims or $stickyWidth!='0' or $stickyWidth!='0' or $stickyHeight!='0' or $stickyFirstRows!='0' or $stickyFirstCols!='0' or $stickyLastRows!='0' or $stickyLastCols!='0'</xsl:attribute>
+    </xsl:element>
+
   </xsl:template>
 
   <!--

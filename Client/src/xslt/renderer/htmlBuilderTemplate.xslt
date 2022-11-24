@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -50,6 +50,20 @@
   <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
     <xsl:attribute name="bcdOnLoad">
       <xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if>
+      <xsl:if test="$stickyEnabled">
+         bcdui.widget.stickyTable({
+          targetHtml: this
+        , width: '<xsl:value-of select="$stickyWidth"/>'
+        , height: '<xsl:value-of select="$stickyHeight"/>'
+        , bcdDimension: <xsl:value-of select="$stickyDims"/>
+        , header: <xsl:value-of select="$stickyHeader"/>
+        , footer: <xsl:value-of select="$stickyFooter"/>
+        , nFirstCols: <xsl:value-of select="$stickyFirstCols"/>
+        , nFirstRows: <xsl:value-of select="$stickyFirstRows"/>
+        , nLastCols: <xsl:value-of select="$stickyLastCols"/>
+        , nLastRows: <xsl:value-of select="$stickyLastRows"/>
+        });
+      </xsl:if>
       <xsl:choose>
         <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
         <xsl:when test="$isCreateHeaderFilters and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true, true);</xsl:when>

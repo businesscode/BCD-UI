@@ -3518,9 +3518,9 @@ jQuery.extend(bcdui.widget,
      * make parts of the given table sticky 
      * @param {Object}        args              
      * @param {HtmlElement}   args.targetHtml     targetHtml containing/being table
-     * @param {integer}       [args.width]        the width of the table
-     * @param {integer}       [args.height]       the height of the table
-     * @param {boolean}       [args.header=true]  make header sticky
+     * @param {string}        [args.width]        the width of the table  (e.g. 10, 20px or 30em)
+     * @param {string}        [args.height]       the height of the table (e.g. 10, 20px or 30em)
+     * @param {boolean}       [args.header=false] make header sticky
      * @param {boolean}       [args.footer=false] make footer sticky
      * @param {integer}       [args.nFirstCols]   make the first n columns sticky
      * @param {integer}       [args.nFirstRows]   make the first n rows sticky
@@ -3531,8 +3531,6 @@ jQuery.extend(bcdui.widget,
     stickyTable: function(args) {
 
       const table = jQuery(args.targetHtml).find("table").addBack(args.targetHtml).first();
-      
-      args.header = typeof args.header != "undefined" ? args.header : true;
 
       const dims = args.bcdDimension ? ("" + table.find("thead tr:first-child *.bcdDimension").length) : 0;
       if (dims > 0) {
@@ -3540,6 +3538,10 @@ jQuery.extend(bcdui.widget,
         args.footer = false;
         args.nFirstCols = args.nLastCols = 0;
       }
+
+      // when called through xslt htmlBuilder, we might have 0 as a not set width/height
+      if (args.width == "0") delete args.width;
+      if (args.height == "0") delete args.height;
 
       if (table.length == 0) throw new Error("no table for sticky table)");
 
