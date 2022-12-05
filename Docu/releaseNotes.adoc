@@ -19,6 +19,7 @@ ___
 * Wrq does support CTE common table expressions, joins and unions now
 * Allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
 * Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
+* Introduced "bcdAny:" shiro user rights (automatically created internally from your user rights) which allow testing on right type level (and not value)
 * Database syntax does fully support MySQL and Redshift now
 * Server sided access to bindings can optionally skip subject settings via backendCanBypassSubjectFilter attribute
 * SendMail class added (new gradle dependencies javax.mail:mail, com.sun.activation)

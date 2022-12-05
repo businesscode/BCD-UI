@@ -82,9 +82,39 @@ public class SubjectPreferencesRealm extends org.apache.shiro.realm.AuthorizingR
         permissions.add(key + ":" + value);
     });
 
+    // for each right type, generate bcdAny right and add it
+    Set<String> bcdAnyPerms = generateBcdAnyPerms();
+    for (String perm : bcdAnyPerms)
+      permissions.add(perm);
+
     SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
     authorizationInfo.setStringPermissions(permissions);
     return authorizationInfo;
+  }
+
+  public Set<String> generateBcdAnyPerms() {
+    Set<String> bcdAnyPerms = new HashSet<>();
+    Subject subject = SecurityUtils.getSubject();
+    Session session = subject.getSession(false);
+    if (session == null)
+      session = subject.getSession();
+    if (subject.isAuthenticated() && session.getAttribute(PERMISSION_MAP_TOKEN) == null) {
+      session.setAttribute(PERMISSION_MAP_TOKEN, "true");
+      Set<String> allPerms = SecurityHelper.getPermissions(subject, null);
+      for (String p : allPerms) {
+        if (! p.startsWith("bcdAny:")) {
+          // for any right a:b:c:value generate bcdAny:a, bcdAny:a:b, bcdAny:a:b:c
+          String[] parts = p.replaceAll("[0-2]\\d:[0-5]\\d:[0-5]\\d", "").split(":"); // avoid timestamp splits
+          String curRight = "";
+          for (int i = 0; i < parts.length - 1; i++) {
+            curRight += ":" + parts[i];
+            bcdAnyPerms.add("bcdAny" + curRight);
+          }
+        }
+      }
+      session.removeAttribute(PERMISSION_MAP_TOKEN);
+    }
+    return bcdAnyPerms;
   }
 
   // returns the permission map in any case
