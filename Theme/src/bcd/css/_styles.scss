@@ -2157,7 +2157,7 @@ $chips-close-color: #c00 !default;
   }
 }
 
-.bcdReport.bcdStickyTable tfoot tr > *, .bcdReport thead tr > *, tbody tr:nth-of-type(even) > * { background-color: #ffffff; border: none; }
+.bcdReport.bcdStickyTable tfoot tr > *, .bcdReport.bcdStickyTable thead tr > *, .bcdReport.bcdStickyTable tbody tr:nth-of-type(even) > * { background-color: #ffffff; border: none; }
 .bcdReport.bcdStickyTable tbody tr:nth-of-type(odd) > *         { background-color: #f2f2f2; border: none; }
 
 .bcdStickyTable {
