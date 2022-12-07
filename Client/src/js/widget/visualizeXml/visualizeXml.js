@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,11 +28,6 @@ bcdui.widget.visualizeXml =
   /**
    * @private
    */
-  _visualizeXml_CollapsSign : '',
-
-  /**
-   * @private
-   */
   _f: function(e){
      if (jQuery(e).hasClass("visXml_ci")) {
        if (e.firstChild.nodeValue.indexOf("\n")>0) _fix(e,"visXml_cb");
@@ -48,9 +43,9 @@ bcdui.widget.visualizeXml =
   _fix: function(e,cl){
     jQuery(e).addClass(cl);
     e.style.display="";
-    var j=e.parentNode.firstChild;
+    const j = e.parentNode.firstChild;
     jQuery(j).addClass("visXml_c");
-    var k=j.firstChild;
+    const k = j.firstChild;
     k.style.visibility="visible";
     k.href="#";
   },
@@ -59,68 +54,40 @@ bcdui.widget.visualizeXml =
    * @private
    */
   _ch: function(e) {
-    var mark=e.firstChild.firstChild;
-    mark = e.getElementsByTagName("A")[0];
-    if( !mark.firstChild )
-      mark.appendChild(document.createTextNode(''));
-    mark = mark.firstChild;
-    if (mark.nodeValue.match(/\+$/)) {
-      mark.nodeValue = bcdui.widget.visualizeXml._visualizeXml_CollapsSign;
-      for (var i=1;i<e.childNodes.length;i++) {
-        e.childNodes.item(i).style.display="";
-      }
-    }
-    else {
-      mark.nodeValue=mark.nodeValue.substring(0,mark.nodeValue.length-1)+"+";
-      for (var i=1;i<e.childNodes.length;i++) {
-        e.childNodes.item(i).style.display="none";
-      }
-    }
+    const mark = e.getElementsByTagName("A")[0];
+    const doCollapse = jQuery(mark).hasClass("bcdExpand");
+    jQuery(mark).toggleClass("bcdCollapse bcdExpand");
+    for (let i = 1; i < e.childNodes.length; i++)
+      e.childNodes.item(i).style.display = doCollapse ? "" : "none";
   },
 
   /**
    * @private
    */
   _ch2: function(e) {
-    var mark=e.firstChild.firstChild;
-    mark = e.getElementsByTagName("A")[0];
-    if( !mark.firstChild )
-      mark.appendChild(document.createTextNode(''));
-    mark = mark.firstChild;
-    var contents=e.childNodes.item(1);
-    if (mark.nodeValue.match(/\+$/)) {
-      mark.nodeValue = mark.nodeValue.substring(0,mark.nodeValue.length-1)+ (bcdui.widget.visualizeXml._visualizeXml_CollapsSign.length!=0?bcdui.widget.visualizeXml._visualizeXml_CollapsSign:" ");
-      if (jQuery(contents).hasClass("visXml_db")||jQuery(contents).hasClass("visXml_cb")) {
-        contents.style.display="";
-      }
-      else {
-        contents.style.display="none";
-      }
-    }
-    else {
-      mark.nodeValue=mark.nodeValue.substring(0,mark.nodeValue.length-bcdui.widget.visualizeXml._visualizeXml_CollapsSign.length)+"+";
-      contents.style.display="none";
-    }
+    const mark = e.getElementsByTagName("A")[0];
+    const contents = e.childNodes.item(1);
+    const doCollapse = jQuery(mark).hasClass("bcdExpand");
+    jQuery(mark).toggleClass("bcdCollapse bcdExpand");
+    contents.style.display = doCollapse && (jQuery(contents).hasClass("visXml_db") || jQuery(contents).hasClass("visXml_cb")) ? "" : "none";
   },
 
   /**
    * @private
    */
   _handleClick: function(evt) {
-    var e = jQuery(evt.target).get(0);
+    let e = jQuery(evt.target).get(0);
     if (!jQuery(e).hasClass("visXml_c")) {
-      e=e.parentNode;
+      e = e.parentNode;
       if (!jQuery(e).hasClass("visXml_c")) {
         return;
       }
     }
-    e=e.parentNode;
-    if (jQuery(e).hasClass("visXml_e")) {
+    e = e.parentNode;
+    if (jQuery(e).hasClass("visXml_e"))
       bcdui.widget.visualizeXml._ch(e);
-    }
-    if (jQuery(e).hasClass("visXml_k")) {
+    if (jQuery(e).hasClass("visXml_k"))
       bcdui.widget.visualizeXml._ch2(e);
-    }
   },
 
   /**

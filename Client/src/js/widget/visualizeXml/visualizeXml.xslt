@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2022 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,9 +35,7 @@
   <xsl:import href="../../../xslt/stringUtil.xslt"/>
 
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
-
-  <xsl:param name="collapseSign" select="''"/>
-
+  
   <xsl:template name="visualizeXml_head">
     <xsl:param name="contentPath" select="''"/>
     <xsl:if test="$contentPath != ''"> <!-- in case it is used via processing-instruction -->
@@ -72,352 +70,346 @@
     </STYLE>
   </xsl:template>
 
-   <xsl:template match="*" mode="visualizeXml_standaloneDoc">
-      <HTML>
-         <HEAD>
-          <STYLE>
-             BODY {font:x-small 'Verdana'; margin-right:1.5em}
-           </STYLE>
-           <xsl:call-template name="visualizeXml_head"/>
-         </HEAD>
-         <BODY class="visXml_st" onclick="cl()">
-            <xsl:apply-templates select="." mode="visualizeXml"/>
-         </BODY>
-      </HTML>
-   </xsl:template>
+  <xsl:template match="*" mode="visualizeXml_standaloneDoc">
+    <HTML>
+      <HEAD>
+        <STYLE>
+          BODY {font:x-small 'Verdana'; margin-right:1.5em}
+        </STYLE>
+        <xsl:call-template name="visualizeXml_head"/>
+      </HEAD>
+      <BODY class="visXml_st" onclick="cl()">
+        <xsl:apply-templates select="." mode="visualizeXml"/>
+      </BODY>
+    </HTML>
+  </xsl:template>
 
-   <xsl:template match="processing-instruction()" mode="visualizeXml">
-      <span class="visXml_e">
-         <SPAN class="visXml_b">
-            <xsl:call-template name="visualizeXml_entity-ref">
-               <xsl:with-param name="name">nbsp</xsl:with-param>
-            </xsl:call-template>
-         </SPAN>
-         <SPAN class="visXml_m">
-            <xsl:text>&lt;?</xsl:text>
-         </SPAN>
-         <SPAN class="visXml_pi">
-            <xsl:value-of select="name(.)"/>
-            <xsl:value-of select="."/>
-         </SPAN>
-         <SPAN class="visXml_m">
-            <xsl:text>?></xsl:text>
-         </SPAN>
+  <xsl:template match="processing-instruction()" mode="visualizeXml">
+    <span class="visXml_e">
+      <span class="visXml_b">
+        <xsl:call-template name="visualizeXml_entity-ref">
+          <xsl:with-param name="name">nbsp</xsl:with-param>
+        </xsl:call-template>
       </span>
-   </xsl:template>
-
-   <xsl:template match="processing-instruction('xml')" mode="visualizeXml">
-      <span class="visXml_e">
-         <SPAN class="visXml_b">
-            <xsl:call-template name="visualizeXml_entity-ref">
-               <xsl:with-param name="name">nbsp</xsl:with-param>
-            </xsl:call-template>
-         </SPAN>
-         <SPAN class="visXml_m">
-            <xsl:text>&lt;?</xsl:text>
-         </SPAN>
-         <SPAN class="visXml_pi">
-            <xsl:text>xml </xsl:text>
-            <xsl:for-each select="@*">
-               <xsl:value-of select="name(.)"/>
-               <xsl:text>="</xsl:text>
-               <xsl:value-of select="."/>
-               <xsl:text>" </xsl:text>
-            </xsl:for-each>
-         </SPAN>
-         <SPAN class="visXml_m">
-            <xsl:text>?></xsl:text>
-         </SPAN>
+      <span class="visXml_m">
+        <xsl:text>&lt;?</xsl:text>
       </span>
-   </xsl:template>
+      <span class="visXml_pi">
+        <xsl:value-of select="name(.)"/>
+        <xsl:value-of select="."/>
+      </span>
+      <span class="visXml_m">
+        <xsl:text>?></xsl:text>
+      </span>
+    </span>
+  </xsl:template>
 
-   <xsl:template match="@*" mode="visualizeXml">
-     <xsl:param name="indent"/>
-     <xsl:param name="p"/>
-     <xsl:if test="$p mod 10 = 0"><br/>
+  <xsl:template match="processing-instruction('xml')" mode="visualizeXml">
+    <span class="visXml_e">
+      <span class="visXml_b">
+        <xsl:call-template name="visualizeXml_entity-ref">
+          <xsl:with-param name="name">nbsp</xsl:with-param>
+        </xsl:call-template>
+      </span>
+      <span class="visXml_m">
+        <xsl:text>&lt;?</xsl:text>
+      </span>
+      <span class="visXml_pi">
+        <xsl:text>xml </xsl:text>
+        <xsl:for-each select="@*">
+          <xsl:value-of select="name(.)"/>
+          <xsl:text>="</xsl:text>
+          <xsl:value-of select="."/>
+          <xsl:text>" </xsl:text>
+        </xsl:for-each>
+      </span>
+      <span class="visXml_m">
+        <xsl:text>?></xsl:text>
+      </span>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="@*" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <xsl:param name="p"/>
+    <xsl:if test="$p mod 10 = 0"><br/>
       <xsl:value-of select="$indent"/>
       <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
-       <xsl:call-template name="stringRepeater">
-         <xsl:with-param name="i" select="concat($indent,string-length(name(ancestor::*[1]))+1)"/>
-         <xsl:with-param name="s" select="' '"/>
-       </xsl:call-template>
-     </xsl:if>
-      <SPAN>
-         <xsl:attribute name="class">
-            <xsl:if test="xsl:*/@*">
-              <xsl:text>visXml_xattr</xsl:text>
+      <xsl:call-template name="stringRepeater">
+        <xsl:with-param name="i" select="concat($indent,string-length(name(ancestor::*[1]))+1)"/>
+        <xsl:with-param name="s" select="' '"/>
+      </xsl:call-template>
+    </xsl:if>
+    <span>
+      <xsl:attribute name="class">
+        <xsl:if test="xsl:*/@*">
+          <xsl:text>visXml_xattr</xsl:text>
+        </xsl:if>
+        <xsl:text>visXml_tattr</xsl:text>
+      </xsl:attribute>
+      <xsl:text> </xsl:text><xsl:value-of select="name(.)"/>
+    </span>
+    <span class="visXml_m">="</span>
+      <xsl:value-of select="."/>
+    <span class="visXml_m">"</span>
+  </xsl:template>
+
+  <xsl:template match="text()" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <xsl:if test="string-length(substring-before(substring-after(translate(.,' ',''),'&#xA;'),'&#xA;'))=0">&#13;</xsl:if>
+    <xsl:if test="string-length(normalize-space(.))">
+      <span class="visXml_e">
+        <xsl:value-of select="$indent"/>
+        <span class="visXml_b"> </span>
+        <span class="visXml_tx">
+          <xsl:value-of select="normalize-space(.)"/>
+          <xsl:if test="string-length(normalize-space(.))"></xsl:if>&#160;
+        </span>
+      </span>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="comment()" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <xsl:if test="string-length(substring-before(substring-after(translate(.,' ',''),'&#xA;'),'&#xA;'))=0">&#13;</xsl:if>
+    <xsl:value-of select="$indent"/>
+    <span class="visXml_k">
+      <span>
+        <span class="visXml_m">
+          <xsl:text>&lt;!--</xsl:text>
+        </span>
+      </span>
+      <span class="visXml_ci" id="clean">
+        <PRE class="visXml">
+          <xsl:value-of select="normalize-space(.)"/>
+        </PRE>
+      </span>
+      <span class="visXml_b">
+        <xsl:call-template name="visualizeXml_entity-ref">
+          <xsl:with-param name="name">nbsp</xsl:with-param>
+        </xsl:call-template>
+      </span>
+      <span class="visXml_m">
+        <xsl:text>--></xsl:text>
+      </span>
+    </span><br/>
+  </xsl:template>
+
+
+  <xsl:template match="*" mode="visualizeXml">
+    <xsl:param name="indent" select="''"/>
+    <span class="visXml_e">
+      <span STYLE="margin-left:0em;text-indent:-0em">
+        <xsl:value-of select="$indent"/>
+        <span class="visXml_b">
+          <xsl:call-template name="visualizeXml_entity-ref">
+            <xsl:with-param name="name">nbsp</xsl:with-param>
+          </xsl:call-template>
+        </span>
+        <span class="visXml_m">&lt;</span>
+        <span>
+          <xsl:attribute name="class">
+            <xsl:if test="xsl:*">
+              <xsl:text>visXml_xelem</xsl:text>
             </xsl:if>
-            <xsl:text>visXml_tattr</xsl:text>
-         </xsl:attribute>
-         <xsl:text> </xsl:text><xsl:value-of select="name(.)"/>
-      </SPAN>
-      <SPAN class="visXml_m">="</SPAN>
-         <xsl:value-of select="."/>
-      <SPAN class="visXml_m">"</SPAN>
-   </xsl:template>
+            <xsl:text>visXml_telem</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="name(.)"/>
+        </span>
+        <xsl:for-each select="@*">
+          <xsl:apply-templates select="." mode="visualizeXml">
+            <xsl:with-param name="indent" select="$indent"/>
+            <xsl:with-param name="p" select="position()"/>
+          </xsl:apply-templates>
+        </xsl:for-each>
+        <xsl:call-template name="visualizeXml_namespace"/>
+        <span class="visXml_m">/><br/></span>
+      </span>
+    </span>
+  </xsl:template>
 
-   <xsl:template match="text()" mode="visualizeXml">
-     <xsl:param name="indent"/>
-     <xsl:if test="string-length(substring-before(substring-after(translate(.,' ',''),'&#xA;'),'&#xA;'))=0">&#13;</xsl:if>
-     <xsl:if test="string-length(normalize-space(.))">
-        <span class="visXml_e">
-           <xsl:value-of select="$indent"/>
-           <SPAN class="visXml_b"> </SPAN>
-           <SPAN class="visXml_tx">
-              <xsl:value-of select="normalize-space(.)"/>
-              <xsl:if test="string-length(normalize-space(.))"></xsl:if>&#160;
-</SPAN>
-       </span>
-     </xsl:if>
-   </xsl:template>
-
-   <xsl:template match="comment()" mode="visualizeXml">
-     <xsl:param name="indent"/>
-     <xsl:if test="string-length(substring-before(substring-after(translate(.,' ',''),'&#xA;'),'&#xA;'))=0">&#13;</xsl:if>
-     <xsl:value-of select="$indent"/>
-      <span class="visXml_k">
-         <SPAN>
-            <SPAN class="visXml_m">
-               <xsl:text>&lt;!--</xsl:text>
-            </SPAN>
-         </SPAN>
-         <SPAN class="visXml_ci" id="clean">
-            <PRE class="visXml">
-               <xsl:value-of select="normalize-space(.)"/>
-            </PRE>
-         </SPAN>
-         <SPAN class="visXml_b">
+  <xsl:template match="*[node()]" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <span class="visXml_e">
+      <span class="visXml_c">
+        <xsl:value-of select="$indent"/>
+        <a class="visXml_b_collaps" href="#" onclick="return false"></a>
+        <span class="visXml_m">&lt;</span>
+        <span>
+          <xsl:attribute name="class">
+            <xsl:if test="xsl:*">
+              <xsl:text>visXml_xelem</xsl:text>
+            </xsl:if>
+            <xsl:text>visXml_telem</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="name(.)"/>
+          <xsl:if test="@*">
+            <xsl:text> </xsl:text>
+          </xsl:if>
+        </span>
+        <xsl:for-each select="@*">
+          <xsl:apply-templates select="." mode="visualizeXml">
+            <xsl:with-param name="indent" select="$indent"/>
+            <xsl:with-param name="p" select="position()"/>
+          </xsl:apply-templates>
+        </xsl:for-each>
+        <xsl:call-template name="visualizeXml_namespace"/>
+        <span class="visXml_m">></span>
+      </span>
+      <span>
+        <xsl:apply-templates select="node()|*" mode="visualizeXml"/>
+        <span>
+          <span class="visXml_b">
             <xsl:call-template name="visualizeXml_entity-ref">
-               <xsl:with-param name="name">nbsp</xsl:with-param>
+              <xsl:with-param name="name">nbsp</xsl:with-param>
             </xsl:call-template>
-         </SPAN>
-         <SPAN class="visXml_m">
-            <xsl:text>--></xsl:text>
-         </SPAN>
-      </span><br/>
-   </xsl:template>
-
-
-   <xsl:template match="*" mode="visualizeXml">
-     <xsl:param name="indent" select="''"/>
-      <span class="visXml_e">
-         <span STYLE="margin-left:0em;text-indent:-0em">
-            <xsl:value-of select="$indent"/>
-            <SPAN class="visXml_b">
-               <xsl:call-template name="visualizeXml_entity-ref">
-                  <xsl:with-param name="name">nbsp</xsl:with-param>
-               </xsl:call-template>
-            </SPAN>
-            <SPAN class="visXml_m">&lt;</SPAN>
-            <SPAN>
-               <xsl:attribute name="class">
-                  <xsl:if test="xsl:*">
-                     <xsl:text>visXml_xelem</xsl:text>
-                  </xsl:if>
-                  <xsl:text>visXml_telem</xsl:text>
-               </xsl:attribute>
-               <xsl:value-of select="name(.)"/>
-            </SPAN>
-            <xsl:for-each select="@*">
-              <xsl:apply-templates select="." mode="visualizeXml">
-                <xsl:with-param name="indent" select="$indent"/>
-                <xsl:with-param name="p" select="position()"/>
-              </xsl:apply-templates>
-            </xsl:for-each>
-            <xsl:call-template name="visualizeXml_namespace"/>
-            <SPAN class="visXml_m">/><br/>
-</SPAN>
-         </span>
+          </span>
+          <span class="visXml_m">
+            <xsl:text>&lt;/</xsl:text>
+          </span>
+          <span>
+            <xsl:attribute name="class">
+              <xsl:if test="xsl:*">
+                <xsl:text>visXml_xelem</xsl:text>
+              </xsl:if>
+              <xsl:text>visXml_telem</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="name(.)"/>
+          </span>
+          <span class="visXml_m">><br/></span>
+        </span>
       </span>
-   </xsl:template>
+    </span>
+  </xsl:template>
 
-   <xsl:template match="*[node()]" mode="visualizeXml">
-     <xsl:param name="indent"/>
-      <span class="visXml_e">
-         <span class="visXml_c">
-            <xsl:value-of select="$indent"/>
-            <A class="visXml_b_collaps" href="#" onclick="return false"><xsl:value-of select="$collapseSign"/></A>
-            <SPAN class="visXml_m">&lt;</SPAN>
-            <SPAN>
-               <xsl:attribute name="class">
-                  <xsl:if test="xsl:*">
-                     <xsl:text>visXml_xelem</xsl:text>
-                  </xsl:if>
-                  <xsl:text>visXml_telem</xsl:text>
-               </xsl:attribute>
-               <xsl:value-of select="name(.)"/>
-               <xsl:if test="@*">
-                  <xsl:text> </xsl:text>
-               </xsl:if>
-            </SPAN>
-            <xsl:for-each select="@*">
-              <xsl:apply-templates select="." mode="visualizeXml">
-                <xsl:with-param name="indent" select="$indent"/>
-                <xsl:with-param name="p" select="position()"/>
-              </xsl:apply-templates>
-            </xsl:for-each>
-            <xsl:call-template name="visualizeXml_namespace"/>
-            <SPAN class="visXml_m">>
-</SPAN>
-         </span><span>
-            <xsl:apply-templates select="node()|*" mode="visualizeXml"/>
-            <span>
-               <SPAN class="visXml_b">
-                  <xsl:call-template name="visualizeXml_entity-ref">
-                     <xsl:with-param name="name">nbsp</xsl:with-param>
-                  </xsl:call-template>
-               </SPAN>
-               <SPAN class="visXml_m">
-                  <xsl:text>&lt;/</xsl:text>
-               </SPAN>
-               <SPAN>
-                  <xsl:attribute name="class">
-                     <xsl:if test="xsl:*">
-                        <xsl:text>visXml_xelem</xsl:text>
-                     </xsl:if>
-                     <xsl:text>visXml_telem</xsl:text>
-                  </xsl:attribute>
-                  <xsl:value-of select="name(.)"/>
-               </SPAN>
-               <SPAN class="visXml_m">><br/>
-</SPAN>
+  <xsl:template match="*[text() and not (comment() or processing-instruction())]" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <span class="visXml_e">
+      <span STYLE="margin-left:0em;text-indent:-0em">
+        <span class="visXml_b">
+          <xsl:call-template name="visualizeXml_entity-ref">
+            <xsl:with-param name="name">nbsp</xsl:with-param>
+          </xsl:call-template>
+        </span>
+        <xsl:value-of select="$indent"/>
+        <span class="visXml_m">
+          <xsl:text>&lt;</xsl:text>
+        </span>
+        <span>
+          <xsl:attribute name="class">
+            <xsl:if test="xsl:*">
+              <xsl:text>visXml_xelem</xsl:text>
+            </xsl:if>
+            <xsl:text>visXml_telem</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="name(.)"/>
+        </span>
+        <xsl:for-each select="@*">
+          <xsl:apply-templates select="." mode="visualizeXml">
+            <xsl:with-param name="indent" select="$indent"/>
+            <xsl:with-param name="p" select="position()"/>
+          </xsl:apply-templates>
+        </xsl:for-each>
+        <xsl:call-template name="visualizeXml_namespace"/>
+        <span class="visXml_m">></span>
+        <span class="visXml_tx">
+          <xsl:choose>
+            <xsl:when test="string-length(normalize-space(.))>64"><br/>
+              <xsl:call-template name="printRows">
+                <xsl:with-param name="content" select="(.)"/>
+                <xsl:with-param name="indent" select="concat($indent,'&#160;&#160;')"/>
+              </xsl:call-template>
+              <xsl:value-of select="$indent"/>
+            </xsl:when>
+            <xsl:otherwise><xsl:value-of select="normalize-space(.)"/></xsl:otherwise>
+          </xsl:choose>
+        </span>
+        <span class="visXml_m">&lt;/</span>
+        <span>
+          <xsl:attribute name="class">
+            <xsl:if test="xsl:*">
+              <xsl:text>visXml_xelem</xsl:text>
+            </xsl:if>
+            <xsl:text>visXml_telem</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="name(.)"/>
+        </span>
+        <span class="visXml_m">><br/></span>
+      </span>
+    </span>
+  </xsl:template>
+
+  <xsl:template match="*[*]" priority="20" mode="visualizeXml">
+    <xsl:param name="indent"/>
+    <span class="visXml_e">
+      <span STYLE="margin-left:0em;text-indent:-0em" class="visXml_c">
+        <xsl:value-of select="substring($indent,2)"/>
+        <a class="visXml_b_collaps bcdCollapse" href="#" onclick="return false"></a>
+        <span class="visXml_m">&lt;</span>
+        <span>
+          <xsl:attribute name="class">
+            <xsl:if test="xsl:*">
+              <xsl:text>visXml_xelem</xsl:text>
+            </xsl:if>
+            <xsl:text>visXml_telem</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="name(.)"/>
+        </span>
+        <xsl:for-each select="@*">
+          <xsl:apply-templates select="." mode="visualizeXml">
+            <xsl:with-param name="indent" select="$indent"/>
+            <xsl:with-param name="p" select="position()"/>
+          </xsl:apply-templates>
+        </xsl:for-each>
+        <xsl:call-template name="visualizeXml_namespace"/>
+        <span class="visXml_m">><br/></span>
+      </span>
+      <span>
+        <xsl:apply-templates select="text()|*|comment()" mode="visualizeXml">
+          <xsl:with-param name="indent" select="concat($indent,'&#160;&#160;')"/>
+        </xsl:apply-templates>
+        <span>
+          <xsl:value-of select="$indent"/>
+            <span class="visXml_b">
+              <xsl:call-template name="visualizeXml_entity-ref">
+                <xsl:with-param name="name">nbsp</xsl:with-param>
+              </xsl:call-template>
             </span>
-         </span>
-      </span>
-   </xsl:template>
-
-   <xsl:template match="*[text() and not (comment() or processing-instruction())]" mode="visualizeXml">
-     <xsl:param name="indent"/>
-      <span class="visXml_e">
-         <span STYLE="margin-left:0em;text-indent:-0em">
-            <SPAN class="visXml_b">
-               <xsl:call-template name="visualizeXml_entity-ref">
-                  <xsl:with-param name="name">nbsp</xsl:with-param>
-               </xsl:call-template>
-            </SPAN>
-            <xsl:value-of select="$indent"/>
-            <SPAN class="visXml_m">
-               <xsl:text>&lt;</xsl:text>
-            </SPAN>
-            <SPAN>
-               <xsl:attribute name="class">
-                  <xsl:if test="xsl:*">
-                     <xsl:text>visXml_xelem</xsl:text>
-                  </xsl:if>
-                  <xsl:text>visXml_telem</xsl:text>
-               </xsl:attribute>
-               <xsl:value-of select="name(.)"/>
-            </SPAN>
-            <xsl:for-each select="@*">
-              <xsl:apply-templates select="." mode="visualizeXml">
-                <xsl:with-param name="indent" select="$indent"/>
-                <xsl:with-param name="p" select="position()"/>
-              </xsl:apply-templates>
-            </xsl:for-each>
-            <xsl:call-template name="visualizeXml_namespace"/>
-            <SPAN class="visXml_m">></SPAN>
-            <SPAN class="visXml_tx">
-              <xsl:choose>
-                <xsl:when test="string-length(normalize-space(.))>64"><br/>
-                <xsl:call-template name="printRows">
-                    <xsl:with-param name="content" select="(.)"/>
-                    <xsl:with-param name="indent" select="concat($indent,'&#160;&#160;')"/>
-                  </xsl:call-template>
-                  <xsl:value-of select="$indent"/>
-                </xsl:when>
-                <xsl:otherwise><xsl:value-of select="normalize-space(.)"/></xsl:otherwise>
-              </xsl:choose>
-            </SPAN>
-            <SPAN class="visXml_m">&lt;/</SPAN>
-            <SPAN>
-               <xsl:attribute name="class">
-                  <xsl:if test="xsl:*">
-                     <xsl:text>visXml_xelem</xsl:text>
-                  </xsl:if>
-                  <xsl:text>visXml_telem</xsl:text>
-               </xsl:attribute>
-               <xsl:value-of select="name(.)"/>
-            </SPAN>
-            <SPAN class="visXml_m">><br/>
-</SPAN>
-         </span>
-      </span>
-   </xsl:template>
-
-   <xsl:template match="*[*]" priority="20" mode="visualizeXml">
-     <xsl:param name="indent"/>
-      <span class="visXml_e">
-         <span STYLE="margin-left:0em;text-indent:-0em" class="visXml_c">
-            <xsl:value-of select="substring($indent,string-length($collapseSign))"/>
-            <A class="visXml_b_collaps" href="#" onclick="return false"><xsl:value-of select="$collapseSign"/></A>
-            <SPAN class="visXml_m">&lt;</SPAN>
-            <SPAN>
-               <xsl:attribute name="class">
-                  <xsl:if test="xsl:*">
-                     <xsl:text>visXml_xelem</xsl:text>
-                  </xsl:if>
-                  <xsl:text>visXml_telem</xsl:text>
-               </xsl:attribute>
-               <xsl:value-of select="name(.)"/>
-            </SPAN>
-            <xsl:for-each select="@*">
-              <xsl:apply-templates select="." mode="visualizeXml">
-                <xsl:with-param name="indent" select="$indent"/>
-                <xsl:with-param name="p" select="position()"/>
-              </xsl:apply-templates>
-            </xsl:for-each>
-            <xsl:call-template name="visualizeXml_namespace"/>
-            <SPAN class="visXml_m">><br/>
-</SPAN>
-         </span><span>
-            <xsl:apply-templates select="text()|*|comment()" mode="visualizeXml">
-              <xsl:with-param name="indent" select="concat($indent,'&#160;&#160;')"/>
-            </xsl:apply-templates>
-            <span>
-               <xsl:value-of select="$indent"/>
-               <SPAN class="visXml_b">
-                  <xsl:call-template name="visualizeXml_entity-ref">
-                     <xsl:with-param name="name">nbsp</xsl:with-param>
-                  </xsl:call-template>
-               </SPAN>
-               <SPAN class="visXml_m">
-                  <xsl:text>&lt;/</xsl:text>
-               </SPAN>
-               <SPAN>
-                  <xsl:attribute name="class">
-                     <xsl:if test="xsl:*">
-                        <xsl:text>visXml_xelem</xsl:text>
-                     </xsl:if>
-                     <xsl:text>visXml_telem</xsl:text>
-                  </xsl:attribute>
-                  <xsl:value-of select="name(.)"/>
-               </SPAN>
-               <SPAN class="visXml_m">><br/>
-</SPAN>
+            <span class="visXml_m">
+              <xsl:text>&lt;/</xsl:text>
             </span>
+            <span>
+              <xsl:attribute name="class">
+                <xsl:if test="xsl:*">
+                  <xsl:text>visXml_xelem</xsl:text>
+                </xsl:if>
+                <xsl:text>visXml_telem</xsl:text>
+              </xsl:attribute>
+              <xsl:value-of select="name(.)"/>
+            </span>
+            <span class="visXml_m">><br/></span>
          </span>
       </span>
-   </xsl:template>
+    </span>
+  </xsl:template>
 
-   <xsl:template name="visualizeXml_namespace">
+  <xsl:template name="visualizeXml_namespace">
     <xsl:variable name="ns">
-      <xsl:if test="not(ancestor::*[namespace-uri()=namespace-uri(current())])">
-        &#160;xmlns<xsl:if test="substring-before(name(),':')">:<xsl:value-of select="substring-before(name(),':')"/></xsl:if>="<xsl:value-of select="namespace-uri()"/>"
-      </xsl:if>
+      <xsl:if test="not(ancestor::*[namespace-uri()=namespace-uri(current())])">&#160;xmlns<xsl:if test="substring-before(name(),':')">:<xsl:value-of select="substring-before(name(),':')"/></xsl:if>="<xsl:value-of select="namespace-uri()"/>"</xsl:if>
     </xsl:variable>
     <xsl:if test="normalize-space($ns)"><xsl:value-of select="normalize-space($ns)" /></xsl:if>
-   </xsl:template>
+  </xsl:template>
 
-   <xsl:template name="visualizeXml_entity-ref">
-      <xsl:param name="name"/>
-      <xsl:choose>
-        <xsl:when test="$name = 'nbsp'"></xsl:when>
-        <xsl:otherwise>
-          <xsl:text disable-output-escaping="yes">&amp;</xsl:text>
-          <xsl:value-of select="$name"/>
-         <xsl:text>;</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-   </xsl:template>
+  <xsl:template name="visualizeXml_entity-ref">
+    <xsl:param name="name"/>
+    <xsl:choose>
+      <xsl:when test="$name = 'nbsp'"></xsl:when>
+      <xsl:otherwise>
+        <xsl:text disable-output-escaping="yes">&amp;</xsl:text>
+        <xsl:value-of select="$name"/>
+        <xsl:text>;</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 </xsl:stylesheet>

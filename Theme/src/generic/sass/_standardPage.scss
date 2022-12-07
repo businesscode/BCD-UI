@@ -1914,3 +1914,8 @@ $chips-close-color: #c00 !default;
   thead .bcdStickyNthCol { z-index: 102; position: sticky; }
   tbody .bcdStickyNthCol { z-index: 100; position: sticky; }
 }
+
+.bcdVisualizeXml {
+ .bcdCollapse:after { content: "-"; }
+ .bcdExpand:after { content: "+"; } 
+}

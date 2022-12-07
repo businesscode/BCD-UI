@@ -20,7 +20,7 @@
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
 
   <xsl:template match="/">
-    <div>
+    <div class="bcdVisualizeXml">
       <xsl:call-template name="visualizeXml_head"/>
       <xsl:apply-templates mode="visualizeXml"/>
     </div>

@@ -2191,3 +2191,8 @@ $chips-close-color: #c00 !default;
   tbody .bcdStickyNthCol { z-index: 100; position: sticky; }
 }
 
+.bcdVisualizeXml {
+ .bcdCollapse:after { content: "-"; }
+ .bcdExpand:after { content: "+"; } 
+}
+
