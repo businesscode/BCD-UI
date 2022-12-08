@@ -288,5 +288,12 @@
       <R id="R503"><C>bcd_Comment_UpdatedBy</C><C>Updated By</C><C>en</C></R>
       <R id="R504"><C>bcd_Comment_Add</C><C>Add</C><C>en</C></R>
       <R id="R505"><C>bcd_Comment_No_Comments</C><C>No Comments</C><C>en</C></R>
+
+      <!-- User Messages -->
+      <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
+      <R id="R551"><C>bcd_Messages_Prev</C><C>Prev</C><C>en</C></R>
+      <R id="R552"><C>bcd_Messages_Close</C><C>Close</C><C>en</C></R>
+
+
     </Data>
 </Wrs>

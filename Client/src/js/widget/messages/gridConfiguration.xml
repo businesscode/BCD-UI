@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grid:GridConfiguration
+  xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0">
+
+  <wrq:BindingSet>bcd_messages</wrq:BindingSet>
+
+  <xp:Paginate>
+    <xp:PageSize>30</xp:PageSize>
+    <xp:PageNumber>1</xp:PageNumber>
+    <xp:ShowAllOption>true</xp:ShowAllOption>
+  </xp:Paginate>
+
+  <grid:SelectColumns>
+    <grid:C bRef="severity"/>
+    <grid:C bRef="valid_from"/>
+    <grid:C bRef="valid_to"/>
+    <grid:C bRef="anon_allowed" isCheckbox="1|0" class='bcdMessages bcdCheckbox'/>
+    <grid:C bRef="message">
+      <grid:Renderer type="bcduiHtmlRenderer" />
+      <grid:Editor type="bcduiHtmlEditor">
+        <grid:Param name="rendererId" value="bcdHtmlEditorRenderer" />
+        <grid:Param name="targetModelId" value="guiStatus" />
+        <grid:Param name="targetModelXPath" value="/*/guiStatus:ClientSettings/guiStatus:HtmlEditor" />
+      </grid:Editor>
+    </grid:C>
+    <grid:C bRef="lastUpdate" isReadOnly="true"/>
+    <grid:C bRef="updatedBy" isReadOnly="true"/>
+    <grid:C bRef="message_id" isHidden="true"/>
+
+  </grid:SelectColumns>
+  
+  <grid:OrderColumns>
+    <grid:C bRef="lastUpdate" order="desc"/>
+  </grid:OrderColumns>
+
+</grid:GridConfiguration>
+

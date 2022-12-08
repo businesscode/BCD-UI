@@ -1919,3 +1919,37 @@ $chips-close-color: #c00 !default;
  .bcdCollapse:after { content: "-"; }
  .bcdExpand:after { content: "+"; } 
 }
+
+.bcduiHtmlEditor .bcdButton { margin: .5em .5em 0 0; }
+
+.bcdHtmlPreview {
+  a,
+  a:active,
+  a:focus,
+  a:visited {
+    color: #aaa;
+    text-decoration: none;
+  }
+  a:hover { color: #000; }
+  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: 0.5em; }
+}
+
+.bcdCssReset { all: revert; }
+
+.bcdHtmlViewerFooter {
+  padding-top: 1em;
+  border-top: 2px solid #dddddd;
+  margin-top: .5em;
+  .bcdButton.bcdDisabled {
+     background-color: #aaa;
+     border-color: #aaa;
+  }
+  .col:last-child { flex: 0; }
+  .bcdCount { padding: 0 1em; }
+}
+
+.bcdHtmlPreview,
+.bcdHtmlViewer { width: 640px; height: 240px; overflow-y: auto; }
+.bcdCkEditorContainer { width: 640px; }
+
+.bcdMessages.bcdCheckbox { text-align: center; }

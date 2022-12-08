@@ -1,0 +1,19 @@
+Basic preset
+
++ ColorButton
++ ColorDialog
++ ContextMenu
++ Div Container Manager
++ ElementsPath
++ FontSize and Family
++ Form Elements
++ Format
++ Horizontal Rule
++ Indent Block
++ Justify
++ Show Table Borders
++ Styles Combo
++ TableResize
++ Table Tools Toolbar
+
+- About CKEditor

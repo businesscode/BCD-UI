@@ -29,6 +29,7 @@ ___
 * label widget added
 * chips widget added
 * sticky table (rows/cols) functionality added
+* messages editor and viewer added
 
 .Security
 * New cookie settings in context.xml and web.xml

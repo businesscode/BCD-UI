@@ -41,6 +41,20 @@
       </sec:Values>
     </sec:Setting>
       -->
+    <!--
+      Sample for messages viewer usage
+    <sec:Setting name="bcdClient:MessagesHide">
+      <sec:Values>
+        <sec:Value>true</sec:Value>
+        <sec:Value default="true">false</sec:Value>
+      </sec:Values>
+    </sec:Setting>
+    <sec:Setting name="bcdClient:MessagesTimeStamp">
+      <sec:Values>
+        <sec:Value>*</sec:Value>
+      </sec:Values>
+    </sec:Setting>
+      -->
 
   </sec:Settings>
 </sec:SubjectPreferencesConfig>

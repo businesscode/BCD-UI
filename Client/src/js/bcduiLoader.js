@@ -278,6 +278,37 @@ bcdui.bcduiCeFiles =
       ]
     },
     {
+      "id": "bcduiMessagesEditor",
+      "required": "optional",
+      "files": [
+          "/js/3rdParty/handsontable.js"
+        , "/js/3rdParty/ckeditor/ckeditorPackage/ckeditor.js"
+        , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
+        , "/js/component/grid/gridCreate.js"
+        , "/js/component/grid/gridEditor.js"
+        , "/js/widget/messages/bcduiHtmlEditor.js"
+        , "/js/widget/messages/messagesEditor.js"
+        , "/js/widget/messages/messagesViewer.js"
+      ],
+      "css": [
+        "/js/3rdParty/handsontable.css"
+      ],
+      "buildFolders": [
+        "/js/component/grid"
+      , "/js/widget/messages"
+      ]
+    },
+    {
+      "id": "bcduiMessagesViewer",
+      "required": "mandatory",
+      "files": [
+        "/js/widget/messages/messagesViewer.js"
+      ],
+      "buildFolders": [
+        "/js/widget/messages"
+      ]
+    },
+    {
       "id": "bcduiDocUpload",
       "required": "optional",
       "files": [
