@@ -1239,7 +1239,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               }
             }
           }
-          return colHeader["rendererX"](instance, td, row, col, prop, refValue, cellProperties, {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: value});
+          return colHeader["rendererX"](instance, td, row, col, prop, refValue, cellProperties, {colId: colId, colIdx: colIdx + 1, rowId: rowId, value: value, targetHtml: this.targetHtml});
         }.bind(this);
       }
       else
