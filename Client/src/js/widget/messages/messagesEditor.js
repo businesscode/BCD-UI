@@ -3,6 +3,11 @@
   /* User Messages Editor */
 jQuery.extend(bcdui.widget, {
   
+/**
+  * @param {Object} args The parameter map contains the following properties:
+  * @param {targetHtmlRef} args.targetHtml - A reference to the HTML DOM Element where to put the output
+  * @param {Object} [args.hotArgs] - optionally grid hotArgs overwrites
+ */  
   messagesEditor : function(args) {
 
     args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "messages_");
@@ -11,6 +16,27 @@ jQuery.extend(bcdui.widget, {
     // renderer renders the ckEditor/textarea and the buttons 
     bcdui.factory.objectRegistry.deRegisterObject("bcdHtmlEditorRenderer");
     new bcdui.core.Renderer({ id: "bcdHtmlEditorRenderer", chain: bcdui.contextPath + "/bcdui/js/widget/messages/render.xslt" });
+
+    // exchange validFrom with validTo if validTo is < validFrom
+    const afterChange = function(changes, source) {
+      if (source != "edit" && source != "CopyPaste.paste")
+        return;
+      const validFromIdx = parseInt(this.wrsHeaderMeta["valid_from"].pos, 10);
+      const validToIdx = parseInt(this.wrsHeaderMeta["valid_to"].pos, 10);
+      changes.forEach(function(e) {
+        if (e[1].prop == "valid_from" || e[1].prop == "valid_to") {
+          const validFrom = this.hotInstance.getDataAtCell(e[0], validFromIdx - 1);
+          const validTo = this.hotInstance.getDataAtCell(e[0], validToIdx - 1);
+          if (validFrom && validTo && validFrom > validTo) {
+            this.hotInstance.setDataAtCell(e[0], validFromIdx - 1, validTo);
+            this.hotInstance.setDataAtCell(e[0], validToIdx - 1, validFrom);
+          }
+        }
+      }.bind(this))
+    };
+
+    let hotArgs = args.hotArgs || {};
+    hotArgs["afterChange"] = afterChange;
 
     // the grid
     new bcdui.component.grid.Grid({
@@ -56,26 +82,7 @@ jQuery.extend(bcdui.widget, {
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.anon_allowed.pos +"]").text = "0";
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.valid_from.pos +"]").text = new Date().toISOString().substring(0,10);
         }
-
-      // exchange validFrom with validTo if validTo is < validFrom
-      , hotArgs: {
-        afterChange: function(changes, source) {
-          if (source != "edit" && source != "CopyPaste.paste")
-            return;
-          const validFromIdx = parseInt(this.wrsHeaderMeta["valid_from"].pos, 10);
-          const validToIdx = parseInt(this.wrsHeaderMeta["valid_to"].pos, 10);
-          changes.forEach(function(e) {
-            if (e[1].prop == "valid_from" || e[1].prop == "valid_to") {
-              const validFrom = this.hotInstance.getDataAtCell(e[0], validFromIdx - 1);
-              const validTo = this.hotInstance.getDataAtCell(e[0], validToIdx - 1);
-              if (validFrom && validTo && validFrom > validTo) {
-                this.hotInstance.setDataAtCell(e[0], validFromIdx - 1, validTo);
-                this.hotInstance.setDataAtCell(e[0], validToIdx - 1, validFrom);
-              }
-            }
-          }.bind(this))
-        }
-      }
+      , hotArgs: hotArgs
     });
   }
 });

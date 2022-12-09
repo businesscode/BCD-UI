@@ -3,10 +3,21 @@
   /* User Messages Viewer */
 jQuery.extend(bcdui.widget, {
 
-  messagesViewer : function() {
-
+/**
+  * @param {Object} args The parameter map contains the following properties:
+  * @param {(string|bcdui.core.RequestDocumentDataProvider)} [args.url] - optionally overwrite wrs servlet for getting data
+  * @param {String} [args.bindingSetId] - optionally overwrite bindingSetId
+ */  
+   messagesViewer : function(args) {
+    
     // get the current active data
-    const data = new bcdui.core.AutoModel({bRefs: "severity message lastUpdate", bindingSetId: "bcd_messages", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("is_valid = '1'"), orderByBRefs: "lastUpdate-" });
+    const data = new bcdui.core.AutoModel({
+      bRefs: "severity message lastUpdate"
+    , bindingSetId: args && args.bindingSetId || "bcd_messages"
+    , filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("is_valid = '1'")
+    , orderByBRefs: "lastUpdate-"
+    , url: args && args.url || bcdui.core.webRowSetServletPath
+    });
 
     data.onceReady(function() {
 
