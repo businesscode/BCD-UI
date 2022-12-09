@@ -53,6 +53,7 @@ jQuery.extend(bcdui.widget, {
       , afterAddRow: function(args) {
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.message_id.pos +"]").text = bcdui.util.getUuid();
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.severity.pos +"]").text = "3";
+          args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.anon_allowed.pos +"]").text = "0";
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.valid_from.pos +"]").text = new Date().toISOString().substring(0,10);
         }
 

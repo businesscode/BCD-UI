@@ -21,7 +21,7 @@ jQuery.extend(bcdui.widget, {
         const message = row.selectSingleNode("wrs:C["+messageIdx+"]").text;
         const lastUpdate = row.selectSingleNode("wrs:C["+lastUpdateIdx+"]").text;
         const title = data.getData().selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C["+severityIdx+"]//wrs:Data/wrs:R[wrs:C[position()=2 and .='"+severity+"']]/wrs:C[1]").text;
-        const match = bcdui.component.grid.GridEditor.bcduiHtmlEditor.getRegEx().exec(message);
+        const match = new RegExp(/<div id='bcdBody'>(.*)<\!\-\- end \-\->/g).exec(message);
         if (match) {
           messages.push({title: title, severity: severity, message: match[1], lastUpdate: lastUpdate});
           if (maxLastUpdate < lastUpdate) {
