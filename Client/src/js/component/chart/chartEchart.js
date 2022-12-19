@@ -52,7 +52,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
    * @private
    */
   _createInstance(){
-    this.instance = echarts.init(document.getElementById(this.targetHtml), null, {renderer: "canvas"});
+    this.instance = echarts.init(document.getElementById(this.targetHTMLElementId), null, {renderer: "canvas"});
     return this.instance;
   }
 
@@ -62,7 +62,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
   _refresh()
   {
     // Update or brand new chart?
-    let existInstance = echarts.getInstanceByDom( document.getElementById(this.targetHtml) );
+    let existInstance = echarts.getInstanceByDom( document.getElementById(this.targetHTMLElementId) );
     let myChart = existInstance || this._createInstance();
 
     if( this.config.read("/*/chart:Series/chart:Series[@chartType='SUNBURSTCHART']") === null )
