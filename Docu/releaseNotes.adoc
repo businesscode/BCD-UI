@@ -28,6 +28,7 @@ ___
 * checkbox widget supports more than 1 and 0 via values parameter
 * label widget added
 * chips widget added
+* cube/cubeModel parameter requestChain added to allow custom request builders
 * sticky table (rows/cols) functionality added
 * messages editor and viewer added
 

@@ -32,11 +32,16 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
    * @param {string}                  [args.cubeId] - When settings are to be derived from status model, this is the id in <cube:Layout cubeId="myCube">
    * @param {string}                  [args.id]     - The object's id, needed only when later accessing via id. If given the CubeModel registers itself at {@link bcdui.factory.objectRegistry}
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
+   * @param {chainDef}                [args.requestChain] - An alternative request building chain. Default here is /bcdui/js/component/cube/request.xslt.
+   * @param {Object}                  [args.requestParameters] - An object, where each property holds a DataProvider, used as a transformation parameters.
    */
   constructor(args) {
      
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createCubeModel_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createCubeModel_args);
+
+    const requestChain = args.requestChain || bcdui.contextPath+"/bcdui/js/component/cube/request.xslt";
+    let requestParameters = args.requestParameters || {};
 
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cubeModel");
     // param {bcdui.core.DataProvider} [args.chain=bcdui/component/cube/chain.xml] - Processing chain, usually the default chain does a good job and is required for support of cube-2.0.0.xsd
@@ -65,8 +70,9 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
           ) {
         rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
       } else {
+		requestParameters["statusModel"] = args.statusModel;
         rqModel = new bcdui.core.ModelWrapper( { id: args.id+"_bcdImpl_requestDoc", inputModel: args.enhancedConfiguration,
-          parameters: {statusModel: args.statusModel }, chain: bcdui.contextPath+"/bcdui/js/component/cube/request.xslt" } );
+          parameters: requestParameters, chain: requestChain } );
       }
       reqHolder.setSource(rqModel);
       reqHolder.execute();
@@ -123,6 +129,8 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Cube registers itself at {@link bcdui.factory.objectRegistry}
    * @param {chainDef}                [args.chain]                                           - An alternative rendering chain, See {@link bcdui.core.Renderer}. Default here is HtmlBuilder.
    * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
+   * @param {chainDef}                [args.requestChain]                                    - An alternative request building chain. Default here is /bcdui/js/component/cube/request.xslt.
+   * @param {Object}                  [args.requestParameters]                               - An object, where each property holds a DataProvider, used as a transformation parameters.
    */
   constructor(args) {
 
@@ -158,7 +166,9 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     super( {
         id: args.id,
         inputModel: args.inputModel,
-        targetHtml: targetHtml, 
+        targetHtml: targetHtml,
+        requestChain: args.requestChain,
+        requestParameters: args.requestParameters,
         parameters: Object.assign({paramModel: enhancedConfiguration, cubeId: args.id}, args.parameters ),
         chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
         , bcdPreInit: function() {

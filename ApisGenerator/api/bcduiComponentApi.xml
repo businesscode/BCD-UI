@@ -212,6 +212,16 @@
             The model containing the current cube layout together with the filters. This is the guiStatus model by default.
           </Doc>
         </Param>
+        <Param name="requestChain" type="dataProvider" isJSPChild="paramBag.requestChain">
+          <Doc>
+            An alternative request building chain. Default here is /bcdui/js/component/cube/request.xslt.
+          </Doc>
+        </Param>
+        <ParamList name="requestParameters">
+          <Doc>
+            List of named parameters.
+          </Doc>
+        </ParamList>
       </Api>
 
       <Api name="cube" extends="cubeModel hasTargetHtml">
