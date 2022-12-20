@@ -206,7 +206,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       String sql = getTransformSQL(updateFileCountSQL);
       stmt = connection.prepareStatement(sql);
       java.util.Date today = new java.util.Date();
-      stmt.setDate(1, new java.sql.Date(today.getTime()));
+      stmt.setTimestamp(1, new java.sql.Timestamp(today.getTime()));
       stmt.setString(2, d.uuid);
       stmt.execute();
     }finally{
@@ -236,7 +236,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       cal.add(Calendar.DATE, CLEARDAYS_FILES * -1);
 
       stmt = connection.prepareStatement(sql);
-      stmt.setDate(1, new java.sql.Date(cal.getTime().getTime())) ;
+      stmt.setTimestamp(1, new java.sql.Timestamp(cal.getTime().getTime())) ;
       rs = stmt.executeQuery();
       ArrayList<String> uuids = new ArrayList<>();
       while(rs.next())
@@ -273,7 +273,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       cal.add(Calendar.DATE, CLEARDAYS_STATS * -1);
 
       stmt = connection.prepareStatement(getTransformSQL(cleanUpStatsSQL));
-      stmt.setDate(1, new java.sql.Date(cal.getTime().getTime())) ;
+      stmt.setTimestamp(1, new java.sql.Timestamp(cal.getTime().getTime())) ;
       rs = stmt.executeQuery();
 
     }finally{

@@ -199,8 +199,8 @@ DROP TABLE bcd_cache_scope;
 CREATE  TABLE bcd_cache_scope
 (
   scope                  VARCHAR(256) NOT NULL UNIQUE,
-  scope_last_modified    TIMESTAMP,
-  earliest_next_modified TIMESTAMP,
+  scope_last_modified    DATETIME,
+  earliest_next_modified DATETIME,
   expires_min_offset_sec INTEGER
 );
 
@@ -211,7 +211,7 @@ CREATE TABLE bcd_comment
    scope             varchar(256),
    instance_id       varchar(256),
    text              varchar(256),
-   last_modified_at  timestamp,
+   last_modified_at  DATETIME,
    last_modified_by  varchar(256)
 );
 
@@ -220,12 +220,12 @@ CREATE TABLE BCD_FILES_DOWNLOAD
 (
    ID              VARCHAR(128),
    UUID            VARCHAR(128),
-   CREATE_STAMP    TIMESTAMP,
+   CREATE_STAMP    DATETIME,
    FILE_NAME       VARCHAR(256),
    REPORT_NAME     VARCHAR(256),
    DOWNLOAD_LINK   VARCHAR(1024),
    DOWNLOAD_COUNT  integer,
-   LAST_DOWNLOAD   TIMESTAMP
+   LAST_DOWNLOAD   DATETIME
 );
 
 DROP TABLE BCD_MESSAGES;
