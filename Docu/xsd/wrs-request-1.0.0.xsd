@@ -581,6 +581,7 @@
     Analytical functions
     -->
   <xs:element name="AnalyticFct" type="tns:TypeAnalyticFct" abstract="true"/>
+  <xs:element name="RowNumber"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
   <xs:element name="SumOver"    type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
   <xs:element name="CountOver"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
   <xs:element name="LeadOver"   type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
@@ -721,6 +722,9 @@
   </xs:element>
   <xs:element name="CastAsNumeric" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to DECIMAL.</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="CastAsInteger" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to INTEGER.</xs:documentation></xs:annotation>
   </xs:element>
   <xs:element name="CastAsBRef" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Surrounds its content with an explicit cast to the type of the given bRef.</xs:documentation></xs:annotation>

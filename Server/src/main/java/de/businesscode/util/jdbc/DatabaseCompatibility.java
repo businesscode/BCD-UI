@@ -422,6 +422,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "I"});
     calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "I"});
     calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "I"});
+    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "I"});
     calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "I"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
 
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
