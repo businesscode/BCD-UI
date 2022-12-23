@@ -434,12 +434,12 @@ public class DatabaseCompatibility
     calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
     // Analytical functions optional module
-    calcFktMapping.put("RowNumber",     new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
-    calcFktMapping.put("CountOver",     new String[]{"N", "COUNT(",         "",   ")", "O"});
-    calcFktMapping.put("SumOver",       new String[]{"N", "SUM(",           "",   ")", "O"});
-    calcFktMapping.put("LeadOver",      new String[]{"N", "LEAD(",          ",",  ")", "O"});
-    calcFktMapping.put("PartitionBy",   new String[]{"N", " PARTITION BY ", ",",  "",  "I"});
-    calcFktMapping.put("OrderBy",       new String[]{"N", " ORDER BY ",     ",",  "",  "O"});
+    calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
+    calcFktMapping.put("CountOver",       new String[]{"N", "COUNT(",         "",   ")", "O"});
+    calcFktMapping.put("SumOver",         new String[]{"N", "SUM(",           "",   ")", "O"});
+    calcFktMapping.put("LeadOver",        new String[]{"N", "LEAD(",          ",",  ")", "O"});
+    calcFktMapping.put("PartitionBy",     new String[]{"N", " PARTITION BY ", ",",  "",  "I"});
+    calcFktMapping.put("OrderBy",         new String[]{"N", " ORDER BY ",     ",",  "",  "O"});
 
     // Calc functions are just _almost_ the same for all db dialects
     oracleCalcFktMapping = calcFktMapping;

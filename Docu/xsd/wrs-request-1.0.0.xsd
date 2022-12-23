@@ -580,11 +580,11 @@
   <!--
     Analytical functions
     -->
-  <xs:element name="AnalyticFct" type="tns:TypeAnalyticFct" abstract="true"/>
-  <xs:element name="RowNumber"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
-  <xs:element name="SumOver"    type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
-  <xs:element name="CountOver"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
-  <xs:element name="LeadOver"   type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="AnalyticFct"    type="tns:TypeAnalyticFct" abstract="true"/>
+  <xs:element name="RowNumberOver"  type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="SumOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="CountOver"      type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
+  <xs:element name="LeadOver"       type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct"/>
 
   <xs:complexType name="TypeAnalyticFct">
     <xs:sequence>
