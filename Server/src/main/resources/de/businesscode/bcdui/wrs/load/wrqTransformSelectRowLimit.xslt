@@ -124,7 +124,7 @@
                 <!-- Add a virtual column for the row limitations -->
                 <wrq:C bRef="bcdPagination" type-name="INTEGER"> <!-- TODO -->
                   <wrq:Calc type-name="INTEGER"> <!-- TODO -->
-                    <wrq:RowNumber>
+                    <wrq:RowNumberOver>
                       <wrq:OrderBy nullsOrder="nullsLast">
                         <xsl:copy-of select="./wrq:Ordering/wrq:C/@order"/> <!-- TODO -->
 
@@ -143,7 +143,7 @@
                         </xsl:choose>
 
                       </wrq:OrderBy>
-                    </wrq:RowNumber>
+                    </wrq:RowNumberOver>
                   </wrq:Calc>
                 </wrq:C>
               </wrq:Columns>
