@@ -326,9 +326,21 @@
           <xp:OnlyMeasureForTotal>
             <xsl:value-of select="count(/*/cube:Layout/cube:Dimensions/cube:Rows/*)=0 and count(/*/cube:Layout/cube:Dimensions/cube:Columns/*)=1"/>
           </xp:OnlyMeasureForTotal>
-          <xsl:if test="/*/cube:Layout/@expandCollapseCells">
-            <xp:ExpandCollapseCells>true</xp:ExpandCollapseCells>
-          </xsl:if>
+
+          <!--  expand/collaps feature via layout -->
+          <xsl:if test="/*/cube:Layout/@expandCollapseCells"><xp:ExpandCollapseCells>true</xp:ExpandCollapseCells></xsl:if>
+
+          <!-- sticky table settings via layout -->
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@header"><xp:StickyHeader><xsl:value-of select="/*/cube:Layout/cube:Freeze/@header"/></xp:StickyHeader></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@footer"><xp:StickyFooter><xsl:value-of select="/*/cube:Layout/cube:Freeze/@footer"/></xp:StickyFooter></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@bcdDimensions"><xp:StickyDims><xsl:value-of select="/*/cube:Layout/cube:Freeze/@bcdDimensions"/></xp:StickyDims></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@height"><xp:StickyHeight><xsl:value-of select="/*/cube:Layout/cube:Freeze/@height"/></xp:StickyHeight></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@width"><xp:StickyWidth><xsl:value-of select="/*/cube:Layout/cube:Freeze/@width"/></xp:StickyWidth></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@nFirstCols"><xp:StickyFirstCols><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nFirstCols"/></xp:StickyFirstCols></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@nFirstRows"><xp:StickyFirstRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nFirstRows"/></xp:StickyFirstRows></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastCols"><xp:StickyLastCols><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastCols"/></xp:StickyLastCols></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastRows"><xp:StickyLastRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastRows"/></xp:StickyLastRows></xsl:if>
+
         </xp:HtmlBuilder>
 
       </xp:XSLTParameters>

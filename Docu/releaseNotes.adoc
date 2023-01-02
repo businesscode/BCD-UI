@@ -29,7 +29,7 @@ ___
 * label widget added
 * chips widget added
 * cube/cubeModel parameter requestChain added to allow custom request builders
-* sticky table (rows/cols) functionality added
+* sticky table (rows/cols) functionality added (either via htmlBuilder parameters or cube layout cube:Freeze element)
 * messages editor and viewer added
 
 .Security

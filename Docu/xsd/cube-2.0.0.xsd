@@ -125,6 +125,20 @@
 
         </xs:complexType>
       </xs:element>
+      
+      <xs:element name="Freeze">
+        <xs:complexType>
+          <xs:attribute name="header" type="xs:boolean"><xs:annotation><xs:documentation>sticky header row</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="footer" type="xs:boolean"><xs:annotation><xs:documentation>sticky footer row</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="bcdDimensions" type="xs:boolean"><xs:annotation><xs:documentation>sticky cube dimensions</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="width" type="xs:string"><xs:annotation><xs:documentation>width of outer container (e.g. 20, 30em)</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="height" type="xs:string"><xs:annotation><xs:documentation>height of outer container (e.g. 20, 30em)</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="nFirstRows" type="xs:integer"><xs:annotation><xs:documentation>make first n rows sticky</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="nLastRows" type="xs:integer"><xs:annotation><xs:documentation>make last n rows sticky</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="nFirstCols" type="xs:integer"><xs:annotation><xs:documentation>make first n cols sticky</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="nLastCols" type="xs:integer"><xs:annotation><xs:documentation>make last n cols sticky</xs:documentation></xs:annotation></xs:attribute>
+        </xs:complexType>
+      </xs:element>
 
       <xs:element name="Measures">
         <xs:complexType>
