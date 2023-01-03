@@ -101,6 +101,11 @@ bcdui.widget.visualizeXml =
    * @param {boolean}                 [args.isAutoRefresh=true] Automatically redraw when model changes
    * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
    * @param {function}                [args.onReady]      onReady function for renderer
+   * @example
+   * // Load, transform and visualize a model
+   * let sm = new bcdui.core.SimpleModel("input.xml");
+   * let mw = new bcdui.core.ModelWrapper({inputModel: sm, chain: "transformer.xslt"});
+   * bcdui.widget.visualizeXml.visualizeModel({targetHtml: "testOutput", inputModel: mw, title: "Transformed Output"});
    */
   visualizeModel: function(args) 
   {
