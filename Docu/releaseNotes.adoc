@@ -14,6 +14,8 @@ ___
 ** Api stubs for JavaScript auto-suggest and inline help in IDEs
 ** Fully supporting MySQL and Redshift now
 ** Security improvements
+** Extended SQL analytical functions in Wrq
+** Added comparison operators for usage outside of filter, resolving to 0 or 1
 
 .Server:
 * Wrq does support CTE common table expressions, joins and unions now
@@ -65,6 +67,8 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 * Grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
 * removed ZipLet decodeAndDecompressToXMLWithXInclude functionality. Update possible calls to decodeAndDecompressToXML.
 * bcdui.util.clipboard.paste and pasteCSVasXML don't return the value directly. It's a promise now, so use '.then( value => {...} ) to use the value.
+* New reserved SQL words `CURRENT`, `FOLLOWING`, ROW`, `ROWS` and some less critical  analytical functions
+
 ___
 ==== Release 5_5_0
 

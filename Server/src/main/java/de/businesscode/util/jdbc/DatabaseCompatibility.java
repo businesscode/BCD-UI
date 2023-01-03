@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public class DatabaseCompatibility
   // Instead of extending the list, you may also prepend "bcdNoTableAlias." to it to hint SQL generator
   protected final Set<String> sqlKeyWordsOracle;
   protected final Set<String> sqlKeyWordsMysql;
+  protected final Set<String> sqlKeyWordsPostgres;
   protected final Set<String> sqlKeyWordsSqlServer;
   protected final Set<String> sqlKeyWordsGeneric;
   protected final Map<String, String> databaseProduct = new HashMap<String, String>();
@@ -106,7 +107,7 @@ public class DatabaseCompatibility
 
   /**
    *
-   * @param bs 
+   * @param jdbcResourceName
    * @return Set of key words for the database belonging to the BindingSets connection
    */
   public Set<String>getReservedDBWords(String jdbcResourceName)
@@ -119,6 +120,8 @@ public class DatabaseCompatibility
         return sqlKeyWordsMysql;
       else if( product.contains("microsoft sql server") )
         return sqlKeyWordsSqlServer;
+      else if( product.contains("postgresql") )
+        return sqlKeyWordsPostgres;
     } catch (Exception e) {
       log.error(e, e);
     }
@@ -127,7 +130,7 @@ public class DatabaseCompatibility
 
   /**
    * If the database used for the selected BindingSet needs an extra column list for with clauses
-   * @param bs
+   * @param jdbcResourceName
    * @return
    */
   public boolean dbNeedsColumnListForRecursiveWithClause(String jdbcResourceName)
@@ -148,7 +151,7 @@ public class DatabaseCompatibility
 
   /**
    * Are we allowed to use GROUPING SETs and GROUPING()?
-   * @param resultingBindingSet
+   * @param jdbcResourceName
    * @return
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
@@ -158,7 +161,7 @@ public class DatabaseCompatibility
 
   /**
    * Returns true if the database of resultingBindingSet supports GROUPING SETS
-   * @param resultingBindingSet
+   * @param jdbcResourceName
    * @return
    */
   public String dbLikeEscapeBackslash(String jdbcResourceName) {
@@ -167,7 +170,7 @@ public class DatabaseCompatibility
   }
 
   /**
-   * @param resultingBindingSet
+   * @param jdbcResourceName
    * @return
    */
   public boolean dbNeedsVarcharCastForConcatInTopN(String jdbcResourceName) {
@@ -177,7 +180,7 @@ public class DatabaseCompatibility
   /**
    * Oracle sorts nulls first in desc (order by and rank order by), tera and sqlserver do this vice versa
    * Sadly, of these, only oracle allows NULLS FIRST/LAST in ORDER BY
-   * @param resultingBindingSet
+   * @param jdbcResourceName
    * @return How often bound variables of the item used for ordering are used in the created expression
    */
   public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql ) 
@@ -203,7 +206,7 @@ public class DatabaseCompatibility
 
   /**
    * Wraps the expression so that the result is of type VARCHAR or CHAR
-   * @param bindingSet       Used to derive database specific syntax
+   * @param jdbcResourceName Used to derive database specific syntax
    * @param origJdbcDataType Used to skip wrapping if already CHAR/VARCHAR and keep format YYYY-MMM-DDD for type date
    * @param expr             Expression to be wrapped
    * @return                 Wrapped SQL expression
@@ -285,7 +288,7 @@ public class DatabaseCompatibility
   
   /**
    * Does not do much checking, but as all BindingSets are tested on start, the risk is low
-   * @param bs
+   * @param jdbcResourceName
    * @return
    */
   public String getDatabaseProductNameLC(String jdbcResourceName)
@@ -308,6 +311,7 @@ public class DatabaseCompatibility
       String databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase();
       // AWS Redshift returns PostgreSQL as product name, but we want to distinguish them
       if( con.getMetaData().getURL().toLowerCase().contains("redshift") ) databaseProductName = "redshift";
+      if( con.getMetaData().getURL().toLowerCase().contains("snowflake") ) databaseProductName = "teradata";
       databaseProduct.put(jdbcResourceName, databaseProductName);
       return databaseProductName;
     } catch (Exception e) {
@@ -410,6 +414,7 @@ public class DatabaseCompatibility
     calcFktMapping = new HashMap<String,String[]>();
     calcFktMapping.put("Calc",          new String[]{"Y",  "",     "+",   "", "Y"}); // We default to + if Calc has multiple children
 
+    // Single argument (i.e. children) aggregators
     calcFktMapping.put("Sum",           new String[]{"Y",  "SUM(",          "",  ")", "I"});
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
@@ -418,44 +423,81 @@ public class DatabaseCompatibility
     calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
+
+    // Single argument (i.e. child) modifier
     calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
     calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "I"});
     calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "I"});
     calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "I"});
     calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "I"});
     calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "I"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
+    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
+    // Two arguments (i.e. children) operators
+    calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
+    // Boolean ops
+    calcFktMapping.put("Eq",            new String[]{"N",  " CASE WHEN ", "=",  " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("NEq",           new String[]{"N",  " CASE WHEN ", "<>", " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("Gt",            new String[]{"N",  " CASE WHEN ", ">",  " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("GtE",           new String[]{"N",  " CASE WHEN ", ">=", " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("Lt",            new String[]{"N",  " CASE WHEN ", "<",  " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("LtE",           new String[]{"N",  " CASE WHEN ", "<=", " THEN 1 ELSE 0 END ", "N"});
+
+    // Multi arguments (i.e. children) operators
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
     calcFktMapping.put("Sub",           new String[]{"Y",  "(",     "-",  ")", "N"});
     calcFktMapping.put("Mul",           new String[]{"Y",  "(",     "*",  ")", "N"});
     calcFktMapping.put("Div",           new String[]{"Y",  "(",     "/ NULLIF(",  ",0) )", "N"});
-    calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
     calcFktMapping.put("Concat",        new String[]{"N",  "(",     "||", ")", "N"});
-    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
-    // Analytical functions optional module
+    // Analytical functions, optional module implemented in BCD-UI Enterprise Edition
+    // No argument
     calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
+    calcFktMapping.put("RankOver",        new String[]{"N", "RANK(",          "",   ")", "O"});
+    calcFktMapping.put("DenseRankOver",   new String[]{"N", "DENSE_RANK(",    "",   ")", "O"});
+    calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "O"});
+    // With argument
     calcFktMapping.put("CountOver",       new String[]{"N", "COUNT(",         "",   ")", "O"});
     calcFktMapping.put("SumOver",         new String[]{"N", "SUM(",           "",   ")", "O"});
-    calcFktMapping.put("LeadOver",        new String[]{"N", "LEAD(",          ",",  ")", "O"});
-    calcFktMapping.put("PartitionBy",     new String[]{"N", " PARTITION BY ", ",",  "",  "I"});
-    calcFktMapping.put("OrderBy",         new String[]{"N", " ORDER BY ",     ",",  "",  "O"});
+    calcFktMapping.put("LagOver",         new String[]{"N", "LAG(",           "",   ")", "O"});
+    calcFktMapping.put("LeadOver",        new String[]{"N", "LEAD(",          "",   ")", "O"});
+    calcFktMapping.put("FirstValueOver",  new String[]{"N", "FIRST_VALUE(",   "",   ")", "O"});
+    calcFktMapping.put("LastValueOver",   new String[]{"N", "LAST_VALUE(",    "",   ")", "O"});
+    calcFktMapping.put("MinOver",         new String[]{"N", "MIN(",           "",   ")", "O"});
+    calcFktMapping.put("MaxOver",         new String[]{"N", "MAX(",           "",   ")", "O"});
+    // Specification
+    calcFktMapping.put("PartitionBy",     new String[]{"N", " PARTITION BY ", ",",  "",  "N"});
+    calcFktMapping.put("OrderBy",         new String[]{"N", " ORDER BY ",     ",",  "",  "N"});
+    calcFktMapping.put("Asc",             new String[]{"N", "",               "",   " ASC ",             "N"});
+    calcFktMapping.put("AscNf",           new String[]{"N", "",               "",   " ASC NULLS FIRST ", "N"});
+    calcFktMapping.put("AscNl",           new String[]{"N", "",               "",   " ASC ",             "N"}); // Last is default for Asc Ora, PG, RS
+    calcFktMapping.put("Desc",            new String[]{"N", "",               "",   " DESC ",            "N"});
+    calcFktMapping.put("DescNf",          new String[]{"N", "",               "",   " DESC ",            "N"}); // First is default for Desc  Ora, PG, RS
+    calcFktMapping.put("DescNl",          new String[]{"N", "",               "",   " DESC NULLS LAST ", "N"});
 
-    // Calc functions are just _almost_ the same for all db dialects
+    // Calc functions are just _almost_ the same for all db dialects, here we overwrite the exceptions
     oracleCalcFktMapping = calcFktMapping;
     sqlServerCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     // Using '+' for MSSQL for concat does not autocast: VARCHAR + INTEGER fails. Concat does cast, same as || does for oracle.
     // On the other hand, concat for oracle does not support >2 arguments, so Concat is handled db specific
-    sqlServerCalcFktMapping.put("Concat", new String[]{"N",  "CONCAT(",     ",", ")", "N"});
-    sqlServerCalcFktMapping.put("Mod",    new String[]{"Y",  "",  "%",  "", "N"});
+    sqlServerCalcFktMapping.put("Concat", new String[]{"N", "CONCAT(",  ",", ")",                   "N"});
+    sqlServerCalcFktMapping.put("Mod",    new String[]{"Y", "",         "%",  "",                   "N"});
+    sqlServerCalcFktMapping.put("AscNf",  new String[]{"N", "",         "",   " ASC ",              "N"}); // First is default for Asc TSQL
+    sqlServerCalcFktMapping.put("AscNl",  new String[]{"N", "",         "",   " ASC NULLS LAST ",   "N"}); // TODO fails
+    sqlServerCalcFktMapping.put("DescNf", new String[]{"N", "",         "",   " DESC NULLS FIRST",  "N"}); // TODO fails
+    sqlServerCalcFktMapping.put("DescNl", new String[]{"N", "",         "",   " DESC ",             "N"}); // LAST is default for Asc TSQL
     
     // MySql
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
-    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", " AS CHAR),CAST(", " AS CHAR))", "N"});
-    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(", "",  " AS CHAR)",  "I"});
+    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(",      "",                 ")",                  "I"});
+    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", " AS CHAR),CAST(",  " AS CHAR))",         "N"});
+    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(",     "",                 " AS CHAR)",          "I"});
+    mysqlCalcFktMapping.put("AscNf",      new String[]{"N", "",             "",                 " ASC ",              "N"}); // First is default for Asc MySql
+    mysqlCalcFktMapping.put("AscNl",      new String[]{"N", "",             "",                 " ASC NULLS LAST ",   "N"}); // TODO fails
+    mysqlCalcFktMapping.put("DescNf",     new String[]{"N", "",             "",                 " DESC NULLS FIRST",  "N"}); // TODO fails
+    mysqlCalcFktMapping.put("DescNl",     new String[]{"N", "",             "",                 " DESC ",             "N"}); // LAST is default for Asc MySql
 
-    // MySql
+    // Redshift
     redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     redshiftCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
     redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?|| 
@@ -490,14 +532,16 @@ public class DatabaseCompatibility
     spatialFktMapping = new HashMap<String,String[]>();
 
     // Open Geospatial Consortium Inc.
-    spatialFktMapping.put("GeoFromWkt", new String[]{"ST_WktToSQL(",     "",  ")"});
+    spatialFktMapping.put("GeoFromWkt", new String[]{"ST_WktToSQL(", "", ")"});
+    spatialFktMapping.put("GeoFromWktMakeValid", new String[]{"ST_MakeValid(ST_WktToSQL(", "", "))"});
     spatialFktMapping.put("SpatContains", new String[]{"ST_Contains(",     ",",  ") = 1"});
     spatialFktMapping.put("SpatContained", new String[]{"ST_Contains(",     ",",  ") = 1"});
     spatialFktMapping.put("SpatIntersects", new String[]{"ST_Intersects(",     ",",  ") = 1"});
 
     // Database specific
     oracleSpatialFktMapping = new HashMap<String, String[]>(spatialFktMapping);
-    oracleSpatialFktMapping.put("GeoFromWkt", new String[]{"SDO_UTIL.FROM_WKTGEOMETRY(",     "",  ")"});
+    oracleSpatialFktMapping.put("GeoFromWkt", new String[]{"SDO_UTIL.FROM_WKTGEOMETRY(",  "",  ")"});
+    oracleSpatialFktMapping.put("GeoFromWktMakeValid", new String[]{"SDO_UTIL.RECTIFY_GEOMETRY(SDO_UTIL.FROM_WKTGEOMETRY(", "", "))"});
     oracleSpatialFktMapping.put("SpatContains", new String[]{"SDO_CONTAINS(",     ",",  ") = 1"});
     oracleSpatialFktMapping.put("SpatContained", new String[]{"SDO_CONTAINS(",     ",",  ") = 1"});
     oracleSpatialFktMapping.put("SpatIntersects", new String[]{"SDO_INTERSECTION(",     ",",  ") = 1"});
@@ -507,7 +551,8 @@ public class DatabaseCompatibility
     // We use geography:: and not geometry:: because we assume working with geo-spatial data here, not with a plain Euclidean space.
     final String DEFAULT_SRID = "4326";
     sqlServerSpatialFktMapping = new HashMap<String, String[]>(spatialFktMapping);
-    sqlServerSpatialFktMapping.put("GeoFromWkt", new String[]{"geography::STGeomFromText(",     "",  ", "+DEFAULT_SRID+")"});
+    sqlServerSpatialFktMapping.put("GeoFromWkt", new String[]{"geography::STGeomFromText(", "", ", "+DEFAULT_SRID+")"});
+    sqlServerSpatialFktMapping.put("GeoFromWktMakeValid", new String[]{"geography::STGeomFromText(", "",  ", "+DEFAULT_SRID+").MakeValid()"});
     sqlServerSpatialFktMapping.put("SpatContains", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatContained", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatIntersects", new String[]{"",  ".STIntersects(", ") = 1"});
@@ -535,17 +580,17 @@ public class DatabaseCompatibility
             "SAVEPOINT", "SESSIONTIMEZONE", "SET", "SET_TRANSACTION_USE", "SIGN", "SIN", "SINH", "SOUNDEX", "STRING_AGG", "SQLCODE", "SQLERRM", "SQRT", "SUBSTR", "SUBSTRB", "SUBSTRC", "SUBSTR2", "SUBSTR4", "SUBSTRING",
             "SYS_AT_TIME_ZONE", "SYS_CONTEXT", "SYSDATE", "SYS_EXTRACT_UTC", "SYS_GUID", "SYS_LITERALTODATE", "SYS_LITERALTODSINTERVAL", "SYS_LITERALTOTIME", "SYS_LITERALTOTIMESTAMP", "SYS_LITERALTOTZTIME", "SYS_LITERALTOTZTIMESTAMP", "SYS_LITERALTOYMINTERVAL", "SYS$LOB_REPLICATION", "SYSTIMESTAMP",
             "TAN", "TANH", "TO_ANYLOB", "TO_BINARY_DOUBLE", "TO_BINARY_FLOAT", "TO_BLOB", "TO_CHAR", "TO_CLOB", "TO_DATE", "TO_DSINTERVAL", "TO_LABEL", "TO_MULTI_BYTE", "TO_NCHAR", "TO_NCLOB", "TO_NUMBER", "TO_RAW", "TO_SINGLE_BYTE", "TO_TIME", "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_TIME_TZ", "TO_YMINTERVAL", "TRANSLATE", "TRIM", "TRUNC", "TZ_OFFSET",
-            "UID", "UNISTR", "UPPER", "UROWID ", "USER", "USERENV",
+            "UID", "UNISTR", "UPPER", "UROWID", "USER", "USERENV",
             "VALUE", "VSIZE",
             "XOR",
             // Aggregation functions
-            "AVG", "CORR", "COVAR_POP", "COVAR_SAMP", "COUNT", "CUME_DIST", "DENSE_RANK", "LAG", "FIRST_VALUE", "LAST_VALUE ", "LEAD", "MAX", "MIN", "NTILE", "PERCENT_RANK", "RATIO_TO_REPORT",
+            "AVG", "CORR", "COVAR_POP", "COVAR_SAMP", "COUNT", "CURRENT", "CUME_DIST", "DENSE_RANK", "LAG", "FIRST_VALUE", "LAST_VALUE", "LEAD", "MAX", "MIN", "NTILE", "PERCENT_RANK", "RATIO_TO_REPORT",
             "REGR_SLOPE", "REGR_INTERCEPT", "REGR_COUNT", "REGR_R2", "REGR_AVGX", "REGR_AVGY", "REGR_SXX", "REGR_SYY", "REGR_SXY",
-            "RANK", "ROW_NUMBER", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
+            "RANK", "ROW", "ROWS", "ROW_NUMBER", "STDDEV", "STDDEV_POP", "STDDEV_SAMP", "SUM", "VAR_POP", "VAR_SAMP", "VARIANCE",
             "OVER", "ORDER", "PARTITION", "BY", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "ASC", "DESC", "NULLS", "FIRST", "LAST",
             // CAST and data types
             "CAST", "MULTISET", "AS", "DECODE",
-            "DAY", "DATE", "TIMESTAMP", "WITH", "LOCAL", "TIME", "ZONE", "YEAR", "ISOYEAR", "QUARTER", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
+            "DAY", "DATE", "TIMESTAMP", "INTERVAL", "WITH", "LOCAL", "AT", "TIME", "ZONE", "YEAR", "ISOYEAR", "QUARTER", "MONTH", "WEEK", "TO", "HOUR", "MINUTE", "SECOND",
             "FLOAT", "REAL", "DECIMAL", "NUMERIC",
             "EXTRACT", "FROM",
             "CHAR", "CHARACTER", "NVARCHAR2", "NCHAR", "VARCHAR2", "VARCHAR",
@@ -596,10 +641,20 @@ public class DatabaseCompatibility
     sqlKeyWordsMysql.addAll(
         Arrays.asList( new String[]
           {
-            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "STR_TO_DATE"
+            "YEARWEEK", "WEEKOFYEAR", "DATE_FORMAT", "STR_TO_DATE", "NOW"
           }
         )
       );
+
+    // PostgreSQL specific
+    sqlKeyWordsPostgres = new HashSet<String>(sqlKeyWordsGeneric);
+    sqlKeyWordsPostgres.addAll(
+        Arrays.asList( new String[]
+          {
+            "NOW", "TIMESTAMPTZ", "UUID", "TIME", "ZONE"
+          }
+        )
+    );
   }
 }
 

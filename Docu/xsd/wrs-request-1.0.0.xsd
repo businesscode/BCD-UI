@@ -585,17 +585,41 @@
   <!--
     Analytical functions
     -->
-  <xs:element name="AnalyticFct"    type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue" abstract="true"/>
-  <xs:element name="RowNumberOver"  type="tns:TypeAnalyticFctEmpty" substitutionGroup="tns:AnalyticFct">
+  <xs:element name="RowNumberOver"  type="tns:TypeAnalyticFctEmpty" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
   </xs:element>
-  <xs:element name="SumOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct">
+  <xs:element name="RankOver"       type="tns:TypeAnalyticFctEmpty" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
   </xs:element>
-  <xs:element name="CountOver"      type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct">
+  <xs:element name="DenseRankOver"  type="tns:TypeAnalyticFctEmpty" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
   </xs:element>
-  <xs:element name="LeadOver"       type="tns:TypeAnalyticFct" substitutionGroup="tns:AnalyticFct">
+  <xs:element name="CumeDistOver"   type="tns:TypeAnalyticFctEmpty" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+
+  <xs:element name="SumOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="CountOver"      type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="LeadOver"       type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="LagOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="FirstValueOver" type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="LastValueOver"  type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="MinOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="MaxOver"        type="tns:TypeAnalyticFct" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>Analytical function. Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
   </xs:element>
 
@@ -618,27 +642,7 @@
       <xs:extension base="tns:CalculatedValueType">
         <xs:sequence>
           <xs:element ref="tns:CalculatedValue"/>
-          <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0">
-            <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
-          </xs:element>
-          <xs:element name="OrderBy" minOccurs="0">
-            <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
-            <xs:complexType>
-              <xs:complexContent>
-                <xs:extension base="tns:MultiOperatorType">
-                  <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
-                  <xs:attribute name="nullsOrder" use="optional">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:enumeration value="nullsFirst"/>
-                        <xs:enumeration value="nullsLast"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>
-                </xs:extension>
-              </xs:complexContent>
-            </xs:complexType>
-          </xs:element>
+          <xs:group ref="tns:AnalyticFctPartOrdGroup"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -648,31 +652,66 @@
   <xs:complexType name="TypeAnalyticFctEmpty">
     <xs:complexContent>
       <xs:extension base="tns:CalculatedValueType">
-        <xs:sequence>
-          <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0">
-            <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
-          </xs:element>
-          <xs:element name="OrderBy" minOccurs="0">
-            <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
-            <xs:complexType>
-              <xs:complexContent>
-                <xs:extension base="tns:MultiOperatorType">
-                  <xs:attribute name="order" type="tns:TypeOrderingAttr" use="optional"/>
-                  <xs:attribute name="nullsOrder" use="optional">
-                    <xs:simpleType>
-                      <xs:restriction base="xs:string">
-                        <xs:enumeration value="nullsFirst"/>
-                        <xs:enumeration value="nullsLast"/>
-                      </xs:restriction>
-                    </xs:simpleType>
-                  </xs:attribute>
-                </xs:extension>
-              </xs:complexContent>
-            </xs:complexType>
-          </xs:element>
-        </xs:sequence>
+        <xs:group ref="tns:AnalyticFctPartOrdGroup"/>
       </xs:extension>
     </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Common Partition By and Order By part of analytical functions -->
+  <xs:group name="AnalyticFctPartOrdGroup">
+    <xs:sequence>
+      <xs:element name="PartitionBy" type="tns:MultiOperatorType" minOccurs="0">
+        <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+      </xs:element>
+      <xs:element name="OrderBy" minOccurs="0">
+        <xs:annotation><xs:documentation>Requires BCD-UI Enterprise-Edition</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="tns:CalculatedValue"/>
+            <xs:element name="Asc" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Ascending order</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="AscNf" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Ascending order, NULLS FIRST</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="AscNl" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Ascending order, NULLS LAST, not available for SLQServer, MySQL</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="Desc" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Descending order</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="DescNf" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Descending order, NULLS FIRST, not available for SLQServer, MySQL</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="DescNl" type="tns:AnalyticFctOrdType">
+              <xs:annotation><xs:documentation>Descending order, NULLS LAST</xs:documentation></xs:annotation>
+            </xs:element>
+          </xs:choice>
+          <xs:attribute name="preceding">
+            <xs:annotation><xs:documentation>Positive integer, UNBOUNDED or CURRENT</xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="UNBOUNDED|CURRENT|\d+"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="following">
+            <xs:annotation><xs:documentation>Positive integer, UNBOUNDED or CURRENT</xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="UNBOUNDED|CURRENT|\d+"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="AnalyticFctOrdType">
+    <xs:sequence>
+      <xs:element ref="tns:CalculatedValue"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:element name="Value" substitutionGroup="tns:CalculatedValue">
@@ -757,6 +796,25 @@
   <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+
+  <xs:element name="Eq"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when = then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="NEq" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when &lt;> then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="Gt"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when > then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="GtE" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when >= then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="Lt"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when &lt; then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="LtE" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>case when &lt;= then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  </xs:element>
 
   <!-- One argument aggregators -->
   <xs:element name="Sum" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
