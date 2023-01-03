@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -142,17 +142,6 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
     var metaDataModel = args.metaDataModel = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
 
-    //-----------------------------------------------------------
-    // If we do not have an explicit input model, we create our own here from the metadata
-    if( ! args.inputModel ) {
-      var modelArgs = Object.assign({},args);
-      modelArgs.chain = undefined;  // If we get a chain argument, it refers to the renderer not to the model
-      modelArgs.id = args.id+"_bcdImpl_model";
-      modelArgs.cubeId = args.id;
-      modelArgs.config = metaDataModel;
-      args.inputModel = new bcdui.component.cube.CubeModel( modelArgs );
-    }
-
     var targetHtml = args.targetHtml = args.targetHTMLElementId = bcdui.util._getTargetHtml(args, "cube_");
     var statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
     var enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
@@ -161,6 +150,18 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
                bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
                bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
       parameters: { cubeId: args.id, statusModel: args.statusModel } } );
+
+    //-----------------------------------------------------------
+    // If we do not have an explicit input model, we create our own here from the metadata
+    if( ! args.inputModel ) {
+      var modelArgs = Object.assign({},args);
+      modelArgs.chain = undefined;  // If we get a chain argument, it refers to the renderer not to the model
+      modelArgs.id = args.id+"_bcdImpl_model";
+      modelArgs.cubeId = args.id;
+      modelArgs.config = metaDataModel;
+      modelArgs.enhancedConfiguration = enhancedConfiguration;
+      args.inputModel = new bcdui.component.cube.CubeModel( modelArgs );
+    }
 
     var bcdPreInit = args ? args.bcdPreInit : null;
     super( {
