@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -63,6 +63,9 @@
         , nLastCols: <xsl:value-of select="$stickyLastCols"/>
         , nLastRows: <xsl:value-of select="$stickyLastRows"/>
         });
+      </xsl:if>
+      <xsl:if test="$inlineChart">
+        bcdui.component.cube.inlineChart._init(this, '<xsl:value-of select="$bcdControllerVariableName"/>','<xsl:value-of select="$inlineChartType1"/>','<xsl:value-of select="$inlineChartType2"/>');
       </xsl:if>
       <xsl:choose>
         <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
@@ -216,52 +219,60 @@
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:element name="{$tableElement}">
+  <xsl:variable name="pos" select="number($columnDefinition/@pos)"/>
 
-    <xsl:variable name="isNoNumber" select="@caption !='' or (not(contains($numericSQLTypes, concat(' ', $columnDefinition/@type-name, ' '))) and not(contains($numericSQLTypes, concat(' ', @type-name, ' '))))"/>
+  <xsl:choose>
+    <xsl:when test="$inlineChart and $tableElement='td' and not($pos = $dims + 1)"></xsl:when>
+    <xsl:when test="$inlineChart and $tableElement='td' and $pos = $dims + 1 "><td colspan="{$measures}"></td></xsl:when>
+    <xsl:otherwise>
+      <xsl:element name="{$tableElement}">
 
-    <!-- @className handling -->
-    <xsl:variable name="className">
-      <xsl:choose>
-        <xsl:when test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
+        <xsl:variable name="isNoNumber" select="@caption !='' or (not(contains($numericSQLTypes, concat(' ', $columnDefinition/@type-name, ' '))) and not(contains($numericSQLTypes, concat(' ', @type-name, ' '))))"/>
+
+        <!-- @className handling -->
+        <xsl:variable name="className">
           <xsl:choose>
-            <xsl:when test="$tableElement='th' and @bcdGr='1'">
-              <xsl:apply-templates select="../wrs:*[1]" mode="determineCssClassTotal"/> 
+            <xsl:when test="($tableElement='th' and @bcdGr='1') or contains($columnDefinition/@id,'&#xE0F0;1') or $isNoNumber">
+              <xsl:choose>
+                <xsl:when test="$tableElement='th' and @bcdGr='1'">
+                  <xsl:apply-templates select="../wrs:*[1]" mode="determineCssClassTotal"/> 
+                </xsl:when>
+                <xsl:when test="contains($columnDefinition/@id,'&#xE0F0;1')">bcdTotal</xsl:when>
+              </xsl:choose>                      
+              <xsl:if test="$isNoNumber"> bcdNoNumber</xsl:if>
             </xsl:when>
-            <xsl:when test="contains($columnDefinition/@id,'&#xE0F0;1')">bcdTotal</xsl:when>
-          </xsl:choose>                      
-          <xsl:if test="$isNoNumber"> bcdNoNumber</xsl:if>
-        </xsl:when>
-        <xsl:when test="not($isNoNumber) and . &lt; 0">bcdNegNumber</xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    
-    <!-- write @class , merge with @html:class -->
-    <xsl:if test="$className != '' or @html:class">
-      <xsl:attribute name="class"><xsl:value-of select="concat(@html:class, ' ', $className)"/></xsl:attribute>
-    </xsl:if>
+            <xsl:when test="not($isNoNumber) and . &lt; 0">bcdNegNumber</xsl:when>
+          </xsl:choose>
+        </xsl:variable>
 
-    <!-- rewrite html atts all but @class handled above -->
-    <xsl:for-each select="@html:*[local-name() != 'class']">
-      <xsl:attribute name="{local-name()}"><xsl:value-of select="."/></xsl:attribute>
-    </xsl:for-each>
+        <!-- write @class , merge with @html:class -->
+        <xsl:if test="$className != '' or @html:class">
+          <xsl:attribute name="class"><xsl:value-of select="concat(@html:class, ' ', $className)"/></xsl:attribute>
+        </xsl:if>
 
-    <xsl:choose>
-      <xsl:when test="@bcdGr='1'"><xsl:attribute name="bcdTranslate">bcd_Total</xsl:attribute></xsl:when>
-      <xsl:when test="@bcdOt='1'"><xsl:attribute name="bcdTranslate">bcd_OtherDimmember</xsl:attribute></xsl:when>
-      <xsl:when test="$columnDefinition/@dimId and string-length(.)=0 and string-length(@caption)=0"><xsl:attribute name="bcdTranslate">bcd_EmptyDimmember</xsl:attribute></xsl:when>
-      <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
-      <xsl:when test="not($isNoNumber)">
-        <xsl:call-template name="formatNumber">
-          <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
-          <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="."/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:element>
+        <!-- rewrite html atts all but @class handled above -->
+        <xsl:for-each select="@html:*[local-name() != 'class']">
+          <xsl:attribute name="{local-name()}"><xsl:value-of select="."/></xsl:attribute>
+        </xsl:for-each>
+
+        <xsl:choose>
+          <xsl:when test="@bcdGr='1'"><xsl:attribute name="bcdTranslate">bcd_Total</xsl:attribute></xsl:when>
+          <xsl:when test="@bcdOt='1'"><xsl:attribute name="bcdTranslate">bcd_OtherDimmember</xsl:attribute></xsl:when>
+          <xsl:when test="$columnDefinition/@dimId and string-length(.)=0 and string-length(@caption)=0"><xsl:attribute name="bcdTranslate">bcd_EmptyDimmember</xsl:attribute></xsl:when>
+          <xsl:when test="@caption"><xsl:value-of select="@caption"/></xsl:when>
+          <xsl:when test="not($isNoNumber)">
+            <xsl:call-template name="formatNumber">
+              <xsl:with-param name="columnDefinition" select="$columnDefinition"/>
+              <xsl:with-param name="numberFormattingOption" select="$numberFormattingOption"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="."/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

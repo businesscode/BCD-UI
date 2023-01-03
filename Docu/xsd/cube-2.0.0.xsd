@@ -81,7 +81,7 @@
 
   <xs:complexType name="LayoutType">
 
-    <xs:choice maxOccurs="3"> <!-- TODO, each child element to appear max 1 -->
+    <xs:choice maxOccurs="6"> <!-- TODO, each child element to appear max 1 -->
 
       <xs:element name="TopNDimMembers" minOccurs="0">
         <xs:annotation><xs:documentation>
@@ -126,6 +126,22 @@
         </xs:complexType>
       </xs:element>
       
+      <xs:element name="Chart" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Series" minOccurs="0" maxOccurs="2">
+              <xs:complexType>
+                <xs:attribute name="chartType">
+                  <xs:annotation><xs:documentation>sets the chart type of the (up to 2) y axis</xs:documentation></xs:annotation>
+                  <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="LINECHART"/><xs:enumeration value="BARCHART"/><xs:enumeration value="AREACHART"/></xs:restriction></xs:simpleType>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="innerRowDim" type="xs:boolean"><xs:annotation><xs:documentation>if true, inner most row dimension is used for building up chart series</xs:documentation></xs:annotation></xs:attribute>
+        </xs:complexType>
+      </xs:element>
+
       <xs:element name="Freeze">
         <xs:complexType>
           <xs:attribute name="header" type="xs:boolean"><xs:annotation><xs:documentation>sticky header row</xs:documentation></xs:annotation></xs:attribute>

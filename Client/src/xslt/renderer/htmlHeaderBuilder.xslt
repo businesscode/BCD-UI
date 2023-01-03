@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -682,6 +682,36 @@
       <xsl:attribute name="select">$stickyHeader or $stickyFooter or $stickyDims or $stickyWidth!='0' or $stickyWidth!='0' or $stickyHeight!='0' or $stickyFirstRows!='0' or $stickyFirstCols!='0' or $stickyLastRows!='0' or $stickyLastCols!='0'</xsl:attribute>
     </xsl:element>
 
+    <!-- inline chart parameters -->
+
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">inlineChart</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:InlineChart='true' or $inlineChart='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">inlineChartInnerRowDim</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:InlineChartInnerRowDim='true' or $inlineChartInnerRowDim='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">inlineChartType1</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:InlineChartType1!=''">'<xsl:value-of select="$paramSet/xp:InlineChartType1"/>'</xsl:when>
+          <xsl:when test="$inlineChartType1!=''">'<xsl:value-of select="$inlineChartType1"/>'</xsl:when>
+          <xsl:otherwise>''</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">inlineChartType2</xsl:attribute>
+      <xsl:attribute name="select">
+        <xsl:choose>
+          <xsl:when test="$paramSet/xp:InlineChartType2!=''">'<xsl:value-of select="$paramSet/xp:InlineChartType2"/>'</xsl:when>
+          <xsl:when test="$inlineChartType2!=''">'<xsl:value-of select="$inlineChartType2"/>'</xsl:when>
+          <xsl:otherwise>''</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+    </xsl:element>
   </xsl:template>
 
   <!--

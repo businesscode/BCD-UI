@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -205,6 +205,19 @@ bcdui.bcduiCeFiles =
         , "/js/component/cube/templateManager"
         , "/js/component/cube/rankingEditor"
         , "/js/component/cube/summaryDisplay"
+      ]
+    },
+    {
+      "id": "bcduiCubeInlineChart",
+      "required": "optional",
+      "files": [
+          "/js/component/cube/inlineChart/inlineChart.js"
+        , "/js/3rdParty/echarts.js"
+        , "/js/component/chart/chartEchart.js"
+      ],
+      "buildFolders": [
+          "/js/component/cube/inlineChart"
+        , "/js/component/chart"
       ]
     },
     {

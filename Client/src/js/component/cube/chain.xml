@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,5 +48,8 @@
 
     <!-- Removing empty columns and rows in cube -->
     <Stylesheet url="removeEmptyCells.xslt"/>
+
+    <!-- optionally generate inlineChart values for innermost row dimension -->
+    <Stylesheet url="inlineChart/innerDimChart.xslt"/>
   </Phase>
 </Chain>

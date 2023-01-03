@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -126,6 +126,12 @@
   (Boolean) Set to "true" to enable rowspanning.
  -->
 <xsl:param name="makeRowSpan" select="$makeRowSpanDefault"/>
+
+<!-- inline chart -->
+<xsl:param name="inlineChart" select="boolean($paramSet/xp:InlineChart='true')"/>
+<xsl:param name="inlineChartInnerRowDim" select="boolean($paramSet/xp:InlineChartInnerRowDim='true')"/>
+<xsl:param name="inlineChartType1" select="$paramSet/xp:InlineChartType1"/>
+<xsl:param name="inlineChartType2" select="$paramSet/xp:InlineChartType2"/>
 
 <xsl:template match="generator:ColumnDefinitionLookupKey" mode="generateXSLT">
   <xsla:key name="columnDefinitionLookup" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
@@ -358,6 +364,15 @@
   <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
     <xsl:attribute name="name">numberFormattingOption</xsl:attribute>
     <xsl:value-of select="$numberFormattingOption"/>
+  </xsl:element>
+
+  <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+    <xsl:attribute name="name">dims</xsl:attribute>
+    <xsl:value-of select="count($columnDefinitions[@dimId])"/>
+  </xsl:element>
+  <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+    <xsl:attribute name="name">measures</xsl:attribute>
+    <xsl:value-of select="count($columnDefinitions[not(@dimId)])"/>
   </xsl:element>
 
 </xsl:template>

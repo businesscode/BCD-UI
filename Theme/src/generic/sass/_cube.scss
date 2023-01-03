@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -949,4 +949,10 @@ div.bcdContextMenu a.bcdMenuitems {
     background-color: #ffffff;
     padding: 0;
   }
+}
+
+.bcdInlineChart {
+  > thead > tr > th { text-align: center; }
+  > tbody > tr > td { padding: 0; margin: 0; height: 6em; width: 100%; }
+  td { text-align: left; } /* chart flyover */
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -318,7 +318,12 @@
           <xp:MakeRowSpan><xsl:value-of select="boolean(count(/*/cube:Layout/cube:Dimensions/*/dm:LevelRef) &lt;= 10 and not(/*/cube:Layout[@manualSort='true']))"/></xp:MakeRowSpan>
           <xp:SortRows>false</xp:SortRows>
           <xp:SortCols>false</xp:SortCols>
-          <xp:HideTotals><xsl:value-of select="/*/cube:Layout/cube:Dimensions/@hideTotals"/></xp:HideTotals>
+          <xp:HideTotals>
+            <xsl:choose>
+              <xsl:when test="/*/cube:Layout/cube:Chart">true</xsl:when> <!-- hide totals in case of inline charts -->
+              <xsl:otherwise><xsl:value-of select="/*/cube:Layout/cube:Dimensions/@hideTotals"/></xsl:otherwise>
+            </xsl:choose>
+          </xp:HideTotals>
           <!-- No more dimensions if sort by measure is activated -->
           <xsl:if test="/*/cube:Layout/cube:Measures//*[@sort] and not(/*/cube:Layout/cube:Dimensions/cube:Rows/*[@sort])">
             <xp:HeaderColsCount>0</xp:HeaderColsCount>
@@ -340,6 +345,12 @@
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nFirstRows"><xp:StickyFirstRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nFirstRows"/></xp:StickyFirstRows></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastCols"><xp:StickyLastCols><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastCols"/></xp:StickyLastCols></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastRows"><xp:StickyLastRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastRows"/></xp:StickyLastRows></xsl:if>
+
+          <!-- inline chart -->
+          <xsl:if test="/*/cube:Layout/cube:Chart/@innerRowDim"><xp:InlineChartInnerRowDim><xsl:value-of select="/*/cube:Layout/cube:Chart/@innerRowDim"/></xp:InlineChartInnerRowDim></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Chart/cube:Series[1]/@chartType"><xp:InlineChartType1><xsl:value-of select="/*/cube:Layout/cube:Chart/cube:Series[1]/@chartType"/></xp:InlineChartType1></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Chart/cube:Series[2]/@chartType"><xp:InlineChartType2><xsl:value-of select="/*/cube:Layout/cube:Chart/cube:Series[2]/@chartType"/></xp:InlineChartType2></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Chart"><xp:InlineChart>true</xp:InlineChart></xsl:if>
 
         </xp:HtmlBuilder>
 
