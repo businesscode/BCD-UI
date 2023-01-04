@@ -16,8 +16,7 @@
 
 "use strict";
 /**
- * A namespace for the BCD-UI component cube.
- * @namespace bcdui.component.cube
+ * A namespace for the BCD-UI component cube. Denfined in cubeCreate.js
  */
 
 bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChart,
