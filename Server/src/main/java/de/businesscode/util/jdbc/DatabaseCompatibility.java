@@ -425,23 +425,23 @@ public class DatabaseCompatibility
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
 
     // Single argument (i.e. child) modifier
-    calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "I"});
-    calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "I"});
-    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "I"});
-    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "I"});
-    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "I"});
-    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "I"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
+    calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "N"});
+    calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "N"});
+    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "N"});
+    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "N"});
+    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "N"});
+    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "N"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
     calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
 
     // Two arguments (i.e. children) operators
     calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
     // Boolean ops
-    calcFktMapping.put("Eq",            new String[]{"N",  " CASE WHEN ", "=",  " THEN 1 ELSE 0 END ", "N"});
-    calcFktMapping.put("NEq",           new String[]{"N",  " CASE WHEN ", "<>", " THEN 1 ELSE 0 END ", "N"});
-    calcFktMapping.put("Gt",            new String[]{"N",  " CASE WHEN ", ">",  " THEN 1 ELSE 0 END ", "N"});
-    calcFktMapping.put("GtE",           new String[]{"N",  " CASE WHEN ", ">=", " THEN 1 ELSE 0 END ", "N"});
-    calcFktMapping.put("Lt",            new String[]{"N",  " CASE WHEN ", "<",  " THEN 1 ELSE 0 END ", "N"});
-    calcFktMapping.put("LtE",           new String[]{"N",  " CASE WHEN ", "<=", " THEN 1 ELSE 0 END ", "N"});
+    calcFktMapping.put("Eq",            new String[]{"N",  "", "=",  "", "N"});
+    calcFktMapping.put("NEq",           new String[]{"N",  "", "<>", "", "N"});
+    calcFktMapping.put("Gt",            new String[]{"N",  "", ">",  "", "N"});
+    calcFktMapping.put("GtE",           new String[]{"N",  "", ">=", "", "N"});
+    calcFktMapping.put("Lt",            new String[]{"N",  "", "<",  "", "N"});
+    calcFktMapping.put("LtE",           new String[]{"N",  "", "<=", "", "N"});
 
     // Multi arguments (i.e. children) operators
     calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
@@ -449,6 +449,11 @@ public class DatabaseCompatibility
     calcFktMapping.put("Mul",           new String[]{"Y",  "(",     "*",  ")", "N"});
     calcFktMapping.put("Div",           new String[]{"Y",  "(",     "/ NULLIF(",  ",0) )", "N"});
     calcFktMapping.put("Concat",        new String[]{"N",  "(",     "||", ")", "N"});
+
+    // With special handling in SQL generator
+    calcFktMapping.put("Case",          new String[]{"N",  "CASE ",   "",       " END ",  "N"});
+    calcFktMapping.put("When",          new String[]{"N",  " WHEN ",  "THEN ",  "",       "N"});
+    calcFktMapping.put("Else",          new String[]{"N",  " ELSE ",  "",       "",       "N"});
 
     // Analytical functions, optional module implemented in BCD-UI Enterprise Edition
     // No argument
@@ -458,7 +463,7 @@ public class DatabaseCompatibility
     calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "O"});
     // With argument
     calcFktMapping.put("CountOver",       new String[]{"N", "COUNT(",         "",   ")", "O"});
-    calcFktMapping.put("SumOver",         new String[]{"N", "SUM(",           "",   ")", "O"});
+    calcFktMapping.put("SumOver",         new String[]{"Y", "SUM(",           "",   ")", "O"});
     calcFktMapping.put("LagOver",         new String[]{"N", "LAG(",           "",   ")", "O"});
     calcFktMapping.put("LeadOver",        new String[]{"N", "LEAD(",          "",   ")", "O"});
     calcFktMapping.put("FirstValueOver",  new String[]{"N", "FIRST_VALUE(",   "",   ")", "O"});
@@ -466,14 +471,14 @@ public class DatabaseCompatibility
     calcFktMapping.put("MinOver",         new String[]{"N", "MIN(",           "",   ")", "O"});
     calcFktMapping.put("MaxOver",         new String[]{"N", "MAX(",           "",   ")", "O"});
     // Specification
-    calcFktMapping.put("PartitionBy",     new String[]{"N", " PARTITION BY ", ",",  "",  "N"});
-    calcFktMapping.put("OrderBy",         new String[]{"N", " ORDER BY ",     ",",  "",  "N"});
-    calcFktMapping.put("Asc",             new String[]{"N", "",               "",   " ASC ",             "N"});
-    calcFktMapping.put("AscNf",           new String[]{"N", "",               "",   " ASC NULLS FIRST ", "N"});
-    calcFktMapping.put("AscNl",           new String[]{"N", "",               "",   " ASC ",             "N"}); // Last is default for Asc Ora, PG, RS
-    calcFktMapping.put("Desc",            new String[]{"N", "",               "",   " DESC ",            "N"});
-    calcFktMapping.put("DescNf",          new String[]{"N", "",               "",   " DESC ",            "N"}); // First is default for Desc  Ora, PG, RS
-    calcFktMapping.put("DescNl",          new String[]{"N", "",               "",   " DESC NULLS LAST ", "N"});
+    calcFktMapping.put("PartitionBy",     new String[]{"N", "PARTITION BY ",  ",",  "",  "N"});
+    calcFktMapping.put("OrderBy",         new String[]{"N", "ORDER BY ",      ",",  "",  "N"});
+    calcFktMapping.put("Asc",             new String[]{"N", "",               "",   "ASC ",             "N"});
+    calcFktMapping.put("AscNf",           new String[]{"N", "",               "",   "ASC NULLS FIRST ", "N"});
+    calcFktMapping.put("AscNl",           new String[]{"N", "",               "",   "ASC ",             "N"}); // Last is default for Asc Ora, PG, RS
+    calcFktMapping.put("Desc",            new String[]{"N", "",               "",   "DESC ",            "N"});
+    calcFktMapping.put("DescNf",          new String[]{"N", "",               "",   "DESC ",            "N"}); // First is default for Desc  Ora, PG, RS
+    calcFktMapping.put("DescNl",          new String[]{"N", "",               "",   "DESC NULLS LAST ", "N"});
 
     // Calc functions are just _almost_ the same for all db dialects, here we overwrite the exceptions
     oracleCalcFktMapping = calcFktMapping;
@@ -482,20 +487,20 @@ public class DatabaseCompatibility
     // On the other hand, concat for oracle does not support >2 arguments, so Concat is handled db specific
     sqlServerCalcFktMapping.put("Concat", new String[]{"N", "CONCAT(",  ",", ")",                   "N"});
     sqlServerCalcFktMapping.put("Mod",    new String[]{"Y", "",         "%",  "",                   "N"});
-    sqlServerCalcFktMapping.put("AscNf",  new String[]{"N", "",         "",   " ASC ",              "N"}); // First is default for Asc TSQL
-    sqlServerCalcFktMapping.put("AscNl",  new String[]{"N", "",         "",   " ASC NULLS LAST ",   "N"}); // TODO fails
-    sqlServerCalcFktMapping.put("DescNf", new String[]{"N", "",         "",   " DESC NULLS FIRST",  "N"}); // TODO fails
-    sqlServerCalcFktMapping.put("DescNl", new String[]{"N", "",         "",   " DESC ",             "N"}); // LAST is default for Asc TSQL
+    sqlServerCalcFktMapping.put("AscNf",  new String[]{"N", "",         "",   "ASC ",               "N"}); // FIRST is default for Asc TSQL
+    sqlServerCalcFktMapping.put("AscNl",  new String[]{"N", "",         "",   "ASC NULLS LAST ",    "N"}); // TODO fails
+    sqlServerCalcFktMapping.put("DescNf", new String[]{"N", "",         "",   "DESC NULLS FIRST ",  "N"}); // TODO fails
+    sqlServerCalcFktMapping.put("DescNl", new String[]{"N", "",         "",   "DESC ",              "N"}); // LAST is default for Asc TSQL
     
     // MySql
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(",      "",                 ")",                  "I"});
-    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", " AS CHAR),CAST(",  " AS CHAR))",         "N"});
-    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(",     "",                 " AS CHAR)",          "I"});
-    mysqlCalcFktMapping.put("AscNf",      new String[]{"N", "",             "",                 " ASC ",              "N"}); // First is default for Asc MySql
-    mysqlCalcFktMapping.put("AscNl",      new String[]{"N", "",             "",                 " ASC NULLS LAST ",   "N"}); // TODO fails
-    mysqlCalcFktMapping.put("DescNf",     new String[]{"N", "",             "",                 " DESC NULLS FIRST",  "N"}); // TODO fails
-    mysqlCalcFktMapping.put("DescNl",     new String[]{"N", "",             "",                 " DESC ",             "N"}); // LAST is default for Asc MySql
+    mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(",      "",               ")",                  "I"});
+    mysqlCalcFktMapping.put("Concat",     new String[]{"N", "CONCAT(CAST(", "AS CHAR),CAST(", "AS CHAR))",          "N"});
+    mysqlCalcFktMapping.put("CastAsVarchar", new String[]{"N", "CAST(",     "",               "AS CHAR)",           "I"});
+    mysqlCalcFktMapping.put("AscNf",      new String[]{"N", "",             "",               "ASC ",               "N"}); // FIRST is default for Asc MySql
+    mysqlCalcFktMapping.put("AscNl",      new String[]{"N", "",             "",               "ASC NULLS LAST ",    "N"}); // TODO fails
+    mysqlCalcFktMapping.put("DescNf",     new String[]{"N", "",             "",               "DESC NULLS FIRST ",  "N"}); // TODO fails
+    mysqlCalcFktMapping.put("DescNl",     new String[]{"N", "",             "",               "DESC ",              "N"}); // LAST is default for Asc MySql
 
     // Redshift
     redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);

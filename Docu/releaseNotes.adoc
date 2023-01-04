@@ -14,11 +14,11 @@ ___
 ** Api stubs for JavaScript auto-suggest and inline help in IDEs
 ** Fully supporting MySQL and Redshift now
 ** Security improvements
-** Extended SQL analytical functions in Wrq
-** Added comparison operators for usage outside of filter, resolving to 0 or 1
 
 .Server:
 * Wrq does support CTE common table expressions, joins and unions now
+* Extend SQL analytical functions in Wrq
+* Added CASE WHEN and comparision operators to Wrq
 * Allow client sided setting of subject preferences via SubjectPreferences servlet and SubjectPreferencesRealm, using config from bcdui/conf/subjectPreferences.xml
 * Introduced UserSettingsDefaults to subjectSettings.xml to specify user default permissions (add de.businesscode.bcdui.subjectsettings.SubjectPreferencesRealm to your realms)
 * Introduced "bcdAny:" shiro user rights (automatically created internally from your user rights) which allow testing on right type level (and not value)

@@ -797,23 +797,42 @@
   <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
 
-  <xs:element name="Eq"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when = then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
-  </xs:element>
-  <xs:element name="NEq" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when &lt;> then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
-  </xs:element>
-  <xs:element name="Gt"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when > then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
-  </xs:element>
-  <xs:element name="GtE" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when >= then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
-  </xs:element>
-  <xs:element name="Lt"  type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when &lt; then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
-  </xs:element>
-  <xs:element name="LtE" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue">
-    <xs:annotation><xs:documentation>case when &lt;= then 1 else 0 end, for use outside of filter clause</xs:documentation></xs:annotation>
+  <!-- CASE WHEN -->
+  <xs:element name="Case" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Case When Then Else End
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:sequence>
+            <xs:element name="When" maxOccurs="64">
+              <xs:annotation><xs:documentation>First child is condition, second the value if true</xs:documentation></xs:annotation>
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:choice>
+                    <xs:element name="Eq"   type="tns:BinaryOperatorType"/>
+                    <xs:element name="NEq"  type="tns:BinaryOperatorType"/>
+                    <xs:element name="Gt"   type="tns:BinaryOperatorType"/>
+                    <xs:element name="GtE"  type="tns:BinaryOperatorType"/>
+                    <xs:element name="Lt"   type="tns:BinaryOperatorType"/>
+                    <xs:element name="LtE"  type="tns:BinaryOperatorType"/>
+                  </xs:choice>
+                  <xs:element ref="tns:CalculatedValue"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="Else" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element ref="tns:CalculatedValue"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
   </xs:element>
 
   <!-- One argument aggregators -->
