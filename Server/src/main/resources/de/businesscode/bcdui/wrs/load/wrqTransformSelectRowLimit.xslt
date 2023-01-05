@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -125,13 +125,22 @@
                 <wrq:C bRef="bcdPagination" type-name="INTEGER"> <!-- TODO -->
                   <wrq:Calc type-name="INTEGER"> <!-- TODO -->
                     <wrq:RowNumberOver>
-                      <wrq:OrderBy nullsOrder="nullsLast">
-                        <xsl:copy-of select="./wrq:Ordering/wrq:C/@order"/> <!-- TODO -->
-
+                      <wrq:OrderBy>
                         <xsl:choose>
                           <xsl:when test="count(./wrq:Ordering/wrq:C) != 0">
                             <xsl:for-each select="./wrq:Ordering/wrq:C">
-                              <wrq:ValueRef idRef="{@bRef}"/>
+                              <xsl:choose>
+                                <xsl:when test="@order='desc'">
+                                  <wrq:DescNl>
+                                    <wrq:ValueRef idRef="{@bRef}"/>
+                                  </wrq:DescNl>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                  <wrq:AscNl>
+                                    <wrq:ValueRef idRef="{@bRef}"/>
+                                  </wrq:AscNl>
+                                </xsl:otherwise>
+                              </xsl:choose>
                             </xsl:for-each>
                           </xsl:when>
                           <!-- Unless we have groupings, we implicitly order by the key -->
@@ -141,7 +150,6 @@
                             </xsl:call-template>
                           </xsl:when>
                         </xsl:choose>
-
                       </wrq:OrderBy>
                     </wrq:RowNumberOver>
                   </wrq:Calc>
@@ -218,7 +226,9 @@
   <xsl:template name="valueRefList">
     <xsl:param name="bRefList"/>
     <xsl:if test="$bRefList != ''">
-      <wrq:ValueRef idRef="{substring-before($bRefList,' ')}"/>
+      <wrq:AscNl>
+        <wrq:ValueRef idRef="{substring-before($bRefList,' ')}"/>
+      </wrq:AscNl>
       <xsl:call-template name="valueRefList">
         <xsl:with-param name="bRefList" select="substring-after($bRefList,' ')"/>
       </xsl:call-template>

@@ -45,6 +45,8 @@ ___
 .Development
 * Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest
 
+.Bugfixes
+* Pagination is now taking the order of all order columns into account, not only the last one
 
 .Incompatibilities:
 ** Move shiro settings from web.xml to WEB-INF/shiro.ini, add +
