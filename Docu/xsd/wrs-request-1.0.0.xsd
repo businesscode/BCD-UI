@@ -718,7 +718,32 @@
     <xs:annotation><xs:documentation>A user given constant value</xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:complexContent mixed="true">
-        <xs:extension base="tns:CalculatedValueType"/>
+        <xs:extension base="tns:CalculatedValueType">
+          <xs:attribute name="p">
+            <xs:annotation><xs:documentation>
+              Precision [1...38]. If not given but @s is given, it defaults to 18.
+              If @p or @s are given, this value is treated as a DECIMAL value, VARCHAR otherwise.
+            </xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:unsignedInt">
+                <xs:minInclusive value="1"/>
+                <xs:maxInclusive value="38"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="s">
+            <xs:annotation><xs:documentation>
+              Scale [-p...p]. If given, but @p is not given, @p is set to 18.
+              If @p or @s are given, this value is treated as a DECIMAL value, VARCHAR otherwise.
+            </xs:documentation></xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:integer">
+                <xs:minInclusive value="-38"/>
+                <xs:maxInclusive value="38"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>

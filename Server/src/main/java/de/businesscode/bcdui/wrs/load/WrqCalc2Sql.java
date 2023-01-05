@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -136,15 +136,43 @@ public class WrqCalc2Sql
       }
 
       // We found a const expression
+      // These const values become host vars bound to a ? to prevent injection and may beed numerical casting
       else if("Value".equals(child.getLocalName()))
       {
-        if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) )
-          sql.append(" CAST(");
-        sql.append(" ? "); // Const values become host vars bound to a ? to prevent injection
-        if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) ) {
-            sql.append(" AS DECIMAL(38,19))");
+
+        // Maybe precision (and scale) are given as attributes @p and or @s
+        Integer p = null, s = null;
+        boolean isNumeric = false;
+        // p must be >= 1 and <= 30 according to SQL
+        if( ! child.getAttribute("p").isEmpty() ) {
+          p = Integer.parseInt(child.getAttribute("p"));
+          if( p < 1 || p > 38 ) p = null;
+        }
+        if( ! child.getAttribute("s").isEmpty() ) {
+          // s must be not larger than p (negative is allowed in new SQL rounding on the left side of the column)
+          // If we have @s given but no @p, we default for convenience to DECIMAL's default p, i.e. 18
+          s = Integer.parseInt(child.getAttribute("s"));
+          if( p == null ) p = 18;
+          if( s < -p || s > p ) s = p;
+        }
+
+        // @p and or @s given?
+        if( p != null ) {
+          sql.append(" CAST(").append(" ? ").append(" AS DECIMAL(").append(p);
+          if( s != null ) sql.append(",").append(s);
+          sql.append("))");
+          isNumeric = true;
+        }
+        // Or we may know from context that a cast to DECIMAL is necessary
+        else if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) ) {
+          sql.append(" CAST(").append(" ? ").append(" AS DECIMAL(38,19))");
           doCastToDecimal = false; // only the first op needs a cast
         }
+        // All other go as VARCHAR
+        else {
+          sql.append(" ? ");
+        }
+
         Element calcValueDummy = e.getOwnerDocument().createElement("CalcValueDummy");
         boolean isNull = child.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "null").getLength() > 0;
         if( ! isNull ) {
@@ -162,7 +190,7 @@ public class WrqCalc2Sql
           } else if( e.getElementsByTagName("*").getLength() > 1 )
             calcValueDummy.setAttribute(Bindings.jdbcDataTypeNameAttribute,"NUMERIC");
         } else {
-          if( "Y".equals(calcFktMapping.get(e.getLocalName())[0]) )
+          if( isNumeric || "Y".equals(calcFktMapping.get(e.getLocalName())[0]) )
             calcValueDummy.setAttribute(Bindings.jdbcDataTypeNameAttribute,"NUMERIC");
         }
         boundVariables.add(calcValueDummy);
