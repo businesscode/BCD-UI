@@ -457,10 +457,10 @@ public class DatabaseCompatibility
 
     // Analytical functions, optional module implemented in BCD-UI Enterprise Edition
     // No argument
-    calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "N"});
-    calcFktMapping.put("RankOver",        new String[]{"N", "RANK(",          "",   ")", "N"});
-    calcFktMapping.put("DenseRankOver",   new String[]{"N", "DENSE_RANK(",    "",   ")", "N"});
-    calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "N"});
+    calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
+    calcFktMapping.put("RankOver",        new String[]{"N", "RANK(",          "",   ")", "O"});
+    calcFktMapping.put("DenseRankOver",   new String[]{"N", "DENSE_RANK(",    "",   ")", "O"});
+    calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "O"});
     // With argument
     calcFktMapping.put("CountOver",       new String[]{"N", "COUNT(",         "",   ")", "O"});
     calcFktMapping.put("SumOver",         new String[]{"Y", "SUM(",           "",   ")", "O"});
