@@ -457,10 +457,10 @@ public class DatabaseCompatibility
 
     // Analytical functions, optional module implemented in BCD-UI Enterprise Edition
     // No argument
-    calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "O"});
-    calcFktMapping.put("RankOver",        new String[]{"N", "RANK(",          "",   ")", "O"});
-    calcFktMapping.put("DenseRankOver",   new String[]{"N", "DENSE_RANK(",    "",   ")", "O"});
-    calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "O"});
+    calcFktMapping.put("RowNumberOver",   new String[]{"N", "ROW_NUMBER(",    "",   ")", "N"});
+    calcFktMapping.put("RankOver",        new String[]{"N", "RANK(",          "",   ")", "N"});
+    calcFktMapping.put("DenseRankOver",   new String[]{"N", "DENSE_RANK(",    "",   ")", "N"});
+    calcFktMapping.put("CumeDistOver",    new String[]{"N", "CUME_DIST(",     "",   ")", "N"});
     // With argument
     calcFktMapping.put("CountOver",       new String[]{"N", "COUNT(",         "",   ")", "O"});
     calcFktMapping.put("SumOver",         new String[]{"Y", "SUM(",           "",   ")", "O"});
@@ -475,9 +475,9 @@ public class DatabaseCompatibility
     calcFktMapping.put("OrderBy",         new String[]{"N", "ORDER BY ",      ",",  "",  "N"});
     calcFktMapping.put("Asc",             new String[]{"N", "",               "",   "ASC ",             "N"});
     calcFktMapping.put("AscNf",           new String[]{"N", "",               "",   "ASC NULLS FIRST ", "N"});
-    calcFktMapping.put("AscNl",           new String[]{"N", "",               "",   "ASC ",             "N"}); // Last is default for Asc Ora, PG, RS
+    calcFktMapping.put("AscNl",           new String[]{"N", "",               "",   "ASC ",             "N"}); // LAST is default for Asc Ora, PG, RS
     calcFktMapping.put("Desc",            new String[]{"N", "",               "",   "DESC ",            "N"});
-    calcFktMapping.put("DescNf",          new String[]{"N", "",               "",   "DESC ",            "N"}); // First is default for Desc  Ora, PG, RS
+    calcFktMapping.put("DescNf",          new String[]{"N", "",               "",   "DESC ",            "N"}); // FIRST is default for Desc  Ora, PG, RS
     calcFktMapping.put("DescNl",          new String[]{"N", "",               "",   "DESC NULLS LAST ", "N"});
 
     // Calc functions are just _almost_ the same for all db dialects, here we overwrite the exceptions

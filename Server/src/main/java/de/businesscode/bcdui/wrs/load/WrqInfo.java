@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -120,6 +120,7 @@ public class WrqInfo
       orderingCXpathExpr    =     xp.compile("./wrq:Ordering/wrq:C");
 
       selectListBidRefXpathExpr   = xp.compile("./wrq:Columns//*[not(wrq:Calc)]/@bRef      | .//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      selectListBidRefInSsXpathExpr = xp.compile(".//wrq:Select//@idRef");  // @idRefs from sub-select to be excluded below
       filterBidRefXpathExpr       = xp.compile("./f:Filter//f:Expression/@bRef");
       groupingBidRefXpathExpr     = xp.compile("./wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | ./wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       havingBidRefXpathExpr       = xp.compile("./wrq:Having//f:Expression//@bRef");
@@ -258,6 +259,7 @@ public class WrqInfo
     }
 
     NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList selectedBidRefInSsNl = (NodeList) selectListBidRefInSsXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
     NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
     NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
     NodeList havingBidRefNl    = (NodeList) havingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
@@ -281,8 +283,17 @@ public class WrqInfo
       NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
       NodeList topNBidRefNl = (NodeList) topNBidRefXPathExpr.evaluate(selectElem, XPathConstants.NODESET);
 
-      for( int i=0; i<selectedBidRefNl.getLength(); i++ )
-        allRawBRefs.add(selectedBidRefNl.item(i).getNodeValue());
+      // selectedBidRefNl contains recursively searched @idRefs, but there is not XPath to make the search stop at wrq:Select.
+      // So we keep another list selectedBidRefInSsNl giving us all @idRefs from sub-select. 
+      // Here skip those nodes to get our "own" @idRefs.
+      // The other xPath expressions do not have this issue as they only look in places where no sub-selects are allowed at this point by BCD-UI
+      for( int i=0; i<selectedBidRefNl.getLength(); i++ ) {
+        boolean foundInSs = false;
+        for( int iInSs=0; !foundInSs && iInSs < selectedBidRefInSsNl.getLength(); iInSs++ ) {
+          if( selectedBidRefInSsNl.item(iInSs)==selectedBidRefNl.item(i) ) foundInSs = true; // Yes, node identity, not value identity
+        }
+        if( ! foundInSs ) allRawBRefs.add(selectedBidRefNl.item(i).getNodeValue());
+      }
       for( int i=0; i<filterBidRefNl.getLength(); i++ )
         allRawBRefs.add(filterBidRefNl.item(i).getNodeValue());
       for( int i=0; i<groupingBidRefNl.getLength(); i++ ) {
@@ -569,6 +580,7 @@ public class WrqInfo
   private final XPathExpression orderingCXpathExpr;
 
   private final XPathExpression selectListBidRefXpathExpr;
+  private final XPathExpression selectListBidRefInSsXpathExpr;
   private final XPathExpression filterBidRefXpathExpr;
   private final XPathExpression groupingBidRefXpathExpr;
   private final XPathExpression havingBidRefXpathExpr;
