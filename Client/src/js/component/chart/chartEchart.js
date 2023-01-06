@@ -637,11 +637,13 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
               || (! (source[key] instanceof Array)  &&   target[key] instanceof Array)
             ))
             throw new Error("Merging invalid types: " + key);
-        if (target[key] === undefined) target[key] = source[key];
 
         // do not merge possible dataproviders (contextMenu)
         if (source[key] instanceof Object && source[key].dataDoc)
           continue;
+
+        // add new source entries (or overwrite null / empty string in target if source is given)
+        if (!target[key]) target[key] = source[key];
 
         if (source[key] instanceof Object && !(source[key] instanceof Function)) Object.assign(source[key], merge(target[key], source[key]));
       }
