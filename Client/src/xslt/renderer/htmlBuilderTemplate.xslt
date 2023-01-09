@@ -50,6 +50,15 @@
   <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
     <xsl:attribute name="bcdOnLoad">
       <xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if>
+      <xsl:if test="$inlineChart">
+        bcdui.component.cube.inlineChart._init({
+          targetHtml: this
+        , cubeId: '<xsl:value-of select="$bcdControllerVariableName"/>'
+        , chartType1: '<xsl:value-of select="$inlineChartType1"/>'
+        , chartType2: '<xsl:value-of select="$inlineChartType2"/>'
+        , minMaxRow: <xsl:value-of select="$inlineChartMinMaxRow"/>
+        });
+      </xsl:if>
       <xsl:if test="$stickyEnabled">
          bcdui.widget.stickyTable({
           targetHtml: this
@@ -62,15 +71,6 @@
         , nFirstRows: <xsl:value-of select="$stickyFirstRows"/>
         , nLastCols: <xsl:value-of select="$stickyLastCols"/>
         , nLastRows: <xsl:value-of select="$stickyLastRows"/>
-        });
-      </xsl:if>
-      <xsl:if test="$inlineChart">
-        bcdui.component.cube.inlineChart._init({
-          targetHtml: this
-        , cubeId: '<xsl:value-of select="$bcdControllerVariableName"/>'
-        , chartType1: '<xsl:value-of select="$inlineChartType1"/>'
-        , chartType2: '<xsl:value-of select="$inlineChartType2"/>'
-        , minMaxRow: <xsl:value-of select="$inlineChartMinMaxRow"/>
         });
       </xsl:if>
       <xsl:choose>
