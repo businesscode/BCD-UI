@@ -139,6 +139,7 @@
             </xs:element>
           </xs:sequence>
           <xs:attribute name="innerRowDim" type="xs:boolean"><xs:annotation><xs:documentation>if true, inner most row dimension is used for building up chart series</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="minMaxRow" type="xs:boolean"><xs:annotation><xs:documentation>if true, the min/max determination for the chart is done per row (otherwise on all data)</xs:documentation></xs:annotation></xs:attribute>
         </xs:complexType>
       </xs:element>
 

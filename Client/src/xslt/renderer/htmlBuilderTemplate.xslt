@@ -65,7 +65,13 @@
         });
       </xsl:if>
       <xsl:if test="$inlineChart">
-        bcdui.component.cube.inlineChart._init(this, '<xsl:value-of select="$bcdControllerVariableName"/>','<xsl:value-of select="$inlineChartType1"/>','<xsl:value-of select="$inlineChartType2"/>');
+        bcdui.component.cube.inlineChart._init({
+          targetHtml: this
+        , cubeId: '<xsl:value-of select="$bcdControllerVariableName"/>'
+        , chartType1: '<xsl:value-of select="$inlineChartType1"/>'
+        , chartType2: '<xsl:value-of select="$inlineChartType2"/>'
+        , minMaxRow: <xsl:value-of select="$inlineChartMinMaxRow"/>
+        });
       </xsl:if>
       <xsl:choose>
         <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>

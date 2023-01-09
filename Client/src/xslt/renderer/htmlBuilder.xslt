@@ -132,6 +132,7 @@
 <xsl:param name="inlineChartInnerRowDim" select="boolean($paramSet/xp:InlineChartInnerRowDim='true')"/>
 <xsl:param name="inlineChartType1" select="$paramSet/xp:InlineChartType1"/>
 <xsl:param name="inlineChartType2" select="$paramSet/xp:InlineChartType2"/>
+<xsl:param name="inlineChartMinMaxRow" select="$paramSet/xp:InlineChartMinMaxRow"/>
 
 <xsl:template match="generator:ColumnDefinitionLookupKey" mode="generateXSLT">
   <xsla:key name="columnDefinitionLookup" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>

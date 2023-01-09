@@ -693,6 +693,10 @@
       <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:InlineChartInnerRowDim='true' or $inlineChartInnerRowDim='true'"/>()</xsl:attribute>
     </xsl:element>
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">inlineChartMinMaxRow</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:InlineChartMinMaxRow='true' or $inlineChartMinMaxRow='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">inlineChartType1</xsl:attribute>
       <xsl:attribute name="select">
         <xsl:choose>

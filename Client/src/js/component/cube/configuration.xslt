@@ -348,6 +348,7 @@
 
           <!-- inline chart -->
           <xsl:if test="/*/cube:Layout/cube:Chart/@innerRowDim"><xp:InlineChartInnerRowDim><xsl:value-of select="/*/cube:Layout/cube:Chart/@innerRowDim"/></xp:InlineChartInnerRowDim></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Chart/@minMaxRow"><xp:InlineChartMinMaxRow><xsl:value-of select="/*/cube:Layout/cube:Chart/@minMaxRow"/></xp:InlineChartMinMaxRow></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Chart/cube:Series[1]/@chartType"><xp:InlineChartType1><xsl:value-of select="/*/cube:Layout/cube:Chart/cube:Series[1]/@chartType"/></xp:InlineChartType1></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Chart/cube:Series[2]/@chartType"><xp:InlineChartType2><xsl:value-of select="/*/cube:Layout/cube:Chart/cube:Series[2]/@chartType"/></xp:InlineChartType2></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Chart"><xp:InlineChart>true</xp:InlineChart></xsl:if>

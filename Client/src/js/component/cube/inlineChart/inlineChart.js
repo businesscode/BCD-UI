@@ -22,11 +22,11 @@
 bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChart,
 /** @lends bcdui.component.cube.inlineChart */
 {
-  _init: function(table, cubeId, chartType1, chartType2) {
+  _init: function(args) {
 
-    jQuery(table).addClass("bcdInlineChart");
+    jQuery(args.targetHtml).addClass("bcdInlineChart");
 
-    const dataModel = bcdui.factory.objectRegistry.getObject(cubeId).getPrimaryModel();
+    const dataModel = bcdui.factory.objectRegistry.getObject(args.cubeId).getPrimaryModel();
     const dimCount = dataModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@dimId]").length;
 
     // determine min and max values (without totals) for each unit type for all non total measures
@@ -43,21 +43,33 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       else if (secondUnit == null && unit != firstUnit)
         secondUnit = unit;
   
-      minMaxPerUnit[unit] = {min: Infinity, max: -Infinity}
+      minMaxPerUnit[unit] = {min: Infinity, max: -Infinity, rowMinMax: {}}
       columnUnits[parseInt(e.getAttribute("pos"), 10)] = unit;
     });
-
+    
     columnUnits.forEach(function(unit, i) {
       if (unit) {
         let min = minMaxPerUnit[unit].min;
         let max = minMaxPerUnit[unit].max;
         // in innerDim mode, we need to look differently for min/max values and we onbly have 1 unit (since only got 1 measure)
-        const data = dataModel.query("/*/wrs:Data/wrs:R/wrs:Dim/wrs:Value") != null
-        ? Array.from(dataModel.queryNodes("/*/wrs:Data/wrs:R[not(wrs:C[@bcdGr='1'])]/wrs:Dim/wrs:Value[" + (i - dimCount) + "]"))
-        : Array.from(dataModel.queryNodes("/*/wrs:Data/wrs:R[not(wrs:C[@bcdGr='1'])]/wrs:C[" + i + "]"));
-        data.forEach(function(e) {
-          if (parseFloat(e.text) < min) min = parseFloat(e.text); 
-          if (parseFloat(e.text) > max) max = parseFloat(e.text);
+
+        const innerRowDimMode = dataModel.query("/*/wrs:Data/wrs:R/wrs:Dim/wrs:Value") != null;
+
+        Array.from(dataModel.queryNodes("/*/wrs:Data/wrs:R[not(wrs:C[@bcdGr='1'])]")).forEach(function(row) {
+          const rowId = row.getAttribute("id");
+          minMaxPerUnit[unit].rowMinMax[rowId] = minMaxPerUnit[unit].rowMinMax[rowId] || {min: Infinity, max: -Infinity};
+          const data = innerRowDimMode
+          ? Array.from(row.selectNodes("wrs:Dim/wrs:Value[" + (i - dimCount) + "]"))
+          : Array.from(row.selectNodes("wrs:C[" + i + "]"));
+          data.forEach(function(e) {
+            const value = parseFloat(e.text);
+            if (value < min) min = value; 
+            if (value > max) max = value;
+            if (value < minMaxPerUnit[unit].rowMinMax[rowId].min) minMaxPerUnit[unit].rowMinMax[rowId].min = value; 
+            if (value > minMaxPerUnit[unit].rowMinMax[rowId].max) minMaxPerUnit[unit].rowMinMax[rowId].max = value;
+          });
+          minMaxPerUnit[unit].rowMinMax[rowId].min = minMaxPerUnit[unit].rowMinMax[rowId].min - (minMaxPerUnit[unit].rowMinMax[rowId].min * 1.0 / 100.0);
+          minMaxPerUnit[unit].rowMinMax[rowId].max = minMaxPerUnit[unit].rowMinMax[rowId].max + (minMaxPerUnit[unit].rowMinMax[rowId].max * 1.0 / 100.0);          
         });
 
         // change min/max a bit for drawing all values (echart tends to skip values if they are near min/max)
@@ -67,26 +79,33 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
     });
 
     // hide measure table header since various measures won't be side by side while in the graph they are vertically aligned 
-    jQuery(table).find("thead tr[bcdRowIdent='bcdMeasureHeader']").hide();
+    jQuery(args.targetHtml).find("thead tr[bcdRowIdent='bcdMeasureHeader']").hide();
 
     // add a chart per row
-    jQuery(table).find("tbody tr td").each(function(i,e) {
+    jQuery(args.targetHtml).find("tbody tr td").each(function(i,e) {
+
+      const rowId = jQuery(e).parent().attr("bcdRowIdent");
+      const min1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].min : minMaxPerUnit[firstUnit].min) || 0;
+      const max1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].max : minMaxPerUnit[firstUnit].max) || 0;
+      const min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
+      const max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
+
       new bcdui.component.chart.ChartEchart({
         targetHtml: jQuery(e).get(0)
       , config: new bcdui.core.ModelWrapper({
           chain: bcdui.contextPath+"/bcdui/js/component/cube/inlineChart/inlineChart.xslt"
         , inputModel: dataModel
         , parameters: {
-            rowId: jQuery(e).parent().attr("bcdRowIdent")
-          , chartType1: chartType1 || ""
-          , chartType2: chartType2 || ""
+            rowId: rowId
+          , chartType1: args.chartType1 || ""
+          , chartType2: args.chartType2 || ""
           }
         })
       , options: {
           title: { show: false }
         , yAxis: [
-          { show: false, min: minMaxPerUnit[firstUnit].min, max: minMaxPerUnit[firstUnit].max }
-        , { show: false, min: minMaxPerUnit[secondUnit] && minMaxPerUnit[secondUnit].min || 0, max: minMaxPerUnit[secondUnit] && minMaxPerUnit[secondUnit].max || 0 }]
+          { show: false, min: min1, max: max1 }
+        , { show: false, min: min2, max: max2 }]
         , xAxis: [ { show: false } ]
         , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 4, right: 0, bottom: 4 }
         }
