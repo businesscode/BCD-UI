@@ -3646,6 +3646,7 @@ jQuery.extend(bcdui.widget,
       let maxRow = 0;        // determined max y index
       let lastColRight = 0;  // determined max x right position
       let lastRowBottom = 0; // determined max y bottom position
+      let pos = [];
 
       const maxY = maxRows < htmlEl.rows.length ? maxRows : htmlEl.rows.length;
       for (let y = 0; y < maxY; y++) {
@@ -3669,25 +3670,28 @@ jQuery.extend(bcdui.widget,
               // +1 / -1 just for avoiding position() call when left/top was already determined to be 0 (posLeft[xx] = posLeft[xx] || ....)
               posLeft[xx] = posLeft[xx] || (theCell.position().left + 1);
               posTop[y]   = posTop[y]   || (theCell.parent().position().top + 1);
-
-              const props = {
-                c: theCell
-              , l: posLeft[xx] - 1
-              , t: posTop[y] - 1
-              , w: parseInt(theCell.outerWidth(), 10)
-              , h: parseInt(theCell.outerHeight(), 10)
-              , x: xx
-              , y: y
-              };
-              cells.push(props);
-
-              if (maxCol < xx) {
-                maxCol = xx
-                lastColRight = props.l + props.w;
-              }
-              if (maxRow < y) {
-                maxRow = y
-                lastRowBottom = props.t + props.h;
+              
+              if (typeof pos["" + xx + "|" + y] == "undefined") {
+                pos["" + xx + "|" + y] = 1;
+                const props = {
+                  c: theCell
+                , l: posLeft[xx] - 1
+                , t: posTop[y] - 1
+                , w: parseInt(theCell.outerWidth(), 10)
+                , h: parseInt(theCell.outerHeight(), 10)
+                , x: xx
+                , y: y
+                };
+                cells.push(props);
+  
+                if (maxCol < xx) {
+                  maxCol = xx
+                  lastColRight = props.l + props.w;
+                }
+                if (maxRow < y) {
+                  maxRow = y
+                  lastRowBottom = props.t + props.h;
+                }
               }
             }
           }
