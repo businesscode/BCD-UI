@@ -88,6 +88,8 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 
     // hide measure table header since various measures won't be side by side while in the graph they are vertically aligned 
     jQuery(args.targetHtml).find("thead tr[bcdRowIdent='bcdMeasureHeader']").hide();
+    // hide also possible row measure header cells
+    jQuery(args.targetHtml).find("thead tr .bcdMeasure").hide();
 
     // determine width for cell chart (either 100% if we got only 1 cell, or width of 1st one)
     const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();

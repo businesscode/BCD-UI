@@ -62,8 +62,8 @@
             
             <!-- otherwise, we take either the inner dim values or the measure captions -->
             <xsl:otherwise>
-              <!-- we only need to run over 1 measure to generate the x values -->
-              <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))][1]">
+              <!-- we only need to run over 1 measure to generate the x values, we use last() to get a spread up coldim (not a rowdim) if available -->
+              <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))][position()=last()]">
                 <xsl:variable name="measure" select="@valueId"/>
                 <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure]">
                   <xsl:variable name="captionIdx">
@@ -184,9 +184,15 @@
 
           <!-- generate a series for each measure, max 2 different axis/units -->
           <xsl:otherwise>
+            <!-- last measure is a coldim measure (if available, so we definetly get the count of the needed x-spread) -->
+            <xsl:variable name="lastMeasure" select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))][position()=last()]/@valueId"/>
+            <xsl:variable name="measuresToFill" select="count(/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$lastMeasure])"/>
+          
             <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))]">
 
               <xsl:variable name="measure" select="@valueId"/>
+
+              <xsl:variable name="curFill" select="count(/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure])"/>
 
               <!-- get current measure -->
               <xsl:variable name="unit">
@@ -232,9 +238,18 @@
               <chart:Series caption="{$caption}" chartType="{$chartType}" yAxis1Or2="{$yAxis}">
                 <!-- copy row data without totals -->
                 <chart:YData>
+                  <xsl:variable name="firstValue" select="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:C[position()=/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure]/@pos][position()=1]"/>
                   <xsl:for-each select="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:C[position()=/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure]/@pos]">
                     <chart:Value><xsl:value-of select="."/></chart:Value>
                   </xsl:for-each>
+
+                  <!-- in case of mixed row and col measures, you may have to spread the row measure value over the full coldim values count -->          
+                  <xsl:if test="$curFill &lt; $measuresToFill">
+                    <xsl:call-template name="fill">
+                      <xsl:with-param name="value" select="$firstValue"/>
+                      <xsl:with-param name="count" select="$measuresToFill - $curFill"/>
+                    </xsl:call-template>
+                  </xsl:if>
                 </chart:YData>
               </chart:Series>
             </xsl:for-each>
@@ -244,4 +259,19 @@
     </chart:Chart>
 
   </xsl:template>
+  
+  <xsl:template name="fill">
+    <xsl:param name="value"/>
+    <xsl:param name="count"/>
+    <xsl:choose>
+      <xsl:when test="$count &gt; 0">
+        <chart:Value><xsl:value-of select="$value"/></chart:Value>
+        <xsl:call-template name="fill">
+          <xsl:with-param name="value" select="$value"/>
+          <xsl:with-param name="count" select="$count - 1"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
 </xsl:stylesheet>
