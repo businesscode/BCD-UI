@@ -228,8 +228,9 @@
   <xsl:variable name="pos" select="number($columnDefinition/@pos)"/>
 
   <xsl:choose>
+    <xsl:when test="$inlineChart and $tableElement='td' and $pos &gt;= $dims + 1 and $inlineChartType1='PIECHART' and $inlineChartInnerRowDim"><td class='bcdChartCell'></td></xsl:when>
     <xsl:when test="$inlineChart and $tableElement='td' and not($pos = $dims + 1)"></xsl:when>
-    <xsl:when test="$inlineChart and $tableElement='td' and $pos = $dims + 1 "><td colspan="{$measures}"></td></xsl:when>
+    <xsl:when test="$inlineChart and $tableElement='td' and $pos = $dims + 1 "><td class='bcdChartCell' colspan="{$measures}"></td></xsl:when>
     <xsl:otherwise>
       <xsl:element name="{$tableElement}">
 

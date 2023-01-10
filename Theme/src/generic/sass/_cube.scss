@@ -953,6 +953,6 @@ div.bcdContextMenu a.bcdMenuitems {
 
 .bcdInlineChart {
   > thead > tr > th { text-align: center; }
-  > tbody > tr > td { padding: 0; margin: 0; height: 6em; width: 100%; }
   td { text-align: left; } /* chart flyover */
+  td.bcdChartCell { padding: 0; margin: 0; height: 6em; }
 }

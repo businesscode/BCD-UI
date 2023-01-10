@@ -133,7 +133,7 @@
               <xs:complexType>
                 <xs:attribute name="chartType">
                   <xs:annotation><xs:documentation>sets the chart type of the (up to 2) y axis</xs:documentation></xs:annotation>
-                  <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="LINECHART"/><xs:enumeration value="BARCHART"/><xs:enumeration value="AREACHART"/></xs:restriction></xs:simpleType>
+                  <xs:simpleType><xs:restriction base="xs:string"><xs:enumeration value="PIECHART"/><xs:enumeration value="LINECHART"/><xs:enumeration value="BARCHART"/><xs:enumeration value="AREACHART"/></xs:restriction></xs:simpleType>
                 </xs:attribute>
               </xs:complexType>
             </xs:element>

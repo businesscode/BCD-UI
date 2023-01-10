@@ -34,6 +34,7 @@
   <xsl:param name="rowId" select="''"/>
   <xsl:param name="chartType1" select="''"/>
   <xsl:param name="chartType2" select="''"/>
+  <xsl:param name="chartColumn" select="1"/>
 
   <xsl:key name="measureKey" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@valueId"/>
   <xsl:key name="unitKey" match="/*/wrs:Header/wrs:Columns/wrs:C" use="concat('|', @unit)"/>
@@ -45,29 +46,44 @@
   <xsl:template match="/*">
 
     <chart:Chart title="" xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
-    
+
       <!-- build up categories, only take the number of 1 measure since categories count is identical for all measures -->
       <chart:XAxis>
         <chart:Categories>
-          <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))][1]">
-            <xsl:variable name="measure" select="@valueId"/>
-            <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure]">
-              <xsl:variable name="captionIdx">
-                <xsl:call-template name="lastIndexOf">
-                  <xsl:with-param name="s" select="@caption"/>
-                  <xsl:with-param name="c" select="'|'"/>
-                </xsl:call-template>
-              </xsl:variable>
-              <xsl:variable name="caption">
-                <xsl:choose>
-                  <xsl:when test="$categoryDims"><xsl:value-of select="concat(@caption, '|', /*/wrs:Header/wrs:Columns/@innerRowDimCaption)"/></xsl:when>
-                  <xsl:when test="$captionIdx=0"><xsl:value-of select="@caption"/></xsl:when>
-                  <xsl:otherwise><xsl:value-of select="substring(@caption, 0, $captionIdx)"/></xsl:otherwise>
-                </xsl:choose>
-              </xsl:variable>
-              <chart:Value><xsl:value-of select="$caption"/></chart:Value>
-            </xsl:for-each>
-          </xsl:for-each>
+          <xsl:choose>
+
+            <!-- in case of PIECHART for 1 Measure/InnerRowDim mode, we take the inner dim values -->
+            <xsl:when test="$measureCount=1 and $categoryDims and $chartType1='PIECHART'">
+              <xsl:for-each select="$categoryDims">
+                <xsl:sort select="text()"/>
+                <chart:Value><xsl:value-of select="text()"/></chart:Value>
+              </xsl:for-each>
+            </xsl:when>
+            
+            <!-- otherwise, we take either the inner dim values or the measure captions -->
+            <xsl:otherwise>
+              <!-- we only need to run over 1 measure to generate the x values -->
+              <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))][1]">
+                <xsl:variable name="measure" select="@valueId"/>
+                <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId=$measure]">
+                  <xsl:variable name="captionIdx">
+                    <xsl:call-template name="lastIndexOf">
+                      <xsl:with-param name="s" select="@caption"/>
+                      <xsl:with-param name="c" select="'|'"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:variable name="caption">
+                    <xsl:choose>
+                      <xsl:when test="$categoryDims"><xsl:value-of select="concat(@caption, '|', /*/wrs:Header/wrs:Columns/@innerRowDimCaption)"/></xsl:when>
+                      <xsl:when test="$captionIdx=0"><xsl:value-of select="@caption"/></xsl:when>
+                      <xsl:otherwise><xsl:value-of select="substring(@caption, 0, $captionIdx)"/></xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:variable>
+                  <chart:Value><xsl:value-of select="$caption"/></chart:Value>
+                </xsl:for-each>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
         </chart:Categories>
       </chart:XAxis>
 
@@ -119,35 +135,59 @@
               </xsl:choose>
             </xsl:variable>
 
-            <xsl:for-each select="$categoryDims">
-            <xsl:sort select="."/>
-              <xsl:variable name="dimValue" select="text()"/>
-              <chart:Series caption="{$dimValue}" chartType="{$chartType}" yAxis1Or2="1">
-                <chart:YData>
-                  <xsl:choose>
-                  <xsl:when test="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value">
-                    <xsl:for-each select="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value">
-                      <chart:Value><xsl:value-of select="."/></chart:Value>
+            <!-- in case of a PIECHART, we use 1 series with the dim values (but have n coldim/measure values piecharts) -->
+            <xsl:choose>
+              <xsl:when test="$chartType='PIECHART'">
+                <chart:Series caption="{concat(/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId][position()=$chartColumn]/@caption, '|', /*/wrs:Header/wrs:Columns/@innerRowDimCaption)}" chartType="{$chartType}" yAxis1Or2="1">
+                  <chart:YData>
+                    <xsl:for-each select="$categoryDims">
+                      <xsl:sort select="."/>
+                      <xsl:variable name="dimValue" select="text()"/>
+                        <xsl:choose>
+                          <xsl:when test="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value[position()=$chartColumn]">
+                            <chart:Value><xsl:value-of select="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value[position()=$chartColumn]"/></chart:Value>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <chart:Value>0</chart:Value>
+                          </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:for-each>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <!-- no values for current dim value, then fill up with zeros -->
-                    <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId]">
-                      <chart:Value>0</chart:Value>
-                    </xsl:for-each>
-                  </xsl:otherwise>
-                  </xsl:choose>
-                </chart:YData>
-              </chart:Series>
-            </xsl:for-each>
+                  </chart:YData>
+                </chart:Series>
+              </xsl:when>
+              <!-- otherwise generate a series (with n coldim/measure values) for each dim value -->
+              <xsl:otherwise>
+                <xsl:for-each select="$categoryDims">
+                  <xsl:sort select="."/>
+                  <xsl:variable name="dimValue" select="text()"/>
+                  <chart:Series caption="{$dimValue}" chartType="{$chartType}" yAxis1Or2="1">
+                    <chart:YData>
+                      <xsl:choose>
+                        <xsl:when test="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value">
+                          <xsl:for-each select="/*/wrs:Data/wrs:R[@id=$rowId]/wrs:Dim[text()=$dimValue]/wrs:Value">
+                            <chart:Value><xsl:value-of select="."/></chart:Value>
+                          </xsl:for-each>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <!-- no values for current dim value, then fill up with zeros -->
+                          <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id, '&#xE0F0;')) and @valueId]">
+                            <chart:Value>0</chart:Value>
+                          </xsl:for-each>
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </chart:YData>
+                  </chart:Series>
+                </xsl:for-each>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
 
-          <!-- generate a series for each measure -->
+          <!-- generate a series for each measure, max 2 different axis/units -->
           <xsl:otherwise>
             <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))]">
-    
+
               <xsl:variable name="measure" select="@valueId"/>
-    
+
               <!-- get current measure -->
               <xsl:variable name="unit">
                 <xsl:choose>
