@@ -163,7 +163,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
     }
 
     // We need either at least one match (in case of OR) or all must match
-    if( ! foundMatch || (conIsAnd && foundMissMatch) )
+    if( !enforcedBis.isEmpty() && (! foundMatch || (conIsAnd && foundMissMatch)) )
       throw new SecurityException("Invalid values for enforced bindingItems");
   }
   
