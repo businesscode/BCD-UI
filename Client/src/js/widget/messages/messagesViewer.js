@@ -21,7 +21,12 @@ jQuery.extend(bcdui.widget, {
                        dataStorage == "localStorage"       ? function(key) { return localStorage.getItem("bcdClient:" + key) || ""; }
                      /*dataStorage == "sessionStorage"*/   : function(key) { return sessionStorage.getItem("bcdClient:" + key) || ""; };
 
-    const icon = args && args.targetHtml && args.mode == "icon" ? $("<i class='statusNotReady' style='position:relative'></i>").appendTo(args.targetHtml) : null;
+    let icon = null;
+    let targetHtml = null;
+    if (args && args.targetHtml && args.mode == "icon") {
+      targetHtml = $("<div style='position:relative'><div>").appendTo(args.targetHtml);
+      icon = $("<i class='statusNotReady'></i>").appendTo(targetHtml);
+    }
 
     // get the current active data
     const data = new bcdui.core.AutoModel({
@@ -193,7 +198,7 @@ jQuery.extend(bcdui.widget, {
         icon.removeClass("statusNotReady").addClass("fas").addClass("fa-regular");
         // update icon and display count of new messages
         if (messages.length > 0) {
-          $("<span class='notification' style='position:absolute;right:0.5em;top:0.4em;font-size:0.8em;font-weight:bold;padding:0.05em 0.3em;border-radius:50%;background-color:red;color:white;pointer-events:none'>" + messages.length + "</span>").appendTo(icon);
+          $("<span class='notification' style='position:absolute;right:50%;top:40%;font-weight:normal;padding:1px 8px;border-radius:50%;background-color:#E32119;color:white;pointer-events:none'>" + messages.length + "</span>").appendTo(targetHtml);
           icon.addClass("fa-envelope");
         } else icon.addClass(messagesAll.length > 0 ? "fa-envelope-open-text" : "fa-envelope-open");
         
