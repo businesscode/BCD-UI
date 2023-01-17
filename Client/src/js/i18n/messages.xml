@@ -293,6 +293,8 @@
       <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
       <R id="R551"><C>bcd_Messages_Prev</C><C>Prev</C><C>en</C></R>
       <R id="R552"><C>bcd_Messages_Close</C><C>Close</C><C>en</C></R>
+      <R id="R553"><C>bcd_Messages_MoreUnread</C><C>There are more unread messages!</C><C>en</C></R>
+      <R id="R553"><C>bcd_Messages_None</C><C>There are currently no messages available.</C><C>en</C></R>
 
 
     </Data>
