@@ -70,7 +70,8 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 * Grid configuration files: change of namespace for C elements wrq:C -> grid:C, removal of wrq:Columns in grid:SelectColumns and grid:OrderColumns, so such elements are directly followed by grid:C
 * removed ZipLet decodeAndDecompressToXMLWithXInclude functionality. Update possible calls to decodeAndDecompressToXML.
 * bcdui.util.clipboard.paste and pasteCSVasXML don't return the value directly. It's a promise now, so use '.then( value => {...} ) to use the value.
-* New reserved SQL words `CURRENT`, `FOLLOWING`, ROW`, `ROWS` and some less critical  analytical functions
+* New reserved SQL words `CURRENT`, `FOLLOWING`, `ROW`, `ROWS` and some less critical  analytical functions
+* user messages editor/viewer now use binding sets bcd_user_messages and bcd_user_messages_readonly
 
 ___
 ==== Release 5_5_0
