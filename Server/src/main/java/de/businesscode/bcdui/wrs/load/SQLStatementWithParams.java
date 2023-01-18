@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -73,7 +73,17 @@ public class SQLStatementWithParams {
     
     for (Element e : currFilterItems) {
       filterValues.add(e.getAttribute("value"));
-      if( !e.getAttribute("bRef").isEmpty() )
+      // do we want to generate a virtualBindingItem as a carrier for a specific type?
+      if (e.getAttribute("bRef").startsWith("bcdVirtBindingItemWithType.")) {
+        String sqlType = e.getAttribute("bRef").substring(e.getAttribute("bRef").indexOf(".") + 1);
+        BindingItem dummyBi = new BindingItem(null, "null", false, currBindingSet);
+        try {
+          dummyBi.setJDBCDataTypeName(sqlType);
+        } catch(Exception exc) { /* We know, it does exist, because its value is hard-coded here */ }
+        filterBindingItems.add(dummyBi);
+      }
+      // default case, bRef is given
+      else if( !e.getAttribute("bRef").isEmpty() )
         filterBindingItems.add(currBindingSet.get(e.getAttribute("bRef")));
       // If we want to enforce a numeric type (needed for example for NULLIF(v,0)), we need to create a dummy BindingItem here as a carrier for the data type
       else if( "NUMERIC".equals(e.getAttribute(Bindings.jdbcDataTypeNameAttribute)) ) {
