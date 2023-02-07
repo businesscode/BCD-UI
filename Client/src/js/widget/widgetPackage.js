@@ -3530,6 +3530,9 @@ jQuery.extend(bcdui.widget,
      */
     stickyTable: function(args) {
 
+      // no resize events
+      jQuery(window).off("resize");
+
       const table = jQuery(args.targetHtml).find("table").addBack(args.targetHtml).first();
 
       const dims = args.bcdDimension ? ("" + table.find("thead tr:first-child *.bcdDimension").length) : 0;
@@ -3573,6 +3576,18 @@ jQuery.extend(bcdui.widget,
       const lastRows  = parseInt(args.nLastRows || "0", 10);
       table.addClass("bcdStickyTable");
       ["thead", "tbody", "tfoot"].forEach(function(part) {bcdui.widget._scanTablePart(table.find(part), firstCols, firstRows, lastCols, lastRows, args.header, args.footer)});
+
+      // remember args on table for resize listener
+      jQuery(table).data("bcdStickyArgs", args);
+
+      // redraw all sticky tables on window resize
+      jQuery(window).on("resize", function() {
+        jQuery(".bcdStickyTable").each(function(i, t) {
+          const stickyArgs = jQuery(t).data("bcdStickyArgs");
+          if (stickyArgs)
+            bcdui.widget.stickyTable(stickyArgs);
+        });
+      });
     },
 
     /**
