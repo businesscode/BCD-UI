@@ -806,7 +806,12 @@ bcdui.core = Object.assign(bcdui.core,
                 // _getFillParams ensures no ' or " around it, so we add it to make it a real string again
                 var matches = /(.*)concat\(('.+, '')\)/g.exec(predicates[predNo]);
                 if (matches != null && matches.length == 3)
-                  predicates[predNo] = matches[1] + "'" + matches[2].split(",").map(function(e){ return e.trim().substring(1, e.trim().length - 1)}).join("") + "'";
+                  // Keep in mind, when _getFillParams created a concat, it always ends with a dummy , ''
+                  // since single matches[2] parts can contain a comma like  "concat('bla, the', "'", 'test', '')",
+                  // we replace the "'", parts into ''+UTF8 (note the double ') and the ', parts into UTF8 ->  'bla, the#''#'test#''
+                  // Then split by UTF8 which leads to single strings which all start with ', we skip the first ' and finally create a string out of the array which ends with a single '
+                  // that single ' perfectly closes our opening one which placed in front of it -> matches[1] + "'" + ...
+                  predicates[predNo] = matches[1] + "'" + matches[2].replace(/\"'\",\s*/g, "''\uE0F3").replace(/',\s*/g, "\uE0F3").split("\uE0F3").map(function(e){ return e.substring(1)}).join("");
 
                 matches = this._createElementWithPrototype_EqualityExpressionSplitter.exec(predicates[predNo]);
                 if (matches == null || matches.length < 6) {
