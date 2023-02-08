@@ -154,6 +154,7 @@
           <xs:attribute name="nLastRows" type="xs:integer"><xs:annotation><xs:documentation>make last n rows sticky</xs:documentation></xs:annotation></xs:attribute>
           <xs:attribute name="nFirstCols" type="xs:integer"><xs:annotation><xs:documentation>make first n cols sticky</xs:documentation></xs:annotation></xs:attribute>
           <xs:attribute name="nLastCols" type="xs:integer"><xs:annotation><xs:documentation>make last n cols sticky</xs:documentation></xs:annotation></xs:attribute>
+          <xs:attribute name="disableMaxWH" type="xs:boolean"><xs:annotation><xs:documentation>set to true if you want to use width/heigth instead of max-width/max-height</xs:documentation></xs:annotation></xs:attribute>
         </xs:complexType>
       </xs:element>
 

@@ -3527,6 +3527,7 @@ jQuery.extend(bcdui.widget,
      * @param {integer}       [args.nLastCols]    make the last n columns sticky
      * @param {integer}       [args.nLastRows]    make the last n rows sticky
      * @param {boolean}       [args.bcdDimension=false] make all dimension cells (cube) sticky (higher prio than other options)
+     * @param {boolean}       [args.disableMaxWH=false] setting this to true will use width/heigth instead of max-width/max-height 
      */
     stickyTable: function(args) {
 
@@ -3552,8 +3553,8 @@ jQuery.extend(bcdui.widget,
       table.removeClass("bcdStickyTable bcdStickyHead bcdStickyFoot bcdStickyFirstColumn bcdStickyLastColumn bcdStickyLastRow bcdStickyFirstRow");
       if (table.parent().hasClass("bcdStickyContainer")) {
         table.parent().css("overflow", "inherit");
-        table.parent().css("width",    "inherit");
-        table.parent().css("height",   "inherit");
+        table.parent().css(args.disableMaxWH ? "width"  : "max-width",    "inherit");
+        table.parent().css(args.disableMaxWH ? "height" : "max-height",   "inherit");
       }
       table.find(".bcdStickyNthCol").each(function(j, e) {jQuery(e).removeClass("bcdStickyNthCol"); jQuery(e).css("left", ""); jQuery(e).css("right", "");});
       table.find(".bcdStickyNthRow").each(function(j, e) {jQuery(e).removeClass("bcdStickyNthRow"); jQuery(e).css("top", "");  jQuery(e).css("bottom", "");});
@@ -3564,8 +3565,14 @@ jQuery.extend(bcdui.widget,
 
       // handle width/height bei modifying the container around the table
       if (args.width || args.height) {
-        if (args.width)  table.parent().css("width",  args.width);
-        if (args.height) table.parent().css("height", args.height);
+        if (args.width) {
+          const width = ("" + parseInt(args.width, 10)) === args.width ? args.width + "px" : args.width;
+          table.parent().css(args.disableMaxWH ? "width" : "max-width", width); 
+        }
+        if (args.height) {
+          const height = ("" + parseInt(args.height, 10)) === args.height ? args.height + "px" : args.height;
+          table.parent().css(args.disableMaxWH ? "height" : "max-height", height);
+        }
         table.parent().addClass("bcdStickyContainer").css("overflow", "auto");
       }
 

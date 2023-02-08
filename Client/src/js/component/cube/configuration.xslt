@@ -345,6 +345,7 @@
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nFirstRows"><xp:StickyFirstRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nFirstRows"/></xp:StickyFirstRows></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastCols"><xp:StickyLastCols><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastCols"/></xp:StickyLastCols></xsl:if>
           <xsl:if test="/*/cube:Layout/cube:Freeze/@nLastRows"><xp:StickyLastRows><xsl:value-of select="/*/cube:Layout/cube:Freeze/@nLastRows"/></xp:StickyLastRows></xsl:if>
+          <xsl:if test="/*/cube:Layout/cube:Freeze/@disableMaxWH"><xp:StickyDisableMaxWH><xsl:value-of select="/*/cube:Layout/cube:Freeze/@disableMaxWH"/></xp:StickyDisableMaxWH></xsl:if>
 
           <!-- inline chart -->
           <xsl:if test="/*/cube:Layout/cube:Chart/@innerRowDim"><xp:InlineChartInnerRowDim><xsl:value-of select="/*/cube:Layout/cube:Chart/@innerRowDim"/></xp:InlineChartInnerRowDim></xsl:if>

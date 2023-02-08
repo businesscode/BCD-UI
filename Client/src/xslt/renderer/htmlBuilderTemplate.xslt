@@ -71,6 +71,7 @@
         , nFirstRows: <xsl:value-of select="$stickyFirstRows"/>
         , nLastCols: <xsl:value-of select="$stickyLastCols"/>
         , nLastRows: <xsl:value-of select="$stickyLastRows"/>
+        , disableMaxWH: <xsl:value-of select="$stickyDisableMaxWH"/>
         });
       </xsl:if>
       <xsl:choose>

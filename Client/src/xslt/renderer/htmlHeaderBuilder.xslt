@@ -564,6 +564,7 @@
   <xsl:param name="stickyFirstRows" select="''"/>
   <xsl:param name="stickyLastCols"  select="''"/>
   <xsl:param name="stickyLastRows"  select="''"/>
+  <xsl:param name="stickyDisableMaxWH"  select="'false'"/>
 
   <!-- inline chart -->
   <xsl:param name="inlineChart" select="boolean($paramSet/xp:InlineChart='true')"/>
@@ -622,6 +623,10 @@
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">stickyDims</xsl:attribute>
       <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:StickyDims='true' or $stickyDims='true'"/>()</xsl:attribute>
+    </xsl:element>
+    <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
+      <xsl:attribute name="name">stickyDisableMaxWH</xsl:attribute>
+      <xsl:attribute name="select"><xsl:value-of select="$paramSet/xp:StickyDisableMaxWH='true' or $stickyDisableMaxWH='true'"/>()</xsl:attribute>
     </xsl:element>
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">stickyHeight</xsl:attribute>
