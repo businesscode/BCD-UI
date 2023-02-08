@@ -565,6 +565,13 @@
   <xsl:param name="stickyLastCols"  select="''"/>
   <xsl:param name="stickyLastRows"  select="''"/>
 
+  <!-- inline chart -->
+  <xsl:param name="inlineChart" select="boolean($paramSet/xp:InlineChart='true')"/>
+  <xsl:param name="inlineChartInnerRowDim" select="boolean($paramSet/xp:InlineChartInnerRowDim='true')"/>
+  <xsl:param name="inlineChartType1" select="$paramSet/xp:InlineChartType1"/>
+  <xsl:param name="inlineChartType2" select="$paramSet/xp:InlineChartType2"/>
+  <xsl:param name="inlineChartMinMaxRow" select="$paramSet/xp:InlineChartMinMaxRow"/>
+
   <xsl:template match="generator:VariablesForHeader" mode="generateXSLT">
   
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
