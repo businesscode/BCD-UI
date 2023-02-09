@@ -77,6 +77,7 @@
           targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find(".bcdUpper")
         , dblClick: false
+        , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase() + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
         , generateItemHelperHtml: function(event, item) {
             var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
             var caption = "<ul>";
