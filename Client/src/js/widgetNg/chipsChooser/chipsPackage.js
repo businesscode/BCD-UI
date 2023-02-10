@@ -43,7 +43,8 @@
     _create : function() {
       this._super();
 
-      var template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='form-control bcdDown' bcdTranslate='bcd_singleSelect_please_select'></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
+      const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_singleSelect_please_select"});
+      var template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
       jQuery(this.element).append( doT.template(template)({ id: this.options.id }) );
 
@@ -71,7 +72,12 @@
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
         , targetHtml: this.element.find(".bcdLower")
-        , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase() + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
+        , onSelected: function() {
+            // set inputbox to selected items
+            const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
+            jQuery(this.element).closest(".bcdChipChooser").find(".bcdMiddle input").val(newValue);
+          }
+          , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase() + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
      }
       var targetArgs = {
           targetModelXPath: this.options.targetModelXPath
@@ -106,10 +112,106 @@
         self._moveSelectedItems(from, to);
       });
 
-      jQuery(this.element).find(".bcdMiddle span").on("click", function(event) {
-        jQuery(event.target).toggleClass("bcdUp bcdDown");
-        jQuery(event.target).closest(".bcdChipChooser").find(".bcdLowerContainer").toggle();
+      const upperConnectable = jQuery(this.element).find(".bcdUpper .bcdConnectable");
+      const lowerConnectable = jQuery(this.element).find(".bcdLower .bcdConnectable");
+      const inputField = jQuery(this.element).find(".bcdMiddle input");
+      
+      const toggleBox = function() {
+        lowerConnectable.closest(".bcdChipChooser").find(".bcdMiddle span").toggleClass("bcdUp bcdDown");
+        lowerConnectable.closest(".bcdChipChooser").find(".bcdLowerContainer").toggle();
+
+        // clean selection if box is closed
+        if (!lowerConnectable.is(":visible")) {
+          inputField.val("");
+          lowerConnectable.find(".ui-selected").removeClass("ui-selected");
+        }
+      };
+
+      jQuery(this.element).find(".bcdMiddle").on("click", toggleBox );
+      
+      inputField.keypress(function(event) {setTimeout(markItem);});
+      inputField.keydown(function(event) {
+
+        if (! lowerConnectable.is(":visible"))
+          lowerConnectable.closest(".bcdLowerContainer").show();
+
+        // handle up/down via connectable up/down
+        const newValue = lowerConnectable._bcduiWidget()._handleUpDown(lowerConnectable, event);
+        if (newValue.length > 0)
+          inputField.val(newValue.join(";"));
+
+        // ESC cleans input/selection and closes lower part
+        if (event.keyCode == 27) {
+          if (lowerConnectable.is(":visible"))
+            toggleBox();
+        }
+
+        // ENTER takes over selected one and empties input field
+        if (event.keyCode == 13) {
+          event.preventDefault();
+          lowerConnectable._bcduiWidget()._moveSelectedItems(lowerConnectable, upperConnectable);
+          inputField.val("");
+        }
+
+        // TAB takes over selected lower part if available, otherwise standard tab
+        if (event.keyCode == 9) {
+          const newValue = lowerConnectable.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
+          if (newValue) {
+            inputField.val(newValue);
+            event.preventDefault();
+            return false;
+          }
+          return true;
+        }
       });
+
+      const markItem = function() {
+        // open list if it's not visible
+        if (! lowerConnectable.is(":visible"))
+          lowerConnectable.closest(".bcdLowerContainer").show();
+
+        const iValue = inputField.val().toLowerCase();
+
+        // an initial SPACE in inputField does not do anything besides opening the list
+        if (iValue == " ") {
+          inputField.val("");
+          return;
+        }
+
+        // get matching items, could be multiple separated by ;
+        const inputValues = iValue.split(";");
+        let lastItem = null;
+        inputValues.forEach(function(inputValue, i) {
+          const iv = inputValue.trim();
+          if (iv) {
+            
+            // initially clear all selections
+            if (i == 0)
+              lowerConnectable.find('.ui-selected').removeClass("ui-selected");
+
+            // get 'starts with' items
+            const items = lowerConnectable.find("[bcdLoCase^='" + iv + "']");
+            
+            // we only take the first matching item and mark it
+            for (let i = 0; i < items.length; i++) {
+              const item = jQuery(items.get(i));
+              if (! item.hasClass("ui-selected")) {
+                item.addClass("ui-selected");
+                lastItem = item;
+                break;
+              }
+            }
+          }
+        });
+        // finally, if we had marked at least one item, scroll to it
+        if (lastItem) {
+          const offset = lowerConnectable.children(".ui-selectee").length > 0 ? lowerConnectable.children(".ui-selectee").first().position().top : 0;
+          lowerConnectable.scrollTop(jQuery(lastItem).position().top - offset - (lowerConnectable.outerHeight() / 2));
+        }
+        // no match, remove any selection
+        else
+          lowerConnectable.find(".ui-selected").removeClass("ui-selected");
+      };
 
       if (this.options.enableNavPath) {
         bcdui.widgetNg.chipsChooser.getNavPath(this.element.id, function(id, value) {
