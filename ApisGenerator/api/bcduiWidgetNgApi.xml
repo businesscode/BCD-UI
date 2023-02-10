@@ -724,6 +724,9 @@
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted. If you specify a targetmodelxpath, the box automatically acts as target</Doc>
         </Param>
+        <Param name="onSelected" required="false" type="function">
+          <Doc>Handler function triggered when at least of the connectable items changed its status from selected to unselected (or moved a selected). This may fire multiple times.</Doc>       
+        </Param>
         <Param name="onItemMoved" required="false" type="function">
           <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
         </Param>
