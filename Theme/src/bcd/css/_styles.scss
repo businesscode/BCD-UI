@@ -859,7 +859,10 @@ $h6-font-size:                $bcd-font-size-base !default;
   .ui-selected {
     @include bcdSelected();
   }
-  .bcdConnectableHover, .ui-selecting {
+  .bcdConnectableHover {
+    @include con_color($connectable-hover);
+  }
+  .ui-selecting {
     @include bcdSelected(true);
   }
   li.ui-node-expanded > .ui-node-handle:after {
@@ -2114,7 +2117,12 @@ $chips-close-color: #c00 !default;
         color: #3c5b7b;
         margin-left: .3em;
         position: absolute;
-        right: 1em; 
+        right: 1em;
+        padding-top: .6em;
+      }
+      input {
+        padding-right: 2em;
+        display: inline-block;
       }
     }
     .bcdDown:after { content: "\f078"; }

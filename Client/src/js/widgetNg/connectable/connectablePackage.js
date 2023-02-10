@@ -700,6 +700,76 @@
     },
 
     /**
+     * @private
+     */
+    _handleUpDown: function(htmlElement, event) {
+
+      // no up/down key, reinit indexes
+      if (event.keyCode != 38 && event.keyCode != 40) {
+        delete this.oldItemIdx;
+        delete this.initItemIdx;
+      }
+      // no item selected yet, select first item
+      else {
+        let selected = htmlElement.find(".ui-selected");
+
+        if (selected.length == 0) {
+          selected = htmlElement.find(".ui-selectee:first-child");
+          if (selected.length == 0)
+            return [];
+          selected.addClass("ui-selected");
+        }
+
+        const idx = this.oldItemIdx || selected.first().index();
+        const offset = htmlElement.children(".ui-selectee").length > 0 ? htmlElement.children(".ui-selectee").first().position().top : 0;
+
+        event.preventDefault();
+
+        // first selected item index before up/down is pressed
+        if (! this.initItemIdx)
+          this.initItemIdx = idx;
+
+        // inc/dec current index
+        let newItemIdx = idx + (event.keyCode == 38 ? -1 : 1);
+
+        // check upper and lower boundaries
+        if (newItemIdx < 0) newItemIdx = 0;
+        if (newItemIdx > htmlElement.find(".ui-selectee:last-child").index()) newItemIdx = htmlElement.find(".ui-selectee:last-child").index();
+
+        // the new to be selected item
+        let newItem = jQuery(htmlElement.find(".ui-selectee").get(newItemIdx));
+
+        // test if we used up and go down now (or vice versa), if so, deselect former selected ones till initially selected one
+        const overlap = 
+           (event.keyCode == 38 && this.initItemIdx && this.initItemIdx <= newItemIdx && event.shiftKey)
+        || (event.keyCode == 40 && this.initItemIdx && this.initItemIdx >= newItemIdx && event.shiftKey)
+        if (overlap) {
+          jQuery(htmlElement.find(".ui-selectee").get(this.oldItemIdx)).removeClass("ui-selected");
+          newItem = jQuery(htmlElement.find(".ui-selectee").get(this.oldItemIdx));            
+        }
+        // otherwise, clean (depending on shift) and mark the item(s)
+        else {
+          if (newItem != null && newItem.length > 0) {
+            if (! event.shiftKey)
+              newItem.siblings('.ui-selected').removeClass("ui-selected");
+            newItem.addClass("ui-selected");
+          }
+        }
+
+        // rememeber new index
+        this.oldItemIdx = newItemIdx;
+
+        // scroll to new item
+        htmlElement.scrollTop(newItem.position().top - offset - (htmlElement.outerHeight() / 2));
+        
+        // return array of selected items (can be used elsewhere e.g. chipsPackage)
+        return htmlElement.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get();
+      }
+      
+      return [];
+    },
+
+    /**
      * attach events to container
      * @private
      */
@@ -727,6 +797,10 @@
 
       // let's handle ctrl-a, del, return via keydown
       this.container.keydown(function(event) {
+
+		// handle UP / DOWN keys
+        self._handleUpDown(jQuery(this), event);
+
         // select ALL
         if ((event.ctrlKey || event.metaKey) && event.keyCode == "65") {
           jQuery(this).children(".ui-selectee").addClass("ui-selected");
@@ -770,8 +844,8 @@
             self.lastIndex = 0;
 
           // and finally bring item into view
-          var offset = jQuery(this).children(".ui-selectee").first().position().top;
-          jQuery(this).scrollTop(jQuery(items[self.lastIndex]).position().top - offset);
+          const offset = jQuery(this).children(".ui-selectee").length > 0 ? jQuery(this).children(".ui-selectee").first().position().top : 0;
+          jQuery(this).scrollTop(jQuery(items[self.lastIndex]).position().top - offset - (jQuery(this).outerHeight() / 2));
 
           // auto select item, deselect others
           jQuery(items[self.lastIndex]).siblings('.ui-selected').removeClass("ui-selected");
