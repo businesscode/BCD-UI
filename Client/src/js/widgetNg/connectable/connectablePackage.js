@@ -676,15 +676,22 @@
 
       // mark items as selected (stored positions in 'position data' which are touched by the lasso)
       var items = jQuery(args.id).children(".ui-selectee");
+      let selChanged = false;
       for (var i = 0; i < items.length; i++) {
         var r2 = jQuery(items[i]).data("position");
         if (typeof r2 != "undefined" && r2 != null) {
+          const hasSelecting = jQuery(items[i]).hasClass("ui-selecting");
           if (r1.left > r2.right || r2.left > r1.right || r1.top > r2.bottom || r2.top > r1.bottom)
             jQuery(items[i]).removeClass("ui-selecting");
           else
             jQuery(items[i]).addClass("ui-selecting");
+          selChanged |= hasSelecting != jQuery(items[i]).hasClass("ui-selecting");
         }
       }
+
+      // call onSelected if mouse move enabled/disabled an item
+      if (selChanged)
+        this.onSelected();
     },
 
     /**
@@ -756,6 +763,9 @@
           }
         }
 
+        // call onSelected since we enabled/disabled an item by up/down (shift)
+        this.onSelected();
+
         // rememeber new index
         this.oldItemIdx = newItemIdx;
 
@@ -778,6 +788,7 @@
 
       // setup our function handlers
       this.onBeforeChange = this.options.onBeforeChange || nop;
+      this.onSelected = this.options.onSelected || nop;
       this.onChange = this.options.onChange || nop;
       this.generateItemHelperHtml = this.options.generateItemHelperHtml || function(event, item) {
         // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
@@ -798,12 +809,16 @@
       // let's handle ctrl-a, del, return via keydown
       this.container.keydown(function(event) {
 
-		// handle UP / DOWN keys
+        // handle UP / DOWN keys
         self._handleUpDown(jQuery(this), event);
 
         // select ALL
         if ((event.ctrlKey || event.metaKey) && event.keyCode == "65") {
           jQuery(this).children(".ui-selectee").addClass("ui-selected");
+
+          // call onSelected since we selected all
+          self.onSelected();
+
           event.preventDefault();
           return false;
         }
@@ -850,6 +865,9 @@
           // auto select item, deselect others
           jQuery(items[self.lastIndex]).siblings('.ui-selected').removeClass("ui-selected");
           jQuery(items[self.lastIndex]).addClass("ui-selected");
+
+          // call onSelected since we selected a matched item by keypress
+          self.onSelected();
         }
 
         // let's have a timeout where our wordtyping gets reset
@@ -907,6 +925,9 @@
         // handle standard click
         else
           jQuery(oTarget).addClass("ui-selected").siblings().removeClass('ui-selected');
+
+        // call onSelected since we clicked an item
+        self.onSelected();
       });
 
       // mouse down has to handle several things
@@ -945,6 +966,10 @@
             jQuery(event.currentTarget).find('.ui-selected').removeClass('ui-selected');
             for (var i=iNew;i<=iCurrent;i++)
               jQuery(event.currentTarget).find('.ui-selectee').eq(i).addClass('ui-selected');
+
+            // call onSelected on selecting an item area with click -> shift click
+            self.onSelected();
+
             event.stopImmediatePropagation(); // we need to stop here, otherwise bubbling will deselect our items directly
             return false;
           }
@@ -981,6 +1006,8 @@
         this.container.selectable({
             filter: ".ui-selectee"
           , cancel: ".bcdItem, .bcdNotSelectable"
+          , selected: this.onSelected.bind(this)
+          , unselected: this.onSelected.bind(this)
           , start: function () {
 
             // clean variable and timers of keystroke support
@@ -1231,6 +1258,11 @@
           } else {
             // re-assign scope.items in case is has been modified
             ui.item.data("itemContainer", scope.items);
+            
+            //// call onSelected on source and target since we moved items
+            from._bcduiWidget().onSelected();
+            jQuery(to).parent()._bcduiWidget().onSelected();
+            
           }
         });
 
@@ -1262,6 +1294,7 @@
         if (scope.items.length) {
           if (this.onBeforeChange({element:this.container.get(0), dir: this._getMoveType(from, to), itemCount: scope.items.length, scope:scope})) {
 
+            var from_instance = from.parent()._bcduiWidget();
             var to_instance = to.parent()._bcduiWidget();
             // on a move, clear selected items in the target first, so only the new added ones remain active
             to.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
@@ -1288,6 +1321,10 @@
             // and update XML according to what we have in the boxes
             this._writeDataToXML(from, to);
           }
+          
+          // call onSelected since we moved items
+          from_instance.onSelected();
+          to_instance.onSelected();
         }
       }
     },
