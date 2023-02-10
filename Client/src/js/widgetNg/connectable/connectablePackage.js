@@ -802,7 +802,7 @@
         return jQuery(caption);
       };
 
-      this.generateItemHtml = this.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
+      this.generateItemHtml = this.options.generateItemHtml || function(args){return "<li class='ui-selectee' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args.caption + "'><span class='bcdItem'>" + args.caption + "</span></li>";};
 
       var self = this;
 
@@ -843,7 +843,7 @@
       this.container.keypress(function(event) {
 
         var old = self.lastWord;
-        self.lastWord += String.fromCharCode(event.charCode||event.which||event.keyCode).toLowerCase();
+        self.lastWord += String.fromCharCode(event.charCode||event.which||event.keyCode).toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0");
 
         var items = jQuery(this).find("[bcdLoCase^='" + self.lastWord + "']");
 
@@ -1431,7 +1431,7 @@
       this.levelStateMap = {}; 
       // doT template as expected by connectable
       this.templates = {
-        item : doT.compile("<li class='ui-selectee {{=it.className}}' style='padding-left: {{=it.depth * " + this.config.leftPaddingLevel + "}}px' bcdValue='{{=it.value}}' bcdPos='{{=it.position}}' bcdLoCase='{{=it.caption.toLowerCase()}}'>{{=it.handle}}<span class='bcdItem'>{{=it.caption}}</span></li>")
+        item : doT.compile("<li class='ui-selectee {{=it.className}}' style='padding-left: {{=it.depth * " + this.config.leftPaddingLevel + "}}px' bcdValue='{{=it.value}}' bcdPos='{{=it.position}}' bcdLoCase='{{=it.captionLoCase}}'>{{=it.handle}}<span class='bcdItem'>{{=it.caption}}</span></li>")
       };
 
       var self = this;
@@ -1545,7 +1545,7 @@
         };
 
         // used to render target box
-        var itemTpl = doT.compile('<ul class="ui-selectee" bcdvalue="{{=it.value}}" bcdlocase="{{=it.caption.toLowerCase()}}"><span class="bcdItem">{{=it.caption}}</span></ul>');
+        var itemTpl = doT.compile('<ul class="ui-selectee" bcdvalue="{{=it.value}}" bcdlocase="{{=it.captionLoCase}}"><span class="bcdItem">{{=it.caption}}</span></ul>');
 
         /*
         * here we (1) expand all level nodes to its children and
@@ -1569,7 +1569,8 @@
             // insert
             jQuery(itemTpl({
               value : value,
-              caption : node.getAttribute(self.config.captionAttrName) // caption provided by attribute
+              caption : node.getAttribute(self.config.captionAttrName), // caption provided by attribute
+              captionLoCase: node.getAttribute(self.config.captionAttrName).toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0")
             })).insertBefore(this);
           }.bind(this));
         })
@@ -1646,6 +1647,11 @@
         }
 
         args.depth = elementInData.selectNodes("ancestor::" + levelNodeName).length; // level depth
+      }
+      
+      // for lower case, we replace ' with some utf 8 char to be able to later do a jquery lookup bcdLoCase^=
+      if (args.caption && ! args.captionLoCase) {
+        args["captionLoCase"] = args.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0"); 
       }
 
       return this.templates.item(args);

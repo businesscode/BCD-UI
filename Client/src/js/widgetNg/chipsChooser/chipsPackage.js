@@ -77,13 +77,13 @@
             const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
             jQuery(this.element).closest(".bcdChipChooser").find(".bcdMiddle input").val(newValue);
           }
-          , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase() + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
+          , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
      }
       var targetArgs = {
           targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find(".bcdUpper")
         , dblClick: false
-        , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase() + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
+        , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
         , generateItemHelperHtml: function(event, item) {
             var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
             var caption = "<ul>";
@@ -190,7 +190,7 @@
               lowerConnectable.find('.ui-selected').removeClass("ui-selected");
 
             // get 'starts with' items
-            const items = lowerConnectable.find("[bcdLoCase^='" + iv + "']");
+            const items = lowerConnectable.find("[bcdLoCase^='" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
             
             // we only take the first matching item and mark it
             for (let i = 0; i < items.length; i++) {
