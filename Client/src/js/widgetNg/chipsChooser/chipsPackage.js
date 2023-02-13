@@ -132,19 +132,18 @@
       inputField.keypress(function(event) {setTimeout(markItem);});
       inputField.keydown(function(event) {
 
-        if (! lowerConnectable.is(":visible"))
+        // ESC cleans input/selection and closes lower part
+        if (event.keyCode == 27) {
+          if (lowerConnectable.is(":visible"))
+            toggleBox();
+        }
+        else if (! lowerConnectable.is(":visible"))
           lowerConnectable.closest(".bcdLowerContainer").show();
 
         // handle up/down via connectable up/down
         const newValue = lowerConnectable._bcduiWidget()._handleUpDown(lowerConnectable, event);
         if (newValue.length > 0)
           inputField.val(newValue.join(";"));
-
-        // ESC cleans input/selection and closes lower part
-        if (event.keyCode == 27) {
-          if (lowerConnectable.is(":visible"))
-            toggleBox();
-        }
 
         // ENTER takes over selected one and empties input field
         if (event.keyCode == 13) {
