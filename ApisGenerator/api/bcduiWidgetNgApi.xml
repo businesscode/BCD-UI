@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -637,6 +637,9 @@
         <Param name="onItemMoved" required="false" type="function">
           <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
         </Param>
+        <Param name="keySelectorContains" required="false" type="boolean">
+          <Doc>If true, key strokes will select items as a contains operation instead of a starts-with operation.</Doc>       
+        </Param>
       </Api>
       
       <Api name="sideBySideChooser" extends="widget">
@@ -777,6 +780,9 @@
         </Param>
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
+        </Param>
+        <Param name="keySelectorContains" required="false" type="boolean">
+          <Doc>If true, key strokes will select items as a contains operation instead of a starts-with operation.</Doc>       
         </Param>
       </Api>
 

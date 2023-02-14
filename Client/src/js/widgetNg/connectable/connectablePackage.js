@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -137,6 +137,8 @@
       this.keyTimeout = null;         // timeout handle for type-to-select functionality
       this.lastWord = "";             // word collector for type-to-select functionality
       this.lastIndex = 0;             // matchlist index for type-to-select functionality
+
+      this.keypressSelector = this.options.keySelectorContains ? "*=" : "^=";
 
       // init internal config
       this.config = {
@@ -845,14 +847,14 @@
         var old = self.lastWord;
         self.lastWord += String.fromCharCode(event.charCode||event.which||event.keyCode).toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0");
 
-        var items = jQuery(this).find("[bcdLoCase^='" + self.lastWord + "']");
+        var items = jQuery(this).find("[bcdLoCase" + self.keypressSelector + "'" + self.lastWord + "']");
 
         // if we don't find a match reset to last word but increase index of matchlist
         if (items.length == 0 && old.length > 0) {
           self.lastWord = old;
           self.lastIndex++;
         }
-        items = jQuery(this).find("[bcdLoCase^='" + self.lastWord + "']");
+        items = jQuery(this).find("[bcdLoCase" + self.keypressSelector + "'" + self.lastWord + "']");
         if (items.length > 0) {
           // if we reached last index, jump back to first
           if (self.lastIndex >= items.length)
@@ -1649,7 +1651,7 @@
         args.depth = elementInData.selectNodes("ancestor::" + levelNodeName).length; // level depth
       }
       
-      // for lower case, we replace ' with some utf 8 char to be able to later do a jquery lookup bcdLoCase^=
+      // for lower case, we replace ' with some utf 8 char to be able to later do a jquery lookup bcdLoCase^= / bcdLoCase*=
       if (args.caption && ! args.captionLoCase) {
         args["captionLoCase"] = args.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0"); 
       }

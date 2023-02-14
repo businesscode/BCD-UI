@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@
       this._super();
 
       const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_singleSelect_please_select"});
-      var template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
+      const template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
       jQuery(this.element).append( doT.template(template)({ id: this.options.id }) );
 
@@ -52,7 +52,7 @@
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
 
       // let's map attributes
-      var args = {
+      const args = {
             autofocus: this.options.autofocus
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
@@ -66,11 +66,13 @@
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
           , onItemMoved: this.options.onItemMoved
+          , keySelectorContains: this.options.keySelectorContains
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
       }
-      var sourceArgs = {
+      let sourceArgs = {
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
+        , keySelectorContains: this.options.keySelectorContains
         , targetHtml: this.element.find(".bcdLower")
         , onSelected: function() {
             // set inputbox to selected items
@@ -78,16 +80,16 @@
             jQuery(this.element).closest(".bcdChipChooser").find(".bcdMiddle input").val(newValue);
           }
           , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
-     }
-      var targetArgs = {
+      }
+      let targetArgs = {
           targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find(".bcdUpper")
         , dblClick: false
         , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
         , generateItemHelperHtml: function(event, item) {
-            var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
-            var caption = "<ul>";
-            for (var i = 0; i < selectedItems.length && i < 5; i++)
+            const selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
+            let caption = "<ul>";
+            for (let i = 0; i < selectedItems.length && i < 5; i++)
               caption += "<li><span class='bcdItem'>" + jQuery(selectedItems[i]).find(".bcdItem").text() + "</span></li>";
             if (selectedItems.length > 5)
               caption += "<li>[...]</li>";
@@ -96,19 +98,23 @@
         }
       }
 
+      this.keypressSelector = this.options.keySelectorContains ? "*=" : "^=";
+
       sourceArgs = Object.assign(sourceArgs, args);
       targetArgs = Object.assign(targetArgs, args);
 
       bcdui.widgetNg.createConnectable(sourceArgs);
       bcdui.widgetNg.createConnectable(targetArgs);
 
+      let chips = this;
+
       // clone dblclick behaviour from connectables and make it available as click on closing icon
       jQuery(this.element).find(".bcdUpper").on("click", ".bcdCloseItem", function(event) {
-        var self = jQuery(event.target).closest("ul").parent()._bcduiWidget();
-        var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
+        const self = jQuery(event.target).closest("ul").parent()._bcduiWidget();
+        let target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
         target = target.length > 0 ? target : self._getScopedTargetContainers();
-        var from = self.container; // we filter on li in this function, so use the outer box as 'from'
-        var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
+        const from = self.container; // we filter on li in this function, so use the outer box as 'from'
+        const to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
         self._moveSelectedItems(from, to);
       });
 
@@ -129,7 +135,7 @@
 
       jQuery(this.element).find(".bcdMiddle").on("click", toggleBox );
       
-      inputField.keypress(function(event) {setTimeout(markItem);});
+      inputField.keypress(function() { setTimeout(function() { markItem(chips.keypressSelector); } )});
       inputField.keydown(function(event) {
 
         // ESC cleans input/selection and closes lower part
@@ -164,7 +170,7 @@
         }
       });
 
-      const markItem = function() {
+      const markItem = function(keypressSelector) {
         // open list if it's not visible
         if (! lowerConnectable.is(":visible"))
           lowerConnectable.closest(".bcdLowerContainer").show();
@@ -189,7 +195,7 @@
               lowerConnectable.find('.ui-selected').removeClass("ui-selected");
 
             // get 'starts with' items
-            const items = lowerConnectable.find("[bcdLoCase^='" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
+            const items = lowerConnectable.find("[bcdLoCase" + keypressSelector + "'" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
             
             // we only take the first matching item and mark it
             for (let i = 0; i < items.length; i++) {
@@ -255,7 +261,7 @@ bcdui.widgetNg.chipsChooser = Object.assign(bcdui.widgetNg.chipsChooser,
    * @return {string} NavPath information via callback for widget
    */
   getNavPath: function(id, callback) {
-    var e = jQuery.bcdFindById(id).get(0);
+    const e = jQuery.bcdFindById(id).get(0);
     if (e) {
       bcdui.widget._getCaptionFromWidgetElement(e, function(value) {
         callback(id, value);
