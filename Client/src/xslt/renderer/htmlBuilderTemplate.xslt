@@ -60,8 +60,9 @@
         });
       </xsl:if>
       <xsl:if test="$stickyEnabled">
-         bcdui.widget.stickyTable({
-          targetHtml: this
+         const self = this;
+         setTimeout(function() { bcdui.widget.stickyTable({
+          targetHtml: self
         , width: '<xsl:value-of select="$stickyWidth"/>'
         , height: '<xsl:value-of select="$stickyHeight"/>'
         , bcdDimension: <xsl:value-of select="$stickyDims"/>
@@ -72,7 +73,7 @@
         , nLastCols: <xsl:value-of select="$stickyLastCols"/>
         , nLastRows: <xsl:value-of select="$stickyLastRows"/>
         , disableMaxWH: <xsl:value-of select="$stickyDisableMaxWH"/>
-        });
+        }); });
       </xsl:if>
       <xsl:choose>
         <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
