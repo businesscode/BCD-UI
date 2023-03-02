@@ -36,16 +36,6 @@ bcdui.bcduiCeFiles =
 {
   "groups": [
     {
-      "id": "_ecma6Polyfills",
-      "required": "mandatory",
-      "browserCompatibility" : {
-        "isIE" : true
-      },
-      "files": [
-        "/js/3rdParty/core-js-bundle.js"
-      ]
-    },
-    {
       "id": "3rdParty",
       "required": "mandatory",
       "files": [
@@ -356,18 +346,6 @@ bcdui.bcduiCeFiles =
       "required": "backCompatibility",
       "files": [
         "/js/component/textNavigation/textNavigation.js"
-      ]
-    },
-    {
-      "id": "_webComponentsLitePolyfill",
-      "required": "mandatory",
-      "browserCompatibility" : {
-        "isOpera":  false,
-        "isWebKit": false,
-        "isIE8":    false
-      },
-      "files": [
-        "/js/3rdParty/webcomponents-lite.js" 
       ]
     },
     {

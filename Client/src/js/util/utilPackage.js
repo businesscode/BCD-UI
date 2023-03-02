@@ -552,13 +552,7 @@ bcdui.util =
     });
     newTag.prototype.connectedCallback = newTag.prototype.attachedCallback;
     newTag.prototype.constructor = newTag;
-    if(window.customElements) {
-      // Webcomponents v1 for Chrome and Safari
-      window.customElements.define(elementName, newTag);
-    } else {
-      // Webcomponents v0 for polyfilled Edge, IE and Firefox
-      document.registerElement(elementName, {prototype: newTag.prototype});
-    }
+    window.customElements.define(elementName, newTag);
 
   },
   math : {
