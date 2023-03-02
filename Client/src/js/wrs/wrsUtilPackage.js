@@ -1395,7 +1395,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     if(!args.onSuccessCb)throw ".onSuccessCb missing";
     if(!args.onErrorCb){
       args.onErrorCb = function(req,stat,err){
-        if(typeof console != undefined && console.fatal){
+        if(typeof console != "undefined" && console.fatal){
           console.fatal("error",{req:req, stat:stat, err:err});
         }
         throw new Error("failed to getNextIdentifier from " + url);
