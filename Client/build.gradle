@@ -35,7 +35,6 @@ def newLine = System.properties['line.separator']
 def src3rdParty       = "$buildDir/tmp/src3rdParty"
 def clientCombinedDir = "$buildDir/tmp/clientCombined"
 def jsDistDir         = 'jsDist'
-def es5Postfix        = '-es5'
 
 // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
 // This list is filtered by the entries in gradle.properties so that a user can remove them to get another version manually for example
@@ -63,7 +62,6 @@ def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.j
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
 def unmodified3rdPartyFolders = ["ckeditor"]
-def explicitlyCreateES5 = ["ckeditor/ckeditorPackage/ckeditor.js", "ckeditor/ckeditor_jqueryPlugin.js"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
@@ -215,16 +213,6 @@ task bcduiClientCollectAll( type: Copy ) {
           from jsFile.path
           into "$clientCombinedDir/$jsDistDir/3rdParty/" + target.substring(0, target.indexOf(jsFile.name))
         }
-        // only create es5 files for explictly listed ones
-        explicitlyCreateES5.each { es5 ->
-          if (path.contains(es5)) {
-            copy {
-              from jsFile.path
-              into "$clientCombinedDir/$jsDistDir/3rdParty/" + target.substring(0, target.indexOf(jsFile.name))
-              rename { fileName -> fileName.replace('.js', "${es5Postfix}.js") }
-            }
-          }
-        }
       }
     }
 
@@ -295,7 +283,6 @@ task bcduiClientJsFileGroups {
       "$clientCombinedDir/${fPathName}"
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
-      dependsOn += createBabelTask("$taskPrefix-$fileGroupName$es5Postfix", inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}${es5Postfix}.js", true, false )
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js",              false, false )
     }
   }
@@ -312,18 +299,13 @@ task bcduiClientJsFileGroups {
       return
     }
     else if( value.ofnm ) {
-      // If the dist contains a min file, use that one, plus create a 1:1 copy with es5 postfixed file name
+      // If the dist contains a min file, use that one
       // doLast: Don't actually apply this now (during gradle dependency setup), but only once this task is actually executed and all it depends on finished
       bcduiClientJsFileGroups.doLast {
         copy {
           from "$clientNodeModulesDir/${value.ofnm}"
           into "$clientCombinedDir/$jsDistDir/3rdParty/"
           rename { value.fn }
-        }
-        copy {
-          from "$clientNodeModulesDir/${value.ofnm}"
-          into "$clientCombinedDir/$jsDistDir/3rdParty/"
-          rename { value.fn.replace('.js', "${es5Postfix}.js") }
         }
       }
     }
@@ -334,11 +316,6 @@ task bcduiClientJsFileGroups {
         into "$clientCombinedDir/$jsDistDir/3rdParty/"
         rename { value.fn }
       }
-      copy {
-        from "${copyUnmodified[value.fn].ofn}"
-        into "$clientCombinedDir/$jsDistDir/3rdParty/"
-        rename { value.fn.replace('.js', "${es5Postfix}.js") }
-      }
     }
     // Otherwise we create a minified version ourselfs with the help from babel
     else {
@@ -347,15 +324,6 @@ task bcduiClientJsFileGroups {
       def outFileName = "$clientCombinedDir/$jsDistDir/3rdParty/${fPathNameWoExt}.js"
       // We do not ECMA5 transpile 3dParty sources, we just create a minified version
       dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, false, true )
-      doLast {
-        copy {
-          from outFileName
-          into "$clientCombinedDir/$jsDistDir/3rdParty/"
-          rename { fileName ->
-            fileName.replace('.js', "${es5Postfix}.js")
-          }
-        }
-      }
     }
   }
 
@@ -444,8 +412,6 @@ task bcduiClientEcma5One2One (type: NodeTask) {
   args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/@babel/preset-env" + "--source-maps" +
           "--ignore" + "$bcduiClientCollectAll.destinationDir/js/3rdParty/*.js"
 
-  // 1. We do not apply ECMA5 babel to 3rdParty resources (also has issues with ecma6Polyfills and webcomponent), so we overwrite them here with the originals
-  // 2. We do neet to add es5Postfix to js, map and change the map entry in js
   doLast {
     copy {
       from "src/js/3rdParty"
@@ -453,15 +419,6 @@ task bcduiClientEcma5One2One (type: NodeTask) {
       into "$taskDestDir/3rdParty"
     }
     delete fileTree("$taskDestDir/3rdParty") { include '**/*.js.map' }
-    //--------
-    fileTree(dir: taskDestDir).each { source ->
-      if( source.name.endsWith('.js') ) {
-        String content = source.getText("UTF-8")
-        content = content.replaceAll(/sourceMappingURL=(.*)\.js\.map/, { full, fn -> "sourceMappingURL=$fn${es5Postfix}.js.map" } )
-        source.write(content, "UTF-8")
-      }
-      source.renameTo( source.path.replace('.js', "${es5Postfix}.js") )
-    }
   }
 
 }
