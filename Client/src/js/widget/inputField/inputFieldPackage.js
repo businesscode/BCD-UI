@@ -373,14 +373,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       }
 
       // Wildcards: We may want to preset the empty field with wildcards (which the user can later edit)
-      var selStart;
-      if( typeof el.get(0).selectionStart != "undefined" ) {
-        selStart = el.hasClass("bcdInputEmptyValue") ? null : el.get(0).selectionStart;
-      } else { // IE <= 8
-        var r = (document.getSelection ? document.getSelection() : document.selection).createRange().duplicate(); // document.selection is for IE <= 8
-        r.moveEnd('character', -el.get(0).value.length);
-        selStart = (r.text == '') ? el.get(0).value.length : el.get(0).value.lastIndexOf(r.text);
-      }
+      var selStart = el.hasClass("bcdInputEmptyValue") ? null : el.get(0).selectionStart;
 
       if( el.hasClass("bcdInputEmptyValue") || newText != undefined ) {
         newText = newText || "";
@@ -450,16 +443,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       }
       var pos = typeof newPos != "undefined" ? newPos : el.get(0).value.length;
       try{
-        if(bcdui.browserCompatibility.isIE && el.get(0).createTextRange){
-          var range = el.get(0).createTextRange();
-          range.collapse(true);
-          range.moveEnd('character', pos);
-          range.moveStart('character', pos);
-          range.select();
-        }
-        else if(el.get(0).setSelectionRange){// FF, Chrome
           el.get(0).setSelectionRange(pos,pos);
-        }
       }catch(e){
         ; // swallow but report in console
         window.console&&window.console.error("inputFieldPackage.js: failed to _setCursorPosition()", e);
@@ -838,22 +822,6 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
    },
 
   /**
-   * Internet Explorer focus bug workaround method.
-   * @private
-   */
-  _ieWorkaround_onMouseOverValueBox: function(htmlElementId)
-    {
-      if (typeof bcdui.widget.inputField._timer != "undefined") {
-        delete bcdui.widget.inputField._timer;
-        window.clearTimeout(bcdui.widget.inputField._timer);
-      }
-      var valueBox = document.getElementById("bcdAutoCompletionBox");
-      if (valueBox != null) {
-        valueBox.setAttribute("bcdPreventHidingFor", htmlElementId);
-      }
-    },
-
-  /**
    * Toggle hide / show options drop down
    * @private
    */
@@ -1221,9 +1189,6 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       if (! valueBox.length > 0) {
         jQuery(bcdHolder).append("<div id='bcdAutoCompletionBox' style='display:none; position:absolute'></div>");
         valueBox = jQuery("#bcdAutoCompletionBox");
-        if (bcdui.browserCompatibility.isIE) {
-          valueBox.on("mouseenter", bcdui.widget.inputField._ieWorkaround_onMouseOverValueBox.bind(undefined,htmlElementId));
-        }
       }
 
       var value = htmlElement.value;

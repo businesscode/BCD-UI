@@ -35,7 +35,7 @@ jQuery.extend( true, bcdui, {
     userCalcEditor:{}
   },
   core: {
-    browserCompatibility: { ie: {} },
+    browserCompatibility: {},
     event:{}
   },
   debug: {},

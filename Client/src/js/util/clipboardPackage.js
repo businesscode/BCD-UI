@@ -41,9 +41,7 @@ bcdui.util.clipboard =
     copy: function(/* String */ data) {
       if (navigator && navigator.clipboard && navigator.clipboard.writeText)
         navigator.clipboard.writeText(data);
-      else if (bcdui.browserCompatibility.isIE) {
-        window.clipboardData.setData("Text", data);
-      } else {
+      else {
         bcdui.util.clipboard._buffer = data;
       }
       bcdui.log.isTraceEnabled() && bcdui.log.trace("Copied to clipboard: " + data)
@@ -59,8 +57,6 @@ bcdui.util.clipboard =
         var data;
         if (navigator && navigator.clipboard && navigator.clipboard.readText)
           resolve(navigator.clipboard.readText());
-        else if (bcdui.browserCompatibility.isIE)
-          data = window.clipboardData.getData("Text");
         else
           data = bcdui.util.clipboard._buffer;
         resolve(data)
@@ -101,9 +97,6 @@ bcdui.util.clipboard =
     clearData: function(){
       if (navigator && navigator.clipboard && navigator.clipboard.writeText)
         navigator.clipboard.writeText("");
-      else if (bcdui.browserCompatibility.isIE) {
-        window.clipboardData.clearData();
-      }
       else{
         bcdui.util.clipboard._buffer="";
       }

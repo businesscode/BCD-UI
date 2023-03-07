@@ -89,8 +89,6 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
         // Leave field or enter
         this.targetHtml.append("<input class='bcdSpeechOutput'></input>")
           .change( evt => this.interpret(evt.target.value) )
-          // Only IE needs an explicit enter detection to trigger onchange
-          .keypress( evt => { if(bcdui.browserCompatibility.isIE && evt.keyCode===13) this.interpret(evt.target.value) } );
       }
     }
 

@@ -141,7 +141,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
     , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
     , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
-    , isIE: bcdui.browserCompatibility.isIE
     };
     if (args.renderParameters) {
       jQuery.extend(finalParams, args.renderParameters);
@@ -232,27 +231,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
         else if (jQuery(event.target).hasClass("action")) {
         var action = "";
-          if (jQuery(event.target).hasClass("download") && bcdui.browserCompatibility.isIE && window.navigator && window.navigator.msSaveBlob) {
-            setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
-            event.stopPropagation();
-            event.preventDefault();
-            var rowId = area.attr("rowId");
-            var fileName = area.attr("fileName");
-            var pathV = self.dataModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[" + self.dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos", "") + "]", "");
-            var blob = new bcdui.core.AutoModel({bRefs: "resourceBlob", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("path='"+pathV+"' and scope='"+args.scope+"' and instance='"+args.instance+"'")});
-            blob.onceReady(function() {
-              var decode = atob(blob.read("/*/wrs:Data/wrs:R[1]/wrs:C[1]", ""));
-              var bytes  = new Array(decode.length);
-              for (var i = 0; i < decode.length; i++)
-                bytes[i] = decode.charCodeAt(i);
-              var byteArray = new Uint8Array(bytes);
-              var blobObject = new Blob([byteArray], {type : "application/octet-stream"});
-              setTimeout(jQuery.unblockUI);
-              window.navigator.msSaveBlob(blobObject, fileName);
-            });
-            blob.execute();
-            return;
-          }
           if (jQuery(event.target).hasClass("delete"))
             action = "delete";
           self._performAction(jQuery(event.target).closest(".bcdDropArea"), action);

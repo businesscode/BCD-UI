@@ -539,15 +539,7 @@
         //var pos = typeof newPos != "undefined" ? newPos : el.value.length;
         var pos = el.get(0).value.length;
         var startPos = args.isTextSelectedOnFocus ? 0 : pos;
-        if(bcdui.browserCompatibility.isIE && el.get(0).createTextRange){
-          var range = el.get(0).createTextRange();
-          range.collapse(true);
-          range.moveEnd('character', pos);
-          range.moveStart('character', startPos);
-          range.select();
-        }else if(el.get(0).setSelectionRange){// FF, Chrome
-          el.get(0).setSelectionRange(startPos,pos);
-        }
+        el.get(0).setSelectionRange(startPos,pos);
       }
     },
 

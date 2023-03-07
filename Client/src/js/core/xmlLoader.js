@@ -459,7 +459,6 @@ bcdui.core.XMLLoader = class
               // Use the low-level responseXML, see comment above
               jqXHR.responseXML = xhr.responseXML;
 
-              if (!bcdui.browserCompatibility.isIE) {
                 /*
                  * On IE the response.getHeader function does not yet work.
                  */
@@ -476,7 +475,7 @@ bcdui.core.XMLLoader = class
                 } else if (!contentType.indexOf("/xml") < 0) {
                   bcdui.log.warn("Unexpected content type \"" + contentType + "\" for XML request: " + args.url);
                 }
-              }
+
               var dataDoc = jqXHR.responseXML;
               var soapFaultResult = args.skipSoapFault ? 0 : this._checkForSOAPFault( {doc: dataDoc} );
               if( !soapFaultResult ) {

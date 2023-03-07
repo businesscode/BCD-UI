@@ -332,7 +332,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
       if( typeof inputField.selectionStart != "undefined" )
         return inputField.selectionStart;
       else if (inputField.createTextRange) {
-        var r = (document.getSelection ? document.getSelection() : document.selection).createRange().duplicate(); // document.selection is for IE <= 8
+        var r = document.getSelection().createRange().duplicate();
         r.moveEnd('character', inputField.value.length)
         if (r.text == '') return inputField.value.length
           return inputField.value.lastIndexOf(r.text)
@@ -606,9 +606,6 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
       if (! valueBox.length > 0) {
         jQuery(bcdHolder).append("<div id='bcdAutoCompletionBox' style='display:none; position:absolute'></div>");
         valueBox = jQuery("#bcdAutoCompletionBox");
-//        if (bcdui.browserCompatibility.isIE) {
-//          valueBox.on("mouseenter", bcdui.widget.inputField._ieWorkaround_onMouseOverValueBox.bind(undefined,htmlElementId));
-//        }
       }
 
       var htmlElement = bcdui._migPjs._$(containerHtmlElement).find("input.bcdFormulaEditField")[0];

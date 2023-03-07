@@ -18,11 +18,6 @@
  * @file BCD-UI bootstrapping
  */
 
-//Workaround for IE <= 9
-if( typeof location.origin == "undefined" ) {
-  location.origin = location.protocol+"//"+location.hostname+(location.port?":"+location.port:"");
-}
-
 //Allowing precise performance measurement
 bcdui.logging = bcdui.logging || new Object();
 bcdui.logging.console = "Start "+new Date()+"\n";
@@ -464,6 +459,5 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
     }
   }
   // and finally signal that all scripts are loaded 
-  // IE8 loads the upper created scripts later so that the following bui loaded flagging only works for IE >8, therefore we check the object availability
-  document.write("<script type='text/javascript'>bcdui && bcdui.log && bcdui.log.isDebugEnabled() && bcdui.log.debug('BCD-UI lib is fully loaded');<\/script>");
+  document.write("<script type='text/javascript'>bcdui.log.debug('BCD-UI lib is fully loaded');<\/script>");
 })();

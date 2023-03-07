@@ -159,15 +159,9 @@ bcdui = Object.assign(bcdui,
           if(bcdui.config.clientLogAppenderJSClassName){
             appender = eval("new " + bcdui.config.clientLogAppenderJSClassName + "()");
           }
-          //attach special appender if we have a console and is not IE (BrowserConsoleAppender does not support IE)
-          else if(typeof console != "undefined" && !bcdui.browserCompatibility.isIE){
+          //attach special appender
+          else {
             appender = new log4javascript.BrowserConsoleAppender();
-          }
-          else if(bcdui.config.isDebug){ // for IE enable .PopUpAppender only in debug mode
-            appender = new log4javascript.PopUpAppender();
-            reFormat=false;
-          }else{
-            return null;
           }
 
           if(reFormat){

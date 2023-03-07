@@ -577,22 +577,3 @@ if (bcdui.browserCompatibility.isWebKit) {
 //-----------------------------------------------------------------------------
 //BEGIN: Implementation of Webkit-specific functions
 //-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
-//START: Implementation of IE>8 specific functions
-//-----------------------------------------------------------------------------
-if ( bcdui.browserCompatibility.isIE)
-{
-  /*
-   * XMLSerializer was introduced in IE9.
-   * Sadly, it does not support MSXML documents, needed for xPath, so we need to overwrite serializeToString()
-   * We need to say (node.msxmlImpl||node), because we may have an overwritten XMLDocument or a native node
-   */
-  XMLSerializer.prototype.serializeToString = function (node) {
-    return (node.msxmlImpl||node).xml;
-  };
-}
-//-----------------------------------------------------------------------------
-//END: Implementation of IE>8 specific functions
-//-----------------------------------------------------------------------------

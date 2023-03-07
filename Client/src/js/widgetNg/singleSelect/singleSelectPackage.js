@@ -22,12 +22,6 @@
  * native functions are implemented with "_ntv_" prefix, whereas custom implementation functions are
  * prefixed with "_cst_" prefixes.
  *
- * #SELECT constraint bug IE#
- * IE has a bug with SELECT element and required flag, the native .checkValidity() returns
- * TRUE for empty selection in update handler when switching from some valid to empty selection,
- * however, after the update event handling .hasValidity() returns FALSE. Therefore we dont use
- * native constraint check hence not stick -required- to the SELECT element,
- * rather we attach our custom validator.
  */
 (function(){
   jQuery.widget("bcdui.bcduiSingleSelectNg", jQuery.bcdui.bcduiWidget, {
@@ -175,11 +169,6 @@
               }finally{
                 // attach validators
 //                bcdui.widgetNg.suggestInput._attachValidators(controlElement);
-
-                // read more on this workaround in #SELECT constraint bug IE# docfeed in widget description
-                if(args.required && ( !bcdui.browserCompatibility._hasFeature("input.required") || bcdui.browserCompatibility.isIE )){
-                  bcdui.widgetNg.utils._addValidator(controlElement.id, bcdui.widgetNg.validation.validators.widget.notEmptyValidator);
-                }
 
                 // add validator
                 bcdui.widgetNg.utils._addValidator(controlElement.id, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
@@ -430,12 +419,7 @@
       el.attr("tabindex", args.tabindex);
       el.attr("autofocus", args.autofocus);
       //el.attr(args.placeholder, "placeholder");
-      // read more on in #SELECT constraint bug IE# in widget description
-      if(!bcdui.browserCompatibility.isIE){
-        el.attr("required", args.required);
-      } else {
-        el.attr("bcdrequired", args.required);
-      }
+      el.attr("required", args.required);
 
       // TODO fix: handle in init
       if(args.disabled){
