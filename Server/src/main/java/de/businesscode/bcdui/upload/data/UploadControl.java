@@ -128,7 +128,10 @@ public class UploadControl implements AutoCloseable
       throw new UploadException(STEP_ID, UploadException.Reason.FAILED_CREATE_UPLOAD_CONTROL, ex);
     } finally {
       try {
-        if (tempFile != null) { tempFile.delete(); }
+        if (tempFile != null) { 
+          if (! tempFile.delete())
+            log.warn("can't remove tempfile");
+        }
         if (fis != null) { fis.close(); }
         if (fos != null) { fos.close(); }
       } catch (Exception e) {

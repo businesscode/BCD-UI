@@ -450,24 +450,18 @@ public class ExcelSylkTemplate  {
           String i18nDateSeparator = this.i18nDbResources.getString(I18nDbResources.BCDUI_DATE_SEPARATOR);
           StringTokenizer split = new StringTokenizer(i18nDatePattern, i18nDateSeparator);
           StringBuffer datePattern = new StringBuffer();
-          if(split != null){
-            try{
-              datePattern.append("\nP;P"+split.nextToken() + "\\");             // P9  - iso date
-              datePattern.append(i18nDateSeparator);             // P9  - iso date
-              datePattern.append(split.nextToken() + "\\");             // P9  - iso date
-              datePattern.append(i18nDateSeparator);             // P9  - iso date
-              datePattern.append(split.nextToken());
-              h.append(datePattern.toString());
-              h.append(datePattern.toString() + "  hh:mm:ss");
-            }
-            catch(NoSuchElementException e){
-              this.logger.error("Date Pattern:\"" + i18nDatePattern + "\" or date separator:\""+i18nDateSeparator+"\" is not correct!");
-            }
+          try{
+            datePattern.append("\nP;P"+split.nextToken() + "\\");             // P9  - iso date
+            datePattern.append(i18nDateSeparator);             // P9  - iso date
+            datePattern.append(split.nextToken() + "\\");             // P9  - iso date
+            datePattern.append(i18nDateSeparator);             // P9  - iso date
+            datePattern.append(split.nextToken());
+            h.append(datePattern.toString());
+            h.append(datePattern.toString() + "  hh:mm:ss");
           }
-          else{
-            addStandardDateHeader(h);
+          catch(NoSuchElementException e){
+            this.logger.error("Date Pattern:\"" + i18nDatePattern + "\" or date separator:\""+i18nDateSeparator+"\" is not correct!");
           }
-
         }
         else{
           addStandardDateHeader(h);

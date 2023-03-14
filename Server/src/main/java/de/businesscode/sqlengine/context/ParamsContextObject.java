@@ -60,11 +60,9 @@ public class ParamsContextObject {
       Integer nr;
 
       // default if called without mutliplicities
-      if(null == multiplicities) { nr = Integer.valueOf(1); }
-
-      nr = multiplicities.get(key);
+      nr = (null == multiplicities) ? Integer.valueOf(1) : multiplicities.get(key);
       // actual no hit is error
-      if(null == multiplicities.get(key)){
+      if(null == nr){
          return null;
       }
       requestedKeys.add(key);

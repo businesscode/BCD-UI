@@ -144,7 +144,7 @@ Navigation bar styles
     font-size:12px;
 }
 .subNav {
-    #background-color:#dee3e9;
+    background-color:#dee3e9;
     float:left;
     width:100%;
     overflow:hidden;

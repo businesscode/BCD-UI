@@ -35,7 +35,7 @@ import de.businesscode.util.SingletonHolder;
  */
 final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord> {
   private static final int DEFAULT_QUEUE_SIZE =       100;
-  private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
+  private static final long DEFAULT_QUEUE_SLEEP_MS =  10000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/login/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/login/queueSleepMs";
   private static Logger logger = LogManager.getLogger(LogoutSqlLogger.class);

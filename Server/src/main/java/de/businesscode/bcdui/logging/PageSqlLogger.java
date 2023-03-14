@@ -35,7 +35,7 @@ import de.businesscode.util.Utils;
  */
 final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
   private static final int DEFAULT_QUEUE_SIZE =       100;
-  private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
+  private static final long DEFAULT_QUEUE_SLEEP_MS =  10000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/page/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/page/queueSleepMs";
 
@@ -114,7 +114,7 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
       int x = guiStatus != null ? guiStatus.indexOf("guiStatusGZ=") : -1;
       guiStatus = x != -1 ? record.url.substring(x + "guiStatusGZ=".length()) : null;
       x = guiStatus != null ? guiStatus.indexOf("&") : -1;
-      guiStatus = x != -1 ? guiStatus.substring(0, x) : guiStatus;
+      guiStatus = x != -1 && guiStatus != null ? guiStatus.substring(0, x) : guiStatus;
 
       if (guiStatus != null) {
         try {

@@ -450,7 +450,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
           args.xPath = modelParams.xPath;
     
           this._xPath = args.xPath;
-          if (typeof args.nullValue != undefined)
+          if (typeof args.nullValue != "undefined")
             this._nullValue = args.nullValue;
         }
       }));

@@ -47,7 +47,7 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  */
 final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.LogRecord>{
   private static final int DEFAULT_QUEUE_SIZE =       1000;
-  private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
+  private static final long DEFAULT_QUEUE_SLEEP_MS =  10000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/sql/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/sql/queueSleepMs";
 

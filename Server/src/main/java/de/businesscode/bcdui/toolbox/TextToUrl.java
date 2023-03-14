@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import org.apache.commons.lang.StringEscapeUtils;
 
+import de.businesscode.util.jdbc.Closer;
+
 /**
  * This servlet allows POSTing a text and retrieve it (up to 24h) later via GET under a given name
  * Each servlet instance has its only scope name. Use for example
@@ -100,11 +102,8 @@ public class TextToUrl extends HttpServlet
     } catch (SQLException e) {
       throw new ServletException(e.getMessage());
     }
-    try {
-      if( pStmt != null) pStmt.close();
-      if( con != null) con.close();
-    } catch (SQLException e) {
-      throw new ServletException(e.getMessage());
+    finally {
+      Closer.closeAllSQLObjects(pStmt, con);
     }
   }
 

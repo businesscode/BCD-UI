@@ -102,7 +102,7 @@ isAbsoluteURL: function(url)
 extractFolderFromURL: function( url)
   {
     if (url == null || !url.trim()) return null;
-    url.trim();
+    url = url.trim();
     if (url.endsWith("/")) return url;
     return url.substring(0, url.lastIndexOf("/") + 1);
   },

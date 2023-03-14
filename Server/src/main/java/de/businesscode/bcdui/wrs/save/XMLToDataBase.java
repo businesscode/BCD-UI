@@ -276,7 +276,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       logger.debug("write processing callbacks found, delegating processEndHeader.");
 
       // These are the explicitly declared write callbacks
-      for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacks()){
+      for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacksRO()){
         WriteProcessingCallback cb = cbf.createInstance();
 
         this.writeProcessingCallbacks.add(cb);

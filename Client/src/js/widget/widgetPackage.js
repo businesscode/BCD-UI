@@ -214,7 +214,6 @@ jQuery.extend(bcdui.widget,
 
       args.emptyValueLevel         = args.emptyValueLevel || args.emptyValue;
       args.clearOptionLevel        = args.clearOptionLevel || args.clearOption;
-      args.multiSelect             = args.multiSelect;
       args.allowMixedSelect        = bcdui.factory._normalizeBoolean(args.allowMixedSelect,  false);
       args.useCaptions             = bcdui.factory._normalizeBoolean(args.useCaptions,    false);
       args.mandatory               = bcdui.factory._normalizeBoolean(args.mandatory,    false);

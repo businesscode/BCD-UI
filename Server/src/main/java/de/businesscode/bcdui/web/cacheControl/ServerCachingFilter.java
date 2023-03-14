@@ -345,12 +345,7 @@ public class ServerCachingFilter extends AbstractCacheFilter {
         }
         finally {
             if (inputStream != null) {
-                try {
-                    inputStream.close();
-                }
-                catch (Exception e) {
-                    throw new Exception(e);
-                }
+              inputStream.close();
             }
         }
     }

@@ -88,7 +88,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
                   bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
                   document.title = titleEl.text();
                 }
-              })(jQuery);
+              })();
               // translates the document.body
               bcdui.i18n.translateHTMLElement();
             }

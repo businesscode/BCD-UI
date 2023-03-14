@@ -100,7 +100,7 @@ function printClass( taffyData, clazz )
   if (clazz.description)
     result += "@description " + clazz.description.replace(/(\r?\n|\r)/gm," ") + newLine(1);
   if (clazz.examples)
-    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+    result += printCommentExamples( clazz.examples );
   if (clazz.augments)
     result += "@extends " + clazz.augments[0]  + newLine(0);;
   result += "*/" + newLine(0)
@@ -135,7 +135,7 @@ function printClass( taffyData, clazz )
   if (clazz.description)
     result += "@description " + clazz.description.replace(/( *\r?\n|\r *)/gm," ") + newLine(1);
   if (clazz.examples)
-    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+    result += printCommentExamples( clazz.examples );
   if (clazz.augments)
     result += "@extends " + clazz.augments[0]  + newLine(1);;
 
@@ -313,7 +313,7 @@ function printMethods_forNamespace(method, methodIdx, clazz, tempAlias)
     result += "@deprecated "+ method.deprecated+newLine(0);
   // IDEA prefers samples before parameters
   result += printCommentExamplesMandatories( method, clazz );
-  result += printCommentExamples( method.examples, clazz, method );
+  result += printCommentExamples( method.examples );
 
   if( method.returns ) {
     var ret = method.returns[0];

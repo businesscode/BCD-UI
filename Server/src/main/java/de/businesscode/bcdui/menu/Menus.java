@@ -264,7 +264,6 @@ public class Menus {
       if (!menuFiles[i].isFile() || !menuFiles[i].canRead() || !menuFiles[i].getName().toLowerCase().endsWith(".xml"))
         continue;
 
-      FileInputStream fi = null;
       try {
         Document doc = documentBuilderFactory.newDocumentBuilder().parse(menuFiles[i]);
         Menu curMenu = (Menu)jaxbUnmarshaller.unmarshal(doc);
@@ -272,7 +271,6 @@ public class Menus {
       }
       catch (SAXException e) { }
       catch (ParserConfigurationException e) { }
-      finally{if(fi != null)fi.close();}
     }
   }
 

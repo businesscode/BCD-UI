@@ -81,7 +81,7 @@ public class ErrorLogAppender extends AbstractAppender {
                level = errorLevel != null ? errorLevel.toString() : null,
                revision = Utils.getBCDUIVersion(),
                throwInfo = null,
-               clientMsg = bcduiLogEvent != null ? bcduiLogEvent.getFormattedMessage() : null;
+               clientMsg = bcduiLogEvent.getFormattedMessage();
 
         if (requestUrl.length()> 2000)
           requestUrl = requestUrl.substring(0, 2000);

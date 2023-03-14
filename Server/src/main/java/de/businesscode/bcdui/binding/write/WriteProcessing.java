@@ -36,7 +36,7 @@ public class WriteProcessing {
   /**
    * @return the READ ONLY stylesheets list
    */
-  public final List<PreProcessStylesheet> getStylesheets() {
+  public final List<PreProcessStylesheet> getStylesheetsRO() {
     return stylesheetsRO;
   }
 
@@ -44,7 +44,7 @@ public class WriteProcessing {
    *
    * @return READ ONLY callbacks list
    */
-  public List<WriteProcessingCallbackFactory> getCallbacks() {
+  public List<WriteProcessingCallbackFactory> getCallbacksRO() {
     return callbacksRO;
   }
 

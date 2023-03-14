@@ -66,7 +66,8 @@ public class FileCachePersist implements IServerCachePersist {
         if(listFiles != null && listFiles.length > 0){
             for(File file : listFiles){
                 try{
-                    file.delete();
+                    if (! file.delete())
+                      logger.error("could not delete cache file: " + file.getName());
                 }
                 catch(Exception e){
                     logger.error("could not delete cache file: " + file.getName(), e);
@@ -106,8 +107,8 @@ public class FileCachePersist implements IServerCachePersist {
     @Override
     public void dropItem(String prefix, String key) throws Exception {
         String name = prefix+ key.replace("/", "_");
-        logger.info("remove cached file: " +name);
-        new File(getRootFolder(),name).delete();
+        if (new File(getRootFolder(),name).delete())
+          logger.info("remove cached file: " +name);
     }
 
     /**

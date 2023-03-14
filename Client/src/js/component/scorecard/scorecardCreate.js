@@ -87,8 +87,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
     args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
 
     if (! args.inputModel && ! args.config) {
-      bcdui.log.error("Scorecard "+id+" has neither an inputModel nor a config parameter");
-      return;
+      throw new Error("Scorecard "+id+" has neither an inputModel nor a config parameter");
     }
 
     // generate enhancedConfiguration out of config
