@@ -35,8 +35,10 @@ public class BindingUtils
     jdbcDataTypeCodeToStringMapping = new HashMap<Integer, String>();
     try {
       for (Field field : Types.class.getFields()) {
-        if (field.getType().isPrimitive() && field.getType().getName().equals("int")) {
-          jdbcDataTypeCodeToStringMapping.put(field.getInt(Types.class), field.getName());
+        if (field.getType().isPrimitive()) {
+          String typeName = field.getType().getName();
+          if ("int".equals(typeName))
+              jdbcDataTypeCodeToStringMapping.put(field.getInt(Types.class), field.getName());
         }
       }
     }

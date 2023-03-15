@@ -61,7 +61,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
    * @throws XMLStreamException
    * @throws ExcelWriterException
    */
-  public Wrq2ExcelSheetDataWriter( IRequestOptions options, Workbook workbook, XMLEvent event, XMLEventReader eventReader, Stack<String> pathStack, boolean includeHeader ) 
+  public Wrq2ExcelSheetDataWriter( IRequestOptions options, Workbook workbook, XMLEvent eventRoot, XMLEventReader eventReader, Stack<String> pathStack, boolean includeHeader ) 
       throws ExcelWriterException
   {
     super( workbook, pathStack, includeHeader );
@@ -80,6 +80,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
       XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter( stringWriter );
 
       // Consume wrs:WrsRequest and children
+      XMLEvent event = eventRoot;
       do {
         event = track( eventReader.nextEvent() );
         writer.add(event);

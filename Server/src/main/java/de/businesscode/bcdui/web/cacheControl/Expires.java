@@ -60,7 +60,7 @@ public enum Expires {
 
         @Override
         public long computeExpirationValue(String param) throws Exception {
-            if (param != null && param.matches("^Mon-\\d\\d|Tue-\\d\\d|Wed-\\d\\d|Thu-\\d\\d|Fri-\\d\\d|Sat-\\d\\d|Sun-\\d\\d$")) {
+            if (param != null && param.matches("^(?:Mon-\\d\\d|Tue-\\d\\d|Wed-\\d\\d|Thu-\\d\\d|Fri-\\d\\d|Sat-\\d\\d|Sun-\\d\\d)$")) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEE", Locale.ENGLISH);
                 WEEKDAY today = WEEKDAY.valueOf(dateFormat.format(new Date()));
                 WEEKDAY requestDay = WEEKDAY.valueOf(param.substring(0, 3));
