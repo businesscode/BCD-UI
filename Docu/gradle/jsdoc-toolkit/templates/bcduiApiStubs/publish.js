@@ -380,7 +380,7 @@ function printProperties( taffyData, containerLongname )
       result += " = new " + member.type.names[0] + "()";
     else if( member.meta.code.type === "Literal" && member.meta.code.value && member.type && member.type.names[0].toLowerCase() === "string" )
       result += " = \"" + member.meta.code.value + "\"";
-    else if( member.meta.code.type === "Literal" && !isNaN(parseFloat(member.meta.code.value) )
+    else if( member.meta.code.type === "Literal" && !isNaN(parseFloat(member.meta.code.value) ))
       result += " = " + member.meta.code.value;
     else
       result += " = {}"; // We need this dummy assignment for Eclipse Mars autosuggestion to work. And if we assign only null, tooltip fails

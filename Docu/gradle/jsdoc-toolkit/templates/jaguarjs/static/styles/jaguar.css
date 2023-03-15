@@ -106,7 +106,7 @@ li {
 }
 .navigation li.item .subtitle {
   margin-top: 10px;
-  font: bold 0.65em Helvetica, sans-serif
+  font: bold 0.65em Helvetica, sans-serif;
   color: #779c34;
   display: block;
 }
