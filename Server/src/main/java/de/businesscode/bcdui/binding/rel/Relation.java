@@ -271,7 +271,7 @@ public class Relation {
 
       // Per default the first is left, the second is searched on the right side
       String side = curElement.getAttribute("side");
-      if( "".equals(side) || "left".equals(side) ) {
+      if( curConstraint != null && ("".equals(side) || "left".equals(side) )) {
         String nameLeft = curElement.getAttribute("name");
         curElement = (Element) constrChildNodes.item(1);
         String nameRight = curElement.getAttribute("name");
@@ -280,7 +280,7 @@ public class Relation {
         curConstraint.addColumn(new BindingItemFromRel(rightBindingSet.get(nameRight), this, nameRight, null));
       }
       // other case is that right is first, and the second is searched on the left side
-      else if( "right".equals(side) ) {
+      else if( curConstraint != null && "right".equals(side) ) {
         String nameRight = curElement.getAttribute("name");
         curElement = (Element) constrChildNodes.item(1);
         String nameLeft = curElement.getAttribute("name");

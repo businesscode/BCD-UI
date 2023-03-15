@@ -109,7 +109,7 @@
     if( !Array.isArray(ids) )
       ids = [ ids ];
     else
-      ids.reduce(function(a, b) { return b != null ? a.concat(b) : a; }, []);
+      ids = ids.filter(function(a) { return a != null; });
     for (var i = 0; i < ids.length; ++i) {
       if( !ids[i] )
         delete ids[i];

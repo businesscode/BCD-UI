@@ -54,7 +54,7 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   private static final ThreadLocal<Boolean> isDisabled = new ThreadLocal<Boolean>();
 
   @Override
-  public boolean isEnabled() {
+  public synchronized boolean isEnabled() {
     Boolean ref = isDisabled.get();
     if(ref != null && ref){
       return false;
