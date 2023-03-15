@@ -97,8 +97,8 @@
    * @private
    */
   _extractFunctionAndIdsFromArgs(args, argsX, keepObjects) {
-    var ids = null;
-    var fn = null;
+    let ids = null;
+    let fn = null;
     if (bcdui.util.isFunction(argsX)) {
       fn = argsX;
       ids = args;
@@ -110,11 +110,11 @@
       ids = [ ids ];
     else
       ids = ids.filter(function(a) { return a != null; });
-    for (var i = 0; i < ids.length; ++i) {
-      if( !ids[i] )
-        delete ids[i];
-      else if (bcdui.util.isString(ids[i].id) && bcdui.util.isFunction(ids[i].getData) && keepObjects != true ) ids[i] = ids[i].id;
-      else if (bcdui.util.isString(ids[i].refId)) ids[i] = ids[i].refId;
+    for (let i = 0; i < ids.length; ++i) {
+      if (bcdui.util.isString(ids[i].id) && bcdui.util.isFunction(ids[i].getData) && ! keepObjects)
+        ids[i] = ids[i].id;
+      else if (bcdui.util.isString(ids[i].refId))
+        ids[i] = ids[i].refId;
     }
     return { ids: ids, fn: fn };
   }
