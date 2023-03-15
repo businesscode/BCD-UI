@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.util.jdbc.Closer;
 
@@ -62,6 +64,9 @@ import de.businesscode.util.jdbc.Closer;
  */
 public class TextToUrl extends HttpServlet
 {
+
+  private static final Logger log = LogManager.getLogger(TextToUrl.class);
+
   //---------------------------
   // writes the received character stream to db and returns a name to retrieve it
   @Override
@@ -72,11 +77,14 @@ public class TextToUrl extends HttpServlet
     String name = String.format(nameTemplate, gerneratedId);
 
     // Request body to string
-    BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()));
     StringBuilder sb = new StringBuilder();
-    String line = null;
-    while ((line = br.readLine()) != null)
-      sb.append(line + "\n");
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()))) {
+      String line = null;
+      while ((line = br.readLine()) != null)
+        sb.append(line + "\n");
+    }
+    catch(Exception e) { log.warn("error while reading input", e); }
+
     String text  = sb.toString();
 
     Connection con = null;
