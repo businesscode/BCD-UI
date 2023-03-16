@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -276,7 +276,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       logger.debug("write processing callbacks found, delegating processEndHeader.");
 
       // These are the explicitly declared write callbacks
-      for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacks()){
+      for(WriteProcessingCallbackFactory cbf : bindingSet.getWriteProcessing().getCallbacksRO()){
         WriteProcessingCallback cb = cbf.createInstance();
 
         this.writeProcessingCallbacks.add(cb);

@@ -523,7 +523,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   .bcdScDimensionList, .bcdAspectList {
     height: 40%;
   }
-  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentRowDimensionList, .bcdCurrentColMeasureList, bcdCurrentKpiList, bcdCurrentAspectList {
+  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentRowDimensionList, .bcdCurrentColMeasureList, .bcdCurrentKpiList, .bcdCurrentAspectList {
     padding-bottom: 1em;
   }
   .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentScColDimensionList, .bcdCurrentAspectList {
@@ -959,7 +959,6 @@ $h6-font-size:                $bcd-font-size-base !default;
       background-color: $secondary-button-color;
       border-color: $secondary-button-color;
       padding: .375em .75em;
-      display: block;
       a {
         color: inherit;
         text-decoration: none;
@@ -1165,7 +1164,6 @@ $h6-font-size:                $bcd-font-size-base !default;
   div {margin: .375em 0 .375em 0;}
   input {
     width: auto;
-    margin: 0;
     padding: 0;
     margin: 0 .375em;
   }
@@ -1365,7 +1363,6 @@ table.bcd-far-configurator {
         font-weight: bold;
         vertical-align: middle;
         text-align: center;
-        vertical-align: middle;
         border: 1px solid $border-color;
       }
       .bcdReadOnly  {
@@ -1932,9 +1929,6 @@ select:focus option:checked {
 ::-moz-selection {
   @include bcdSelected();
 }
-::selected {
-  @include bcdSelected();
-}
 
 .bcdPeriodChooser input:focus,
 .form-control:focus {
@@ -1998,7 +1992,7 @@ select:focus option:checked {
     >.title { color: #aa0000; font-weight: bold; font-size: 1.4em; }
   }
 
-  .action:after          { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .action:after          { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; }
   .action.download:after { content: "\f56d"; }
   .action.view:after     { content: "\f06e"; }
   .action.delete:after   { content: "\f2ed"; }
@@ -2010,7 +2004,7 @@ select:focus option:checked {
   .def_true .fileType .icon:before  { color: #aa0000; }
   .def_false .fileType .icon:before { color: #aaaaaa; }
 
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; width: 1.2em; display: inline-block; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; width: 1.2em; display: inline-block; }
   .fileType .icon:before { font-size: 2em; padding-right: 0; }
 
   .comment.icon:before, .info .icon:before { font-size: 1em; padding-right: .3em; }
@@ -2089,7 +2083,7 @@ select:focus option:checked {
   }
   .edit { flex: 0 0 1em; }
   .edit, .user { text-align: right; }
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: .3em; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: .3em; }
   .icon.ts:before        { content: "\f017"; }
   .icon.user:before      { content: "\f007"; }
   .icon.edit:before      { content: "\f044"; cursor: pointer; }
@@ -2112,7 +2106,7 @@ $chips-close-color: #c00 !default;
     span {
       position: relative; cursor:pointer;
       &:after {
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: #3c5b7b;
         margin-left: .3em;
@@ -2156,7 +2150,7 @@ $chips-close-color: #c00 !default;
         cursor: pointer;
         content: "\f00d";
         font-style: normal;
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: $chips-text-color;
         margin-left: .3em;
@@ -2215,7 +2209,7 @@ $chips-close-color: #c00 !default;
     text-decoration: none;
   }
   a:hover { color: #000; }
-  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: 0.5em; }
+  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: 0.5em; }
 }
 
 .bcdCssReset { all: revert; }

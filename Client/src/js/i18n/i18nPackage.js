@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
                   bcdui.i18n.syncTranslateHTMLElement({ elementOrId:titleEl[0] });
                   document.title = titleEl.text();
                 }
-              })(jQuery);
+              })();
               // translates the document.body
               bcdui.i18n.translateHTMLElement();
             }

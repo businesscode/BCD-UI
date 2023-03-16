@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class Filter2DyModifier implements Modifier
           // do not remove not converted entries
           if ("true".equals(((Element)removeNode).getAttribute("bcdNotConverted")))
             continue;
-          if (removeNode.getNodeName() == "f:And")  // f:And 'should' be a periodChooser like subnode, so we can remove it 
+          if (removeNode.getNodeName().equals("f:And"))  // f:And 'should' be a periodChooser like subnode, so we can remove it 
             removeNode.getParentNode().removeChild(removeNode);
           else { // otherwise we remove the single instances of the well known bRefs
             NodeList remNodes2 = (NodeList) xPath2.evaluate(removeNode, XPathConstants.NODESET);
@@ -139,7 +139,7 @@ public class Filter2DyModifier implements Modifier
 
             // determine possible periodType
             String[] type = ((Element)node).getAttribute("bRef").split("_");
-            String postfix = type.length > 1 && type[1] != "bcdEmpty" ? type[1] : "";
+            String postfix = type.length > 1 && !type[1].equals("bcdEmpty") ? type[1] : "";
 
             if ( node != null && node.getParentNode() != null) {
               // use parent
@@ -164,7 +164,7 @@ public class Filter2DyModifier implements Modifier
       // get correct names for current periodtype
       String[] __names = {"yr","qr","mo","cw","cwyr"};
       for (int x = 0; x < _dateRangeBindingItemNames.length; x++)
-        __names[x] = _dateRangeBindingItemNames[x] + (postfix != "" ? "_" + postfix : "");
+        __names[x] = _dateRangeBindingItemNames[x] + (!postfix.isEmpty() ? "_" + postfix : "");
       
       Map<String, String> argsFrom = new HashMap<String, String>();
       Map<String, String> argsTo = new HashMap<String, String>();
@@ -176,19 +176,19 @@ public class Filter2DyModifier implements Modifier
           XPathExpression xPath = xp.compile("./f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value");
           String value = (String) xPath.evaluate(targetModelNodes.get(t), XPathConstants.STRING);
           value = value == null ? "" : value;
-          if (value != "") argsFrom.put(newName, value);
+          if (!value.isEmpty()) argsFrom.put(newName, value);
           xPath = xp.compile("./f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value");
           value = (String) xPath.evaluate(targetModelNodes.get(t), XPathConstants.STRING);
           value = value == null ? "" : value;
-          if (value != "") argsTo.put(newName, value);
+          if (!value.isEmpty()) argsTo.put(newName, value);
           xPath = xp.compile("./f:Or/f:And[f:Expression[@op='>=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='>=')]/@value");
           value = (String) xPath.evaluate(targetModelNodes.get(t), XPathConstants.STRING);
           value = value == null ? "" : value;
-          if (value != "") argsFrom.put(newName, value);
+          if (!value.isEmpty()) argsFrom.put(newName, value);
           xPath = xp.compile("./f:Or/f:And[f:Expression[@op='<=']]/f:Expression[@bRef='" + __names[x] + "' and (@op='=' or @op='<=')]/@value");
           value = (String) xPath.evaluate(targetModelNodes.get(t), XPathConstants.STRING);
           value = value == null ? "" : value;
-          if (value != "") argsTo.put(newName, value);
+          if (!value.isEmpty()) argsTo.put(newName, value);
         } catch (XPathExpressionException e) { throw new RuntimeException(e); }
       }
 

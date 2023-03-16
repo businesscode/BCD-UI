@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -283,6 +283,9 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
 
   private void downloadFile(DownloadInfo d, HttpServletResponse response) {
 
+    FileInputStream inStream = null;
+    OutputStream outStream = null;
+    
     String downloadFolder = DOWNLOAD_FOLDER;
     if (downloadFolder.endsWith("/") || downloadFolder.endsWith("\\"))
       downloadFolder = downloadFolder.substring(0, downloadFolder.length() - 1);
@@ -290,7 +293,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
     try {
   
       File downloadFile = new File(downloadFolder + File.separator + d.uuid);
-      FileInputStream inStream = new FileInputStream(downloadFile);
+      inStream = new FileInputStream(downloadFile);
   
       String mimeType = "application/octet-stream";
       response.setContentType(mimeType);
@@ -300,16 +303,24 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       String headerValue = String.format("attachment; filename=\"%s\"", d.file_name);
       response.setHeader(headerKey, headerValue);
   
-      OutputStream outStream = response.getOutputStream();
+      outStream = response.getOutputStream();
       byte[] buffer = new byte[4096];
       int bytesRead = -1;
       while ((bytesRead = inStream.read(buffer)) != -1) { outStream.write(buffer, 0, bytesRead); }
-  
-      inStream.close();
-      outStream.close();
     }
     catch (IOException e) {
       log.error("Download of " + d.uuid + " failed.", e);
+    }
+    finally {
+      try {
+        if (inStream != null)
+          inStream.close();
+        if (outStream != null)
+          outStream.close();
+      }
+      catch (IOException e) {
+        log.warn("can't close download in/out stream", e);
+      }
     }
   }
   

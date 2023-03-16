@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import de.businesscode.util.SingletonHolder;
  */
 final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecord> {
   private static final int DEFAULT_QUEUE_SIZE =       100;
-  private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
+  private static final long DEFAULT_QUEUE_SLEEP_MS =  10000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/session/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/session/queueSleepMs";
 

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -372,13 +372,12 @@ if (bcdui.browserCompatibility.isIE) {
     createMSObject: function(id)
       {
         if (typeof bcdui.core.browserCompatibility.ie.currentMSXMLVersion == "undefined" ||
-            !bcdui.core.browserCompatibility.ie.msxmlVersions.indexOf(bcdui.core.browserCompatibility.ie.currentMSXMLVersion)!==-1) {
+            !bcdui.core.browserCompatibility.ie.msxmlVersions.indexOf(bcdui.core.browserCompatibility.ie.currentMSXMLVersion)!=-1) {
           for (var i = 0; i < bcdui.core.browserCompatibility.ie.msxmlVersions.length; i++) {
             try {
               var object = new ActiveXObject(id + "." + bcdui.core.browserCompatibility.ie.msxmlVersions[i]);
               bcdui.core.browserCompatibility.ie.currentMSXMLVersion = bcdui.core.browserCompatibility.ie.msxmlVersions[i];
               return object;
-              break;
             } catch (e) {
             }
           }

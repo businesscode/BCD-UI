@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -631,9 +631,9 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
       for (let key of Object.keys(source)) {
         if (target[key] !== undefined && source[key] !== undefined && 
-            (    (   source[key] instanceof String && ! target[key] instanceof String)
+            (    (   source[key] instanceof String && ! (target[key] instanceof String))
               || (! (source[key] instanceof String) &&   target[key] instanceof String)
-              || (   source[key] instanceof Array  && ! target[key] instanceof Array)
+              || (   source[key] instanceof Array  && ! (target[key] instanceof Array))
               || (! (source[key] instanceof Array)  &&   target[key] instanceof Array)
             ))
             throw new Error("Merging invalid types: " + key);
@@ -675,7 +675,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         data.push(e.text);
       });
       if (addCategories[x].getAttribute("distinct") === "true") {
-        data = data.filter(function(e, idx){return data.indexOf(e) == idx});s
+        data = data.filter(function(e, idx){return data.indexOf(e) == idx});
       }
       if (this.config.query("//chart:Series[@chartType='BARCHARTHORIZONTAL']") != null)
         opts.yAxis.push({data: data});

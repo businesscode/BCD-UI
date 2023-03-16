@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class ErrorLogAppender extends AbstractAppender {
                level = errorLevel != null ? errorLevel.toString() : null,
                revision = Utils.getBCDUIVersion(),
                throwInfo = null,
-               clientMsg = bcduiLogEvent != null ? bcduiLogEvent.getFormattedMessage() : null;
+               clientMsg = bcduiLogEvent.getFormattedMessage();
 
         if (requestUrl.length()> 2000)
           requestUrl = requestUrl.substring(0, 2000);

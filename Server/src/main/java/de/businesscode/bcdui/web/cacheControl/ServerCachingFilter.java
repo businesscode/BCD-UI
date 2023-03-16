@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -345,12 +345,7 @@ public class ServerCachingFilter extends AbstractCacheFilter {
         }
         finally {
             if (inputStream != null) {
-                try {
-                    inputStream.close();
-                }
-                catch (Exception e) {
-                    throw new Exception(e);
-                }
+              inputStream.close();
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -569,7 +569,7 @@ a {
    img {
      display: none;
    }
-   span.calCloseImage { font-width: bold; }
+   span.calCloseImage { font-weight: bold; }
    
    span.changeLeft:after {
      content: "\25C4";
@@ -1251,7 +1251,6 @@ body {
     left: -1 * $sideBar-width;
   }
   z-index: 1;
-  overflow: visible;
   position: relative;
 
 }
@@ -1706,7 +1705,7 @@ span.bcd-notification-warn {
     color: #FFF !important;
   }
 
-  .action:after          { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .action:after          { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; }
   .action.download:after { content: "\f56d"; }
   .action.view:after     { content: "\f06e"; }
   .action.delete:after   { content: "\f2ed"; }
@@ -1718,7 +1717,7 @@ span.bcd-notification-warn {
   .def_true .fileType .icon:before  { color: #aa0000; }
   .def_false .fileType .icon:before { color: #aaaaaa; }
 
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; width: 1.2em; display: inline-block; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; width: 1.2em; display: inline-block; }
   .fileType .icon:before { font-size: 2em; padding-right: 0; }
 
   .comment.icon:before, .info .icon:before { font-size: 1em; padding-right: .3em; }
@@ -1801,7 +1800,7 @@ span.bcd-notification-warn {
 
   .edit { flex: 0 0 1em; }
   .edit, .user { text-align: right; }
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: .3em; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: .3em; }
   .icon.ts:before        { content: "\f017"; }
   .icon.user:before      { content: "\f007"; }
   .icon.edit:before      { content: "\f044"; cursor: pointer; }
@@ -1846,7 +1845,7 @@ $chips-close-color: #c00 !default;
     span {
       position: relative; cursor:pointer;
       &:after {
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: #3c5b7b;
         margin-left: .3em;
@@ -1885,7 +1884,7 @@ $chips-close-color: #c00 !default;
         cursor: pointer;
         content: "\f00d";
         font-style: normal;
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: $chips-text-color;
         margin-left: .3em;
@@ -1931,7 +1930,7 @@ $chips-close-color: #c00 !default;
     text-decoration: none;
   }
   a:hover { color: #000; }
-  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: 0.5em; }
+  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: 0.5em; }
 }
 
 .bcdCssReset { all: revert; }

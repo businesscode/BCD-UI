@@ -1,11 +1,12 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
   All rights reserved.
   For terms of license, please contact BusinessCode GmbH, Germany
 */
 package de.businesscode.bcdui.upload.data;
 
 import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.toolbox.TextToUrl;
 import de.businesscode.util.jdbc.Closer;
 import java.sql.Connection;
 import java.io.IOException;
@@ -27,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 
 import de.businesscode.bcdui.binding.BindingSet;
@@ -74,7 +77,7 @@ public class UploadServlet extends HttpServlet
   protected Map<String,Class<? extends IUploadStep>> stepImpls = new HashMap<>();
 
   private static final long serialVersionUID = 2308461522449326659L;
-
+  private static final Logger log = LogManager.getLogger(UploadServlet.class);
 
   /**
    * Receives an data upload file and creates an entry in bcd_dataupload_control
@@ -91,7 +94,6 @@ public class UploadServlet extends HttpServlet
     String deleteUploadId = null;
     String targetBs = null;
     String fileName = null;
-    final UploadControl uc;
     InputStream is = null;
     
     try {
@@ -142,6 +144,8 @@ public class UploadServlet extends HttpServlet
       throw new ServletException("Upload failed getting HTTP paramaters", ex);
     }
 
+    UploadControl uc = null;
+    
     try {
 
       if (deleteUploadId != null) {
@@ -191,7 +195,6 @@ public class UploadServlet extends HttpServlet
           }
         }
       }
-      uc.close();
       UploadControlSteps steps = new UploadControlSteps(uploadId);
       steps.writeStepsResponse(writer, uploadId);
 
@@ -199,6 +202,11 @@ public class UploadServlet extends HttpServlet
       throw new ServletException("Upload failed. Step: " + e.stepId, e);
     } catch(SQLException | IOException e) {
       throw new ServletException("Upload failed.", e);
+    }
+    finally {
+      if (uc != null) {
+        try { uc.close(); } catch (UploadException e) {log.error("can't close UploadControl", e); }
+      }
     }
   }
 

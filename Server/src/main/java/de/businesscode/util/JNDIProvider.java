@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package de.businesscode.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.Collections;
@@ -169,8 +170,12 @@ public class JNDIProvider implements ConfigurationProvider {
         final File file = new File(propsFile);
         if (file != null && file.canRead())
         {
-          final Reader reader = new FileReader(file);
-          props.load(reader);
+          try ( final Reader reader = new FileReader(file); ) {
+            props.load(reader);
+          }            
+          catch (FileNotFoundException e) {
+            System.err.println("Could not load Properties from file: " + propsFile);
+          }
 
           for (Object k : props.keySet() )
           {

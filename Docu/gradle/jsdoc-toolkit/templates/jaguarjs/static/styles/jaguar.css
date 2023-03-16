@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ li {
   margin: 0;
   margin-top: 15px;
   padding: 10px 15px;
-  font: bold 1.25em Helvetica;
+  font: bold 1.25em Helvetica, sans-serif;
   color: #fff;
 }
 .navigation .applicationName a {
@@ -106,7 +106,7 @@ li {
 }
 .navigation li.item .subtitle {
   margin-top: 10px;
-  font: bold 0.65em Helvetica;
+  font: bold 0.65em Helvetica, sans-serif;
   color: #779c34;
   display: block;
 }

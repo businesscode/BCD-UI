@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -264,7 +264,6 @@ public class Menus {
       if (!menuFiles[i].isFile() || !menuFiles[i].canRead() || !menuFiles[i].getName().toLowerCase().endsWith(".xml"))
         continue;
 
-      FileInputStream fi = null;
       try {
         Document doc = documentBuilderFactory.newDocumentBuilder().parse(menuFiles[i]);
         Menu curMenu = (Menu)jaxbUnmarshaller.unmarshal(doc);
@@ -272,7 +271,6 @@ public class Menus {
       }
       catch (SAXException e) { }
       catch (ParserConfigurationException e) { }
-      finally{if(fi != null)fi.close();}
     }
   }
 

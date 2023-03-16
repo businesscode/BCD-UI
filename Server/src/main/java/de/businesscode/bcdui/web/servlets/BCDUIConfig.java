@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -79,7 +79,8 @@ public class BCDUIConfig extends HttpServlet {
     if( realPath != null && realPath.getPath() != null ) {
       File propFile = new File(realPath.getPath());
       if (propFile.canRead())
-        properties.load(new FileInputStream(propFile));
+        try (FileInputStream fis = new FileInputStream(propFile)) { properties.load(fis); }
+        catch (Exception e) { log.error( "can't load properties file", e); }
     }
 
     boolean isDebug = ServletUtils.getInstance().isFeDebug(request);
@@ -283,25 +284,26 @@ public class BCDUIConfig extends HttpServlet {
     try {
       Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("META-INF/gitInformation/" + moduleName + "_info.txt");
       if (resources.hasMoreElements()) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(resources.nextElement().openStream()));
-        String commitHash = "";
-        String branchName = "";
-        String versionName = "";
-        final String branch = "Branch:";
-        final String commit = "Commit:";
-        final String version = "Version:";
-        String line =  br.readLine();
-        while (line != null) {
-          if (line.contains(branch))
-            branchName = line.substring(branch.length() + line.indexOf(branch)).trim();
-          if (line.contains(commit))
-            commitHash = line.substring(commit.length() + line.indexOf(commit)).trim();
-          if (line.contains(version))
-            versionName = line.substring(version.length() + line.indexOf(version)).trim();
-          line =  br.readLine(); 
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(resources.nextElement().openStream()))) {
+          String commitHash = "";
+          String branchName = "";
+          String versionName = "";
+          final String branch = "Branch:";
+          final String commit = "Commit:";
+          final String version = "Version:";
+          String line =  br.readLine();
+          while (line != null) {
+            if (line.contains(branch))
+              branchName = line.substring(branch.length() + line.indexOf(branch)).trim();
+            if (line.contains(commit))
+              commitHash = line.substring(commit.length() + line.indexOf(commit)).trim();
+            if (line.contains(version))
+              versionName = line.substring(version.length() + line.indexOf(version)).trim();
+            line =  br.readLine(); 
+          }
+          return versionName + " " + branchName + " [" + commitHash + "]";
         }
-        br.close();
-        return versionName + " " + branchName + " [" + commitHash + "]";
+        catch (Exception e) { /* ignore */ }
       }
     }
     catch (Exception e) { /* ignore */ }

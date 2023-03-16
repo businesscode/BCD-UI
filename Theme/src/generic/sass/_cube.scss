@@ -306,7 +306,6 @@
     width: 100%;
     padding: 3px 0px;
     height: 14px;
-    padding: 3px 0px;
     @include con_color($cube-sections-color-head);
     border: 1px solid $border-color;
     font-weight: bold;
@@ -894,7 +893,7 @@ div.bcdContextMenu a.bcdMenuitems {
     background-color: #eeeeee !important;
     color: #000 !important;
   }
-  .highlight:not(bcdTreeRow) > td, .highlight:not(.bcdTreeRow) > th {
+  .highlight:not(.bcdTreeRow) > td, .highlight:not(.bcdTreeRow) > th {
     background-color: #eeeeee !important;
     color: #000 !important;
   }
@@ -934,7 +933,6 @@ div.bcdContextMenu a.bcdMenuitems {
     font-weight: normal;
     border: none;
     background-color: #fff;
-    border: none;
   }
   tbody th {
     text-align: left;

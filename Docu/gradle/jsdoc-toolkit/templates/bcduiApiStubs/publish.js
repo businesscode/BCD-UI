@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ function printClass( taffyData, clazz )
   if (clazz.description)
     result += "@description " + clazz.description.replace(/(\r?\n|\r)/gm," ") + newLine(1);
   if (clazz.examples)
-    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+    result += printCommentExamples( clazz.examples );
   if (clazz.augments)
     result += "@extends " + clazz.augments[0]  + newLine(0);;
   result += "*/" + newLine(0)
@@ -135,7 +135,7 @@ function printClass( taffyData, clazz )
   if (clazz.description)
     result += "@description " + clazz.description.replace(/( *\r?\n|\r *)/gm," ") + newLine(1);
   if (clazz.examples)
-    result += printCommentExamples( clazz.examples, clazz, "Constructor" );
+    result += printCommentExamples( clazz.examples );
   if (clazz.augments)
     result += "@extends " + clazz.augments[0]  + newLine(1);;
 
@@ -313,7 +313,7 @@ function printMethods_forNamespace(method, methodIdx, clazz, tempAlias)
     result += "@deprecated "+ method.deprecated+newLine(0);
   // IDEA prefers samples before parameters
   result += printCommentExamplesMandatories( method, clazz );
-  result += printCommentExamples( method.examples, clazz, method );
+  result += printCommentExamples( method.examples );
 
   if( method.returns ) {
     var ret = method.returns[0];
@@ -380,7 +380,7 @@ function printProperties( taffyData, containerLongname )
       result += " = new " + member.type.names[0] + "()";
     else if( member.meta.code.type === "Literal" && member.meta.code.value && member.type && member.type.names[0].toLowerCase() === "string" )
       result += " = \"" + member.meta.code.value + "\"";
-    else if( member.meta.code.type === "Literal" && parseFloat(member.meta.code.value) === parseFloat(member.meta.code.value) )
+    else if( member.meta.code.type === "Literal" && !isNaN(parseFloat(member.meta.code.value) ))
       result += " = " + member.meta.code.value;
     else
       result += " = {}"; // We need this dummy assignment for Eclipse Mars autosuggestion to work. And if we assign only null, tooltip fails

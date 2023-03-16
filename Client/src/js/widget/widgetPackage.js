@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -214,7 +214,6 @@ jQuery.extend(bcdui.widget,
 
       args.emptyValueLevel         = args.emptyValueLevel || args.emptyValue;
       args.clearOptionLevel        = args.clearOptionLevel || args.clearOption;
-      args.multiSelect             = args.multiSelect;
       args.allowMixedSelect        = bcdui.factory._normalizeBoolean(args.allowMixedSelect,  false);
       args.useCaptions             = bcdui.factory._normalizeBoolean(args.useCaptions,    false);
       args.mandatory               = bcdui.factory._normalizeBoolean(args.mandatory,    false);

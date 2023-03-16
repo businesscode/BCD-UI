@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,14 +47,14 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  */
 final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.LogRecord>{
   private static final int DEFAULT_QUEUE_SIZE =       1000;
-  private static final long DEFAULT_QUEUE_SLEEP_MS =  10*1000;  //10seconds
+  private static final long DEFAULT_QUEUE_SLEEP_MS =  10000;  //10seconds
   private static final String PARAM_QUEUE_SIZE =      "bcdui/loggers/db/sql/queueSize";
   private static final String PARAM_QUEUE_SLEEP_MS =  "bcdui/loggers/db/sql/queueSleepMs";
 
   private static final ThreadLocal<Boolean> isDisabled = new ThreadLocal<Boolean>();
 
   @Override
-  public boolean isEnabled() {
+  public synchronized boolean isEnabled() {
     Boolean ref = isDisabled.get();
     if(ref != null && ref){
       return false;
