@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
   All rights reserved.
   For terms of license, please contact BusinessCode GmbH, Germany
 */
