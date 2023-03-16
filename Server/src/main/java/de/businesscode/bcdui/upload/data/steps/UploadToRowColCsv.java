@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2017 BusinessCode GmbH, Germany
   All rights reserved.
   For terms of license, please contact BusinessCode GmbH, Germany
 */
@@ -7,7 +7,6 @@ package de.businesscode.bcdui.upload.data.steps;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,8 +55,7 @@ public class UploadToRowColCsv implements IUploadToRowColParser
     
     final int numTestLines = 10;
     final int numTestLinesLength = 5000;
-    
-    InputStreamReader isr = null;
+
     try {
       //----------------------------------
       // Detect encoding
@@ -70,20 +68,19 @@ public class UploadToRowColCsv implements IUploadToRowColParser
 
       //----------------------------------
       // Detect delimiter and quoteChar, read some sample lines
+      BufferedReader recSepIsr = new BufferedReader(new InputStreamReader(bomis, encoding));
       ArrayList<String> recSepLines = new ArrayList<>();
-      try (BufferedReader recSepIsr = new BufferedReader(new InputStreamReader(bomis, encoding))) {
-        String line;
-        int testLinesLength = 0;
-        while((line = recSepIsr.readLine()) != null) {
-          testLinesLength += line.length();
-          recSepLines.add(line);
-          if(recSepLines.size() == numTestLines)
-            break;
-          // Stop reading if next row may destroy our reset() capability
-          if((testLinesLength / recSepLines.size()) * numTestLines > (numTestLines + 0.5) * numTestLinesLength)
-            break;
-        }
-      }catch (UnsupportedEncodingException e) {/* ignore */}
+      String line;
+      int testLinesLength = 0;
+      while((line = recSepIsr.readLine()) != null) {
+        testLinesLength += line.length();
+        recSepLines.add(line);
+        if(recSepLines.size() == numTestLines)
+          break;
+        // Stop reading if next row may destroy our reset() capability
+        if((testLinesLength / recSepLines.size()) * numTestLines > (numTestLines + 0.5) * numTestLinesLength)
+          break;
+      }
 
       // 1. Empty file -> nothing to do
       if(recSepLines.size() == 0)
@@ -132,7 +129,7 @@ public class UploadToRowColCsv implements IUploadToRowColParser
       // Read the data with the now known delimiter and quoteChar
       // Apply encoding
       bomis.reset();
-      isr = new InputStreamReader(bomis, encoding);
+      InputStreamReader isr = new InputStreamReader(bomis, encoding);
       CSVFormat format = CSVFormat.DEFAULT;
       format = format.withDelimiter(delimiter);
       if(quoteChar != NO_QUOTE_CHAR )
@@ -152,9 +149,8 @@ public class UploadToRowColCsv implements IUploadToRowColParser
 
       }
     } finally {
-      if (isr != null) { isr.close(); }
-      if( bomis != null) { bomis.close(); }
-
+      if( bomis != null)
+        bomis.close();
       // This does close the BLOB stream
       uploadToRowCol.endFile();
     }  
