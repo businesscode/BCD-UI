@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse f�r TypeSubjectFilters complex type.
+ * <p>Java-Klasse fuer TypeSubjectFilters complex type.
  * 
  * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * {@code
