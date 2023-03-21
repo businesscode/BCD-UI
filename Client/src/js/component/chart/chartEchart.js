@@ -630,7 +630,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     const merge = (target, source) => {
       // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
       for (let key of Object.keys(source)) {
-        if (target[key] !== undefined && source[key] !== undefined && 
+        if (target[key] !== undefined && source[key] !== undefined && target[key] != null && source[key] != null &&
             (    (   source[key] instanceof String && ! (target[key] instanceof String))
               || (! (source[key] instanceof String) &&   target[key] instanceof String)
               || (   source[key] instanceof Array  && ! (target[key] instanceof Array))
