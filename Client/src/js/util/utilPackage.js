@@ -235,7 +235,7 @@ bcdui.util =
    * @returns {string} encoded string 
    */
   encodeURI : function(string) {
-    let encode = decodeURIComponent(string) == string ? encodeURIComponent(string) : string;
+    let encode = decodeURI(string) == string ? encodeURI(string) : string;
     return encode.replaceAll("'", "%27");
   },
 
@@ -246,7 +246,7 @@ bcdui.util =
    */
   decodeURI : function(string) {
     let decode = "";
-    try { decode = decodeURIComponent(string); }
+    try { decode = decodeURI(string); }
     catch(e) { decode = string; }
     return decode;
   },
