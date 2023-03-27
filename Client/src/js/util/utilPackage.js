@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -227,6 +227,28 @@ bcdui.util =
     return String(string).replace(/[&<>"'\/]/g, function (s) {
       return bcdui.util._entityMap[s];
     });
+  },
+  
+  /**
+   * 
+   * @param {string} string - Value to be encoded
+   * @returns {string} encoded string 
+   */
+  encodeURI : function(string) {
+    let encode = decodeURIComponent(string) == string ? encodeURIComponent(string) : string;
+    return encode.replaceAll("'", "%27");
+  },
+
+  /**
+   * 
+   * @param {string} string - Value to be decoded
+   * @returns {string} dencoded string 
+   */
+  decodeURI : function(string) {
+    let decode = "";
+    try { decode = decodeURIComponent(string); }
+    catch(e) { decode = string; }
+    return decode;
   },
   
   /**
