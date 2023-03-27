@@ -388,8 +388,9 @@ bcdui.core.XMLLoader = class
               }.bind(this, xmlResponse, jqXHR);
 
               // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page) 
-              var resource = args.url.substring(args.url.lastIndexOf("/") + 1);
-              var rUrl = xhr.responseURL || xhr.url;
+              const resource = bcdui.util.decodeURI(args.url.substring(args.url.lastIndexOf("/") + 1));
+              const rUrl = bcdui.util.decodeURI(xhr.responseURL || xhr.url);
+
               if (rUrl.indexOf(resource) == -1) {
                 bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
                 return;
