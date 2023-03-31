@@ -189,6 +189,7 @@
     <url-pattern>/bcdui/*</url-pattern>
     <url-pattern>/vfs/*</url-pattern>
     <url-pattern>*.vfsxml</url-pattern>
+    <url-pattern>*.js</url-pattern>
   </servlet-mapping>
 
   <!-- I18nServlet -->
