@@ -300,7 +300,9 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       response.setContentLength((int) downloadFile.length());
   
       String headerKey = "Content-Disposition";
-      String headerValue = String.format("attachment; filename=\"%s\"", d.file_name);
+
+      String fileName = d.file_name.replaceAll("[\\\\/:*?\"<>|]", "_");
+      String headerValue = String.format("attachment; filename=\"%s\"", fileName);
       response.setHeader(headerKey, headerValue);
   
       outStream = response.getOutputStream();
@@ -352,7 +354,8 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       response.setContentLength((int) attr.getSize());
   
       String headerKey = "Content-Disposition";
-      String headerValue = String.format("attachment; filename=\"%s\"", d.file_name);
+      String fileName = d.file_name.replaceAll("[\\\\/:*?\"<>|]", "_");
+      String headerValue = String.format("attachment; filename=\"%s\"", fileName);
       response.setHeader(headerKey, headerValue);
 
       channel.get( sourceFile, outStream );
