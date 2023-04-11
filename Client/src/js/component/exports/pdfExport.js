@@ -22,7 +22,6 @@
 /**
  * Exporter for PDF/JPG/PNG/BMP/GIF format using the HTML2PDF conversion Servlet.
  * This Servlet is usually registered under "/bcdui/servlets/HTML2PDFServlet".
- * For Excel export using "/bcdui/servlets/HTML2ExcelServlet"
  * @type {bcdui.component.exports.PDFExport}
  */
 bcdui.component.exports.PDFExport = class

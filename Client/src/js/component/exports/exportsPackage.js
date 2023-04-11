@@ -27,10 +27,6 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
    * @private
    */
   _html2PdfServletUrl: bcdui.contextPath + "/bcdui/servlets/Html2PdfServlet",
-  /**
-   * @private
-   */
-  _html2ExcelServletUrl: bcdui.contextPath + "/bcdui/servlets/Html2ExcelServlet",
   
   /**
    * @constant
