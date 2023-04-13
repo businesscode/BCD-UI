@@ -620,7 +620,7 @@ bcdui.util =
     var success = callback || function(){};
     jQuery.ajax({
       method: "POST",
-      url : bcdui.contextPath+ "/bcdui/servlets/SubjectPreferences?value="+bcdui.util.escapeHtml(value)+"&name=" + bcdui.util.escapeHtml(name),
+      url : bcdui.contextPath + "/bcdui/servlets/SubjectPreferences?value="+bcdui.util.encodeURI(value)+"&name=" + bcdui.util.encodeURI(name),
       success : success
     });
   }
