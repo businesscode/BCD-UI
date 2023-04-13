@@ -50,7 +50,8 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
     args.statusModel           = args.statusModel           || bcdui.wkModels.guiStatusEstablished;
     args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
       id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
-      chain: [ bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
+      chain: [ function(doc) {Array.from(doc.selectNodes("//*[starts-with(@caption, '\uE0FF')]/@caption")).forEach(function(e) { e.text = bcdui.i18n.syncTranslateFormatMessage({msgid: e.text}) || e.text; })},
+               bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
                bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
                bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
       parameters: {cubeId: args.cubeId, statusModel: args.statusModel } } );
@@ -146,7 +147,8 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
     var statusModel = args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
     var enhancedConfiguration = args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
       id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
-      chain: [ bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
+      chain: [ function(doc) {Array.from(doc.selectNodes("//*[starts-with(@caption, '\uE0FF')]/@caption")).forEach(function(e) { e.text = bcdui.i18n.syncTranslateFormatMessage({msgid: e.text}) || e.text; })},
+               bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
                bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
                bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
       parameters: { cubeId: args.id, statusModel: args.statusModel } } );
