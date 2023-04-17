@@ -575,6 +575,9 @@
         <Param name="values" type="string" default="1|0">
           <Doc>A pipe separated value of two string which are used for a checked/unchecked state. By default this is 1 and 0.</Doc>
         </Param>
+        <Param name="isSwitch" type="boolean" default="false">
+          <Doc>If enabled, the checkbox is rendered as a horizontal switch</Doc>
+        </Param>
       </Api>
 
       <Api name="singleSelect" extends="hasCaptions baseInput hasLabel hasValidator">

@@ -1952,3 +1952,24 @@ $chips-close-color: #c00 !default;
 .bcdCkEditorContainer { width: 640px; }
 
 .bcdMessages.bcdCheckbox { text-align: center; }
+
+.bcdCheckbox.bcdSwitch {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  outline: none;
+  content: none;
+  cursor: pointer;
+
+  &:after {
+    content: "\f204";
+    font-family: 'Font Awesome 5 Free', sans-serif;
+    font-weight: bold;
+    font-size: 1.25em;
+    color: $corporate-color;
+  }
+
+  &:checked:after {
+    content: "\f205";
+  } 
+}

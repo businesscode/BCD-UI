@@ -2237,3 +2237,24 @@ $chips-close-color: #c00 !default;
   td { text-align: left; } /* chart flyover */
   td.bcdChartCell { padding: 0; margin: 0; height: 6em; }
 }
+
+.bcdCheckbox.bcdSwitch {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  outline: none;
+  content: none;
+  cursor: pointer;
+
+  &:after {
+    content: "\f204";
+    font-family: 'Font Awesome 5 Free', sans-serif;
+    font-weight: bold;
+    font-size: 1.25em;
+    color: $corporate-color;
+  }
+
+  &:checked:after {
+    content: "\f205";
+  } 
+}
