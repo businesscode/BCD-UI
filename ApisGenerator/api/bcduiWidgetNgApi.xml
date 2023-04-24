@@ -348,17 +348,23 @@
             Sets the maximum value for an integer or numeric type input field (HTML5 only).
           </Doc>
         </Param>
+        <Param name="step" type="number">
+          <Doc>
+            Sets the step value (HTML5 only).
+          </Doc>
+        </Param>
         <Param name="autocomplete" type="string" default="off">
           <Doc>
             HTML autocomplete attribute. Can be on or off.
           </Doc>
         </Param>
-        <Param name="type" type="enum" value="text|email|password|int|numeric" default="text">
+        <Param name="type" type="enum" value="text|email|password|int|numeric|time" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
             text: a simple text input
             email: a simple text input with email validation, uses email input where available
             password: a password input
+            time: hh:mm input, use step 1 to show seconds, too
             int: an integer value (uses to html5 type=number with step=1 where available)
             numeric: a decimal value (corresponds to html5 type=number with step=any and uses where available)
           </Doc>

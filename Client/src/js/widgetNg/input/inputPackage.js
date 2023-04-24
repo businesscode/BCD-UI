@@ -301,6 +301,7 @@
       el.attr("maxlength", args.maxlength);
       el.attr("max", args.max);
       el.attr("min", args.min);
+      el.attr("step", args.step);
       el.attr("placeholder", args.placeholder);
       el.attr("pattern", args.pattern);
       el.attr("required", args.required);
