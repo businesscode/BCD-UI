@@ -1155,6 +1155,36 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
+      <Api name="inputLookup" extends="textInput hasValidator hasHtmlEvents hasLabel">
+        <Doc>
+        </Doc>
+        <Param name="delay" type="number" default="500">
+          <Doc>
+            Time (in ms) which passes till the lookup is done.
+          </Doc>
+        </Param>
+        <Param name="max" type="number" default="10">
+          <Doc>
+            Limit the result of the lookup.
+          </Doc>
+        </Param>
+        <Param required="true" name="bindingSetId" type="string">
+          <Doc>
+            Name of the binding set which is used for the lookup.
+          </Doc>
+        </Param>
+        <Param required="true" name="bRef" type="string" >
+          <Doc>
+            BindingItem which is used for the lookup. 
+          </Doc>
+        </Param>
+        <Param name="lookupType" type="string" value="contains|startswith|endswith" default="startswith">
+          <Doc>
+            Define the lookup type for the request.
+          </Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -1176,6 +1206,7 @@ the data that is actually placed in XML.
       <BcdObject name="slider" implements="slider" implementationPackage="bcdui.widgetNg.slider"/>
       <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
       <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
+      <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->
