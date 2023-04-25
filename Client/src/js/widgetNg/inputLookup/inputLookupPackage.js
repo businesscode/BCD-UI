@@ -29,9 +29,20 @@
     },
 
     _create : function(){
+      // set a fake optionsModelXPath to avoid validation of suggestInput mandatory parameter, will be replaced with real one later on
+      this.options["optionsModelXPath"] = "bcd";
+
       this._super();
       bcdui.log.isTraceEnabled() && bcdui.log.trace("creating inputlookup widget with config ");
-      
+
+      // optional filter
+      let filterDp = new bcdui.core.StaticModel("<Root/>");
+      if (this.options.filterElement) {
+        if( typeof this.options.filterElement === "string" )
+          this.options.filterElement = bcdui.wrs.wrsUtil.parseFilterExpression(this.options.filterElement);
+        filterDp.dataDoc = this.options.filterElement;
+      }
+
       const keyStroke = new bcdui.core.ConstantDataProvider({ name : "keyStroke", value : "" })
       bcdui.factory.objectRegistry.registerObject(keyStroke);
 
@@ -43,8 +54,9 @@
                 keyStroke: keyStroke
               , bRef: this.options.bRef
               , bindingSet: this.options.bindingSetId
-              , max: this.options.max || 10
-              , lookupType: this.options.lookupType || "startswith"
+              , rowEnd: this.options.rowEnd || 10
+              , lookupType: this.options.wildcard || "startswith"
+              , filterDp: filterDp
               }
           })
         })
@@ -52,22 +64,18 @@
       bcdui.factory.objectRegistry.registerObject(wrq);
 
       const el = jQuery("<span class='bcdInputLookup'></span>");
-      el.attr("id", "label_" + this.options.id);
-      this._createLabel(el.attr("id"));
       this.element.append(el);
 
       let timeout = null;
 
       const params = {
-        doTrimInput: true
+        optionsModelXPath: "$" + wrq.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
       , disableNativeSupport: true
-      , targetModelXPath: this.options.targetModelXPath
-      , optionsModelXPath: "$" + wrq.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
       , targetHtml: this.element.find(".bcdInputLookup").get(0)
       , filterFunction: function(args) {
 
           // no value, simply show the last loaded one (if available)
-          if (args.value == "")
+          if (args.value == "" || keyStroke.value == args.value)
             return false;
 
           // we started a timeout already, kill it
@@ -75,6 +83,10 @@
             clearTimeout(timeout);
             timeout = null;
           }
+
+          // avoid reload if we only limit already loaded values, client sided filtering is done via suggestFilter
+          if (keyStroke.value.length != 0 && keyStroke.value.length < args.value.length && wrq.queryNodes("/*/wrs:Data/wrs:R").length < this.options.rowEnd)
+            return false;
 
           // start a new timeout
           timeout = setTimeout(function() {
@@ -100,7 +112,7 @@
         }.bind(this)
       };
 
-      bcdui.widgetNg.createSuggestInput(params);
+      bcdui.widgetNg.createSuggestInput(jQuery.extend(this.options, params));
 
     },
 

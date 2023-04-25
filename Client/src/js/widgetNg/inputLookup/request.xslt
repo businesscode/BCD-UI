@@ -11,13 +11,14 @@
   <xsl:param name="keyStroke"/>
   <xsl:param name="bindingSet"/>
   <xsl:param name="bRef"/>
-  <xsl:param name="max" select="'10'"/>
+  <xsl:param name="rowEnd" select="'10'"/>
+  <xsl:param name="filterDp" select="/*[0=1]"/>
   <xsl:param name="lookupType" select="'startswith'"/>
 
   <xsl:template match="/*">
 
     <wrq:WrsRequest>
-      <wrq:Select rowEnd="{$max}">
+      <wrq:Select rowEnd="{$rowEnd}">
         <wrq:Columns><wrq:C bRef="{$bRef}"/></wrq:Columns>
         <wrq:From>
           <wrq:BindingSet><xsl:value-of select="$bindingSet"/></wrq:BindingSet>
@@ -41,6 +42,7 @@
               </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
+          <xsl:copy-of select="$filterDp/*/*"/>
         </f:Filter>
         <wrq:Ordering>
           <wrq:C bRef="{$bRef}" />

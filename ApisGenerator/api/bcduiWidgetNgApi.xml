@@ -443,7 +443,7 @@
 
 
       <Api name="hasOptionsFilter">
-        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="contains">
+        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="startswith">
           <Doc>
             The wildcards apply to filtering within the drop down list and for server side filters.
             This option applies only if bound to a f:Expression element and is ignored otherwise.
@@ -1155,7 +1155,7 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
-      <Api name="inputLookup" extends="textInput hasValidator hasHtmlEvents hasLabel">
+      <Api name="inputLookup" extends="suggestInput">
         <Doc>
         </Doc>
         <Param name="delay" type="number" default="500">
@@ -1163,9 +1163,9 @@ the data that is actually placed in XML.
             Time (in ms) which passes till the lookup is done.
           </Doc>
         </Param>
-        <Param name="max" type="number" default="10">
+        <Param name="rowEnd" type="number" default="10">
           <Doc>
-            Limit the result of the lookup.
+            Limit the result of the SQL lookup.
           </Doc>
         </Param>
         <Param required="true" name="bindingSetId" type="string">
@@ -1178,9 +1178,9 @@ the data that is actually placed in XML.
             BindingItem which is used for the lookup. 
           </Doc>
         </Param>
-        <Param name="lookupType" type="string" value="contains|startswith|endswith" default="startswith">
+        <Param name="filterElement" type="string">
           <Doc>
-            Define the lookup type for the request.
+            Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.
           </Doc>
         </Param>
       </Api>
