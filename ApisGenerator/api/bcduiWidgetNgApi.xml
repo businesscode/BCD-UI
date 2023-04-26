@@ -1156,7 +1156,7 @@ the data that is actually placed in XML.
       </Api>
 
       <Api name="inputLookup" extends="suggestInput">
-        <Doc>
+        <Doc>An easy to use suggestInput widget with server sided filling of a data given by binding and bindingItem. 
         </Doc>
         <Param name="delay" type="number" default="500">
           <Doc>
