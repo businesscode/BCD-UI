@@ -25,21 +25,14 @@
         </wrq:From>
         <f:Filter>
           <xsl:choose>
-            <xsl:when test="$keyStroke=''">
-              <f:Expression op="=" value="&#xE0FF;" bRef="{$bRef}"/>
+            <xsl:when test="$lookupType='contains'">
+              <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat('*', $keyStroke, '*')}"/>
+            </xsl:when>
+            <xsl:when test="$lookupType='endswith'">
+              <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat('*', $keyStroke)}"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:choose>
-                <xsl:when test="$lookupType='contains'">
-                  <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat('*', $keyStroke, '*')}"/>
-                </xsl:when>
-                <xsl:when test="$lookupType='endswith'">
-                  <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat('*', $keyStroke)}"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat($keyStroke, '*')}"/>
-                </xsl:otherwise>
-              </xsl:choose>
+              <f:Expression op="like" ic="true" bRef="{$bRef}" value="{concat($keyStroke, '*')}"/>
             </xsl:otherwise>
           </xsl:choose>
           <xsl:copy-of select="$filterDp/*/*"/>

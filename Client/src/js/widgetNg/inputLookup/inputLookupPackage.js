@@ -46,6 +46,9 @@
       const keyStroke = new bcdui.core.ConstantDataProvider({ name : "keyStroke", value : "" })
       bcdui.factory.objectRegistry.registerObject(keyStroke);
 
+      const optionsModel = new bcdui.core.StaticModel("<Empty/>");
+      bcdui.factory.objectRegistry.registerObject(optionsModel);
+
       const wrq = new bcdui.core.SimpleModel({
         url: new bcdui.core.RequestDocumentDataProvider({
           requestModel: new bcdui.core.ModelWrapper({
@@ -69,7 +72,7 @@
       let timeout = null;
 
       const params = {
-        optionsModelXPath: "$" + wrq.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
+        optionsModelXPath: "$" + optionsModel.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
       , disableNativeSupport: true
       , targetHtml: this.element.find(".bcdInputLookup").get(0)
       , filterFunction: function(args) {
@@ -98,6 +101,8 @@
             wrq.urlProvider.requestModel.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
               wrq.urlProvider.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
                 wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
+                  optionsModel.dataDoc = wrq.dataDoc;
+                  optionsModel.fire();
                   args.onComplete();
                 }});
                 wrq.execute(true);
