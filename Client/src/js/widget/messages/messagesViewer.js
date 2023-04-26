@@ -10,6 +10,7 @@ jQuery.extend(bcdui.widget, {
     * @param {String} [args.dataStorage] - optionally use 'localStorage' or 'sessionStorage' to use browser cache instead of SubjectPreferences cookie
     * @param {String} [args.mode] - optionally use 'icon' together with args.targetHtml to render a clickable icon, defaults to displaying new messages in a popup immediatly
     * @param {String} [args.targetHtml] - optionally use this together with args.mode='icon', is not used otherwise
+    * @param {String} [args.popupOnNew] - optionally use this together with args.mode='icon' to show new messages immediatly
    */
   messagesViewer: function(args) {
     // helper functions to store and fetch data, either from subjectPreferences or from local-/sessionStorage
@@ -88,7 +89,7 @@ jQuery.extend(bcdui.widget, {
             if (icon == null) {
               dataSetter("MessagesHide", "true");
             } else {
-              icon.find("span.notification").remove();
+              targetHtml.find("span.notification").remove();
               icon.removeClass("fa-envelope").removeClass("fa-envelope-open").addClass("fa-envelope-open-text");
             }
             dialog.remove();
@@ -201,6 +202,13 @@ jQuery.extend(bcdui.widget, {
           $("<span class='notification' style='position:absolute;right:50%;top:40%;font-weight:normal;padding:1px 8px;border-radius:50%;background-color:#E32119;color:white;pointer-events:none'>" + messages.length + "</span>").appendTo(targetHtml);
           icon.addClass("fa-envelope");
         } else icon.addClass(messagesAll.length > 0 ? "fa-envelope-open-text" : "fa-envelope-open");
+        
+        if (args.popupOnNew && messages.length > 0 && (maxLastUpdate > lastSeen || "true" != dataGetter("MessagesHide"))) {
+          // (re)set SubjectPreferences
+          dataSetter("MessagesHide", "false");
+
+          showPopup(messages);
+        }
         
         icon.on("click", function() {
           if (messagesAll.length == 0) {
