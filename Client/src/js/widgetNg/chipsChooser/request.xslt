@@ -43,6 +43,12 @@
           </xsl:choose>
           <xsl:copy-of select="$filterDp/*/*"/>
         </f:Filter>
+        <wrq:Grouping>
+          <wrq:C bRef="{$bRefCaption}"/>
+          <xsl:if test="$bRefCaption!=$bRefCode">
+            <wrq:C bRef="{$bRefCode}"/>
+          </xsl:if>
+        </wrq:Grouping>
         <wrq:Ordering>
           <wrq:C bRef="{$bRefCaption}"/>
         </wrq:Ordering>
