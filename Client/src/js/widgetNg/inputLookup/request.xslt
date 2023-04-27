@@ -37,6 +37,9 @@
           </xsl:choose>
           <xsl:copy-of select="$filterDp/*/*"/>
         </f:Filter>
+        <wrq:Grouping>
+          <wrq:C bRef="{$bRef}" />
+        </wrq:Grouping>
         <wrq:Ordering>
           <wrq:C bRef="{$bRef}" />
         </wrq:Ordering>
