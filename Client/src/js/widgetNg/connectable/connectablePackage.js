@@ -138,7 +138,7 @@
       this.lastWord = "";             // word collector for type-to-select functionality
       this.lastIndex = 0;             // matchlist index for type-to-select functionality
 
-      this.keypressSelector = this.options.keySelectorContains ? "*=" : "^=";
+      this.keypressSelector = this.options.wildcard == "startswith" ? "^=" : this.options.wildcard == "contains" ? "*=" : "$=";
 
       // init internal config
       this.config = {
@@ -277,22 +277,35 @@
       // triggerd after a nonUIUpdate (inject/optionsmodel change) or when you used the ui to drag/move items
       // write values to target (wrs or non wrs mode)
 
-      var values = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get(); // get values from source as array
-      var targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
+      const values = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get(); // get values from source as array
+      const captions = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("title")}).get(); // get values from source as array
+      const targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
 
       if (targetConfig.xPath.indexOf("wrs:") > -1) {
-        var inlineValue = (values||[]).join(this.wrsInlineValueDelim);
-        bcdui.core.createElementWithPrototype(targetModel.getData(), targetConfig.xPath).text = inlineValue;
+        const inlineValue = (values||[]).join(this.wrsInlineValueDelim);
+        const wrsNode = bcdui.core.createElementWithPrototype(targetModel.getData(), targetConfig.xPath);
+        wrsNode.text = inlineValue;
+        if (this.options.writeCaptions) {
+          const inlineCaptions = (captions||[]).join(this.wrsInlineValueDelim);
+          wrsNode.setAttribute("bcdCaption", inlineCaptions);
+        }
       } else {
-        var tMXP = (targetConfig.xPath.match(/.*\/@\w+$/) === null ) ? targetConfig.xPath : targetConfig.xPath.substring(0,targetConfig.xPath.lastIndexOf("@")-1);
+        const tMXP = (targetConfig.xPath.match(/.*\/@\w+$/) === null ) ? targetConfig.xPath : targetConfig.xPath.substring(0,targetConfig.xPath.lastIndexOf("@")-1);
         bcdui.core.removeXPath(targetModel.getData(), tMXP, true, true);
-        for (var i = 0; i < values.length; ++i) {
+        for (let i = 0; i < values.length; ++i) {
           bcdui.core.createElementWithPrototype(targetModel.getData(), targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
-          var n = targetModel.query(targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
-          if (n.nodeType === 2)
+          const n = targetModel.query(targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
+          if (n.nodeType === 2) {
             (n.ownerElement || n.selectSingleNode("parent::*")).setAttribute(n.nodeName, values[i]);
-          else
+
+            if (this.options.writeCaptions)
+              (n.ownerElement || n.selectSingleNode("parent::*")).setAttribute("bcdCaption", captions[i]);
+          }
+          else {
             n.text = values[i];
+            if (this.options.writeCaptions)
+              n.setAttribute("bcdCaption", captions[i]);
+          }
         }
       }
       targetModel.fire();
@@ -435,11 +448,16 @@
             var idValue = (this.config.target.xPath.indexOf("wrs:") > -1) ? targetNodes[j] : targetNodes[j].text;
             idValue = bcdui.util.escapeHtml(idValue);
 
+            const node = targetNodes[j].nodeType === 2 ? (targetNodes[j].ownerElement || targetNodes[j].selectSingleNode("parent::*")) : targetNodes[j];
+            const caption = captionMap[idValue] || (node.nodeType === 1 && node.getAttribute("bcdCaption")) || idValue;
+
             // only render items which are available in the options model and get original position and caption information (unless you allow them)
             if (typeof bcdPosMap[idValue] != "undefined")
-              html += this.generateItemHtml({value: idValue, caption: captionMap[idValue], position: bcdPosMap[idValue], id: this.config.elementId, isTarget: true, _widgetInstance: this });
-            else if (this.options.allowUnknownTargetValue && idValue != "")
-              html += this.generateItemHtml({value: idValue, caption: idValue, position: -1, id: this.config.elementId, isTarget: true, _widgetInstance: this});
+              html += this.generateItemHtml({value: idValue, caption: caption, position: bcdPosMap[idValue], id: this.config.elementId, isTarget: true, _widgetInstance: this });
+            else if (this.options.allowUnknownTargetValue && idValue != "") {
+
+              html += this.generateItemHtml({value: idValue, caption: caption, position: -1, id: this.config.elementId, isTarget: true, _widgetInstance: this});
+            }
           }
           this.container.append(html);
 

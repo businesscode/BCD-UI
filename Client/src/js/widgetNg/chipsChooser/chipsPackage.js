@@ -41,11 +41,84 @@
      * @private
      */
     _create : function() {
+
+      // in binding mode (dynamic sql data getter), we need both bindingSetId and a bRef
+      if ((this.options.bindingSetId && ! this.options.bRef) || (! this.options.bindingSetId && this.options.bRef))
+        throw new Error("bindingSetId and bRef has to be specified.");
+
+      // original allowUnknownTargetValue option indicates if you can enter whatever you want, so rememeber value
+      this.allowUnknownTargetValue = this.options.allowUnknownTargetValue;
+      
+      // wrsDelimiter is also needed locally
+      this.wrsInlineValueDelim = this.options.wrsInlineValueDelim || "/";
+
+      // for binding mode, we need to prepare several things
+      if (this.options.bindingSetId && this.options.bRef) {
+
+        // optional filterElement document
+        let filterDp = new bcdui.core.StaticModel("<Root/>");
+        if (this.options.filterElement) {
+          if( typeof this.options.filterElement === "string" )
+            this.options.filterElement = bcdui.wrs.wrsUtil.parseFilterExpression(this.options.filterElement);
+          filterDp.dataDoc = this.options.filterElement;
+        }
+
+        // a cdp holding the current input
+        const keyStroke = new bcdui.core.ConstantDataProvider({ name : "keyStroke", value : "" })
+        bcdui.factory.objectRegistry.registerObject(keyStroke);
+        this.keyStrokeId = keyStroke.id;
+
+        // an (initial empty) options model
+        const optionsModel = new bcdui.core.StaticModel("<Empty/>");
+        bcdui.factory.objectRegistry.registerObject(optionsModel);
+        this.optionsModelId = optionsModel.id;
+
+        // either we have one bRef or 2 (caption code)
+        const bRefs = this.options.bRef.split(" ");
+        this.options["optionsModelXPath"] = "$" + optionsModel.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
+        if (bRefs.length > 1)
+          this.options["optionsModelRelativeValueXPath"] = "../wrs:C[2]";
+        else
+          delete this.options["optionsModelRelativeValueXPath"];
+
+        // we need to enable allowUnknownTargetValue to support server sided selection in any way for connectables
+        // since as soon as you enter something new, the previously optionsModel is gone and your target values would become invalid 
+        this.options["allowUnknownTargetValue"] = true;
+
+        // we need to write captions when code/caption is used (otherwise they would get lost) 
+        this.options["writeCaptions"] = typeof this.options["optionsModelRelativeValueXPath"] != "undefined";
+
+        // building up a wrq which is later on copied into the optionsModel
+        const wrq = new bcdui.core.SimpleModel({
+          url: new bcdui.core.RequestDocumentDataProvider({
+            requestModel: new bcdui.core.ModelWrapper({
+                chain: bcdui.config.jsLibPath + "widgetNg/chipsChooser/request.xslt"
+              , parameters: {
+                  keyStroke: keyStroke
+                , bRefCode: bRefs.length > 1 ? bRefs[1] : bRefs[0]
+                , bRefCaption: bRefs[0]
+                , bindingSet: this.options.bindingSetId
+                , rowEnd: this.options.rowEnd || 10
+                , lookupType: this.options.wildcard || "startswith"
+                , filterDp: filterDp
+                }
+            })
+          })
+        });
+        // register and remember wrq (id)
+        bcdui.factory.objectRegistry.registerObject(wrq);
+        this.wrqId = wrq.id;
+      } 
+
       this._super();
 
-      const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_singleSelect_please_select"});
+      const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || "bcd_singleSelect_please_select"}) || this.options.placeholder;
       const template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
+      // add label
+      this._createLabel(this.options.id);
+
+      // append widget
       jQuery(this.element).append( doT.template(template)({ id: this.options.id }) );
 
       // trigger translation
@@ -66,13 +139,13 @@
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
           , onItemMoved: this.options.onItemMoved
-          , keySelectorContains: this.options.keySelectorContains
+          , wildcard: this.options.wildcard || "startswith"
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
+          , writeCaptions: this.options.writeCaptions
       }
       let sourceArgs = {
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
-        , keySelectorContains: this.options.keySelectorContains
         , targetHtml: this.element.find(".bcdLower")
         , onSelected: function() {
             // set inputbox to selected items
@@ -98,15 +171,17 @@
         }
       }
 
-      this.keypressSelector = this.options.keySelectorContains ? "*=" : "^=";
+      // split targetModelXPath to plain information for easier reuse later on
+      this.targetConfig = bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath);
+
+      // jQuery wildcard selector based on the options
+      this.keypressSelector = this.options.wildcard == "startswith" ? "^=" : this.options.wildcard == "contains" ? "*=" : "$=";
 
       sourceArgs = Object.assign(sourceArgs, args);
       targetArgs = Object.assign(targetArgs, args);
 
       bcdui.widgetNg.createConnectable(sourceArgs);
       bcdui.widgetNg.createConnectable(targetArgs);
-
-      let chips = this;
 
       // clone dblclick behaviour from connectables and make it available as click on closing icon
       jQuery(this.element).find(".bcdUpper").on("click", ".bcdCloseItem", function(event) {
@@ -118,25 +193,39 @@
         self._moveSelectedItems(from, to);
       });
 
+      const self = this;
       const upperConnectable = jQuery(this.element).find(".bcdUpper .bcdConnectable");
       const lowerConnectable = jQuery(this.element).find(".bcdLower .bcdConnectable");
       const inputField = jQuery(this.element).find(".bcdMiddle input");
-      
-      const toggleBox = function() {
+
+      const toggleBox = function(doNotClean) {
         lowerConnectable.closest(".bcdChipChooser").find(".bcdMiddle span").toggleClass("bcdUp bcdDown");
         lowerConnectable.closest(".bcdChipChooser").find(".bcdLowerContainer").toggle();
 
         // clean selection if box is closed
         if (!lowerConnectable.is(":visible")) {
-          inputField.val("");
-          lowerConnectable.find(".ui-selected").removeClass("ui-selected");
+          if (!doNotClean) {
+            inputField.val("");
+            lowerConnectable.find(".ui-selected").removeClass("ui-selected");
+          }
         }
+        // hide empty box
+        else if (lowerConnectable.find("li").length == 0)
+          toggleBox(true);
       };
 
       jQuery(this.element).find(".bcdMiddle").on("click", toggleBox );
-      
-      inputField.keypress(function() { setTimeout(function() { markItem(chips.keypressSelector); } )});
+
+      if (this.optionsModelId)      
+        inputField.keypress(function() { setTimeout(function() { loadData(); } )});
+      else
+        inputField.keypress(function() { setTimeout(function() { markItem(); } )});
+
       inputField.keydown(function(event) {
+
+        // DEL and BACKSPACE should also update the keypress functionality
+        if (event.keyCode == 8 || event.keyCode == 46)
+          setTimeout(function() { self.optionsModelId ? loadData() : markItem(); });
 
         // ESC cleans input/selection and closes lower part
         if (event.keyCode == 27) {
@@ -144,7 +233,7 @@
             toggleBox();
         }
         else if (! lowerConnectable.is(":visible"))
-          lowerConnectable.closest(".bcdLowerContainer").show();
+          toggleBox();
 
         // handle up/down via connectable up/down
         const newValue = lowerConnectable._bcduiWidget()._handleUpDown(lowerConnectable, event);
@@ -154,8 +243,63 @@
         // ENTER takes over selected one and empties input field
         if (event.keyCode == 13) {
           event.preventDefault();
-          lowerConnectable._bcduiWidget()._moveSelectedItems(lowerConnectable, upperConnectable);
+          
+          // optionally write unknwon target values into targetModel
+          if (self.allowUnknownTargetValue && lowerConnectable.find(".ui-selected").length == 0) {
+            
+            const targetModel = bcdui.factory.objectRegistry.getObject(self.targetConfig.modelId);
+            const value = bcdui.util.escapeHtml(inputField.val());
+            const isWRS = self.targetConfig.xPath.indexOf("wrs:") > -1;
+            let isDupe = isWRS
+              ? (self.wrsInlineValueDelim + targetModel.read(self.targetConfig.xPath) + self.wrsInlineValueDelim).indexOf(self.wrsInlineValueDelim + value + self.wrsInlineValueDelim) != -1
+              : targetModel.query(self.targetConfig.xPath + "[.='"+value+"']")!=null;
+
+            // don't insert dupes
+            if (!isDupe) {
+
+              if (isWRS) {
+                const values = targetModel.query(self.targetConfig.xPath) != null ? targetModel.read(self.targetConfig.xPath).split(self.wrsInlineValueDelim) : [];
+                values.push(value);
+                const captions = targetModel.query(self.targetConfig.xPath) != null ? (targetModel.query(self.targetConfig.xPath).getAttribute("bcdCaption") || "").split(self.wrsInlineValueDelim) : [];
+                captions.push(value);
+                const inlineValue = (values||[]).join(self.wrsInlineValueDelim);
+                const wrsNode = bcdui.core.createElementWithPrototype(targetModel.getData(), self.targetConfig.xPath);
+                wrsNode.text = inlineValue;
+                if (self.options.writeCaptions) {
+                  const inlineCaptions = (captions||[]).join(self.wrsInlineValueDelim);
+                  wrsNode.setAttribute("bcdCaption", inlineCaptions);
+                }
+                
+              }
+              else {
+
+                bcdui.core.createElementWithPrototype(targetModel.getData(), self.targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
+                const n = targetModel.query(self.targetConfig.xPath + "[. = '" + bcdui.core.magicChar.separator + "']");
+                if (n.nodeType === 2) {
+                  (n.ownerElement || n.selectSingleNode("parent::*")).setAttribute(n.nodeName, value);
+    
+                  if (self.options.writeCaptions)
+                    (n.ownerElement || n.selectSingleNode("parent::*")).setAttribute("bcdCaption", value);
+                }
+                else {
+                  n.text = values[i];
+                  if (self.options.writeCaptions)
+                    n.setAttribute("bcdCaption", value);
+                }
+              }
+              targetModel.fire();
+            }
+          }
+          // or standard move of an options item
+          else
+            lowerConnectable._bcduiWidget()._moveSelectedItems(lowerConnectable, upperConnectable);
+
+          // clear input after take over
           inputField.val("");
+
+          // hide empty box
+          if (lowerConnectable.is(":visible") && lowerConnectable.find("li").length == 0)
+            toggleBox(true);
         }
 
         // TAB takes over selected lower part if available, otherwise standard tab
@@ -170,9 +314,55 @@
         }
       });
 
-      const markItem = function(keypressSelector) {
-        // open list if it's not visible
-        if (! lowerConnectable.is(":visible"))
+      let timeout = null;
+      const loadData = function() {
+
+        const iValue = inputField.val().toLowerCase();
+        const keyStroke = bcdui.factory.objectRegistry.getObject(self.keyStrokeId);
+        const wrq = bcdui.factory.objectRegistry.getObject(self.wrqId);
+
+        // no value, simply show the last loaded one (if available)
+        if (iValue == "" || keyStroke.value == iValue)
+          return markItem();
+
+        // we started a timeout already, kill it
+        if (timeout != null) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
+
+        // avoid reload if we only limit already loaded values
+        if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
+          return markItem();
+
+        // start a new timeout
+        timeout = setTimeout(function() {
+          const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
+
+          // take over keystroke value
+          keyStroke.value = iValue;
+  
+          // refresh dataprovider/modelwrapper
+          wrq.urlProvider.requestModel.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
+            wrq.urlProvider.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
+              wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
+                optionsModel.dataDoc = wrq.dataDoc;
+                optionsModel.fire();
+                setTimeout(function() {
+                  markItem();
+                });
+              }});
+              wrq.execute(true);
+            }});
+            wrq.urlProvider.execute(true);
+          }});
+          wrq.urlProvider.requestModel.execute(true);
+        }, self.options.delay || 500);
+      };
+
+      const markItem = function() {
+        // open list if it's not visible (and not empty)
+        if (! lowerConnectable.is(":visible") && lowerConnectable.find("li").length > 0)
           lowerConnectable.closest(".bcdLowerContainer").show();
 
         const iValue = inputField.val().toLowerCase();
@@ -195,7 +385,7 @@
               lowerConnectable.find('.ui-selected').removeClass("ui-selected");
 
             // get 'starts with' items
-            const items = lowerConnectable.find("[bcdLoCase" + keypressSelector + "'" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
+            const items = lowerConnectable.find("[bcdLoCase" + self.keypressSelector + "'" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
             
             // we only take the first matching item and mark it
             for (let i = 0; i < items.length; i++) {

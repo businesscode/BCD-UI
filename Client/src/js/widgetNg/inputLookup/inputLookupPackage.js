@@ -77,8 +77,10 @@
       , targetHtml: this.element.find(".bcdInputLookup").get(0)
       , filterFunction: function(args) {
 
+          const iValue = args.value;
+
           // no value, simply show the last loaded one (if available)
-          if (args.value == "" || keyStroke.value == args.value)
+          if (iValue == "" || keyStroke.value == iValue)
             return false;
 
           // we started a timeout already, kill it
@@ -87,15 +89,15 @@
             timeout = null;
           }
 
-          // avoid reload if we only limit already loaded values, client sided filtering is done via suggestFilter
-          if (keyStroke.value.length != 0 && keyStroke.value.length < args.value.length && wrq.queryNodes("/*/wrs:Data/wrs:R").length < this.options.rowEnd)
+          // avoid reload if we only limit already loaded values
+          if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
             return false;
 
           // start a new timeout
           timeout = setTimeout(function() {
 
             // take over keystroke value
-            keyStroke.value = args.value;
+            keyStroke.value = iValue;
 
             // refresh dataprovider/modelwrapper
             wrq.urlProvider.requestModel.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
