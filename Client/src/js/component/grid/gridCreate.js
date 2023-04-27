@@ -3334,7 +3334,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var colId = this.wrsHeaderIdByPos["" + (colPos + 1)];
     setTimeout(function(){
       if (typeof this.rowIdMap[rowId] != "undefined") {
-       var e = jQuery("#" + this.htTargetHtmlId +" .ht_master tr[bcdRowIdent='" + rowId + "'");
+        var e = jQuery("#" + this.htTargetHtmlId +" .ht_master tr[bcdRowIdent='" + rowId + "']");
         var f = jQuery("#" + this.htTargetHtmlId +" .ht_master thead tr *[bcdColIdent='" + colId + "']");
         if (e.length == 0 || f.length == 0) // row or col is not even rendered (virtual scrolling), jump to it anyway
           this.hotInstance.scrollViewportTo(this.rowIdMap[rowId], colPos, false, false);
