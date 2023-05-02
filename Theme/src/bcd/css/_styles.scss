@@ -2102,8 +2102,11 @@ $chips-close-color: #c00 !default;
   position: relative;
   
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
-  .bcdLower { height: 10em; }
-  
+  .bcdLower {
+    height: 10em;
+    .bcdLoading {width: 1em; height: 1em;}
+  }
+
   .bcdLowerContainer { position: absolute; z-index: $z-index-autocomplete; width: 100%; }
 
   .bcdMiddle {

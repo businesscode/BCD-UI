@@ -338,16 +338,23 @@
         // start a new timeout
         timeout = setTimeout(function() {
           const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
+          lowerConnectable.parent().append("<div class='bcdLoading'></div>");
+          lowerConnectable.hide();
+          lowerConnectable.closest(".bcdLowerContainer").show();
 
           // take over keystroke value
           keyStroke.value = iValue;
-  
+
           // refresh dataprovider/modelwrapper
           wrq.urlProvider.requestModel.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
             wrq.urlProvider.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
               wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
                 optionsModel.dataDoc = wrq.dataDoc;
                 optionsModel.fire();
+                lowerConnectable.parent().find(".bcdLoading").remove();
+                lowerConnectable.show();
+                if (optionsModel.query("/*/wrs:Data/wrs:R") == null)
+                  toggleBox(true);
                 setTimeout(function() {
                   markItem();
                 });
