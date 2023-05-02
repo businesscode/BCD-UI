@@ -98,7 +98,7 @@
                 , bRefCode: bRefs.length > 1 ? bRefs[1] : bRefs[0]
                 , bRefCaption: bRefs[0]
                 , bindingSet: this.options.bindingSetId
-                , rowEnd: this.options.rowEnd || 10
+                , rowEnd: this.options.rowEnd || 30
                 , lookupType: this.options.wildcard || "startswith"
                 , filterDp: filterDp
                 }

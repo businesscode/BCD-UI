@@ -57,7 +57,7 @@
                 keyStroke: keyStroke
               , bRef: this.options.bRef
               , bindingSet: this.options.bindingSetId
-              , rowEnd: this.options.rowEnd || 10
+              , rowEnd: this.options.rowEnd || 30
               , lookupType: this.options.wildcard || "startswith"
               , filterDp: filterDp
               }
