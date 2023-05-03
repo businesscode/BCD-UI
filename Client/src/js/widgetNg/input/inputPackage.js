@@ -648,7 +648,7 @@
      * @private
      */
     _invalidModelNodeReset: function(modelId, xPath){
-      var node = bcdui.factory.objectRegistry.getObject(modelId).dataDoc.selectSingleNode(xPath);
+      var node = bcdui.factory.objectRegistry.getObject(modelId).getData().selectSingleNode(xPath);
       if(node != null){
         // is ATTRIBUTE
         if(node.nodeType == 2){
