@@ -121,6 +121,27 @@
       // append widget
       jQuery(this.element).append( doT.template(template)({ id: this.options.id }) );
 
+      // close drop down after a second when mouse left target
+      let hideTimeout = null;
+
+      jQuery(this.element).off("mouseenter");
+      jQuery(this.element).on("mouseenter", function() {
+        if (hideTimeout != null) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+      });
+      jQuery(this.element).off("mouseleave");
+      jQuery(this.element).on("mouseleave", function() {
+        if (hideTimeout != null)
+          clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(function() {
+          const lowerConnectable = jQuery(this.element).find(".bcdLower .bcdConnectable");
+          if (lowerConnectable.is(":visible"))
+            toggleBox(true);
+        }.bind(this), 1000);
+      }.bind(this));
+
       // trigger translation
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
 
