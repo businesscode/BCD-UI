@@ -93,7 +93,9 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 
     // determine width for cell chart (either 100% if we got only 1 cell, or width of 1st one)
     const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();
-    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";     
+    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";
+    
+    const isFreeze = bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/cube:Layout/cube:Freeze") != null;     
 
     // add a chart per row/cell
     jQuery(args.targetHtml).find("tbody tr td.bcdChartCell").each(function(i,e) {
@@ -120,6 +122,23 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
         , series:[ {label: {show: false}} ]
         , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 4, right: 0, bottom: 4 }
       };
+
+      // let's have a custom tooltip position function which tries to avoid going
+      // over the sticky container which does clipping on the tooltip
+      if (isFreeze) {
+        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
+          let xPos = point[0] - size.contentSize[0];
+          if (point[0] - size.contentSize[0] < 0)
+            xPos = point[0];
+          const maxYSticky = jQuery(dom).parent().closest(".bcdStickyContainer").position().top + jQuery(dom).parent().closest(".bcdStickyContainer").outerHeight();
+          const maxYTooltip = jQuery(dom).offset().top + jQuery(dom).outerHeight();
+          if (maxYTooltip < maxYSticky)
+            return {top: 0, left: xPos};
+          else
+            return {bottom: 0, left: xPos};
+        }
+      }
 
       // in case of PIECHART, we need a slightly different fly over to show the section names correctly
       if (args.chartType1 == "PIECHART") {
