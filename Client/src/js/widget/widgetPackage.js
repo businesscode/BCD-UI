@@ -3430,6 +3430,7 @@ jQuery.extend(bcdui.widget,
       * @param {object} args - arguments
       * @param {function} args.open - function to execute when dialog is opened, it gets args object with properties: targetHtml
       * @param {function} [args.close] - function to execute after dialog is closed
+      * @param {function} [args.create] - function to execute when dialog is created
       * @param {function} [args.beforeClose] - function to execute before dialog is closed - it gets args object with properties: targetHtml; if this function returns false, the dialog is not closed.
       * @param {string} [args.title] - dialog title
       * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
@@ -3450,7 +3451,8 @@ jQuery.extend(bcdui.widget,
        var delegate = {
          open : args.open,
          close : args.close,
-         beforeClose: args.beforeClose
+         beforeClose: args.beforeClose,
+         create : args.create
        }
 
        if(!args.open)throw ".open required";
@@ -3492,6 +3494,7 @@ jQuery.extend(bcdui.widget,
              jQuery(this).on("dialog-close", function(event,data){
                jQuery(this).prop(dataPropName, data).dialog("close");
              });
+             delegate.create && delegate.create();
            },
            open: function() {
              jQuery("body").addClass("bcdNoScroll");
