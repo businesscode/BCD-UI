@@ -718,8 +718,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         })
       });
       
-      jQuery("#" + this.targetHtml).on("chart:contextMenu", function(evt, args) {
-        var chartDetails = jQuery("#" + this.targetHtml).data("bcdChartdetails");
+      jQuery("#" + this.targetHTMLElementId).on("chart:contextMenu", function(evt, args) {
+        var chartDetails = jQuery("#" + this.targetHTMLElementId).data("bcdChartdetails");
         if (typeof chartDetails != "undefined")
           customOnContextMenu.callback(chartDetails, args);
       }.bind(this));
@@ -1007,7 +1007,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     }
     else {
       let msg = bcdui.i18n.syncTranslateFormatMessage("bcd_EmptyChart");
-      jQuery("#"+this.targetHtml).html("<div>"+opts.title.text+"</div><div style='margin-top:0.75em;font-size:0.75em'>"+msg+"</div>");
+      jQuery("#"+this.targetHTMLElementId).html("<div>"+opts.title.text+"</div><div style='margin-top:0.75em;font-size:0.75em'>"+msg+"</div>");
     }
   }
 
