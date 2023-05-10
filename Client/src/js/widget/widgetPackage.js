@@ -2883,21 +2883,24 @@ jQuery.extend(bcdui.widget,
 
       // on window resize we recalc the columns again to match the original table
       var resizeTimeout = null;
-      jQuery(window).on("resize", function(e) {
-        // prevent reentry
-        if (resizeTimeout != null)
-          clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-          // reset possible set 'table' first, recalc decides is a new one is needed
-          jQuery(tableElement).closest(".bcdTableHeadHolder").get(0).style.display = '';
-          bcdui.widget._recalcFixedHeader(tableElement)
+      if (! jQuery(window).data("bcdFixedtable")) {
+        jQuery(window).data("bcdFixedtable", true);
+        jQuery(window).on("resize", function() {
+          // prevent reentry
+          if (resizeTimeout != null)
+            clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(function() {
+            // reset possible set 'table' first, recalc decides is a new one is needed
+            jQuery(tableElement).closest(".bcdTableHeadHolder").get(0).style.display = '';
+            bcdui.widget._recalcFixedHeader(tableElement)
+          });
         });
-      });
-      // if sidebar gets toggled, we resize
-      bcdui.wkModels.guiStatus.onChange(function(){
-        setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
-      }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-left|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-right");
 
+        // if sidebar gets toggled, we resize
+        bcdui.wkModels.guiStatus.onChange(function(){
+          setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
+        }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-left|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-right");
+      }
     },
 
     /**
@@ -3533,9 +3536,6 @@ jQuery.extend(bcdui.widget,
      */
     stickyTable: function(args) {
 
-      // no resize events
-      jQuery(window).off("resize");
-
       const table = jQuery(args.targetHtml).find("table").addBack(args.targetHtml).first();
 
       const dims = args.bcdDimension ? ("" + table.find("thead tr:first-child *.bcdDimension").length) : 0;
@@ -3590,13 +3590,16 @@ jQuery.extend(bcdui.widget,
       jQuery(table).data("bcdStickyArgs", args);
 
       // redraw all sticky tables on window resize
-      jQuery(window).on("resize", function() {
-        jQuery(".bcdStickyTable").each(function(i, t) {
-          const stickyArgs = jQuery(t).data("bcdStickyArgs");
-          if (stickyArgs)
-            bcdui.widget.stickyTable(stickyArgs);
+      if (! jQuery(window).data("bcdStickyResize")) {
+        jQuery(window).data("bcdStickyResize", true);
+        jQuery(window).on("resize", function() {
+          jQuery(".bcdStickyTable").each(function(i, t) {
+            const stickyArgs = jQuery(t).data("bcdStickyArgs");
+            if (stickyArgs)
+              bcdui.widget.stickyTable(stickyArgs);
+          });
         });
-      });
+      }
     },
 
     /**
