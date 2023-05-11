@@ -410,5 +410,39 @@
 
     </xsl:if>
   </xsl:template>
+  
+  <!--
+    Only measures, no dims, only one unit
+   -->
+   <xsl:template match="/wrs:Wrs[count(wrs:Header/wrs:Columns/wrs:C[@dimId]) = 0 and string-length(wrs:Header/wrs:Columns/@colDimLevelIds) = 0]">
+   
+     <xsl:if test="$unitCount=1">
+       <chart:XAxis caption="{wrs:Header/wrs:Columns/@caption}">
+         <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
+         <chart:Categories>
+           <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C/@caption">
+             <chart:Value><xsl:value-of select="."/></chart:Value>
+           </xsl:for-each>
+         </chart:Categories>
+       </chart:XAxis>
+
+       <chart:YAxis1>
+         <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
+       </chart:YAxis1>
+
+       <chart:Series>
+         <chart:Series>
+           <chart:YData>
+             <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C">
+              <chart:Value><xsl:value-of select="."/></chart:Value>
+             </xsl:for-each>
+           </chart:YData>
+         </chart:Series>
+       </chart:Series>
+
+       <xsl:copy-of select="$chartPreSettings/*/chart:SeriesColors"/>
+     </xsl:if>
+
+  </xsl:template>
 
 </xsl:stylesheet>
