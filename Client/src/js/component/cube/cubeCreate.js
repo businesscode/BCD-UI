@@ -106,6 +106,12 @@ bcdui.component.cube._renderApplyArea = function(args) {
  * @private
  */
 bcdui.component.cube._contextMenuUrl = bcdui.config.jsLibPath+"component/cube/cubeConfigurator/contextMenu.xslt";
+
+/**
+ * @private
+ */
+bcdui.component.cube._tooltipUrl = bcdui.config.jsLibPath+"component/cube/cubeTooltip.xslt";
+
 /**
  * @private
  */
@@ -349,6 +355,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
    * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(boolean|string)}        [args.tooltip=false]                                        - If true, cube's default tooltip is used, otherwise provide the url to your tooltip xslt here.
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHtmlElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
    * @param {string}                  [args.applyFunction=bcdui.core.lifecycle.applyAction]       - Function name which is used for the apply button in isDefaultHtmlLayout=true mode.
@@ -521,6 +528,16 @@ bcdui.component = Object.assign(bcdui.component,
       
       if (args.isRanking)
         bcdui.component.cube.rankingEditor._initRanking(args, targetModelId, bucketModelId);
+
+      if ( !!args.tooltip && args.tooltip !== 'false'  && args.tooltip !== false ) {
+        var tooltipUrl = args.tooltip === 'true' || args.tooltip === true ? bcdui.component.cube._tooltipUrl : args.tooltip;
+        bcdui.widget.createTooltip({ targetRendererId : args.cubeId, tableMode : true, filter : "td|th", url : tooltipUrl
+          ,parameters : {
+            preCalcData : cube.getPrimaryModel().getPrimaryModel(),
+            cubeEnhancedConfiguration : cube.getEnhancedConfiguration()
+          }
+        });
+      }
 
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu;
