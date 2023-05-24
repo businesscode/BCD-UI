@@ -101,6 +101,7 @@
                 , rowEnd: this.options.rowEnd || 30
                 , lookupType: this.options.wildcard || "startswith"
                 , filterDp: filterDp
+                , preload: this.options.preload
                 }
             })
           })
@@ -108,7 +109,15 @@
         // register and remember wrq (id)
         bcdui.factory.objectRegistry.registerObject(wrq);
         this.wrqId = wrq.id;
-      } 
+
+        if (this.options.preload) {
+          wrq.onceReady(function() {
+            optionsModel.dataDoc = wrq.dataDoc;
+            optionsModel.fire();
+          });
+          wrq.execute();
+        }
+      }
 
       this._super();
 
@@ -354,6 +363,9 @@
 
         // avoid reload if we only limit already loaded values
         if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
+          return markItem();
+
+        if (self.options.preload)
           return markItem();
 
         // start a new timeout

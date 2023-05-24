@@ -655,6 +655,9 @@
         <Param name="bRef" type="string" >
           <Doc>BindingItem(s) which is(are) used for the lookup. If two are given, it is assumed that first one is caption, second one is code.</Doc>
         </Param>
+        <Param name="preload" required="false" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options (given by bindingSet and bRef) should get loaded completely on startup.</Doc>       
+        </Param>
         <Param name="filterElement" type="string">
           <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
         </Param>
