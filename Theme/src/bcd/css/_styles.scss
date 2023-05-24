@@ -2259,10 +2259,49 @@ $chips-close-color: #c00 !default;
     font-family: 'Font Awesome 5 Free', sans-serif;
     font-weight: bold;
     font-size: 1.25em;
-    color: $corporate-color;
+    color: $select-color;
   }
 
   &:checked:after {
     content: "\f205";
   } 
+}
+
+.bcdRadioItem {
+  label, input {
+    margin: 0;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  label { padding: 0px 8px 0px 3px; }
+  input { padding: 0; } 
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem {
+  input {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    -o-appearance: none;
+    outline: none;
+    content: none;
+    margin: 0;
+    padding: 0;
+    @extend .noselect;
+  }
+
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  border-bottom: 1px solid $select-color;
+  border-top: 1px solid $select-color;
+  border-left: 1px solid $select-color;
+
+  label { padding: .3em .5em; margin: 0; cursor: pointer; } 
+  input:checked ~ label { @include bcdSelected(); border-width: 0 !important; }
+
+  &:first-child input:checked ~ label,
+  &:first-child { border-right: none; border-left: 1px solid $select-color; border-bottom: 1px solid $select-color; border-top: 1px solid $select-color; border-radius: .5em 0 0 .5em; }
+
+  &:last-child input:checked ~ label,
+  &:last-child { border-right: 1px solid $select-color; border-bottom: 1px solid $select-color; border-top: 1px solid $select-color; border-radius: 0 .5em .5em 0; }
 }

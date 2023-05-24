@@ -32,6 +32,9 @@ bcdui.widget.singleSelect = Object.assign(bcdui.widget.singleSelect,
     }
 
     jQuery(htmlElement).addClass("bcdSingleSelect");
+    if (htmlElement.getAttribute("bcdIsSwitch") == "true")
+      jQuery(htmlElement).addClass("bcdSwitch");
+
     bcdui.widget._bcdIdToDomId(htmlElement);
 
     this._adjustDefaultParameters(htmlElement);
@@ -209,8 +212,7 @@ bcdui.widget.singleSelect = Object.assign(bcdui.widget.singleSelect,
 
       var wrapperDiv = document.createElement("span");
       bcdui._migPjs._$(wrapperDiv).addClass("bcdRadioItem");
-      var textSpan = document.createElement("span");
-      textSpan.style.verticalalign = "top";
+      var textSpan = document.createElement("label");
       textSpan.appendChild(document.createTextNode(caption));
       wrapperDiv.style.verticalalign = "top";
       radioForm.appendChild(wrapperDiv);
@@ -226,7 +228,9 @@ bcdui.widget.singleSelect = Object.assign(bcdui.widget.singleSelect,
         wrapperDiv.style.whitespace = "nowrap";
         wrapperDiv.style.verticalalign = "top";
         var parent=document.createElement("div");
-        parent.innerHTML="<input type='radio' " + (isSelected ?'checked':"" ) +" name='" + args.itemName + "' value='" + radioItemValue + "' bcdPosInOptionsModel='" + i + "'></input>";
+        const id = bcdui.util.getUuid();
+        textSpan.setAttribute("for", id);
+        parent.innerHTML="<input id='"+id+"' type='radio' " + (isSelected ?'checked':"" ) +" name='" + args.itemName + "' value='" + radioItemValue + "' bcdPosInOptionsModel='" + i + "'></input>";
         var radioItem=parent.firstChild;
 
         bcdui._migPjs._$(radioItem).on("click", bcdui.widget.singleSelect._writeDataToXML.bind(undefined,args.htmlElement.id));

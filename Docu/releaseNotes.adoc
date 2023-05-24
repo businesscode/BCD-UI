@@ -28,7 +28,7 @@ ___
 
 .Client:
 * checkbox widget supports more than 1 and 0 via values parameter
-* checkbox widget has a isSwitch parameter for a horizontal slider switch
+* checkbox and singleSelect widget have a isSwitch parameter for a horizontal slider switch / horizontal switch panel
 * label widget added
 * chips widget added
 * inputLookup widget added
@@ -75,6 +75,7 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 * bcdui.util.clipboard.paste and pasteCSVasXML don't return the value directly. It's a promise now, so use '.then( value => {...} ) to use the value.
 * New reserved SQL words `CURRENT`, `FOLLOWING`, `ROW`, `ROWS` and some less critical  analytical functions
 * user messages editor/viewer now use binding sets bcd_user_messages and bcd_user_messages_readonly
+* singleSelect (radio) now uses a real label instead of a span, you may have to double check css
 
 ___
 ==== Release 5_5_0

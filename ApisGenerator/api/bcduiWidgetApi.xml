@@ -849,6 +849,9 @@
            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
           </Doc>
         </Param>
+        <Param name="isSwitch" type="boolean" default="false">
+          <Doc>If enabled, the radio buttons are rendered as a horizontal switch panel.</Doc>
+        </Param>
       </Api>
 
       <Api name="tab" extends="widget">
