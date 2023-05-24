@@ -1506,7 +1506,7 @@ jQuery.extend(bcdui.widget,
    * of the targetRenderer's contentDiv is left.
    *
    * @param args The parameter map contains the following properties:
-   * @param {String|bcdui.core.DataProvider} args.tooltipRendererId The renderer responsible
+   * @param {String} args.tooltipRendererId The renderer responsible
    *          for generating the tooltip content. When the "tableMode" parameter
    *          is true this renderer will get two additional parameters "bcdRowIdent"
    *          and "bcdColIdent". These parameters come from the table cell the mouse
@@ -1731,6 +1731,7 @@ jQuery.extend(bcdui.widget,
    * @param {Object}         args                     The parameter map contains the following properties.
    * @param {bcdui.core.DataProvider} args.inputModel A model with context menu definition according to namespace http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0
    * @param {string}         [args.targetRendererId]  The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer.
+   * @param {bcdui.core.DataProvider} [args.targetRenderer] The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. 
    * @param {string}         [args.id]                ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {boolean}        [args.refreshMenuModel=false]  This flag can be set to 'true' if the menu model needs to be executed always. Needs to be true, if the menu depends on the position in a table, i.e. technically on bcdColIdent and bcdRowIdent.
    * @param {string}         [args.url]               This parameter can be set when you only want to apply one single XSLT style sheet. It contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be provided; provided XSLT must produce HTML.
@@ -1752,6 +1753,13 @@ jQuery.extend(bcdui.widget,
     if(!args.tableMode ||args.tableMode == ""){
       args.tableMode = false;
     }
+
+    if (!args.targetRendererId && args.targetRenderer) {
+      args.targetRendererId = args.targetRenderer.id;
+      if (typeof bcdui.factory.objectRegistry.getObject(args.targetRendererId) == "undefined")
+        bcdui.factory.objectRegistry.registerObject(args.targetRendererId);
+    }
+
     if(!args.refreshMenuModel ||args.refreshMenuModel == ""){
       args.refreshMenuModel = false;
     }
@@ -1798,6 +1806,7 @@ jQuery.extend(bcdui.widget,
    * Generates a tooltip for another renderer. 
    * @param {Object}         args                       The parameter map contains the following properties.
    * @param {string}         [args.targetRendererId]    The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+   * @param {bcdui.core.DataProvider} [args.targetRenderer] The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns. 
    * @param {string}         [args.id]                  ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {integer}        [args.delay]               The delay in Miliseconds that the tooltip should wait before it appears.
    * @param {string}         [args.filter]              An optional filter on the tag name where the tooltip should appear. In 'tableMode' it is recommended to set it on 'td' or 'th|td'.
@@ -1821,6 +1830,13 @@ jQuery.extend(bcdui.widget,
     if(!args.tableMode ||args.tableMode == ""){
       args.tableMode = false;
     }
+
+    if (!args.targetRendererId && args.targetRenderer) {
+      args.targetRendererId = args.targetRenderer.id;
+      if (typeof bcdui.factory.objectRegistry.getObject(args.targetRendererId) == "undefined")
+        bcdui.factory.objectRegistry.registerObject(args.targetRendererId);
+    }
+
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("tootltip_"+(args.targetRendererId?args.targetRendererId:""));
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating tooltip "+args.id);
 
