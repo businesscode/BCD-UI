@@ -2253,6 +2253,10 @@ $chips-close-color: #c00 !default;
   outline: none;
   content: none;
   cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background-color: inherit;
 
   &:after {
     content: "\f204";
@@ -2287,6 +2291,8 @@ $chips-close-color: #c00 !default;
     margin: 0;
     padding: 0;
     @extend .noselect;
+    border: none;
+    background-color: inherit;
   }
 
   padding: 0;
