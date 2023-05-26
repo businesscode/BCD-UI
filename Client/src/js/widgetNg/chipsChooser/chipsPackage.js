@@ -121,7 +121,8 @@
 
       this._super();
 
-      const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || "bcd_singleSelect_please_select"}) || this.options.placeholder;
+      const defPlaceHolder = (this.options.bindingSetId && ! this.options.preload) ? "bcd_chipsChooser_please_type" : "bcd_singleSelect_please_select";
+      const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || defPlaceHolder}) || this.options.placeholder;
       const template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
       // add label

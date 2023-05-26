@@ -48,6 +48,7 @@
 
       <!-- widgetNg messages -->
       <R id="R132"><C>bcd_singleSelect_please_select</C><C>Please select...</C><C>en</C></R>
+      <R id="R133"><C>bcd_chipsChooser_please_type</C><C>Please start typing...</C><C>en</C></R>
 
       <!-- Wrs data validation messages -->
       <R id="R120"><C>bcd_ValidUniq</C><C>Value must be unique.</C><C>en</C></R>
