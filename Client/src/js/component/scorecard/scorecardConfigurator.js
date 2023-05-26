@@ -281,9 +281,6 @@ bcdui.component.scorecardConfigurator = Object.assign(bcdui.component.scorecardC
    */
   _initDnd : function(args) {
 
-    // at least create the root node for clientRefresh Handling
-    bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/scc:ClientLayout[@scorecardId ='"+ args.scorecardId+"']");
-
     // let's create our bucket model to hold the dnd master data (build kpirefs out of kpis etc...)
     var scBucket = new bcdui.core.StaticModel({ data: '<Root xmlns="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0" xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0" xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0" xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0" xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0" xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0" xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0" xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"></Root>' });
     bcdui.factory.objectRegistry.registerObject(scBucket); // we need to register the model for widget-use
