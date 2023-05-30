@@ -1965,12 +1965,19 @@ $chips-close-color: #c00 !default;
   margin: 0;
   background-color: inherit;
 
+  & + label {
+    vertical-align: middle;
+    display: inline-block;
+    margin: 0 0 0 .4em;
+  }
+
   &:after {
     content: "\f204";
     font-family: 'Font Awesome 5 Free', sans-serif;
     font-weight: bold;
-    font-size: 1.25em;
+    font-size: 1.75em;
     color: $select-color;
+    vertical-align: middle;
   }
 
   &:checked:after {
