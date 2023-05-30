@@ -109,14 +109,6 @@
         // register and remember wrq (id)
         bcdui.factory.objectRegistry.registerObject(wrq);
         this.wrqId = wrq.id;
-
-        if (this.options.preload) {
-          wrq.onceReady(function() {
-            optionsModel.dataDoc = wrq.dataDoc;
-            optionsModel.fire();
-          });
-          wrq.execute();
-        }
       }
 
       this._super();
@@ -240,9 +232,28 @@
             lowerConnectable.find(".ui-selected").removeClass("ui-selected");
           }
         }
-        // hide empty box
-        else if (lowerConnectable.find("li").length == 0)
-          toggleBox(true);
+        // hide empty box (or initially load data in preload mode)
+        else if (lowerConnectable.find("li").length == 0) {
+          if (self.options.preload) {
+            if (! self.preloaded) {
+              lowerConnectable.parent().append("<div class='bcdLoading'></div>");
+              lowerConnectable.hide();
+              lowerConnectable.closest(".bcdLowerContainer").show();
+              const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
+              const wrq = bcdui.factory.objectRegistry.getObject(self.wrqId);
+              wrq.onceReady(function() {
+                optionsModel.dataDoc = wrq.dataDoc;
+                optionsModel.fire();
+                lowerConnectable.parent().find(".bcdLoading").remove();
+                lowerConnectable.show();
+              });
+              wrq.execute();
+            }
+            self.preloaded = true;
+          }
+          else
+            toggleBox(true);
+        }
       };
 
       jQuery(this.element).find(".bcdMiddle").on("click", toggleBox );
@@ -366,12 +377,13 @@
         if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
           return markItem();
 
-        if (self.options.preload)
+        const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
+
+        if (self.options.preload && self.preloaded)
           return markItem();
 
         // start a new timeout
         timeout = setTimeout(function() {
-          const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
           lowerConnectable.parent().append("<div class='bcdLoading'></div>");
           lowerConnectable.hide();
           lowerConnectable.closest(".bcdLowerContainer").show();
