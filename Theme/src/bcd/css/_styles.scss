@@ -2290,7 +2290,6 @@ $chips-close-color: #c00 !default;
     content: none;
     margin: 0;
     padding: 0;
-    @extend .noselect;
     border: none;
     background-color: inherit;
   }
@@ -2301,6 +2300,7 @@ $chips-close-color: #c00 !default;
   border-bottom: 1px solid $select-color;
   border-top: 1px solid $select-color;
   border-left: 1px solid $select-color;
+  @extend .noselect;
 
   label { padding: .3em .5em; margin: 0; cursor: pointer; } 
   input:checked ~ label { @include bcdSelected(); border-width: 0 !important; }

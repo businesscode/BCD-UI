@@ -1997,11 +1997,11 @@ $chips-close-color: #c00 !default;
     content: none;
     margin: 0;
     padding: 0;
-    @extend .noselect;
     border: none;
     background-color: inherit;
   }
 
+  @extend .noselect;
   padding: 0;
   margin: 0;
   display: inline-block;
