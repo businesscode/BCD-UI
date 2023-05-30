@@ -661,10 +661,6 @@
         <Param name="filterElement" type="string">
           <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
         </Param>
-        <Param name="allowUnknownTargetValue" required="false" type="boolean">
-          <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
-        </Param>
-
       </Api>
       
       <Api name="sideBySideChooser" extends="widget">
