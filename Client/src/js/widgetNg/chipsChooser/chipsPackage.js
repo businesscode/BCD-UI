@@ -52,6 +52,11 @@
       // wrsDelimiter is also needed locally
       this.wrsInlineValueDelim = this.options.wrsInlineValueDelim || "/";
 
+      // we may need to preload data, so we need dpHolders for setting readiness
+      // after checking target and preloading options
+      const optionsModelHolder = new bcdui.core.DataProviderHolder();
+      const targetModelHolder = new bcdui.core.DataProviderHolder();
+
       // for binding mode, we need to prepare several things
       if (this.options.bindingSetId && this.options.bRef) {
 
@@ -109,6 +114,63 @@
         // register and remember wrq (id)
         bcdui.factory.objectRegistry.registerObject(wrq);
         this.wrqId = wrq.id;
+
+        // in case targetModel already holds values, we need to load the data, otherwise
+        // the connectables would not accept the given value
+        const targetConfig = bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath);
+        const targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
+        const isWRS = targetConfig.xPath.indexOf("wrs:") > -1;
+
+        // ensure readiness of target
+        targetModel.onceReady(function() {
+
+          // get 1st target and caption (if available) value
+          const targetNode = targetModel.query(targetConfig.xPath);
+          let targetValue = "";
+          let captionAttr = "";
+          if (targetNode != null) {
+            targetValue = targetNode.text;
+
+            if (!isWRS) {
+              captionAttr = (targetNode.nodeType === 2)
+                ? (targetNode.ownerElement || targetNode.selectSingleNode("parent::*")).getAttribute("bcdCaption") || ""
+                : (targetNode.getAttribute("bcdCaption") || "");
+            }
+            else {
+              targetValue = (targetNode.text || "").split(this.wrsInlineValueDelim);
+              targetValue = targetValue.length > 0 ? targetValue [0]: "";
+              captionAttr = (targetNode.getAttribute("bcdCaption") || "").split(this.wrsInlineValueDelim);
+              captionAttr = captionAttr.length > 0 ? captionAttr [0]: "";
+            }
+          }
+          
+          // if we have a value, we run the query
+          if (targetValue != "") {
+
+            // take over first found value into keyStroke provider and input field
+            bcdui.factory.objectRegistry.getObject(this.keyStrokeId).value = captionAttr || targetValue;
+
+            wrq.onceReady(function() {
+              optionsModel.dataDoc = wrq.dataDoc;
+              optionsModel.fire();
+              // signal readiness
+              optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
+              targetModelHolder.setSource(bcdui.wkModels.guiStatus);
+            }.bind(this));
+            wrq.execute();
+          }
+          else {
+            // signal readiness
+            optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
+            targetModelHolder.setSource(bcdui.wkModels.guiStatus);
+          }
+        }.bind(this));
+        targetModel.execute();
+      }
+      else {
+        // signal readiness
+        optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
+        targetModelHolder.setSource(bcdui.wkModels.guiStatus);
       }
 
       this._super();
@@ -200,28 +262,29 @@
       // jQuery wildcard selector based on the options
       this.keypressSelector = this.options.wildcard == "startswith" ? "^=" : this.options.wildcard == "contains" ? "*=" : "$=";
 
-      sourceArgs = Object.assign(sourceArgs, args);
-      targetArgs = Object.assign(targetArgs, args);
-
-      bcdui.widgetNg.createConnectable(sourceArgs);
-      bcdui.widgetNg.createConnectable(targetArgs);
+      // let's create the connectables when target and (preloaded) options are available
+      bcdui.factory.objectRegistry.withReadyObjects([optionsModelHolder, targetModelHolder], function() {
+        sourceArgs = Object.assign(sourceArgs, args);
+        targetArgs = Object.assign(targetArgs, args);
+        bcdui.widgetNg.createConnectable(sourceArgs);
+        bcdui.widgetNg.createConnectable(targetArgs);
+      });
 
       // clone dblclick behaviour from connectables and make it available as click on closing icon
       jQuery(this.element).find(".bcdUpper").on("click", ".bcdCloseItem", function(event) {
-        const self = jQuery(event.target).closest("ul").parent()._bcduiWidget();
-        let target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
-        target = target.length > 0 ? target : self._getScopedTargetContainers();
-        const from = self.container; // we filter on li in this function, so use the outer box as 'from'
-        const to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
-        self._moveSelectedItems(from, to);
+        const selfConnectable = jQuery(event.target).closest("ul").parent()._bcduiWidget();
+        let target = jQuery("[bcdScope='" + selfConnectable.options.scope + "'].bcdDblClkTarget");
+        target = target.length > 0 ? target : selfConnectable._getScopedTargetContainers();
+        const from = selfConnectable.container; // we filter on li in this function, so use the outer box as 'from'
+        const to = (jQuery(from).hasClass("bcdSource")) ? target.first() : selfConnectable._getScopedSourceContainer();
+        selfConnectable._moveSelectedItems(from, to);
       });
 
       const self = this;
-      const upperConnectable = jQuery(this.element).find(".bcdUpper .bcdConnectable");
-      const lowerConnectable = jQuery(this.element).find(".bcdLower .bcdConnectable");
       const inputField = jQuery(this.element).find(".bcdMiddle input");
 
       const toggleBox = function(doNotClean) {
+        const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
         lowerConnectable.closest(".bcdChipChooser").find(".bcdMiddle span").toggleClass("bcdUp bcdDown");
         lowerConnectable.closest(".bcdChipChooser").find(".bcdLowerContainer").toggle();
 
@@ -264,6 +327,8 @@
         inputField.keypress(function() { setTimeout(function() { markItem(); } )});
 
       inputField.keydown(function(event) {
+        const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable");
+        const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
 
         // DEL and BACKSPACE should also update the keypress functionality
         if (event.keyCode == 8 || event.keyCode == 46)
@@ -362,6 +427,7 @@
         const iValue = inputField.val().toLowerCase();
         const keyStroke = bcdui.factory.objectRegistry.getObject(self.keyStrokeId);
         const wrq = bcdui.factory.objectRegistry.getObject(self.wrqId);
+        const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
 
         // no value, simply show the last loaded one (if available)
         if (iValue == "" || keyStroke.value == iValue)
@@ -414,6 +480,8 @@
       };
 
       const markItem = function() {
+        const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
+
         // open list if it's not visible (and not empty)
         if (! lowerConnectable.is(":visible") && lowerConnectable.find("li").length > 0)
           lowerConnectable.closest(".bcdLowerContainer").show();
