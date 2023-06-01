@@ -646,13 +646,13 @@
         <Param name="delay" type="number" default="500">
           <Doc>Time (in ms) which passes till the lookup is done.</Doc>
         </Param>
-        <Param name="rowEnd" type="number" default="30">
+        <Param name="maxRows" type="number" default="30">
           <Doc>Limit the result of the SQL lookup.</Doc>
         </Param>
         <Param name="bindingSetId" type="string">
           <Doc>Name of the binding set which is used for the lookup.</Doc>
         </Param>
-        <Param name="bRef" type="string" >
+        <Param name="bRefs" type="string" >
           <Doc>BindingItem(s) which is(are) used for the lookup. If two are given, it is assumed that first one is caption, second one is code.</Doc>
         </Param>
         <Param name="preload" required="false" type="boolean" default="false">
@@ -660,6 +660,11 @@
         </Param>
         <Param name="filterElement" type="string">
           <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
+        </Param>
+        <Param name="filterBRefs" type="stringList">
+          <Doc>
+            The space separated list of binding Refs that will be used in filter clause of request document.
+          </Doc>
         </Param>
       </Api>
       

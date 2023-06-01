@@ -43,8 +43,8 @@
     _create : function() {
 
       // in binding mode (dynamic sql data getter), we need both bindingSetId and a bRef
-      if ((this.options.bindingSetId && ! this.options.bRef) || (! this.options.bindingSetId && this.options.bRef))
-        throw new Error("bindingSetId and bRef has to be specified.");
+      if ((this.options.bindingSetId && ! this.options.bRefs) || (! this.options.bindingSetId && this.options.bRefs))
+        throw new Error("bindingSetId and bRefs has to be specified.");
 
       // original allowUnknownTargetValue option indicates if you can enter whatever you want, so rememeber value
       this.allowUnknownTargetValue = this.options.allowUnknownTargetValue;
@@ -52,21 +52,16 @@
       // wrsDelimiter is also needed locally
       this.wrsInlineValueDelim = this.options.wrsInlineValueDelim || "/";
 
+      // default lookup
+      this.options.wildcard = this.options.wildcard || "startswith";
+
       // we may need to preload data, so we need dpHolders for setting readiness
       // after checking target and preloading options
       const optionsModelHolder = new bcdui.core.DataProviderHolder();
       const targetModelHolder = new bcdui.core.DataProviderHolder();
 
       // for binding mode, we need to prepare several things
-      if (this.options.bindingSetId && this.options.bRef) {
-
-        // optional filterElement document
-        let filterDp = new bcdui.core.StaticModel("<Root/>");
-        if (this.options.filterElement) {
-          if( typeof this.options.filterElement === "string" )
-            this.options.filterElement = bcdui.wrs.wrsUtil.parseFilterExpression(this.options.filterElement);
-          filterDp.dataDoc = this.options.filterElement;
-        }
+      if (this.options.bindingSetId && this.options.bRefs) {
 
         // a cdp holding the current input
         const keyStroke = new bcdui.core.ConstantDataProvider({ name : "keyStroke", value : "" })
@@ -79,7 +74,7 @@
         this.optionsModelId = optionsModel.id;
 
         // either we have one bRef or 2 (caption code)
-        const bRefs = this.options.bRef.split(" ");
+        const bRefs = this.options.bRefs.split(" ");
         this.options["optionsModelXPath"] = "$" + optionsModel.id + "/*/wrs:Data/wrs:R/wrs:C[1]"
         if (bRefs.length > 1)
           this.options["optionsModelRelativeValueXPath"] = "../wrs:C[2]";
@@ -94,24 +89,24 @@
         this.options["writeCaptions"] = typeof this.options["optionsModelRelativeValueXPath"] != "undefined";
 
         // building up a wrq which is later on copied into the optionsModel
-        const wrq = new bcdui.core.SimpleModel({
-          url: new bcdui.core.RequestDocumentDataProvider({
-            requestModel: new bcdui.core.ModelWrapper({
-                chain: bcdui.config.jsLibPath + "widgetNg/chipsChooser/request.xslt"
-              , parameters: {
-                  keyStroke: keyStroke
-                , bRefCode: bRefs.length > 1 ? bRefs[1] : bRefs[0]
-                , bRefCaption: bRefs[0]
-                , bindingSet: this.options.bindingSetId
-                , rowEnd: this.options.rowEnd || 30
-                , lookupType: this.options.wildcard || "startswith"
-                , filterDp: filterDp
-                , preload: this.options.preload
-                }
-            })
-          })
-        });
+        this.filterModel = new bcdui.core.StaticModel("<Filter xmlns='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><f:Expression op='like' ic='true' bRef='"+bRefs[0]+"' value='*'/></Filter>");
+        bcdui.factory.objectRegistry.registerObject(this.filterModel);
+
+        // take over all options to the automodel, so you can pass through options if you like
+        let autoModelParams = this.options;
+
+        // however, some options need to be set on chipsChooser side 
+        delete autoModelParams["id"];
+        autoModelParams["isAutoRefresh"] = true;
+        autoModelParams["distinct"] = true;
+        autoModelParams["orderByBRefs"] = this.options.bRefs;
+        if (this.options.preload)
+          delete autoModelParams["maxRows"];
+        else
+          autoModelParams["additionalFilterXPath"] = "$" + this.filterModel.id + "/*/f:Expression";
+
         // register and remember wrq (id)
+        const wrq = new bcdui.core.AutoModel(autoModelParams);
         bcdui.factory.objectRegistry.registerObject(wrq);
         this.wrqId = wrq.id;
 
@@ -147,18 +142,22 @@
           // if we have a value, we run the query
           if (targetValue != "") {
 
-            // take over first found value into keyStroke provider and input field
-            bcdui.factory.objectRegistry.getObject(this.keyStrokeId).value = captionAttr || targetValue;
+            const iValue = captionAttr || targetValue;
 
-            wrq.onceReady(function() {
+            // take over first found value into keyStroke provider
+            bcdui.factory.objectRegistry.getObject(this.keyStrokeId).value = iValue;
+
+             wrq.onceReady(function() {
               optionsModel.dataDoc = wrq.dataDoc;
               optionsModel.fire();
               // signal readiness
               optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
               targetModelHolder.setSource(bcdui.wkModels.guiStatus);
             }.bind(this));
-            wrq.execute();
-          }
+
+            const filterValue = this.options.wildcard == "endswith" ? "*" + iValue : this.options.wildcard == "contains" ? "*" + iValue + "*" : iValue + "*";
+            this.filterModel.write("/*/f:Expression/@value", filterValue, true);
+         }
           else {
             // signal readiness
             optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
@@ -224,7 +223,7 @@
           , wrsInlineValueDelim: this.options.wrsInlineValueDelim
           , disableDrag: false
           , onItemMoved: this.options.onItemMoved
-          , wildcard: this.options.wildcard || "startswith"
+          , wildcard: this.options.wildcard
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
           , writeCaptions: this.options.writeCaptions
       }
@@ -457,25 +456,19 @@
           // take over keystroke value
           keyStroke.value = iValue;
 
-          // refresh dataprovider/modelwrapper
-          wrq.urlProvider.requestModel.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
-            wrq.urlProvider.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
-              wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
-                optionsModel.dataDoc = wrq.dataDoc;
-                optionsModel.fire();
-                lowerConnectable.parent().find(".bcdLoading").remove();
-                lowerConnectable.show();
-                if (optionsModel.query("/*/wrs:Data/wrs:R") == null)
-                  toggleBox(true);
-                setTimeout(function() {
-                  markItem();
-                });
-              }});
-              wrq.execute(true);
-            }});
-            wrq.urlProvider.execute(true);
+          wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
+            optionsModel.dataDoc = wrq.dataDoc;
+            optionsModel.fire();
+            lowerConnectable.parent().find(".bcdLoading").remove();
+            lowerConnectable.show();
+            if (optionsModel.query("/*/wrs:Data/wrs:R") == null)
+              toggleBox(true);
+            setTimeout(markItem);
           }});
-          wrq.urlProvider.requestModel.execute(true);
+
+          const filterValue = self.options.wildcard == "endswith" ? "*" + iValue : self.options.wildcard == "contains" ? "*" + iValue + "*" : iValue + "*";
+          self.filterModel.write("/*/f:Expression/@value", filterValue, true);
+
         }, self.options.delay || 500);
       };
 
