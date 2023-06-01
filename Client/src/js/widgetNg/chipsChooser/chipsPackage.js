@@ -98,7 +98,7 @@
         // however, some options need to be set on chipsChooser side 
         delete autoModelParams["id"];
         autoModelParams["isAutoRefresh"] = true;
-        autoModelParams["distinct"] = true;
+        autoModelParams["isDistinct"] = true;
         autoModelParams["orderByBRefs"] = this.options.bRefs;
         if (this.options.preload)
           delete autoModelParams["maxRows"];
