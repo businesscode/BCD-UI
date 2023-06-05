@@ -858,7 +858,7 @@
            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
           </Doc>
         </Param>
-        <Param name="skin" type="enum" value="radio|panel" default="combo">
+        <Param name="skin" type="enum" value="radio|panel" default="radio">
           <Doc>Currently supporting radio (default) and panel style.</Doc>
         </Param>
       </Api>

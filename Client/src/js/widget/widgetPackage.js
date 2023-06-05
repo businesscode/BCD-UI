@@ -284,7 +284,7 @@ jQuery.extend(bcdui.widget,
           widgetCaption: args.widgetCaption,
           enableNavPath: args.enableNavPath,
           label :args.label,
-          skin: args.skin
+          skin: args.skin || "radio"
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
