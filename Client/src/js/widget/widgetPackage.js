@@ -259,7 +259,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {string}        [args.label]                          If provided, renders label element to this widget
-   * @param {boolean}       [args.skin=radio]                     Decide between radio or panel skin.
+   * @param {string}        [args.skin=radio]                     Decide between radio or panel skin.
    */
   createSingleSelect: function(args)
     {

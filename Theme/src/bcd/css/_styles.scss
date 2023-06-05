@@ -2291,6 +2291,8 @@ $chips-close-color: #c00 !default;
 }
 
 .bcdSingleSelect.bcdSwitch .bcdRadioItem {
+  input:after {display: none;}
+  input:focus,
   input {
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -2301,6 +2303,8 @@ $chips-close-color: #c00 !default;
     padding: 0;
     border: none;
     background-color: inherit;
+    width: 0;
+    height: 0;
   }
 
   padding: 0;
