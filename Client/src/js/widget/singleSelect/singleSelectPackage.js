@@ -32,7 +32,7 @@ bcdui.widget.singleSelect = Object.assign(bcdui.widget.singleSelect,
     }
 
     jQuery(htmlElement).addClass("bcdSingleSelect");
-    if (htmlElement.getAttribute("bcdIsSwitch") == "true")
+    if (htmlElement.getAttribute("bcdSkin") == "panel")
       jQuery(htmlElement).addClass("bcdSwitch");
 
     bcdui.widget._bcdIdToDomId(htmlElement);

@@ -28,7 +28,7 @@ ___
 
 .Client:
 * checkbox widget supports more than 1 and 0 via values parameter
-* checkbox and singleSelect widget have a isSwitch parameter for a horizontal slider switch / horizontal switch panel
+* checkbox and singleSelect widget have a new skin (switch/panel) parameter for a horizontal slider switch / horizontal switch panel
 * label widget added
 * chips widget added
 * inputLookup widget added

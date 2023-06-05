@@ -259,7 +259,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {string}        [args.label]                          If provided, renders label element to this widget
-   * @param {boolean}       [args.isSwitch=false]                 If enabled, the radio buttons are rendered as a horizontal switch panel.
+   * @param {boolean}       [args.skin=radio]                     Decide between radio or panel skin.
    */
   createSingleSelect: function(args)
     {
@@ -284,7 +284,7 @@ jQuery.extend(bcdui.widget,
           widgetCaption: args.widgetCaption,
           enableNavPath: args.enableNavPath,
           label :args.label,
-          isSwitch: args.isSwitch
+          skin: args.skin
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);

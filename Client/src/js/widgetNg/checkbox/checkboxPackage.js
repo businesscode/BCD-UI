@@ -77,7 +77,6 @@
       var extendedConfig=null;
       var config = {
           values: this.options.values || "1|0",
-          isSwitch: this.options.isSwitch || false,
           checkValue: (this.options.values || "1|0").split("|")[0],
           uncheckValue: (this.options.values || "1|0").split("|")[1],
           target: bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath),
@@ -196,7 +195,7 @@
       el.attr("autofocus", opts.autofocus);
       el.attr("readonly", opts.readonly);
       el.attr("type", "checkbox");
-      if (opts.isSwitch)
+      if (opts.skin == "switch")
         el.addClass("bcdSwitch");
 
       // bind native html events if provided; defined by hasHtmlEvents API
