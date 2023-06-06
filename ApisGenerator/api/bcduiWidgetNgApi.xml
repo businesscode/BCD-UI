@@ -649,6 +649,9 @@
         <Param name="maxRows" type="number" default="30">
           <Doc>Limit the result of the SQL lookup.</Doc>
         </Param>
+        <Param name="url" type="url"> 
+          <Doc>The URL the model is loaded from. This URL can be extended with a compressed request document if a requestDocument parameter is provided. If omitted the WrsServlet is taken.</Doc>
+        </Param>
         <Param name="bindingSetId" type="string">
           <Doc>Name of the binding set which is used for the lookup.</Doc>
         </Param>
