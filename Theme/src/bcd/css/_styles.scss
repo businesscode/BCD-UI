@@ -185,9 +185,11 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 #bcdChartToolTip,
-#bcdTooltipDiv,
-.ui-dialog {
+#bcdTooltipDiv {
   z-index: $z-index-flyover;
+}
+.ui-dialog {
+  z-index: $z-index-flyover - 1;
 }
 
 #bcd_widget_suggestInput_dataList {
