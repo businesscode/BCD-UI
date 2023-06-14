@@ -30,11 +30,25 @@
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.chipsChooser(this.element[0]);
     },
+
     /**
      * @private
      */
     _validateOptions : function(){
       bcdui.widgetNg.impl.validateParams.chipsChooser(this.options);
+    },
+
+    /**
+     * @private
+     */
+    _lazyGetWrq : function () {
+      if (this.wrqId)
+        return bcdui.factory.objectRegistry.getObject(this.wrqId);
+
+      const wrq = new bcdui.core.AutoModel(this.autoModelParams);
+      bcdui.factory.objectRegistry.registerObject(wrq);
+      this.wrqId = wrq.id;
+      return wrq;
     },
 
     /**
@@ -93,22 +107,17 @@
         bcdui.factory.objectRegistry.registerObject(this.filterModel);
 
         // take over all options to the automodel, so you can pass through options if you like
-        let autoModelParams = this.options;
+        this.autoModelParams = this.options;
 
         // however, some options need to be set on chipsChooser side 
-        delete autoModelParams["id"];
-        autoModelParams["isAutoRefresh"] = true;
-        autoModelParams["isDistinct"] = true;
-        autoModelParams["orderByBRefs"] = this.options.bRefs;
+        delete this.autoModelParams["id"];
+        this.autoModelParams["isAutoRefresh"] = true;
+        this.autoModelParams["isDistinct"] = true;
+        this.autoModelParams["orderByBRefs"] = this.options.bRefs;
         if (this.options.preload)
-          delete autoModelParams["maxRows"];
+          delete this.autoModelParams["maxRows"];
         else
-          autoModelParams["additionalFilterXPath"] = "$" + this.filterModel.id + "/*/f:Expression";
-
-        // register and remember wrq (id)
-        const wrq = new bcdui.core.AutoModel(autoModelParams);
-        bcdui.factory.objectRegistry.registerObject(wrq);
-        this.wrqId = wrq.id;
+          this.autoModelParams["additionalFilterXPath"] = "$" + this.filterModel.id + "/*/f:Expression";
 
         // in case targetModel already holds values, we need to load the data, otherwise
         // the connectables would not accept the given value
@@ -147,9 +156,13 @@
             // take over first found value into keyStroke provider
             bcdui.factory.objectRegistry.getObject(this.keyStrokeId).value = iValue;
 
+            const wrq = this._lazyGetWrq();
              wrq.onceReady(function() {
               optionsModel.dataDoc = wrq.dataDoc;
               optionsModel.fire();
+
+              this.preloaded = true;
+
               // signal readiness
               optionsModelHolder.setSource(bcdui.wkModels.guiStatus);
               targetModelHolder.setSource(bcdui.wkModels.guiStatus);
@@ -302,7 +315,7 @@
               lowerConnectable.hide();
               lowerConnectable.closest(".bcdLowerContainer").show();
               const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
-              const wrq = bcdui.factory.objectRegistry.getObject(self.wrqId);
+              const wrq = self._lazyGetWrq();
               wrq.onceReady(function() {
                 optionsModel.dataDoc = wrq.dataDoc;
                 optionsModel.fire();
@@ -425,7 +438,6 @@
 
         const iValue = inputField.val().toLowerCase();
         const keyStroke = bcdui.factory.objectRegistry.getObject(self.keyStrokeId);
-        const wrq = bcdui.factory.objectRegistry.getObject(self.wrqId);
         const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
 
         // no value, simply show the last loaded one (if available)
@@ -439,7 +451,9 @@
         }
 
         // avoid reload if we only limit already loaded values
-        if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
+        // if wrq is not yet available, ignore it for now
+        const wrq = (! self.wrqId) ? null : bcdui.factory.objectRegistry.getObject(self.wrqId);
+        if (keyStroke.value.length != 0 && keyStroke.value.length <= iValue.length && iValue.startsWith(keyStroke.value) && wrq && wrq.queryNodes("/*/wrs:Data/wrs:R").length < self.options.rowEnd)
           return markItem();
 
         const optionsModel = bcdui.factory.objectRegistry.getObject(self.optionsModelId);
@@ -456,6 +470,7 @@
           // take over keystroke value
           keyStroke.value = iValue;
 
+          const wrq = self._lazyGetWrq();
           wrq.onReady({onlyFuture: true, onlyOnce: true, onSuccess: function() {
             optionsModel.dataDoc = wrq.dataDoc;
             optionsModel.fire();
