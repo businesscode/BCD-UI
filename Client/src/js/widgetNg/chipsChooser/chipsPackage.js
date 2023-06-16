@@ -177,7 +177,7 @@
             targetModelHolder.setSource(bcdui.wkModels.guiStatus);
           }
         }.bind(this));
-        targetModel.execute();
+        targetModel.execute(false);
       }
       else {
         // signal readiness
