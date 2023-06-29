@@ -249,13 +249,13 @@
             const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
             jQuery(this.element).closest(".bcdChipChooser").find(".bcdMiddle input").val(newValue);
           }
-          , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
+          , generateItemHtml: this.options.generateItemHtml || function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
       }
       let targetArgs = {
           targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find(".bcdUpper")
         , dblClick: false
-        , generateItemHtml: function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
+        , generateItemHtml: this.options.generateItemHtml || function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
         , generateItemHelperHtml: function(event, item) {
             const selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
             let caption = "<ul>";

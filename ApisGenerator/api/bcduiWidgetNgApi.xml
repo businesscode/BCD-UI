@@ -669,6 +669,21 @@
             The space separated list of binding Refs that will be used in filter clause of request document.
           </Doc>
         </Param>
+        <Param name="generateItemHtml" required="false" type="function">
+          <Doc>
+            Function to generate the html for one container item. Gets object with properties: value, caption, position;
+            see implementation documentation to read more about the structure to return by this function.
+          </Doc>
+          <ImplDoc>
+            this function is expected to return following string template:
+            &lt;li
+              class='ui-selectee'
+              bcdValue='value'
+              bcdPos='1'
+              bcdLoCase='caption'
+              title=''>&lt;span class='bcdItem'>[Caption]&lt;/span>&lt;/li>
+          </ImplDoc>
+        </Param>
       </Api>
       
       <Api name="sideBySideChooser" extends="widget">
