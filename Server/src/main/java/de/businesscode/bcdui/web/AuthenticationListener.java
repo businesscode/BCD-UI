@@ -15,6 +15,9 @@
 */
 package de.businesscode.bcdui.web;
 
+import java.util.HashMap;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -25,15 +28,16 @@ import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
- * Support for bcd_log_login logging
+ * Support for bcd_log_login logging as well as further security enhancement, such as session-fixation {@link https://owasp.org/www-community/attacks/Session_fixation}
  */
-public class AuthenticationListener implements org.apache.shiro.authc.AuthenticationListener{
+public class AuthenticationListener implements org.apache.shiro.authc.AuthenticationListener {
 
   @Override
   public void onFailure(AuthenticationToken token, AuthenticationException arg1) {
@@ -57,18 +61,46 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
 
   @Override
   public void onLogout(PrincipalCollection arg0) {
-    
+
   }
 
   @Override
   public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
     String userLogin = token.getPrincipal().toString();
     LOGIN_RESULTS result = LOGIN_RESULTS.OK;
-    Session session = SecurityUtils.getSubject().getSession(); 
+    var session = renewSession(SecurityUtils.getSubject());
     session.setAttribute("BCD_LOGIN_USER", userLogin);
     session.setAttribute("BCD_LOGIN_RESULT", result);
 
     // set value for bcd_userId subject setting filter
     SubjectPreferences.setPermission("bcd_userId:userId", SecurityHelper.getUserId(info));
+  }
+
+  /**
+   * re-creates a session and copy session atts if any found
+   *
+   * @see {@link https://owasp.org/www-community/attacks/Session_fixation}
+   * @param subject
+   * @return
+   */
+  private Session renewSession(Subject subject) {
+    final var oldSession = subject.getSession(false);
+    final var oldSessionObjMap = new HashMap<Object, Object>();
+
+    if (oldSession != null) {
+      for (var key : oldSession.getAttributeKeys()) {
+        if (key instanceof String && StringUtils.startsWith((String) key, "org.apache.shiro")) {
+          continue; // skip shiro internal atts
+        }
+        oldSessionObjMap.put(key, oldSession.getAttribute(key));
+      }
+      oldSession.stop();
+    }
+
+    final var newSession = subject.getSession();
+
+    oldSessionObjMap.entrySet().forEach(entry -> newSession.setAttribute(entry.getKey(), entry.getValue()));
+
+    return newSession;
   }
 }
