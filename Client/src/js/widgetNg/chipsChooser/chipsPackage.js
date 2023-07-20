@@ -227,6 +227,7 @@
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
           , doSortOptions: this.options.doSortOptions || true
+          , sortOptionsFunction : this.options.sortOptionsFunction
           , hint: this.options.hint
           , onBeforeChange: this.options.onBeforeChange
           , onChange: this.options.onChange

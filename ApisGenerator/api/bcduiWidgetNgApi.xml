@@ -639,6 +639,9 @@
         <Param name="doSortOptions" required="false" type="boolean" default="true">
           <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
         </Param>
+        <Param name="sortOptionsFunction" type="function">
+          <Doc>a compareFunction(a,b) passed to Array.prototype.sort(); with a, b are objects with { caption, value } A function used to sort items in the connectable. The defaulting implementation uses alphabetic sorting on caption.</Doc>
+        </Param>
         <Param name="onItemMoved" required="false" type="function">
           <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
         </Param>
