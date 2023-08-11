@@ -99,8 +99,14 @@
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="mesCaptionUnit2">
-    <xsl:if test="$mesCountUnit2 = 1 and $unitCount &gt; 1"><xsl:value-of select="/*/wrs:Header/wrs:Columns/wrs:C[@unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @valueId))]/@caption"/></xsl:if>
+    <xsl:choose>
+      <xsl:when test="$mesCountUnit2 = 1 and $unitCount &gt; 1"><xsl:value-of select="/*/wrs:Header/wrs:Columns/wrs:C[@unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @valueId))]/@caption"/></xsl:when>
+      <xsl:otherwise><xsl:value-of select="$mesCaptionUnit1"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:variable>
+
+  <xsl:variable name="forceAxisY1" select="$chartPreSettings/*/@forceYAxis1"/>
+  <xsl:variable name="forceAxisY2" select="$chartPreSettings/*/@forceYAxis2"/>
 
   <xsl:template match="/">
     <chart:Chart title="{$title}" xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
@@ -196,7 +202,7 @@
         <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
       </chart:YAxis1>
 
-      <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $unitCount &gt; 1">
+      <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $unitCount &gt; 1 or $forceAxisY2 != ''">
         <chart:YAxis2 unit="{$unit2}" caption="{$mesCaptionUnit2}">
           <xsl:copy-of select="$chartPreSettings/*/chart:YAxis2/@*"/>
         </chart:YAxis2>
@@ -204,6 +210,26 @@
 
       <chart:Series>
         <xsl:choose>
+          <xsl:when test="$forceAxisY1 != '' or $forceAxisY2 != ''">
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId]">
+              <xsl:variable name="id" select="@id"/>
+              <xsl:if test="contains(concat(',', $forceAxisY1, ','), concat(',', $id, ','))">
+                <chart:Series caption="{current()/@caption}" yAxis1Or2="1">
+                  <xsl:copy-of select="$chartPreSettings/*/chart:Series/chart:Series[1]/@*"/>
+                  <chart:YData modelId="{$bcdInputModelId}" nodes="/wrs:Wrs/wrs:Data/wrs:R{$validRowExpr}/wrs:C[{current()/@pos}]"/>
+                </chart:Series>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId]">
+              <xsl:variable name="id" select="@id"/>
+              <xsl:if test="contains(concat(',', $forceAxisY2, ','), concat(',', $id, ','))">
+                <chart:Series caption="{current()/@caption}" yAxis1Or2="2">
+                  <xsl:copy-of select="$chartPreSettings/*/chart:Series/chart:Series[2]/@*"/>
+                  <chart:YData modelId="{$bcdInputModelId}" nodes="/wrs:Wrs/wrs:Data/wrs:R{$validRowExpr}/wrs:C[{current()/@pos}]"/>
+                </chart:Series>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
           <xsl:when test="$gotEmptyUnits">
             <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and not(@unit)]">
               <chart:Series caption="{current()/@caption}" yAxis1Or2="1">
@@ -266,7 +292,7 @@
         <xsl:copy-of select="$chartPreSettings/*/chart:YAxis1/@*"/>
       </chart:YAxis1>
 
-      <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $unitCount &gt; 1">
+      <xsl:if test="$chartPreSettings/*/chart:YAxis2 or $unitCount &gt; 1 or $forceAxisY2 != ''">
         <chart:YAxis2 unit="{$unit2}" caption="{substring-after($mesCaptionUnit2, '|')}">
           <xsl:copy-of select="$chartPreSettings/*/chart:YAxis2/@*"/>
         </chart:YAxis2>
@@ -274,6 +300,34 @@
 
       <chart:Series>
         <xsl:choose>
+          <xsl:when test="$forceAxisY1 != '' or $forceAxisY2 != ''">
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+              <xsl:variable name="id" select="substring-after(@id, '|')"/>
+              <xsl:if test="contains(concat(',', $forceAxisY1, ','), concat(',', $id, ','))">
+                <chart:Series caption="{current()/@caption}" yAxis1Or2="1">
+                  <xsl:copy-of select="$chartPreSettings/*/chart:Series/chart:Series[1]/@*"/>
+                  <chart:YData>
+                    <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id,'|')=$id]/@pos]">
+                      <chart:Value><xsl:value-of select="."/></chart:Value>
+                    </xsl:for-each>
+                  </chart:YData>
+                </chart:Series>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+              <xsl:variable name="id" select="substring-after(@id, '|')"/>
+              <xsl:if test="contains(concat(',', $forceAxisY2, ','), concat(',', $id, ','))">
+                <chart:Series caption="{current()/@caption}" yAxis1Or2="2">
+                  <xsl:copy-of select="$chartPreSettings/*/chart:Series/chart:Series[2]/@*"/>
+                  <chart:YData>
+                    <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id,'|')=$id]/@pos]">
+                      <chart:Value><xsl:value-of select="."/></chart:Value>
+                    </xsl:for-each>
+                  </chart:YData>
+                </chart:Series>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
           <xsl:when test="$gotEmptyUnits">
             <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
             <xsl:variable name="id" select="substring-after(@id, '|')"/>
