@@ -58,9 +58,7 @@
             </xsl:variable>
             <xsl:variable name="docsPerCat" select="count($infoModel/*/Entry[@catId=$category/@id])"/>
             
-            <xsl:if test="$maxCount &gt; 1">
-              <div class='title'><xsl:value-of select="$category/@caption"/></div>
-            </xsl:if>
+            <div class='title'><xsl:value-of select="$category/@caption"/></div>
 
             <xsl:choose>
 
@@ -151,14 +149,12 @@
         </div>
         <div class='col title'>
           <div class='title'>
+            <xsl:value-of select="$caption"/>
             <xsl:choose>
               <xsl:when test="not($entry/@fileName)"></xsl:when>
               <xsl:when test="$maxCount &gt; 1">
-                <xsl:value-of select="concat($pos, '/', $docsPerCat)"/>
+                <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
               </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="$caption"/>
-              </xsl:otherwise>
             </xsl:choose>
           </div>
         </div>
