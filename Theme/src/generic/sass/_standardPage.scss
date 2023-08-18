@@ -2026,3 +2026,5 @@ $chips-close-color: #c00 !default;
   &:first-child input ~ label { border-right: none; border-left:  1px solid $select-color; border-radius: .5em 0 0 .5em; }
   &:last-child  input ~ label { border-left: none;  border-right: 1px solid $select-color; border-radius: 0 .5em .5em 0; }
 }
+
+input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
