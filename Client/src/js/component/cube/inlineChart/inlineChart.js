@@ -183,6 +183,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           , chartType1: args.chartType1 || ""
           , chartType2: args.chartType2 || ""
           , chartColumn: cell.prevAll("td.bcdChartCell").length + 1
+          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
       , options: echartOptions

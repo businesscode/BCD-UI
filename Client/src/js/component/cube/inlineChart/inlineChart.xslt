@@ -35,6 +35,7 @@
   <xsl:param name="chartType1" select="''"/>
   <xsl:param name="chartType2" select="''"/>
   <xsl:param name="chartColumn" select="1"/>
+  <xsl:param name="cubeConfig" select="/*[1=0]"/>
 
   <xsl:key name="measureKey" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@valueId"/>
   <xsl:key name="unitKey" match="/*/wrs:Header/wrs:Columns/wrs:C" use="concat('|', @unit)"/>
@@ -256,6 +257,15 @@
           </xsl:otherwise>
         </xsl:choose>
       </chart:Series>
+     
+      <xsl:if test="not($measureCount=1 and $categoryDims)">
+        <chart:SeriesColors>
+          <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[generate-id(.)=generate-id(key('measureKey', @valueId))]">
+            <xsl:variable name="id" select="@valueId"/>
+            <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+          </xsl:for-each>
+        </chart:SeriesColors>
+      </xsl:if>
     </chart:Chart>
 
   </xsl:template>
@@ -272,6 +282,11 @@
         </xsl:call-template>
       </xsl:when>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="colorLookup">
+    <xsl:param name="measureId"/>
+    <xsl:value-of select="$cubeConfig//dm:Measures/dm:Measure[@id=$measureId]/@color"/>
   </xsl:template>
 
 </xsl:stylesheet>
