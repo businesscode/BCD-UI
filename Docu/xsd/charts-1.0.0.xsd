@@ -78,6 +78,11 @@
           The ColorProvider saves here its computed colors for series to draw legend.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="EChartOptions" minOccurs="0" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>When using echarts, you can add echart specific options here as a json string, e.g. <![CDATA[ { "yAxis": [{"min": 0},{"min": 0}] } ]]></xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
 
     <xs:attribute name="title" type="xs:string">

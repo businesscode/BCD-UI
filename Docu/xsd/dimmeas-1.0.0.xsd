@@ -114,6 +114,16 @@
           If this attribute is set, no calc:Calc element shall be nested.
         </xs:documentation></xs:annotation>
       </xs:attribute>
+      <xs:attribute name="color" type="xs:string">
+        <xs:annotation><xs:documentation>
+          HTML color value (e.g. #ff0012) which should be used when measure is rendered (e.g. in a chart from configurationFromWrs).
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="yAxis" type="xs:integer">
+        <xs:annotation><xs:documentation>
+          yAxis (1 or 2) which should be used when measure is rendered (e.g. in a chart from configurationFromWrs).
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
     <xs:attributeGroup ref="tns:measureLayoutInformation"/>
     </xs:complexType>
   </xs:element>

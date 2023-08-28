@@ -684,6 +684,17 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     }
 
     // merge user options
+
+    // via chart xml    
+    let eOptions = null;
+    const eChartOptions = this.config.query("/*/chart:EChartOptions");
+    if (eChartOptions != null) {
+      try { eOptions = JSON.parse(eChartOptions.firstChild.wholeText.replace(/\s/g, "")) } catch (e) {/* if parsing fails, don't takeover options */}
+      if (eOptions != null) {
+        opts = merge(opts, eOptions);
+      }
+    }
+    // via js param
     opts = merge(opts, this.userOptions);
 
     // link contextMenu
