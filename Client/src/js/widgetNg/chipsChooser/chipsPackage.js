@@ -187,15 +187,20 @@
 
       this._super();
 
+      const leftLabel = this.options.upperTitle ? "<label>{{=it.left}}</label>" : "";
+      const rightLabel = this.options.upperTitleRight ? "<label>{{=it.right}}</label>" : "";
       const defPlaceHolder = (this.options.bindingSetId && ! this.options.preload) ? "bcd_chipsChooser_please_type" : "bcd_singleSelect_please_select";
       const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || defPlaceHolder}) || this.options.placeholder;
-      const template = "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
+      const template =
+      this.options.targetModelXPathRight
+      ? "<div class='bcdChipChooser bcdSplit' id='{{=it.id}}'><div class='bcdUpper'>"+leftLabel+"<div class='bcdLeft'></div>"+rightLabel+"<div class='bcdRight'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>"
+      : "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'>"+leftLabel+"<div class='bcdUp'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
       // add label
       this._createLabel(this.options.id);
 
       // append widget
-      jQuery(this.element).append( doT.template(template)({ id: this.options.id }) );
+      jQuery(this.element).append( doT.template(template)({ id: this.options.id, left: this.options.upperTitle || "", right: this.options.upperTitleRight || "" }) );
 
       // close drop down after a second when mouse left target
       let hideTimeout = null;
@@ -254,7 +259,7 @@
       }
       let targetArgs = {
           targetModelXPath: this.options.targetModelXPath
-        , targetHtml: this.element.find(".bcdUpper")
+        , targetHtml: this.options.targetModelXPathRight ? this.element.find(".bcdUpper .bcdLeft") : this.element.find(".bcdUpper .bcdUp")
         , dblClick: false
         , generateItemHtml: this.options.generateItemHtml || function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
         , generateItemHelperHtml: function(event, item) {
@@ -281,7 +286,14 @@
         targetArgs = Object.assign(targetArgs, args);
         bcdui.widgetNg.createConnectable(sourceArgs);
         bcdui.widgetNg.createConnectable(targetArgs);
-      });
+        if (this.options.targetModelXPathRight) {
+          let targetArgs2 = Object.assign({}, targetArgs);
+          targetArgs2["targetModelXPath"] = this.options.targetModelXPathRight;
+          targetArgs2["targetHtml"] = this.element.find(".bcdUpper .bcdRight");
+          targetArgs2 = Object.assign(targetArgs2, args);
+          bcdui.widgetNg.createConnectable(targetArgs2);
+        }
+      }.bind(this));
 
       // clone dblclick behaviour from connectables and make it available as click on closing icon
       jQuery(this.element).find(".bcdUpper").on("click", ".bcdCloseItem", function(event) {

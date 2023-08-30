@@ -622,6 +622,19 @@
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
           </Doc>
         </Param>
+        <Param name="targetModelXPathRight" required="false" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="upperTitle" required="false" type="string">
+          <Doc>Optional title above upper area</Doc>
+        </Param>
+        <Param name="upperTitleRight" required="false" type="string">
+          <Doc>Optional title above upper right area, when targetModelXPathRight is used.</Doc>
+        </Param>
         <Param name="onBeforeChange" required="false" type="function">
           <Doc>
             Handler function triggered before change, if false is returned, the change is rejected

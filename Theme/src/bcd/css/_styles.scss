@@ -2165,6 +2165,24 @@ $chips-close-color: #c00 !default;
         margin-left: .3em;
       }
     }
+    label {
+      font-size: .8em;
+      font-weight: normal;
+      padding: 0 0 0 .3em;
+      margin: 0;
+    }
+  }
+  &.bcdSplit .bcdUpper {
+    display: flex;
+    text-align: right;
+    border: 1px solid $border-color;
+    .bcdLeft, .bcdRight {
+      width: 50%;
+    }
+    .bcdConnectable {
+      overflow-y: scroll;
+      overflow-x: inherit;
+    }
   }
 }
 
