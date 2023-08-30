@@ -331,7 +331,7 @@
             <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
               <xsl:variable name="id" select="substring-after(@id, '|')"/>
               <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
-              <chart:Series caption="{current()/@caption}" yAxis1Or2="{$yForce}">
+              <chart:Series caption="{substring-after(current()/@caption, '|')}" yAxis1Or2="{$yForce}">
                 <xsl:copy-of select="$chartPreSettings/*/chart:Series/chart:Series[position()=$yForce]/@*"/>
                 <chart:YData>
                   <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id,'|')=$id]/@pos]">
@@ -344,7 +344,7 @@
           <xsl:when test="$gotEmptyUnits">
             <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
             <xsl:variable name="id" select="substring-after(@id, '|')"/>
-              <chart:Series caption="{current()/@caption}" yAxis1Or2="1">
+              <chart:Series caption="{substring-after(current()/@caption, '|')}" yAxis1Or2="1">
                 <xsl:copy-of select="$chartPreSettings/*/chart:Series/*[not(@yAxis1Or2) or @yAxis1Or2='1']/@*"/>
                 <chart:YData>
                   <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id,'|')=$id]/@pos]">
@@ -357,7 +357,7 @@
           <xsl:otherwise>
             <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
             <xsl:variable name="id" select="substring-after(@id, '|')"/>
-              <chart:Series caption="{current()/@caption}" yAxis1Or2="1">
+              <chart:Series caption="{substring-after(current()/@caption, '|')}" yAxis1Or2="1">
                 <xsl:copy-of select="$chartPreSettings/*/chart:Series/*[not(@yAxis1Or2) or @yAxis1Or2='1']/@*"/>
                 <chart:YData>
                   <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id, '|')=$id]/@pos]">
@@ -371,7 +371,7 @@
         <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
           <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[$unitOffset]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
             <xsl:variable name="id" select="substring-after(@id, '|')"/>
-            <chart:Series caption="{current()/@caption}" yAxis1Or2="2">
+            <chart:Series caption="{substring-after(current()/@caption, '|')}" yAxis1Or2="2">
               <xsl:copy-of select="$chartPreSettings/*/chart:Series/*[@yAxis1Or2='2']/@*"/>
               <chart:YData>
                 <xsl:for-each select="/*/wrs:Data/wrs:R/wrs:C[position() &lt; $totalColumn and position() = /*/wrs:Header/wrs:Columns/wrs:C[substring-after(@id, '|')=$id]/@pos]">
