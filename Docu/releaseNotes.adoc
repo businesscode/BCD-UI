@@ -35,8 +35,10 @@ ___
 * cube/cubeModel parameter requestChain added to allow custom request builders
 * sticky table (rows/cols) functionality added (either via htmlBuilder parameters or cube layout cube:Freeze element)
 * messages editor and viewer added
-* input widget supports type time and steps attribute
+* input widget supports type color, time and steps attribute
+* singleSelect and checkbox have additional skins
 * cube inline chart functionality added (render measures as a chart per row), use cube:Chart to configure and additionally load bcduiCubeInlineChart
+* cube allows having measures as rows, define dm:Measures/@storedInRows=true
 
 .Security
 * New cookie settings in context.xml and web.xml

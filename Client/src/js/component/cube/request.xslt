@@ -36,12 +36,59 @@
 
         <xsl:apply-templates select="/*/cube:Layout/cube:TopNDimMembers" mode="toWrqNs"/>
 
-        <xsl:copy-of select="/*/cube:DistinctMeasures/wrq:Columns"/>
+        <xsl:choose>
+          <xsl:when test="/*/cube:DistinctMeasures/@storedInRows='true'">
+            <wrq:Columns>
+              <xsl:copy-of select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[@dimId]"/>
+              <xsl:for-each select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[not(@dimId)]">
+                <wrq:C>
+                  <xsl:copy-of select="@*"/>
+                  <wrq:Calc>
+                    <wrq:Sum>
+                      <wrq:Case>
+                        <wrq:When>
+                          <wrq:Eq>
+                            <wrq:ValueRef idRef="bcd_measure_id"/>
+                            <wrq:Value><xsl:value-of select="@bRef"/></wrq:Value>
+                          </wrq:Eq>
+                          <wrq:ValueRef idRef="bcd_measure_value"/>
+                        </wrq:When>
+                      </wrq:Case>
+                    </wrq:Sum>
+                  </wrq:Calc>
+                </wrq:C>
+              </xsl:for-each>
+            </wrq:Columns>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="/*/cube:DistinctMeasures/wrq:Columns"/>
+          </xsl:otherwise>
+        </xsl:choose>
+
         <wrq:From>
           <xsl:copy-of select="/*/wrq:BindingSet"/>
         </wrq:From>
 
-        <xsl:copy-of select="$statusModel/*/f:Filter"/>
+        <xsl:choose>
+          <xsl:when test="/*/cube:DistinctMeasures/@storedInRows='true'">
+            <f:Filter>
+              <xsl:for-each select="$statusModel/*/f:Filter/*">
+                <xsl:copy-of select="."/>
+              </xsl:for-each>
+              <f:Expression op="in" bRef="bcd_measure_id">
+                <xsl:attribute name="value">
+                  <xsl:for-each select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[not(@dimId)]/@bRef">
+                    <xsl:sort select="."/>
+                    <xsl:value-of select="."/><xsl:if test="position()!=last()">,</xsl:if>
+                  </xsl:for-each>
+                </xsl:attribute>
+              </f:Expression>
+            </f:Filter>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="$statusModel/*/f:Filter"/>
+          </xsl:otherwise>
+        </xsl:choose>
 
         <wrq:Grouping>
 

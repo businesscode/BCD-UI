@@ -69,10 +69,15 @@
       </cube:Layout>
 
       <cube:DistinctMeasures>
+
+        <xsl:if test="/*/dm:Measures[@storedInRows='true']">
+          <xsl:attribute name="storedInRows">true</xsl:attribute>
+        </xsl:if>
+
         <!-- for readability dimensions first and measures sorted by name -->
         <wrq:Columns>
           <xsl:for-each select="/*/cube:Layout/cube:Dimensions//@bRef">
-            <wrq:C bRef="{.}">
+            <wrq:C bRef="{.}" dimId="{.}">
               <!-- Pass-through the name of this dimension level (creating a caption attribute in the header ) -->
               <xsl:for-each select="../@caption">
                 <xsl:attribute name="caption"><xsl:value-of select="."/></xsl:attribute>
