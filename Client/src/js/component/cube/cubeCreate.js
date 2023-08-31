@@ -302,7 +302,9 @@ bcdui.component = Object.assign(bcdui.component,
         chain:                 bcdui.factory.objectRegistry.getObject(args.chain),
         stylesheetUrl:         args.stylesheetUrl,
         statusModel:           bcdui.factory.objectRegistry.getObject(args.statusModel),
-        enhancedConfiguration: bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration)
+        enhancedConfiguration: bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration),
+        requestChain:          args.requestChain,
+        requestParameters:     args.requestParameters
       });
     });
     return { refId: args.id, symbolicLink: true };
@@ -329,6 +331,8 @@ bcdui.component = Object.assign(bcdui.component,
         statusModel:             bcdui.factory.objectRegistry.getObject(args.statusModel),
         enhancedConfiguration:   bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration),
         detailExportFilterModel: bcdui.factory.objectRegistry.getObject(args.detailExportFilterModel),
+        requestChain:            args.requestChain,
+        requestParameters:       args.requestParameters,
         url:                     args.url
       });
     });
