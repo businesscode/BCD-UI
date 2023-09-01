@@ -42,8 +42,18 @@
               <xsl:copy-of select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[@dimId]"/>
               <xsl:for-each select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[not(@dimId)]">
                 <wrq:C>
-                  <xsl:copy-of select="@*"/>
-                  <wrq:Calc type-name="NUMERIC">
+                  <xsl:copy-of select="@*[not(name()='aggr')]"/>
+                  <xsl:variable name="aggr">
+                    <xsl:choose>
+                      <xsl:when test="@aggr='avg'">Avg</xsl:when>
+                      <xsl:when test="@aggr='min'">Min</xsl:when>
+                      <xsl:when test="@aggr='max'">Max</xsl:when>
+                      <xsl:when test="@aggr='count'">Count</xsl:when>
+                      <xsl:otherwise>Sum</xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:variable>
+                  <wrq:Calc>
+                    <xsl:element namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0" name="{$aggr}">
                       <wrq:Case>
                         <wrq:When>
                           <wrq:Eq>
@@ -53,6 +63,7 @@
                           <wrq:ValueRef idRef="bcd_measure_value"/>
                         </wrq:When>
                       </wrq:Case>
+                    </xsl:element>
                   </wrq:Calc>
                 </wrq:C>
               </xsl:for-each>
