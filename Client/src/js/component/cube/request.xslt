@@ -43,8 +43,7 @@
               <xsl:for-each select="/*/cube:DistinctMeasures/wrq:Columns/wrq:C[not(@dimId)]">
                 <wrq:C>
                   <xsl:copy-of select="@*"/>
-                  <wrq:Calc>
-                    <wrq:Sum>
+                  <wrq:Calc type-name="NUMERIC">
                       <wrq:Case>
                         <wrq:When>
                           <wrq:Eq>
@@ -54,7 +53,6 @@
                           <wrq:ValueRef idRef="bcd_measure_value"/>
                         </wrq:When>
                       </wrq:Case>
-                    </wrq:Sum>
                   </wrq:Calc>
                 </wrq:C>
               </xsl:for-each>
