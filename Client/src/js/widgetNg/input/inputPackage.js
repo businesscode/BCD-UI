@@ -247,10 +247,6 @@
      * @private
      */
     _syncValue: function(inputElementId){
-      
-      if (jQuery("#" + inputElementId).type == "color")
-        debugger;
-      
       var value = this._readDataFromXML(inputElementId).value||"";
       var el = bcdui._migPjs._$(inputElementId);
       // we're settings fields value - reset placeholder
