@@ -108,8 +108,8 @@
           }
           return;
         }
-        // initial sync only when no data was injected yet
-        if (jQuery("#" + config.inputElementId).val() == "")
+        // initial sync only when no data was injected yet or is color type
+        if (args.type == "color" || jQuery("#" + config.inputElementId).val() == "")
           this._syncValue(config.inputElementId);
       }.bind(this));
 
@@ -247,6 +247,10 @@
      * @private
      */
     _syncValue: function(inputElementId){
+      
+      if (jQuery("#" + inputElementId).type == "color")
+        debugger;
+      
       var value = this._readDataFromXML(inputElementId).value||"";
       var el = bcdui._migPjs._$(inputElementId);
       // we're settings fields value - reset placeholder
