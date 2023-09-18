@@ -620,7 +620,7 @@ public class DatabaseCompatibility
         Arrays.asList( new String[]
           {
             // Build-in functions
-            "SDO_CONTAINS", "SDO_UTIL", "FROM_WKTGEOMETRY"
+            "SDO_CONTAINS", "SDO_UTIL", "FROM_WKTGEOMETRY", "XMLTYPE"
           }
         )
       );
@@ -656,7 +656,7 @@ public class DatabaseCompatibility
     sqlKeyWordsPostgres.addAll(
         Arrays.asList( new String[]
           {
-            "NOW", "TIMESTAMPTZ", "UUID", "TIME", "ZONE"
+            "NOW", "TIMESTAMPTZ", "UUID", "TIME", "ZONE", "XML", "TEXT", "XPATH"
           }
         )
     );
