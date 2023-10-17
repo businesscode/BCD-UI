@@ -42,6 +42,7 @@
       this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_clearAll"}) || "Clear All");
       this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_selectVisible"}) || "Select Visible");
       this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_ClearVisible"}) || "Clear Visible");
+      this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_ShowSelectedOnly"}) || "Show selected only");
 
       let hierarchyBox = this._createHierarchyBox();
 
@@ -290,7 +291,7 @@
     _createHierarchyBox: function(){
       const header = "<div class='bcdHeader form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
       const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
-      const footer = "<div class='bcdFooter'><bcd-checkboxNg label='Show selected only' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, true)'></bcd-buttonNg><span></div>";
+      const footer = "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, true)'></bcd-buttonNg><span></div>";
       return jQuery("<div class='bcdHierarchy'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='hierarchy_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
     },
 

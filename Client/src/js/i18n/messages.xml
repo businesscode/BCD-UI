@@ -295,6 +295,7 @@
       <R id="R511"><C>bcd_widget_hierarchy_clearAll</C><C>Clear All</C><C>en</C></R>
       <R id="R512"><C>bcd_widget_hierarchy_selectVisible</C><C>Select Visible</C><C>en</C></R>
       <R id="R513"><C>bcd_widget_hierarchy_ClearVisible</C><C>Clear Visible</C><C>en</C></R>
+      <R id="R514"><C>bcd_widget_hierarchy_ShowSelectedOnly</C><C>Show selected only</C><C>en</C></R>
 
       <!-- User Messages -->
       <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
