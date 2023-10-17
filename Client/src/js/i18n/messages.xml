@@ -290,12 +290,18 @@
       <R id="R504"><C>bcd_Comment_Add</C><C>Add</C><C>en</C></R>
       <R id="R505"><C>bcd_Comment_No_Comments</C><C>No Comments</C><C>en</C></R>
 
+      <!-- Hierarchy Widget -->
+      <R id="R510"><C>bcd_widget_hierarchy_selectAll</C><C>Select All</C><C>en</C></R>
+      <R id="R511"><C>bcd_widget_hierarchy_clearAll</C><C>Clear All</C><C>en</C></R>
+      <R id="R512"><C>bcd_widget_hierarchy_selectVisible</C><C>Select Visible</C><C>en</C></R>
+      <R id="R513"><C>bcd_widget_hierarchy_ClearVisible</C><C>Clear Visible</C><C>en</C></R>
+
       <!-- User Messages -->
       <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
       <R id="R551"><C>bcd_Messages_Prev</C><C>Prev</C><C>en</C></R>
       <R id="R552"><C>bcd_Messages_Close</C><C>Close</C><C>en</C></R>
       <R id="R553"><C>bcd_Messages_MoreUnread</C><C>There are more unread messages!</C><C>en</C></R>
-      <R id="R553"><C>bcd_Messages_None</C><C>There are currently no messages available.</C><C>en</C></R>
+      <R id="R554"><C>bcd_Messages_None</C><C>There are currently no messages available.</C><C>en</C></R>
 
 
     </Data>

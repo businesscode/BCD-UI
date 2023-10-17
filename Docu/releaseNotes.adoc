@@ -27,6 +27,7 @@ ___
 * SendMail class added (new gradle dependencies javax.mail:mail, com.sun.activation)
 
 .Client:
+* hierarchy widget added
 * checkbox widget supports more than 1 and 0 via values parameter
 * checkbox and singleSelect widget have a new skin (switch/panel) parameter for a horizontal slider switch / horizontal switch panel
 * label widget added

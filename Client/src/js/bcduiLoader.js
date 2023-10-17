@@ -161,6 +161,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
         , "/js/widgetNg/comment/commentPackage.js"
         , "/js/widgetNg/label/labelPackage.js"
+        , "/js/widgetNg/hierarchy/hierarchyPackage.js"
       ]
     },
     {

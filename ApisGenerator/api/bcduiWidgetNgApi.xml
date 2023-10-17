@@ -702,7 +702,37 @@
           </ImplDoc>
         </Param>
       </Api>
-      
+
+      <Api name="hierarchy" extends="widget hasLabel hasOptionsFilter">
+        <Doc>
+          Renders a hierachy widget with checkboxes for selection.
+        </Doc>
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values
+          </Doc>
+        </Param>
+        <Param name="optionsModelRelativeParentXPath" type="xPath" required="true">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for the parent, this should correspond to the same data type as the value of the options model. 
+          </Doc>
+        </Param>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+      </Api>
+
       <Api name="sideBySideChooser" extends="widget">
         <Doc>
           Offers a SideBySiderChooser where you can select items on a source side and move them to a target side
@@ -1247,6 +1277,7 @@ the data that is actually placed in XML.
       <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
       <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
       <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
+      <BcdObject name="hierarchy" implements="hierarchy" implementationPackage="bcdui.widgetNg.hierarchy"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

@@ -1789,7 +1789,7 @@ span.bcd-notification-warn {
   .row:last-child { margin: 0; }
   .col.add { flex: 0 0 5em; }
   .body { white-space: normal; }
-  
+
   .commentContainer {
     background-color: #fff;
     padding: 1em;
@@ -1838,8 +1838,15 @@ $chips-close-color: #c00 !default;
 
 .bcdChipChooser {
   
+  position: relative;
+  
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
-  .bcdLower { height: 10em; }
+  .bcdLower {
+    height: 10em;
+    .bcdLoading {width: 1em; height: 1em;}
+  }
+
+  .bcdLowerContainer { position: absolute; z-index: $z-index-autocomplete; width: 100%; }
 
   .bcdMiddle {
     span {
@@ -1850,7 +1857,12 @@ $chips-close-color: #c00 !default;
         color: #3c5b7b;
         margin-left: .3em;
         position: absolute;
-        right: 1em; 
+        right: 1em;
+        padding-top: .5em;
+      }
+      input {
+        padding-right: 2em;
+        display: inline-block;
       }
     }
     .bcdDown:after { content: "\f078"; }
@@ -1911,7 +1923,20 @@ $chips-close-color: #c00 !default;
   }
 }
 
-.bcdReport.bcdStickyTable { border-collapse: separate; border: none;}
+.bcdReport.bcdStickyTable tfoot tr > *,
+.bcdReport.bcdStickyTable thead tr > *,
+.bcdReport.bcdStickyTable tbody tr:nth-of-type(even) > * { background-color: #ffffff; }
+.bcdReport.bcdStickyTable tbody tr:nth-of-type(odd)  > * { background-color: #f2f2f2; }
+.bcdReport.bcdStickyTable tbody tr>* { border: 1px solid $border-color; border-left-style: none; border-right-style: none; }
+.bcdReport.bcdStickyTable thead tr>*, .bcdReport.bcdStickyTable tfoot tr>* { border: none !important; }
+
+.bcdStickyContainer { scrollbar-width: thin; scrollbar-color: $border-color auto; }
+.bcdStickyContainer::-webkit-scrollbar { width: .5em; height: .5em; }
+.bcdStickyContainer::-webkit-scrollbar-corner,
+.bcdStickyContainer::-webkit-scrollbar-track { background-color: transparent; }
+.bcdStickyContainer::-webkit-scrollbar-thumb { background-color: $border-color; border-radius: 1em; }
+
+
 .bcdStickyTable {
   position: relative;
   &.bcdStickyHead thead { z-index: 102; position: sticky; top: 0;}
@@ -1971,6 +1996,17 @@ $chips-close-color: #c00 !default;
 
 .bcdMessages.bcdCheckbox { text-align: center; }
 
+.bcdInlineChart {
+  > thead > tr > th { text-align: center; }
+  td { text-align: left; } /* chart flyover */
+  td.bcdChartCell { padding: 0; margin: 0; height: 6em; }
+  td.bcdLegend { height: 8em; }
+}
+
+/* ******************************************************************* */
+/* checkbox switch skin */
+/* ******************************************************************* */
+
 .bcdCheckbox.bcdSwitch {
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -2004,6 +2040,10 @@ $chips-close-color: #c00 !default;
     content: "\f205";
   } 
 }
+
+/* ******************************************************************* */
+/* single select panel skin */
+/* ******************************************************************* */
 
 .bcdRadioItem {
   label, input {
@@ -2045,4 +2085,111 @@ $chips-close-color: #c00 !default;
   &:last-child  input ~ label { border-left: none;  border-right: 1px solid $select-color; border-radius: 0 .5em .5em 0; }
 }
 
+/* ******************************************************************* */
+/* input color */
+/* ******************************************************************* */
+
 input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
+
+/* ******************************************************************* */
+/* hierarchy */
+/* ******************************************************************* */
+
+.bcdHierarchy {
+
+  background-color: #ffffff;
+
+  i {
+    position: absolute;
+    cursor: pointer;
+    right: 0;
+    top: .1em;
+
+    &:after {
+      font-family: 'Font Awesome 5 Free', sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      color: #495057;
+      margin-left: .3em;
+      position: absolute;
+      right: 1em;
+      top: .4em;
+      padding: 0;
+    }
+  }
+
+  .bcdFind:after  { content: "\f002"; cursor: default; }
+  .bcdDown:after  { content: "\f078"; }
+  .bcdUp:after    { content: "\f077"; }
+  .bcdClear:after { content: "\f00d"; color: $text-disabled-color; right: 2.5em; }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 1em;
+  }
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    
+    input[type='checkbox'] {
+      margin: 0 .3em 0 0;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    label {
+      cursor: pointer;
+      vertical-align: middle;
+      margin: 0;
+      padding: 0;
+
+      &:hover { font-weight: bold; }
+    }
+
+    .bcdHideItem label:hover, .bcdHideParent label:hover { font-weight: normal; }
+  }
+
+  .bcdLower { height: auto; }
+
+  .bcdItems {
+    overflow: auto;
+    height: 20em;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+
+    > ul { padding: 0; }
+
+    .bcdHideItem label, .bcdHideItem input { display: none; }
+    .bcdParent               > span.bcdHideItem label { color: $text-disabled-color; display: inline-block; }
+    .bcdParent.bcdHideParent > span.bcdHideItem label { display: none; }
+  }
+
+  .bcdFooter {
+    text-align: right;
+    padding: .3em;
+    font-size: .8em;
+
+    .bcdButton { margin: 0 0 0 .3em; padding: .2em .6em; }
+  }
+
+  .bcdHeader, .bcdSearch {
+    vertical-align: middle;
+    position: relative;
+  }
+  
+  .bcdSearchCount {
+    padding-right: 0 !important;
+    input { padding-right: 3.5em; }
+  }
+  .bcdSearchCount, .bcdCount {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    padding-right: 1em;
+  }
+}
