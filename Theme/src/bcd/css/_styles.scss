@@ -2367,6 +2367,9 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
 .bcdHierarchy {
 
   background-color: #ffffff;
+  position: relative;
+
+  .form-control { background-color: #ffffff; }
 
   i {
     position: absolute;
@@ -2420,7 +2423,7 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     .bcdHideItem label:hover, .bcdHideParent label:hover { font-weight: normal; }
   }
 
-  .bcdLower { height: auto; }
+  .bcdLower { height: auto; position: absolute; z-index: $z-index-autocomplete; }
 
   .bcdItems {
     overflow: auto;
@@ -2448,7 +2451,7 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     vertical-align: middle;
     position: relative;
   }
-  
+
   .bcdSearchCount {
     padding-right: 0 !important;
     input { padding-right: 3.5em; }
