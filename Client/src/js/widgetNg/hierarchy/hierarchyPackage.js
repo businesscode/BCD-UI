@@ -236,6 +236,7 @@
 
       // get data from optionsModel
       const available = Array.from(this.config.targetModel.queryNodes(this.config.targetModelXPath)).map(function(e) { return e.text; });
+      const ids = [];
       this.sortedOptions = Array.from(this.config.optionsModel.queryNodes(config.optionsModelXPath)).map(function(node) {
         const caption = node.nodeValue || node.text;
         let parent = config.optionsModelRelativeParentXPath ? node.selectSingleNode(config.optionsModelRelativeParentXPath) : null;
@@ -243,7 +244,13 @@
         value = (value != null)
           ? value.nodeValue || value.text
           : caption;
+        ids.push(value);
         return { id: value, caption: bcdui.util.escapeHtml(caption), parentId: parent != null ? parent.text : "", selected: available.indexOf(value) != -1 };
+      }).map(function(e) {
+          // set childs with not exsiting parents to root
+          if (ids.indexOf(e.parentId) == -1)
+            e.parentId = "";
+          return e;
       });
 
       // optionally sort it by caption
