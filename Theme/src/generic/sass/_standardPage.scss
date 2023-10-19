@@ -1846,7 +1846,7 @@ $chips-close-color: #c00 !default;
     .bcdLoading {width: 1em; height: 1em;}
   }
 
-  .bcdLowerContainer { position: absolute; z-index: $z-index-autocomplete; width: 100%; }
+  .bcdLowerContainer { position: absolute; z-index: 25000; width: 100%; }
 
   .bcdMiddle {
     span {
