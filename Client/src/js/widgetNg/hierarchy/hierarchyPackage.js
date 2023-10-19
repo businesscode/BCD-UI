@@ -92,10 +92,20 @@
         }
       }.bind(this), this.switchTargetModelXPath);
 
+      // fill if target and options are ready
+      const dphOption = new bcdui.core.DataProviderHolder();
+      const dphTarget = new bcdui.core.DataProviderHolder();
+
+      bcdui.factory.objectRegistry.withReadyObjects([dphOption, dphTarget], function() {
+        this._fillHierarchyBox(this.config);
+      }.bind(this));
+
       // initial rendering
       bcdui.factory.objectRegistry.withReadyObjects(optionsConfig.modelId, function() {
 
         this.config.optionsModel = bcdui.factory.objectRegistry.getObject(optionsConfig.modelId);
+
+        dphOption.setSource(new bcdui.core.StaticModel("<Empty/>"));
 
         // listen on optionsModel changes      
         this.config.optionsModel.onChange(function() {
@@ -106,13 +116,14 @@
           this._fillHierarchyBox(this.config);
         }.bind(this));
 
-        this._fillHierarchyBox(this.config);
       }.bind(this));
 
       // add change handler which detects clicks on input fields
       bcdui.factory.objectRegistry.withReadyObjects(targetConfig.modelId, function() {
 
         this.config.targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
+
+        dphTarget.setSource(new bcdui.core.StaticModel("<Empty/>"));
 
         // listen on external targetModel changes
         this.config.targetModel.onChange(
@@ -222,11 +233,10 @@
      */
     _fillHierarchyBox: function(config){
       jQuery(this.options.targetHtml).find(".bcdItems").empty();
-      
+
       // get data from optionsModel
       const available = Array.from(this.config.targetModel.queryNodes(this.config.targetModelXPath)).map(function(e) { return e.text; });
-      const nodes = bcdui.factory.objectRegistry.getObject(config.optionsModel).getData().selectNodes(config.optionsModelXPath);
-      this.sortedOptions = jQuery.makeArray(nodes).map(function(node) {
+      this.sortedOptions = Array.from(this.config.optionsModel.queryNodes(config.optionsModelXPath)).map(function(node) {
         const caption = node.nodeValue || node.text;
         let parent = config.optionsModelRelativeParentXPath ? node.selectSingleNode(config.optionsModelRelativeParentXPath) : null;
         let value = config.optionsModelRelativeValueXPath ? node.selectSingleNode(config.optionsModelRelativeValueXPath) : null;
