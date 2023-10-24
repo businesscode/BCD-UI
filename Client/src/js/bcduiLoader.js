@@ -130,6 +130,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/widgetImpl.js"
         , "/js/widgetNg/button/buttonPackage.js"
         , "/js/widgetNg/input/inputPackage.js"
+        , "/js/widgetNg/inputLookup/inputLookupPackage.js"
         , "/js/widgetNg/dateInput/dateInputPackage.js"
         , "/js/widgetNg/textArea/textAreaPackage.js"
         , "/js/widgetNg/pasteList/pasteListPackage.js"
@@ -145,6 +146,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
         , "/js/widgetNg/comment/commentPackage.js"
         , "/js/widgetNg/label/labelPackage.js"
+        , "/js/widgetNg/hierarchy/hierarchyPackage.js"
       ]
     },
     {

@@ -40,6 +40,20 @@
   </filter-mapping>
   -->
 
+  <!-- ensure utf8 character encoding, must be placed before shiro filter -->
+  <filter>
+    <filter-name>setCharacterEncodingFilter</filter-name>
+    <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>setCharacterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!-- Security filter for authentication and authorization, see https://shiro.apache.org/configuration.html -->
   <filter>
     <filter-name>bcdui4.ShiroFilter</filter-name>
@@ -175,6 +189,7 @@
     <url-pattern>/bcdui/*</url-pattern>
     <url-pattern>/vfs/*</url-pattern>
     <url-pattern>*.vfsxml</url-pattern>
+    <url-pattern>*.js</url-pattern>
   </servlet-mapping>
 
   <!-- I18nServlet -->
@@ -380,28 +395,6 @@
   <servlet-mapping>
     <servlet-name>bcdui4.WrsNextIdentifierServlet</servlet-name>
     <url-pattern>/bcdui/servlets/WrsNextIdentifierServlet/*</url-pattern>
-  </servlet-mapping>
-
-  <!-- WYSIWYG Excel export Servlet -->
-  <!-- PLEASE NOTE: Consider setting maxPostSize in your server config -->
-  <servlet>
-    <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>
-    <servlet-class>de.businesscode.bcdui.toolbox.MirrorServlet</servlet-class>
-    <init-param>
-      <param-name>header:Content-Type</param-name>
-      <param-value>application/vnd.ms-excel</param-value>
-    </init-param>
-    
-    <!-- set this to true if your server.xml connector is not using UTF-8 URIEncoding, otherwise set it to false -->
-     <init-param>
-      <param-name>EncodeUTF8</param-name>
-      <param-value>true</param-value>
-    </init-param>
-
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>bcdui4.Html2ExcelServlet</servlet-name>
-    <url-pattern>/bcdui/servlets/Html2ExcelServlet/*</url-pattern>
   </servlet-mapping>
 
   <!-- Session listener for session logging -->

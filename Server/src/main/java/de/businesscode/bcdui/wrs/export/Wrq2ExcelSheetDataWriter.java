@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
    * @throws XMLStreamException
    * @throws ExcelWriterException
    */
-  public Wrq2ExcelSheetDataWriter( IRequestOptions options, Workbook workbook, XMLEvent event, XMLEventReader eventReader, Stack<String> pathStack, boolean includeHeader ) 
+  public Wrq2ExcelSheetDataWriter( IRequestOptions options, Workbook workbook, XMLEvent eventRoot, XMLEventReader eventReader, Stack<String> pathStack, boolean includeHeader ) 
       throws ExcelWriterException
   {
     super( workbook, pathStack, includeHeader );
@@ -80,6 +80,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
       XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter( stringWriter );
 
       // Consume wrs:WrsRequest and children
+      XMLEvent event = eventRoot;
       do {
         event = track( eventReader.nextEvent() );
         writer.add(event);

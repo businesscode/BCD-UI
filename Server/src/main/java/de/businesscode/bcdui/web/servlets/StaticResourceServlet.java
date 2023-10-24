@@ -94,7 +94,7 @@ public class StaticResourceServlet extends HttpServlet {
     super.init(config);
 
     if(getInitParameter(vfsFileExtensionsInitParamName) != null){// override default values
-      vfsFileExtensions = getInitParameter(vfsFileExtensionsInitParamName).split(" ");
+      vfsFileExtensions = getInitParameter(vfsFileExtensionsInitParamName).toLowerCase().split(" ");
     }
     Arrays.sort(vfsFileExtensions);// for binary searching
   }
@@ -267,7 +267,7 @@ public class StaticResourceServlet extends HttpServlet {
       //----
       String ext = fullyQualifiedPath.substring(fullyQualifiedPath.lastIndexOf('.')+1);
       if(vfsResourceProvider != null && virtualFileSystemBindingSet != null
-          && Arrays.binarySearch(vfsFileExtensions, ext) >= 0 ){// contains supported extension
+          && Arrays.binarySearch(vfsFileExtensions, ext.toLowerCase()) >= 0 ){// contains supported extension
 
         res = vfsResourceProvider.getResource(context, fullyQualifiedPath);
       }

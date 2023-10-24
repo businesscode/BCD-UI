@@ -69,6 +69,11 @@
       <xs:sequence>
         <xs:element ref="tns:Measure" maxOccurs="unbounded"/>
       </xs:sequence>
+      <xs:attribute name="storedInRows" type="xs:boolean" use="optional">
+        <xs:annotation><xs:documentation>
+          if true, measures are stored in rows instead of columns, 2 well known binding items (bcd_measure_id and bcd_measure_value) point to the columns holding the id/value of the measures. When defining a measure your id needs to match (case sensitive) the value in the bcd_measure_id column. 
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
     </xs:complexType>
     <xs:key name="measureUnique"><xs:selector xpath="tns:Measure"/><xs:field xpath="@id"/></xs:key>
   </xs:element>
@@ -112,6 +117,16 @@
         <xs:annotation><xs:documentation>
           reference to binding-item id to reference the value 1:1.
           If this attribute is set, no calc:Calc element shall be nested.
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="color" type="xs:string">
+        <xs:annotation><xs:documentation>
+          HTML color value (e.g. #ff0012) which should be used when measure is rendered (e.g. in a chart from configurationFromWrs).
+        </xs:documentation></xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="yAxis" type="xs:integer">
+        <xs:annotation><xs:documentation>
+          yAxis (1 or 2) which should be used when measure is rendered (e.g. in a chart from configurationFromWrs).
         </xs:documentation></xs:annotation>
       </xs:attribute>
     <xs:attributeGroup ref="tns:measureLayoutInformation"/>

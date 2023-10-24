@@ -108,8 +108,8 @@
           }
           return;
         }
-        // initial sync only when no data was injected yet
-        if (jQuery("#" + config.inputElementId).val() == "")
+        // initial sync only when no data was injected yet or is color type
+        if (args.type == "color" || jQuery("#" + config.inputElementId).val() == "")
           this._syncValue(config.inputElementId);
       }.bind(this));
 
@@ -301,6 +301,7 @@
       el.attr("maxlength", args.maxlength);
       el.attr("max", args.max);
       el.attr("min", args.min);
+      el.attr("step", args.step);
       el.attr("placeholder", args.placeholder);
       el.attr("pattern", args.pattern);
       el.attr("required", args.required);
@@ -639,7 +640,7 @@
      * @private
      */
     _invalidModelNodeReset: function(modelId, xPath){
-      var node = bcdui.factory.objectRegistry.getObject(modelId).dataDoc.selectSingleNode(xPath);
+      var node = bcdui.factory.objectRegistry.getObject(modelId).getData().selectSingleNode(xPath);
       if(node != null){
         // is ATTRIBUTE
         if(node.nodeType == 2){

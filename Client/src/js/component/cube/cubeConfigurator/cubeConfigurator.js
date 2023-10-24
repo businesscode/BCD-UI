@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -548,10 +548,10 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
    * @private
    * */
   _getUniqueDimCalcId: function(cubeId, targetModelId, targetModelXPath){
-    targetModelXPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Dimensions/*/dm:LevelRef/cube:VDM";
+    let vdmTargetModelXPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Dimensions/*/dm:LevelRef/cube:VDM";
     for (var i = 0; i < 100; i++) {
       var tmpId = "d_calc_" + i;
-      if (bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(targetModelXPath + "[@id='" + tmpId + "']") == null)
+      if (bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectSingleNode(vdmTargetModelXPath + "[@id='" + tmpId + "']") == null)
         return tmpId;
     }
   },

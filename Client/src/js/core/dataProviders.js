@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -450,7 +450,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
           args.xPath = modelParams.xPath;
     
           this._xPath = args.xPath;
-          if (typeof args.nullValue != undefined)
+          if (typeof args.nullValue != "undefined")
             this._nullValue = args.nullValue;
         }
       }));

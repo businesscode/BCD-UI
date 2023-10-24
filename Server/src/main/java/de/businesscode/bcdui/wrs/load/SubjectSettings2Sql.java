@@ -319,7 +319,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       // Resolve via subselect if we have many permission values
       else {
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
-        subjectSettingsClause.append(columnExpression + " in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
+        subjectSettingsClause.append("CAST((" + columnExpression + ") AS VARCHAR(128)) in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller, bcd_sec_usersettings userid and righttype should be VARCHAR
         writeParams("bcdVirtBindingItemWithType.VARCHAR", Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }

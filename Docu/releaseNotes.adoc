@@ -27,13 +27,19 @@ ___
 * SendMail class added (new gradle dependencies javax.mail:mail, com.sun.activation)
 
 .Client:
+* hierarchy widget added
 * checkbox widget supports more than 1 and 0 via values parameter
+* checkbox and singleSelect widget have a new skin (switch/panel) parameter for a horizontal slider switch / horizontal switch panel
 * label widget added
 * chips widget added
+* inputLookup widget added
 * cube/cubeModel parameter requestChain added to allow custom request builders
 * sticky table (rows/cols) functionality added (either via htmlBuilder parameters or cube layout cube:Freeze element)
 * messages editor and viewer added
+* input widget supports type color, time and steps attribute
+* singleSelect and checkbox have additional skins
 * cube inline chart functionality added (render measures as a chart per row), use cube:Chart to configure and additionally load bcduiCubeInlineChart
+* cube allows having measures as rows, define dm:Measures/@storedInRows=true
 
 .Security
 * New cookie settings in context.xml and web.xml
@@ -72,6 +78,7 @@ at least cube template writing /vfs/reports/*, detail export column selects /vfs
 * bcdui.util.clipboard.paste and pasteCSVasXML don't return the value directly. It's a promise now, so use '.then( value => {...} ) to use the value.
 * New reserved SQL words `CURRENT`, `FOLLOWING`, `ROW`, `ROWS` and some less critical  analytical functions
 * user messages editor/viewer now use binding sets bcd_user_messages and bcd_user_messages_readonly
+* singleSelect (radio) now uses a real label instead of a span, you may have to double check css
 
 ___
 ==== Release 5_5_0

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -214,7 +214,6 @@ jQuery.extend(bcdui.widget,
 
       args.emptyValueLevel         = args.emptyValueLevel || args.emptyValue;
       args.clearOptionLevel        = args.clearOptionLevel || args.clearOption;
-      args.multiSelect             = args.multiSelect;
       args.allowMixedSelect        = bcdui.factory._normalizeBoolean(args.allowMixedSelect,  false);
       args.useCaptions             = bcdui.factory._normalizeBoolean(args.useCaptions,    false);
       args.mandatory               = bcdui.factory._normalizeBoolean(args.mandatory,    false);
@@ -260,6 +259,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {string}        [args.label]                          If provided, renders label element to this widget
+   * @param {string}        [args.skin=radio]                     Decide between radio or panel skin.
    */
   createSingleSelect: function(args)
     {
@@ -283,7 +283,8 @@ jQuery.extend(bcdui.widget,
           id:args.id,
           widgetCaption: args.widgetCaption,
           enableNavPath: args.enableNavPath,
-          label :args.label
+          label :args.label,
+          skin: args.skin || "radio"
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -1505,7 +1506,7 @@ jQuery.extend(bcdui.widget,
    * of the targetRenderer's contentDiv is left.
    *
    * @param args The parameter map contains the following properties:
-   * @param {String|bcdui.core.DataProvider} args.tooltipRendererId The renderer responsible
+   * @param {String} args.tooltipRendererId The renderer responsible
    *          for generating the tooltip content. When the "tableMode" parameter
    *          is true this renderer will get two additional parameters "bcdRowIdent"
    *          and "bcdColIdent". These parameters come from the table cell the mouse
@@ -1728,6 +1729,7 @@ jQuery.extend(bcdui.widget,
    * @param {Object}         args                     The parameter map contains the following properties.
    * @param {bcdui.core.DataProvider} args.inputModel A model with context menu definition according to namespace http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0
    * @param {string}         [args.targetRendererId]  The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer.
+   * @param {bcdui.core.DataProvider} [args.targetRenderer] The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. 
    * @param {string}         [args.id]                ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {boolean}        [args.refreshMenuModel=false]  This flag can be set to 'true' if the menu model needs to be executed always. Needs to be true, if the menu depends on the position in a table, i.e. technically on bcdColIdent and bcdRowIdent.
    * @param {string}         [args.url]               This parameter can be set when you only want to apply one single XSLT style sheet. It contains the URL pointing to it. If this parameter is set no nested 'chain' tag must be provided; provided XSLT must produce HTML.
@@ -1749,6 +1751,13 @@ jQuery.extend(bcdui.widget,
     if(!args.tableMode ||args.tableMode == ""){
       args.tableMode = false;
     }
+
+    if (!args.targetRendererId && args.targetRenderer) {
+      args.targetRendererId = args.targetRenderer.id;
+      if (typeof bcdui.factory.objectRegistry.getObject(args.targetRendererId) == "undefined")
+        bcdui.factory.objectRegistry.registerObject(args.targetRendererId);
+    }
+
     if(!args.refreshMenuModel ||args.refreshMenuModel == ""){
       args.refreshMenuModel = false;
     }
@@ -1795,6 +1804,7 @@ jQuery.extend(bcdui.widget,
    * Generates a tooltip for another renderer. 
    * @param {Object}         args                       The parameter map contains the following properties.
    * @param {string}         [args.targetRendererId]    The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+   * @param {bcdui.core.DataProvider} [args.targetRenderer] The renderer the tooltip is attached to. The HTML listeners are placed on the targetHtml of this renderer. If 'tableMode' is set to 'true' the renderer is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns. 
    * @param {string}         [args.id]                  ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
    * @param {integer}        [args.delay]               The delay in Miliseconds that the tooltip should wait before it appears.
    * @param {string}         [args.filter]              An optional filter on the tag name where the tooltip should appear. In 'tableMode' it is recommended to set it on 'td' or 'th|td'.
@@ -1818,6 +1828,13 @@ jQuery.extend(bcdui.widget,
     if(!args.tableMode ||args.tableMode == ""){
       args.tableMode = false;
     }
+
+    if (!args.targetRendererId && args.targetRenderer) {
+      args.targetRendererId = args.targetRenderer.id;
+      if (typeof bcdui.factory.objectRegistry.getObject(args.targetRendererId) == "undefined")
+        bcdui.factory.objectRegistry.registerObject(args.targetRendererId);
+    }
+
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("tootltip_"+(args.targetRendererId?args.targetRendererId:""));
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating tooltip "+args.id);
 
@@ -2882,21 +2899,24 @@ jQuery.extend(bcdui.widget,
 
       // on window resize we recalc the columns again to match the original table
       var resizeTimeout = null;
-      jQuery(window).on("resize", function(e) {
-        // prevent reentry
-        if (resizeTimeout != null)
-          clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
-          // reset possible set 'table' first, recalc decides is a new one is needed
-          jQuery(tableElement).closest(".bcdTableHeadHolder").get(0).style.display = '';
-          bcdui.widget._recalcFixedHeader(tableElement)
+      if (! jQuery(window).data("bcdFixedtable")) {
+        jQuery(window).data("bcdFixedtable", true);
+        jQuery(window).on("resize", function() {
+          // prevent reentry
+          if (resizeTimeout != null)
+            clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(function() {
+            // reset possible set 'table' first, recalc decides is a new one is needed
+            jQuery(tableElement).closest(".bcdTableHeadHolder").get(0).style.display = '';
+            bcdui.widget._recalcFixedHeader(tableElement)
+          });
         });
-      });
-      // if sidebar gets toggled, we resize
-      bcdui.wkModels.guiStatus.onChange(function(){
-        setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
-      }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-left|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-right");
 
+        // if sidebar gets toggled, we resize
+        bcdui.wkModels.guiStatus.onChange(function(){
+          setTimeout(function() { bcdui.widget._recalcFixedHeader(tableElement); });
+        }, "/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-left|/*/guiStatus:PersistentSettings/guiStatus:bcdSideBarPin-right");
+      }
     },
 
     /**
@@ -3429,6 +3449,7 @@ jQuery.extend(bcdui.widget,
       * @param {object} args - arguments
       * @param {function} args.open - function to execute when dialog is opened, it gets args object with properties: targetHtml
       * @param {function} [args.close] - function to execute after dialog is closed
+      * @param {function} [args.create] - function to execute when dialog is created
       * @param {function} [args.beforeClose] - function to execute before dialog is closed - it gets args object with properties: targetHtml; if this function returns false, the dialog is not closed.
       * @param {string} [args.title] - dialog title
       * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
@@ -3449,7 +3470,8 @@ jQuery.extend(bcdui.widget,
        var delegate = {
          open : args.open,
          close : args.close,
-         beforeClose: args.beforeClose
+         beforeClose: args.beforeClose,
+         create : args.create
        }
 
        if(!args.open)throw ".open required";
@@ -3491,6 +3513,7 @@ jQuery.extend(bcdui.widget,
              jQuery(this).on("dialog-close", function(event,data){
                jQuery(this).prop(dataPropName, data).dialog("close");
              });
+             delegate.create && delegate.create();
            },
            open: function() {
              jQuery("body").addClass("bcdNoScroll");
@@ -3528,9 +3551,6 @@ jQuery.extend(bcdui.widget,
      * @param {boolean}       [args.disableMaxWH=false] setting this to true will use width/heigth instead of max-width/max-height 
      */
     stickyTable: function(args) {
-
-      // no resize events
-      jQuery(window).off("resize");
 
       const table = jQuery(args.targetHtml).find("table").addBack(args.targetHtml).first();
 
@@ -3586,13 +3606,16 @@ jQuery.extend(bcdui.widget,
       jQuery(table).data("bcdStickyArgs", args);
 
       // redraw all sticky tables on window resize
-      jQuery(window).on("resize", function() {
-        jQuery(".bcdStickyTable").each(function(i, t) {
-          const stickyArgs = jQuery(t).data("bcdStickyArgs");
-          if (stickyArgs)
-            bcdui.widget.stickyTable(stickyArgs);
+      if (! jQuery(window).data("bcdStickyResize")) {
+        jQuery(window).data("bcdStickyResize", true);
+        jQuery(window).on("resize", function() {
+          jQuery(".bcdStickyTable").each(function(i, t) {
+            const stickyArgs = jQuery(t).data("bcdStickyArgs");
+            if (stickyArgs)
+              bcdui.widget.stickyTable(stickyArgs);
+          });
         });
-      });
+      }
     },
 
     /**

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -142,7 +142,10 @@ public class Bindings {
       es.shutdown();
       if( !es.awaitTermination(MAX_WAIT_MINS, TimeUnit.MINUTES) )
         throw new BindingException("Timeout during reading of binding definitions");
-    } catch (Exception e) {
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }catch (Exception e) {
       throw new BindingException(e.getMessage(),e);
     }
     return newBindingMap;

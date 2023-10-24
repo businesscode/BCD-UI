@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1002,7 +1002,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
         isMain = !isMain;
         if(!isMain)
           continue;
-        this.drawer.line( { points : [ [y1GridXStart,y],[y1GridXEnd,y] ], rgb : isMain ? this.gridColor : this.gridColor, shapeRendering: "crispEdges" } );
+        this.drawer.line( { points : [ [y1GridXStart,y],[y1GridXEnd,y] ], rgb : this.gridColor, shapeRendering: "crispEdges" } );
         if( isMain && y!=0 && y<this.yAxis1.maxValue*1.1 )
         {
           var numberText = yGrid.cutNumberCaptionAt ? (y/Math.pow(10,yGrid.readMag)).toFixed(yGrid.cutNumberCaptionAt) : (y/Math.pow(10,yGrid.readMag));

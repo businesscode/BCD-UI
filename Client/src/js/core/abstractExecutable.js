@@ -640,7 +640,7 @@ bcdui.core.AbstractExecutable = class
 
       // on request, execute
       if (executeIfNotReady)
-        this.execute();
+        this.execute(false);
     }
 
   /**

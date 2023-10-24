@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -117,12 +117,19 @@ abstract class ASqlLogger<T> extends AWorkerQueue<T> {
    * @throws SQLException
    */
   protected int[] executeStatement(Object[][] params) throws SQLException {
-    Connection con = getDataSource().getConnection();
-    boolean isAc = con.getAutoCommit();
-    con.setAutoCommit(true); // Required by QueryRunner
-    int[] res = new QueryRunner().batch(con, sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, params);
-    con.setAutoCommit(isAc);
-    con.close();
+    Connection con = null;
+    int[] res = null;
+    try {
+      con = getDataSource().getConnection();
+      boolean isAc = con.getAutoCommit();
+      con.setAutoCommit(true); // Required by QueryRunner
+      res = new QueryRunner().batch(con, sqlTemplate == null ? (sqlTemplate = getSqlTemplate()) : sqlTemplate, params);
+      con.setAutoCommit(isAc);
+    }
+    finally {
+      if (con != null)
+        con.close();
+    }
     return res;
   }
 

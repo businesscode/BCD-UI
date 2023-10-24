@@ -258,6 +258,15 @@
             renderer.
           </Doc>
         </Param>
+        <Param name="targetRenderer" type="dataProvider" isJSPChild="paramBag.targetRenderer">
+          <Doc>
+            The renderer the tooltip is attached to. The HTML listeners are placed on the
+            targetHTMLElement of this renderer. If 'tableMode' is set to 'true' the renderer
+            is expected to render an HTML table with the appropriate 'bcdColIdent' and
+            'bcdRowIdent' attributes. If omitted the tag must be nested inside the respective
+            renderer.
+          </Doc>
+        </Param>
         <Param name="targetHtmlElement" type="htmlElement" jsName="targetHtml">
           <Doc>
             The HTML listeners are placed on this Element instead of the targetHTMLElement of the given targetRendererId.
@@ -849,6 +858,9 @@
            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
           </Doc>
         </Param>
+        <Param name="skin" type="enum" value="radio|panel" default="radio">
+          <Doc>Currently supporting radio (default) and panel style.</Doc>
+        </Param>
       </Api>
 
       <Api name="tab" extends="widget">
@@ -909,6 +921,14 @@
           </Doc>
         </Param>
         <Param name="targetRendererId" type="string" isJSPParent="true">
+          <Doc>
+            The renderer the tooltip is attached to. The HTML listeners are placed on the
+            targetHTMLElement of this renderer. If 'tableMode' is set to 'true' the renderer
+            is expected to render an HTML table with the appropriate 'bcdRowIdent/bcdColIdent' attributes of tr rows header columns.
+            If omitted the tag must be placed within the respective renderer.
+          </Doc>
+        </Param>
+        <Param name="targetRenderer" type="dataProvider" isJSPChild="paramBag.targetRenderer">
           <Doc>
             The renderer the tooltip is attached to. The HTML listeners are placed on the
             targetHTMLElement of this renderer. If 'tableMode' is set to 'true' the renderer

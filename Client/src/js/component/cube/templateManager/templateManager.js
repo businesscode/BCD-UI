@@ -47,13 +47,14 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
     jQuery(element).addClass("bcdSelected");
 
     var metaDataModel = bcdui.component.cube.templateManager._getOptionsModel();
-    var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout[@cubeId='"+objectId+ "']") != null ? "@cubeId" : "@scorecardId";
-    var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
-    var template  = metaDataModel.getData().selectSingleNode("/*/*[local-name()='Layouts']/*[local-name()='Layout' and " + idAttr + " = '"+objectId+"' and @id='"+ id +"']");
+    var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout") != null ? "@cubeId" : "@scorecardId";
+    var ns = idAttr == "cubeId" ? "cube:" : "scc:";
+    var template  = metaDataModel.getData().selectSingleNode("/*/*[local-name()='Layouts']/*[local-name()='Layout' and @id='"+ id +"']");
     if (template != null) {
       // copy data
       var targetModel = bcdui.component.cube.templateManager._getTargetModel();
       bcdui.core.removeXPath(targetModel.getData(), "/*/*[local-name()='Layout' and " + idAttr + " ='"+objectId+"']" );
+      template.setAttribute(idAttr.substring(1), objectId)
       targetModel.getData().selectSingleNode("/*").appendChild(template.cloneNode(true));
 
       // avoid double firing in case of targetModel == guiStatus and flag "no client refresh possible"

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -32,6 +32,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.businesscode.util.jdbc.Closer;
 
 /**
  * This servlet allows POSTing a text and retrieve it (up to 24h) later via GET under a given name
@@ -60,6 +64,9 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class TextToUrl extends HttpServlet
 {
+
+  private static final Logger log = LogManager.getLogger(TextToUrl.class);
+
   //---------------------------
   // writes the received character stream to db and returns a name to retrieve it
   @Override
@@ -70,11 +77,14 @@ public class TextToUrl extends HttpServlet
     String name = String.format(nameTemplate, gerneratedId);
 
     // Request body to string
-    BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()));
     StringBuilder sb = new StringBuilder();
-    String line = null;
-    while ((line = br.readLine()) != null)
-      sb.append(line + "\n");
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(req.getInputStream()))) {
+      String line = null;
+      while ((line = br.readLine()) != null)
+        sb.append(line + "\n");
+    }
+    catch(Exception e) { log.warn("error while reading input", e); }
+
     String text  = sb.toString();
 
     Connection con = null;
@@ -100,11 +110,8 @@ public class TextToUrl extends HttpServlet
     } catch (SQLException e) {
       throw new ServletException(e.getMessage());
     }
-    try {
-      if( pStmt != null) pStmt.close();
-      if( con != null) con.close();
-    } catch (SQLException e) {
-      throw new ServletException(e.getMessage());
+    finally {
+      Closer.closeAllSQLObjects(pStmt, con);
     }
   }
 

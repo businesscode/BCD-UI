@@ -85,6 +85,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String MSXSL_NAMESPACE        = "urn:schemas-microsoft-com:xslt";
   public static final String RENDERER_PREFIX        = "rnd";
   public static final String RENDERER_NAMESPACE     = "http://www.businesscode.de/schema/bcdui/renderer-1.0.0";
+  public static final String SCHEDULER_PREFIX       = "sched";
+  public static final String SCHEDULER_NAMESPACE    = "http://www.businesscode.de/schema/bcdui/sched-1.0.0";
   public static final String SCORECARD_PREFIX       = "scc";
   public static final String SCORECARD_NAMESPACE    = "http://www.businesscode.de/schema/bcdui/scorecard-1.0.0";
   public static final String SECURITY_PREFIX        = "sec";
@@ -137,6 +139,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(MENU_PREFIX,         MENU_NAMESPACE);
     mapping.put(MSXSL_PREFIX,        MSXSL_NAMESPACE);
     mapping.put(RENDERER_PREFIX,     RENDERER_NAMESPACE);
+    mapping.put(SCHEDULER_PREFIX,    SCHEDULER_NAMESPACE);
     mapping.put(SCORECARD_PREFIX,    SCORECARD_NAMESPACE);
     mapping.put(SECURITY_PREFIX,     SECURITY_NAMESPACE);
     mapping.put(SOAPENV_PREFIX,      SOAPENV_NAMESPACE);

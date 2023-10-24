@@ -47,6 +47,7 @@
         the first wrq part inside a measure is a wrq:* object within a calc:Calc where its parent is not a wrq element.
       -->
       <dm:Measures>
+        <xsl:copy-of select="/cube:CubeConfiguration/dm:Measures/@*"/>
         <xsl:copy><xsl:apply-templates select="/cube:CubeConfiguration/dm:Measures/*" mode="defintion"/></xsl:copy>
         <xsl:apply-templates select="/*/cube:Layout//wrq:*[not(parent::wrq:*) and ancestor::calc:Calc]" mode="generate"/>
       </dm:Measures>

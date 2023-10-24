@@ -348,19 +348,26 @@
             Sets the maximum value for an integer or numeric type input field (HTML5 only).
           </Doc>
         </Param>
+        <Param name="step" type="number">
+          <Doc>
+            Sets the step value (HTML5 only).
+          </Doc>
+        </Param>
         <Param name="autocomplete" type="string" default="off">
           <Doc>
             HTML autocomplete attribute. Can be on or off.
           </Doc>
         </Param>
-        <Param name="type" type="enum" value="text|email|password|int|numeric" default="text">
+        <Param name="type" type="enum" value="text|email|password|int|numeric|time|color" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
             text: a simple text input
             email: a simple text input with email validation, uses email input where available
             password: a password input
+            time: hh:mm input, use step 1 to show seconds, too
             int: an integer value (uses to html5 type=number with step=1 where available)
             numeric: a decimal value (corresponds to html5 type=number with step=any and uses where available)
+            color: a html5 color picker
           </Doc>
           <Impl>
             <Doc>
@@ -437,7 +444,7 @@
 
 
       <Api name="hasOptionsFilter">
-        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="contains">
+        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="startswith">
           <Doc>
             The wildcards apply to filtering within the drop down list and for server side filters.
             This option applies only if bound to a f:Expression element and is ignored otherwise.
@@ -575,6 +582,9 @@
         <Param name="values" type="string" default="1|0">
           <Doc>A pipe separated value of two string which are used for a checked/unchecked state. By default this is 1 and 0.</Doc>
         </Param>
+        <Param name="skin" type="enum" value="checkbox|switch" default="checkbox">
+          <Doc>Currently supporting checkbox (default) and switch style.</Doc>
+        </Param>
       </Api>
 
       <Api name="singleSelect" extends="hasCaptions baseInput hasLabel hasValidator">
@@ -592,7 +602,7 @@
         </Param>
       </Api>
 
-      <Api name="chipsChooser" extends="widget">
+      <Api name="chipsChooser" extends="widget hasOptionsFilter hasLabel">
         <Doc>
           Offers a ChipsChooser where you can select items on a source side and move them to a target side
         </Doc>
@@ -612,6 +622,19 @@
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
           </Doc>
         </Param>
+        <Param name="targetModelXPathRight" required="false" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="upperTitle" required="false" type="string">
+          <Doc>Optional title above upper area</Doc>
+        </Param>
+        <Param name="upperTitleRight" required="false" type="string">
+          <Doc>Optional title above upper right area, when targetModelXPathRight is used.</Doc>
+        </Param>
         <Param name="onBeforeChange" required="false" type="function">
           <Doc>
             Handler function triggered before change, if false is returned, the change is rejected
@@ -619,14 +642,10 @@
          </Doc>       
         </Param>
         <Param name="onChange" required="false" type="function">
-          <Doc>
-            Handler function triggered after change
-          </Doc>       
+          <Doc>Handler function triggered after change</Doc>       
         </Param>
         <Param name="wrsInlineValueDelim" required="false" type="string">
-          <Doc>
-            Delimiter used for WRS read and write. Default is a slash.
-          </Doc>       
+          <Doc>Delimiter used for WRS read and write. Default is a slash.</Doc>       
         </Param>
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
@@ -634,14 +653,86 @@
         <Param name="doSortOptions" required="false" type="boolean" default="true">
           <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
         </Param>
+        <Param name="sortOptionsFunction" type="function">
+          <Doc>a compareFunction(a,b) passed to Array.prototype.sort(); with a, b are objects with { caption, value } A function used to sort items in the connectable. The defaulting implementation uses alphabetic sorting on caption.</Doc>
+        </Param>
         <Param name="onItemMoved" required="false" type="function">
           <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
         </Param>
-        <Param name="keySelectorContains" required="false" type="boolean">
-          <Doc>If true, key strokes will select items as a contains operation instead of a starts-with operation.</Doc>       
+
+        <Param name="delay" type="number" default="500">
+          <Doc>Time (in ms) which passes till the lookup is done.</Doc>
+        </Param>
+        <Param name="maxRows" type="number" default="30">
+          <Doc>Limit the result of the SQL lookup.</Doc>
+        </Param>
+        <Param name="url" type="url"> 
+          <Doc>The URL the model is loaded from. This URL can be extended with a compressed request document if a requestDocument parameter is provided. If omitted the WrsServlet is taken.</Doc>
+        </Param>
+        <Param name="bindingSetId" type="string">
+          <Doc>Name of the binding set which is used for the lookup.</Doc>
+        </Param>
+        <Param name="bRefs" type="string" >
+          <Doc>BindingItem(s) which is(are) used for the lookup. If two are given, it is assumed that first one is caption, second one is code.</Doc>
+        </Param>
+        <Param name="preload" required="false" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options (given by bindingSet and bRef) should get loaded completely on startup.</Doc>       
+        </Param>
+        <Param name="filterElement" type="string">
+          <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
+        </Param>
+        <Param name="filterBRefs" type="stringList">
+          <Doc>
+            The space separated list of binding Refs that will be used in filter clause of request document.
+          </Doc>
+        </Param>
+        <Param name="generateItemHtml" required="false" type="function">
+          <Doc>
+            Function to generate the html for one container item. Gets object with properties: value, caption, position;
+            see implementation documentation to read more about the structure to return by this function.
+          </Doc>
+          <ImplDoc>
+            this function is expected to return following string template:
+            &lt;li
+              class='ui-selectee'
+              bcdValue='value'
+              bcdPos='1'
+              bcdLoCase='caption'
+              title=''>&lt;span class='bcdItem'>[Caption]&lt;/span>&lt;/li>
+          </ImplDoc>
         </Param>
       </Api>
-      
+
+      <Api name="hierarchy" extends="widget hasLabel hasOptionsFilter">
+        <Doc>
+          Renders a hierachy widget with checkboxes for selection.
+        </Doc>
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+            If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
+          </Doc>
+        </Param>
+        <Param name="optionsModelXPath" required="true" type="modelXPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPath" type="xPath">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values
+          </Doc>
+        </Param>
+        <Param name="optionsModelRelativeParentXPath" type="xPath" required="true">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for the parent, this should correspond to the same data type as the value of the options model. 
+          </Doc>
+        </Param>
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
+        </Param>
+      </Api>
+
       <Api name="sideBySideChooser" extends="widget">
         <Doc>
           Offers a SideBySiderChooser where you can select items on a source side and move them to a target side
@@ -701,7 +792,7 @@
         </Param>
       </Api>
       
-      <Api name="connectable" extends="widget">
+      <Api name="connectable" extends="widget hasOptionsFilter">
         <Doc> Offers a simple container with multi select, drag'n drop functionalities </Doc>
         <Param name="doSortOptions" type="boolean" default="false">
           <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
@@ -768,9 +859,7 @@
           </ImplDoc>
         </Param>
         <Param name="generateItemHelperHtml" required="false" type="function">
-          <Doc>
-            Function to generate the html for helper container item which appears when you drag items. Basically the function for jQuery's sortable helper function. By default the first 5 items are listed.
-          </Doc>
+          <Doc>Function to generate the html for helper container item which appears when you drag items. Basically the function for jQuery's sortable helper function. By default the first 5 items are listed.</Doc>
         </Param>
         <Param name="showLasso" required="false" type="boolean" default="true">
           <Doc>If true, you get a selection lasso. Default is true.</Doc>       
@@ -781,8 +870,8 @@
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
         </Param>
-        <Param name="keySelectorContains" required="false" type="boolean">
-          <Doc>If true, key strokes will select items as a contains operation instead of a starts-with operation.</Doc>       
+        <Param name="writeCaptions" required="false" type="boolean">
+          <Doc>If true, target items also get a bcdCaption attribute holding the caption of the value. If used, you should add it to source and target connectables.</Doc>       
         </Param>
       </Api>
 
@@ -1146,6 +1235,26 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
+      <Api name="inputLookup" extends="suggestInput">
+        <Doc>An easy to use suggestInput widget with server sided filling of a data given by binding and bindingItem. 
+        </Doc>
+        <Param name="delay" type="number" default="500">
+          <Doc>Time (in ms) which passes till the lookup is done.</Doc>
+        </Param>
+        <Param name="rowEnd" type="number" default="30">
+          <Doc>Limit the result of the SQL lookup.</Doc>
+        </Param>
+        <Param required="true" name="bindingSetId" type="string">
+          <Doc>Name of the binding set which is used for the lookup.</Doc>
+        </Param>
+        <Param required="true" name="bRef" type="string" >
+          <Doc>BindingItem which is used for the lookup.</Doc>
+        </Param>
+        <Param name="filterElement" type="string">
+          <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
+        </Param>
+      </Api>
+
     </BcdAPI>
 
     <BcdObjects>
@@ -1167,6 +1276,8 @@ the data that is actually placed in XML.
       <BcdObject name="slider" implements="slider" implementationPackage="bcdui.widgetNg.slider"/>
       <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
       <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
+      <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
+      <BcdObject name="hierarchy" implements="hierarchy" implementationPackage="bcdui.widgetNg.hierarchy"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

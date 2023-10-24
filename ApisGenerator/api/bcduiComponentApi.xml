@@ -358,6 +358,11 @@
             When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
           </Doc>
         </Param>
+        <Param name="tooltip" type="string">
+          <Doc>
+            'true' brings default tooltip, 'false' no tooltip and any other string is a url to a custom tooltip.
+          </Doc>
+        </Param>
         <Param name="contextMenu" type="string">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.

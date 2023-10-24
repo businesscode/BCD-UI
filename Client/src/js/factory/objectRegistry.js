@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -97,8 +97,8 @@
    * @private
    */
   _extractFunctionAndIdsFromArgs(args, argsX, keepObjects) {
-    var ids = null;
-    var fn = null;
+    let ids = null;
+    let fn = null;
     if (bcdui.util.isFunction(argsX)) {
       fn = argsX;
       ids = args;
@@ -108,13 +108,14 @@
     }
     if( !Array.isArray(ids) )
       ids = [ ids ];
-    else
-      ids.reduce(function(a, b) { return b != null ? a.concat(b) : a; }, []);
-    for (var i = 0; i < ids.length; ++i) {
-      if( !ids[i] )
-        delete ids[i];
-      else if (bcdui.util.isString(ids[i].id) && bcdui.util.isFunction(ids[i].getData) && keepObjects != true ) ids[i] = ids[i].id;
-      else if (bcdui.util.isString(ids[i].refId)) ids[i] = ids[i].refId;
+
+    ids = ids.filter(function(a) { return a != null; });
+
+    for (let i = 0; i < ids.length; ++i) {
+      if (bcdui.util.isString(ids[i].id) && bcdui.util.isFunction(ids[i].getData) && ! keepObjects)
+        ids[i] = ids[i].id;
+      else if (bcdui.util.isString(ids[i].refId))
+        ids[i] = ids[i].refId;
     }
     return { ids: ids, fn: fn };
   }

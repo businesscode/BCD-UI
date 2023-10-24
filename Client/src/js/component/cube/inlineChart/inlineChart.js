@@ -93,7 +93,9 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 
     // determine width for cell chart (either 100% if we got only 1 cell, or width of 1st one)
     const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();
-    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";     
+    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";
+    
+    const isFreeze = bcdui.factory.objectRegistry.getObject(args.cubeId).getEnhancedConfiguration().query("/*/cube:Layout/cube:Freeze") != null;     
 
     // add a chart per row/cell
     jQuery(args.targetHtml).find("tbody tr td.bcdChartCell").each(function(i,e) {
@@ -118,8 +120,33 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
         , { show: false, min: min2, max: max2 }]
         , xAxis: [ { show: false } ]
         , series:[ {label: {show: false}} ]
+        , legend: {}
         , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 4, right: 0, bottom: 4 }
       };
+
+      // only show legend for very first inline chart (bcdLegend should give some extra space) 
+      if (i == 0)
+        cell.addClass("bcdLegend");
+      else
+        echartOptions["legend"] = {show: false};
+
+      // let's have a custom tooltip position function which tries to avoid going
+      // over the sticky container which does clipping on the tooltip
+      if (isFreeze) {
+        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
+          // -4 to allow some space in case tooltip overlays clickable legend
+          let xPos = point[0] - size.contentSize[0] - 4;
+          if (point[0] - size.contentSize[0] < 0)
+            xPos = point[0] + 4;
+          const maxYSticky = jQuery(dom).parent().closest(".bcdStickyContainer").position().top + jQuery(dom).parent().closest(".bcdStickyContainer").outerHeight();
+          const maxYTooltip = jQuery(dom).offset().top + jQuery(dom).outerHeight();
+          if (maxYTooltip < maxYSticky)
+            return {top: 0, left: xPos};
+          else
+            return {bottom: 0, left: xPos};
+        }
+      }
 
       // in case of PIECHART, we need a slightly different fly over to show the section names correctly
       if (args.chartType1 == "PIECHART") {
@@ -146,7 +173,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       }
 
       // finally add the chart
-      new bcdui.component.chart.ChartEchart({
+      const chart = new bcdui.component.chart.ChartEchart({
         targetHtml: cell.get(0)
       , config: new bcdui.core.ModelWrapper({
           chain: bcdui.contextPath + "/bcdui/js/component/cube/inlineChart/inlineChart.xslt"
@@ -156,10 +183,24 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           , chartType1: args.chartType1 || ""
           , chartType2: args.chartType2 || ""
           , chartColumn: cell.prevAll("td.bcdChartCell").length + 1
+          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
       , options: echartOptions
       });
+      
+      // add a legendSelectChanged listener on the very first (visible) legend
+      if (i == 0) {
+        const target = args.targetHtml;
+        chart.onceReady(function() {
+          echarts.getInstanceByDom(this.getTargetHtml()).on('legendselectchanged', function(params) {
+            // run over all echarts and toggle legendSelect/unSelect
+            jQuery(target).find(".bcdChartCell").each(function(i, e) {
+              echarts.getInstanceByDom(e).dispatchAction({type: (params.selected[params.name] ? 'legendSelect' : 'legendUnSelect'), name: params.name });
+            });
+          });
+        });
+      }
     });
   }
 });

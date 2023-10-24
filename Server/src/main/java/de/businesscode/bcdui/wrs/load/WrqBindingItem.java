@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -555,7 +555,7 @@ public class WrqBindingItem implements WrsBindingItem
         for( String from: mappings.get( to ) ) {
           // Prevent SQL injection
           if( isNumeric )
-            Double.parseDouble(from);
+            from = Double.toString(Double.parseDouble(from));
           else
             from = StringEscapeUtils.escapeSql( from );
           pCEWithVdm.append(sep).append(q).append(from).append(q);
@@ -564,7 +564,7 @@ public class WrqBindingItem implements WrsBindingItem
         pCEWithVdm.append(") THEN ");
         // Prevent SQL injection
         if( isNumeric )
-          Double.parseDouble(to);
+          to = Double.toString(Double.parseDouble(to));
         else
           to = StringEscapeUtils.escapeSql( to );
         pCEWithVdm.append(q).append(to).append(q);
@@ -594,7 +594,7 @@ public class WrqBindingItem implements WrsBindingItem
       if( elseValue != null ) {
         // Prevent SQL injection
         if( isNumeric )
-          Double.parseDouble(elseValue);
+          elseValue = Double.toString(Double.parseDouble(elseValue));
         else
           elseValue = StringEscapeUtils.escapeSql( elseValue );
         pCEWithVdm.append(q).append(elseValue).append(q);
@@ -608,7 +608,7 @@ public class WrqBindingItem implements WrsBindingItem
       if( elseValue!=null && mappings.keySet().size() == 1 ) {
         // Prevent SQL injection
         if( isNumeric )
-          Double.parseDouble(elseValue);
+          elseValue = Double.toString(Double.parseDouble(elseValue));
         else
           elseValue = StringEscapeUtils.escapeSql( elseValue );
         plainColumnExpressionWithVdm = q+elseValue+q;

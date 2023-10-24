@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ isAbsoluteURL: function(url)
 extractFolderFromURL: function( url)
   {
     if (url == null || !url.trim()) return null;
-    url.trim();
+    url = url.trim();
     if (url.endsWith("/")) return url;
     return url.substring(0, url.lastIndexOf("/") + 1);
   },

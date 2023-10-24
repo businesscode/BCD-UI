@@ -28,13 +28,13 @@ import de.businesscode.sqlengine.SQLEngine;
  *    b) the old password is also given in an wrs:M and it matches the one currently found in database
  * 3. If BindingItem password_salt is available in the BindingSet, we want the password salted
  *    On write we take the plain text pwd, hash it with salt and store both values. We may need to add the salt column before, if it is not present in the Wrq to the header and each row
- * 4. If password BindingItem is not in the Wrq, or password is empty or equals NO_PASSWORD_GIVEN_VALUE, we remove the column
+ * 4. If password BindingItem is not in the Wrq, or password is empty or equals NO_PW_GIVEN_VALUE, we remove the column
  */
 public class SecUserTableWriteCallback extends WriteProcessingCallback {
 
   public static final String PARAM_NAME_PERMISSION = "adminRight";
   public static final String DEFAULT_PERMISSION    = "bcdAdmin:Users";
-  public static final String NO_PASSWORD_GIVEN_VALUE = "\u2026"; // Horizontal Ellipsis: "…"
+  public static final String NO_PW_GIVEN_VALUE = "\u2026"; // Horizontal Ellipsis: "…"
 
   protected boolean pwdInOrigWrq = false;
   protected BindingItem passwordBi, passwordSaltBi;
@@ -134,7 +134,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     int wrqPasswordSaltColIdx = indexOf(columnsOfCaller, JdbcRealm.BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT);
     if( cValues.get(wrqPasswordColIdx) == null
         || cValues.get(wrqPasswordColIdx).isEmpty()
-        || NO_PASSWORD_GIVEN_VALUE.equals(cValues.get(wrqPasswordColIdx)) ) {
+        || NO_PW_GIVEN_VALUE.equals(cValues.get(wrqPasswordColIdx)) ) {
       cValues.remove(wrqPasswordColIdx);
       if( rowType.equals(ROW_TYPE.M) )
         oValues.remove(wrqPasswordColIdx);

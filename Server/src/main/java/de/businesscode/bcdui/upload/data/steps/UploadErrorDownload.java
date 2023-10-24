@@ -64,7 +64,7 @@ public class UploadErrorDownload {
         int rowNumber = rowsRs.getInt(1);
         // Data columns
         for(int c = UploadToRowCol.NON_DATA_COLUMNS; c <= colCnt + 1; c++) {
-          csvPrinter.print(rowsRs.getString(c));
+          csvPrinter.print(cleanFormula(rowsRs.getString(c)));
         }
         // Error columns.
         if(rowNumber == 1 && uc.hasHeaderRow()) {
@@ -81,7 +81,7 @@ public class UploadErrorDownload {
             int colPos = errRs.getInt(2) - 1;
             String colCaption = uc.getMappingBindingItemAttribute(colPos, "caption");
             csvPrinter.print(colCaption.isEmpty() ? uc.getMappingBindingItemAttribute(colPos, "id") : colCaption);
-            csvPrinter.print(errRs.getString(4));
+            csvPrinter.print(cleanFormula(errRs.getString(4)));
           } while( errRs.next() && errRs.getInt(1) <= rowNumber);
         }
         csvPrinter.println();
@@ -91,6 +91,19 @@ public class UploadErrorDownload {
     } finally {
       Closer.closeAllSQLObjects( errRs, errPs, rowsRs, rowsPs);
     }
+  }
+
+  private String cleanFormula(String s) {
+    if (s == null)
+      return null;
+
+    String m = s.trim();
+    if ((m.startsWith("+") || m.startsWith("-")) && ! m.matches("^[0-9\\+\\-\\s\\.\\,%€\\$°e]*$"))
+        return m.substring(1);
+    if (m.startsWith("@") || m.startsWith("="))
+        return m.substring(1);
+
+    return m;
   }
 
   protected final String selectErrorsSql =

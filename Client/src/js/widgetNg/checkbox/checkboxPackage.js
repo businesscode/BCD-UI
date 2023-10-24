@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@
      */
     _createInputControl: function(){
 
-      var el = jQuery("<input></input>"); // do not attach .form-check-input since our parent must be .form-check which we cant force here
+      var el = jQuery("<input class='bcdCheckbox'></input>"); // do not attach .form-check-input since our parent must be .form-check which we cant force here
 
       var opts = this.options;
       el.attr("id","inputchk_" + opts.id);
@@ -195,6 +195,8 @@
       el.attr("autofocus", opts.autofocus);
       el.attr("readonly", opts.readonly);
       el.attr("type", "checkbox");
+      if (opts.skin == "switch")
+        el.addClass("bcdSwitch");
 
       // bind native html events if provided; defined by hasHtmlEvents API
       this._mapNativeHtmlEvents(el);

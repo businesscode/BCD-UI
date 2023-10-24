@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,8 +35,10 @@ public class BindingUtils
     jdbcDataTypeCodeToStringMapping = new HashMap<Integer, String>();
     try {
       for (Field field : Types.class.getFields()) {
-        if (field.getType().isPrimitive() && field.getType().getName().equals("int")) {
-          jdbcDataTypeCodeToStringMapping.put(field.getInt(Types.class), field.getName());
+        if (field.getType().isPrimitive()) {
+          String typeName = field.getType().getName();
+          if ("int".equals(typeName))
+              jdbcDataTypeCodeToStringMapping.put(field.getInt(Types.class), field.getName());
         }
       }
     }

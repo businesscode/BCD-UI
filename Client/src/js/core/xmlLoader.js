@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ bcdui.core.XMLLoader = class
   _translateXIncludeElementSchemeToXPointer( xPointer)
     {
       if (xPointer == null) return xPointer;
-      xPointer.trim();
+      xPointer = xPointer.trim();
       if (xPointer.substr(0, 8) != "element(") return xPointer;
       var ptr = xPointer.substring(8, xPointer.length - 1);
       var pos = ptr.indexOf("/");
@@ -356,7 +356,7 @@ bcdui.core.XMLLoader = class
             success : function (response, successCode, jqXHR) {
 
               // Use the low-level responseXML, not response, see comment above
-              response = xhr.responseXML
+              let xmlResponse = xhr.responseXML
               jqXHR.responseXML = xhr.responseXML;
 
               // Usually we wait for the document in parallel to doing stuff on the client
@@ -385,11 +385,12 @@ bcdui.core.XMLLoader = class
                 } else if (bcdui.util.isFunction(args.onFailure)) {
                   args.onFailure("BCD-UI: loading '"+args.url+"' failed.");
                 }
-              }.bind(this, response, jqXHR);
+              }.bind(this, xmlResponse, jqXHR);
 
               // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page) 
-              var resource = args.url.substring(args.url.lastIndexOf("/") + 1);
-              var rUrl = xhr.responseURL || xhr.url;
+              const resource = bcdui.util.decodeURI(args.url.substring(args.url.lastIndexOf("/") + 1));
+              const rUrl = bcdui.util.decodeURI(xhr.responseURL || xhr.url);
+
               if (rUrl.indexOf(resource) == -1) {
                 bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
                 return;

@@ -185,9 +185,11 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 #bcdChartToolTip,
-#bcdTooltipDiv,
-.ui-dialog {
+#bcdTooltipDiv {
   z-index: $z-index-flyover;
+}
+.ui-dialog {
+  z-index: $z-index-flyover - 1;
 }
 
 #bcd_widget_suggestInput_dataList {
@@ -523,7 +525,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   .bcdScDimensionList, .bcdAspectList {
     height: 40%;
   }
-  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentRowDimensionList, .bcdCurrentColMeasureList, bcdCurrentKpiList, bcdCurrentAspectList {
+  .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentRowDimensionList, .bcdCurrentColMeasureList, .bcdCurrentKpiList, .bcdCurrentAspectList {
     padding-bottom: 1em;
   }
   .bcdCurrentColDimensionList, .bcdCurrentMeasureList, .bcdCurrentScColDimensionList, .bcdCurrentAspectList {
@@ -959,7 +961,6 @@ $h6-font-size:                $bcd-font-size-base !default;
       background-color: $secondary-button-color;
       border-color: $secondary-button-color;
       padding: .375em .75em;
-      display: block;
       a {
         color: inherit;
         text-decoration: none;
@@ -1065,26 +1066,6 @@ $h6-font-size:                $bcd-font-size-base !default;
   font-size: 1.25em;
 }
 
-/* fixed header */
-
-.bcdOrigTableHolder {
-  max-height: 40em;
-  overflow-y: auto;
-  padding-right: .5em;
-}
-.bcdTableHeadHolder {
-  position: relative;
-}
-.bcdCloneTableHolder {
-  position: absolute;
-  background-color: #ffffff;
-  top: 0;
-  left: 0;
-}
-.bcdCloneTableHolder .bcdReport{
-  margin-bottom: 0;
-}
-
 /* column filter */
 
 .bcdFilterContainer { display: flex; align-items: center;}
@@ -1165,7 +1146,6 @@ $h6-font-size:                $bcd-font-size-base !default;
   div {margin: .375em 0 .375em 0;}
   input {
     width: auto;
-    margin: 0;
     padding: 0;
     margin: 0 .375em;
   }
@@ -1365,7 +1345,6 @@ table.bcd-far-configurator {
         font-weight: bold;
         vertical-align: middle;
         text-align: center;
-        vertical-align: middle;
         border: 1px solid $border-color;
       }
       .bcdReadOnly  {
@@ -1932,9 +1911,6 @@ select:focus option:checked {
 ::-moz-selection {
   @include bcdSelected();
 }
-::selected {
-  @include bcdSelected();
-}
 
 .bcdPeriodChooser input:focus,
 .form-control:focus {
@@ -1998,7 +1974,7 @@ select:focus option:checked {
     >.title { color: #aa0000; font-weight: bold; font-size: 1.4em; }
   }
 
-  .action:after          { font-family: "Font Awesome 5 Free"; font-weight: 600; }
+  .action:after          { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; }
   .action.download:after { content: "\f56d"; }
   .action.view:after     { content: "\f06e"; }
   .action.delete:after   { content: "\f2ed"; }
@@ -2010,7 +1986,7 @@ select:focus option:checked {
   .def_true .fileType .icon:before  { color: #aa0000; }
   .def_false .fileType .icon:before { color: #aaaaaa; }
 
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; width: 1.2em; display: inline-block; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; width: 1.2em; display: inline-block; }
   .fileType .icon:before { font-size: 2em; padding-right: 0; }
 
   .comment.icon:before, .info .icon:before { font-size: 1em; padding-right: .3em; }
@@ -2071,10 +2047,13 @@ select:focus option:checked {
   .col.info { word-break: break-all;}
 }
 
+/* ******************************************************************* */
+/* comment widget */
+/* ******************************************************************* */
 
 .bcdComment {
-  .row { margin: 0 0 .3em 0; padding: 0; align-items: center;}
-  .col { margin: 0 .3em 0 0; padding: 0; }
+  .row { margin: 0 0 .3em 0; padding: 0; align-items: center; }
+  .col { margin: 0 .3em 0 0; padding: 0; white-space: normal;}
   .col:last-child { margin: 0; }
   .row:last-child { margin: 0; }
   .col.add { flex: 0 0 5em; }
@@ -2087,12 +2066,35 @@ select:focus option:checked {
     border-radius: 1em;
     margin-bottom: .3em;
   }
+
   .edit { flex: 0 0 1em; }
   .edit, .user { text-align: right; }
-  .icon:before           { font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: .3em; }
+  .icon:before           { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: .3em; }
   .icon.ts:before        { content: "\f017"; }
   .icon.user:before      { content: "\f007"; }
   .icon.edit:before      { content: "\f044"; cursor: pointer; }
+}
+
+/* ******************************************************************* */
+/* fixed header */
+/* ******************************************************************* */
+
+.bcdOrigTableHolder {
+  max-height: 40em;
+  overflow-y: auto;
+  padding-right: .5em;
+}
+.bcdTableHeadHolder {
+  position: relative;
+}
+.bcdCloneTableHolder {
+  position: absolute;
+  background-color: #ffffff;
+  top: 0;
+  left: 0;
+}
+.bcdCloneTableHolder .bcdReport{
+  margin-bottom: 0;
 }
 
 /* ******************************************************************* */
@@ -2105,14 +2107,21 @@ $chips-close-color: #c00 !default;
 
 .bcdChipChooser {
   
+  position: relative;
+  
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
-  .bcdLower { height: 10em; }
+  .bcdLower {
+    height: 10em;
+    .bcdLoading {width: 1em; height: 1em;}
+  }
+
+  .bcdLowerContainer { position: absolute; z-index: $z-index-autocomplete; width: 100%; }
 
   .bcdMiddle {
     span {
       position: relative; cursor:pointer;
       &:after {
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: #3c5b7b;
         margin-left: .3em;
@@ -2156,11 +2165,29 @@ $chips-close-color: #c00 !default;
         cursor: pointer;
         content: "\f00d";
         font-style: normal;
-        font-family: 'Font Awesome 5 Free';
+        font-family: 'Font Awesome 5 Free', sans-serif;
         font-weight: bold;
         color: $chips-text-color;
         margin-left: .3em;
       }
+    }
+    label {
+      font-size: .8em;
+      font-weight: normal;
+      padding: 0 0 0 .3em;
+      margin: 0;
+    }
+  }
+  &.bcdSplit .bcdUpper {
+    display: flex;
+    text-align: right;
+    border: 1px solid $border-color;
+    .bcdLeft, .bcdRight {
+      width: 50%;
+    }
+    .bcdConnectable {
+      overflow-y: scroll;
+      overflow-x: inherit;
     }
   }
 }
@@ -2215,7 +2242,7 @@ $chips-close-color: #c00 !default;
     text-decoration: none;
   }
   a:hover { color: #000; }
-  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free"; font-weight: 600; padding-right: 0.5em; }
+  a:after { content: "\f06e"; font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; padding-right: 0.5em; }
 }
 
 .bcdCssReset { all: revert; }
@@ -2242,4 +2269,199 @@ $chips-close-color: #c00 !default;
   > thead > tr > th { text-align: center; }
   td { text-align: left; } /* chart flyover */
   td.bcdChartCell { padding: 0; margin: 0; height: 6em; }
+  td.bcdLegend { height: 8em; }
+}
+
+/* ******************************************************************* */
+/* checkbox switch skin */
+/* ******************************************************************* */
+
+.bcdCheckbox.bcdSwitch {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  outline: none;
+  content: none;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 2em;
+  height: 1em;
+  background-color: inherit;
+
+  & + label {
+    vertical-align: middle;
+    display: inline-block;
+    margin: 0 0 0 .4em;
+  }
+
+  &:after {
+    content: "\f204";
+    font-family: 'Font Awesome 5 Free', sans-serif;
+    font-weight: bold;
+    font-size: 1.75em;
+    color: $select-color;
+    vertical-align: middle;
+  }
+
+  &:checked:after {
+    content: "\f205";
+  } 
+}
+
+/* ******************************************************************* */
+/* single select panel skin */
+/* ******************************************************************* */
+
+.bcdRadioItem {
+  label, input {
+    margin: 0;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  label { padding: 0px 8px 0px 3px; }
+  input { padding: 0; } 
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem {
+  input:after {display: none;}
+  input:focus,
+  input {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    -o-appearance: none;
+    outline: none;
+    content: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: inherit;
+    width: 0;
+    height: 0;
+    box-shadow: none;
+  }
+
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  @extend .noselect;
+
+  label { padding: .3em .5em; margin: 0; cursor: pointer; border:  1px solid $select-color; border-radius: 0;} 
+  input:checked ~ label { background-color: $select-color !important; color: $text-color-bright !important; }
+  &:first-child input ~ label { border-right: none; border-left:  1px solid $select-color; border-radius: .5em 0 0 .5em; }
+  &:last-child  input ~ label { border-left: none;  border-right: 1px solid $select-color; border-radius: 0 .5em .5em 0; }
+}
+
+/* ******************************************************************* */
+/* input color */
+/* ******************************************************************* */
+
+input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
+
+/* ******************************************************************* */
+/* hierarchy */
+/* ******************************************************************* */
+
+.bcdHierarchy {
+
+  background-color: #ffffff;
+  position: relative;
+
+  .form-control { background-color: #ffffff; }
+
+  i {
+    position: absolute;
+    cursor: pointer;
+    right: 0;
+    top: .1em;
+
+    &:after {
+      font-family: 'Font Awesome 5 Free', sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      color: #495057;
+      margin-left: .3em;
+      position: absolute;
+      right: 1em;
+      top: .4em;
+      padding: 0;
+    }
+  }
+
+  .bcdFind:after  { content: "\f002"; cursor: default; }
+  .bcdDown:after  { content: "\f078"; }
+  .bcdUp:after    { content: "\f077"; }
+  .bcdClear:after { content: "\f00d"; color: $text-disabled-color; right: 2.5em; }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 1em;
+  }
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    
+    input[type='checkbox'] {
+      margin: 0 .3em 0 0;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    label {
+      cursor: pointer;
+      vertical-align: middle;
+      margin: 0;
+      padding: 0;
+
+      &:hover { font-weight: bold; }
+    }
+
+    .bcdHideItem label:hover, .bcdHideParent label:hover { font-weight: normal; }
+  }
+
+  .bcdLower { height: auto; position: absolute; z-index: $z-index-autocomplete; }
+
+  .bcdItems {
+    overflow: auto;
+    height: 20em;
+    padding: 0;
+    margin: 0;
+    user-select: none;
+
+    > ul { padding: 0; }
+
+    .bcdHideItem label, .bcdHideItem input { display: none; }
+    .bcdParent               > span.bcdHideItem label { color: $text-disabled-color; display: inline-block; }
+    .bcdParent.bcdHideParent > span.bcdHideItem label { display: none; }
+  }
+
+  .bcdFooter {
+    text-align: right;
+    padding: .3em;
+    font-size: .8em;
+
+    .bcdButton { margin: 0 0 0 .3em; padding: .2em .6em; }
+  }
+
+  .bcdHeader, .bcdSearch {
+    vertical-align: middle;
+    position: relative;
+  }
+
+  .bcdSearchCount {
+    padding-right: 0 !important;
+    input { padding-right: 3.5em; }
+  }
+  .bcdSearchCount, .bcdCount {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+    padding-right: 1em;
+  }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -60,11 +60,9 @@ public class ParamsContextObject {
       Integer nr;
 
       // default if called without mutliplicities
-      if(null == multiplicities) { nr = Integer.valueOf(1); }
-
-      nr = multiplicities.get(key);
+      nr = (null == multiplicities) ? Integer.valueOf(1) : multiplicities.get(key);
       // actual no hit is error
-      if(null == multiplicities.get(key)){
+      if(null == nr){
          return null;
       }
       requestedKeys.add(key);

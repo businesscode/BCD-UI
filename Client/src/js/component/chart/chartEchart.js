@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2023 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -630,10 +630,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     const merge = (target, source) => {
       // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
       for (let key of Object.keys(source)) {
-        if (target[key] !== undefined && source[key] !== undefined && 
-            (    (   source[key] instanceof String && ! target[key] instanceof String)
+        if (target[key] !== undefined && source[key] !== undefined && target[key] != null && source[key] != null &&
+            (    (   source[key] instanceof String && ! (target[key] instanceof String))
               || (! (source[key] instanceof String) &&   target[key] instanceof String)
-              || (   source[key] instanceof Array  && ! target[key] instanceof Array)
+              || (   source[key] instanceof Array  && ! (target[key] instanceof Array))
               || (! (source[key] instanceof Array)  &&   target[key] instanceof Array)
             ))
             throw new Error("Merging invalid types: " + key);
@@ -675,7 +675,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         data.push(e.text);
       });
       if (addCategories[x].getAttribute("distinct") === "true") {
-        data = data.filter(function(e, idx){return data.indexOf(e) == idx});s
+        data = data.filter(function(e, idx){return data.indexOf(e) == idx});
       }
       if (this.config.query("//chart:Series[@chartType='BARCHARTHORIZONTAL']") != null)
         opts.yAxis.push({data: data});
@@ -684,6 +684,17 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     }
 
     // merge user options
+
+    // via chart xml    
+    let eOptions = null;
+    const eChartOptions = this.config.query("/*/chart:EChartOptions");
+    if (eChartOptions != null) {
+      try { eOptions = JSON.parse(eChartOptions.firstChild.wholeText.replace(/\s/g, "")) } catch (e) {/* if parsing fails, don't takeover options */}
+      if (eOptions != null) {
+        opts = merge(opts, eOptions);
+      }
+    }
+    // via js param
     opts = merge(opts, this.userOptions);
 
     // link contextMenu
@@ -718,8 +729,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         })
       });
       
-      jQuery("#" + this.targetHtml).on("chart:contextMenu", function(evt, args) {
-        var chartDetails = jQuery("#" + this.targetHtml).data("bcdChartdetails");
+      jQuery("#" + this.targetHTMLElementId).on("chart:contextMenu", function(evt, args) {
+        var chartDetails = jQuery("#" + this.targetHTMLElementId).data("bcdChartdetails");
         if (typeof chartDetails != "undefined")
           customOnContextMenu.callback(chartDetails, args);
       }.bind(this));
@@ -1007,7 +1018,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     }
     else {
       let msg = bcdui.i18n.syncTranslateFormatMessage("bcd_EmptyChart");
-      jQuery("#"+this.targetHtml).html("<div>"+opts.title.text+"</div><div style='margin-top:0.75em;font-size:0.75em'>"+msg+"</div>");
+      jQuery("#"+this.targetHTMLElementId).html("<div>"+opts.title.text+"</div><div style='margin-top:0.75em;font-size:0.75em'>"+msg+"</div>");
     }
   }
 

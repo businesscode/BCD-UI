@@ -262,24 +262,25 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
 
     // resize header/footer on a resize
     if (args.sideBarSizeAdjust || args.pageSizeAdjust || args.pageStickyFooter) {
-      jQuery(window).off("resize");
-      jQuery(window).on("resize", function(e) {
-
-        if (args.pageStickyFooter)
-          bcdui.widget.pageEffects._repositionFooter();
-
-        if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
-        if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
-        if (args.pageSizeAdjust) {
-          var docWidth     = jQuery(document).width();
-          var bodyWidth    = jQuery("body").width();
-          var scrollX      = jQuery("html").scrollLeft() > jQuery("body").scrollLeft() ? jQuery("html").scrollLeft() : jQuery("body").scrollLeft();
-          var newWidth = bodyWidth;
-          if (scrollX > 0 && bodyWidth < docWidth)
-            newWidth = docWidth;
-          jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", newWidth + "px");
-        }
-      });
+      if (! jQuery(window).data("bcdSideBar")) {
+        jQuery(window).data("bcdSideBar", true);
+        jQuery(window).on("resize", function() {
+          if (args.pageStickyFooter)
+            bcdui.widget.pageEffects._repositionFooter();
+  
+          if (jQuery("#bcdSideBarArea input[text], #bcdSideBarArea textarea").is(":focus")) return;
+          if (jQuery("#bcdAutoCompletionBox:visible").length > 0) return;
+          if (args.pageSizeAdjust) {
+            var docWidth     = jQuery(document).width();
+            var bodyWidth    = jQuery("body").width();
+            var scrollX      = jQuery("html").scrollLeft() > jQuery("body").scrollLeft() ? jQuery("html").scrollLeft() : jQuery("body").scrollLeft();
+            var newWidth = bodyWidth;
+            if (scrollX > 0 && bodyWidth < docWidth)
+              newWidth = docWidth;
+            jQuery("#bcdFooterArea,#bcdSpacerArea,#bcdMenuBarArea,#bcdHeaderArea").css("width", newWidth + "px");
+          }
+        });
+      }
     }
 
     if (args.sideBarSizeAdjust) {
