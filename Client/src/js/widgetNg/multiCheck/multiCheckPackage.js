@@ -16,35 +16,35 @@
 "use strict";
 
 (function(){
-  jQuery.widget("bcdui.bcduiHierarchyNg", jQuery.bcdui.bcduiWidget,
-    /** @lends bcdui.bcduiHierarchyNg */
+  jQuery.widget("bcdui.bcduiMultiCheckNg", jQuery.bcdui.bcduiWidget,
+    /** @lends bcdui.bcduiMultiCheckNg */
   {
     _getCreateOptions : function(){
-      return bcdui.widgetNg.impl.readParams.hierarchy(this.element[0]);
+      return bcdui.widgetNg.impl.readParams.multiCheck(this.element[0]);
     },
 
     _validateOptions : function(){
-      bcdui.widgetNg.impl.validateParams.hierarchy(this.options);
+      bcdui.widgetNg.impl.validateParams.multiCheck(this.options);
     },
 
     _create : function(){
       this._super();
-      bcdui.log.isTraceEnabled() && bcdui.log.trace("creating hierarchy widget with config ");
+      bcdui.log.isTraceEnabled() && bcdui.log.trace("creating multiCheck widget with config ");
 
       // avoid rendering while attaching children
       this.element.hide();
       
-      this.switchTargetModelXPath = "/*/guiStatus:ClientSettings/guiStatus:Hierarchy[@id=\"" + this.options.id + "\"]/guiStatus:ShowEnabledOnly";
+      this.switchTargetModelXPath = "/*/guiStatus:ClientSettings/guiStatus:MultiCheck[@id=\"" + this.options.id + "\"]/guiStatus:ShowEnabledOnly";
       
       this.i18nPleaseSelect = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_singleSelect_please_select"}) || "Please select...");
       this.i18nPleaseType = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_chipsChooser_please_type"}) || "Please start typing...");
-      this.i18nSelectAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_selectAll"}) || "Select All");
-      this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_clearAll"}) || "Clear All");
-      this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_selectVisible"}) || "Select Visible");
-      this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_ClearVisible"}) || "Clear Visible");
-      this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_hierarchy_ShowSelectedOnly"}) || "Show selected only");
+      this.i18nSelectAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectAll"}) || "Select All");
+      this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearAll"}) || "Clear All");
+      this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectVisible"}) || "Select Visible");
+      this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearVisible"}) || "Clear Visible");
+      this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_showSelectedOnly"}) || "Show selected only");
 
-      let hierarchyBox = this._createHierarchyBox();
+      let multiCheckBox = this._createMultiCheckBox();
 
       const optionsConfig = bcdui.factory._extractXPathAndModelId(this.options.optionsModelXPath);
       const targetConfig = bcdui.factory._extractXPathAndModelId(this.options.targetModelXPath);
@@ -62,10 +62,10 @@
       this.keypressSelector = this.options.wildcard == "startswith" ? "^=" : this.options.wildcard == "contains" ? "*=" : "$=";
 
       // handle label creation after appending control
-      this._createLabel(hierarchyBox.attr("id"));
+      this._createLabel(multiCheckBox.attr("id"));
 
       // attach to DOM
-      this.element.append(hierarchyBox);
+      this.element.append(multiCheckBox);
 
       bcdui.wkModels.guiStatus.onChange(function() {
         if (this.config.instance.internalSwitch)
@@ -97,7 +97,7 @@
       const dphTarget = new bcdui.core.DataProviderHolder();
 
       bcdui.factory.objectRegistry.withReadyObjects([dphOption, dphTarget], function() {
-        this._fillHierarchyBox(this.config);
+        this._fillMultiCheckBox(this.config);
       }.bind(this));
 
       // initial rendering
@@ -113,7 +113,7 @@
           jQuery(this.options.targetHtml).find(".bcdHeader  i").removeClass("bcdUp").addClass("bcdDown");
           jQuery(this.options.targetHtml).find(".bcdLower").hide();
           // and rebuild inner part 
-          this._fillHierarchyBox(this.config);
+          this._fillMultiCheckBox(this.config);
         }.bind(this));
 
       }.bind(this));
@@ -136,7 +136,7 @@
                 const ticked = (available.indexOf(this.sortedOptions[item.getAttribute("id").split("_")[1]].id) != -1);
                 item.checked = ticked;
               }.bind(this));
-              bcdui.widgetNg.hierarchy._update(this.options.targetHtml)
+              bcdui.widgetNg.multiCheck._update(this.options.targetHtml)
             }
           }.bind(this)
           , this.config.targetModelXPath);
@@ -144,8 +144,8 @@
         // readd events
         this.element.off("click");
         this.element.on("click", ".bcdHeader", function(event) {
-          jQuery(event.target).closest(".bcdHierarchy").find(".bcdHeader i").toggleClass("bcdUp bcdDown");
-          jQuery(event.target).closest(".bcdHierarchy").find(".bcdLower").toggle(); 
+          jQuery(event.target).closest(".bcdMultiCheck").find(".bcdHeader i").toggleClass("bcdUp bcdDown");
+          jQuery(event.target).closest(".bcdMultiCheck").find(".bcdLower").toggle(); 
         });
         this.element.find(".bcdSearch").off("click");
         this.element.find(".bcdSearch").on("click", ".bcdClear", function(event) {
@@ -154,10 +154,10 @@
         });
         this.element.find(".bcdItems").off("click");
         this.element.find(".bcdItems").on("click", "input:visible", function(event) {
-          const targetHtml = jQuery(event.target).closest(".bcdHierarchy").parent();
+          const targetHtml = jQuery(event.target).closest(".bcdMultiCheck").parent();
           if (! event.ctrlKey)
             jQuery(event.target).closest("li").find("ul").find("input:visible").prop('checked', event.target.checked);
-          bcdui.widgetNg.hierarchy._update(targetHtml);
+          bcdui.widgetNg.multiCheck._update(targetHtml);
         });
         
         const targetHtml = jQuery(this.element);
@@ -231,7 +231,7 @@
     /**
      * @private
      */
-    _fillHierarchyBox: function(config){
+    _fillMultiCheckBox: function(config){
       jQuery(this.options.targetHtml).find(".bcdItems").empty();
 
       // get data from optionsModel
@@ -262,19 +262,19 @@
         });
       }
 
-      // remember index in sortedOptions for later lookup in hierarchy 
+      // remember index in sortedOptions for later lookup in multiCheck 
       this.sortedOptions.forEach(function(e,i ) {e.index = i; });
 
-      // function to build up a hierarchy tree on the data array
-      const buildHierarchy = function(data) {
-        let hierarchy = [];
+      // function to build up a multiCheck tree on the data array
+      const buildMultiCheck = function(data) {
+        let multiCheck = [];
         let parents = {};
         data.forEach(function(item) {
           parents[item.id] = parents[item.id] || [];
           item["childs"] = parents[item.id];
-          item.parentId ? (parents[item.parentId] = parents[item.parentId] || []).push(item) : hierarchy.push(item);
+          item.parentId ? (parents[item.parentId] = parents[item.parentId] || []).push(item) : multiCheck.push(item);
         });
-        return hierarchy;
+        return multiCheck;
       };
 
       // renders a single tree item plus all its children as li/ul
@@ -294,22 +294,22 @@
       // render the tree
       let html = "<ul>";
       const id = bcdui.factory.objectRegistry.generateTemporaryIdInScope("cb");
-      buildHierarchy(this.sortedOptions).forEach(function(item) { html += renderTree(item, id); });
+      buildMultiCheck(this.sortedOptions).forEach(function(item) { html += renderTree(item, id); });
       html += "</ul>";
       jQuery(this.options.targetHtml).find(".bcdItems").append(html);
 
       // initially update XML
-      bcdui.widgetNg.hierarchy._update(this.options.targetHtml);
+      bcdui.widgetNg.multiCheck._update(this.options.targetHtml);
     },
 
     /**
      * @private
      */
-    _createHierarchyBox: function(){
+    _createMultiCheckBox: function(){
       const header = "<div class='bcdHeader form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
       const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
-      const footer = "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.hierarchy._tick(this, false, true)'></bcd-buttonNg><span></div>";
-      return jQuery("<div class='bcdHierarchy'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='hierarchy_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
+      const footer = "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, true)'></bcd-buttonNg><span></div>";
+      return jQuery("<div class='bcdMultiCheck'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='multiCheck_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
     },
 
     /**
@@ -323,26 +323,26 @@
 }());
 
 /**
- * A namespace for the BCD-UI hierarchyNg widget.
- * @namespace bcdui.widgetNg.hierarchy
+ * A namespace for the BCD-UI multiCheckNg widget.
+ * @namespace bcdui.widgetNg.multiCheck
  * @private
  */
-bcdui.widgetNg.hierarchy = Object.assign(bcdui.widgetNg.hierarchy,
-/** @lends bcdui.widgetNg.hierarchy */
+bcdui.widgetNg.multiCheck = Object.assign(bcdui.widgetNg.multiCheck,
+/** @lends bcdui.widgetNg.multiCheck */
 {
   /**
    * @private
    */
   init: function(htmlElement){
-    bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui hierarchy widget adapter init");
-    jQuery(htmlElement).bcduiHierarchyNg();
+    bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui multiCheck widget adapter init");
+    jQuery(htmlElement).bcduiMultiCheckNg();
   },
   
   /**
    * @private
    */
   _tick: function(htmlElement, enable, all) {
-    const targetHtml = jQuery(htmlElement).closest(".bcdHierarchy").parent();
+    const targetHtml = jQuery(htmlElement).closest(".bcdMultiCheck").parent();
     const config = targetHtml.data("_config_");
     
     if (all) {
@@ -356,7 +356,7 @@ bcdui.widgetNg.hierarchy = Object.assign(bcdui.widgetNg.hierarchy,
     else
       jQuery(targetHtml).find(".bcdItems input:visible").prop('checked', enable);
 
-    bcdui.widgetNg.hierarchy._update(targetHtml);
+    bcdui.widgetNg.multiCheck._update(targetHtml);
   },
 
   /**
