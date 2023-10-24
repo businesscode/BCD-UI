@@ -197,150 +197,150 @@ bcdui.core.browserCompatibility = {
 // BEGIN: Implementation of Specific functions in all non-IE Browsers.
 // -----------------------------------------------------------------------------
 
-  /**
-   * @private
-   */
-  bcdui.browserCompatibility.BCDUINodeList = function(doc, baseNode, xPathExpression)
-  {
-    try {
-      var nodeIterator = doc.evaluate(xPathExpression, baseNode, bcdui.core.browserCompatibility.resolveNamespace, 0, null);
-    } catch( e ) {
-      throw new Error("Invalid XPath: '"+xPathExpression+"'");
-    }
-    var node = null;
-    this.length = 0;
-    while ( (node = nodeIterator.iterateNext()) != null ) {
-      this[this.length++] = node;
-    }
+/**
+ * @private
+ */
+bcdui.browserCompatibility.BCDUINodeList = function(doc, baseNode, xPathExpression)
+{
+  try {
+    var nodeIterator = doc.evaluate(xPathExpression, baseNode, bcdui.core.browserCompatibility.resolveNamespace, 0, null);
+  } catch( e ) {
+    throw new Error("Invalid XPath: '"+xPathExpression+"'");
   }
-
-  /**
-   * @private
-   */
-  bcdui.browserCompatibility.BCDUINodeList.prototype.item = function(index)
-  {
-    if (index < 0 || index >= this.length) return null;
-    return this[index];
+  var node = null;
+  this.length = 0;
+  while ( (node = nodeIterator.iterateNext()) != null ) {
+    this[this.length++] = node;
   }
+}
 
-  /**
-   * @ignore
-   */
-  XSLTProcessor.prototype.addParameter = function(name, value)
-  {
-    this.setParameter(null, name, value);
+/**
+ * @private
+ */
+bcdui.browserCompatibility.BCDUINodeList.prototype.item = function(index)
+{
+  if (index < 0 || index >= this.length) return null;
+  return this[index];
+}
+
+/**
+ * @ignore
+ */
+XSLTProcessor.prototype.addParameter = function(name, value)
+{
+  this.setParameter(null, name, value);
+}
+
+XMLDocument.prototype.selectSingleNode = function(xPathExpression)
+{
+  return this.evaluate(xPathExpression, this, bcdui.core.browserCompatibility.resolveNamespace, 0, null).iterateNext();
+}
+
+/**
+ * @ignore
+ */
+XMLDocument.prototype.selectNodes = function(xPathExpression)
+{
+  return new bcdui.browserCompatibility.BCDUINodeList(this, this, xPathExpression);
+}
+
+/**
+ * @ignore
+ */
+XMLDocument.prototype.createNode = function(nodeType, nodeName, namespaceURI)
+{
+  if (nodeType != 1) throw new Error("createNode: Cannot create nodes other than Element nodes");
+  if (namespaceURI == null) throw new Error("createNode: Namespace URI must not be null");
+  var name = nodeName;
+  var pos = nodeName.indexOf(':');
+  var prefix = "";
+  if (pos > 0) {
+    prefix = nodeName.substr(0, pos);
+    name = nodeName.substr(pos + 1);
   }
+  var result = this.createElementNS(namespaceURI, name);
+  if (prefix != null && prefix != "") result.prefix = prefix;
+  return result;
+}
 
-  XMLDocument.prototype.selectSingleNode = function(xPathExpression)
+/**
+ * This is to support handling a plain doc similar to a bcd dataprovider. Similar means, fire events and so on is not dummied here
+ * @ignore
+ */
+XMLDocument.prototype.getData = function() { return this; };
+
+/**
+ * @ignore
+ */
+Node.prototype.selectSingleNode = function(xPathExpression)
+{
+  return (this.ownerDocument || this).evaluate(xPathExpression, this, bcdui.core.browserCompatibility.resolveNamespace, 0, null).iterateNext();
+}
+
+/**
+ * @ignore
+ */
+Node.prototype.selectNodes = function(xPathExpression)
+{
+  return new bcdui.browserCompatibility.BCDUINodeList(this.ownerDocument || this, this, xPathExpression);
+}
+
+/**
+ * @ignore
+ */
+Element.prototype.selectNodes = Node.prototype.selectNodes;
+
+/**
+ * @ignore
+ */
+Element.prototype.selectSingleNode = Node.prototype.selectSingleNode;
+
+/**
+ * @ignore
+ */
+Attr.prototype.__defineGetter__("text", function()
+{
+  return this.nodeValue;
+});
+
+/**
+ * @ignore
+ */
+Attr.prototype.__defineSetter__("text", function(txt)
   {
-    return this.evaluate(xPathExpression, this, bcdui.core.browserCompatibility.resolveNamespace, 0, null).iterateNext();
-  }
-
-  /**
-   * @ignore
-   */
-  XMLDocument.prototype.selectNodes = function(xPathExpression)
-  {
-    return new bcdui.browserCompatibility.BCDUINodeList(this, this, xPathExpression);
-  }
-
-  /**
-   * @ignore
-   */
-  XMLDocument.prototype.createNode = function(nodeType, nodeName, namespaceURI)
-  {
-    if (nodeType != 1) throw new Error("createNode: Cannot create nodes other than Element nodes");
-    if (namespaceURI == null) throw new Error("createNode: Namespace URI must not be null");
-    var name = nodeName;
-    var pos = nodeName.indexOf(':');
-    var prefix = "";
-    if (pos > 0) {
-      prefix = nodeName.substr(0, pos);
-      name = nodeName.substr(pos + 1);
-    }
-    var result = this.createElementNS(namespaceURI, name);
-    if (prefix != null && prefix != "") result.prefix = prefix;
-    return result;
-  }
-
-  /**
-   * This is to support handling a plain doc similar to a bcd dataprovider. Similar means, fire events and so on is not dummied here
-   * @ignore
-   */
-  XMLDocument.prototype.getData = function() { return this; };
-
-  /**
-   * @ignore
-   */
-  Node.prototype.selectSingleNode = function(xPathExpression)
-  {
-    return (this.ownerDocument || this).evaluate(xPathExpression, this, bcdui.core.browserCompatibility.resolveNamespace, 0, null).iterateNext();
-  }
-
-  /**
-   * @ignore
-   */
-  Node.prototype.selectNodes = function(xPathExpression)
-  {
-    return new bcdui.browserCompatibility.BCDUINodeList(this.ownerDocument || this, this, xPathExpression);
-  }
-
-  /**
-   * @ignore
-   */
-  Element.prototype.selectNodes = Node.prototype.selectNodes;
-
-  /**
-   * @ignore
-   */
-  Element.prototype.selectSingleNode = Node.prototype.selectSingleNode;
-
-  /**
-   * @ignore
-   */
-  Attr.prototype.__defineGetter__("text", function()
-  {
-    return this.nodeValue;
+    this.nodeValue = txt;
   });
 
-  /**
-   * @ignore
-   */
-  Attr.prototype.__defineSetter__("text", function(txt)
-    {
-      this.nodeValue = txt;
-    });
-
-  /**
-   * TODO: to recursiv and consistent with ie, am besten auch normalize fuer xml
-   * @ignore
-   */
-  Element.prototype.__defineGetter__("text", function()
-  {
-    var result = "";
-    var children = this.childNodes;
-    for (var i = 0; i < children.length; ++i) {
-      var node = children.item(i);
-      if (node.nodeType == 3) {
-        result = result + node.nodeValue;
-      }
+/**
+ * TODO: to recursiv and consistent with ie, am besten auch normalize fuer xml
+ * @ignore
+ */
+Element.prototype.__defineGetter__("text", function()
+{
+  var result = "";
+  var children = this.childNodes;
+  for (var i = 0; i < children.length; ++i) {
+    var node = children.item(i);
+    if (node.nodeType == 3) {
+      result = result + node.nodeValue;
     }
-    return result;
+  }
+  return result;
+});
+
+/**
+ * @ignore
+ */
+Element.prototype.__defineSetter__("text", function(txt)
+  {
+    //we emulate IE here, so remove all children and set textcontent
+    while(this.firstChild!=null){
+      this.removeChild(this.firstChild);
+    }
+
+    // Add the text
+    this.appendChild(this.ownerDocument.createTextNode(txt));
   });
-
-  /**
-   * @ignore
-   */
-  Element.prototype.__defineSetter__("text", function(txt)
-    {
-      //we emulate IE here, so remove all children and set textcontent
-      while(this.firstChild!=null){
-        this.removeChild(this.firstChild);
-      }
-
-      // Add the text
-      this.appendChild(this.ownerDocument.createTextNode(txt));
-    });
 
 //-----------------------------------------------------------------------------
 //END: Implementation of specific functions in all non-IE Browsers.

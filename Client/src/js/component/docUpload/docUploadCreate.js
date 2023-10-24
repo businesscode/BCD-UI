@@ -231,8 +231,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
         else if (jQuery(event.target).hasClass("action")) {
         var action = "";
-          if (jQuery(event.target).hasClass("delete"))
-            action = "delete";
+        if (jQuery(event.target).hasClass("delete"))
+          action = "delete";
           self._performAction(jQuery(event.target).closest(".bcdDropArea"), action);
         }
         else {

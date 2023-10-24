@@ -443,7 +443,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       }
       var pos = typeof newPos != "undefined" ? newPos : el.get(0).value.length;
       try{
-          el.get(0).setSelectionRange(pos,pos);
+        el.get(0).setSelectionRange(pos,pos);
       }catch(e){
         ; // swallow but report in console
         window.console&&window.console.error("inputFieldPackage.js: failed to _setCursorPosition()", e);

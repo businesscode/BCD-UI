@@ -460,22 +460,22 @@ bcdui.core.XMLLoader = class
               // Use the low-level responseXML, see comment above
               jqXHR.responseXML = xhr.responseXML;
 
-                /*
-                 * On IE the response.getHeader function does not yet work.
-                 */
-                if (jqXHR.getResponseHeader("Content-Length") == 0) {
-                  bcdui.log.warn("Got empty response: This may lead to 'Kein Element gefunden' Exception in FireFox");
-                  if (bcdui.util.isFunction(args.onSuccess)) {
-                    args.onSuccess(null);
-                  }
-                  return;
+              /*
+               * On IE the response.getHeader function does not yet work.
+               */
+              if (jqXHR.getResponseHeader("Content-Length") == 0) {
+                bcdui.log.warn("Got empty response: This may lead to 'Kein Element gefunden' Exception in FireFox");
+                if (bcdui.util.isFunction(args.onSuccess)) {
+                  args.onSuccess(null);
                 }
-                var contentType = jqXHR.getResponseHeader("Content-Type");
-                if (contentType == null) {
-                  bcdui.log.warn("No content type in response of: " + args.url);
-                } else if (!contentType.indexOf("/xml") < 0) {
-                  bcdui.log.warn("Unexpected content type \"" + contentType + "\" for XML request: " + args.url);
-                }
+                return;
+              }
+              var contentType = jqXHR.getResponseHeader("Content-Type");
+              if (contentType == null) {
+                bcdui.log.warn("No content type in response of: " + args.url);
+              } else if (!contentType.indexOf("/xml") < 0) {
+                bcdui.log.warn("Unexpected content type \"" + contentType + "\" for XML request: " + args.url);
+              }
 
               var dataDoc = jqXHR.responseXML;
               var soapFaultResult = args.skipSoapFault ? 0 : this._checkForSOAPFault( {doc: dataDoc} );
