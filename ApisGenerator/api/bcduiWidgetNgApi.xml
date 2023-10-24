@@ -703,9 +703,9 @@
         </Param>
       </Api>
 
-      <Api name="hierarchy" extends="widget hasLabel hasOptionsFilter">
+      <Api name="multiCheck" extends="widget hasLabel hasOptionsFilter">
         <Doc>
-          Renders a hierachy widget with checkboxes for selection.
+          Renders a multiCheck widget with checkboxes for selection.
         </Doc>
         <Param name="targetModelXPath" required="true" type="writableModelXPath">
           <Doc>
@@ -1277,7 +1277,7 @@ the data that is actually placed in XML.
       <BcdObject name="comment" implements="comment" implementationPackage="bcdui.widgetNg.comment"/>
       <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
       <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
-      <BcdObject name="hierarchy" implements="hierarchy" implementationPackage="bcdui.widgetNg.hierarchy"/>
+      <BcdObject name="multiCheck" implements="multiCheck" implementationPackage="bcdui.widgetNg.multiCheck"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->
