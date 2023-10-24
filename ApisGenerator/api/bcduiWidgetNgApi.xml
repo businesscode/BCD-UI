@@ -723,7 +723,7 @@
             xPath expression relative to 'optionsModelXPath' providing values
           </Doc>
         </Param>
-        <Param name="optionsModelRelativeParentXPath" type="xPath" required="true">
+        <Param name="optionsModelRelativeParentXPath" type="xPath">
           <Doc>
             xPath expression relative to 'optionsModelXPath' providing values for the parent, this should correspond to the same data type as the value of the options model. 
           </Doc>
