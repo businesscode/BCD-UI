@@ -250,13 +250,13 @@ task bcduiClientJsFileGroups {
   file("$clientCombinedDir/js/3rdParty").mkdirs()
 
   // A babel task for combining multiple files, minifying and optional ecma6-transpiling
-  def createBabelTask = { String newTaskName, inputFiles, outFileName, ecma5, is3rdParty ->
+  def createBabelTask = { String newTaskName, inputFiles, outFileName, is3rdParty ->
     task(newTaskName, type: NodeTask) {
       mustRunAfter 'bcduiClientCollectAll'
       inputs.files inputFiles + "./src/js/$jsBcduiLoader"
       outputs.file file(outFileName)
       script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
-      def presets = "--presets=$nodeModulesDir/babel-preset-minify" + (ecma5 ? ",$nodeModulesDir/@babel/preset-env" : "")
+      def presets = "--presets=$nodeModulesDir/babel-preset-minify"
       args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
 
       // Postpend copy right. We do not prepend it to keep the source map indices intact
@@ -275,18 +275,18 @@ task bcduiClientJsFileGroups {
   // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
   bcduiFiles.groups.each { fileSet ->
 
-    // Create a task for combining, minifying and ECMA5 transpiling all non-3rdParty js in the current file group
+    // Create a task for combining and minifying all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
       "$clientCombinedDir/${fPathName}"
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
-      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js",              false, false )
+      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false )
     }
   }
 
   // All 3rdparty files are handled here
-  // Where possible we take the minified file from the node.js dist, otherwise we minify ourselfs. We do not ECMA5 transpile 3rdParty files.
+  // Where possible we take the minified file from the node.js dist, otherwise we minify ourselfs.
   def collectMinified
   collectMinified = { keyOrParentKey, value ->
     if (value[0]) {
@@ -308,7 +308,7 @@ task bcduiClientJsFileGroups {
       }
     }
     else if (copyUnmodified[value.fn]) {
-      // in case we want to explicitly keep a file 1:1 (no minimize, no ECMA5 transpile, we copy it
+      // in case we want to explicitly keep a file 1:1 (no minimize, we copy it)
       copy {
         from "$buildDir/../${copyUnmodified[value.fn].ofn}"
         into "$clientCombinedDir/$jsDistDir/3rdParty/"
@@ -320,8 +320,8 @@ task bcduiClientJsFileGroups {
       def f = file(value.fn)
       def fPathNameWoExt= f.name.lastIndexOf('.').with {it != -1 ? f.name[0..<it] : f.name}
       def outFileName = "$clientCombinedDir/$jsDistDir/3rdParty/${fPathNameWoExt}.js"
-      // We do not ECMA5 transpile 3dParty sources, we just create a minified version
-      dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, false, true )
+      // we just create a minified version
+      dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, true )
     }
   }
 
@@ -383,42 +383,6 @@ task bcduiClientJsFileGroups {
     newBcduiLoader << JsonOutput.toJson( bcduiFiles )
     newBcduiLoader << origBcduiLoaderJsonSplit[2]
   }
-}
-
-
-/**
- * Translates each JS 1:1 (not minified or combined) for ECMA5 in Internet Explorer
- * for usage in Eclipse BCD-UI injected mode, see Docu/development/eclipseInject.xml
- */
-task bcduiClientEcma5One2One (type: NodeTask) {
-
-  group       'bcd-ui/advanced'
-  description 'Needed for Eclipse inject, see Docu/eclipseinject.xml'
-
-  def taskDestDir = "$buildDir/jsEcma5One2One"
-  dependsOn bcduiClientCollectAll
-  inputs.dir  "./src/js"
-  outputs.dir taskDestDir
-
-  // If we are not up-to-date, cleanup before generating ECMA5
-  doFirst {
-    delete taskDestDir
-  }
-
-  // Job itself: Call babel and put individual ecma6 files to taskDestDir (excluding 3rdParty, they are copied below)
-  script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
-  args = [] + "$bcduiClientCollectAll.destinationDir/js" + "--quiet" + "--out-dir=$taskDestDir" + "--presets=$nodeModulesDir/@babel/preset-env" + "--source-maps" +
-          "--ignore" + "$bcduiClientCollectAll.destinationDir/js/3rdParty/*.js"
-
-  doLast {
-    copy {
-      from "src/js/3rdParty"
-      from "$src3rdParty/js/3rdParty"
-      into "$taskDestDir/3rdParty"
-    }
-    delete fileTree("$taskDestDir/3rdParty") { include '**/*.js.map' }
-  }
-
 }
 
 //*********************************
