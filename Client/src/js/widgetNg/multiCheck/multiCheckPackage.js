@@ -41,8 +41,13 @@
       this.i18nSelectAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectAll"}) || "Select All");
       this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearAll"}) || "Clear All");
       this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectVisible"}) || "Select Visible");
+<<<<<<< Upstream, based on branch 'master' of https://github.com/businesscode/BCD-UI
       this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_ClearVisible"}) || "Clear Visible");
       this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_ShowSelectedOnly"}) || "Show selected only");
+=======
+      this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearVisible"}) || "Clear Visible");
+      this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_showSelectedOnly"}) || "Show selected only");
+>>>>>>> d08a717 Client/Widget, rename hierarchy to multiCheck
 
       let multiCheckBox = this._createMultiCheckBox();
 
