@@ -85,7 +85,6 @@ eclipse {
       linkedResource name: 'bcdui_inject/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Server/src/main/java'
       linkedResource name: 'bcdui_inject/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/src/js'
       linkedResource name: 'bcdui_inject/js3rdParty', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/build/tmp/src3rdParty/js'
-      linkedResource name: 'bcdui_inject/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/build/jsEcma5One2One'
       linkedResource name: 'bcdui_inject/resources', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Server/src/main/resources'
       linkedResource name: 'bcdui_inject/xslt', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI/Client/src/xslt'
 
@@ -107,14 +106,12 @@ eclipse {
     if( isProp('bcdui.inject.Ee') ) {
       linkedResource name: 'bcdui_inject_ee/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Server/src/main/java'
       linkedResource name: 'bcdui_inject_ee/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/src/js'
-      linkedResource name: 'bcdui_inject_ee/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/build/jsEcma5One2One'
       linkedResource name: 'bcdui_inject_ee/xslt', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-EE/Client/src/xslt'
     }
 
     // BCD-UI-DE
     if( isProp('bcdui.inject.De') ) {
       linkedResource name: 'bcdui_inject_de/js', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Client/src/js'
-      linkedResource name: 'bcdui_inject_de/jsecma5', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Client/build/jsEcma5One2One'
       linkedResource name: 'bcdui_inject_de/java', type: '2', locationUri: 'PARENT-2-PROJECT_LOC/BCD-UI-DE/Server/src/main/java'
 
       if( isProp('bcdui.inject.Jsp') ) {
@@ -165,7 +162,6 @@ eclipse {
                     new SourceFolder('bcdui_inject/genjs', "$webAppDirName/bcdui/js"),
                     new SourceFolder('bcdui_inject/java', "$webAppDirName/WEB-INF/classes"),
                     new SourceFolder('bcdui_inject/js', "$webAppDirName/bcdui/js"),
-                    new SourceFolder('bcdui_inject/jsecma5', "$webAppDirName/bcdui/js"),
                     new SourceFolder('bcdui_inject/js3rdParty', "$webAppDirName/bcdui/js"),
                     new SourceFolder('bcdui_inject/resources', "$webAppDirName/WEB-INF/classes"),
                     new SourceFolder('bcdui_inject/xslt', "$webAppDirName/bcdui/xslt") ] )
@@ -190,7 +186,6 @@ eclipse {
           classpath.configure( classpath.entries +
                   [ new SourceFolder('bcdui_inject_ee/java', "$webAppDirName/WEB-INF/classes"),
                     new SourceFolder('bcdui_inject_ee/js', "$webAppDirName/bcdui/js"),
-                    new SourceFolder('bcdui_inject_ee/jsecma5', "$webAppDirName/bcdui/js"),
                     new SourceFolder('bcdui_inject_ee/xslt', "$webAppDirName/bcdui/xslt") ] )
         }
 
@@ -198,8 +193,7 @@ eclipse {
         if( isProp('bcdui.inject.De') ) {
           classpath.configure( classpath.entries +
                   [ new SourceFolder('bcdui_inject_de/java', "$webAppDirName/WEB-INF/classes"),
-                    new SourceFolder('bcdui_inject_de/js', "$webAppDirName/bcdui/js"),
-                    new SourceFolder('bcdui_inject_de/jsecma5', "$webAppDirName/bcdui/js") ] )
+                    new SourceFolder('bcdui_inject_de/js', "$webAppDirName/bcdui/js") ] )
 
           if( isProp('bcdui.inject.Jsp') ) {
             classpath.configure( classpath.entries +

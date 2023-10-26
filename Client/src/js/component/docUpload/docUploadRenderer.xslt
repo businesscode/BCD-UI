@@ -36,7 +36,6 @@
   <xsl:param name="i18_delete" select="'DELETE'"/>
   <xsl:param name="i18_comment" select="'COMMENT'"/>
   <xsl:param name="i18_download" select="'DOWNLOAD'"/>
-  <xsl:param name="isIE" select="'false'"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
   <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
@@ -128,14 +127,7 @@
       <xsl:if test="$entry">
         <div class='actions' style="display:none">
           <xsl:if test="$entry/@fileExists='true'">
-            <xsl:choose>
-              <xsl:when test="$isIE='true'">
-                <a class='ieDownload' href=""><span title="{$i18_download}" class='action download'></span></a>
-              </xsl:when>
-              <xsl:otherwise>
-                <a target="_blank" download="{$entry/@download}" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_download}" class='action download'></span></a>
-              </xsl:otherwise>
-            </xsl:choose>
+            <a target="_blank" download="{$entry/@download}" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_download}" class='action download'></span></a>
             <a target="_blank" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_view}" class='action view'></span></a>
           </xsl:if>
           <xsl:if test="$hasWriteAccess">

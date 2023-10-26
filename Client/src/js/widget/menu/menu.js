@@ -154,9 +154,7 @@ bcdui.widget.menu.Menu = class
     var ltrb = ["Left","Top","Right","Bottom"];
     var result = {};
     for (var i = 0; i < ltrb.length; ++i) {
-      if (bcdui.browserCompatibility.isIE)
-        var value = parseInt(this.element.currentStyle["border"+ltrb[i]+"Width"]);
-      else if (window.getComputedStyle)
+      if (window.getComputedStyle)
         var value = parseInt(window.getComputedStyle(this.element, "").getPropertyValue("border-"+ltrb[i].toLowerCase()+"-width"), 10);
       else
         var value = parseInt(this.element.style["border"+ltrb[i]], 10);

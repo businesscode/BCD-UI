@@ -43,7 +43,7 @@
       -->
 
     <!--
-      1.a) Checkout BCD-UI into your workspace (under that name) and run bcd-ui/bcduiBuildBin and bcd-ui/advanced/bcduiClientEcma5One2One gradle tasks
+      1.a) Checkout BCD-UI into your workspace (under that name) and run bcd-ui/bcduiBuildBin gradle tasks
       -> As a result refresh BCD-UI (F5) and check that, after refreshing, you have /BCD-UI/libs/bcd.ui-core.jar and others
       1.b) Remove bcdui.jar and bcdui_theme.jar from WEB-INF/lib, if your project contains them already, remove them also from build-path!
      -->
@@ -88,11 +88,6 @@
         <locationURI>PARENT-2-PROJECT_LOC/BCD-UI/Client/src/js</locationURI>
       </link>
       <link>
-        <name>bcdui_inject/jsecma5</name>
-        <type>2</type>
-        <locationURI>PARENT-2-PROJECT_LOC/BCD-UI/Client/build/jsEcma5One2One</locationURI>
-      </link>
-      <link>
         <name>bcdui_inject/js3rdParty</name>
         <type>2</type>
         <locationURI>PARENT-2-PROJECT_LOC/BCD-UI/Client/build/tmp/src3rdParty/js</locationURI>
@@ -135,7 +130,6 @@
     <classpathentry kind="src" output="WebContent/WEB-INF/tags/bcdui" path="bcdui_inject/gentlds"/>
     <classpathentry kind="src" output="WebContent/WEB-INF/classes" path="bcdui_inject/java"/>
     <classpathentry kind="src" output="WebContent/bcdui/js" path="bcdui_inject/js"/>
-    <classpathentry kind="src" output="WebContent/bcdui/js" path="bcdui_inject/jsecma5"/>
     <classpathentry kind="src" output="WebContent/bcdui/js" path="bcdui_inject/js3rdParty"/>
     <classpathentry kind="src" output="WebContent/WEB-INF/classes" path="bcdui_inject/resources"/>
     <classpathentry kind="src" output="WebContent/WEB-INF/classes" path="bcdui_inject/taglibjava"/>

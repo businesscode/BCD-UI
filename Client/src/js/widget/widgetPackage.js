@@ -1709,8 +1709,6 @@ jQuery.extend(bcdui.widget,
         event.stopPropagation();
         event.preventDefault();
         handler(event);
-        if (bcdui.browserCompatibility.isIE)
-          return false;
       });
       // This code is useful when you want to trigger the context menu
       // programmatically. Since it is not possible to generate a "contextmenu"

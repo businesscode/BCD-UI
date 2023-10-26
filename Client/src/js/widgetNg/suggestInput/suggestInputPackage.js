@@ -725,7 +725,7 @@
   //      offsetTop: "15px"
   //    });
   
-      // reassign minimum width, TODO: in IE empty box still collapses by width, simulate min-width, since width has to be adjustable to its content
+      // reassign minimum width
       dataListEl.css({
         "min-width": Math.round(bcdui._migPjs._$(el).outerWidth()*.8)+"px"
       });
@@ -821,7 +821,7 @@
         // handler will be de-registered to prevent pollution.
         // widget-leave handling, we assume that MOUSEDOWN is fired before FOCUS event,
         // in case not, we have to split the logic of WIDGET_LEFT detection into FOCUS and MOUSEDOWN
-        // or defer the detection - primarily because IE removes a focus from field during scrollbar
+        // or defer the detection
         // action.
         var mouseDownHdl = function(event){
           var dropDown = bcdui._migPjs._$(this._CST_DATALIST_ELEMENT_ID);

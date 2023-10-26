@@ -1123,11 +1123,6 @@
           }
         });
 
-        // prevent IE 8 specific text selection issues
-        this.container.on('dragstart, selectstart', function(event) {
-          event.preventDefault();
-        });
-
         // tiny hover effect on items
         this.container.on({
           mouseenter: function(event) { jQuery(this).addClass("bcdConnectableHover"); },

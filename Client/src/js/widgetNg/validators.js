@@ -339,9 +339,8 @@ bcdui.widgetNg.validation.validateField = function(htmlElementId, customValidati
 }
 
 /**
- * sets custom validity, use html5 constraint validation API if available,
- * otherwise polyfill, ensures that following properties are set properly:
- *
+ * sets custom validity, use html5 constraint validation API 
+ * ensures that following properties are set properly:
  *  (Boolean) validity.valid
  *  (Boolean) validity.customError
  *  (String)  validationMessage (is set to "INVALID") in case of non-validity
@@ -356,9 +355,6 @@ bcdui.widgetNg.validation.setCustomValidity = function(htmlElement, isValid){
     el.attr("title",""); // some browsers displays custom validation in title, we supress it
     el.get(0).setCustomValidity(isValid ? "" : "INVALID");
   }else{
-    if(!htmlElement.validity){
-      htmlElement.validity={}
-    }
     htmlElement.validity.valid = isValid;
     htmlElement.validity.customError = isValid;
     htmlElement.validationMessage = isValid ? null : "INVALID";

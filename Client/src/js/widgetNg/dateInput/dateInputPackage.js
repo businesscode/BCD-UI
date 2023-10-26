@@ -15,8 +15,6 @@
 */
 "use strict";
 /**
- * !! Do not use if your browser does not support native date widget, for example IE 11 does not. !!
- *
  * API for an Date Input widget implementation as jQuery Widget and extends the bcduiInput
  * widget for implementation.
  *

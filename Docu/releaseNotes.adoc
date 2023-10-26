@@ -7,7 +7,20 @@ The following release notes allow following BCD-UI's ongoing development. +
 Potentially breaking changes are listed under _Incompatibilities_.
 
 ___
-==== Release 5_6_0 ...in progress
+==== Release 5_7_0 ...in progress
+
+.Major new features:
+.Server:
+.Client:
+.Security:
+.Development:
+.Bugfixes:
+.Incompatibilities:
+* removal of Internet Explorer support
+
+___
+==== Release 5_6_0
+
 .Major new features:
 ** Added support for joins, CTEs, set operators and sub-selects to Wrq
 ** SubjectPreferences for user-chosen SubjectSettings
@@ -41,17 +54,17 @@ ___
 * cube inline chart functionality added (render measures as a chart per row), use cube:Chart to configure and additionally load bcduiCubeInlineChart
 * cube allows having measures as rows, define dm:Measures/@storedInRows=true
 
-.Security
+.Security:
 * New cookie settings in context.xml and web.xml
 * Preventing some possible injections in server responses
 * SubjectFilter can now be applied to virtual file system
 * SubjectFilters resolved inline (i.e. value list) are using prepared statements now
 * RequestLifeCylce filter sets "Content-Security-Policy" (configurable via filter init param ContentSecurityPolicy)
 
-.Development
+.Development:
 * Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest
 
-.Bugfixes
+.Bugfixes:
 * Pagination is now taking the order of all order columns into account, not only the last one
 
 .Incompatibilities:

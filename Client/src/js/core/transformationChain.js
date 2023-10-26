@@ -460,7 +460,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
                   var ids = partiallIdDP.getData().split(" ");
                   for( var i = 0; i < ids.length; i++ ) {
                     var node = document.getElementById(ids[i]);
-                    var newContent = result.querySelector ? result.querySelector("#"+ids[i]) : result.getElementById(ids[i]); // getElementById for IE <= 7 
+                    var newContent = result.querySelector("#"+ids[i]); 
                     if( node && newContent ) {
                       bcdui.i18n.syncTranslateHTMLElement({elementOrId:newContent});
                       jQuery(node).replaceWith( newContent );
