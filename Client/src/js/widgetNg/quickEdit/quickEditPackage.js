@@ -336,7 +336,7 @@
       return Object.assign( {}, this.options, { targetHtml: this.element[0] });
     },
     _create() {
-      this.instanceObject = new bcui.widgetNg.QuickEdit(this.options);
+      this.instanceObject = new bcdui.widgetNg.QuickEdit(this.options);
     },
     _destroy() {
       this.instanceObject.destroy();
