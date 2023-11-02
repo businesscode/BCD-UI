@@ -338,7 +338,7 @@
           </xp:OnlyMeasureForTotal>
 
           <!--  expand/collaps feature via layout -->
-          <xsl:if test="/*/cube:Layout/@expandCollapseCells"><xp:ExpandCollapseCells>true</xp:ExpandCollapseCells></xsl:if>
+          <xsl:if test="/*/cube:Layout/@expandCollapseCells='true'"><xp:ExpandCollapseCells>true</xp:ExpandCollapseCells></xsl:if>
 
           <!-- sticky table settings via layout -->
           <xsl:if test="/*/cube:Layout/cube:Freeze/@header"><xp:StickyHeader><xsl:value-of select="/*/cube:Layout/cube:Freeze/@header"/></xp:StickyHeader></xsl:if>
