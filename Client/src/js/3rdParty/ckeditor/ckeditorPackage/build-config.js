@@ -1,5 +1,5 @@
 ﻿/**
- * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * @license Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license/
  */
 
@@ -13,10 +13,10 @@
  * (1) https://ckeditor.com/cke4/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) https://ckeditor.com/cke4/builder/7472cfd6f312de183a3956c0225aa233
+ * (2) https://ckeditor.com/cke4/builder/644364cb894e47d7820cd9a5b0611100
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) https://ckeditor.com/cke4/builder/download/7472cfd6f312de183a3956c0225aa233
+ * (3) https://ckeditor.com/cke4/builder/download/644364cb894e47d7820cd9a5b0611100
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -43,6 +43,7 @@ var CKBUILDER_CONFIG = {
 		'.travis.yml',
 		'bender-err.log',
 		'bender-out.log',
+		'bender-runner.config.json',
 		'bender.ci.js',
 		'bender.js',
 		'dev',
@@ -76,7 +77,6 @@ var CKBUILDER_CONFIG = {
 		'showborders' : 1,
 		'stylescombo' : 1,
 		'tableresize' : 1,
-		'tabletoolstoolbar' : 1,
 		'toolbar' : 1,
 		'undo' : 1,
 		'wysiwygarea' : 1

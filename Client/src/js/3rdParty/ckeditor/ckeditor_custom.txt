@@ -1,3 +1,5 @@
+4.22.1
+
 Basic preset
 
 + ColorButton
@@ -14,6 +16,5 @@ Basic preset
 + Show Table Borders
 + Styles Combo
 + TableResize
-+ Table Tools Toolbar
 
 - About CKEditor
