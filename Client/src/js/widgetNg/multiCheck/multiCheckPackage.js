@@ -97,7 +97,7 @@
       const dphTarget = new bcdui.core.DataProviderHolder();
 
       bcdui.factory.objectRegistry.withReadyObjects([dphOption, dphTarget], function() {
-        this._fillMultiCheckBox(this.config);
+        this._fillMultiCheckBox(this.config, true);
       }.bind(this));
 
       // initial rendering
@@ -231,7 +231,7 @@
     /**
      * @private
      */
-    _fillMultiCheckBox: function(config){
+    _fillMultiCheckBox: function(config, initial){
       jQuery(this.options.targetHtml).find(".bcdItems").empty();
 
       // get data from optionsModel
@@ -299,7 +299,7 @@
       jQuery(this.options.targetHtml).find(".bcdItems").append(html);
 
       // initially update XML
-      bcdui.widgetNg.multiCheck._update(this.options.targetHtml);
+      bcdui.widgetNg.multiCheck._update(this.options.targetHtml, initial);
     },
 
     /**
