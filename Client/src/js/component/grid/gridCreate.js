@@ -2721,9 +2721,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if (! this.isReadOnly)
         buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
     }
-    table.append(buttonCell);
     jQuery("#"+this.targetHtml).append(table);
-    
+
     // set trimming container to current bcdGrid container in case we're rendering ourself in an overflow container which is not the container itself
     // this prevents handsontable to make the grid too big
     var trimmingContainer = this._getTrimmingContainer(jQuery("#"+this.targetHtml).find(".bcdGrid").get(0));
