@@ -97,7 +97,7 @@
       const dphTarget = new bcdui.core.DataProviderHolder();
 
       bcdui.factory.objectRegistry.withReadyObjects([dphOption, dphTarget], function() {
-        this._fillMultiCheckBox(this.config, true);
+        this._fillMultiCheckBox(this.config);
       }.bind(this));
 
       // initial rendering
@@ -152,11 +152,15 @@
           jQuery(event.target).parent().find("input").val("");
           setTimeout(markItem);
         });
+
+        const self = this;
+
         this.element.find(".bcdItems").off("click");
         this.element.find(".bcdItems").on("click", "input:visible", function(event) {
           const targetHtml = jQuery(event.target).closest(".bcdMultiCheck").parent();
           if (! event.ctrlKey)
             jQuery(event.target).closest("li").find("ul").find("input:visible").prop('checked', event.target.checked);
+          self.internal = true;
           bcdui.widgetNg.multiCheck._update(targetHtml);
         });
         
@@ -183,7 +187,6 @@
         
         const inputField = targetHtml.find(".bcdSearch input");
         inputField.off("keypress");
-        const self = this;
         inputField.keydown(function(event) {
           // DEL and BACKSPACE should also update the keypress functionality
           if (event.keyCode == 8 || event.keyCode == 46)
@@ -231,7 +234,7 @@
     /**
      * @private
      */
-    _fillMultiCheckBox: function(config, initial){
+    _fillMultiCheckBox: function(config){
       jQuery(this.options.targetHtml).find(".bcdItems").empty();
 
       // get data from optionsModel
@@ -299,7 +302,7 @@
       jQuery(this.options.targetHtml).find(".bcdItems").append(html);
 
       // initially update XML
-      bcdui.widgetNg.multiCheck._update(this.options.targetHtml, initial);
+      bcdui.widgetNg.multiCheck._update(this.options.targetHtml);
     },
 
     /**
@@ -362,7 +365,7 @@ bcdui.widgetNg.multiCheck = Object.assign(bcdui.widgetNg.multiCheck,
   /**
    * @private
    */
-  _update: function(targetHtml, dontSync) {
+  _update: function(targetHtml) {
     const config = jQuery(targetHtml).data("_config_");
 
     let firstThree = [];    
@@ -378,10 +381,7 @@ bcdui.widgetNg.multiCheck = Object.assign(bcdui.widgetNg.multiCheck,
 
     jQuery(targetHtml).find(".bcdCount").text(count);
 
-    if (! dontSync) {
-      bcdui.core._syncMultipleValues(config.targetModel.getData(), config.targetModelXPath, tickedValues);
-      config.instance.internal = true;
-      config.targetModel.fire();
-    }
+    bcdui.core._syncMultipleValues(config.targetModel.getData(), config.targetModelXPath, tickedValues);
+    config.targetModel.fire();
   }
 });
