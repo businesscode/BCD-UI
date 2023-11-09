@@ -11,11 +11,15 @@ ___
 
 .Major new features:
 .Server:
+* updated several 3rd party jars
+
 .Client:
 .Security:
 .Development:
 .Bugfixes:
+
 .Incompatibilities:
+* SQL statement Velocity variable names ending with - need to be converted to end with _
 * removal of Internet Explorer support
 
 ___
