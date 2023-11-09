@@ -36,13 +36,13 @@ dependencies {
   // For BCD-UI we list all jars we need during compile and runtime explicitly here
   // We do not want any additionally declared transitive dependencies
   // these dependencies are also used to build BCD-UI
-  implementation ('commons-codec:commons-codec:1.15') { transitive = false }
+  implementation ('commons-codec:commons-codec:1.16.0') { transitive = false }
   implementation ('commons-collections:commons-collections:3.2.2') { transitive = false }
   implementation ('org.apache.commons:commons-collections4:4.4') { transitive = false } // collections:3.2.2 and 4-4.1 do not conflict. 3 is used by lib, 4 by poi
-  implementation ('org.apache.commons:commons-csv:1.8') { transitive = false }
+  implementation ('org.apache.commons:commons-csv:1.10.0') { transitive = false }
   implementation ('commons-dbutils:commons-dbutils:1.7') { transitive = false }
-  implementation ('commons-fileupload:commons-fileupload:1.4') { transitive = false }
-  implementation ('commons-io:commons-io:2.8.0') { transitive = false }
+  implementation ('commons-fileupload:commons-fileupload:1.5') { transitive = false }
+  implementation ('commons-io:commons-io:2.15.0') { transitive = false }
   implementation ('commons-lang:commons-lang:2.6') { transitive = false }
   implementation ('commons-logging:commons-logging:1.2') { transitive = false }
   implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
@@ -54,11 +54,11 @@ dependencies {
   implementation ('org.apache.poi:poi:4.1.2') { transitive = false }
   implementation ('org.apache.poi:poi-ooxml:4.1.2') { transitive = false }
   implementation ('org.apache.poi:poi-ooxml-schemas:4.1.2') { transitive = false }
-  implementation ('org.apache.shiro:shiro-all:1.7.1') { transitive = false }
+  implementation ('org.apache.shiro:shiro-all:1.13.0') { transitive = false }
   implementation ('org.apache.velocity:velocity-engine-core:2.3') { transitive = false }
   implementation ('org.apache.xmlbeans:xmlbeans:3.1.0') { transitive = false }
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
-  implementation ('com.google.code.gson:gson:2.8.6') { transitive = false }
+  implementation ('com.google.code.gson:gson:2.10.1') { transitive = false }
   implementation ('com.jcraft:jsch:0.1.55') { transitive = false }
   implementation ('javax.mail:mail:1.4.7') { transitive = false }
   implementation ('com.sun.activation:javax.activation:1.2.0') { transitive = false }
@@ -76,7 +76,7 @@ dependencies {
     implementation('jakarta.xml.soap:jakarta.xml.soap-api:1.4.2') { transitive = false }
     implementation('jakarta.activation:jakarta.activation-api:1.2.1') { transitive = false }
     implementation('org.glassfish.jaxb:jaxb-runtime:2.3.4') { transitive = false }
-    implementation('com.sun.istack:istack-commons-runtime:4.0.1') { transitive = false }
+    implementation('com.sun.istack:istack-commons-runtime:4.2.0') { transitive = false }
     implementation('com.sun.xml.messaging.saaj:saaj-impl:1.5.3') { transitive = false }
     implementation('org.jvnet.staxex:stax-ex:2.0.1') { transitive = false }
   }
@@ -86,7 +86,7 @@ dependencies {
   runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
   runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.17.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
   runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
-  runtimeOnly ('org.apache.commons:commons-compress:1.20') { transitive = false } // needed by poi
+  runtimeOnly ('org.apache.commons:commons-compress:1.23.0') { transitive = false } // needed by poi
   runtimeOnly ('org.apache.commons:commons-lang3:3.13.0') { transitive = false } // needed by velocity
 
   // Provided during runtime by servlet container
