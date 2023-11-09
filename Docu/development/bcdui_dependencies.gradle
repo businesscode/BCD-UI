@@ -51,12 +51,12 @@ dependencies {
   implementation ('org.apache.logging.log4j:log4j-core:2.17.1') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
   implementation ('com.opencsv:opencsv:5.4') { transitive = false }
-  implementation ('org.apache.poi:poi:4.1.2') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml:4.1.2') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml-schemas:4.1.2') { transitive = false }
+  implementation ('org.apache.poi:poi:5.2.4') { transitive = false }
+  implementation ('org.apache.poi:poi-ooxml:5.2.4') { transitive = false }
+  implementation ('org.apache.poi:poi-ooxml-lite:5.2.4') { transitive = false }
   implementation ('org.apache.shiro:shiro-all:1.13.0') { transitive = false }
   implementation ('org.apache.velocity:velocity-engine-core:2.3') { transitive = false }
-  implementation ('org.apache.xmlbeans:xmlbeans:3.1.0') { transitive = false }
+  implementation ('org.apache.xmlbeans:xmlbeans:5.1.1') { transitive = false } // needed by poi
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
   implementation ('com.google.code.gson:gson:2.10.1') { transitive = false }
   implementation ('com.jcraft:jsch:0.1.55') { transitive = false }
