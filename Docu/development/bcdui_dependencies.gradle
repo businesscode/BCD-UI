@@ -86,7 +86,7 @@ dependencies {
   runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
   runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.17.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
   runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
-  runtimeOnly ('org.apache.commons:commons-compress:1.23.0') { transitive = false } // needed by poi
+  runtimeOnly ('org.apache.commons:commons-compress:1.24.0') { transitive = false } // needed by poi
   runtimeOnly ('org.apache.commons:commons-lang3:3.13.0') { transitive = false } // needed by velocity
 
   // Provided during runtime by servlet container
