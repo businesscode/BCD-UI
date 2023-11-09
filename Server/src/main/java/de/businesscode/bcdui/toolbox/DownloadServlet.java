@@ -150,17 +150,17 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
   private final String readFileSQL=
       " #set( $k = $bindings." + BCDFILESDOWNLOAD + " ) "+
       " SELECT" +
-      "   $k.id-" +
-      " , $k.uuid-" +
-      " , $k.create_stamp-" +
-      " , $k.file_name-" +
-      " , $k.report_name-" +
-      " , $k.download_link-" +
-      " , $k.download_count-" +
-      " , $k.last_download-" +
+      "   $k.id_" +
+      " , $k.uuid_" +
+      " , $k.create_stamp_" +
+      " , $k.file_name_" +
+      " , $k.report_name_" +
+      " , $k.download_link_" +
+      " , $k.download_count_" +
+      " , $k.last_download_" +
       " FROM $k.getPlainTableName()" +
       " WHERE" +
-      "   $k.uuid- = ?";
+      "   $k.uuid_ = ?";
   
   private DownloadInfo readFile(String uuid) throws Exception {
     PreparedStatement stmt = null;
@@ -193,10 +193,10 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       " #set( $k = $bindings." + BCDFILESDOWNLOAD + " )"+
       " UPDATE $k.getPlainTableName()"+
       " SET" +
-      "   $k.last_download- = ?" +
-      ",  $k.download_count- = $k.download_count- + 1" +
+      "   $k.last_download_ = ?" +
+      ",  $k.download_count_ = $k.download_count_ + 1" +
       " WHERE" +
-      "   $k.uuid- = ?";
+      "   $k.uuid_ = ?";
   
   private DownloadInfo updateFileCount(DownloadInfo d) throws Exception {
     PreparedStatement stmt = null;
@@ -220,10 +220,10 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
   private final String cleanUpFilesSQL=
       " #set( $k = $bindings." + BCDFILESDOWNLOAD + " ) "+
       " SELECT" +
-      "   $k.uuid-" +
+      "   $k.uuid_" +
       " FROM $k.getPlainTableName()" +
       " WHERE" +
-      "   $k.create_stamp- < ?";
+      "   $k.create_stamp_ < ?";
   
   private void cleanUpFiles() throws Exception {
     PreparedStatement stmt = null;
@@ -262,7 +262,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
 
   private final String cleanUpStatsSQL=
       " #set( $k = $bindings." + BCDFILESDOWNLOAD + " ) " +
-      " DELETE FROM $k.getPlainTableName() WHERE $k.create_stamp- < ?";
+      " DELETE FROM $k.getPlainTableName() WHERE $k.create_stamp_ < ?";
 
   private void cleanUpStats() throws Exception {
     PreparedStatement stmt = null;

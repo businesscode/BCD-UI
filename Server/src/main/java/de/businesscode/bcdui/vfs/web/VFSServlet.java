@@ -283,10 +283,10 @@ public class VFSServlet extends HttpServlet {
    *
    */
   public static class JdbcFileDAO implements FileDAO {
-    private static final String SQL_HAS_FILE = "#set($b = $bindings.bcd_virtualFileSystem) SELECT 1 FROM $b.plainTableName WHERE $b.path- = ?";
-    private static final String SQL_UPDATE_FILE = "#set($b = $bindings.bcd_virtualFileSystem) UPDATE $b.plainTableName SET $b.resourceBlob- = ? WHERE $b.path- = ?";
-    private static final String SQL_INSERT_FILE = "#set($b = $bindings.bcd_virtualFileSystem) INSERT INTO $b.plainTableName ($b.resourceBlob-,$b.path-,$b.isServer-) VALUES (?,?,0)";
-    private static final String SQL_DELETE_FILES = "#set($b = $bindings.bcd_virtualFileSystem) DELETE FROM $b.plainTableName WHERE $b.isServer- = 0 AND $b.path- IN ({0})";
+    private static final String SQL_HAS_FILE = "#set($b = $bindings.bcd_virtualFileSystem) SELECT 1 FROM $b.plainTableName WHERE $b.path_ = ?";
+    private static final String SQL_UPDATE_FILE = "#set($b = $bindings.bcd_virtualFileSystem) UPDATE $b.plainTableName SET $b.resourceBlob_ = ? WHERE $b.path_ = ?";
+    private static final String SQL_INSERT_FILE = "#set($b = $bindings.bcd_virtualFileSystem) INSERT INTO $b.plainTableName ($b.resourceBlob_,$b.path_,$b.isServer_) VALUES (?,?,0)";
+    private static final String SQL_DELETE_FILES = "#set($b = $bindings.bcd_virtualFileSystem) DELETE FROM $b.plainTableName WHERE $b.isServer_ = 0 AND $b.path_ IN ({0})";
     private Logger log = LogManager.getLogger(getClass());
 
     final private Connection con;

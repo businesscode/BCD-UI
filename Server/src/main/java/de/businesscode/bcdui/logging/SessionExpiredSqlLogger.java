@@ -64,7 +64,7 @@ final public class SessionExpiredSqlLogger extends ASqlLogger<SessionExpiredSqlL
 
   private final static String TPL_UPDATE_STMT =
       "#set($b = $bindings.bcd_log_session)" +
-          " UPDATE $b.plainTableName SET $b.sessionExpiredTime- = ? where $b.sessionId- = ?";
+          " UPDATE $b.plainTableName SET $b.sessionExpiredTime_ = ? where $b.sessionId_ = ?";
 
   protected SessionExpiredSqlLogger() {
     super("bcd_log_session",

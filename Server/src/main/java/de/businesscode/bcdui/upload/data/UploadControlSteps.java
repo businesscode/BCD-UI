@@ -147,7 +147,7 @@ public class UploadControlSteps {
   private static final String insertStepSql =
       "#set( $k = $bindings.bcd_dataupload_controlstep ) "+
       " INSERT INTO $k.plainTableName " +
-      "  ( $k.uploadId-, $k.ts-, $k.userId-, $k.step-, $k.rc-, $k.rcMessage- ) " +
+      "  ( $k.uploadId_, $k.ts_, $k.userId_, $k.step_, $k.rc_, $k.rcMessage_ ) " +
       "  VALUES (?, ?, ?, ?, ?, ?) ";
 
   // Delete all steps for the current uploadId

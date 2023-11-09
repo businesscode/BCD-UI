@@ -74,7 +74,7 @@ public class UploadBindingItemValidate implements IUploadStep {
     this.userId = userId;
     this.uploadId = uc.getUploadId();
     this.colCount = uc.getImportColumnCount();
-    this.skipHeader = (uc.hasHeaderRow() != null && uc.hasHeaderRow()) ? " AND $rowCol.rowNumber > (SELECT min(a.$rowCol.rowNumber-) FROM $rowCol.plainTableName a WHERE a.$rowCol.uploadId- = $rowCol.uploadId) " : "";
+    this.skipHeader = (uc.hasHeaderRow() != null && uc.hasHeaderRow()) ? " AND $rowCol.rowNumber > (SELECT min(a.$rowCol.rowNumber_) FROM $rowCol.plainTableName a WHERE a.$rowCol.uploadId_ = $rowCol.uploadId) " : "";
     con = UploadControl.getManagedUploadConnection(STEP_ID);
   }
 
@@ -161,7 +161,7 @@ public class UploadBindingItemValidate implements IUploadStep {
       StringBuilder checkSQL = new StringBuilder();
       checkSQL.append("#set( $rowCol = $bindings.bcd_dataupload_rowcol ) ");
       checkSQL.append("#set( $val = $bindings.bcd_dataupload_validation) ");
-      checkSQL.append("  INSERT INTO $val.plainTableName ( $val.uploadId- , $val.rowNumber-, $val.colNumber-, $val.severity-, $val.message-, $val.descr- ) "); // no aliases in INSERTs due to PostgreSQL
+      checkSQL.append("  INSERT INTO $val.plainTableName ( $val.uploadId_ , $val.rowNumber_, $val.colNumber_, $val.severity_, $val.message_, $val.descr_ ) "); // no aliases in INSERTs due to PostgreSQL
       checkSQL.append("  SELECT ui, rn, cn, sv, ms, descr FROM ( ");
       checkSQL.append("  SELECT $rowCol.uploadId as ui, $rowCol.rowNumber as rn, ");
       checkSQL.append(firstkeyCol).append(" as cn, ").append(Severity.ERROR.getValue()).append(" as sv , '").append(check.getMsg()).append("' as ms, '").append(check.getDescr()).append("' as descr, ");
@@ -186,7 +186,7 @@ public class UploadBindingItemValidate implements IUploadStep {
     StringBuilder checkSQL = new StringBuilder();
     checkSQL.append("#set( $rowCol = $bindings.bcd_dataupload_rowcol ) ");
     checkSQL.append("#set( $val = $bindings.bcd_dataupload_validation) ");
-    checkSQL.append("  INSERT INTO $val.plainTableName ( $val.uploadId- , $val.rowNumber-, $val.colNumber-, $val.severity-, $val.message-, $val.descr- ) "); // no aliases in INSERTs due to PostgreSQL
+    checkSQL.append("  INSERT INTO $val.plainTableName ( $val.uploadId_ , $val.rowNumber_, $val.colNumber_, $val.severity_, $val.message_, $val.descr_ ) "); // no aliases in INSERTs due to PostgreSQL
     checkSQL.append("  SELECT $rowCol.uploadId, $rowCol.rowNumber, ");
     checkSQL.append(colNum).append(", ").append(Severity.ERROR.getValue()).append(", '").append(check.getMsg()).append("', '").append(check.getDescr()).append("'");
     checkSQL.append("  FROM $rowCol WHERE ").append(check.getFct("$rowCol.col_"+colNum, comp)).append(" AND $rowCol.uploadId = ?");

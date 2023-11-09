@@ -116,7 +116,7 @@ public class BindingSetContextObject
    */
   public Object get(String key) {
     try {
-      final boolean requestedUnqualified = key.endsWith("-");
+      final boolean requestedUnqualified = key.endsWith("_");
       if (requestedUnqualified){
         key = key.substring(0, key.length()-1);
       }

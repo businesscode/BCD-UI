@@ -64,7 +64,7 @@ public class BindingSetLookupContextObject
    * Getter for Velocity
    */
   public Object get(String key) {
-    if (key.endsWith("-")){
+    if (key.endsWith("_")){
       key = key.substring(0, key.length()-1);
     }
     usedItems.add(key);

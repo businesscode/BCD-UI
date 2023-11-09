@@ -588,7 +588,7 @@ public class UploadControl implements AutoCloseable
   private static final String insertSql =
       "#set( $uc = $bindings.bcd_dataupload_control ) "+
       " INSERT INTO $uc.plainTableName" +
-      "  ( $uc.uploadId-, $uc.ts-, $uc.userId-, $uc.sourceName-, $uc.targetBs-, $uc.fileBlob- ) " +
+      "  ( $uc.uploadId_, $uc.ts_, $uc.userId_, $uc.sourceName_, $uc.targetBs_, $uc.fileBlob_ ) " +
       "  VALUES (?, ?, ?, ?, ?, ?) ";
 
   private static final String selectSql =
@@ -612,11 +612,11 @@ public class UploadControl implements AutoCloseable
   private static final String updateSql =
       "#set( $uc = $bindings.bcd_dataupload_control ) "+
       " UPDATE $uc.plainTableName" +
-      "  SET $uc.sourceName- = ?, $uc.userId- = ?, $uc.userComment- = ?, $uc.rowCount- = ?, $uc.columnCount- = ?," +
-      "  $uc.hasHeaderRow- = ?, $uc.decimalSeparator- = ?, $uc.dateFormat- = ?, " +
-      "  $uc.delimiter- = ?, $uc.columnStartings- = ?, $uc.encoding- = ?, $uc.quoteChar- = ?, " +
-      "  $uc.sheetName- = ?, $uc.sheetRange- = ?, " +
-      "  $uc.targetBs- = ?, $uc.mapping- = ? " +
-      "  WHERE $uc.uploadId- = ? ";
+      "  SET $uc.sourceName_ = ?, $uc.userId_ = ?, $uc.userComment_ = ?, $uc.rowCount_ = ?, $uc.columnCount_ = ?," +
+      "  $uc.hasHeaderRow_ = ?, $uc.decimalSeparator_ = ?, $uc.dateFormat_ = ?, " +
+      "  $uc.delimiter_ = ?, $uc.columnStartings_ = ?, $uc.encoding_ = ?, $uc.quoteChar_ = ?, " +
+      "  $uc.sheetName_ = ?, $uc.sheetRange_ = ?, " +
+      "  $uc.targetBs_ = ?, $uc.mapping_ = ? " +
+      "  WHERE $uc.uploadId_ = ? ";
 
 }

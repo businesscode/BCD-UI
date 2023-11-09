@@ -114,17 +114,17 @@ public class WrsNextIdentifierServlet extends HttpServlet {
       Throwable lastInsertException = null;
       // @formatter:off
       while(true){
-        int updatedRows = new QueryRunner(true).update(con,e.transform("#set($b = $bindings.bcd_identifier)UPDATE $b.plainTableName SET $b.lastid- = $b.lastid- + "+ blockSize +" WHERE $b.scope- = ?"), scope);
+        int updatedRows = new QueryRunner(true).update(con,e.transform("#set($b = $bindings.bcd_identifier)UPDATE $b.plainTableName SET $b.lastid_ = $b.lastid_ + "+ blockSize +" WHERE $b.scope_ = ?"), scope);
         if(updatedRows > 0){
           // ID counted, retrieve it
-          nextId = new QueryRunner(true).query(con, e.transform("#set($b = $bindings.bcd_identifier)SELECT $b.lastid- FROM $b.plainTableName WHERE $b.scope- = ?"), new ScalarHandler<BigDecimal>(1),scope);
+          nextId = new QueryRunner(true).query(con, e.transform("#set($b = $bindings.bcd_identifier)SELECT $b.lastid_ FROM $b.plainTableName WHERE $b.scope_ = ?"), new ScalarHandler<BigDecimal>(1),scope);
           break;
         }else if(lastInsertException == null){
           // no updates as there is no such scope, create it
           log.debug("create non existent scope: " + scope);
           nextId = new BigDecimal("1");
           try {
-            new QueryRunner(true).update(con, e.transform("#set($b = $bindings.bcd_identifier)INSERT INTO $b.plainTableName ($b.scope-, $b.lastid-) VALUES (?,?)"), scope, nextId);
+            new QueryRunner(true).update(con, e.transform("#set($b = $bindings.bcd_identifier)INSERT INTO $b.plainTableName ($b.scope_, $b.lastid_) VALUES (?,?)"), scope, nextId);
             break;
           } catch (Exception uniqueViolationException) {
             // we expect actually the unique key violation exception

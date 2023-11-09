@@ -72,15 +72,15 @@ final public class ErrorSqlLogger extends ASqlLogger<ErrorSqlLogger.LogRecord> {
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_error)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.sessionId-" +
-          ",  $b.pageHash-" +
-          ",  $b.requestHash-" +
-          ",  $b.logLevel-" +
-          ",  $b.requestUrl-" +
-          ",  $b.message-" +
-          ",  $b.stackTrace-" +
-          ",  $b.revision-" +
+          "   $b.logTime_" +
+          ",  $b.sessionId_" +
+          ",  $b.pageHash_" +
+          ",  $b.requestHash_" +
+          ",  $b.logLevel_" +
+          ",  $b.requestUrl_" +
+          ",  $b.message_" +
+          ",  $b.stackTrace_" +
+          ",  $b.revision_" +
           ") VALUES (?,?,?,?,?,?,?,?,?)";
 
   protected ErrorSqlLogger() {

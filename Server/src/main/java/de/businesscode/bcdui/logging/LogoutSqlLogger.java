@@ -65,7 +65,7 @@ final public class LogoutSqlLogger extends ASqlLogger<LogoutSqlLogger.LogRecord>
 
   private final static String TPL_UPDATE_STMT =
       "#set($b = $bindings.bcd_log_login)" +
-          " UPDATE $b.plainTableName SET $b.sessionExpiredTime- = ? where $b.sessionId- = ?";
+          " UPDATE $b.plainTableName SET $b.sessionExpiredTime_ = ? where $b.sessionId_ = ?";
 
   protected LogoutSqlLogger() {
     super("bcd_log_login",

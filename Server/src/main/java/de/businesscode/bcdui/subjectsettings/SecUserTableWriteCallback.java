@@ -235,7 +235,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
         return tmp;
       }
     };
-    String selectOldPwdSaltSqlRaw = "#set ($t = $bindings.bcd_sec_user) SELECT $t.password, $t.password_salt  FROM $t WHERE $t.user_login- = ?";
+    String selectOldPwdSaltSqlRaw = "#set ($t = $bindings.bcd_sec_user) SELECT $t.password, $t.password_salt  FROM $t WHERE $t.user_login_ = ?";
     String[] dbPwdSalt = new QueryRunner(true).query(con, new SQLEngine().transform(selectOldPwdSaltSqlRaw), rsh, wrqUserLogin);
     // We have the old pwd in plain text in Wrq, verify it is correct.
     String wrqOldPwd = oValues.get(wrqPasswordColIdx);

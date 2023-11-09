@@ -68,11 +68,11 @@ final public class PageSqlLogger extends ASqlLogger<PageSqlLogger.LogRecord> {
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_page)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.sessionId-" +
-          ",  $b.requestUrl-" +
-          ",  $b.pageHash-" +
-          ",  $b.guiStatus-" +
+          "   $b.logTime_" +
+          ",  $b.sessionId_" +
+          ",  $b.requestUrl_" +
+          ",  $b.pageHash_" +
+          ",  $b.guiStatus_" +
           ") VALUES (?,?,?,?,?)";
 
   protected PageSqlLogger() {

@@ -218,7 +218,7 @@ public class UploadToRowCol implements IUploadStep, IUploadToRowColCallback
   // dont use aliases for INSERTs ( PostgreSQL )
   private static final String insertRowColSqlFragment =
       "#set( $k = $bindings.bcd_dataupload_rowcol ) "+
-      "INSERT INTO $k.plainTableName ($k.uploadId-, $k.rowNumber-";
+      "INSERT INTO $k.plainTableName ($k.uploadId_, $k.rowNumber_";
 
 }
 

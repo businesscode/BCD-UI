@@ -88,16 +88,16 @@ public class DatabaseFileObject extends AbstractFileObject {
   // isServer=1 indicates a priority so that in case you have vfs entries with that flag set are prefered over others with the same path
   // e.g. you can protect cube templates from overwriting
   private static final String innerSQL =
-  " ( SELECT $k.path-, $k.resourceClob-, $k.resourceBlob-, $k.isServer-, ROW_NUMBER() OVER (PARTITION BY $k.path- ORDER BY $k.isServer- DESC ) C FROM $k.getPlainTableName()" +
-  " ) Q WHERE C=1 AND ($k.isServer- = 1 OR ($k.isServer- = 0 AND UPPER($k.path-) NOT LIKE '/WEB-INF/%'))";
+  " ( SELECT $k.path_, $k.resourceClob_, $k.resourceBlob_, $k.isServer_, ROW_NUMBER() OVER (PARTITION BY $k.path_ ORDER BY $k.isServer_ DESC ) C FROM $k.getPlainTableName()" +
+  " ) Q WHERE C=1 AND ($k.isServer_ = 1 OR ($k.isServer_ = 0 AND UPPER($k.path_) NOT LIKE '/WEB-INF/%'))";
 
   private static final String mainBindingSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path-, $k.resourceClob-, $k.resourceBlob- FROM " + innerSQL + " AND $k.path- = ?";
+  " SELECT $k.path_, $k.resourceClob_, $k.resourceBlob_ FROM " + innerSQL + " AND $k.path_ = ?";
 
   private static final String getChildrenSQL =
   " #set( $k = $bindings." + BCDVIRTUALFILESYSTEM + " ) "+
-  " SELECT $k.path- FROM " + innerSQL + " AND $k.path- like ?";
+  " SELECT $k.path_ FROM " + innerSQL + " AND $k.path_ like ?";
 
   @Override
   /**

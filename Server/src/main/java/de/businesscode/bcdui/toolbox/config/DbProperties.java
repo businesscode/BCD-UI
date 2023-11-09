@@ -108,7 +108,7 @@ public class DbProperties {
     super();
     this.bindingSetId = bindingSetId;
     this.refreshCycleSec = refreshCycleSec;
-    this.TPL_SQL_SELECT = "#set($b = $bindings." + bindingSetId + ") SELECT $b.scope-,$b.name-,$b.type-,$b.value- FROM $b.plainTableName";
+    this.TPL_SQL_SELECT = "#set($b = $bindings." + bindingSetId + ") SELECT $b.scope_,$b.name_,$b.type_,$b.value_ FROM $b.plainTableName";
     try {
       // if no dbProperties binding is available, silently quit
       if (! Bindings.getInstance().hasBindingSet(bindingSetId)) {

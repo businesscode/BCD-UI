@@ -158,7 +158,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
    */
   protected String[] getAccountCredentials(String userLogin) throws SQLException {
     boolean hashSalted = isHashSalted();
-    String stmt = "#set( $k = $bindings.bcd_sec_user ) select $k.user_id-, " + getPasswordColumnName() + (hashSalted ? ", " + getPasswordSaltColumnName()  : "") + " from $k.getPlainTableName() where $k.user_login- = ? and $k.user_id- is not null and ($k.is_disabled- is null or $k.is_disabled-<>'1')";
+    String stmt = "#set( $k = $bindings.bcd_sec_user ) select $k.user_id_, " + getPasswordColumnName() + (hashSalted ? ", " + getPasswordSaltColumnName()  : "") + " from $k.getPlainTableName() where $k.user_login_ = ? and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')";
     return new QueryRunner(getDataSource(), true).query(new SQLEngine().transform(stmt), rs -> {
       if(rs.next()){
         ArrayList<String> result = new ArrayList<>();
@@ -280,7 +280,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         BcdSqlLogger.setLevel(Level.OFF);
         String uroUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
 
         new QueryRunner(true).query(con, new SQLEngine().transform(sql), rs -> {
           while(rs.next()){
@@ -320,7 +320,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   
       try {
         String urUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type-, $k.right_value- from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), urUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type_, $k.right_value_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), urUseridjdbcTypeColExpre);
   
         // we don't want to log our JDBC activity
         BcdSqlLogger.setLevel(Level.OFF);

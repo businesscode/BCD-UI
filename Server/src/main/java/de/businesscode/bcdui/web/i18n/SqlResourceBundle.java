@@ -44,10 +44,10 @@ class SqlResourceBundle extends MapResourceBundle {
   private static final String selectFileSQL=
       " #set( $k = $bindings.bcd_i18n ) "+
       " SELECT" +
-      "   $k.key-" +
-      " , $k.value-" +
+      "   $k.key_" +
+      " , $k.value_" +
       " FROM $k.getPlainTableName()" +
-      " WHERE $k.lang- = ?";
+      " WHERE $k.lang_ = ?";
     //@formatter:on
 
   /**

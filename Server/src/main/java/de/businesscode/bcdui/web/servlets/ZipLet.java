@@ -792,10 +792,10 @@ public class ZipLet extends HttpServlet {
       " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) " +
       " INSERT INTO $k.getPlainTableName()" +
       "  (" +
-      "    $k.tiny_url-"  +
-      "  , $k.long_url-" +
-      "  , $k.creation_dt-" +
-      "  , $k.last_used_dt-" +
+      "    $k.tiny_url_"  +
+      "  , $k.long_url_" +
+      "  , $k.creation_dt_" +
+      "  , $k.last_used_dt_" +
       "  ) VALUES (?,?,?,?)";
 
   /**
@@ -827,9 +827,9 @@ public class ZipLet extends HttpServlet {
       " #set( $k = $bindings." + BCDTINYURLCONTROL + " )"+
       " UPDATE $k.getPlainTableName()"+
       " SET" +
-      "   $k.last_used_dt- = ?" +
+      "   $k.last_used_dt_ = ?" +
       " WHERE" +
-      "   $k.tiny_url- = ?";
+      "   $k.tiny_url_ = ?";
 
   /**
    * updates the last used timestamp for a given tiny url in the database
@@ -855,11 +855,11 @@ public class ZipLet extends HttpServlet {
   private static final String readFileSQL=
       " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) "+
       " SELECT" +
-      "   $k.long_url-" +
-      "   , $k.last_used_dt-" +
+      "   $k.long_url_" +
+      "   , $k.last_used_dt_" +
       " FROM $k.getPlainTableName()" +
       " WHERE" +
-      "   $k.tiny_url- = ?";
+      "   $k.tiny_url_ = ?";
 
   /**
    * Returns the stored longUrl and an indicator if the entry needs an update or not for the given tinyUrl in the database  
@@ -898,7 +898,7 @@ public class ZipLet extends HttpServlet {
 
   private static final String deleteFileSQL=
       " #set( $k = $bindings." + BCDTINYURLCONTROL + " ) " +
-      " DELETE FROM $k.getPlainTableName() WHERE $k.last_used_dt- < ?";
+      " DELETE FROM $k.getPlainTableName() WHERE $k.last_used_dt_ < ?";
 
   /**
    * removes outdated stored tiny entries in the database

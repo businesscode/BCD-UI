@@ -23,7 +23,7 @@ public class UploadNormalization implements IUploadStep {
 
   public UploadNormalization(UploadControl uc, String userId) {
     this.uc = uc;
-    this.skipHeaderClause = (uc.hasHeaderRow() != null && uc.hasHeaderRow()) ? " AND $rowCol.rowNumber- > 1 " : "";
+    this.skipHeaderClause = (uc.hasHeaderRow() != null && uc.hasHeaderRow()) ? " AND $rowCol.rowNumber_ > 1 " : "";
   }
 
   @Override
@@ -45,7 +45,7 @@ public class UploadNormalization implements IUploadStep {
       // run update; dont use aliases due to PostgreSQL
       rowsUpdated = new QueryRunner(true).update(UploadControl.getManagedUploadConnection(STEP_ID),
           new SQLEngine().transform(
-              "#set ($rowCol = $bindings.bcd_dataupload_rowcol) UPDATE $rowCol.plainTableName SET " + sb.toString() + " WHERE $rowCol.uploadId- = ? " + this.skipHeaderClause),
+              "#set ($rowCol = $bindings.bcd_dataupload_rowcol) UPDATE $rowCol.plainTableName SET " + sb.toString() + " WHERE $rowCol.uploadId_ = ? " + this.skipHeaderClause),
           uc.getUploadId());
     }
     uc.addStepResult(STEP_ID, UploadControl.ReturnCode.OK, new JsonLiteral().set("rowsNormalized", rowsUpdated).toJSONString());

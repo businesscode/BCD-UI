@@ -69,17 +69,17 @@ public class I18nDbResources extends ListResourceBundle {
   private static final String selectFileSQL=
       " #set( $k = $bindings.bcd_i18n ) "+
       " SELECT" +
-      "   $k.key-" +
-      " , $k.value-" +
+      "   $k.key_" +
+      " , $k.value_" +
       " FROM $k.getPlainTableName()" +
-      " WHERE $k.lang- = ?" +
+      " WHERE $k.lang_ = ?" +
       " UNION" +
       " SELECT" +
-      "   $k.key-" +
-      " , $k.value-" +
+      "   $k.key_" +
+      " , $k.value_" +
       " FROM $k.getPlainTableName() v2" +
-      " WHERE $k.lang- = 'default'" +
-      " AND $k.key- NOT IN (SELECT $k.key- FROM $k.getPlainTableName() WHERE $k.key- = v2.$k.key- and $k.lang- = ?)";
+      " WHERE $k.lang_ = 'default'" +
+      " AND $k.key_ NOT IN (SELECT $k.key_ FROM $k.getPlainTableName() WHERE $k.key_ = v2.$k.key_ and $k.lang_ = ?)";
 
   /**
    * I18nDbResources

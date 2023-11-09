@@ -69,12 +69,12 @@ final public class LoginSqlLogger extends ASqlLogger<LoginSqlLogger.LogRecord> {
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_login)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.sessionId-" +
-          ",  $b.userAgent-" +
-          ",  $b.remoteAddr-" +
-          ",  $b.userName-" +
-          ",  $b.loginResult-" +
+          "   $b.logTime_" +
+          ",  $b.sessionId_" +
+          ",  $b.userAgent_" +
+          ",  $b.remoteAddr_" +
+          ",  $b.userName_" +
+          ",  $b.loginResult_" +
           ") VALUES (?,?,?,?,?,?)";
 
   protected LoginSqlLogger() {

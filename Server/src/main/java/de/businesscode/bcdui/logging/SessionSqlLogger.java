@@ -64,10 +64,10 @@ final public class SessionSqlLogger extends ASqlLogger<SessionSqlLogger.LogRecor
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_session)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.sessionId-" +
-          ",  $b.userAgent-" +
-          ",  $b.remoteAddr-" +
+          "   $b.logTime_" +
+          ",  $b.sessionId_" +
+          ",  $b.userAgent_" +
+          ",  $b.remoteAddr_" +
           ") VALUES (?,?,?,?)";
 
   protected SessionSqlLogger() {

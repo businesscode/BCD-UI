@@ -80,19 +80,19 @@ final public class AccessSqlLogger extends ASqlLogger<AccessSqlLogger.LogRecord>
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_access)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.sessionId-" +
-          ",  $b.pageHash-" +
-          ",  $b.requestHash-" +
-          ",  $b.requestUrl-" +
-          ",  $b.bindingSetName-" +
-          ",  $b.requestXml-" +
-          ",  $b.rowCount-" +
-          ",  $b.valueCount-" +
-          ",  $b.rsStartTime-" +
-          ",  $b.rsEndTime-" +
-          ",  $b.writeDuration-" +
-          ",  $b.executeDuration-" +
+          "   $b.logTime_" +
+          ",  $b.sessionId_" +
+          ",  $b.pageHash_" +
+          ",  $b.requestHash_" +
+          ",  $b.requestUrl_" +
+          ",  $b.bindingSetName_" +
+          ",  $b.requestXml_" +
+          ",  $b.rowCount_" +
+          ",  $b.valueCount_" +
+          ",  $b.rsStartTime_" +
+          ",  $b.rsEndTime_" +
+          ",  $b.writeDuration_" +
+          ",  $b.executeDuration_" +
           ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
   protected AccessSqlLogger() {

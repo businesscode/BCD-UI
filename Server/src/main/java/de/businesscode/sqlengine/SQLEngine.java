@@ -23,12 +23,14 @@ import java.util.Map;
 import java.util.AbstractMap;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.log.NullLogChute;
-
+import org.slf4j.helpers.NOPLogger;
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.StandardBindingSet;
@@ -54,6 +56,9 @@ public class SQLEngine {
    private Set<StandardBindingSet> resultingBindingSets = new HashSet<StandardBindingSet>();
    private final List<BindingItem> selectedBindigItemsInOrder = new LinkedList<BindingItem>();
    private final List<BindingItem> allBindigItemsInOrder = new LinkedList<BindingItem>();
+   private final Pattern oldFmt = Pattern.compile("(\\$\\w+\\.\\w+)(-)");
+   private final Logger log = LogManager.getLogger(getClass());
+   private final String compatiblityError = "Illegal Velocity variable name in: {}";
 
    /**
     * Getter for a list of all BindindItems used in this sql and mentioned before the table name
@@ -165,7 +170,10 @@ public class SQLEngine {
         });
       }
       StringWriter result = new StringWriter();
-      getVelocityEngine().evaluate(context, result, "sql", sql);
+      String pSql = oldFmt.matcher(sql).replaceAll("$1_");
+      if (! pSql.equals(sql))
+        log.warn(compatiblityError, sql);
+      getVelocityEngine().evaluate(context, result, "sql", pSql);
 
       // Provide some information to our user
       Map<String, BindingSetContextObject> bindingMap = bindingsContextObject.getUsedBindings();
@@ -205,7 +213,10 @@ public class SQLEngine {
       context.put(keyword, mapToQuestionMark);
 
       StringWriter result = new StringWriter();
-      getVelocityEngine().evaluate(context, result, "sql", sql);
+      String pSql = oldFmt.matcher(sql).replaceAll("$1_");
+      if (! pSql.equals(sql))
+        log.warn(compatiblityError, sql);
+      getVelocityEngine().evaluate(context, result, "sql", pSql);
 
       substitutes.addAll(mapToQuestionMark.getRequestedKeys());
       return result.toString();
@@ -225,7 +236,10 @@ public class SQLEngine {
       context.put("bindings", bindingsObject);
       //
       StringWriter result = new StringWriter();
-      getVelocityEngine().evaluate(context, result, "sql", sql);
+      String pSql = oldFmt.matcher(sql).replaceAll("$1_");
+      if (! pSql.equals(sql))
+        log.warn(compatiblityError, sql);
+      getVelocityEngine().evaluate(context, result, "sql", pSql);
       //
       return bindingsObject;
    }
@@ -240,7 +254,7 @@ public class SQLEngine {
          // setup the velocityEngine
          //
          // logging
-         velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new NullLogChute()); // no logging
+         velocityEngine.setProperty(VelocityEngine.RUNTIME_LOG_INSTANCE, NOPLogger.NOP_LOGGER); // no logging
          //
          velocityEngine.init();
       }

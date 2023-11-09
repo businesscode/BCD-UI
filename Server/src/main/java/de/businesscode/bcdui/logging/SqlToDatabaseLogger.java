@@ -152,14 +152,14 @@ final public class SqlToDatabaseLogger extends ASqlLogger<SqlToDatabaseLogger.Lo
   private final static String TPL_INSERT_STMT =
       "#set($b = $bindings.bcd_log_sql)" +
           " INSERT INTO $b.plainTableName (" +
-          "   $b.logTime-" +
-          ",  $b.durationMs-" +
-          ",  $b.rowsAffected-" +
-          ",  $b.jdbcMethod-" +
-          ",  $b.sql-" +
-          ",  $b.sessionId-" +
-          ",  $b.pageHash-" +
-          ",  $b.requestHash-" +
+          "   $b.logTime_" +
+          ",  $b.durationMs_" +
+          ",  $b.rowsAffected_" +
+          ",  $b.jdbcMethod_" +
+          ",  $b.sql_" +
+          ",  $b.sessionId_" +
+          ",  $b.pageHash_" +
+          ",  $b.requestHash_" +
           ") VALUES (?,?,?,?,?,?,?,?)";
 
 

@@ -270,10 +270,10 @@ public class UploadServlet extends HttpServlet
     PreparedStatement stm3 = null;
     PreparedStatement stm4 = null;
     try {
-      String delSQL1 = " #set( $k = $bindings.bcd_dataupload_control ) delete from $k.getPlainTableName() WHERE $k.uploadId- = ?";
-      String delSQL2 = " #set( $k = $bindings.bcd_dataupload_controlstep ) delete from $k.getPlainTableName() WHERE $k.uploadId- = ?";
-      String delSQL3 = " #set( $k = $bindings.bcd_dataupload_rowcol ) delete from $k.getPlainTableName() WHERE $k.uploadId- = ?";
-      String delSQL4 = " #set( $k = $bindings.bcd_dataupload_validation ) delete from $k.getPlainTableName() WHERE $k.uploadId- = ?";
+      String delSQL1 = " #set( $k = $bindings.bcd_dataupload_control ) delete from $k.getPlainTableName() WHERE $k.uploadId_ = ?";
+      String delSQL2 = " #set( $k = $bindings.bcd_dataupload_controlstep ) delete from $k.getPlainTableName() WHERE $k.uploadId_ = ?";
+      String delSQL3 = " #set( $k = $bindings.bcd_dataupload_rowcol ) delete from $k.getPlainTableName() WHERE $k.uploadId_ = ?";
+      String delSQL4 = " #set( $k = $bindings.bcd_dataupload_validation ) delete from $k.getPlainTableName() WHERE $k.uploadId_ = ?";
       Connection con = getControlConnection();
       stm1 = con.prepareStatement(getTransformSQL(delSQL1));
       stm1.setString(1, uploadId);

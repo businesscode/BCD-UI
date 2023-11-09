@@ -86,7 +86,7 @@ public class Upload2TargetBs implements IUploadStep {
     insSqlBuff.append("  SELECT ").append(fromListBuff).append(" FROM $rowCol ");
     insSqlBuff.append("    WHERE $rowCol.uploadId = ?  ");
     if( uc.hasHeaderRow() != null && uc.hasHeaderRow() )
-      insSqlBuff.append("    AND $rowCol.rowNumber > (select min(a.$rowCol.rowNumber-) from $rowCol.plainTableName as a WHERE a.$rowCol.uploadId- = $rowCol.uploadId) ");
+      insSqlBuff.append("    AND $rowCol.rowNumber > (select min(a.$rowCol.rowNumber_) from $rowCol.plainTableName as a WHERE a.$rowCol.uploadId_ = $rowCol.uploadId) ");
     insSqlBuff.append(" AND $rowCol.rowNumber NOT IN ( SELECT $val.rowNumber FROM $val WHERE $val.uploadId = $rowCol.uploadId AND $val.severity >= ").append(UploadBindingItemValidate.Severity.ERROR.getValue()).append(" )");
     String insSql = new SQLEngine().transform(insSqlBuff.toString());
 
