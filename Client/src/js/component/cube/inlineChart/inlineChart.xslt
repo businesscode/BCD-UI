@@ -25,6 +25,7 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0"
+  xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
   <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
