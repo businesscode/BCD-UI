@@ -317,7 +317,7 @@
           <Example type="js"></Example>
         </Examples>
         <Param name="targetModelXPath" required="true" type="writableModelXPath">
-          <Doc>The targetModelXPath for the dimensionChooser acts slightly different than for other widgets. The path points a node which will hold the value for the selected level. The widget builds up filter expressions automatically, so your targetXPath doesn't need any f:Expression statements, e.g. /*/guiStatus:Dimension[@id='dimensionChooser']/@value.</Doc>
+          <Doc>The targetModelXPath for the dimensionChooser acts slightly different than for other widgets. The path points a node which will hold the value for the selected level. The widget builds up filter expressions automatically, so your targetXPath doesn't need any f:Expression statements, e.g. //guiStatus:Dimension[@id='dimensionChooser']/@value.</Doc>
         </Param>
         <Param name="dimension" type="xPath" required="true">
           <Doc>
@@ -681,7 +681,7 @@
           <Doc>The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
             format of data written is implemented by individual widget.
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
-            If you specify a targetmodelxpath, the box automatically acts as target. Keep in mind when specifying a targetModelXPath for the multiSelect, you should use a f:Or in your expression. For example: /*/f:Filter/f:Or/f:Expression[@bRef='country' and @op='=']/@value</Doc>
+            If you specify a targetmodelxpath, the box automatically acts as target. Keep in mind when specifying a targetModelXPath for the multiSelect, you should use a f:Or in your expression. For example: //f:Filter/f:Or/f:Expression[@bRef='country' and @op='=']/@value</Doc>
         </Param>
         <Param name="keepEmptyValueExpression" type="boolean">
           <Doc>
@@ -723,7 +723,7 @@
           <Example type="js"></Example>
         </Examples>
         <Param name="targetModelXPath" required="true" type="writableModelXPath">
-          <Doc>Unless you don't use the useSimpleXPath option, this targetModelXPath acts slightly different than for other widgets. You only define a root node like '/*/f:Filter/f:And[@id='period']' here. The period chooser places
+          <Doc>Unless you don't use the useSimpleXPath option, this targetModelXPath acts slightly different than for other widgets. You only define a root node like '//f:Filter/f:And[@id='period']' here. The period chooser places
           its f:Expression elements below this given rootnode automatically. The number of expressions and how they are added depends on periodChooser settings (e.g. a range or writing mo/yr instead of yyyy-mm-dd etc.)</Doc>
         </Param>
         <Param name="firstSelectableDay" type="string">
