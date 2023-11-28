@@ -38,10 +38,10 @@
       
       this.i18nPleaseSelect = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_singleSelect_please_select"}) || "Please select...");
       this.i18nPleaseType = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_chipsChooser_please_type"}) || "Please start typing...");
-      this.i18nSelectAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectAll"}) || "Select All");
-      this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearAll"}) || "Clear All");
-      this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectVisible"}) || "Select Visible");
-      this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearVisible"}) || "Clear Visible");
+      this.i18nSelectAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectAll"}) || "Check All");
+      this.i18nClearAll = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearAll"}) || "Uncheck All");
+      this.i18nSelectVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_selectVisible"}) || "Check Shown");
+      this.i18nClearVisible = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_clearVisible"}) || "Uncheck Shown");
       this.i18nShowSelectedOnly = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_multiCheck_showSelectedOnly"}) || "Show selected only");
 
       let multiCheckBox = this._createMultiCheckBox();
