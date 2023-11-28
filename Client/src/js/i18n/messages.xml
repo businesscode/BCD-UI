@@ -290,12 +290,12 @@
       <R id="R504"><C>bcd_Comment_Add</C><C>Add</C><C>en</C></R>
       <R id="R505"><C>bcd_Comment_No_Comments</C><C>No Comments</C><C>en</C></R>
 
-      <!-- Hierarchy Widget -->
-      <R id="R510"><C>bcd_widget_multiCheck_selectAll</C><C>Select All</C><C>en</C></R>
-      <R id="R511"><C>bcd_widget_multiCheck_clearAll</C><C>Clear All</C><C>en</C></R>
-      <R id="R512"><C>bcd_widget_multiCheck_selectVisible</C><C>Select Visible</C><C>en</C></R>
-      <R id="R513"><C>bcd_widget_multiCheck_ClearVisible</C><C>Clear Visible</C><C>en</C></R>
-      <R id="R514"><C>bcd_widget_multiCheck_ShowSelectedOnly</C><C>Show selected only</C><C>en</C></R>
+      <!-- Multicheck Widget -->
+      <R id="R510"><C>bcd_widget_multiCheck_selectAll</C><C>Check All</C><C>en</C></R>
+      <R id="R511"><C>bcd_widget_multiCheck_clearAll</C><C>Uncheck All</C><C>en</C></R>
+      <R id="R512"><C>bcd_widget_multiCheck_selectVisible</C><C>Check Shown</C><C>en</C></R>
+      <R id="R513"><C>bcd_widget_multiCheck_clearVisible</C><C>Uncheck Shown</C><C>en</C></R>
+      <R id="R514"><C>bcd_widget_multiCheck_showSelectedOnly</C><C>Show selected only</C><C>en</C></R>
 
       <!-- User Messages -->
       <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
