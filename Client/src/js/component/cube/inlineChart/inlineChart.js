@@ -95,6 +95,23 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
     const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();
     const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";
     
+    // since we want equally sized measure columns, no matter what the text context is,
+    // we search for the widest and replace the th content with a fixed size div holding the content
+    // This allows fixed sized columns in a non table-layout fixed environment
+    let maxHeaderCellWidth = -1;
+    jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
+      if (! jQuery(th).hasClass("bcdDimension")) {
+        if (jQuery(th).outerWidth() > maxHeaderCellWidth)
+          maxHeaderCellWidth = jQuery(th).outerWidth();
+      }
+    });
+    jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
+      if (! jQuery(th).hasClass("bcdDimension")) {
+        const content = jQuery(th).text();
+        jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>").css("width", maxHeaderCellWidth);
+      }
+    });
+
     const isFreeze = bcdui.factory.objectRegistry.getObject(args.cubeId).getEnhancedConfiguration().query("/*/cube:Layout/cube:Freeze") != null;     
 
     // add a chart per row/cell
@@ -183,7 +200,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           , chartType1: args.chartType1 || ""
           , chartType2: args.chartType2 || ""
           , chartColumn: cell.prevAll("td.bcdChartCell").length + 1
-          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
+//          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
       , options: echartOptions
