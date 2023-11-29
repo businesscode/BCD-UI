@@ -1944,7 +1944,7 @@ $chips-close-color: #c00 !default;
   &.bcdStickyFirstRow tbody tr:first-child { z-index: 102; position: sticky; }
   &.bcdStickyLastRow tbody tr:last-child { z-index: 102; position: sticky; }
   &.bcdStickyFirstColumn {
-    tfoot tr, thead tr { *:first-child { z-index: 102; position: sticky; left: 0; } }
+    tfoot tr, thead tr { *:first-child { position: sticky; left: 0; } }
     tbody tr *:first-child { z-index: 100; position: sticky; left: 0; }
   }
   &.bcdStickyLastColumn {
