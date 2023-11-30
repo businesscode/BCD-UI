@@ -594,8 +594,8 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 .total {
-  background-color: #ffffff;
-  color: $corporate-color-alt;
+  background-color: $cube-color-cell-total;
+  color: $cube-color-cell-total-text;
   font-weight: bold;
   border-color:$corporate-color-alt;
 }
@@ -1656,7 +1656,7 @@ span.bcdInputFieldGrid {
 /* Templates */
 
 .bcdReportTemplateList {
-  margin-bottom: 0 .375em;
+  margin-bottom: .375em;
 }
 
 .bcdReportTemplates {
