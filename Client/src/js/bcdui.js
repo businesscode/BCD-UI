@@ -22,7 +22,7 @@
  * @global
  * @namespace
  */
-var bcdui = bcdui || new Object();
+var bcdui = window.bcdui || new Object();
 
 bcdui = Object.assign(bcdui, 
 /** @lends bcdui */
@@ -240,22 +240,15 @@ bcdui = Object.assign(bcdui,
               bcdui.debug.lastErrorUnpackedGz = bcdui._unpackGuiStatusGz(this.bufferedMessage);
               bcdui.debug.lastErrorMessage = this.bufferedMessage;
 
-              var addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><br><center><textarea id="sysError" cols="80" rows="10">' + this._getDetailMessage() + '</textarea></center></div>';
-
-              // If we call bcdui.widget.showModalBox too early, we will get a ModalBox related error instead of the real error
-              bcdui.core.ready( function() {
-                jQuery.unblockUI();
-                bcdui.widget.showModalBox({
-                  title: this.errorMessageCaption
-                  , message: "<div class='bcdSysError'>" + this.emailMessageLine + "<br/>" + this.emailMessageLink + addInfo + "</div>"
-                  , modalBoxType: bcdui.widget.modalBoxTypes.plainText
-                  , position: {my: "center center", at: "center center"}
-                , height: 330
-                , width: 570
-                , resizeable: false
-                });
-                jQuery("#sysError").select()
-              }.bind(this));
+              const addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><textarea id="sysError">' + this._getDetailMessage() + '</textarea></div>';
+              const msg = "<div class='bcdSysError'><div><i class='bcdIconError'></i>" + this.errorMessageCaption + "<i class='bcdIconError'></i><i class='bcdIconClose'></i></div><p>" + this.emailMessageLine + "</p><p>" + this.emailMessageLink + addInfo + "</p></div>"
+              jQuery(".blockUI").remove()
+              jQuery("body").append(msg);
+              jQuery("#sysError").select()
+              jQuery(".bcdSysError").on("click", ".bcdIconClose", function() {
+                jQuery(".bcdSysError").off("click");
+                jQuery(".bcdSysError").remove();
+              });
             }
           };
 

@@ -48,6 +48,12 @@
         </File>
       </xsl:for-each>
 
+      <!-- JS factory methods, mainly setting params as html attributes to the container -->
+      <File name="gensrc/js/widget/widgetClasses.js">
+        <xsl:text>"use strict";</xsl:text>
+        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactoryClasses"/>
+      </File>
+
       <!-- XSLT / XAPI Api -->
       <!-- we need some additional includes since old widgets have their own xslt implementation -->
       <File name="gensrc/js/widget/widget.xslt" outputFormat="xml">

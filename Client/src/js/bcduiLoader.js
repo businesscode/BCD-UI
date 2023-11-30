@@ -18,11 +18,6 @@
  * @file BCD-UI bootstrapping
  */
 
-//Allowing precise performance measurement
-bcdui.logging = bcdui.logging || new Object();
-bcdui.logging.console = "Start "+new Date()+"\n";
-bcdui.logging.pageStartTs = new Date().getTime();
-
 /**
  * Which js files are to be loaded for BCD-UI
  */
@@ -101,7 +96,8 @@ bcdui.bcduiCeFiles =
       "id": "bcduiWidget",
       "required": "mandatory",
       "files": [
-          "/js/widget/widgetPackage.js"
+          "/js/widget/pageEffects.js"
+        , "/js/widget/widgetPackage.js"
         , "/js/widget/detachedEvent.js"
         , "/js/widget/mouseTracker.js"
         , "/js/widget/xmlDataUpdateListener.js"
@@ -122,7 +118,6 @@ bcdui.bcduiCeFiles =
         , "/js/widget/contextMenu/contextMenuPackage.js"
         , "/js/widget/tab/tabPackage.js"
         , "/js/widget/effects/effectsPackage.js"
-        , "/js/widget/pageEffects.js"
         , "/js/widgetNg/capabilityPackage.js"
         , "/js/widgetNg/commons.js"
         , "/js/widgetNg/validators.js"
@@ -364,33 +359,6 @@ bcdui.bcduiCeFiles =
   ]
 };
 // JSON-PART-FOR-BUILD
-
-// build browser compatibility matrix
-bcdui.browserCompatibility = (function(){
-    var ua = navigator.userAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
-    var isInternetExplorer = (!!window.attachEvent && !isOpera) || ua.indexOf('Trident') != -1;
-    var tridentVersion = null;
-    var msIEversion = null;
-    var tridentArray = navigator.userAgent.match(/Trident\/[0-9.]+/g);
-    var msIEArray = navigator.userAgent.match(/MSIE [0-9.]+/g);
-    if (tridentArray != null && tridentArray.length > 0)
-      tridentVersion = 4 + parseFloat(tridentArray[0].replace(/Trident\//g, ""));
-    if (msIEArray != null && msIEArray.length > 0)
-       msIEversion = parseFloat(msIEArray[0].replace(/MSIE/g, ""));
-
-    return {
-      isIE:             isInternetExplorer,
-      isMsEdge:         ua.indexOf(' Edge/') !== -1,
-      isChromiumEdge:   ua.indexOf(" Edg/")  !== -1,
-      isOpera:          isOpera,
-      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1, // Note: This is also true for Chromium Edge
-      isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,
-      isMobileSafari:   /Apple.*Mobile/.test(ua),
-      isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf("MSIE")+5))== 8,
-      ieVersion:        msIEversion != null && msIEversion < tridentVersion ? msIEversion : tridentVersion // IE (emulated) version
-    }
-})();
 
 //Prepend to any already existing group definition, which may extend us
 bcdui.bcduiFiles = bcdui.bcduiFiles || {};

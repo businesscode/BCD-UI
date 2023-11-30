@@ -88,8 +88,12 @@ public class BCDUIConfig extends HttpServlet {
     Boolean environmentValue = Boolean.FALSE;
     try {environmentValue = (Boolean)Configuration.getInstance().getConfigurationParameter("bcdui/serverHasRequestUrlLimit");}catch(Exception e) {}
 
+    boolean isModule = "module".equalsIgnoreCase(request.getParameter("mode"));
+
     PrintWriter writer = new PrintWriter(response.getWriter());
     writer.println("var bcdui = bcdui || {};");
+    if (isModule)
+      writer.println("window.bcdui = bcdui; export default bcdui;");
     writer.println("bcdui.core = bcdui.core || {};");
     writer.println("bcdui.config = {");
     writeClientParams(writer);
@@ -206,13 +210,42 @@ public class BCDUIConfig extends HttpServlet {
     writer.println(StandardNamespaceContext.getInstance().getAsJs());
     writer.println("};");
 
-    if( ! "true".equals( request.getParameter("bcduiConfigOnly") ) )
+    if(!isModule && ! "true".equals( request.getParameter("bcduiConfigOnly") ) )
       writer.println("document.write(\"<script type='text/javascript' src='" + request.getContextPath() + response.encodeURL("/bcdui/js/bcduiLoader.js") + "'></script>\");");
 
     String sessionId = (request != null && request.getSession(false) != null ? request.getSession(false).getId() : "");
     if( log.isDebugEnabled() )
       log.debug("PageHash "+pageHash+" for "+request.getHeader("Referer")+", "+sessionId);
-  
+
+    writer.println("bcdui.logging = bcdui.logging || new Object();");
+    writer.println("bcdui.logging.console = 'Start '+new Date()+'\\n';");
+    writer.println("bcdui.logging.pageStartTs = new Date().getTime();");
+
+    writer.println("bcdui.browserCompatibility = (function(){");
+    writer.println("var ua = navigator.userAgent;");
+    writer.println("var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';");
+    writer.println("var isInternetExplorer = (!!window.attachEvent && !isOpera) || ua.indexOf('Trident') != -1;");
+    writer.println("var tridentVersion = null;");
+    writer.println("var msIEversion = null;");
+    writer.println("var tridentArray = navigator.userAgent.match(/Trident\\/[0-9.]+/g);");
+    writer.println("var msIEArray = navigator.userAgent.match(/MSIE [0-9.]+/g);");
+    writer.println("if (tridentArray != null && tridentArray.length > 0)");
+    writer.println("tridentVersion = 4 + parseFloat(tridentArray[0].replace(/Trident\\//g, ''));");
+    writer.println("if (msIEArray != null && msIEArray.length > 0)");
+    writer.println("msIEversion = parseFloat(msIEArray[0].replace(/MSIE/g, ''));");
+    writer.println("return {");
+    writer.println("isIE:             isInternetExplorer,");
+    writer.println("isMsEdge:         ua.indexOf(' Edge/') !== -1,");
+    writer.println("isChromiumEdge:   ua.indexOf(' Edg/')  !== -1,");
+    writer.println("isOpera:          isOpera,");
+    writer.println("isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1,");
+    writer.println("isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,");
+    writer.println("isMobileSafari:   /Apple.*Mobile/.test(ua),");
+    writer.println("isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf('MSIE')+5))== 8,");
+    writer.println("ieVersion:        msIEversion != null && msIEversion < tridentVersion ? msIEversion : tridentVersion");
+    writer.println("}");
+    writer.println("})();");
+
     // log page
     if(PageSqlLogger.getInstance().isEnabled()) {
       final PageSqlLogger.LogRecord logRecord = new PageSqlLogger.LogRecord(sessionId, request.getHeader("Referer"), pageHash);

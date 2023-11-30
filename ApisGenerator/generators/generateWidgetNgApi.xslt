@@ -50,6 +50,12 @@
         <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactory"/>
       </File>
 
+      <!-- JS factory methods, mainly setting params as html attributes to the container -->
+      <File name="gensrc/js/widgetNg/widgetNgClasses.js">
+        <xsl:text>"use strict";</xsl:text>
+        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactoryClasses"/>
+      </File>
+
       <!-- JS stubs for init() for getting params from html -->
       <File name="gensrc/js/widgetNg/widgetImpl.js">
         <xsl:text>"use strict";</xsl:text>
