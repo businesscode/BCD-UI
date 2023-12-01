@@ -103,7 +103,7 @@
       var controlEl;
 
       if(isNative){
-        controlEl = this._ntv_createInputControl(args, config);
+        controlEl = this._ntv_createInputControl(args, config).find("select");
       }else{
         // custom implementation TODO
         this.element.text("!no native widget support for this browser!");
@@ -114,7 +114,7 @@
       // handle label creation before appending control
       this._createLabel(controlEl.attr("id"));
 
-      rootContainer.append(controlEl);
+      rootContainer.append(controlEl.parent());
 
       controlEl.data("_args_", args);
       controlEl.data("_config_", config);
@@ -423,7 +423,8 @@
      * @private
      */
     _ntv_createInputControl: function(args, config){
-      var el = jQuery("<select class='form-control'></select>");
+      const elContainer = jQuery("<span class='bcdSingleSelectNg'><select class='form-control'></select></span>");
+      let el = elContainer.find("select");
       el.attr("id", config.htmlElementId);
       // the hints are handled by balloons
       el.attr("bcdHint", args.hint);
@@ -446,7 +447,7 @@
         ;
       }
 
-      return el;
+      return elContainer;
     },
 
     /**
