@@ -230,8 +230,20 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
             saveChain.push(this.saveOptions.saveChain);
         }
         // if wrs dp, we add a cleanup chain step
-        if (this.query("/*/wrs:Data") != null)
-          saveChain.push(bcdui.config.libPath + "xslt/wrs/prepareToPost.xslt");
+        if (this.query("/*/wrs:Data") != null) {
+          // get rid of wrs:R rows to reduce data for saving and order data for avoiding key constraint issues
+          // this is done in js since Chrome/Edge got a XSLT limitation (text content of a node can be 10MB max)
+          const prepareToPost = function(doc, args) {
+            const newDoc = bcdui.core.browserCompatibility.cloneDocument(doc);
+            bcdui.core.removeXPath(newDoc, "/*/wrs:Data/wrs:*", false);
+            const dataRoot = newDoc.selectSingleNode("/*/wrs:Data");
+            Array.from(doc.selectNodes("/*/wrs:Data/wrs:D")).forEach(function(row) { dataRoot.appendChild(row.cloneNode(true)); });
+            Array.from(doc.selectNodes("/*/wrs:Data/wrs:M")).forEach(function(row) { dataRoot.appendChild(row.cloneNode(true)); });
+            Array.from(doc.selectNodes("/*/wrs:Data/wrs:I")).forEach(function(row) { dataRoot.appendChild(row.cloneNode(true)); });
+            return newDoc;
+          };
+          saveChain.push(prepareToPost);
+        }
         // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
         if (saveChain.length > 0) {
           var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
