@@ -75,15 +75,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           if (value < minMaxPerUnit[unit].rowMinMax[rowId].min) minMaxPerUnit[unit].rowMinMax[rowId].min = value; 
           if (value > minMaxPerUnit[unit].rowMinMax[rowId].max) minMaxPerUnit[unit].rowMinMax[rowId].max = value;
         });
-
-        // +/-1 1% for per-row min/max
-        minMaxPerUnit[unit].rowMinMax[rowId].min = minMaxPerUnit[unit].rowMinMax[rowId].min - (minMaxPerUnit[unit].rowMinMax[rowId].min * 1.0 / 100.0);
-        minMaxPerUnit[unit].rowMinMax[rowId].max = minMaxPerUnit[unit].rowMinMax[rowId].max + (minMaxPerUnit[unit].rowMinMax[rowId].max * 1.0 / 100.0);          
       });
-
-      // +/-1 1% for global min/max
-      minMaxPerUnit[unit].min = minMaxPerUnit[unit].min - (minMaxPerUnit[unit].min * 1.0 / 100.0);
-      minMaxPerUnit[unit].max = minMaxPerUnit[unit].max + (minMaxPerUnit[unit].max * 1.0 / 100.0);
     });
 
     // hide measure table header since various measures won't be side by side while in the graph they are vertically aligned 
@@ -125,33 +117,35 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       const rowId = cell.parent().attr("bcdRowIdent");
       
       // get min/max values for max 2 axis/units
-      const min1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].min : minMaxPerUnit[firstUnit].min) || 0;
-      const max1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].max : minMaxPerUnit[firstUnit].max) || 0;
-      const min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
-      const max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
+      let min1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].min : minMaxPerUnit[firstUnit].min) || 0;
+      let max1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].max : minMaxPerUnit[firstUnit].max) || 0;
+      let min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
+      let max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
 
-      let echartOptions = {
+      // use some percentage offset to top/bottom (bottom a bit more, looks better for echart rendering) 
+      min1 -= (15.0 * min1 / 100.0);
+      min2 -= (15.0 * min2 / 100.0);
+      max1 += (5.0 * max1 / 100.0);
+      max2 += (5.0 * max2 / 100.0);
+
+      this.echartOptions = {
         title: { show: false }
-        , yAxis: [
-          { show: false, min: min1, max: max1 }
-        , { show: false, min: min2, max: max2 }]
+        , yAxis: [ { show: false, min: min1, max: max1 }, { show: false, min: min2, max: max2 } ]
         , xAxis: [ { show: false } ]
         , series:[ {label: {show: false}} ]
-        , legend: {}
-        , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 4, right: 0, bottom: 4 }
+        , legend: { show: true, left: "center", top: 0, backgroundColor: "#ffffff", borderWidth:1, borderColor: "#cccccc", borderRadius: 8 }
+        , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 0, right: 0, bottom: 0 }
       };
 
       // only show legend for very first inline chart (bcdLegend should give some extra space) 
-      if (i == 0)
-        cell.addClass("bcdLegend");
-      else
-        echartOptions["legend"] = {show: false};
+      if (i != 0)
+        this.echartOptions["legend"] = {show: false, left: 0, top: 0};
 
       // let's have a custom tooltip position function which tries to avoid going
       // over the sticky container which does clipping on the tooltip
       if (isFreeze) {
-        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
-        echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
+        this.echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
           // -4 to allow some space in case tooltip overlays clickable legend
           let xPos = point[0] - size.contentSize[0] - 4;
           if (point[0] - size.contentSize[0] < 0)
@@ -168,8 +162,8 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       // in case of PIECHART, we need a slightly different fly over to show the section names correctly
       if (args.chartType1 == "PIECHART") {
         const tooltipUnit = firstUnit == "null" ? "" : firstUnit;
-        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
-        echartOptions["tooltip"].formatter = function(paramsIn, ticket, callback) {
+        this.echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"].formatter = function(paramsIn, ticket, callback) {
           let res = "<table><tr><th colspan='100' style='text-align:center'>- " + paramsIn.seriesName + " -</th></tr>";
           if (paramsIn.data && paramsIn.data.value) {
             res += "<tr><td><span style='font-size: 250%; vertical-align: text-bottom; color:" + paramsIn.color + "'>&#x2022;</span>" + paramsIn.data.name + "</td>";
@@ -190,10 +184,19 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       }
 
       // finally add the chart
+      const self = this;
       const chart = new bcdui.component.chart.ChartEchart({
         targetHtml: cell.get(0)
       , config: new bcdui.core.ModelWrapper({
-          chain: bcdui.contextPath + "/bcdui/js/component/cube/inlineChart/inlineChart.xslt"
+          chain: [bcdui.contextPath + "/bcdui/js/component/cube/inlineChart/inlineChart.xslt", function(doc, args) {
+            let chartType1 = doc.selectSingleNode("//chart:Series/chart:Series[1]/@chartType");
+            chartType1 = chartType1 != null ? chartType1.text : "";
+            let chartType2 = doc.selectSingleNode("//chart:Series/chart:Series[2]/@chartType")
+            chartType2 = chartType2 != null ? chartType2.text : "";
+            if (chartType1 == "BARCHART") { self.echartOptions.yAxis[0].min = Math.min(self.echartOptions.yAxis[0].min, 0); self.echartOptions.yAxis[0].max = Math.max(self.echartOptions.yAxis[0].max, 0); }
+            if (chartType2 == "BARCHART") { self.echartOptions.yAxis[1].min = Math.min(self.echartOptions.yAxis[1].min, 0); self.echartOptions.yAxis[1].max = Math.max(self.echartOptions.yAxis[1].max, 0); }
+            return doc;
+          }]
         , inputModel: dataModel
         , parameters: {
             rowId: rowId
@@ -203,7 +206,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 //          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
-      , options: echartOptions
+      , options: this.echartOptions
       });
       
       // add a legendSelectChanged listener on the very first (visible) legend
