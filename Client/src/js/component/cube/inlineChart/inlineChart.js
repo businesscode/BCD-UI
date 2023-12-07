@@ -144,7 +144,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       // let's have a custom tooltip position function which tries to avoid going
       // over the sticky container which does clipping on the tooltip
       if (isFreeze) {
-        this.echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"] = this.echartOptions["tooltip"] || {};
         this.echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
           // -4 to allow some space in case tooltip overlays clickable legend
           let xPos = point[0] - size.contentSize[0] - 4;
@@ -162,7 +162,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       // in case of PIECHART, we need a slightly different fly over to show the section names correctly
       if (args.chartType1 == "PIECHART") {
         const tooltipUnit = firstUnit == "null" ? "" : firstUnit;
-        this.echartOptions["tooltip"] = echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"] = this.echartOptions["tooltip"] || {};
         this.echartOptions["tooltip"].formatter = function(paramsIn, ticket, callback) {
           let res = "<table><tr><th colspan='100' style='text-align:center'>- " + paramsIn.seriesName + " -</th></tr>";
           if (paramsIn.data && paramsIn.data.value) {
