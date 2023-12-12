@@ -2268,7 +2268,7 @@ $chips-close-color: #c00 !default;
 .bcdInlineChart {
   > thead > tr > th { text-align: center; }
   td { text-align: left; } /* chart flyover */
-  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; }
+  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; width: 100%; }
 }
 
 /* ******************************************************************* */
