@@ -83,24 +83,20 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
     // hide also possible row measure header cells
     jQuery(args.targetHtml).find("thead tr .bcdMeasure").hide();
 
-    // determine width for cell chart (either 100% if we got only 1 cell, or width of 1st one)
-    const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();
-    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";
-    
     // since we want equally sized measure columns, no matter what the text context is,
     // we search for the widest and replace the th content with a fixed size div holding the content
     // This allows fixed sized columns in a non table-layout fixed environment
     let maxHeaderCellWidth = -1;
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
-      if (! jQuery(th).hasClass("bcdDimension")) {
+      if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
         if (jQuery(th).outerWidth() > maxHeaderCellWidth)
           maxHeaderCellWidth = jQuery(th).outerWidth();
       }
     });
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
-      if (! jQuery(th).hasClass("bcdDimension")) {
+      if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
         const content = jQuery(th).text();
-        jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>").css("width", maxHeaderCellWidth);
+        jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>");
       }
     });
 
@@ -111,9 +107,6 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 
       const cell = jQuery(e);
 
-      // set fixed width for chart
-      cell.css("width", cellWidth);
-
       const rowId = cell.parent().attr("bcdRowIdent");
       
       // get min/max values for max 2 axis/units
@@ -122,18 +115,22 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       let min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
       let max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
 
-      // use some percentage offset to top/bottom (bottom a bit more, looks better for echart rendering) 
-      min1 -= (15.0 * min1 / 100.0);
-      min2 -= (15.0 * min2 / 100.0);
-      max1 += (5.0 * max1 / 100.0);
-      max2 += (5.0 * max2 / 100.0);
+      // use some percentage offset to top/bottom
+      const min1F = (5.0 * Math.abs(min1) / 100.0);
+      const min2F = (5.0 * Math.abs(min2) / 100.0);
+      const max1F = (5.0 * Math.abs(max1) / 100.0);
+      const max2F = (5.0 * Math.abs(max2) / 100.0);
+      const bcdMin1 = min1 - Math.max(min1F,max1F);
+      const bcdMax1 = max1 + Math.max(min1F,max1F);
+      const bcdMin2 = min2 - Math.max(min2F,max2F);
+      const bcdMax2 = max2 + Math.max(min2F,max2F);
 
       this.echartOptions = {
         title: { show: false }
-        , yAxis: [ { show: false, min: min1, max: max1 }, { show: false, min: min2, max: max2 } ]
+        , yAxis: [ { show: false, min: min1, max: max1, bcdMin: bcdMin1, bcdMax: bcdMax1 }, { show: false, min: min2, max: max2, bcdMin: bcdMin2, bcdMax: bcdMax2 } ]
         , xAxis: [ { show: false } ]
         , series:[ {label: {show: false}} ]
-        , legend: { show: true, left: "center", top: 0, backgroundColor: "#ffffff", borderWidth:1, borderColor: "#cccccc", borderRadius: 8 }
+        , legend: { show: true, left: "center", top: 0, backgroundColor: "rgba(256, 256, 256, 0.5)", borderWidth:1, borderColor: "#cccccc", borderRadius: 8 }
         , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 0, right: 0, bottom: 0 }
       };
 
@@ -194,7 +191,15 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
             let chartType2 = doc.selectSingleNode("//chart:Series/chart:Series[2]/@chartType")
             chartType2 = chartType2 != null ? chartType2.text : "";
             if (chartType1 == "BARCHART") { self.echartOptions.yAxis[0].min = Math.min(self.echartOptions.yAxis[0].min, 0); self.echartOptions.yAxis[0].max = Math.max(self.echartOptions.yAxis[0].max, 0); }
+            else {
+              self.echartOptions.yAxis[0].min = self.echartOptions.yAxis[0].bcdMin;
+              self.echartOptions.yAxis[0].max = self.echartOptions.yAxis[0].bcdMax;
+            }
             if (chartType2 == "BARCHART") { self.echartOptions.yAxis[1].min = Math.min(self.echartOptions.yAxis[1].min, 0); self.echartOptions.yAxis[1].max = Math.max(self.echartOptions.yAxis[1].max, 0); }
+            else {
+              self.echartOptions.yAxis[1].min = self.echartOptions.yAxis[1].bcdMin;
+              self.echartOptions.yAxis[1].max = self.echartOptions.yAxis[1].bcdMax;
+            }
             return doc;
           }]
         , inputModel: dataModel
@@ -203,7 +208,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           , chartType1: args.chartType1 || ""
           , chartType2: args.chartType2 || ""
           , chartColumn: cell.prevAll("td.bcdChartCell").length + 1
-//          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
+          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
       , options: this.echartOptions
