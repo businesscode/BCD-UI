@@ -272,14 +272,19 @@
      *
      * @private
      */
-    _doWriteXML: function(sourceBox, targetConfig) {
+    _doWriteXML: function(sourceBox, targetConfig, itemValues) {
 
       // triggerd after a nonUIUpdate (inject/optionsmodel change) or when you used the ui to drag/move items
       // write values to target (wrs or non wrs mode)
 
-      const values = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get(); // get values from source as array
-      const captions = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("title")}).get(); // get values from source as array
+      let values = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get(); // get values from source as array
+      let captions = jQuery(sourceBox).children(".ui-selectee").map(function() {return jQuery(this).attr("title")}).get(); // get values from source as array
       const targetModel = bcdui.factory.objectRegistry.getObject(targetConfig.modelId);
+
+      if (this.options.singleSelect && itemValues.length > 0) {
+        values = jQuery(sourceBox).children(".ui-selectee").filter(function() { return jQuery(this).attr("bcdValue") == itemValues[0]; }).map(function(){return jQuery(this).attr("bcdValue");}).get();
+        captions = jQuery(sourceBox).children(".ui-selectee").filter(function() { return jQuery(this).attr("bcdValue") == itemValues[0]; }).map(function(){return jQuery(this).attr("title");}).get();
+      }
 
       if (targetConfig.xPath.indexOf("wrs:") > -1) {
         const inlineValue = (values||[]).join(this.wrsInlineValueDelim);
@@ -315,7 +320,7 @@
      * Writes data on both connectables, this function is called if an item has been moved from source to target
      * @private
      */
-    _writeDataToXML: function(source, target){
+    _writeDataToXML: function(source, target, itemValues){
       source = jQuery(source);
       target = jQuery(target);
 
@@ -326,7 +331,7 @@
       // when the target is a target box, we need to write data to its targetxpath
       if (target.hasClass("bcdTarget")) {
         var tInstance = target.parent()._bcduiWidget();
-        this._doWriteXML(target, bcdui.factory._extractXPathAndModelId( tInstance.options.targetModelXPath ));
+        this._doWriteXML(target, bcdui.factory._extractXPathAndModelId( tInstance.options.targetModelXPath ), itemValues);
         tInstance.onChange();
       }
 
@@ -334,7 +339,7 @@
       // we skip an obsolete additional write if we moved an item within the same target box
       if (source.attr("id") != target.attr("id") && source.hasClass("bcdTarget")) {
         var sInstance = source.parent()._bcduiWidget();
-        this._doWriteXML(source, bcdui.factory._extractXPathAndModelId( sInstance.options.targetModelXPath ));
+        this._doWriteXML(source, bcdui.factory._extractXPathAndModelId( sInstance.options.targetModelXPath ), itemValues);
         sInstance.onChange();
       }
     },
@@ -464,7 +469,7 @@
           // clean possibly existing garbage (not valid) entries on target element
           // this should be done on init or on options model change
           if (doWriteXML)
-            this._doWriteXML(this.container, this.config.target);
+            this._doWriteXML(this.container, this.config.target, this.container.children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get());
 
         }.bind(this));
       }
@@ -697,14 +702,19 @@
       // mark items as selected (stored positions in 'position data' which are touched by the lasso)
       var items = jQuery(args.id).children(".ui-selectee");
       let selChanged = false;
+      let selCount = 0;
       for (var i = 0; i < items.length; i++) {
         var r2 = jQuery(items[i]).data("position");
         if (typeof r2 != "undefined" && r2 != null) {
           const hasSelecting = jQuery(items[i]).hasClass("ui-selecting");
           if (r1.left > r2.right || r2.left > r1.right || r1.top > r2.bottom || r2.top > r1.bottom)
             jQuery(items[i]).removeClass("ui-selecting");
-          else
-            jQuery(items[i]).addClass("ui-selecting");
+          else {
+            if ((this.options.singleSelect && selCount == 0) || !this.options.singleSelect) {
+              selCount++;
+              jQuery(items[i]).addClass("ui-selecting");
+            }
+          }
           selChanged |= hasSelecting != jQuery(items[i]).hasClass("ui-selecting");
         }
       }
@@ -777,7 +787,7 @@
         // otherwise, clean (depending on shift) and mark the item(s)
         else {
           if (newItem != null && newItem.length > 0) {
-            if (! event.shiftKey)
+            if (! event.shiftKey || this.options.singleSelect)
               newItem.siblings('.ui-selected').removeClass("ui-selected");
             newItem.addClass("ui-selected");
           }
@@ -834,7 +844,12 @@
 
         // select ALL
         if ((event.ctrlKey || event.metaKey) && event.keyCode == "65") {
-          jQuery(this).children(".ui-selectee").addClass("ui-selected");
+          if (self.options.singleSelect) {
+            jQuery(this).children(".ui-selectee").removeClass("ui-selected");
+            jQuery(this).children(".ui-selectee").first().addClass("ui-selected");
+          }
+          else
+            jQuery(this).children(".ui-selectee").addClass("ui-selected");
 
           // call onSelected since we selected all
           self.onSelected();
@@ -916,9 +931,23 @@
         if( ! oTarget.is('.ui-selectee'))
           oTarget = oTarget.parents('.ui-selectee');
 
+        if (self.options.singleSelect) {
+          jQuery(oTarget).addClass("ui-selected").siblings().removeClass('ui-selected');
+        }
         // handle ctrl + click
-        if (event.ctrlKey || event.metaKey)
-          jQuery(oTarget).toggleClass("ui-selected");
+        else if (event.ctrlKey || event.metaKey) {
+
+          if (self.options.singleSelect) {
+            if (jQuery(oTarget).hasClass("ui-selected"))
+              jQuery(oTarget).removeClass("ui-selected");
+            else {
+              jQuery(oTarget).parent().find('.ui-selected').removeClass('ui-selected');
+              jQuery(oTarget).addClass("ui-selected");
+            }
+          } 
+          else
+            jQuery(oTarget).toggleClass("ui-selected");
+        }
 
         // handle shift + click
         else if(event.shiftKey) {
@@ -967,7 +996,7 @@
           jQuery(this).removeClass("bcdNotSelectable");
 
         // Shift Key support
-        if(event.shiftKey) {
+        if(event.shiftKey && !self.options.singleSelect) {
           var oTarget = jQuery(event.target);
 
           if( ! oTarget.is('.ui-selectee'))
@@ -1254,7 +1283,7 @@
 
           // and update XML (only if something really changed, e.g. in case of a source to source move, nothing changes)
           if (this.valuesBefore != jQuery(this).children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get().join())
-            self._writeDataToXML(this, box);
+            self._writeDataToXML(this, box, items.map(function() {return jQuery(this).attr("bcdValue");}).get());
         });
 
         // cancel sort depending on result of onBeforeChange function call
@@ -1314,6 +1343,10 @@
             // on a move, clear selected items in the target first, so only the new added ones remain active
             to.children('.ui-selected').removeClass("ui-selected bcdConnectableHover");
 
+            // hide item(s) in singleSelect mode, they get redrawn anyhow and this avoids flickering
+            if (this.options.singleSelect)
+              scope.items.hide();
+
             // the actual move...
             scope.items.appendTo(to);
 
@@ -1334,7 +1367,7 @@
             }
 
             // and update XML according to what we have in the boxes
-            this._writeDataToXML(from, to);
+            this._writeDataToXML(from, to, scope.items.map(function() {return jQuery(this).attr("bcdValue");}).get());
           }
           
           // call onSelected since we moved items
@@ -1405,7 +1438,7 @@
           dir < 0 ? container.children(".ui-selected").first() : container.children(".ui-selected").last(), { snapTo : 'nearest' }
       );
 
-      this._doWriteXML(container, this.config.target);
+      this._doWriteXML(container, this.config.target, container.children(".ui-selectee").map(function() {return jQuery(this).attr("bcdValue")}).get());
     }
   });
 

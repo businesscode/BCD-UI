@@ -606,6 +606,9 @@
         <Doc>
           Offers a ChipsChooser where you can select items on a source side and move them to a target side
         </Doc>
+        <Param name="singleSelect" type="boolean" default="false">
+          <Doc>Can be set to 'true' if you want to limit the selection to one item only.</Doc>
+        </Param>
         <Param name="optionsModelXPath" required="true" type="modelXPath">
           <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
           cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
@@ -794,6 +797,9 @@
       
       <Api name="connectable" extends="widget hasOptionsFilter">
         <Doc> Offers a simple container with multi select, drag'n drop functionalities </Doc>
+        <Param name="singleSelect" type="boolean" default="false">
+          <Doc>Can be set to 'true' if you want to limit the selection to one item only.</Doc>
+        </Param>
         <Param name="doSortOptions" type="boolean" default="false">
           <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
         </Param>

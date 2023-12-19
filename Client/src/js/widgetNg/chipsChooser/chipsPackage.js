@@ -245,6 +245,7 @@
           , wildcard: this.options.wildcard
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
           , writeCaptions: this.options.writeCaptions
+          , singleSelect: this.options.singleSelect
       }
       let sourceArgs = {
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
