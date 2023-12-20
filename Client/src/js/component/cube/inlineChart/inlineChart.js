@@ -84,18 +84,27 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
     jQuery(args.targetHtml).find("thead tr .bcdMeasure").hide();
 
     // since we want equally sized measure columns, no matter what the text context is,
-    // we search for the widest and replace the th content with a fixed size div holding the content
-    // This allows fixed sized columns in a non table-layout fixed environment
+    // we search for the widest by temporary copying it to a cell and replace the th content later with a
+    // fixed size div holding the content This allows fixed sized columns in a non table-layout fixed environment
+    // However the div will be left aligned, so you need to ensure that you do something like a margin 0 auto
     let maxHeaderCellWidth = -1;
+
+    jQuery(args.targetHtml).find("thead tr").first().append("<th class='tester'><div></div></th>");
+    const testerCell = jQuery(args.targetHtml).find("thead tr .tester > div");
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
       if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
-        if (jQuery(th).outerWidth() > maxHeaderCellWidth)
-          maxHeaderCellWidth = jQuery(th).outerWidth();
+        testerCell.text(jQuery(th).text());
+        const w = testerCell.outerWidth(); 
+        if (w > maxHeaderCellWidth)
+          maxHeaderCellWidth = w;
       }
     });
+    jQuery(args.targetHtml).find("thead tr .tester").remove();
+
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
       if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
         const content = jQuery(th).text();
+        jQuery(th).addClass("bcdInlineHeader");
         jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>");
       }
     });
