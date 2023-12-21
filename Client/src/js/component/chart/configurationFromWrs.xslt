@@ -97,7 +97,7 @@
   <xsl:variable name="mesCaptionUnit1">
     <xsl:choose>
       <xsl:when test="$mesCountUnit1 = 1 and $gotEmptyUnits"><xsl:value-of select="/*/wrs:Header/wrs:Columns/wrs:C[not(@unit) and generate-id(.) = generate-id(key('headerValueId', @valueId))]/@caption"/></xsl:when>
-      <xsl:when test="$mesCountUnit1 = 1 and $unitCount &gt; 1"><xsl:value-of select="/*/wrs:Header/wrs:Columns/wrs:C[@unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @valueId))]/@caption"/></xsl:when>
+      <xsl:when test="$mesCountUnit1 = 1 and $unitCount = 1"><xsl:value-of select="/*/wrs:Header/wrs:Columns/wrs:C[@unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @valueId))]/@caption"/></xsl:when>
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="mesCaptionUnit2">
