@@ -5,6 +5,7 @@ Basic preset
 + ContextMenu
 + Div Container Manager
 + ElementsPath
++ Enhanced Image
 + FontSize and Family
 + Form Elements
 + Format
