@@ -341,7 +341,11 @@ a {
     }
 
     .bcd-unifilter-creator-container-closer:after {
-      content: "\274C";
+      content: "\f00d";
+      font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600;
+      font-size: 1.5em;
+      margin: 0 0 0 .5em;
+      vertical-align: middle;
     }
   }
 }
@@ -1448,9 +1452,10 @@ span.bcd-notification-warn {
 /* modal box */
 /* ******************************************************************* */
 
-.ui-front {
-  z-index: 20000;
-}
+.ui-front { z-index: 20000; }
+.ui-widget-overlay { z-index: 20000 !important }
+.ui-dialog { z-index: 20001 !important; }
+.ui-icon { z-index: 19999 !important; }
 
 .bcdFilterDialog,
 .bcdExportColumnsDialog, 
