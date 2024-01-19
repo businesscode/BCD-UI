@@ -337,6 +337,6 @@ public class RequestLifeCycleFilter implements Filter {
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     String csp = filterConfig.getInitParameter(CONTENT_SECURITY_POLICY);
-    contentSecurityPolicy.add(csp == null ? "default-src 'self' 'unsafe-eval' 'unsafe-inline'; object-src 'none'" : csp);
+    contentSecurityPolicy.add(csp == null ? "default-src 'self' 'unsafe-eval' 'unsafe-inline'; object-src 'none'; img-src 'self' data:" : csp);
   }
 }
