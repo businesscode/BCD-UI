@@ -229,6 +229,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         opts.yAxis[0].type = "category";
         opts.yAxis[0].axisLabel.formatter = null;
         opts.xAxis.type = "value";
+        if (opts.yAxis.length == 2) {
+          opts.yAxis[1].data = xCategories;
+          opts.yAxis[1].type = "category";
+          opts.yAxis[1].axisLabel.formatter = null;
+        }
       }
 
       series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").toLowerCase();
