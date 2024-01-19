@@ -622,7 +622,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
     }));
   }
 
-  getClassName() {return "bcdui.core.DataProviderWithXPathNodes";}
+  getClassName() {return "bcdui.core.OptionsDataProvider";}
 
   /**
    * returns the root-element of the document
