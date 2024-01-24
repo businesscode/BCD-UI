@@ -338,7 +338,7 @@ public class DatabaseWriter {
             break;
           case Types.BIGINT:
             if (isNull)
-              stm.setNull(paramNo, Types.INTEGER);
+              stm.setNull(paramNo, Types.BIGINT);
             else
               stm.setLong(paramNo, Long.parseLong(value));
             break;
@@ -466,9 +466,10 @@ public class DatabaseWriter {
             break;
           case Types.BIGINT:
             if (isNull)
-              stm.setNull(paramNo, Types.INTEGER);
+              stm.setNull(paramNo, Types.BIGINT);
             else
               stm.setLong(paramNo, Long.parseLong(value));
+            setExParam(stm, paramNo, isNull);
             break;
           case Types.INTEGER:
           case Types.TINYINT: // // SE: 09.07.2009 fix teraData bug
