@@ -48,7 +48,7 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
 
     var metaDataModel = bcdui.component.cube.templateManager._getOptionsModel();
     var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout") != null ? "@cubeId" : "@scorecardId";
-    var ns = idAttr == "cubeId" ? "cube:" : "scc:";
+    var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
     var template  = metaDataModel.getData().selectSingleNode("/*/*[local-name()='Layouts']/*[local-name()='Layout' and @id='"+ id +"']");
     if (template != null) {
       // copy data
