@@ -482,6 +482,11 @@
       <xs:element name="Value"></xs:element>
     </xs:sequence>
     <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
+    <xs:attribute name="type" use="optional">
+      <xs:annotation>
+        <xs:documentation>Can be set to 'time' to define timestamps as xvalues, i.e. they are not parsed as floats.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- ===================================================================== -->

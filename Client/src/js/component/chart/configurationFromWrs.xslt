@@ -110,6 +110,14 @@
   <xsl:variable name="forceAxisY1" select="$cubeConfig//dm:Measures/dm:Measure[@yAxis='1']/@yAxis"/>
   <xsl:variable name="forceAxisY2" select="$cubeConfig//dm:Measures/dm:Measure[@yAxis='2']/@yAxis"/>
 
+  <xsl:variable name="xValueType">
+    <xsl:choose>
+      <xsl:when test="$chartPreSettings/*/chart:XAxis/chart:XValues">XValues</xsl:when>
+      <xsl:otherwise>Categories</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="xValueTypeAttr" select="$chartPreSettings/*/chart:XAxis/chart:XValues/@type"/>
+
   <xsl:template match="/">
     <chart:Chart title="{$title}" xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
       <xsl:apply-templates select="node()|@*"/>
@@ -136,7 +144,13 @@
 
         <chart:XAxis caption="{wrs:Header/wrs:Columns/@colDimLevelCaptions}">
           <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
-          <chart:Categories modelId="{$bcdInputModelId}" nodes="/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[position() > 1 and not(contains(@id,'&#xE0F0;1'))]/@caption"/>
+          <xsl:element name="{$xValueType}" namespace="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
+            <xsl:if test="$xValueTypeAttr">
+              <xsl:attribute name="type"><xsl:value-of select="$xValueTypeAttr"/></xsl:attribute>
+            </xsl:if>
+            <xsl:attribute name="modelId"><xsl:value-of select="$bcdInputModelId"/></xsl:attribute>
+            <xsl:attribute name="nodes">/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[position() > 1 and not(contains(@id,'&#xE0F0;1'))]/@caption</xsl:attribute>
+          </xsl:element>
         </chart:XAxis>
 
         <xsl:choose>
@@ -202,7 +216,14 @@
 
       <chart:XAxis caption="{wrs:Header/wrs:Columns/wrs:C[@dimId]/@caption}">
         <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
-        <chart:Categories modelId="{$bcdInputModelId}" nodes="/wrs:Wrs/wrs:Data/wrs:R{$validRowExpr}/wrs:C[{number(wrs:Header/wrs:Columns/wrs:C[@dimId]/@pos)}]"/>
+          <xsl:element name="{$xValueType}" namespace="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
+            <xsl:if test="$xValueTypeAttr">
+              <xsl:attribute name="type"><xsl:value-of select="$xValueTypeAttr"/></xsl:attribute>
+            </xsl:if>
+            <xsl:attribute name="modelId"><xsl:value-of select="$bcdInputModelId"/></xsl:attribute>
+            <xsl:variable name="pos" select="number(wrs:Header/wrs:Columns/wrs:C[@dimId]/@pos)"/>
+            <xsl:attribute name="nodes"><xsl:value-of select="concat('/wrs:Wrs/wrs:Data/wrs:R', $validRowExpr, '/wrs:C[', $pos, ']')"/></xsl:attribute>
+          </xsl:element>
       </chart:XAxis>
 
       <chart:YAxis1 unit="{$unit1}" caption="{$mesCaptionUnit1}">
@@ -309,11 +330,14 @@
 
       <chart:XAxis caption="{wrs:Header/wrs:Columns/@colDimLevelCaptions}">
         <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
-        <chart:Categories>
+        <xsl:element name="{$xValueType}" namespace="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
+          <xsl:if test="$xValueTypeAttr">
+            <xsl:attribute name="type"><xsl:value-of select="$xValueTypeAttr"/></xsl:attribute>
+          </xsl:if>
           <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerColsIdFirstPart', substring-before(@id,'|')))]">
             <chart:Value><xsl:value-of select="substring-before(@caption,'|')"/></chart:Value>
           </xsl:for-each>
-        </chart:Categories>
+        </xsl:element>
       </chart:XAxis>
 
       <chart:YAxis1 unit="{$unit1}" caption="{substring-after($mesCaptionUnit1, '|')}">
@@ -432,11 +456,14 @@
 
       <chart:XAxis caption="{wrs:Header/wrs:Columns/wrs:C[@dimId]/@caption}">
         <xsl:copy-of select="$chartPreSettings/*/chart:XAxis/@*"/>
-        <chart:Categories>
+        <xsl:element name="{$xValueType}" namespace="http://www.businesscode.de/schema/bcdui/charts-1.0.0">
+          <xsl:if test="$xValueTypeAttr">
+            <xsl:attribute name="type"><xsl:value-of select="$xValueTypeAttr"/></xsl:attribute>
+          </xsl:if>
           <xsl:for-each select="/*/wrs:Data/wrs:R[not(wrs:C[@bcdGr=1])]/wrs:C[generate-id(.) = generate-id(key('rowDimensionCell', .)) and position()=1]">
             <chart:Value><xsl:value-of select="."/></chart:Value>
           </xsl:for-each>
-        </chart:Categories>
+        </xsl:element>
       </chart:XAxis>
 
       <chart:YAxis1 unit="{wrs:Header/wrs:Columns/wrs:C[@valueId]/@unit}" caption="{wrs:Header/wrs:Columns/wrs:C[@valueId]/@caption}">

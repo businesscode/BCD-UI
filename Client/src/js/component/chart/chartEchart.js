@@ -160,7 +160,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       let xValuesModelId = this.config.read("/*//chart:XValues/@modelId");
       let xValuesModel = bcdui.factory.objectRegistry.getObject( xValuesModelId );
       let nodes = xValuesModel.queryNodes( this.config.read("/*//chart:XValues/@nodes") );
-      xValues = Array.prototype.slice.call( nodes ).map((n)=>parseFloat(n.text));
+      if (this.config.read("/*//chart:XValues/@type", "") == "time")
+        xValues = Array.prototype.slice.call( nodes ).map((n)=>n.text);
+      else
+        xValues = Array.prototype.slice.call( nodes ).map((n)=>parseFloat(n.text));
     }
     opts.xAxis.name = this.config.read("/*/chart:XAxis/@caption", "");
     opts.xAxis.nameLocation = "middle";
@@ -236,7 +239,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         }
       }
 
-      series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").toLowerCase();
+      series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").replace("POINT","SCATTER").toLowerCase();
       series.name = this.config.read("/*/chart:Series/chart:Series["+s+"]/@caption");
 
       // Set series' color. Can be local @rgb or from seriesColorList
@@ -540,6 +543,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
               res += "<td style='text-align: right'>" + params[s].data.bcdLabelValues[lv] + "</td>";
               res += "<td>&nbsp;</td>";
             }
+          } else if (values[v] != "" + parseFloat(values[v])) {
+            res += "<td style='text-align: right'>" + values[v] + "</td>";
           } else {
             res += "<td style='text-align: right'>" + getNumFormatter(3, thisUnit)(values[v]) + "</td>";
           }
