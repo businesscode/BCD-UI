@@ -396,7 +396,7 @@
         <Param name="toUpper" type="boolean" required="false" default="false">
           <Doc>If true, all values are translated to uppercase.</Doc>
         </Param>
-        <Param name="pasteSeps" type="string" required="false" default=",; \\|\\t\\n">
+        <Param name="pasteSeps" type="string" required="false" default=",; \|\t\n">
           <Doc>
             Letters treated as separators between values when pasting.
             Defaults: comma, semicolon, space, pipe, tab, newline.
