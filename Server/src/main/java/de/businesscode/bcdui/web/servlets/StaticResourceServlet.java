@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -217,7 +217,7 @@ public class StaticResourceServlet extends HttpServlet {
     private static Resource fetchResource(ServletContext context, HttpServletRequest request) {
       // This attribute is defined in the Java Servlet Specification section 8.3.1
       // It will be set when the static source is included with c:import.
-      String includeServletPath = (String) request.getAttribute("javax.servlet.include.request_uri");
+      String includeServletPath = (String) request.getAttribute("jakarta.servlet.include.request_uri");
       String path = (includeServletPath == null) ? request.getRequestURI() : includeServletPath;
       path = path.substring(request.getContextPath().length());
 

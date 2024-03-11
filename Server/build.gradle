@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 //**************************************
 // Handle compilation of BCD-UI's Java server and generation of Java classes from xsd
 apply plugin: 'java' // because we are also imported else where, we can not use the new plugins{} mechanism (gradle 4.1)
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 // Add jaxb gensrc to default source set
 sourceSets {
@@ -46,7 +46,7 @@ dependencies {
   antLib 'com.sun.xml.bind:jaxb-impl:2.2.6'
   antLib 'com.sun.xml.bind:jaxb-xjc:2.2.6'
   antLib group: 'jakarta.activation', name: 'jakarta.activation-api', version: '1.2.1'
-  antLib group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.2'
+  antLib group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.3'
 }
 
 //********************************

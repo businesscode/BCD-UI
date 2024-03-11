@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,62 +36,77 @@ dependencies {
   // For BCD-UI we list all jars we need during compile and runtime explicitly here
   // We do not want any additionally declared transitive dependencies
   // these dependencies are also used to build BCD-UI
-  implementation ('commons-codec:commons-codec:1.16.0') { transitive = false }
-  implementation ('commons-collections:commons-collections:3.2.2') { transitive = false }
-  implementation ('org.apache.commons:commons-collections4:4.4') { transitive = false } // collections:3.2.2 and 4-4.1 do not conflict. 3 is used by lib, 4 by poi
-  implementation ('org.apache.commons:commons-csv:1.10.0') { transitive = false }
-  implementation ('commons-dbutils:commons-dbutils:1.7') { transitive = false }
-  implementation ('commons-fileupload:commons-fileupload:1.5') { transitive = false }
-  implementation ('commons-io:commons-io:2.15.0') { transitive = false }
-  implementation ('commons-lang:commons-lang:2.6') { transitive = false }
-  implementation ('commons-logging:commons-logging:1.2') { transitive = false }
-  implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }
-  implementation ('javax.servlet:jstl:1.2') { transitive = false }
-  implementation ('org.apache.logging.log4j:log4j-api:2.17.1') { transitive = false }
-  implementation ('org.apache.logging.log4j:log4j-core:2.17.1') { transitive = false }
-  implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
-  implementation ('com.opencsv:opencsv:5.4') { transitive = false }
-  implementation ('org.apache.poi:poi:5.2.4') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml:5.2.4') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml-lite:5.2.4') { transitive = false }
-  implementation ('org.apache.shiro:shiro-all:1.13.0') { transitive = false }
-  implementation ('org.apache.velocity:velocity-engine-core:2.3') { transitive = false }
-  implementation ('org.apache.xmlbeans:xmlbeans:5.1.1') { transitive = false } // needed by poi
-  implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
-  implementation ('com.google.code.gson:gson:2.10.1') { transitive = false }
-  implementation ('com.jcraft:jsch:0.1.55') { transitive = false }
-  implementation ('javax.mail:mail:1.4.7') { transitive = false }
-  implementation ('com.sun.activation:javax.activation:1.2.0') { transitive = false }
-  implementation ('org.slf4j:slf4j-api:1.7.30') { transitive = false }
+  implementation ('commons-codec:commons-codec:1.16.1') { transitive = false }                // BCDUI-Config             // 1.16.0 -> 1.16.1
+
+  implementation ('commons-collections:commons-collections:3.2.2') { transitive = false }     // needed ?
+
+  implementation ('org.apache.commons:commons-collections4:4.4') { transitive = false }       // runtime only, needed by poi !
+  implementation ('org.apache.commons:commons-csv:1.10.0') { transitive = false }             // UploadToRow
+  implementation ('commons-dbutils:commons-dbutils:1.8.1') { transitive = false }             // UploadNormalize          // 1.7 -> 1.8.1
+  implementation ('org.apache.commons:commons-fileupload2-jakarta:2.0.0-M1') { transitive = false } // vfsservlet
+  implementation ('org.apache.commons:commons-fileupload2-core:2.0.0-M2') { transitive = false }    // vfsservlet         // 2.0.0-M1 -> -M2
+  implementation ('commons-io:commons-io:2.15.1') { transitive = false }                      // vfsservlet               // 2.15.0 -> 2.15.1
+  implementation ('commons-lang:commons-lang:2.6') { transitive = false }                     // TextToUrl, etc
+  implementation ('commons-logging:commons-logging:1.3.0') { transitive = false }             // DataBaseFileProvider     // 1.2 -> 1.3.0
+  implementation ('commons-vfs:commons-vfs:1.0') { transitive = false }                       // DatbaseFileProvider etc  // (2.9.0)
+
+  implementation ('org.apache.logging.log4j:log4j-api:2.23.0') { transitive = false }         // SubjectSettings          // 2.17.1 -> 2.23.0
+  implementation ('org.apache.logging.log4j:log4j-core:2.23.0') { transitive = false }        // BcdUIApplicationListener // 2.17.1 - >2.23.0
+  implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }                // Cache                    // (3.10.8)
+  implementation ('com.opencsv:opencsv:5.9') { transitive = false }                           // CVSWriter                // 5.4 - > 5.9
+  implementation ('org.apache.poi:poi:5.2.5') { transitive = false }                          // UploadToRowColExcel      // 5.2.4 -> 5.2.5
+  implementation ('org.apache.poi:poi-ooxml:5.2.5') { transitive = false }                    // AbstractExcelSheetWriter // 5.2.4 -> 5.2.5
+  implementation ('org.apache.poi:poi-ooxml-lite:5.2.5') { transitive = false }               // AbstractExcelSheetWriter // 5.2.4 -> 5.2.5
+
+  implementation ('org.apache.shiro:shiro-core:2.0.0:jakarta') { transitive = false }         // SubjectFilters
+  implementation ('org.apache.shiro:shiro-lang:2.0.0') { transitive = false }                 // Menus
+  implementation ('org.apache.shiro:shiro-cache:2.0.0') { transitive = false }                // SubjectSettings
+  implementation ('org.apache.shiro:shiro-crypto-hash:2.0.0') { transitive = false }          // SubjectSettings
+  implementation ('org.apache.shiro:shiro-crypto-core:2.0.0') { transitive = false }          // SubjectSettings
+  implementation ('org.apache.shiro:shiro-web:2.0.0:jakarta') { transitive = false }          // SubjectSettings
+  implementation ('org.apache.shiro:shiro-crypto-cipher:2.0.0') { transitive = false }        // runtime only, needed during run!
+  implementation ('org.apache.shiro:shiro-config-core:2.0.0') { transitive = false }          // runtime only, needed during run!
+  implementation ('org.apache.shiro:shiro-event:2.0.0') { transitive = false }                // runtime only, needed during run!
+  implementation ('org.apache.shiro:shiro-config-ogdl:2.0.0') { transitive = false }          // runtime only, needed during run!
+  implementation ('org.apache.shiro:shiro-ehcache:2.0.0') { transitive = false }              // runtime only, needed during run!
+
+  implementation ('org.apache.velocity:velocity-engine-core:2.3') { transitive = false }      // SQLEngine
+  implementation ('org.apache.xmlbeans:xmlbeans:5.2.0') { transitive = false }                // runtime only, needed by poi !  // 5.1.1 -> 5.2.0
+  implementation ('com.google.code.gson:gson:2.10.1') { transitive = false }                  // OAUTH2
+  implementation ('com.github.mwiede:jsch:0.2.17') { transitive = false }                     // Toolbox                  // 0.1.55 -> 0.2.17
+  implementation ('javax.mail:mail:1.4.7') { transitive = false }                             // Util                     // 1.4.7 (2.1.3)
+  implementation ('com.sun.activation:javax.activation:1.2.0') { transitive = false }         // SendMail
+  implementation ('org.slf4j:slf4j-api:1.7.36') { transitive = false }                        // SQLEngine (2.x error in shiro) // 1.7.30 -> 1.7.36 (2.0.12)
 
   // Only needed when using jsp
-  // implementation ('javax.servlet:jstl:1.2') { transitive = false }
-  // implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
-  // compileOnly ('javax.servlet.jsp:jsp-api:2.3.3') { transitive = false }
+  // implementation ('org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1') { transitive = false }            // runtime only, needed by jsp !
+  // implementation ('jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0') { transitive = false } // runtime only, needed by jsp !
 
   // These moved from Java to Java Jakarta with Java 9 http://openjdk.java.net/jeps/320:
   // We use soap api 1 for error messages, so we use soap 1.x and also saaj 1.x
   if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-    implementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.3') { transitive = false }
-    implementation('jakarta.xml.soap:jakarta.xml.soap-api:1.4.2') { transitive = false }
-    implementation('jakarta.activation:jakarta.activation-api:1.2.1') { transitive = false }
-    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.4') { transitive = false }
-    implementation('com.sun.istack:istack-commons-runtime:4.2.0') { transitive = false }
-    implementation('com.sun.xml.messaging.saaj:saaj-impl:1.5.3') { transitive = false }
-    implementation('org.jvnet.staxex:stax-ex:2.0.1') { transitive = false }
+    implementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.3') { transitive = false }      // SubjectSettings          // 2.3.3 (4.0.1)
+    implementation('jakarta.xml.soap:jakarta.xml.soap-api:1.4.2') { transitive = false }      // SoapFault                // 1.4.2 (3.0.1)
+    implementation('jakarta.activation:jakarta.activation-api:1.2.1') { transitive = false }  // needed ? (yep..)         // 1.2.1 (2.1.3)
+    implementation('org.glassfish.jaxb:jaxb-runtime:2.3.4') { transitive = false }            // needed during run !      // 2.3.4 (4.0.5)
+    implementation('com.sun.istack:istack-commons-runtime:4.2.0') { transitive = false }      // needed during run !
+    implementation('com.sun.xml.messaging.saaj:saaj-impl:3.0.3') { transitive = false }       // needed ? (jaxb?)         // 1.5.3 -> 3.0.3
+    implementation('org.jvnet.staxex:stax-ex:2.1.0') { transitive = false }                   // needed ? (jaxb?)         // 2.0.1 -> 2.1.0
   }
 
   // Additionally needed only during runtime
-  runtimeOnly ('commons-beanutils:commons-beanutils:1.9.4') { transitive = false }
-  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
-  runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.17.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
-  runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
-  runtimeOnly ('org.apache.commons:commons-compress:1.24.0') { transitive = false } // needed by poi
-  runtimeOnly ('org.apache.commons:commons-lang3:3.13.0') { transitive = false } // needed by velocity
+  runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.18.0') { transitive = false }   // needed ?  actual implementation of slf4j using log4j for >= 1.8 ?        // 2.17.1 -> 2.18.0
+  runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.23.0') { transitive = false }        // needed ?  used to divert some 3rd party calls from log4j 1.x to 2.x ?    // 2.17.1 -> 2.23.0
+
+  runtimeOnly ('commons-beanutils:commons-beanutils:1.9.4') { transitive = false }            // runtime only, needed by shiro !
+  runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false }                      // runtime only, needed by shiro !
+  runtimeOnly ('org.apache.commons:commons-compress:1.26.0') { transitive = false }           // runtime only, needed by poi !      // 1.24.0 -> 1.26.0
+  runtimeOnly ('org.apache.commons:commons-lang3:3.14.0') { transitive = false }              // runtime only, needed by velocity ! // 3.13.0 -> 3.14.0
 
   // Provided during runtime by servlet container
-  compileOnly ('javax.el:javax.el-api:3.0.0') { transitive = false }
-  compileOnly ('javax.servlet:javax.servlet-api:3.1.0') { transitive = false }
+  compileOnly ('jakarta.el:jakarta.el-api:5.0.1') { transitive = false }
+  compileOnly ('jakarta.servlet:jakarta.servlet-api:6.0.0') { transitive = false }
+  // compileOnly ('jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0') { transitive = false }
 
   // End BCD-UI dependencies
 }

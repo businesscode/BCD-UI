@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 import javax.xml.soap.Detail;
 import javax.xml.soap.MessageFactory;
@@ -143,7 +143,7 @@ public class SOAPFaultMessage {
    * @param out
    * @throws SOAPException
    * @throws IOException
-   * @see javax.xml.soap.SOAPMessage#writeTo(java.io.OutputStream)
+   * @see java.xml.soap.SOAPMessage#writeTo(java.io.OutputStream)
    */
   public void writeTo(OutputStream out) throws SOAPException, IOException {
     getMessage().writeTo(out);

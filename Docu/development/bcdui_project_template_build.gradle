@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ apply plugin: 'eclipse'
 webAppDirName = 'WebContent'
 
 // Adjust to your target runtime
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 // We collect all classes in WEB-INF/classes
 sourceSets.main.java.outputDir      = file("$webAppDirName/WEB-INF/classes")
