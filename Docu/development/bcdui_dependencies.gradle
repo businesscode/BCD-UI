@@ -74,9 +74,9 @@ dependencies {
   implementation ('org.apache.xmlbeans:xmlbeans:5.2.0') { transitive = false }                // needed by poi !      // 5.1.1 -> 5.2.0
   runtimeOnly ('org.apache.commons:commons-collections4:4.4') { transitive = false }          // runtime only, needed by poi !
 
-  /* to do: port mail to jakarta */
-  implementation ('javax.mail:mail:1.4.7') { transitive = false }                             // Util                 // 1.4.7 (2.1.3)
-  implementation ('com.sun.activation:javax.activation:1.2.0') { transitive = false }         // SendMail
+  implementation ('jakarta.mail:jakarta.mail-api:2.1.3') { transitive = false }               // SendMail Api
+  runtimeOnly ('org.eclipse.angus:angus-mail:2.0.3') { transitive = false }                   // SendMail Impl
+  runtimeOnly ('org.eclipse.angus:angus-activation:2.0.2') { transitive = false }             // SendMail Impl
 
   // Only needed when using jsp
   // runtimeOnly ('org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1') { transitive = false }            // runtime only, needed by jsp !
@@ -84,7 +84,7 @@ dependencies {
 
   implementation('jakarta.xml.bind:jakarta.xml.bind-api:4.0.2') { transitive = false }        // SubjectSettings      // 2.3.3 -> 4.0.2
   implementation('jakarta.xml.soap:jakarta.xml.soap-api:3.0.1') { transitive = false }        // SoapFault            // 1.4.2 -> 3.0.1
-  runtimeOnly('jakarta.activation:jakarta.activation-api:2.1.3') { transitive = false }       // needed during jaxb   // 1.2.1 -> 2.1.3
+  implementation('jakarta.activation:jakarta.activation-api:2.1.3') { transitive = false }    // jaxb/sendmail        // 1.2.1 -> 2.1.3
   runtimeOnly('org.glassfish.jaxb:jaxb-core:4.0.5') { transitive = false }                    // needed during jaxb
   runtimeOnly('org.glassfish.jaxb:jaxb-runtime:4.0.5') { transitive = false }                 // needed during jaxb   // 2.3.4 -> 4.0.5
   runtimeOnly('com.sun.istack:istack-commons-runtime:4.2.0') { transitive = false }           // needed during jaxb

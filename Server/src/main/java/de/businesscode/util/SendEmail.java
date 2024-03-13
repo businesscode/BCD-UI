@@ -21,30 +21,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Authenticator;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import jakarta.activation.CommandMap;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
+import jakarta.activation.MailcapCommandMap;
+import jakarta.mail.Authenticator;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.net.ssl.SSLContext;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
-import com.sun.mail.util.MailSSLSocketFactory;
 
 /**
  * Set these jndi properties.
@@ -103,6 +104,10 @@ public class SendEmail
     initSession();
   }
 
+  public void setSender(String sender) throws AddressException {
+    this.fromInternetAddress = new InternetAddress(sender);
+  }
+
   /**
    * Reads email account settings from JNDI context
    * @param host
@@ -145,11 +150,10 @@ public class SendEmail
     props.put("mail.smtp.port", port); 
     props.put("mail.smtp.starttls.enable", starttls);
     props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.ssl.protocols", "TLSv1.1 TLSv1.2");
 
-    MailSSLSocketFactory sf = new MailSSLSocketFactory();
-    sf.setTrustAllHosts(true); 
     props.put("mail.smtp.ssl.trust", "*");
-    props.put("mail.smtp.ssl.socketFactory", sf); 
+    props.put("mail.smtp.ssl.socketFactory", SSLContext.getDefault().getSocketFactory()); 
 
     session = Session.getInstance(props, new Authenticator() {
       @Override
@@ -167,9 +171,9 @@ public class SendEmail
    * @param attachments may be null
    * @throws MessagingException
    */
-  public void send(String receipients, String subject, String body ) throws MessagingException 
+  public void send(String receipients, String subject, String body, boolean html ) throws MessagingException 
   {
-    send(receipients, subject, body, null);
+    send(receipients, subject, body, null, html);
   }
 
   /**
@@ -180,12 +184,12 @@ public class SendEmail
    * @param attachments may be null
    * @throws MessagingException
    */
-  public void send(String receipients, String subject, String body, String attachmentName, File attachment) throws MessagingException 
+  public void send(String receipients, String subject, String body, String attachmentName, File attachment, boolean html) throws MessagingException 
   {
     Map<String,DataSource> attachments = new HashMap<>();
     DataSource source = new FileDataSource(attachment);
     attachments.put(attachmentName, source);
-    send(receipients, subject, body, attachments);
+    send(receipients, subject, body, attachments, html);
   }
   
   /**
@@ -196,7 +200,7 @@ public class SendEmail
    * @param attachments attachmentname - filename
    * @throws MessagingException
    */
-  public void sendWithFilenames(String receipients, String subject, String body, Map<String,String> attachmentFilenames ) throws MessagingException 
+  public void sendWithFilenames(String receipients, String subject, String body, Map<String,String> attachmentFilenames, boolean html) throws MessagingException 
   {
     Map<String,DataSource> attachments = new HashMap<>();
     for( String atn: attachmentFilenames.keySet() ) {
@@ -204,7 +208,7 @@ public class SendEmail
       DataSource source = new FileDataSource(fileName);
       attachments.put(atn, source);
     }
-    send(receipients, subject, body, attachments);
+    send(receipients, subject, body, attachments, html);
   }
   
   /**
@@ -215,7 +219,7 @@ public class SendEmail
    * @param attachments attachmentname - file
    * @throws MessagingException
    */
-  public void sendWithFiles(String receipients, String subject, String body, Map<String,File> attachmentFiles ) throws MessagingException 
+  public void sendWithFiles(String receipients, String subject, String body, Map<String,File> attachmentFiles, boolean html ) throws MessagingException 
   {
     Map<String,DataSource> attachments = new HashMap<>();
     for( String atn: attachmentFiles.keySet() ) {
@@ -223,7 +227,7 @@ public class SendEmail
       DataSource source = new FileDataSource(file);
       attachments.put(atn, source);
     }
-    send(receipients, subject, body, attachments);
+    send(receipients, subject, body, attachments, html);
   }
 
   /**
@@ -234,9 +238,9 @@ public class SendEmail
    * @param attachments
    * @throws MessagingException
    */
-  public void send(String receipients, String subject, String body, Map<String,DataSource> attachments ) throws MessagingException 
+  public void send(String receipients, String subject, String body, Map<String,DataSource> attachments, boolean html ) throws MessagingException 
   {
-    sendCC(receipients, "", subject, body, attachments );
+    sendCC(receipients, "", "", subject, body, attachments, html );
   }
 
   /**
@@ -248,7 +252,7 @@ public class SendEmail
    * @param attachments
    * @throws MessagingException
    */
-  public void sendCC(String receipients, String receipientsCc, String subject, String body, Map<String,DataSource> attachments ) throws MessagingException 
+  public void sendCC(String receipients, String receipientsCc, String receipientsBcc, String subject, String body, Map<String,DataSource> attachments, boolean html ) throws MessagingException 
   {
     String b = body == null ? this.body : body;
     String s = subject == null ? this.subject : subject;
@@ -268,19 +272,30 @@ public class SendEmail
     if( receipientsCc != null && !receipientsCc.isEmpty() )
       for( String receipientCc: receipientsCc.split(";") )
         message.addRecipient(Message.RecipientType.CC, new InternetAddress(receipientCc));
-    
+
+    // Set bcc: header field of the header.
+    if( receipientsBcc != null && !receipientsBcc.isEmpty() )
+      for( String receipientBcc: receipientsBcc.split(";") )
+        message.addRecipient(Message.RecipientType.BCC, new InternetAddress(receipientBcc));
+
     // Attachment handling
-    if( attachments!=null && !attachments.isEmpty() ) {
+    if( html || (attachments!=null && !attachments.isEmpty())) {
       Multipart multipart = new MimeMultipart();
       BodyPart messageBodyPartText = new MimeBodyPart();
       messageBodyPartText.setContent(b,"text/html; charset=utf-8");
       multipart.addBodyPart(messageBodyPartText);
 
-      for( String attachName: attachments.keySet() ) {
-        BodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setDataHandler(new DataHandler(attachments.get(attachName)));
-        messageBodyPart.setFileName(attachName);
-        multipart.addBodyPart(messageBodyPart);
+      MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap(); 
+      mc.addMailcap("text/html;; x-java-content-handler=org.eclipse.angus.mail.handlers.text_html");
+      CommandMap.setDefaultCommandMap(mc);
+      
+      if (attachments != null) {
+        for( String attachName: attachments.keySet() ) {
+          BodyPart messageBodyPart = new MimeBodyPart();
+          messageBodyPart.setDataHandler(new DataHandler(attachments.get(attachName)));
+          messageBodyPart.setFileName(attachName);
+          multipart.addBodyPart(messageBodyPart);
+        }
       }
     
       message.setContent(multipart);
