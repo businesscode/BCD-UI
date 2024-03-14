@@ -29,7 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 import de.businesscode.bcdui.cache.CacheFactory;
 
 /**

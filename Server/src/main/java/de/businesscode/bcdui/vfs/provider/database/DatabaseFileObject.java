@@ -27,12 +27,13 @@ import java.util.Arrays;
 
 import net.sf.ehcache.Element;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
-import org.apache.commons.vfs.FileType;
-import org.apache.commons.vfs.impl.VirtualFileName;
-import org.apache.commons.vfs.provider.AbstractFileObject;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.impl.VirtualFileName;
+import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,7 +73,7 @@ public class DatabaseFileObject extends AbstractFileObject {
   /**
    * Constructor
    */
-  protected DatabaseFileObject(FileName name, final DatabaseFileSystem fs) {
+  protected DatabaseFileObject(AbstractFileName name, final DatabaseFileSystem fs) {
     super(name, fs);
 
     this.fileSystem = fs;

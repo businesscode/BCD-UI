@@ -22,8 +22,8 @@ import java.io.UnsupportedEncodingException;
 import jakarta.servlet.ServletContext;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
