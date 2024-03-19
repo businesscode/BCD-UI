@@ -257,7 +257,7 @@ public class ZipLet extends HttpServlet {
     uncompressedString = removeXMLComments(uncompressedString);
 
     // First lets minimize the namespace related characters, be moving all unambiguous namespaces alias definitions to the root node
-    Pattern singleXmlnsPattern = Pattern.compile(" xmlns:(.+?)=\"(.+?)\"");
+    Pattern singleXmlnsPattern = Pattern.compile(" xmlns:(\\w+?)=\"(.+?)\"");
     Matcher singleXmlnsMatcher = singleXmlnsPattern.matcher(uncompressedString);
     Map<String,String> aN = new HashMap<String,String>(); // This collects all aliases
     Set<String> ambiguousAilases = new TreeSet<String>(); // This collects aliases having more than one namespace assigned, they will stay
