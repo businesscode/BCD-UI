@@ -316,6 +316,10 @@
 
         // clean selection if box is closed
         if (!lowerConnectable.is(":visible")) {
+
+          const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable").first();
+          lowerConnectable._bcduiWidget()._moveSelectedItems(lowerConnectable, upperConnectable);
+
           if (!doNotClean) {
             inputField.val("");
             lowerConnectable.find(".ui-selected").removeClass("ui-selected");
