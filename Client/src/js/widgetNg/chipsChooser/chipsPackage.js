@@ -231,7 +231,7 @@
             autofocus: this.options.autofocus
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
-          , doSortOptions: this.options.doSortOptions || true
+          , doSortOptions: this.options.doSortOptions
           , sortOptionsFunction : this.options.sortOptionsFunction
           , hint: this.options.hint
           , onBeforeChange: this.options.onBeforeChange
@@ -353,7 +353,7 @@
         inputField.keypress(function() { setTimeout(function() { markItem(); } )});
 
       inputField.keydown(function(event) {
-        const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable");
+        const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable").first();
         const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
 
         // DEL and BACKSPACE should also update the keypress functionality
