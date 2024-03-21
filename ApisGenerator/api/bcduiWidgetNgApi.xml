@@ -653,8 +653,8 @@
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       
         </Param>
-        <Param name="doSortOptions" required="false" type="boolean" default="true">
-          <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
+        <Param name="doSortOptions" type="boolean" default="false">
+          <Doc>Can be set to 'true' if the options should be sorted alphabetically. This is disabled per default to avoid CPU wasting.</Doc>
         </Param>
         <Param name="sortOptionsFunction" type="function">
           <Doc>a compareFunction(a,b) passed to Array.prototype.sort(); with a, b are objects with { caption, value } A function used to sort items in the connectable. The defaulting implementation uses alphabetic sorting on caption.</Doc>
