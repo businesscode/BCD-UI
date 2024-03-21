@@ -2116,7 +2116,7 @@ $chips-close-color: #c00 !default;
   
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
   .bcdLower {
-    height: 10em;
+    height: inherit;
     .bcdLoading {width: 1em; height: 1em;}
   }
 
