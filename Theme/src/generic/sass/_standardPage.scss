@@ -426,6 +426,9 @@ a {
    form span span { vertical-align: middle; padding: 0px 8px 0px 3px; }
 }
 
+.bcdMultiSelect .bcdMultiSelectItem * { vertical-align: middle; cursor: pointer; }
+.bcdMultiSelect .bcdMultiSelectItem { display: block; }
+
 .bcdMultiSelect {
   form > span { display: block; margin-bottom: 3px; padding: 0px 0px 3px 0px;}
 }

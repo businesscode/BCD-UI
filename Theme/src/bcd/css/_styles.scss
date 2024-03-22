@@ -248,6 +248,9 @@ $h6-font-size:                $bcd-font-size-base !default;
   padding: 0 0 0 .6em;
 }
 
+.bcdMultiSelect .bcdMultiSelectItem * { vertical-align: middle; cursor: pointer; }
+.bcdMultiSelect .bcdMultiSelectItem { display: block; }
+
 .bcdSingleSelect,
 .bcdMultiSelect {
   display: block;
