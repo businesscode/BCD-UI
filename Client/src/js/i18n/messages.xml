@@ -220,8 +220,8 @@
       <R id="R167"><C>bcd_Rank_Measure</C><C>Measure</C><C>en</C></R>
       <R id="R168"><C>bcd_Rank_Show</C><C>Show</C><C>en</C></R>
       <R id="R169"><C>bcd_Rank_Rows</C><C>Rows</C><C>en</C></R>
-      <R id="R170"><C>bcd_Rank_Addk</C><C>Add a Rank</C><C>en</C></R>
-      <R id="R171"><C>bcd_Rank_Remk</C><C>Remove Rank</C><C>en</C></R>
+      <R id="R170"><C>bcd_Rank_Add</C><C>Add a Rank</C><C>en</C></R>
+      <R id="R171"><C>bcd_Rank_Rem</C><C>Remove Rank</C><C>en</C></R>
       <R id="R172"><C>bcd_Rank_Err</C><C>Please fill all fields and enter a rows value bigger 0</C><C>en</C></R>
       <R id="R173"><C>bcd_Rank_Top</C><C>Top</C><C>en</C></R>
       <R id="R174"><C>bcd_Rank_Bottom</C><C>Bottom</C><C>en</C></R>
