@@ -758,6 +758,11 @@ a {
   thead { border-bottom: 1px solid $border-color; font-size: 14px; }
 }
 
+.bcdValidationMessages ul {
+  padding: 1em; margin: 0;
+  li { list-style-type: none; }
+}
+
 /* blind up down */
 
 .bcdBlindUpDown {
