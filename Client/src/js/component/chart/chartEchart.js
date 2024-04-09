@@ -499,6 +499,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
     }
 
+    // smooth line charts
+    opts.series.forEach(function(s, i) {
+      if (s.type == "line")
+        s.smooth = this.config.read("/*/chart:Series/chart:Series[" + (i + 1) + "]/@smooth",'false') == "true";
+    }.bind(this));
+
     // If we have only a narrow band for % values in the series, like it is the case for ontime around 90-95, zoom in
     // Special handling for stacked as percentage further down below
     if( this.config.queryNodes("/*/chart:Series/chart:Series[@chartType='LINECHART' or @chartType='AREACHART' or @chartType='BARCHART' or @chartType='POINTCHART']").length > 0 ) {
