@@ -162,7 +162,8 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           let xPos = point[0] - size.contentSize[0] - 4;
           if (point[0] - size.contentSize[0] < 0)
             xPos = point[0] + 4;
-          const maxYSticky = jQuery(dom).parent().closest(".bcdStickyContainer").position().top + jQuery(dom).parent().closest(".bcdStickyContainer").outerHeight();
+          const container = jQuery(dom).parent().closest(".bcdStickyContainer");
+          const maxYSticky = container.length > 0 ? container.position().top + container.outerHeight() : 0;
           const maxYTooltip = jQuery(dom).offset().top + jQuery(dom).outerHeight();
           if (maxYTooltip < maxYSticky)
             return {top: 0, left: xPos};
