@@ -1216,6 +1216,10 @@ jQuery.extend(bcdui.widget,
      _getCaptionValueArray: function(htmlElementId)
      {
        var htmlElement = document.getElementById(htmlElementId);
+
+       // return if element is gone
+       if (! htmlElement) return null;
+
        var optionsModelId = htmlElement.getAttribute("bcdOptionsModelId");
        var optionsModelXPath = htmlElement.getAttribute("bcdOptionsModelXPath");
        var optionsModelRelativeValueXPath = htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath");
