@@ -52,6 +52,8 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
       {
         bcdui.log.isTraceEnabled() && bcdui.log.trace("this.idOrElement:"+this.idOrElement);
         var rElement = bcdui._migPjs._$(this.idOrElement);
+        if (rElement.length == 0)
+          return;
         this.doc = bcdui.core.browserCompatibility.newDOMDocument();
         var root = this.doc.createElement("Items");
         var tabId =  "tab_" + (rElement.get(0).id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tab_"));
