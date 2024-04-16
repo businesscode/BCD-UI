@@ -1082,7 +1082,7 @@ jQuery.extend(bcdui.widget,
               id : bcdMemo.id
             , idRef: bcdMemo.idRef
             , trackingXPath: p
-            , listener: function() {
+            , listener: function(memo) {
                 // in case of a given html element, check if this is still connected to DOM, if not, kill listener
                 if (memo.element && jQuery(memo.element).closest("body").length == 0)
                   bcdui.factory.removeDataListener({idRef: memo.idRef, id: memo.id})
