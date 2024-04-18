@@ -2477,3 +2477,51 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     padding-right: 1em;
   }
 }
+
+.bcdRanking {
+  select {
+    width: auto;
+  }
+  input {
+    width: 5em;
+    text-align: right;
+  }
+  .bcdSingleSelectNg {
+    display: inline-block;
+  }
+  padding: 1em;
+  border-radius: .25em;
+  border: 1px solid $border-color; 
+  .row {
+    margin: 0 0 .3em 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    .col .bcdButton {
+      a:after {
+        content: "\f00d";
+      }
+      padding: .375em .75em;
+    }
+  } 
+  .col {
+    margin: 0 .3em 0 0;
+    padding: 0;
+    flex: 0;
+  }
+  .bcdRanks {
+    overflow-y: auto;
+    max-height: 13em;
+    margin: 0 0 .3em 0;
+  }
+  .colrow {
+     margin: 0 .3em 0 0;
+     text-wrap: nowrap;
+     label {
+      margin: 0 .3em 0 0;
+      padding: 0;
+      text-transform: uppercase;
+      font-weight: normal;
+    }
+  }
+}
