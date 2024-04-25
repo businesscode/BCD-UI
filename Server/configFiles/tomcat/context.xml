@@ -50,7 +50,7 @@
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
 
   <!-- Some sample DB connections. Replace all values with XX in their name
-    Attribute names are assuming recommended org.apache.tomcat.jdbc.pool.DataSourceFactory (Apache Java Database Connection Poo).
+    Attribute names are assuming recommended org.apache.tomcat.jdbc.pool.DataSourceFactory (Apache Java Database Connection Pool).
     From older data sources (Apache DBCP) migrate these: maxTotal, maxWaitMillis, removeAbandonedOnBorrow, connectionInitSqls to the names below -->
 
   <!-- Sample for Oracle

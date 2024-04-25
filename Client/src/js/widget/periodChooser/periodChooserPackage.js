@@ -45,8 +45,7 @@
       if (node) {
         if (node.nodeType == 2)
           node = targetModel.getData().selectSingleNode(targetModelXPath + "/..");
-        postfix = node.getAttribute("bcdPostfix");
-        postfix = postfix != null ? postfix : "";
+        postfix = node.getAttribute("bcdPostfix") || containerHtmlElement.getAttribute("bcdPostfix") || "";
       }
     }
 

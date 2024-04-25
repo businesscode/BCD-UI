@@ -22,7 +22,7 @@ plugins {
 }
 
 def themeName         = project.properties['bcdui.theme.name']
-def themeFullLocation = project.properties['bcdui.theme.location'] + '/' + themeName
+def themeFullLocation = file(project.properties['bcdui.theme.location'] + '/' + themeName).absolutePath
 def rootFolder = file(new File("$themeFullLocation/.genericBased")).exists() ? "generic" : "bcd"
 
 
@@ -36,8 +36,8 @@ task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   inputs.dir  file("src/" + rootFolder)
   outputs.dir file(taskDestDirName)
 
-  script = file("$nodeModulesDir/node-sass/bin/node-sass")
-  args   = [ '-quiet', '--output-style=compressed', "--output=$taskDestDirName/css", "$themeFullLocation/css/${themeName}.scss" ]
+  script = file("$nodeModulesDir/sass/sass.js")
+  args   = [ '--quiet', '--style=compressed', "$themeFullLocation/css/${themeName}.scss", "$taskDestDirName/css/${themeName}.css" ]
 }
 
 //*********************************************

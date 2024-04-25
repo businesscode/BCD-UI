@@ -36,8 +36,9 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.dom.DOMResult;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.toolbox.ServletUtils;
@@ -59,6 +60,8 @@ import de.businesscode.util.jdbc.SQLDetailException;
  * you can handle a business exception in your servlet implementation and respond with a
  * SOAPFault using this class.
  * </p>
+ * <p>For debugging purposes, everytime a new instance is constructed, a log record is ussued at
+ * DEBUG level provdiding detail data about the cause.</p>
  */
 public class SOAPFaultMessage {
   private SOAPMessage message;
@@ -75,13 +78,13 @@ public class SOAPFaultMessage {
    * @param faultMessage - optional literal message provided as FaultReason in SOAPFault must not reveal security relevant facts
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static public boolean writeSOAPFaultToHTTPResponse(HttpServletResponse resp, Document requestDocument, String requestURL, Throwable faultException, String faultMessage)
+  public static boolean writeSOAPFaultToHTTPResponse(HttpServletResponse resp, Document requestDocument, String requestURL, Throwable faultException, String faultMessage)
   {
     try {
       resp.setContentType("text/xml");
       return writeSOAPFault(resp.getOutputStream(), requestDocument, requestURL, faultException, faultMessage);
     } catch( Exception e ) {
-      logger.error(e+" causer "+faultException+" for "+requestURL);
+      logger.error("Failed writing SOAPFault [{};{}] for url '{}', reason:", () -> faultMessage, () -> faultException == null ? null : ExceptionUtils.getStackTrace(faultException), () -> requestURL, () -> e);
       return false;
     }
   }
@@ -96,7 +99,7 @@ public class SOAPFaultMessage {
    * @param faultMessage - must not reveal security relevant facts
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static public boolean writeSOAPFaultToHTTPResponse(HttpServletRequest request, HttpServletResponse response, Exception faultException, String faultMessage) {
+  public static boolean writeSOAPFaultToHTTPResponse(HttpServletRequest request, HttpServletResponse response, Exception faultException, String faultMessage) {
     return writeSOAPFaultToHTTPResponse(response, (Document) request.getAttribute("guiStatusDoc"), ServletUtils.getInstance().reconstructURL(request), faultException, faultMessage);
   }
 
@@ -109,12 +112,12 @@ public class SOAPFaultMessage {
    * @param faultMessage
    * @return true if exception was thrown, false if a SOAPFault could not be produced an an error log was created instead
    */
-  static private boolean writeSOAPFault(OutputStream os, Document requestDocument, String requestURL, Throwable faultException, String faultMessage) {
+  private static boolean writeSOAPFault(OutputStream os, Document requestDocument, String requestURL, Throwable faultException, String faultMessage) {
     try {
       SOAPFaultMessage sFM = new SOAPFaultMessage(requestDocument, requestURL, faultException, faultMessage);
       sFM.writeTo(os);
     } catch( Exception e ) {
-      logger.error(faultMessage, faultException);
+      logger.error("Failed writing SOAPFault [{};{}] for url '{}', reason:", () -> faultMessage, () -> faultException == null ? null : ExceptionUtils.getStackTrace(faultException), () -> requestURL, () -> e);
       return false;
     }
     return true;
@@ -130,6 +133,7 @@ public class SOAPFaultMessage {
    */
   public SOAPFaultMessage(Document requestDocument, String requestURL, Throwable faultException, String message) throws SOAPException {
     this.message = createMessage(requestDocument, requestURL, faultException, message);
+    logger.debug("SOAPFaultMessage constructed [url:'{}'; fault_message:'{}'; fault_stacktrace:'{}']", () -> requestURL, () -> message, () -> faultException == null ? null : ExceptionUtils.getStackTrace(faultException));
   }
 
   /**

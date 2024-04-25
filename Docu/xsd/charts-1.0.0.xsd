@@ -340,6 +340,10 @@
       </xs:simpleType>
     </xs:attribute>
 
+    <xs:attribute name="smooth" type="xs:boolean" use="optional">
+      <xs:annotation><xs:documentation>If true, line charts will be smoothed</xs:documentation></xs:annotation>
+    </xs:attribute>
+
     <xs:attribute name="showPoints" type="xs:boolean" use="optional">
       <xs:annotation><xs:documentation>If false, for line charts no points are shown</xs:documentation></xs:annotation>
     </xs:attribute>

@@ -1261,6 +1261,38 @@ the data that is actually placed in XML.
         </Param>
       </Api>
 
+      <Api name="rankingChooser" extends="widget hasLabel">
+        <Doc>
+          Offers a ranking chooser where you can select dimensions and measures for a ranking operation
+        </Doc>
+        <Param name="optionsModelXPathMeasures" type="xPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPathMeasures" type="xPath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+        <Param name="optionsModelXPathDimensions" type="xPath">
+          <Doc>xPath pointing to an absolute xpath (starts with $model/..) providing a node-set of available options to display; especially this one supports
+          cross references between models, i.e. $options / * / Value[@id = $guiStatus / * / MasterValue]</Doc>
+        </Param>
+        <Param name="optionsModelRelativeValueXPathDimensions" type="xPath" default=".">
+          <Doc>
+            xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined,
+            values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
+          </Doc>
+        </Param>
+        <Param name="targetModelXPath" required="true" type="writableModelXPath">
+          <Doc>
+            The xPath pointing to the root-node this input widget will place entered selected items into. The underlying XML
+            format of data written is implemented by individual widget.
+          </Doc>
+        </Param>
+      </Api>      
+
     </BcdAPI>
 
     <BcdObjects>
@@ -1284,6 +1316,7 @@ the data that is actually placed in XML.
       <BcdObject name="label" implements="label" implementationPackage="bcdui.widgetNg.label"/>
       <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
       <BcdObject name="multiCheck" implements="multiCheck" implementationPackage="bcdui.widgetNg.multiCheck"/>
+      <BcdObject name="rankingChooser" implements="rankingChooser" implementationPackage="bcdui.widgetNg.rankingChooser"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

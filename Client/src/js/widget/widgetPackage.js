@@ -1039,18 +1039,29 @@ jQuery.extend(bcdui.widget,
         // ensure uniqueness of model paths
         modelsMap[models[i]] = modelPaths.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);
       }
-
-        var dataP = new Array();
-        var tmp = "";
+      var dataP = new Array();
+      var tmp = "";
       // Let's make sure, whenever the input model changes, our combining wrapper changes as well
+
+      const bcdMemo = {
+        id: bcdui.factory.objectRegistry.generateTemporaryIdInScope("wrapModel_")
+      , idRef: config.optionsModelId
+      , element: config.element
+      };
+
       bcdui.factory.addDataListener({
-          idRef: config.optionsModelId,
-          listener: function() {
+          id: bcdMemo.id
+        , idRef: bcdMemo.idRef
+        , listener: function(memo) {
+            // in case of a given html element, check if this is still connected to DOM, if not, kill listener
+            if (memo.element && jQuery(memo.element).closest("body").length == 0)
+              bcdui.factory.removeDataListener({idRef: memo.idRef, id: memo.id})
+
             var dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
             if( dW && dW.getStatus()==dW.getReadyStatus())
               dW.execute(true);
-          }
-        });
+        }.bind(this, bcdMemo)
+      });
       // Let's also listen on each change for additional models (for the right tracking XPath)
       // We loop over the distinct model (keys)...
       Object.keys(modelsMap).forEach(function(prop) {
@@ -1062,14 +1073,24 @@ jQuery.extend(bcdui.widget,
           var model =bcdui.factory.objectRegistry.getObject(modelId);
         // ... creating a listener for each trackingXpath of this model
           modelsMap[prop].forEach(function(p){
+            const bcdMemo = {
+              id: bcdui.factory.objectRegistry.generateTemporaryIdInScope("wrapModel_")
+            , idRef: modelId
+            , element: config.element
+            };
             bcdui.factory.addDataListener({
-              idRef: modelId,
-              trackingXPath: p,
-              listener: function() {
-              var dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
-              if( dW && dW.getStatus()==dW.getReadyStatus())
-                dW.execute(true);
-              }
+              id : bcdMemo.id
+            , idRef: bcdMemo.idRef
+            , trackingXPath: p
+            , listener: function(memo) {
+                // in case of a given html element, check if this is still connected to DOM, if not, kill listener
+                if (memo.element && jQuery(memo.element).closest("body").length == 0)
+                  bcdui.factory.removeDataListener({idRef: memo.idRef, id: memo.id})
+
+                var dW = bcdui.factory.objectRegistry.getObject(dependencyWrapperId);
+                if( dW && dW.getStatus()==dW.getReadyStatus())
+                  dW.execute(true);
+              }.bind(this, bcdMemo)
             });
           });
           dataP.push(model);
@@ -1195,6 +1216,10 @@ jQuery.extend(bcdui.widget,
      _getCaptionValueArray: function(htmlElementId)
      {
        var htmlElement = document.getElementById(htmlElementId);
+
+       // return if element is gone
+       if (! htmlElement) return null;
+
        var optionsModelId = htmlElement.getAttribute("bcdOptionsModelId");
        var optionsModelXPath = htmlElement.getAttribute("bcdOptionsModelXPath");
        var optionsModelRelativeValueXPath = htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath");

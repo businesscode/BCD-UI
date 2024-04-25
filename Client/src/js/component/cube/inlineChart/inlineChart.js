@@ -142,6 +142,12 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
         , legend: { show: true, left: "center", top: 0, backgroundColor: "rgba(256, 256, 256, 0.5)", borderWidth:1, borderColor: "#cccccc", borderRadius: 8 }
         , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 0, right: 0, bottom: 0 }
       };
+      
+      const chartSmooth1 = bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().read("//cube:Chart/cube:Series[1]/@smooth", "false") == "true";
+      const chartSmooth2 = bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().read("//cube:Chart/cube:Series[2]/@smooth", "false") == "true";
+      
+      if (chartSmooth1) this.echartOptions["series"][0]["smooth"] = true;
+      if (chartSmooth2) { this.echartOptions["series"][1] = this.echartOptions["series"][1] || {}; this.echartOptions["series"][1]["smooth"] = true; }
 
       // only show legend for very first inline chart (bcdLegend should give some extra space) 
       if (i != 0)
@@ -156,7 +162,8 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           let xPos = point[0] - size.contentSize[0] - 4;
           if (point[0] - size.contentSize[0] < 0)
             xPos = point[0] + 4;
-          const maxYSticky = jQuery(dom).parent().closest(".bcdStickyContainer").position().top + jQuery(dom).parent().closest(".bcdStickyContainer").outerHeight();
+          const container = jQuery(dom).parent().closest(".bcdStickyContainer");
+          const maxYSticky = container.length > 0 ? container.position().top + container.outerHeight() : 0;
           const maxYTooltip = jQuery(dom).offset().top + jQuery(dom).outerHeight();
           if (maxYTooltip < maxYSticky)
             return {top: 0, left: xPos};

@@ -31,7 +31,7 @@ ext {
 // Configure node.js exec and modules local installation process
 node {
 
-  version = "12.13.0"
+  version = "20.12.2"
 
   // If false, it will try to use globally installed node.
   // TODO find a way to dynamically use existing node, if it exists
@@ -65,7 +65,7 @@ task bcduiNodeJsTools( type: NpmTask ) {
       rename('build_package.json', 'package.json')
     }
   }
-  args = ['install']
+  args = ['install', '--dns-result-order=ipv4first']
 }
 
 

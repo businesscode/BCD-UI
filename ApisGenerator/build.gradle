@@ -23,7 +23,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.github.node-gradle:gradle-node-plugin:3.1.0"
+    classpath "com.github.node-gradle:gradle-node-plugin:7.0.2"
   }
 }
 apply plugin: 'com.github.node-gradle.node'
@@ -202,7 +202,7 @@ task bcduiGensrcTld {
 // Generates JISON artefacts from jison/ folder to js/jison
 // $genSrcOutputDir/js/jison/: target folder for jison generated artefacts
 task bcduiJisonArtefacts ( type: NodeTask ) {
-  def jisonFile = "jison/bcdui_util_xml_filterExpressionParser.jison";
+  def jisonFile = "../ApisGenerator/jison/bcdui_util_xml_filterExpressionParser.jison";
   def jsFilename = "$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js";
   onlyIf { file(jisonFile).exists() }
 
@@ -214,7 +214,7 @@ task bcduiJisonArtefacts ( type: NodeTask ) {
   outputs.dir "$genSrcOutputDir/js/jison"
 
   script = file("$nodeModulesDir/jison/lib/cli.js")
-  args   = [jisonFile, "-m", "js", "-o", file(jsFilename).absolutePath ]
+  args   = [file(jisonFile).absolutePath, "-m", "js", "-o", file(jsFilename).absolutePath ]
   
   doLast() {
     // convert generated var to package function. Unfortunately jison generates a variable by reusing the jison filename which makes this replacement necessary.

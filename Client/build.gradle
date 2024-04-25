@@ -22,7 +22,7 @@ buildscript {
     gradlePluginPortal()
   }
   dependencies {
-    classpath "com.github.node-gradle:gradle-node-plugin:3.1.0"
+    classpath "com.github.node-gradle:gradle-node-plugin:7.0.2"
   }
 }
 apply plugin: 'com.github.node-gradle.node'
@@ -97,7 +97,7 @@ task bcduiClient3rdPartyNpm( type: NpmTask ) {
     it.workingDir = file("$clientRoot/build")
   }
 
-  args = ['install']
+  args = ['install', '--dns-result-order=ipv4first']
 }
 
 
