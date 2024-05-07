@@ -943,7 +943,9 @@ jQuery.extend(bcdui.widget,
       // provide the cleaned current location to the renderer to path-find and highlight the currently used menu item
       // it automatically includes the url parameter bcdPageId in the comparism
       // renderer attribute "bcdPageId" can be used to overwrite the default value of "bcdPageId"
-      var loc = window.location.href.substring(window.location.href.indexOf(bcdui.contextPath + "/") + bcdui.contextPath.length + 1);
+      var loc = bcdui.contextPath != ""
+      ? window.location.href.substring(window.location.href.indexOf(bcdui.contextPath + "/") + bcdui.contextPath.length + 1)
+      : window.location.href.substring(window.location.href.indexOf("//") + 2).substring(window.location.href.substring(window.location.href.indexOf("//") + 2).indexOf("/") + 1);
       var cleanLoc = "/" + (loc.indexOf("?") != -1 ? loc.substring(0, loc.indexOf("?")) : loc);
 
       var tokenName = args.parameters.bcdPageId || "bcdPageId";
