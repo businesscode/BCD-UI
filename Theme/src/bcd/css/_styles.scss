@@ -146,6 +146,11 @@ $h6-font-size:                $bcd-font-size-base !default;
   }
 }
 
+.bcdValidationMessages ul {
+  padding: 1em; margin: 0;
+  li { list-style-type: none; }
+}
+
 /*********************************************************************************************************************/
 /* Flyovers */
 /*********************************************************************************************************************/
@@ -188,9 +193,10 @@ $h6-font-size:                $bcd-font-size-base !default;
 #bcdTooltipDiv {
   z-index: $z-index-flyover;
 }
-.ui-dialog {
-  z-index: $z-index-flyover - 1;
-}
+
+.ui-widget-overlay { z-index: $z-index-flyover - 2 !important }
+.ui-dialog { z-index: $z-index-flyover - 1 !important; }
+.ui-icon { z-index: $z-index-flyover - 3 !important; }
 
 #bcd_widget_suggestInput_dataList {
   overflow-y: auto;
@@ -246,6 +252,9 @@ $h6-font-size:                $bcd-font-size-base !default;
   height: inherit;
   padding: 0 0 0 .6em;
 }
+
+.bcdMultiSelect .bcdMultiSelectItem * { vertical-align: middle; cursor: pointer; }
+.bcdMultiSelect .bcdMultiSelectItem { display: block; }
 
 .bcdSingleSelect,
 .bcdMultiSelect {
@@ -594,8 +603,8 @@ $h6-font-size:                $bcd-font-size-base !default;
 }
 
 .total {
-  background-color: #ffffff;
-  color: $corporate-color-alt;
+  background-color: $cube-color-cell-total;
+  color: $cube-color-cell-total-text;
   font-weight: bold;
   border-color:$corporate-color-alt;
 }
@@ -1274,7 +1283,11 @@ table.bcd-far-configurator {
     }
 
     .bcd-unifilter-creator-container-closer:after {
-      content: "\274C";
+      content: "\f00d";
+      font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600;
+      font-size: 1.5em;
+      margin: 0 0 0 .5em;
+      vertical-align: middle;
     }
   }
 }
@@ -1656,7 +1669,7 @@ span.bcdInputFieldGrid {
 /* Templates */
 
 .bcdReportTemplateList {
-  margin-bottom: 0 .375em;
+  margin-bottom: .375em;
 }
 
 .bcdReportTemplates {
@@ -2111,7 +2124,7 @@ $chips-close-color: #c00 !default;
   
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
   .bcdLower {
-    height: 10em;
+    height: inherit;
     .bcdLoading {width: 1em; height: 1em;}
   }
 
@@ -2180,7 +2193,6 @@ $chips-close-color: #c00 !default;
   }
   &.bcdSplit .bcdUpper {
     display: flex;
-    text-align: right;
     border: 1px solid $border-color;
     .bcdLeft, .bcdRight {
       width: 50%;
@@ -2268,8 +2280,8 @@ $chips-close-color: #c00 !default;
 .bcdInlineChart {
   > thead > tr > th { text-align: center; }
   td { text-align: left; } /* chart flyover */
-  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; }
-  td.bcdLegend { height: 8em; }
+  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; width: 100%; }
+  .bcdInlineHeader > div {margin: 0 auto;}
 }
 
 /* ******************************************************************* */
@@ -2463,5 +2475,53 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     overflow: hidden;
     width: 100%;
     padding-right: 1em;
+  }
+}
+
+.bcdRanking {
+  select {
+    width: auto;
+  }
+  input {
+    width: 5em;
+    text-align: right;
+  }
+  .bcdSingleSelectNg {
+    display: inline-block;
+  }
+  padding: 1em;
+  border-radius: .25em;
+  border: 1px solid $border-color; 
+  .row {
+    margin: 0 0 .3em 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    .col .bcdButton {
+      a:after {
+        content: "\f00d";
+      }
+      padding: .375em .75em;
+    }
+  } 
+  .col {
+    margin: 0 .3em 0 0;
+    padding: 0;
+    flex: 0;
+  }
+  .bcdRanks {
+    overflow-y: auto;
+    max-height: 13em;
+    margin: 0 0 .3em 0;
+  }
+  .colrow {
+     margin: 0 .3em 0 0;
+     text-wrap: nowrap;
+     label {
+      margin: 0 .3em 0 0;
+      padding: 0;
+      text-transform: uppercase;
+      font-weight: normal;
+    }
   }
 }

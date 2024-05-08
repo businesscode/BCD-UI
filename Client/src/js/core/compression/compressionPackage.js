@@ -40,7 +40,7 @@ bcdui.core.compression = {
   /**
    * @private
    */
-  _zipLetURLLimit: 1900,
+  _zipLetURLLimit: 4000,
 
   /**
    * This variable contains 64 characters used for encoding the status document.

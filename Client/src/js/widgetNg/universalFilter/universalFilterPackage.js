@@ -100,70 +100,93 @@
         xPath : this.options.targetModelXPath
       });
 
-      // attach main renderer
-      var renderer = new bcdui.core.Renderer({
-        targetHtml  : this.element,
-        chain       : this.options.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/rendering.xslt", // internal API
-        inputModel  : this.targetDataProvider,
-        parameters  : jQuery.extend(true, {
-          nodeIdAttribute : this.NODE_ID_ATTR,
-          cssClassPrefix  : this.options.cssClassPrefix,
-          bRefModel       : new bcdui.core.OptionsDataProvider({
-            optionsModelXPath               : this.options.bRefOptionsModelXPath,
-            optionsModelRelativeValueXPath  : this.options.bRefOptionsModelRelativeValueXPath
-          })
-        }, this.options.renderingChainParameters) // internal API
-      });
-      renderer.onReady(function(){
-        // trigger translation after rendering
-        bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
+      const dph = new bcdui.core.DataProviderHolder();
 
-        // trigger dom event
-        this.element.trigger(this.htmlEvents.contentRendered);
+      var cfg = bcdui.factory._extractXPathAndModelId(this.options.bRefOptionsModelXPath);
+      cfg.optionsModelId = cfg.modelId;
+      cfg.optionsModelXPath = cfg.xPath;
+      cfg.element = this.element.get(0);
+      cfg.optionsModelRelativeValueXPath = this.options.bRefOptionsModelRelativeValueXPath;
+      var models = bcdui.widget._extractModelsFromModelXPath(this.options.bRefOptionsModelXPath);
+      if (models) {
+        const wrapperId = bcdui.widget._createWrapperModel(models, cfg, "widget/multiOptionsModelWrapper.xslt");
+        this.options.bRefOptionsModelXPath = "$" + cfg.optionsModelId + cfg.optionsModelXPath;
+        this.options.bRefOptionsModelRelativeValueXPath = cfg.optionsModelRelativeValueXPath;
+        bcdui.factory.objectRegistry.withReadyObjects([wrapperId], function() {
+          dph.setSource(new bcdui.core.StaticModel("<Empty/>"));
+        });
+      }
+      else
+        dph.setSource(new bcdui.core.StaticModel("<Empty/>"));
+
+      bcdui.factory.objectRegistry.withReadyObjects([dph], function() {
+          // attach main renderer
+        var renderer = new bcdui.core.Renderer({
+          targetHtml  : this.element,
+          chain       : this.options.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/rendering.xslt", // internal API
+          inputModel  : this.targetDataProvider,
+          parameters  : jQuery.extend(true, {
+            nodeIdAttribute : this.NODE_ID_ATTR,
+            cssClassPrefix  : this.options.cssClassPrefix,
+            bRefModel       : new bcdui.core.OptionsDataProvider({
+              optionsModelXPath               : this.options.bRefOptionsModelXPath,
+              optionsModelRelativeValueXPath  : this.options.bRefOptionsModelRelativeValueXPath
+            })
+          }, this.options.renderingChainParameters) // internal API
+        });
+        renderer.onReady(function(){
+          // trigger translation after rendering
+          bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
+  
+          // trigger dom event
+          this.element.trigger(this.htmlEvents.contentRendered);
+        }.bind(this));
+  
+        // one time init
+        renderer.onceReady(function(){
+          // rendering update if target changes
+          targetSelector.onChange(function(){
+            this.createUiElement && this.createUiElement.detach();  // recycle
+            renderer.execute();
+          }.bind(this), targetSelector.xPath);
+        }.bind(this));
+
+        // attach context menu
+        this.element.attr("contextId", "default"); // set context for context-menu 
+        bcdui.widget.createContextMenu({
+          targetHtmlElement : this.element,
+          tableMode : false,
+          refreshMenuModel : true,
+          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
+        });
+        
+        var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
+          var anchorElement = targetElement.closest("[data-node-id]");
+          if(!anchorElement.length){
+            // relocate to itself in case no closest data node reference found
+            anchorElement = targetElement;
+          }
+          return anchorElement;
+        };
+        // attach and delegate events from the context menu
+        this.element
+        .on("bcdui:universalFilter:edit", function(event){
+          var anchorElement = _getAnchorElement(jQuery(event.target));
+          this._editElement( anchorElement.data("node-id"), anchorElement );
+        }.bind(this))
+        .on("bcdui:universalFilter:delete", function(event){
+          this._deleteElement( jQuery(event.target).closest("[data-node-id]").data("node-id") );
+        }.bind(this))
+        .on("bcdui:universalFilter:combine", function(event){
+          var anchorElement = _getAnchorElement(jQuery(event.target));
+          this._combineElement( anchorElement.data("node-id"), anchorElement );
+        }.bind(this));
+  
+        // init UI for creation of new filters
+        this._initCreateUi();
+
       }.bind(this));
 
-      // one time init
-      renderer.onceReady(function(){
-        // rendering update if target changes
-        targetSelector.onChange(function(){
-          this.createUiElement && this.createUiElement.detach();  // recycle
-          renderer.execute();
-        }.bind(this), targetSelector.xPath);
-      }.bind(this));
-      
-      // attach context menu
-      this.element.attr("contextId", "default"); // set context for context-menu 
-      bcdui.widget.createContextMenu({
-        targetHtmlElement : this.element,
-        tableMode : false,
-        refreshMenuModel : true,
-        inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
-      });
-      
-      var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
-        var anchorElement = targetElement.closest("[data-node-id]");
-        if(!anchorElement.length){
-          // relocate to itself in case no closest data node reference found
-          anchorElement = targetElement;
-        }
-        return anchorElement;
-      };
-      // attach and delegate events from the context menu
-      this.element
-      .on("bcdui:universalFilter:edit", function(event){
-        var anchorElement = _getAnchorElement(jQuery(event.target));
-        this._editElement( anchorElement.data("node-id"), anchorElement );
-      }.bind(this))
-      .on("bcdui:universalFilter:delete", function(event){
-        this._deleteElement( jQuery(event.target).closest("[data-node-id]").data("node-id") );
-      }.bind(this))
-      .on("bcdui:universalFilter:combine", function(event){
-        var anchorElement = _getAnchorElement(jQuery(event.target));
-        this._combineElement( anchorElement.data("node-id"), anchorElement );
-      }.bind(this));
-
-      // init UI for creation of new filters
-      this._initCreateUi();
     },
 
     /**

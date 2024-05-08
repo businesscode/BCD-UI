@@ -78,6 +78,11 @@ ext.bcduiManifestAttributes = {
 //--------------------------
 // Whenever we use 'com.github.node-gradle.node' somewhere, we want to use the common inst in BCD-UI/.gradle
 pluginManager.withPlugin('com.github.node-gradle.node') {
-  node { version = "12.13.0"; download = true; workDir = file(nodeJsDir); nodeProjectDir = file(nodeModulesDir) }
+  node {
+    version = "20.12.2";
+    download = true;
+    workDir = file(nodeJsDir);
+    nodeProjectDir = file(nodeJsDir)
+  }
   nodeSetup.onlyIf { ! file(nodeModulesDir).exists() ||  file(nodeModulesDir).list().length == 0 }
 }

@@ -231,7 +231,7 @@
             autofocus: this.options.autofocus
           , disabled:  this.options.disabled
           , displayBalloon: this.options.displayBalloon
-          , doSortOptions: this.options.doSortOptions || true
+          , doSortOptions: this.options.doSortOptions
           , sortOptionsFunction : this.options.sortOptionsFunction
           , hint: this.options.hint
           , onBeforeChange: this.options.onBeforeChange
@@ -245,6 +245,7 @@
           , wildcard: this.options.wildcard
           , allowUnknownTargetValue: this.options.allowUnknownTargetValue
           , writeCaptions: this.options.writeCaptions
+          , singleSelect: this.options.singleSelect
       }
       let sourceArgs = {
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
@@ -315,6 +316,10 @@
 
         // clean selection if box is closed
         if (!lowerConnectable.is(":visible")) {
+
+          const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable").first();
+          lowerConnectable._bcduiWidget()._moveSelectedItems(lowerConnectable, upperConnectable);
+
           if (!doNotClean) {
             inputField.val("");
             lowerConnectable.find(".ui-selected").removeClass("ui-selected");
@@ -352,7 +357,7 @@
         inputField.keypress(function() { setTimeout(function() { markItem(); } )});
 
       inputField.keydown(function(event) {
-        const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable");
+        const upperConnectable = jQuery(self.element).find(".bcdUpper .bcdConnectable").first();
         const lowerConnectable = jQuery(self.element).find(".bcdLower .bcdConnectable");
 
         // DEL and BACKSPACE should also update the keypress functionality

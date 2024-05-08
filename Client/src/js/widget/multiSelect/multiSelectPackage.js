@@ -318,8 +318,8 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
         var optionCaptionNode = document.createTextNode(caption);
         if ( args.isCheckBox === 'true'){
           var optionSpan = document.createElement("span");
+          jQuery(optionSpan).addClass("bcdMultiSelectItem");
           var textSpan = document.createElement("span");
-          bcdui._migPjs._$(textSpan).css({verticalalign: "top"});
           textSpan.appendChild(optionCaptionNode);
           checkBoxForm.appendChild(optionSpan);
           args.htmlElement.appendChild(checkBoxForm);
@@ -352,7 +352,16 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
       if (jQuery.makeArray(captionValueArr||optionsModelNodes).length > 0) {
         if (args.isCheckBox === 'true'){
           // we can take the htmlElement.id here (outer span) instead of adding the observer to each input field
-          bcdui._migPjs._$(document.getElementById(args.htmlElement.id)).on("click", bcdui.widget.multiSelect._writeDataToXML.bind(undefined,args.htmlElement.id));
+          jQuery("#" + args.htmlElement.id + " form").on("click", function(event) {
+
+            // toggle checkbox also when clicked on text
+            if (jQuery(event.target).get(0).nodeName != "INPUT") {
+              const checkbox = jQuery(event.target).prev("input"); 
+              checkbox.prop("checked", !checkbox.is(':checked'));
+            }
+
+            bcdui.widget.multiSelect._writeDataToXML(args.htmlElement.id);
+          });
         } else {
           args.htmlElement.onchange = bcdui.widget.multiSelect._writeDataToXML.bind(undefined,args.htmlElement.id);
         }

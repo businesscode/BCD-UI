@@ -341,7 +341,11 @@ a {
     }
 
     .bcd-unifilter-creator-container-closer:after {
-      content: "\274C";
+      content: "\f00d";
+      font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600;
+      font-size: 1.5em;
+      margin: 0 0 0 .5em;
+      vertical-align: middle;
     }
   }
 }
@@ -421,6 +425,9 @@ a {
 .bcdSingleSelect {
    form span span { vertical-align: middle; padding: 0px 8px 0px 3px; }
 }
+
+.bcdMultiSelect .bcdMultiSelectItem * { vertical-align: middle; cursor: pointer; }
+.bcdMultiSelect .bcdMultiSelectItem { display: block; }
 
 .bcdMultiSelect {
   form > span { display: block; margin-bottom: 3px; padding: 0px 0px 3px 0px;}
@@ -749,6 +756,11 @@ a {
 
   .bcdFooter { text-align: left; border-top: 1px solid $border-color; }
   thead { border-bottom: 1px solid $border-color; font-size: 14px; }
+}
+
+.bcdValidationMessages ul {
+  padding: 1em; margin: 0;
+  li { list-style-type: none; }
 }
 
 /* blind up down */
@@ -1448,9 +1460,10 @@ span.bcd-notification-warn {
 /* modal box */
 /* ******************************************************************* */
 
-.ui-front {
-  z-index: 20000;
-}
+.ui-front { z-index: 20000; }
+.ui-widget-overlay { z-index: 20000 !important }
+.ui-dialog { z-index: 20001 !important; }
+.ui-icon { z-index: 19999 !important; }
 
 .bcdFilterDialog,
 .bcdExportColumnsDialog, 
@@ -1842,7 +1855,7 @@ $chips-close-color: #c00 !default;
   
   ul { padding: 0; max-height: 10em; background-color: inherit; border: none; }
   .bcdLower {
-    height: 10em;
+    height: inherit;
     .bcdLoading {width: 1em; height: 1em;}
   }
 
@@ -1911,7 +1924,6 @@ $chips-close-color: #c00 !default;
   }
   &.bcdSplit .bcdUpper {
     display: flex;
-    text-align: right;
     border: 1px solid $border-color;
     .bcdLeft, .bcdRight {
       width: 50%;
@@ -1999,8 +2011,8 @@ $chips-close-color: #c00 !default;
 .bcdInlineChart {
   > thead > tr > th { text-align: center; }
   td { text-align: left; } /* chart flyover */
-  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; }
-  td.bcdLegend { height: 8em; }
+  td.bcdChartCell { padding: 0; margin: 0; height: 6em; z-index: 1; width: 100%; }
+  .bcdInlineHeader > div {margin: 0 auto;}
 }
 
 /* ******************************************************************* */
@@ -2191,5 +2203,53 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     overflow: hidden;
     width: 100%;
     padding-right: 1em;
+  }
+}
+
+.bcdRanking {
+  select {
+    width: auto;
+  }
+  input {
+    width: 5em;
+    text-align: right;
+  }
+  .bcdSingleSelectNg {
+    display: inline-block;
+  }
+  padding: 1em;
+  border-radius: .25em;
+  border: 1px solid $border-color; 
+  .row {
+    margin: 0 0 .3em 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    .col .bcdButton {
+      a:after {
+        content: "\f00d";
+      }
+      padding: .375em .75em;
+    }
+  } 
+  .col {
+    margin: 0 .3em 0 0;
+    padding: 0;
+    flex: 0;
+  }
+  .bcdRanks {
+    overflow-y: auto;
+    max-height: 13em;
+    margin: 0 0 .3em 0;
+  }
+  .colrow {
+     margin: 0 .3em 0 0;
+     text-wrap: nowrap;
+     label {
+      margin: 0 .3em 0 0;
+      padding: 0;
+      text-transform: uppercase;
+      font-weight: normal;
+    }
   }
 }

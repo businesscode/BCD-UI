@@ -190,6 +190,16 @@ bcdui = Object.assign(bcdui,
 
           // set log level from clientLog.properties
           appender.setThreshold(log4javascript.Level[bcdui.config.clientLogLevel||"ALL"]||log4javascript.Level.ALL);
+
+          appender.oldAppend = appender.append;
+          appender.append = function(loggingEvent) {
+
+            // only show message when we're not in a page unload process 
+            if (bcdui._beforeunload)
+              return;
+
+            appender.oldAppend(loggingEvent);
+          };
         }
 
         return appender;
@@ -222,6 +232,11 @@ bcdui = Object.assign(bcdui,
           BCDAppender.prototype.toString = function(){return "BCDAppender";};
           BCDAppender.prototype.layout = new log4javascript.SimpleLayout();
           BCDAppender.prototype.append = function(loggingEvent) {
+
+            // only show message when we're not in a page unload process 
+            if (bcdui._beforeunload)
+              return;
+
             serializeObjects(loggingEvent.messages);
             var formattedMessage = this.getLayout().format(loggingEvent);
             if (this.getLayout().ignoresThrowable())
@@ -284,6 +299,10 @@ bcdui = Object.assign(bcdui,
         }
         return appender;
       };
+
+      // listener sets a flag for page changes, can be used to avoid appender (popup/console) messages
+      // FireFox for example tends to still show the popup box for the aborted ajax calls 
+      jQuery(window).on('beforeunload', function(){ bcdui._beforeunload = true; });
 
       log._bcdui_consoleAppender    = log4javascript._bcdui_createConsoleAppender();
       log._bcdui_bcduiPopupAppender = log4javascript._bcdui_createBCDUIPopupAppender();

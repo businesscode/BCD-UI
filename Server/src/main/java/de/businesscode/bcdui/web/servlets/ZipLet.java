@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,14 +31,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -55,6 +50,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
+
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
@@ -102,7 +104,9 @@ import de.businesscode.util.xml.SecureXmlFactory;
 public class ZipLet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   
-  private static final String BCDTINYURLCONTROL = "bcd_tinyurl_control"; 
+  private static final String BCDTINYURLCONTROL = "bcd_tinyurl_control";
+  
+  private static final int _zipLetURLLimit = 4000;
 
 
   /**
@@ -193,15 +197,6 @@ public class ZipLet extends HttpServlet {
   }
 
   /**
-   * This method removes all XML comments from the specified DOM document.
-   * @param serializedDoc A string representation of a DOM document.
-   * @return The cleaned up string without XML comments.
-   */
-  private static String removeXMLComments(String serializedDoc) {
-    return serializedDoc.replaceAll("<!--[^-]+(-[^-]+)*-->", "");
-  }
-
-  /**
    *
    * @param request
    * @return returns unpacked XML String or NULL if guiStatusGZ parameter was null or empty
@@ -251,54 +246,38 @@ public class ZipLet extends HttpServlet {
    * @return A 64-character encoding of the compressed string.
    * @throws Exception If the compression fails.
    */
-  public static String compress(String uncompressedString) throws Exception
-  {
-    // let's kill remarks first
-    uncompressedString = removeXMLComments(uncompressedString);
+  public static String compress(String uncompressedString) throws Exception {
 
-    // First lets minimize the namespace related characters, be moving all unambiguous namespaces alias definitions to the root node
-    Pattern singleXmlnsPattern = Pattern.compile(" xmlns:(.+?)=\"(.+?)\"");
-    Matcher singleXmlnsMatcher = singleXmlnsPattern.matcher(uncompressedString);
-    Map<String,String> aN = new HashMap<String,String>(); // This collects all aliases
-    Set<String> ambiguousAilases = new TreeSet<String>(); // This collects aliases having more than one namespace assigned, they will stay
-    while( singleXmlnsMatcher.find()) {
-      String previous = aN.put(singleXmlnsMatcher.group(1),singleXmlnsMatcher.group(2));
-      if( previous!=null && !previous.equals(singleXmlnsMatcher.group(2)) )
-        ambiguousAilases.add(singleXmlnsMatcher.group(1));
-    }
+    // parse string to doc
+    DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
+    DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+    Document doc = builder.parse(new ByteArrayInputStream(uncompressedString.getBytes("UTF-8")));
 
-    // allXmlNsRegExp wil be a regexp matching all unambiguous ns alias definitions
-    // allXmlNs will be a string containing all unambiguous ns alias definitions
-    StringBuffer allXmlNsRegExp = new StringBuffer();
-    StringBuffer allXmlNs = new StringBuffer();
-    Iterator<String> aliasIt = aN.keySet().iterator();
-    while( aliasIt.hasNext() ) {
-      String alias = aliasIt.next();
-      if( ambiguousAilases.contains(alias) ) {
-        continue;
-      } else {
-        if(allXmlNsRegExp.length()>0)
-          allXmlNsRegExp.append("|");
-        allXmlNsRegExp.append("xmlns:").append(Pattern.quote(alias)).append("=\"").append(Pattern.quote(aN.get(alias))).append("\"");
-        allXmlNs.append(" xmlns:").append(alias).append("=\"").append(aN.get(alias)).append("\"");
+    // collect all namespaces
+    DocumentTraversal dt = (DocumentTraversal) doc;
+    NodeIterator iterator = dt.createNodeIterator(doc, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_ATTRIBUTE, null, false);
+    HashMap<String, String> nsMap = new HashMap<String, String>();
+    Node node = iterator.nextNode();
+    while (node != null) {
+      if (node instanceof Element) {
+          Element element = (Element) node;
+          NamedNodeMap attributes = element.getAttributes();
+          for (int i = 0; i < attributes.getLength(); i++) {
+              Node attribute = attributes.item(i);
+              if (attribute.getNamespaceURI() != null)
+                nsMap.put(attribute.getNodeName(), attribute.getNodeValue());
+          }
       }
+      node = iterator.nextNode();
     }
 
-    // Now lets remove all unambiguous namespace alias definitions from the string
-    Pattern allXmlnsPattern = Pattern.compile(allXmlNsRegExp.toString());
-    Matcher allXmlnsMatcher = allXmlnsPattern.matcher(uncompressedString);
-    String withoutNs = allXmlnsMatcher.replaceAll("");
+    // add found namespaces at root element
+    Element root = doc.getDocumentElement();
+    for (String ns : nsMap.keySet())
+      root.setAttribute(ns, nsMap.get(ns));
 
-    // And now lets add all unambiguous namespace alias definitions to the root element
-    int endOfRoot = withoutNs.indexOf(">");
-    if(withoutNs.charAt(endOfRoot-1)=='?')  // Skip processing instruction, we want the end of the root element
-      endOfRoot += withoutNs.substring(endOfRoot+1).indexOf(">") + 1;
-    String result = withoutNs.substring(0,endOfRoot);
-    result += allXmlNs;
-    result += withoutNs.substring(endOfRoot);
-
-    // Done with minimizing namspace alias definitions in the document
-    uncompressedString = result;
+    // serialize (which removes namespaces on lower levels and comments)
+    uncompressedString = Utils.serializeElement(doc);
 
     boolean hasSpecialChars = false;
     for (char c : uncompressedString.toCharArray()) {
@@ -316,11 +295,11 @@ public class ZipLet extends HttpServlet {
 
       String alphabetMappingEncoding = encodeStringWithAlphabetMapping(compressedXMLString);
       if (alphabetMappingEncoding != null &&
-          alphabetMappingEncoding.length() <= 1900)
+          alphabetMappingEncoding.length() <= _zipLetURLLimit)
         return "z" + alphabetMappingEncoding;
 
       String simpleEncoding = "x" + encodeBytes(compressedXMLString.getBytes("UTF-8"));
-      if (simpleEncoding.length() <= 1900) return simpleEncoding;
+      if (simpleEncoding.length() <= _zipLetURLLimit) return simpleEncoding;
     }
     return compress(new ByteArrayInputStream(uncompressedString.getBytes("UTF-8")));
   }

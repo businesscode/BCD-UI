@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -336,8 +336,13 @@ public class DatabaseWriter {
             else
               stm.setTimestamp(paramNo, new Timestamp(timestampParser.parse(value.replace('T', ' ')).getTime()));
             break;
-          case Types.INTEGER:
           case Types.BIGINT:
+            if (isNull)
+              stm.setNull(paramNo, Types.BIGINT);
+            else
+              stm.setLong(paramNo, Long.parseLong(value));
+            break;
+          case Types.INTEGER:
           case Types.TINYINT: // // SE: 09.07.2009 fix teraData bug
             if (isNull)
               stm.setNull(paramNo, Types.INTEGER);
@@ -459,8 +464,14 @@ public class DatabaseWriter {
             }
             setExParam(stm, paramNo, isNull);
             break;
-          case Types.INTEGER:
           case Types.BIGINT:
+            if (isNull)
+              stm.setNull(paramNo, Types.BIGINT);
+            else
+              stm.setLong(paramNo, Long.parseLong(value));
+            setExParam(stm, paramNo, isNull);
+            break;
+          case Types.INTEGER:
           case Types.TINYINT: // // SE: 09.07.2009 fix teraData bug
             if (isNull) {
               stm.setInt(paramNo, 1);

@@ -160,7 +160,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       let xValuesModelId = this.config.read("/*//chart:XValues/@modelId");
       let xValuesModel = bcdui.factory.objectRegistry.getObject( xValuesModelId );
       let nodes = xValuesModel.queryNodes( this.config.read("/*//chart:XValues/@nodes") );
-      xValues = Array.prototype.slice.call( nodes ).map((n)=>parseFloat(n.text));
+      if (this.config.read("/*//chart:XValues/@type", "") == "time")
+        xValues = Array.prototype.slice.call( nodes ).map((n)=>n.text);
+      else
+        xValues = Array.prototype.slice.call( nodes ).map((n)=>parseFloat(n.text));
     }
     opts.xAxis.name = this.config.read("/*/chart:XAxis/@caption", "");
     opts.xAxis.nameLocation = "middle";
@@ -229,9 +232,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         opts.yAxis[0].type = "category";
         opts.yAxis[0].axisLabel.formatter = null;
         opts.xAxis.type = "value";
+        if (opts.yAxis.length == 2) {
+          opts.yAxis[1].data = xCategories;
+          opts.yAxis[1].type = "category";
+          opts.yAxis[1].axisLabel.formatter = null;
+        }
       }
 
-      series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").toLowerCase();
+      series.type = chartType.replace("CHART","").replace("AREA","LINE").replace("SCATTERED","SCATTER").replace("MARIMEKKO","BAR").replace("POINT","SCATTER").toLowerCase();
       series.name = this.config.read("/*/chart:Series/chart:Series["+s+"]/@caption");
 
       // Set series' color. Can be local @rgb or from seriesColorList
@@ -491,6 +499,12 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
     }
 
+    // smooth line charts
+    opts.series.forEach(function(s, i) {
+      if (s.type == "line")
+        s.smooth = this.config.read("/*/chart:Series/chart:Series[" + (i + 1) + "]/@smooth",'false') == "true";
+    }.bind(this));
+
     // If we have only a narrow band for % values in the series, like it is the case for ontime around 90-95, zoom in
     // Special handling for stacked as percentage further down below
     if( this.config.queryNodes("/*/chart:Series/chart:Series[@chartType='LINECHART' or @chartType='AREACHART' or @chartType='BARCHART' or @chartType='POINTCHART']").length > 0 ) {
@@ -535,6 +549,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
               res += "<td style='text-align: right'>" + params[s].data.bcdLabelValues[lv] + "</td>";
               res += "<td>&nbsp;</td>";
             }
+          } else if (values[v] != "" + parseFloat(values[v])) {
+            res += "<td style='text-align: right'>" + values[v] + "</td>";
           } else {
             res += "<td style='text-align: right'>" + getNumFormatter(3, thisUnit)(values[v]) + "</td>";
           }

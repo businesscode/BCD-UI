@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -193,8 +193,10 @@ public class DataLoader {
         case Types.REAL:
           statement.setBigDecimal(i, new BigDecimal(value));
           break;
-        case Types.INTEGER:
         case Types.BIGINT:
+          statement.setLong(i, Long.parseLong(value));
+          break;
+        case Types.INTEGER:
         case Types.SMALLINT:
         case Types.TINYINT:
           statement.setInt(i, Integer.parseInt(value));

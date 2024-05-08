@@ -75,15 +75,7 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
           if (value < minMaxPerUnit[unit].rowMinMax[rowId].min) minMaxPerUnit[unit].rowMinMax[rowId].min = value; 
           if (value > minMaxPerUnit[unit].rowMinMax[rowId].max) minMaxPerUnit[unit].rowMinMax[rowId].max = value;
         });
-
-        // +/-1 1% for per-row min/max
-        minMaxPerUnit[unit].rowMinMax[rowId].min = minMaxPerUnit[unit].rowMinMax[rowId].min - (minMaxPerUnit[unit].rowMinMax[rowId].min * 1.0 / 100.0);
-        minMaxPerUnit[unit].rowMinMax[rowId].max = minMaxPerUnit[unit].rowMinMax[rowId].max + (minMaxPerUnit[unit].rowMinMax[rowId].max * 1.0 / 100.0);          
       });
-
-      // +/-1 1% for global min/max
-      minMaxPerUnit[unit].min = minMaxPerUnit[unit].min - (minMaxPerUnit[unit].min * 1.0 / 100.0);
-      minMaxPerUnit[unit].max = minMaxPerUnit[unit].max + (minMaxPerUnit[unit].max * 1.0 / 100.0);
     });
 
     // hide measure table header since various measures won't be side by side while in the graph they are vertically aligned 
@@ -91,24 +83,29 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
     // hide also possible row measure header cells
     jQuery(args.targetHtml).find("thead tr .bcdMeasure").hide();
 
-    // determine width for cell chart (either 100% if we got only 1 cell, or width of 1st one)
-    const firstChartCell = jQuery(args.targetHtml).find("tbody tr").first().find("td.bcdChartCell").first();
-    const cellWidth = firstChartCell.next("td.bcdChartCell").length > 0 ? firstChartCell.outerWidth() + "px" : "100%";
-    
     // since we want equally sized measure columns, no matter what the text context is,
-    // we search for the widest and replace the th content with a fixed size div holding the content
-    // This allows fixed sized columns in a non table-layout fixed environment
+    // we search for the widest by temporary copying it to a cell and replace the th content later with a
+    // fixed size div holding the content This allows fixed sized columns in a non table-layout fixed environment
+    // However the div will be left aligned, so you need to ensure that you do something like a margin 0 auto
     let maxHeaderCellWidth = -1;
+
+    jQuery(args.targetHtml).find("thead tr").first().append("<th class='tester'><div></div></th>");
+    const testerCell = jQuery(args.targetHtml).find("thead tr .tester > div");
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
-      if (! jQuery(th).hasClass("bcdDimension")) {
-        if (jQuery(th).outerWidth() > maxHeaderCellWidth)
-          maxHeaderCellWidth = jQuery(th).outerWidth();
+      if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
+        testerCell.text(jQuery(th).text());
+        const w = testerCell.outerWidth(); 
+        if (w > maxHeaderCellWidth)
+          maxHeaderCellWidth = w;
       }
     });
+    jQuery(args.targetHtml).find("thead tr .tester").remove();
+
     jQuery(args.targetHtml).find("thead tr th").each(function(i,th) {
-      if (! jQuery(th).hasClass("bcdDimension")) {
+      if (! jQuery(th).hasClass("bcdDimension") && jQuery(th).is(":visible")) {
         const content = jQuery(th).text();
-        jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>").css("width", maxHeaderCellWidth);
+        jQuery(th).addClass("bcdInlineHeader");
+        jQuery(th).empty().append("<div style='width:"+maxHeaderCellWidth+"px;'>"+content+"</div>");
       }
     });
 
@@ -119,44 +116,54 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
 
       const cell = jQuery(e);
 
-      // set fixed width for chart
-      cell.css("width", cellWidth);
-
       const rowId = cell.parent().attr("bcdRowIdent");
       
       // get min/max values for max 2 axis/units
-      const min1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].min : minMaxPerUnit[firstUnit].min) || 0;
-      const max1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].max : minMaxPerUnit[firstUnit].max) || 0;
-      const min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
-      const max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
+      let min1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].min : minMaxPerUnit[firstUnit].min) || 0;
+      let max1 = (args.minMaxRow ? minMaxPerUnit[firstUnit].rowMinMax[rowId].max : minMaxPerUnit[firstUnit].max) || 0;
+      let min2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].min : minMaxPerUnit[secondUnit].min) || 0 : 0;
+      let max2 = minMaxPerUnit[secondUnit] ? (args.minMaxRow ? minMaxPerUnit[secondUnit].rowMinMax[rowId].max : minMaxPerUnit[secondUnit].max) || 0 : 0;
 
-      let echartOptions = {
+      // use some percentage offset to top/bottom
+      const min1F = (5.0 * Math.abs(min1) / 100.0);
+      const min2F = (5.0 * Math.abs(min2) / 100.0);
+      const max1F = (5.0 * Math.abs(max1) / 100.0);
+      const max2F = (5.0 * Math.abs(max2) / 100.0);
+      const bcdMin1 = min1 - Math.max(min1F,max1F);
+      const bcdMax1 = max1 + Math.max(min1F,max1F);
+      const bcdMin2 = min2 - Math.max(min2F,max2F);
+      const bcdMax2 = max2 + Math.max(min2F,max2F);
+
+      this.echartOptions = {
         title: { show: false }
-        , yAxis: [
-          { show: false, min: min1, max: max1 }
-        , { show: false, min: min2, max: max2 }]
+        , yAxis: [ { show: false, min: min1, max: max1, bcdMin: bcdMin1, bcdMax: bcdMax1 }, { show: false, min: min2, max: max2, bcdMin: bcdMin2, bcdMax: bcdMax2 } ]
         , xAxis: [ { show: false } ]
         , series:[ {label: {show: false}} ]
-        , legend: {}
-        , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 4, right: 0, bottom: 4 }
+        , legend: { show: true, left: "center", top: 0, backgroundColor: "rgba(256, 256, 256, 0.5)", borderWidth:1, borderColor: "#cccccc", borderRadius: 8 }
+        , grid: { containLabel: false, show: false, width: "100%", height: "100%", left: 0, top: 0, right: 0, bottom: 0 }
       };
+      
+      const chartSmooth1 = bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().read("//cube:Chart/cube:Series[1]/@smooth", "false") == "true";
+      const chartSmooth2 = bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().read("//cube:Chart/cube:Series[2]/@smooth", "false") == "true";
+      
+      if (chartSmooth1) this.echartOptions["series"][0]["smooth"] = true;
+      if (chartSmooth2) { this.echartOptions["series"][1] = this.echartOptions["series"][1] || {}; this.echartOptions["series"][1]["smooth"] = true; }
 
       // only show legend for very first inline chart (bcdLegend should give some extra space) 
-      if (i == 0)
-        cell.addClass("bcdLegend");
-      else
-        echartOptions["legend"] = {show: false};
+      if (i != 0)
+        this.echartOptions["legend"] = {show: false, left: 0, top: 0};
 
       // let's have a custom tooltip position function which tries to avoid going
       // over the sticky container which does clipping on the tooltip
       if (isFreeze) {
-        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
-        echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
+        this.echartOptions["tooltip"] = this.echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"]["position"] = function(point, params, dom, rect, size) {
           // -4 to allow some space in case tooltip overlays clickable legend
           let xPos = point[0] - size.contentSize[0] - 4;
           if (point[0] - size.contentSize[0] < 0)
             xPos = point[0] + 4;
-          const maxYSticky = jQuery(dom).parent().closest(".bcdStickyContainer").position().top + jQuery(dom).parent().closest(".bcdStickyContainer").outerHeight();
+          const container = jQuery(dom).parent().closest(".bcdStickyContainer");
+          const maxYSticky = container.length > 0 ? container.position().top + container.outerHeight() : 0;
           const maxYTooltip = jQuery(dom).offset().top + jQuery(dom).outerHeight();
           if (maxYTooltip < maxYSticky)
             return {top: 0, left: xPos};
@@ -168,8 +175,8 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       // in case of PIECHART, we need a slightly different fly over to show the section names correctly
       if (args.chartType1 == "PIECHART") {
         const tooltipUnit = firstUnit == "null" ? "" : firstUnit;
-        echartOptions["tooltip"] = echartOptions["tooltip"] || {};
-        echartOptions["tooltip"].formatter = function(paramsIn, ticket, callback) {
+        this.echartOptions["tooltip"] = this.echartOptions["tooltip"] || {};
+        this.echartOptions["tooltip"].formatter = function(paramsIn, ticket, callback) {
           let res = "<table><tr><th colspan='100' style='text-align:center'>- " + paramsIn.seriesName + " -</th></tr>";
           if (paramsIn.data && paramsIn.data.value) {
             res += "<tr><td><span style='font-size: 250%; vertical-align: text-bottom; color:" + paramsIn.color + "'>&#x2022;</span>" + paramsIn.data.name + "</td>";
@@ -190,20 +197,37 @@ bcdui.component.cube.inlineChart = Object.assign(bcdui.component.cube.inlineChar
       }
 
       // finally add the chart
+      const self = this;
       const chart = new bcdui.component.chart.ChartEchart({
         targetHtml: cell.get(0)
       , config: new bcdui.core.ModelWrapper({
-          chain: bcdui.contextPath + "/bcdui/js/component/cube/inlineChart/inlineChart.xslt"
+          chain: [bcdui.contextPath + "/bcdui/js/component/cube/inlineChart/inlineChart.xslt", function(doc, args) {
+            let chartType1 = doc.selectSingleNode("//chart:Series/chart:Series[1]/@chartType");
+            chartType1 = chartType1 != null ? chartType1.text : "";
+            let chartType2 = doc.selectSingleNode("//chart:Series/chart:Series[2]/@chartType")
+            chartType2 = chartType2 != null ? chartType2.text : "";
+            if (chartType1 == "BARCHART") { self.echartOptions.yAxis[0].min = Math.min(self.echartOptions.yAxis[0].min, 0); self.echartOptions.yAxis[0].max = Math.max(self.echartOptions.yAxis[0].max, 0); }
+            else {
+              self.echartOptions.yAxis[0].min = self.echartOptions.yAxis[0].bcdMin;
+              self.echartOptions.yAxis[0].max = self.echartOptions.yAxis[0].bcdMax;
+            }
+            if (chartType2 == "BARCHART") { self.echartOptions.yAxis[1].min = Math.min(self.echartOptions.yAxis[1].min, 0); self.echartOptions.yAxis[1].max = Math.max(self.echartOptions.yAxis[1].max, 0); }
+            else {
+              self.echartOptions.yAxis[1].min = self.echartOptions.yAxis[1].bcdMin;
+              self.echartOptions.yAxis[1].max = self.echartOptions.yAxis[1].bcdMax;
+            }
+            return doc;
+          }]
         , inputModel: dataModel
         , parameters: {
             rowId: rowId
           , chartType1: args.chartType1 || ""
           , chartType2: args.chartType2 || ""
           , chartColumn: cell.prevAll("td.bcdChartCell").length + 1
-//          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
+          , cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         })
-      , options: echartOptions
+      , options: this.echartOptions
       });
       
       // add a legendSelectChanged listener on the very first (visible) legend

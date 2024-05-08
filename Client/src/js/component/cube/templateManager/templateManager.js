@@ -48,7 +48,7 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
 
     var metaDataModel = bcdui.component.cube.templateManager._getOptionsModel();
     var idAttr = metaDataModel.getData().selectSingleNode("/*/cube:Layouts/cube:Layout") != null ? "@cubeId" : "@scorecardId";
-    var ns = idAttr == "cubeId" ? "cube:" : "scc:";
+    var ns = idAttr == "@cubeId" ? "cube:" : "scc:";
     var template  = metaDataModel.getData().selectSingleNode("/*/*[local-name()='Layouts']/*[local-name()='Layout' and @id='"+ id +"']");
     if (template != null) {
       // copy data
@@ -62,7 +62,7 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
       layoutNode.setAttribute("disableClientRefresh","true");
 
       // avoid double/triple firing in case of targetModel == guiStatus or refresh target  == targetModel
-      var refreshTargetModelId = jQuery("#" + objectId + "_dnd").data("targetModelId");
+      var refreshTargetModelId = jQuery(".bcd_" + objectId + "_dnd").data("targetModelId");
       
       // fire guiStatus only when it's not identical to template Target or refreshingCube Target
       // since then it gets fired later down below
@@ -105,7 +105,7 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
     layoutNode.setAttribute("disableClientRefresh","true");
 
     // avoid double/triple firing in case of targetModel == guiStatus or refresh target  == targetModel
-    var refreshTargetModelId = jQuery("#" + objectId + "_dnd").data("targetModelId");
+    var refreshTargetModelId = jQuery(".bcd_" + objectId + "_dnd").data("targetModelId");
     
     // fire guiStatus only when it's not identical to template Target or refreshingCube Target
     // since then it gets fired later down below

@@ -19,8 +19,8 @@ ___
 .Bugfixes:
 
 .Incompatibilities:
-* SQL statement Velocity variable names ending with - need to be converted to end with _
-* removal of Internet Explorer support
+* In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`
+* Removal of Internet Explorer support
 
 ___
 ==== Release 5_6_0

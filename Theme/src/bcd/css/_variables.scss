@@ -74,7 +74,8 @@ $cube-color-item:               #f6f6f6 !default;
 $cube-sections-color-head:      $corporate-color !default;
 
 $cube-color-cell:               #D9D9D9 !default;
-$cube-color-cell-total:         $corporate-color-alt !default;
+$cube-color-cell-total:         #ffffff !default;
+$cube-color-cell-total-text:    $corporate-color-alt !default;
 $cube-color-cell-even:          lighten($cube-color-cell, 8%) !default;
 $cube-color-cell-odd:           lighten($cube-color-cell, 15%) !default;
 

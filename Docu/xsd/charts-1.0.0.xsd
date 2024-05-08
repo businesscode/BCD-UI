@@ -340,6 +340,10 @@
       </xs:simpleType>
     </xs:attribute>
 
+    <xs:attribute name="smooth" type="xs:boolean" use="optional">
+      <xs:annotation><xs:documentation>If true, line charts will be smoothed</xs:documentation></xs:annotation>
+    </xs:attribute>
+
     <xs:attribute name="showPoints" type="xs:boolean" use="optional">
       <xs:annotation><xs:documentation>If false, for line charts no points are shown</xs:documentation></xs:annotation>
     </xs:attribute>
@@ -482,6 +486,11 @@
       <xs:element name="Value"></xs:element>
     </xs:sequence>
     <xs:attributeGroup ref="tns:XValuesAttrs"></xs:attributeGroup>
+    <xs:attribute name="type" use="optional">
+      <xs:annotation>
+        <xs:documentation>Can be set to 'time' to define timestamps as xvalues, i.e. they are not parsed as floats.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- ===================================================================== -->
