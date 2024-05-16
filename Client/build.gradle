@@ -46,11 +46,11 @@ def js3rdPartyNpm = [
                         ],
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
-      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
+//      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
       "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.full.js",        ofnm: "handsontable/dist/handsontable.full.min.js"],
                           [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.full.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
-      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
+//      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
     ]
@@ -59,7 +59,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor"]
+def unmodified3rdPartyFolders = ["ckeditor", "fileSaver", "log4javascript"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution

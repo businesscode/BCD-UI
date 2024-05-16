@@ -30,7 +30,7 @@ bcdui.bcduiCeFiles =
       "required": "mandatory",
       "files": [
           "/js/3rdParty/modernizr.js"
-        , "/js/3rdParty/log4javascript.js"
+        , "/js/3rdParty/log4javascript/log4javascript.js"
         , "/js/3rdParty/jquery.js"
         , "/js/3rdParty/jquery-ui.js"
         , "/js/3rdParty/doT.js"
@@ -221,7 +221,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/component/exports/pdfExport.js"
         , "/js/component/exports/exportsPackage.js"
-        , "/js/3rdParty/fileSaver.js" 
+        , "/js/3rdParty/fileSaver/fileSaver.js" 
       ],
       "buildFolders": [
         "/js/component/exports"
