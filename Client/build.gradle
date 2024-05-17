@@ -190,6 +190,13 @@ task bcduiClientCollectAll( type: Copy ) {
     include '**/*.js'
     into    'js'
   }
+
+  // also copy single files into jsDist so that the module import version still has the single files available
+  from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
+    include '**/*.js'
+    into    'jsDist'
+  }
+
   from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
     exclude '**/*.js'
     into    jsDistDir
