@@ -309,7 +309,7 @@
         </Param>
         <Param name="targetModelId" type="string">
           <Doc>
-            Per default the configuration is written to $guiStatus/*/cube:Layout[cubeId='cubeId'].
+            Per default the configuration is written to $guiStatus/guiStatus:Status/cube:Layout[cubeId='cubeId'].
             Change this for example if you want to have multiple cubes and multiple cubeConfigurators.
           </Doc>
         </Param>
