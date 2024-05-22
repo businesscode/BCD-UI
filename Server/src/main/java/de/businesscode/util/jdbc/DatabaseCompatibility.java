@@ -59,6 +59,7 @@ public class DatabaseCompatibility
   protected final Set<String> sqlKeyWordsMysql;
   protected final Set<String> sqlKeyWordsPostgres;
   protected final Set<String> sqlKeyWordsSqlServer;
+  protected final Set<String> sqlKeyWordsSnowflake;
   protected final Set<String> sqlKeyWordsGeneric;
   protected final Map<String, String> databaseProduct = new HashMap<String, String>();
 
@@ -66,6 +67,7 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> oracleCalcFktMapping;
   protected final Map<String, String[]> mysqlCalcFktMapping;
   protected final Map<String, String[]> redshiftCalcFktMapping;
+  protected final Map<String, String[]> snowflakeCalcFktMapping;
 
   protected final Map<String, String> aggregationMappingGeneric;
   protected final Map<String, String> aggregationMappingMySql;
@@ -122,6 +124,8 @@ public class DatabaseCompatibility
         return sqlKeyWordsSqlServer;
       else if( product.contains("postgresql") )
         return sqlKeyWordsPostgres;
+      else if( product.contains("snowflake") )
+        return sqlKeyWordsSnowflake;
     } catch (Exception e) {
       log.error(e, e);
     }
@@ -156,7 +160,7 @@ public class DatabaseCompatibility
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("snowflake");
   }
 
   /**
@@ -166,7 +170,7 @@ public class DatabaseCompatibility
    */
   public String dbLikeEscapeBackslash(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("redshift") ? "" : " ESCAPE '\\'";
+    return product.contains("redshift") ? "" : product.contains("snowflake") ? " ESCAPE '\\\\'" : " ESCAPE '\\'";
   }
 
   /**
@@ -174,7 +178,7 @@ public class DatabaseCompatibility
    * @return
    */
   public boolean dbNeedsVarcharCastForConcatInTopN(String jdbcResourceName) {
-    return false;
+    return getDatabaseProductNameLC(jdbcResourceName).contains("snowflake");
   }
 
   /**
@@ -224,6 +228,8 @@ public class DatabaseCompatibility
         return "FORMAT("+expr+",'yyyy-mm-dd')";
       else if( product.contains("mysql") )
         return "DATE_FORMAT("+expr+",'%Y-%m-%d')";
+      else if ( product.contains("snowflake"))
+        return "CAST((" + expr + " (FORMAT 'yyyy-mm-dd')) AS CHAR(10))";
       else
         return "TO_CHAR("+expr+",'yyyy-mm-dd')";
     }
@@ -250,6 +256,8 @@ public class DatabaseCompatibility
       return mysqlCalcFktMapping;
     if( product.contains("redshift") )
       return redshiftCalcFktMapping;
+    if ( product.contains("snowflake"))
+      return snowflakeCalcFktMapping;
     return oracleCalcFktMapping;    
   }
 
@@ -311,7 +319,6 @@ public class DatabaseCompatibility
       String databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase();
       // AWS Redshift returns PostgreSQL as product name, but we want to distinguish them
       if( con.getMetaData().getURL().toLowerCase().contains("redshift") ) databaseProductName = "redshift";
-      if( con.getMetaData().getURL().toLowerCase().contains("snowflake") ) databaseProductName = "teradata";
       databaseProduct.put(jdbcResourceName, databaseProductName);
       return databaseProductName;
     } catch (Exception e) {
@@ -659,6 +666,80 @@ public class DatabaseCompatibility
             "NOW", "TIMESTAMPTZ", "UUID", "TIME", "ZONE", "XML", "TEXT", "XPATH"
           }
         )
+    );
+    
+    // Snowflake specific
+    snowflakeCalcFktMapping = oracleCalcFktMapping;
+    sqlKeyWordsSnowflake = new HashSet<String>(
+      Arrays.asList(
+        "ABORT", "ABORTSESSION", "ABS", "ABSOLUTE", "ACCESS_LOCK", "ACCOUNT", "ACOS", "ACOSH", "ACTION", "ADD", "ADD_MONTHS",
+        "ADMIN", "AFTER", "AGGREGATE", "ALIAS", "ALL", "ALLOCATE", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARE", "ARRAY",
+        "AS", "ASC", "ASCII", "ASIN", "ASINH", "ASSERTION", "AT", "ATAN", "ATAN2", "ATANH", "ATOMIC", "AUTHORIZATION", "AVE", 
+        "AVERAGE", "AVG",
+        "BEFORE", "BEGIN", "BETWEEN", "BINARY", "BIT", "BLOB", "BOOLEAN", "BOTH", "BREADTH", "BT", "BUT", "BY", "BYTE",
+        "BYTEINT", "BYTES",
+        "CALL", "CASCADE", "CASCADED", "CASE", "CASE_N", "CASESPECIFIC", "CAST", "CATALOG", "CD", "CHAR", "CHAR_LENGTH",
+        "CHAR2HEXINT", "CHARACTER", "CHARACTER_LENGTH", "CHARACTERS", "CHARS", "CHECK", "CHECKPOINT", "CHR", "CLASS", "CLOB",
+        "CLOSE", "CLUSTER", "CM", "CUME_DIST", "COALESCE", "COLLATE", "COLLATION", "COLLECT", "COLUMN", "COMMENT", "COMMIT", "COMPLETION",
+        "COMPRESS", "CONCAT", "CONNECT", "CONNECTION", "CONSTRAINT", "CONSTRAINTS", "CONSTRUCTOR", "CONTINUE",
+        "CONVERT_TABLE_HEADER", "CORR", "CORRESPONDING", "COS", "COSH", "COUNT", "COVAR_POP", "COVAR_SAMP", "CREATE", "CROSS",
+        "CS", "CSUM", "CSV", "CSVLD", "CT", "CUBE", "CURRENT", "CURRENT_DATE", "CURRENT_PATH", "CURRENT_ROLE", "CURRENT_TIME",
+        "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR", "CV", "CYCLE",
+        "DATA", "DATABASE", "DATABLOCKSIZE", "DATE", "DATEFORM", "DAY", "DAYNUMBER_OF_WEEK", "DEALLOCATE", "DEC", "DECIMAL",
+        "DECLARE", "DECODE", "DEFAULT", "DEFERRABLE", "DEFERRED", "DEGREES", "DEL", "DELETE", "DEPTH", "DEREF", "DESC",
+        "DESCRIBE", "DESCRIPTOR", "DESTROY", "DESTRUCTOR", "DETERMINISTIC", "DIAGNOSTIC", "DIAGNOSTICS", "DICTIONARY",
+        "DISABLED", "DISCONNECT", "DISTINCT", "DO", "DOMAIN", "DOUBLE", "DROP", "DUAL", "DUMP", "DYNAMIC",
+        "EACH", "ECHO", "EDITDISTANCE", "ELSE", "ELSEIF", "ENABLED", "END", "END-EXEC", "EQ", "EQUALS", "ERROR", "ERRORFILES",
+        "ERRORTABLES", "ESCAPE", "ET", "EVERY", "EXCEPT", "EXCEPTION", "EXEC", "EXECUTE", "EXISTS", "EXIT", "EXP", "EXPLAIN",
+        "EXTERNAL", "EXTRACT",
+        "FALLBACK", "FALSE", "FASTEXPORT", "FETCH", "FIRST", "FIRST_VALUE", "FLOAT", "FLOOR", "FOR", "FOLLOWING", "FOREIGN", "FORMAT", "FOUND", "FREE",
+        "FREESPACE", "FROM", "FROM_BYTES", "FULL", "FUNCTION",
+        "GE", "GENERAL", "GENERATED", "GET", "GIVE", "GLOBAL", "GO", "GOTO", "GRANT", "GRAPHIC", "GREATEST", "GROUP",
+        "GROUPING", "GT",
+        "HANDLER", "HASH", "HASHAMP", "HASHBAKAMP", "HASHBUCKET", "HASHROW", "HAVING", "HELP", "HOST", "HOUR",
+        "IDENTITY", "IF", "IGNORE", "IMMEDIATE", "IN", "INCONSISTENT", "INDEX", "INDICATOR", "INITCAP", "INITIALIZE",
+        "INITIALLY", "INITIATE", "INNER", "INOUT", "INPUT", "INS", "INSERT", "INSTEAD", "INSTR", "INT", "INTEGER",
+        "INTEGERDATE", "INTERSECT", "INTERVAL", "INTO", "IS", "ISOLATION", "ITERATE",
+        "JOIN", "JOURNAL",
+        "KEY", "KURTOSIS",
+        "LAG", "LANGUAGE", "LARGE", "LAST", "LAST_DAY", "LAST_VALUE", "LATERAL", "LE", "LEAD", "LEADING", "LEAST", "LEAVE", "LEFT", "LENGTH", "LESS",
+        "LEVEL", "LIKE", "LIMIT", "LN", "LOADING", "LOCAL", "LOCALTIME", "LOCALTIMESTAMP", "LOCATOR", "LOCK", "LOCKING",
+        "LOG", "LOGGING", "LOGON", "LONG", "LOOP", "LOWER", "LPAD", "LT", "LTRIM",
+        "MACRO", "MAP", "MATCH", "MAVG", "MAX", "MAXIMUM", "MCHARACTERS", "MDIFF", "MERGE", "MIN", "MINDEX", "MINIMUM",
+        "MINUS", "MINUTE", "MLINREG", "MLOAD", "MOD", "MODE", "MODIFIES", "MODIFY", "MODULE", "MONITOR", "MONRESOURCE",
+        "MONSESSION", "MONTH", "MONTHS_BETWEEN", "MSUBSTR", "MSUM", "MULTISET",
+        "NAMED", "NAMES", "NATIONAL", "NATURAL", "NCHAR", "NCLOB", "NE", "NEW", "NEW_TABLE", "NEXT", "NEXT_DAY", "NGRAM", "NO",
+        "NONE", "NOT", "NOWAIT", "NULL", "NULLS", "NULLIF", "NULLIFZERO", "NUMERIC", "NUMTODSINTERVAL", "NUMTOYMINTERVAL", "NVP",
+        "OADD_MONTHS", "OBJECT", "OBJECTS", "OCTET_LENGTH", "OF", "OFF", "OLD", "OLD_TABLE", "ON", "ONLY", "OPEN", "OPERATION",
+        "OPTION", "OR", "ORDER", "ORDINALITY", "OREPLACE", "OTRANSLATE", "OUT", "OUTER", "OUTPUT", "OVER", "OVERLAPS",
+        "OVERRIDE",
+        "PAD", "PARAMETER", "PARAMETERS", "PARTIAL", "PARTITION", "PASSWORD", "PATH", "PERCENT", "PERCENT_RANK", "PERM",
+        "PERMANENT", "POSITION", "POSTFIX", "PRECEDING", "PRECISION", "PREFIX", "PREORDER", "PREPARE", "PRESERVE", "PRIMARY", "PRIOR",
+        "PRIVATE", "PRIVILEGES", "PROCEDURE", "PROFILE", "PROPORTIONAL", "PROTECTION", "PUBLIC",
+        "QUALIFIED", "QUALIFY", "QUANTILE",
+        "RADIANS", "RANDOM", "RANGE_N", "RANK", "READ", "READS", "REAL", "RECURSIVE", "REF", "REFERENCES", "REFERENCING",
+        "REGR_AVGX", "REGR_AVGY", "REGR_COUNT", "REGR_INTERCEPT", "REGR_R2", "REGR_SLOPE", "REGR_SXX", "REGR_SXY", "REGR_SYY",
+        "RELATIVE", "RELEASE", "RENAME", "REPEAT", "REPLACE", "REPLICATION", "REPOVERRIDE", "REQUEST", "RESTART", "RESTORE",
+        "RESTRICT", "RESULT", "RESUME", "RET", "RETRIEVE", "RETURN", "RETURNS", "REVALIDATE", "REVERSE", "REVOKE", "RIGHT",
+        "RIGHTS", "ROLE", "ROLLBACK", "ROLLFORWARD", "ROLLUP", "ROUND", "ROUTINE", "ROW", "ROW_NUMBER", "ROWID", "ROWS",
+        "RPAD", "RTRIM",
+        "SAMPLE", "SAMPLEID", "SAVEPOINT", "SCHEMA", "SCOPE", "SCROLL", "SEARCH", "SECOND", "SECTION", "SEL", "SELECT",
+        "SEQUENCE", "SESSION", "SESSION_USER", "SET", "SETRESRATE", "SETS", "SETSESSRATE", "SHOW", "SIN", "SINH", "SIZE",
+        "SKEW", "SMALLINT", "SOME", "SOUNDEX", "SPACE", "SPECIFIC", "SPECIFICTYPE", "SPOOL", "SQL", "SQLEXCEPTION", "SQLSTATE",
+        "SQLTEXT", "SQLWARNING", "SQRT", "SS", "START", "STARTUP", "STATE", "STATEMENT", "STATIC", "STATISTICS", "STDDEV_POP",
+        "STDDEV_SAMP", "STEPINFO", "STRING_CS", "STRTOK", "STRTOK_SPLIT_TO_TABLE", "STRUCTURE", "SUBSCRIBER", "SUBSTR",
+        "SUBSTRING", "SUM", "SUMMARY", "SUSPEND", "SYSTEM_USER",
+        "TABLE", "TAN", "TANH", "TBL_CS", "TEMPORARY", "TERMINATE", "THAN", "THEN", "THRESHOLD", "TIME", "TIMESTAMP",
+        "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TITLE", "TO", "TO_BYTES", "TO_CHAR", "TO_DATE", "TO_DSINTERVAL", "TO_NUMBER",
+        "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_YMINTERVAL", "TRACE", "TRAILING", "TRANSACTION", "TRANSLATE", "TRANSLATE_CHK",
+        "TRANSLATION", "TREAT", "TRIGGER", "TRIM", "TRUE", "TRUNC", "TYPE",
+        "UC", "UNBOUNDED", "UNDEFINED", "UNDER", "UNDO", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UNTIL", "UPD", "UPDATE", "UPPER",
+        "UPPERCASE", "USAGE", "USER", "USING",
+        "VALUE", "VALUES", "VAR_POP", "VAR_SAMP", "VARBYTE", "VARCHAR", "VARGRAPHIC", "VARIABLE", "VARYING", "VIEW", "VOLATILE",
+        "WAIT", "WHEN", "WHENEVER", "WHERE", "WHILE", "WIDTH_BUCKET", "WITH", "WITHOUT", "WORK", "WRITE",
+        "YEAR",
+        "ZEROIFNULL", "ZONE"
+      )
     );
   }
 }
