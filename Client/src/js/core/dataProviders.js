@@ -27,7 +27,7 @@
  * @extends bcdui.core.DataProvider
  *
  */
-bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
+export const bcduiExport_PromptDataProvider = bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @constructs
@@ -77,7 +77,7 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
  *   A data provider for constant values. This is especially useful to set values for the xsl:param elements of a {@link bcdui.core.TransformationChain TransformationChain} subclass.
  * @extends bcdui.core.DataProvider
  */
-bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
+export const bcduiExport_ConstantDataProvider = bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @param {object}  args       - paramater map
@@ -151,7 +151,7 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
   * We mirror our source's state but reduce them to only initialized and loaded = ready.
   * @extends bcdui.core.DataProvider
  */
-bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
+export const bcduiExport_DataProviderHolder = bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 {
   /**
    * @param {object} [args] - The argument map
@@ -395,7 +395,7 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
  * where the bcdui.core.DataProviderAlias' name is used as the xsl:param's name
  * @extends bcdui.core.DataProviderHolder
  */
-bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
+export const bcduiExport_DataProviderAlias = bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
 
 {
   /**
@@ -421,7 +421,7 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
  * See {@link bcdui.core.DataProviderWithXPathNodes DataProviderWithXPathNodes} for reading a full XML node-set
  * @extends bcdui.core.DataProviderHolder
  */
-bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
+export const bcduiExport_DataProviderWithXPath= bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
 
 {
   /**
@@ -503,7 +503,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   *  See {@link bcdui.core.DataProviderWithXPath DataProviderWithXPath} for reading a single value as a string
   * @extends bcdui.core.DataProviderHolder
  */
-bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
+export const bcduiExport_DataProviderWithXPathNodes = bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
 
     {
       /** 
@@ -592,8 +592,7 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
  *  Useful for be passing data as parameter to transformators.
  * @extends bcdui.core.DataProviderHolder
 */
-bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
-
+export const bcduiExport_OptionsDataProvider = bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
 {
   /** 
    * @param {object}                  args
@@ -672,8 +671,7 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
  * Even if the requestModel becomes ready again, we stay until we are executed unless args.isAutoRefresh = true is set.
  * @extends bcdui.core.DataProvider
  */
-bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
-
+export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @param {Object} args - Parameter object
@@ -876,7 +874,7 @@ bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
  * @extends bcdui.core.DataProvider
  * Retrieves its value from an HTML element attribute
  */
-bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
+export const bcduiExport_DataProviderHtmlAttribute = bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
 {
   /**
    * @param {Object} args
@@ -921,7 +919,7 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
  * A StringDataProvider provides a plain string via getData()
  * @extends bcdui.core.DataProvider
  */
-bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
+export const bcduiExport_StringDataProvider = bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
 {
   /**
    * @param {Object} args
@@ -1019,7 +1017,7 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
   * Allows providing a custom js callback function returning a value.
   * @extends bcdui.core.DataProvider
  */
-bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
+export const bcduiExport_JsDataProvider = bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
 
 {
   /**
@@ -1080,7 +1078,7 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
   * This leaves the callback time to do asynchronous data requests against a server for example.
   * @extends bcdui.core.DataProvider   
  */
-bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
+export const bcduiExport_AsyncJsDataProvider = bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
   {
     /**
      * @param args The parameter map contains the following properties:

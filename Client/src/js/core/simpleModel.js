@@ -46,7 +46,7 @@
  * myModel.execute();
  * @extends bcdui.core.AbstractUpdatableModel
 */
-bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
+export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
    /**
    * @typedef {object} SimpleModelParamSaveOptions

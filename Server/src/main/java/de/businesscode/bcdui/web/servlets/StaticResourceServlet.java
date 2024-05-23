@@ -87,6 +87,7 @@ public class StaticResourceServlet extends HttpServlet {
   
   // For removal of bcduiApiStubs imports
   private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
+  public static final Pattern patternExports = Pattern.compile("export const bcduiExport_[\\w]+[\\s]*=[\\s]*");
   private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override
@@ -133,6 +134,12 @@ public class StaticResourceServlet extends HttpServlet {
       if( matcher.find() ) Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
     }
 
+    if ("true".equals(req.getParameter("_bcdNoMod"))) {
+      Matcher matcher = patternExports.matcher(new String(data));
+      while (matcher.find()) {
+        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+      }
+    }
     resp.setContentLength(data.length);
     resp.getOutputStream().write(data);
   }

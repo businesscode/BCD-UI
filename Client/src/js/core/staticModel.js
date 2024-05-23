@@ -30,7 +30,7 @@
    * </ol>
    * @extends bcdui.core.AbstractUpdatableModel
    */
-bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
+export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 {
   /**
    * @typedef {Object} StaticModelParam

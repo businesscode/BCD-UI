@@ -271,6 +271,7 @@ task bcduiClientJsFileGroups {
         def outFile = file(outFileName)
         if (! is3rdParty) {
           outFile.text = outFile.text.replace('"use strict";', "")
+          outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
           outFile.text = '"use strict";' + outFile.text
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
@@ -285,7 +286,7 @@ task bcduiClientJsFileGroups {
     // Create a task for combining and minifying all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
-      "$clientCombinedDir/${fPathName}"
+      "$clientCombinedDir/${fPathName}".replace("?_bcdNoMod=true","")
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false )

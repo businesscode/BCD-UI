@@ -46,7 +46,7 @@
  * @extends bcdui.core.AbstractExecutable
  * @abstract
  */
-bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
+export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 {
   /**
    * @description
