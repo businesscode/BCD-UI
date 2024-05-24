@@ -11,8 +11,8 @@ import "../../3rdParty/handsontable.js"
 import "../../component/grid/gridCreate.js"
 import "../../component/grid/gridEditor.js"
 
-//import {bcdGridModel, bcdGrid} from "../../component/componentClasses.js"
-//export {bcdGridModel, bcdGrid};
+import {bcdGridModel, bcdGrid} from "../../component/componentClasses.js"
+export {bcdGridModel, bcdGrid};
 
-import hotCss from '../../3rdParty/handsontable.css' with { type: 'css' };
-document.adoptedStyleSheets.push(hotCss);
+//import hotCss from '../../3rdParty/handsontable.css' with { type: 'css' };
+//document.adoptedStyleSheets.push(hotCss);
