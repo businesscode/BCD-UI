@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package de.businesscode.bcdui.menu;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +29,6 @@ import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
@@ -50,7 +47,6 @@ import de.businesscode.util.xml.SecureXmlFactory;
  *
  **/
 public class Menus {
-  private static final Logger log = LogManager.getLogger(MenuServlet.class);
   private static final String defaultMenuFolderPath = "menu";
   private Map<String, Menu> menuMap;
   private static Menus instance=null;
@@ -224,8 +220,8 @@ public class Menus {
     newEntry.setOnClick(entry.getOnClick());
     newEntry.setRights(entry.getRights());
     newEntry.setTitle(entry.getTitle());
-
-    return newEntry;
+    newEntry.setSeparator(entry.isSeparator());
+   return newEntry;
   }
 
 
