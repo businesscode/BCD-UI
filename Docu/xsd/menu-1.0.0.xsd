@@ -67,6 +67,7 @@
       <attribute name="disable"   use="optional" type="boolean" default="false"/>
       <attribute name="hide"      use="optional" type="boolean" default="false"/>
       <attribute name="newWindow" use="optional" type="boolean" default="false"/>
+      <attribute name="separator" use="optional" type="boolean" default="false"/>
     </complexType>
   </element>
   <element name="include">
