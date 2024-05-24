@@ -31,8 +31,10 @@
   <element name="Menu">
     <complexType>
       <sequence maxOccurs="unbounded">
-        <element ref="tns:Entry"></element>
-      </sequence>
+        <choice>
+          <element ref="tns:Entry"/>
+          <element name="Separator"/>
+        </choice>      </sequence>
       <attribute name="id" type="ID" use="required"></attribute>
       <!--  if the menu is default for an application -->
       <attribute name="isDefault" type="boolean"></attribute>
@@ -45,7 +47,8 @@
       <sequence maxOccurs="unbounded" minOccurs="0">
         <choice>
           <element ref="tns:Entry"/>
-          <element ref="tns:include"></element>
+          <element ref="tns:include"/>
+          <element name="Separator"/>
         </choice>
       </sequence>
 

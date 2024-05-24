@@ -52,12 +52,21 @@
         <xsl:attribute name="style">display:none</xsl:attribute>
       </xsl:if>
       <ul id="{$rootElementId}" class="bcdLevel1" db="{count(//menu:Entry)}">
-        <xsl:for-each select="menu:Entry">
-          <xsl:call-template name="getEntry">
-            <xsl:with-param name="entry" select="."/>
-            <xsl:with-param name="depth" select="number('2')"/>
-            <xsl:with-param name="pos" select="position()"/>
-          </xsl:call-template>
+        <xsl:for-each select="menu:Entry|menu:Separator">
+        
+          <xsl:choose>
+            <xsl:when test="local-name(.)='Separator'">
+              <li class='bcdMenuSeparator'><hr/></li>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="getEntry">
+                <xsl:with-param name="entry" select="."/>
+                <xsl:with-param name="depth" select="number('2')"/>
+                <xsl:with-param name="pos" select="position()"/>
+              </xsl:call-template>
+            </xsl:otherwise>
+          </xsl:choose>
+        
         </xsl:for-each>
       </ul>
     </nav>
@@ -73,46 +82,54 @@
     <xsl:param name="pos"/>
 
     <xsl:for-each select="$entry">
-      <xsl:variable name="node" select="."/>
-      <li>
-        <xsl:variable name="activeClassName">
-          <xsl:call-template name="determineActiveClass">
-            <xsl:with-param name="node" select="$node"/>
-          </xsl:call-template>
-        </xsl:variable>
+      <xsl:choose>    
+        <xsl:when test="local-name(.)='Separator'">
+          <li class='bcdMenuSeparator'><hr/></li>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:variable name="node" select="."/>
+          <li>
 
-        <xsl:attribute name="class">
-          <xsl:if test="$activeClassName!='' and not($isCredentialMenu)"> bcd__active-item</xsl:if>
-          <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
-          <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
-        </xsl:attribute>
+            <xsl:variable name="activeClassName">
+              <xsl:call-template name="determineActiveClass">
+                <xsl:with-param name="node" select="$node" />
+              </xsl:call-template>
+            </xsl:variable>
 
-        <xsl:choose>
-          <xsl:when test="$isCredentialMenu='true' and $depth=2 and $pos=1">
-            <a href="#" class="bcd__header_credentials_toggle">
-              <span class="initials"><xsl:value-of select="substring(translate($userName, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 1)"/></span>
-              <span><xsl:value-of select="$userName"/></span>
-              <i class="fas fa-caret-down"></i>
-            </a>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:call-template name="getLink">
-            <xsl:with-param name="node" select="$node"/>
-            <xsl:with-param name="activeClassName" select="$activeClassName"/>
-          </xsl:call-template>
-          </xsl:otherwise>
-        </xsl:choose>
+            <xsl:attribute name="class">
+              <xsl:if test="$activeClassName!='' and not($isCredentialMenu)"> bcd__active-item</xsl:if>
+              <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
+              <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
+            </xsl:attribute>
 
-        <xsl:if test="$node/menu:Entry">
-          <ul class="bcdLevel{$depth}">
-            <xsl:call-template name="getEntry">
-              <xsl:with-param name="entry" select="$node/menu:Entry"/>
-              <xsl:with-param name="depth" select="$depth+1"/>
-            </xsl:call-template>
-          </ul>
-        </xsl:if>
+            <xsl:choose>
+              <xsl:when test="$isCredentialMenu='true' and $depth=2 and $pos=1">
+                <a href="#" class="bcd__header_credentials_toggle">
+                  <span class="initials"> <xsl:value-of select="substring(translate($userName, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 1)" /> </span>
+                  <span> <xsl:value-of select="$userName" /> </span>
+                  <i class="fas fa-caret-down"></i>
+                </a>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="getLink">
+                  <xsl:with-param name="node" select="$node" />
+                  <xsl:with-param name="activeClassName"
+                    select="$activeClassName" />
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
 
-      </li>
+            <xsl:if test="$node/menu:Entry|$node/menu:Separator">
+              <ul class="bcdLevel{$depth}">
+                <xsl:call-template name="getEntry">
+                  <xsl:with-param name="entry" select="$node/*" />
+                  <xsl:with-param name="depth" select="$depth+1" />
+                </xsl:call-template>
+              </ul>
+            </xsl:if>
+          </li>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:for-each>
   </xsl:template>
 
