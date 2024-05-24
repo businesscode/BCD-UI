@@ -9,5 +9,5 @@ import "../../widget/mouseTracker.js"
 import "../../widget/xmlDataUpdateListener.js"
 import "../../widget/effects/effectsPackage.js"
 
-import jquiCss from '../../3rdParty/jquery-ui.css' with { type: 'css' };
-document.adoptedStyleSheets.push(jquiCss);
+//import jquiCss from '../../3rdParty/jquery-ui.css' with { type: 'css' };
+//document.adoptedStyleSheets.push(jquiCss);

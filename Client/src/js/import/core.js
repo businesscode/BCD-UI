@@ -76,8 +76,8 @@ import "../wrs/wrsUtilPackage.js"
 
 import "../core/customElements.js"
 
-import bcduiCss from '../../theme/css/allStyles.css' with { type: 'css' };
-document.adoptedStyleSheets.push(bcduiCss);
+//import bcduiCss from '../../theme/css/allStyles.css' with { type: 'css' };
+//document.adoptedStyleSheets.push(bcduiCss);
 
 export {
   bcdAutoModel
