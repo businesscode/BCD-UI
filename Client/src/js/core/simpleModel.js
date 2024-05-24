@@ -49,6 +49,7 @@
 export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
    /**
+   * @class bcdui.core.SimpleModel
    * @typedef {object} SimpleModelParamSaveOptions
    * @property {chainDef}                                      [saveChain]              - The definition of the transformation chain
    * @property {Object}                                        [saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.

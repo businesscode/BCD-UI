@@ -30,6 +30,7 @@
 export const bcduiExport_PromptDataProvider = bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.PromptDataProvider
    * @constructs
    * @param {object} args
    * @param {string} [args.name] - Title provided to the user when the input box pops up.
@@ -80,6 +81,7 @@ export const bcduiExport_PromptDataProvider = bcdui.core.PromptDataProvider = cl
 export const bcduiExport_ConstantDataProvider = bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.ConstantDataProvider
    * @param {object}  args       - paramater map
    * @param {id}     [args.id]    - Globally unique id for use in declarative contexts
    * @param {string} [args.name]  - The name of the data provider. This name should be unique within the scopt it is used, however it is not required to globally unique
@@ -154,6 +156,7 @@ export const bcduiExport_ConstantDataProvider = bcdui.core.ConstantDataProvider 
 export const bcduiExport_DataProviderHolder = bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.DataProviderHolder
    * @param {object} [args] - The argument map
    * @param {bcdui.core.DataProvider} [args.source] - The data provider to be wrapped, unless set later via {@link bcdui.core.DataProviderHolder#setSource}
    * @param {string}                  [id]          - id
@@ -399,6 +402,7 @@ export const bcduiExport_DataProviderAlias = bcdui.core.DataProviderAlias = clas
 
 {
   /**
+   * @class bcdui.core.DataProviderAlias
    * @param {object} args - The argument map taking two mandatory parameters:
    * @param {bcdui.core.DataProvider} args.source - The data provider to be wrapped
    * @param {string}                  args.name - The new name of the data provider
@@ -421,9 +425,13 @@ export const bcduiExport_DataProviderAlias = bcdui.core.DataProviderAlias = clas
  * See {@link bcdui.core.DataProviderWithXPathNodes DataProviderWithXPathNodes} for reading a full XML node-set
  * @extends bcdui.core.DataProviderHolder
  */
-export const bcduiExport_DataProviderWithXPath= bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
+export const bcduiExport_DataProviderWithXPath = bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
 
 {
+  /**
+  * @class bcdui.core.DataProviderWithXPath
+   */
+
   /**
    * @private
    */
@@ -506,7 +514,8 @@ export const bcduiExport_DataProviderWithXPath= bcdui.core.DataProviderWithXPath
 export const bcduiExport_DataProviderWithXPathNodes = bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
 
     {
-      /** 
+      /**
+       * @class bcdui.core.DataProviderWithXPathNodes 
        * @param {object}                  args
        * @param {modelXPath}              [args.xPath]  - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
        * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
@@ -595,6 +604,7 @@ export const bcduiExport_DataProviderWithXPathNodes = bcdui.core.DataProviderWit
 export const bcduiExport_OptionsDataProvider = bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
 {
   /** 
+   * @class bcdui.core.OptionsDataProvider
    * @param {object}                  args
    * @param {modelXPath}              args.optionsModelXPath                - Data xPath with model reference, like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>,
    *                                                                        is treated as value+caption in case args.optionsModelRelativeValueXPath is NOT DEFINED or
@@ -674,6 +684,7 @@ export const bcduiExport_OptionsDataProvider = bcdui.core.OptionsDataProvider = 
 export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.RequestDocumentDataProvider
    * @param {Object} args - Parameter object
    * @param {bcdui.core.DataProvider}        [args.requestModel]            - A DataProvider providing a request, for example a wrs:WrsRequest
    * @param {string}                         [args.url]                     - URL to load the data from, use this or args.requestModel.
@@ -877,6 +888,7 @@ export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumen
 export const bcduiExport_DataProviderHtmlAttribute = bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.DataProviderHtmlAttribute
    * @param {Object} args
    * @param {string} args.htmlElementId
    * @param {string} args.attributeName
@@ -922,6 +934,7 @@ export const bcduiExport_DataProviderHtmlAttribute = bcdui.core.DataProviderHtml
 export const bcduiExport_StringDataProvider = bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
 {
   /**
+   * @class bcdui.core.StringDataProvider
    * @param {Object} args
    * @param {string} args.value  - The data
    * @param {id}     [args.id]   - Globally unique id for use in declarative contexts
@@ -1021,6 +1034,7 @@ export const bcduiExport_JsDataProvider = bcdui.core.JsDataProvider = class exte
 
 {
   /**
+   * @class bcdui.core.JsDataProvider
    * @param {Object} args - The parameter map contains the following properties:
    * @param {function} args.callback                 - The callback providing the data
    * @param {boolean}  [args.doAllwaysRefresh=false] - If true, each getData() calls the callback, otherwise only execute() will do.
@@ -1081,6 +1095,7 @@ export const bcduiExport_JsDataProvider = bcdui.core.JsDataProvider = class exte
 export const bcduiExport_AsyncJsDataProvider = bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
   {
     /**
+     * @class bcdui.core.AsyncJsDataProvider
      * @param args The parameter map contains the following properties:
      * @param {function} args.callback - The callback providing the data; gets args object with 'setData' function to call once data is available.
      * @param {id}       [args.id]     - A globally unique id for use in declarative contexts

@@ -29,6 +29,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 {
 
   /**
+   * @class bcdui.core.TransformationChain
    * @description
    * The constructor for the TransformationChain class.
    */
@@ -964,6 +965,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
+   * @class bcdui.core.Renderer
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
@@ -1090,6 +1092,7 @@ export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.co
 export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 {
   /**
+  * @class bcdui.core.ModelWrapper
   * @param {Object} args - An argument object with the following properties:
   * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
