@@ -324,6 +324,7 @@
             inputField.val("");
             lowerConnectable.find(".ui-selected").removeClass("ui-selected");
           }
+          lowerConnectable.find('.ui-selectee').removeClass("bcdHidden");
         }
         // hide empty box (or initially load data in preload mode)
         else if (lowerConnectable.find("li").length == 0) {
@@ -433,6 +434,7 @@
 
           // clear input after take over
           inputField.val("");
+          lowerConnectable.find('.ui-selectee').removeClass("bcdHidden");
 
           // hide empty box
           if (lowerConnectable.is(":visible") && lowerConnectable.find("li").length == 0)
@@ -528,11 +530,14 @@
           if (iv) {
             
             // initially clear all selections
-            if (i == 0)
+            if (i == 0) {
               lowerConnectable.find('.ui-selected').removeClass("ui-selected");
+              lowerConnectable.find('.ui-selectee').addClass("bcdHidden");
+            }
 
             // get 'starts with' items
             const items = lowerConnectable.find("[bcdLoCase" + self.keypressSelector + "'" + iv.replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "']");
+            items.removeClass("bcdHidden");
             
             // we only take the first matching item and mark it
             for (let i = 0; i < items.length; i++) {
@@ -544,6 +549,8 @@
               }
             }
           }
+          else
+            lowerConnectable.find('.ui-selectee').removeClass("bcdHidden");
         });
         // finally, if we had marked at least one item, scroll to it
         if (lastItem) {

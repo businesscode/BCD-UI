@@ -15,7 +15,7 @@
 */
 package de.businesscode.bcdui.cache;
 
-import org.apache.commons.vfs.FileSystemException;
+import org.apache.commons.vfs2.FileSystemException;
 
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.vfs.provider.database.VFSManagerFactory;

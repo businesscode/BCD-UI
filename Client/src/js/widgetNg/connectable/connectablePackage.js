@@ -751,14 +751,14 @@
         let selected = htmlElement.find(".ui-selected");
 
         if (selected.length == 0) {
-          selected = htmlElement.find(".ui-selectee:first-child");
+          selected = htmlElement.find(".ui-selectee:not(.bcdHidden):first-child");
           if (selected.length == 0)
             return [];
           selected.addClass("ui-selected");
         }
 
         const idx = this.oldItemIdx || selected.first().index();
-        const offset = htmlElement.children(".ui-selectee").length > 0 ? htmlElement.children(".ui-selectee").first().position().top : 0;
+        const offset = htmlElement.children(".ui-selectee:not(.bcdHidden)").length > 0 ? htmlElement.children(".ui-selectee:not(.bcdHidden)").first().position().top : 0;
 
         event.preventDefault();
 
@@ -767,13 +767,23 @@
           this.initItemIdx = idx;
 
         // inc/dec current index
-        let newItemIdx = idx + (event.keyCode == 38 ? -1 : 1);
+        let newItemIdx = idx;
+        // do we have any visible items?
+        if (htmlElement.find(".ui-selectee:not(.bcdHidden)").length > 0) {
 
-        // check upper and lower boundaries
-        if (newItemIdx < 0) newItemIdx = 0;
-        if (newItemIdx > htmlElement.find(".ui-selectee:last-child").index()) newItemIdx = htmlElement.find(".ui-selectee:last-child").index();
+          // if so, go up/down to the next visible item
+          do {
+            newItemIdx += (event.keyCode == 38 ? -1 : 1);
 
-        // the new to be selected item
+            // test boundary, reset change if necessary
+            if (newItemIdx < 0 || newItemIdx > htmlElement.find(".ui-selectee:last-child").index()) {
+              newItemIdx = this.oldItemIdx;
+              break;
+            }
+          // repeat until we found a not hidden item
+          } while (jQuery(htmlElement.find(".ui-selectee").get(newItemIdx)).hasClass("bcdHidden"));
+        }
+
         let newItem = jQuery(htmlElement.find(".ui-selectee").get(newItemIdx));
 
         // test if we used up and go down now (or vice versa), if so, deselect former selected ones till initially selected one

@@ -17,11 +17,12 @@ package de.businesscode.bcdui.vfs.provider.database;
 
 import java.util.Collection;
 
-import org.apache.commons.vfs.FileName;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystem;
-import org.apache.commons.vfs.FileSystemOptions;
-import org.apache.commons.vfs.provider.AbstractFileSystem;
+import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystem;
+import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.commons.vfs2.provider.AbstractFileSystem;
 
 public class DatabaseFileSystem extends AbstractFileSystem implements FileSystem{
 
@@ -47,7 +48,7 @@ public class DatabaseFileSystem extends AbstractFileSystem implements FileSystem
    * gets/reads file from database or manager gets it from cache
    *
    */
-  protected FileObject createFile(FileName paramFileName) throws Exception {
+  protected FileObject createFile(AbstractFileName paramFileName) throws Exception {
     return new DatabaseFileObject(paramFileName, this);
   }
 

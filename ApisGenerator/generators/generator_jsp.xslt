@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
 
     <!-- generate taglib uris -->
 
-    <xsl:text>&lt;%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>&#10;</xsl:text>
+    <xsl:text>&lt;%@ taglib uri="jakarta.tags.core" prefix="c" %>&#10;</xsl:text>
     <xsl:text>&lt;%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/webpage" prefix="webpage" %>&#10;</xsl:text>
     <xsl:if test="$extendsDataProvider">
       <xsl:text>&lt;%@ taglib uri="http://de.businesscode.web/jsp/taglib/bcdui/bcdui" prefix="b" %>&#10;</xsl:text>

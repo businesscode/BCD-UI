@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 <!--
   Standard web.xml for BCD-UI 4 applications.
   -->
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-         version="3.1">
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         id="WebApp_ID" version="6.0">
 
   <display-name>ProjectName</display-name>
 
@@ -413,7 +413,7 @@
        a thread which keeps the application from shutting down
        EHcache is for example used by shiro, check your web.xml -->
   <listener>
-    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    <listener-class>de.businesscode.bcdui.cache.ShutdownListener</listener-class>
   </listener>
 
   <!-- i18n configuration -->

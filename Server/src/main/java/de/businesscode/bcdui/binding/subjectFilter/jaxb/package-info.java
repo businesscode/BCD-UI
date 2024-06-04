@@ -19,5 +19,5 @@
 // Generiert: 2016.08.24 um 11:53:43 AM CEST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.businesscode.de/schema/bcdui/bindings-1.0.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@jakarta.xml.bind.annotation.XmlSchema(namespace = "http://www.businesscode.de/schema/bcdui/bindings-1.0.0", elementFormDefault = jakarta.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package de.businesscode.bcdui.binding.subjectFilter.jaxb;

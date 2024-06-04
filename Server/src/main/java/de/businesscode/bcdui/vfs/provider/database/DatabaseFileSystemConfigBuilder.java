@@ -15,7 +15,7 @@
 */
 package de.businesscode.bcdui.vfs.provider.database;
 
-import org.apache.commons.vfs.FileSystemConfigBuilder;
+import org.apache.commons.vfs2.FileSystemConfigBuilder;
 
 public class DatabaseFileSystemConfigBuilder extends FileSystemConfigBuilder{
 

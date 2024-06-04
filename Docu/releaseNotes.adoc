@@ -10,6 +10,8 @@ ___
 ==== Release 5_7_0 ...in progress
 
 .Major new features:
+* switched to Java 17, Gradle 8.5, Tomcat 10.1
+
 .Server:
 * updated several 3rd party jars
 
@@ -21,6 +23,8 @@ ___
 .Incompatibilities:
 * In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`
 * Removal of Internet Explorer support
+* javax to jakarta switch (for several packages e.g. javax.servlet)
+* new 3rd party jars set
 
 ___
 ==== Release 5_6_0

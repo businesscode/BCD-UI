@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
 */
 package de.businesscode.bcdui.web.errorLogging;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import de.businesscode.bcdui.logging.LogEventBase;
 import de.businesscode.bcdui.toolbox.ServletUtils;
 
 /**
  * The error-logEvent for usage with the ErrorLogAppender. <br>
- * All thrown {@link javax.servlet.ServletException} are processed in 
+ * All thrown {@link jakarta.servlet.ServletException} are processed in 
  * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly, 
  * so there is usually no reason to manually use this class. <br>
  * 

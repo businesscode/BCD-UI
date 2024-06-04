@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.FileItemInput;
+import org.apache.commons.fileupload2.core.FileItemInputIterator;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -138,12 +138,12 @@ public class VFSServlet extends HttpServlet {
    * @param req
    */
   private void processSaveRequest(HttpServletRequest req) throws IOException {
-    ServletFileUpload upload = new ServletFileUpload();
+    JakartaServletFileUpload upload = new JakartaServletFileUpload();
     try {
       FileDAO fileDao = createFileDao(req);
-      FileItemIterator itemIter = upload.getItemIterator(req);
+      FileItemInputIterator itemIter = upload.getItemIterator(req);
       while(itemIter.hasNext()){
-        FileItemStream item = itemIter.next();
+        FileItemInput item = itemIter.next();
         String name = item.getFieldName();
 
         if(name==null||name.isEmpty()){
@@ -203,7 +203,7 @@ public class VFSServlet extends HttpServlet {
    * @param fileDao
    * @throws IOException
    */
-  private void processFileItem(FileItemStream item, FileDAO fileDao) throws IOException {
+  private void processFileItem(FileItemInput item, FileDAO fileDao) throws IOException {
     String fileUri = item.getFieldName();
     String fileName = item.getName();
 
@@ -212,8 +212,8 @@ public class VFSServlet extends HttpServlet {
     if(logger.isDebugEnabled()){
       logger.debug(String.format("uploading file '%s' as uri '%s' to destination '%s'", fileName, fileUri,toFileUri));
     }
-
-    InputStream is = item.openStream();
+    
+    InputStream is = item.getInputStream();
     if(is != null && is.available()>0){
       fileDao.write(toFileUri, is);
     }else{
@@ -240,7 +240,7 @@ public class VFSServlet extends HttpServlet {
    * @param item
    * @param fileDao
    */
-  protected void processFieldItem(FileItemStream item, FileDAO fileDao) {
+  protected void processFieldItem(FileItemInput item, FileDAO fileDao) {
     logger.warn("ignoring processing field item name " + item.getFieldName());
   }
 
