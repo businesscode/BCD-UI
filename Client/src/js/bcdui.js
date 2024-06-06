@@ -24,6 +24,33 @@
  */
 var bcdui = bcdui || new Object();
 
+console.log("init BCD-UI.");
+
+let storagePolyfillCreate = () => {
+  return {
+    _data       : {},
+    setItem     : function(id, val) { return this._data[id] = String(val); },
+    getItem     : function(id) { return this._data.hasOwnProperty(id) ? this._data[id] : undefined; },
+    removeItem  : function(id) { return delete this._data[id]; },
+    clear       : function() { return this._data = {}; }
+  };
+} 
+
+let localStorage;
+try{
+  localStorage = window.localStorage;
+}catch(e){
+  console.log("window.localStorage access failed, use polyfill");
+  localStorage = storagePolyfillCreate();
+}
+let sessionStorage;
+try{
+  sessionStorage = window.sessionStorage;
+}catch(e){
+  console.log("window.sessionStorage access failed, use polyfill");
+  sessionStorage = storagePolyfillCreate();
+}
+
 bcdui = Object.assign(bcdui, 
 /** @lends bcdui */
 {
@@ -396,6 +423,7 @@ bcdui = Object.assign(bcdui,
         else {
           var response = jQuery.ajax({
             type: "GET",
+            xhrFields: {withCredentials: true},
             async: false,
             url: bcdui.core.compression._zipLetURL + "?data=" + gzMatch[0]
           });

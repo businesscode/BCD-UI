@@ -312,6 +312,9 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
           mimeType: this.mimeType,
           contentType: this.mimeType,
           url : loadUrl,
+          xhrFields: {
+              withCredentials: true
+          },
           success : function (data, successCode, jqXHR) {
             this.dataDoc = data;
             this._uncommitedWrites = false;

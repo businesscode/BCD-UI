@@ -620,6 +620,7 @@ bcdui.util =
     var success = callback || function(){};
     jQuery.ajax({
       method: "POST",
+      xhrFields: {withCredentials: true},
       url : bcdui.contextPath + "/bcdui/servlets/SubjectPreferences?value="+bcdui.util.encodeURI(value)+"&name=" + bcdui.util.encodeURI(name),
       success : success
     });

@@ -1415,6 +1415,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
       contentType : "text/plain",
       dataType : "text",
       data: "",
+      xhrFields: {withCredentials: true},
       success : function(data){
         var node = bcdui.core.browserCompatibility.createDOMFromXmlString(data).selectSingleNode("/*"); //wrs:NextIdentifier
         var blockSize = node.getAttribute("blockSize");

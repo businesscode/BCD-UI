@@ -353,6 +353,9 @@ bcdui.core.XMLLoader = class
             headers : { "X-BCD.pageHash"    : (bcdui.frame.pageHash||""),
                         "X-BCD.requestHash" : (bcdui.frame.pageHash||"")+"."+Math.round(Math.random()*1000) },
             xhr: xhrFactory,
+            xhrFields: {
+              withCredentials: true
+            },
             success : function (response, successCode, jqXHR) {
 
               // Use the low-level responseXML, not response, see comment above
@@ -456,6 +459,7 @@ bcdui.core.XMLLoader = class
             },
             data: new XMLSerializer().serializeToString(args.doc),
             xhr: xhrFactory,
+            xhrFields: {withCredentials: true},
             success : function(dataDoc, successCode, jqXHR) {
               // Use the low-level responseXML, see comment above
               jqXHR.responseXML = xhr.responseXML;

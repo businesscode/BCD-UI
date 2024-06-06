@@ -106,6 +106,7 @@
       dataType: "text",
       url: this.config.url,
       xhr: xhrFactory,
+      xhrFields: {withCredentials: true},
       success: function(response, statusTest, jqXHR) {
         self.propagate(xhr.responseXML);
       },

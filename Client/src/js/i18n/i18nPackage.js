@@ -428,6 +428,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
   switchLanguage: function(lang){
     jQuery.ajax({
       method: "POST",
+      xhrFields: {withCredentials: true},
       url : bcdui.contextPath+ "/bcdui/servlets/SubjectPreferences?value="+lang+"&name=bcd_i18n:lang",
       success : function (data, successCode, jqXHR) {
         location.href = location.href;

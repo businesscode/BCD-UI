@@ -41,14 +41,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -58,18 +60,16 @@ import de.businesscode.bcdui.wrs.load.WrsDataWriter;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.xml.SecureXmlFactory;
 
-import org.apache.logging.log4j.LogManager;
-
 /*
  * This servlet allows setting of SubjectPreferences which are actually shiro user permissions. The permissions and their
  * values which can be set are restricted. The xml file "/bcdui/conf/subjectPreferences.xml" holds information about such restrictions.
  * They can be either static ones or they can reference rights from bcd_sec_user_settings.
- * 
+ *
  * Calling this servlet via GET returns a WRS holding the currently available rights and
- * an indicator showing which one is active. 
- * 
+ * an indicator showing which one is active.
+ *
  * Calling this servlet via POST allows modifying the permission rights map via WRS:I/D/M
- * 
+ *
  */
 public class SubjectPreferences extends HttpServlet {
 
@@ -83,19 +83,19 @@ public class SubjectPreferences extends HttpServlet {
 
   private static final Map<String, ArrayList<String>> defaultRightValues = new HashMap<>();
   private static final Map<String, String> rightValueSources = new HashMap<>();
-  
+
   private static final HashMap<String, String> cookieInfo = new HashMap<>();
-  
+
   public static final String COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE = "bcdCookieMap";
-  
+
   private static final int MAX_COOKIE_SIZE = 4000;
 
   private static int cookieMaxAge = 60 * 60 * 24 * 365;
-  
+
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    
+
     try {
       cookieMaxAge = Integer.parseInt(config.getInitParameter("cookieMaxAge"));
     } catch(Exception e) {
@@ -104,19 +104,19 @@ public class SubjectPreferences extends HttpServlet {
       }
     }
     log.info("Using "+cookieMaxAge+" seconds for cookieMaxAge");
-    
+
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     documentBuilderFactory.setXIncludeAware(true);
 
     // read and parse the configuration
-    
+
     InputStream is = getServletContext().getResourceAsStream("/bcdui/conf/subjectPreferences.xml");
 
     if (is != null) {
       try {
         Document doc = documentBuilderFactory.newDocumentBuilder().parse(is);
         is.close();
-        
+
         if (doc != null) {
 
           // get cookie information, cookie name and path on root level
@@ -134,7 +134,7 @@ public class SubjectPreferences extends HttpServlet {
           NodeList settings = doc.getElementsByTagNameNS(StandardNamespaceContext.SECURITY_NAMESPACE, "Setting");
           for (int n = 0; n < settings.getLength(); n++) {
             Node node = settings.item(n);
-            
+
             // collect listed Setting elements as allowedAttributes
             String rightType = ((Element)(node)).getAttribute("name");
             if (!rightType.isEmpty()) {
@@ -199,7 +199,7 @@ public class SubjectPreferences extends HttpServlet {
                 Node vNode = values.item(v);
                 if ("Value".equals(vNode.getLocalName()) && StandardNamespaceContext.SECURITY_NAMESPACE.equals(vNode.getNamespaceURI())) {
                   String value = vNode.getTextContent();
-                  
+
                   // remember if value is the default one
                   if ("true".equals(((Element)vNode).getAttribute("default")))
                     foundDefaultValues.add(value);
@@ -223,7 +223,7 @@ public class SubjectPreferences extends HttpServlet {
       }
     }
   }
-  
+
   // return indicator if a given right name is part of subjectPreferences
   public static boolean isAllowedAttribute(String name) {
     return allowedRightTypes.contains(name);
@@ -303,7 +303,7 @@ public class SubjectPreferences extends HttpServlet {
     if (realm != null)
       realm.setPermissionMap(permMap);
   }
-  
+
   // sets (and activates) a single permission value list
   public static void setPermission(String rightType, List<String> rightValues) {
     SubjectPreferencesRealm realm = getSubjectPreferencesRealm();
@@ -313,7 +313,7 @@ public class SubjectPreferences extends HttpServlet {
       realm.setPermissionMap(permMap);
     }
   }
-  
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -331,7 +331,7 @@ public class SubjectPreferences extends HttpServlet {
 
         // multi values are separated by comma
         for (String v : rightValueParam.split(",")) {
-  
+
           if (testValue(rightTypeParam, v))
             rightValues.add(v.trim());
           else {
@@ -366,16 +366,16 @@ public class SubjectPreferences extends HttpServlet {
     boolean refreshList = false;
 
     HashMap<String, ArrayList<String>> permissionMap = new HashMap<>(SubjectPreferences.getPermissionMap());
-    
+
     // update permissionMap based on wrs:I/D/R rows in the posted wrs
 
     if (is != null) {
       try {
         Document doc = documentBuilderFactory.newDocumentBuilder().parse(is);
         is.close();
-        
+
         if (doc != null) {
-          
+
           // get wrs header and look for well known columns right_type and right_value
           NodeList header = doc.getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "Header");
           if (header.getLength() > 0) {
@@ -384,7 +384,7 @@ public class SubjectPreferences extends HttpServlet {
             // determine column indexes of right_type and right_value columns
             HashMap<String, String> columns = new HashMap<>();
             for (int i = 0; i < headerColumns.getLength(); i++)
-              columns.put(((Element)headerColumns.item(i)).getAttribute("id"), ((Element)headerColumns.item(i)).getAttribute("pos")); 
+              columns.put(((Element)headerColumns.item(i)).getAttribute("id"), ((Element)headerColumns.item(i)).getAttribute("pos"));
             int rightTypeIdx = -1;
             int rightValueIdx = -1;
             try {
@@ -403,7 +403,7 @@ public class SubjectPreferences extends HttpServlet {
             for (int i = 0;  i < removedEntries.getLength(); i++) {
               NodeList cNodes = ((Element)removedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
               String rightType = (rightTypeIdx <  cNodes.getLength()) ? cNodes.item(rightTypeIdx).getTextContent() : "";
-              String rightValue = (rightValueIdx <  cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : ""; 
+              String rightValue = (rightValueIdx <  cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : "";
 
               if (! rightType.isEmpty() && ! rightValue.isEmpty()) {
                 ArrayList<String> rightValues = permissionMap.get(rightType);
@@ -424,9 +424,9 @@ public class SubjectPreferences extends HttpServlet {
               NodeList cNodes = ((Element)modifiedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
               NodeList oNodes      = ((Element)modifiedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "O");
               String rightType     = (rightTypeIdx  < cNodes.getLength()) ? cNodes.item(rightTypeIdx).getTextContent()  : "";
-              String rightValue    = (rightValueIdx < cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : ""; 
+              String rightValue    = (rightValueIdx < cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : "";
               String oldRightType  = (rightTypeIdx  < oNodes.getLength()) ? oNodes.item(rightTypeIdx).getTextContent()  : "";
-              String oldValueValue = (rightValueIdx < oNodes.getLength()) ? oNodes.item(rightValueIdx).getTextContent() : ""; 
+              String oldValueValue = (rightValueIdx < oNodes.getLength()) ? oNodes.item(rightValueIdx).getTextContent() : "";
               if (! rightType.isEmpty() && ! rightValue.isEmpty() && ! oldRightType.isEmpty() && ! oldValueValue.isEmpty() && oldRightType.equals(rightType)) {
                 ArrayList<String> rightValues = permissionMap.get(rightType);
                 // update old value to new value (if allowed) and old value exists and new one does not exist
@@ -446,7 +446,7 @@ public class SubjectPreferences extends HttpServlet {
             for (int i = 0;  i < insertedEntries.getLength(); i++) {
               NodeList cNodes = ((Element)insertedEntries.item(i)).getElementsByTagNameNS(StandardNamespaceContext.WRS_NAMESPACE, "C");
               String rightType = (rightTypeIdx <  cNodes.getLength()) ? cNodes.item(rightTypeIdx).getTextContent() : "";
-              String rightValue = (rightValueIdx <  cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : ""; 
+              String rightValue = (rightValueIdx <  cNodes.getLength()) ? cNodes.item(rightValueIdx).getTextContent() : "";
               if (! rightType.isEmpty() && ! rightValue.isEmpty()) {
                 ArrayList<String> rightValues = permissionMap.get(rightType);
                 rightValues = rightValues != null ? rightValues : new ArrayList<>();
@@ -484,7 +484,7 @@ public class SubjectPreferences extends HttpServlet {
       resp.setStatus(403);
       return;
     }
-  
+
     if (refreshList) {
       SubjectPreferences.setPermissionMap(permissionMap);
 
@@ -492,7 +492,7 @@ public class SubjectPreferences extends HttpServlet {
       SubjectPreferences.setCookieMap(req, resp);
     }
   }
-  
+
   // test if a given attribute + value is currently allowed or not
   public static boolean testValue(String rightType, String rightValue) {
     // is the value in the allowed list of values
@@ -510,7 +510,7 @@ public class SubjectPreferences extends HttpServlet {
     }
     return valueOk;
   }
-  
+
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -552,16 +552,16 @@ public class SubjectPreferences extends HttpServlet {
       writer.writeEndElement();
 
       writer.writeStartElement("Data");
-      
+
       int id = 0;
       for (String rightType : allowedRightTypes) {
 
         ArrayList<String> rightValues = null;
         ArrayList<String> permissionList = new ArrayList<>(getPermissionList(rightType));
         rightValues = (subject.isAuthenticated() && rightValueSources.containsKey(rightType)) ? new ArrayList<>(SecurityHelper.getPermissions(SecurityUtils.getSubject(), rightValueSources.get(rightType))) : allowedRightValues.get(rightType);
-          
+
         if (rightValues != null && ! rightValues.isEmpty()) {
-          
+
           for (String rightValue : rightValues) {
             writer.writeStartElement("R");
             writer.writeAttribute("id", "R" + ++id);
@@ -573,7 +573,7 @@ public class SubjectPreferences extends HttpServlet {
             writer.writeStartElement("C");
             writer.writeCharacters(rightValue);
             writer.writeEndElement();
-            
+
             writer.writeStartElement("C");
             writer.writeCharacters(permissionList.contains(rightValue) ? "1" : "0");
             writer.writeEndElement();
@@ -594,14 +594,14 @@ public class SubjectPreferences extends HttpServlet {
       try { if (writer !=null) writer.close(); } catch (Exception ex) { log.warn("failed to close writer", ex); }
     }
   }
-  
+
   // sets the current permissionMap as cookie
   private static void setCookieMap(HttpServletRequest request, HttpServletResponse response) {
     String name = cookieInfo.get("name");
     String path = cookieInfo.get("path");
     if (name == null)
       return;
-    
+
     HashMap<String, ArrayList<String>> cookieMap = new HashMap<>(getPermissionMap());
 
     // transform settings in string key1\uE0FEvalue1,value2,...\uE0FFkey2....
@@ -622,12 +622,13 @@ public class SubjectPreferences extends HttpServlet {
       zip.close();
 
       String content = Base64.getEncoder().encodeToString(bos.toByteArray());
-      
-      if (content.length() <= MAX_COOKIE_SIZE) { 
+
+      if (content.length() <= MAX_COOKIE_SIZE) {
         Cookie cookie = new Cookie(name, content);
         cookie.setPath(request.getContextPath() + path);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(cookieMaxAge);
+        cookie.setSecure(true);
         response.addCookie(cookie);
       }
       else {
@@ -635,6 +636,7 @@ public class SubjectPreferences extends HttpServlet {
         cookie.setPath(request.getContextPath() + path);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
+        cookie.setSecure(true);
         response.addCookie(cookie);
       }
     }
@@ -685,7 +687,7 @@ public class SubjectPreferences extends HttpServlet {
     }
     return cookieMap;
   }
-  
+
   // returns default value(s) for a given subjectPreference
   // skipCookie = true will skip the look up in the possibly existing cookie
   // all values are tested if they are still allowed
@@ -701,7 +703,7 @@ public class SubjectPreferences extends HttpServlet {
       if (session == null)
         session = subject.getSession();
 
-      // lookup cookieMap which is possibly added as session attribute 
+      // lookup cookieMap which is possibly added as session attribute
       if (session.getAttribute(COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE) != null) {
         HashMap<String, ArrayList<String>> cookieMap = new HashMap<>((HashMap<String, ArrayList<String>>)session.getAttribute(COOKIE_PERMISSION_MAP_SESSION_ATTRIBUTE));
         ArrayList<String> values = cookieMap.get(rightType);

@@ -94,6 +94,7 @@ bcdui.wkModels.guiStatus = null;
    else {
      var response = jQuery.ajax({
        type: "GET",
+       xhrFields: {withCredentials: true},
        async: false,
        dataType: "xml",
        url: bcdui.core.compression._zipLetURL + "?data=" + gz
