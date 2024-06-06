@@ -9,11 +9,5 @@
         "description": "",
         "keyword": ""
     }
-  },
-  "opts": {
-    "recurse":     true,
-    "template":    "../.gradle/nodejs/node_modules/jaguarjs-jsdoc",
-    "encoding":    "utf8",
-    "destination": "./build/htmldocs/jsdoc"
   }
 }
