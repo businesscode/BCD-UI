@@ -16,6 +16,7 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ public class WrqBindingItem implements WrsBindingItem
   private String plainColumnExpression;
   private String plainColumnExpressionWithVdm;
   private final List<Element> boundVariables = new LinkedList<Element>();
+  private final List<String> wrqTableAliases; // May be multiple in case of wrqCalc
 
   protected final Map<String,Object> attributes = new HashMap<String,Object>(); // Request specific wrs:C/@ and wrs:A/@ attributes
   private final String alias;
@@ -149,7 +151,8 @@ public class WrqBindingItem implements WrsBindingItem
       columnQuoting = false;
       isEscapeXml = "false".equals(elem.getAttribute("escapeXml")) ? false : true;
 
-      setColumnExpression( wrqCalc2Sql.getWrqCalcAsSql( calc, boundVariables, enforceAggr, getJDBCDataType() ) );
+      wrqTableAliases = new LinkedList<String>();
+      setColumnExpression( wrqCalc2Sql.getWrqCalcAsSql( calc, boundVariables, enforceAggr, getJDBCDataType(), wrqTableAliases ) );
     }
     // Or refer to a bRef
     else {
@@ -158,6 +161,7 @@ public class WrqBindingItem implements WrsBindingItem
       this.aggr = determineAggr(elem);
       // TODO imported BindingItems have the getId() of the source BindingSet (not matching our bRef). Any import-prefix or renaming is ignored. We use bRef here, because it reflects this properly.
       this.id = elem.getAttribute("id").isEmpty() ? elem.getAttribute("bRef").isEmpty() ? bi.getId() : elem.getAttribute("bRef") : elem.getAttribute("id");
+      this.wrqTableAliases = Arrays.asList( id.indexOf(".")!=-1 ? id.split("\\.")[0] : "" );
       if( bi instanceof BindingItemFromRel ) tableAliasPostFix = ((BindingItemFromRel)bi).getTableAlias("");
       if( bi==null ) 
         throw new NullPointerException("BindingItem '"+elem.getAttribute("bRef")+"' not found at BindingSet '"+wrqInfo.getResultingBindingSet().getName()+"'");
@@ -218,6 +222,7 @@ public class WrqBindingItem implements WrsBindingItem
     this.referenceBindingItem = null;
     this.wrqInfo = wrqInfo;
     this.id = "bcd_virt_"+(wrqInfo.virtualBiCounter++);
+    this.wrqTableAliases = Arrays.asList("");
     this.aggr = aggr;
     this.alias = alias;
     this.wrsAName = wrsAName;
@@ -249,6 +254,7 @@ public class WrqBindingItem implements WrsBindingItem
     this.alias = alias;
     this.wrsAName = null;
     this.parentWrsC = null;
+    this.wrqTableAliases = Arrays.asList( id.indexOf(".")!=-1 ? id.split("\\.")[0] : "" );
 
     attributes.putAll(bi.getAttributes());
     // User-provided VDM values are strings
@@ -630,10 +636,20 @@ public class WrqBindingItem implements WrsBindingItem
    * @return
    * @throws BindingNotFoundException
    */
-  public String getTableAlias() throws BindingNotFoundException {
-    if( tableAliasOverwrite!= null ) return tableAliasOverwrite;
-    String wrqAlias = id.indexOf(".")!=-1 ? id.split("\\.")[0] : "";
-    return wrqInfo.getCurrentSelect().getBindingSetForWrqAlias(wrqAlias).getSqlAlias() + tableAliasPostFix;
+  public List<String> getTableAlias() throws BindingNotFoundException {
+    
+    // Overwritten
+    if( tableAliasOverwrite!= null ) return Arrays.asList(tableAliasOverwrite);
+
+    // Already determined or set in constructor for wrqCalc
+//    if( wrqTableAlias == null ) {
+//      wrqTableAlias = Arrays.asList( id.indexOf(".")!=-1 ? id.split("\\.")[0] : "" );
+//    }
+    
+    var sqlTableAlias = new LinkedList<String>();
+    for(var a: wrqTableAliases) sqlTableAlias.add( wrqInfo.getCurrentSelect().getBindingSetForWrqAlias(a).getSqlAlias() + tableAliasPostFix );
+    
+    return sqlTableAlias;
   }
 
   public WrqBindingItem getParentWrsC() {

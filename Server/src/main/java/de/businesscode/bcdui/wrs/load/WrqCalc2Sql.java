@@ -57,11 +57,11 @@ public class WrqCalc2Sql
    *            |  1    |      2           |        3           |  4     |
    * @throws Exception
    */
-  protected String getWrqCalcAsSql( Element calc, List<Element> boundVariables, boolean enforceAggr, int dataType ) throws Exception
+  protected String getWrqCalcAsSql( Element calc, List<Element> boundVariables, boolean enforceAggr, int dataType, List<String> wrqTableAlias ) throws Exception
   {
     StringBuffer sql = new StringBuffer();
     boolean isNumeric = Types.VARCHAR != dataType && Types.DATE != dataType && Types.CHAR != dataType && Types.TIMESTAMP != dataType;
-    getWrqCalcAsSqlRecursion(calc, sql, isNumeric, boundVariables, false, containsAggr(calc)||enforceAggr );
+    getWrqCalcAsSqlRecursion(calc, sql, isNumeric, boundVariables, false, containsAggr(calc)||enforceAggr, wrqTableAlias );
     return sql.toString();
   }
 
@@ -76,7 +76,8 @@ public class WrqCalc2Sql
    * @return
    * @throws Exception
    */
-  private StringBuffer getWrqCalcAsSqlRecursion(Element e, StringBuffer sql, boolean doCastToDecimal, List<Element> boundVariables, boolean isWithinAggr, boolean needsAggr) throws Exception
+  private StringBuffer getWrqCalcAsSqlRecursion(Element e, StringBuffer sql, boolean doCastToDecimal, List<Element> boundVariables, boolean isWithinAggr, boolean needsAggr, List<String> wrqTableAliases) 
+      throws Exception
   {
     openOperator(e, sql);
 
@@ -103,18 +104,21 @@ public class WrqCalc2Sql
 
       // We are an inner aggregation (not a analyt. fct), so our children can only be unaggregated parts
       if( "I".equals(calcFktMapping.get(e.getLocalName())[4]) && (calcFktMapping.get(child.getLocalName())!=null && ! "I".equals(calcFktMapping.get(child.getLocalName())[4]) ) ) {
-        getWrqCalcAsSqlRecursion(child, sql, doCastToDecimal, boundVariables, ! "N".equals(calcFktMapping.get(child.getLocalName())[4]) || isWithinAggr, needsAggr );
+        getWrqCalcAsSqlRecursion(child, sql, doCastToDecimal, boundVariables, ! "N".equals(calcFktMapping.get(child.getLocalName())[4]) || isWithinAggr, needsAggr, wrqTableAliases );
       }
 
       // We found another calc, recurse into it
       else if( calcFktMapping.get(child.getLocalName())!=null ) {
-        sql = getWrqCalcAsSqlRecursion(child, sql, doCastToDecimal, boundVariables, ! "N".equals(calcFktMapping.get(child.getLocalName())[4]) || isWithinAggr, needsAggr );
+        sql = getWrqCalcAsSqlRecursion(child, sql, doCastToDecimal, boundVariables, ! "N".equals(calcFktMapping.get(child.getLocalName())[4]) || isWithinAggr, needsAggr, wrqTableAliases );
       }
 
       // We found a reference to a column
       else if("ValueRef".equals(child.getLocalName()))
       {
         String bRef = child.getAttribute("idRef");
+        String wrqAlias = bRef.indexOf(".")!=-1 ? bRef.split("\\.")[0] : "";
+        wrqTableAliases.add(wrqAlias);
+
         BindingItem bi = wrqInfo.getNoMetaDataBindingItem(bRef);
         if( bi== null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
         String aggr = null;
