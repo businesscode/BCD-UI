@@ -160,7 +160,7 @@ public class DatabaseCompatibility
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("snowflake");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("snowflake") || product.contains("duckdb");
   }
 
   /**
