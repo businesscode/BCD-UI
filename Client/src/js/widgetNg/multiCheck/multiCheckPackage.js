@@ -158,7 +158,13 @@
         this.element.find(".bcdItems").off("click");
         this.element.find(".bcdItems").on("click", "input:visible", function(event) {
           const targetHtml = jQuery(event.target).closest(".bcdMultiCheck").parent();
-          if (! event.ctrlKey)
+          if (self.options.singleSelect) {
+            const isChecked = event.target.checked;
+            jQuery(event.target).closest(".bcdItems").find("input").prop('checked', false);
+            if (isChecked)
+              jQuery(event.target).prop('checked', true);
+          }
+          else if (! event.ctrlKey)
             jQuery(event.target).closest("li").find("ul").find("input:visible").prop('checked', event.target.checked);
           self.internal = true;
           bcdui.widgetNg.multiCheck._update(targetHtml);
@@ -311,7 +317,7 @@
     _createMultiCheckBox: function(){
       const header = "<div class='bcdHeader form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
       const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
-      const footer = "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, true)'></bcd-buttonNg><span></div>";
+      const footer = this.options.singleSelect ? "" : "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, true)'></bcd-buttonNg><span></div>";
       return jQuery("<div class='bcdMultiCheck'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='multiCheck_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
     },
 
@@ -369,12 +375,17 @@ bcdui.widgetNg.multiCheck = Object.assign(bcdui.widgetNg.multiCheck,
     const config = jQuery(targetHtml).data("_config_");
 
     let firstThree = [];    
-    const tickedValues = Array.from(jQuery(targetHtml).find(".bcdItems input")).filter(function(item) { return item.checked; }).map(function(item, i) {
+    let tickedValues = Array.from(jQuery(targetHtml).find(".bcdItems input")).filter(function(item) { return item.checked; }).map(function(item, i) {
       const dataItem = config.instance.sortedOptions[item.getAttribute("id").split("_")[1]];
       if (i < 3)
         firstThree.push(bcdui.util.unescapeHtml(dataItem.caption));
       return dataItem.id;
     });
+    
+    if (config.instance.options.singleSelect) {
+      tickedValues = tickedValues.slice(0, 1);
+      firstThree = firstThree.slice(0, 1);
+    }
 
     let count = firstThree.join(", ") + (tickedValues.length > 3 ? " (+" + (tickedValues.length - 3) + ")" : "");
     count = tickedValues.length == 0 ? config.instance.i18nPleaseSelect : count;
