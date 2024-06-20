@@ -123,6 +123,7 @@ bcdui.core.lifecycle =
    */
   applyAction: function(args)
     {
+      args = args || {};
       args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.core._schema_applyAction_args);
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_applyAction_args);
 
@@ -205,7 +206,13 @@ bcdui.core.lifecycle =
         url = url.substring(0, url.indexOf("?")) + "?";
         url += "guiStatusGZ=" + compressedDoc;
         jQuery("#bcdBookmark").remove();
-        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book' onclick='bcdui.core.lifecycle._generateBookmark(\"" + args.proposedName + "\", \"" + url + "\");'></button>");
+        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book'></button>");
+        
+        jQuery("#bcdBookmark").off("click");
+        jQuery("#bcdBookmark").on("click", function(event){
+          bcdui.core.lifecycle._generateBookmark(args.proposedName, url);
+        });
+
         jQuery("#bcdBookmark").click();
         jQuery("#bcdBookmark").remove();
       }

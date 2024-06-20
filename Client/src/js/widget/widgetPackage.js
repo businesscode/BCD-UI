@@ -838,11 +838,11 @@ jQuery.extend(bcdui.widget,
       if (args.modalBoxType == bcdui.widget.modalBoxTypes.plainText)
         text = args.message;
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.ok)
-        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_OkButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_OkButton" onclick="' + onclick + '"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.warning)
-        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_WarningButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_WarningButton" onclick="' + onclick + '"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.error)
-        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" onclick="' + onclick + '"> OK </a></div></div></div>';
 
       // take over either created html text or prepared html via id
       bcdui.util.getSingletonElement("bcdModalBoxDiv")

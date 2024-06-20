@@ -79,7 +79,7 @@
   <xsl:template name="getLink">
     <xsl:param name="node"/>
     <xsl:variable name="isClickable" select="not($node[@disable = 'true' or @hide = 'true'])"/>
-    <a parentId="{$tabElementId}" id="{@id}" href="javascript:void(0)">
+    <a parentId="{$tabElementId}" id="{@id}">
       <xsl:attribute name="class">
         <xsl:if test="$node[@disable = 'true' or @hide = 'true']">
           <xsl:value-of select="substring(' bcdDisabled', 1 + 12 * number( boolean($node/@disable = 'false' or not($node/@disable)) ) )"></xsl:value-of>

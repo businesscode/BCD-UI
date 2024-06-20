@@ -157,14 +157,14 @@
   <xsl:template match="ctx:Entry" mode="user">
     <xsl:choose>
       <xsl:when test="not(@isDisabled='true')">
-        <a class="bcdMenuitems" href="javascript:void(0)">
+        <a class="bcdMenuitems">
           <xsl:apply-templates/>
           <xsl:attribute name="bcdTranslate"><xsl:value-of select="@caption"/></xsl:attribute>
           <xsl:value-of select="@caption"/>
         </a>
       </xsl:when>
       <xsl:otherwise>
-        <span class="bcdMenuitemsDisabled" href="javascript:void(0)">
+        <span class="bcdMenuitemsDisabled">
         <xsl:attribute name="bcdTranslate"><xsl:value-of select="@caption"/></xsl:attribute>
           <xsl:value-of select="@caption"/>
         </span>
