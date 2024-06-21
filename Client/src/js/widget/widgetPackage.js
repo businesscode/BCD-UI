@@ -832,17 +832,16 @@ jQuery.extend(bcdui.widget,
         args.onclick = '';
       if (typeof args.resizeable == 'undefined')
         args.resizeable = false;
-      var onclick = "bcdui.widget.hideModalBox();";
 
       var text = "";
       if (args.modalBoxType == bcdui.widget.modalBoxTypes.plainText)
         text = args.message;
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.ok)
-        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_OkButton" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_OkButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.warning)
-        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_WarningButton" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_WarningButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.error)
-        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_ErrorButton"> OK </a></div></div></div>';
 
       // take over either created html text or prepared html via id
       bcdui.util.getSingletonElement("bcdModalBoxDiv")
@@ -861,6 +860,9 @@ jQuery.extend(bcdui.widget,
           , closeText: "\u2716"
           , title: args.title
           , open: function() {
+            
+            jQuery("#bcdModalBoxDiv").find("a.action").off("click");
+            jQuery("#bcdModalBoxDiv").find("a.action").on("click", bcdui.widget.hideModalBox);
 
             // set auto width/height again since upper method does not seem to work on all browsers and jQuery seems to calculate a px value
             if (args.width == "auto") jQuery('#bcdModalBoxDiv').css('width','auto');

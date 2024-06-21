@@ -118,7 +118,13 @@ bcdui.widget.visualizeXml =
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
-    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + id + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
+    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + id + '" class="bcdVisualizeXml"></pre>');
+    
+    jQuery("#" + id).off("click");
+    jQuery("#" + id).on("click", function(event) {
+      bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event));
+    });
+    
 
     bcdui.factory.objectRegistry.withReadyObjects(args.idRef || args.inputModel, function() {
       var model = bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel);

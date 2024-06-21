@@ -217,14 +217,13 @@ bcdui = Object.assign(bcdui,
           function BCDAppender(args) {
             this.isEmailCreated=false;
             this.bufferedMessage="";
+            this.emailMessageLink    = (args && args.emailMessageLink)    ? args.emailMessageLink    : "Send email to technical support team";
             this.errorMessageCaption = (args && args.errorMessageCaption) ? args.errorMessageCaption : "An error occurred";
             this.emailContact        = (args && args.emailContact)        ? args.emailContact        : "Your local technical support";
             this.emailContactCC      = (args && args.emailContactCC)      ? args.emailContactCC      : "";
             this.subject             = (args && args.emailSubject)        ? args.emailSubject        : "An error occurred";
             this.emailBodyText       = (args && args.emailBodyText)       ? args.emailBodyText       : "Please copy/paste the detail information content here and give a short description of what you did.";
-            this.emailAction         = "bcdui.log._getBCDAppender()._createEmailHref();this.onmouseover=''";
             this.emailMessageLine    = (args && args.emailMessageLine1)   ? args.emailMessageLine1   : "Please provide a short description of what you did prior to the error by clicking the following email link.";
-            this.emailMessageLink    = "<a class='bcdEmail' href='#' onmouseover=\"this.href=" + this.emailAction + "\">" + ((args && args.emailMessageLink) ? args.emailMessageLink : "Send email to technical support team") + "</a>";
             this.separator           = (this.emailContact.indexOf("?") >= 0 ? "&" : "?");
           };
 
@@ -254,9 +253,10 @@ bcdui = Object.assign(bcdui,
               bcdui.debug.lastErrorUrl = location.href;
               bcdui.debug.lastErrorUnpackedGz = bcdui._unpackGuiStatusGz(this.bufferedMessage);
               bcdui.debug.lastErrorMessage = this.bufferedMessage;
-
+              const emailhref = bcdui.log._getBCDAppender()._createEmailHref();
+              const emailMessageLink = "<a class='bcdEmail' href='"+emailhref+"'>" + this.emailMessageLink + "</a>";
               const addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><textarea id="sysError">' + this._getDetailMessage() + '</textarea></div>';
-              const msg = "<div class='bcdSysError'><div><i class='bcdIconError'></i>" + this.errorMessageCaption + "<i class='bcdIconError'></i><i class='bcdIconClose'></i></div><p>" + this.emailMessageLine + "</p><p>" + this.emailMessageLink + addInfo + "</p></div>"
+              const msg = "<div class='bcdSysError'><div><i class='bcdIconError'></i>" + this.errorMessageCaption + "<i class='bcdIconError'></i><i class='bcdIconClose'></i></div><p>" + this.emailMessageLine + "</p><p>" + emailMessageLink + addInfo + "</p></div>"
               jQuery(".blockUI").remove()
               jQuery("body").append(msg);
               jQuery("#sysError").select()

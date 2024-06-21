@@ -78,7 +78,7 @@
         </STYLE>
         <xsl:call-template name="visualizeXml_head"/>
       </HEAD>
-      <BODY class="visXml_st" onclick="cl()">
+      <BODY class="visXml_st">
         <xsl:apply-templates select="." mode="visualizeXml"/>
       </BODY>
     </HTML>
@@ -233,7 +233,7 @@
     <span class="visXml_e">
       <span class="visXml_c">
         <xsl:value-of select="$indent"/>
-        <a class="visXml_b_collaps" href="#" onclick="return false"></a>
+        <a class="visXml_b_collaps"></a>
         <span class="visXml_m">&lt;</span>
         <span>
           <xsl:attribute name="class">
@@ -344,7 +344,7 @@
     <span class="visXml_e">
       <span STYLE="margin-left:0em;text-indent:-0em" class="visXml_c">
         <xsl:value-of select="substring($indent,2)"/>
-        <a class="visXml_b_collaps bcdCollapse" href="#" onclick="return false"></a>
+        <a class="visXml_b_collaps bcdCollapse"></a>
         <span class="visXml_m">&lt;</span>
         <span>
           <xsl:attribute name="class">

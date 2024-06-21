@@ -178,7 +178,9 @@ bcdui.component.grid.GridRenderer.bcduiHtmlRenderer = function(instance, td, row
     return txt.length == 60 ? txt + "..." : txt;
   }
   jQuery(td).text(itemsToString(value));
-  jQuery(td).html("<span class='bcdHtmlPreview'><a onclick='bcdui.component.grid.GridRenderer.previewHtml(\"" + gridArgs.targetHtml + "\",\"" + gridArgs.rowId + "\")' href='#'></a></span>"+td.innerHTML+"<span></span>");
+  jQuery(td).html("<span class='bcdHtmlPreview'><a class='preview'></a></span>"+td.innerHTML+"<span></span>");
+  jQuery(td).off("click");
+  jQuery(td).on("click", ".preview", function() { bcdui.component.grid.GridRenderer.previewHtml(gridArgs.targetHtml, gridArgs.rowId); });
   return td;
 };
 
