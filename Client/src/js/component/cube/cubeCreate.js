@@ -619,6 +619,23 @@ bcdui.component = Object.assign(bcdui.component,
         templateRenderer.onReady(function(){
           jQuery(cube.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered");
           jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")
+          
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").off("click");
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").on("click", ".bcdAction", function(event) {
+            
+            let htmlElement = jQuery(event.target);
+            if (! htmlElement.hasClass("bcdAction"))
+              htmlElement = jQuery(htmlElement).closest(".bcdAction");
+
+            const objectId = htmlElement.attr("objectId") || "";
+            const templateId = htmlElement.attr("templateId") || "";
+            
+            if (htmlElement.hasClass("apply") && objectId != "" && templateId != "")
+              bcdui.component.cube.templateManager._applyUserTemplate(objectId, templateId, htmlElement.get(0));            
+            if (htmlElement.hasClass("clear") && objectId != "")
+              bcdui.component.cube.templateManager.clearLayout(objectId);            
+          });
+          
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
 

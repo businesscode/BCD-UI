@@ -1307,16 +1307,19 @@ table.bcd-far-configurator {
       select { border: none; }
     }
 
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingCoutOfElements,
     .bcdPagingButton {
       border: 1px solid $border-color;
       white-space: nowrap;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingButton {
       cursor: pointer;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive {
  	    @include bcdSelected();
     }

@@ -139,8 +139,6 @@
     <xsl:param name="action"/>
     <xsl:param name="title"/>
     <td class="bcdPagingButton" onclick="{$action}"
-        onMouseOver="this.className = 'bcdPagingButtonActive'"
-        onMouseOut="this.className = 'bcdPagingButton'"
         title="{$title}">
       <xsl:value-of select="$caption"/>
     </td>

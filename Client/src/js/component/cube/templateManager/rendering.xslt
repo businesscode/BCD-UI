@@ -45,7 +45,7 @@
 
           <xsl:call-template name="renderEditorLink"/>
 
-          <a onclick="bcdui.component.cube.templateManager.clearLayout('{$objectId}');">
+          <a objectId='{$objectId}' class='bcdAction clear'>
             <span class="bcdTemplateItem bcdTemplateIcon"></span>
             <span>Clear current selection</span>
           </a>
@@ -62,7 +62,7 @@
             <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and @isReadOnly='true']">
              <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
              <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
-              <a onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$objectId}', '{@id}', this)">
+              <a class='bcdAction apply' objectId='{$objectId}' templateId='{@id}'>
                 <span class="bcdTemplateItem bcdTemplateIcon"></span>
                 <span id="{$tempCaptionButton}" class="bcdTemplateItem" title="{@description}">
                   <xsl:value-of select="@name"/>
@@ -80,7 +80,7 @@
             <xsl:for-each select="$metaDataModel/*/*[local-name()='Layouts']/*[local-name()='Layout' and (not(@isReadOnly) or @isReadOnly='false') and (not(@isHidden) or @isHidden='false')]">
               <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
               <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
-              <a onclick="bcdui.component.cube.templateManager._applyUserTemplate('{$objectId}', '{@id}', this)">
+              <a class='bcdAction apply' objectId='{$objectId}' templateId='{@id}'>
                 <xsl:call-template name="showHideDel"><xsl:with-param name="id" select="@id"/></xsl:call-template>
                 <span class="bcdTemplateItem bcdTemplateIcon"></span>
                 <span id="{$tempCaptionButton}" class="bcdTemplateItem" title="{@description}">

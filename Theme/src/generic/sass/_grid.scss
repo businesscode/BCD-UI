@@ -26,15 +26,18 @@
       select { border: none; }
     }
 
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingCoutOfElements,
     .bcdPagingButton {
       border: 1px solid $border-color;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingButton {
       cursor: pointer;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive {
       @include con_color($grid-hover-color-body);
     }
