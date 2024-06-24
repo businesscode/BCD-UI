@@ -81,7 +81,6 @@
               <xsl:variable name="delTempButton" select="concat('delTempButt_', @id)" />
               <xsl:variable name="tempCaptionButton" select="concat('tempCaptionButt_', @id)" />
               <a class='bcdAction apply' objectId='{$objectId}' templateId='{@id}'>
-                <xsl:call-template name="showHideDel"><xsl:with-param name="id" select="@id"/></xsl:call-template>
                 <span class="bcdTemplateItem bcdTemplateIcon"></span>
                 <span id="{$tempCaptionButton}" class="bcdTemplateItem" title="{@description}">
                   <xsl:value-of select="@name"/>
@@ -98,7 +97,6 @@
 
   <xsl:template name="renderEditorLink"></xsl:template>
   <xsl:template name="renderEditorArea"></xsl:template>
-  <xsl:template name="showHideDel"><xsl:param name="id"/></xsl:template>
   <xsl:template name="renderDelButton"><xsl:param name="id"/></xsl:template>
     
 

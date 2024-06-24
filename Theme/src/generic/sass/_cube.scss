@@ -197,13 +197,16 @@
     }
   }
 
+  .bcdReportTemplatesItems a .bcdTemplateRemove { display: none; }
+  .bcdReportTemplatesItems a:hover .bcdTemplateRemove { display:block; }
+
   .bcdTemplateRemove {
     font-weight: bold;
     position: absolute;
     right: 3px;
     top: 1px;
   }
-  
+
   span.bcdTemplateRemove:after {
     content: "x";
   }

@@ -629,13 +629,20 @@ bcdui.component = Object.assign(bcdui.component,
 
             const objectId = htmlElement.attr("objectId") || "";
             const templateId = htmlElement.attr("templateId") || "";
+            const reportPath = htmlElement.attr("reportPath") || "";
             
             if (htmlElement.hasClass("apply") && objectId != "" && templateId != "")
               bcdui.component.cube.templateManager._applyUserTemplate(objectId, templateId, htmlElement.get(0));            
             if (htmlElement.hasClass("clear") && objectId != "")
               bcdui.component.cube.templateManager.clearLayout(objectId);            
+
+            if (htmlElement.hasClass("toggle"))
+              bcdui.component.cube.templateManager._toggleElement('userTempEditor');
+            if (htmlElement.hasClass("save") && objectId != "" && reportPath != "")
+              bcdui.component.cube.templateManager.saveTemplates(reportPath, objectId);
+            if (htmlElement.hasClass("remove") && objectId != "" && templateId != "" && reportPath != "")
+              bcdui.component.cube.templateManager._updateTemplates(reportPath, null, templateId, objectId);
           });
-          
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
 

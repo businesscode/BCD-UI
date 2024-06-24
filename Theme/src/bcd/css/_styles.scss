@@ -1726,6 +1726,9 @@ span.bcdInputFieldGrid {
     @include bcdSelected();
   }
 
+  .bcdReportTemplatesItems a .bcdTemplateRemove { display: none; }
+  .bcdReportTemplatesItems a:hover .bcdTemplateRemove { display:block; }
+
   .bcdReportTemplatesSaveArea {
     border-bottom: 1px solid $border-color;
     padding: .375em;
