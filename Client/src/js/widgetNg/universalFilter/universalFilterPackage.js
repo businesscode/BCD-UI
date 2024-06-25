@@ -299,7 +299,13 @@
           uiElement.show();
         }.bind(null, !!args.targetNodeId, uiElement);
         createUiRenderer.execute();
-        createUiRenderer.onReady(revealUi);
+        createUiRenderer.onReady(function() {
+          jQuery(self.createUiElement).find(".closeContainer").off("click");
+          jQuery(self.createUiElement).find(".closeContainer").on("click", function(event) {
+            jQuery(event.target).trigger('bcdui:universalFilter:closeCreateUi');
+          });
+          revealUi();
+        });
       })
       // trigger by create-ui
       .on("bcdui:universalFilter:closeCreateUi", function(event){
