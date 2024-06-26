@@ -2152,6 +2152,53 @@ jQuery.extend(bcdui.widget,
         return;
       }
     },
+    
+    /**
+     *
+     * @param el - htmlElement of the pagingPanel table calling this via bcdOnLoad
+     * @private
+     */
+    _pagingPanelInit : function(el) {
+      jQuery(el).off("click");
+      jQuery(el).on("click", ".bcdPagingButton", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const delta = jQuery(event.target).attr("delta") || "";
+        const currentPage = jQuery(event.target).attr("currentPage") || "";
+        const lastPage = jQuery(event.target).attr("lastPage") || "";
+        const elementId = jQuery(event.target).attr("elementId") || "";
+        const fktParam = (jQuery(event.target).attr("paginatedAction") || "").split(",").map((e) => e.trim()).filter((f) => f != "");
+        if (targetModelId != "" && targetModelXPath !="" && delta != "" && currentPage != "" && lastPage != "" && elementId != "") {
+          bcdui.widget._pagingPanelChangePageNum({
+            targetModelId: targetModelId
+          , targetModelXPath: targetModelXPath
+          , delta: parseInt(delta, 10)
+          , currentPage: currentPage
+          , lastPage: parseInt(lastPage, 10)
+          , elementId: elementId
+          });
+          if (fktParam.length > 0 && window[fktParam[0]])
+            window[fktParam[0]](...fktParam.slice(1));
+        }
+      });
+      jQuery(el).off("change");
+      jQuery(el).on("change", "select", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
+        const fktParam = (jQuery(event.target).attr("paginatedAction") || "").split(",").map((e) => e.trim()).filter((f) => f != "");
+        if (targetModelId != "" && targetModelXPath !="") {
+          const val = event.target.value;
+          bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetModelId).dataDoc, targetModelXPath).text = val;
+          for (let i = 0; i < this.options.length; i++ )
+            if (this.options[i].value == val)
+              this.options[i].selected = 'selected';
+          bcdui.factory.objectRegistry.getObject(targetModelId).fire();
+          if (fktParam.length > 0 && window[fktParam[0]])
+            window[fktParam[0]](...fktParam.slice(1));
+        }
+      });
+    },
 
     /**
      *

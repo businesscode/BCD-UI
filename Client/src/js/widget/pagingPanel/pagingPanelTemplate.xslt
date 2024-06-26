@@ -47,47 +47,14 @@
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable name="paginatedAction"><xsl:value-of select="$onChange"/></xsl:variable>
-
     <span class="bcdPagingPanel">
-      <table db="currentPage={$currentPage} page={$page}">
+      <table db="currentPage={$currentPage} page={$page}" bcdOnLoad="bcdui.widget._pagingPanelInit(this);">
+        <xsl:variable name="elId" select="concat('pageSelect_',$bcdControllerVariableName)"/>
         <tr>
-          <xsl:variable name="elId" select="concat('pageSelect_',$bcdControllerVariableName)"/>
-          <xsl:variable name="actionBackwards">
-            bcdui.widget._pagingPanelChangePageNum(
-              { targetModelId:'<xsl:value-of select="$targetModelId"/>'
-              ,targetModelXPath:"<xsl:value-of select="$targetModelXPath"/>"
-              ,delta:-1
-              ,currentPage:'<xsl:value-of select="$currentPage"/>'
-              ,lastPage:<xsl:value-of select="$lastPage"/>
-              ,elementId:'<xsl:value-of select="$elId"/>'
-              ,fn:function(){<xsl:if test="string-length($paginatedAction) > 0"><xsl:value-of select="normalize-space($paginatedAction)"/></xsl:if>}
-              }
-            );
-          </xsl:variable>
-
-          <xsl:call-template name="createActionButton">
-            <xsl:with-param name="caption">&#x25C4;&#x25C4;</xsl:with-param>
-            <xsl:with-param name="action" select="normalize-space($actionBackwards)"/>
-            <xsl:with-param name="title" select="$backwardsTitle"/>
-          </xsl:call-template>
+          <td title="{$backwardsTitle}" class="actionBackwards bcdPagingButton" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" delta="-1" currentPage="{$currentPage}" lastPage="{$lastPage}" elementId="{$elId}" paginatedAction="{$onChange}">&#x25C4;&#x25C4;</td>
 
           <td class="bcdPagingSelectAction">
-            <select class='form-control'
-              id="{$elId}"
-              >
-              <xsl:attribute name="onchange">
-                var val = this.value;
-                bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject('<xsl:value-of select="$targetModelId"/>').dataDoc, "<xsl:value-of select="$targetModelXPath"/>").text = val;
-                for (var i = 0; i &lt; this.options.length; i++ )
-                {
-                  if (this.options[i].value == val)
-                    this.options[i].selected = 'selected';
-                }
-                bcdui.factory.objectRegistry.getObject('<xsl:value-of select="$targetModelId"/>').fire();
-                <xsl:if test="string-length($paginatedAction) > 0"><xsl:value-of select="normalize-space($paginatedAction)"/></xsl:if>
-              </xsl:attribute>
-
+            <select class='form-control' id="{$elId}" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" paginatedAction="{$onChange}">
               <xsl:call-template name="createOptions">
                 <xsl:with-param name="rowsCount"><xsl:value-of select="$rowsCount"/></xsl:with-param>
                 <xsl:with-param name="lastPage"><xsl:value-of select="$lastPage"/></xsl:with-param>
@@ -104,44 +71,13 @@
               </xsl:if>
             </select>
           </td>
+
           <td class="bcdPagingCoutOfElements"> of <xsl:choose><xsl:when test="$totalRowsCount >= 0"><xsl:value-of select="$totalRowsCount"/></xsl:when><xsl:otherwise><xsl:value-of select="$rowsCount"/></xsl:otherwise></xsl:choose></td>
-
-          <xsl:variable name="actionForwards">
-            bcdui.widget._pagingPanelChangePageNum(
-              { targetModelId:'<xsl:value-of select="$targetModelId"/>'
-              ,targetModelXPath:"<xsl:value-of select="$targetModelXPath"/>"
-              ,delta:1
-              ,currentPage:'<xsl:value-of select="$currentPage"/>'
-              ,lastPage:<xsl:value-of select="$lastPage"/>
-              ,elementId:'<xsl:value-of select="$elId"/>'
-              ,fn:function(){ <xsl:if test="string-length($paginatedAction) > 0"><xsl:value-of select="normalize-space($paginatedAction)"/></xsl:if>}
-              }
-            )
-          </xsl:variable>
-
-          <xsl:call-template name="createActionButton">
-            <xsl:with-param name="caption">&#x25BA;&#x25BA;</xsl:with-param>
-            <xsl:with-param name="action" select="normalize-space($actionForwards)"/>
-            <xsl:with-param name="title" select="$forwardsTitle"/>
-          </xsl:call-template>
+          <td title="{$forwardsTitle}" class="actionForwards bcdPagingButton" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" delta="1" currentPage="{$currentPage}" lastPage="{$lastPage}" elementId="{$elId}" paginatedAction="{$onChange}">&#x25BA;&#x25BA;</td>
         </tr>
       </table>
     </span>
 
-  </xsl:template>
-
-
-  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <xsl:template name="createActionButton">
-    <xsl:param name="caption"/>
-    <xsl:param name="action"/>
-    <xsl:param name="title"/>
-    <td class="bcdPagingButton" onclick="{$action}"
-        title="{$title}">
-      <xsl:value-of select="$caption"/>
-    </td>
   </xsl:template>
 
 
