@@ -970,6 +970,13 @@ jQuery.extend(bcdui.widget,
           , targetHtml: args.targetHtml
         });
         renderer.onceReady(function() {
+
+          jQuery("#" + args.targetHtml + " .isClickable").off("click");
+          jQuery("#" + args.targetHtml + " .isClickable").on("click", function(event) {
+            const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+            bcdui.util._callJsFunction(bcdAction);
+          });
+
           jQuery("#" + args.targetHtml + " .bcdMenu").show();
           if (_menuHandlerClassName) {
             var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'" + ", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}" + ",rootIdOrElement:'"+_menuRootElementId+"'});";
@@ -2167,7 +2174,6 @@ jQuery.extend(bcdui.widget,
         const currentPage = jQuery(event.target).attr("currentPage") || "";
         const lastPage = jQuery(event.target).attr("lastPage") || "";
         const elementId = jQuery(event.target).attr("elementId") || "";
-        const fktParam = (jQuery(event.target).attr("paginatedAction") || "").split(",").map((e) => e.trim()).filter((f) => f != "");
         if (targetModelId != "" && targetModelXPath !="" && delta != "" && currentPage != "" && lastPage != "" && elementId != "") {
           bcdui.widget._pagingPanelChangePageNum({
             targetModelId: targetModelId
@@ -2177,8 +2183,7 @@ jQuery.extend(bcdui.widget,
           , lastPage: parseInt(lastPage, 10)
           , elementId: elementId
           });
-          if (fktParam.length > 0 && window[fktParam[0]])
-            window[fktParam[0]](...fktParam.slice(1));
+          bcdui.util._callJsFunction(jQuery(event.target).attr("paginatedAction"));
         }
       });
       jQuery(el).off("change");
@@ -2186,7 +2191,6 @@ jQuery.extend(bcdui.widget,
         const targetModelId = jQuery(event.target).attr("targetModelId") || "";
         const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
         const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
-        const fktParam = (jQuery(event.target).attr("paginatedAction") || "").split(",").map((e) => e.trim()).filter((f) => f != "");
         if (targetModelId != "" && targetModelXPath !="") {
           const val = event.target.value;
           bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetModelId).dataDoc, targetModelXPath).text = val;
@@ -2194,8 +2198,7 @@ jQuery.extend(bcdui.widget,
             if (this.options[i].value == val)
               this.options[i].selected = 'selected';
           bcdui.factory.objectRegistry.getObject(targetModelId).fire();
-          if (fktParam.length > 0 && window[fktParam[0]])
-            window[fktParam[0]](...fktParam.slice(1));
+          bcdui.util._callJsFunction(jQuery(event.target).attr("paginatedAction"));
         }
       });
     },

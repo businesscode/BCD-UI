@@ -309,6 +309,20 @@ bcdui.util =
   },
 
   /**
+   * Executes a JS function given via a string
+   *
+   * @param {string}   jsRef Function and parameters, comma separated
+   * @private
+   * */
+  _callJsFunction : function(jsFuncStr) {
+    const match = jsFuncStr.match(/(\w+)\((.*)\)/);
+    const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
+    const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
+    if (fktParam.length > 0 && window[fktParam[0]])
+      window[fktParam[0]](...fktParam.slice(1));
+  },
+
+  /**
    * Executes a JS code by reference or by eval(), used to support JS+HTML function parameters,
    * returns functions result. If jsRef is a String and does not contain paranthesis, then it is
    * assumed to be a function reference (coming thru HTML API)

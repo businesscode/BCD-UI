@@ -183,13 +183,14 @@
 
       <xsl:attribute name="class">
         <xsl:value-of select="$activeClassName"/>
+        <xsl:if test="$isClickable"> isClickable</xsl:if> 
         <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
         <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         <xsl:if test="$hasSubMenu"> bcdSubMenuContainer</xsl:if>
       </xsl:attribute>
 
       <xsl:if test="$isClickable and $node/@onClick">
-        <xsl:attribute name="onclick"><xsl:value-of select="$node/@onClick"/></xsl:attribute>
+        <xsl:attribute name="bcdAction"><xsl:value-of select="$node/@onClick"/></xsl:attribute>
       </xsl:if>
 
       <xsl:if test="$isClickable and $node/@newWindow = 'true'">
