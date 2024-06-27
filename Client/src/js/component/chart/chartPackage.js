@@ -155,6 +155,29 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
           ,targetHTMLElementId: targetHTMLElementId
           ,parameters: params
         });
+        
+        bcdui.factory.objectRegistry.getObject(legendRendererId).onReady(function() {
+          jQuery("#" + targetHTMLElementId).off("click");
+          jQuery("#" + targetHTMLElementId).off("mouseover");
+          jQuery("#" + targetHTMLElementId).off("mouseout");
+
+          const clickAction = inModel.read("//chart:DrawSeriesLegend/@onClick", "");
+          const mouseOverAction = inModel.read("//chart:DrawSeriesLegend/@onMouseOver", "");
+          const mouseOutAction = inModel.read("//chart:DrawSeriesLegend/@onMouseOut", "");
+
+          if (clickAction != "")
+            jQuery("#" + targetHTMLElementId).on("click", ".bcdAction", function(event) {
+              bcdui.util._callJsFunction(clickAction, [event]);
+          });
+          if (mouseOverAction != "")
+            jQuery("#" + targetHTMLElementId).on("mouseover", ".bcdAction", function(event) {
+              bcdui.util._callJsFunction(mouseOverAction, [event]);
+          });
+          if (mouseOutAction != "")
+            jQuery("#" + targetHTMLElementId).on("mouseout", ".bcdAction", function(event) {
+            bcdui.util._callJsFunction(mouseOutAction, [event]);
+          });
+        });
       }
     });
     // thus we want redisplay legend all the time chart have been redisplayed
