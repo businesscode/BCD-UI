@@ -198,6 +198,14 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
       });
       // initially sync
       renderer.onceReady(function(){
+
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").off("click");
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").on("click", function(event) {
+          const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+          bcdui.util._callJsFunction(bcdAction);
+          bcdui.util._callJsFunction(_handlerVariableName + ".handleTabAction", [event, settingsNode]);
+        });
+
         bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;
         bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement, settingsNode);
       });

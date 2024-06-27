@@ -311,15 +311,32 @@ bcdui.util =
   /**
    * Executes a JS function given via a string
    *
-   * @param {string}   jsRef Function and parameters, comma separated
+   * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
+   * @param {array}   addParams additional optional parameter objects
    * @private
    * */
-  _callJsFunction : function(jsFuncStr) {
-    const match = jsFuncStr.match(/(\w+)\((.*)\)/);
+  _callJsFunction : function(jsFuncStr, addParams) {
+    const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
     const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
     const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
-    if (fktParam.length > 0 && window[fktParam[0]])
-      window[fktParam[0]](...fktParam.slice(1));
+
+    if (fktParam.length == 0)
+      return;
+
+    // handle sub objects like bcdui.widget.tab
+    // so we run through the objects till we found the final one
+    const splitObj = fktParam[0].split(".");
+    let obj = window;
+    let found = true;
+    for (let i = 0; i < splitObj.length; i++) {
+      found &= typeof obj[splitObj[i]] != "undefined";
+      obj = found ? obj[splitObj[i]] : obj;
+    }
+    // we found the function, so call it with the parameters
+    if (found) {
+      const finalParams = fktParam.slice(1).concat((addParams || []));
+      obj(...finalParams);
+    }
   },
 
   /**
