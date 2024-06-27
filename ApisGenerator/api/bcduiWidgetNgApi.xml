@@ -734,6 +734,9 @@
         <Param name="doSortOptions" type="boolean" default="false">
           <Doc>Can be set to 'true' if the options should be sorted using the 'sortOptionsFunction' function. This is disabled per default to avoid CPU wasting.</Doc>
         </Param>
+        <Param name="singleSelect" type="boolean" default="false">
+          <Doc>Can be set to 'true' if you want to limit the selection to one item only.</Doc>
+        </Param>
       </Api>
 
       <Api name="sideBySideChooser" extends="widget">

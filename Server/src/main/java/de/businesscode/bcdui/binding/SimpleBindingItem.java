@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.binding;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
@@ -111,7 +112,7 @@ public class SimpleBindingItem {
   public String getQColumnExpression( String tableAlias )
   {
     if( tableAlias==null || tableAlias.isEmpty() ) return getColumnExpression();
-    else return BindingUtils.addTableAlias(getColumnExpression(), columnQuoting, tableAlias, bindingSet);
+    else return BindingUtils.addTableAlias(getColumnExpression(), columnQuoting, Arrays.asList(tableAlias), bindingSet);
   }
 
   /**

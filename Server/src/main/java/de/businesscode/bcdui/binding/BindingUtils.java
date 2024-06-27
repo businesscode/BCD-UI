@@ -92,7 +92,7 @@ public class BindingUtils
    * This is the case for example if the column refers to another table than the one assigned to this BindingSet
    * or for mySequence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
    */
-  public static String addTableAlias( List<String> sCE, String tableAlias ) 
+  public static String addTableAlias( List<String> sCE, List<String> tableAliases ) 
   {
     // Only strings on odd positions represent a column expression
     StringBuffer res = new StringBuffer();
@@ -101,8 +101,14 @@ public class BindingUtils
         res.append( sCE.get(i) );
       else if( sCE.get(i).startsWith(SimpleBindingItem.BCD_NO_TABLE_ALIAS) )
         res.append( sCE.get(i).substring(SimpleBindingItem.BCD_NO_TABLE_ALIAS.length()) );
-      else
-        res.append( tableAlias+"."+sCE.get(i) );
+      else {
+        // wrq:Calc allow different table alias per used ValueRef
+        // Other expressions are assumed to come from complex column expressions in BindingItems
+        // Currently we cannot mix that due to this logic, i.e we cannot reference complex column expressions in ValueRefs
+        boolean isWrqCalc = tableAliases.size() > 1;
+        if( isWrqCalc ) res.append( tableAliases.get(i/2)+"."+sCE.get(i) );
+        else res.append( tableAliases.get(0)+"."+sCE.get(i) );
+      }
     }
     return res.toString();
   }
@@ -111,13 +117,13 @@ public class BindingUtils
    * Convenience method 
    * @param sCE
    * @param columnQuoting
-   * @param tableAlias
+   * @param tableAliases
    * @return
    */
-  public static String addTableAlias( String sCE, boolean columnQuoting, String tableAlias, BindingSet bs ) 
+  public static String addTableAlias( String sCE, boolean columnQuoting, List<String> tableAliases, BindingSet bs ) 
   {
     List<String> colExpr = splitColumnExpression(sCE, columnQuoting, bs);
-    return addTableAlias(colExpr, tableAlias);
+    return addTableAlias(colExpr, tableAliases);
   }
 
 

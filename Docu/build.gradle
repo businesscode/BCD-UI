@@ -43,7 +43,13 @@ task bcduiDocuJsHtml ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   }
 
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
-  args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).collect{it.absolutePath} + [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json"]
+  args   = fileTree( dir: inputsDir, exclude: '**/3rdParty/**' ).collect{it.absolutePath} +
+   [ '-c', "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/htmlConf.json",
+     "--recurse",
+     "--encoding", "utf8",
+     "--template", file("$sharedBuildFilesRoot/.gradle/nodejs/node_modules/jaguarjs-jsdoc").absolutePath,
+     "--destination", file(targetDir).absolutePath
+   ]
   outputs.dir targetDir
 
   doLast {
