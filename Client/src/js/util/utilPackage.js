@@ -338,6 +338,8 @@ bcdui.util =
         const finalParams = fktParam.slice(1).concat((addParams || []));
         obj(...finalParams);
       }
+      else
+        console.error("not a function: " + jsFktString);
     });
   },
 
