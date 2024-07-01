@@ -17,23 +17,26 @@ package de.businesscode.bcdui.subjectsettings;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.util.WebUtils;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * <p>
  * extending Shiro's {@link org.apache.shiro.web.filter.authc.FormAuthenticationFilter} to add
  * additional authentication scheme.
  * </p>
- * 
+ *
  * <p>
  * uses {@link ExternalAuthenticationToken} which shall be supported by any of registered realm,
  * the default {@link JdbcRealm} supports such token. To enable SPNEGO you have also to attach
@@ -44,11 +47,11 @@ import org.apache.shiro.subject.Subject;
  * the implementation is provided by bcd-spnego.jar library located in externallib folder of BCD-UI,
  * that library has to be available to tomcat's common classloader, i.e. in TOMCAT_HOME/lib
  * </p>
- * 
+ *
  * <p>
  * <b>Usage:</b>
  * override the default 'authc' filter by setting to this class in [main] section of Shiro configuration:
- * 
+ *
  * <pre>
  * [main]
  * authc = de.businesscode.bcdui.subjectsettings.AuthenticationFilter
@@ -60,6 +63,9 @@ import org.apache.shiro.subject.Subject;
 public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.FormAuthenticationFilter {
   private final Logger logger = LogManager.getLogger(getClass());
 
+  /**
+   * handle explicit SPNEGO preauthentication
+   */
   @Override
   public void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
     if (request instanceof HttpServletRequest) {
@@ -79,5 +85,24 @@ public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.Form
 
     }
     super.doFilterInternal(request, response, chain);
+  }
+
+  /**
+   * implement response flow upon successful authentication, instead of responding http 301 we return the "X-BCD.Location" header to be evaluated by the login script.
+   */
+  @Override
+  protected void issueSuccessRedirect(ServletRequest request, ServletResponse response) throws Exception {
+    var httpResponse = (HttpServletResponse) response;
+    var savedRequest = WebUtils.getAndClearSavedRequest(request);
+
+    final String successUrl;
+    if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
+      successUrl = savedRequest.getRequestUrl();
+    } else {
+      successUrl = getSuccessUrl();
+    }
+
+    httpResponse.addHeader("X-BCD.Location", successUrl);
+    logger.trace("response login redirect header to '{}'", successUrl);
   }
 }

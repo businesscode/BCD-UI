@@ -16,6 +16,7 @@ ___
 * updated several 3rd party jars
 
 .Client:
+* Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
 .Security:
 .Development:
 .Bugfixes:

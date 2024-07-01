@@ -1263,6 +1263,10 @@ the data that is actually placed in XML.
           <Doc>Custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd or a string as required by bcdui.wrs.wrsUtil.parseFilterExpression or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.</Doc>
         </Param>
       </Api>
+      
+      <Api name="login" extends="widget">
+        <Doc>a login-widget, can be used as custom element, if contents are provided they are not replaced and the widget operates on given child model</Doc>
+      </Api>
 
       <Api name="rankingChooser" extends="widget hasLabel">
         <Doc>
@@ -1320,6 +1324,7 @@ the data that is actually placed in XML.
       <BcdObject name="inputLookup" implements="inputLookup" implementationPackage="bcdui.widgetNg.inputLookup"/>
       <BcdObject name="multiCheck" implements="multiCheck" implementationPackage="bcdui.widgetNg.multiCheck"/>
       <BcdObject name="rankingChooser" implements="rankingChooser" implementationPackage="bcdui.widgetNg.rankingChooser"/>
+      <BcdObject name="login" implements="login" implementationPackage="bcdui.widgetNg.login"/>
     </BcdObjects>
 
     <!-- priority queue for widgets implementations for phase one -->

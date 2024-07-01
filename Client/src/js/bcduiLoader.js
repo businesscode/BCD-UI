@@ -147,6 +147,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/comment/commentPackage.js"
         , "/js/widgetNg/label/labelPackage.js"
         , "/js/widgetNg/multiCheck/multiCheckPackage.js"
+        , "/js/widgetNg/login/loginPackage.js"
       ]
     },
     {
