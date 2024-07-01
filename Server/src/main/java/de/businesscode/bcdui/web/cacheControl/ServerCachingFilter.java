@@ -228,6 +228,10 @@ public class ServerCachingFilter extends AbstractCacheFilter {
             send = calendar.getTimeInMillis() > new Date().getTime();
             break;
         }
+        case ExpiresNever:{
+          send = true;
+          break;
+        }
         default:
             break;
         }

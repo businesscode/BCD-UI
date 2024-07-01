@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -138,7 +138,14 @@ public enum Expires {
 
         @Override
         public long computeExpirationValue(String param) throws Exception {
-            throw new Exception("nothing to cumpute.");
+            throw new Exception("nothing to compute.");
+        }
+    },
+    ExpiresNever{
+
+      @Override
+        public long computeExpirationValue(String param) throws Exception {
+          throw new Exception("nothing to compute.");
         }
     };
 
