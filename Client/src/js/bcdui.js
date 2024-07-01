@@ -25,6 +25,35 @@
 var bcdui = bcdui || new Object();
 
 /**
+ * local/session storage polyfills
+ */
+let _storagePolyfillCreate = () => {
+  return {
+    _data       : {},
+    setItem     : function(id, val) { return this._data[id] = String(val); },
+    getItem     : function(id) { return this._data.hasOwnProperty(id) ? this._data[id] : undefined; },
+    removeItem  : function(id) { return delete this._data[id]; },
+    clear       : function() { return this._data = {}; }
+  };
+} 
+
+let localStorage;
+try{
+  localStorage = window.localStorage;
+}catch(e){
+  console.log("window.localStorage access failed, use polyfill");
+  localStorage = _storagePolyfillCreate();
+}
+
+let sessionStorage;
+try{
+  sessionStorage = window.sessionStorage;
+}catch(e){
+  console.log("window.sessionStorage access failed, use polyfill");
+  sessionStorage = _storagePolyfillCreate();
+}
+
+/**
  * send cookies in xhr cors requests
  */
 jQuery.ajaxSetup({xhrFields:{withCredentials: true}});
