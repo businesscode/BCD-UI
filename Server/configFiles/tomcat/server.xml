@@ -13,6 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
 <!--
   Recommended changes to standard Tomcat configuration
   1) Increase memory for tomcat CATALINA_OPTS=-Xms512M -Xmx1024M -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled
@@ -20,7 +21,10 @@
    For Tomcat to enable compression, add the following to non-ssl connection HTTP1:
     Fiddler allows to verify that resources are actually zipped
     see <Connector/> below:
+  3) Copy the default certificate files localhost-{pub,key}.pem into your home directory ~/ssl
   -->
+
+<!-- http -->
 <Connector
   port="80"
   maxPostSize="8388608"
@@ -31,7 +35,7 @@
   compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
 />
 
-<!-- https connector
+<!-- https -->
 <Connector
   port="8443"
   maxPostSize="8388608"
@@ -41,16 +45,16 @@
   nocompressionUserAgents="gozilla, traviata"
   compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
 
-  protocol="HTTP/1.1"
+  protocol="org.apache.coyote.http11.Http11NioProtocol"
   SSLEnabled="true"
   maxThreads="150"
   scheme="https"
   secure="true"
-  keystoreFile="** path to your keystorefile **"
-  keystorePass="** password for your keystore **"
   clientAuth="false"
   sslProtocol="TLS"
   sslVerifyClient="optional"
-  sslEnabledProtocols="TLSv1.2,TLSv1.1,SSLv2Hello"
-/>
- -->
+  sslEnabledProtocols="TLSv1.2,TLSv1.1,SSLv2Hello">
+  <SSLHostConfig>
+    <Certificate certificateFile="${user.home}/ssl/localhost-pub.pem" certificateKeyFile="${user.home}/ssl/localhost-key.pem"/>
+  </SSLHostConfig>
+</Connector>

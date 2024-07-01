@@ -628,6 +628,7 @@ public class SubjectPreferences extends HttpServlet {
         cookie.setPath(request.getContextPath() + path);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(cookieMaxAge);
+        cookie.setSecure(true);
         response.addCookie(cookie);
       }
       else {
@@ -635,6 +636,7 @@ public class SubjectPreferences extends HttpServlet {
         cookie.setPath(request.getContextPath() + path);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
+        cookie.setSecure(true);
         response.addCookie(cookie);
       }
     }

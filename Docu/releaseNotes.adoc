@@ -14,6 +14,8 @@ ___
 
 .Server:
 * updated several 3rd party jars
+* updated default web.xml and enforce usage of https
+* cookies created are flagged as "secure"
 
 .Client:
 * Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
@@ -26,6 +28,7 @@ ___
 * Removal of Internet Explorer support
 * javax to jakarta switch (for several packages e.g. javax.servlet)
 * new 3rd party jars set
+* cookies created are flagged as "secure", requiring https
 
 ___
 ==== Release 5_6_0

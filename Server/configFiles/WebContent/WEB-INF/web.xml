@@ -432,10 +432,18 @@
     <session-timeout>30</session-timeout>
     <cookie-config>
       <http-only>true</http-only>
-      <!-- Only send via https. ignored for localhost. Disable for test servers, which are not localhost and not https -->
       <secure>true</secure>
     </cookie-config>
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
+  <!-- require SSL -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
 </web-app>
