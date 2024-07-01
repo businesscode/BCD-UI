@@ -29,7 +29,7 @@
   <!-- For development use: <Context reloadable="true"  antiJARLocking="false" antiResourceLocking="false" cachingAllowed="false">, this allows live updating of content -->
   <!-- For production use:  <Context reloadable="false" antiJARLocking="true"  antiResourceLocking="true">, this allows easy re-deploy -->
 
-  <!-- Prevent cross side cookie attacks (OWASP WSTG-SESS-05) -->
+  <!-- Prevent cross side cookie attacks (OWASP WSTG-SESS-05), change accordingly if you want to enable CORS in your application -->
   <CookieProcessor sameSiteCookies="strict" />
 
   <!-- This controls how often dbProperties are read from database. 5 min is default -->

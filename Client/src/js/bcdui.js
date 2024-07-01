@@ -24,6 +24,11 @@
  */
 var bcdui = bcdui || new Object();
 
+/**
+ * send cookies in xhr cors requests
+ */
+jQuery.ajaxSetup({xhrFields:{withCredentials: true}});
+
 bcdui = Object.assign(bcdui, 
 /** @lends bcdui */
 {
