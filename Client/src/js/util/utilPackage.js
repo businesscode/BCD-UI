@@ -312,18 +312,17 @@ bcdui.util =
    * Executes a JS function given via a string
    *
    * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
+   * @param {object}  bindContext context for function bind
    * @param {array}   addParams additional optional parameter objects
+   * @param {boolean} returnOnly true to return the function instead of running it
    * @private
    * */
-  _callJsFunction : function(jsFktString, addParams) {
-    jsFktString.split(";").forEach(function(jsFuncStr) {
-      const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
-      const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
-      const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
-  
-      if (fktParam.length == 0)
-        return;
-  
+  _callJsFunction : function(jsFuncStr, bindContext, addParams, returnOnly) {
+    const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
+    const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
+    const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
+    let ok = false;
+    if (fktParam.length != 0) {
       // handle sub objects like bcdui.widget.tab
       // so we run through the objects till we found the final one
       const splitObj = fktParam[0].split(".");
@@ -333,14 +332,18 @@ bcdui.util =
         found &= typeof obj[splitObj[i]] != "undefined";
         obj = found ? obj[splitObj[i]] : obj;
       }
-      // we found the function, so call it with the parameters
-      if (found) {
-        const finalParams = fktParam.slice(1).concat((addParams || []));
-        obj(...finalParams);
+      if (found && typeof obj == "function") {
+        // we found the function, so call it with the parameters (or optionally only return it)
+        const finalParams = [(bindContext || this || window)].concat(fktParam.slice(1).concat((addParams || [])));
+        const fkt = obj.bind(...finalParams);
+        ok = true;
+        if (! returnOnly)
+          fkt();
+        return obj;
       }
-      else
-        console.error("not a function: " + jsFktString);
-    });
+    }
+    if (!ok)
+      throw "not a function: " + jsFktString;
   },
 
   /**

@@ -69,11 +69,14 @@ bcdui.browserCompatibility = Object.assign(bcdui.browserCompatibility, {
      * @private
      */
     _getValue : function(objName, propertyName){
-      try{
-        return eval(objName + "." + propertyName);
-      }catch(e){
-        return null;
+      let obj = window;
+      let found = true;
+      const splitObj = (objName + "." + propertyName).split(".");
+      for (let i = 0; i < splitObj.length; i++) {
+        found &= typeof obj[splitObj[i]] != "undefined";
+        obj = found ? obj[splitObj[i]] : obj;
       }
+      return found ? obj : null;
     }
 });
 

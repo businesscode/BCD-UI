@@ -885,7 +885,7 @@ jQuery.extend(bcdui.widget,
             if (typeof args.onclick == "function")
               args.onclick();
             else if (args.onclick != "")
-              eval(args.onclick);
+              bcdui.util._callJsFunction(args.onclick);
           }
         }
       );
