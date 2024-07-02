@@ -61,7 +61,7 @@ bcdui.browserCompatibility = Object.assign(bcdui.browserCompatibility, {
      */
     _hasFeature: function(prop){
       var internalVal = bcdui.browserCompatibility._getValue("bcdui.browserCompatibility._intern",prop);
-      return internalVal != null ? internalVal : bcdui.browserCompatibility._getValue("Modernizr",prop);
+      return internalVal ? internalVal : bcdui.browserCompatibility._getValue("Modernizr",prop);
     },
 
     /**
@@ -69,14 +69,7 @@ bcdui.browserCompatibility = Object.assign(bcdui.browserCompatibility, {
      * @private
      */
     _getValue : function(objName, propertyName){
-      let obj = window;
-      let found = true;
-      const splitObj = (objName + "." + propertyName).split(".");
-      for (let i = 0; i < splitObj.length; i++) {
-        found &= typeof obj[splitObj[i]] != "undefined";
-        obj = found ? obj[splitObj[i]] : obj;
-      }
-      return found ? obj : null;
+      return bcdui.util._getJsObjectFromString(objName + "." + propertyName, true) != null;
     }
 });
 

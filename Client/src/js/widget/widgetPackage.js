@@ -885,7 +885,7 @@ jQuery.extend(bcdui.widget,
             if (typeof args.onclick == "function")
               args.onclick();
             else if (args.onclick != "")
-              bcdui.util._callJsFunction(args.onclick);
+              bcdui.util._stringToJsFunction(args.onclick);
           }
         }
       );
@@ -974,7 +974,7 @@ jQuery.extend(bcdui.widget,
           jQuery("#" + args.targetHtml + " .isClickable").off("click");
           jQuery("#" + args.targetHtml + " .isClickable").on("click", function(event) {
             const bcdAction = jQuery(event.target).attr("bcdAction") || "";
-            bcdui.util._callJsFunction(bcdAction);
+            bcdui.util._stringToJsFunction(bcdAction);
           });
 
           jQuery("#" + args.targetHtml + " .bcdMenu").show();
@@ -2183,7 +2183,7 @@ jQuery.extend(bcdui.widget,
           , lastPage: parseInt(lastPage, 10)
           , elementId: elementId
           });
-          bcdui.util._callJsFunction(jQuery(event.target).attr("paginatedAction"));
+          bcdui.util._stringToJsFunction(jQuery(event.target).attr("paginatedAction"));
         }
       });
       jQuery(el).off("change");
@@ -2198,7 +2198,7 @@ jQuery.extend(bcdui.widget,
             if (this.options[i].value == val)
               this.options[i].selected = 'selected';
           bcdui.factory.objectRegistry.getObject(targetModelId).fire();
-          bcdui.util._callJsFunction(jQuery(event.target).attr("paginatedAction"));
+          bcdui.util._stringToJsFunction(jQuery(event.target).attr("paginatedAction"));
         }
       });
     },

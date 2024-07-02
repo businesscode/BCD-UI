@@ -146,7 +146,7 @@
       var args = this.options;
   
       if(args.filterFunction && bcdui.util.isString(args.filterFunction)){
-        args.filterFunction = bcdui.util._callJsFunction(args.filterFunction, null, null, true);
+        args.filterFunction = bcdui.util._getJsObjectFromString(args.filterFunction);
       }
   
       // if browser supports html5 datalist

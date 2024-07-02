@@ -309,15 +309,36 @@ bcdui.util =
   },
 
   /**
-   * Executes a JS function given via a string
+   * Get a JS object given via a string
+   *
+   * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
+   * @private
+   * */
+  _getJsObjectFromString: function(objName, dontThrow) {
+    let obj = window;
+    let found = true;
+    const splitObj = objName.split(".");
+    for (let i = 0; i < splitObj.length; i++) {
+      found &= typeof obj[splitObj[i]] != "undefined";
+      obj = found ? obj[splitObj[i]] : obj;
+    }
+    if (dontThrow)
+      return found ? obj : null;
+    else if (! found)
+      throw "not an object: " + objName;
+    else
+      return obj;
+  },
+  
+  /**
+   * Get or execute a JS function given via a string
    *
    * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
    * @param {object}  bindContext context for function bind
    * @param {array}   addParams additional optional parameter objects
-   * @param {boolean} returnOnly true to return the function instead of running it
    * @private
    * */
-  _callJsFunction : function(jsFuncStr, bindContext, addParams, returnOnly) {
+  _stringToJsFunction : function(jsFuncStr, bindContext, addParams) {
     const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
     const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
     const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
@@ -337,9 +358,7 @@ bcdui.util =
         const finalParams = [(bindContext || this || window)].concat(fktParam.slice(1).concat((addParams || [])));
         const fkt = obj.bind(...finalParams);
         ok = true;
-        if (! returnOnly)
-          fkt();
-        return obj;
+        fkt();
       }
     }
     if (!ok)

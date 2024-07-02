@@ -260,7 +260,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       var onBlur = htmlElement.getAttribute("bcdOnBlur");
       if (onBlur) {
         bcdui._migPjs._$(htmlElement).on("blur", function() {
-          bcdui.util._callJsFunction(onBlur, htmlElement);
+          bcdui.util._stringToJsFunction(onBlur, htmlElement);
         }.bind(htmlElement));
       }
     }
@@ -315,7 +315,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         }
         var onFocus = htmlElement.getAttribute("bcdOnFocus");
         if (onFocus) {
-          bcdui.util._callJsFunction(onFocus, htmlElement);
+          bcdui.util._stringToJsFunction(onFocus, htmlElement);
         }
       }, 50);
     }
@@ -503,11 +503,11 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             this.onchange();
             evt.stopPropagation();
             evt.preventDefault();
-            bcdui.util._callJsFunction(onTabKey, htmlElement);
+            bcdui.util._stringToJsFunction(onTabKey, htmlElement);
           } else if (evt.keyCode == bcdui.util.Event.KEY_ESC && onEscKey != "") {
             evt.stopPropagation();
             evt.preventDefault();
-            bcdui.util._callJsFunction(onEscKey, htmlElement);
+            bcdui.util._stringToJsFunction(onEscKey, htmlElement);
           } else if (evt.keyCode == bcdui.util.Event.KEY_RETURN && onEnterKey != "") {
             evt.stopPropagation();
             evt.preventDefault();// we consume the event in onkeyUp because of IE6
@@ -523,7 +523,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
               this.onchange();
               evt.stopPropagation();
               evt.preventDefault();
-              bcdui.util._callJsFunction(onEnterKey, htmlElement);
+              bcdui.util._stringToJsFunction(onEnterKey, htmlElement);
             }
           }.bind(htmlElement));
         }

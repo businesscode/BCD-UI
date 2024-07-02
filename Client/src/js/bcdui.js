@@ -157,7 +157,8 @@ bcdui = Object.assign(bcdui,
         if (bcdui.config) {
 
           if(bcdui.config.clientLogAppenderJSClassName){
-            appender = eval("new " + bcdui.config.clientLogAppenderJSClassName + "()");
+            const app = bcdui.util._getJsObjectFromString(bcdui.config.clientLogAppenderJSClassName);
+            appender = new app();
           }
           //attach special appender
           else {
