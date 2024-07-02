@@ -73,11 +73,7 @@ task bcduiGensrcJsXsltXapiJspTagApis {
         out:      file("$taskTempDirName/${apiGroup}s.xml")
       )
 
-      // xmltask jar won't run directly in a java 17 (or higher) environment
-      // workaround: add the following to your gradle JVM arguments
-      // --add-exports=java.xml/com.sun.org.apache.xpath.internal=ALL-UNNAMED
-      // --add-exports=java.xml/com.sun.org.apache.xpath.internal.objects=ALL-UNNAMED 
-
+      // TODO If migrated remove both add-exports from gradle.properties
       ant.taskdef(name: 'xmltask', classname: 'com.oopsconsultancy.xmltask.ant.XmlTask', classpath: "../lib/xmltask-1.16.1.jar" )
       ant.xmltask(source: "$taskTempDirName/${apiGroup}s.xml") {
 
