@@ -488,6 +488,8 @@ bcdui.component = Object.assign(bcdui.component,
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
 
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
+        if (typeof args.applyFunction == "string")
+          args.applyFunction = bcdui.util._getJsObjectFromString(args.applyFunction);
 
         bcdui.widget.createBlindUpDownArea({
           id: "bcdBlindUpDown_" + args.cubeId
@@ -510,7 +512,7 @@ bcdui.component = Object.assign(bcdui.component,
 
         bcdui.widgetNg.createButton({
           caption: "Apply",
-          onClickAction: bcdui.util._toJsFunction(args.applyFunction),
+          onClickAction: args.applyFunction,
           targetHtml: "#bcdDNDApplyButton_" + args.cubeId
         });
       }
