@@ -343,7 +343,7 @@ bcdui.util =
       }
     }
     if (!ok)
-      throw "not a function: " + jsFktString;
+      throw "not a function: " + jsFuncStr;
   },
 
   /**
