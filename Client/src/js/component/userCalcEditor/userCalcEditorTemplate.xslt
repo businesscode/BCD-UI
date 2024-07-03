@@ -76,7 +76,7 @@
       <label>Name:</label>
       <xsl:call-template name="inputField">
         <xsl:with-param name="targetModelXPath" select="concat($tempTargetModelXPath, '/@caption')"/>
-        <xsl:with-param name="onBlur">bcdui.component.userCalcEditor._onNameUpdate(('<xsl:value-of select="$id"/>'), ('formulaEditor_<xsl:value-of select="$id"/>'), this)</xsl:with-param>
+        <xsl:with-param name="onBlur">bcdui.component.userCalcEditor._onNameUpdate('<xsl:value-of select="$id"/>', 'formulaEditor_<xsl:value-of select="$id"/>', this)</xsl:with-param>
         <xsl:with-param name="mandatory" select="true()"/>
       </xsl:call-template>
     </div>
