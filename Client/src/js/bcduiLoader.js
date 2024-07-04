@@ -266,6 +266,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/handsontable.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/gridAction.js"
       ],
       "css": [
         "/js/3rdParty/handsontable.css"

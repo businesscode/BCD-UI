@@ -144,6 +144,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.grid.ActionHandler.
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -153,6 +154,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var paginationSize = "" + (args.paginationSize || "");
     var paginationAllPages = "" + (args.paginationAllPages || "");
     var config = args.config;
+    var actionHandler = (args.actionHandler && args.actionHandler.contextMenuActionHandler) ? args.actionHandler : new bcdui.component.grid.ActionHandler();
+
     if (! config)
       config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
 
@@ -218,6 +221,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var bcdPreInit = args ? args.bcdPreInit : null;
     super({
         id: id,
+//        actionHandler: actionHandler,
         inputModel: gridModelHolder,
         targetHtml: targetHtml,
         parameters: { paramModel: enhancedConfiguration },
@@ -228,6 +232,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
     );
+    this.actionHandler = actionHandler;
     this.columnFiltersCustomFilter = args.columnFiltersCustomFilter;
     this.pager = pager;
     this.defaultButtons = args.defaultButtons !== false;
@@ -3005,7 +3010,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , actionHandler: this.actionHandler.contextMenuActionHandler
+        });
       }
 
       // context menu actions
@@ -3543,6 +3554,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
    * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
    * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+   * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
    * @private
    */
   createGrid: function( args )
@@ -3571,6 +3583,7 @@ bcdui.component = Object.assign(bcdui.component,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
         isReadOnly:           args.isReadOnly,
+        actionHandler:        args.actionHandler,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,
