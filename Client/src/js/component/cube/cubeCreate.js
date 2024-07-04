@@ -589,7 +589,7 @@ bcdui.component = Object.assign(bcdui.component,
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
-          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || new bcdui.component.cube.configurator.actionHandler().contextMenuActionHandler
+          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || new bcdui.component.cube.configurator.ActionHandler().contextMenuActionHandler
         });
       }
 

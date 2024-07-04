@@ -16,17 +16,17 @@
 "use strict";
 
 
-bcdui.component.cube.configurator.actionHandler = class {
+bcdui.component.cube.configurator.ActionHandler = class {
 
     constructor() {
-    this.contextMenuActionHandler = (typeof bcdui.component.cube.configurator.contextMenuActionEnterprise != "undefined")
-      ? new bcdui.component.cube.configurator.contextMenuActionEnterprise() 
-      : new bcdui.component.cube.configurator.contextMenuAction();
+    this.contextMenuActionHandler = (typeof bcdui.component.cube.configurator.ContextMenuActionEnterprise != "undefined")
+      ? new bcdui.component.cube.configurator.ContextMenuActionEnterprise() 
+      : new bcdui.component.cube.configurator.ContextMenuAction();
   }
 }
 
 
-bcdui.component.cube.configurator.contextMenuAction = class {
+bcdui.component.cube.configurator.ContextMenuAction = class {
 
   constructor() {
 
