@@ -72,6 +72,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
    * @param {bcdui.core.DataProvider} [args.customParameter]                  - Custom parameters for usage in custom aggregators, aspects and renderer as 'customParameter' parameter.</li>
    * @param {Object}                  [args.parameters]                       - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    * @param {(boolean|string)}        [args.contextMenu=false]                - If true, scorecard's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {Object|string}           [args.actionHandler]                    - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.scorecard.ActionHandler.
    */
   constructor(args)
   {
@@ -85,6 +86,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
     var metaDataModel = args.config;
     var targetHtml = args.targetHtml;
     args.tooltipUrl = typeof args.tooltipUrl !== "undefined" ? args.tooltipUrl : bcdui.contextPath+"/bcdui/js/component/scorecard/scTooltip.xslt";
+    var actionHandler = (args.actionHandler && args.actionHandler.contextMenuActionHandler) ? args.actionHandler : new bcdui.component.scorecard.ActionHandler();
 
     if (! args.inputModel && ! args.config) {
       throw new Error("Scorecard "+id+" has neither an inputModel nor a config parameter");
@@ -113,6 +115,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
 	var bcdPreInit = args ? args.bcdPreInit : null;
     super( {
       id: id ,
+      actionHandler: actionHandler,
       inputModel: inputModel,
       targetHtml: targetHtml, 
       chain: args.chain,
@@ -128,6 +131,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
           this.inputModel = inputModel;
         }
     });
+    this.actionHandler = actionHandler;
 
     //------------------
     // We also create some convenience objects: tooltip, detail export and WYSIWYG export infrastructure
@@ -149,7 +153,13 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
         var bcdPageAccess = " " + ((bcdui.config.clientRights && bcdui.config.clientRights.bcdPageAccess) || []).reduce(function(a, b) { return a + " " + b;},[]) + " ";
         this.contextMenu = new bcdui.core.ModelWrapper({ chain: contextMenuUrl, inputModel: this.statusModel,
           parameters: { bcdRowIdent: bcdui.wkModels.bcdRowIdent, bcdColIdent: bcdui.wkModels.bcdColIdent, sccDefinition: args.enhancedConfiguration, bcdPageAccess: bcdPageAccess } });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , actionHandler: this.actionHandler.contextMenuActionHandler
+       });
       }
 
       var _getKpiId = function( inputModel, bcdRowIdent, bcdColIdent) {

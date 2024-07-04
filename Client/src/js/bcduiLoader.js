@@ -235,6 +235,8 @@ bcdui.bcduiCeFiles =
           "/js/component/scorecard/scorecardModel.js"
         , "/js/component/scorecard/scorecardCreate.js"
         , "/js/component/scorecard/scorecardConfigurator.js"
+        , "/js/component/scorecard/scorecardAction.js"
+        , "/js/component/scorecard/scorecardDndAction.js"
         , "/js/component/scorecard/bcdAspects.js"
         , "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"

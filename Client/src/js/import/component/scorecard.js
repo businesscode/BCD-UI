@@ -3,6 +3,8 @@ import "../widget/contextMenu.js"
 
 import "../../component/scorecard/scorecardModel.js"
 import "../../component/scorecard/scorecardCreate.js"
+import "../../component/scorecard/scorecardAction.js"
+import "../../component/scorecard/scorecardDndAction.js"
 import "../../component/scorecard/bcdAspects.js"
 
 import "../../component/scorecard/customElements.js"

@@ -48,6 +48,8 @@
       args.targetModel = args.targetModel || bcdui.wkModels.guiStatus;
       args.config = args.config || new bcdui.core.SimpleModel({url: "dimensionsAndKpis.xml"});
 
+      this.actionHandler = (args.actionHandler && args.actionHandler.contextMenuActionHandler) ? args.actionHandler : new bcdui.component.scorecard.ActionHandlerDnd();
+
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createScorecardConfigurator_args);
 
       // start rendering when configuration and scorecard is ready
@@ -107,7 +109,13 @@
         , inputModel: bcdui.wkModels.guiStatus
         , parameters: { scorecardId: args.scorecardId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, sccConfig: args.config }
         });
-        bcdui.widget.createContextMenu({refreshMenuModel: true, targetHtml: args.targetHtml, inputModel: contextMenu, identsWithin: args.targetHtml});
+        bcdui.widget.createContextMenu({
+          refreshMenuModel: true
+        , targetHtml: args.targetHtml
+        , inputModel: contextMenu
+        , identsWithin: args.targetHtml
+        , actionHandler: this.actionHandler.contextMenuActionHandler
+        });
         
         bcdui.widget.createTooltip({
             targetHtml: args.targetHtml
@@ -203,7 +211,7 @@
             }
           }
         });
-      });
+      }.bind(this));
     },
 
     /**
