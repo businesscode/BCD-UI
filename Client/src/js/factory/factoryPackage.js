@@ -468,6 +468,7 @@ bcdui.factory = Object.assign(bcdui.factory,
             targetHtml: args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId, // map all possible options to targetHtml for simplification
             suppressInitialRendering: args.suppressInitialRendering,
             postHtmlAttachProcess: args.postHtmlAttachProcess,
+            actionHandler: args.actionHandler,
             debug: args.debug
           });
     };

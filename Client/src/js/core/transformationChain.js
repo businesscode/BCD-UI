@@ -493,7 +493,8 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
               this._executeOnXAttributes(targetElement, "bcdOnload");
 
               // attach action handler to target
-              jQuery(targetElement).data("actionHandler", this.actionHandler);
+              if (this.actionHandler)
+                jQuery(targetElement).data("actionHandler", this.actionHandler);
             }
           }
 
