@@ -1824,7 +1824,7 @@ jQuery.extend(bcdui.widget,
       , inputModel         : args.inputModel
       , dataProviders      : args.dataProviders
       , parameters         : args.parameters
-      , actionHandler      : args.actionHandler
+      , actionHandler      : actionHandler
     });
 
     bcdui.factory.objectRegistry.withReadyObjects({
