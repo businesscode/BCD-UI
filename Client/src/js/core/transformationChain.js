@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +36,14 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
   constructor(args)
     {
       super(args);
-      
+
+      let actionHandler = args.actionHandler;
+      if (typeof actionHandler == "string") {
+      	const cp = bcdui.util._getJsObjectFromString(actionHandler);
+      	actionHandler = new cp();
+      }
+      this.actionHandler = actionHandler;
+
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
       /**
@@ -484,6 +491,9 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
               }
   
               this._executeOnXAttributes(targetElement, "bcdOnload");
+
+              // attach action handler to target
+              jQuery(targetElement).data("actionHandler", this.actionHandler);
             }
           }
 
@@ -982,6 +992,7 @@ export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.co
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
+   * @param {Object|string}           [args.actionHandler]                  - Instance (or name) of an action handler class. Is attached to renderers targetHtml as 'actionHandler'.
    */
   constructor(args)
   {

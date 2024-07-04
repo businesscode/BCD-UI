@@ -998,6 +998,11 @@
             have to trigger the rendering manually by calling .execute()
           </Doc>
         </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Is attached to renderers targetHtml as 'actionHandler'.
+          </Doc>
+        </Param>
         <Param name="postHtmlAttachProcess" type="function">
           <Doc>
            Optional synchronous js function called after attaching html fragment to dom (either partitially or fully)
