@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -366,6 +366,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
+   * @param {Object|string}           [args.actionHandler]                                        - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is bcdui.component.cube.configurator.actionHandler.
    *
    * @return null.
    *
@@ -576,11 +577,19 @@ bcdui.component = Object.assign(bcdui.component,
           , cubeConfig     : bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         });
+
+        let actionHandler = args.actionHandler;
+        if (typeof actionHandler == "string") {
+          const cp = bcdui.util._getJsObjectFromString(actionHandler);
+          actionHandler = new cp();
+        }
+
         bcdui.widget.createContextMenu({
             targetRendererId: args.cubeId
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
+          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || new bcdui.component.cube.configurator.actionHandler().contextMenuActionHandler
         });
       }
 

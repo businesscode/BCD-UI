@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -177,6 +177,7 @@ bcdui.bcduiCeFiles =
           "/js/component/cube/cubeCreate.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
+        , "/js/component/cube/cubeConfigurator/cubeConfiguratorAction.js"
         , "/js/component/cube/expandCollapseCells.js"
         , "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"

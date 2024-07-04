@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2014 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -387,6 +387,11 @@
         <Param name="doSortOptions" type="boolean" default="false">
           <Doc>
             When setting this to true, dimensions and measures lists are sorted by caption.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is bcdui.component.cube.configurator.actionHandler.
           </Doc>
         </Param>
       </Api>

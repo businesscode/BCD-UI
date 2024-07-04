@@ -10,6 +10,7 @@ import "../../3rdParty/jquery.blockUI.js"
 
 import "../../component/cube/cubeConfigurator/cubeConfigurator.js"
 import "../../component/cube/cubeConfigurator/cubeConfiguratorDND.js"
+import "../../component/cube/cubeConfigurator/cubeConfiguratorAction.js"
 import "../../component/cube/templateManager/templateManager.js"
 import "../../component/cube/rankingEditor/rankingEditor.js"
 import "../../component/cube/summaryDisplay/summaryDisplay.js"
