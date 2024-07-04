@@ -131,7 +131,7 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
 
   _showAllRowDim(args) {
     const levelId = args.bcdColIdent;
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, totalId: args.totalId, showAll: true} );
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, totalId: args.totalid, showAll: true} );
   }
 
   _addColumnMeasure(args) {
@@ -143,11 +143,11 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
   }
 
   _editUserMeasure(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'editUserMeasure', calcId: args.calcId});
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'editUserMeasure', calcId: args.calcid});
   }
 
   _deleteUserMeasure(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'deleteUserMeasure', calcId: args.calcId});
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'deleteUserMeasure', calcId: args.calcid});
   }
 
   _reportExport(args) {
@@ -163,20 +163,20 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
   }
 
   _sortAscending(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isDim, direction: "ascending"});
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isdim, direction: "ascending"});
   }
 
   _sortDescending(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isDim, direction: "descending"});
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isdim, direction: "descending"});
   }
 
   _clearSorting(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isDim, direction: null});
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",{ actionId: 'setColumnSort', isDim: args.isdim, direction: null});
   }
 
   _clearSortDimByMeas(args) {
     jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", 
-      args.isColDim == "true"
+      args.iscoldim == "true"
       ? {actionId:"setSortDimByMeasure", clear: true, colDimId: jQuery(args.bcdEventSourceElement).closest('tr').attr('levelId')}
       : {actionId:"setSortDimByMeasure", clear: true}
     );
@@ -184,9 +184,9 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
 
   _sortDimByMeas(args) {
     jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",
-      args.isColDim == "true"
-      ? {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortBy, colDimId: jQuery(args.bcdEventSourceElement).closest('tr').attr('levelId')}
-      : {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortBy}
+      args.iscoldim == "true"
+      ? {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortby, colDimId: jQuery(args.bcdEventSourceElement).closest('tr').attr('levelId')}
+      : {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortby}
     );
   }
 
@@ -203,7 +203,7 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
   }
 
   _hideTotal(args) {
-    if (args.isColDim == "true") {
+    if (args.iscoldim == "true") {
       let levelNode = jQuery(args.bcdEventSourceElement).closest("tr");
       let levelId = levelNode.attr("levelId");
       if (levelId == null) {
@@ -218,22 +218,22 @@ bcdui.component.cube.configurator.ContextMenuAction = class {
       jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, outerLevelId: outerLevelId, isColDim: true, all: true, total: true } );
     }
     else
-      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: args.levelId, outerLevelId: args.outerLevelId, isColDim: false, all: true, total: true} );
+      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: args.levelid, outerLevelId: args.outerlevelid, isColDim: false, all: true, total: true} );
   }
 
   _showTotal(args) {
-    if (args.isColDim == "true")
-      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelId} );
+    if (args.iscoldim == "true")
+      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelid} );
     else
-      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelId} );
+      jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelid} );
   }
 
   _hideGrandTotal(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: args.levelId, outerLevelId: null, isColDim: false, all: true, total: true} );
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: args.levelid, outerLevelId: null, isColDim: false, all: true, total: true} );
   }
 
   _showGrandTotal(args) {
-    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelId} );
+    jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelid} );
   }
 
   _detailExport(args) {
