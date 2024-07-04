@@ -366,7 +366,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
-   * @param {Object|string}           [args.actionHandler]                                        - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is bcdui.component.cube.configurator.actionHandler.
+   * @param {Object|string}           [args.actionHandler]                                        - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
    *
    * @return null.
    *
