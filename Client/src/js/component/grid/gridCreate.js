@@ -221,7 +221,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var bcdPreInit = args ? args.bcdPreInit : null;
     super({
         id: id,
-//        actionHandler: actionHandler,
+        actionHandler: actionHandler,
         inputModel: gridModelHolder,
         targetHtml: targetHtml,
         parameters: { paramModel: enhancedConfiguration },
