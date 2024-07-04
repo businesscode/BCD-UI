@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1772,6 +1772,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}         [args.identsWithin]      Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {boolean}        [args.tableMode=false]   This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
    * @param {targetHtmlRef}  [args.targetHtml]        The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {Object|string}  [args.actionHandler]     Instance (or name) of an action handler class. Context Menu calls instance's click method when selecting an context menu item.
    */
   createContextMenu: function(args){
 
@@ -1808,6 +1809,12 @@ jQuery.extend(bcdui.widget,
     args.dataProviders.push(bcdui.wkModels.bcdRowIdent);
     args.dataProviders.push(bcdui.wkModels.bcdColIdent);
 
+    let actionHandler = args.actionHandler;
+    if (typeof actionHandler == "string") {
+    	const cp = bcdui.util._getJsObjectFromString(actionHandler);
+			actionHandler = new cp();
+    }
+
     // Renderer of the context menu itself
     bcdui.factory.createRenderer({
         id                 : args.id
@@ -1817,6 +1824,7 @@ jQuery.extend(bcdui.widget,
       , inputModel         : args.inputModel
       , dataProviders      : args.dataProviders
       , parameters         : args.parameters
+      , actionHandler      : args.actionHandler
     });
 
     bcdui.factory.objectRegistry.withReadyObjects({

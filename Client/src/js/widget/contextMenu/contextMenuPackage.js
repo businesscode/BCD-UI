@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,37 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
       var cm = bcdui.util.getSingletonElement("bcdContextMenuDiv");
       if( "true"!=cm.attr("bcdInitialized") ) {
         bcdui.widget.contextMenu._attachDelayedAutoHiding({ targetHTMLElementId: "bcdContextMenuDiv" });
-        bcdui._migPjs._$("bcdContextMenuDiv").on("click", bcdui.widget.contextMenu._clickItem);
+
+        // contextMenu click handler
+        jQuery("#bcdContextMenuDiv").on("click", function(event) {
+          const eventSourceElementId = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId") || "";
+          if (eventSourceElementId != "" && jQuery("#" + eventSourceElementId).length > 0) {
+
+            const actionHandler = jQuery("#bcdContextMenuDiv").data("actionHandler");
+            if (actionHandler) {
+
+              // collect all html attributes from bcdActionId element
+              const bcdActionIdElement = jQuery(event.target).closest("*[bcdActionId!='']").get(0);
+              const htmlAttr = {};
+              if (bcdActionIdElement)
+                Array.from(bcdActionIdElement.attributes).forEach(function(a) { htmlAttr[a.nodeName] = a.nodeValue; });
+
+              // add some well knowns
+              const wellKnown = {
+                event: event
+              , htmlElement: jQuery(event.target).get(0)
+              , bcdColIdent: bcdui.factory.objectRegistry.getObject("bcdColIdent").getData()
+              , bcdRowIdent: bcdui.factory.objectRegistry.getObject("bcdRowIdent").getData()
+              , bcdEventSourceElement : jQuery("#" + eventSourceElementId).get(0)
+              }
+              actionHandler.click(Object.assign(wellKnown, htmlAttr));
+            }
+
+            // backwards compatibility
+            else
+              bcdui.widget.contextMenu._clickItem(event);
+          }
+        });
         cm.attr("bcdInitialized","true");
       }
     },
@@ -95,4 +125,5 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
         setTimeout((function() { eval(bcdMenuCode) }).bind(event));
       }
     }
+    
 });
