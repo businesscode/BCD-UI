@@ -974,13 +974,18 @@ jQuery.extend(bcdui.widget,
           jQuery("#" + args.targetHtml + " .isClickable").off("click");
           jQuery("#" + args.targetHtml + " .isClickable").on("click", function(event) {
             const bcdAction = jQuery(event.target).attr("bcdAction") || "";
-            bcdui.util._stringToJsFunction(bcdAction);
+            if (bcdAction != "")
+              bcdui.util._stringToJsFunction(bcdAction);
           });
 
           jQuery("#" + args.targetHtml + " .bcdMenu").show();
           if (_menuHandlerClassName) {
-            var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'" + ", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}" + ",rootIdOrElement:'"+_menuRootElementId+"'});";
-            eval(strVal);
+            const o = bcdui.util._getJsObjectFromString(_menuHandlerClassName);
+            window[_menuHandlerVarName] = new o({
+              name: _menuHandlerVarName
+            , customConfigFunction: function configMenu(){this.closeDelayTime = 300;}
+            , rootIdOrElement: _menuRootElementId
+            });
           }
         });
       });
