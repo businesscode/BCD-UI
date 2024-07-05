@@ -34,7 +34,8 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
   * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
   * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider, used as a transformation parameters.
-   */
+  * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.tree.ActionHandler.
+  */
   constructor(args) {
 
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
@@ -44,6 +45,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
     if (! config) {
       config = new bcdui.core.SimpleModel( { url: "treeConfiguration.xml" } );
     }
+    var actionHandler = (args.actionHandler && args.actionHandler.contextMenuActionHandler) ? args.actionHandler : new bcdui.component.tree.ActionHandler();
     var enhancedConfiguration = new bcdui.core.ModelWrapper({
       inputModel: config
       , chain: function(doc, args){
@@ -62,6 +64,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
     var bcdPreInit = args ? args.bcdPreInit : null;
     super({
       id: id,
+      actionHandler: actionHandler,
       inputModel: enhancedConfiguration,
       targetHtml: targetHtml,
       parameters: jQuery.extend(rendererParams, {statusModel: statusModel}),
@@ -74,6 +77,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
       }
     });
 
+    this.actionHandler = actionHandler;
     this.id = id;
     this.targetHtml = targetHtml;
     this.config = config;
@@ -105,7 +109,13 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
           , gotExport: "" + (typeof bcdui.component.exports != "undefined")
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , actionHandler: this.actionHandler.contextMenuActionHandler
+        });
       }
 
       // add a row hover effect
@@ -420,7 +430,7 @@ bcdui.component = Object.assign(bcdui.component,
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
     bcdui.factory.objectRegistry.withObjects( [args.config, args.statusModel], function() {
       new bcdui.component.tree.Tree( {
-        targetHtml:           bcdui.util._getTargetHtml(args, "grid_"),
+        targetHtml:           bcdui.util._getTargetHtml(args, "tree_"),
         config:               bcdui.factory.objectRegistry.getObject(args.config),
         statusModel:          bcdui.factory.objectRegistry.getObject(args.statusModel),
         id:                   args.id,

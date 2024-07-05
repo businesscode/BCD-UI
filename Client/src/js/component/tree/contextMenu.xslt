@@ -48,7 +48,7 @@
     <ContextMenu>
       <xsl:if test="$gotExport='true'">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Tree_ActionsGlobalHdr}" >
-          <Entry caption="{$bcdI18nModel/*/bcd_Tree_Export}">
+          <Entry caption="{$bcdI18nModel/*/bcd_Tree_Export}" bcdActionId="fullDataExport">
             <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("treeActions:fullDataExport")</JavaScriptAction>
           </Entry>
         </ContextMenuEntryGroup>

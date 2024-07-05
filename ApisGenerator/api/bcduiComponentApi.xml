@@ -747,7 +747,6 @@
         </Impl>
         <Examples>
         </Examples>
-
         <Param name="targetHtml" type="targetHtmlRef">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
@@ -759,6 +758,11 @@
         <Param name="persistent" type="boolean" default="true">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.tree.ActionHandler.
           </Doc>
         </Param>
       </Api>

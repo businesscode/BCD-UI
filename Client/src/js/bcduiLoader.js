@@ -323,6 +323,7 @@ bcdui.bcduiCeFiles =
       "required": "optional",
       "files": [
         "/js/component/tree/treeCreate.js"
+      , "/js/component/tree/treeAction.js"
       ],
       "buildFolders": [
         "/js/component/tree"
