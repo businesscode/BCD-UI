@@ -202,7 +202,8 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
         jQuery("#" + args.targetHTMLElementId + " .isClickable").off("click");
         jQuery("#" + args.targetHTMLElementId + " .isClickable").on("click", function(event) {
           const bcdAction = jQuery(event.target).attr("bcdAction") || "";
-          bcdui.util._stringToJsFunction(bcdAction);
+          if (bcdAction != "")
+            bcdui.util._stringToJsFunction(bcdAction);
           bcdui.util._stringToJsFunction(_handlerVariableName + ".handleTabAction", null, [event, settingsNode]);
         });
 
