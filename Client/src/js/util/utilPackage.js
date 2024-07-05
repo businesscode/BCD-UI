@@ -348,17 +348,19 @@ bcdui.util =
       // so we run through the objects till we found the final one
       const splitObj = fktParam[0].split(".");
       let obj = window;
+      let scope = window;
       let found = true;
       for (let i = 0; i < splitObj.length; i++) {
         found &= typeof obj[splitObj[i]] != "undefined";
+        scope = obj;
         obj = found ? obj[splitObj[i]] : obj;
       }
       if (found && typeof obj == "function") {
         // we found the function, so call it with the parameters (or optionally only return it)
-        const finalParams = [(bindContext || this || window)].concat(fktParam.slice(1).concat((addParams || [])));
+        const finalParams = [(bindContext || scope)].concat(fktParam.slice(1).concat((addParams || [])));
         const fkt = obj.bind(...finalParams);
         ok = true;
-        fkt();
+        return fkt();
       }
     }
     if (!ok)
