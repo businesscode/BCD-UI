@@ -72,6 +72,12 @@
     </xs:choice>
     <xs:attribute name="caption" use="required"/>
     <xs:attribute name="bcdTranslate" use="optional"/>
+    <xs:attribute name="bcdActionId" use="optional">
+      <xs:annotation>
+        <xs:documentation>Keyword used for ContextMenu ActionHandler to perform an action for this entry</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    
   </xs:complexType>
 
   <xs:complexType name="ContextMenuEntryGroup">
