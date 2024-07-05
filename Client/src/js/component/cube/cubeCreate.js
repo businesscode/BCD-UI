@@ -584,12 +584,16 @@ bcdui.component = Object.assign(bcdui.component,
           actionHandler = new cp();
         }
 
+        const defaultActionHandler = typeof bcdui.component.cube.configurator.ActionHandlerEnterprise == "undefined"
+        ? new bcdui.component.cube.configurator.ActionHandler().contextMenuActionHandler
+        : new bcdui.component.cube.configurator.ActionHandlerEnterprise().contextMenuActionHandler;
+
         bcdui.widget.createContextMenu({
             targetRendererId: args.cubeId
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
-          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || new bcdui.component.cube.configurator.ActionHandler().contextMenuActionHandler
+          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || defaultActionHandler
         });
       }
 

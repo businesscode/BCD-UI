@@ -18,10 +18,8 @@
 
 bcdui.component.cube.configurator.ActionHandler = class {
 
-    constructor() {
-    this.contextMenuActionHandler = (typeof bcdui.component.cube.configurator.ContextMenuActionEnterprise != "undefined")
-      ? new bcdui.component.cube.configurator.ContextMenuActionEnterprise() 
-      : new bcdui.component.cube.configurator.ContextMenuAction();
+  constructor() {
+    this.contextMenuActionHandler = new bcdui.component.cube.configurator.ContextMenuAction();
   }
 }
 
