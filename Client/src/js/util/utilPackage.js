@@ -296,12 +296,12 @@ bcdui.util =
         return null;
       }
       if ((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsFuncStr)) { // a JS variable or reference in dotted notation
-        var func = bcdui.util._getJsObjectFromString(jsFuncStr);
+        const func = bcdui.util._getJsObjectFromString(jsFuncStr);
         if (! bcdui.util.isFunction(func))
           throw `provided jsFuncStr '${jsFuncStr}' is not a function`;
         return func;
       }
-      throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function all with parameters here.`;
+      throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function call with parameters here.`;
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";
@@ -367,7 +367,7 @@ bcdui.util =
   },
 
   /**
-   * Executes a JS code by reference or by eval(), used to support JS+HTML function parameters,
+   * Executes a JS code used to support JS+HTML function parameters,
    * returns functions result. If jsRef is a String and does not contain paranthesis, then it is
    * assumed to be a function reference (coming thru HTML API)
    *
@@ -390,21 +390,19 @@ bcdui.util =
     var wrap = function(){
       if (typeof jsRef === "string"){
         // assume a simple function reference, i.e. 'myfunc'
-        if(jsRef.indexOf("(") < 0 && jsRef.indexOf(" ") < 0){
-          jsRef = eval(jsRef);
-          if(typeof jsRef === "function"){
-            return jsRef.apply(this, arguments);
-          }
-          // a non function reference
-          return jsRef;
+        if ((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsRef)) { // a JS variable or reference in dotted notation
+          const func = bcdui.util._getJsObjectFromString(jsRef);
+          if (! bcdui.util.isFunction(func))
+            throw `provided jsFuncStr '${jsRef}' is not a function`;
+          return func.apply(this, arguments);;
         }
-        jsRef = eval("(function(){" + jsRef + "})");
+        throw `provided jsRef '${jsRef}' is not a function name. Don't provide a function call with parameters here.`;
       }
 
       if (typeof jsRef === "function"){
         return jsRef.apply(this, arguments);
       } else {
-        return jsRef;
+        throw `provided jsRef '${jsRef}' is not a function name. Don't provide a function call with parameters here.`;
       }
     };
 
