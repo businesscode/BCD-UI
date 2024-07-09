@@ -331,6 +331,10 @@ bcdui.component.far.Far = class
   }
 };
 
+bcdui.component.far.triggerAdd = function() {
+  jQuery(this).trigger('bcdui:universalFilter:add')
+};
+
 /**
  * enhancement DSL adapter utility : far-config to enhanced configuration
  * @namespace

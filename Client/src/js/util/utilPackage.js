@@ -295,14 +295,13 @@ bcdui.util =
       if(!jsFuncStr){
         return null;
       }
-      if((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsFuncStr)){ // a JS variable or reference in dotted notation
-        var func = eval(jsFuncStr);
-        if(!bcdui.util.isFunction(func)){
+      if ((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsFuncStr)) { // a JS variable or reference in dotted notation
+        var func = bcdui.util._getJsObjectFromString(jsFuncStr);
+        if (! bcdui.util.isFunction(func))
           throw `provided jsFuncStr '${jsFuncStr}' is not a function`;
-        }
         return func;
       }
-      return bcdui.browserCompatibility.isIE8 ? eval( "(function(){return function(){" + jsFuncStr + "}; })()" ) : eval( "(function(){" + jsFuncStr + "})" );
+      throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function all with parameters here.`;
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";

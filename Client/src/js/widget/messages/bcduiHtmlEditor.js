@@ -57,10 +57,10 @@ bcdui.component.grid.GridEditor.bcduiHtmlEditor.prototype.open = function() {
   jQuery(".bcduiHtmlEditor").remove(); // renderer below
   jQuery("body").append("<div style='display:none' class='bcduiHtmlEditor' title='" + this.title + "'>" +
         "<div class='bcdLoadContainer'></div>" +
-        "<div class='bcdControls'>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' onClickAction='bcdui.component.grid.GridEditor.bcduiHtmlEditor.takeData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' onClickAction='bcdui.component.grid.GridEditor.bcduiHtmlEditor.clearData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' onClickAction='bcdui.component.grid.GridEditor.bcduiHtmlEditor.cancelData(this)'></bcd-buttonng>" +
+        "<div class='bcdControls' bcdRendererId='"+this.instance.getBCDUIGrid().id+"'>" +
+          "<bcd-buttonng bcdActionId='heTakeData' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
+          "<bcd-buttonng bcdActionId='heClear' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
+          "<bcd-buttonng bcdActionId='heCancel' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
         "</div>" +
       "</div>");
   jQuery(".bcduiHtmlEditor").data("instance", this); // remember instance for button use

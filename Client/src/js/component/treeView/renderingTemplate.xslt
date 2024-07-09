@@ -206,7 +206,7 @@
       
       <!-- +/-, but we create no extra +/- column if we have an unknown recursion-depth due to parentChildColIdx -->
       <xsl:if test="not($parentChildColIdx)">
-        <td>
+        <td levelId="{../@levelId}" isExpended="{$is_expanded}" rendererId="{$bcdControllerVariableName}">
           <xsl:attribute name="class">
             <xsl:choose>
               <xsl:when test="$isLeaf">bcdExpandCollapseButton bcdIndent bcdEmpty</xsl:when>
@@ -217,7 +217,7 @@
           <xsl:choose>
             <xsl:when test="not($isLeaf)">
               <xsl:call-template name="buttonNg">
-                <xsl:with-param name="onClickAction">bcdui.component.treeView.expandCollapse("<xsl:value-of select="../@levelId"/>", "<xsl:value-of select="$bcdControllerVariableName"/>", <xsl:value-of select="not($is_expanded)"/>)</xsl:with-param>
+                <xsl:with-param name="onClickAction">bcdui.component.treeView._toggleAction</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>&#160;</xsl:otherwise>
@@ -235,7 +235,7 @@
         <xsl:copy-of select="@bcdTranslate"/>
 
         <!-- In case of parentChildColIdx +/- is inlined into the caption. We reserve space (bcdPlusSpan) for each level which has at least one +- button -->
-        <span>
+        <span levelId="{../@levelId}" isExpended="{$is_expanded}" rendererId="{$bcdControllerVariableName}">
           <xsl:attribute name="class">
             <xsl:choose>
               <xsl:when test="$isLeaf">bcdExpandCollapseButton </xsl:when>
@@ -247,7 +247,7 @@
           <xsl:choose>
             <xsl:when test="not($isLeaf)  and $parentChildColIdx">
               <xsl:call-template name="buttonNg">
-                <xsl:with-param name="onClickAction">bcdui.component.treeView.expandCollapse("<xsl:value-of select="../@levelId"/>", "<xsl:value-of select="$bcdControllerVariableName"/>", <xsl:value-of select="not($is_expanded)"/>)</xsl:with-param>
+                <xsl:with-param name="onClickAction">bcdui.component.treeView._toggleAction</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>&#160;</xsl:otherwise>

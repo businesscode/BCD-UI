@@ -656,5 +656,9 @@ bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
    */
   init: function(htmlElement){
     jQuery(htmlElement).bcduiUniversalFilterNg();
+  },
+
+  triggerAdd: function() {
+    jQuery(this).trigger('bcdui:universalFilter:add');
   }
 });

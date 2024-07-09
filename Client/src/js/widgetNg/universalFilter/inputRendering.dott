@@ -41,7 +41,7 @@
   {{?}}
 </span>
 <span>
-  <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
+  <bcd-buttonng caption="OK" onClickAction="bcdui.widgetNg.universalFilter.triggerAdd"></bcd-buttonng>
 </span>
 <span class="{{= it.params.cssClassPrefix }}creator-container-closer closeContainer">
 </span>

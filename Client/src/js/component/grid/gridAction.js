@@ -18,8 +18,63 @@
 
 bcdui.component.grid.ActionHandler = class {
 
-    constructor() {
+  constructor() {
     this.contextMenuActionHandler = new bcdui.component.grid.ContextMenuAction();
+    this.buttonActionHandler = new bcdui.component.grid.ButtonMenuAction();
+  }
+}
+
+bcdui.component.grid.ButtonMenuAction = class {
+  constructor() {
+    this.actionMap = {
+        saveGrid:    this._saveGrid
+      , resetGrid:   this._resetGrid
+      , addRow:      this._addRow
+      , smeTakeData: this._smeTakeData
+      , smeClear:    this._smeClear
+      , smeCancel:   this._smeCancel
+      , heTakeData:  this._heTakeData
+      , heClear:     this._heClear
+      , heCancel:    this._heCancel
+    };
+  }
+
+  click(args) {
+    // bcdactionid is lowercase here, since it was added via attributes collect loop
+    if (typeof this.actionMap[args.bcdactionid] == "function")
+      this.actionMap[args.bcdactionid](args);
+    else if (args.bcdactionid)
+      throw "clicked button action not available: " + args.bcdactionid;
+  }
+  
+  _saveGrid(args) {
+    bcdui.factory.objectRegistry.getObject(args.bcdRendererId).actionSave();
+  }
+  _resetGrid(args) {
+    bcdui.factory.objectRegistry.getObject(args.bcdRendererId).actionReset();
+  }
+  _addRow(args) {
+    bcdui.factory.objectRegistry.getObject(args.bcdRendererId).actionAddRow();
+  }
+
+  _smeTakeData(args) {
+    bcdui.component.grid.GridEditor.bcduiStatusModelEditor.takeData(args.htmlElement);
+  }
+  _smeClear(args) {
+    bcdui.component.grid.GridEditor.bcduiStatusModelEditor.clearData(args.htmlElement);
+  }
+  _smeCancel(args) {
+    bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData(args.htmlElement);
+  }
+
+  _heTakeData(args) {
+    bcdui.component.grid.GridEditor.bcduiHtmlEditor.takeData(args.htmlElement);
+  }
+  _heClear(args) {
+    bcdui.component.grid.GridEditor.bcduiHtmlEditor.clearData(args.htmlElement);
+  }
+  _heCancel(args) {
+    bcdui.component.grid.GridEditor.bcduiHtmlEditor.cancelData(args.htmlElement);
   }
 }
 

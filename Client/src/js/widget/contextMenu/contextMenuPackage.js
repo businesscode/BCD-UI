@@ -41,7 +41,7 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
             if (actionHandler) {
 
               // collect all html attributes from bcdActionId element
-              const bcdActionIdElement = jQuery(event.target).closest("*[bcdActionId!='']").get(0);
+              const bcdActionIdElement = jQuery(event.target).closest("*[bcdActionId]").get(0);
               const htmlAttr = {};
               if (bcdActionIdElement)
                 Array.from(bcdActionIdElement.attributes).forEach(function(a) { htmlAttr[a.nodeName] = a.nodeValue; });

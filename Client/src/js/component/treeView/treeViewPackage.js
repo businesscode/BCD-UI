@@ -21,6 +21,13 @@
 bcdui.component.treeView = Object.assign(bcdui.component.treeView, 
 /** @lends bcdui.component.treeView */
 {
+  
+  _toggleAction: function() {
+    const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
+    const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
+    const isExpanded = (jQuery(this).closest("*[isExpended]").attr("isExpended") || "false") == "true";
+    bcdui.component.treeView.expandCollapse(levelId, rendererId, ! isExpanded);
+  },
 
   /**
    * @private

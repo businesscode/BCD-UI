@@ -2721,10 +2721,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
   if (this.defaultButtons) {
       if (this.allowNewRows) 
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
-      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg bcdActionId='addRow' class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
+      buttonCell.append("<bcd-buttonNg bcdActionId='resetGrid' class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
       if (! this.isReadOnly)
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg bcdActionId='saveGrid' class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
     }
     jQuery("#"+this.targetHtml).append(table);
 
@@ -3478,6 +3478,36 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     return this.enhancedConfiguration; 
   }
 }
+
+bcdui.component.grid = Object.assign(bcdui.component.grid,
+/** @lends bcdui.component.grid */
+{
+  gridButtonAction() {
+    const htmlElement = this;
+    const gridRendererId = jQuery(htmlElement).closest("*[bcdRendererId]").attr("bcdRendererId") || "";
+
+    if (gridRendererId != "" && bcdui.factory.objectRegistry.getObject(gridRendererId)) {
+      const renderer = bcdui.factory.objectRegistry.getObject(gridRendererId);
+
+      let actionHandler = jQuery("#" + renderer.targetHtml).data("actionHandler");
+      actionHandler = (actionHandler && actionHandler.buttonActionHandler) ? actionHandler.buttonActionHandler : new bcdui.component.grid.ButtonMenuAction(); 
+
+      // collect all html attributes from bcdActionId element
+      const bcdActionIdElement = jQuery(htmlElement).closest("*[bcdActionId]").get(0);
+      const htmlAttr = {};
+      if (bcdActionIdElement)
+        Array.from(bcdActionIdElement.attributes).forEach(function(a) { htmlAttr[a.nodeName] = a.nodeValue; });
+  
+      // add some well knowns
+      const wellKnown = {
+        htmlElement: htmlElement
+      , bcdRendererId: gridRendererId
+      }
+      actionHandler.click(Object.assign(wellKnown, htmlAttr));
+    }
+  }
+});
+
 
 
 /************************
