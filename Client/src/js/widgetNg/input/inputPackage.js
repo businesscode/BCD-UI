@@ -192,7 +192,7 @@
         }
         // check for optional validationFunction
         if(args.validationFunction){
-          var func = bcdui.util.isString(args.validationFunction) ? bcdui.util._getJsObjectFromString(args.validationFunction) : args.validationFunction;        
+          var func = bcdui.util.isString(args.validationFunction) ? bcdui.util._toJsFunction(args.validationFunction) : args.validationFunction;        
           if(!func){
             throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
           }

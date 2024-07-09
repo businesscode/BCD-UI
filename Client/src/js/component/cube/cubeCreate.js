@@ -490,7 +490,7 @@ bcdui.component = Object.assign(bcdui.component,
 
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
         if (typeof args.applyFunction == "string")
-          args.applyFunction = bcdui.util._getJsObjectFromString(args.applyFunction);
+          args.applyFunction = bcdui.util._toJsFunction(args.applyFunction);
 
         bcdui.widget.createBlindUpDownArea({
           id: "bcdBlindUpDown_" + args.cubeId
