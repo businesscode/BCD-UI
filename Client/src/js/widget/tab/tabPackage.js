@@ -203,8 +203,8 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
         jQuery("#" + args.targetHTMLElementId + " .isClickable").on("click", function(event) {
           const bcdAction = jQuery(event.target).attr("bcdAction") || "";
           if (bcdAction != "")
-            bcdui.util._stringToJsFunction(bcdAction);
-          bcdui.util._stringToJsFunction(_handlerVariableName + ".handleTabAction", null, [event, settingsNode]);
+            bcdui.util._executeJsFunctionFromString(bcdAction);
+          bcdui.util._executeJsFunctionFromString(_handlerVariableName + ".handleTabAction", null, [event, settingsNode]);
         });
 
         bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;

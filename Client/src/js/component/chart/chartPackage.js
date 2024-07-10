@@ -167,15 +167,15 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
 
           if (clickAction != "")
             jQuery("#" + targetHTMLElementId).on("click", ".bcdAction", function(event) {
-              bcdui.util._stringToJsFunction(clickAction, null, [event]);
+              bcdui.util._executeJsFunctionFromString(clickAction, null, [event]);
           });
           if (mouseOverAction != "")
             jQuery("#" + targetHTMLElementId).on("mouseover", ".bcdAction", function(event) {
-              bcdui.util._stringToJsFunction(mouseOverAction, null, [event]);
+              bcdui.util._executeJsFunctionFromString(mouseOverAction, null, [event]);
           });
           if (mouseOutAction != "")
             jQuery("#" + targetHTMLElementId).on("mouseout", ".bcdAction", function(event) {
-            bcdui.util._stringToJsFunction(mouseOutAction, null, [event]);
+            bcdui.util._executeJsFunctionFromString(mouseOutAction, null, [event]);
           });
         });
       }

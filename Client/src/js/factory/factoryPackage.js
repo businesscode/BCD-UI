@@ -677,9 +677,9 @@ bcdui.factory = Object.assign(bcdui.factory,
         if (typeof args.status == "string" && !!args.status.trim()) {
           var isFunctionCall = args.status.endsWith("()");
           if (isFunctionCall && args.status.startsWith(".")) {
-            args.status = bcdui.util._stringToJsFunction("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
+            args.status = bcdui.util._executeJsFunctionFromString("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
           } else if (isFunctionCall) {
-            args.status = bcdui.util._stringToJsFunction(args.status);
+            args.status = bcdui.util._executeJsFunctionFromString(args.status);
           } else {
             const cp = bcdui.util._getJsObjectFromString(args.status);
             args.status = new cp();

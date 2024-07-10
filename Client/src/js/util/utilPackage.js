@@ -325,26 +325,26 @@ bcdui.util =
   },
 
   /**
-   * Get or execute a JS function given via a string
+   * Execute a JS function given via a string
    *
    * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
    * @param {object}  bindContext context for function bind
    * @param {array}   addParams additional optional parameter objects
    * @private
    * */
-  _stringToJsFunction : function(jsFuncStr, bindContext, addParams) {
+  _executeJsFunctionFromString : function(jsFuncStr, bindContext, addParams) {
     const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
     const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
     const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
     let ok = false;
     if (fktParam.length != 0) {
       let scope = window;
-      const obj = jsFuncStr.split(".").reduce(function(fkt, f) {
-        scopex = fkt;
+      const obj = fktParam[0].split(".").reduce(function(fkt, f) {
+        scope = fkt;
         return fkt[f]
       }, window);
 
-      if (found && typeof obj == "function") {
+      if (typeof obj == "function") {
         // we found the function, so call it with the parameters (or optionally only return it)
         const finalParams = [(bindContext || scope)].concat(fktParam.slice(1).concat((addParams || [])));
         const fkt = obj.bind(...finalParams);

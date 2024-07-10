@@ -326,7 +326,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
                 });
               }
               if (jsFunct)
-                bcdui.util._stringToJsFunction(jsFunct, null, [element]);
+                bcdui.util._executeJsFunctionFromString(jsFunct, null, [element]);
 
             }.bind(this, this.id, nodeModel.id, nodeId, root.getAttribute("postHtmlAttachProcess"))
           , parameters: jQuery.extend(params, this.rendererParams)
