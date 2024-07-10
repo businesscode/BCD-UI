@@ -310,25 +310,20 @@ bcdui.util =
   /**
    * Get a JS object given via a string
    *
-   * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
+   * @param {string}  jsRef object name
+   * @returns the found object or null
    * @private
    * */
   _getJsObjectFromString: function(objName, dontThrow) {
-    let obj = window;
-    let found = true;
-    const splitObj = objName.split(".");
-    for (let i = 0; i < splitObj.length; i++) {
-      found &= typeof obj[splitObj[i]] != "undefined";
-      obj = found ? obj[splitObj[i]] : obj;
-    }
+    const obj = objName.split(".").reduce(function(fkt, f) { return fkt[f]; }, window);
     if (dontThrow)
-      return found ? obj : null;
-    else if (! found)
+      return obj;
+    else if (! obj)
       throw "not an object: " + objName;
     else
       return obj;
   },
-  
+
   /**
    * Get or execute a JS function given via a string
    *
@@ -343,17 +338,12 @@ bcdui.util =
     const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
     let ok = false;
     if (fktParam.length != 0) {
-      // handle sub objects like bcdui.widget.tab
-      // so we run through the objects till we found the final one
-      const splitObj = fktParam[0].split(".");
-      let obj = window;
       let scope = window;
-      let found = true;
-      for (let i = 0; i < splitObj.length; i++) {
-        found &= typeof obj[splitObj[i]] != "undefined";
-        scope = obj;
-        obj = found ? obj[splitObj[i]] : obj;
-      }
+      const obj = jsFuncStr.split(".").reduce(function(fkt, f) {
+        scopex = fkt;
+        return fkt[f]
+      }, window);
+
       if (found && typeof obj == "function") {
         // we found the function, so call it with the parameters (or optionally only return it)
         const finalParams = [(bindContext || scope)].concat(fktParam.slice(1).concat((addParams || [])));
