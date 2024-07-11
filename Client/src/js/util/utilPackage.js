@@ -315,7 +315,7 @@ bcdui.util =
    * @private
    * */
   _getJsObjectFromString: function(objName, dontThrow) {
-    const obj = objName.split(".").reduce(function(fkt, f) { return fkt[f]; }, window);
+    const obj = objName.split(".").reduce(function(fkt, f) { return fkt && fkt[f]; }, window);
     if (dontThrow)
       return obj;
     else if (! obj)
@@ -341,7 +341,7 @@ bcdui.util =
       let scope = window;
       const obj = fktParam[0].split(".").reduce(function(fkt, f) {
         scope = fkt;
-        return fkt[f]
+        return fkt && fkt[f]
       }, window);
 
       if (typeof obj == "function") {
