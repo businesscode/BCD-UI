@@ -95,7 +95,7 @@
         this._identifyNode(targetSelector.getDataProvider().getData(), targetSelector.xPath);
       }.bind(this), targetSelector.xPath);
 
-      var actionHandler = (this.options.actionHandler && args.actionHandler.contextMenuActionHandler) ? this.options.actionHandler : new bcdui.widgetNg.universalFilter.ActionHandler();
+      var actionHandler = (this.options.actionHandler && this.options.actionHandler.contextMenuActionHandler) ? this.options.actionHandler : new bcdui.widgetNg.universalFilter.ActionHandler();
 
       // create a descrete data provider
       this.targetDataProvider = new bcdui.core.DataProviderWithXPathNodes({
