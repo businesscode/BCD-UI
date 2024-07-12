@@ -95,6 +95,8 @@
         this._identifyNode(targetSelector.getDataProvider().getData(), targetSelector.xPath);
       }.bind(this), targetSelector.xPath);
 
+      var actionHandler = (this.options.actionHandler && args.actionHandler.contextMenuActionHandler) ? this.options.actionHandler : new bcdui.widgetNg.universalFilter.ActionHandler();
+
       // create a descrete data provider
       this.targetDataProvider = new bcdui.core.DataProviderWithXPathNodes({
         xPath : this.options.targetModelXPath
@@ -157,7 +159,8 @@
           targetHtmlElement : this.element,
           tableMode : false,
           refreshMenuModel : true,
-          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
+          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"}),
+          actionHandler: actionHandler.contextMenuActionHandler
         });
         
         var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
@@ -660,5 +663,9 @@ bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
 
   triggerAdd: function() {
     jQuery(this).trigger('bcdui:universalFilter:add');
+  },
+
+  triggerCreateMultiValueInput: function() {
+    jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')
   }
 });

@@ -136,6 +136,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
         , "/js/widgetNg/chipsChooser/chipsPackage.js"
         , "/js/widgetNg/universalFilter/universalFilterPackage.js"
+        , "/js/widgetNg/universalFilter/universalFilterAction.js"
         , "/js/widgetNg/slider/sliderPackage.js"
         , "/js/widgetNg/slider/typedSliders.js"
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
