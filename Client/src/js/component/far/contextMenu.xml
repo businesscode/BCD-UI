@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContextMenu xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
-  <Entry caption="Report Export">
+  <Entry caption="Report Export" bcdActionId="reportExport">
     <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("bcdui:far:reportExport")</JavaScriptAction>
   </Entry>
 </ContextMenu>

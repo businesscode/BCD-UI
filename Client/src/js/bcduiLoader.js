@@ -211,6 +211,7 @@ bcdui.bcduiCeFiles =
         "/js/component/far/configurator/farConfigurator.js"
         ,"/js/component/far/farModel.js"
         ,"/js/component/far/far.js"
+        ,"/js/component/far/farAction.js"
         ,"/js/component/far/create.js"
       ],
       "buildFolders": [
