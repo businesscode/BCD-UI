@@ -743,6 +743,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           chain : finalChain
         , parameters :  Object.assign(customOnContextMenu.parameters, {bcdChartGotDetails: bcdChartGotDetails, targetHtml: this.targetHtml})
         })
+      , actionHandler: opts.on.detailsmenu.actionHandler
       });
       
       jQuery("#" + this.targetHTMLElementId).on("chart:contextMenu", function(evt, args) {
