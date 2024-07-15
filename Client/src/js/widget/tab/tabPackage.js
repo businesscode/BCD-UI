@@ -212,6 +212,17 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
       });
     },
 
+    _callInit() {
+      let args = {};
+      args["id"] = jQuery(this).attr("bcdId") || "";
+      args["rendererUrl"] = jQuery(this).attr("rendererUrl") || "";
+      args["rendererId"] = jQuery(this).attr("rendererId") || "";
+      args["handlerJsClassName"] = jQuery(this).attr("handlerJsClassName") || "";
+      args["targetHTMLElementId"] = jQuery(this).attr("targetHTMLElementId") || "";
+      args["idOrElement"] = jQuery(this).attr("idOrElement") || "";
+      bcdui.widget.tab.init(args);
+    },
+
     /**
      * displays active tab according to guiStatus setting
      * @private

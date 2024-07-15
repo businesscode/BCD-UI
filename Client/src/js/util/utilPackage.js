@@ -325,6 +325,18 @@ bcdui.util =
   },
 
   /**
+   * Helper functions which can be called from bcdOnLoad/bcdOnUnload
+   * which take the string from bcdInit/bcdUnInit and executes them as js functions with "this" (the html element) as parameter
+   * @private
+   * */
+  _bcdInit:function() {
+    bcdui.util._executeJsFunctionFromString((jQuery(this).attr("bcdInit") || ""), null, [this]);
+  },
+  _bcdUnInit:function() {
+    bcdui.util._executeJsFunctionFromString((jQuery(this).attr("bcdUnInit") || ""), null, [this]);
+  },
+
+  /**
    * Execute a JS function given via a string
    *
    * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');

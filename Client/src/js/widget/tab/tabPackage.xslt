@@ -50,7 +50,15 @@
       ,idOrElement:'<xsl:value-of select="normalize-space($idOrElement)"/>'
     }
   </xsl:variable>
-  <div style="display: none;" bcdOnLoad="bcdui.widget.tab.init({$args})"> </div>
+  <div style="display: none;"
+    bcdId="{normalize-space($id)}"
+    rendererUrl="{normalize-space($rendererUrl)}"
+    rendererId="{normalize-space($rendererId)}"
+    handlerJsClassName="{normalize-space($handlerJsClassName)}"
+    targetHTMLElementId="{normalize-space($targetHTMLElementId)}"
+    idOrElement="{normalize-space($idOrElement)}"
+    bcdOnLoad="bcdui.widget.tab._callInit">
+  </div>
 </xsl:template>
 
 </xsl:stylesheet>

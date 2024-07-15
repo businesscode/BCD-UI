@@ -48,7 +48,7 @@
     </xsl:variable>
 
     <span class="bcdPagingPanel">
-      <table db="currentPage={$currentPage} page={$page}" bcdOnLoad="bcdui.widget._pagingPanelInit(this);">
+      <table db="currentPage={$currentPage} page={$page}" bcdInit="bcdui.widget._pagingPanelInit" bcdOnLoad="bcdui.util._bcdInit">
         <xsl:variable name="elId" select="concat('pageSelect_',$bcdControllerVariableName)"/>
         <tr>
           <td title="{$backwardsTitle}" class="actionBackwards bcdPagingButton" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" delta="-1" currentPage="{$currentPage}" lastPage="{$lastPage}" elementId="{$elId}" paginatedAction="{$onChange}">&#x25C4;&#x25C4;</td>

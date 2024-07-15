@@ -32,7 +32,8 @@
     legendRendererId="{$id}"
     elementStyle="{$elementStyle}"
     targetHTMLElementId="{$targetHTMLElementId}"
-    bcdOnLoad="bcdui.component.chart.initChartLegend( this )"
+    bcdInit="bcdui.component.chart.initChartLegend"
+    bcdOnLoad="bcdui.util._bcdInit">
     >
   </div>
 </xsl:template>

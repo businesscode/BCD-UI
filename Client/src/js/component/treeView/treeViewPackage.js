@@ -104,6 +104,14 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
     });
   },
   
+  _handleBcdOnLoad: function() {
+    const oldBcdOnLoad = jQuery(this).attr("oldBcdOnLoad") || "";
+    const bcdControllerVariableName = jQuery(this).attr("bcdControllerVariableName") || "";
+    bcdui.component.treeView._registerTreeViewListener(bcdControllerVariableName);
+    if (oldBcdOnLoad)
+      bcdui.util._executeJsFunctionFromString(oldBcdOnLoad, this);
+  },
+
   /**
    * @private
    */

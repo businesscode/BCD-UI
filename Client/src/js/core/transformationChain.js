@@ -407,7 +407,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       jQuery(targetElement).find(" *["+attribute+"]").each(function(idx,onLoadElement) {
         var initCode = onLoadElement.getAttribute( attribute );
         if (initCode && initCode.trim().length!=0) {
-          (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          bcdui.util._executeJsFunctionFromString(initCode, onLoadElement);
         }
         onLoadElement.removeAttribute( attribute );
       });
