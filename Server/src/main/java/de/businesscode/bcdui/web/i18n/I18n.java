@@ -211,6 +211,7 @@ public class I18n {
     cookie.setPath(request.getContextPath());
     cookie.setHttpOnly(true);
     cookie.setComment("Preferred Language");
+    cookie.setSecure(true);
 
     try {
       response.addCookie(cookie);

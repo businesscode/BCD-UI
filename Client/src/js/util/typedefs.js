@@ -49,7 +49,7 @@ jQuery.extend( true, bcdui, {
   widgetNg: {
     commons: { balloon: {} },
     button: {}, checkbox: {}, comment:{}, connectable: {}, dateInput: {}, multiCheck: {}, input: {}, label: {}, pasteList: {}, sideBySideChooser: {}, chipsChooser: {}, singleSelect: {}, inputLookup: {}, rankingChooser: {},
-    slider: {}, suggestInput: {}, textArea: {}, universalFilter: {},
+    slider: {}, suggestInput: {}, textArea: {}, universalFilter: {}, login: {},
     utils: { sorting: {} },
     validation: { validators: { general: {}, widget:{} } }
   },

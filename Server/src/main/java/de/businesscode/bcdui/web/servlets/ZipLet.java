@@ -106,7 +106,7 @@ public class ZipLet extends HttpServlet {
   
   private static final String BCDTINYURLCONTROL = "bcd_tinyurl_control";
   
-  private static final int _zipLetURLLimit = 4000;
+  private static final int _zipLetURLLimit = 3500;
 
 
   /**

@@ -28,6 +28,17 @@
     BCD-UI 4 Filters
   -->
 
+  <!-- CORS Filter, enable it if you want to allow cross origin resource sharing in your application. 
+  <filter>
+    <filter-name>CorsFilter</filter-name>
+    <filter-class>de.businesscode.bcdui.web.filters.CorsFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  -->
+
   <!-- filter for identifying requests from MS Office applications like Word or Excel to not redirect to login page, enable if needed -->
   <!--
   <filter>
@@ -57,7 +68,7 @@
   <!-- Security filter for authentication and authorization, see https://shiro.apache.org/configuration.html -->
   <filter>
     <filter-name>bcdui4.ShiroFilter</filter-name>
-    <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+    <filter-class>de.businesscode.bcdui.web.filters.ShiroFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>bcdui4.ShiroFilter</filter-name>
@@ -432,10 +443,18 @@
     <session-timeout>30</session-timeout>
     <cookie-config>
       <http-only>true</http-only>
-      <!-- Only send via https. ignored for localhost. Disable for test servers, which are not localhost and not https -->
       <secure>true</secure>
     </cookie-config>
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
+  <!-- require SSL -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
 </web-app>
