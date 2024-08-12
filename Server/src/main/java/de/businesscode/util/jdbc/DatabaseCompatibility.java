@@ -53,7 +53,7 @@ public class DatabaseCompatibility
 
   // Set of database-specific reserved words, which are often used in column expressions and usually not referring to a column
   // Used for knowing, where to add table prefixes in SQL
-  // If you miss a word here and a non-column name gets a table prefix in your statement, 
+  // If you miss a word here and a non-column name gets a table prefix in your statement,
   // Instead of extending the list, you may also prepend "bcdNoTableAlias." to it to hint SQL generator
   protected final Set<String> sqlKeyWordsOracle;
   protected final Set<String> sqlKeyWordsMysql;
@@ -82,7 +82,7 @@ public class DatabaseCompatibility
   private int LENGTH_FOR_CAST_TO_VARCHAR = 1024;
 
   /**
-   * 
+   *
    * @return
    * @throws BindingException
    */
@@ -99,7 +99,7 @@ public class DatabaseCompatibility
     return DatabaseCompatibility.singleton;
   }
 
-  
+
   /**
    * clear caches
    */
@@ -187,14 +187,14 @@ public class DatabaseCompatibility
    * @param jdbcResourceName
    * @return How often bound variables of the item used for ordering are used in the created expression
    */
-  public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql ) 
+  public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql )
   {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    if( product.contains("oracle") || product.contains("redshift") ) {
+    if( product.contains("oracle") || product.contains("redshift") || product.contains("snowflake") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
       } else {
-        sql.append( colExpr + " ASC " );        
+        sql.append( colExpr + " ASC " );
       }
       return 1;
     } else {
@@ -202,7 +202,7 @@ public class DatabaseCompatibility
         sql.append( colExpr + " DESC " );
         return 1;
       } else {
-        sql.append( "CASE WHEN "+ colExpr +" IS NULL THEN 0 ELSE 1 END DESC ,"+ colExpr + " ASC " );        
+        sql.append( "CASE WHEN "+ colExpr +" IS NULL THEN 0 ELSE 1 END DESC ,"+ colExpr + " ASC " );
         return 2;
       }
     }
@@ -229,7 +229,7 @@ public class DatabaseCompatibility
       else if( product.contains("mysql") )
         return "DATE_FORMAT("+expr+",'%Y-%m-%d')";
       else if ( product.contains("snowflake"))
-        return "CAST((" + expr + " (FORMAT 'yyyy-mm-dd')) AS CHAR(10))";
+        return "TO_CHAR(" + expr + ", 'yyyy-mm-dd')";
       else
         return "TO_CHAR("+expr+",'yyyy-mm-dd')";
     }
@@ -241,13 +241,13 @@ public class DatabaseCompatibility
       return "CAST (" + expr + " AS VARCHAR("+ LENGTH_FOR_CAST_TO_VARCHAR +"))";
   }
 
-  
+
   public Map<String, String[]> getDefaultCalcFktMapping()
   {
     return oracleCalcFktMapping;
   }
 
-  public Map<String, String[]> getCalcFktMapping( String jdbcResourceName ) 
+  public Map<String, String[]> getCalcFktMapping( String jdbcResourceName )
   {
     String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("microsoft sql server") )
@@ -258,17 +258,17 @@ public class DatabaseCompatibility
       return redshiftCalcFktMapping;
     if ( product.contains("snowflake"))
       return snowflakeCalcFktMapping;
-    return oracleCalcFktMapping;    
+    return oracleCalcFktMapping;
   }
 
   /**
    * For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
    */
-  public Map<String, String> getAggrFktMapping( String jdbcResourceName ) 
+  public Map<String, String> getAggrFktMapping( String jdbcResourceName )
   {
     String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("mysql") )
-      return aggregationMappingMySql;    
+      return aggregationMappingMySql;
     return aggregationMappingGeneric;
   }
 
@@ -279,7 +279,7 @@ public class DatabaseCompatibility
   {
     return sqlSetOperators;
   }
-  
+
   /**
    * Geo spatial operators differ significantly from database to database
    */
@@ -293,7 +293,7 @@ public class DatabaseCompatibility
     return spatialFktMapping;
   }
 
-  
+
   /**
    * Does not do much checking, but as all BindingSets are tested on start, the risk is low
    * @param jdbcResourceName
@@ -302,9 +302,9 @@ public class DatabaseCompatibility
   public String getDatabaseProductNameLC(String jdbcResourceName)
   {
     if (databaseProduct.containsKey(jdbcResourceName)) {
-      return databaseProduct.get(jdbcResourceName);     
+      return databaseProduct.get(jdbcResourceName);
     }
-  
+
     Connection con = null;
     // we either use managed or unmanaged connection depended on the scope of execution
     boolean isManagedConnection = RequestLifeCycleFilter.isThreadBoundToHttpRequest();
@@ -329,7 +329,7 @@ public class DatabaseCompatibility
     }
     return null;
   }
-  
+
   /**
    * returns the clob column data as a string
    * @param bindingSetName the name of the currently used binding set
@@ -386,7 +386,7 @@ public class DatabaseCompatibility
     }
     return iStr;
   }
-  
+
   /**
    * returns the blob column data as an inputstream
    * @param bindingSetName the name of the currently used binding set
@@ -408,7 +408,7 @@ public class DatabaseCompatibility
     }
     return iStr;
   }
-  
+
   /**
    * Retrieve a singleton via getInstance() to make your SQl database type dependent
    */
@@ -498,7 +498,7 @@ public class DatabaseCompatibility
     sqlServerCalcFktMapping.put("AscNl",  new String[]{"N", "",         "",   "ASC NULLS LAST ",    "N"}); // TODO fails
     sqlServerCalcFktMapping.put("DescNf", new String[]{"N", "",         "",   "DESC NULLS FIRST ",  "N"}); // TODO fails
     sqlServerCalcFktMapping.put("DescNl", new String[]{"N", "",         "",   "DESC ",              "N"}); // LAST is default for Asc TSQL
-    
+
     // MySql
     mysqlCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     mysqlCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(",      "",               ")",                  "I"});
@@ -512,8 +512,8 @@ public class DatabaseCompatibility
     // Redshift
     redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
     redshiftCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
-    redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?|| 
-    
+    redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?||
+
     //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
     aggregationMappingGeneric = new HashMap<String, String>();
@@ -524,7 +524,7 @@ public class DatabaseCompatibility
     aggregationMappingGeneric.put("count",     "COUNT");
     aggregationMappingGeneric.put("grouping",  "GROUPING");
     aggregationMappingGeneric.put("none",      ""); // Can be used if the column expression already has an aggregator defined
-    
+
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
     aggregationMappingMySql.put("grouping",  "ISNULL");
 
@@ -558,7 +558,7 @@ public class DatabaseCompatibility
     oracleSpatialFktMapping.put("SpatContained", new String[]{"SDO_CONTAINS(",     ",",  ") = 1"});
     oracleSpatialFktMapping.put("SpatIntersects", new String[]{"SDO_INTERSECTION(",     ",",  ") = 1"});
 
-    // Type EPSG. =WGS84, this is the most common coordinate reference system, also used for GPS.    
+    // Type EPSG. =WGS84, this is the most common coordinate reference system, also used for GPS.
     // We use it for parsing WKT. Mandatory only for SQL-Server. As long as this is hard-coded here. the bRef's value must also be EPSG4326 for operators to work
     // We use geography:: and not geometry:: because we assume working with geo-spatial data here, not with a plain Euclidean space.
     final String DEFAULT_SRID = "4326";
@@ -667,14 +667,14 @@ public class DatabaseCompatibility
           }
         )
     );
-    
+
     // Snowflake specific
     snowflakeCalcFktMapping = oracleCalcFktMapping;
     sqlKeyWordsSnowflake = new HashSet<String>(
       Arrays.asList(
         "ABORT", "ABORTSESSION", "ABS", "ABSOLUTE", "ACCESS_LOCK", "ACCOUNT", "ACOS", "ACOSH", "ACTION", "ADD", "ADD_MONTHS",
         "ADMIN", "AFTER", "AGGREGATE", "ALIAS", "ALL", "ALLOCATE", "ALTER", "AMP", "AND", "ANSIDATE", "ANY", "ARE", "ARRAY",
-        "AS", "ASC", "ASCII", "ASIN", "ASINH", "ASSERTION", "AT", "ATAN", "ATAN2", "ATANH", "ATOMIC", "AUTHORIZATION", "AVE", 
+        "AS", "ASC", "ASCII", "ASIN", "ASINH", "ASSERTION", "AT", "ATAN", "ATAN2", "ATANH", "ATOMIC", "AUTHORIZATION", "AVE",
         "AVERAGE", "AVG",
         "BEFORE", "BEGIN", "BETWEEN", "BINARY", "BIT", "BLOB", "BOOLEAN", "BOTH", "BREADTH", "BT", "BUT", "BY", "BYTE",
         "BYTEINT", "BYTES",
@@ -731,7 +731,7 @@ public class DatabaseCompatibility
         "SUBSTRING", "SUM", "SUMMARY", "SUSPEND", "SYSTEM_USER",
         "TABLE", "TAN", "TANH", "TBL_CS", "TEMPORARY", "TERMINATE", "THAN", "THEN", "THRESHOLD", "TIME", "TIMESTAMP",
         "TIMEZONE_HOUR", "TIMEZONE_MINUTE", "TITLE", "TO", "TO_BYTES", "TO_CHAR", "TO_DATE", "TO_DSINTERVAL", "TO_NUMBER",
-        "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_YMINTERVAL", "TRACE", "TRAILING", "TRANSACTION", "TRANSLATE", "TRANSLATE_CHK",
+        "TO_TIMESTAMP", "TO_TIMESTAMP_TZ", "TO_VARCHAR", "TO_YMINTERVAL", "TRACE", "TRAILING", "TRANSACTION", "TRANSLATE", "TRANSLATE_CHK",
         "TRANSLATION", "TREAT", "TRIGGER", "TRIM", "TRUE", "TRUNC", "TYPE",
         "UC", "UNBOUNDED", "UNDEFINED", "UNDER", "UNDO", "UNION", "UNIQUE", "UNKNOWN", "UNNEST", "UNTIL", "UPD", "UPDATE", "UPPER",
         "UPPERCASE", "USAGE", "USER", "USING",
