@@ -190,7 +190,7 @@ public class DatabaseCompatibility
   public int dbOrderByNullsLast( String jdbcResourceName, String colExpr, boolean isDesc, StringBuffer sql )
   {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    if( product.contains("oracle") || product.contains("redshift") || product.contains("snowflake") ) {
+    if( product.contains("oracle") || product.contains("redshift") || product.contains("snowflake") || product.contains("postgresql") ) {
       if( isDesc ) {
         sql.append( colExpr + " DESC NULLS LAST " );
       } else {
