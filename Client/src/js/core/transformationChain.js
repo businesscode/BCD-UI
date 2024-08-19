@@ -517,7 +517,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
           }
           if( ! result ) {
             this.setStatus(new bcdui.core.status.TransformFailedStatus());
-            bcdui.log.error("Transformation "+this.id + " failed " + (stylesheetURL?stylesheetURL:"") );
+            bcdui.log.error({id: this.id, message: "Transformation "+this.id + " failed " + (stylesheetURL?stylesheetURL:"")});
           }
           else if( result.nodeType ) {
             bcdui.core.xmlLoader._asyncTransformToXMLPostProcess( { processor: processor, sourceDoc: xslt.input,
@@ -728,7 +728,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
     {
       if (!this.hasFailed()) {
         this.setStatus(this.chainLoadingFailed);
-        bcdui.log.error("Chain loading has failed");
+        bcdui.log.error({id: this.id, message: "Chain loading has failed"});
       }
     }
 
@@ -744,7 +744,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         var url = null;
         if (xsltInfo && xsltInfo.model && xsltInfo.model.urlProvider)
           url = xsltInfo.model.urlProvider.getData();
-        bcdui.log.error("Chain stylesheet loading has failed: " + url);
+        bcdui.log.error({id: this.id, message: "Chain stylesheet loading has failed: " + url});
       }
     }
 

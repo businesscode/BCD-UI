@@ -326,7 +326,7 @@ bcdui.core.AbstractExecutable = class
               msg = e.stack.substring(0,500)
             else
               msg = "Error:" + e.message;
-            bcdui.log.error(msg+"\n(In a listener for: '"+firingId+"', on status event: '"+status+"') ");
+            bcdui.log.error({id: firingId, message: msg+"\n(In a listener for: '"+firingId+"', on status event: '"+status+"') "});
             window["console"] && console.error && console.error(msg, e);
           }
         });

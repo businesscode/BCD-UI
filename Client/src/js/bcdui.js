@@ -138,7 +138,7 @@ bcdui = Object.assign(bcdui,
      * @private
      */
     _loadingErrorHandler : function(e){
-      bcdui.log.error("Error occurred while executing callback",e);
+      bcdui.log.error({id: null, message: "Error occurred while executing callback " + e});
     },
 
     /**

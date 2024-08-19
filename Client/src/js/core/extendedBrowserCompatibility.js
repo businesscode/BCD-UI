@@ -183,7 +183,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
                   proc.xslt = doc; // used for debugging and for determining parameters and for webkit to merge params in
                   proc.outputFormat = bcdui.core.browserCompatibility.extractMetaDataFromStylesheetDoc( doc );
                 } catch(e) {
-                  bcdui.log.error("BCD-UI: Internal stylesheet error ("+e+"). "+new XMLSerializer().serializeToString(doc));
+                  bcdui.log.error({id: null, message: "BCD-UI: Internal stylesheet error ("+e+"). "+new XMLSerializer().serializeToString(doc)});
                 }
                 fn(proc);
               }.bind(this) );

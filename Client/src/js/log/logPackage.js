@@ -71,7 +71,7 @@ bcdui.logging = Object.assign( bcdui.logging,
         args.idRef = bcdui.logging._getRegisteredRendererIds();
         if(args.idRef == null){
           if(bcdui.isDebug){
-            bcdui.log.error("no registered renderers found up to this point. nothing to wait for. nothing to log.");
+            bcdui.log.error({id: null, message: "no registered renderers found up to this point. nothing to wait for. nothing to log."});
           }
           return;
         }
@@ -111,7 +111,7 @@ bcdui.logging = Object.assign( bcdui.logging,
                 args.jsCallback({duration:duration});
               }catch(e){
                 if(bcdui.isDebug){
-                  bcdui.log.error("error occurred in callback", e);
+                  bcdui.log.error({id: null, message: "error occurred in callback " + e});
                 }
               }
             }
