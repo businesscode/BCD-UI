@@ -54,7 +54,7 @@
       jQuery(document).ready(() => {
         if(!this.element.has("form").length){
           this.element.empty().html("<div>widget init error, read console!</div>")
-          throw new Error(`bcd-loginng: this widget currently adds behaviour only and expects layout to be provided already in the body, minimum requirement is: <form><input name="username"><input name="password"><span class="role-login-message-err"></span><button class="role-login">login</button></form>`);
+          throw new Error(`bcd-loginng: this widget currently adds behaviour only and expects layout to be provided already in the body, minimum requirement is: <form><input name="username"><input name="password"><span class="role-login-message-err"></span><button class="role-login-action">login</button></form>`);
         }
         this._init();
       });
