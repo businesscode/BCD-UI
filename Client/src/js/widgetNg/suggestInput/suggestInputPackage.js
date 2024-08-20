@@ -965,7 +965,7 @@
       // snapshot widget values to pass to options renderer
       var srcModel = bcdui.factory.objectRegistry.getObject(ctx.config.source.modelId);
       if(!srcModel){
-        bcdui.log.error("srcModel is not registered(null), id: " + ctx.config.source.modelId);
+        bcdui.log.error({id: ctx.config.source.modelId, message: "srcModel is not registered(null), id: " + ctx.config.source.modelId});
       }
       var providers = [];
       // TODO enhancement: create static JsDataProvider every parameter, so we dont have to re-recreate data provider everytime; like _WIDGET_VALUE_DATAPROVIDER

@@ -281,7 +281,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
               this.setStatus(this.loadedStatus);
             }.bind(this),
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
-              bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'");
+              bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'"});
               this.dataDoc = null;
               this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
               this.setStatus(this.loadFailedStatus);
@@ -297,7 +297,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
               this.setStatus(this.loadedStatus);
             }.bind(this),
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
-              bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'");
+              bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'"});
               this.dataDoc = null;
               this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
               this.setStatus(this.loadFailedStatus);
@@ -328,7 +328,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
                 return;
               }
 
-            bcdui.log.error("BCD-UI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'");
+            bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'"});
             this.dataDoc = null;
             this.setStatus(this.loadFailedStatus);
           }.bind(this)

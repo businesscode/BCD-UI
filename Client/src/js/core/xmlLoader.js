@@ -258,7 +258,7 @@ bcdui.core.XMLLoader = class
                 if( args.onFailure )
                   args.onFailure("xinclude, '" + xincludeUrl + "' could not be resolved.");
                 else {
-                  bcdui.log.error("BCD-UI: xinclude, '" + xincludeUrl + "' could not be resolved.");
+                  bcdui.log.error({id: null, message: "BCD-UI: xinclude, '" + xincludeUrl + "' could not be resolved."});
                   throw Error("BCD-UI: xinclude, '" + xincludeUrl + "' could not be resolved.");
                 }
               }
@@ -678,7 +678,7 @@ bcdui.core.XMLLoader = class
             traceXsltProcTime = Date.now() - traceXsltProcTime;
             bcdui.debug._addProcessorExecutionTime( args.transformationChain.id, traceXsltProcTime );
             if( !result ) {
-              bcdui.log.error("ERROR during xslt transfomation "+(args.stylesheetURL)+", "+args.transformationChain.id);
+              bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transfomation "+(args.stylesheetURL)+", "+args.transformationChain.id});
             }
             if( bcdui.log.isTraceEnabled() ) {
               var inputAsString = new XMLSerializer().serializeToString(args.sourceDoc);

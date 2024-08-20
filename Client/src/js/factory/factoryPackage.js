@@ -345,7 +345,7 @@ bcdui.factory = Object.assign(bcdui.factory,
             name: name, source: value
           });
         } else {
-          bcdui.log.error("Unknown parameter type detected.");
+          bcdui.log.error({id: name, message: "Unknown parameter type detected."});
         }
       });
   },

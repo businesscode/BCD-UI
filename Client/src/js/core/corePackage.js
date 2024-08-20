@@ -1164,7 +1164,7 @@ bcdui.core = Object.assign(bcdui.core,
             try {
               fn();
             } catch (e) {
-              bcdui.log.error(e);
+              bcdui.log.error({id: null, message: e});
             }
           } else {
             fn();

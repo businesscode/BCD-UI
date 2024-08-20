@@ -276,35 +276,37 @@
 
       </chart:Series>
       
-      <chart:SeriesColors>
-        <xsl:choose>
-          <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId]">
+      <xsl:if test="$cubeConfig//dm:Measures/dm:Measure/@color">
+        <chart:SeriesColors>
+          <xsl:choose>
+            <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId]">
+                <xsl:variable name="id" select="@id"/>
+                <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="$gotEmptyUnits">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and not(@unit)]">
+                <xsl:variable name="id" select="@id"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and @unit = $units[1]/@unit]">
+                <xsl:variable name="id" select="@id"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and @unit = $units[$unitOffset]/@unit]">
               <xsl:variable name="id" select="@id"/>
-              <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
               <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
             </xsl:for-each>
-          </xsl:when>
-          <xsl:when test="$gotEmptyUnits">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and not(@unit)]">
-              <xsl:variable name="id" select="@id"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and @unit = $units[1]/@unit]">
-              <xsl:variable name="id" select="@id"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
-          <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[@valueId and @unit = $units[$unitOffset]/@unit]">
-            <xsl:variable name="id" select="@id"/>
-            <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-          </xsl:for-each>
-        </xsl:if>
-      </chart:SeriesColors>
+          </xsl:if>
+        </chart:SeriesColors>
+      </xsl:if>
 
       <xsl:copy-of select="$chartPreSettings/*/chart:Stacked"/>
       <xsl:copy-of select="$chartPreSettings/*/chart:SeriesColors"/>
@@ -409,36 +411,37 @@
 
       </chart:Series>
 
-      <chart:SeriesColors>
-        <xsl:choose>
-          <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
-              <xsl:variable name="id" select="substring-after(@id, '|')"/>
-              <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
+      <xsl:if test="$cubeConfig//dm:Measures/dm:Measure/@color">
+        <chart:SeriesColors>
+          <xsl:choose>
+            <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+                <xsl:variable name="id" select="substring-after(@id, '|')"/>
+                <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="$gotEmptyUnits">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+                <xsl:variable name="id" select="substring-after(@id, '|')"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+                <xsl:variable name="id" select="substring-after(@id, '|')"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[$unitOffset]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
+                <xsl:variable name="id" select="substring-after(@id, '|')"/>
               <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
             </xsl:for-each>
-          </xsl:when>
-          <xsl:when test="$gotEmptyUnits">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
-              <xsl:variable name="id" select="substring-after(@id, '|')"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
-              <xsl:variable name="id" select="substring-after(@id, '|')"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
-          <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[$unitOffset]/@unit and generate-id(.) = generate-id(key('headerColsIdSecondPart', substring-after(@id,'|')))]">
-              <xsl:variable name="id" select="substring-after(@id, '|')"/>
-            <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-          </xsl:for-each>
-        </xsl:if>
-      </chart:SeriesColors>
-
+          </xsl:if>
+        </chart:SeriesColors>
+      </xsl:if>
 
       <xsl:copy-of select="$chartPreSettings/*/chart:Stacked"/>
       <xsl:copy-of select="$chartPreSettings/*/chart:SeriesColors"/>
@@ -623,35 +626,37 @@
 
       </chart:Series>
 
-      <chart:SeriesColors>
-        <xsl:choose>
-          <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerValueId', @id))]">
+      <xsl:if test="$cubeConfig//dm:Measures/dm:Measure/@color">
+        <chart:SeriesColors>
+          <xsl:choose>
+            <xsl:when test="$forceAxisY1 != '' and $forceAxisY2 != ''">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and generate-id(.) = generate-id(key('headerValueId', @id))]">
+                <xsl:variable name="id" select="@id"/>
+                <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:when test="$gotEmptyUnits">
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerValueId', @id))]">
+                <xsl:variable name="id" select="@id"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @id))]">
+                <xsl:variable name="id" select="@id"/>
+                <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
+              </xsl:for-each>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
+            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[$unitOffset]/@unit and generate-id(.) = generate-id(key('headerValueId', @id))]">
               <xsl:variable name="id" select="@id"/>
-              <xsl:variable name="yForce" select="$cubeConfig//dm:Measures/dm:Measure[@id=$id]/@yAxis"/>
               <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
             </xsl:for-each>
-          </xsl:when>
-          <xsl:when test="$gotEmptyUnits">
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and not(@unit) and generate-id(.) = generate-id(key('headerValueId', @id))]">
-              <xsl:variable name="id" select="@id"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[1]/@unit and generate-id(.) = generate-id(key('headerValueId', @id))]">
-              <xsl:variable name="id" select="@id"/>
-              <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-            </xsl:for-each>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:if test="$unitCount &gt; 1 and not($forceAxisY1 != '' and $forceAxisY2 != '')">
-          <xsl:for-each select="wrs:Header/wrs:Columns/wrs:C[not(contains(@id,'&#xE0F0;1')) and @unit = $units[$unitOffset]/@unit and generate-id(.) = generate-id(key('headerValueId', @id))]">
-            <xsl:variable name="id" select="@id"/>
-            <chart:Color><xsl:call-template name="colorLookup"><xsl:with-param name="measureId" select="$id"/></xsl:call-template></chart:Color>
-          </xsl:for-each>
-        </xsl:if>
-      </chart:SeriesColors>
+          </xsl:if>
+        </chart:SeriesColors>
+      </xsl:if>
 
        <xsl:copy-of select="$chartPreSettings/*/chart:Stacked"/>
        <xsl:copy-of select="$chartPreSettings/*/chart:SeriesColors"/>

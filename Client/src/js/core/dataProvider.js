@@ -206,7 +206,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
 
           }.bind(this),
           onFailure: function(msg) {
-            bcdui.log.error("BCD-UI: Failed saving model: '"+this.id+"', '"+msg+"'");
+            bcdui.log.error({id: this.id, message: "BCD-UI: Failed saving model: '"+this.id+"', '"+msg+"'"});
             this.setStatus(this.saveFailedStatus);
             if (this.saveOptions.onFailure)
               this.saveOptions.onFailure();
@@ -270,7 +270,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
               }
             }.bind(this)
           , onFailure: function() {
-              bcdui.log.error("BCD-UI: Failed transforming save model: '" + this.id);
+              bcdui.log.error({id: this.id, message: "BCD-UI: Failed transforming save model: '" + this.id});
               this.setStatus(this.saveFailedStatus);
             }.bind(this)
           });

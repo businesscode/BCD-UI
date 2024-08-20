@@ -471,7 +471,7 @@ bcdui.core.compression = {
             if (errorFn) {
               errorFn(result.documentElement.text, message);
             } else {
-              bcdui.log.error(message);
+              bcdui.log.error({id: null, message: message});
               throw Error(message);
             }
           } else {
@@ -483,7 +483,7 @@ bcdui.core.compression = {
           if (errorFn) {
             errorFn(null, e);
           } else {
-            bcdui.log.error(e);
+            bcdui.log.error({id: null, message: e});
             throw Error(e);
           }
         }

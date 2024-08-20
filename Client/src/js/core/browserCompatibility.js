@@ -158,7 +158,7 @@ bcdui.core.browserCompatibility = {
         var fragment = xml.substring(0,styleSheetPos+10)+" ... >"+afterStyleSheet.substring(afterStyleSheet.indexOf('<')-1).substring(1,500)+" ..."
         var msg = "asyncCreateXsltProcessor(): "+ (args.callerDebug ? " '"+args.callerDebug+"', ":"")+ "'" +e.message+"'";
         msg += " DOM document: " + (domDocument?("\n"+fragment):"domDocument is null");
-        bcdui.log.error(msg);
+        bcdui.log.error({id: null, message: msg});
       }
       setTimeout(fn.bind(undefined,proc));
     },

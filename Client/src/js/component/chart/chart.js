@@ -411,7 +411,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
         case this.SCATTEREDCHART:
           if( this.seriesArray.length!=2 || this.seriesArray[0].yAxis1Or2+this.seriesArray[1].yAxis1Or2 != 3 ) {
             var msg = "Scattered chart '"+this.id+"' needs one series for y1 and one for y2";
-            bcdui.log.error(msg);
+            bcdui.log.error({id: this.id, message: msg});
             throw new Error(msg);
           }
           var y    = this.seriesArray[0].yAxis1Or2==1 ? this.seriesArray[0] : this.seriesArray[1];

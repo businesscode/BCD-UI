@@ -26,7 +26,7 @@
   //interim error raising solution,later just throw new error obbject instead of
   //calling this function
   function error(msg){
-    bcdui.log.error(msg);
+    bcdui.log.error({id: null, message: msg});
     throw new Error(msg);
   }
 

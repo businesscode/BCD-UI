@@ -168,7 +168,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
           // Assure that we find the scc:Aggregator definition for each scc:Kpi/@aggr, otherwise the scorecard will hang waiting for it to be loaded
           var undefinedAggrs = this.refSccDefinition.queryNodes("/*/scc:Kpis//*[@aggr and not(@aggr=/*/scc:Aggregators/scc:Aggregator/@id)]");
           if( undefinedAggrs.length > 0 )
-            bcdui.log.error( "Scorecard '"+this.id+"' error: scc:Aggregator definition for id='"+undefinedAggrs.item(0).getAttribute("aggr")+"' not found. " );
+            bcdui.log.error({id: this.id, message: "Scorecard '"+this.id+"' error: scc:Aggregator definition for id='"+undefinedAggrs.item(0).getAttribute("aggr")+"' not found. "} );
 
           // this.dimensions is a space separated list for ids of the dimension columns
           var dims = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectNodes("/*/scc:Layout/scc:Dimensions//dm:LevelRef");
@@ -454,7 +454,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
             }            
             // Or a misconfiguration
             else
-              bcdui.log.error("Scorecard '"+this.id+"' error: scc:Aspect definition for id='"+aspId+"' not found.");
+              bcdui.log.error({id: this.id, message: "Scorecard '"+this.id+"' error: scc:Aspect definition for id='"+aspId+"' not found."});
           }
 
           // Reverse to start with the ones needed for others

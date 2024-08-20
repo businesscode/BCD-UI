@@ -361,7 +361,12 @@
                   <xsl:when test="@name='id'">id</xsl:when>
                   <xsl:when test="@name='url' or @name='stylesheetUrl'">'<xsla:value-of select="$urlFinal"/>'</xsl:when>
                   <xsl:when test="Impl/Xslt"><xsl:value-of select="Impl/Xslt"/></xsl:when>
-                  <xsl:when test="starts-with(@isJSPChild, 'paramBag')">bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1]<xsl:value-of select="substring-after(@isJSPChild, 'paramBag')"/> || '<xsla:value-of select="${@name}"/>'</xsl:when>
+                  <xsl:when test="starts-with(@isJSPChild, 'paramBag')">
+                    <xsl:choose>
+                      <xsl:when test="contains(@type, 'dataProvider')">bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1]<xsl:value-of select="substring-after(@isJSPChild, 'paramBag')"/> || '<xsla:value-of select="${@name}"/>' || null</xsl:when>
+                      <xsl:otherwise>bcdui.core.bcdParamBag[bcdui.core.bcdParamBag.length-1]<xsl:value-of select="substring-after(@isJSPChild, 'paramBag')"/> || '<xsla:value-of select="${@name}"/>'</xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:when>
                   <xsl:when test="@isJSPParent='true'">('<xsla:value-of select="${@name}"/>' != '' ? '<xsla:value-of select="${@name}"/>' : parentDataProvider)</xsl:when>
                   <xsl:when test="contains(@type, 'booleanWithDefault')">
                     <xsl:text>&#10;      (</xsl:text><xsla:choose>
