@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -240,7 +240,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       mimeType = "application/xml";
     else if( pathEnd.endsWith(".xsl") || pathEnd.endsWith(".xslt") )
       mimeType = "application/xslt+xml";
-    else if( pathEnd.endsWith(".json") )
+    else if( pathEnd.endsWith(".json") || args.url.indexOf("json=") != -1 )
       mimeType = "application/json";
     else if( pathEnd.endsWith(".js") )
       mimeType = "text/javascript";
@@ -308,10 +308,17 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       // Non-xml
       else 
       {
+        const pattern = "json=";
+        const idx = loadUrl.indexOf(pattern);
+        const data = idx != -1 ? loadUrl.substring(idx + pattern.length) : loadUrl;
+        const url  = idx != -1 ? loadUrl.substring(0, idx - 1) : loadUrl;
+
         jQuery.ajax({
+          method: this.urlProvider.method || "GET",
           mimeType: this.mimeType,
           contentType: this.mimeType,
-          url : loadUrl,
+          url : this.urlProvider.method != "GET" ? url :  bcdui.util.encodeURI(loadUrl),
+          data: this.urlProvider.method != "GET" ? data : null,
           success : function (data, successCode, jqXHR) {
             this.dataDoc = data;
             this._uncommitedWrites = false;
