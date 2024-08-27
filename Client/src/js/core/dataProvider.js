@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     /**
      * Sends the current data to the original URL
      */
-    sendData()
+    sendData(args)
       {
         if (this.status.equals(this.savingStatus)) {
           bcdui.log.warn("sendData skipped, because the model is already in saving state.");
@@ -164,6 +164,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         if (!this.status.equals(this.getReadyStatus())) {
           throw Error("Cannot send data when the model is not in ready state.");
         }
+        this.sendDataArgs = args;
         this.setStatus(this.savingStatus);
       }
 
@@ -230,7 +231,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
             saveChain.push(this.saveOptions.saveChain);
         }
         // if wrs dp, we add a cleanup chain step
-        if (this.query("/*/wrs:Data") != null) {
+        if (this.getData().selectSingleNode && this.query("/*/wrs:Data") != null) {
           // get rid of wrs:R rows to reduce data for saving and order data for avoiding key constraint issues
           // this is done in js since Chrome/Edge got a XSLT limitation (text content of a node can be 10MB max)
           const prepareToPost = function(doc, args) {
@@ -246,11 +247,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         }
         // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
         if (saveChain.length > 0) {
-          var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+          var sendModel = new bcdui.core.StaticModel({data: this.serialize()});
           mw = new bcdui.core.ModelWrapper({chain: saveChain, parameters: this.saveOptions.saveParameters, inputModel: sendModel});
         }
         else if (this.type != "bcdui.core.SimpleModel")
-          mw = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+          mw = new bcdui.core.StaticModel({data: this.serialize()});
 
         // if we use a wrapper, we need to wait for readiness
         if (mw) {
@@ -260,12 +261,22 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
               p.doc = mw.getData();  // do not forget to use the new document
 
               // if we got a WRS model but nothing to post, skip posting
-              if (p.doc.selectSingleNode("/*/wrs:Data") != null && p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null) {
-                p.onSuccess(p.doc);
-                return;
+              if (p.doc.selectSingleNode) {
+                if (p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null)
+                  p.onSuccess(p.doc);
+                else
+                  bcdui.core.xmlLoader.post(p);
               }
               else {
-                bcdui.core.xmlLoader.post(p);
+                jQuery.ajax({
+                  method:  (this.sendDataArgs && this.sendDataArgs.method) || "POST",
+                  mimeType: this.mimeType,
+                  contentType: this.mimeType,
+                  url : p.url,
+                  data: mw.serialize(),
+                  success : p.onSuccess,
+                  error : p.onFailure
+                });
               }
             }.bind(this)
           , onFailure: function() {
@@ -275,8 +286,21 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
           });
         }
         // otherwise we can post the data directly
-        else
-          bcdui.core.xmlLoader.post(p);
+        else {
+          if (this.getData().selectSingleNode)
+            bcdui.core.xmlLoader.post(p);
+          else {
+            jQuery.ajax({
+              method:  (this.sendDataArgs && this.sendDataArgs.method) || "POST",
+              mimeType: this.mimeType,
+              contentType: this.mimeType,
+              url : p.url,
+              data: this.serialize(),
+              success : p.onSuccess,
+              error : p.onFailure
+            });
+          }
+        }
       }
 
   /**
@@ -711,7 +735,14 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @return String containing the serialized data
    */
   serialize() {
-    return (this.getData() == null ? null : new XMLSerializer().serializeToString(this.getData()));
+    if (this.getData() == null)
+      return null;
+    if (this.getData().selectSingleNode)
+      return new XMLSerializer().serializeToString(this.getData());
+    else if (typeof this.getData() == "string")
+      return this.getData();
+    else if (typeof this.getData() == "object")
+      return JSON.stringify(this.getData());
   }
 
   /**
