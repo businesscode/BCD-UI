@@ -676,7 +676,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   },
 
   /** @private */
-  _INVALID_ROW_TEMPLATE : doT.compile('<R xmlns="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"><C>{{=it.rowId}}</C><C>{{=it.colId}}</C><C>{{=it.error}}</C></R>'),
+  _INVALID_ROW_TEMPLATE : null,
 
   /**
    * Wrs validation which validates selected wrs:C against provided validation function
@@ -781,6 +781,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
             var validationDataNode = bcdui.wrs.wrsUtil.getValidationResult(wrs, validationId, true).selectSingleNode("wrs:Data");
 
             // create invalid record identifier
+            if (bcdui.wrs.wrsUtil._INVALID_ROW_TEMPLATE == null)
+              bcdui.wrs.wrsUtil._INVALID_ROW_TEMPLATE = doT.compile('<R xmlns="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"><C>{{=it.rowId}}</C><C>{{=it.colId}}</C><C>{{=it.error}}</C></R>');
             var invalidRowRecord = bcdui.core.browserCompatibility.createDOMFromXmlString(bcdui.wrs.wrsUtil._INVALID_ROW_TEMPLATE({
               rowId   : rowId,
               colId   : bRef,
