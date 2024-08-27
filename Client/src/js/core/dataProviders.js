@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -799,12 +799,13 @@ export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumen
    */
   _retrieveCompressedValue()
   {
-    bcdui.core.compression.compressDOMDocument(this.requestModel.getData(), function(compressedString)
+    const compressor = (! this.requestModel.getData().selectSingleNode) ? function(data, callback) { callback((typeof data == "string") ? data : JSON.stringify(data)); } : bcdui.core.compression.compressDOMDocument.bind(bcdui.core.compression);
+    compressor(this.requestModel.getData(), function(compressedString)
     {
       // decide which servlet url to use:
       // prio (from hi to low): model url argument, @url binding set attribute, standard
-      var root = this.requestModel.getData().selectSingleNode("/wrq:WrsRequest");
-      this.modelURL = bcdui.core.webRowSetServletPath;
+      var root      = this.requestModel.getData().selectSingleNode ? this.requestModel.getData().selectSingleNode("/wrq:WrsRequest") : null;
+      this.modelURL = this.requestModel.getData().selectSingleNode ? bcdui.core.webRowSetServletPath : this.modelURL;
       if(this.uri){
         this.modelURL += "/" + this.uri;
       }
@@ -813,7 +814,7 @@ export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumen
       else if (root != null && root.getAttribute("url"))
         this.modelURL = bcdui.contextPath + root.getAttribute("url");
 
-      this.value = this.modelURL + (this.modelURL.indexOf("?")==-1 ? "?" : "&") + "guiStatusGZ=" + compressedString;
+      this.value = this.modelURL + (this.modelURL.indexOf("?")==-1 ? "?" : "&") + (this.requestModel.getData().selectSingleNode ? "guiStatusGZ=" : "json=") + compressedString;
       // attach sessionHash if forced or the URL contains well-known classifier for session cached resources
       if(this.attachSessionHash || this.value.indexOf("/servletsSessionCached/")>-1){
         this.value += "&sessionHash=" + bcdui.config.sessionHash;

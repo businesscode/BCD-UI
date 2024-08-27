@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
     /**
      * Sends the current data to the original URL
      */
-    sendData()
+    sendData(args)
       {
         if (this.status.equals(this.savingStatus)) {
           bcdui.log.warn("sendData skipped, because the model is already in saving state.");
@@ -165,6 +165,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
         if (!this.status.equals(this.getReadyStatus())) {
           throw Error("Cannot send data when the model is not in ready state.");
         }
+        this.sendDataArgs = args;
         this.setStatus(this.savingStatus);
       }
 
@@ -231,7 +232,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
             saveChain.push(this.saveOptions.saveChain);
         }
         // if wrs dp, we add a cleanup chain step
-        if (this.query("/*/wrs:Data") != null) {
+        if (this.getData().selectSingleNode && this.query("/*/wrs:Data") != null) {
           // get rid of wrs:R rows to reduce data for saving and order data for avoiding key constraint issues
           // this is done in js since Chrome/Edge got a XSLT limitation (text content of a node can be 10MB max)
           const prepareToPost = function(doc, args) {
@@ -247,11 +248,11 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
         }
         // to use it as wrapper inputModel, we need the current model in ready state, so we take its data into a temporary staticModel 
         if (saveChain.length > 0) {
-          var sendModel = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+          var sendModel = new bcdui.core.StaticModel({data: this.serialize()});
           mw = new bcdui.core.ModelWrapper({chain: saveChain, parameters: this.saveOptions.saveParameters, inputModel: sendModel});
         }
         else if (this.type != "bcdui.core.SimpleModel")
-          mw = new bcdui.core.StaticModel({data: new XMLSerializer().serializeToString(this.getData())});
+          mw = new bcdui.core.StaticModel({data: this.serialize()});
 
         // if we use a wrapper, we need to wait for readiness
         if (mw) {
@@ -261,12 +262,22 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
               p.doc = mw.getData();  // do not forget to use the new document
 
               // if we got a WRS model but nothing to post, skip posting
-              if (p.doc.selectSingleNode("/*/wrs:Data") != null && p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null) {
-                p.onSuccess(p.doc);
-                return;
+              if (p.doc.selectSingleNode) {
+                if (p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null)
+                  p.onSuccess(p.doc);
+                else
+                  bcdui.core.xmlLoader.post(p);
               }
               else {
-                bcdui.core.xmlLoader.post(p);
+                jQuery.ajax({
+                  method:  (this.sendDataArgs && this.sendDataArgs.method) || "POST",
+                  mimeType: this.mimeType,
+                  contentType: this.mimeType,
+                  url : p.url,
+                  data: mw.serialize(),
+                  success : p.onSuccess,
+                  error : p.onFailure
+                });
               }
             }.bind(this)
           , onFailure: function() {
@@ -276,8 +287,21 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
           });
         }
         // otherwise we can post the data directly
-        else
-          bcdui.core.xmlLoader.post(p);
+        else {
+          if (this.getData().selectSingleNode)
+            bcdui.core.xmlLoader.post(p);
+          else {
+            jQuery.ajax({
+              method:  (this.sendDataArgs && this.sendDataArgs.method) || "POST",
+              mimeType: this.mimeType,
+              contentType: this.mimeType,
+              url : p.url,
+              data: this.serialize(),
+              success : p.onSuccess,
+              error : p.onFailure
+            });
+          }
+        }
       }
 
   /**
@@ -437,6 +461,198 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
+   * gets a column id pos map of the current wrs based doc
+   * @return {Object} object holding the column position for each wrs header column c element 
+   * @private
+   */
+   _getColumnPosByBRef() {
+    let columnPosByBRef = {};
+    const headerCols = Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C"));
+    headerCols.forEach(function (e) { columnPosByBRef[e.getAttribute("id")] = parseInt((e.getAttribute("pos") || "0")), 10; });
+    if (headerCols.length == 0)
+      throw Error("data provider "+this.id+" is not WRS based or has no header columns");
+    return columnPosByBRef;
+  }
+
+  /**
+   * read the data from a wrs, filter via xpath and return data as an object array
+   * @param {string array} columns - positive list of column
+   * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
+   * @param {string} templateObj   - object holding the values for the placeholders in the xPathTemplate
+   * @return array holding objects with the read data
+   * @private
+   */
+  _getDataFromTemplate(columns, xPathTemplate, templateObj) {
+    const columnPosByBRef = this._getColumnPosByBRef();
+    return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(function(row) {
+      let rowObj = {};
+      columns.forEach(function(c) {
+        if (c == "bcdRowId")
+          rowObj["bcdRowId"] = row.getAttribute("id");
+        else if (typeof columnPosByBRef[c] != "undefined") {
+          rowObj[c] = row.selectSingleNode("wrs:C["+columnPosByBRef[c]+"]").text || "";
+          if (rowObj[c] == "" && row.selectSingleNode("wrs:C["+columnPosByBRef[c]+"]/wrs:null") != null)
+            rowObj[c] = null;
+        }
+        else
+          bcdui.log.warn("illegal column " + c + " requested in " + this.id);
+      });
+      return rowObj;
+    });
+  }
+
+  /**
+   * generate a filter xpath
+   * @param {Object} filter - object holding requested filter conditions, e.g. { country: 'DE', flag: true } 
+   * @return wrs row filter condition as an xpath 
+   * @private
+   */
+  _buildXPathTemplate(filter) {
+    const columnPosByBRef = this._getColumnPosByBRef();
+    let xPaths = [];
+    for (let c in filter) {
+      if (typeof columnPosByBRef[c] != "undefined") {
+          xPaths.push(
+            (filter[c] === null)
+            ? "wrs:C["+columnPosByBRef[c]+"]/wrs:null"
+            : "wrs:C["+columnPosByBRef[c]+"]='{{=it." + c + "}}'"
+          );
+      }
+      else
+        bcdui.log.warn("illegal column " + c + " requested in " + this.id);
+    }
+
+    return (xPaths.length == 0 ? "" : "[" + xPaths.join(" and ") + "]");
+  }
+
+  /**
+   * inserts a new row in the wrs data, values given as object
+   * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true } 
+   * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
+   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
+   * @return row id of newly inserted row 
+   */
+  tblInsert(args) {
+    args = args || {};
+    const values = args.values || {};
+    const rmi = args.rmi === false ? false : args.rmi || true;
+    const doFire = args.fire === false ? false : args.fire || true;
+    const columnCount = this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length;
+    if (columnCount == 0)
+      throw Error("data provider "+this.id+" is not WRS based or has no header columns");
+    const prefix = (rmi ? "I" : "R");
+    let newIdCount = this.queryNodes("/*/wrs:Data/wrs:*").length + 1;
+    while (this.query("/*/wrs:Data/wrs:" + prefix + "[@id='" + prefix + newIdCount + "']") != null)
+      newIdCount++;
+    const newId = prefix + newIdCount;
+    bcdui.core.createElementWithPrototype(this.getData(), "/*/wrs:Data/wrs:" + prefix + "[@id='" + newId + "']/wrs:C[" + columnCount + "]");
+    this.tblUpdate({rmi: rmi, fire: doFire, rowId: newId, values: values});
+    return newId;
+  }
+
+  /**
+   * updates wrs rows with given data. Either a single row (via rowId) or singel/multiple ones (via filter)
+   * @param {Object}  args.values      - object holding cell values which should be used for updating, e.g. { country: 'DE', flag: true } 
+   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
+   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
+   * @param {string}  [args.rowId]     - id specifying row which should be update (or use filter) 
+   * @return number of updated rows 
+   */
+  tblUpdate(args) {
+    args = args || {};
+    const filter = args.filter || {};
+    const values = args.values || {};
+    const rmi = args.rmi === false ? false : args.rmi || true;
+    const doFire = args.fire === false ? false : args.fire || true;
+    const columnPosByBRef = this._getColumnPosByBRef();
+    const rowIds = args.rowId
+      ? [args.rowId]
+      : Array.from(this.queryNodes(this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter) + "/@id"))).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
+
+    rowIds.forEach(function(rowId) {
+      const rowNode = this.query("/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: rowId});
+      if (rowNode != null) {
+        for (let v in values) {
+          if (typeof columnPosByBRef[v] != "undefined") {
+            if (rmi)
+              bcdui.wrs.wrsUtil.setCellValue(this.getData(), rowId, columnPosByBRef[v], values[v]);
+            else {
+              let node = rowNode.selectSingleNode("wrs:C["+columnPosByBRef[v]+"]");
+              if (node != null) {
+                if (values[v] === null) {
+                  node.text = "";
+                  bcdui.core.browserCompatibility.appendElementWithPrefix(node, "wrs:null");
+                }
+                else
+                  node.text = values[v];
+              }
+            }
+          }
+          else
+            bcdui.log.warn("illegal column " + v + " requested in " + this.id);
+        }
+      }
+      else
+        bcdui.log.warn("illegal row " + rowId + " requested in " + this.id);
+    }.bind(this));
+
+    if (doFire) this.fire;
+
+    return rowIds.length;
+  }
+
+  /**
+   * updates wrs rows with given data. Either a single row (via rowId) or singel/multiple ones (via filter)
+   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
+   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
+   * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use filter) 
+   * @return number of removed rows 
+   */
+  tblDelete(args) {
+    args = args || {};
+    const filter = args.filter || {};
+    const rmi = args.rmi === false ? false : args.rmi || true;
+    const doFire = args.fire === false ? false : args.fire || true;
+    const xPathTpl = args.rowId
+      ? this._getFillParams({rowId: args.rowId}, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']")
+      : this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter));
+    const c = bcdui.core.removeXPath(this.getData(), xPathTpl, rmi)
+    if (doFire) this.fire;
+    return c;
+  }
+
+  /**
+   * returns an array of requested data
+   * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Array}   [args.columns]  - string array of requested columns, if not given, all columns are returned 
+   * @return array of objects holding the requested data 
+   */
+  tblSelect(args){
+    args = args || {};
+    const filter = args.filter || {}
+    const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
+    return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter), filter);
+  }
+
+  /**
+   * returns one object representing the filtered data (either filter or rowId). In case of multiple filter matches, the first one is returned
+   * @param {Object}  [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {string}  [args.rowId]   - rowId of row which should be queried (or use filter)
+   * @param {Array}   [args.columns] - string array of requested columns, if not given, all columns are returned 
+   * @return array of objects holding the requested data 
+   */
+  tblSelectRow(args){
+    args = args || {};
+    if (args.rowId) {
+      const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
+      return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
+    }
+    return this.tblFetchAll(args)[0];
+  }
+
+  /**
    * Set a value to on a certain xPath and create the xPath where necessary. 
    * This combines Element.evaluate() for a single node with creating the path where necessary. 
    * It will prefer extending an existing start-part over creating a second one.
@@ -520,7 +736,14 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
    * @return String containing the serialized data
    */
   serialize() {
-    return (this.getData() == null ? null : new XMLSerializer().serializeToString(this.getData()));
+    if (this.getData() == null)
+      return null;
+    if (this.getData().selectSingleNode)
+      return new XMLSerializer().serializeToString(this.getData());
+    else if (typeof this.getData() == "string")
+      return this.getData();
+    else if (typeof this.getData() == "object")
+      return JSON.stringify(this.getData());
   }
 
   /**

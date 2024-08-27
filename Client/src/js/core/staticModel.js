@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -63,10 +63,19 @@ export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bc
         args.data = "<Empty/>";
       }
       if (typeof args.data == "string" || args.data.nodeType === 1 || args.data.nodeType === 9) {
-        try{
-          this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
-        }catch(e){
-          throw new Error("Failed parsing data parameter for static model. " + e);
+        if (args.data.trim().startsWith("{") || args.data.trim().startsWith("[")) {
+          try {
+            this.dataDoc = JSON.parse(args.data.trim());
+          } catch(e){
+            throw new Error("Failed parsing data parameter for static model. " + e);
+          }
+        }
+        else {
+          try{
+            this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
+          } catch(e){
+            throw new Error("Failed parsing data parameter for static model. " + e);
+          }
         }
       } else {
         this.dataDoc = args.data;
