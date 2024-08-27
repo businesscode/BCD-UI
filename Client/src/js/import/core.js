@@ -1,4 +1,4 @@
-import "./3rdParty.js"
+import {_bcdTemplateLib} from "./3rdParty.js"
 
 import "../../bcdui.js?mode=module"
 

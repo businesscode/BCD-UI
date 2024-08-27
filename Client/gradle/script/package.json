@@ -22,7 +22,8 @@
     "nouislider":         "@version",
     "core-js-bundle":     "@version",
     "fileSaver":          "git+https://github.com/eligrey/FileSaver.js#@version",
-    "echarts":            "@version"
+    "echarts":            "@version",
+    "liquidjs":           "@version"
   }
 
 }
