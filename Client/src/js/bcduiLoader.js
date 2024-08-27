@@ -382,6 +382,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/customElements/input.js"
         , "/js/widgetNg/customElements/inputLookup.js"
         , "/js/widgetNg/customElements/label.js"
+        , "/js/widgetNg/customElements/login.js"
         , "/js/widgetNg/customElements/multiCheck.js"
         , "/js/widgetNg/customElements/pasteList.js"
         , "/js/widgetNg/customElements/rankingChooser.js"
