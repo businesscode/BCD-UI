@@ -289,7 +289,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    */
   _extractDataProvidersAndUpdateDependencies: function(dataProv, dependencies) {
     // No valid dps given
-    if (typeof dataProv == "undefined")
+    if (!dataProv)
       return [];
     // One dp given as an id-string
     if (bcdui.util.isString(dataProv)) {
