@@ -301,7 +301,10 @@ bcdui.util =
           throw `provided jsFuncStr '${jsFuncStr}' is not a function`;
         return func;
       }
-      throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function call with parameters here.`;
+      if (bcdui.config.unsafeEval)
+	      return bcdui.browserCompatibility.isIE8 ? eval( "(function(){return function(){" + jsFuncStr + "}; })()" ) : eval( "(function(){" + jsFuncStr + "})" );
+		  else    
+    	  throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function call with parameters here.`;
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";
