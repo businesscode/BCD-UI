@@ -579,7 +579,7 @@ bcdui.component = Object.assign(bcdui.component,
         });
 
         let actionHandler = args.actionHandler;
-        if (typeof actionHandler == "string") {
+        if (typeof actionHandler == "string" && actionHandler.trim() != "") {
           const cp = bcdui.util._getJsObjectFromString(actionHandler);
           actionHandler = new cp();
         }

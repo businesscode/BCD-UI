@@ -1815,7 +1815,7 @@ jQuery.extend(bcdui.widget,
     args.dataProviders.push(bcdui.wkModels.bcdColIdent);
 
     let actionHandler = args.actionHandler;
-    if (typeof actionHandler == "string") {
+    if (typeof actionHandler == "string" && actionHandler.trim() != "") {
     	const cp = bcdui.util._getJsObjectFromString(actionHandler);
 			actionHandler = new cp();
     }

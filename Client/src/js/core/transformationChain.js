@@ -38,7 +38,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       super(args);
 
       let actionHandler = args.actionHandler;
-      if (typeof actionHandler == "string") {
+      if (typeof actionHandler == "string" && actionHandler.trim() != "") {
       	const cp = bcdui.util._getJsObjectFromString(actionHandler);
       	actionHandler = new cp();
       }
