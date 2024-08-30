@@ -251,6 +251,7 @@
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
         , targetHtml: this.element.find(".bcdLower")
+        , singleClick: this.options.singleClick
         , onSelected: function() {
             // set inputbox to selected items
             const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");

@@ -689,6 +689,9 @@
             The space separated list of binding Refs that will be used in filter clause of request document.
           </Doc>
         </Param>
+        <Param name="singleClick" required="false" type="boolean" default="false">
+          <Doc>If true, single clicking an item moves it. Default is false.</Doc>       
+        </Param>
         <Param name="generateItemHtml" required="false" type="function">
           <Doc>
             Function to generate the html for one container item. Gets object with properties: value, caption, position;
@@ -875,6 +878,9 @@
         </Param>
         <Param name="dblClick" required="false" type="boolean" default="true">
           <Doc>If true, double clicking an item moves it. Default is true.</Doc>       
+        </Param>
+        <Param name="singleClick" required="false" type="boolean" default="false">
+          <Doc>If true, single clicking an item moves it. Default is false.</Doc>       
         </Param>
         <Param name="allowUnknownTargetValue" required="false" type="boolean">
           <Doc>If true, target items are not removed when they are not part of the source's options model.</Doc>       

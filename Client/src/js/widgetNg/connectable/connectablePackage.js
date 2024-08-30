@@ -1321,8 +1321,19 @@
         });
 
         // add a double click handler to directly move item from source to main target or vice versa
-        if (self.options.dblClick) {
+        if (self.options.dblClick && !self.options.singleClick) {
           this.container.on("dblclick", ".ui-selectee", function (event) {
+            var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
+            target = target.length > 0 ? target : self._getScopedTargetContainers();
+            var from = self.container; // we filter on li in this function, so use the outer box as 'from'
+            var to = (jQuery(from).hasClass("bcdSource")) ? target.first() : self._getScopedSourceContainer();
+            self._moveSelectedItems(from, to);
+          });
+        }
+
+        // add a click handler to directly move item from source to main target or vice versa
+        if (self.options.singleClick) {
+          this.container.on("click", ".ui-selectee", function (event) {
             var target = jQuery("[bcdScope='" + self.options.scope + "'].bcdDblClkTarget");
             target = target.length > 0 ? target : self._getScopedTargetContainers();
             var from = self.container; // we filter on li in this function, so use the outer box as 'from'
