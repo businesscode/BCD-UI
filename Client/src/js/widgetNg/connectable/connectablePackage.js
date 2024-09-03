@@ -813,7 +813,7 @@
         htmlElement.scrollTop(newItem.position().top - offset - (htmlElement.outerHeight() / 2));
         
         // return array of selected items (can be used elsewhere e.g. chipsPackage)
-        return htmlElement.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get();
+        return htmlElement.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text().replace(/\s+/g, ' ').trim(); }).get();
       }
       
       return [];
