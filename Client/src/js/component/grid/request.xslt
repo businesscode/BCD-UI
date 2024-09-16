@@ -29,6 +29,7 @@
   <xsl:param name="pagerModel" select="/*[1=0]"/>
   <xsl:param name="serverSidedPagination"/>
   <xsl:param name="gridModelId"/>
+  <xsl:param name="timeStampColumns"/>
   
   <xsl:variable name="excludedStatusFilterBrefs" select="/*/grid:SelectColumns/grid:FilterExclude/@bRefs"/>
 
@@ -81,7 +82,7 @@
           </xsl:choose>
           <xsl:copy-of select="/*/grid:SelectColumns/f:Filter/*"/>
           <xsl:if test="$serverSidedPagination='true'">
-            <xsl:copy-of select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id=$gridModelId]/*"/>
+            <xsl:apply-templates select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id=$gridModelId]/*" mode="timestamp"/>
           </xsl:if>
         </f:Filter>
         <wrq:Ordering>
@@ -121,6 +122,26 @@
       </wrq:Select>
     </wrq:WrsRequest>
 
+  </xsl:template>
+  
+  <xsl:template match="f:Expression" mode="timestamp">
+    <xsl:variable name="bRef" select="@bRef"/>
+    <xsl:variable name="value" select="@value"/>
+    <f:Expression>
+      <xsl:copy-of select="@*[not(local-name(.)='value')]"/>
+      <xsl:attribute name="value">
+        <xsl:choose>
+          <xsl:when test="contains($timeStampColumns, concat('&#xe0f2;', $bRef, '&#xe0f2;'))"><xsl:value-of select="translate($value, ' ', 'T')"/></xsl:when>
+          <xsl:otherwise><xsl:value-of select="$value"/></xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates select="node()" mode="timestamp"/>
+    </f:Expression>
+  </xsl:template>
+  
+  
+  <xsl:template match="node()|@*" mode="timestamp">
+    <xsl:copy><xsl:apply-templates select="node()|@*" mode="timestamp"/></xsl:copy>
   </xsl:template>
 
 </xsl:stylesheet>
