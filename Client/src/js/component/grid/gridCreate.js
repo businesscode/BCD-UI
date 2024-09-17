@@ -379,7 +379,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.getEnhancedConfiguration().onceReady(function(){
 
       if (this.serverSidedPagination) {
-        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder, timeStampColumns: bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns").value};
+
+        const ts = (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns") != "undefined")
+        ? bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns").value
+        : "";
+
+        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder, timeStampColumns: ts};
         var countColumnBRef = this.config.read("/*/grid:SelectColumns//grid:C[@totalCounter='true']/@bRef");
         if (countColumnBRef)
           totalParams.countColumnBRef = countColumnBRef;
