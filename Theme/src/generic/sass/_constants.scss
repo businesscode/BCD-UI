@@ -128,3 +128,9 @@ $far-configurator-color-sorting:   $cube-color-dimension;
 
 // misc
 $text-contrast-break:           50 !default;
+
+// alerter
+$alerter-warn: rgb(255, 170, 0) !default;
+$alerter-info: rgb(200,200,200) !default;
+$alerter-error: rgb(255, 87, 0) !default;
+$alerter-success: rgb(101, 208, 116) !default;

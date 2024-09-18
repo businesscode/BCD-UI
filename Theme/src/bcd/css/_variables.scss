@@ -95,3 +95,10 @@ $grid-hover-color-body:         $corporate-color !default;
 $grid-hover-color-border:       darken($cube-hover-color-body, 25%) !default;
 $grid-color-cell-even:          lighten($grid-color-cell, 8%) !default;
 $grid-color-cell-odd:           lighten($grid-color-cell, 15%) !default;
+
+
+// alerter
+$alerter-warn: rgb(255, 170, 0) !default;
+$alerter-info: rgb(200,200,200) !default;
+$alerter-error: rgb(255, 87, 0) !default;
+$alerter-success: rgb(101, 208, 116) !default;

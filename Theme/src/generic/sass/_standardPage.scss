@@ -2253,3 +2253,62 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
     }
   }
 }
+
+
+#bcdAlerter {
+  position: fixed;
+  bottom: 1em;
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    position: relative;
+    padding: .3em;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: .3em;
+    margin-top: .5em;
+    width: auto;
+    max-width: 30em;
+    max-height: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 2px 3px 12px rgba(52,58,62,.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #333;
+  }
+  
+  &.left  {left: 1em;   align-items: flex-start;}
+  &.right {right: 1em;  align-items: flex-end;}
+  
+  .bcdSlideIn,.bcdSlideOut {animation-duration: 1s; animation-fill-mode: forwards;}
+  .bcdSlideIn.right  { animation-name: slideinright; }
+  .bcdSlideOut.right { animation-name: slideoutright; }
+  .bcdSlideIn.left   { animation-name: slideinleft; }
+  .bcdSlideOut.left  { animation-name: slideoutleft; }
+
+  i.fas {
+    font-family: "Font Awesome 5 Free", Sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 2em;
+    padding: .3em;
+  }
+
+  .bcdSuccess { background: color-mix(in srgb, $alerter-success, transparent 50%); border-color: color-mix(in srgb, $alerter-success, transparent 10%); }
+  .bcdError   { background: color-mix(in srgb, $alerter-error, transparent 50%);   border-color: color-mix(in srgb, $alerter-error, transparent 10%); }
+  .bcdWarn    { background: color-mix(in srgb, $alerter-warn, transparent 50%);    border-color: color-mix(in srgb, $alerter-warn, transparent 10%); }
+  .bcdInfo    { background: color-mix(in srgb, $alerter-info, transparent 50%);    border-color: color-mix(in srgb, $alerter-info, transparent 10%); }
+  .bcdSuccess i { color: color-mix(in srgb, $alerter-success, transparent 10%); }
+  .bcdError   i { color: color-mix(in srgb, $alerter-error, transparent 10%); }
+  .bcdWarn    i { color: color-mix(in srgb, $alerter-warn, transparent 10%); }
+  .bcdInfo    i { color: color-mix(in srgb, $alerter-info, transparent 10%); }
+}
+
+@keyframes slideinright { 0% { translate: 33em 0; } 60% { translate: -1em 0; } 100% { translate: 0 0; } }
+@keyframes slideoutright { 100% { translate: 33em 0; } 60% { translate: -1em 0; } 0% { translate: 0 0; } }
+@keyframes slideinleft { 0% { translate: -33em 0; } 60% { translate: 1em 0; } 100% { translate: 0 0; } }
+@keyframes slideoutleft { 100% { translate: -33em 0; } 60% { translate: 1em 0; } 0% { translate: 0 0; } }
