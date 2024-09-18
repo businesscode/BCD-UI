@@ -67,7 +67,36 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     var pagerModel = args.pagerModel || bcdui.wkModels.guiStatus;
     var serverSidedPagination = args.serverSidedPagination || false;
 
-    // Create our RequestDocumentDataProvider from configuration
+    // in case of a server sided pagination, column filters are added as f:Expression filters
+    // in case of a timestamp column, you'd need to add the "T". Problem is that we don't know the binding set
+    // yet, neither we know which columns are timestamps. So we first have a synchronizing dataprovider holder
+    // for the upcoming request model wrapper, plus we get binding information from the config and run a meta
+    // data only request in case of a server sided paginated grid. We generate a separator delimited string
+    // list of column names which are checked in the request and total row count requests. 
+    const dph = new bcdui.core.DataProviderHolder();
+    const tsdp = new bcdui.core.ConstantDataProvider({id: id + "_tsColumns", name: "timeStampColumns", value: ""});
+    if (! serverSidedPagination)
+      dph.setSource(bcdui.wkModels.guiStatus)
+    else {
+      const tswrapper = new bcdui.core.ModelWrapper({
+        inputModel: config
+      , chain: function(doc) {
+          let bindingSet = doc.selectSingleNode("/*/wrq:BindingSet");
+          bindingSet = bindingSet != null ? bindingSet.text : "";
+          if (bindingSet != "") {
+            const meta = new bcdui.core.AutoModel({bindingSetId: bindingSet, maxRows: 0 });
+            meta.onceReady(function() {
+              tsdp.value = (bcdui.core.magicChar.separator + Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@type-name='TIMESTAMP']")).map(function(e) { return e.getAttribute("id"); }).join(bcdui.core.magicChar.separator) + bcdui.core.magicChar.separator);
+              dph.setSource(bcdui.wkModels.guiStatus);
+            }.bind(this));
+            meta.execute();
+          }
+          else
+            dph.setSource(bcdui.wkModels.guiStatus);
+        }
+      });
+      tswrapper.execute();
+    }
 
     var finalChain = [bcdui.contextPath+"/bcdui/js/component/grid/request.xslt"];
     if (args.requestPostChain) {
@@ -84,6 +113,8 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
       , pagerModel: pagerModel
       , serverSidedPagination: "" + (serverSidedPagination || false)
       , gridModelId: id
+      , dph : dph
+      , timeStampColumns: tsdp
       },
       chain: finalChain
     });
@@ -353,7 +384,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.getEnhancedConfiguration().onceReady(function(){
 
       if (this.serverSidedPagination) {
-        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder };
+
+        const ts = (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns") != "undefined")
+        ? bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns").value
+        : "";
+
+        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder, timeStampColumns: ts};
         var countColumnBRef = this.config.read("/*/grid:SelectColumns//grid:C[@totalCounter='true']/@bRef");
         if (countColumnBRef)
           totalParams.countColumnBRef = countColumnBRef;

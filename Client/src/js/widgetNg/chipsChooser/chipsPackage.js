@@ -251,9 +251,10 @@
           optionsModelRelativeValueXPath: this.options.optionsModelRelativeValueXPath
         , optionsModelXPath: this.options.optionsModelXPath
         , targetHtml: this.element.find(".bcdLower")
+        , singleClick: this.options.singleClick
         , onSelected: function() {
             // set inputbox to selected items
-            const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
+            const newValue = jQuery(this.element).find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text().replace(/\s+/g, ' ').trim(); }).get().join(";");
             jQuery(this.element).closest(".bcdChipChooser").find(".bcdMiddle input").val(newValue);
           }
           , generateItemHtml: this.options.generateItemHtml || function(args1) { return "<li class='ui-selectee' bcdValue='" + args1.value + "' bcdPos='" + args1.position + "' bcdLoCase='" + args1.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0") + "' title='" + args1.caption + "'><span class='bcdItem'>" + args1.caption + "<i class='bcdCloseItem'></i></span></li>"; }
@@ -267,7 +268,7 @@
             const selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
             let caption = "<ul>";
             for (let i = 0; i < selectedItems.length && i < 5; i++)
-              caption += "<li><span class='bcdItem'>" + jQuery(selectedItems[i]).find(".bcdItem").text() + "</span></li>";
+              caption += "<li><span class='bcdItem'>" + jQuery(selectedItems[i]).find(".bcdItem").text().replace(/\s+/g, ' ').trim() + "</span></li>";
             if (selectedItems.length > 5)
               caption += "<li>[...]</li>";
             caption += "</ul>";
@@ -443,7 +444,7 @@
 
         // TAB takes over selected lower part if available, otherwise standard tab
         if (event.keyCode == 9) {
-          const newValue = lowerConnectable.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text(); }).get().join(";");
+          const newValue = lowerConnectable.find(".ui-selected").find(".bcdItem").map(function() { return jQuery(this).text().replace(/\s+/g, ' ').trim(); }).get().join(";");
           if (newValue) {
             inputField.val(newValue);
             event.preventDefault();

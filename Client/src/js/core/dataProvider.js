@@ -263,7 +263,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
 
               // if we got a WRS model but nothing to post, skip posting
               if (p.doc.selectSingleNode) {
-                if (p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null)
+                if (p.doc.selectSingleNode("/*/wrs:Data") != null && p.doc.selectSingleNode("/*/wrs:Data/wrs:*") == null)
                   p.onSuccess(p.doc);
                 else
                   bcdui.core.xmlLoader.post(p);
