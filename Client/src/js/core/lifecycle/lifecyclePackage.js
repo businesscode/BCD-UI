@@ -290,9 +290,61 @@ bcdui.core.lifecycle =
        * guiStatus before it becomes ready.
        */
       bcdui.core.ready(bcdui.wkModels.guiStatus.execute.bind(bcdui.wkModels.guiStatus));
-    }
+    },
 
-}; // namespace
+    _Alerter: class {
+
+      constructor(args) {
+        this.position = (args && args.position) || "right";
+        this.cssClassPos = this.position == "left" ? "left" : "right";
+        jQuery("#bcdAlerter").remove();
+      }
+
+      success(message, delay, customCss) { this._message(message, delay, "bcdSuccess", customCss || "fas fa-check");  }
+      error  (message, delay, customCss) { this._message(message, delay, "bcdError",   customCss || "fas fa-times");  }
+      warn   (message, delay, customCss) { this._message(message, delay, "bcdWarn",    customCss || "fas fa-exclamation-triangle");  }
+      info   (message, delay, customCss) { this._message(message, delay, "bcdInfo",    customCss || "fas fa-info");  }
+
+      _close(uuid) {
+        jQuery("#bcdAlerter").find("*[nId='" + uuid + "']").removeClass("bcdSlideIn").addClass("bcdSlideOut");
+        setTimeout(function() {
+          jQuery("#bcdAlerter").find("*[nId='" + uuid + "']").remove();
+          if (jQuery("#bcdAlerter > div").length == 0)
+            jQuery("#bcdAlerter").hide();
+        }, 1000);
+      }
+
+      _message(message, delay, cssClass, iconCssClass) {
+
+        // lazy init
+        if (jQuery("#bcdAlerter").length == 0) {
+          const d = jQuery("<div class='"+this.cssClassPos+"' id='bcdAlerter'></div>");
+          d.hide();
+          jQuery("body").append(d);
+          jQuery("#bcdAlerter").on("click", ".bcdAlert", function(event) {
+            const e = jQuery(event.target).hasClass("bcdAlert") ? jQuery(event.target) : jQuery(event.target).closest(".bcdAlert"); 
+            this._close(e.attr("nId"));
+          }.bind(this));
+        }
+
+        let delayMs = parseInt((delay || "5000"), 10);
+        if (isNaN(delayMs))
+          delayMs = 5000;
+
+        const msg = bcdui.i18n.syncTranslateFormatMessage({msgid: message}) || message;
+        const nId = bcdui.util.getUuid();
+        const iconText = this.cssClassPos == "left" ? "<div>" + bcdui.util.escapeHtml(msg) + "</div><i class='"+iconCssClass+"'></i>" : "<i class='"+iconCssClass+"'></i><div>"+bcdui.util.escapeHtml(msg) + "</div>";
+        jQuery("#bcdAlerter").prepend("<div class='bcdSlideIn " + this.cssClassPos + " bcdAlert "+cssClass+"' nId='"+nId+"' >"+iconText+"</div>");
+        jQuery("#bcdAlerter").show();
+    
+        if (delayMs != -1) {
+          setTimeout(function() {
+            this._close(nId);
+          }.bind(this), delayMs);
+        }
+      }
+    }
+}
 
 bcdui.core.lifecycle._constructGuiStatus();
 
@@ -302,3 +354,4 @@ bcdui.wkModels.bcdDimensions = new bcdui.core.SimpleModel({ id: "bcdDimensions",
 bcdui.wkModels.bcdCategories = new bcdui.core.SimpleModel({ id: "bcdCategories",  url: bcdui.contextPath + "/bcdui/conf/categories.xml" });
 bcdui.wkModels.bcdRowIdent = new bcdui.core.StringDataProvider( { id: "bcdRowIdent", name: "bcdRowIdent", value: "" } );
 bcdui.wkModels.bcdColIdent = new bcdui.core.StringDataProvider( { id: "bcdColIdent", name: "bcdColIdent", value: "" } );
+bcdui.bcdAlerter = new bcdui.core.lifecycle._Alerter({position: "right"});
