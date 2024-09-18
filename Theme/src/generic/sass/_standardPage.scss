@@ -2312,3 +2312,27 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
 @keyframes slideoutright { 100% { translate: 33em 0; } 60% { translate: -1em 0; } 0% { translate: 0 0; } }
 @keyframes slideinleft { 0% { translate: -33em 0; } 60% { translate: 1em 0; } 100% { translate: 0 0; } }
 @keyframes slideoutleft { 100% { translate: -33em 0; } 60% { translate: 1em 0; } 0% { translate: 0 0; } }
+
+.bcdGrow {
+  display: grid;
+  &::after {
+    content: attr(data-replicated-value) " ";
+    white-space: pre-wrap;
+    visibility: hidden;
+  }
+  > textarea {
+    resize: none;
+    overflow: hidden;
+  }
+  > textarea,
+  &::after {
+    background-color: #fff;
+    color: #495057;
+    padding: .3em .7em;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.5;
+    border: 1px solid $border-color;
+    grid-area: 1 / 1 / 2 / 2;
+  }
+}
