@@ -80,6 +80,16 @@
         ;
       }
 
+      if (args.autogrow) {
+        jQuery(control).on("bcd:widget.input.sync_read", function() {
+          setTimeout(function() {
+            const textarea = control;
+            const grower = textarea.closest(".bcdGrow").get(0);
+            grower.dataset.replicatedValue = textarea.get(0).value;
+          });
+        });
+      }
+
       return {
         widget: el.get(0),
         control: control.get(0)
