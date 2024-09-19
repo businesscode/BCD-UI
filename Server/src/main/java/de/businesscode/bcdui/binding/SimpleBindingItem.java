@@ -36,6 +36,7 @@ public class SimpleBindingItem {
   private boolean columnQuoting = false;
   protected String qColumnExpr;
   private BindingSet bindingSet;
+  private String description;
 
   static {
     wordPattern           = Pattern.compile("([a-zA-Z_]+[0-9a-zA-Z_\\.]*|'.*?')");
@@ -51,6 +52,7 @@ public class SimpleBindingItem {
     this.columnQuoting = src.columnQuoting;
     this.qColumnExpr = src.qColumnExpr;
     this.bindingSet = src.bindingSet;
+    setDescription(src.description);
   }
 
 
@@ -61,6 +63,14 @@ public class SimpleBindingItem {
   public void toXML(XMLStreamWriter writer, boolean withColumnExpression) throws XMLStreamException {
     writer.writeStartElement("C");
     writer.writeAttribute("id", getId());
+
+    String description = getDescription();
+    if (description != null && ! description.isEmpty()) {
+      writer.writeStartElement("Description");
+      writer.writeCharacters(description);
+      writer.writeEndElement();
+    }
+
     if(withColumnExpression){
       writer.writeStartElement("Column");
       writer.writeCharacters(getColumnExpression());
@@ -147,5 +157,12 @@ public class SimpleBindingItem {
 
   public boolean isColumnQuoting() {
     return columnQuoting;
+  }
+
+  public String getDescription() {
+    return this.description;
+  }
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

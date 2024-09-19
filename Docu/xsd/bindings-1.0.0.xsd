@@ -244,6 +244,11 @@
               A valid column or column expression to be used when reading this BindingItem.
             </xs:documentation></xs:annotation>
           </xs:element>
+          <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1">
+            <xs:annotation><xs:documentation>
+              A text describing the binding item.
+            </xs:documentation></xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

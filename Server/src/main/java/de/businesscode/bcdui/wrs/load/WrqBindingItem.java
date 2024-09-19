@@ -332,6 +332,13 @@ public class WrqBindingItem implements WrsBindingItem
       for (String attrName : customAtts.keySet()){
         writer.writeAttribute(StandardNamespaceContext.CUST_NAMESPACE, attrName, customAtts.get(attrName));
       }
+
+      String description = referenceBindingItem.getDescription();
+      if (description != null && ! description.isEmpty()) {
+        writer.writeStartElement("Description");
+        writer.writeCharacters(description);
+        writer.writeEndElement();
+      }
     }
 
     if (withColumnExpression) {// thus WRS response does not write this element
