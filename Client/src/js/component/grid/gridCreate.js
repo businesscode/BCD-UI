@@ -84,7 +84,10 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
           let bindingSet = doc.selectSingleNode("/*/wrq:BindingSet");
           bindingSet = bindingSet != null ? bindingSet.text : "";
           if (bindingSet != "") {
-            const meta = new bcdui.core.AutoModel({bindingSetId: bindingSet, maxRows: 0 });
+            let bRefs = Array.from(doc.selectNodes("/*/grid:SelectColumns/grid:C")).map(function(e) { return e.getAttribute("bRef") || ""; }).filter(function(e) { return e != ""; });
+            bRefs = bRefs.filter(function(e, idx){return bRefs.indexOf(e) == idx});
+            bRefs = bRefs.join(" ");
+            const meta = new bcdui.core.AutoModel({bindingSetId: bindingSet, bRefs: bRefs, maxRows: 0 });
             meta.onceReady(function() {
               tsdp.value = (bcdui.core.magicChar.separator + Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@type-name='TIMESTAMP']")).map(function(e) { return e.getAttribute("id"); }).join(bcdui.core.magicChar.separator) + bcdui.core.magicChar.separator);
               dph.setSource(bcdui.wkModels.guiStatus);
