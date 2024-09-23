@@ -96,6 +96,9 @@ bcdui.component.grid.ContextMenuAction = class {
       , sortAscending:      this._sortAscending
       , sortDescending:     this._sortDescending
       , clearSorting:       this._clearSorting
+      , copy:               this._copy
+      , paste:              this._paste
+      , pasteAsNewRows:     this._pasteAsNewRows
     };
   }
   
@@ -148,5 +151,14 @@ bcdui.component.grid.ContextMenuAction = class {
   }
   _clearSorting(args) {
     jQuery(args.bcdEventSourceElement).trigger("gridActions:columnSort", {columnId: args.bcdColIdent, direction: null} );
+  }
+  _copy(args) {
+    jQuery(args.bcdEventSourceElement).trigger("gridActions:copy", {} );
+  }
+  _paste(args) {
+    jQuery(args.bcdEventSourceElement).trigger("gridActions:paste", {} );
+  }
+  _pasteAsNewRows(args) {
+    jQuery(args.bcdEventSourceElement).trigger("gridActions:pasteAsNewRows", {} );
   }
 }

@@ -158,33 +158,52 @@
           </xsl:if>
         </ContextMenuEntryGroup>
       </xsl:if>
+
       <xsl:if test="$gotExport='true'">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
           <Entry caption="{$bcdI18nModel/*/bcd_Grid_Export}" bcdActionId="fullDataExport">
             <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:fullDataExport")</JavaScriptAction>
           </Entry>
         </ContextMenuEntryGroup>
+        <ContextMenuSubHeader caption="{$bcdI18nModel/*/bcd_Grid_CopyPaste}"/>
+        <TwoColumns>
+          <Entry caption="{$bcdI18nModel/*/bcd_Grid_Copy}" bcdActionId="copy">
+            <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:copy", {} );</JavaScriptAction>
+          </Entry>
+          <Entry caption="{$bcdI18nModel/*/bcd_Grid_Paste}" bcdActionId="paste">
+            <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:paste", {} );</JavaScriptAction>
+          </Entry>
+          <xsl:if test="$allowNewRows='true'">
+            <Entry caption="{$bcdI18nModel/*/bcd_Grid_PasteAsNewRows}" bcdActionId="pasteAsNewRows">
+              <JavaScriptAction>
+                const columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
+                const rowId = bcdui.factory.objectRegistry.getObject("bcdRowIdent").value;
+                jQuery("#" + this.eventSrcElement).trigger("gridActions:pasteAsNewRows", {} );
+              </JavaScriptAction>
+            </Entry>
+          </xsl:if>
+        </TwoColumns>
       </xsl:if>
     </ContextMenu>
   </xsl:template>
 
   <xsl:template name="columnSort">
-    <ContextMenuSubHeader caption="Sort Column"/>
+    <ContextMenuSubHeader caption="{$bcdI18nModel/*/bcd_Grid_SortColumn}"/>
     <TwoColumns>
-      <Entry caption="Ascending" bcdActionId="sortAscending">
+      <Entry caption="{$bcdI18nModel/*/bcd_Grid_SortColumn_Ascending}" bcdActionId="sortAscending">
         <JavaScriptAction>
           var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
           jQuery("#" + this.eventSrcElement).trigger("gridActions:columnSort", {columnId: columnId, direction: "ascending" } );
         </JavaScriptAction>
       </Entry>
-      <Entry caption="Descending" bcdActionId="sortDescending">
+      <Entry caption="{$bcdI18nModel/*/bcd_Grid_SortColumn_Descending}" bcdActionId="sortDescending">
         <JavaScriptAction>
           var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
           jQuery("#" + this.eventSrcElement).trigger("gridActions:columnSort", {columnId: columnId, direction: "descending" } );
         </JavaScriptAction>
       </Entry>
       <xsl:if test="$gridDefinition/*/grid:Columns/@manualSort">
-        <Entry caption="Clear sorting" bcdActionId="clearSorting">
+        <Entry caption="{$bcdI18nModel/*/bcd_Grid_SortColumn_Clear}" bcdActionId="clearSorting">
           <JavaScriptAction>
             var columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
             jQuery("#" + this.eventSrcElement).trigger("gridActions:columnSort", {columnId: columnId, direction: null } );
