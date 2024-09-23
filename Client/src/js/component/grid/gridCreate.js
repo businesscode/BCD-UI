@@ -2078,28 +2078,40 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     
     /**
      * hot wants to add a new row (e.g. via drag or copy/paste)
-     * even for a multiple row containing copy/paste, it seems that this function is called
-     * n times with amount = 1
      * @param index
      * @param amount
      * @private
     */
     function afterCreateRow(index, amount, source) {
 
-     // this is triggered by observechanges when handsontable columnSort is still in the hot arguments
-     // we only need it for copy/paste and fill
-     if (source === "ObserveChanges.change")
-      return;
+      // this is triggered by observechanges when handsontable columnSort is still in the hot arguments
+      // we only need it for copy/paste and fill
+      if (source === "ObserveChanges.change")
+        return;
 
-      var rowIdx = this.hotInstance.toPhysicalRow(index);
-      var row = this.hotInstance.getSourceDataAtRow(rowIdx);
-      if (row) {
-        var nextRow = this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length + 1;
-        for (var i = 0; i < amount; i++) {
+      for (var i = 0; i < amount; i++) {
+        var rowIdx = this.hotInstance.toPhysicalRow(index + i);
+        var row = this.hotInstance.getSourceDataAtRow(rowIdx);
+        if (row) {
+          var nextRow = this.gridModel.queryNodes("/*/wrs:Data/wrs:*").length + 1;
           // if hot added an incomplete data source element for the new row, we need to fix it by adding wrs:I/C on our own
           // in case of pasting it seems that afterCreateRow is called an additional time on the same row so we need to assure to skip this 
           if (typeof row.r === "undefined" || typeof row.r.nodeType === "undefined") {
-            row.r = bcdui.core.createElementWithPrototype(this.gridModel.getData(), "/*/wrs:Data/wrs:I[@id='I_" + (nextRow + i) + "']");
+            const r = bcdui.core.createElementWithPrototype(this.gridModel.getData(), "/*/wrs:Data/wrs:I[@id='I_" + (nextRow + i) + "']");
+
+            // in case of pagination, we move the newly inserted row to the page bottom position
+            if (this.paginationRenderer) {
+              let q = this.hotInstance.countRows() - 1;
+              while (q >= 0 && typeof this.hotInstance.getSourceDataAtRow(q).r.getAttribute == "undefined") {
+                q--;
+              };
+              if (q >= 0) {
+                const thisPageLastRowId = this.hotInstance.getSourceDataAtRow(q).r.getAttribute("id");
+                const insNode = this.gridModel.getData().selectSingleNode("/*/wrs:Data/wrs:*[@id='" + thisPageLastRowId + "']");
+                insNode.parentNode.insertBefore(r, insNode.nextSibling);
+              }
+            }
+            row.r = r;
 
             // we clean the inserted C elements for alignment since createElementWithPrototype might have set the first referenced item (insertRow.xslt does not do this with setDefaultValue=false)
             var e = bcdui.core.createElementWithPrototype(row.r, "./wrs:C[number(" + this.gridModel.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length +")]");
@@ -2108,7 +2120,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               bcdui.core.browserCompatibility.appendElementWithPrefix(cElement, "wrs:null");
             });
 
-            // in case of a paste operation, we remmeber the rows for later callback use
+            // in case of a paste operation, we remember the rows for later callback use
             if (this.paste)
               this.pastedRows.push(row.r);
             else
@@ -2118,18 +2130,18 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             row.c = Array.from(row.r.getElementsByTagName("*")).filter(function(rowElement){return (rowElement.localName||rowElement.baseName) === "C" || (rowElement.localName||rowElement.baseName) === "O";})
           }
         }
-        if (amount > 0) {
-          // rebuild rowIdMap when new rows were inserted
-          var x = 0;
-          this.rowIdMap = {};
-          this.htOptions.data.forEach(function(d){ this.rowIdMap[d.r.getAttribute("id")] = x++; }.bind(this));
+      }
+      if (amount > 0) {
+        // rebuild rowIdMap when new rows were inserted
+        var x = 0;
+        this.rowIdMap = {};
+        this.htOptions.data.forEach(function(d){ this.rowIdMap[d.r.getAttribute("id")] = x++; }.bind(this));
 
-          var xFull = 0;
-          this.rowIdMapFull = {};
-          Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]"), function(r){ this.rowIdMapFull[r.getAttribute("id")] = xFull++; }.bind(this));
+        var xFull = 0;
+        this.rowIdMapFull = {};
+        Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]"), function(r){ this.rowIdMapFull[r.getAttribute("id")] = xFull++; }.bind(this));
 
-          this.afterChange([], "edit");  // trigger full validation
-        }
+        this.afterChange([], "edit");  // trigger full validation
       }
     }
 
@@ -2776,6 +2788,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         var pageSize = this._getCurrentPageSize();
         var curPage = this._getCurrentPage();
 
+        // paste/etc added (more rows than a page usually got) rows on a paginated grid
+        // so we redraw first
+        if (this.hotInstance.countRows() > pageSize) {
+          this.gridModel.fire();
+          return;
+        }
+
         var holder = new bcdui.core.DataProviderHolder();
         var dataKey = "";
 
@@ -3011,6 +3030,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             }
 
             var selection = grid.hotInstance.getSelected();
+
+            // remember old selection before showing context menu kills it
+            grid.selectionBeforeContextMenu = selection;
+
             if (selection && selection.length > 0 && selection[0].length == 4) {
               var rowIds = [];
               for (var curRow = selection[0][0]; curRow <= selection[0][2]; curRow++) {
@@ -3267,9 +3290,45 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this._refreshDataCompletely();
         this.hotInstance.render();
       }.bind(this));
+      
+      jQuery("#" + this.targetHtml).on("gridActions:copy", function(evt, memo){
+        if (this.hotInstance.getPlugin("CopyPaste")) {
+          this.hotInstance.isListening();
+          this.hotInstance.getPlugin("CopyPaste").copy();
+        }
+      }.bind(this));
 
+      jQuery("#" + this.targetHtml).on("gridActions:paste", function(evt, memo){
+        if (this.selectionBeforeContextMenu && this.hotInstance.getPlugin("CopyPaste")) {
+          this.hotInstance.selectCells(this.selectionBeforeContextMenu);
+          delete this.selectionBeforeContextMenu;
+          bcdui.util.clipboard.paste().then(value => {
+            this.hotInstance.isListening();
+            this.hotInstance.getPlugin("CopyPaste").paste(value);
+          });
+        }
+      }.bind(this));
+
+      jQuery("#" + this.targetHtml).on("gridActions:pasteAsNewRows", function(evt, memo){
+        if (! this.allowNewRows)
+          return;
+
+        bcdui.util.clipboard.paste().then(value => {
+          const rows = value.split("\n").length;
+          if (rows > 0 && this.selectionBeforeContextMenu && this.hotInstance.getPlugin("CopyPaste")) {
+            const oldPos = this.selectionBeforeContextMenu[0].slice(0,2);
+            this.hotInstance.selectCell(oldPos[0], 0);
+            delete this.selectionBeforeContextMenu;
+
+            // let handsontable insert the rows for us (we add them via afterCreateRow)
+            this.hotInstance.alter('insert_row', oldPos[0] + 1, rows);
+            this.hotInstance.selectCell(oldPos[0] + 1, 0);
+            this.hotInstance.isListening();
+            this.hotInstance.getPlugin("CopyPaste").paste(value);
+          }
+        });
+      }.bind(this));
     }.bind(this));
-
   }
 
   /**
