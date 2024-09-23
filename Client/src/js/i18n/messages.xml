@@ -102,23 +102,23 @@
       <R id="R50"><C>bcd_EmptyChart</C><C>No data was found for the current settings.</C><C>en</C></R>
 
       <!-- i18n editor -->
-      <R id="R60"><C>bcd_I18nTm_pageTitle</C><C>Translation Management</C><C>en</C></R>
-      <R id="R61"><C>bcd_I18nTm_languagesTabCaption</C><C>Languages</C><C>en</C></R>
-      <R id="R62"><C>bcd_I18nTm_languagesToCountryTabCaption</C><C>Language to Country Assignment</C><C>en</C></R>
-      <R id="R63"><C>bcd_I18nTm_translationsTabCaption</C><C>Translations</C><C>en</C></R>
-      <R id="R64"><C>bcd_I18nTm_btnAddCaption</C><C>Add</C><C>en</C></R>
-      <R id="R65"><C>bcd_I18nTm_btnSaveCaption</C><C>Save</C><C>en</C></R>
-      <R id="R66"><C>bcd_I18nTm_btnRestoreCaption</C><C>Restore</C><C>en</C></R>
-      <R id="R67"><C>bcd_I18nTm_dlgSavedTitle</C><C>Saved</C><C>en</C></R>
-      <R id="R68"><C>bcd_I18nTm_dlgSavedMessage</C><C>Data successfully saved</C><C>en</C></R>
-      <R id="R69"><C>bcd_I18nTm_dlgNotSavedTitle</C><C>Not saved</C><C>en</C></R>
-      <R id="R91"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
-      <R id="R92"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
-      <R id="R93"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
+      <R id="R51"><C>bcd_I18nTm_pageTitle</C><C>Translation Management</C><C>en</C></R>
+      <R id="R52"><C>bcd_I18nTm_languagesTabCaption</C><C>Languages</C><C>en</C></R>
+      <R id="R53"><C>bcd_I18nTm_languagesToCountryTabCaption</C><C>Language to Country Assignment</C><C>en</C></R>
+      <R id="R54"><C>bcd_I18nTm_translationsTabCaption</C><C>Translations</C><C>en</C></R>
+      <R id="R55"><C>bcd_I18nTm_btnAddCaption</C><C>Add</C><C>en</C></R>
+      <R id="R56"><C>bcd_I18nTm_btnSaveCaption</C><C>Save</C><C>en</C></R>
+      <R id="R57"><C>bcd_I18nTm_btnRestoreCaption</C><C>Restore</C><C>en</C></R>
+      <R id="R58"><C>bcd_I18nTm_dlgSavedTitle</C><C>Saved</C><C>en</C></R>
+      <R id="R59"><C>bcd_I18nTm_dlgSavedMessage</C><C>Data successfully saved</C><C>en</C></R>
+      <R id="R60"><C>bcd_I18nTm_dlgNotSavedTitle</C><C>Not saved</C><C>en</C></R>
+      <R id="R61"><C>bcd_I18nTm_pleaseSelectLanguage</C><C>Please select current language code</C><C>en</C></R>
+      <R id="R62"><C>bcd_I18nTm_dlgNoDataToRestoreMessage</C><C>No data to restore</C><C>en</C></R>
+      <R id="R63"><C>bcd_I18nTm_dlgRestoresMessage</C><C>Data successfully restored</C><C>en</C></R>
 
       <!-- Scorecard -->
-      <R id="R94"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
-      <R id="R95"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
+      <R id="R64"><C>bcd_sc_ParentKpi</C><C>Parent Kpi</C><C>en</C></R>
+      <R id="R65"><C>bcd_Sc_NoExport</C><C>No detail data export is available for Kpi '{0}'.</C><C>en</C></R>
 
       <!-- System messages -->
       <R id="R100"><C>bcd_GuiStatusTooLong</C><C>Please reduce the number of filters, browser limit exceeded.</C><C>en</C></R>
@@ -150,6 +150,13 @@
       <R id="R88"><C>bcd_Grid_RowAdd_Bottom</C><C>Add row at bottom</C><C>en</C></R>
       <R id="R89"><C>bcd_Grid_RowDelete_Selected</C><C>Delete selected</C><C>en</C></R>
       <R id="R90"><C>bcd_Grid_RowRestore_Selected</C><C>Restore selected</C><C>en</C></R>
+      <R id="R91"><C>bcd_Grid_Copy</C><C>Copy</C><C>en</C></R>
+      <R id="R92"><C>bcd_Grid_Paste</C><C>Paste</C><C>en</C></R>
+      <R id="R93"><C>bcd_Grid_PasteAsNewRows</C><C>Paste as new rows</C><C>en</C></R>
+      <R id="R94"><C>bcd_Grid_CopyPaste</C><C>Copy/Paste</C><C>en</C></R>
+      <R id="R95"><C>bcd_Grid_SortColumn</C><C>Sort Column</C><C>en</C></R>
+      <R id="R96"><C>bcd_Grid_SortColumn_Ascending</C><C>Ascending</C><C>en</C></R>
+      <R id="R97"><C>bcd_Grid_SortColumn_Descending</C><C>Descending</C><C>en</C></R>
 
       <!-- DE ExpandableGrid -->
       <R id="G91"><C>bcd_Grid_DE_Delete</C><C>Delete</C><C>en</C></R>
@@ -166,10 +173,10 @@
       <R id="R224"><C>bcd_Edit_Modified</C><C>Modified</C><C>en</C></R>
 
       <!-- Reports general -->
-      <R id="R96"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
-      <R id="R97"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
-      <R id="R98"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
-      <R id="R99"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
+      <R id="R400"><C>bcd_Report_NoExport</C><C>No export is available.</C><C>en</C></R>
+      <R id="R401"><C>bcd_Report_AddFilters</C><C>Additional context filters were applied.</C><C>en</C></R>
+      <R id="R402"><C>bcd_Report_ExportStarted</C><C>Export started in background. Excel will open once data is available ...</C><C>en</C></R>
+      <R id="R403"><C>bcd_Report_RowCounterCaption</C><C>#</C><C>en</C></R>
 
       <!-- Export general -->
       <R id="R230"><C>bcd_Export_WYSIWYG</C><C>Export WYSIWYG</C><C>en</C></R>

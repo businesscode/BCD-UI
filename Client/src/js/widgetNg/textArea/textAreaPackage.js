@@ -27,6 +27,20 @@
     /**
      * @private
      */
+    _create : function() {
+      if (this.options.autogrow) {
+        this.options.oninput = function(event) { 
+          const textarea = jQuery(event.target);
+          const grower = textarea.closest(".bcdGrow").get(0);
+          grower.dataset.replicatedValue = textarea.get(0).value;
+        }
+      }
+      this._super();
+    },
+
+    /**
+     * @private
+     */
     _getCreateOptions : function(){
       return bcdui.widgetNg.impl.readParams.textArea(this.element[0]);
     },
@@ -41,9 +55,10 @@
      * @private
      */
     _createInputControl: function(args, config){
-      var el = jQuery("<textarea class='form-control'></textarea>");
+      var el = args.autogrow ? jQuery("<div class='bcdGrow'><textarea class='form-control'></textarea></div>") : jQuery("<textarea class='form-control'></textarea>");
+      var control = args.autogrow ? el.find("textarea") : el;
 
-      el.attr("id", config.inputElementId);
+      control.attr("id", config.inputElementId);
       // the hints are handled by balloons
       el.attr("bcdHint", args.hint);
       el.attr("tabindex", args.tabindex);
@@ -55,6 +70,7 @@
       el.attr("readonly", args.readonly);
       el.attr("cols", args.cols);
       el.attr("rows", args.rows);
+      el.attr("autogrow", args.autogrow);
 
       if(args.disabled){
         el
@@ -64,9 +80,19 @@
         ;
       }
 
+      if (args.autogrow) {
+        jQuery(control).on("bcd:widget.input.sync_read", function() {
+          setTimeout(function() {
+            const textarea = control;
+            const grower = textarea.closest(".bcdGrow").get(0);
+            grower.dataset.replicatedValue = textarea.get(0).value;
+          });
+        });
+      }
+
       return {
         widget: el.get(0),
-        control: el.get(0)
+        control: control.get(0)
       }
     }
   })

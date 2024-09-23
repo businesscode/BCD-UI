@@ -435,6 +435,11 @@ public class ReadBindingSet implements Runnable {
         }
       }
 
+      NodeList descriptionElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Description");
+      if (descriptionElements.getLength() > 0) {
+        bItem.setDescription(descriptionElements.item(0).getTextContent());
+      }
+
       return bItem;
     }
     catch (TransformerException te) {

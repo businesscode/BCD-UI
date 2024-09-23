@@ -391,6 +391,13 @@ public class BindingItem extends SimpleBindingItem {
       writer.writeAttribute(StandardNamespaceContext.CUST_NAMESPACE, attrName, customAtts.get(attrName));
     }
 
+    String description = getDescription();
+    if (description != null && ! description.isEmpty()) {
+      writer.writeStartElement("Description");
+      writer.writeCharacters(description);
+      writer.writeEndElement();
+    }
+
     if (withColumnExpression) {// thus WRS response does not write this element
       writer.writeStartElement("Column");
       writer.writeCharacters(getColumnExpression());

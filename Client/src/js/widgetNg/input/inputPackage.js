@@ -125,7 +125,7 @@
       }.bind(this));
 
       // handle label creation before appending control
-      this._createLabel(uiControl.widget.getAttribute("id"));
+      this._createLabel(uiControl.control.getAttribute("id"));
 
       // attach to DOM
       rootContainer.append(uiControl.widget);
@@ -137,6 +137,9 @@
           blur : this._setUnsetPlaceholder.bind(this,config.inputElementId, true)
         });
       }
+
+      if (args.oninput)
+        jQuery(uiControl.control).on("input", args.oninput);
 
       // add listeners
       if(!args.readonly){

@@ -358,6 +358,11 @@
             HTML autocomplete attribute. Can be on or off.
           </Doc>
         </Param>
+        <Param name="oninput" required="false" type="function">
+          <Doc>
+            The HTML oninput event.
+          </Doc>
+        </Param>
         <Param name="type" type="enum" value="text|email|password|int|numeric|time|color" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
@@ -385,6 +390,9 @@
         </Param>
         <Param name="rows" type="integer">
           <Doc>HTML Parameter on the textarea to set number of rows</Doc>
+        </Param>
+        <Param name="autogrow" required="false" type="boolean" default="false">
+          <Doc>Set to true if the textarea should auto grow while typing.</Doc>
         </Param>
         <Impl>
           <Doc>Define whether or not to write escaped or CDATA values</Doc>

@@ -17,11 +17,13 @@ ___
 * updated default web.xml and enforce usage of https
 * cookies created are flagged as "secure"
 * CORS: to make your app CORSable use `de.businesscode.bcdui.web.filters.ShiroFilter` as a replacement of `org.apache.shiro.web.servlet.ShiroFilter` and add `de.businesscode.bcdui.web.filters.CorsFilter` as a first in the chain and cover resources which should be available to CORS, or set it to `/*` to enable for the whole site.
+* added BindingItem description element, also added to WRS Header
 
 .Client:
 * Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
 * new dataprovider options tblSelect, tblSelectRow, tblUpdate, tblInsert, tblDelete which offers wrs -> object -> wrs functions (currently limited to wrs)
 * added bcdui.bcdAlerter (.info/.warn/.error) to show a slide in alert
+* autogrow attribute for textarea widget
 .Security:
 .Development:
 .Bugfixes:
