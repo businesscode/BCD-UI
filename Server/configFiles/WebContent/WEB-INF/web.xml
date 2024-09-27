@@ -407,6 +407,16 @@
     <servlet-name>bcdui4.WrsNextIdentifierServlet</servlet-name>
     <url-pattern>/bcdui/servlets/WrsNextIdentifierServlet/*</url-pattern>
   </servlet-mapping>
+  
+  <!-- Binding id/caption/description getter -->
+  <servlet>
+    <servlet-name>bcdui4.BindingInfo</servlet-name>
+    <servlet-class>de.businesscode.bcdui.web.servlets.BindingInfo</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bcdui4.BindingInfo</servlet-name>
+    <url-pattern>/bcdui/servlets/BindingInfo/*</url-pattern>
+  </servlet-mapping>
 
   <!-- Session listener for session logging -->
   <listener>
