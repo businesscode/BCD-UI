@@ -60,20 +60,20 @@
 
       control.attr("id", config.inputElementId);
       // the hints are handled by balloons
-      el.attr("bcdHint", args.hint);
-      el.attr("tabindex", args.tabindex);
-      el.attr("autofocus", args.autofocus);
-      el.attr("maxlength", args.maxlength);
-      el.attr("placeholder", args.placeholder);
-      el.attr("pattern", args.pattern);
-      el.attr("required", args.required);
-      el.attr("readonly", args.readonly);
-      el.attr("cols", args.cols);
-      el.attr("rows", args.rows);
+      control.attr("bcdHint", args.hint);
+      control.attr("tabindex", args.tabindex);
+      control.attr("autofocus", args.autofocus);
+      control.attr("maxlength", args.maxlength);
+      control.attr("placeholder", args.placeholder);
+      control.attr("pattern", args.pattern);
+      control.attr("required", args.required);
+      control.attr("readonly", args.readonly);
+      control.attr("cols", args.cols);
+      control.attr("rows", args.rows);
       el.attr("autogrow", args.autogrow);
 
       if(args.disabled){
-        el
+        control
         .prop("disabled","disabled")
         .attr("disabled","disabled")
         .addClass("bcdDisabled")
