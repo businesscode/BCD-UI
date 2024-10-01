@@ -48,7 +48,8 @@ public class BindingInfo extends HttpServlet {
     ArrayList<String> bRefs = new ArrayList<>();
     if (bindingItems != null) {
       for (String s : bindingItems.split(",")) {
-        bRefs.add(s.trim());
+        if (!s.trim().isEmpty())
+          bRefs.add(s.trim());
       }
     }
 
