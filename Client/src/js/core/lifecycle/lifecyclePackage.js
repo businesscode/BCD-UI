@@ -300,12 +300,12 @@ bcdui.core.lifecycle =
         jQuery("#bcdAlerter").remove();
       }
 
-      success(message, delay, customCss) { this._message(message, delay, "bcdSuccess", customCss || "fas fa-check");  }
-      error  (message, delay, customCss) { this._message(message, delay, "bcdError",   customCss || "fas fa-times");  }
-      warn   (message, delay, customCss) { this._message(message, delay, "bcdWarn",    customCss || "fas fa-exclamation-triangle");  }
-      info   (message, delay, customCss) { this._message(message, delay, "bcdInfo",    customCss || "fas fa-info");  }
+      success(message, delay, customCss) { return this._message(message, delay, "bcdSuccess", customCss || "fas fa-check");  }
+      error  (message, delay, customCss) { return this._message(message, delay, "bcdError",   customCss || "fas fa-times");  }
+      warn   (message, delay, customCss) { return this._message(message, delay, "bcdWarn",    customCss || "fas fa-exclamation-triangle");  }
+      info   (message, delay, customCss) { return this._message(message, delay, "bcdInfo",    customCss || "fas fa-info");  }
 
-      _close(uuid) {
+      close(uuid) {
         jQuery("#bcdAlerter").find("*[nId='" + uuid + "']").removeClass("bcdSlideIn").addClass("bcdSlideOut");
         setTimeout(function() {
           jQuery("#bcdAlerter").find("*[nId='" + uuid + "']").remove();
@@ -323,7 +323,7 @@ bcdui.core.lifecycle =
           jQuery("body").append(d);
           jQuery("#bcdAlerter").on("click", ".bcdAlert", function(event) {
             const e = jQuery(event.target).hasClass("bcdAlert") ? jQuery(event.target) : jQuery(event.target).closest(".bcdAlert"); 
-            this._close(e.attr("nId"));
+            this.close(e.attr("nId"));
           }.bind(this));
         }
 
@@ -339,9 +339,10 @@ bcdui.core.lifecycle =
     
         if (delayMs != -1) {
           setTimeout(function() {
-            this._close(nId);
+            this.close(nId);
           }.bind(this), delayMs);
         }
+        return nId;
       }
     }
 }
