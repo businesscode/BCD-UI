@@ -617,6 +617,43 @@ bcdui.util =
       url : bcdui.contextPath + "/bcdui/servlets/SubjectPreferences?value="+bcdui.util.encodeURI(value)+"&name=" + bcdui.util.encodeURI(name),
       success : success
     });
+  },
+
+  /**
+   * returns an object map holding information for a binding's items (id, description and type)
+   * @param {string}    bindingSetId The id of the binding set
+   * @param {string|array}    bRefs    requested binding items. Can be a comma-separated value list or an array
+   * @param {function}  callback The function which is called after a successful call of the BindingInfo servlet and returns the collected data
+  */
+  getBindingInfo: (bindingSetId, bRefs, callback) => {
+    let captionMap = {};
+    const success = callback || function(){};
+    const bindingItems = typeof bRefs == "string" ? bindingItems : Array.isArray(bRefs) ? bRefs.join(",") : "";
+    const b = new bcdui.core.ModelWrapper({
+      inputModel: new bcdui.core.SimpleModel({url: bcdui.contextPath + "/bcdui/servlets/BindingInfo?bindingSetId=" + encodeURI(bindingSetId) + "&bRefs=" + encodeURI(bindingItems)})
+    , chain:
+      function(doc) {
+        Array.from(doc.selectNodes("/*/b:C")).forEach(function(c) {
+
+          let caption = c.getAttribute("caption") || "";
+          if (bcdui.i18n.isI18nKey(caption)) {
+            caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)}) || caption;
+            c.setAttribute("caption", bcdui.util.escapeHtml(caption));
+          }
+
+          const descriptioNode = c.selectSingleNode("b:Description");
+          let description = (descriptioNode != null ? descriptioNode.text : "");
+          if (descriptioNode && bcdui.i18n.isI18nKey(description)) {
+            description = bcdui.i18n.syncTranslateFormatMessage({msgid: description.substring(1)}) || description;
+            descriptioNode.text = bcdui.util.escapeHtml(description);
+          }
+          captionMap[c.getAttribute("id")] = {caption: caption, description: description, typeName: c.getAttribute("typeName") || ""};
+        });
+        return doc;
+      }
+    });
+    b.onceReady(function() { success(captionMap); });
+    b.execute();
   }
 }
 

@@ -79,6 +79,7 @@ public class BindingInfo extends HttpServlet {
           if ((! bRefs.isEmpty() && bRefs.contains(bRef)) || bRefs.isEmpty()) {
             writer.writeStartElement("C");
             writer.writeAttribute("id", bi.getId());
+            writer.writeAttribute("typeName", bi.getJDBCDataTypeName());
             writer.writeAttribute("caption", bi.getCaption());
             String description = bi.getDescription();
             if (description != null && ! description.isEmpty()) {
@@ -97,6 +98,7 @@ public class BindingInfo extends HttpServlet {
               writer.writeStartElement("C");
               writer.writeAttribute("binding", r.getId());
               writer.writeAttribute("id", i.getId());
+              writer.writeAttribute("typeName", i.getJDBCDataTypeName());
               writer.writeAttribute("caption", i.getCaption());
               String description = i.getDescription();
               if (description != null && ! description.isEmpty()) {

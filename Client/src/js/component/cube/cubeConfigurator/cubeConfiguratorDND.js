@@ -446,40 +446,9 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
 
       const dims = Array.from(configModel.queryNodes("//dm:Dimensions/dm:LevelRef")).map(function(d) { return (d.getAttribute("bRef") || "").trim(); })
       const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure")).map(function(d) { return (d.getAttribute("id") || "").trim(); })
-      const dph = new bcdui.core.DataProviderHolder();
       const binding = configModel.read("/*/wrq:BindingSet", "");
-      let captionMap = {};
-      if (binding != "") {
-        const b = new bcdui.core.ModelWrapper({
-          inputModel: new bcdui.core.SimpleModel({url: bcdui.contextPath + "/bcdui/servlets/BindingInfo?bindingSetId=" + encodeURI(binding) + "&bRefs=" + encodeURI(dims.concat(msr).join(","))})
-        , chain:
-          function(doc) {
-            Array.from(doc.selectNodes("/*/b:C")).forEach(function(c) {
+      bcdui.util.getBindingInfo(binding, dims.concat(msr), function(captionMap) {
 
-              let caption = c.getAttribute("caption") || "";
-              if (bcdui.i18n.isI18nKey(caption)) {
-                caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)}) || caption;
-                c.setAttribute("caption", bcdui.util.escapeHtml(caption));
-              }
-
-              const descriptioNode = c.selectSingleNode("b:Description");
-              let description = (descriptioNode != null ? descriptioNode.text : "");
-              if (descriptioNode && bcdui.i18n.isI18nKey(description)) {
-                description = bcdui.i18n.syncTranslateFormatMessage({msgid: description.substring(1)}) || description;
-                descriptioNode.text = bcdui.util.escapeHtml(description);
-              }
-              captionMap[c.getAttribute("id")] = {caption: caption, description: description};
-            });
-            return doc;
-          }
-        });
-        b.onceReady(function() { dph.setSource(bcdui.wkModels.guiStatus); });
-        b.execute();
-      }
-      else
-        dph.setSource(bcdui.wkModels.guiStatus);
-
-      dph.onceReady(function(){
         // clean possibly existing nodes first
         if (noClear) {
           bcdui.core.removeXPath(bucketModel.getData(), "/*/cube:Dimensions");
