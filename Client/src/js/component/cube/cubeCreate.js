@@ -537,8 +537,21 @@ bcdui.component = Object.assign(bcdui.component,
         var tooltipUrl = args.tooltip === 'true' || args.tooltip === true ? bcdui.component.cube._tooltipUrl : args.tooltip;
         bcdui.widget.createTooltip({ targetRendererId : args.cubeId, tableMode : true, filter : "td|th", url : tooltipUrl
           ,parameters : {
-            preCalcData : cube.getPrimaryModel().getPrimaryModel(),
-            cubeEnhancedConfiguration : cube.getEnhancedConfiguration()
+            preCalcData :
+              new bcdui.core.ModelWrapper({
+                inputModel: cube.getPrimaryModel().getPrimaryModel()
+              , chain: function(doc) {
+                  Array.from(doc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(c) {
+                    let caption = c.getAttribute("caption") || "";
+                    if (bcdui.i18n.isI18nKey(caption)) {
+                      caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)}) || caption;
+                      c.setAttribute("caption", bcdui.util.escapeHtml(caption));
+                    }
+                  });
+                  return doc;
+                }
+              })
+            , cubeEnhancedConfiguration : cube.getEnhancedConfiguration()
           }
         });
       }
