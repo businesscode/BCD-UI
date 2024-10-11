@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class BareConfiguration extends JNDIProvider {
   private static SingletonHolder<BareConfiguration> holder = new SingletonHolder<BareConfiguration>() {
     @Override
     protected BareConfiguration createInstance() {
-      return new BareConfiguration();
+      return Configuration.getClassInstance(Configuration.OPT_CLASSES.BARECONFIGURATION, new Class<?>[]{});
     }
   };
 
@@ -181,7 +181,7 @@ public class BareConfiguration extends JNDIProvider {
             if (rollback) {
               log.error("Rolling back");
               con.rollback();
-            } else
+            } else if (hasPendingChanges(con))
               con.commit();
           }
         } catch (SQLException ex) {
@@ -312,4 +312,6 @@ public class BareConfiguration extends JNDIProvider {
   public boolean isCacheDisabled() {
     return (Boolean)getConfigurationParameter(Configuration.DISABLE_CACHE, false);
   }
+
+  protected boolean hasPendingChanges(Connection con) throws SQLException { return true; }
 }

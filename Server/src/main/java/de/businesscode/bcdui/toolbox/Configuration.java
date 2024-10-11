@@ -81,7 +81,8 @@ public class Configuration implements ConfigurationProvider {
     BINDINGS,           // Extends de.businesscode.bcdui.binding.Bindings, has constructor with no params
     SUBJECTSETTINGS2SQL,// Implements de.businesscode.bcdui.wrs.load.SqlConditionGenerator, has constructor with params: (BindingSet bindingSet, WrqInfo wrqInfo, Collection<Element> boundVars, String wrqAlias, String sqlAlias)
     VFSRESOURCEPROVIDER, // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default constructor
-    DATABASECOMPATIBILITY // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default constructor
+    DATABASECOMPATIBILITY, // Implements de.businesscode.bcdui.web.servlets.StaticResourceServlet.ResourceProvider, has a default constructor
+    BARECONFIGURATION   // Implements de.businesscode.bcdui.toolbox.config.BareConfiguration, has a default constructor
   }
   static private final Map<OPT_CLASSES,String[]> optionalClassesPrio;
   static private final Map<OPT_CLASSES,Class<?>> optionalClasses;
@@ -94,6 +95,7 @@ public class Configuration implements ConfigurationProvider {
     optionalClassesPrio.put(OPT_CLASSES.SUBJECTSETTINGS2SQL, new String[]{"de.businesscode.bcdui.wrs.load.SubjectSettings2Sql_Custom", "de.businesscode.bcdui.wrs.load.SubjectSettings2Sql"});
     optionalClassesPrio.put(OPT_CLASSES.VFSRESOURCEPROVIDER, new String[]{"de.businesscode.bcdui.web.servlets.VfsResourceProvider"});
     optionalClassesPrio.put(OPT_CLASSES.DATABASECOMPATIBILITY, new String[]{"de.businesscode.util.jdbc.DatabaseCompatibilityEnterprise", "de.businesscode.util.jdbc.DatabaseCompatibility"});
+    optionalClassesPrio.put(OPT_CLASSES.BARECONFIGURATION, new String[]{"de.businesscode.bcdui.toolbox.config.BareConfigurationEnterprise", "de.businesscode.bcdui.toolbox.config.BareConfiguration"});
     
     // For some classes he have several options available, for now we determine here, which one to use
     optionalClasses = new HashMap<OPT_CLASSES, Class<?>>();
