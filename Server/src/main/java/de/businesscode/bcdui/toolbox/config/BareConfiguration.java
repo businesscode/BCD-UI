@@ -204,6 +204,7 @@ public class BareConfiguration extends JNDIProvider {
           }
         } finally {
           try {
+            resetPendingChanges(con);
             con.close();
           } catch (Exception e) {
             e.printStackTrace();
@@ -317,4 +318,5 @@ public class BareConfiguration extends JNDIProvider {
 
   // always returns true, EE (when available) has a statement/connection wrapper which detects pendingChanges
   protected boolean hasPendingChanges(Connection con) throws SQLException { return true; }
+  protected void resetPendingChanges(Connection con) throws SQLException { return; }
 }
