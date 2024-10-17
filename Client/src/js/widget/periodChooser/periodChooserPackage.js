@@ -923,9 +923,13 @@
               : bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateToXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
           }
           else {
+            // in case of simpleXPath mode, we rebuild the value from the targetXPath and update the dateFrom/To attributes
             if (containerHtmlElement.getAttribute("bcdUseSimpleXPath") === "true") {
               const targetNode = t.doc.selectSingleNode(t.targetModelXPath);
               fromDate = toDate = (targetNode != null) ? targetNode.text : "";
+              targetNode.setAttribute("dateFrom", fromDate);
+              targetNode.setAttribute("dateTo", fromDate);
+              t.targetModel.fire();
             }
             else {
               fromDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateFromXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
