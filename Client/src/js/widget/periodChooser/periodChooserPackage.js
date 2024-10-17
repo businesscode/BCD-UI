@@ -921,9 +921,16 @@
             fromDate = toDate = index == 0 // index == 0 is true for "From" date
               ? bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateFromXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)))
               : bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateToXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
-          } else {
-            fromDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateFromXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
-            toDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateToXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
+          }
+          else {
+            if (containerHtmlElement.getAttribute("bcdUseSimpleXPath") === "true") {
+              const targetNode = t.doc.selectSingleNode(t.targetModelXPath);
+              fromDate = toDate = (targetNode != null) ? targetNode.text : "";
+            }
+            else {
+              fromDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateFromXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
+              toDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateToXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));
+            }
           }
         }
         if (containerHtmlElement.getAttribute("bcdTextInput") === "true") {
@@ -1047,7 +1054,7 @@
       var to = bcdui.util.datetime.parseDate(dateTo);
 
       if (pcConfig.useSimpleXPath) {
-        bcdui.core.createElementWithPrototype(doc, xPath).text  = bcdui.util.datetime.formatDate(from);
+        bcdui.core.createElementWithPrototype(doc, xPath).text  = pcConfig.isHourSelectable ? bcdui.util.datetime.formatDateTime(from) : bcdui.util.datetime.formatDate(from);
         return;
       }
 
