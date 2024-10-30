@@ -647,7 +647,7 @@ bcdui.util =
             description = bcdui.i18n.syncTranslateFormatMessage({msgid: description.substring(1)}) || description;
             descriptioNode.text = bcdui.util.escapeHtml(description);
           }
-          captionMap[c.getAttribute("id")] = {caption: caption, description: description, typeName: c.getAttribute("typeName") || ""};
+          captionMap[c.getAttribute("id")] = {caption: c.getAttribute("caption"), description: description, typeName: c.getAttribute("typeName") || ""};
         });
         return doc;
       }

@@ -64,19 +64,46 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
 
     bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
 
+      const enhancedConfig = bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration);
+
       // We only process a server request, if at least one measure or one dimension is selected, otherwise further execution is prevented
       var rqModel = null;
-      if( ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure")
-       && ! bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration).getData().selectSingleNode("/*/cube:Layout/cube:Dimensions//dm:LevelRef")
+      if( ! enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure")
+       && ! enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Dimensions//dm:LevelRef")
           ) {
         rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
       } else {
-		requestParameters["statusModel"] = args.statusModel;
+		    requestParameters["statusModel"] = args.statusModel;
         rqModel = new bcdui.core.ModelWrapper( { id: args.id+"_bcdImpl_requestDoc", inputModel: args.enhancedConfiguration,
           parameters: requestParameters, chain: requestChain } );
       }
-      reqHolder.setSource(rqModel);
-      reqHolder.execute();
+
+      // add possibly missing captions to measures and measureRefs
+      const msrRefsNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("idRef") || ""; });
+      const msrNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("id") || ""; });
+      let noCaptionsMsr = msrRefsNoCaption.concat(msrNoCaption).filter(function(e) { return e.text != ""; });
+      noCaptionsMsr = noCaptionsMsr.filter(function(e, idx){return noCaptionsMsr.indexOf(e) == idx});
+      const binding = enhancedConfig.read("/*/wrq:BindingSet", "");
+      if (binding != "" && noCaptionsMsr.length > 0) {
+        bcdui.util.getBindingInfo(binding, noCaptionsMsr, function(captionMap) {
+          noCaptionsMsr.forEach(function(id) {
+            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[@idRef='{{=it[0]}}']", [id])).forEach(function(m) {
+              const caption = m.getAttribute("caption") || (typeof captionMap[id] != "undefined" ? captionMap[id].caption : "") || id;
+              m.setAttribute("caption", caption);
+            });
+            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[@id='{{=it[0]}}']", [id])).forEach(function(m) {
+              const caption = m.getAttribute("caption") || (typeof captionMap[id] != "undefined" ? captionMap[id].caption : "") || id;
+              m.setAttribute("caption", caption);
+            });
+          });
+          reqHolder.setSource(rqModel);
+          reqHolder.execute();
+        });
+      }
+      else {
+        reqHolder.setSource(rqModel);
+        reqHolder.execute();
+      }
     }.bind(this) );
   }
   getClassName() {return  "bcdui.component.cube.CubeModel";}
