@@ -159,30 +159,30 @@
         </ContextMenuEntryGroup>
       </xsl:if>
 
+      <ContextMenuSubHeader caption="{$bcdI18nModel/*/bcd_Grid_CopyPaste}"/>
+      <TwoColumns>
+        <Entry caption="{$bcdI18nModel/*/bcd_Grid_Copy}">
+          <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:copy", {} );</JavaScriptAction>
+        </Entry>
+        <Entry caption="{$bcdI18nModel/*/bcd_Grid_Paste}">
+          <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:paste", {} );</JavaScriptAction>
+        </Entry>
+        <xsl:if test="$allowNewRows='true'">
+          <Entry caption="{$bcdI18nModel/*/bcd_Grid_PasteAsNewRows}">
+            <JavaScriptAction>
+              const columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
+              const rowId = bcdui.factory.objectRegistry.getObject("bcdRowIdent").value;
+              jQuery("#" + this.eventSrcElement).trigger("gridActions:pasteAsNewRows", {} );
+            </JavaScriptAction>
+          </Entry>
+        </xsl:if>
+      </TwoColumns>
       <xsl:if test="$gotExport='true'">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
           <Entry caption="{$bcdI18nModel/*/bcd_Grid_Export}">
             <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:fullDataExport")</JavaScriptAction>
           </Entry>
         </ContextMenuEntryGroup>
-        <ContextMenuSubHeader caption="{$bcdI18nModel/*/bcd_Grid_CopyPaste}"/>
-        <TwoColumns>
-          <Entry caption="{$bcdI18nModel/*/bcd_Grid_Copy}">
-            <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:copy", {} );</JavaScriptAction>
-          </Entry>
-          <Entry caption="{$bcdI18nModel/*/bcd_Grid_Paste}">
-            <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:paste", {} );</JavaScriptAction>
-          </Entry>
-          <xsl:if test="$allowNewRows='true'">
-            <Entry caption="{$bcdI18nModel/*/bcd_Grid_PasteAsNewRows}">
-              <JavaScriptAction>
-                const columnId = bcdui.factory.objectRegistry.getObject("bcdColIdent").value;
-                const rowId = bcdui.factory.objectRegistry.getObject("bcdRowIdent").value;
-                jQuery("#" + this.eventSrcElement).trigger("gridActions:pasteAsNewRows", {} );
-              </JavaScriptAction>
-            </Entry>
-          </xsl:if>
-        </TwoColumns>
       </xsl:if>
     </ContextMenu>
   </xsl:template>
