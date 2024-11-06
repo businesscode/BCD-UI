@@ -2121,7 +2121,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             // in case of pagination, we move the newly inserted row to the page bottom position
             if (this.paginationRenderer) {
               let q = this.hotInstance.countRows() - 1;
-              while (q >= 0 && typeof this.hotInstance.getSourceDataAtRow(q).r.getAttribute == "undefined") {
+              while (q >= 0 && this.hotInstance.getSourceDataAtRow(q).r && typeof this.hotInstance.getSourceDataAtRow(q).r.getAttribute == "undefined" ) {
                 q--;
               };
               if (q >= 0) {
