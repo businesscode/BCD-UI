@@ -2229,7 +2229,8 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
       a:after {
         content: "\f00d";
       }
-      padding: .375em .75em;
+      margin: 0;
+      padding: .375rem .75rem;
     }
   } 
   .col {
@@ -2251,6 +2252,9 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
       text-transform: uppercase;
       font-weight: normal;
     }
+  }
+  .bcdSingleSelectNg {
+    width: auto;
   }
 }
 
