@@ -626,9 +626,16 @@ bcdui.util =
    * @param {function}  callback The function which is called after a successful call of the BindingInfo servlet and returns the collected data
   */
   getBindingInfo: (bindingSetId, bRefs, callback) => {
+
     let captionMap = {};
     const success = callback || function(){};
     const bindingItems = typeof bRefs == "string" ? bindingItems : Array.isArray(bRefs) ? bRefs.join(",") : "";
+
+    if (!bindingSetId) {
+      success(captionMap);
+      return;
+    }
+
     const b = new bcdui.core.ModelWrapper({
       inputModel: new bcdui.core.SimpleModel({url: bcdui.contextPath + "/bcdui/servlets/BindingInfo?bindingSetId=" + encodeURI(bindingSetId) + "&bRefs=" + encodeURI(bindingItems)})
     , chain:
