@@ -236,6 +236,7 @@
       <R id="R176"><C>bcd_Rank_NoColKpi</C><C>Ranking and sorting are not available for column KPIs</C><C>en</C></R>
       <R id="R177"><C>bcd_Rank_Per</C><C>Per</C><C>en</C></R>
       <R id="R178"><C>bcd_Rank_By</C><C>By</C><C>en</C></R>
+      <R id="R179"><C>bcd_Rank_All</C><C>All</C><C>en</C></R>
 
       <!-- UniversalFilter -->
       <R id="R200"><C>bcd_widget_universalFilter_valueNotNull</C><C>is not null</C><C>en</C></R>
