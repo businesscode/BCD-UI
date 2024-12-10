@@ -71,9 +71,10 @@ task bcduiBuildCore( type: Jar ) {
 
   // Just merge the content of the individual projects Server, Client, Theme, JspTaglib
   [':Server:jar', ':Client:bcduiDist'].each { subJar ->
-    if( tasks.findByPath(subJar) == null )
+    def task = tasks.findByPath(subJar)
+    if (task == null)
       return
-    from zipTree( tasks.getByPath(subJar).archivePath )
+    from zipTree(task.archiveFile.get())
     exclude 'META-INF//MANIFEST.MF'
     exclude 'META-INF/gitInformation/**'
   }
