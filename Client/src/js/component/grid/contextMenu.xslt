@@ -159,12 +159,11 @@
         </ContextMenuEntryGroup>
       </xsl:if>
 
-      <xsl:if test="$gotExport='true'">
-        <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
+      <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Grid_ActionsGlobalHdr}" >
+	      <xsl:if test="$gotExport='true'">
           <Entry caption="{$bcdI18nModel/*/bcd_Grid_Export}" bcdActionId="fullDataExport">
             <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("gridActions:fullDataExport")</JavaScriptAction>
           </Entry>
-        </ContextMenuEntryGroup>
         <ContextMenuSubHeader caption="{$bcdI18nModel/*/bcd_Grid_CopyPaste}"/>
         <TwoColumns>
           <Entry caption="{$bcdI18nModel/*/bcd_Grid_Copy}" bcdActionId="copy">
@@ -183,7 +182,7 @@
             </Entry>
           </xsl:if>
         </TwoColumns>
-      </xsl:if>
+      </ContextMenuEntryGroup>
     </ContextMenu>
   </xsl:template>
 
