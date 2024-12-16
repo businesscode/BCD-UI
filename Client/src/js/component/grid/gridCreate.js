@@ -455,8 +455,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         throw new Error("GridModel needs at least one key column: " + this.id);    
 
       this.binding = this.gridModel.read("/*//wrq:WrsRequest//wrq:BindingSet", "");
-      this.keyRequestPre = "<WrsRequest xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0' xmlns:f='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><Select><Columns>" + keyColumns + "</Columns><From><BindingSet>" + this.binding + "</BindingSet></From><f:Filter><f:Or>";
-      this.keyRequestPost = "</f:Or></f:Filter><Grouping>" + keyColumns + "</Grouping></Select></WrsRequest>"
+      this.keyRequestPre = "<WrsRequest xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0' xmlns:f='http://www.businesscode.de/schema/bcdui/filter-1.0.0'><Select><Columns>" + keyColumns + "</Columns><From><BindingSet>" + this.binding + "</BindingSet></From><f:Filter>";
+      this.keyRequestPost = "</f:Filter><Grouping>" + keyColumns + "</Grouping></Select></WrsRequest>"
   
       // early init of wrsHeaderMeta since it's used by collect rowDependency Columns
       this.wrsHeaderMeta = bcdui.wrs.wrsUtil.generateWrsHeaderMeta(this.gridModel.getData());
@@ -569,14 +569,31 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   
           // deepKeyCheck runs a request on the database looking if the keys do exist
           if (this.doDeepKeyCheck) {
-            var filter = "";
+            var uniqueFilter = {};
             for (var deepKey in this.deepKeyCheckKeys) {
-              filter += "<f:And>";
               var keyValues = deepKey.split(bcdui.core.magicChar.separator);
               var keyColumnValues = this.deepKeyCheckKeyColumns[deepKey].split(bcdui.core.magicChar.separator);
-              for (var f = 0; f < keyValues.length; f++)
-                filter += "<f:Expression " + (keyValues[f] == "" ? "" : "value='" + keyValues[f] + "'") + " op='=' bRef='" + keyColumnValues[f] + "'/>";
-              filter += "</f:And>";
+              for (var f = 0; f < keyValues.length; f++) {
+                uniqueFilter[keyColumnValues[f]] = uniqueFilter[keyColumnValues[f]] || [];
+                uniqueFilter[keyColumnValues[f]].push(keyValues[f]);
+              }
+            }
+            for (let a in uniqueFilter)
+              uniqueFilter[a] = uniqueFilter[a].filter(function(e, idx){return uniqueFilter[a].indexOf(e) == idx});
+
+            let filter = "";
+            for (let a in uniqueFilter) {
+              if (uniqueFilter[a].length == 1)
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a][0])], "<f:Expression " + (uniqueFilter[a][0] == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+              else if (uniqueFilter[a].length < 100)
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a].join(","))], "<f:Expression value='{{=it[0]}}'" + " op='in' bRef='" + a + "'/>");
+              else {
+                filter += "<f:Or>";
+                uniqueFilter[a].forEach(function(v) {
+                  filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(v)], "<f:Expression " + (v == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+                });
+                filter += "</f:Or>";
+              }
             }
             var keyCheckModel = new bcdui.core.SimpleModel({ url : new bcdui.core.RequestDocumentDataProvider({ requestModel: new bcdui.core.StaticModel(this.keyRequestPre + filter + this.keyRequestPost)}) });
             keyCheckModel.onceReady(function() {
@@ -1523,6 +1540,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       this.pastedRows.forEach(function(e) {
         this.afterAddRow({rowNode:e, headerMeta: this.wrsHeaderMeta});
       }.bind(this));
+      this.gridModel.validationResult.execute();
     }
     
     function beforePaste(data, coords) {
@@ -2037,7 +2055,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }.bind(this));
         bcdui.factory.objectRegistry.getObject(this.id + "_afterChange_changes").value = normalizedChanges;
 
-        this.gridModel.validationResult.execute();
+        if (source != "CopyPaste.paste")
+          this.gridModel.validationResult.execute();
       }
     }
     
@@ -2107,7 +2126,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             // in case of pagination, we move the newly inserted row to the page bottom position
             if (this.paginationRenderer) {
               let q = this.hotInstance.countRows() - 1;
-              while (q >= 0 && typeof this.hotInstance.getSourceDataAtRow(q).r.getAttribute == "undefined") {
+              while (q >= 0 && (typeof this.hotInstance.getSourceDataAtRow(q).r == "undefined" || typeof this.hotInstance.getSourceDataAtRow(q).r.getAttribute == "undefined" )) {
                 q--;
               };
               if (q >= 0) {
@@ -2146,7 +2165,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         this.rowIdMapFull = {};
         Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]"), function(r){ this.rowIdMapFull[r.getAttribute("id")] = xFull++; }.bind(this));
 
-        this.afterChange([], "edit");  // trigger full validation
+        this.afterChange([], source);  // trigger full validation
       }
     }
 
@@ -2757,7 +2776,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     // populate rowpos, and trigger validation
     changes.forEach(function(c) { c[0] = this.rowIdMap[rowId]; }.bind(this));
-    this.afterChange(changes, "edit");  // trigger partial validation (can be full for a deleted row)
+    this.afterChange(changes, "CopyPaste.paste");  // trigger partial validation (can be full for a deleted row)
+    this.gridModel.validationResult.execute();
   }
 
   /**

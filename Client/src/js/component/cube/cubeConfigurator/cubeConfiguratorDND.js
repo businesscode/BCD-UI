@@ -39,174 +39,175 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
     });
     bcdui.factory.objectRegistry.getObject(cubeBucketModelId).execute(); // we're static, we're synchron...
 
-    bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId);
+    bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId, false, function() {
 
-    // remember bucket and targetModelId for refresh function
-    jQuery("#" + args.targetHtml).addClass("bcd_"+ args.cubeId + "_dnd");
-    jQuery("#" + args.targetHtml).attr("bcdCubeId", args.cubeId).attr("contextId", "cubeDnd");
-    jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId", args.targetModelId);
-    jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId", cubeBucketModelId);
+      // remember bucket and targetModelId for refresh function
+      jQuery("#" + args.targetHtml).addClass("bcd_"+ args.cubeId + "_dnd");
+      jQuery("#" + args.targetHtml).attr("bcdCubeId", args.cubeId).attr("contextId", "cubeDnd");
+      jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId", args.targetModelId);
+      jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId", cubeBucketModelId);
 
-    // initially transform cube layout into in-between-model for connectables
-    bcdui.component.cube.configuratorDND._cubeLayoutToControlModel(args.cubeId);
+      // initially transform cube layout into in-between-model for connectables
+      bcdui.component.cube.configuratorDND._cubeLayoutToControlModel(args.cubeId);
 
-    // and initialize controls
-    var cubeTargetId = cubeBucketModelId;
-    var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
+      // and initialize controls
+      var cubeTargetId = cubeBucketModelId;
+      var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
 
-    var inputArgs = {
-      optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Dimensions/dm:LevelRef/@caption"
-    , optionsModelRelativeValueXPath: "../@bRef"
-    , targetHtml: "#" + args.targetHtml + " .bcdDimensionList"
-    , scope: args.cubeId + "_dims"
-    , unselectAfterMove: true
-    , doSortOptions: args.doSortOptions
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
-    var inputArgs = {
-      targetHtml: "#" + args.targetHtml + " .bcdCurrentColDimensionList"
-    , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColDim/@id"
-    , scope: args.cubeId + "_dims"
-    , unselectAfterMove: true
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
-    var inputArgs = {
-      targetHtml: "#" + args.targetHtml + " .bcdCurrentRowDimensionList"
-    , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowDim/@id"
-    , scope: args.cubeId + "_dims"
-    , isDoubleClickTarget: true
-    , unselectAfterMove: true
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
-    var inputArgs = {
-      optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Measures/dm:MeasureRef/@caption"
-    , optionsModelRelativeValueXPath: "../@idRef"
-    , targetHtml: "#" + args.targetHtml + " .bcdMeasureList"
-    , scope: args.cubeId + "_meas"
-    , unselectAfterMove: true
-    , doSortOptions: args.doSortOptions
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
-    var inputArgs = {
-      targetHtml: "#" + args.targetHtml + " .bcdCurrentColMeasureList"
-    , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColMes/@id"
-    , scope: args.cubeId + "_meas"
-    , unselectAfterMove: true
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
-    var inputArgs = {
-      targetHtml: "#" + args.targetHtml + " .bcdCurrentMeasureList"
-    , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowMes/@id"
-    , scope: args.cubeId + "_meas"
-    , isDoubleClickTarget: true
-    , unselectAfterMove: true
-    , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
-    , extendedConfig: {noTooltip: true }
-    };
-    bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Dimensions/dm:LevelRef/@caption"
+      , optionsModelRelativeValueXPath: "../@bRef"
+      , targetHtml: "#" + args.targetHtml + " .bcdDimensionList"
+      , scope: args.cubeId + "_dims"
+      , unselectAfterMove: true
+      , doSortOptions: args.doSortOptions
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentColDimensionList"
+      , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColDim/@id"
+      , scope: args.cubeId + "_dims"
+      , unselectAfterMove: true
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentRowDimensionList"
+      , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowDim/@id"
+      , scope: args.cubeId + "_dims"
+      , isDoubleClickTarget: true
+      , unselectAfterMove: true
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        optionsModelXPath: "$" + cubeBucketModelId + "/*/cube:Measures/dm:MeasureRef/@caption"
+      , optionsModelRelativeValueXPath: "../@idRef"
+      , targetHtml: "#" + args.targetHtml + " .bcdMeasureList"
+      , scope: args.cubeId + "_meas"
+      , unselectAfterMove: true
+      , doSortOptions: args.doSortOptions
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentColMeasureList"
+      , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/ColMes/@id"
+      , scope: args.cubeId + "_meas"
+      , unselectAfterMove: true
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
+      var inputArgs = {
+        targetHtml: "#" + args.targetHtml + " .bcdCurrentMeasureList"
+      , targetModelXPath: "$" + cubeTargetId + cubeTargetXPathRoot + "/RowMes/@id"
+      , scope: args.cubeId + "_meas"
+      , isDoubleClickTarget: true
+      , unselectAfterMove: true
+      , generateItemHtml: bcdui.component.cube.configuratorDND._itemRenderer
+      , extendedConfig: {noTooltip: true }
+      };
+      bcdui.widgetNg.createConnectable(inputArgs);
 
-    // tooltip when using descriptions
-    if (bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Dimensions/dm:LevelRef/@description") != null || bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Measures/dm:Measure/@description") != null) {
-      bcdui.widget.createTooltip({
-        targetHtml: args.targetHtml
-      , url: bcdui.contextPath + "/bcdui/js/component/cube/dndTooltip.xslt"
-      , inputModel: bcdui.wkModels.guiStatus
-      , identsWithin: args.targetHtml
-      , parameters: { cubeId: args.cubeId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, cubeConfig: args.config }
-      });
-    }
-
-    // optional refresh (e.g. to update dimensionsAndMeasures
-    jQuery(bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHtml()).on("bcdui:cubeConfigurator:refreshDND", function(e, noClear) {
-      // refill cubebucket with possibly changed data
-      bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId, noClear);
-    });
-
-    // initially mark the dimensions for GroupManager
-    setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(args.cubeId);});
-    
-    // add contextMenu handling for GroupManager
-    bcdui.component.cube.configuratorDND._addGroupManagerContextMenu(args.targetHtml, args.cubeId);
-
-    // and our listener to generate the layout on any control layout change
-    bcdui.factory.addDataListener({
-      idRef: cubeTargetId,
-      trackingXPath: cubeTargetXPathRoot,
-      listener: function() {
-
-        // check if target model really changed
-
-        var cubeBucketModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId");
-        var cubeTargetId = cubeBucketModelId;
-        var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
-        var targetModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId");
-        var cubeLayoutRoot = "/cube:Layout[@cubeId='" + args.cubeId + "']";
-        var colDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef");
-        var rowDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef/@bRef");
-        var colMeas = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Measures/cube:RowDims/dm:MeasureRef/@idRef");
-        var rowMeas = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Measures/cube:AllDims/dm:MeasureRef/@idRef");
-        var colDimsTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/ColDim/@id");
-        var rowDimsTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/RowDim/@id");
-        var colMeasTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/ColMes/@id");
-        var rowMeasTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/RowMes/@id");
-
-        var idArray = new Array();
-        var idArrayTarget = new Array();
-
-        for (var i = 0; i < rowDims.length; i++)
-          if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Dimensions/dm:LevelRef[@bRef='" + rowDims[i].text + "']") != null)
-            idArray.push(rowDims[i].text);
-        for (var i = 0; i < rowDimsTarget.length; i++)
-          idArrayTarget.push(rowDimsTarget[i].text);
-
-        for (var i = 0; i < colDims.length; i++)
-          if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Dimensions/dm:LevelRef[@bRef='" + colDims[i].text + "']") != null)
-            idArray.push(colDims[i].text);
-        for (var i = 0; i < colDimsTarget.length; i++)
-          idArrayTarget.push(colDimsTarget[i].text);
-
-        for (var i = 0; i < colMeas.length; i++)
-          if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Measures/dm:MeasureRef[@idRef='" + colMeas[i].text + "']") != null)
-            idArray.push(colMeas[i].text);
-        for (var i = 0; i < colMeasTarget.length; i++)
-          idArrayTarget.push(colMeasTarget[i].text);
-
-        for (var i = 0; i < rowMeas.length; i++)
-          if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Measures/dm:MeasureRef[@idRef='" + rowMeas[i].text + "']") != null)
-            idArray.push(rowMeas[i].text);
-        for (var i = 0; i < rowMeasTarget.length; i++)
-          idArrayTarget.push(rowMeasTarget[i].text);
-
-        var i = 0;
-        var identical = idArrayTarget.length == idArray.length;
-        while (identical && i < idArray.length) {
-          identical &= idArray[i] == idArrayTarget[i];
-          i++;
-        }
-
-        // only recreate layout if something in the target changed
-        if (! identical) {
-
-          // remove possible markings in template list
-          jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
-
-          // disable cube renderer on any change
-          var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ args.cubeId+"']" );
-          layoutNode.setAttribute("disableClientRefresh","true");
-          // and generate layout
-          bcdui.component.cube.configuratorDND._controlModelToCubeLayout(args.cubeId);
-        }
+      // tooltip when using descriptions
+      if (bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Dimensions/dm:LevelRef/@description") != null || bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel().query("/*/dm:Measures/dm:Measure/@description") != null) {
+        bcdui.widget.createTooltip({
+          targetHtml: args.targetHtml
+        , url: bcdui.contextPath + "/bcdui/js/component/cube/dndTooltip.xslt"
+        , inputModel: bcdui.wkModels.guiStatus
+        , identsWithin: args.targetHtml
+        , parameters: { cubeId: args.cubeId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, cubeConfig: bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel() }
+        });
       }
+
+      // optional refresh (e.g. to update dimensionsAndMeasures
+      jQuery(bcdui.factory.objectRegistry.getObject(args.cubeId).getTargetHtml()).on("bcdui:cubeConfigurator:refreshDND", function(e, noClear) {
+        // refill cubebucket with possibly changed data
+        bcdui.component.cube.configuratorDND.fillBucketModel(cubeBucketModelId, args.metaDataModelId, noClear);
+      });
+
+      // initially mark the dimensions for GroupManager
+      setTimeout(function(){bcdui.component.cube.configuratorDND._markGroupingDimensions(args.cubeId);});
+
+      // add contextMenu handling for GroupManager
+      bcdui.component.cube.configuratorDND._addGroupManagerContextMenu(args.targetHtml, args.cubeId);
+
+      // and our listener to generate the layout on any control layout change
+      bcdui.factory.addDataListener({
+        idRef: cubeTargetId,
+        trackingXPath: cubeTargetXPathRoot,
+        listener: function() {
+
+          // check if target model really changed
+
+          var cubeBucketModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("cubeBucketModelId");
+          var cubeTargetId = cubeBucketModelId;
+          var cubeTargetXPathRoot = bcdui.component.cube.configuratorDND._CUBE_TEMP.xPathRootWidget;
+          var targetModelId = jQuery(".bcd_" + args.cubeId + "_dnd").data("targetModelId");
+          var cubeLayoutRoot = "/cube:Layout[@cubeId='" + args.cubeId + "']";
+          var colDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Columns/dm:LevelRef/@bRef");
+          var rowDims = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Dimensions/cube:Rows/dm:LevelRef/@bRef");
+          var colMeas = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Measures/cube:RowDims/dm:MeasureRef/@idRef");
+          var rowMeas = bcdui.factory.objectRegistry.getObject(targetModelId).getData().selectNodes("/*" + cubeLayoutRoot + "/cube:Measures/cube:AllDims/dm:MeasureRef/@idRef");
+          var colDimsTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/ColDim/@id");
+          var rowDimsTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/RowDim/@id");
+          var colMeasTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/ColMes/@id");
+          var rowMeasTarget = bcdui.factory.objectRegistry.getObject(cubeTargetId).getData().selectNodes(cubeTargetXPathRoot + "/RowMes/@id");
+
+          var idArray = new Array();
+          var idArrayTarget = new Array();
+
+          for (var i = 0; i < rowDims.length; i++)
+            if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Dimensions/dm:LevelRef[@bRef='" + rowDims[i].text + "']") != null)
+              idArray.push(rowDims[i].text);
+          for (var i = 0; i < rowDimsTarget.length; i++)
+            idArrayTarget.push(rowDimsTarget[i].text);
+
+          for (var i = 0; i < colDims.length; i++)
+            if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Dimensions/dm:LevelRef[@bRef='" + colDims[i].text + "']") != null)
+              idArray.push(colDims[i].text);
+          for (var i = 0; i < colDimsTarget.length; i++)
+            idArrayTarget.push(colDimsTarget[i].text);
+
+          for (var i = 0; i < colMeas.length; i++)
+            if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Measures/dm:MeasureRef[@idRef='" + colMeas[i].text + "']") != null)
+              idArray.push(colMeas[i].text);
+          for (var i = 0; i < colMeasTarget.length; i++)
+            idArrayTarget.push(colMeasTarget[i].text);
+
+          for (var i = 0; i < rowMeas.length; i++)
+            if (bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData().selectSingleNode("/*/cube:Measures/dm:MeasureRef[@idRef='" + rowMeas[i].text + "']") != null)
+              idArray.push(rowMeas[i].text);
+          for (var i = 0; i < rowMeasTarget.length; i++)
+            idArrayTarget.push(rowMeasTarget[i].text);
+
+          var i = 0;
+          var identical = idArrayTarget.length == idArray.length;
+          while (identical && i < idArray.length) {
+            identical &= idArray[i] == idArrayTarget[i];
+            i++;
+          }
+
+          // only recreate layout if something in the target changed
+          if (! identical) {
+
+            // remove possible markings in template list
+            jQuery(".bcdReportTemplateList a").removeClass("bcdSelected");
+
+            // disable cube renderer on any change
+            var layoutNode = bcdui.core.createElementWithPrototype( bcdui.wkModels.guiStatus, "/*/guiStatus:ClientSettings/cube:ClientLayout[@cubeId ='"+ args.cubeId+"']" );
+            layoutNode.setAttribute("disableClientRefresh","true");
+            // and generate layout
+            bcdui.component.cube.configuratorDND._controlModelToCubeLayout(args.cubeId);
+          }
+        }
+      });
     });
 
     return cubeBucketModelId;
@@ -434,66 +435,84 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
    * @param {string}  cubeBucketModelId  The id of the cubeBucketModel
    * @param {string}  configId           The id of the used configuration
    * @param {boolean} [noClear=false]    true if current selection should not get changed
+   * @param {function} [callback]        callback function which is called as soon as bucketModel is fully filled 
    */
-  fillBucketModel : function(cubeBucketModelId, configId, noClear) {
+  fillBucketModel : function(cubeBucketModelId, configId, noClear, callback) {
+    
+    const configModel = bcdui.factory.objectRegistry.getObject(configId);
+    const bucketModel = bcdui.factory.objectRegistry.getObject(cubeBucketModelId);
 
-    if (typeof bcdui.factory.objectRegistry.getObject(cubeBucketModelId) != "undefined") {
+    if (typeof bucketModel != "undefined") {
 
-      // clean possibly existing nodes first
-      if (noClear) {
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/cube:Dimensions");
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/cube:Measures");
-      } else {
-        bcdui.core.removeXPath(bcdui.factory.objectRegistry.getObject(cubeBucketModelId).getData(), "/*/*");
-      }
+      const dims = Array.from(configModel.queryNodes("//dm:Dimensions/dm:LevelRef")).map(function(d) { return (d.getAttribute("bRef") || "").trim(); })
+      const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure")).map(function(d) { return (d.getAttribute("id") || "").trim(); })
+      const binding = configModel.read("/*/wrq:BindingSet", "");
+      bcdui.util.getBindingInfo(binding, dims.concat(msr), function(captionMap) {
 
-      var dimensionParent = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeBucketModelId), "/*/cube:Dimensions");
-      var measureParent = bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(cubeBucketModelId), "/*/cube:Measures");
-
-      // take either all dimensions from cubeConfig or dimensionsAndMeasures
-      var levelRefList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("/*/cube:Dimensions/dm:LevelRef");
-      if (levelRefList.length == 0)
-        levelRefList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("//dm:Dimensions/dm:LevelRef");
-      for (var l = 0; l < levelRefList.length; l++)
-        dimensionParent.appendChild(levelRefList[l].cloneNode(true));
-
-      // take either all measureRefs from cubeConfig or all measures from dimensionsAndMeasures
-      var measureRefList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("/*/cube:MeasuresRefs/dm:MeasureRef");
-      if (measureRefList.length != 0) {
-        for (var m = 0; m < measureRefList.length; m++)
-          measureParent.appendChild(measureRefList[m].cloneNode(true));
-      } else {
-        // generate measureRefs out of measures
-        var measureList = bcdui.factory.objectRegistry.getObject(configId).getData().selectNodes("//dm:Measures/dm:Measure");
-        for (var m = 0; m < measureList.length; m++) {
-          var idRef = measureList[m].getAttribute("id");
-          var caption = measureList[m].getAttribute("caption");
-          caption = caption == null ? "" : caption;
-          bcdui.factory.objectRegistry.getObject(cubeBucketModelId).write("/*/cube:Measures/dm:MeasureRef[@idRef='" + idRef + "' and @caption='{{=it[0]}}']",[caption]);
+        // clean possibly existing nodes first
+        if (noClear) {
+          bcdui.core.removeXPath(bucketModel.getData(), "/*/cube:Dimensions");
+          bcdui.core.removeXPath(bucketModel.getData(), "/*/cube:Measures");
         }
-      }
+        else
+          bcdui.core.removeXPath(bucketModel.getData(), "/*/*");
+  
+        let dimensionParent = bcdui.core.createElementWithPrototype(bucketModel, "/*/cube:Dimensions");
+        let measureParent = bcdui.core.createElementWithPrototype(bucketModel, "/*/cube:Measures");
+  
+        // take either all dimensions from cubeConfig or dimensionsAndMeasures
+        let levelRefList = configModel.queryNodes("/*/cube:Dimensions/dm:LevelRef");
+        if (levelRefList.length == 0)
+          levelRefList = configModel.queryNodes("//dm:Dimensions/dm:LevelRef");
+        Array.from(levelRefList).forEach(function(l) { dimensionParent.appendChild(l.cloneNode(true)); });
 
-      // take over captions if not present
-      var dims = dimensionParent.selectNodes("dm:LevelRef[not(@caption) or @caption='']");
-      for (var d = 0; d < dims.length; d++) {
-        var caption = bcdui.factory.objectRegistry.getObject(configId).getData().selectSingleNode("//dm:Dimensions/dm:LevelRef[@bRef='" + dims[d].getAttribute("bRef") + "']/@caption");
-        caption = caption == null ? "" : caption.text;
-        if (caption != "")
-          dims[d].setAttribute("caption", caption);
-      }
-      var meas = measureParent.selectNodes("dm:MeasureRef[not(@caption) or @caption='']");
-      for (var m = 0; m < meas.length; m++) {
-        var caption = bcdui.factory.objectRegistry.getObject(configId).getData().selectSingleNode("//dm:Measures/dm:Measure[@id='" + meas[m].getAttribute("idRef") + "']/@caption");
-        caption = caption == null ? "" : caption.text;
-        if (caption != "")
-          meas[m].setAttribute("caption", caption);
-      }
+        // take either all measureRefs from cubeConfig or all measures from dimensionsAndMeasures
+        let measureRefList = Array.from(configModel.queryNodes("/*/cube:MeasuresRefs/dm:MeasureRef"));
+        if (measureRefList.length != 0)
+          measureRefList.forEach(function(m) { measureParent.appendChild(m.cloneNode(true)); });
+        else {
+          // generate measureRefs out of measures
+          let measureList = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure"));
+          measureList.forEach(function(m) {
+            const id = m.getAttribute("id") || "";
+            const caption = m.getAttribute("caption") || (typeof captionMap[id] != "undefined" ? captionMap[id].caption : "") || "";
+            bucketModel.write("/*/cube:Measures/dm:MeasureRef[@idRef='" + id + "' and @caption='{{=it[0]}}']",[caption]);
+          });
+        }
 
-      // avoid taking over description into layout
-      jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
-      jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+        // take over captions if not present
+        Array.from(dimensionParent.selectNodes("dm:LevelRef[not(@caption) or @caption='']")).forEach(function(d) {
+          const bRef = d.getAttribute("bRef") || "";
+          const caption = configModel.read("//dm:Dimensions/dm:LevelRef[@bRef='" + bRef + "']/@caption", "");
+          d.setAttribute("caption", caption || (typeof captionMap[bRef] != "undefined" ? captionMap[bRef].caption : ""));
+        });
+        Array.from(measureParent.selectNodes("dm:MeasureRef[not(@caption) or @caption='']")).forEach(function(m) {
+          const idRef = m.getAttribute("idRef") || "";
+          const caption = configModel.read("//dm:Measures/dm:Measure[@id='" + idRef + "']/@caption", "");
+          m.setAttribute("caption", caption || (typeof captionMap[idRef] != "undefined" ? captionMap[idRef].caption : ""));
+        });
 
-      bcdui.factory.objectRegistry.getObject(cubeBucketModelId).fire();
+        // add description to config (tooltip takes it from there)
+        Array.from(configModel.queryNodes("/*/dm:Dimensions/dm:LevelRef")).forEach(function(d) {
+          const bRef = d.getAttribute("bRef") || "";
+          const description = d.getAttribute("description") || "";
+          d.setAttribute("description", description || (typeof captionMap[bRef] != "undefined" ? captionMap[bRef].description : ""));
+        });
+        Array.from(configModel.queryNodes("/*/dm:Measures/dm:Measure")).forEach(function(m) {
+          const id = m.getAttribute("id") || "";
+          const description = m.getAttribute("description") || "";
+          m.setAttribute("description", description || (typeof captionMap[id] != "undefined" ? captionMap[id].description : ""));
+        });
+
+        // avoid taking over description into layout
+        jQuery.makeArray(dimensionParent.selectNodes("dm:LevelRef")).forEach(function(e) {e.removeAttribute("description");});
+        jQuery.makeArray(measureParent.selectNodes("dm:MeasureRef")).forEach(function(e) {e.removeAttribute("description");});
+
+        bucketModel.fire();
+
+        if (typeof callback == "function")
+          callback();
+      });
     }
 
     return cubeBucketModelId;

@@ -1317,7 +1317,14 @@ the data that is actually placed in XML.
             format of data written is implemented by individual widget.
           </Doc>
         </Param>
-      </Api>      
+        <Param name="isScorecard" required="false" type="boolean" default="false">
+          <Doc>Can be set to 'true' if ranking is used for a scorecard. In this case scc: prefix is used.</Doc>    
+        </Param>
+        <Param name="limit" type="number" default="3">
+          <Doc>Limit the number of possible rankings.</Doc>
+        </Param>
+        
+      </Api>
 
     </BcdAPI>
 

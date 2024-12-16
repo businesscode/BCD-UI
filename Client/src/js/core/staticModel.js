@@ -59,26 +59,26 @@ export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bc
         args = { data: args };
       }
       super(args);
-      if (typeof args.data == "undefined" || (typeof args.data == "string" && !args.data.trim())) {
+
+      const isStringData = typeof args.data == "string";
+
+      if(isStringData){
+        args.data = args.data.trim();
+      } else if (typeof args.data == "undefined") {
         args.data = "<Empty/>";
       }
-      if (typeof args.data == "string" || args.data.nodeType === 1 || args.data.nodeType === 9) {
-        if (args.data.trim().startsWith("{") || args.data.trim().startsWith("[")) {
-          try {
-            this.dataDoc = JSON.parse(args.data.trim());
-          } catch(e){
-            throw new Error("Failed parsing data parameter for static model. " + e);
-          }
+
+      try {
+        // parse data, which is either a string(XML/JSON) or one of Node/Document or another object
+        if (isStringData && ["{","["].indexOf(args.data[0]) > -1) { // JSON string
+          this.dataDoc = JSON.parse(args.data);
+        } else if (isStringData || args.data.nodeType === 1 || args.data.nodeType === 9) { // XML string or Node/Document
+          this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
+        } else {
+          this.dataDoc = args.data; // object
         }
-        else {
-          try{
-            this.dataDoc = bcdui.util.xml.parseDocument(args.data); // clone or parse
-          } catch(e){
-            throw new Error("Failed parsing data parameter for static model. " + e);
-          }
-        }
-      } else {
-        this.dataDoc = args.data;
+      } catch (e) {
+        throw new Error("Failed parsing data parameter for static model.", {cause: e});
       }
 
       /**

@@ -34,6 +34,7 @@ ___
 * javax to jakarta switch (for several packages e.g. javax.servlet)
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
+* add BindingInfo servlet to web.xml
 
 ___
 ==== Release 5_6_0

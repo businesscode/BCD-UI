@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2024 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class BareConfiguration extends JNDIProvider {
   private static SingletonHolder<BareConfiguration> holder = new SingletonHolder<BareConfiguration>() {
     @Override
     protected BareConfiguration createInstance() {
-      return new BareConfiguration();
+      return Configuration.getClassInstance(Configuration.OPT_CLASSES.BARECONFIGURATION, new Class<?>[]{});
     }
   };
 
@@ -181,7 +181,9 @@ public class BareConfiguration extends JNDIProvider {
             if (rollback) {
               log.error("Rolling back");
               con.rollback();
-            } else
+            }
+            // only do a commit if there are pending changes (update/insert/delete/select from update statements)
+            else if (hasPendingChanges(con))
               con.commit();
           }
         } catch (SQLException ex) {
@@ -202,6 +204,7 @@ public class BareConfiguration extends JNDIProvider {
           }
         } finally {
           try {
+            resetPendingChanges(con);
             con.close();
           } catch (Exception e) {
             e.printStackTrace();
@@ -312,4 +315,8 @@ public class BareConfiguration extends JNDIProvider {
   public boolean isCacheDisabled() {
     return (Boolean)getConfigurationParameter(Configuration.DISABLE_CACHE, false);
   }
+
+  // always returns true, EE (when available) has a statement/connection wrapper which detects pendingChanges
+  protected boolean hasPendingChanges(Connection con) throws SQLException { return true; }
+  protected void resetPendingChanges(Connection con) throws SQLException { return; }
 }
