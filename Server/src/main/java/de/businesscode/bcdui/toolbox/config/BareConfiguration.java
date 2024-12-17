@@ -181,9 +181,7 @@ public class BareConfiguration extends JNDIProvider {
             if (rollback) {
               log.error("Rolling back");
               con.rollback();
-            }
-            // only do a commit if there are pending changes (update/insert/delete/select from update statements)
-            else if (hasPendingChanges(con))
+            } else if (hasPendingChanges(con))
               con.commit();
           }
         } catch (SQLException ex) {
@@ -315,6 +313,5 @@ public class BareConfiguration extends JNDIProvider {
     return (Boolean)getConfigurationParameter(Configuration.DISABLE_CACHE, false);
   }
 
-  // always returns true, EE (when available) has a statement/connection wrapper which detects pendingChanges
   protected boolean hasPendingChanges(Connection con) throws SQLException { return true; }
 }
