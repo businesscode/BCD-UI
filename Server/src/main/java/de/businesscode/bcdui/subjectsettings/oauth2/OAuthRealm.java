@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,12 +20,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -34,6 +38,8 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import de.businesscode.util.Utils;
 
 /**
  * This one is an authenticating realm only as such we obtain identity from resource server and let other realms obtain authorization data from elsewhere
@@ -48,11 +54,15 @@ public class OAuthRealm extends AuthenticatingRealm {
   private String apiEndpoint;
   private String tokenEndpoint;
   private OAuthAuthenticatingFilter authenticator;
+  private boolean disableSslValidation = false;
+
+  public void setDisableSslValidation(boolean disableSslValidation) {
+    this.disableSslValidation = disableSslValidation;
+  }
 
   /**
-   * we need to set the instance of filter class to determine in realm if that should support processing, incase we have many realms bound with multiple
-   * authenticators for given token
-   * 
+   * we need to set the instance of filter class to determine in realm if that should support processing, incase we have many realms bound with multiple authenticators for given token
+   *
    * @param authenticator
    */
   public void setAuthenticator(OAuthAuthenticatingFilter authenticator) {
@@ -65,7 +75,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * sets the endpoint to /token API
-   * 
+   *
    * @param tokenEndpoint
    */
   public void setTokenEndpoint(String tokenEndpoint) {
@@ -78,8 +88,9 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * the API endpoint to obtain information about user basically providing JSON data containing {@link #getPrincipalPropertyName()} to extract
-   * 
-   * @param apiEndPoint The endpoint to get principal's JSON
+   *
+   * @param apiEndPoint
+   *          The endpoint to get principal's JSON
    */
   public void setApiEndpoint(String apiEndPoint) {
     this.apiEndpoint = apiEndPoint;
@@ -91,7 +102,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * secret we need to obtain access token from /token endpoint, used in {@link #createAccessToken(OAuthToken)}
-   * 
+   *
    * @param clientSecret
    */
   public void setClientSecret(String clientSecret) {
@@ -100,7 +111,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * this is the property we extract from JSON response and use as a principal
-   * 
+   *
    * @param principalPropertyName
    */
   public void setPrincipalPropertyName(String principalPropertyName) {
@@ -120,37 +131,37 @@ public class OAuthRealm extends AuthenticatingRealm {
   }
 
   /**
-   * creates access token via {@link #createAccessToken(OAuthToken)} and passes to {@link #getUserPrincipal(String)} then constructs
-   * {@link SimpleAuthenticationInfo} with returned principal
+   * creates access token via {@link #createAccessToken(OAuthToken)} and passes to {@link #getUserPrincipal(String)} then constructs {@link SimpleAuthenticationInfo} with returned principal
    */
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken) {
     final OAuthToken oauthToken = (OAuthToken) authToken;
-    final Object userPrincipal;
+    final String userPrincipal;
     try {
       userPrincipal = getUserPrincipal(createAccessToken(oauthToken));
-
-      if (logger.isTraceEnabled()) {
-        logger.trace("obtained user principal: " + userPrincipal);
-      }
-
-    } catch (IOException e) {
+    } catch (Exception e) {
+      logger.warn("Failed to read user principal", e);
       throw new AuthenticationException("Failed to read user principal", e);
     }
-    oauthToken.setPrincipal(userPrincipal);
+
+    if (logger.isTraceEnabled()) {
+      logger.trace("obtained user principal '{}'", userPrincipal);
+    }
+
+    oauthToken.setPrincipal(Objects.requireNonNull(userPrincipal, "user-principal was not provided"));
 
     return new SimpleAuthenticationInfo(userPrincipal, oauthToken.getCredentials(), getName());
   }
 
   /**
    * implements getting user principal from resource server
-   * 
+   *
    * @param accessToken
    *          - which is already obtained from authority server and ready to be used as a bearer
    * @return user principal, i.e. the email-address or other identifier
    * @throws IOException
    */
-  protected Object getUserPrincipal(String accessToken) throws IOException {
+  protected String getUserPrincipal(String accessToken) throws IOException {
     final String effectivePrincipalPropertyName = getPrincipalPropertyName();
 
     if (StringUtils.isEmpty(effectivePrincipalPropertyName)) {
@@ -163,6 +174,9 @@ public class OAuthRealm extends AuthenticatingRealm {
     }
     final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     try {
+      if (conn instanceof HttpsURLConnection && this.disableSslValidation) {
+        Utils.disableSslValidation((HttpsURLConnection) conn);
+      }
       conn.setRequestMethod("GET");
       conn.setRequestProperty("Authorization", "Bearer " + accessToken);
       conn.setRequestProperty("Accept", "application/json");
@@ -181,7 +195,7 @@ public class OAuthRealm extends AuthenticatingRealm {
         if (logger.isTraceEnabled()) {
           logger.trace("response: " + responseJson);
         }
-        return readJsonProperty(responseJson, effectivePrincipalPropertyName).getAsString();
+        return readJsonProperty(responseJson, effectivePrincipalPropertyName, true).getAsString();
       }
     } finally {
       try {
@@ -194,7 +208,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * call against oauth2.0 "/token" endpoint to obtain an access token
-   * 
+   *
    * @param oauthToken
    * @return The access token
    * @throws IOException
@@ -214,9 +228,10 @@ public class OAuthRealm extends AuthenticatingRealm {
     //@formatter:off
     String postParameters = "client_id=" + oauthToken.getClientId() +
         "&code=" + oauthToken.getAuthCode() +
-        "&redirect_uri=" + oauthToken.getRedirectUrl() +
+        "&redirect_uri=" + URLEncoder.encode(oauthToken.getRedirectUri(), UTF8) +
         "&grant_type=authorization_code" +
-        "&client_secret=" + this.clientSecret;
+        "&client_secret=" + this.clientSecret +
+        "&code_verifier=" + oauthToken.codeVerifier;
     //@formatter:on
 
     if (logger.isTraceEnabled()) {
@@ -228,6 +243,10 @@ public class OAuthRealm extends AuthenticatingRealm {
 
     final HttpURLConnection conn = (HttpURLConnection) endPoint.openConnection();
     try {
+      if (conn instanceof HttpsURLConnection && this.disableSslValidation) {
+        Utils.disableSslValidation((HttpsURLConnection) conn);
+      }
+
       conn.setDoOutput(true);
       conn.setInstanceFollowRedirects(false);
       conn.setUseCaches(false);
@@ -235,6 +254,7 @@ public class OAuthRealm extends AuthenticatingRealm {
       conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
       conn.setRequestProperty("charset", "utf-8");
       conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+
       try (DataOutputStream wr = new DataOutputStream(conn.getOutputStream())) {
         wr.write(postData);
       }
@@ -255,7 +275,7 @@ public class OAuthRealm extends AuthenticatingRealm {
           logger.trace("response: " + responseJson);
         }
 
-        return readJsonProperty(responseJson, "access_token").getAsString();
+        return readJsonProperty(responseJson, "access_token", true).getAsString();
       }
     } finally {
       try {
@@ -268,12 +288,17 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * helper to access plain property of a json string, i.e. readJsonProperty('{ foo:"bar" }', "foo").getAsString() returns "bar"
-   * 
+   *
    * @param jsonString
    * @param propertyName
+   * @param isPropertyRequired
    * @return The property
    */
-  protected JsonElement readJsonProperty(String jsonString, String propertyName) {
-    return new JsonParser().parse(jsonString).getAsJsonObject().get(propertyName);
+  protected JsonElement readJsonProperty(String jsonString, String propertyName, boolean isPropertyRequired) {
+    var json = JsonParser.parseString(jsonString).getAsJsonObject();
+    if (isPropertyRequired && !json.has(propertyName)) {
+      Objects.requireNonNull(null, "property '" + propertyName + "' is missing");
+    }
+    return json.get(propertyName);
   }
 }

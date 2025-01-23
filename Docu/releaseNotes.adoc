@@ -30,6 +30,7 @@ ___
 * javax to jakarta switch (for several packages e.g. javax.servlet)
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
+* OAuth2 configuration in shiro.ini: OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri
 
 ___
 ==== Release 5_6_0

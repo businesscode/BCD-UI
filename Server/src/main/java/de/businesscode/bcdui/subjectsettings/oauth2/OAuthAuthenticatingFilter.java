@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,66 +16,82 @@
 package de.businesscode.bcdui.subjectsettings.oauth2;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.Serializable;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.UUID;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
+import org.apache.shiro.web.util.SavedRequest;
+import org.apache.shiro.web.util.WebUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
-import org.apache.shiro.web.util.WebUtils;
 
 /**
  * The flow here is (start = not authenticated request)
- * <p><ol>
- * <li> shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
- * <li> {@link #onAccessDenied(ServletRequest, ServletResponse)} is called, here we detect if this a pending login-attempt (roundtrip back from AD including auth-code token) or we save current request and initiate a redirect to oauth authorization server and set redirect_url to link back to us
- * <li> server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
- * <li> {@link #executeLogin(ServletRequest, ServletResponse)} queries {@link #createToken(ServletRequest, ServletResponse)} to create a token (which here is basically the auth-code we got from AD), this token is passed to {@link Subject#login(AuthenticationToken)}
- * <li> Shiro kicks in and asks each and every avaialable realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated princial. No authorization is done on this level, just authentication, as such our oauth2 realm is authenticating only, and not authorizing
- * <li> whenever permission are checked, Shiro scans next realms to authorize, here our jdbcrealm loads properties from database according to prinpical (user-id)
- * <li> the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overriden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
- * <ol></p>
+ * <p>
+ * <ol>
+ * <li>shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
+ * <li>{@link #onAccessDenied(ServletRequest, ServletResponse)} is called, here we detect if this a pending login-attempt (roundtrip back from AD including auth-code token) or we save current request and initiate a redirect to oauth authorization server and set redirect_url to link back to us
+ * <li>server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
+ * <li>{@link #executeLogin(ServletRequest, ServletResponse)} queries {@link #createToken(ServletRequest, ServletResponse)} to create a token (which here is basically the auth-code we got from AD), this token is passed to {@link Subject#login(AuthenticationToken)}
+ * <li>Shiro kicks in and asks each and every avaialable realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated princial. No authorization is done on this level, just
+ * authentication, as such our oauth2 realm is authenticating only, and not authorizing
+ * <li>whenever permission are checked, Shiro scans next realms to authorize, here our jdbcrealm loads properties from database according to prinpical (user-id)
+ * <li>the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overriden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
+ * <ol>
+ * </p>
  * all final methods on these class define the flow and must not be changed.
  */
 public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   private static final String UTF8 = "UTF-8";
+  private static final String SESSION_ATTR_KEY_REQUEST_CONTEXT = "OAuthAuthenticatingFilter.requestContext";
 
-  public static final String SESSION_ATTR_KEY_AUTH_STATE = "OAuthAuthenticatingFilter.authState";
-  public static final String SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID = "OAuthAuthenticatingFilter.instanceId";
-  public static final String SESSION_ATTR_KEY_ORIG_URL = "OAuthAuthenticatingFilter.origUrl";
+  public static enum RESPONSE_MODE {
+    form_post("post"), get("get");
+
+    private String httpMethod;
+
+    private RESPONSE_MODE(String httpMethod) {
+      this.httpMethod = httpMethod;
+    }
+
+    public String getHttpMethod() {
+      return httpMethod;
+    }
+  }
+
+  private final Logger logger = LogManager.getLogger(getClass());
 
   /**
    * we need to differentiate between provider instances (singletons, though) to handle redirectUrls by same instance implementation
    */
   private final String providerInstanceId = UUID.randomUUID().toString();
-
-  private final Logger logger = LogManager.getLogger(getClass());
-
+  protected final SecureRandom secureRandom = new SecureRandom();
   protected String clientId;
-  protected String redirectUrl;
+  protected String redirectUri;
   protected String authorizeEndpoint;
   protected String urlParameterName = "oauth-provider-id";
   protected String optionalProviderId;
-  protected String authScope;
+  protected String scope;
   // we override this one
   protected String successUrl;
+  protected RESPONSE_MODE responseMode = RESPONSE_MODE.form_post;
 
-  /**
-   * override successUrl and dont set a default one, since successUrl is usually a redirectUrl in our case, but in case we provide successUrl this will be
-   * explicitly redirected after successful login overriding whatever original url user navigated to
-   */
   @Override
   public void setSuccessUrl(String successUrl) {
     this.successUrl = successUrl;
@@ -86,6 +102,10 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return this.successUrl;
   }
 
+  public void setResponseMode(String responseMode) {
+    this.responseMode = RESPONSE_MODE.valueOf(responseMode);
+  }
+
   public String getClientId() {
     return clientId;
   }
@@ -94,28 +114,24 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return authorizeEndpoint;
   }
 
-  public void setAuthScope(String authScope) {
-    this.authScope = authScope;
+  public void setScope(String scope) {
+    this.scope = scope;
   }
 
-  /**
-   * @return the scope as of oauth2, contains space separated scopes. must not be encoded as it will happen later
-   */
-  public String getAuthScope() {
-    return authScope;
+  public String getScope() {
+    return scope;
   }
 
-  /**
-   * sets the /authorize endpoint
-   * 
-   * @param authorityUrl
-   */
+  public void setRedirectUri(String redirectUri) {
+    this.redirectUri = redirectUri;
+  }
+
+  public String getRedirectUri() {
+    return redirectUri;
+  }
+
   public void setAuthorizeEndpoint(String authorityUrl) {
     this.authorizeEndpoint = authorityUrl;
-  }
-
-  public void setRedirectUrl(String redirectUrl) {
-    this.redirectUrl = redirectUrl;
   }
 
   public void setClientId(String clientId) {
@@ -126,15 +142,8 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return urlParameterName;
   }
 
-  public String getRedirectUrl() {
-    return redirectUrl;
-  }
-
   public void setUrlParameterName(String urlParameterName) {
-    if (StringUtils.isEmpty(urlParameterName)) {
-      throw new RuntimeException("parameter must not be empty");
-    }
-    this.urlParameterName = urlParameterName;
+    this.urlParameterName = Objects.requireNonNull(StringUtils.trimToNull(urlParameterName), ".urlParameterName");
   }
 
   public String getOptionalProviderId() {
@@ -146,8 +155,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   }
 
   /**
-   * supports .enable flag and also handles a round-trip from authorization server; in order to provide extend with your logic please override
-   * {@link #isEnabledByProvider(ServletRequest, ServletResponse)}
+   * supports .enable flag and also handles a round-trip from authorization server; in order to provide extend with your logic please override {@link #isEnabledByProvider(ServletRequest, ServletResponse)}
    */
   @Override
   protected final boolean isEnabled(ServletRequest request, ServletResponse response) throws ServletException, IOException {
@@ -155,9 +163,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
      * disabled by configuration
      */
     if (!super.isEnabled(request, response)) {
-      if (!logger.isTraceEnabled()) {
-        logger.trace(".disabled by configuration");
-      }
+      logger.trace(".disabled by configuration");
       return false;
     }
 
@@ -165,9 +171,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
      * is a login-request, as re-issued by authority
      */
     if (isLoginRequest(request, response)) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("filter enabled due to a callback in progress");
-      }
+      logger.trace("processing authserver request");
       return true;
     }
 
@@ -178,15 +182,14 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   }
 
   /**
-   * current implementation checks if parameter {@link #getUrlParameterName()} equals to {@link #getOptionalProviderId()}. You can override this method to
-   * provide different recognition, i.e. if specific HTTP header is set (i.e. by proxy)
-   * 
+   * current implementation checks if parameter {@link #getUrlParameterName()} equals to {@link #getOptionalProviderId()}. You can override this method to provide different recognition, i.e. if specific HTTP header is set (i.e. by proxy)
+   *
    * @param request
    * @param response
    * @return true to enable processing, false to disable processing or null to delegate decision further
    */
   protected Boolean isEnabledByProvider(ServletRequest request, ServletResponse response) {
-    if (getOptionalProviderId() == null) {
+    if (StringUtils.isEmpty(getOptionalProviderId())) {
       return true;
     }
 
@@ -198,53 +201,66 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
   @Override
   public void setLoginUrl(String loginUrl) {
-    throw new RuntimeException("Not Supported");
+    throw new RuntimeException("dont use .loginUrl, use .authorizeEndpoint instead");
   }
 
   /**
-   * @param request
-   * @param response
-   * @return either configured redirectUrl or construct one to the context; currently .redirectUrl must be provided
-   * @throws UnsupportedEncodingException
-   */
-  protected String constructRedirectUrl(ServletRequest request, ServletResponse response) throws IOException {
-    if (this.redirectUrl == null) {
-      throw new IOException(".redirectUrl is not provided.");
-    }
-    return URLEncoder.encode(this.redirectUrl, UTF8);
-  }
-
-  /**
-   * need custom override, as such {@link #getLoginUrl()} is ineffective, because we need to construct redirect_uri the utilities of
-   * {@link HttpServletResponse}. This method uses {@link #constructLoginUrl(ServletRequest, ServletResponse)} to create a login url to authority.
-   * 
+   * 2. creates {@link RequestContext} and sends http/302 with redirection to authority which will take over the authentication
+   *
    * @param request
    * @param response
    * @throws IOException
+   *           in case the redirect failes
    */
   @Override
-  protected final void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
-    final String targetUrl = constructLoginUrl(request, response);
-    if (logger.isTraceEnabled()) {
-      logger.trace("redirectToLogin url: " + targetUrl);
-    }
+  protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
+    var requestContext = createRequestContext(request);
+
+    saveRequestContext(request, requestContext);
+
+    // @formatter:off
+    var targetUrl = getAuthorizeEndpoint()
+        + "?response_type=code"
+        + "&scope=" + URLEncoder.encode(getScope(), UTF8)
+        + "&response_mode=" + this.responseMode.name()
+        + "&redirect_uri=" + URLEncoder.encode(Objects.requireNonNull(getRedirectUri(), ".redirectUrl not configured"), UTF8)
+        + "&client_id=" + Objects.requireNonNull(this.getClientId(), ".clientId not configured")
+        + "&state=" + URLEncoder.encode(requestContext.state, UTF8)
+        + "&nonce=" + URLEncoder.encode(createRandomString(), UTF8)
+        + "&code_challenge_method=S256&code_challenge=" + requestContext.codeVerifierS256Challenge;
+    // @formatter:on
+
+    logger.trace("redirectToLogin url: '{}'", targetUrl);
     WebUtils.issueRedirect(request, response, targetUrl);
   }
 
   /**
-   * This method basically knows how to construct a login url to authority and delegate creation of redirect_uri to
-   * {@link #constructRedirectUrl(ServletRequest, ServletResponse)}.
-   * 
-   * @see {@link #isLoginRequest(ServletRequest, ServletResponse)}
    * @param request
-   * @param response
-   * @return URL to be used for login
-   * @throws IOException
+   * @return request context instance
    */
-  protected String constructLoginUrl(ServletRequest request, ServletResponse response) throws IOException {
-    return getAuthorizeEndpoint() + "?response_type=code&scope=" + URLEncoder.encode(getAuthScope(), UTF8) + "&response_mode=form_post&redirect_uri="
-        + constructRedirectUrl(request, response) + "&client_id=" + this.clientId + "&state="
-        + URLEncoder.encode(retrieveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, "void"), UTF8) + "&nonce=" + UUID.randomUUID().toString();
+  protected RequestContext createRequestContext(ServletRequest request) {
+    return new RequestContext(this.providerInstanceId);
+  }
+
+  /**
+   * retrieves previously saved context from session, also see {@link #saveRequestContext(ServletRequest, RequestContext)}
+   *
+   * @param request
+   * @return previously created and saved requestcontext
+   * @throws
+   */
+  protected RequestContext retrieveRequestContext(ServletRequest request) {
+    return retrieveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, (RequestContext) null);
+  }
+
+  /**
+   * saves context on in session, see {@link #retrieveRequestContext(ServletRequest)}
+   *
+   * @param request
+   * @param requestContext
+   */
+  protected void saveRequestContext(ServletRequest request, RequestContext requestContext) {
+    saveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, requestContext);
   }
 
   /**
@@ -252,50 +268,41 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    */
   @Override
   protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
-    return new OAuthToken(this, this.clientId, this.redirectUrl, ((HttpServletRequest) request).getParameter("code"));
+    return new OAuthToken(this, this.clientId, getRedirectUri(), Objects.requireNonNull(StringUtils.trimToNull(((HttpServletRequest) request).getParameter("code")), "http parameter 'code' missing"), retrieveRequestContext(request).codeVerifier);
   }
 
-  /**
-   * delegate here to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} which we previously saved in
-   * {@link #onAccessDenied(ServletRequest, ServletResponse)}
-   */
   @Override
-  protected final boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
-    final String successUrl = getSuccessUrl();
-    if (StringUtils.isEmpty(successUrl)) { // if not defined, we navigate to previously saved url
-      if( SecurityUtils.getSubject().getSession(false) != null && SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL) != null ) {
-        String origUrl = SecurityUtils.getSubject().getSession(false).getAttribute(SESSION_ATTR_KEY_ORIG_URL).toString();
-        if( origUrl.startsWith(getServletContext().getContextPath()) ) origUrl = origUrl.substring(getServletContext().getContextPath().length());
-        WebUtils.issueRedirect(request, response, origUrl);
-      } else {
-        issueSuccessRedirect(request, response);
-      }
-    } else {
-      WebUtils.issueRedirect(request, response, successUrl);
-    }
-    // prevent chain from processing since we have handled a redirect here
-    return false;
+  protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
+    retrieveRequestContext(request).invalidate();
+    issueSuccessRedirect(request, response);
+    return false; // prevent chain from processing since we have handled a redirect here
   }
 
   /**
    * according to redirect_url set previously in {@link #redirectToLogin(ServletRequest, ServletResponse)}
-   * 
+   *
    * @param request
    * @param response
    * @return true if this is a login request
    */
   @Override
   protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
-    final HttpServletRequest httpRequest = (HttpServletRequest) request;
-    final String stateValue = request.getParameter("state");
+    final var httpRequest = (HttpServletRequest) request;
+    final var state = request.getParameter("state");
+    final var requestContext = retrieveRequestContext(request);
 
-    return "post".equalsIgnoreCase(httpRequest.getMethod()) && httpRequest.getParameter("code") != null
-        && stateValue != null && stateValue.equals(retrieveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, "void"))
-        && this.providerInstanceId != null && this.providerInstanceId.equals(retrieveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, "void"));
+    // @formatter:off
+    return
+        this.responseMode.getHttpMethod().equalsIgnoreCase(httpRequest.getMethod())
+        && httpRequest.getParameter("code") != null
+        && requestContext != null && requestContext.isValid()
+        && state != null && state.equals(requestContext.state)
+        && this.providerInstanceId != null && this.providerInstanceId.equals(requestContext.providerInstanceId);
+    // @formatter:on
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> T retrieveSessionProperty(ServletRequest request, String key, T defaultValue) {
+  protected <T> T retrieveSessionProperty(ServletRequest request, Serializable key, T defaultValue) {
     final Subject subject = SecurityUtils.getSubject();
     final Session session = subject.getSession(false);
     if (session != null) {
@@ -305,43 +312,95 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return null;
   }
 
-  protected void saveSessionProperty(ServletRequest request, String key, String value) {
-    final Subject subject = SecurityUtils.getSubject();
-    final Session session = subject.getSession();
-    session.setAttribute(key, value);
+  protected void saveSessionProperty(ServletRequest request, Serializable key, Serializable value) {
+    SecurityUtils.getSubject().getSession(true).setAttribute(key, value);
   }
 
   /**
-   * creates a state value used to prevent CRSF. this implementation creates UUID
+   * creates a state value used to prevent CRSF
+   *
+   * @return random string
    */
   protected String createStateValue() {
-    return UUID.randomUUID().toString();
+    return createRandomString();
   }
 
   /**
-   * handle {@link #saveRequestAndRedirectToLogin(ServletRequest, ServletResponse)} and redirection to authorization server, in addition creates a state, which
-   * is checked in {@link #isLoginRequest(ServletRequest, ServletResponse)} to prevent CSRF and used in
-   * {@link #constructLoginUrl(ServletRequest, ServletResponse)} to serialize a state to URL
+   * 1. handles internal shiro flow. It the request is an incoming request redirected from authorization-server, perform {@link #executeLogin(ServletRequest, ServletResponse)}, otherwise {@link #redirectToLogin(ServletRequest, ServletResponse)}
    */
   @Override
-  protected final boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-    final boolean isLoggedIn;
-
+  protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
     if (isLoginRequest(request, response)) {
-      isLoggedIn = executeLogin(request, response);
-    } else {
-      isLoggedIn = false;
-
-      saveSessionProperty(request, SESSION_ATTR_KEY_AUTH_STATE, createStateValue());
-      saveSessionProperty(request, SESSION_ATTR_KEY_PROVIDER_INSTANCE_ID, this.providerInstanceId);
-      saveSessionProperty(request, SESSION_ATTR_KEY_ORIG_URL, WebUtils.getSavedRequest(request)!=null ? WebUtils.getSavedRequest(request).getRequestUrl() : "/");
-
       /*
-       * redirect to login-url (which is authorization server)
+       * current request is the redirection callback with authorization code provided from server, we translate to .executeLogin() in shiro flow, which delegates to authenticating realms.
        */
-      saveRequestAndRedirectToLogin(request, response);
+      return executeLogin(request, response);
+    } else {
+      /*
+       * current request is non-authorized request, initiate the shiro login flow
+       */
+
+      if (getSavedRequest(request) != null) {
+        /*
+         * we do not override the previously saved request, which can happen if chaining shiro filters
+         */
+        redirectToLogin(request, response);
+      } else {
+        saveRequestAndRedirectToLogin(request, response);
+      }
+      return false;
     }
-    
-    return isLoggedIn;
+  }
+
+  /**
+   * pendant to {@link #saveRequest(ServletRequest)}, which is missing in {@link AccessControlFilter} implementation
+   *
+   * @param request
+   * @return
+   */
+  protected SavedRequest getSavedRequest(ServletRequest request) {
+    return WebUtils.getSavedRequest(request);
+  }
+
+  /**
+   * @return random code, which can be used as code_verifier, base64url encoded
+   */
+  protected String createRandomString() {
+    final var randomBytes = new byte[32];
+    secureRandom.nextBytes(randomBytes);
+    return Base64.encodeBase64URLSafeString(randomBytes);
+  }
+
+  /**
+   * @param value
+   * @return SHA256-hashed string as base64 url encoded which can be used as a challenge
+   */
+  protected String createSha256String(String value) {
+    return Base64.encodeBase64URLSafeString(DigestUtils.sha256(value));
+  }
+
+  /**
+   * authentication request context
+   */
+  protected class RequestContext implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private final String state, providerInstanceId, codeVerifier, codeVerifierS256Challenge;
+    private boolean valid = true;
+
+    protected RequestContext(String providerInstanceId) {
+      Objects.requireNonNull(providerInstanceId);
+      this.state = createRandomString();
+      this.providerInstanceId = providerInstanceId;
+      this.codeVerifier = createRandomString();
+      this.codeVerifierS256Challenge = createSha256String(this.codeVerifier);
+    }
+
+    public boolean isValid() {
+      return valid;
+    }
+
+    public void invalidate() {
+      this.valid = false;
+    }
   }
 }
