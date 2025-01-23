@@ -1455,6 +1455,11 @@ span.bcdInputFieldGrid {
   background-color: $flyover-color !important;
 }
 
+.bcdTooltip.bcdGrid {
+  max-width: 30em;
+  overflow: hidden;
+}
+
 .bcdGrid {
 
   display: flex;
@@ -1466,6 +1471,23 @@ span.bcdInputFieldGrid {
 
   .handsontable .htDimmed {
     color: #ccc;
+  }
+
+  .handsontable .bcdSideBySideChooser {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    table {
+      border-collapse: collapse;
+      th,td { border: 1px solid #ccc; background-color: #f0f0f0; border: none; vertical-align: middle; }
+    }
+    .bcdSbscList {
+      height: 10em !important;
+      width: 20em !important;
+      border: none;
+    }
+    .handsontableInput {
+      box-shadow: none;
+    }
   }
 
   .bcdPagingPanel select { height: inherit; padding: inherit; }

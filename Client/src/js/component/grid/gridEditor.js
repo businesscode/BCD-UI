@@ -64,8 +64,7 @@ bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare = functi
 };
 
 // opens a cell editor
-bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.open = function () {
-
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.commonOpen = function() {
   // hide bcdui flyovers while the widget is open
   jQuery("#bcdTooltipDiv").css({"visibility" : "hidden"});
   jQuery("#bcdContextMenuDiv").css({"visibility" : "hidden"});
@@ -119,12 +118,17 @@ bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.open = function 
 
   // reposition widget
   this.refreshDimensions();
+}
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.openNoAutoClose = function () {
+  this.commonOpen();
+};
 
-  // widget can signal "done", so we need to finish editing when targetModel changed
+bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.open = function () {
+  this.commonOpen();
   var self = this;
   this.targetModel.onChange({onlyOnce: true, targetModelXPath: this.targetModelXPath, callback: function(){
     self.instance.getActiveEditor().finishEditing();
-  }})
+  }});
 };
 
 // set input field focus to start typing
@@ -827,4 +831,39 @@ bcdui.component.grid.GridRenderer.bcduiModelDropDownRenderer = function(instance
     jQuery(td).addClass("htDimmed");
   
   return td;
+};
+
+bcdui.component.grid.GridEditor.bcduiSideBySide= bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
+bcdui.component.grid.GridEditor.bcduiSideBySide.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
+
+  this.objectId      = "bcdSideBySideChooser";
+  this.cssPath       = "#" + this.objectId + " .bcdSideBySideChooser ul";
+  this.separator     = cellProperties.editorParameter.bcdValueSeparator || ",";
+
+  this.createWidget = function(widgetParams) {
+    const args = Object.assign({targetHtml: this.objectId},widgetParams);
+    bcdui.widgetNg.createSideBySideChooser(args);
+    jQuery(this.cssPath).get(0).addEventListener('wheel', function(event) { this.scrollBy({ top: event.deltaY, left: event.deltaX }); });
+  };
+
+  this.open = function() {
+    bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.openNoAutoClose.apply(this);
+  }
+
+  this.setValue = function(value) {
+    bcdui.core.removeXPath(this.targetModel.getData(), "/*/f:Filter/f:Expression", false);
+    if (value != null) {
+      value.split(this.separator).forEach(function(v, i) {
+        const targetModelXPath = "/*/f:Filter/f:Expression[@c='"+i+"' and @bRef='" + this.objectId +"' and @op='=']/@value";
+        bcdui.core.createElementWithPrototype(this.targetModel.getData(), targetModelXPath, false).text = v;  
+      }.bind(this));
+    }
+  };
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.getValue = function() {
+    return Array.from(this.targetModel.queryNodes(this.targetModelXPath, "")).map(function(e) {return e.text; }).join(this.separator);
+  };
+
+  this.prepareLayout = function() {};
+
+  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.prepare.apply(this, arguments);
 };

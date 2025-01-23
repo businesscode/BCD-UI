@@ -72,8 +72,8 @@
   <xsl:variable name="cellOrigCaptionToValue">
     <xsl:choose>
       <xsl:when test="/*/wrs:Data/@isDocument='true'">[XML Data]</xsl:when>
-      <xsl:when test="/*/wrs:Data/@mappedCaption != ''">
-        <xsl:value-of select="/*/wrs:Data/@mappedCaption"/>
+      <xsl:when test="/*/wrs:Data/@mappedCaptionOrig != ''">
+        <xsl:value-of select="/*/wrs:Data/@mappedCaptionOrig"/>
       </xsl:when>
       <xsl:when test="$cellHead/wrs:References[wrs:Wrs/wrs:Data/wrs:R]">
         <xsl:value-of select="$cellHead/wrs:References/wrs:Wrs/wrs:Data/wrs:R[wrs:C[position()=2 and .=$cellOrig]]/wrs:C[1]"/>
@@ -97,7 +97,7 @@
     <!-- We return an empty output to prevent a tooltip if there is nothing to show -->
     <xsl:if test="$attrs or ($cellOrig and $cellOrig != $cell) or $invalids">
 
-      <table class="bcdTooltip">
+      <table class="bcdTooltip bcdGrid">
 
         <!-- Print each wrs:A attribute -->
         <xsl:for-each select="$attrs">
