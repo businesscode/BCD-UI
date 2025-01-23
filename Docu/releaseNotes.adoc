@@ -35,6 +35,7 @@ ___
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
 * add BindingInfo servlet to web.xml
+* OAuth2 configuration in shiro.ini: OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri
 
 ___
 ==== Release 5_6_0

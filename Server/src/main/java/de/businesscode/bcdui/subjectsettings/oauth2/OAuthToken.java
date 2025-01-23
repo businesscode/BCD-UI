@@ -29,20 +29,17 @@ public class OAuthToken extends ExternalAuthenticationToken {
   private static final long serialVersionUID = 1L;
 
   protected final String authCode;
+  protected final String codeVerifier;
   protected final String clientId;
-  protected final String redirectUrl;
+  protected final String redirectUri;
   protected final OAuthAuthenticatingFilter authenticator;
 
   public String getClientId() {
     return clientId;
   }
 
-  public String getRedirectUrl() {
-    return redirectUrl;
-  }
-
   /**
-   * 
+   *
    * @param authenticator
    * @return true if this token has been created by given authenticator instance
    */
@@ -50,11 +47,16 @@ public class OAuthToken extends ExternalAuthenticationToken {
     return this.authenticator == authenticator;
   }
 
-  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUrl, String authCode) {
+  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUri, String authCode, String codeVerifier) {
     this.authenticator = authenticator;
     this.clientId = clientId;
     this.authCode = authCode;
-    this.redirectUrl = redirectUrl;
+    this.redirectUri = redirectUri;
+    this.codeVerifier = codeVerifier;
+  }
+
+  public String getRedirectUri() {
+    return redirectUri;
   }
 
   public String getAuthCode() {
@@ -77,7 +79,7 @@ public class OAuthToken extends ExternalAuthenticationToken {
 
   @Override
   public String toString() {
-    return String.format("[AuthToken: principal '%s', clientId: '%s', authCode '%s', redirectUrl: '%s']", principal, clientId, authCode, redirectUrl);
+    return String.format("[AuthToken: principal '%s', clientId: '%s', authCode '%s', redirectUri: '%s', codeVerifier '%s']", principal, clientId, authCode, redirectUri, codeVerifier);
   }
 
 }
