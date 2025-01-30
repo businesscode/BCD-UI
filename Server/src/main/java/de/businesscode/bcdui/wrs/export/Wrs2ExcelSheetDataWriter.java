@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -56,7 +57,7 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
     this.eventReader = eventReader;
     this.options = options;
   }
-  
+
   /**
    * {@link AbstractExcelSheetDataWriter}
    * Handling a client-sent Wrs, we consume wrs:Wrs and all its children nodes
@@ -72,13 +73,13 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
     String elementName = element.getName().getLocalPart();
 
     // Finish when we find the closing Wrs tag
-    while( !( event.isEndElement() && ("WrsContainer".equals(getPath()) || "".equals(getPath()) ) ) ) 
+    while( !( event.isEndElement() && ("WrsContainer".equals(getPath()) || "".equals(getPath()) ) ) )
     {
       if( event.isStartElement() ) {
 
         // Let's collect information about the columns of the current data set
         // We fill wrsHeaderCols and colTypes for later use
-        if ("WrsContainer/Wrs/Header/Columns".equals(getPath()) || "Wrs/Header/Columns".equals(getPath()) ) 
+        if ("WrsContainer/Wrs/Header/Columns".equals(getPath()) || "Wrs/Header/Columns".equals(getPath()) )
         {
           log.trace("collecting wrs:Header/wrs:Columns info");
           // inner loop of wrs:Columns/wrs:C, collect atts
@@ -97,9 +98,9 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
                   props.put(attr.getName().getLocalPart(), attr.getValue());
               }
               try {
-                colTypes.addElement( new Integer( Types.class.getField(props.get("type-name")).getInt(null) ) );
+                colTypes.addElement( Types.class.getField(props.get("type-name")).getInt(null) );
               } catch (Exception e) {
-                colTypes.addElement( new Integer( Types.VARCHAR ) );
+                colTypes.addElement( Types.VARCHAR );
               }
             }
           }
@@ -109,7 +110,7 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
         else if ("Wrs2Excel".equals(elementName)) {
           wrs2ExcelInfo(element);
         }
-        
+
         // wrs:Data section
         else if( "WrsContainer/Wrs/Data".equals(getPath()) || "Wrs/Data".equals(getPath()) ) {
           log.trace("process Data");
@@ -132,10 +133,10 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
             moveToNextLine();
           }
 
-          
+
           while (true) {
             event = track( eventReader.nextEvent() );
-            
+
             // End of R or C
             if (event.isEndElement()) {
               EndElement endElement = event.asEndElement();
@@ -148,13 +149,13 @@ class Wrs2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter
                 if( currentRowIdx-startRowIdx > options.getMaxRows() )
                   return true;
               }
-            } 
-            
+            }
+
             // We found a R or C start
             else if (event.isStartElement()) {
               element = event.asStartElement();
               elementName = element.getName().getLocalPart();
-  
+
               // wrs:C
               if ("C".equals(elementName)) {
                 // consume, read content; may have complex body so loop here till end of C
