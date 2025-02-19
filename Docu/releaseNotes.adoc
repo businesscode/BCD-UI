@@ -36,6 +36,7 @@ ___
 * cookies created are flagged as "secure", requiring https
 * add BindingInfo servlet to web.xml
 * OAuth2 configuration in shiro.ini: OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri
+* wrq filter operator like automatically escapes %, _ and \ now. Don't use local workarounds where you add \ yourself.
 
 ___
 ==== Release 5_6_0
