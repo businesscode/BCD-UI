@@ -164,6 +164,34 @@ CREATE TABLE bcd_sec_user_settings
    PRIMARY KEY (user_id, right_type, right_value)
 );
 
+DROP TABLE IF EXISTS bcd_sec_role_settings;
+CREATE TABLE bcd_sec_role_settings (
+  role_name varchar(64) NOT NULL,
+  right_type varchar(64) NOT NULL,
+  right_value varchar(64),
+  PRIMARY KEY(role_name, right_type, right_value)
+);
+
+CREATE OR REPLACE VIEW bcd_sec_user_roles_settings AS
+-- in addition resolves roles to settings
+SELECT
+  user_id,
+  right_type,
+  right_value
+FROM bcd_sec_user_settings
+
+UNION ALL
+
+SELECT
+  u.user_id user_id,
+  rs.right_type right_type,
+  rs.right_value right_value
+FROM
+  BCD_SEC_USER u
+  INNER JOIN BCD_SEC_USER_ROLES ur ON (u.user_id = ur.user_id)
+  INNER JOIN BCD_SEC_ROLE_SETTINGS rs ON (rs.role_name = ur.user_role)
+;
+
 -- tiny url
 DROP TABLE bcd_tinyurl_control;
 CREATE TABLE bcd_tinyurl_control
