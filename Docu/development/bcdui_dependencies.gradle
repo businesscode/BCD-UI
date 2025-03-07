@@ -51,12 +51,12 @@ dependencies {
   implementation ('org.apache.logging.log4j:log4j-core:2.17.1') { transitive = false }
   implementation ('net.sf.ehcache:ehcache-core:2.6.11') { transitive = false }
   implementation ('com.opencsv:opencsv:5.4') { transitive = false }
-  implementation ('org.apache.poi:poi:4.1.2') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml:4.1.2') { transitive = false }
-  implementation ('org.apache.poi:poi-ooxml-schemas:4.1.2') { transitive = false }
+  implementation ('org.apache.poi:poi:5.3.0') { transitive = false }                          // UploadToRowColExcel      // 5.2.5 -> 5.3.0
+  implementation ('org.apache.poi:poi-ooxml:5.3.0') { transitive = false }                    // AbstractExcelSheetWriter // 5.2.5 -> 5.3.0
+  implementation ('org.apache.poi:poi-ooxml-lite:5.3.0') { transitive = false }               // AbstractExcelSheetWriter // 5.2.5 -> 5.3.0
   implementation ('org.apache.shiro:shiro-all:1.7.1') { transitive = false }
   implementation ('org.apache.velocity:velocity:1.7') { transitive = false }
-  implementation ('org.apache.xmlbeans:xmlbeans:3.1.0') { transitive = false }
+  implementation ('org.apache.xmlbeans:xmlbeans:5.2.1') { transitive = false }                // needed by poi !                      // 5.2.0 -> 5.2.1
   implementation ('org.apache.taglibs:taglibs-standard-impl:1.2.5') { transitive = false }
   implementation ('com.google.code.gson:gson:2.8.6') { transitive = false }
   implementation ('com.jcraft:jsch:0.1.55') { transitive = false }
@@ -86,7 +86,7 @@ dependencies {
   runtimeOnly ('org.apache.logging.log4j:log4j-slf4j18-impl:2.17.1') { transitive = false } // actual implementation of slf4j using log4j for >= 1.8
   runtimeOnly ('org.apache.logging.log4j:log4j-1.2-api:2.17.1') { transitive = false } // used to divert some 3rd party calls from log4j 1.x to 2.x
   runtimeOnly ('org.owasp.encoder:encoder:1.2.3') { transitive = false } // needed by shiro
-  runtimeOnly ('org.apache.commons:commons-compress:1.20') { transitive = false } // needed by poi
+  runtimeOnly ('org.apache.commons:commons-compress:1.27.1') { transitive = false }          // runtime only, needed by poi !      // 1.26.0 -> 1.27.1
 
   // Provided during runtime by servlet container
   compileOnly ('javax.el:javax.el-api:3.0.0') { transitive = false }
