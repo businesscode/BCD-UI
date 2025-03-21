@@ -231,7 +231,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       }
       if (webRowSetsOpened == webRowSetsClosed && webRowSetsOpened > 0) {
         if (isDdebugMode)
-          logger.info(successMessage.format(new Object[] { new Integer(modifiedRowCount) }));
+          logger.info(successMessage.format(new Object[] { Integer.valueOf(modifiedRowCount) }));
         else
           logger.info("Changes were successfully applied");
         webRowSetsOpened = 0;
@@ -336,7 +336,7 @@ public class XMLToDataBase implements XMLEventConsumer {
     }
     else if(!this.writeProcessingCallbacks.isEmpty()) {
       // columns and columnTypes might have changed in the callback (e.g. wrs:I versus wrs:M), so we need to set the new ones
-      // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type 
+      // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type
       databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]));
     }
 
@@ -430,6 +430,7 @@ public class XMLToDataBase implements XMLEventConsumer {
     /**
      * @see de.businesscode.bcdui.wrs.save.XMLToDataBase.IDelegate#setElementName(java.lang.String)
      */
+    @Override
     public void setElementName(String elementNamePar) {
     }
 
@@ -439,6 +440,7 @@ public class XMLToDataBase implements XMLEventConsumer {
      * @param elementNamePar
      * @return
      */
+    @Override
     public boolean isElement(String elementNamePar) {
       return false;
     }
