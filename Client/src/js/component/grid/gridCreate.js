@@ -1537,13 +1537,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
 
     function beforeCopy(data, coords) {
-      var fkt = codeToCaption.bind(this, data, coords);
-      fkt();
+      if (this.hasReferences) {
+        var fkt = codeToCaption.bind(this, data, coords);
+        fkt();
+      }
     }
 
     function beforeCut(data, coords) {
-      var fkt = codeToCaption.bind(this, data, coords);
-      fkt();
+      if (this.hasReferences) {
+        var fkt = codeToCaption.bind(this, data, coords);
+        fkt();
+      }
     }
 
     function afterPaste(data, coords) {
@@ -2285,12 +2289,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     };
 
     // add code/caption handling for copy/paste
-    if (this.hasReferences) {
-      createArgs["beforeCopy"]  = beforeCopy.bind(this); 
-      createArgs["beforeCut"]   = beforeCut.bind(this);
-      createArgs["afterPaste"]  = afterPaste.bind(this);
-    }
-    // capture beforePaste to trim and add code/caption handling for copy/paste
+    createArgs["beforeCopy"]  = beforeCopy.bind(this); 
+    createArgs["beforeCut"]   = beforeCut.bind(this);
+    createArgs["afterPaste"]  = afterPaste.bind(this);
     createArgs["beforePaste"] = beforePaste.bind(this) 
 
     // optionally limit cells (disable create-rows-on-drag)
