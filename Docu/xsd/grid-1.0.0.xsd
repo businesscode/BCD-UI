@@ -103,7 +103,7 @@
         <xs:element name="Editor" minOccurs="0">
           <xs:annotation><xs:documentation>Handles non-generic ways to edit the data.</xs:documentation></xs:annotation>
           <xs:complexType>
-            <xs:sequence>
+            <xs:sequence minOccurs="0">
               <xs:element name="Param" maxOccurs="unbounded">
                 <xs:annotation><xs:documentation>A parameter for the editor of the referenced type. Each editor type has a different set of parameters.</xs:documentation></xs:annotation>
                 <xs:complexType>
@@ -117,7 +117,7 @@
               </xs:element>
             </xs:sequence>
             <xs:attribute name="type">
-              <xs:annotation><xs:documentation>A registered grid editor type to be used for this column.</xs:documentation></xs:annotation>
+              <xs:annotation><xs:documentation>A registered grid editor type to be used for this column. Built-Ins: bcduiInput, bcduiInputField, bcduiPeriodChooser, bcduiSimpleInput, bcduiSimpleTextarea, bcduiSimpleNumericInput, bcduiSimpleDropDown, bcduiSuggestInput, bcduiStatusModelEditor, bcduiModelDropDown, bcduiSideBySide</xs:documentation></xs:annotation>
             </xs:attribute>
           </xs:complexType>
         </xs:element>
