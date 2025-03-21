@@ -38,6 +38,7 @@
 
 <xsl:param name="gridDefinition"/>
 <xsl:param name="gridModelValidation" select="*[false()]"/> <!-- validateWrs.xslt output in stand-alone mode -->
+<xsl:param name="I18N_TAG" select="'&#xE0FF;'"/>
 
 <xsl:variable name="sqlTypes" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
 
@@ -134,8 +135,9 @@
       <xsl:for-each select="$invalids">
         <tr>
           <th>
+            <xsl:variable name="translatedText" select="$bcdI18nModel/*/*[local-name(.) = substring-after(current()/wrs:C[3], $I18N_TAG)]"/>
             <xsl:choose>
-              <xsl:when test="$bcdI18nModel/*/*[local-name(.)=current()/wrs:C[3]]!=''"><xsl:value-of select="$bcdI18nModel/*/*[local-name(.)=current()/wrs:C[3]]"/></xsl:when>
+              <xsl:when test="$translatedText"><xsl:value-of select="$translatedText"/></xsl:when>
               <xsl:otherwise><xsl:value-of select="current()/wrs:C[3]"/></xsl:otherwise>
             </xsl:choose>
           </th>
