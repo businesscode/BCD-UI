@@ -1191,7 +1191,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         valueBox = jQuery("#bcdAutoCompletionBox");
       }
 
-      var value = htmlElement.value;
+      var value = htmlElement.value.replaceAll("<", bcdui.core.magicChar.separator);
 
       // Do not touch if we are not forced to and are not the current owner (maybe optionsModel loaded but user moved on)
       if( !doClaimForThisInput && valueBox.attr("bcdHtmlElementId") != htmlElementId )
@@ -1262,12 +1262,12 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             for( var i=0; i<levelNodes.length; i++ ) {
               var v = levelNodes.item(i).getAttribute("caption") ? levelNodes.item(i).getAttribute("caption") : levelNodes.item(i).text;
               if( !!v )
-                valueLevels.push(bcdui.util.escapeHtml(v).split(" "));
+                valueLevels.push(v.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
             }
           } else if ( node.nodeType === 1 ) {
-            valueLevels.push(bcdui.util.escapeHtml(node.text).split(" "));
+            valueLevels.push(node.text.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
           } else {
-            valueLevels.push(bcdui.util.escapeHtml(node.nodeValue).split(" "));
+            valueLevels.push(node.nodeValue.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
           }
 
           // Now we mark the matches, if search expression(s) are given          
@@ -1333,7 +1333,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
               continue;
           }
 
-          var val = jQuery("<span>"+valueLevels.map(function(v){return v.join(" ")}).join(" "+(levelSeparator?levelSeparator+" ":""))+"</span>").get(0);
+          var val = jQuery(("<span>"+valueLevels.map(function(v){return v.join(" ")}).join(" "+(levelSeparator?levelSeparator+" ":""))+"</span>").replaceAll(bcdui.core.magicChar.separator, "&lt;")).get(0);
           var isSelected = value==val&&noFilter;
           var rowId = node.nodeType===1 && node.tagName==="C" ? node.parentNode.getAttribute("id") : undefined;
           generatedOptions.push( {val: val, isSelected: isSelected, rowId: rowId} );
