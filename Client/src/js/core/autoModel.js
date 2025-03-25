@@ -63,7 +63,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");
       }
-      
+
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
        // create the model wrapper that creates web row set request
@@ -148,6 +148,9 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
        // create the desired model and inject the model wrapper as request document
        super(simpleModelArgs);
 
+       this.disposables = []; // collect those objects we need to care about upon destroy
+       this.disposables.push(wrapper);
+
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
          var filters = args.filterBRefs.split(" ");
@@ -186,4 +189,10 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
        }
     }
     getClassName() { return "bcdui.core.AutoModel"}
+    destroy() {
+      // destroy those we created
+      this.disposables.forEach(d => d.destroy());
+      // propagate
+      super.destroy();
+    }
 }
