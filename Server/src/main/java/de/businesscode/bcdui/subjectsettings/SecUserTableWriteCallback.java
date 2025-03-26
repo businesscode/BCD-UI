@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -46,7 +49,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
 
   /**
    * Find out where our target columns are (pwd and salt), add salt if it is not present but password is and the BindingSet contains it
-   * @throws Exception 
+   * @throws Exception
    */
   @Override
   public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames) throws Exception {
@@ -76,7 +79,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
         columnTypes.add(Types.VARCHAR);
       } catch (BindingNotFoundException e) { /* cannot happen, we just checked it */ }
     }
-    
+
     //---------------------------
     // Set real column names for password and salt
     // We set the real column name of password and salt on a local copy of the BindingItem, which is from now on used for this Wrq
@@ -90,7 +93,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
       passwordSaltBi.setColumnExpression(passwordSaltColName); // Overwriting col expr on local copy only
       columns.set( wrqPasswordSaltColIdx, passwordSaltBi );
     }
-    
+
     //---------------------------
     // Now we create a copy of the columns list with and without the password and possible salt columns for later use
     // To switch row-wise, depending on whether a new password its given
@@ -142,7 +145,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
       if( saltIdxAfterPwdDelete > -1 ) {
         cValues.remove(saltIdxAfterPwdDelete);
         if( rowType.equals(ROW_TYPE.M) )
-          oValues.remove(saltIdxAfterPwdDelete);        
+          oValues.remove(saltIdxAfterPwdDelete);
       }
       columnsOfCaller.clear();
       columnsOfCaller.addAll(columnsWoPwd);
@@ -183,7 +186,7 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
     }
   }
 
-  
+
   /**
    * Check permissions. Either we are user-admin or are the user itself and know the old password
    * @param cValues
@@ -199,13 +202,13 @@ public class SecUserTableWriteCallback extends WriteProcessingCallback {
       permissionType = getParams().getValue( param, PARAM_NAME_PERMISSION, DEFAULT_PERMISSION);
     }
     if( permissionType.isEmpty() )
-      return true; 
+      return true;
 
     //---------------------------
     // Case 1: An admin is allowed inserting and updating now
-    Set<String> userAdminRights = SecurityHelper.getPermissions(subject, permissionType);
-    if( userAdminRights.size() != 0 )
-      return true; 
+    if(subject.isPermitted(permissionType)) {
+      return true;
+    }
 
     //---------------------------
     // Case 2: A user can only change and only his own account
