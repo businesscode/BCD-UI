@@ -35,7 +35,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
    * @param {number}                  [args.maxRows]                      - Optional, limits the request to n rows. Use distinct if you need a certain order.
    *
-   * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
+   * @param {string}                  [args.id]                           - Optional, a globally unique id for use in declarative contexts
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
    *
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
@@ -131,8 +131,6 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
          statusModel: statusModel,
          statusModelEstablished: args.statusModelEstablished
        };
-       if (args.id)
-         jQuery.extend( wrapperArgs, {id: args.id +"Req"} );  // if we have a given Id, we name the requestDoc accordingly
 
        var wrapper = new bcdui.core.ModelWrapper(wrapperArgs);
 
