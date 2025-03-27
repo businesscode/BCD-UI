@@ -135,7 +135,7 @@
       <xsl:for-each select="$invalids">
         <tr>
           <th>
-            <xsl:variable name="translatedText" select="$bcdI18nModel/*/*[local-name(.) = substring-after(current()/wrs:C[3], $I18N_TAG)]"/>
+            <xsl:variable name="translatedText" select="$bcdI18nModel/*/*[local-name(.) = translate(current()/wrs:C[3],$I18N_TAG,'')]"/>
             <xsl:choose>
               <xsl:when test="$translatedText"><xsl:value-of select="$translatedText"/></xsl:when>
               <xsl:otherwise><xsl:value-of select="current()/wrs:C[3]"/></xsl:otherwise>
