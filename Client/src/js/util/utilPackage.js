@@ -661,6 +661,34 @@ bcdui.util =
     });
     b.onceReady(function() { success(captionMap); });
     b.execute();
+  },
+
+  /**
+   * transforms a xpath string with placeholders. A value with an apostrophe gets translated into a concat statement.
+   * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
+   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
+   * @return {string} final xPath with filled in values for possibly existing placeholders 
+   */
+  interpolateXPath: (fillParams, xPath) => {
+    var xPathClean = xPath.replace(/\*/g, "\uE0F3"); // replace * with some utf8 char, so we can have xPaths with *
+    var x = xPathClean;
+    var concat = false;
+    if (typeof fillParams == "object") {
+      var obj = {};
+      for (var p in fillParams) {
+        if (typeof fillParams[p] == "string") {
+          var gotApos = fillParams[p].indexOf("'") != -1;
+          concat |= gotApos;
+          obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
+        }
+      }
+      x = doT.template(xPathClean)(obj);
+    }
+    
+    // remove possibly existing outer quotes/apostrophe around the inserted concat to make a valid xPath expression
+    if (concat)
+      x = x.replace(/('|\")*(\s)*Xconcat\('/g, "concat('").replace(/, ''X\)(\s)*('|\")*/g, ", '')");
+    return x.replace(/\uE0F3/g, "*"); // don't forget to replace the utf8 char back to *
   }
 }
 

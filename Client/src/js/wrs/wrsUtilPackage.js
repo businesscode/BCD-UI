@@ -1498,8 +1498,50 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     };
     var str = parser.parse(expression);
     return bcdui.util.xml.parseDocument(str);
-  }
+  },
 
+  /**
+     * Reads the string value from a given xPath (or optionally return default value).
+     * @param {Document} doc - the document to operate on
+     * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given params)
+     * @param {Object} [params] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
+     * @param {string} [defaultValue] - default value in case xPath value does not exist
+     * @return text value stored at xPath (or null if no text was found and no defaultValue supplied)
+     */
+  read(doc, xPath, params, defaultValue) {
+    var def = (typeof params == "string") ? params : defaultValue;
+    var node = doc.selectSingleNode(bcdui.util.interpolateXPath(params, xPath));
+    return node != null ? node.text : (def === undefined ? null : def);
+  },
+
+  /**
+   * Set a value to on a certain xPath and create the xPath where necessary. 
+   * This combines Element.evaluate() for a single node with creating the path where necessary. 
+   * It will prefer extending an existing start-part over creating a second one.
+   * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.
+   * 
+   * @param {Document} doc         - the document to operate on
+   * @param {string}  xPath        - xPath pointing to the node which is set to the value value or plain xPath to be created if not there. 
+   *    It tries to reuse all matching parts that are already there. If you provide for example "/n:Root/n:MyElem/@attr2" and there is already "/n:Root/n:MyElem/@attr1", then "/n:Root/n:MyElem" will be "re-used" and get an additional attribute attr2.
+   *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
+   *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
+   *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
+   *    (can include dot template placeholders which get filled with the given params)
+   * @param {Object} [params] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
+   *     Example: bcdui.wkModels.guiStatus.write("/guiStatus:Status/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
+   * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
+   *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
+   * @return {Node} the resulting element (either newly created or existing one)
+   */
+  write(doc, xPath, params, value) {
+    const v = (typeof params != "object") ? params : typeof value != "undefined" ? value : null;
+
+    // At least we assure that the path exists, maybe we also set a value
+    const resultElement = bcdui.core.createElementWithPrototype(doc, bcdui.util.interpolateXPath(params, xPath));
+    if( v != null )
+      resultElement.text = "" + v;
+    return resultElement;
+  }
 });// end of package bcdui.wrs.wrsUtil
 
 
