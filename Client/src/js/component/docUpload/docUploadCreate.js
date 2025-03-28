@@ -36,7 +36,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
   * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
-  
+  * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
   */
   constructor(args){
 
@@ -45,7 +45,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     var widgetId = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("docUploader");
     var targetHtml = bcdui.util._getTargetHtml(args, "docUploader_");
-    var config = bcdui.wkModels.bcdDocUpload;
+    var config = args.config || bcdui.wkModels.bcdDocUpload;
 
     // get data from virtual filesystem for current scope and instance and additional bRefs
     // ensure fileExists at last position (for later comment write modification)
@@ -123,7 +123,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         });
         return doc;
       }
-      , parameters: {dataModel: dataModel}
+      , parameters: {dataModel: dataModel, config: config}
     })
 
     // the actual renderer call
@@ -438,6 +438,7 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
   * @param {string}                  [args.id]                                              - The id of the returned wrs modelwrapper
   * @param {string|array}            [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
   * @return a wrs model holding the overview information
   */
   getUploadOverview: function(args) {
@@ -456,7 +457,7 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
         instances.push(args.instance)
     }
     var instfilter =  instances.length > 0 ? " and instance in '"+instances.join(",")+"'" : "";
-    var config = bcdui.wkModels.bcdDocUpload;
+    var config = args.config || bcdui.wkModels.bcdDocUpload;
     var dataModel = new bcdui.core.AutoModel({bRefs: "metaData instance fileExists", orderByBRefs: "instance", bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"'" + instfilter), isAutoRefresh: true, filterBRefs: args.filterBRefs});
 
     return new bcdui.core.ModelWrapper({
@@ -547,7 +548,8 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
-   * @private
+  * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
+  * @private
    */
   createDocUpload: function( args )
   {
@@ -558,7 +560,8 @@ bcdui.component = Object.assign(bcdui.component,
       id:                   args.id,
       addBRefs:             args.addBRefs,
       onBeforeSave:         args.onBeforeSave,
-      filterBRefs:          args.filterBRefs
+      filterBRefs:          args.filterBRefs,
+      config:               args.config
     });
     return { refId: args.id, symbolicLink: true };
   }  
