@@ -110,8 +110,14 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
         bcdui.widget.multiSelect._readDataFromXML(htmlElement.id, bcdui.factory.objectRegistry.getObject(config.optionsModelId) );
       };
 
-      if (bcdui.util.isString(config.optionsModelId) && ! !config.optionsModelId.trim()) {
-        bcdui.factory.objectRegistry.withReadyObjects(config.optionsModelId, action);
+      let waitModels = [];
+      if (bcdui.util.isString(config.optionsModelId) && ! !config.optionsModelId.trim())
+        waitModels.push(config.optionsModelId);
+      if (bcdui.util.isString(config.targetModelId) && ! !config.targetModelId.trim())
+        waitModels.push(config.targetModelId);
+
+      if (waitModels.length > 0) {
+        bcdui.factory.objectRegistry.withReadyObjects(waitModels, action);
       } else {
         action();
       }
