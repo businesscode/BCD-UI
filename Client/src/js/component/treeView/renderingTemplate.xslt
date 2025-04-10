@@ -22,9 +22,9 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:generator="urn(bcd-xsltGenerator)">
 
-  <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
-  <xsl:import href="bcduicp://bcdui/xslt/renderer/numberFormatting.xslt"/>
-  <xsl:import href="bcduicp://bcdui/js/widgetNg/widgetNg.xslt"/>
+  <xsl:import href="../../../xslt/stringUtil.xslt"/>
+  <xsl:import href="../../../xslt/renderer/numberFormatting.xslt"/>
+  <xsl:import href="../../widgetNg/widgetNg.xslt"/>
 
   <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
 
@@ -51,7 +51,7 @@
 
   <xsl:key name="colDefinitionLookup" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 
-  <xsl:variable name="sqlTypesDoc" select="document('bcduicp://bcdui/xslt/renderer/sqlTypes.xml')"/>
+  <xsl:variable name="sqlTypesDoc" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
   <xsl:variable name="numericSQLTypes" select="$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name"/>
   <xsl:variable name="bcdOnLoad" select="''"/>
 

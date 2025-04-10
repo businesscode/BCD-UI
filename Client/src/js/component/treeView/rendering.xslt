@@ -38,14 +38,14 @@
   xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:generator="urn(bcd-xsltGenerator)">
 
-  <xsl:import href="bcduicp://bcdui/xslt/renderer/htmlHeaderBuilder.xslt"/>
+  <xsl:import href="../../../xslt/renderer/htmlHeaderBuilder.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" media-type="text/xslt"/>
 
   <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>
 
-  <xsl:variable name="renderingTemplate" select="document('bcduicp://bcdui/js/component/treeView/renderingTemplate.xslt')"/>
-  <xsl:variable name="renderingTemplateInclude" select="document('bcduicp://bcdui/xslt/renderer/htmlHeaderBuilderTemplate.xslt')"/>
+  <xsl:variable name="renderingTemplate" select="document('renderingTemplate.xslt')"/>
+  <xsl:variable name="renderingTemplateInclude" select="document('../../../xslt/renderer/htmlHeaderBuilderTemplate.xslt')"/>
 
   <!--
     Root template
