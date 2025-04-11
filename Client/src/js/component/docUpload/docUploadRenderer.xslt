@@ -36,6 +36,8 @@
   <xsl:param name="i18_delete" select="'DELETE'"/>
   <xsl:param name="i18_comment" select="'COMMENT'"/>
   <xsl:param name="i18_download" select="'DOWNLOAD'"/>
+  <xsl:param name="i18_acknowledged" select="'ACKNOWLEDGED'"/>
+  <xsl:param name="doAcknowledge"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
   <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
@@ -127,6 +129,10 @@
       <xsl:if test="$entry">
         <div class='actions' style="display:none">
           <xsl:if test="$entry/@fileExists='true'">
+            <xsl:if test="$doAcknowledge = 'true'">
+            <xsl:variable name="ack"><xsl:if test="$entry/@acknowledged='true'">active</xsl:if></xsl:variable>
+            <a target="_blank"><span title="{$i18_acknowledged}" class="{concat('action acknowledged ',$ack)}"></span></a>
+            </xsl:if>
             <a target="_blank" download="{$entry/@download}" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_download}" class='action download'></span></a>
             <a target="_blank" href="{concat($bcdContextPath, $entry/@link)}"><span title="{$i18_view}" class='action view'></span></a>
           </xsl:if>

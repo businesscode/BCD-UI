@@ -31,7 +31,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  args.instance                                          - The instance identifier
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
-  * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
+  * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load
+  * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
@@ -49,7 +50,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     // get data from virtual filesystem for current scope and instance and additional bRefs
     // ensure fileExists at last position (for later comment write modification)
-    var finalBRefs = "path metaData scope instance updatedBy lastUpdate" + (args.addBRefs ? " " + args.addBRefs : "");
+    var finalBRefs = "path metaData scope instance updatedBy lastUpdate " + (args.doAcknowledge ? "acknowledged" : "") + (args.addBRefs ? " " + args.addBRefs : "");
     finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != "" && e != "fileExists"; });
     finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
     finalBRefs.push("fileExists");
@@ -113,9 +114,15 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 
                 if (! fileExists)
                   fSize = "-";
-
+                
                 // add entry
-                bcdui.core.createElementWithPrototype(doc, "/*/Entry[@uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                if (cargs.doAcknowledge) {
+                  const acknowledgedIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos").text, 10);
+                  const acknowledged = ("1" == e.selectSingleNode("wrs:C[" + acknowledgedIndex + "]").text);
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                }
+                else
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
@@ -123,8 +130,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         });
         return doc;
       }
-      , parameters: {dataModel: dataModel, config: config}
-    })
+      , parameters: {dataModel: dataModel, config: config, doAcknowledge: args.doAcknowledge}
+    });
 
     // the actual renderer call
     // we add a hidden fileinput before the actual targetHtml
@@ -136,10 +143,12 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , scope: args.scope
     , dataModel: dataModel
     , infoModel: infoModel
+    , doAcknowledge : "" + args.doAcknowledge 
     , i18_view: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_View"}) || "VIEW"
     , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
     , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
     , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
+    , i18_acknowledged: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Acknowledged"}) || "ACKNOWLEDGED"
     , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
     };
     if (args.renderParameters) {
@@ -161,6 +170,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.dataModel = dataModel;
     this.infoModel = infoModel;
     this.onBeforeSave = args.onBeforeSave;
+    this.finalBRefs = finalBRefs;
+    this.filterBRefs = args.filterBRefs;
+    this.doAcknowledge = args.doAcknowledge;
+    
 
     // reexecute infoModel and renderer when dataModel was saved/deleted
     this.onceReady(function() {
@@ -231,6 +244,42 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
         else if (jQuery(event.target).hasClass("action")) {
         var action = "";
+
+        if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged"))) {
+          const bRefs = self.finalBRefs.filter(function(e) { return e != "fileExists";});
+          const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
+          ackModel.onceReady(function() {
+            Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
+              const rowId = r.getAttribute("id") || "";
+              let metaNode = r.selectSingleNode("wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos)]");
+              metaNode = metaNode != null ? metaNode.text : "";
+              if (rowId != "" && metaNode.indexOf(area.attr("uuid") || "") != -1) {
+                let ackValue = ackModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos)]", "0");
+                if (jQuery(event.target).hasClass("acknowledged"))
+                  ackValue = ackValue == "1" ? "0" : "1";
+                else
+                  ackValue = "1";
+                bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", ackValue);
+              }
+            });
+            setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+            bcdui.wrs.wrsUtil.postWrs({
+              wrsDoc: ackModel.getData() 
+            , onSuccess: function() {
+              setTimeout(jQuery.unblockUI);
+              self.dataModel.execute(true);
+            }
+            , onFailure: function() {
+              setTimeout(jQuery.unblockUI);
+            }
+            , onWrsValidationFailure: function() {
+              setTimeout(jQuery.unblockUI);
+            }
+            });
+          });
+          ackModel.execute();
+        }
+
         if (jQuery(event.target).hasClass("delete"))
           action = "delete";
           self._performAction(jQuery(event.target).closest(".bcdDropArea"), action);
