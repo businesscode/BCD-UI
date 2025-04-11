@@ -32,6 +32,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  args.instance                                          - The instance identifier
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load
+  * @param {string}                  [args.bindingSetId=bcd_docUpload]                      - Optional binding set id used for document storage, by default bcd_docUpload is used
   * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
@@ -48,6 +49,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     var targetHtml = bcdui.util._getTargetHtml(args, "docUploader_");
     var config = args.config || bcdui.wkModels.bcdDocUpload;
 
+    var bindingSetId = args.bindingSetId || "bcd_docUpload";
+
     // get data from virtual filesystem for current scope and instance and additional bRefs
     // ensure fileExists at last position (for later comment write modification)
     var finalBRefs = "path metaData scope instance updatedBy lastUpdate " + (args.doAcknowledge ? "acknowledged" : "") + (args.addBRefs ? " " + args.addBRefs : "");
@@ -55,7 +58,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
     finalBRefs.push("fileExists");
 
-    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false, filterBRefs: args.filterBRefs
+    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false, filterBRefs: args.filterBRefs
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -173,6 +176,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.finalBRefs = finalBRefs;
     this.filterBRefs = args.filterBRefs;
     this.doAcknowledge = args.doAcknowledge;
+    this.bindingSetId = bindingSetId;
     
 
     // reexecute infoModel and renderer when dataModel was saved/deleted
@@ -247,7 +251,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
         if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged"))) {
           const bRefs = self.finalBRefs.filter(function(e) { return e != "fileExists";});
-          const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: "bcd_docUpload", filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
+          const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: self.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
           ackModel.onceReady(function() {
             Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
               const rowId = r.getAttribute("id") || "";

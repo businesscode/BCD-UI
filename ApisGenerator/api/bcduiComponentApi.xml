@@ -771,9 +771,14 @@
             The scope for the documents.
           </Doc>
         </Param>
-        <Param name="doAcknowledge" type="boolean" default="false">
+        <Param name="scope" type="string" required="true">
           <Doc>
-            Set to true if acknowledge mode is required.
+            The scope for the documents.
+          </Doc>
+        </Param>
+        <Param name="bindingSetId" type="string" default="bcd_docUpload">
+          <Doc>
+            Optional binding set id used for document storage, by default bcd_docUpload is used.
           </Doc>
         </Param>
         <Param name="instance" type="string" required="true">
