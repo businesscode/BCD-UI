@@ -187,7 +187,14 @@ bcdui.core.browserCompatibility = {
       var importNodes = domDocument.selectNodes("/*/xsl:import[starts-with(@href,'bcduicp://')]");
       for( var iN = 0; iN <importNodes.length; iN++ )
         importNodes.item(iN).setAttribute("href", bcdui.config.contextPath + "/" + importNodes.item(iN).getAttribute("href").substring(10) );
+
+      // replace bcduicp in select="document('bcduicp://...)
+      Array.from(domDocument.selectNodes("//xsl:*[contains(@select,'document(') and contains(@select, 'bcduicp://')]")).forEach(function(e) {
+        e.setAttribute("select", e.getAttribute("select").replace(/bcduicp:\/\//g, bcdui.config.contextPath + "/"));
+      });
     },
+    
+    
 
     jQueryXhr: jQuery.ajaxSettings.xhr 
 };
