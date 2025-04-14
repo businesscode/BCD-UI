@@ -291,7 +291,8 @@
       <R id="R460"><C>bcd_DocUploader_Loaded_Documents</C><C>Loaded Documents</C><C>en</C></R>
       <R id="R461"><C>bcd_DocUploader_Missing_Required</C><C>Missing Required Documents</C><C>en</C></R>
       <R id="R462"><C>bcd_DocUploader_Number_Of_Categories</C><C># Categories</C><C>en</C></R>
-      <R id="R463"><C>bcd_DocUploader_Acknowledged</C><C>Acknowledged</C><C>en</C></R>
+      <R id="R463"><C>bcd_DocUploader_Acknowledged</C><C>Click To Acknowledge</C><C>en</C></R>
+      <R id="R464"><C>bcd_DocUploader_Unacknowledged</C><C>Click To Unacknowledge</C><C>en</C></R>
 
       <!-- Comment Widget -->
       <R id="R500"><C>bcd_Comment_Placeholder</C><C>Enter Comment</C><C>en</C></R>

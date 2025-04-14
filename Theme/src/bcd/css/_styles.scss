@@ -2013,7 +2013,8 @@ select:focus option:checked {
   .action.download:after { content: "\f56d"; }
   .action.view:after     { content: "\f06e"; }
   .action.delete:after   { content: "\f2ed"; }
-  .action.acknowledged:after          { content: "\f00c"; color: #000;}
+  .action.acknowledged:after          { content: "\f044"; color: #000;}
+  .action.acknowledged.required:after { content: "\f044"; color: #aa0000;}
   .action.acknowledged.active:after   { content: "\f00c"; color: #00aa00;}
 
   .pointer_true          { cursor: pointer; }

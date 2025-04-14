@@ -151,7 +151,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
     , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
     , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
-    , i18_acknowledged: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Acknowledged"}) || "ACKNOWLEDGED"
+    , i18_acknowledged_off: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Unacknowledged"}) || "CLICK TO UNACKNOWLEDGED"
+    , i18_acknowledged_on: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Acknowledged"}) || "CLICK TO ACKNOWLEDGED"
     , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
     };
     if (args.renderParameters) {
