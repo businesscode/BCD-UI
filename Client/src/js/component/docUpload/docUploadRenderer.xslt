@@ -122,7 +122,7 @@
     <xsl:variable name="docAvailableClass" select="concat(' def_', string(boolean($entry/@fileExists='true')))"/>
     <xsl:variable name="requiredClass" select="concat(' req_', string($required='false' or not($required) or ($required='true' and boolean($entry/@fileExists='true'))))"/>
   
-    <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}">
+    <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" requiredDoc="{$required}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}">
       <xsl:if test="$hasWriteAccess">
         <xsl:attribute name="onDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
         <xsl:attribute name="onDragDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
