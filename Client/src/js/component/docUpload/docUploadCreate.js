@@ -250,45 +250,43 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           // nothing to do...prevent click from opening file dialog
         }
         else if (jQuery(event.target).hasClass("action")) {
-        var action = "";
-
-        if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged"))) {
-          const bRefs = self.finalBRefs.filter(function(e) { return e != "fileExists";});
-          const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: self.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
-          ackModel.onceReady(function() {
-            Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
-              const rowId = r.getAttribute("id") || "";
-              let metaNode = r.selectSingleNode("wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos)]");
-              metaNode = metaNode != null ? metaNode.text : "";
-              if (rowId != "" && metaNode.indexOf(area.attr("uuid") || "") != -1) {
-                let ackValue = ackModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos)]", "0");
-                if (jQuery(event.target).hasClass("acknowledged"))
-                  ackValue = ackValue == "1" ? "0" : "1";
-                else
-                  ackValue = "1";
-                bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", ackValue);
-              }
+          var action = "";
+  
+          if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged"))) {
+            const bRefs = self.finalBRefs.filter(function(e) { return e != "fileExists";});
+            const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: self.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
+            ackModel.onceReady(function() {
+              Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
+                const rowId = r.getAttribute("id") || "";
+                let metaNode = r.selectSingleNode("wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos)]");
+                metaNode = metaNode != null ? metaNode.text : "";
+                if (rowId != "" && metaNode.indexOf(area.attr("uuid") || "") != -1) {
+                  let ackValue = ackModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos)]", "0");
+                  if (jQuery(event.target).hasClass("acknowledged"))
+                    ackValue = ackValue == "1" ? "0" : "1";
+                  else
+                    ackValue = "1";
+                  bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", ackValue);
+                }
+              });
+              setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+              bcdui.wrs.wrsUtil.postWrs({
+                wrsDoc: ackModel.getData()
+              , onSuccess: function() { setTimeout(jQuery.unblockUI); self.dataModel.execute(true); }
+              , onFailure: function() { setTimeout(jQuery.unblockUI); }
+              , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI); }
+              });
             });
-            setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
-            bcdui.wrs.wrsUtil.postWrs({
-              wrsDoc: ackModel.getData() 
-            , onSuccess: function() {
-              setTimeout(jQuery.unblockUI);
-              self.dataModel.execute(true);
+            ackModel.execute();
+          }
+          if (jQuery(event.target).hasClass("delete")) {
+            action = "delete";
+            if (! event.ctrlKey) {
+              var msg = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete_Confirm"}) || "Please hold CTRL while clicking to delete this document!";
+              bcdui.bcdAlerter.warn(msg, 10000);
+              return;
             }
-            , onFailure: function() {
-              setTimeout(jQuery.unblockUI);
-            }
-            , onWrsValidationFailure: function() {
-              setTimeout(jQuery.unblockUI);
-            }
-            });
-          });
-          ackModel.execute();
-        }
-
-        if (jQuery(event.target).hasClass("delete"))
-          action = "delete";
+          }
           self._performAction(jQuery(event.target).closest(".bcdDropArea"), action);
         }
         else {
@@ -448,11 +446,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     // delete action simply kills the current row (confirm first)
     if (action == "delete" && rowId) {
-      var msg = bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete_Confirm"}) || "Do you really want to delete this document?";
-      if (confirm(msg)) {
-        bcdui.wrs.wrsUtil.deleteRow(this.dataModel, rowId, false);
-        this._saveData();
-      }
+      bcdui.wrs.wrsUtil.deleteRow(this.dataModel, rowId, false);
+      this._saveData();
     }
   }
 }
