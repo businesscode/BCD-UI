@@ -1709,13 +1709,17 @@ span.bcd-notification-warn {
     border: 2px solid #d8d8d8; 
     border-radius: .5em;
     color: #555; 
-    margin: 0 .3em 0 0;
+    margin: 0 .3em .3em 0;
     position: relative;
   }
 
   .bcdDropNow {
     background-color: #555 !important;
     color: #FFF !important;
+  }
+  
+  .category {
+    >.title { color: #aa0000; font-weight: bold; font-size: 1.4em; }
   }
 
   .action:after          { font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; }
@@ -1787,7 +1791,7 @@ span.bcd-notification-warn {
   .row.comment { align-items: center; }
   .row.main { pointer-events: none; min-height: 5em;}
 
-  .col { margin: 0 .3em 0 0; padding: 0; }
+  .col { margin: 0 .3em 0; padding: 0; }
   .col:last-child { margin: 0; }
   .col.fileType { flex: 0 0 10%; }
   .col.title { flex: 0 0 40%; }

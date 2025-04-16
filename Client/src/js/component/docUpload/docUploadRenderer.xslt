@@ -60,8 +60,6 @@
             </xsl:variable>
             <xsl:variable name="docsPerCat" select="count($infoModel/*/Entry[@catId=$category/@id])"/>
             
-            <div class='title'><xsl:value-of select="$category/@caption"/></div>
-
             <xsl:choose>
 
               <!-- either we have some documents for current category -->
@@ -165,6 +163,8 @@
             </xsl:choose>
           </div>
         </div>
+      </div>
+      <div class='row small'>
         <div class='col info small'>
           <xsl:choose>
             <xsl:when test="$entry">
@@ -181,15 +181,17 @@
             </xsl:otherwise>
           </xsl:choose>
         </div>
+        <div class='col small'>
+          <xsl:choose>
+            <xsl:when test="$hasWriteAccess">
+              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
+            </xsl:when>
+            <xsl:otherwise>
+              <span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span>
+            </xsl:otherwise>
+          </xsl:choose>
+        </div>
       </div>
-      <xsl:choose>
-        <xsl:when test="$hasWriteAccess">
-          <div class='row small icon comment'><div class='col'><textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea></div></div>
-        </xsl:when>
-        <xsl:otherwise>
-          <div class='row small icon comment'><div class='col'><span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span></div></div>
-        </xsl:otherwise>
-      </xsl:choose>
     </div>
   </xsl:template>
   
