@@ -800,7 +800,7 @@ if (!bcdui.browserCompatibility.isIE) {
 bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(serializedDoc)
 {
   // PrefixArray to hold all words, followed by : but not by :: (axes) or by :/ (url)
-  var prefixArray = serializedDoc.match(/([\w-]+)(?=:(?!(:|\/)))/g);
+  var prefixArray = serializedDoc.match(/\b([\w-]+)(?=:(?![:/]))/g);
   if(! prefixArray)
     return serializedDoc;
   prefixArray = prefixArray.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);;
