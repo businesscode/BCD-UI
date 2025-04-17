@@ -67,12 +67,13 @@
               
                 <!-- loop over all docs for this category -->
                 <xsl:for-each select="$infoModel/*/Entry[@catId=$category/@id]">
+                  <xsl:variable name="pos" select="position()"/>
                   <xsl:call-template name="renderBox">
                     <xsl:with-param name="category" select="$category"/>
                     <xsl:with-param name="entry" select="."/>
                     <xsl:with-param name="maxCount" select="$maxCount"/>
                     <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                    <xsl:with-param name="pos" select="position()"/>
+                    <xsl:with-param name="pos" select="$pos"/>
                   </xsl:call-template>
                 </xsl:for-each>
               </xsl:when>
@@ -84,7 +85,7 @@
                   <xsl:with-param name="entry" select="/*[1=0]"/>
                   <xsl:with-param name="maxCount" select="$maxCount"/>
                   <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                  <xsl:with-param name="pos" select="position()"/>
+                  <xsl:with-param name="pos" select="number(1)"/>
                 </xsl:call-template>
               </xsl:otherwise>
             </xsl:choose>
@@ -96,7 +97,7 @@
                 <xsl:with-param name="entry" select="/*[1=0]"/>
                 <xsl:with-param name="maxCount" select="$maxCount"/>
                 <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                <xsl:with-param name="pos" select="position()"/>
+                <xsl:with-param name="pos" select="number($docsPerCat + 1)"/>
               </xsl:call-template>
             </xsl:if>
           </div>
@@ -155,12 +156,9 @@
         <div class='col title'>
           <div class='title'>
             <xsl:value-of select="$caption"/>
-            <xsl:choose>
-              <xsl:when test="not($entry/@fileName)"></xsl:when>
-              <xsl:when test="$maxCount &gt; 1">
-                <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
-              </xsl:when>
-            </xsl:choose>
+            <xsl:if test="$maxCount &gt; 1">
+              <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
+            </xsl:if>
           </div>
         </div>
       </div>
