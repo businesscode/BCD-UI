@@ -150,19 +150,14 @@
         </div>
       </xsl:if>
       <div class='row main'>
-        <div class='col fileType'>
-          <div class="{concat('icon ', $entry/@ext, $docAvailableClass, $requiredClass)}"></div>
-        </div>
-        <div class='col title'>
-          <div class='title'>
+        <div class='col title fileType'>
+          <div class="{concat('title icon ', $entry/@ext, $docAvailableClass, $requiredClass)}">
             <xsl:value-of select="$caption"/>
             <xsl:if test="$maxCount &gt; 1">
               <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
             </xsl:if>
           </div>
         </div>
-      </div>
-      <div class='row small'>
         <div class='col info small'>
           <xsl:choose>
             <xsl:when test="$entry">
@@ -179,19 +174,18 @@
             </xsl:otherwise>
           </xsl:choose>
         </div>
-        <div class='col small'>
-          <xsl:choose>
-            <xsl:when test="$hasWriteAccess">
-              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
-            </xsl:when>
-            <xsl:otherwise>
-              <span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span>
-            </xsl:otherwise>
-          </xsl:choose>
-        </div>
+      </div>
+      <div class='row small comment'>
+        <xsl:choose>
+          <xsl:when test="$hasWriteAccess">
+            <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
+          </xsl:when>
+          <xsl:otherwise>
+            <span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span>
+          </xsl:otherwise>
+        </xsl:choose>
       </div>
     </div>
   </xsl:template>
-  
 
 </xsl:stylesheet>

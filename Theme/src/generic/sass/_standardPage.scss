@@ -1785,17 +1785,21 @@ span.bcd-notification-warn {
 
   .small { font-size: .8em; }
   .docUploaderContainer { display: flex; }
-  .commentinput { resize: none; }
+  .commentinput { resize: none; height: 8em; margin: .5em 0 0 0; }
 
   .row { margin: 0 0 0 0; padding: 0; width: 100%; text-align: left; }
   .row.comment { align-items: center; }
   .row.main { pointer-events: none; min-height: 5em;}
 
-  .col { margin: 0 .3em 0; padding: 0; }
+  .col { margin: 0 .3em 0 0; padding: 0; }
   .col:last-child { margin: 0; }
-  .col.fileType { flex: 0 0 10%; }
   .col.title { flex: 0 0 40%; }
   .col.info { word-break: break-all;}
+
+  .row.main .col {
+    white-space: normal;
+    word-break: break-all;
+  }
 }
 
 /* ******************************************************************* */
