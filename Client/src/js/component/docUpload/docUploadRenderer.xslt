@@ -49,7 +49,6 @@
     <div>
       <div class='docUploaderContainer'>
         <xsl:for-each select="$config/*/rnd:Scopes/rnd:Scope[@id=$scope]/rnd:Category">
-          <div class='category col'>
 
             <xsl:variable name="category" select="."/>
             <xsl:variable name="maxCount">
@@ -100,7 +99,6 @@
                 <xsl:with-param name="pos" select="number($docsPerCat + 1)"/>
               </xsl:call-template>
             </xsl:if>
-          </div>
         </xsl:for-each>
       </div>
     </div>
@@ -120,6 +118,7 @@
     <xsl:variable name="dropAllowedClass" select="concat(' pointer_', string($hasWriteAccess))"/>
     <xsl:variable name="docAvailableClass" select="concat(' def_', string(boolean($entry/@fileExists='true')))"/>
     <xsl:variable name="requiredClass" select="concat(' req_', string($required='false' or not($required) or ($required='true' and boolean($entry/@fileExists='true'))))"/>
+    <div class='category col'>
   
     <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" requiredDoc="{$required}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}">
       <xsl:if test="$hasWriteAccess">
@@ -127,7 +126,7 @@
         <xsl:attribute name="onDragDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
       </xsl:if>
       <xsl:if test="$entry">
-        <div class='actions' style="display:none">
+        <div class='actions'>
           <xsl:if test="$entry/@fileExists='true'">
             <xsl:if test="$doAcknowledge = 'true'">
               <xsl:variable name="ack"><xsl:if test="$entry/@acknowledged='true'">active</xsl:if></xsl:variable>
@@ -149,31 +148,29 @@
           </xsl:if>
         </div>
       </xsl:if>
-      <div class='row main'>
-        <div class='col title fileType'>
-          <div class="{concat('title icon ', $entry/@ext, $docAvailableClass, $requiredClass)}">
-            <xsl:value-of select="$caption"/>
-            <xsl:if test="$maxCount &gt; 1">
-              <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
-            </xsl:if>
-          </div>
+      <div class='row title fileType'>
+        <div class="{concat('title icon ', $entry/@ext, $docAvailableClass, $requiredClass)}">
+          <xsl:value-of select="$caption"/>
+          <xsl:if test="$maxCount &gt; 1">
+            <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
+          </xsl:if>
         </div>
-        <div class='col info small'>
-          <xsl:choose>
-            <xsl:when test="$entry">
-              <div class='icon ts'><xsl:value-of select="$entry/@ts"/></div>
-              <div class='icon user'><xsl:value-of select="$entry/@user"/></div>
-              <div class='icon fileName'><xsl:value-of select="$entry/@fileName"/></div>
-              <div class='icon fileSize'><xsl:value-of select="$entry/@fileSizePrint"/></div>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:choose>
-                <xsl:when test="contains($requiredClass,'false')"><div bcdTranslate='bcd_DocUploader_Required'>Required Upload</div></xsl:when>
-                <xsl:otherwise><div bcdTranslate='bcd_DocUploader_Optional'>Optional Upload</div></xsl:otherwise>
-              </xsl:choose>
-            </xsl:otherwise>
-          </xsl:choose>
-        </div>
+      </div>
+      <div class='row info small'>
+        <xsl:choose>
+          <xsl:when test="$entry">
+            <div class='icon ts'><xsl:value-of select="$entry/@ts"/></div>
+            <div class='icon user'><xsl:value-of select="$entry/@user"/></div>
+            <div class='icon fileName'><xsl:value-of select="$entry/@fileName"/></div>
+            <div class='icon fileSize'><xsl:value-of select="$entry/@fileSizePrint"/></div>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:choose>
+              <xsl:when test="contains($requiredClass,'false')"><div bcdTranslate='bcd_DocUploader_Required'>Required Upload</div></xsl:when>
+              <xsl:otherwise><div bcdTranslate='bcd_DocUploader_Optional'>Optional Upload</div></xsl:otherwise>
+            </xsl:choose>
+          </xsl:otherwise>
+        </xsl:choose>
       </div>
       <div class='row small comment'>
         <xsl:choose>
@@ -185,6 +182,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </div>
+    </div>
     </div>
   </xsl:template>
 

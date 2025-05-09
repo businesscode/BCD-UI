@@ -205,10 +205,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       dropAreas.on('dragleave drop dragdrop', function() { jQuery(this).removeClass('bcdDropNow'); });
       dropAreas.on('dragover', function(event) { event.preventDefault(); });
 
-      jQuery("#" + this.targetHtml).off("mouseenter");
-      jQuery("#" + this.targetHtml).off("mouseleave");
-      jQuery("#" + this.targetHtml).on("mouseenter", ".bcdDropArea", function() {jQuery(this).find(".actions").show();});
-      jQuery("#" + this.targetHtml).on("mouseleave", ".bcdDropArea", function() {jQuery(this).find(".actions").hide();});
+//      jQuery("#" + this.targetHtml).off("mouseenter");
+//      jQuery("#" + this.targetHtml).off("mouseleave");
+//      jQuery("#" + this.targetHtml).on("mouseenter", ".bcdDropArea", function() {jQuery(this).find(".actions").show();});
+//      jQuery("#" + this.targetHtml).on("mouseleave", ".bcdDropArea", function() {jQuery(this).find(".actions").hide();});
       
       // handle comment change and save
       jQuery("#" + this.targetHtml).off("change");
