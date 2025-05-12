@@ -218,6 +218,8 @@ CREATE TABLE bcd_virtualFileSystem
    scope          VARCHAR(255),
    instance       VARCHAR(255),
    meta_data      TEXT,
+   required       INTEGER,
+   acknowledged   INTEGER,
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
 
