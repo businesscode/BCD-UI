@@ -79,8 +79,8 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
       }
 
       // add possibly missing captions to measures and measureRefs
-      const msrRefsNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("idRef") || ""; });
-      const msrNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("id") || ""; });
+      const msrRefsNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("idRef") || n.getAttribute("bRef") || ""; });
+      const msrNoCaption = Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[not(@caption) or @caption='']")).map(function(n) { return n.getAttribute("id") || n.getAttribute("bRef") || ""; });
       let noCaptionsMsr = msrRefsNoCaption.concat(msrNoCaption).filter(function(e) { return e.text != ""; });
       noCaptionsMsr = noCaptionsMsr.filter(function(e, idx){return noCaptionsMsr.indexOf(e) == idx});
       const binding = enhancedConfig.read("/*/wrq:BindingSet", "");
