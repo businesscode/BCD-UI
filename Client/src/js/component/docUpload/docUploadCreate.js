@@ -205,11 +205,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       dropAreas.on('dragleave drop dragdrop', function() { jQuery(this).removeClass('bcdDropNow'); });
       dropAreas.on('dragover', function(event) { event.preventDefault(); });
 
-//      jQuery("#" + this.targetHtml).off("mouseenter");
-//      jQuery("#" + this.targetHtml).off("mouseleave");
-//      jQuery("#" + this.targetHtml).on("mouseenter", ".bcdDropArea", function() {jQuery(this).find(".actions").show();});
-//      jQuery("#" + this.targetHtml).on("mouseleave", ".bcdDropArea", function() {jQuery(this).find(".actions").hide();});
-      
       // handle comment change and save
       jQuery("#" + this.targetHtml).off("change");
       jQuery("#" + this.targetHtml).on("change", ".commentinput", function() {
@@ -399,7 +394,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var b64 = this.result.substring(this.result.indexOf("base64,") + "base64,".length);
 
         // extract possible file extension (currently only used for css icon selection)
-        var ext = fileName.indexOf(".") > -1 ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
 
         // change fileExists entry to resource blob 
         var fileExistsHeader = self.dataModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']");
@@ -414,7 +408,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
           // create and fill the modified blob column C/O values
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "resourceBlob", b64);
-          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
+          bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "path", "/vfs/documents/" + bcdui.util.getUuid() + "/" + fileName);
           bcdui.wrs.wrsUtil.setCellValue(self.dataModel, rowId, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
           self._saveData();
         }
@@ -423,7 +417,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         else {
           bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "resourceBlob", b64);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid() + "." + ext);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid() + "/" + fileName);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
