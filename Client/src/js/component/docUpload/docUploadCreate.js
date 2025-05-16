@@ -34,6 +34,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load
   * @param {string}                  [args.bindingSetId=bcd_docUpload]                      - Optional binding set id used for document storage, by default bcd_docUpload is used
   * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
+  * @param {string}                  [args.downloadAll=false]                               - Set to true if you want to be able to download/zip all documents
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
@@ -146,13 +147,15 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , scope: args.scope
     , dataModel: dataModel
     , infoModel: infoModel
-    , doAcknowledge : "" + args.doAcknowledge 
+    , doAcknowledge: "" + args.doAcknowledge
+    , downloadAll: "" + args.downloadAll
     , i18_view: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_View"}) || "VIEW"
     , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
     , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
     , i18_download: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Download"}) || "DOWNLOAD"
     , i18_acknowledged_off: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Unacknowledged"}) || "CLICK TO UNACKNOWLEDGED"
     , i18_acknowledged_on: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Acknowledged"}) || "CLICK TO ACKNOWLEDGED"
+    , i18_download_all: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_DownloadAll"}) || "ZIP"
     , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
     };
     if (args.renderParameters) {
@@ -177,6 +180,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.finalBRefs = finalBRefs;
     this.filterBRefs = args.filterBRefs;
     this.doAcknowledge = args.doAcknowledge;
+    this.downloadAll = args.downloadAll;
     this.bindingSetId = bindingSetId;
     
 
@@ -194,6 +198,29 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
       // store instance
       jQuery("#" + targetHtml).find(".bcdDocUploader").data("objects", {instance: this});
+
+      // add download all anchor
+      let vfsConfig = '<Vfs xmlns="http://www.businesscode.de/schema/bcdui/vfs-1.0.0" xmlns:vfs="http://www.businesscode.de/schema/bcdui/vfs-1.0.0"><Zip>';
+      const files = Array.from(self.infoModel.queryNodes("/*/Entry[@fileExists='true']"));
+      files.forEach(function(e) {
+        const link = e.getAttribute("link") || "";
+        if (link)
+          vfsConfig += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(link)], "<File name='{{=it[0]}}'/>");
+      });
+      vfsConfig += "</Zip></Vfs>";
+      if (files.length > 0) {
+        const d = new bcdui.core.StaticModel(vfsConfig);
+        d.execute();
+        bcdui.core.compression.compressDOMDocument(d.getData(), function(compressedString) {
+          const link = bcdui.contextPath + "/document.zip?zipInfo=" + compressedString
+          jQuery("#" + targetHtml).find(".downloadAll").find("a").attr("href", link);
+          jQuery("#" + targetHtml).find(".downloadAll").find(".bcdButton").removeClass("disabled");
+        });
+      }
+      else {
+        jQuery("#" + targetHtml).find(".downloadAll").find("a").removeAttr("href");
+        jQuery("#" + targetHtml).find(".downloadAll").find(".bcdButton").addClass("disabled");
+      }
 
       // reactivate hooks
       var dropAreas = jQuery('.bcdDropArea');
@@ -239,6 +266,13 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       });
 
       jQuery("#" + this.targetHtml).off("click");
+
+      if (this.doAcknowledge) {
+        jQuery("#" + this.targetHtml).on("click", ".zipLink", function(event) {
+          self.setAcknowledge(null, false);
+        });
+      }
+
       jQuery("#" + this.targetHtml).on("click", ".bcdDropArea", function(event) {
         var area = jQuery(event.target).closest(".bcdDropArea");
         if (jQuery(event.target).closest(".comment").length > 0 || ! area.hasClass("pointer_true")) {
@@ -247,33 +281,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         else if (jQuery(event.target).hasClass("action")) {
           var action = "";
   
-          if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged"))) {
-            const bRefs = self.finalBRefs.filter(function(e) { return e != "fileExists";});
-            const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: self.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+self.scope+"' and instance='"+self.instance+"'"), isAutoRefresh: false, filterBRefs: self.filterBRefs });
-            ackModel.onceReady(function() {
-              Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
-                const rowId = r.getAttribute("id") || "";
-                let metaNode = r.selectSingleNode("wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos)]");
-                metaNode = metaNode != null ? metaNode.text : "";
-                if (rowId != "" && metaNode.indexOf(area.attr("uuid") || "") != -1) {
-                  let ackValue = ackModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos)]", "0");
-                  if (jQuery(event.target).hasClass("acknowledged"))
-                    ackValue = ackValue == "1" ? "0" : "1";
-                  else
-                    ackValue = "1";
-                  bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", ackValue);
-                }
-              });
-              setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
-              bcdui.wrs.wrsUtil.postWrs({
-                wrsDoc: ackModel.getData()
-              , onSuccess: function() { setTimeout(jQuery.unblockUI); self.dataModel.execute(true); }
-              , onFailure: function() { setTimeout(jQuery.unblockUI); }
-              , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI); }
-              });
-            });
-            ackModel.execute();
-          }
+          if (self.doAcknowledge && (jQuery(event.target).hasClass("view") || jQuery(event.target).hasClass("download") || jQuery(event.target).hasClass("acknowledged")))
+            self.setAcknowledge(area, jQuery(event.target).hasClass("acknowledged"));
           if (jQuery(event.target).hasClass("delete")) {
             action = "delete";
             if (! event.ctrlKey) {
@@ -296,9 +305,41 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       });
     }.bind(this));
   }
+  
+  setAcknowledge(area, isAcknowledged) {
+    const bRefs = this.finalBRefs.filter(function(e) { return e != "fileExists";});
+    const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: this.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.scope+"' and instance='"+this.instance+"'"), isAutoRefresh: false, filterBRefs: this.filterBRefs });
+    const self = this;
+    ackModel.onceReady(function() {
+      Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
+        const rowId = r.getAttribute("id") || "";
+        let metaNode = r.selectSingleNode("wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='metaData']/@pos)]");
+        metaNode = metaNode != null ? metaNode.text : "";
+
+        if (area == null) {
+          bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", "1");
+        }
+        else if (rowId != "" && metaNode.indexOf(area.attr("uuid") || "") != -1) {
+          let ackValue = ackModel.read("/*/wrs:Data/wrs:R[@id='"+rowId+"']/wrs:C[number(/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos)]", "0");
+          if (isAcknowledged)
+            ackValue = ackValue == "1" ? "0" : "1";
+          else
+            ackValue = "1";
+          bcdui.wrs.wrsUtil.setCellValue(ackModel, rowId, "acknowledged", ackValue);
+        }
+      });
+      setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+      bcdui.wrs.wrsUtil.postWrs({
+        wrsDoc: ackModel.getData()
+      , onSuccess: function() { setTimeout(jQuery.unblockUI); self.dataModel.execute(true); }
+      , onFailure: function() { setTimeout(jQuery.unblockUI); }
+      , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI); }
+      });
+    });
+    ackModel.execute();
+  }
 
   getClassName() {return "bcdui.component.docUpload.Uploader";}
-
 
   /**
    * returns an array with objects for each category of the current scope.
@@ -595,7 +636,12 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
+  * @param {string}                  [args.downloadAll=false]                               - Set to true if you want to be able to download/zip all documents
   * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
+  * @param {string}                  [args.bindingSetId=bcd_docUpload]                      - Optional binding set id used for document storage, by default bcd_docUpload is used
+  * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
+  * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
   * @private
    */
   createDocUpload: function( args )
@@ -608,7 +654,12 @@ bcdui.component = Object.assign(bcdui.component,
       addBRefs:             args.addBRefs,
       onBeforeSave:         args.onBeforeSave,
       filterBRefs:          args.filterBRefs,
-      config:               args.config
+      config:               args.config,
+      doAcknowledge:        args.doAcknowledge,
+      downloadAll:          args.downloadAll,
+      bindingSetId:         args.bindingSetId,
+      renderChain:          args.renderChain,
+      renderParameters:     args.renderParameters
     });
     return { refId: args.id, symbolicLink: true };
   }  

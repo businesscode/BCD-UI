@@ -801,6 +801,16 @@
             The space separated list of binding Refs that will be used in filter clause of request document.
           </Doc>
         </Param>
+        <Param name="downloadAll" type="boolean" default="false">
+          <Doc>
+            Set to true if you want to be able to download/zip all documents
+          </Doc>
+        </Param>
+        <Param name="doAcknowledge" type="boolean" default="false">
+          <Doc>
+            Set to true if acknowledge mode is required
+          </Doc>
+        </Param>
       </Api>
     </BcdAPI>
 

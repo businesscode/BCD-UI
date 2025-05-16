@@ -1714,6 +1714,14 @@ span.bcd-notification-warn {
     flex-wrap: wrap;
   }
 
+  .downloadAll {
+    text-transform: uppercase;
+    margin: 0 0 .3em 0;
+    font-size: .8em;
+    .bcdButton.disabled { cursor: default; a { text-decoration: none; }}
+    a:before { content: "\f1c6"; font-family: "Font Awesome 5 Free", sans-serif; font-weight: 600; margin-right: .3em; }
+  }
+
   .bcdDropNow {
     background-color: #555 !important;
     color: #FFF !important;
