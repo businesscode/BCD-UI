@@ -811,6 +811,11 @@
             Set to true if acknowledge mode is required
           </Doc>
         </Param>
+        <Param name="zipName" type="string" default="documents.zip">
+          <Doc>
+            The filename for the generated zip, ensure it ends with .zip
+          </Doc>
+        </Param>
       </Api>
     </BcdAPI>
 

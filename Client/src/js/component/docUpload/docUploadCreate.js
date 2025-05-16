@@ -37,6 +37,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  [args.downloadAll=false]                               - Set to true if you want to be able to download/zip all documents
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {string}                  [args.zipName=documents.zip]                           - The filename for the generated zip, ensure it ends with .zip
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
   * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
   * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
@@ -182,7 +183,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.doAcknowledge = args.doAcknowledge;
     this.downloadAll = args.downloadAll;
     this.bindingSetId = bindingSetId;
-    
+    this.zipName = args.zipName || "documents.zip";
 
     // reexecute infoModel and renderer when dataModel was saved/deleted
     this.onceReady(function() {
@@ -212,7 +213,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         const d = new bcdui.core.StaticModel(vfsConfig);
         d.execute();
         bcdui.core.compression.compressDOMDocument(d.getData(), function(compressedString) {
-          const link = bcdui.contextPath + "/document.zip?zipInfo=" + compressedString
+          const link = encodeURI(bcdui.contextPath + "/"+ self.zipName +"?zipInfo=" + compressedString);
           jQuery("#" + targetHtml).find(".downloadAll").find("a").attr("href", link);
           jQuery("#" + targetHtml).find(".downloadAll").find(".bcdButton").removeClass("disabled");
         });
@@ -642,6 +643,7 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {string}                  [args.bindingSetId=bcd_docUpload]                      - Optional binding set id used for document storage, by default bcd_docUpload is used
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
   * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
+  * @param {string}                  [args.zipName=documents.zip]                           - The space separated list of binding Refs that will be used in filter clause of request document
   * @private
    */
   createDocUpload: function( args )
@@ -659,7 +661,9 @@ bcdui.component = Object.assign(bcdui.component,
       downloadAll:          args.downloadAll,
       bindingSetId:         args.bindingSetId,
       renderChain:          args.renderChain,
-      renderParameters:     args.renderParameters
+      renderParameters:     args.renderParameters,
+      zipName:              args.zipName
+      
     });
     return { refId: args.id, symbolicLink: true };
   }  
