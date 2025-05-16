@@ -111,6 +111,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String XSLTFORMULAR_NAMESPACE = "http://www.businesscode.de/schema/bcdui/xsltFormulas-1.0.0";
   public static final String XSLTPARAMS_PREFIX      = "xp";
   public static final String XSLTPARAMS_NAMESPACE   = "http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0";
+  public static final String VFS_PREFIX             = "vfs";
+  public static final String VFS_NAMESPACE          = "http://www.businesscode.de/schema/bcdui/vfs-1.0.0";
   /**
    * Constructor for singelton
    */
@@ -152,6 +154,7 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(XI_PREFIX,           XI_NAMESPACE);
     mapping.put(XSLTFORMULAR_PREFIX, XSLTFORMULAR_NAMESPACE);
     mapping.put(XSLTPARAMS_PREFIX,   XSLTPARAMS_NAMESPACE);
+    mapping.put(VFS_PREFIX,          VFS_NAMESPACE);
 
     //
     reverseMapping = new HashMap<String, String>();
