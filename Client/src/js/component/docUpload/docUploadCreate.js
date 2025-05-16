@@ -270,7 +270,14 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
       if (this.doAcknowledge) {
         jQuery("#" + this.targetHtml).on("click", ".zipLink", function(event) {
-          self.setAcknowledge(null, false);
+          event.preventDefault();
+          let hRef = jQuery(event.target).attr("href") || "";
+          if (! hRef)
+            hRef = jQuery(event.target).find("a").attr("href") || "";
+          if (hRef) {
+            window.open(hRef);
+            self.setAcknowledge(null, false);
+          }
         });
       }
 

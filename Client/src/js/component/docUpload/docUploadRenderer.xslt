@@ -52,7 +52,7 @@
       <div class='docUploaderContainer'>
 
         <xsl:if test="$downloadAll='true'">
-          <div class='downloadAll'><span class='bcdButton btn-primary'><a class="zipLink"><xsl:value-of select="$i18_download_all"/></a></span></div>
+          <div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class="zipLink"><xsl:value-of select="$i18_download_all"/></a></span></div>
         </xsl:if>
 
         <xsl:for-each select="$config/*/rnd:Scopes/rnd:Scope[@id=$scope]/rnd:Category">
