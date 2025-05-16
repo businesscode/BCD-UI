@@ -201,6 +201,7 @@
     <url-pattern>/vfs/*</url-pattern>
     <url-pattern>*.vfsxml</url-pattern>
     <url-pattern>*.js</url-pattern>
+    <url-pattern>*.zip</url-pattern>
   </servlet-mapping>
 
   <!-- I18nServlet -->
@@ -461,6 +462,7 @@
   <!-- require SSL -->
   <security-constraint>
     <web-resource-collection>
+      <web-resource-name>SPNEGO AUTHENTICATION</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <user-data-constraint>

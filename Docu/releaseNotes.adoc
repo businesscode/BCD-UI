@@ -13,6 +13,7 @@ ___
 * switched to Java 17, Gradle 8.5, Tomcat 10.1
 
 .Server:
+* added zip packaging and download feature via static resourceservlet, ensure *.zip mapping in web.xml
 * updated several 3rd party jars
 * updated default web.xml and enforce usage of https
 * cookies created are flagged as "secure"
