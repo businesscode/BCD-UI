@@ -771,11 +771,6 @@
             The scope for the documents.
           </Doc>
         </Param>
-        <Param name="scope" type="string" required="true">
-          <Doc>
-            The scope for the documents.
-          </Doc>
-        </Param>
         <Param name="bindingSetId" type="string" default="bcd_docUpload">
           <Doc>
             Optional binding set id used for document storage, by default bcd_docUpload is used.
