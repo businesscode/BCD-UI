@@ -19,8 +19,22 @@ public class CustomJdbcTypeSupport {
    */
   public static String wrapTypeCast(WrqBindingItem wrqBindingItem, String expr) {
     BindingItem referencingBindingItem = wrqBindingItem.getReferenceBindingItem();
-    if (referencingBindingItem != null && hasCustomDatabaseType(referencingBindingItem)) {
-      return "(" + expr + ")::" + getCustomDatabaseType(referencingBindingItem);
+    if (referencingBindingItem != null) {
+      return wrapTypeCast(referencingBindingItem, expr);
+    }
+    return expr;
+  }
+
+  /**
+   * wraps with explicit typecast to custom database type
+   *
+   * @param bindingItem
+   * @param expr
+   * @return either expr or expr wrapped into explicit typecast
+   */
+  public static String wrapTypeCast(BindingItem bindingItem, String expr) {
+    if (hasCustomDatabaseType(bindingItem)) {
+      return "(" + expr + ")::" + getCustomDatabaseType(bindingItem);
     }
     return expr;
   }
@@ -41,7 +55,7 @@ public class CustomJdbcTypeSupport {
   }
 
   /**
-   * 
+   *
    * @return TRUE if custom:type-name was defined on this item referring to
    *         custom database type and jdbc type name is set to OTHER
    */
