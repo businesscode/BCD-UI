@@ -320,7 +320,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       // Resolve via subselect if we have many permission values
       else {
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
-        subjectSettingsClause.append("CAST((" + columnExpression + ") AS VARCHAR(128)) in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
+        subjectSettingsClause.append("CAST((" + columnExpression + ") AS VARCHAR(128)) in (SELECT " + bsUr.rightValue.getColumnExpression() + " FROM " + bsUr.table + " WHERE " + bsUr.userid.getColumnExpression() + "=" + CustomJdbcTypeSupport.wrapTypeCast(bsUr.userid, "?") + " AND " + bsUr.rightType.getColumnExpression() + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller, bcd_sec_usersettings userid and righttype should be VARCHAR
         writeParams("bcdVirtBindingItemWithType.VARCHAR", Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }
@@ -357,9 +357,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     String table;
-    String userid;
-    String righttype;
-    String rightvalue;
+    BindingItem userid, rightType, rightValue;
 
     public BindingSetUserRights() {
       BindingSet bsUr = null;
@@ -370,9 +368,9 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         bsUr = Bindings.getInstance().get("bcd_sec_user_settings", c);
 
         table = bsUr.getTableReference();
-        userid = bsUr.get("user_id").getColumnExpression();
-        righttype = bsUr.get("right_type").getColumnExpression();
-        rightvalue = bsUr.get("right_value").getColumnExpression();
+        userid = bsUr.get("user_id");
+        rightType = bsUr.get("right_type");
+        rightValue = bsUr.get("right_value");
       } catch (Exception e) {
         throw new RuntimeException("Failed reading 'bcd_sec_user_settings' binding-set", e);
       }
