@@ -15,6 +15,7 @@
 */
 package de.businesscode.bcdui.binding.write;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
+import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.subjectFilter.Connective;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilter;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilterNode;
@@ -29,10 +35,6 @@ import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-
-import de.businesscode.bcdui.binding.BindingItem;
 
 /**
  * Enforce SubjectFilters on write
@@ -67,13 +69,13 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
 
       // apply write subject settings checks when subject filter type mode isn't (R)ead-only
       if (! "R".equalsIgnoreCase(sft.getMode()))
-        enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), sft.getName() ) );
+        enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), Arrays.asList(sft.getType(), sft.getName()).stream().filter(StringUtils::isNotBlank).findFirst().get() ) );
     }
   }
 
-  /**
-   * Make sure the Wrq contains all enforcedBis 
-   * @throws Exception 
+  /**.
+   * Make sure the Wrq contains all enforcedBis
+   * @throws Exception
    */
   @Override
   public void endHeader(List<BindingItem> columns, List<Integer> columnTypes, Collection<String> keyColumnNames) throws Exception {
@@ -137,7 +139,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
       else if ((value == null || value.isEmpty()) && (st != null && st.isIsNullAllowsAccess())) {
         foundMatch = true;
       }
-      // check if we match permissions by "like"  
+      // check if we match permissions by "like"
       else if (st != null && st.getOp().equals("like")) {
         boolean likeMatch = false;
         for (String perm : eBi.permissions) {
@@ -166,7 +168,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
     if( !enforcedBis.isEmpty() && (! foundMatch || (conIsAnd && foundMissMatch)) )
       throw new SecurityException("Invalid values for enforced bindingItems");
   }
-  
+
   /**
    * Information about as single enforced BindingItem
    */
@@ -182,6 +184,6 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
     int getIdx() {
       return indexOf(columns, biId);
     }
-    
+
   }
 }
