@@ -28,9 +28,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {string}                  args.scope                                             - The scope identifier
-  * @param {string}                  args.instance                                          - The instance identifier
+  * @param {string}                  args.scope                                             - The scope identifier, can be a space separated string when you want to map multiple scopeId and instanceId
+  * @param {string}                  args.instance                                          - The instance identifier, can be a space separated string when you want to map multiple scopeId and instanceId
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
+  * @param {Object}                  [args.map]                                             - scope/instance map, alternative way to specify multiple scope/instances
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load
   * @param {string}                  [args.bindingSetId=bcd_docUpload]                      - Optional binding set id used for document storage, by default bcd_docUpload is used
   * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
@@ -44,8 +45,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   */
   constructor(args){
 
-    if (! args.scope || ! args.instance)
-      throw new Error("You need to specify a scope and an instance value");      
+    if ((! args.scope || ! args.instance) && ! args.map) 
+      throw new Error("You need to specify a scope and an instance value or a scope/instance map");
 
     var widgetId = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("docUploader");
     var targetHtml = bcdui.util._getTargetHtml(args, "docUploader_");
@@ -53,14 +54,37 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     var bindingSetId = args.bindingSetId || "bcd_docUpload";
 
-    // get data from virtual filesystem for current scope and instance and additional bRefs
+    let scopes = args.scope ? args.scope.split(" ") : [];
+    let instances = args.instance ? args.instance.split(" ") : [];
+
+    if (args.map) {
+      scopes = [];
+      instances = [];
+      for (let scope in args.map) {
+        if (scope && typeof scope == "string") {
+          scopes.push(scope);
+          if (args.map[scope] && typeof args.map[scope] == "string")
+            instances.push(args.map[scope])
+        }
+      }
+    }
+
+    if (scopes.length != instances.length)
+      throw new Error("You need to specify the same amount of scopes and an instances");
+
+    let filterExpression = "";
+    scopes.forEach(function(e, i) {
+      filterExpression += (i > 0 ? " or " : "") + "(scope='" + e +"' and instance='" + instances[i] + "')";
+    });
+
+    // get data from virtual filesystem for current scopes and instances and additional bRefs
     // ensure fileExists at last position (for later comment write modification)
     var finalBRefs = "path metaData scope required instance updatedBy lastUpdate " + (args.doAcknowledge ? "acknowledged" : "") + (args.addBRefs ? " " + args.addBRefs : "");
     finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != "" && e != "fileExists"; });
     finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
     finalBRefs.push("fileExists");
 
-    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+args.scope+"' and instance='"+args.instance+"'"), isAutoRefresh: false, filterBRefs: args.filterBRefs
+    var dataModel = new bcdui.core.AutoModel({bRefs: finalBRefs.join(" "), bindingSetId: bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression(filterExpression), isAutoRefresh: false, filterBRefs: args.filterBRefs
     , saveOptions: {
       // after saving, we unblock the ui and reload the model and of course refresh the vfs
         onSuccess: function() { jQuery.ajax({method: "GET", url : bcdui.contextPath+ "/bcdui/servlets/CacheManager?action=refreshVFS", success : function (data, successCode, jqXHR) { setTimeout(jQuery.unblockUI); } }) }
@@ -80,6 +104,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var pathIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos").text, 10);
         var fileExistsIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos").text, 10);
         
+        var scopeIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='scope']/@pos").text, 10);
+        var instanceIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='instance']/@pos").text, 10);
+        
         // rebuild it completely
         bcdui.core.removeXPath(doc, "/*/Entry", false);
         Array.from(cargs.dataModel.selectNodes("/*/wrs:Data/wrs:R")).forEach(function(e) {
@@ -97,6 +124,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 var user = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + userIndex + "]").text) || "";
                 var ts = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + tsIndex + "]").text) || "";
                 var fileExists = ("1" == e.selectSingleNode("wrs:C[" + fileExistsIndex + "]").text);
+                
+                var scope = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + scopeIndex + "]").text) || "";
+                var instance = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + instanceIndex + "]").text) || "";
 
                 // filename and comment are part of the metaData
                 var uuid = category.getAttribute("uuid") || bcdui.util.getUuid();
@@ -124,10 +154,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 if (cargs.doAcknowledge) {
                   const acknowledgedIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos").text, 10);
                   const acknowledged = ("1" == e.selectSingleNode("wrs:C[" + acknowledgedIndex + "]").text);
-                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@instance='"+instance+"' and @scope='"+scope+"' and @acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
                 }
                 else
-                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@instance='"+instance+"' and @scope='"+scope+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
@@ -144,8 +174,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     var finalParams = {
       config: config
-    , instance: args.instance
-    , scope: args.scope
+    , instances: instances.join(" ")
+    , scopes: scopes.join(" ")
     , dataModel: dataModel
     , infoModel: infoModel
     , doAcknowledge: "" + args.doAcknowledge
@@ -157,7 +187,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , i18_acknowledged_off: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Unacknowledged"}) || "CLICK TO UNACKNOWLEDGED"
     , i18_acknowledged_on: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Acknowledged"}) || "CLICK TO ACKNOWLEDGED"
     , i18_download_all: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_DownloadAll"}) || "ZIP"
-    , scopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
+    , allowedScopes: bcdui.config.clientRights && bcdui.config.clientRights.bcdDocUpload ? "|" + bcdui.config.clientRights.bcdDocUpload.join("|") + "|" : ""
     };
     if (args.renderParameters) {
       jQuery.extend(finalParams, args.renderParameters);
@@ -166,15 +196,22 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     super({
         id: widgetId
       , targetHtml: jQuery("#" + targetHtml).find(".bcdDocUploader")
-      , chain: args.renderChain || bcdui.contextPath + "/bcdui/js/component/docUpload/docUploadRenderer.xslt"
+      , chain: [function(doc, args) {
+          Array.from(args.config.selectNodes("//rnd:Category")).forEach(function(n) {
+            const help = n.getAttribute("help") || "";
+            if (help.indexOf(bcdui.i18n.TAG) == 0)
+              n.setAttribute("help", bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: help})));
+          });
+          return doc;
+        }, args.renderChain || bcdui.contextPath + "/bcdui/js/component/docUpload/docUploadRenderer.xslt"]
       , parameters: finalParams
     });
     
     // take over all models and information to instance
     this.targetHtml = targetHtml;
     this.config = config;
-    this.instance = args.instance;
-    this.scope = args.scope;
+    this.instances = instances;
+    this.scopes = scopes;
     this.dataModel = dataModel;
     this.infoModel = infoModel;
     this.onBeforeSave = args.onBeforeSave;
@@ -184,6 +221,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.downloadAll = args.downloadAll;
     this.bindingSetId = bindingSetId;
     this.zipName = args.zipName || "documents.zip";
+    this.filterExpression = filterExpression;
 
     // reexecute infoModel and renderer when dataModel was saved/deleted
     this.onceReady(function() {
@@ -197,19 +235,34 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
       var self = this;
 
-      // store instance
+      // store docUploader instance
       jQuery("#" + targetHtml).find(".bcdDocUploader").data("objects", {instance: this});
 
       // add download all anchor
       let vfsConfig = '<Vfs xmlns="http://www.businesscode.de/schema/bcdui/vfs-1.0.0" xmlns:vfs="http://www.businesscode.de/schema/bcdui/vfs-1.0.0"><Zip>';
-      const files = Array.from(self.infoModel.queryNodes("/*/Entry[@fileExists='true']"));
-      files.forEach(function(e) {
-        const link = e.getAttribute("link") || "";
-        if (link)
-          vfsConfig += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(link)], "<File name='{{=it[0]}}'/>");
+      
+      let filesLength = 0;
+      self.scopes.forEach(function(scope) {
+
+        if (self.scopes.length > 1) {
+          const caption = self.config.read("/*/rnd:Scopes/rnd:Scope[@id='{{=it[0]}}']/@caption",[scope], "");
+          vfsConfig += "<Folder name='"+bcdui.util.escapeHtml(caption || scope)+"'>";
+        }
+
+        const files = Array.from(self.infoModel.queryNodes("/*/Entry[@scope='"+scope+"' and @fileExists='true']"));
+        filesLength += files.length;
+        files.forEach(function(e) {
+          const link = e.getAttribute("link") || "";
+          if (link)
+            vfsConfig += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(link)], "<File name='{{=it[0]}}'/>");
+        });
+
+        if (self.scopes.length > 1)
+          vfsConfig += "</Folder>";
+
       });
       vfsConfig += "</Zip></Vfs>";
-      if (files.length > 0) {
+      if (filesLength > 0) {
         const d = new bcdui.core.StaticModel(vfsConfig);
         d.execute();
         bcdui.core.compression.compressDOMDocument(d.getData(), function(compressedString) {
@@ -245,6 +298,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var required = area.attr("requiredDoc") || "false";
         var uuid = area.attr("uuid");
 
+        const scope = area.attr("scope");
+        const instance = area.attr("instance");
+
         // remove fileExists flag before saving
         var fileExistsIndex  = parseInt(self.dataModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos", "0"), 10);
         bcdui.core.removeXPath(self.dataModel.getData(), "/*/wrs:Data/wrs:R/wrs:C["+fileExistsIndex+"]", false);
@@ -258,8 +314,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           bcdui.wrs.wrsUtil.insertRow({model: self.dataModel, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid());
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", instance);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", scope);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required == "true" ? "1" : "0");
             self._saveData();
           }});
@@ -316,7 +372,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   
   setAcknowledge(area, isAcknowledged) {
     const bRefs = this.finalBRefs.filter(function(e) { return e != "fileExists";});
-    const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: this.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.scope+"' and instance='"+this.instance+"'"), isAutoRefresh: false, filterBRefs: this.filterBRefs });
+    const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: this.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression(this.filterExpression), isAutoRefresh: false, filterBRefs: this.filterBRefs });
     const self = this;
     ackModel.onceReady(function() {
       Array.from(ackModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(r) {
@@ -411,6 +467,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     var fileSize = jQuery(container).attr("fileSize") || "0";
     var required = jQuery(container).attr("requiredDoc") || "false";
 
+    const instance = jQuery(container).attr("instance") || "";
+    const scope = jQuery(container).attr("scope") || "";
+
     fileSize = isNaN(fileSize) ? 0 : parseInt(fileSize);
 
     var self = this;
@@ -468,8 +527,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "resourceBlob", b64);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "path", "/vfs/documents/" + bcdui.util.getUuid() + "/" + fileName);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", self.instance);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", self.scope);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", instance);
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", scope);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required == "true" ? "1" : "0");
             self._saveData();
           }});
@@ -638,8 +697,8 @@ bcdui.component = Object.assign(bcdui.component,
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {string}                  args.scope                                             - The scope identifier
-  * @param {string}                  args.instance                                          - The instance identifier
+  * @param {string}                  args.scope                                             - The scope identifier, can be a space separated string when you want to map multiple scopeId and instanceId
+  * @param {string}                  args.instance                                          - The instance identifier, can be a space separated string when you want to map multiple scopeId and instanceId
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
@@ -651,6 +710,7 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
   * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
   * @param {string}                  [args.zipName=documents.zip]                           - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {Object}                  [args.map]                                             - scope/instance map, alternative way to specify multiple scope/instances
   * @private
    */
   createDocUpload: function( args )
@@ -669,8 +729,8 @@ bcdui.component = Object.assign(bcdui.component,
       bindingSetId:         args.bindingSetId,
       renderChain:          args.renderChain,
       renderParameters:     args.renderParameters,
-      zipName:              args.zipName
-      
+      zipName:              args.zipName,
+      map:                  args.map      
     });
     return { refId: args.id, symbolicLink: true };
   }  

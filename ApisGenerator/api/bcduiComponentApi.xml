@@ -768,7 +768,7 @@
         </Param>
         <Param name="scope" type="string" required="true">
           <Doc>
-            The scope for the documents.
+            The scope for the documents, can be a space separated string when you want to map multiple scopeId and instanceId
           </Doc>
         </Param>
         <Param name="bindingSetId" type="string" default="bcd_docUpload">
@@ -778,7 +778,7 @@
         </Param>
         <Param name="instance" type="string" required="true">
           <Doc>
-            The instance for the documents.
+            The instance for the documents, can be a space separated string when you want to map multiple scopeId and instanceId
           </Doc>
         </Param>
         <Param name="addBRefs" type="string">
