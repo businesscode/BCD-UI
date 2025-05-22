@@ -92,6 +92,13 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected String successUrl;
   protected RESPONSE_MODE responseMode = RESPONSE_MODE.form_post;
 
+  /**
+   * @return the id of this instance
+   */
+  protected String getProviderInstanceId() {
+    return providerInstanceId;
+  }
+
   @Override
   public void setSuccessUrl(String successUrl) {
     this.successUrl = successUrl;
