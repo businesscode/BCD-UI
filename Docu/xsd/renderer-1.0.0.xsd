@@ -119,6 +119,9 @@
                       <xs:attribute name="maxCount" type="xs:integer" default="1">
                         <xs:annotation><xs:documentation>Maximum number of documents per category.</xs:documentation></xs:annotation>
                       </xs:attribute>
+                      <xs:attribute name="help" type="xs:string">
+                        <xs:annotation><xs:documentation>Plain text or i18n key containing help information for current category.</xs:documentation></xs:annotation>
+                      </xs:attribute>
                     </xs:complexType>
                   </xs:element>
                 </xs:sequence>
@@ -126,7 +129,7 @@
                   <xs:annotation><xs:documentation>Scope id.</xs:documentation></xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="caption" type="xs:string">
-                  <xs:annotation><xs:documentation>Caption used in a chooser.</xs:documentation></xs:annotation>
+                  <xs:annotation><xs:documentation>Caption used in a chooser. Also used when as subfolder name when doing a zip download.</xs:documentation></xs:annotation>
                 </xs:attribute>
               </xs:complexType>
             </xs:element>
