@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.subjectsettings.oauth2;
 
+import org.apache.commons.lang.StringUtils;
+
 import de.businesscode.bcdui.subjectsettings.ExternalAuthenticationToken;
 
 /**
@@ -32,7 +34,7 @@ public class OAuthToken extends ExternalAuthenticationToken {
   protected final String codeVerifier;
   protected final String clientId;
   protected final String redirectUri;
-  protected final OAuthAuthenticatingFilter authenticator;
+  protected final String authenticatorInstanceId;
 
   public String getClientId() {
     return clientId;
@@ -44,11 +46,11 @@ public class OAuthToken extends ExternalAuthenticationToken {
    * @return true if this token has been created by given authenticator instance
    */
   public boolean isCreatedBy(OAuthAuthenticatingFilter authenticator) {
-    return this.authenticator == authenticator;
+    return StringUtils.equals(this.authenticatorInstanceId, authenticator.getProviderInstanceId());
   }
 
   public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUri, String authCode, String codeVerifier) {
-    this.authenticator = authenticator;
+    this.authenticatorInstanceId = authenticator.getProviderInstanceId();
     this.clientId = clientId;
     this.authCode = authCode;
     this.redirectUri = redirectUri;
