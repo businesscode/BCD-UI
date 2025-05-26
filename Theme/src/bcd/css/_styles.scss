@@ -2335,6 +2335,10 @@ $chips-close-color: #c00 !default;
 
 .bcdMessages.bcdCheckbox { text-align: center; }
 
+.bcdInformation.ui-dialog-titlebar { background-color: #00aa00; color: #fff;}
+.bcdWarning.ui-dialog-titlebar { background-color: #ffcc00; color: #000;}
+.bcdError.ui-dialog-titlebar { background-color: #aa0000; color: #fff;}
+
 .bcdInlineChart {
   > thead > tr > th { text-align: center; }
   td { text-align: left; } /* chart flyover */
