@@ -45,9 +45,7 @@
   <xsl:param name="i18_download" select="'DOWNLOAD'"/>
   <xsl:param name="i18_acknowledged_off" select="'CLICK TO UNACKNOWLEDGE'"/>
   <xsl:param name="i18_acknowledged_on" select="'CLICK TO ACKNOWLEDGE'"/>
-  <xsl:param name="i18_download_all" select="'ZIP'"/>
   <xsl:param name="doAcknowledge" select="'false'"/>
-  <xsl:param name="downloadAll" select="'false'"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
   <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
@@ -71,10 +69,6 @@
   <xsl:template match="/*">
     <div>
       <div class='docUploaderContainer'>
-
-        <xsl:if test="$downloadAll='true'">
-          <div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class="zipLink"><xsl:value-of select="$i18_download_all"/></a></span></div>
-        </xsl:if>
 
         <xsl:for-each select="$scopesTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
 

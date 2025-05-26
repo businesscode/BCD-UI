@@ -39,6 +39,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
   * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {string}                  [args.zipName=documents.zip]                           - The filename for the generated zip, ensure it ends with .zip
+  * @param {targetHtmlRef}           [args.zipDownloadTargetHtml]                           - optional targetHml htmlElement or jQuery object for zip download button, if not present, it's rendered to its default place
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
   * @param {Object}                  [args.renderParameters]                                - Renderer parameters. Will be enrichted with docUploader default parameters
   * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
@@ -179,7 +180,6 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     , dataModel: dataModel
     , infoModel: infoModel
     , doAcknowledge: "" + args.doAcknowledge
-    , downloadAll: "" + args.downloadAll
     , i18_view: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_View"}) || "VIEW"
     , i18_delete: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Delete"}) || "DELETE"
     , i18_comment: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_DocUploader_Comment"}) || "COMMENT"
@@ -209,6 +209,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     
     // take over all models and information to instance
     this.targetHtml = targetHtml;
+    this.zipDownloadTargetHtml = args.zipDownloadTargetHtml;
     this.config = config;
     this.instances = instances;
     this.scopes = scopes;
@@ -234,6 +235,17 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     this.onReady(function() {
 
       var self = this;
+      
+      if (this.downloadAll) {
+        if (this.zipDownloadTargetHtml) {
+          jQuery(this.zipDownloadTargetHtml).find(".downloadAll").remove();
+          jQuery(this.zipDownloadTargetHtml).append("<div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
+        }
+        else {
+          jQuery("#" + this.targetHtml).find(".docUploaderContainer .downloadAll").remove();
+          jQuery("#" + this.targetHtml).find(".docUploaderContainer").prepend("<div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
+        }
+      }
 
       // store docUploader instance
       jQuery("#" + targetHtml).find(".bcdDocUploader").data("objects", {instance: this});
@@ -262,18 +274,19 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
       });
       vfsConfig += "</Zip></Vfs>";
+      const htmlElement = self.zipDownloadTargetHtml ? jQuery(self.zipDownloadTargetHtml).find(".downloadAll") : jQuery("#" + targetHtml).find(".downloadAll");
       if (filesLength > 0) {
         const d = new bcdui.core.StaticModel(vfsConfig);
         d.execute();
         bcdui.core.compression.compressDOMDocument(d.getData(), function(compressedString) {
           const link = encodeURI(bcdui.contextPath + "/"+ self.zipName +"?zipInfo=" + compressedString);
-          jQuery("#" + targetHtml).find(".downloadAll").find("a").attr("href", link);
-          jQuery("#" + targetHtml).find(".downloadAll").find(".bcdButton").removeClass("disabled");
+          htmlElement.find("a").attr("href", link);
+          htmlElement.find(".bcdButton").removeClass("disabled");
         });
       }
       else {
-        jQuery("#" + targetHtml).find(".downloadAll").find("a").removeAttr("href");
-        jQuery("#" + targetHtml).find(".downloadAll").find(".bcdButton").addClass("disabled");
+        htmlElement.find("a").removeAttr("href");
+        htmlElement.find(".bcdButton").addClass("disabled");
       }
 
       // reactivate hooks
@@ -322,10 +335,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         }
       });
 
-      jQuery("#" + this.targetHtml).off("click");
-
       if (this.doAcknowledge) {
-        jQuery("#" + this.targetHtml).on("click", ".zipLink", function(event) {
+        const target = this.zipDownloadTargetHtml ? jQuery(this.zipDownloadTargetHtml) : jQuery("#" + this.targetHtml).find(".docUploaderContainer");
+        target.find(".downloadAll").off("click");
+        target.find(".downloadAll").on("click", ".zipLink", function(event) {
           event.preventDefault();
           let hRef = jQuery(event.target).attr("href") || "";
           if (! hRef)
@@ -337,6 +350,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         });
       }
 
+      jQuery("#" + this.targetHtml).off("click");
       jQuery("#" + this.targetHtml).on("click", ".bcdDropArea", function(event) {
         var area = jQuery(event.target).closest(".bcdDropArea");
         if (jQuery(event.target).closest(".comment").length > 0 || ! area.hasClass("pointer_true")) {

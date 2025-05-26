@@ -761,6 +761,9 @@
         </Impl>
         <Examples>
         </Examples>
+        <Param name="zipDownloadTargetHtml" type="targetHtmlRef">
+          <Doc>Optional targetHml htmlElement or jQuery object for zip download button, if not present, it's rendered to its default place</Doc>
+        </Param>
         <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
           <Doc>
             The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
