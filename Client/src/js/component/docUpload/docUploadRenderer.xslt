@@ -82,14 +82,14 @@
             <xsl:variable name="category" select="."/>
             <xsl:variable name="maxCount">
               <xsl:choose>
-                <xsl:when test="number(@maxCount)!='NaN'"><xsl:value-of select="number(@maxCount)"/></xsl:when>
+                <xsl:when test="@maxCount and number(@maxCount)!='NaN'"><xsl:value-of select="number(@maxCount)"/></xsl:when>
                 <xsl:otherwise>1</xsl:otherwise>
               </xsl:choose>
             </xsl:variable>
             <xsl:variable name="requiredCount">
               <xsl:choose>
                 <xsl:when test="@required='true'"><xsl:value-of select="$maxCount"/></xsl:when>
-                <xsl:when test="number(@required)!='NaN'"><xsl:value-of select="number(@required)"/></xsl:when>
+                <xsl:when test="@required and number(@required)!='NaN'"><xsl:value-of select="number(@required)"/></xsl:when>
                 <xsl:otherwise>0</xsl:otherwise>
               </xsl:choose>
             </xsl:variable>
@@ -100,6 +100,7 @@
             <xsl:variable name="docsPerCat" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id])"/>
             
             <div class="catContainer">
+
               <h1><xsl:value-of select="$category/@caption"/></h1>
 
               <xsl:variable name="existingRequiredCount" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id and @required='true'])"/>
