@@ -86,61 +86,131 @@
                 <xsl:otherwise>1</xsl:otherwise>
               </xsl:choose>
             </xsl:variable>
+            <xsl:variable name="requiredCount">
+              <xsl:choose>
+                <xsl:when test="@required='true'"><xsl:value-of select="$maxCount"/></xsl:when>
+                <xsl:when test="number(@required)!='NaN'"><xsl:value-of select="number(@required)"/></xsl:when>
+                <xsl:otherwise>0</xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <xsl:variable name="optionalCount">
+              <xsl:value-of select="$maxCount - $requiredCount"/>
+            </xsl:variable>
+
             <xsl:variable name="docsPerCat" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id])"/>
+            
+            <div class="catContainer">
+              <h1><xsl:value-of select="$category/@caption"/></h1>
 
-            <xsl:choose>
+              <xsl:variable name="existingRequiredCount" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id and @required='true'])"/>
+              <xsl:variable name="existingOptionalCount" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id and @required='false'])"/>
+              <xsl:variable name="remainRequiredCount" select="$requiredCount - $existingRequiredCount"/>
+              <xsl:variable name="remainOptionalCount" select="$optionalCount - $existingOptionalCount"/>
 
-              <!-- either we have some documents for current category -->
-              <xsl:when test="$docsPerCat &gt; 0">
+              <!-- loop over all docs for this category -->
 
-                <!-- loop over all docs for this category -->
-                <xsl:for-each select="$infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id]">
-                  <xsl:variable name="pos" select="position()"/>
-                  <xsl:call-template name="renderBox">
-                    <xsl:with-param name="category" select="$category"/>
-                    <xsl:with-param name="entry" select="."/>
-                    <xsl:with-param name="maxCount" select="$maxCount"/>
-                    <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                    <xsl:with-param name="pos" select="$pos"/>
-                    <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
-                    <xsl:with-param name="scope" select="$scope"/>
-                    <xsl:with-param name="instance" select="$instance"/>
-                  </xsl:call-template>
-                </xsl:for-each>
-              </xsl:when>
-
-              <!-- or we render an empty box -->
-              <xsl:otherwise>
+              <xsl:for-each select="$infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id and @required='true']">
+                <xsl:variable name="pos" select="position()"/>
                 <xsl:call-template name="renderBox">
+                  <xsl:with-param name="category" select="$category"/>
+                  <xsl:with-param name="entry" select="."/>
+                  <xsl:with-param name="maxCount" select="$maxCount"/>
+                  <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
+                  <xsl:with-param name="pos" select="$pos"/>
+                  <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
+                  <xsl:with-param name="scope" select="$scope"/>
+                  <xsl:with-param name="instance" select="$instance"/>
+                  <xsl:with-param name="required" select="'true'"/>
+                </xsl:call-template>
+              </xsl:for-each>
+              <xsl:if test="$remainRequiredCount &gt; 0">
+                <xsl:call-template name="fillBoxes">
+                  <xsl:with-param name="count" select="$remainRequiredCount"/>
                   <xsl:with-param name="category" select="$category"/>
                   <xsl:with-param name="entry" select="/*[1=0]"/>
                   <xsl:with-param name="maxCount" select="$maxCount"/>
                   <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                  <xsl:with-param name="pos" select="number(1)"/>
+                  <xsl:with-param name="pos" select="$existingRequiredCount + 1"/>
                   <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
                   <xsl:with-param name="scope" select="$scope"/>
                   <xsl:with-param name="instance" select="$instance"/>
+                  <xsl:with-param name="required" select="'true'"/>
                 </xsl:call-template>
-              </xsl:otherwise>
-            </xsl:choose>
-              
-            <!-- in case we did not reach maxCount, we render an additional empty box (but not when we did not yet upload anything since this is already covered above) -->
-            <xsl:if test="$docsPerCat &gt; 0 and $docsPerCat &lt; $maxCount">
-              <xsl:call-template name="renderBox">
-                <xsl:with-param name="category" select="$category"/>
-                <xsl:with-param name="entry" select="/*[1=0]"/>
-                <xsl:with-param name="maxCount" select="$maxCount"/>
-                <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
-                <xsl:with-param name="pos" select="number($docsPerCat + 1)"/>
-                <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
-                <xsl:with-param name="scope" select="$scope"/>
-                <xsl:with-param name="instance" select="$instance"/>
-              </xsl:call-template>
-            </xsl:if>
+              </xsl:if>
+              <xsl:for-each select="$infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id and @required='false']">
+                <xsl:variable name="pos" select="position()"/>
+                <xsl:call-template name="renderBox">
+                  <xsl:with-param name="category" select="$category"/>
+                  <xsl:with-param name="entry" select="."/>
+                  <xsl:with-param name="maxCount" select="$maxCount"/>
+                  <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
+                  <xsl:with-param name="pos" select="$pos + $requiredCount"/>
+                  <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
+                  <xsl:with-param name="scope" select="$scope"/>
+                  <xsl:with-param name="instance" select="$instance"/>
+                  <xsl:with-param name="required" select="'false'"/>
+                </xsl:call-template>
+              </xsl:for-each>
+              <xsl:if test="$remainOptionalCount &gt; 0">
+                <xsl:call-template name="fillBoxes">
+                  <xsl:with-param name="count" select="1"/>
+                  <xsl:with-param name="category" select="$category"/>
+                  <xsl:with-param name="entry" select="/*[1=0]"/>
+                  <xsl:with-param name="maxCount" select="$maxCount"/>
+                  <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
+                  <xsl:with-param name="pos" select="$requiredCount + $existingOptionalCount + 1"/>
+                  <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
+                  <xsl:with-param name="scope" select="$scope"/>
+                  <xsl:with-param name="instance" select="$instance"/>
+                  <xsl:with-param name="required" select="'false'"/>
+                </xsl:call-template>
+              </xsl:if>
+            </div>
+
           </xsl:for-each>
         </xsl:for-each>
       </div>
     </div>
+  </xsl:template>
+  
+  <xsl:template name="fillBoxes">
+    <xsl:param name="count"/>
+    <xsl:param name="category"/>
+    <xsl:param name="entry"/>
+    <xsl:param name="maxCount"/>
+    <xsl:param name="docsPerCat"/>
+    <xsl:param name="pos"/>
+    <xsl:param name="hasWriteAccess"/>
+    <xsl:param name="scope"/>
+    <xsl:param name="instance"/>
+    <xsl:param name="required"/>
+    
+    <xsl:if test="$count &gt; 0">
+      <xsl:call-template name="renderBox">
+        <xsl:with-param name="category" select="$category"/>
+        <xsl:with-param name="entry" select="$entry"/>
+        <xsl:with-param name="maxCount" select="$maxCount"/>
+        <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
+        <xsl:with-param name="pos" select="$pos"/>
+        <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
+        <xsl:with-param name="scope" select="$scope"/>
+        <xsl:with-param name="instance" select="$instance"/>
+        <xsl:with-param name="required" select="$required"/>
+      </xsl:call-template>
+
+      <xsl:call-template name="fillBoxes">
+        <xsl:with-param name="count" select="$count -1"/>
+        <xsl:with-param name="category" select="$category"/>
+        <xsl:with-param name="entry" select="$entry"/>
+        <xsl:with-param name="maxCount" select="$maxCount"/>
+        <xsl:with-param name="docsPerCat" select="$docsPerCat"/>
+        <xsl:with-param name="pos" select="$pos + 1"/>
+        <xsl:with-param name="hasWriteAccess" select="$hasWriteAccess"/>
+        <xsl:with-param name="scope" select="$scope"/>
+        <xsl:with-param name="instance" select="$instance"/>
+        <xsl:with-param name="required" select="$required"/>
+      </xsl:call-template>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template name="renderBox">
@@ -152,16 +222,19 @@
     <xsl:param name="hasWriteAccess"/>
     <xsl:param name="scope"/>
     <xsl:param name="instance"/>
+    <xsl:param name="required"/>
 
     <div class='category col'>
-
       <xsl:variable name="catId" select="$category/@id"/>
-      <xsl:variable name="required" select="$category/@required"/>
       <xsl:variable name="caption" select="$category/@caption"/>
       <xsl:variable name="dropAllowedClass" select="concat(' pointer_', string($hasWriteAccess))"/>
       <xsl:variable name="docAvailableClass" select="concat(' def_', string(boolean($entry/@fileExists='true')))"/>
-      <xsl:variable name="requiredClass" select="concat(' req_', string($required='false' or not($required) or ($required='true' and boolean($entry/@fileExists='true'))))"/>
-
+      <xsl:variable name="requiredClass">
+        <xsl:choose>
+          <xsl:when test="$required='false' or boolean($entry/@fileExists='true')"> req_true</xsl:when>
+          <xsl:otherwise> req_false</xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
       <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" requiredDoc="{$required}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" scope="{$scope}" instance="{$instance}">
         <xsl:if test="$hasWriteAccess">
           <xsl:attribute name="onDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
@@ -179,7 +252,7 @@
             <xsl:if test="$entry/@fileExists='true'">
               <xsl:if test="$doAcknowledge = 'true'">
                 <xsl:variable name="ack"><xsl:if test="$entry/@acknowledged='true'">active</xsl:if></xsl:variable>
-                <xsl:variable name="req"><xsl:if test="$required='true'">required</xsl:if></xsl:variable>
+                <xsl:variable name="req"><xsl:if test="$required!='false'">required</xsl:if></xsl:variable>
                 <xsl:choose>
                   <xsl:when test="$ack='active'">
                     <a target="_blank"><span title="{$i18_acknowledged_off}" class="{concat('action acknowledged ',$ack)}"></span></a>
@@ -204,10 +277,10 @@
         </xsl:if>
         <div class='row title fileType'>
           <div class="{concat('title icon ', $entry/@ext, $docAvailableClass, $requiredClass)}">
-            <xsl:value-of select="$caption"/>
             <xsl:if test="$maxCount &gt; 1">
-              <xsl:value-of select="concat(' (',$pos, '/', $maxCount,')')"/>
+              <xsl:value-of select="concat('[', $pos, '/', $maxCount, '] ')"/>
             </xsl:if>
+            <xsl:value-of select="$entry/@fileName"/>
           </div>
         </div>
         <div class='row info small'>
@@ -215,7 +288,6 @@
             <xsl:when test="$entry">
               <div class='icon ts'><xsl:value-of select="substring($entry/@ts, 1, 16)"/></div>
               <div class='icon user'><xsl:value-of select="$entry/@user"/></div>
-              <div class='icon fileName'><xsl:value-of select="$entry/@fileName"/></div>
               <div class='icon fileSize'><xsl:value-of select="$entry/@fileSizePrint"/></div>
             </xsl:when>
             <xsl:otherwise>
@@ -227,12 +299,15 @@
           </xsl:choose>
         </div>
         <div class='row small comment'>
+          <xsl:variable name="gotCommentCss">
+            <xsl:if test="$entry/@comment!=''">comment</xsl:if>
+          </xsl:variable>
           <xsl:choose>
             <xsl:when test="$hasWriteAccess">
-              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class='form-control commentinput' maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
+              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class="{concat('form-control commentinput ', $gotCommentCss)}" maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
             </xsl:when>
             <xsl:otherwise>
-              <span class='form-control commentinput'><xsl:value-of select='$entry/@comment'/></span>
+              <span class="{concat('form-control commentinput ', $gotCommentCss)}"><xsl:value-of select='$entry/@comment'/></span>
             </xsl:otherwise>
           </xsl:choose>
         </div>

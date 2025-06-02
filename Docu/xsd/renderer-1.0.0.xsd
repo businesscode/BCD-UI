@@ -110,8 +110,11 @@
                       <xs:attribute name="id" type="xs:NCName" use="required">
                         <xs:annotation><xs:documentation>Category id.</xs:documentation></xs:annotation>
                       </xs:attribute>
-                      <xs:attribute name="required" type="xs:boolean" default="false">
+                      <xs:attribute name="required">
                         <xs:annotation><xs:documentation>Whether it is mandatory to have a document of this category.</xs:documentation></xs:annotation>
+                        <xs:simpleType>
+                          <xs:union memberTypes="xs:boolean xs:positiveInteger"/>
+                        </xs:simpleType>
                       </xs:attribute>
                       <xs:attribute name="caption" type="xs:string">
                         <xs:annotation><xs:documentation>Category caption.</xs:documentation></xs:annotation>

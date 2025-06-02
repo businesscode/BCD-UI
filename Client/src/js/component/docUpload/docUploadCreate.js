@@ -104,6 +104,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
         var tsIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='lastUpdate']/@pos").text, 10);
         var pathIndex = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='path']/@pos").text, 10);
         var fileExistsIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='fileExists']/@pos").text, 10);
+        var requiredIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='required']/@pos").text, 10);
         
         var scopeIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='scope']/@pos").text, 10);
         var instanceIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='instance']/@pos").text, 10);
@@ -125,6 +126,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 var user = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + userIndex + "]").text) || "";
                 var ts = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + tsIndex + "]").text) || "";
                 var fileExists = ("1" == e.selectSingleNode("wrs:C[" + fileExistsIndex + "]").text);
+                var required = ("1" == e.selectSingleNode("wrs:C[" + requiredIndex + "]").text);
                 
                 var scope = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + scopeIndex + "]").text) || "";
                 var instance = bcdui.util.escapeHtml(e.selectSingleNode("wrs:C[" + instanceIndex + "]").text) || "";
@@ -155,10 +157,10 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                 if (cargs.doAcknowledge) {
                   const acknowledgedIndex  = parseInt(cargs.dataModel.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='acknowledged']/@pos").text, 10);
                   const acknowledged = ("1" == e.selectSingleNode("wrs:C[" + acknowledgedIndex + "]").text);
-                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@instance='"+instance+"' and @scope='"+scope+"' and @acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@required='"+required+"' and @instance='"+instance+"' and @scope='"+scope+"' and @acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
                 }
                 else
-                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@instance='"+instance+"' and @scope='"+scope+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@required='"+required+"' @instance='"+instance+"' and @scope='"+scope+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
@@ -329,7 +331,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(newComment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", scope);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required == "true" ? "1" : "0");
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required != "false" ? "1" : "0");
             self._saveData();
           }});
         }
@@ -430,7 +432,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       var o = {
         id: "" + e.getAttribute("id")
       , caption: "" + e.getAttribute("caption")
-      , required: "true" == (e.getAttribute("required") || "false")
+      , required: "false" != (e.getAttribute("required") || "false")
       , uploaded: false
       , fileInfo: []
       };
@@ -543,7 +545,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "metaData", '<?xml version="1.0" encoding="UTF-8"?><Root><Category uuid="'+uuid+'" fileSize="'+fileSize+'" comment="'+bcdui.util.escapeHtml(comment)+'" fileName="'+bcdui.util.escapeHtml(fileName)+'" id="'+bcdui.util.escapeHtml(catId)+'"/></Root>');
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "instance", instance);
             bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "scope", scope);
-            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required == "true" ? "1" : "0");
+            bcdui.wrs.wrsUtil.setCellValue(self.dataModel, 1, "required", required != "false" ? "1" : "0");
             self._saveData();
           }});
         }

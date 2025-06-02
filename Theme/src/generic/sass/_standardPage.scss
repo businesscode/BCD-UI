@@ -1812,9 +1812,17 @@ span.bcd-notification-warn {
   }
   .info:hover .help { height: auto; padding: .5em; border: 1px solid $border-color; }
 
+  .catContainer {
+    border: 2px solid #d8d8d8;
+    padding: .3em;
+    border-radius: .5em;
+    margin: 0 0 .3em 0;
+    h1 { font-size: 1em; color: #555; padding: 0 0 0 .3em; margin: 0;}
+  }
+
   .small { font-size: .8em; }
   .commentinput { resize: none; height: 2.5em; margin: 0; transition: height 0.5s ease; }
-  .commentinput:hover, .commentinput:focus, .commentinput:active { height: 7.1em; }
+  .commentinput.comment:hover, .commentinput.comment:focus, .commentinput.comment:active { height: 7.1em; }
 
   .row { margin: 0 0 0 0; padding: 0; width: 100%; text-align: left; }
   .row.comment { align-items: center; }
