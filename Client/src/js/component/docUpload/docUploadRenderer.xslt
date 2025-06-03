@@ -99,7 +99,7 @@
 
             <xsl:variable name="docsPerCat" select="count($infoModel/*/Entry[@scope=$scope and @instance=$instance and @catId=$category/@id])"/>
             
-            <div class="catContainer">
+              <div class="{concat('catContainer cat_', $category/@id, ' scope_', $scope)}">
 
               <h1><xsl:value-of select="$category/@caption"/></h1>
 
