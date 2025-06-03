@@ -380,6 +380,8 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
           container.parent().find("*[bcdRole=fileInput]").attr("rowId", area.attr("rowId"));
           container.parent().find("*[bcdRole=fileInput]").attr("uuid", area.attr("uuid"));
           container.parent().find("*[bcdRole=fileInput]").attr("comment", area.attr("comment"));
+          container.parent().find("*[bcdRole=fileInput]").attr("scope", area.attr("scope"));
+          container.parent().find("*[bcdRole=fileInput]").attr("instance", area.attr("instance"));
           container.parent().find("*[bcdRole=fileInput]").click(); 
         }
       });
