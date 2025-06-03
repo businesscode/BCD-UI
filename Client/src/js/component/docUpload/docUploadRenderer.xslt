@@ -224,8 +224,8 @@
     <xsl:param name="scope"/>
     <xsl:param name="instance"/>
     <xsl:param name="required"/>
-
-    <div class='category col'>
+    
+    <div class="{concat('category col cat_', $category/@id, ' scope_', $scope)}">
       <xsl:variable name="catId" select="$category/@id"/>
       <xsl:variable name="caption" select="$category/@caption"/>
       <xsl:variable name="dropAllowedClass" select="concat(' pointer_', string($hasWriteAccess))"/>
