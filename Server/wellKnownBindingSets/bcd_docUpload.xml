@@ -29,7 +29,7 @@
   <C id="fileExists" type-name="INTEGER"><Column>case when resource_blob is null then 0 else 1 end</Column></C>
   <C id="required" type-name="INTEGER"><Column>required</Column></C>
   <C id="acknowledged" type-name="INTEGER"><Column>acknowledged</Column></C>
-
+  <C id="scopeInstance" type-name="VARCHAR"><Column>scope || '|' || instance</Column></C>
   <SubjectSettings>
     <Security>
       <Operation permission="" name="write"/>
