@@ -160,7 +160,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
                   bcdui.core.createElementWithPrototype(doc, "/*/Entry[@required='"+required+"' and @instance='"+instance+"' and @scope='"+scope+"' and @acknowledged='"+acknowledged+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
                 }
                 else
-                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@required='"+required+"' @instance='"+instance+"' and @scope='"+scope+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
+                  bcdui.core.createElementWithPrototype(doc, "/*/Entry[@required='"+required+"' and @instance='"+instance+"' and @scope='"+scope+"' and @uuid='"+uuid+"' and @fileExists='"+fileExists+"' and @ext='"+ext+"' and @download='"+fileName+"' and @link='"+path+"' and @rowId='"+e.getAttribute("id")+"' and @catId='"+id+"' and @ts='"+ts+"' and @user='"+user+"' and @comment='"+comment+"' and @fileName='"+fileName+"' and @fileSizePrint='"+fSize+"' and @fileSize='"+fileSize+"']");
               }
             }
           }
