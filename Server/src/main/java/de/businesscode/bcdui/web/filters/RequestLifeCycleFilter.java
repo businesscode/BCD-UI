@@ -25,6 +25,24 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.subject.Subject;
+
+import de.businesscode.bcdui.logging.LoginSqlLogger;
+import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
+import de.businesscode.bcdui.logging.SessionSqlLogger;
+import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.toolbox.ServletUtils;
+import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
+import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
+import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
+import de.businesscode.util.SOAPFaultMessage;
+import de.businesscode.util.Utils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -34,25 +52,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
-import org.apache.shiro.subject.Subject;
-
-import de.businesscode.bcdui.logging.SessionSqlLogger;
-import de.businesscode.bcdui.logging.LoginSqlLogger;
-import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
-import de.businesscode.bcdui.toolbox.Configuration;
-import de.businesscode.bcdui.toolbox.ServletUtils;
-import de.businesscode.bcdui.web.accessLogging.RequestHashGenerator;
-import de.businesscode.bcdui.web.clientLogging.FrontendLoggingFacility;
-import de.businesscode.bcdui.web.errorLogging.ErrorLogEvent;
-import de.businesscode.bcdui.web.servlets.SubjectPreferences;
-import de.businesscode.util.SOAPFaultMessage;
-import de.businesscode.util.Utils;
 
 /**
  * This class is a very first entry point of any requests.
@@ -226,7 +225,7 @@ public class RequestLifeCycleFilter implements Filter {
     // sessionId is never null
     final String sessionId = Utils.getSessionId(request, false);
     ThreadContext.put(MDC_KEY_SESSION_ID, sessionId);
-    
+
     String uri = request.getRequestURI().toLowerCase();
     int idx = uri.indexOf(";jsessionid=");
     if (idx != -1)
@@ -250,7 +249,7 @@ public class RequestLifeCycleFilter implements Filter {
       String sessionCreated = (String)session.getAttribute(SESSION_KEY_BCD_SESSIONCREATED);
       if (sessionCreated != null) {
         session.removeAttribute(SESSION_KEY_BCD_SESSIONCREATED);
-        final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost());
+        final SessionSqlLogger.LogRecord record = new SessionSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), getRemoteAddr(request));
         virtLoggerSession.info(record); // was level DEBUG
       }
     }
@@ -265,7 +264,7 @@ public class RequestLifeCycleFilter implements Filter {
           if (userName != null && result != null) {
             shiroSession.removeAttribute("BCD_LOGIN_USER");
             shiroSession.removeAttribute("BCD_LOGIN_RESULT");
-            final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), request.getRemoteHost(), userName, result);
+            final LoginSqlLogger.LogRecord record = new LoginSqlLogger.LogRecord(sessionId, request.getHeader("user-agent"), getRemoteAddr(request), userName, result);
             virtLoggerLogin.info(record); // was level DEBUG
           }
         }
@@ -286,6 +285,14 @@ public class RequestLifeCycleFilter implements Filter {
         ) {
       response.setHeader("X-UA-Compatible", "IE=edge");
     }
+  }
+
+  /**
+   * @param request
+   * @return see {@link Utils#getRemoteAddr(HttpServletRequest)}
+   */
+  protected String getRemoteAddr(HttpServletRequest request) {
+    return Utils.getRemoteAddr(request);
   }
 
   /**

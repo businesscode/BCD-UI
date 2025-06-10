@@ -15,18 +15,18 @@
 */
 package de.businesscode.bcdui.web.errorLogging;
 
+import de.businesscode.bcdui.logging.LogEventBase;
+import de.businesscode.bcdui.toolbox.ServletUtils;
+import de.businesscode.util.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import de.businesscode.bcdui.logging.LogEventBase;
-import de.businesscode.bcdui.toolbox.ServletUtils;
-
 /**
  * The error-logEvent for usage with the ErrorLogAppender. <br>
- * All thrown {@link jakarta.servlet.ServletException} are processed in 
- * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly, 
+ * All thrown {@link jakarta.servlet.ServletException} are processed in
+ * {@link de.businesscode.bcdui.web.filters.RequestLifeCycleFilter} and logged properly,
  * so there is usually no reason to manually use this class. <br>
- * 
+ *
  * Example:
  * ...
  * private final Logger virtLoggerError = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.error");
@@ -42,7 +42,7 @@ public class ErrorLogEvent extends LogEventBase {
   private Throwable thrwbl;
 
   /**
-   * 
+   *
    * @param message
    * @param request
    * @param data
@@ -54,9 +54,9 @@ public class ErrorLogEvent extends LogEventBase {
     this.data = data;
     this.thrwbl = thrwbl;
   }
-  
+
   /**
-   * 
+   *
    * @param message
    * @param request
    * @param data
@@ -64,9 +64,9 @@ public class ErrorLogEvent extends LogEventBase {
   public ErrorLogEvent(String message, HttpServletRequest request, String data) {
     this(message, request, data, null);
   }
-  
+
   /**
-   * 
+   *
    * @param message
    * @param request
    * @param thrwbl
@@ -74,9 +74,9 @@ public class ErrorLogEvent extends LogEventBase {
   public ErrorLogEvent(String message, HttpServletRequest request, Throwable thrwbl) {
     this(message, request, null, thrwbl);
   }
-  
+
   /**
-   * 
+   *
    * @param message
    * @param request
    */
@@ -140,10 +140,8 @@ public class ErrorLogEvent extends LogEventBase {
    * @return the remoteAddr from request
    */
   public String getRemoteAddr() {
-    if (getRequest() != null) {
-      return getRequest().getRemoteAddr();
-    }
-    return null;
+    var request = getRequest();
+    return request != null ? Utils.getRemoteAddr(request) : null;
   }
 
   /**

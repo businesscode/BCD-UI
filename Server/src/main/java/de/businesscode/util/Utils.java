@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.jar.Attributes;
@@ -50,6 +51,7 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -298,4 +300,11 @@ public class Utils {
     connection.setHostnameVerifier((hostname, session) -> true);
   }
 
+  /**
+   * @param request
+   * @return client address - in the order of: header:X-Real-IP, header:X-Forwarded-For, network
+   */
+  public static String getRemoteAddr(HttpServletRequest request) {
+    return List.of(request.getHeader("X-REAL-IP"), request.getHeader("X-FORWARDED-FOR")).stream().filter(StringUtils::isNotBlank).findFirst().orElseGet(() -> request.getRemoteAddr()).split(",")[0];
+  }
 }
