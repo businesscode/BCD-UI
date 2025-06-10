@@ -430,31 +430,33 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
    */
   getUploadInfo() {
     var info = [];
-    Array.from(this.config.queryNodes("/*/rnd:Scopes/rnd:Scope[@id='{{=it[0]}}']/rnd:Category",[this.scope])).forEach(function(e) {
-      var m = Array.from(this.infoModel.queryNodes("/*/Entry[@catId='{{=it[0]}}']", [e.getAttribute("id")]));
-      var o = {
-        id: "" + e.getAttribute("id")
-      , caption: "" + e.getAttribute("caption")
-      , required: "false" != (e.getAttribute("required") || "false")
-      , uploaded: false
-      , fileInfo: []
-      };
-      m.forEach(function(entry) {
-        var q = {}
-        q["timestamp"] = entry.getAttribute("ts");
-        q["user"] = entry.getAttribute("user");
-        q["name"] = entry.getAttribute("fileName");
-        q["size"] = entry.getAttribute("fileSize");
-        q["uuid"] = entry.getAttribute("uuid");
-        q["url"] = entry.getAttribute("link");
-        q["comment"] = entry.getAttribute("comment");
-        if (! o["uploaded"])
-          o["uploaded"] = (entry.getAttribute("fileExists") == "true"); 
-        o["fileInfo"].push(q);
-      });
-      info.push(o);
-    }.bind(this));
-    return info;
+    this.scopes.forEach(function(scope) {
+      Array.from(this.config.queryNodes("/*/rnd:Scopes/rnd:Scope[@id='{{=it[0]}}']/rnd:Category",[scope])).forEach(function(e) {
+        var m = Array.from(this.infoModel.queryNodes("/*/Entry[@catId='{{=it[0]}}']", [e.getAttribute("id")]));
+        var o = {
+          id: "" + e.getAttribute("id")
+        , caption: "" + e.getAttribute("caption")
+        , required: "false" != (e.getAttribute("required") || "false")
+        , uploaded: false
+        , fileInfo: []
+        };
+        m.forEach(function(entry) {
+          var q = {}
+          q["timestamp"] = entry.getAttribute("ts");
+          q["user"] = entry.getAttribute("user");
+          q["name"] = entry.getAttribute("fileName");
+          q["size"] = entry.getAttribute("fileSize");
+          q["uuid"] = entry.getAttribute("uuid");
+          q["url"] = entry.getAttribute("link");
+          q["comment"] = entry.getAttribute("comment");
+          if (! o["uploaded"])
+            o["uploaded"] = (entry.getAttribute("fileExists") == "true"); 
+          o["fileInfo"].push(q);
+        });
+        info.push(o);
+      }.bind(this));
+   }.bind(this));
+   return info;
   }
 
   /**
