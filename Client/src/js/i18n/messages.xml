@@ -211,6 +211,7 @@
       <R id="R146"><C>bcd_Ctrl_Name</C><C>Name</C><C>en</C></R>
       <R id="R147"><C>bcd_Ctrl_Apply</C><C>Apply</C><C>en</C></R>
       <R id="R148"><C>bcd_Ctrl_Clear</C><C>Clear</C><C>en</C></R>
+      <R id="R149"><C>bcd_Ctrl_SearchTerm</C><C>Search term..</C><C>en</C></R>
 
       <!-- Grouping Editor -->
       <R id="R150"><C>bcd_GroupingEditor</C><C>Grouping Editor</C><C>en</C></R>
@@ -291,13 +292,16 @@
       <R id="R453"><C>bcd_DocUploader_Comment</C><C>Enter Comment...</C><C>en</C></R>
       <R id="R454"><C>bcd_DocUploader_View</C><C>View</C><C>en</C></R>
       <R id="R455"><C>bcd_DocUploader_Download</C><C>Download</C><C>en</C></R>
-      <R id="R456"><C>bcd_DocUploader_Delete_Confirm</C><C>Do you really want to delete this document?</C><C>en</C></R>
+      <R id="R456"><C>bcd_DocUploader_Delete_Confirm</C><C>To delete this document, please hold CTRL while clicking</C><C>en</C></R>
       <R id="R457"><C>bcd_DocUploader_Scope</C><C>Scope</C><C>en</C></R>
       <R id="R458"><C>bcd_DocUploader_Instance</C><C>Instance</C><C>en</C></R>
       <R id="R459"><C>bcd_DocUploader_Number_Of_Documents</C><C># Documents</C><C>en</C></R>
       <R id="R460"><C>bcd_DocUploader_Loaded_Documents</C><C>Loaded Documents</C><C>en</C></R>
       <R id="R461"><C>bcd_DocUploader_Missing_Required</C><C>Missing Required Documents</C><C>en</C></R>
       <R id="R462"><C>bcd_DocUploader_Number_Of_Categories</C><C># Categories</C><C>en</C></R>
+      <R id="R463"><C>bcd_DocUploader_Acknowledged</C><C>Click To Acknowledge</C><C>en</C></R>
+      <R id="R464"><C>bcd_DocUploader_Unacknowledged</C><C>Click To Unacknowledge</C><C>en</C></R>
+      <R id="R465"><C>bcd_DocUploader_DownloadAll</C><C>Zip</C><C>en</C></R>
 
       <!-- Comment Widget -->
       <R id="R500"><C>bcd_Comment_Placeholder</C><C>Enter Comment</C><C>en</C></R>

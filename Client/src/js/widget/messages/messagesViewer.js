@@ -97,6 +97,8 @@ jQuery.extend(bcdui.widget, {
           
           open: function() {
             const frame = dialog.parent();
+            frame.find(".ui-dialog-titlebar").removeClass("bcdInformation bcdWarning bcdError");
+            frame.find(".ui-dialog-titlebar").addClass("bcd" + msgs[0].title)
             
             // no close bar since we want to use the cancel button at the bottom
             frame.find(".ui-dialog-titlebar-close").hide();
@@ -183,6 +185,8 @@ jQuery.extend(bcdui.widget, {
               frame.find('.bcdHtmlViewer *').addClass('bcdCssReset');
               frame.find(".bcdHtmlViewerFooter .bcdCount").text("" + (page + 1) + "/" + msg.length);
               frame.find(".ui-dialog-title").text(msg[page].title);
+              frame.find(".ui-dialog-titlebar").removeClass("bcdInformation bcdWarning bcdError");
+              frame.find(".ui-dialog-titlebar").addClass("bcd" + msgs[page].title)
             });
           }
         });

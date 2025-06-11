@@ -124,6 +124,11 @@
             <grid:Param name="showClearButton" value="false"/>
           </xsl:if>
 
+          <!-- set default separator for sideBySideChooser -->
+          <xsl:if test="grid:Editor/@type='bcduiSideBySide' and not(grid:Editor/grid:Param[@name='bcdValueSeparator'])">
+            <grid:Param name="bcdValueSeparator" value=","/>
+          </xsl:if>
+
           <!-- set default suggestInput parameter -->              
           <xsl:if test="grid:Editor/@type='bcduiSuggestInput' or grid:Editor/@type='bcduiInput'">
             <grid:Param name="isSync" value="true"/>

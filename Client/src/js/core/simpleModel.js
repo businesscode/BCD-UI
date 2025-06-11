@@ -314,16 +314,32 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
         const data = idx != -1 ? loadUrl.substring(idx + pattern.length) : loadUrl;
         const url  = idx != -1 ? loadUrl.substring(0, idx - 1) : loadUrl;
 
+        var xhr = bcdui.core.browserCompatibility.jQueryXhr();
+        var xhrFactory = function() { return xhr };
+
         jQuery.ajax({
           method: this.urlProvider.method || "GET",
           mimeType: this.mimeType,
           contentType: this.mimeType,
           url : this.urlProvider.method != "GET" ? url :  bcdui.util.encodeURI(loadUrl),
           data: this.urlProvider.method != "GET" ? data : null,
+          xhr: xhrFactory,
           success : function (data, successCode, jqXHR) {
             this.dataDoc = data;
             this._uncommitedWrites = false;
-            this.setStatus(this.loadedStatus);                
+            this.setStatus(this.loadedStatus);
+
+            // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page) 
+            const u = this.urlProvider.method != "GET" ? url :  bcdui.util.encodeURI(loadUrl);
+            const resource = bcdui.util.decodeURI(u.substring(u.lastIndexOf("/") + 1));
+            const rUrl = bcdui.util.decodeURI(xhr.responseURL || xhr.url);
+            if (rUrl.indexOf(resource) == -1) {
+              this.dataDoc = null;
+              this.setStatus(this.loadFailedStatus);
+              bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
+              return;
+            }
+
           }.bind(this),
           error : function(jqXHR, textStatus, errorThrown) {
 

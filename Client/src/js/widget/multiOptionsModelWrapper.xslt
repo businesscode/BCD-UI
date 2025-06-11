@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
   xmlns:b="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
@@ -28,6 +29,14 @@
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   xmlns:exslt="http://exslt.org/common"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:far="http://www.businesscode.de/schema/bcdui/far-1.0.0"
+  xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0"
+  xmlns:cnf="http://www.businesscode.de/schema/bcdui/config-1.0.0"
+  xmlns:gml="http://www.opengis.net/gml"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:sched="http://www.businesscode.de/schema/bcdui/sched-1.0.0"
+  xmlns:txtnav="http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0"
+  xmlns:vfs="http://www.businesscode.de/schema/bcdui/vfs-1.0.0"
   xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
   xmlns:menu="http://www.businesscode.de/schema/bcdui/menu-1.0.0"
   xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"

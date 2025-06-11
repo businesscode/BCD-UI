@@ -785,14 +785,27 @@
         </Impl>
         <Examples>
         </Examples>
+        <Param name="zipDownloadTargetHtml" type="targetHtmlRef">
+          <Doc>Optional targetHml htmlElement or jQuery object for zip download button, if not present, it's rendered to its default place</Doc>
+        </Param>
+        <Param name="config" type="dataProvider" isJSPChild="paramBag.config">
+          <Doc>
+            The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
+          </Doc>
+        </Param>
         <Param name="scope" type="string" required="true">
           <Doc>
-            The scope for the documents.
+            The scope for the documents, can be a space separated string when you want to map multiple scopeId and instanceId
+          </Doc>
+        </Param>
+        <Param name="bindingSetId" type="string" default="bcd_docUpload">
+          <Doc>
+            Optional binding set id used for document storage, by default bcd_docUpload is used.
           </Doc>
         </Param>
         <Param name="instance" type="string" required="true">
           <Doc>
-            The instance for the documents.
+            The instance for the documents, can be a space separated string when you want to map multiple scopeId and instanceId
           </Doc>
         </Param>
         <Param name="addBRefs" type="string">
@@ -808,6 +821,21 @@
         <Param name="filterBRefs" type="stringList">
           <Doc>
             The space separated list of binding Refs that will be used in filter clause of request document.
+          </Doc>
+        </Param>
+        <Param name="downloadAll" type="boolean" default="false">
+          <Doc>
+            Set to true if you want to be able to download/zip all documents
+          </Doc>
+        </Param>
+        <Param name="doAcknowledge" type="boolean" default="false">
+          <Doc>
+            Set to true if acknowledge mode is required
+          </Doc>
+        </Param>
+        <Param name="zipName" type="string" default="documents.zip">
+          <Doc>
+            The filename for the generated zip, ensure it ends with .zip
           </Doc>
         </Param>
       </Api>

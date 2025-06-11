@@ -38,6 +38,7 @@
 
 <xsl:param name="gridDefinition"/>
 <xsl:param name="gridModelValidation" select="*[false()]"/> <!-- validateWrs.xslt output in stand-alone mode -->
+<xsl:param name="I18N_TAG" select="'&#xE0FF;'"/>
 
 <xsl:variable name="sqlTypes" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
 
@@ -72,8 +73,8 @@
   <xsl:variable name="cellOrigCaptionToValue">
     <xsl:choose>
       <xsl:when test="/*/wrs:Data/@isDocument='true'">[XML Data]</xsl:when>
-      <xsl:when test="/*/wrs:Data/@mappedCaption != ''">
-        <xsl:value-of select="/*/wrs:Data/@mappedCaption"/>
+      <xsl:when test="/*/wrs:Data/@mappedCaptionOrig != ''">
+        <xsl:value-of select="/*/wrs:Data/@mappedCaptionOrig"/>
       </xsl:when>
       <xsl:when test="$cellHead/wrs:References[wrs:Wrs/wrs:Data/wrs:R]">
         <xsl:value-of select="$cellHead/wrs:References/wrs:Wrs/wrs:Data/wrs:R[wrs:C[position()=2 and .=$cellOrig]]/wrs:C[1]"/>
@@ -97,7 +98,7 @@
     <!-- We return an empty output to prevent a tooltip if there is nothing to show -->
     <xsl:if test="$attrs or ($cellOrig and $cellOrig != $cell) or $invalids">
 
-      <table class="bcdTooltip">
+      <table class="bcdTooltip bcdGrid">
 
         <!-- Print each wrs:A attribute -->
         <xsl:for-each select="$attrs">
@@ -134,8 +135,9 @@
       <xsl:for-each select="$invalids">
         <tr>
           <th>
+            <xsl:variable name="translatedText" select="$bcdI18nModel/*/*[local-name(.) = translate(current()/wrs:C[3],$I18N_TAG,'')]"/>
             <xsl:choose>
-              <xsl:when test="$bcdI18nModel/*/*[local-name(.)=current()/wrs:C[3]]!=''"><xsl:value-of select="$bcdI18nModel/*/*[local-name(.)=current()/wrs:C[3]]"/></xsl:when>
+              <xsl:when test="$translatedText"><xsl:value-of select="$translatedText"/></xsl:when>
               <xsl:otherwise><xsl:value-of select="current()/wrs:C[3]"/></xsl:otherwise>
             </xsl:choose>
           </th>

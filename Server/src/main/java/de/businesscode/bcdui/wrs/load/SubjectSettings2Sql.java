@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.w3c.dom.Element;
@@ -37,6 +37,7 @@ import de.businesscode.bcdui.binding.subjectFilter.Connective;
 import de.businesscode.bcdui.binding.subjectFilter.Connective.SYMBOL;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilter;
 import de.businesscode.bcdui.binding.subjectFilter.SubjectFilterNode;
+import de.businesscode.bcdui.binding.write.CustomJdbcTypeSupport;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.subjectsettings.SubjectSettings;
 import de.businesscode.bcdui.subjectsettings.config.SubjectFilterType;
@@ -220,7 +221,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
 
   /**
    * resolves subject filter to a value
-   * 
+   *
    * @param boundVariables
    * @param settings
    * @param subject
@@ -280,7 +281,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * @param bi - the BindinItem on which the permission is to apply
    */
   protected void generateCondition(StringBuilder subjectSettingsClause, Subject subject, SubjectFilterType ft, List<Element> boundVariables, String filterType,
-      Set<String> permissions, BindingItem bi) 
+      Set<String> permissions, BindingItem bi)
   {
     String columnExpression = bi.getQColumnExpression(sqlAlias);
     if(permissions.isEmpty() && ft.isIsNullAllowsAccess()) {
@@ -297,21 +298,21 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       if (permissions.size() <= THRESHOLD_PERMS_COUNT_INLINE || SubjectPreferences.isAllowedAttribute(ft.getName())) {
 
         // One expression for all values for "IN" and a single "="
-        if( ft.getOp().contains("in") 
+        if( ft.getOp().contains("in")
             || ( (ft.getOp()==null || ft.getOp().equals("=")) && permissions.size()>1) ) {
-          subjectSettingsClause.append(columnExpression).append(" in (").append( permissions.stream().map(p2 -> "?").collect(Collectors.joining(",")) ).append(")");
-        } 
+          subjectSettingsClause.append(columnExpression).append(" in (").append( permissions.stream().map(p2 -> CustomJdbcTypeSupport.wrapTypeCast(bi, "?")).collect(Collectors.joining(",")) ).append(")");
+        }
         // List of OR-ed expressions
         else {
           String sqlOp = ft.getOp()==null ? "=" : WrqFilter2Sql.getOperatorMapping(ft.getOp());
           for( int pIdx=0; pIdx<permissions.size(); pIdx++) {
             if( pIdx > 0 ) subjectSettingsClause.append(" OR ");
-            subjectSettingsClause.append(columnExpression).append(" ").append(sqlOp).append(" ? ");
+            subjectSettingsClause.append(columnExpression).append(" ").append(sqlOp).append(CustomJdbcTypeSupport.wrapTypeCast(bi, "?"));
           }
         }
 
         // Append the parameters. Per convention in BCD-UI LIKE: operator * means SQL %
-        List<String> perms = ft.getOp().equals("like") ? 
+        List<String> perms = ft.getOp().equals("like") ?
             permissions.stream().map(p1 -> p1.replace('*', '%')).collect(Collectors.toList()) : permissions.stream().collect(Collectors.toList());
         writeParams(bi.getId(), perms, boundVariables);
       }
@@ -319,7 +320,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
       // Resolve via subselect if we have many permission values
       else {
         BindingSetUserRights bsUr = BindingSetUserRights.Holder.instance;
-        subjectSettingsClause.append("CAST((" + columnExpression + ") AS VARCHAR(128)) in (SELECT " + bsUr.rightvalue + " FROM " + bsUr.table + " WHERE " + bsUr.userid + "=?" + " AND " + bsUr.righttype + "=?)");
+        subjectSettingsClause.append("CAST((" + columnExpression + ") AS VARCHAR(128)) in (SELECT " + bsUr.rightValue.getColumnExpression() + " FROM " + bsUr.table + " WHERE " + bsUr.userid.getColumnExpression() + "=" + CustomJdbcTypeSupport.wrapTypeCast(bsUr.userid, "?") + " AND " + bsUr.rightType.getColumnExpression() + "=?)");
         // Now lets create dummy "filter" elements holding the values bound to the prep-stmt by the caller, bcd_sec_usersettings userid and righttype should be VARCHAR
         writeParams("bcdVirtBindingItemWithType.VARCHAR", Arrays.asList(subject.getPrincipal().toString(), filterType), boundVariables);
       }
@@ -333,7 +334,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
    * in case a permission is granted then OR 1=1 is written, in case not then AND 1=0 is written; neutral OR 1=0, AND 1=1 are skipped if
    * {@link #applySqlOptimization} is enabled or written otherwise, too.
    * </p>
-   * 
+   *
    * @param subjectSettingsClause
    * @param connective
    * @param isPermitted
@@ -356,9 +357,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
     }
 
     String table;
-    String userid;
-    String righttype;
-    String rightvalue;
+    BindingItem userid, rightType, rightValue;
 
     public BindingSetUserRights() {
       BindingSet bsUr = null;
@@ -369,9 +368,9 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
         bsUr = Bindings.getInstance().get("bcd_sec_user_settings", c);
 
         table = bsUr.getTableReference();
-        userid = bsUr.get("user_id").getColumnExpression();
-        righttype = bsUr.get("right_type").getColumnExpression();
-        rightvalue = bsUr.get("right_value").getColumnExpression();
+        userid = bsUr.get("user_id");
+        rightType = bsUr.get("right_type");
+        rightValue = bsUr.get("right_value");
       } catch (Exception e) {
         throw new RuntimeException("Failed reading 'bcd_sec_user_settings' binding-set", e);
       }

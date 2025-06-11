@@ -21,4 +21,12 @@
   <C id="user_id"     isKey="true"><Column>user_id</Column></C>
   <C id="user_role"   isKey="true"><Column>user_role</Column></C>
 
+  <!-- the user can access only his own records -->
+  <C id="bcd_userId"><Column>user_id</Column></C>
+  <SubjectSettings>
+    <SubjectFilters>
+      <SubjectFilter type="bcd_userId:userId"/>
+    </SubjectFilters>
+  </SubjectSettings>
+
 </BindingSet>

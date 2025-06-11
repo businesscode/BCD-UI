@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.subjectsettings.oauth2;
 
+import org.apache.commons.lang.StringUtils;
+
 import de.businesscode.bcdui.subjectsettings.ExternalAuthenticationToken;
 
 /**
@@ -29,32 +31,34 @@ public class OAuthToken extends ExternalAuthenticationToken {
   private static final long serialVersionUID = 1L;
 
   protected final String authCode;
+  protected final String codeVerifier;
   protected final String clientId;
-  protected final String redirectUrl;
-  protected final OAuthAuthenticatingFilter authenticator;
+  protected final String redirectUri;
+  protected final String authenticatorInstanceId;
 
   public String getClientId() {
     return clientId;
   }
 
-  public String getRedirectUrl() {
-    return redirectUrl;
-  }
-
   /**
-   * 
+   *
    * @param authenticator
    * @return true if this token has been created by given authenticator instance
    */
   public boolean isCreatedBy(OAuthAuthenticatingFilter authenticator) {
-    return this.authenticator == authenticator;
+    return StringUtils.equals(this.authenticatorInstanceId, authenticator.getProviderInstanceId());
   }
 
-  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUrl, String authCode) {
-    this.authenticator = authenticator;
+  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUri, String authCode, String codeVerifier) {
+    this.authenticatorInstanceId = authenticator.getProviderInstanceId();
     this.clientId = clientId;
     this.authCode = authCode;
-    this.redirectUrl = redirectUrl;
+    this.redirectUri = redirectUri;
+    this.codeVerifier = codeVerifier;
+  }
+
+  public String getRedirectUri() {
+    return redirectUri;
   }
 
   public String getAuthCode() {
@@ -77,7 +81,7 @@ public class OAuthToken extends ExternalAuthenticationToken {
 
   @Override
   public String toString() {
-    return String.format("[AuthToken: principal '%s', clientId: '%s', authCode '%s', redirectUrl: '%s']", principal, clientId, authCode, redirectUrl);
+    return String.format("[AuthToken: principal '%s', clientId: '%s', authCode '%s', redirectUri: '%s', codeVerifier '%s']", principal, clientId, authCode, redirectUri, codeVerifier);
   }
 
 }

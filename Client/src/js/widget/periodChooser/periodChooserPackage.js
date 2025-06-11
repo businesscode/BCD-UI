@@ -523,8 +523,10 @@
               node.removeAttribute("dateFrom");
               node.removeAttribute("dateTo");
               jQuery(containerHtmlElement).find(".bcdValue > input").each(function(i,e){if (!jQuery(e).hasClass("bcdDateDelimiter"))jQuery(e).val("");});
-              targetModel.remove(targetModelXPath + (isAttr ? "/.." : "") + (bcdui.widget.periodChooser._isWrs(targetModel.getData()) ? "" : "/*"), true);
-
+              const t = bcdui.widget.periodChooser._getTargetData(containerHtmlElement);
+              if (t.useSimpleXPath && !isAttr)
+                targetModel.remove(targetModelXPath);
+              targetModel.remove(targetModelXPath + (isAttr ? "/.." : "") + (bcdui.widget._isWrs(targetModel.getData()) ? "" : "/*"), true);
               jQuery(containerHtmlElement).closest(".bcdPeriodChooser").removeClass("bcdActiveFilter");
 
               setTimeout(function(){bcdui.widget.periodChooser._validateValue(containerHtmlElement);});
@@ -671,7 +673,8 @@
           optionsModelRelativeValueXPath: containerHtmlElement.getAttribute("bcdOptionsModelRelativeValueXPath"),
           postfix: containerHtmlElement.getAttribute("bcdPostfix"),
           firstSelectableDay: containerHtmlElement.getAttribute("bcdFirstSelectableDay"),
-          lastSelectableDay: containerHtmlElement.getAttribute("bcdLastSelectableDay")
+          lastSelectableDay: containerHtmlElement.getAttribute("bcdLastSelectableDay"),
+          autoPopup: containerHtmlElement.getAttribute("bcdAutoPopup") == "true"
       };
     },
 
@@ -940,11 +943,17 @@
           else {
             // in case of simpleXPath mode, we rebuild the value from the targetXPath and update the dateFrom/To attributes
             if (containerHtmlElement.getAttribute("bcdUseSimpleXPath") === "true") {
-              const targetNode = t.doc.selectSingleNode(t.targetModelXPath);
+              let targetNode = t.doc.selectSingleNode(t.targetModelXPath);
               fromDate = toDate = (targetNode != null) ? targetNode.text : "";
+              if (targetNode.nodeType == 2)
+                targetNode = t.doc.selectSingleNode(t.targetModelXPath + "/..");
               targetNode.setAttribute("dateFrom", fromDate);
               targetNode.setAttribute("dateTo", fromDate);
-              t.targetModel.fire();
+              if (! t.autoPopup) {
+                setTimeout(function() {
+                  t.targetModel.fire()
+                });
+              }
             }
             else {
               fromDate = bcdui.widget.periodChooser._getDateFromAttr(t.doc, bcdui.widget.periodChooser._getDateFromXPath(t.doc, t.targetModelXPath, bcdui.widget.periodChooser._isOutputPeriodType(containerHtmlElement)));

@@ -422,28 +422,9 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
    * @return {string} final xPath with filled in values for possibly existing placeholders 
    * @private
    */
-  _getFillParams(fillParams, xPath)
-    {
-      var xPathClean = xPath.replace(/\*/g, "\uE0F3"); // replace * with some utf8 char, so we can have xPaths with *
-      var x = xPathClean;
-      var concat = false;
-      if (typeof fillParams == "object") {
-        var obj = {};
-        for (var p in fillParams) {
-          if (typeof fillParams[p] == "string") {
-            var gotApos = fillParams[p].indexOf("'") != -1;
-            concat |= gotApos;
-            obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
-          }
-        }
-        x = doT.template(xPathClean)(obj);
-      }
-
-      // remove possibly existing outer quotes/apostrophe around the inserted concat to make a valid xPath expression
-      if (concat)
-        x = x.replace(/('|\")*(\s)*Xconcat\('/g, "concat('").replace(/, ''X\)(\s)*('|\")*/g, ", '')");
-      return x.replace(/\uE0F3/g, "*"); // don't forget to replace the utf8 char back to *
-    }
+  _getFillParams(fillParams, xPath){
+    return bcdui.util.interpolateXPath(fillParams, xPath);
+  }
 
   /**
    * Reads the string value from a given xPath (or optionally return default value).
@@ -455,9 +436,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   read(xPath, fillParams, defaultValue) {
     var def = (typeof fillParams == "string") ? fillParams : defaultValue;
     if (this.getData() == null) return (def === undefined ? null : def);
-    var x = this._getFillParams(fillParams, xPath);
-    var node = this.getData().selectSingleNode(x);
-    return node != null ? node.text : (def === undefined ? null : def);
+    return bcdui.wrs.wrsUtil.read(this.getData(), xPath, fillParams, defaultValue);
   }
 
   /**
@@ -676,17 +655,13 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
       return null;
     this._uncommitedWrites = true;
 
-    var v = (typeof fillParams != "object") ? fillParams : typeof value != "undefined" ? value : null;
-    var f = (typeof fillParams == "boolean") ? fillParams : typeof value == "boolean" ? value : fire;
-    var x = this._getFillParams(fillParams, xPath);
+    const resultElement = bcdui.wrs.wrsUtil.write(this.getData(), xPath, fillParams, value);
+    const doFire = (typeof fillParams == "boolean") ? fillParams : typeof value == "boolean" ? value : fire;
 
-    // At least we assure that the path exists, maybe we also set a value
-    var newPath = bcdui.core.createElementWithPrototype(this.getData(), x);
-    if( v != null )
-      newPath.text = "" + v;
-    if (f) 
+    if (doFire) 
       this.fire();
-    return newPath;
+
+    return resultElement;
   }
 
   /**

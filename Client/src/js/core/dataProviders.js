@@ -739,7 +739,7 @@ export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumen
     this.requestModel = null;
     if( bcdui.util.isString(args.url) ) {
       this.url = args.url;
-      this.requestModel = new bcdui.core.SimpleModel({url:this.url, id: this.id + "_RequestDocDummy"});
+      this.requestModel = new bcdui.core.SimpleModel({url:this.url});
     }
     else if(args.url)
       this.requestModel=args.url;

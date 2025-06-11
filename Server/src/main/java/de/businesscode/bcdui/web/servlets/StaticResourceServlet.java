@@ -22,10 +22,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.FileSystemException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -105,6 +105,20 @@ public class StaticResourceServlet extends HttpServlet {
    */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+    // in case of a zipInfo Parameter, parse given vfs xml data, collect files and return a zipfile
+    // ensure that *.zip is mapped in web.xml
+    if (req.getParameter("zipInfo") != null) {
+      ZipDownload zd = null;
+      try { zd = new ZipDownload(ZipLet.decodeAndDecompressToXML(req.getParameter("zipInfo"), req)); }
+      catch (Exception e) { log.error("can't initialize zipdownload"); }
+      if (zd != null) {
+        ArrayList<String> failed = zd.getZip(getServletContext(), resp.getOutputStream());
+        if (! failed.isEmpty())
+          log.error("zipping failed for: " +  String.join(",", failed));
+      }
+      return;
+    }
 
     // entry the resource resolving
     Resource resource = StaticResourceProvider.fetchResource(getServletContext(), req);

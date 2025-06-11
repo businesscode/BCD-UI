@@ -31,8 +31,8 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.web.i18n.I18nDbResources;
 
@@ -123,7 +123,7 @@ public class ExcelSylkTemplate  {
     {
       this(metaData, rowCountIfKnown, null, i18nDbResources);
     }
-    
+
     private int getFirstRow() {
       return getAddInfo() != null && ! getAddInfo().trim().isEmpty() ? nrFirstRow + 2 : nrFirstRow;
     }
@@ -207,7 +207,7 @@ public class ExcelSylkTemplate  {
     protected void writeAddInfo(PrintWriter output) throws IOException {
       StringBuffer buffer = new StringBuffer();
       String addInfo = getAddInfo();
-      int maxSize = 250; 
+      int maxSize = 250;
       if (addInfo != null && ! addInfo.trim().isEmpty()) {
         int len = 0;
         String part = addInfo.substring(len, len + maxSize > addInfo.length() ? addInfo.length() : len + maxSize);
@@ -274,7 +274,7 @@ public class ExcelSylkTemplate  {
           }
           String linkText = content.replace(";",";;");
           record = recordStart + "\""+ linkText +  "\";EHYPERLINK(\"" + url.replace(";",";;") + "\",\""+ linkText +"\")";
-          
+
         } else if(content.startsWith("http://") || content.startsWith("https://")) {
           String linkText = content.replace(";",";;");
           if(httpHeader==null && httpHeadersMap == null)
@@ -329,10 +329,10 @@ public class ExcelSylkTemplate  {
         Date date = null;
         if ( dateString.length() > 10 ){
             date = timestampFormat.parse(dateString);
-            return new Double( (date.getTime() - ref)/1000.0/3600/24 ).toString();
+            return Double.valueOf( (date.getTime() - ref)/1000.0/3600/24 ).toString();
         } else {
             date = dateFormat.parse(dateString);
-            return (new Long( (date.getTime() - ref)/(1000*3600*24))).toString();
+            return Long.valueOf( (date.getTime() - ref)/(1000*3600*24)).toString();
         }
     }
 
@@ -648,6 +648,7 @@ public class ExcelSylkTemplate  {
         return dbName;
       }
 
+      @Override
       public String toString() {
         return "<" + caption + ", " + dbName + ">";
       }
@@ -655,7 +656,7 @@ public class ExcelSylkTemplate  {
       public String getDecimals(){
         return decimals.trim();
       }
-      
+
       public int getWrsAColumn(){
         return wrsAColumn;
       }
@@ -688,6 +689,7 @@ public class ExcelSylkTemplate  {
         return dbColumnNo;
       }
 
+      @Override
       public String toString() {
         return "<" + getCaption() + ", " + getDbName() + ", " + dbColumnNo + ">";
       }

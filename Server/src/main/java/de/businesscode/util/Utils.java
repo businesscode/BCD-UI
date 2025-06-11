@@ -24,16 +24,23 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.security.KeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.TransformerConfigurationException;
@@ -44,11 +51,14 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import de.businesscode.util.xml.SecureXmlFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 public class Utils {
   private static String bcduiVersion;
@@ -257,4 +267,44 @@ public class Utils {
     return id;
   }
 
+  /**
+   * disables SSL and hostname validation on specific connection
+   * @param connection to disableSslValidation on
+   */
+  public static void disableSslValidation(HttpsURLConnection connection) {
+    TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+      @Override
+      public X509Certificate[] getAcceptedIssuers() {
+        return null;
+      }
+
+      @Override
+      public void checkClientTrusted(X509Certificate[] certs, String authType) {
+      }
+
+      @Override
+      public void checkServerTrusted(X509Certificate[] certs, String authType) {
+      }
+    } };
+
+    SSLContext sc = null;
+    try {
+      sc = SSLContext.getInstance("SSL");
+      sc.init(null, trustAllCerts, new java.security.SecureRandom());
+    } catch (NoSuchAlgorithmException | KeyException e) {
+      throw new RuntimeException(e);
+    }
+    SSLSocketFactory socketFactory = sc.getSocketFactory();
+
+    connection.setSSLSocketFactory(socketFactory);
+    connection.setHostnameVerifier((hostname, session) -> true);
+  }
+
+  /**
+   * @param request
+   * @return client address - in the order of: header:X-Real-IP, header:X-Forwarded-For, network
+   */
+  public static String getRemoteAddr(HttpServletRequest request) {
+    return List.of(request.getHeader("X-REAL-IP"), request.getHeader("X-FORWARDED-FOR")).stream().filter(StringUtils::isNotBlank).findFirst().orElseGet(() -> request.getRemoteAddr()).split(",")[0];
+  }
 }

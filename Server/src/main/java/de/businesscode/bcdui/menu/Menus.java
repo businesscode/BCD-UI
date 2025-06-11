@@ -135,7 +135,7 @@ public class Menus {
       Entry curEntry = menuEntry.get(i);
       if( curEntry.getRights() == null
           || curEntry.getRights().equals("")
-          || userSubject.isPermitted(curEntry.getRights())){
+          || isPermitted(userSubject, curEntry.getRights())){
 
         Entry permEntry = new Entry();
         permEntry = copyEntry(curEntry, permEntry);
@@ -148,6 +148,16 @@ public class Menus {
     return allPermEntries;
   }
 
+  private boolean isPermitted(Subject subject, String rights) {
+    boolean isPermitted = false;
+    int s = 0;
+    String[] r = rights.split(" ");
+    while (! isPermitted && s < r.length) {
+      isPermitted = subject.isPermitted(r[s]);
+      s++;
+    }
+    return isPermitted;
+  }
 
   /**
    * 1. not permitted Entry or null if all are permitted
@@ -169,7 +179,7 @@ public class Menus {
           Entry curEntry = (Entry)obj;
           if( curEntry.getRights() == null
               || curEntry.getRights().equals("")
-              || userSubject.isPermitted(curEntry.getRights())){
+              || isPermitted(userSubject, curEntry.getRights())){
 
             Entry permEntry = new Entry();
             permEntry = copyEntry(curEntry, permEntry);

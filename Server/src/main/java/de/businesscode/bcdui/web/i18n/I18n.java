@@ -22,20 +22,19 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
+import de.businesscode.bcdui.binding.exc.BindingException;
+import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.web.BcdUiApplicationContextListener;
+import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-import org.apache.logging.log4j.LogManager;
-import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.subjectsettings.SecurityHelper;
-import de.businesscode.bcdui.toolbox.Configuration;
-import de.businesscode.bcdui.web.BcdUiApplicationContextListener;
-import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
  *
@@ -68,7 +67,7 @@ public class I18n {
 
   /**
    * create a control suitable for database or local messages file backed resource bundle
-   * 
+   *
    * @param servletContext
    * @return appropriate control implementation depending if bcd_i18n is enabled or not
    * @throws BindingException
@@ -86,14 +85,14 @@ public class I18n {
 
   /**
    * retrieve currently set locale for given session
-   * 
+   *
    * @param session,
    *          whch may be null
    * @param defaultLocale
    * @return currently set locale or the defaultLocale
    */
   public static Locale getLocale(Locale defaultLocale) {
-    Subject subject = null; 
+    Subject subject = null;
     try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
     if (subject != null) {
       // use SubjectPreferences.getPermissionList to get the default value (even on 1st request)
@@ -124,7 +123,7 @@ public class I18n {
 
   /**
    * set locale for given session
-   * 
+   *
    * @param session
    * @param locale
    */
@@ -151,7 +150,7 @@ public class I18n {
 
   /**
    * retrieve a locale from cookie or client request header
-   * 
+   *
    * @param request
    * @param defaultLocale
    * @return a Locale retrieved from a cookie / client request header or defaultLocale
@@ -170,7 +169,7 @@ public class I18n {
       if (langHeader != null && !langHeader.trim().isEmpty()) {
         String[] parts = langHeader.split(",");
         if (parts.length > 0) {
-          return new Locale(parts[0].split("[-_]")[0]); // keep the language portion only 
+          return new Locale(parts[0].split("[-_]")[0]); // keep the language portion only
         }
       }
     } catch (Exception e) {
@@ -182,7 +181,7 @@ public class I18n {
 
   /**
    * get locale from HTTP cookies
-   * 
+   *
    * @param cookies
    * @return {@link Locale} from cookie or null if no such cookie found
    */
@@ -201,7 +200,7 @@ public class I18n {
 
   /**
    * set locale to HTTP cookie, the response must has been flushed yet
-   * 
+   *
    * @param request
    * @param locale
    */
@@ -210,7 +209,6 @@ public class I18n {
     cookie.setMaxAge(60 * 60 * 24 * 365);
     cookie.setPath(request.getContextPath());
     cookie.setHttpOnly(true);
-    cookie.setComment("Preferred Language");
     cookie.setSecure(true);
 
     try {

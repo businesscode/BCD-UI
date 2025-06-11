@@ -36,7 +36,7 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
    * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
    * @param {number}                  [args.maxRows]                      - Optional, limits the request to n rows. Use distinct if you need a certain order.
    *
-   * @param {string}                  [args.id]                           - A globally unique id for use in declarative contexts
+   * @param {string}                  [args.id]                           - Optional, a globally unique id for use in declarative contexts
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
    *
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
@@ -64,7 +64,7 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
         // No stylesheet URL means the default requestDocumentBuilder.xslt is used
         args.reqDocStyleSheetUrl = (bcdui.config.jsLibPath + "wrs/requestDocumentBuilder.xslt");
       }
-      
+
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
        // create the model wrapper that creates web row set request
@@ -132,8 +132,6 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
          statusModel: statusModel,
          statusModelEstablished: args.statusModelEstablished
        };
-       if (args.id)
-         jQuery.extend( wrapperArgs, {id: args.id +"Req"} );  // if we have a given Id, we name the requestDoc accordingly
 
        var wrapper = new bcdui.core.ModelWrapper(wrapperArgs);
 
@@ -148,6 +146,9 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
 
        // create the desired model and inject the model wrapper as request document
        super(simpleModelArgs);
+
+       this.disposables = []; // collect those objects we need to care about upon destroy
+       this.disposables.push(wrapper);
 
        // create the xpath for gui status data listener from given filter Refs
        if (typeof args.filterBRefs != "undefined" && args.filterBRefs != null && !!args.filterBRefs.trim()) {
@@ -187,4 +188,10 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
        }
     }
     getClassName() { return "bcdui.core.AutoModel"}
+    destroy() {
+      // destroy those we created
+      this.disposables.forEach(d => d.destroy());
+      // propagate
+      super.destroy();
+    }
 }

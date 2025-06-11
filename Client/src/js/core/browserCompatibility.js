@@ -187,7 +187,14 @@ bcdui.core.browserCompatibility = {
       var importNodes = domDocument.selectNodes("/*/xsl:import[starts-with(@href,'bcduicp://')]");
       for( var iN = 0; iN <importNodes.length; iN++ )
         importNodes.item(iN).setAttribute("href", bcdui.config.contextPath + "/" + importNodes.item(iN).getAttribute("href").substring(10) );
+
+      // replace bcduicp in select="document('bcduicp://...)
+      Array.from(domDocument.selectNodes("//xsl:*[contains(@select,'document(') and contains(@select, 'bcduicp://')]")).forEach(function(e) {
+        e.setAttribute("select", e.getAttribute("select").replace(/bcduicp:\/\//g, bcdui.config.contextPath + "/"));
+      });
     },
+    
+    
 
     jQueryXhr: jQuery.ajaxSettings.xhr 
 };
@@ -360,7 +367,7 @@ Element.prototype.__defineSetter__("text", function(txt)
 bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(serializedDoc)
 {
   // PrefixArray to hold all words, followed by : but not by :: (axes) or by :/ (url)
-  var prefixArray = serializedDoc.match(/([\w-]+)(?=:(?!(:|\/)))/g);
+  var prefixArray = serializedDoc.match(/\b([\w-]+)(?=:(?![:/]))/g);
   if(! prefixArray)
     return serializedDoc;
   prefixArray = prefixArray.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);;

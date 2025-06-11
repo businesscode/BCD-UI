@@ -242,6 +242,8 @@ public class WrqFilter2Sql
     // Our like operator has '*' as wild card, translate it here
     else if(isLike) {
       String value = valueElement.getAttribute("value");
+      value = value.replace("\\", "\\\\");
+      value = value.replace("_", "\\_");
       value = value.replace("%", "\\%");
       value = value.replace("*", "%");
       valueElement.setAttribute("value", value );

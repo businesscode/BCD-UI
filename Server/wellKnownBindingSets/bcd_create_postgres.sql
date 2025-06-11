@@ -15,7 +15,7 @@
 */
 
 -- db properties
-DROP TABLE bcd_db_properties CASCADE;
+DROP TABLE IF EXISTS bcd_db_properties CASCADE;
 CREATE TABLE bcd_db_properties
 (
   scope VARCHAR(32) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE bcd_db_properties
 );
 
 -- i18n
-DROP TABLE BCD_I18N CASCADE;
+DROP TABLE IF EXISTS BCD_I18N CASCADE;
 CREATE TABLE BCD_I18N
 (
    I18N_KEY    VARCHAR(255),
@@ -42,7 +42,7 @@ CREATE TABLE BCD_IDENTIFIER (
 );
 
 -- logging
-DROP TABLE bcd_log_access;
+DROP TABLE IF EXISTS bcd_log_access;
 CREATE TABLE bcd_log_access
 (
    LOG_TIME         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -60,7 +60,7 @@ CREATE TABLE bcd_log_access
    EXECUTE_DURATION INTEGER
 );
 
-DROP TABLE bcd_log_error;
+DROP TABLE IF EXISTS bcd_log_error;
 CREATE TABLE bcd_log_error
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +74,7 @@ CREATE TABLE bcd_log_error
    REVISION     VARCHAR(30)    NULL
 );
 
-DROP TABLE bcd_log_login;
+DROP TABLE IF EXISTS bcd_log_login;
 CREATE TABLE bcd_log_login
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -86,7 +86,7 @@ CREATE TABLE bcd_log_login
    SESSION_EXP_TIME  TIMESTAMP DEFAULT NULL
 );
 
-DROP TABLE bcd_log_page;
+DROP TABLE IF EXISTS bcd_log_page;
 CREATE TABLE bcd_log_page
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -96,7 +96,7 @@ CREATE TABLE bcd_log_page
    GUI_STATUS   VARCHAR(27000)
 );
 
-DROP TABLE bcd_log_pageperformance;
+DROP TABLE IF EXISTS bcd_log_pageperformance;
 CREATE TABLE bcd_log_pageperformance
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -110,17 +110,19 @@ CREATE TABLE bcd_log_pageperformance
    LOG_NAME     VARCHAR(64)
 );
 
-DROP TABLE bcd_log_session;
+DROP TABLE IF EXISTS bcd_log_session;
 CREATE TABLE bcd_log_session
 (
    LOG_TIME     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    SESSION_ID   VARCHAR(64),
    USER_AGENT   VARCHAR(1000),
    REMOTE_ADDR  VARCHAR(40),
+   USER_NAME    VARCHAR(128),
+   LOGIN_RESULT VARCHAR(32),
    SESSION_EXP_TIME TIMESTAMP DEFAULT NULL
 );
 
-DROP TABLE bcd_log_sql;
+DROP TABLE IF EXISTS bcd_log_sql;
 CREATE TABLE bcd_log_sql
 (
    LOG_TIME       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -134,7 +136,7 @@ CREATE TABLE bcd_log_sql
 );
 
 -- security
-DROP TABLE bcd_sec_user;
+DROP TABLE IF EXISTS bcd_sec_user;
 CREATE TABLE bcd_sec_user
 (
   user_id     VARCHAR(128) NOT NULL,
@@ -147,7 +149,7 @@ CREATE TABLE bcd_sec_user
   UNIQUE(user_login)
 );
 
-DROP TABLE bcd_sec_user_roles;
+DROP TABLE IF EXISTS bcd_sec_user_roles;
 CREATE TABLE bcd_sec_user_roles
 (
    user_id         VARCHAR(128) NOT NULL,
@@ -155,7 +157,7 @@ CREATE TABLE bcd_sec_user_roles
    PRIMARY KEY (user_id,  user_role)
 );
 
-DROP TABLE bcd_sec_user_settings;
+DROP TABLE IF EXISTS bcd_sec_user_settings;
 CREATE TABLE bcd_sec_user_settings
 (
    user_id         VARCHAR(128) NOT NULL,
@@ -164,8 +166,36 @@ CREATE TABLE bcd_sec_user_settings
    PRIMARY KEY (user_id, right_type, right_value)
 );
 
+DROP TABLE IF EXISTS bcd_sec_role_settings;
+CREATE TABLE bcd_sec_role_settings (
+  role_name varchar(64) NOT NULL,
+  right_type varchar(64) NOT NULL,
+  right_value varchar(64),
+  PRIMARY KEY(role_name, right_type, right_value)
+);
+
+CREATE OR REPLACE VIEW bcd_sec_user_roles_settings AS
+-- in addition resolves roles to settings
+SELECT
+  user_id,
+  right_type,
+  right_value
+FROM bcd_sec_user_settings
+
+UNION ALL
+
+SELECT
+  u.user_id user_id,
+  rs.right_type right_type,
+  rs.right_value right_value
+FROM
+  BCD_SEC_USER u
+  INNER JOIN BCD_SEC_USER_ROLES ur ON (u.user_id = ur.user_id)
+  INNER JOIN BCD_SEC_ROLE_SETTINGS rs ON (rs.role_name = ur.user_role)
+;
+
 -- tiny url
-DROP TABLE bcd_tinyurl_control CASCADE;
+DROP TABLE IF EXISTS bcd_tinyurl_control CASCADE;
 CREATE TABLE bcd_tinyurl_control
 (
   tiny_url VARCHAR(33) NOT NULL PRIMARY KEY,
@@ -173,10 +203,9 @@ CREATE TABLE bcd_tinyurl_control
   creation_dt DATE NOT NULL,
   last_used_dt DATE NOT NULL
 );
-ALTER TABLE bcd_tinyurl_control ADD CONSTRAINT PK_bcd_TINYURL_CONTROL PRIMARY KEY (tiny_url);
 
 -- vfs
-DROP TABLE bcd_virtualFileSystem CASCADE;
+DROP TABLE IF EXISTS bcd_virtualFileSystem CASCADE;
 CREATE TABLE bcd_virtualFileSystem
 (
    path           VARCHAR(1024) NOT NULL,
@@ -189,11 +218,13 @@ CREATE TABLE bcd_virtualFileSystem
    scope          VARCHAR(255),
    instance       VARCHAR(255),
    meta_data      TEXT,
+   required       INTEGER,
+   acknowledged   INTEGER,
    CONSTRAINT bcd_virtual_file_system_pk UNIQUE(path, is_server, bcd_userId)
 );
 
 -- cache
-DROP TABLE bcd_cache_scope;
+DROP TABLE IF EXISTS bcd_cache_scope;
 CREATE  TABLE bcd_cache_scope
 (
   scope                  VARCHAR(256) NOT NULL UNIQUE,
@@ -203,7 +234,7 @@ CREATE  TABLE bcd_cache_scope
 );
 
 -- comment
-DROP TABLE bcd_comment;
+DROP TABLE IF EXISTS bcd_comment;
 CREATE TABLE bcd_comment
 (
    scope             VARCHAR(256),
@@ -214,7 +245,7 @@ CREATE TABLE bcd_comment
 );
 
 -- data uploader
-DROP TABLE  bcd_dataupload_control;
+DROP TABLE IF EXISTS  bcd_dataupload_control;
 CREATE TABLE bcd_dataupload_control
 (
    upload_id          varchar(128)    NOT NULL,
@@ -238,7 +269,7 @@ CREATE TABLE bcd_dataupload_control
    mapping            text
 );
 
-DROP TABLE bcd_dataupload_controlstep;
+DROP TABLE IF EXISTS bcd_dataupload_controlstep;
 CREATE TABLE bcd_dataupload_controlstep
 (
    upload_id   varchar(128)    NOT NULL,
@@ -249,7 +280,7 @@ CREATE TABLE bcd_dataupload_controlstep
    rc_message  varchar(4000)
 );
 
-DROP TABLE bcd_dataupload_rowcol;
+DROP TABLE IF EXISTS bcd_dataupload_rowcol;
 CREATE TABLE bcd_dataupload_rowcol
 (
    upload_id   varchar(128)    NOT NULL,
@@ -326,7 +357,7 @@ CREATE TABLE bcd_dataupload_rowcol
    col_70      varchar(4000)
 );
 
-DROP TABLE bcd_dataupload_validation;
+DROP TABLE IF EXISTS bcd_dataupload_validation;
 CREATE TABLE bcd_dataupload_validation
 (
    upload_id   varchar(128)   NOT NULL,
@@ -399,7 +430,7 @@ LANGUAGE plpgsql IMMUTABLE;
 -- SELECT postgis_full_version();
 
 
-DROP TABLE BCD_FILES_DOWNLOAD;
+DROP TABLE IF EXISTS BCD_FILES_DOWNLOAD;
 CREATE TABLE BCD_FILES_DOWNLOAD
 (
    ID              VARCHAR(128),
@@ -412,7 +443,7 @@ CREATE TABLE BCD_FILES_DOWNLOAD
    LAST_DOWNLOAD   TIMESTAMP
 );
 
-DROP TABLE BCD_MESSAGES;
+DROP TABLE IF EXISTS BCD_MESSAGES;
 CREATE TABLE BCD_MESSAGES
 (
    MESSAGE_ID        VARCHAR(36),

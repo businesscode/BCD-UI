@@ -13,6 +13,7 @@ ___
 * switched to Java 17, Gradle 8.5, Tomcat 10.1
 
 .Server:
+* added zip packaging and download feature via static resourceservlet, ensure *.zip mapping in web.xml
 * updated several 3rd party jars
 * updated default web.xml and enforce usage of https
 * cookies created are flagged as "secure"
@@ -35,6 +36,8 @@ ___
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
 * add BindingInfo servlet to web.xml
+* OAuth2 configuration in shiro.ini: OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri
+* wrq filter operator like automatically escapes %, _ and \ now. Don't use local workarounds where you add \ yourself.
 
 ___
 ==== Release 5_6_0

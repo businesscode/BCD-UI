@@ -510,6 +510,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           }
   
           var testXPath = optionsModelXPath.substring(1).replace(this.rowDependencyRegEx, "");
+          var separator = cNode.selectSingleNode("./grid:Editor/grid:Param[@name='bcdValueSeparator']/@value");
+          separator = separator != null ? separator.text : null;
           if (testXPath.indexOf("$") == -1) {
             var info = bcdui.factory._extractXPathAndModelId(optionsModelXPath);
             optionsModels.push(info.modelId);
@@ -519,6 +521,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               , optionsModelRelativeValueXPath: optionsModelRelativeValueXPath
               , codeCaptionMap : {}
               , captionCodeMap : {}
+              , separator: separator
               , gotRowDependency: info.xPath.indexOf("$grid") != -1
               , isSuggestInput: cNode.selectSingleNode("./grid:Editor[@type='bcduiSuggestInput']") != null
               , dependendOnCols: dependendOnCols.filter(function(e, idx){return dependendOnCols.indexOf(e) == idx})
@@ -860,8 +863,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
       if ((checkBits & 256)) {
-        if (this._getRefValue(colInfo.references, rowId, value) == null) {
-          cellError |= 256;
+        const a = colInfo.references.separator ? value.split(colInfo.references.separator) : [value];
+        if (colInfo.references.separator) {
+            a.forEach(function(v) {
+            if (this._getRefValue(colInfo.references, rowId, v) == null) {
+              cellError |= 256;
+            }
+          }.bind(this));
         }
       }
       if ((checkBits & 512)) {
@@ -1294,9 +1302,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             if (renderer.selectSingleNode("..").getAttribute("gotReferences") === "true") {
               var references = this.optionsModelInfo[colId];
               if (references != null) {
-                refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
-                if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
-                  refValue = value;
+                const a = references.separator ? refValue.split(references.separator) : [value];
+                let finalValue = "";
+                a.forEach(function(v, i) {
+                  refValue = references.codeCaptionMap[bcdui.util.escapeHtml(v)];
+                  if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                    refValue = v;
+                  if (i > 0)
+                    finalValue += ", ";
+                  finalValue += refValue;
+                });
+                refValue = finalValue;
               }
             }
           }
@@ -1526,13 +1542,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
 
     function beforeCopy(data, coords) {
-      var fkt = codeToCaption.bind(this, data, coords);
-      fkt();
+      if (this.hasReferences) {
+        var fkt = codeToCaption.bind(this, data, coords);
+        fkt();
+      }
     }
 
     function beforeCut(data, coords) {
-      var fkt = codeToCaption.bind(this, data, coords);
-      fkt();
+      if (this.hasReferences) {
+        var fkt = codeToCaption.bind(this, data, coords);
+        fkt();
+      }
     }
 
     function afterPaste(data, coords) {
@@ -2274,12 +2294,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     };
 
     // add code/caption handling for copy/paste
-    if (this.hasReferences) {
-      createArgs["beforeCopy"]  = beforeCopy.bind(this); 
-      createArgs["beforeCut"]   = beforeCut.bind(this);
-      createArgs["afterPaste"]  = afterPaste.bind(this);
-    }
-    // capture beforePaste to trim and add code/caption handling for copy/paste
+    createArgs["beforeCopy"]  = beforeCopy.bind(this); 
+    createArgs["beforeCut"]   = beforeCut.bind(this);
+    createArgs["afterPaste"]  = afterPaste.bind(this);
     createArgs["beforePaste"] = beforePaste.bind(this) 
 
     // optionally limit cells (disable create-rows-on-drag)
@@ -2993,6 +3010,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if (argsTooltip.bcdColIdent && argsTooltip.bcdRowIdent && argsTooltip.gridInstanceId) {
         var grid = bcdui.factory.objectRegistry.getObject(argsTooltip.gridInstanceId);
         if (grid) {
+          doc.selectSingleNode("/*/wrs:Data").removeAttribute("mappedCaptionOrig");
           doc.selectSingleNode("/*/wrs:Data").removeAttribute("mappedCaption");
 
           var isDocument = false;
@@ -3003,12 +3021,33 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           var references = grid.optionsModelInfo[argsTooltip.bcdColIdent];
           if (references) {
             var index = grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos;
-            var value = grid.gridModel.read("/*/wrs:Data/wrs:M[@id='" + argsTooltip.bcdRowIdent + "']/wrs:O[position()='"+ index + "']");
-            if (value) {
-              var refValue = references.codeCaptionMap[bcdui.util.escapeHtml(value)];
-              if (refValue == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
-                refValue = value;
-              doc.selectSingleNode("/*/wrs:Data").setAttribute("mappedCaption", refValue);
+            var valueO = grid.gridModel.read("/*/wrs:Data/wrs:M[@id='" + argsTooltip.bcdRowIdent + "']/wrs:O[position()='"+ index + "']");
+            if (valueO) {
+              let finalRef = "";
+              const a = references.separator ? valueO.split(references.separator) : [valueO];
+              a.forEach(function(v, i) {
+                var refValueO = references.codeCaptionMap[bcdui.util.escapeHtml(v)];
+                if (refValueO == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                  refValueO = v;
+                if (i > 0)
+                  finalRef += ",";
+                finalRef += refValueO;
+              });
+              doc.selectSingleNode("/*/wrs:Data").setAttribute("mappedCaptionOrig", finalRef);
+            }
+            var valueM = grid.gridModel.read("/*/wrs:Data/wrs:M[@id='" + argsTooltip.bcdRowIdent + "']/wrs:C[position()='"+ index + "']");
+            if (valueM) {
+              let finalRef = "";
+              const a = references.separator ? valueM.split(references.separator) : [valueM];
+              a.forEach(function(v, i) {
+                var refValueM = references.codeCaptionMap[bcdui.util.escapeHtml(v)];
+                if (refValueM == null)  // suggestInput with a suggested value or a drop down without optionsModelRelativeValueXPath
+                  refValueM = valueM;
+                if (i > 0)
+                  finalRef += ",";
+                finalRef += refValueM;
+              });
+              doc.selectSingleNode("/*/wrs:Data").setAttribute("mappedCaption", finalRef);
             }
           }
         }
