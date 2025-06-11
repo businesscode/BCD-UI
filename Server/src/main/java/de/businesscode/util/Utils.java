@@ -27,11 +27,12 @@ import java.net.URL;
 import java.security.KeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -301,10 +302,12 @@ public class Utils {
   }
 
   /**
+   * returns client's address by means of the request origin, considering proxy headers
+   *
    * @param request
    * @return client address - in the order of: header:X-Real-IP, header:X-Forwarded-For, network
    */
   public static String getRemoteAddr(HttpServletRequest request) {
-    return List.of(request.getHeader("X-REAL-IP"), request.getHeader("X-FORWARDED-FOR")).stream().filter(StringUtils::isNotBlank).findFirst().orElseGet(() -> request.getRemoteAddr()).split(",")[0];
+    return Arrays.stream(new Supplier[]{()->request.getHeader("X-REAL-IP"), ()->request.getHeader("X-FORWARDED-FOR"), ()->request.getRemoteHost()}).map(supp -> (String)supp.get()).filter(StringUtils::isNotBlank).findFirst().orElseGet(()->request.getRemoteAddr()).split(",")[0];
   }
 }
