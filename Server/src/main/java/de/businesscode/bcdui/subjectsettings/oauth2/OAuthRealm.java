@@ -53,6 +53,7 @@ public class OAuthRealm extends AuthenticatingRealm {
   private String principalPropertyName;
   private String apiEndpoint;
   private String tokenEndpoint;
+  private String accessToken = "access_token";
   private OAuthAuthenticatingFilter authenticator;
   private boolean disableSslValidation = false;
 
@@ -121,13 +122,22 @@ public class OAuthRealm extends AuthenticatingRealm {
   public String getPrincipalPropertyName() {
     return principalPropertyName;
   }
+  
+  /**
+   * this is the property we extract from JSON response and use as a token
+   * 
+   * @param accessToken
+   */
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }
 
   /**
    * accepts {@link OAuthToken} and only from given authenticator, if provided
    */
   @Override
   public boolean supports(AuthenticationToken token) {
-    return token instanceof OAuthToken && (getAuthenticator() == null || ((OAuthToken) token).isCreatedBy(getAuthenticator()));
+    return token instanceof OAuthToken o && (getAuthenticator() == null || o.isCreatedBy(getAuthenticator()));
   }
 
   /**
@@ -140,6 +150,7 @@ public class OAuthRealm extends AuthenticatingRealm {
     try {
       userPrincipal = getUserPrincipal(createAccessToken(oauthToken));
     } catch (Exception e) {
+      oauthToken.setPrincipal(null); // clear principal (should not be set anyway, but better make sure)
       logger.warn("Failed to read user principal", e);
       throw new AuthenticationException("Failed to read user principal", e);
     }
@@ -226,12 +237,12 @@ public class OAuthRealm extends AuthenticatingRealm {
 
     final URL endPoint = new URL(effectiveTokenEndpoint);
     //@formatter:off
-    String postParameters = "client_id=" + oauthToken.getClientId() +
-        "&code=" + oauthToken.getAuthCode() +
+    String postParameters = "client_id=" + URLEncoder.encode(oauthToken.getClientId(), UTF8) +
+        "&code=" + URLEncoder.encode(oauthToken.getAuthCode(), UTF8) +
         "&redirect_uri=" + URLEncoder.encode(oauthToken.getRedirectUri(), UTF8) +
         "&grant_type=authorization_code" +
-        "&client_secret=" + this.clientSecret +
-        "&code_verifier=" + oauthToken.codeVerifier;
+        (this.clientSecret != null && !this.clientSecret.isBlank() ? "&client_secret=" + URLEncoder.encode(this.clientSecret, UTF8) : "") +
+        "&code_verifier=" + URLEncoder.encode(oauthToken.codeVerifier, UTF8);
     //@formatter:on
 
     if (logger.isTraceEnabled()) {
@@ -275,7 +286,7 @@ public class OAuthRealm extends AuthenticatingRealm {
           logger.trace("response: " + responseJson);
         }
 
-        return readJsonProperty(responseJson, "access_token", true).getAsString();
+        return readJsonProperty(responseJson, this.accessToken, true).getAsString();
       }
     } finally {
       try {

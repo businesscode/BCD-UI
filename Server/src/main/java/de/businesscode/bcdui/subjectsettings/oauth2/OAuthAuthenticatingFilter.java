@@ -40,6 +40,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * The flow here is (start = not authenticated request)
@@ -87,7 +90,10 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected String authorizeEndpoint;
   protected String urlParameterName = "oauth-provider-id";
   protected String optionalProviderId;
+  protected String simpleCheckLogin;
   protected String scope;
+  protected String ehCacheName;
+  private Cache cache;
   // we override this one
   protected String successUrl;
   protected RESPONSE_MODE responseMode = RESPONSE_MODE.form_post;
@@ -121,12 +127,29 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return authorizeEndpoint;
   }
 
+  public void setSimpleCheckLogin(String simpleCheckLogin) {
+    this.simpleCheckLogin = simpleCheckLogin;
+  }
+
+  public String getSimpleCheckLogin() {
+    return simpleCheckLogin;
+  }
+
   public void setScope(String scope) {
     this.scope = scope;
   }
 
   public String getScope() {
     return scope;
+  }
+  
+  public void setEhCacheName(String ehCacheName) {
+    this.ehCacheName = ehCacheName;
+    cache = CacheManager.getInstance().getCache(ehCacheName);
+  }
+  
+  public String getEhCacheName() {
+    return ehCacheName;
   }
 
   public void setRedirectUri(String redirectUri) {
@@ -257,7 +280,15 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    * @throws
    */
   protected RequestContext retrieveRequestContext(ServletRequest request) {
-    return retrieveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, (RequestContext) null);
+    RequestContext r = retrieveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, (RequestContext) null);
+    if (r == null && cache != null) {
+      String s = request.getParameter("state");
+      if (s != null && !s.isBlank()) {
+        Element e = cache.get(s);
+        if (e != null && e.getObjectValue() instanceof RequestContext c) return c;
+      }
+    }
+    return r;
   }
 
   /**
@@ -268,6 +299,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    */
   protected void saveRequestContext(ServletRequest request, RequestContext requestContext) {
     saveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, requestContext);
+    if (cache != null) cache.put(new Element(requestContext.state, requestContext));
   }
 
   /**
@@ -295,6 +327,15 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   @Override
   protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
     final var httpRequest = (HttpServletRequest) request;
+
+    if (this.simpleCheckLogin != null && !this.simpleCheckLogin.isBlank()) {
+      for (String s : this.simpleCheckLogin.split(",")) {
+        String t = request.getParameter(s);
+        if (t == null || t.isBlank()) return false;
+      }
+      return true;
+    }
+
     final var state = request.getParameter("state");
     final var requestContext = retrieveRequestContext(request);
 
