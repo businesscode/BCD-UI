@@ -197,7 +197,7 @@ public class SecurityHelper {
    * @param subject
    * @return user identifier or null if either no subject provided or no such princpial found or subject is not authenticated
    */
-  public static String getUserId(Subject subject){
+  public static Object getPrimaryPrinciple(Subject subject){
     if(subject == null || !subject.isAuthenticated()){
       return null;
     }
@@ -211,10 +211,32 @@ public class SecurityHelper {
     if(princ == null){
       throw new RuntimeException("Authenticated subject but no principal found.");
     }
-    if(princ instanceof PrimaryPrincipal){ // may not be available when using other realm
-      return ((PrimaryPrincipal)princ).getId();
+    return princ;
+  }
+  /**
+   *
+   * @param subject
+   * @return
+   */
+  static public String getUserId(Subject subject) {
+    Object pp = getPrimaryPrinciple(subject);
+    if(pp instanceof PrimaryPrincipal) {
+      return ((PrimaryPrincipal)pp).getId();
     } else {
-      return princ.toString();
+      return pp.toString();
+    }
+  }
+  /**
+   *
+   * @param subject
+   * @return
+   */
+  static public String getUserName(Subject subject) {
+    Object pp = getPrimaryPrinciple(subject);
+    if(pp instanceof PrimaryPrincipal) {
+      return ((PrimaryPrincipal)pp).getFullName();
+    } else {
+      return pp.toString();
     }
   }
 
