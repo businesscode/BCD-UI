@@ -191,7 +191,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   }
 
-  protected record PrincipalInfo(String userId, String fullName) {}
+  public record PrincipalInfo(String userId, String fullName) {}
   /**
    * Unless explicitly disabled, we do enforce existence of principal in bcd_sec_user here
    * to avoid everybody getting a session who is known to the remote system but not ours

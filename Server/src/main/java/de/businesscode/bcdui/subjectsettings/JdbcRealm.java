@@ -154,7 +154,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     }
   }
 
-  protected record PrincipalInfo(String userId, String fullName, String password, String salt) {}
+  public record PrincipalInfo(String userId, String fullName, String password, String salt) {}
   /**
    * To support hashed passwords with salt we have to load the password + hash (if salted) from database,
    * so the hash can be recomputed and verified.
