@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
+import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
 
 import jakarta.servlet.FilterChain;
@@ -60,8 +61,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * </pre>
  * </p>
  */
-public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.FormAuthenticationFilter {
+public class AuthenticationFilter extends FormAuthenticationFilter
+{
   private final Logger logger = LogManager.getLogger(getClass());
+  public static final String X_BCD_LOCATION_HEADER = "X-BCD.Location";
 
   /**
    * handle explicit SPNEGO preauthentication
@@ -102,7 +105,17 @@ public class AuthenticationFilter extends org.apache.shiro.web.filter.authc.Form
       successUrl = getSuccessUrl();
     }
 
-    httpResponse.addHeader("X-BCD.Location", successUrl);
+    httpResponse.addHeader(X_BCD_LOCATION_HEADER, successUrl);
     logger.trace("response login redirect header to '{}'", successUrl);
+  }
+
+  /**
+   * Here we redirect to login.html
+   * We save the originally requested URL here in the session as obviously it's the last chance in the login flow to do so
+   */
+  @Override
+  protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
+    saveRequest(request);
+    super.redirectToLogin(request, response);
   }
 }

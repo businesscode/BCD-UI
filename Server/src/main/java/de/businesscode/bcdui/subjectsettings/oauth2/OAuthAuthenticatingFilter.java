@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,51 +15,54 @@
 */
 package de.businesscode.bcdui.subjectsettings.oauth2;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.util.Objects;
-import java.util.UUID;
+import de.businesscode.bcdui.cache.CacheFactory;
+import de.businesscode.bcdui.subjectsettings.SecurityException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * The flow here is (start = not authenticated request)
  * <p>
  * <ol>
- * <li>shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
- * <li>{@link #onAccessDenied(ServletRequest, ServletResponse)} is called, here we detect if this a pending login-attempt (roundtrip back from AD including auth-code token) or we save current request and initiate a redirect to oauth authorization server and set redirect_url to link back to us
- * <li>server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
+ * <li>Shiro asks {@link #isAccessAllowed(ServletRequest, ServletResponse, Object)}, which is false if subject is not authenticated
+ * <li>{@link #onAccessDenied(ServletRequest, ServletResponse)} is called in unauthenticated case, here we detect if this a pending login-attempt (round-trip back from AD including auth-code token) or we save current request and initiate a redirect to oAuth authorization server and set redirect_url to link back to us
+ * <li>OAuth server responses with "code" http parameter, as so {@link #isLoginRequest(ServletRequest, ServletResponse)} returns true here, as such {@link #onAccessDenied(ServletRequest, ServletResponse)} triggers {@link #executeLogin(ServletRequest, ServletResponse)}
  * <li>{@link #executeLogin(ServletRequest, ServletResponse)} queries {@link #createToken(ServletRequest, ServletResponse)} to create a token (which here is basically the auth-code we got from AD), this token is passed to {@link Subject#login(AuthenticationToken)}
- * <li>Shiro kicks in and asks each and every avaialable realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated princial. No authorization is done on this level, just
+ * <li>Shiro kicks in and asks each and every available realm to process the authentication token delegated in previous step, our OAuthRealm connects to AD, queries for user-property we need internally (user-id) and returns as authenticated principal. No authorization is done on this level, just
  * authentication, as such our oauth2 realm is authenticating only, and not authorizing
- * <li>whenever permission are checked, Shiro scans next realms to authorize, here our jdbcrealm loads properties from database according to prinpical (user-id)
- * <li>the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overriden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
+ * <li>whenever permission are checked, Shiro scans next realms to authorize, here our JdbcRealm loads properties from database according to principal (user-id)
+ * <li>the {@link #onLoginSuccess(AuthenticationToken, Subject, ServletRequest, ServletResponse)} is overridden as to delegate to {@link #issueSuccessRedirect(ServletRequest, ServletResponse)} in order to redirect user to originally accessed url which was saved in step 2
  * <ol>
  * </p>
  * all final methods on these class define the flow and must not be changed.
  */
 public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
-  private static final String UTF8 = "UTF-8";
-  private static final String SESSION_ATTR_KEY_REQUEST_CONTEXT = "OAuthAuthenticatingFilter.requestContext";
 
   public static enum RESPONSE_MODE {
     form_post("post"), get("get");
@@ -75,7 +78,11 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     }
   }
 
+  // Give some time to lookup pwd or do MFA etc. This is between opening the oAuth popup and the successful response from the authorization folder
+  // For security reasons we want this short ,for convenience long. oAuth provider usually expire faster than 10 min anyway
+  private static final int LOGIN_TIMEOUT_SEC = 10*60;
   private final Logger logger = LogManager.getLogger(getClass());
+  protected static final String URL_PARAMETER_NAME = "oauth-provider-id";
 
   /**
    * we need to differentiate between provider instances (singletons, though) to handle redirectUrls by same instance implementation
@@ -85,7 +92,6 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected String clientId;
   protected String redirectUri;
   protected String authorizeEndpoint;
-  protected String urlParameterName = "oauth-provider-id";
   protected String optionalProviderId;
   protected String scope;
   // we override this one
@@ -129,11 +135,28 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     return scope;
   }
 
+  /**
+   * Optionally hard-wire redirectUri in shiro.ini
+   * If not set it is derived from the servlet context (http(s)://myserver.com/ctsPath/oauth)
+   * @param redirectUri
+   */
   public void setRedirectUri(String redirectUri) {
     this.redirectUri = redirectUri;
   }
 
-  public String getRedirectUri() {
+  /**
+   * Unless configured in shiro.ini, we use the current requests base url + /oauth.
+   * Make sure, all values that can show up here are configured at the oAuth authorization server
+   */
+  public String getRedirectUri(HttpServletRequest request) {
+    if( redirectUri == null ) {
+      String baseUrl = request.getScheme() + "://" +
+          request.getServerName() +
+          (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+          request.getContextPath()+
+          "/oauth";
+      return baseUrl;
+    }
     return redirectUri;
   }
 
@@ -143,14 +166,6 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
 
   public void setClientId(String clientId) {
     this.clientId = clientId;
-  }
-
-  public String getUrlParameterName() {
-    return urlParameterName;
-  }
-
-  public void setUrlParameterName(String urlParameterName) {
-    this.urlParameterName = Objects.requireNonNull(StringUtils.trimToNull(urlParameterName), ".urlParameterName");
   }
 
   public String getOptionalProviderId() {
@@ -189,7 +204,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   }
 
   /**
-   * current implementation checks if parameter {@link #getUrlParameterName()} equals to {@link #getOptionalProviderId()}. You can override this method to provide different recognition, i.e. if specific HTTP header is set (i.e. by proxy)
+   * current implementation checks if parameter URL_PARAMETER_NAME equals to {@link #getOptionalProviderId()}. You can override this method to provide different recognition, i.e. if specific HTTP header is set (i.e. by proxy)
    *
    * @param request
    * @param response
@@ -203,7 +218,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     /*
      * check optional enablement
      */
-    return getOptionalProviderId().equals(request.getParameter(getUrlParameterName()));
+    return getOptionalProviderId().equals(request.getParameter(URL_PARAMETER_NAME));
   }
 
   @Override
@@ -217,73 +232,129 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
    * @param request
    * @param response
    * @throws IOException
-   *           in case the redirect failes
+   *           in case the redirect fails
    */
   @Override
-  protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
-    var requestContext = createRequestContext(request);
-
-    saveRequestContext(request, requestContext);
-
-    // @formatter:off
+  protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException 
+  {
+    // Let's see where the user originally wanted to go to
+    // This was stored on previous requests in de.businesscode.bcdui.subjectsettings.AuthenticationFilter as we only listen on /oauth
+    String originalUrl = getSuccessUrl();
+    SavedRequest sr = WebUtils.getSavedRequest(request);
+    if( sr != null && sr.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD) && sr.getRequestUrl() != null ) originalUrl = sr.getRequestUrl();
+    
+    // Store the state for dealing with the answer from the Identity Provider
+    var requestContext = new RequestContext(this.providerInstanceId, originalUrl);
+    RequestContext.put(requestContext.state, requestContext);
+    
+    // Bring the user to the Identity Provider
     var targetUrl = getAuthorizeEndpoint()
         + "?response_type=code"
-        + "&scope=" + URLEncoder.encode(getScope(), UTF8)
+        + "&scope=" + URLEncoder.encode(getScope(), StandardCharsets.UTF_8)
         + "&response_mode=" + this.responseMode.name()
-        + "&redirect_uri=" + URLEncoder.encode(Objects.requireNonNull(getRedirectUri(), ".redirectUrl not configured"), UTF8)
+        + "&redirect_uri=" + URLEncoder.encode(Objects.requireNonNull(getRedirectUri((HttpServletRequest) request), ".redirectUrl not configured"), StandardCharsets.UTF_8)
         + "&client_id=" + Objects.requireNonNull(this.getClientId(), ".clientId not configured")
-        + "&state=" + URLEncoder.encode(requestContext.state, UTF8)
-        + "&nonce=" + URLEncoder.encode(createRandomString(), UTF8)
+        + "&state=" + URLEncoder.encode(requestContext.state, StandardCharsets.UTF_8)
+        + "&nonce=" + URLEncoder.encode(requestContext.nonce, StandardCharsets.UTF_8)
         + "&code_challenge_method=S256&code_challenge=" + requestContext.codeVerifierS256Challenge;
-    // @formatter:on
 
     logger.trace("redirectToLogin url: '{}'", targetUrl);
     WebUtils.issueRedirect(request, response, targetUrl);
   }
 
   /**
-   * @param request
-   * @return request context instance
-   */
-  protected RequestContext createRequestContext(ServletRequest request) {
-    return new RequestContext(this.providerInstanceId);
-  }
-
-  /**
-   * retrieves previously saved context from session, also see {@link #saveRequestContext(ServletRequest, RequestContext)}
-   *
-   * @param request
-   * @return previously created and saved requestcontext
-   * @throws
-   */
-  protected RequestContext retrieveRequestContext(ServletRequest request) {
-    return retrieveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, (RequestContext) null);
-  }
-
-  /**
-   * saves context on in session, see {@link #retrieveRequestContext(ServletRequest)}
-   *
-   * @param request
-   * @param requestContext
-   */
-  protected void saveRequestContext(ServletRequest request, RequestContext requestContext) {
-    saveSessionProperty(request, SESSION_ATTR_KEY_REQUEST_CONTEXT, requestContext);
-  }
-
-  /**
+   * {@link org.apache.shiro.web.filter.authc.AuthenticatingFilter#createToken}
    * @return authentication token which is used by {@link #executeLogin(ServletRequest, ServletResponse)} method
    */
   @Override
   protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) throws Exception {
-    return new OAuthToken(this, this.clientId, getRedirectUri(), Objects.requireNonNull(StringUtils.trimToNull(((HttpServletRequest) request).getParameter("code")), "http parameter 'code' missing"), retrieveRequestContext(request).codeVerifier);
+    String code = Objects.requireNonNull(StringUtils.trimToNull(((HttpServletRequest) request).getParameter("code")));
+    String state = request.getParameter("state");
+    RequestContext reqCtx = RequestContext.get(state);
+    return new OAuthToken(this, this.clientId, getRedirectUri((HttpServletRequest) request), code, reqCtx.codeVerifier, reqCtx.nonce );
   }
 
+  /**
+   * User authenticated successfully against oAuth and is redirected to our pup-up,
+   * which then informs its opener, usually login.html, to redirect to the target URL originally addressed
+   */
   @Override
   protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
-    retrieveRequestContext(request).invalidate();
-    issueSuccessRedirect(request, response);
+    String state = request.getParameter("state");
+    // Something is wrong if no there
+    RequestContext rc = RequestContext.get(state);
+    if( rc != null ) {
+      String originalTargetUrl = rc.originalTargetUrl;
+      if( originalTargetUrl == null ) originalTargetUrl = getSuccessUrl();
+      RequestContext.remove(state);
+      
+      response.setContentType("text/html");
+      // We cannot http redirect here to support cookie SameSite=strict,
+      // which means our newly created logged-in session would get lost again, because we would not receive the cookie
+      response.getWriter().write(String.format("""
+          <script>
+            (function(targetUrl) {
+              // Popup
+              console.log(1);
+              if( window.opener?.bcdui?.widgetNg.login.oAuthLoginOnSuccess ) {
+                console.log(2);
+                window.opener.bcdui.widgetNg.login.oAuthLoginOnSuccess( targetUrl );
+                window.close();
+              }
+              // Inline
+              else if( window?.bcdui?.widgetNg.login.oAuthLoginOnSuccess  ) {
+                console.log(3);
+                bcdui.widgetNg.login.oAuthLoginOnSuccess( targetUrl );
+                window.close();
+              }
+              // Plain implementation or forwarded from an external link with a session
+              else {
+                console.log(4);
+                location.href = targetUrl;
+              }
+              console.log(5);
+            })("%s");
+          </script>
+        """, originalTargetUrl));
+    } else {
+      throw new SecurityException("Found an unknown state in the answer of an oAuth redirect");
+    }
     return false; // prevent chain from processing since we have handled a redirect here
   }
+
+  /**
+   * Handles the failure scenario for a login attempt.
+   * IWe provides a response indicating the login failure to the user.
+   *
+   * @param token the authentication token used during the login attempt
+   * @param e the authentication exception that caused the login failure
+   * @param request the servlet request containing details of the login attempt
+   * @param response the servlet response object to send feedback to the client
+   * @return always returns false to indicate the login attempt has failed
+   */
+  @Override
+  protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request, ServletResponse response) {
+    String state = request.getParameter("state");
+    RequestContext.remove(state);
+
+    response.setContentType("text/html");
+    try {
+      response.getWriter().write("""
+          <script>
+            document.write(
+              `<h1 style='position:fixed;top:50%;left:50%;transform: translate(-50%, -50%);'>
+                 We are sorry, login is not possible with that id. <br/>
+                 Please retry later or contact your system administrator.
+               </h1>`);
+            setTimeout( window.close, 4000 );
+          </script>
+        """);
+    } catch (IOException e1) {
+      logger.warn("Could not write Login failure message");
+    }
+    return false;
+  }
+  
 
   /**
    * according to redirect_url set previously in {@link #redirectToLogin(ServletRequest, ServletResponse)}
@@ -296,44 +367,18 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected boolean isLoginRequest(ServletRequest request, ServletResponse response) {
     final var httpRequest = (HttpServletRequest) request;
     final var state = request.getParameter("state");
-    final var requestContext = retrieveRequestContext(request);
+    final var requestContext = RequestContext.get(state);
 
-    // @formatter:off
     return
         this.responseMode.getHttpMethod().equalsIgnoreCase(httpRequest.getMethod())
         && httpRequest.getParameter("code") != null
-        && requestContext != null && requestContext.isValid()
+        && requestContext != null
         && state != null && state.equals(requestContext.state)
         && this.providerInstanceId != null && this.providerInstanceId.equals(requestContext.providerInstanceId);
-    // @formatter:on
-  }
-
-  @SuppressWarnings("unchecked")
-  protected <T> T retrieveSessionProperty(ServletRequest request, Serializable key, T defaultValue) {
-    final Subject subject = SecurityUtils.getSubject();
-    final Session session = subject.getSession(false);
-    if (session != null) {
-      T val = (T) session.getAttribute(key);
-      return val != null ? val : defaultValue;
-    }
-    return null;
-  }
-
-  protected void saveSessionProperty(ServletRequest request, Serializable key, Serializable value) {
-    SecurityUtils.getSubject().getSession(true).setAttribute(key, value);
   }
 
   /**
-   * creates a state value used to prevent CRSF
-   *
-   * @return random string
-   */
-  protected String createStateValue() {
-    return createRandomString();
-  }
-
-  /**
-   * 1. handles internal shiro flow. It the request is an incoming request redirected from authorization-server, perform {@link #executeLogin(ServletRequest, ServletResponse)}, otherwise {@link #redirectToLogin(ServletRequest, ServletResponse)}
+   * 1. handles internal Shiro flow. It the request is an incoming request redirected from authorization-server, perform {@link #executeLogin(ServletRequest, ServletResponse)}, otherwise {@link #redirectToLogin(ServletRequest, ServletResponse)}
    */
   @Override
   protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
@@ -344,29 +389,11 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
       return executeLogin(request, response);
     } else {
       /*
-       * current request is non-authorized request, initiate the shiro login flow
+       * current request is non-authorized request, initiate the shiro login flow. We are on /oAuth here
        */
-
-      if (getSavedRequest(request) != null) {
-        /*
-         * we do not override the previously saved request, which can happen if chaining shiro filters
-         */
-        redirectToLogin(request, response);
-      } else {
-        saveRequestAndRedirectToLogin(request, response);
-      }
+      redirectToLogin(request, response);
       return false;
     }
-  }
-
-  /**
-   * pendant to {@link #saveRequest(ServletRequest)}, which is missing in {@link AccessControlFilter} implementation
-   *
-   * @param request
-   * @return
-   */
-  protected SavedRequest getSavedRequest(ServletRequest request) {
-    return WebUtils.getSavedRequest(request);
   }
 
   /**
@@ -379,35 +406,50 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   }
 
   /**
-   * @param value
-   * @return SHA256-hashed string as base64 url encoded which can be used as a challenge
-   */
-  protected String createSha256String(String value) {
-    return Base64.encodeBase64URLSafeString(DigestUtils.sha256(value));
-  }
-
-  /**
-   * authentication request context
+   * Context of currently ongoing oAuth authentication flows (from selecting authenticate with oauth until success or failure)
+   * Since strict cookies are not send on redirects and flex not on posts, we cannot use Shiro's session level way of keeping this but use ehcache instead
    */
   protected class RequestContext implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private final String state, providerInstanceId, codeVerifier, codeVerifierS256Challenge;
-    private boolean valid = true;
 
-    protected RequestContext(String providerInstanceId) {
+    private static final long serialVersionUID = 5076472346968750646L;
+
+    private final String state, providerInstanceId, codeVerifier, codeVerifierS256Challenge, originalTargetUrl, nonce;
+
+    protected RequestContext(String providerInstanceId, String originalTargetUrl) {
       Objects.requireNonNull(providerInstanceId);
       this.state = createRandomString();
+      this.nonce = createRandomString();
       this.providerInstanceId = providerInstanceId;
       this.codeVerifier = createRandomString();
-      this.codeVerifierS256Challenge = createSha256String(this.codeVerifier);
+      this.codeVerifierS256Challenge = Base64.encodeBase64URLSafeString(DigestUtils.sha256(this.codeVerifier));
+      this.originalTargetUrl = originalTargetUrl;
+    }
+    
+    static protected final String EHCACHE_NAME = "BcdSsoCache";
+    static protected final Cache cache;
+    static {
+      CacheConfiguration config = new CacheConfiguration()
+          .name(EHCACHE_NAME)
+          .maxEntriesLocalHeap(100)
+          .timeToLiveSeconds(LOGIN_TIMEOUT_SEC);
+      cache = new Cache(config);
+      CacheFactory.getCacheManager().addCacheIfAbsent(cache); ;
     }
 
-    public boolean isValid() {
-      return valid;
+    static protected void put(String key, RequestContext rc) {
+      Element e = new Element(key, rc);
+      cache.put(e);
     }
 
-    public void invalidate() {
-      this.valid = false;
+    static protected RequestContext get(String key) {
+      if( key == null ) return null;
+      Element e = cache.get(key);
+      if( e == null ) return null;
+      return (RequestContext)e.getObjectValue();
+    }
+
+    static protected void remove(String key) {
+      cache.remove(key);
     }
   }
 }

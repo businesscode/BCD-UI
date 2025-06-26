@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -174,12 +174,14 @@ public class SecurityHelper {
     }
     // our Jdbc principal sets the login as string and any other realms set principals as string, too.
     PrincipalCollection pc = subject.getPrincipals();
-    String princ;
+    final String princ;
     if(pc == null){
       Object p = subject.getPrincipal();
       princ = p == null ? null : p.toString();
     } else {
-      princ = pc.byType(String.class).iterator().next();
+      PrimaryPrincipal pp = pc.oneByType(PrimaryPrincipal.class);
+      if( pp != null ) princ = pc.oneByType(PrimaryPrincipal.class).getUserLogin();
+      else princ = pc.byType(String.class).iterator().next();
     }
     if(princ == null){
       throw new RuntimeException("Authenticated subject but no principal found.");
