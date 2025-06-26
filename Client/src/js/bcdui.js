@@ -301,7 +301,7 @@ bcdui = Object.assign(bcdui,
                   , position: {my: "center center", at: "center center"}
                 , height: 330
                 , width: 570
-                , resizeable: false
+                , resizable: false
                 });
                 jQuery("#sysError").select()
               }.bind(this));

@@ -197,7 +197,7 @@ bcdui.component.grid.GridRenderer.previewHtml = function(targetHtml, rowId) {
       jQuery("<div title='"+title+"'><div class='bcdHtmlPreview'>" + match[1] + "</div></div>").dialog({
         width: "auto%"
       , height: "auto"
-      , resizeable: false
+      , resizable: false
       , open: function() { jQuery('.bcdHtmlPreview *').addClass('bcdCssReset'); }});
   }
 }

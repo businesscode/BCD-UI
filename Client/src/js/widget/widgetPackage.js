@@ -830,8 +830,8 @@ jQuery.extend(bcdui.widget,
         args.message = '';
       if (typeof args.onclick == 'undefined')
         args.onclick = '';
-      if (typeof args.resizeable == 'undefined')
-        args.resizeable = false;
+      if (typeof args.resizable == 'undefined')
+        args.resizable = false;
       var onclick = "bcdui.widget.hideModalBox();";
 
       var text = "";
@@ -856,7 +856,7 @@ jQuery.extend(bcdui.widget,
           , modal: true
           , closeOnEscape: true
           , position: args.position
-          , resizable: args.resizeable
+          , resizable: args.resizable
           , draggable: true
           , closeText: "\u2716"
           , title: args.title
