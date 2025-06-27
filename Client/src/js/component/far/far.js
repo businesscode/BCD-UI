@@ -269,7 +269,7 @@ bcdui.component.far.Far = class
           universalFilterModel : universalFilterModel
         },
         inputRow                           : jQuery.extend(true, { // internal widget API
-          renderingChain : bcdui.contextPath + "/bcdui/js/component/far/reportFilterInputRendering.dott", // we need custom UI here for the HideUnselected option
+          renderingChain : bcdui.contextPath + "/bcdui/js/component/far/reportFilterInputRendering.jstlit", // we need custom UI here for the HideUnselected option
           renderingChainParameters : {
             xPath_hideUnselected : "$guiStatus" + xPath_hideUnselected
           }
