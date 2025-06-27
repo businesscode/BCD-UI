@@ -30,10 +30,7 @@ bcdui.component.cube.templateManager = Object.assign(bcdui.component.cube.templa
    * @private
    */
   _renderTemplateArea: function(args) {
-    return (args.isTemplate ? "<div id='bcdUpDown_Template_{{=it.id}}' class='bcdUpDown_Template'></div>" + 
-        "<div id='bcdUpDownBody_Template_{{=it.id}}'>" + 
-          "<div id='bcdDndTemplateDiv_{{=it.id}}'></div>" +
-        "</div>" : "");
+    return (args.isTemplate ? `<div id='bcdUpDown_Template_${args.cubeId || args.scorecardId}' class='bcdUpDown_Template'></div><div id='bcdUpDownBody_Template_${args.cubeId || args.scorecardId}'><div id='bcdDndTemplateDiv_${args.cubeId || args.scorecardId}'></div></div>` : "");
   },
 
   /**

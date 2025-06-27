@@ -105,8 +105,7 @@ bcdui.component.far.Far = class
    * @private
    */
   _createLayout(){
-    var tpl = doT.compile("<div class='bcd-far-configurator'></div><div class='bcd-far-filter'></div><div class='bcd-far-paginate'></div><div class='bcd-far-grid'></div>");
-    this.options.targetHtml.html(tpl);
+    this.options.targetHtml.html("<div class='bcd-far-configurator'></div><div class='bcd-far-filter'></div><div class='bcd-far-paginate'></div><div class='bcd-far-grid'></div>");
   }
 
   /**

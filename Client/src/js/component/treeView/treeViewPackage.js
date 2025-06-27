@@ -23,11 +23,6 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
 {
 
   /**
-   * @private
-   */
-  _expandedXPath: doT.template(('/*/rnd:TreeView[@idRef = "{{=it.rendererId}}"]/rnd:Exp[. = "{{=it.levelId}}"]')),
-
-  /**
    * Expand or collapse a level for a treeView renderer
    * @param {string}  rendererId - Id of the treeView's renderer
    * @param {string}  levelId    - Which level to change
@@ -40,10 +35,12 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
       args = { rendererId: rendererId, levelId: levelId, isExpand: isExpand };
     else
       args = levelId;
-      if( args.isExpand )
-        bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), bcdui.component.treeView._expandedXPath( { rendererId: args.rendererId, levelId: args.levelId } ));
+      const expandedXPath= `/*/rnd:TreeView[@idRef = "${args.rendererId}"]/rnd:Exp[. = "${args.levelId}"]`;
+      if( args.isExpand ) {
+        bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), expandedXPath);
+      }
       else
-        bcdui.core.removeXPath(bcdui.wkModels.guiStatus.getData(), bcdui.component.treeView._expandedXPath({ rendererId: args.rendererId, levelId: args.levelId }));
+        bcdui.core.removeXPath(bcdui.wkModels.guiStatus.getData(), expandedXPath);
       bcdui.wkModels.guiStatus.fire();
     },
 
@@ -64,8 +61,10 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
   
         if( args.isExpand != false ) {
           var levelIds = renderer.getData().selectNodes("//wrs:Level/@levelId");
-          for( var i = 0; i < levelIds.length; i++ )
-            bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), bcdui.component.treeView._expandedXPath({rendererId: args.rendererId, levelId: levelIds.item(i).nodeValue }));
+          for( var i = 0; i < levelIds.length; i++ ) {
+            const expandedXPath= `/*/rnd:TreeView[@idRef = "${args.rendererId}"]/rnd:Exp[. = "${levelIds.item(i).nodeValue}"]`;
+            bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), expandedXPath);
+          }
         } else {
           var expNodes = bcdui.wkModels.guiStatus.getData().selectNodes("/*/rnd:TreeView[@idRef = '"+args.rendererId+"']/rnd:Exp");
           for( var i = 0; i < expNodes.length; i++ )

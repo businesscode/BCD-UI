@@ -51,29 +51,25 @@
     _create : function() {
       this._super();
 
-      var template = "<div class='bcdSideBySideChooser'>" +
-        "<table>" +
-          "<thead>" +
-            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceCaption}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetCaption}}'>{{=it.targetCaption}}</th><th></th></tr>" +
-          "</thead>" +
-        "<tbody>" +
-          "<tr>" +
-            "<td class='bcdCol' id='{{=it.id}}sbsLeft'></td>" +
-            "<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdToSource'><a href='javascript:void(0)'></a></span></span></td>" +
-            "<td class='bcdCol3' id='{{=it.id}}sbsRight'></td>" +
-            "<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdMoveDown'><a href='javascript:void(0)'></a></span></span></td>" +
-           "</tr>" +
-          "</tbody>" +
-        "</table>" +
-      "</div>";
+      const it ={ sourceCaption: (this.options.sourceCaption || "Source"), targetCaption: (this.options.targetCaption || "Target"), id: this.options.id };
+      const template =
+      `<div class='bcdSideBySideChooser'>`+
+        `<table>`+
+          `<thead>`+
+            `<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='${it.sourceCaption}'>${it.sourceCaption}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='${it.targetCaption}'>${it.targetCaption}</th><th></th></tr>`+
+          `</thead>`+
+        `<tbody>`+
+          `<tr>`+
+            `<td class='bcdCol' id='${it.id}sbsLeft'></td>`+
+            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdToSource'><a href='javascript:void(0)'></a></span></span></td>`+
+            `<td class='bcdCol3' id='${it.id}sbsRight'></td>`+
+            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdMoveDown'><a href='javascript:void(0)'></a></span></span></td>`+
+           `</tr>`+
+          `</tbody>`+
+        `</table>`+
+      `</div>`;
 
-      jQuery(this.element).append(
-        doT.template(template)({
-          sourceCaption: (this.options.sourceCaption || "Source")
-        , targetCaption: (this.options.targetCaption || "Target")
-        , id: this.options.id
-        })
-      );
+      jQuery(this.element).append(template);
 
       // trigger translation
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});

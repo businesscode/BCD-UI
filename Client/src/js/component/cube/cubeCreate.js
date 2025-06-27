@@ -116,15 +116,15 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
  */
 bcdui.component.cube._renderDndArea = function(args) {
   if (jQuery("#" + args.targetHtml).hasClass("bcdDndBlindOpen") || jQuery("#" + args.targetHtml).hasClass("bcdDndBlindClosed"))
-    return "<div id='bcdUpDown_Dnd_{{=it.id}}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_{{=it.id}}'><div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div></div>";
+    return `<div id='bcdUpDown_Dnd_${args.cubeId || args.scorecardId}' class='bcdUpDown'></div><div id='bcdUpDownBody_Dnd_${args.cubeId || args.scorecardId}'><div id='bcdDndMatrixDiv_${args.cubeId || args.scorecardId}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div></div>`;
   else
-    return "<div id='bcdDndMatrixDiv_{{=it.id}}'>" + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
+    return `<div id='bcdDndMatrixDiv_${args.cubeId || args.scorecardId}'>` + bcdui.component.cube.configuratorDND._generateDefaultLayout() + "</div>";
 };
 /**
  * @private
  */
 bcdui.component.cube._renderApplyArea = function(args) {
-  return "<div><span id='bcdDNDApplyButton_{{=it.id}}'></span></div>";
+  return `<div><span id='bcdDNDApplyButton_${args.cubeId || args.scorecardId}'></span></div>`;
 };
 
 // Extension Points
@@ -498,15 +498,12 @@ bcdui.component = Object.assign(bcdui.component,
 
       if (args.isDefaultHtmlLayout) {
 
-        var template = "<div class='bcdCubeDNDBlind'>" +
-        "<div id='bcdUpDown_{{=it.id}}' class='bcdUpDown'></div>" + 
-        "<div id='bcdUpDownBody_{{=it.id}}'>";
-        [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.cube._renderApplyArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
-        template += "</div>";
-        [bcdui.component.cube.summaryDisplay._renderSummaryArea].forEach(function(e) {if (typeof e == "function") template += e(args);});
-        template += "</div>";
+        var defTemplate = `<div class='bcdCubeDNDBlind'><div id='bcdUpDown_${args.cubeId || args.scorecardId}' class='bcdUpDown'></div><div id='bcdUpDownBody_${args.cubeId || args.scorecardId}'>`;
+        [bcdui.component.cube.templateManager._renderTemplateArea, bcdui.component.cube._renderDndArea, bcdui.component.cube.rankingEditor._renderRankingArea, bcdui.component.cube._renderApplyArea].forEach(function(e) {if (typeof e == "function") defTemplate += e(args);});
+        defTemplate += "</div>";
+        [bcdui.component.cube.summaryDisplay._renderSummaryArea].forEach(function(e) {if (typeof e == "function") defTemplate += e(args);});
+        defTemplate += "</div>";
 
-        var defTemplate = jQuery(doT.template(template)({id:args.cubeId}));
         jQuery("#" + args.targetHTMLElementId).append(defTemplate);
 
         args.targetHTMLElementId = "bcdDndMatrixDiv_" + args.cubeId;
