@@ -1498,10 +1498,6 @@
       this.config.leftPaddingLevel = this.config.leftPaddingLevel || 14;
 
       this.levelStateMap = {}; 
-      // doT template as expected by connectable
-      this.templates = {
-        item : doT.compile("<li class='ui-selectee {{=it.className}}' style='padding-left: {{=it.depth * " + this.config.leftPaddingLevel + "}}px' bcdValue='{{=it.value}}' bcdPos='{{=it.position}}' bcdLoCase='{{=it.captionLoCase}}'>{{=it.handle}}<span class='bcdItem'>{{=it.caption}}</span></li>")
-      };
 
       var self = this;
       container.on("click", ".ui-node-handle", function(){
@@ -1613,9 +1609,6 @@
           return jQuery.makeArray( levelLookupElement.selectNodes(".//" + levelNodeName + "[@"+ valueAttrName +"='"+levelId+"']//" + itemNodeName) ); //Level[@id]//Item
         };
 
-        // used to render target box
-        var itemTpl = doT.compile('<ul class="ui-selectee" bcdvalue="{{=it.value}}" bcdlocase="{{=it.captionLoCase}}"><span class="bcdItem">{{=it.caption}}</span></ul>');
-
         /*
         * here we (1) expand all level nodes to its children and
         * (2) remove the level nodes from dom and remove (3) css styling
@@ -1636,11 +1629,8 @@
             // skip possible duplicate
             if(itemsInTheBox.has("[bcdvalue='"+value+"']").length)return;
             // insert
-            jQuery(itemTpl({
-              value : value,
-              caption : node.getAttribute(self.config.captionAttrName), // caption provided by attribute
-              captionLoCase: node.getAttribute(self.config.captionAttrName).toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0")
-            })).insertBefore(this);
+            const itemTpl = `<ul class="ui-selectee" bcdvalue="${value}" bcdlocase="${node.getAttribute(self.config.captionAttrName).toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0")}"><span class="bcdItem">${node.getAttribute(self.config.captionAttrName)}</span></ul>`;
+            jQuery(itemTpl).insertBefore(this);
           }.bind(this));
         })
         // (2) remove level node from html dom
@@ -1723,7 +1713,9 @@
         args["captionLoCase"] = args.caption.toLowerCase().replace(/&#39;/g, "'").replace(/'/g, "\uE0F0"); 
       }
 
-      return this.templates.item(args);
+      // doT template as expected by connectable
+      const templates = `<li class='ui-selectee ${args.className}' style='padding-left: ${args.depth * this.config.leftPaddingLevel}px' bcdValue='${args.value}' bcdPos='${args.position}' bcdLoCase='${args.captionLoCase}'>${args.handle}<span class='bcdItem'>${args.caption}</span></li>`;
+      return templates;
     }
   };
 }());

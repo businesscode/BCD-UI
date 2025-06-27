@@ -49,21 +49,6 @@ bcdui.component.exports.PDFExport = class
       '<input type="hidden" name="fileName"></input>' +
       '<input type="hidden" name="htmlWidth"></input>';
 
-  /**
-   * The HTML template for CSS includes.
-   * @constant
-   * @private
-   */
-  _cssIncludeTemplate =  doT.template(
-      '<link rel="stylesheet" type="text/css" href="{{=it.cssUrl}}"> </link>\n');
-
-  /**
-   * The template for the whole HTML page sent to the conversion Servlet.
-   * @constant
-   * @private
-   */
-  _htmlPageTemplate= doT.template(
-      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta><title>{{=it.title}}</title>{{=it.css}}</head><body>{{=it.content}}</body></html>');
 
   /**
    * Creates a new PDFExport instance.
@@ -207,7 +192,8 @@ bcdui.component.exports.PDFExport = class
     {
       return jQuery.makeArray(this.css).reduce(
         function(str, cssUrl) {
-          return str + this._cssIncludeTemplate({cssUrl: cssUrl});
+          const cssIncludeTemplate = `<link rel="stylesheet" type="text/css" href="${cssUrl}"> </link>\n`;
+          return str + cssIncludeTemplate;
         }.bind(this), "");
     }
 
@@ -233,11 +219,7 @@ bcdui.component.exports.PDFExport = class
       var fullHTML = bcdui.component.exports._html2String(this.rootElementArray);    
 
       // Generate full HTML page
-      fullHTML = this._htmlPageTemplate({
-          title: this.title
-        , css: this._generateCSSLinkElements()
-        , content: fullHTML
-      });
+      fullHTML = `<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta><title>${this.title}</title>${this._generateCSSLinkElements()}</head><body>${fullHTML}</body></html>`;
 
       // Insert data into form
       formElement.elements['htmlString'].value = fullHTML;

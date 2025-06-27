@@ -27,13 +27,13 @@
   ></bcd-singleselectng>
 </span>
 <span id="{{=it.params.instanceId}}_operator_container" class="{{= it.params.cssClassPrefix }}operator-container">
-  {{? it.input.selectSingleNode("/Status/Op[.='in']") != null }}
+<!--  {{? it.input.selectSingleNode("/Status/Op[.='in']") != null }}-->
   <!-- creates a default multi input value input; if you need custom one, do it but write to xPath_values -->
   <div
-    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')"
+    bcdOnLoad="alert;jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')"
     targetModelXPath="{{= it.params.xPath_values }}"
   ></div>
-  {{??}}
+  <!-- {{??}}-->
   <!-- reference-value -->
   <bcd-inputng
     targetModelXPath="{{= it.params.xPath_value }}"

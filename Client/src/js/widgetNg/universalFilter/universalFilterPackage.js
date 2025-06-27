@@ -355,15 +355,6 @@
       targetElement = jQuery(`<div class="${this.options.cssClassPrefix}multi-input-container"></div>`).appendTo(jQuery(targetElement).empty());
       var self = this;
 
-      let inputItemTemplate = doT.compile(`<div class='${this.options.cssClassPrefix}multi-input-item'>
-          <bcd-inputng
-            targetModelXPath="{{=it.targetModelXPath}}"
-            {{=it.apiAttrs}}
-          ></bcd-inputng>
-          <bcd-buttonng class='action-add' caption='+'></bcd-buttonng>
-          <bcd-buttonng class='action-remove' caption='-'></bcd-buttonng>
-        </div>`);
-
       var context = {
         cnt : 0, // input counter
         targetModelXPathBase : targetElement.closest("[targetModelXPath]").attr("targetModelXPath"), // take from view
@@ -374,6 +365,7 @@
 
       var inputItemTemplateArgs = {
         targetModelXPath : context.nextTargetModelXPath()
+        , apiAttrs : ""
       };
 
       {// collect other api-attrs
@@ -387,12 +379,12 @@
         }
       }
 
+      const inputItemTemplate = `<div class='${this.options.cssClassPrefix}multi-input-item'><bcd-inputng targetModelXPath="${inputItemTemplateArgs.targetModelXPath}" ${inputItemTemplateArgs.apiAttrs}></bcd-inputng><bcd-buttonng class='action-add' caption='+'></bcd-buttonng><bcd-buttonng class='action-remove' caption='-'></bcd-buttonng></div>`;
       targetElement
-      .html(inputItemTemplate(inputItemTemplateArgs))
+      .html(inputItemTemplate)
       .on("click", ".action-add", function(){
-        targetElement.append(jQuery(inputItemTemplate($.extend({}, inputItemTemplateArgs, { // retain generic args + override targetModelXPath for a new item
-          targetModelXPath : context.nextTargetModelXPath()
-        }))));
+        const inputItemTemplateNext = `<div class='${self.options.cssClassPrefix}multi-input-item'><bcd-inputng targetModelXPath="${context.nextTargetModelXPath()}" ${inputItemTemplateArgs.apiAttrs}></bcd-inputng><bcd-buttonng class='action-add' caption='+'></bcd-buttonng><bcd-buttonng class='action-remove' caption='-'></bcd-buttonng></div>`;
+        targetElement.append(jQuery(inputItemTemplateNext));
       })
       .on("click", ".action-remove", function(){
         const inputRow = jQuery(this).closest("div");

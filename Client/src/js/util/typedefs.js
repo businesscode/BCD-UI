@@ -105,15 +105,15 @@ jQuery.extend( true, bcdui, {
  * <br/>You can provide
  * <ul>
  *   <li>A single DataProvider, holding a chain definition following XML Schema 'chain-1.0.0.xsd'. Or
- *   <li>A single string holding the url of an xslt document (*.xslt) or a doT.js file (*.dott). Or
+ *   <li>A single string holding the url of an xslt document (*.xslt) or a js template literate file (*.jstlit). Or
  *   <li>A javascript transformator function, representing a transformation. Such a function gets two parameters, data, like a DOM or JSON, whatever DataProvider.getData() returns
  *       and a parameter object, which maps parameter names to the actual parameters. It can return a new data object or modify the one, which was its input.
  *       It it does not return anything, its (modified) input doc is used as return default. Or
  *   <li>An array of such strings and functions in the order they are to be executed. In this case, the output of the n-th transformation becomes the input of n+1.
  * </ul>
  * @example <caption>These are all valid values for a chainDef:</caption>
- * "myStylesheet.xslt"                         // An <b>url</b> pointing to an *.xslt or a *.dott file
- * ["myTrans.dott", jsTrans]                   // An <b>array</b> of transformators, can be urls (doT.js or xslt) and js functions
+ * "myStylesheet.xslt"                         // An <b>url</b> pointing to an *.xslt or a *.jstlit file
+ * ["myTrans.jstlit", jsTrans]                 // An <b>array</b> of transformators, can be urls (js template literate or xslt) and js functions
  * new bcdui.core.StaticModel(...)             // A <b>DataProvider subclass</b>, providing an xml chain definition according to chain-1.0.0.xsd
  * function jsTrans(doc, params) {             // A <b>js function</b>, expecting a data object (DOM or JSON)
  *   var n = doc.getElementById('someId');
