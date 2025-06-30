@@ -1,0 +1,38 @@
+<span class="${params.cssClassPrefix}conj-container">
+  <!-- junction; only if not in update mode -->
+  <div
+    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createJunction')"
+    optionsModelXPath="${params.xPath_reference_junction}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="${params.xPath_junction}"
+  ></div>
+</span>
+<span>
+  <!-- filter-item -->
+  <bcd-singleselectng
+    required="true"
+    targetModelXPath="${params.xPath_bref}"
+    optionsModelXPath="${params.bRefOptionsModelXPath}"
+    optionsModelRelativeValueXPath="${params.bRefOptionsModelRelativeValueXPath}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- operation -->
+  <bcd-singleselectng
+    required="true"
+    optionsModelXPath="${params.xPath_reference_op}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="${params.xPath_op}"
+  ></bcd-singleselectng>
+</span>
+<span id="${params.instanceId}_operator_container" class="${params.cssClassPrefix}operator-container">
+  <div
+    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')"
+    targetModelXPath="${params.xPath_values}"
+  ></div>
+</span>
+<span>
+  <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
+</span>
+<span class="${params.cssClassPrefix}creator-container-closer" onclick="jQuery(this).trigger('bcdui:universalFilter:closeCreateUi')">
+</span>
