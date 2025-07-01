@@ -71,7 +71,9 @@ public class OAuthRealm extends AuthenticatingRealm {
   private String tokenEndpoint;
   private OAuthAuthenticatingFilter authenticator;
   // This applies to the access token if no user info call is used, otherwise to the user info
-  private String principalPropertyName = "email";
+  private String principalPropertyName = null;
+  private String fullNamePropertyName = null;
+  private String emailPropertyName = null;
   // If true: No entry in bcd_sec_user necessary, it means everybody can get a session and access authc resources
   // Usually not what you want
   // Additional permissions will be read from bcd_sec_user_settings in both case true or false
@@ -141,7 +143,6 @@ public class OAuthRealm extends AuthenticatingRealm {
   /**
    * Overwrite default in shiro.ini
    * this is the property we extract from JSON response and use as a principal
-   *
    * @param principalPropertyName
    */
   public void setPrincipalPropertyName(String principalPropertyName) {
@@ -150,6 +151,32 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   public String getPrincipalPropertyName() {
     return principalPropertyName;
+  }
+
+  /**
+   * Overwrite default in shiro.ini
+   * this is the property we extract from JSON response and use as a full name "Jon Doe"
+   * @param principalNameName
+   */
+  public void setFullNamePropertyName(String principalNameName) {
+    this.fullNamePropertyName = principalNameName;
+  }
+
+  public String getFullNamePropertyName() {
+    return fullNamePropertyName;
+  }
+
+  /**
+   * Overwrite default in shiro.ini
+   * this is the property we extract from JSON response and use as email
+   * @param emailPropertyName
+   */
+  public void setEmailPropertyName(String emailPropertyName) {
+    this.emailPropertyName = emailPropertyName;
+  }
+
+  public String getEmailPropertyName() {
+    return emailPropertyName;
   }
 
 
@@ -177,12 +204,13 @@ public class OAuthRealm extends AuthenticatingRealm {
     final OAuthToken oauthToken = (OAuthToken) authToken;
     final PrincipalInfo localPi;
     try {
-      final String providedPrincipal = retrieveUserPrincipal(oauthToken);
-      oauthToken.setPrincipal(Objects.requireNonNull(providedPrincipal, "user-principal was not provided"));
-      localPi = getPrincipleInfo(providedPrincipal);
-      if( !assurePrincipleIsAllowed(providedPrincipal, localPi) ) return null;
-      PrimaryPrincipal pp = localPi != null ? new PrimaryPrincipal(localPi.userId, providedPrincipal, localPi.fullName)
-          : new PrimaryPrincipal(providedPrincipal, providedPrincipal, providedPrincipal);
+      final OAuthUserInfo ui = retrieveUserPrincipal(oauthToken);
+      oauthToken.setPrincipal(Objects.requireNonNull(ui.principal, "user-principal was not provided"));
+      localPi = getPrincipleInfo(ui);
+      if( !assurePrincipleIsAllowed(ui, localPi) ) return null;
+      PrimaryPrincipal pp = localPi != null ?
+          new PrimaryPrincipal( localPi.userId, ui.principal, localPi.fullName != null ? localPi.fullName : ui.fullName, ui.email )
+          : new PrimaryPrincipal( ui.principal, ui.principal, ui.fullName, ui.email);
       return new SimpleAuthenticationInfo(pp, oauthToken.getCredentials(), getName());
     } catch (Exception e) {
       logger.warn("Failed to read user principal", e);
@@ -193,14 +221,14 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   public record PrincipalInfo(String userId, String fullName) {}
   /**
-   * Unless explicitly disabled, we do enforce existence of principal in bcd_sec_user here
+   * Unless explicitly disabled, we do enforce existence of ui in bcd_sec_user here
    * to avoid everybody getting a session who is known to the remote system but not ours
    * Can also be used as an extension point for example test for an additional flag ncd bcd_sec_user etc by overwriting this class for an oAuth provider in shiro.ini
-   * @param principal
+   * @param ui
    * @return null if no information in bcd_sec_user should be or can be found
    * @throws Exception
    */
-  protected PrincipalInfo getPrincipleInfo(String principal) throws Exception
+  protected PrincipalInfo getPrincipleInfo(OAuthUserInfo ui) throws Exception
   {
     // If we should not check bcd_sec_user, we also do not search for the id and use the login_name instead (as user_id)
     if( skipBcdSecUserTest ) return null;
@@ -214,7 +242,7 @@ public class OAuthRealm extends AuthenticatingRealm {
     try {
       String stmt = """ 
             #set( $k = $bindings.bcd_sec_user )
-            select $k.user_id_, $k.name_ 
+            select $k.user_id_, $k.name_
             from $k.getPlainTableName() 
             where $k.user_login_ = ? and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')""";
       pi = new QueryRunner(dataSource, true).query(new SQLEngine().transform(stmt), rs -> {
@@ -223,14 +251,14 @@ public class OAuthRealm extends AuthenticatingRealm {
         } else {
           return null;
         }
-      }, principal);
+      }, ui.principal);
     } catch( Exception e ) {
-      throw new SecurityException("Error, could not read bcd_sec_user when verifying externally authenticated user "+principal+" in "+getName(), e);
+      throw new SecurityException("Error, could not read bcd_sec_user when verifying externally authenticated user "+ui+" in "+getName(), e);
     } finally {
       BcdSqlLogger.reset();
     }
 
-    if( pi == null ) logger.warn("Principal '"+principal+"' not found in bcd_sec_user, but is is required in "+getName());
+    if( pi == null ) logger.warn("Principal '"+ui+"' not found in bcd_sec_user, but is is required in "+getName());
     return pi;
   }
   
@@ -242,10 +270,11 @@ public class OAuthRealm extends AuthenticatingRealm {
    * @param
    * @return
    */
-  protected boolean assurePrincipleIsAllowed(String providedPrincipal, PrincipalInfo localPi) throws Exception {
+  protected boolean assurePrincipleIsAllowed(OAuthUserInfo providedPrincipal, PrincipalInfo localPi) throws Exception {
     return skipBcdSecUserTest || localPi != null;
   }
-  
+
+  public record OAuthUserInfo(String principal, String fullName, String email) {}
   /**
    * implements retrieving user principal from resource server
    * First gets the id-token from the token endpoint
@@ -254,24 +283,23 @@ public class OAuthRealm extends AuthenticatingRealm {
    *
    * @param oauthToken
    *          - which is already obtained from authority server and ready to be used as a bearer
-   * @return user principal, i.e. the email-address or other identifier
+   * @return user principal, OAuthUserInfo
    * @throws IOException
    */
-  protected String retrieveUserPrincipal(OAuthToken oauthToken) throws Exception {
-    final String principalPropertyName = getPrincipalPropertyName();
-    final String userPrincipal;
+  protected OAuthUserInfo retrieveUserPrincipal(OAuthToken oauthToken) throws Exception {
+    final OAuthUserInfo ui;
 
     // Usually we derive the principal name from the id-token
     // Only if the api-endpoint is explicitly set, we do another call to it to get it from there
     // Useful of this class is overwritten and more information is needed
     if (getUserInfoEndpoint() != null) {
       String accessToken = callTokenEndpoint(oauthToken, ACCESS_TOKEN_NAME);
-      userPrincipal = getUserPrincipalFromUserInfoEndpoint(accessToken, principalPropertyName);
+      ui = getUserPrincipalFromUserInfoEndpoint(accessToken);
     } else {
       String idToken = callTokenEndpoint(oauthToken, ID_TOKEN_NAME);
-      userPrincipal = getUserPrincipalFromIdToken(idToken, principalPropertyName, oauthToken.getNonce());
+      ui = getUserPrincipalFromIdToken(idToken, oauthToken.getNonce());
     }
-    return userPrincipal;
+    return ui;
   }
 
   /**
@@ -280,7 +308,7 @@ public class OAuthRealm extends AuthenticatingRealm {
    * @return
    * @throws Exception
    */
-  protected String getUserPrincipalFromIdToken(String accessToken, String principalPropertyName, String origNonce) throws Exception
+  protected OAuthUserInfo getUserPrincipalFromIdToken(String accessToken, String origNonce) throws Exception
   {
     // Simple parsing of OAUth id-tokens
     String[] parts = accessToken.split("\\.");
@@ -291,10 +319,13 @@ public class OAuthRealm extends AuthenticatingRealm {
     
     // We set the nonce in the authorization request and finding it in the token response assures there is not replay or man in the middle attack
     final String nonce = payload.get("nonce").getAsString();
-    if( nonce == null || !nonce.equals(origNonce) ) throw new SecurityException("Received a wrong nonce in token response -> potential man in the middle attacK!");
-    
-    final String userPrincipal = payload.get(principalPropertyName).getAsString();
-    return userPrincipal;
+    if( nonce == null || !nonce.equals(origNonce) ) throw new SecurityException("Received a wrong nonce in token response -> potential replay or man in the middle attack!");
+
+    final String principal = payload.get(principalPropertyName).getAsString();
+    final String fullName = fullNamePropertyName != null ? payload.get(fullNamePropertyName).getAsString() : principal;
+    final String email = emailPropertyName != null ? payload.get(emailPropertyName).getAsString() : null;
+    OAuthUserInfo ui = new OAuthUserInfo(principal, fullName, email);
+    return ui;
   }
 
   /**
@@ -305,7 +336,7 @@ public class OAuthRealm extends AuthenticatingRealm {
    * @return
    * @throws Exception
    */
-  protected String getUserPrincipalFromUserInfoEndpoint(String accessToken, String principalPropertyName) throws Exception
+  protected OAuthUserInfo getUserPrincipalFromUserInfoEndpoint(String accessToken) throws Exception
   {
     // Call the user info endpoint
     final URL url = new URL(getUserInfoEndpoint());
@@ -335,7 +366,11 @@ public class OAuthRealm extends AuthenticatingRealm {
         if (logger.isTraceEnabled()) {
           logger.trace("response: " + responseJson);
         }
-        return readJsonProperty(responseJson, principalPropertyName, true).getAsString();
+        String principal = readJsonProperty(responseJson, principalPropertyName, true).getAsString();
+        String fullName = fullNamePropertyName != null ? readJsonProperty(responseJson, fullNamePropertyName, true).getAsString() : principal;
+        String email = emailPropertyName != null ? readJsonProperty(responseJson, emailPropertyName, true).getAsString() : null;
+        OAuthUserInfo ui = new OAuthUserInfo(principal, fullName, email);
+        return ui;
       }
     } finally {
       try {

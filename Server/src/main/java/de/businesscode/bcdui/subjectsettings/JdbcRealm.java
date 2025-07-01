@@ -79,6 +79,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   final static public String BCD_SEC_USER_PASSWORD_SALT_BINDINGITEM = "password_salt";
   final static public String BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT      = "password";
   final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT = "password_salt";
+  public static final String REGEXP_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
   private String passwordColumnName     = BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT;
   private String passwordSaltColumnName = BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT;
   private static String configPasswordColumnName;
@@ -245,7 +246,8 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
         PrincipalInfo acc = getPrincipalInfo(upassToken.getUsername(), true);
         if(acc != null){
           SimplePrincipalCollection pc = new SimplePrincipalCollection();
-          PrimaryPrincipal pp = new PrimaryPrincipal(acc.userId, upassToken.getUsername(), acc.fullName);
+          String email = upassToken.getUsername().matches(REGEXP_EMAIL) ? upassToken.getUsername() : null;
+          PrimaryPrincipal pp = new PrimaryPrincipal(acc.userId, upassToken.getUsername(), acc.fullName, email);
           pc.add(pp, getName()); // This becomes the getPrimaryPrincipal(), if we are the first Realm in the chain to provide one
 
           // salted vs. plaintext pass

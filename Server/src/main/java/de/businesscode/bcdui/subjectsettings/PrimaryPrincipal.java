@@ -30,11 +30,13 @@ public class PrimaryPrincipal implements Serializable {
   final String id;
   String userLogin;
   String fullName;
+  String email;
 
-  public PrimaryPrincipal(String id, String userLogin, String fullName) {
+  public PrimaryPrincipal(String id, String userLogin, String fullName, String email) {
     this.id = id;
     this.userLogin = userLogin;
     this.fullName = fullName;
+    this.email = email;
   }
   public PrimaryPrincipal(String id) {
     this.id = id;
@@ -58,6 +60,13 @@ public class PrimaryPrincipal implements Serializable {
 
   public void setUserLogin(String userLogin) {
     this.userLogin = userLogin;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   @Override
