@@ -61,7 +61,7 @@ public class OAuthRealm extends AuthenticatingRealm {
   private static final String UTF8 = StandardCharsets.UTF_8.name();
 
   private final Logger logger = LogManager.getLogger(getClass());
-  
+
   // OpenId standard names
   static protected final String ACCESS_TOKEN_NAME = "access_token";
   static protected final String ID_TOKEN_NAME = "id_token";
@@ -198,6 +198,11 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   /**
    * creates access token via {@link #callTokenEndpoint(OAuthToken, String)} and passes to {@link #retrieveUserPrincipal(OAuthToken)} then constructs {@link SimpleAuthenticationInfo} with returned principal
+   * if oauth AND bcd_sec_user exist:
+   * - local userId is being used
+   * - login_name is the same for local and oauth
+   * - fullName we use from oauth if configured (fullNamePropertyName is set), otherwise local
+   * - same for email. Whie standard bcd_sec_user does not local email, it may exists if getPrincipleInfo() is overwritten in a project
    */
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken) {
@@ -207,10 +212,22 @@ public class OAuthRealm extends AuthenticatingRealm {
       final OAuthUserInfo ui = retrieveUserPrincipal(oauthToken);
       oauthToken.setPrincipal(Objects.requireNonNull(ui.principal, "user-principal was not provided"));
       localPi = getPrincipleInfo(ui);
+
+      // Per default, test existence of a local entry
       if( !assurePrincipleIsAllowed(ui, localPi) ) return null;
-      PrimaryPrincipal pp = localPi != null ?
-          new PrimaryPrincipal( localPi.userId, ui.principal, localPi.fullName != null ? localPi.fullName : ui.fullName, ui.email )
-          : new PrimaryPrincipal( ui.principal, ui.principal, ui.fullName, ui.email);
+
+      PrimaryPrincipal pp;
+      // We have oAuth information and an entry in bcd_sec_user
+      if( localPi != null ) {
+        pp = new PrimaryPrincipal( localPi.userId, ui.principal,
+            fullNamePropertyName != null ? ui.fullName : localPi.fullName,
+            emailPropertyName != null ? ui.email : localPi.email );
+      }
+      // There is no entry in bcd_sec_user (and that setup was configured to be ok)
+      else {
+        pp = new PrimaryPrincipal( ui.principal, ui.principal, ui.fullName, ui.email);
+      }
+
       return new SimpleAuthenticationInfo(pp, oauthToken.getCredentials(), getName());
     } catch (Exception e) {
       logger.warn("Failed to read user principal", e);
@@ -219,7 +236,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
   }
 
-  public record PrincipalInfo(String userId, String fullName) {}
+  public record PrincipalInfo(String userId, String fullName, String email) {}
   /**
    * Unless explicitly disabled, we do enforce existence of ui in bcd_sec_user here
    * to avoid everybody getting a session who is known to the remote system but not ours
@@ -247,7 +264,7 @@ public class OAuthRealm extends AuthenticatingRealm {
             where $k.user_login_ = ? and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')""";
       pi = new QueryRunner(dataSource, true).query(new SQLEngine().transform(stmt), rs -> {
         if (rs.next()) {
-          return new PrincipalInfo(rs.getString(1), rs.getString(2));
+          return new PrincipalInfo(rs.getString(1), rs.getString(2), null);
         } else {
           return null;
         }
@@ -261,7 +278,7 @@ public class OAuthRealm extends AuthenticatingRealm {
     if( pi == null ) logger.warn("Principal '"+ui+"' not found in bcd_sec_user, but is is required in "+getName());
     return pi;
   }
-  
+
   /**
    * Unless explicitly disabled, we do enforce existence of principal in bcd_sec_user here
    * to avoid everybody getting a session who is known to the remote system but not ours
@@ -278,8 +295,8 @@ public class OAuthRealm extends AuthenticatingRealm {
   /**
    * implements retrieving user principal from resource server
    * First gets the id-token from the token endpoint
-   * and then either retrieves it from the token 
-   * or does an extra call to the info endpoint, if that is configured, which allows extracting more info in case we are overwritten 
+   * and then either retrieves it from the token
+   * or does an extra call to the info endpoint, if that is configured, which allows extracting more info in case we are overwritten
    *
    * @param oauthToken
    *          - which is already obtained from authority server and ready to be used as a bearer
@@ -316,7 +333,7 @@ public class OAuthRealm extends AuthenticatingRealm {
 
     String payloadString = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
     JsonObject payload = JsonParser.parseString(payloadString).getAsJsonObject();
-    
+
     // We set the nonce in the authorization request and finding it in the token response assures there is not replay or man in the middle attack
     final String nonce = payload.get("nonce").getAsString();
     if( nonce == null || !nonce.equals(origNonce) ) throw new SecurityException("Received a wrong nonce in token response -> potential replay or man in the middle attack!");

@@ -242,6 +242,8 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     String originalUrl = getSuccessUrl();
     SavedRequest sr = WebUtils.getSavedRequest(request);
     if( sr != null && sr.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD) && sr.getRequestUrl() != null ) originalUrl = sr.getRequestUrl();
+    // Nothing configured and no previous request, then is is our last resort (and in most cases right) to be used later if login succeeded
+    if( originalUrl == null ) originalUrl = ((HttpServletRequest)request).getContextPath();
     
     // Store the state for dealing with the answer from the Identity Provider
     var requestContext = new RequestContext(this.providerInstanceId, originalUrl);
@@ -295,24 +297,19 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
           <script>
             (function(targetUrl) {
               // Popup
-              console.log(1);
               if( window.opener?.bcdui?.widgetNg.login.oAuthLoginOnSuccess ) {
-                console.log(2);
                 window.opener.bcdui.widgetNg.login.oAuthLoginOnSuccess( targetUrl );
                 window.close();
               }
               // Inline
               else if( window?.bcdui?.widgetNg.login.oAuthLoginOnSuccess  ) {
-                console.log(3);
                 bcdui.widgetNg.login.oAuthLoginOnSuccess( targetUrl );
                 window.close();
               }
               // Plain implementation or forwarded from an external link with a session
               else {
-                console.log(4);
                 location.href = targetUrl;
               }
-              console.log(5);
             })("%s");
           </script>
         """, originalTargetUrl));
@@ -346,7 +343,8 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
                  We are sorry, login is not possible with that id. <br/>
                  Please retry later or contact your system administrator.
                </h1>`);
-            setTimeout( window.close, 4000 );
+            // Close login popup, if we are one.
+            if(window.opener) setTimeout( window.close, 8000 );
           </script>
         """);
     } catch (IOException e1) {

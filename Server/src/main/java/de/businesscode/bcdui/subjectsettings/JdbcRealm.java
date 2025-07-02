@@ -290,7 +290,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         BcdSqlLogger.setLevel(Level.OFF);
         String uroUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role_ from $k.getPlainTableName() where " + getDefineJdbcParameter("$k.user_id_", uroUseridjdbcTypeColExpre);
 
         new QueryRunner(true).query(con, new SQLEngine().transform(sql), rs -> {
           while(rs.next()){
@@ -330,7 +330,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   
       try {
         String urUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type_, $k.right_value_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), urUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type_, $k.right_value_ from $k.getPlainTableName() where " + getDefineJdbcParameter("$k.user_id_", urUseridjdbcTypeColExpre);
   
         // we don't want to log our JDBC activity
         BcdSqlLogger.setLevel(Level.OFF);

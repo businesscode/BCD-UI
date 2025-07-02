@@ -160,84 +160,77 @@ public class SecurityHelper {
     }
     return null;
   }
-  
+
   /**
-   * Returns a principal used by user to login into the system or any first principal made available
-   * by the realm. Also see {@link #getUserId(Subject)}
-   *
+   * Helper to extract an object of our type PrimaryPrincipal from the Subject
+   * It may not exist, of there is no session
+   * or the principle is just a string for example, because BCD-UI login methods for bcd_sec_user and oAuth are not used
    * @param subject
-   * @return user login or null if either no subject provided or no such princpial found or subject is not authenticated
+   * @return null if no PrimaryPrincipal was found
    */
-  public static String getUserLogin(Subject subject){
+  protected static Object getPrincipal(Subject subject) throws SecurityException {
     if(subject == null || !subject.isAuthenticated()){
       return null;
     }
-    // our Jdbc principal sets the login as string and any other realms set principals as string, too.
     PrincipalCollection pc = subject.getPrincipals();
-    final String princ;
-    if(pc == null){
-      Object p = subject.getPrincipal();
-      princ = p == null ? null : p.toString();
-    } else {
-      PrimaryPrincipal pp = pc.oneByType(PrimaryPrincipal.class);
-      if( pp != null ) princ = pc.oneByType(PrimaryPrincipal.class).getUserLogin();
-      else princ = pc.byType(String.class).iterator().next();
-    }
-    if(princ == null){
-      throw new RuntimeException("Authenticated subject but no principal found.");
-    }
-    return princ;
+    PrimaryPrincipal pp = pc.oneByType(PrimaryPrincipal.class);
+    if(pp != null) return pp;
+    if( subject.getPrincipal() != null ) return subject.getPrincipal();
+    throw new SecurityException("Authenticated subject but no principal found.");
   }
 
   /**
-   * Returns a primary principal by sense of shiro's primary principle. When using {@link JdbcRealm} this
-   * is the technical user id. If you use any other realm the value returned by this method would equal
-   * to {@link #getUserLogin(Subject)}
-   *
-   * @param subject
-   * @return user identifier or null if either no subject provided or no such princpial found or subject is not authenticated
-   */
-  public static Object getPrimaryPrinciple(Subject subject){
-    if(subject == null || !subject.isAuthenticated()){
-      return null;
-    }
-    PrincipalCollection pc = subject.getPrincipals();
-    final Object princ;
-    if(pc == null){
-      princ = subject.getPrincipal();
-    } else {
-      princ = pc.getPrimaryPrincipal();
-    }
-    if(princ == null){
-      throw new RuntimeException("Authenticated subject but no principal found.");
-    }
-    return princ;
-  }
-  /**
-   *
+   * Our internal user id
+   * JdbcRealm uses bcd_sec_user.user_id, OAuthRealm will also use that or can fall back to the login name
+   * Always available if we have a valid session, falls back is the login name
    * @param subject
    * @return
    */
-  static public String getUserId(Subject subject) {
-    Object pp = getPrimaryPrinciple(subject);
-    if(pp instanceof PrimaryPrincipal) {
-      return ((PrimaryPrincipal)pp).getId();
-    } else {
-      return pp.toString();
-    }
+  public static String getUserId(Subject subject) {
+    Object p = getPrincipal(subject);
+    if( p == null ) return null;
+    if(p instanceof PrimaryPrincipal pp ) return pp.getId();
+    return p.toString();
   }
+
   /**
-   *
+   * User login name
+   * Always available if we have a valid session
+   * JdbcRealm will deliver bcd_user_sec.user_login, oAuth will use it's login name
    * @param subject
    * @return
    */
-  static public String getUserName(Subject subject) {
-    Object pp = getPrimaryPrinciple(subject);
-    if(pp instanceof PrimaryPrincipal) {
-      return ((PrimaryPrincipal)pp).getFullName();
-    } else {
-      return pp.toString();
-    }
+  public static String getUserLogin(Subject subject) {
+    Object p = getPrincipal(subject);
+    if( p == null ) return null;
+    if(p instanceof PrimaryPrincipal pp ) return pp.getUserLogin();
+    return p.toString();
+  }
+
+  /**
+   * User full name if given, null otherwise
+   * JdbcRealm uses bcd_sec_user.name, OAuthRealm may also use that or read it from oAuth
+   * @param subject
+   * @return
+   */
+  public static String getUserName(Subject subject) {
+    Object p = getPrincipal(subject);
+    if( p == null ) return null;
+    if(p instanceof PrimaryPrincipal pp ) return pp.getFullName();
+    return null;
+  }
+
+  /**
+   * User email if given, null otherwise
+   * JdbcRealm will deliver null, OAuthRealm may read it from oAuth
+   * @param subject
+   * @return
+   */
+  public static String getUserEmail(Subject subject) {
+    Object p = getPrincipal(subject);
+    if( p == null ) return null;
+    if(p instanceof PrimaryPrincipal pp ) return pp.getEmail();
+    return null;
   }
 
   /**
