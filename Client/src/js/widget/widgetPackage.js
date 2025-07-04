@@ -1000,6 +1000,8 @@ jQuery.extend(bcdui.widget,
           , parameters: {
             isCredentialMenu: true
           , userName: args.userName || bcdui.config.userName
+          , userEmail: args.userEmail || bcdui.config.userEmail
+          , userLogin: args.userLogin || bcdui.config.userLogin
           }
         }
         bcdui.widget.createMenu(menuArgs);

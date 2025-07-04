@@ -27,7 +27,9 @@
   <xsl:param name="bcdControllerVariableName" select="'root_'"/>
   <xsl:param name="legacyTheme" select='false'/>
   <xsl:param name="isCredentialMenu" select='false'/>
-  <xsl:param name="userName" select='User'/>
+  <xsl:param name="userName"/>
+  <xsl:param name="userEmail"/>
+  <xsl:param name="userLogin"/>
   <!-- menu Id -->
   <xsl:param name="menuId"
     select="
@@ -107,7 +109,17 @@
             </xsl:choose>
     
             <xsl:if test="$node/menu:Entry">
-              <ul class="bcdLevel{$depth}">
+              <ul>
+                <xsl:variable name="addCredentials" select="$isCredentialMenu='true' and $depth=2 and $pos=1 and ($userLogin!='' or $userEmail != '')"/>
+                <xsl:attribute name="class"><xsl:value-of select="concat('bcdLevel',$depth)"/><xsl:if test="$addCredentials"> credentials</xsl:if></xsl:attribute>
+                <xsl:if test="$addCredentials">
+                  <xsl:if test="$userLogin!=''">
+                    <li class="bcdDisabled user login"><a><xsl:value-of select="$userLogin"/></a></li>
+                  </xsl:if>
+                  <xsl:if test="$userEmail!=''">
+                    <li class="bcdDisabled user email"><a><xsl:value-of select="$userEmail"/></a></li>
+                  </xsl:if>
+                </xsl:if>
                 <xsl:call-template name="getEntry">
                   <xsl:with-param name="entry" select="$node/menu:Entry"/>
                   <xsl:with-param name="depth" select="$depth+1"/>
