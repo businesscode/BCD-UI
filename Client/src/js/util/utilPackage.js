@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -302,7 +302,7 @@ bcdui.util =
         }
         return func;
       }
-      return bcdui.browserCompatibility.isIE8 ? eval( "(function(){return function(){" + jsFuncStr + "}; })()" ) : eval( "(function(){" + jsFuncStr + "})" );
+      return eval( "(function(){" + jsFuncStr + "})" );
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";

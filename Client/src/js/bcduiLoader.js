@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -376,9 +376,7 @@ bcdui.bcduiCeFiles =
     {
       "id": "bcduiCustomElement",
       "required": "mandatory",
-      "browserCompatibility" : {
-        "isIE8":    false
-      },
+      "browserCompatibility": "mandatory",
       "files": [
           "/js/core/customElements.js"
         , "/js/widget/customElements.js"
@@ -395,29 +393,25 @@ bcdui.bcduiCeFiles =
 
 // build browser compatibility matrix
 bcdui.browserCompatibility = (function(){
-    var ua = navigator.userAgent;
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
-    var isInternetExplorer = (!!window.attachEvent && !isOpera) || ua.indexOf('Trident') != -1;
-    var tridentVersion = null;
-    var msIEversion = null;
-    var tridentArray = navigator.userAgent.match(/Trident\/[0-9.]+/g);
-    var msIEArray = navigator.userAgent.match(/MSIE [0-9.]+/g);
-    if (tridentArray != null && tridentArray.length > 0)
-      tridentVersion = 4 + parseFloat(tridentArray[0].replace(/Trident\//g, ""));
-    if (msIEArray != null && msIEArray.length > 0)
-       msIEversion = parseFloat(msIEArray[0].replace(/MSIE/g, ""));
-
-    return {
-      isIE:             isInternetExplorer,
-      isMsEdge:         ua.indexOf(' Edge/') !== -1,
-      isChromiumEdge:   ua.indexOf(" Edg/")  !== -1,
-      isOpera:          isOpera,
-      isWebKit:         ua.indexOf('AppleWebKit/') > -1 && ua.indexOf(' Edge/') === -1, // Note: This is also true for Chromium Edge
-      isGecko:          ua.indexOf('Gecko') > -1 && ua.indexOf('KHTML') === -1 && ua.indexOf('Trident') === -1,
-      isMobileSafari:   /Apple.*Mobile/.test(ua),
-      isIE8:            isInternetExplorer && parseInt(navigator.userAgent.substring(navigator.userAgent.indexOf("MSIE")+5))== 8,
-      ieVersion:        msIEversion != null && msIEversion < tridentVersion ? msIEversion : tridentVersion // IE (emulated) version
-    }
+  var ua = navigator.userAgent;
+  /**
+   * Gecko is a render engine of its own and used in FireFox
+   * Webkit is used by Safari and itself a fork of KHTML
+   * Blink, used by Chrome, Edge and Opera, is a fork of Webkit. Fixes for Webkit mostly also apply to Blink browsers
+   */
+  return {
+    // Render engines used for polyfills, see (extended)browserCompatibility
+    isGecko:          ua.indexOf('Gecko/') > -1, // FireFox
+    isWebKit:         ua.indexOf('AppleWebKit/') > -1, // Chrome, MS Edge and Opera, Safari
+    isBlink:          ua.indexOf('Chrome') > -1, // Chrome, Edge, Opera
+    // Specific browsers, consider reacting on render engines above instead
+    isFirefox:        ua.indexOf('Gecko/') > -1, // FireFox
+    isSafari:         ua.indexOf('Macintosh') > -1, // Safari on MacOS
+    isMobileSafari:   /Apple.*Mobile/.test(ua), // Safari on iOS
+    isChrome:         ua.indexOf('Chrome') > -1 && ua.indexOf(' OPR/') === -1  && ua.indexOf(' Edg/') === -1, // Chrome
+    isEdge:           ua.indexOf(' Edg/') > -1, // MS Edge
+    isOpera:          ua.indexOf(' OPR/') > -1, // Opera
+  }
 })();
 
 //Prepend to any already existing group definition, which may extend us

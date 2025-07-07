@@ -7,7 +7,49 @@ The following release notes allow following BCD-UI's ongoing development. +
 Potentially breaking changes are listed under _Incompatibilities_.
 
 ___
-==== Release 5_6_0 ...in progress
+==== Release 5_7_0 ...in progress
+
+.Major new features:
+* switched to Java 17, Gradle 8.5, Tomcat 10.1
+
+.Server:
+* added zip packaging and download feature via static resourceservlet, ensure *.zip mapping in web.xml
+* updated several 3rd party jars
+* updated default web.xml and enforce usage of https
+* cookies created are flagged as "secure"
+* CORS: to make your app CORSable use `de.businesscode.bcdui.web.filters.ShiroFilter` as a replacement of `org.apache.shiro.web.servlet.ShiroFilter` and add `de.businesscode.bcdui.web.filters.CorsFilter` as a first in the chain and cover resources which should be available to CORS, or set it to `/*` to enable for the whole site.
+* added BindingItem description element, also added to WRS Header
+
+.Client:
+* Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
+* new dataprovider options tblSelect, tblSelectRow, tblUpdate, tblInsert, tblDelete which offers wrs -> object -> wrs functions (currently limited to wrs)
+* added bcdui.bcdAlerter (.info/.warn/.error) to show a slide in alert
+* autogrow attribute for textarea widget
+* Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
+.Security:
+.Development:
+.Bugfixes:
+
+.Incompatibilities:
+* In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`
+* Removal of Internet Explorer support
+* javax to jakarta switch (for several packages e.g. javax.servlet)
+* new 3rd party jars set
+* cookies created are flagged as "secure", requiring https
+* add BindingInfo servlet to web.xml
+* OAuth2 configuration in shiro.ini:
+** OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri, apiEndpoint to userInfoEndpoint
+** `redirectUri` became optional, and this value is then derived from Servlet context at runtime instead, supporting virtual hosts
+** `userInfoEndpoint` became optional, the user-id is then derived directly from the id-token send from the token endpoint. The call to user info endpoint is then skipped.
+** oAuth now requires a popup for the login window, this looks more consistent and allows for cookie SameSite=strict setting
+** OAuth Realms now need to create the session on successful login and cannot rely on JdbcRealm doing that anymore
+* wrq filter operator like automatically escapes %, _ and \ now. Don't use local workarounds where you add \ yourself.
+* `bcdui.config.userName` now holds the value from bcdui_sec_user.name not user_login anymore
+* `bcdui.browserCompatibility.isXYZ` for various browser detections updated. Removed `isIE`, `isMsEdge`, `isIE8`. `isChromiumEdge` became `isEdge`
+* Remove msxsl namespace from preset namespaces
+___
+==== Release 5_6_0
+
 .Major new features:
 ** Added support for joins, CTEs, set operators and sub-selects to Wrq
 ** SubjectPreferences for user-chosen SubjectSettings
@@ -32,6 +74,8 @@ ___
 * checkbox and singleSelect widget have a new skin (switch/panel) parameter for a horizontal slider switch / horizontal switch panel
 * label widget added
 * chips widget added
++
+image::releaseNodes/chipsChooserWidget.png[200,200]
 * inputLookup widget added
 * cube/cubeModel parameter requestChain added to allow custom request builders
 * sticky table (rows/cols) functionality added (either via htmlBuilder parameters or cube layout cube:Freeze element)
@@ -41,17 +85,17 @@ ___
 * cube inline chart functionality added (render measures as a chart per row), use cube:Chart to configure and additionally load bcduiCubeInlineChart
 * cube allows having measures as rows, define dm:Measures/@storedInRows=true
 
-.Security
+.Security:
 * New cookie settings in context.xml and web.xml
 * Preventing some possible injections in server responses
 * SubjectFilter can now be applied to virtual file system
 * SubjectFilters resolved inline (i.e. value list) are using prepared statements now
 * RequestLifeCylce filter sets "Content-Security-Policy" (configurable via filter init param ContentSecurityPolicy)
 
-.Development
+.Development:
 * Made bcduiApiSubs.js available which can be used in IDEs for auto-suggest
 
-.Bugfixes
+.Bugfixes:
 * Pagination is now taking the order of all order columns into account, not only the last one
 
 .Incompatibilities:
@@ -295,6 +339,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * FAR module is optional, specify it in your bcduiLoadFiles attribute
 * Increased timeout for bcd_sec_usersettings is now 1 hour, was 2 min
 * In some cases requestDocumentBuilder.xslt, also used in AutoModel, did not limit the bRefs from filters to those given in the list, no it does. If setup incorrectly before, they are missing now.
+* Successful login is no longer sending a redirect to originally requested URL but sending this in header X-BCD.Location. Use new Login widget to handle this automatically
 
 ___
 ==== Release 5_2_0

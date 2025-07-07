@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -81,8 +81,6 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String HTML_NAMESPACE         = "http://www.w3.org/1999/xhtml";
   public static final String MENU_PREFIX            = "menu";
   public static final String MENU_NAMESPACE         = "http://www.businesscode.de/schema/bcdui/menu-1.0.0";
-  public static final String MSXSL_PREFIX           = "msxsl";
-  public static final String MSXSL_NAMESPACE        = "urn:schemas-microsoft-com:xslt";
   public static final String RENDERER_PREFIX        = "rnd";
   public static final String RENDERER_NAMESPACE     = "http://www.businesscode.de/schema/bcdui/renderer-1.0.0";
   public static final String SCHEDULER_PREFIX       = "sched";
@@ -137,7 +135,6 @@ public class StandardNamespaceContext implements NamespaceContext {
     mapping.put(GUISTATUS_PREFIX,    GUISTATUS_NAMESPACE);
     mapping.put(HTML_PREFIX,         HTML_NAMESPACE);
     mapping.put(MENU_PREFIX,         MENU_NAMESPACE);
-    mapping.put(MSXSL_PREFIX,        MSXSL_NAMESPACE);
     mapping.put(RENDERER_PREFIX,     RENDERER_NAMESPACE);
     mapping.put(SCHEDULER_PREFIX,    SCHEDULER_NAMESPACE);
     mapping.put(SCORECARD_PREFIX,    SCORECARD_NAMESPACE);
