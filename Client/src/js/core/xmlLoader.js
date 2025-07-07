@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ bcdui.core.XMLLoader = class
 
   /**
    * This function returns an XPointer with the "xpointer()" scheme if the passed
-   * xPointer uses the element() scheme. For exampel the xpointer "element(myId)"
+   * xPointer uses the element() scheme. For example the xpointer "element(myId)"
    * is translated to "xpointer(id('myId'))".
    * @param {string} xPointer An XPointer string which may begin with "element(".
    * @return Either the input string or the element() scheme transformed into the
@@ -96,9 +96,9 @@ bcdui.core.XMLLoader = class
 
   /**
    * A function that is called when an XInclude has been loaded an needs to be inserted into
-   * the hosting document. Therefore this function evaluates the (optional) XPointer of the
+   * the hosting document. Therefore, this function evaluates the (optional) XPointer of the
    * XInclude and inserts the respective elements into the "xincludeDoc" at the place marked
-   * by the "xinclude" element. Finally it deletes the XInclude from its doc (which is NOT
+   * by the "xinclude" element. Finally, it deletes the XInclude from its doc (which is NOT
    * the xincludeDoc!).
    * Attention: Elements of undeclared namespace in the included document will inherit the host documents'
    * default namespace if there is one. Sample: HTML tags without namespace xi:included in an XSLT variable body
@@ -199,7 +199,7 @@ bcdui.core.XMLLoader = class
   _processAllBcdIncludes( /* Object */ args )
     {
       var bcdIncludesWithNestedRequestDoc = args.doc.selectNodes(args.xPath);
-      if (bcdIncludesWithNestedRequestDoc.length == 0) return false;
+      if (bcdIncludesWithNestedRequestDoc.length === 0) return false;
       this._processBcdIncludesWithNestedRequestDoc(bcdIncludesWithNestedRequestDoc, function() {
         this._processAllIncludes( {doc: args.doc, onSuccess: args.onSuccess, onFailure: args.onFailure} );
       }.bind(this));
@@ -271,6 +271,7 @@ bcdui.core.XMLLoader = class
     }
 
   /**
+   * Text may be broken randomly into multiple text nodes, here we combine all into one string
    * @param {DomElement} xmlElement
    * @returns {string}
    * @private
@@ -338,13 +339,13 @@ bcdui.core.XMLLoader = class
       if (args.url.startsWith("bcduicp://"))
         args.url = bcdui.config.contextPath + "/" + args.url.substring(10);
 
-      // We need access to the original responseXML but the one jQuery returns is only a parsed DOM of respnseText (see jQuery.ajaxSettings.converters)
+      // We need access to the original responseXML but the one jQuery returns is only a parsed DOM of responseText (see jQuery.ajaxSettings.converters)
       // a) The original responseXML preserves the documents baseURI, which is important for relative paths for import / include, the parsed one does not have it
       // b) In case of IE / Egde we have wrapped XHR to return a XSLT+XPath capable document and not the 'native' one since IE10
       // Thats why we keep track of xhr here
       var xhr = bcdui.core.browserCompatibility.jQueryXhr();
       var xhrFactory = function() { return xhr };
-      
+
       jQuery.ajax({
             method: args.method||"GET",
             contentType: "application/xml",
@@ -387,7 +388,7 @@ bcdui.core.XMLLoader = class
                 }
               }.bind(this, xmlResponse, jqXHR);
 
-              // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page) 
+              // redirect in case of a session timeout (the returned url is different to the requested one, response contains the login html page)
               const resource = bcdui.util.decodeURI(args.url.substring(args.url.lastIndexOf("/") + 1));
               const rUrl = bcdui.util.decodeURI(xhr.responseURL || xhr.url);
 
@@ -533,7 +534,7 @@ bcdui.core.XMLLoader = class
    */
   _asyncTransformToXMLPostProcess( args, resultDoc )
     {
-      // We do not care about XML featues if this is a html document
+      // We do not care about XML features if this is a html document
       if( args.processor.outputFormat==="html" ) {
         args.onSuccess(resultDoc);
         return;
@@ -546,8 +547,8 @@ bcdui.core.XMLLoader = class
 
       /*
        * We may set the xml:base of the generated document, which is used for resolving relative import/include paths
-       * 1) If not expicitely given (via bcdxml:base), the baseURI of the generating stylesheet becomes the generated xml's baseURI
-       * 2) The baseURI of the generated doc may be given explicitely via bcdxml:base.
+       * 1) If not explicitly given (via bcdxml:base), the baseURI of the generating stylesheet becomes the generated xml's baseURI
+       * 2) The baseURI of the generated doc may be given explicitly via bcdxml:base.
        * This can be done for example when generating a stylesheet with a template xslt.
        * The generating stylesheet may have a different base than the template, but paths in the template are relative to the template.
        * Then we can set the bcdxml:base of the generated stylesheet to the templates' path,
@@ -574,7 +575,7 @@ bcdui.core.XMLLoader = class
       this._processAllIncludes( { doc: resultDoc, onFailure: args.onFailure, onSuccess: function(result) {
 
         /*
-         * Recusively apply XSLT until we get the final non-XSLT output
+         * Recursively apply XSLT until we get the final non-XSLT output
          * _handleGeneratedXslt may call us again for the same args.xslt
          */
         if( args.processor.outputFormat==="xslt" )
@@ -586,7 +587,7 @@ bcdui.core.XMLLoader = class
         else
           args.onSuccess(result);
 
-        }.bind(this) 
+        }.bind(this)
       } );
     }
 
@@ -607,8 +608,8 @@ bcdui.core.XMLLoader = class
   /**
    * Handles relative paths of xsl:import, xsl:include and global variables using document function
    * It can change them from a value relative to the documents xml:base to a different base = baseURL
-   * Happens for example if a included file had paths relative to its position (xml:base) but is now in a
-   * file with a different position. The hrefs should then be relative to the new postion (=baseURL)
+   * Happens for example if an included file had paths relative to its position (xml:base) but is now in a
+   * file with a different position. The hrefs should then be relative to the new position (=baseURL)
    * An absolute path is expected to begin below the contextPath
    * @param {DomDocument} doc The document to work on
    * @param {String} baseURL, the new base URL to which all relative href in the doc should be calculated.
@@ -640,7 +641,7 @@ bcdui.core.XMLLoader = class
    * document which is not XSLT. To make this function work it is required to set the "media-type" of the
    * "xsl:output" element correctly. Since the function cannot inspect the XML document
    * of the processor provided it needs to know if the (first) processor creates HTML.
-   * Therefore the "isHTML" argument needs to be set, based on the XSLT the "processor"
+   * Therefore, the "isHTML" argument needs to be set, based on the XSLT the "processor"
    * argument encapsulates.
    * @param doc - The document to take care for
    * @param {Object} args
@@ -649,13 +650,13 @@ bcdui.core.XMLLoader = class
    * @param args.xslt  from transformationChain.chain.phases.xslt
    * @private
    */
-    _handleGeneratedXslt( doc, args ) 
+    _handleGeneratedXslt( doc, args )
     {
       if( !doc.selectSingleNode("/*[local-name()='stylesheet']") )
-        throw Error("Mediatype 'xslt' for non-stylesheet given in a genereated document by '"+args.stylesheetURL+"'");
-      
+        throw Error("Mediatype 'xslt' for non-stylesheet given in a generated document by '"+args.stylesheetURL+"'");
+
       doc = bcdui.core.browserCompatibility.cleanupGeneratedXslt( {processor: args.processor, doc: doc} );
-  
+
       /*
        * For generated xslts, fix up the URLs used by xsl:import / xsl:include, because the new document
        * does not have a base URI. An absolute path is expected to begin below the contextPath
@@ -664,7 +665,7 @@ bcdui.core.XMLLoader = class
         this._translateRelativeXSLImportUrlsToAbsolute(doc, args.stylesheetURL.replace(bcdui.getContextPath(),""));
       else
         this._translateRelativeXSLImportUrlsToAbsolute(doc, location.href.replace(new RegExp("^([^?#]+/)[^?#/]*.*$"), "$1"));
-    
+
       // For debugging purposes
       if( bcdui.isDebug ) {
         args.xslt.intermediateDocuments = args.intermediateDocumentsDoExtend ? args.xslt.intermediateDocuments : new Array();
@@ -678,7 +679,7 @@ bcdui.core.XMLLoader = class
             traceXsltProcTime = Date.now() - traceXsltProcTime;
             bcdui.debug._addProcessorExecutionTime( args.transformationChain.id, traceXsltProcTime );
             if( !result ) {
-              bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transfomation "+(args.stylesheetURL)+", "+args.transformationChain.id});
+              bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transformation "+(args.stylesheetURL)+", "+args.transformationChain.id});
             }
             if( bcdui.log.isTraceEnabled() ) {
               var inputAsString = new XMLSerializer().serializeToString(args.sourceDoc);
@@ -688,10 +689,10 @@ bcdui.core.XMLLoader = class
           }.bind(this)
         });
       }.bind(this) });
-        
+
       return;
     }
-    
+
 };  // Create class: bcdui.core.XMLLoader
 
 /**

@@ -25,6 +25,7 @@ ___
 * new dataprovider options tblSelect, tblSelectRow, tblUpdate, tblInsert, tblDelete which offers wrs -> object -> wrs functions (currently limited to wrs)
 * added bcdui.bcdAlerter (.info/.warn/.error) to show a slide in alert
 * autogrow attribute for textarea widget
+* Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 .Security:
 .Development:
 .Bugfixes:
@@ -43,8 +44,9 @@ ___
 ** oAuth now requires a popup for the login window, this looks more consistent and allows for cookie SameSite=strict setting
 ** OAuth Realms now need to create the session on successful login and cannot rely on JdbcRealm doing that anymore
 * wrq filter operator like automatically escapes %, _ and \ now. Don't use local workarounds where you add \ yourself.
-* bcdui.config.userName now holds the value from bcdui_sec_user.name not user_login anymore
-
+* `bcdui.config.userName` now holds the value from bcdui_sec_user.name not user_login anymore
+* `bcdui.browserCompatibility.isXYZ` for various browser detections updated. Removed `isIE`, `isMsEdge`, `isIE8`. `isChromiumEdge` became `isEdge`
+* Remove msxsl namespace from preset namespaces
 ___
 ==== Release 5_6_0
 
