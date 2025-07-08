@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -293,14 +293,14 @@ bcdui.core = Object.assign(bcdui.core,
 
   /**
    * Removes the xml:base attribute from all XML elements. This is useful for example
-   * in FireFox and Chrome, because they do not allow xml:base to occur in XSLT documents.
+   * in FireFox (Gecko 140) and Chrome (Blink 139), because they do not allow xml:base to occur in XSLT documents.
    * @param {DomDocument} doc - The document the xml:base attributes should be removed from.
    * @return {DomDocument} The doc passed as argument for convenience.
    * @private
    */
   removeXMLBase: function(/* XMLDocument */ doc)
     {
-    jQuery.makeArray(doc.selectNodes("//*[@*[name() = 'xml:base']]")).forEach(function(element) {
+      jQuery.makeArray(doc.selectNodes("//*[@*[name() = 'xml:base']]")).forEach(function(element) {
         element.removeAttribute("xml:base");
       });
       return doc;

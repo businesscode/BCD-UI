@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
  *         Factory functions for creating XML documents, parsing and
  *         serialization and creating XSLT processors.
  *                                                                             </p></dd><dt>
- *   XML Manipulation + IE API Compatibilty                                    </dt><dd><p>
+ *   XML Manipulation + IE API Compatibility                                    </dt><dd><p>
  *         The Mozilla / Webkit XML classes are augmented so that they
  *         implement the IE-compatible interface. Then the users can
  *         focus on this API only.
@@ -110,7 +110,7 @@ bcdui.core.browserCompatibility = {
      * Internet Explorer.
      * @param {HtmlElement} targetElement The targetElement which is used for appending the new element.
      * @param {string} name The element name which may contain a well-known prefix.
-     * @param {boolean} insertBeforeTargetElement Preprend instead of append element.
+     * @param {boolean} insertBeforeTargetElement Prepend instead of append element.
      * @returns {DomElement} The new XMLElement.
      */
     appendElementWithPrefix: function(/* HTMLElement */ targetElement, /* String */ name, /* Boolean? */ insertBeforeTargetElement)
@@ -183,6 +183,9 @@ bcdui.core.browserCompatibility = {
       return output.getAttribute("media-type")==="text/xslt" ? "xslt" : output.getAttribute("method")==="html" ? "html" : "xml";       
     },
 
+    /**
+     * Prepare for implementing xsl:import by replacing bcduicp: with the application's context
+     */
     preXslImportByProc: function(domDocument) {
       var importNodes = domDocument.selectNodes("/*/xsl:import[starts-with(@href,'bcduicp://')]");
       for( var iN = 0; iN <importNodes.length; iN++ )
@@ -193,8 +196,6 @@ bcdui.core.browserCompatibility = {
         e.setAttribute("select", e.getAttribute("select").replace(/bcduicp:\/\//g, bcdui.config.contextPath + "/"));
       });
     },
-    
-    
 
     jQueryXhr: jQuery.ajaxSettings.xhr 
 };
@@ -370,10 +371,12 @@ bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = functio
   var prefixArray = serializedDoc.match(/\b([\w-]+)(?=:(?![:/]))/g);
   if(! prefixArray)
     return serializedDoc;
-  prefixArray = prefixArray.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);;
+  prefixArray = prefixArray.reduce(function(a, b) { if(a.indexOf(b)===-1) a.push(b); return a; }, []);
 
+  // Existing attributes
   var documentAttributes = bcdui.core.xmlLoader._getDocumentElementAttributes(serializedDoc);
 
+  // Add all referenced well-known namespaces (identified by well-known prefix), remove unused
   for (var nsName in bcdui.core.xmlConstants.namespaces) {
     if( prefixArray.indexOf(nsName) != -1 ) {
       documentAttributes["xmlns:" + nsName] = bcdui.core.xmlConstants.namespaces[nsName];
@@ -392,6 +395,6 @@ bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = functio
   var endOfRoot = serializedDoc.match(new RegExp("<" + (m[1]||"") + m[2] + "\\s*([^>]*)"))[0];
   newElem += endOfRoot.substring(endOfRoot.length-1) == "/" ? "/>" : ">";
 
-  // Replace the first occurance of the tag
+  // Replace the first occurrence of the tag
   return serializedDoc.replace(new RegExp("<" + (m[1]||"") + m[2] + "\\s*([^>]*)>"), newElem);
 };
