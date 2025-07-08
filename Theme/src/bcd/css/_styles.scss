@@ -1462,6 +1462,9 @@ span.bcdInputFieldGrid {
 
 .bcdGrid {
 
+  .bcdGridBody { pointer-events: auto; }
+  .bcdGridBody > div { pointer-events: none; }
+
   display: flex;
   flex-direction: column;
   .bcdGridBody, .bcdGridHead, .bcdGridFoot {
