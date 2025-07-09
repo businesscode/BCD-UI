@@ -2817,6 +2817,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     if (trimmingContainer !== window && trimmingContainer != jQuery("#"+this.targetHtml).get(0))
       jQuery("#"+this.targetHtml).find(".bcdGridBody").css({overflow: "hidden", height: "auto", width: "auto"});
 
+    // passthrough wheel y scrolling to trimming container
+    jQuery("#"+this.targetHtml).find(".bcdGridBody").get(0).addEventListener('wheel', function(event) {
+      if (event.shiftKey || !event.target.closest('.handsontable')) return;
+      trimmingContainer.scrollTop += event.deltaY;
+      event.preventDefault();
+    }, { passive: false });
+
     // pagination renderer, model and listener to rerender on page change
     var gotPagination = this.getEnhancedConfiguration().query("//xp:Paginate") != null;
     this.pager.onceReady(function() {
