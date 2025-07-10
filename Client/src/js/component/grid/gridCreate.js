@@ -2943,10 +2943,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           else { 
             this.serverSidedRefresh = true;
 
+            this.wrsHeader = this.gridModel.query("/*/wrs:Header/wrs:Columns").cloneNode(true);
+
             this._blindGrid()
             this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
               this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
                 this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+
+                  // take over old wrs header to avoid pagination attribute issues
+                  const existingElement = this.gridModel.query("/*/wrs:Header/wrs:Columns");
+                  existingElement.parentNode.replaceChild(this.wrsHeader, existingElement);
+
                   // signal readiness
                   this._unBlindGrid()
                   holder.setSource(bcdui.wkModels.guiStatus);  
