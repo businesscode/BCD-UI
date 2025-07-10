@@ -752,14 +752,31 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           // total count and refresh paginate widget
           if (this.paginationRenderer) {
             this.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-              var c = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
-              this.totalRowCountDp.write("/*/wrs:Data/wrs:*[1]/wrs:C[1]", c, true);
-              var curPage = this._getCurrentPage();
-              var pageSize = this._getCurrentPageSize();
-              if (1 + (curPage * pageSize) - pageSize > c && curPage > 1)
-                this.pager.write("//xp:Paginate/xp:PageNumber", curPage - 1, true);
-              else
-                this.paginationRenderer.execute();
+              if (this.serverSidedPagination) {
+                this.totalRowCountDp.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                  this.totalRowCountDp.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                    this.totalRowCountDp.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                      this.paginationRenderer.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                        this._unBlindGrid();
+                      }.bind(this)});
+                      this.paginationRenderer.execute();
+                    }.bind(this)});
+                    this.totalRowCountDp.execute(true);
+                  }.bind(this)});
+                  this.totalRowCountDp.urlProvider.execute(true);
+                }.bind(this)});
+                this.totalRowCountDp.urlProvider.requestModel.execute(true);
+              }
+              else {
+                var c = this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]").length;
+                this.totalRowCountDp.write("/*/wrs:Data/wrs:*[1]/wrs:C[1]", c, true);
+                var curPage = this._getCurrentPage();
+                var pageSize = this._getCurrentPageSize();
+                if (1 + (curPage * pageSize) - pageSize > c && curPage > 1)
+                  this.pager.write("//xp:Paginate/xp:PageNumber", curPage - 1, true);
+                else
+                  this.paginationRenderer.execute();
+              }
             }});
           }
           this.execute();
