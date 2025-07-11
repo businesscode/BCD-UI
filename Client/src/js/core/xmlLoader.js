@@ -464,7 +464,7 @@ bcdui.core.XMLLoader = class
                * On IE the response.getHeader function does not yet work.
                */
               if (jqXHR.getResponseHeader("Content-Length") == 0) {
-                bcdui.log.warn("Got empty response: This may lead to 'Kein Element gefunden' Exception in FireFox");
+                bcdui.browserCompatibility.isGecko && bcdui.log.warn("Got empty response: This may lead to 'Kein Element gefunden' Exception in FireFox");
                 if (bcdui.util.isFunction(args.onSuccess)) {
                   args.onSuccess(null);
                 }
