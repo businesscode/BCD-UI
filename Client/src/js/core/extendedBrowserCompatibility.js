@@ -26,7 +26,7 @@
  *   Both limitations are worked around by inserting their source into the XSLT in a variable and make them usable with node-set(var)
  *   Because those documents can be xslt and in turn make use of it, it is done recursively
  * - Gecko does not support xsl:namespace-alias and also stopped supporting document() in May 2025, but still supports parameters being node-sets
- *   While it may support xsl:import, because we need to handle document() in imported xslt as well, we also have to handle xsl:import for firefox as well.
+ *   While it may support xsl:import, because we need to handle document() in imported xslt as well, we also have to handle xsl:import for Firefox as well.
  * - Mobile Webkit, Blink browsers from smaller documents, this mechanism can be limited to insert a wrs:Wrs/wrs:Header and not the wrs:Data,
  *   if the using xslt is maked with bcdxml:wrsHeaderIsEnough
  */
@@ -85,7 +85,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isGecko) {
       // - adding exsl namespace for use of node-set()
       // - adding a dummy variable for http://www.w3.org/1999/XSL/Transform/webkitTemp
       // - adding a template for http://www.w3.org/1999/XSL/Transform/webkitTemp stuff becoming http://www.w3.org/1999/XSL/Transform (just in case we include an xslt)
-      bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(domDocument,['xsl']);
+      domDocument = bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(domDocument,['xsl']);
       domDocument.documentElement.setAttributeNS("http://www.w3.org/1999/XSL/Transform/webkitTemp", "xslTmp:dummy", "dummy");
       if( domDocument.selectSingleNode("/*/xsl:output[@media-type='text/xslt']")!=null
           && domDocument.selectSingleNode("/*/xsl:template[@match='xslTmp:*' and @mode='generateXSLT']")==null ) {
@@ -371,7 +371,8 @@ if (bcdui.browserCompatibility.isWebKit) {
         doc.documentElement.setAttributeNS(uri, prefix + ":dummy", "dummy")
       }
     }
-  },
+    return doc;
+  };
 
   /*
    * Workaround for Webkit, because it does not copy the namespaces which are only used in XPath select attributes.
@@ -433,7 +434,7 @@ if (bcdui.browserCompatibility.isWebKit) {
         var param = this.xslt.selectSingleNode("/*/xsl:param[@name='"+name+"']");
         if( !param )
           return;
-        bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(this.xslt,['xsl']); // mainly for exslt for node-set
+        this.xslt = bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(this.xslt,['xsl']); // mainly for exslt for node-set
         param.setAttribute("select","exslt:node-set($data_"+name+")"+(value.documentElement?"":"/*"));
         variable = XSLTProcessor.prototype.variableAnchor.cloneNode(true);
         variable.setAttribute("name", "data_"+name);
@@ -543,7 +544,21 @@ if (bcdui.browserCompatibility.isGecko) {
    */
   bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement = function(/* XMLDocument */ doc, except )
   {
-    return;
+    for (var prefix in bcdui.core.xmlConstants.namespaces) {
+      var uri = bcdui.core.xmlConstants.namespaces[prefix];
+      if( !except || except.indexOf(prefix)==-1 ) {
+        doc.documentElement.setAttributeNS(uri, prefix + ":dummy", "dummy")
+      }
+    }
+    // DOMException: An attempt was made to create or change an object in a way which is incorrect with regard to namespaces
+    // In FireFox this error indicates that a prefix was used in an attribute like select="wrs:Data" which is not know to the document
+    // Strangely FireFox (v140) will not recognize namespaces added via an attribute as it is done in the loop.
+    // We need to parse it afterwards to make it happen. A similar effekt is mentioned above already 
+    // So we parse a shallow copy, move over the children and then exchange the nodes
+    let newDocElem = new DOMParser().parseFromString( new XMLSerializer().serializeToString(doc.documentElement.cloneNode(), "text/xml"), "text/xml" ).documentElement;
+    while (doc.documentElement.firstChild) newDocElem.appendChild(doc.documentElement.firstChild);
+    doc.replaceChild(newDocElem, doc.documentElement);
+    return doc;
   }
 
 }
