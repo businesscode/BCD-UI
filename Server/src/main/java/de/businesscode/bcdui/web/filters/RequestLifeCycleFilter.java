@@ -108,7 +108,7 @@ public class RequestLifeCycleFilter implements Filter {
     String url = request.getRequestURL().toString();
 
     // when user is already authenticated and you enter login page again then forward to contextPath
-    if (url.toLowerCase().endsWith("/login.html") || url.toLowerCase().endsWith("/login.jsp")) {
+    if (url.toLowerCase().endsWith("/login.html") || url.toLowerCase().endsWith("/login.jsp") || url.toLowerCase().endsWith("/oauth") ) {
       Subject subject = null;
       try {
         subject = SecurityUtils.getSubject();

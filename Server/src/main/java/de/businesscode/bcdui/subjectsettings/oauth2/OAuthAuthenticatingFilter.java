@@ -94,7 +94,7 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
   protected String authorizeEndpoint;
   protected String optionalProviderId;
   protected String scope;
-  // we override this one
+  // Originally requested url (deep link) or else the value configured in shiro.ini or else "/"
   protected String successUrl;
   protected RESPONSE_MODE responseMode = RESPONSE_MODE.form_post;
 
@@ -244,6 +244,8 @@ public class OAuthAuthenticatingFilter extends AuthenticatingFilter {
     if( sr != null && sr.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD) && sr.getRequestUrl() != null ) originalUrl = sr.getRequestUrl();
     // Nothing configured and no previous request, then is is our last resort (and in most cases right) to be used later if login succeeded
     if( originalUrl == null ) originalUrl = ((HttpServletRequest)request).getContextPath();
+    // In case we are root context, this will be empty. But setting location.href in js to an empty string does not have any effect, so we make sure it is / instead
+    if( originalUrl.isEmpty() ) originalUrl = "/";
     
     // Store the state for dealing with the answer from the Identity Provider
     var requestContext = new RequestContext(this.providerInstanceId, originalUrl);
