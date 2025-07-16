@@ -28,6 +28,7 @@ ___
 .Security:
 .Development:
 .Bugfixes:
+* WrsNextIdentifierServlet: fix counter creation with blockSize>1
 
 .Incompatibilities:
 * In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`

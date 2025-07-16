@@ -19,21 +19,20 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
-import org.apache.commons.lang.StringEscapeUtils;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 /**
  * provides next identifier - table based id generator,
  * binding-set: bcd_identifier
@@ -121,8 +120,8 @@ public class WrsNextIdentifierServlet extends HttpServlet {
           break;
         }else if(lastInsertException == null){
           // no updates as there is no such scope, create it
-          log.debug("create non existent scope: " + scope);
-          nextId = new BigDecimal("1");
+          log.debug("create non existent scope: {}, blockSize: {} ", scope, blockSize);
+          nextId = new BigDecimal("0").add(new BigDecimal(blockSize));
           try {
             new QueryRunner(true).update(con, e.transform("#set($b = $bindings.bcd_identifier)INSERT INTO $b.plainTableName ($b.scope_, $b.lastid_) VALUES (?,?)"), scope, nextId);
             break;
