@@ -19,7 +19,9 @@
  * It supports a login form as well as OAuth login
  * To Support cookies SameSite=strict, we work with a popup for OAUth login opened by the a tags below
  *
- * It requires the body form to be provided by the project like this:
+ * It requires
+ * 1. the main page <body bcd-login> tag to have the bcd-login attribute being set
+ * 2. To be use with a form with the fields and your layout like this sample:
      <bcd-loginng>
        <form class="bcd__login-form">
          <div class="container">
@@ -166,7 +168,7 @@
           const left = window.screenX + (window.outerWidth - width) / 2;
           const top = window.screenY + (window.outerHeight - height) / 2;
           const params = `width=${width},height=${height},left=${left},top=${top}`;
-          btn.onclick = window.open.bind(null, `./oauth?oauth-provider-id=${providerId}`, "oauthPopup", params);
+          btn.onclick = () => window.open(`${bcdui.contextPath}/oauth?oauth-provider-id=${providerId}`, "oauthPopup", params);
         }
       );
 
