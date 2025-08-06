@@ -527,6 +527,8 @@ if (bcdui.browserCompatibility.isGecko) {
       let out = this.transformToFragment(args.input, document);
       let outAsString = new XMLSerializer().serializeToString(out);
       outAsString = outAsString.replace(/xmlns=("|')[^"']*("|')/g, "xmlns='http://www.w3.org/1999/xhtml'");
+      if (!outAsString.trim())
+        outAsString = "<template bcdComment='this is an empty html'/>";
       out = new DOMParser().parseFromString(outAsString,"text/xml").documentElement;
       args.callBack( out );
     }
