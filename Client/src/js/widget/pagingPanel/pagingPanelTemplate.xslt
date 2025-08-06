@@ -79,7 +79,7 @@
               <xsl:attribute name="onchange">
                 var val = this.value;
                 bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject('<xsl:value-of select="$targetModelId"/>').dataDoc, "<xsl:value-of select="$targetModelXPath"/>").text = val;
-                for (var i = 0; i &lt; this.options.length; i++ )
+                for (var i = 0; i != this.options.length; i++ )
                 {
                   if (this.options[i].value == val)
                     this.options[i].selected = 'selected';
