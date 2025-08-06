@@ -530,7 +530,9 @@ if (bcdui.browserCompatibility.isGecko) {
       if (!outAsString.trim())
         outAsString = "<template bcdComment='this is an empty html'/>";
       out = new DOMParser().parseFromString(outAsString,"text/xml").documentElement;
-      args.callBack( out );
+      const fragment = document.createDocumentFragment();
+      fragment.appendChild(out)
+      args.callBack(fragment);
     }
     else {
       let result = this.transformToDocumentOrig(args.input);
