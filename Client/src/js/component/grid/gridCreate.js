@@ -1423,11 +1423,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var xPath = (gotPagination && curPage != -1 && pageSize != -1) ? "[position() >= " + wrsStart + " and position() <= " + wrsStop + "]" : "";
 
     // in case we got serverSidedPagination, we simply show all wrs data (not(@key) = freshly loaded data, @key=P.. = data belonging to current page)
-    if (this.serverSidedPagination && curPage != -1) {
+    if (this.serverSidedPagination && curPage != -1)
       xPath = "[not(@key) or @key='P"+wrsStart + "_" + wrsStop+"']";
-      curPage = 1;
-      wrsStart = 1;
-    }
 
     var index = 0;
     var indexFull = 0;
@@ -1441,7 +1438,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       Array.prototype.forEach.call( this.gridModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]"), function(row){ this.rowIdMapFull[row.getAttribute("id")] = indexFull++; }.bind(this));
 
     // in case of sorted values, take values from sorted array (and take pagination into account if needed) 
-    if (sortedValues != null) {
+    if (!this.serverSidedPagination && sortedValues != null) {
 
       var start = (gotPagination && curPage != -1 && pageSize != -1) ? wrsStart - 1 : 0;
       var stop = (gotPagination && curPage != -1 && pageSize != -1) ? wrsStop : sortedValues.length;
