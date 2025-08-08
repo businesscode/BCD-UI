@@ -75,6 +75,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     // list of column names which are checked in the request and total row count requests. 
     const dph = new bcdui.core.DataProviderHolder();
     const tsdp = new bcdui.core.ConstantDataProvider({id: id + "_tsColumns", name: "timeStampColumns", value: ""});
+    const keyColumnsServerSidedDp = new bcdui.core.ConstantDataProvider({id: id + "_keyColumnsServerSided", name: "keyColumnsServerSided ", value: ""});
     if (! serverSidedPagination)
       dph.setSource(bcdui.wkModels.guiStatus)
     else {
@@ -89,6 +90,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
             bRefs = bRefs.join(" ");
             const meta = new bcdui.core.AutoModel({bindingSetId: bindingSet, bRefs: bRefs, maxRows: 0 });
             meta.onceReady(function() {
+              keyColumnsServerSidedDp.value = Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@isKey='true']")).map(function(e) { return e.getAttribute("id"); }).join(" ");
               tsdp.value = (bcdui.core.magicChar.separator + Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@type-name='TIMESTAMP']")).map(function(e) { return e.getAttribute("id"); }).join(bcdui.core.magicChar.separator) + bcdui.core.magicChar.separator);
               dph.setSource(bcdui.wkModels.guiStatus);
             }.bind(this));
@@ -118,6 +120,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
       , gridModelId: id
       , dph : dph
       , timeStampColumns: tsdp
+      , keyColumnsServerSidedDp : keyColumnsServerSidedDp 
       },
       chain: finalChain
     });

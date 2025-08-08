@@ -21,18 +21,27 @@
   xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
-  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
+  xmlns:exslt="http://exslt.org/common"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  exclude-result-prefixes="exslt msxsl">
+
+  <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
+  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set']= function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" />
 
   <xsl:param name="statusModel" select="/*[1=0]"/>
   <xsl:param name="pagerModel" select="/*[1=0]"/>
+  <xsl:param name="keyColumnsServerSidedDp" select="/*[1=0]"/>
   <xsl:param name="serverSidedPagination"/>
   <xsl:param name="gridModelId"/>
   <xsl:param name="timeStampColumns"/>
   
   <xsl:variable name="excludedStatusFilterBrefs" select="/*/grid:SelectColumns/grid:FilterExclude/@bRefs"/>
-
+  <xsl:variable name="keyColsServerSidedStr"><xsl:call-template name="tokenize"><xsl:with-param name="string" select="$keyColumnsServerSidedDp" /><xsl:with-param name="delimiter" select="' '" /></xsl:call-template></xsl:variable>
+  <xsl:variable name="keyColsServerSidedTokens" select="exslt:node-set($keyColsServerSidedStr)" />
+ 
   <xsl:template match="/*">
 
     <xsl:variable name="paginate" select="$pagerModel/*/xp:Paginate"/>
@@ -106,6 +115,19 @@
             </xsl:otherwise>
           </xsl:choose>
 
+          <!-- add key columns as additional sorting information when using serversided pagination -->
+          <xsl:if test="$serverSidedPagination='true' and $keyColsServerSidedTokens/wrs:Wrs/wrs:Data/wrs:R">
+            <xsl:variable name="colSort" select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ColumnSorting[@id=$gridModelId]/@columnId"/>
+            <xsl:variable name="configSort" select="/*/grid:OrderColumns/grid:C"/>
+            <xsl:for-each select="$keyColsServerSidedTokens/wrs:Wrs/wrs:Data/wrs:R">
+              <xsl:variable name="keybRef" select="."/>
+              <xsl:choose>
+                <xsl:when test="$colSort=$keybRef"></xsl:when>
+                <xsl:when test="$configSort[@bRef=$keybRef]"></xsl:when>
+                <xsl:otherwise><wrq:C bRef="{.}"/></xsl:otherwise>
+              </xsl:choose>
+            </xsl:for-each>
+          </xsl:if>
         </wrq:Ordering>
 
         <!-- GROUP BY if requested -->
