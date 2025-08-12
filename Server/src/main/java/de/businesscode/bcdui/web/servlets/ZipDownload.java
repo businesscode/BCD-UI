@@ -36,7 +36,6 @@ import org.xml.sax.InputSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.businesscode.bcdui.toolbox.DownloadServlet;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.Resource;
 import de.businesscode.bcdui.web.servlets.StaticResourceServlet.StaticResourceProvider;
 import de.businesscode.bcdui.web.wrs.RequestOptions;
@@ -49,9 +48,28 @@ import de.businesscode.util.xml.SecureXmlFactory;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletOutputStream;
 
+/**
+ * Class to provide zipping and downloading a specified number of files
+ * which need to be accessible via ResourceServlet (which also provides the secured access)
+ * Files are specified via a config
+ * <Vfs xmlns="http://www.businesscode.de/schema/bcdui/vfs-1.0.0">
+ *   <Zip>
+ *     <Folder name="folder1">
+ *       <File name="/vfs/documents/ace9e8e7-548a-4410-aa52-c57fb32e34fa/xf"/>
+ *     </Folder>
+ *     <Folder .... />
+ *   </Zip>
+ * </Vfs>
+ *  As an alternative, you can also provide a scope/instance pair instead of a path name.
+ *  This will get all matching entries from bcd_docUpload and adds them as files
+ *  <File scope="..." instance="..."/>
+ * 
+ *  This class is triggered by the StaticResourceServlet if you provide an url with parameter zipInfo
+ *  which is the compressed config xml
+ */
 public class ZipDownload {
 
-  private static final Logger log = LogManager.getLogger(DownloadServlet.class);
+  private static final Logger log = LogManager.getLogger(ZipDownload.class);
   private static final String wrqRequest = "<wrq:WrsRequest xmlns:f=\"http://www.businesscode.de/schema/bcdui/filter-1.0.0\" xmlns:wrq=\"http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0\"><wrq:Select><wrq:Columns><wrq:C bRef='scopeInstance'/><wrq:C bRef='path'/></wrq:Columns><wrq:From><wrq:BindingSet>bcd_docUpload</wrq:BindingSet></wrq:From><f:Filter><f:Expression op='in' value='#' bRef='scopeInstance'/></f:Filter></wrq:Select></wrq:WrsRequest>"; 
 
   private HashMap<String, ArrayList<String>> fileMap = new HashMap<>();
@@ -172,6 +190,13 @@ public class ZipDownload {
     }
   }
   
+  /**
+   * zips and downloads the files specified in the config
+   * if a file is not accessible, it is skipped and
+   * filenames within a subfolder are unique. In case there are more than one having the same name, a counter is added
+   * 
+   * @return ArrayList of skipped/bad files
+   */
   public ArrayList<String> getZip(ServletContext context, ServletOutputStream outputStream) throws IOException {
     ZipOutputStream zipOut = new ZipOutputStream(outputStream);
 
