@@ -99,7 +99,10 @@
         </Param>
         <Param name="disabled" type="boolean" default="false">
           <Doc>All input widgets can be set to be disabled. If disabled, a widget cannot receive a focus, also a style cannot
-          be changed in many browsers. There is no read-only. Also consult read-only vs disabled: http://www.w3.org/TR/html4/interact/forms.html#h-17.12</Doc>
+          be changed in many browsers. There is no read-only. Also consult read-only vs disabled: http://www.w3.org/TR/html4/interact/forms.html#h-17.12.
+          Since this is a HTML property not a real boolean attribute, specify this only if you want to disable the widget. The actual value is ignored.
+          If it is specified, the widget is disabled.
+          </Doc>
         </Param>
         <Param name="widgetCaption" type="string">
           <Doc>A caption which is used as prefix for navPath generation for this widget.</Doc>
