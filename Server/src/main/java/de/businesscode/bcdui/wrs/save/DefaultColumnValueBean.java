@@ -70,7 +70,8 @@ public class DefaultColumnValueBean implements ServerSideValueBean {
 
     try{
       Subject subject = SecurityUtils.getSubject();
-      this.userName = this.userLogin = SecurityHelper.getUserLogin(subject);
+      this.userName = SecurityHelper.getUserName(subject);
+      this.userLogin = SecurityHelper.getUserLogin(subject);
       this.userId = SecurityHelper.getUserId(subject);
     }catch(Exception e){
       ;// swallow
