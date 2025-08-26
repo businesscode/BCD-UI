@@ -37,12 +37,12 @@
 
       var commentBox = this._createCommentBox();
       
-      var finalBRefs = "comment_text lastUpdate updatedBy instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
+      var finalBRefs = "comment_text bcdUpdateStamp bcdUpdateBy instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
       finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != ""; });
       finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
 
       this._renderCell = function(row, meta, rowData) {
-        return jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + rowData["lastUpdate"] + "</div><div class='col icon user'>" + rowData["updatedBy"] + "</div></div><div class='row body'><div class='col'>" + rowData["comment_text"] + "</div></div></div>");
+        return jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + rowData["bcdUpdateStamp"] + "</div><div class='col icon user'>" + rowData["bcdUpdateBy"] + "</div></div><div class='row body'><div class='col'>" + rowData["comment_text"] + "</div></div></div>");
       };
 
       this._updateRow =  function(keyColumn, keyValue, value) {
@@ -89,7 +89,7 @@
           bindingSetId: this.options.bindingSetId || "bcd_comment"
         , bRefs: finalBRefs.join(" ")
         , filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
-        , orderByBRefs: this.options.orderByBRefs || "lastUpdate-"
+        , orderByBRefs: this.options.orderByBRefs || "bcdUpdateStamp-"
         , filterBRefs: this.options.filterBRefs
         , saveOptions: {
           // after saving, we unblock the ui and reload the model and of course refresh the vfs
