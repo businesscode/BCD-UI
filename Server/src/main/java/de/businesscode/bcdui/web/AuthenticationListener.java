@@ -72,15 +72,13 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
     session.setAttribute("BCD_LOGIN_USER", userLogin);
     session.setAttribute("BCD_LOGIN_RESULT", result);
 
-    // set value for bcd_userId subject setting filter
+    // set value for bcd_userId and bcd_userLogin subject setting filter
     SubjectPreferences.setPermission("bcd_userId:userId", SecurityHelper.getUserId(info));
-    SubjectPreferences.setPermission("bcd_userId:userId:read", SecurityHelper.getUserId(info));
-    SubjectPreferences.setPermission("bcd_userId:userId:write", SecurityHelper.getUserId(info));
+    SubjectPreferences.setPermission("bcd_userLogin:userLogin", userLogin);
 
     // also make them available client sided (userId is available anyhow)
     SubjectPreferences.setPermission("bcdClient:userId", SecurityHelper.getUserId(info));
-    SubjectPreferences.setPermission("bcdClient:userId:read", SecurityHelper.getUserId(info));
-    SubjectPreferences.setPermission("bcdClient:userId:write", SecurityHelper.getUserId(info));
+    SubjectPreferences.setPermission("bcdClient:userLogin", userLogin);
   }
 
   /**
