@@ -34,7 +34,7 @@
     <Callbacks>
       <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
         <Param bindingItemId="lastUpdate" expression="${bcdBean.currentTimestampUtc}" isCoalesce="false"/>
-        <Param bindingItemId="updatedBy" expression="${bcdBean.userName}" isCoalesce="false" />
+        <Param bindingItemId="updatedBy" expression="${bcdBean.userId}" isCoalesce="false" />
       </Callback>
     </Callbacks>
   </WriteProcessing>

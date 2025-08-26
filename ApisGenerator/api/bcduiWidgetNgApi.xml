@@ -1215,6 +1215,12 @@ the data that is actually placed in XML.
 
       <Api name="comment" extends="widget hasLabel">
         <Doc> Offers a simple container with comment functionality</Doc>
+        <Param name="bindingSetId" type="string" default="bcd_comment">
+          <Doc>Comment binding set name. Needs at least the bRefs: comment_text lastUpdate updatedBy instance and scope.</Doc>
+        </Param>
+        <Param name="renderComment" type="function">
+          <Doc>A function which returns a HTML Element with the rendered comment. Function gets a param bag with comment, lastUpdate, updatedBy and uuid.</Doc>
+        </Param>
         <Param name="scope" type="string" required="true">
           <Doc>
             A given scope for the current comments.
@@ -1243,6 +1249,21 @@ the data that is actually placed in XML.
         <Param name="filterBRefs" type="stringList">
           <Doc>
             The space separated list of binding Refs that will be used in filter clause of request document.
+          </Doc>
+        </Param>
+        <Param name="orderByBRefs" type="stringList">
+          <Doc>
+            Space separated list of bRefs that will be used to order the data. A minus(-) sign at the end indicates descending sorting. By default it orders by lastUpdate descending.
+          </Doc>
+        </Param>
+        <Param name="excludeBRefs" type="stringList">
+          <Doc>
+            Space separated list of bRefs which are removed before save/update.
+          </Doc>
+        </Param>
+        <Param name="alwaysShowAdd" type="boolean" default="false">
+          <Doc>
+            If true, the add comment input area is always shown.
           </Doc>
         </Param>
       </Api>

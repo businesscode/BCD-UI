@@ -37,18 +37,59 @@
 
       var commentBox = this._createCommentBox();
       
-      var finalBRefs = "comment_text lastUpdate updatedBy" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
-      finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != "" && e != "scope"  && e != "instance"; });
+      var finalBRefs = "comment_text lastUpdate updatedBy instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
+      finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != ""; });
       finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
+
+      this._renderCell = function(row, meta, rowData) {
+        return jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + rowData["lastUpdate"] + "</div><div class='col icon user'>" + rowData["updatedBy"] + "</div></div><div class='row body'><div class='col'>" + rowData["comment_text"] + "</div></div></div>");
+      };
+
+      this._updateRow =  function(keyColumn, keyValue, value) {
+        var conf = jQuery(this.element).data("_config_");
+        var model = new bcdui.core.StaticModel(new XMLSerializer().serializeToString(conf.commentModel.getData()));
+        model.execute();
+
+        if (conf.excludeBRefs.length > 0)
+          bcdui.wrs.wrsUtil.deleteColumns(model, conf.excludeBRefs);
+        
+        const keyPos = model.read("/*/wrs:Header/wrs:Columns/wrs:C[@isKey='true' and @id='"+keyColumn + "']/@pos", "");
+        if (!keyPos)
+          throw new Error("missing key column: " + keyColumn);
+
+        bcdui.core.removeXPath(model.getData(), "/*/wrs:Data/wrs:*[wrs:C[position()="+keyPos+" and .!= '"+keyValue+ "']]", false);
+        const row = model.queryNodes("/*/wrs:Data/wrs:*");
+        if (row.length != 1)
+          return;
+        const rowId = row[0].getAttribute("id");
+        if (rowId) {
+          const oldValue = (bcdui.wrs.wrsUtil.getCellValue(model, rowId, "comment_text") || "").trim();
+          if (oldValue == value.trim())
+            return;
+          bcdui.wrs.wrsUtil.setCellValue(model, rowId, "comment_text", value.trim());
+          setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
+          bcdui.wrs.wrsUtil.postWrs({
+            wrsDoc: model.getData()
+          , onSuccess: function() { setTimeout(jQuery.unblockUI); config.commentModel.execute(true);}
+          , onFailure: function() { setTimeout(jQuery.unblockUI); config.commentModel.execute(true);}
+          , onWrsValidationFailure: function() { setTimeout(jQuery.unblockUI); config.commentModel.execute(true);}
+          });
+        }
+      };
 
       // our config holds sope, instance and the actual data model
       var config = {
-        scope: this.options.scope, instance: this.options.instance, onBeforeSave: this.options.onBeforeSave,
-        commentModel: new bcdui.core.AutoModel({ 
-          bindingSetId: "bcd_comment"
+          scope: this.options.scope
+        , instance: this.options.instance
+        , updateRow: this._updateRow.bind(this)
+        , excludeBRefs: this.options.excludeBRefs ? this.options.excludeBRefs.split(" ") : [] 
+        , onBeforeSave: this.options.onBeforeSave
+        , renderComment: this.options.renderComment || this._renderCell
+        , commentModel: new bcdui.core.AutoModel({ 
+          bindingSetId: this.options.bindingSetId || "bcd_comment"
         , bRefs: finalBRefs.join(" ")
         , filterElement: bcdui.wrs.wrsUtil.parseFilterExpression("scope='"+this.options.scope+"' and instance='"+this.options.instance+"'")
-        , orderByBRefs: "lastUpdate-"
+        , orderByBRefs: this.options.orderByBRefs || "lastUpdate-"
         , filterBRefs: this.options.filterBRefs
         , saveOptions: {
           // after saving, we unblock the ui and reload the model and of course refresh the vfs
@@ -69,11 +110,23 @@
 
       // readd events
       this.element.off("click");
-      this.element.on("click", ".edit", function() { jQuery(this).parent().next().toggle(); });
-      this.element.on("click", ".bcdButton", function(){
+      if (! this.options.alwaysShowAdd) {
+        this.element.on("click", ".bcdShowAddArea", function() { jQuery(this).parent().next().toggle(); });
+        jQuery(this.element).find(".bcdShowAddArea").show();
+        jQuery(this.element).find(".addRow").hide();
+      }
+      else {
+        jQuery(this.element).find(".bcdShowAddArea").hide();
+        jQuery(this.element).find(".addRow").show();
+      }
+
+      const self = this;
+      this.element.on("click", ".bcdAddComment", function(){
 
         // show/hide input field row
-        jQuery(this).closest(".bcdComment").find(".addRow").toggle();
+        if (! self.options.alwaysShowAdd)
+          jQuery(this).closest(".bcdComment").find(".addRow").toggle();
+
         var conf = jQuery(this).closest(".bcdComment").parent().data("_config_");
         var value = jQuery(this).closest(".bcdComment").find("input").val() || "";
         var model = conf.commentModel;
@@ -83,10 +136,9 @@
 
           // remove entered value
           jQuery(this).closest(".bcdComment").find("input").val("");
-
-          var lastPos = model.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length + 1;
-          bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='scope' and @pos='"+lastPos+"' and @nullable='1' and @type-name='VARCHAR']");
-          bcdui.core.createElementWithPrototype(model.getData(), "/*/wrs:Header/wrs:Columns/wrs:C[@id='instance' and @pos='"+(lastPos + 1)+"' and @nullable='1' and @type-name='VARCHAR']");
+          
+          if (conf.excludeBRefs.length > 0)
+            bcdui.wrs.wrsUtil.deleteColumns(model, conf.excludeBRefs);
 
           bcdui.wrs.wrsUtil.insertRow({model: model, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "comment_text", value);
@@ -94,11 +146,12 @@
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "instance", conf.instance);
 
             // undo changes in case onBeforeSave is specified and returns false 
-            if (config.onBeforeSave && typeof config.onBeforeSave == "function")
+            if (config.onBeforeSave && typeof config.onBeforeSave == "function") {
               if (! config.onBeforeSave(model)) {
                 model.execute(true);
                 return;
               }
+            }
 
             setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
             model.sendData();
@@ -112,18 +165,18 @@
       , inputModel: config.commentModel
       , chain: function(doc, args) {
           this.element.find(".bcdComment .commentTable").empty();
-          var comment_text_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@pos", "");
-          var lastUpdate_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='lastUpdate']/@pos", "");
-          var updatedBy_idx = config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='updatedBy']/@pos", "");
-          var rows = Array.from(doc.selectNodes("/*/wrs:Data/wrs:R"));
+          let rows = Array.from(doc.selectNodes("/*/wrs:Data/wrs:R"));
           if (rows.length == 0)
-            jQuery("<div>"+(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Comment_No_Comments"}) || "No Comments")+"</div>").appendTo(this.element.find(".bcdComment .commentTable"));
+            jQuery("<div class='bcdEmpty'>"+(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Comment_No_Comments"}) || "No Comments")+"</div>").appendTo(this.element.find(".bcdComment .commentTable"));
           else {
+            let meta = bcdui.wrs.wrsUtil.generateWrsHeaderMeta(doc);
+            const rowData = {}
             rows.forEach(function(r) {
-              var comment = r.selectSingleNode("wrs:C["+comment_text_idx+"]").text;
-              var lastUpdate = r.selectSingleNode("wrs:C["+lastUpdate_idx+"]").text;
-              var updatedBy = r.selectSingleNode("wrs:C["+updatedBy_idx+"]").text;
-              jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + lastUpdate + "</div><div class='col icon user'>" + updatedBy + "</div></div><div class='row body'><div class='col'>" + comment + "</div></div></div>").appendTo(this.element.find(".bcdComment .commentTable"));
+              for (let col in meta)
+                rowData[col] = bcdui.util.escapeHtml(r.selectSingleNode("wrs:C["+meta[col].pos+"]").text || "");
+              const html = config.renderComment(r, meta, rowData);
+              if (jQuery(html).length > 0)
+                jQuery(html).appendTo(this.element.find(".bcdComment .commentTable"));
             }.bind(this));
           }
           return doc;
@@ -148,7 +201,7 @@
         this.element.find(".commentTable").css("height", outerHeight + "px");
       }.bind(this));
     },
-
+    
     _createCommentBox: function(){
 
       var opts = this.options;
@@ -163,7 +216,7 @@
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
-      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit'></div></div><div class='row addRow' style='display:none'><div class='col'><input class='form-control' maxlength='256' placeholder='"+placeholder+"'></input></div><div class='col add'><span class='bcdButton'><a>" + addTxt + "</a></span></div></div>";
+      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' maxlength='256' placeholder='"+placeholder+"'></input></div><div class='col add'><span class='bcdAddComment bcdButton'><a>" + addTxt + "</a></span></div></div>";
       var el = jQuery("<div class='bcdComment'>"+add+"<div class='row'><div class='col commentTable'></div></div></div>");
 
       el.attr("id","comment_" + opts.id);
