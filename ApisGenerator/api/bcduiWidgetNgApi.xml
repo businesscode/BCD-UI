@@ -1266,6 +1266,11 @@ the data that is actually placed in XML.
             If true, the add comment input area is always shown.
           </Doc>
         </Param>
+        <Param name="useTextarea" type="boolean" default="false">
+          <Doc>
+            If true, uses a textarea instead of an input field.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="label" extends="widget">

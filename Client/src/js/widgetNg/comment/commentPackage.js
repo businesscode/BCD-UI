@@ -35,6 +35,8 @@
       // avoid rendering while attaching children
       this.element.hide();
 
+      this.inputElement = this.options.useTextarea ? "textarea" : "input";
+
       var commentBox = this._createCommentBox();
       
       var finalBRefs = "comment_text bcdUpdateStamp bcdUpdateBy instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
@@ -128,7 +130,7 @@
         jQuery(this.element).find(".bcdShowAddArea").hide();
         jQuery(this.element).find(".addRow").show();
       }
-
+      
       const self = this;
       this.element.on("click", ".bcdAddComment", function(){
 
@@ -137,14 +139,14 @@
           jQuery(this).closest(".bcdComment").find(".addRow").toggle();
 
         var conf = jQuery(this).closest(".bcdComment").parent().data("_config_");
-        var value = (jQuery(this).closest(".bcdComment").find("input").val() || "").trim();
+        var value = (jQuery(this).closest(".bcdComment").find(self.inputElement).val() || "").trim();
         var model = conf.commentModel;
 
         // add scope and instance columns in header and add a new prefilled row
         if (conf && model && value) {
 
           // remove entered value
-          jQuery(this).closest(".bcdComment").find("input").val("");
+          jQuery(this).closest(".bcdComment").find(self.inputElement).val("");
           
           if (conf.excludeBRefs.length > 0)
             bcdui.wrs.wrsUtil.deleteColumns(model, conf.excludeBRefs);
@@ -201,7 +203,7 @@
       config.commentModel.onceReady(function() {
         const maxLen = parseInt(config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@display-size", "-1"), 10);
         if (maxLen != -1)
-          this.element.find(".bcdComment .addRow input").attr("maxlength", "" + maxLen); 
+          this.element.find(".bcdComment .addRow " + this.inputElement).attr("maxlength", "" + maxLen); 
       }.bind(this))
 
       // rerender when comment model was saved
@@ -238,16 +240,16 @@
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
-      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' placeholder='"+placeholder+"'></input></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
+      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><"+this.inputElement+" class='form-control' placeholder='"+placeholder+"'></"+this.inputElement+"></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
       var el = jQuery("<div class='bcdComment'>"+add+"<div class='row'><div class='col commentTable'></div></div></div>");
 
       el.attr("id","comment_" + opts.id);
-      el.find("input").attr("tabindex", opts.tabindex);
-      el.find("input").attr("autofocus", opts.autofocus);
-      el.find("input").attr("readonly", opts.readonly);
+      el.find(this.inputElement).attr("tabindex", opts.tabindex);
+      el.find(this.inputElement).attr("autofocus", opts.autofocus);
+      el.find(this.inputElement).attr("readonly", opts.readonly);
       if(opts.disabled){
-        el.find("input").attr("disabled","disabled");
-        el.find("input").addClass("bcdDisabled");
+        el.find(this.inputElement).attr("disabled","disabled");
+        el.find(this.inputElement).addClass("bcdDisabled");
         el.find("a").attr("disabled","disabled");
         el.find("a").addClass("bcdDisabled");
       }
