@@ -216,7 +216,7 @@
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
-      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' maxlength='256' placeholder='"+placeholder+"'></input></div><div class='col add'><span class='bcdAddComment bcdButton'><a>" + addTxt + "</a></span></div></div>";
+      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' maxlength='256' placeholder='"+placeholder+"'></input></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
       var el = jQuery("<div class='bcdComment'>"+add+"<div class='row'><div class='col commentTable'></div></div></div>");
 
       el.attr("id","comment_" + opts.id);
