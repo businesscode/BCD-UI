@@ -46,6 +46,9 @@
       };
 
       this._updateRow =  function(keyColumn, keyValue, value) {
+
+        value = value.trim();
+
         var conf = jQuery(this.element).data("_config_");
         var model = new bcdui.core.StaticModel(new XMLSerializer().serializeToString(conf.commentModel.getData()));
         model.execute();
@@ -64,9 +67,15 @@
         const rowId = row[0].getAttribute("id");
         if (rowId) {
           const oldValue = (bcdui.wrs.wrsUtil.getCellValue(model, rowId, "comment_text") || "").trim();
-          if (oldValue == value.trim())
+          if (oldValue == value)
             return;
-          bcdui.wrs.wrsUtil.setCellValue(model, rowId, "comment_text", value.trim());
+
+          // cut down value when it is too long
+          const maxLen = parseInt(model.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@display-size", "-1"), 10);
+          if (maxLen != -1 && maxLen <= value.length)
+            value = value.substring(0, maxLen)
+
+          bcdui.wrs.wrsUtil.setCellValue(model, rowId, "comment_text", value);
           setTimeout(function(){jQuery.blockUI({message: bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Wait"})})});
           bcdui.wrs.wrsUtil.postWrs({
             wrsDoc: model.getData()
@@ -128,7 +137,7 @@
           jQuery(this).closest(".bcdComment").find(".addRow").toggle();
 
         var conf = jQuery(this).closest(".bcdComment").parent().data("_config_");
-        var value = jQuery(this).closest(".bcdComment").find("input").val() || "";
+        var value = (jQuery(this).closest(".bcdComment").find("input").val() || "").trim();
         var model = conf.commentModel;
 
         // add scope and instance columns in header and add a new prefilled row
@@ -141,6 +150,12 @@
             bcdui.wrs.wrsUtil.deleteColumns(model, conf.excludeBRefs);
 
           bcdui.wrs.wrsUtil.insertRow({model: model, propagateUpdate: false, rowStartPos:1, rowEndPos:1, insertBeforeSelection: true, setDefaultValue: false, fn: function(){
+
+            // cut down value when it is too long
+            const maxLen = parseInt(model.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@display-size", "-1"), 10);
+            if (maxLen != -1 && maxLen <= value.length)
+              value = value.substring(0, maxLen)
+
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "comment_text", value);
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "scope", conf.scope);
             bcdui.wrs.wrsUtil.setCellValue(model, 1, "instance", conf.instance);
@@ -182,6 +197,13 @@
           return doc;
       }.bind(this)});
 
+      // limit add comment input length from metadata
+      config.commentModel.onceReady(function() {
+        const maxLen = parseInt(config.commentModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='comment_text']/@display-size", "-1"), 10);
+        if (maxLen != -1)
+          this.element.find(".bcdComment .addRow input").attr("maxlength", "" + maxLen); 
+      }.bind(this))
+
       // rerender when comment model was saved
       tableRenderer.onceReady(function() {
         config.commentModel.onReady(function() {
@@ -216,7 +238,7 @@
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
-      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' maxlength='256' placeholder='"+placeholder+"'></input></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
+      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><input class='form-control' placeholder='"+placeholder+"'></input></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
       var el = jQuery("<div class='bcdComment'>"+add+"<div class='row'><div class='col commentTable'></div></div></div>");
 
       el.attr("id","comment_" + opts.id);
