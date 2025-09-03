@@ -69,7 +69,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
 
       // apply write subject settings checks when subject filter type mode isn't (R)ead-only
       if (! "R".equalsIgnoreCase(sft.getMode()))
-        enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), Arrays.asList(sft.getType(), sft.getName()).stream().filter(StringUtils::isNotBlank).findFirst().get() ) );
+        enforcedBis.add( new EnforcedBi( sft.getBindingItems().getC().getBRef(), sft.getType(), sft.getName()));
     }
   }
 
@@ -126,7 +126,7 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
       String value = cValues.get(eBi.getIdx());
 
       // We have no value, set it
-      SubjectFilterType st = SubjectSettings.getInstance().getSubjectFilterTypeByName(eBi.permissionType);
+      SubjectFilterType st = SubjectSettings.getInstance().getSubjectFilterTypeByName(eBi.permissionName);
       if ((value == null || value.isEmpty()) && (st != null && ! st.isIsNullAllowsAccess())) {
         if( eBi.permissions.size() == 1 && ! eBi.permissions.contains("*") ) {
           cValues.set(eBi.getIdx(), eBi.permissions.iterator().next() );
@@ -173,13 +173,15 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
    * Information about as single enforced BindingItem
    */
   class EnforcedBi {
-    EnforcedBi(String biId, String permissionType) {
+    EnforcedBi(String biId, String permissionType, String permissionName) {
       this.biId = biId;
-      this.permissionType = permissionType;
+      this.permissionName = permissionName;
+      this.permissionType = permissionType == null || permissionType.isEmpty() ? permissionName : permissionType;
     }
 
     String biId;
     String permissionType;
+    String permissionName;
     Set<String> permissions;
     int getIdx() {
       return indexOf(columns, biId);
