@@ -51,8 +51,10 @@ public class WrsModificationLog extends WrsModificationCallback {
     final Set<BindingItemConfig> referenceList = new HashSet<BindingItemConfig>();
     referenceList.add(new BindingItemConfig("bcdUpdateStamp", "${bcdBean.currentTimestampUtc}", BindingItemConfig.CONFIG_IGNORE.never, false));
     referenceList.add(new BindingItemConfig("bcdUpdateBy", "${bcdBean.userLogin}", BindingItemConfig.CONFIG_IGNORE.never, false));
+    referenceList.add(new BindingItemConfig("bcdUpdateById", "${bcdBean.userId}", BindingItemConfig.CONFIG_IGNORE.never, false));
     referenceList.add(new BindingItemConfig("bcdCreateStamp", "${bcdBean.currentTimestampUtc}", BindingItemConfig.CONFIG_IGNORE.update, false));
     referenceList.add(new BindingItemConfig("bcdCreateBy", "${bcdBean.userLogin}", BindingItemConfig.CONFIG_IGNORE.update, false));
+    referenceList.add(new BindingItemConfig("bcdCreateById", "${bcdBean.userId}", BindingItemConfig.CONFIG_IGNORE.update, false));
 
     /*
      * build the target list we want to provide data for, depended on binding definition, throw
