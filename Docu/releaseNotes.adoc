@@ -48,7 +48,7 @@ ___
 * `bcdui.config.userName` now holds the value from bcdui_sec_user.name not user_login anymore
 * `bcdui.browserCompatibility.isXYZ` for various browser detections updated. Removed `isIE`, `isMsEdge`, `isIE8`. `isChromiumEdge` became `isEdge`
 * Remove msxsl namespace from preset namespaces
-* comment widget uses bcdUpdateBy and bcdUpdateStamp binding items instead of updatedBy and lastUpdate
+* comment widget uses bcdUpdateBy/bcdUpdateStamp binding items as default "addBRefs". If using the default renderer and custom addBRefs, readd these bRefs
 ___
 ==== Release 5_6_0
 

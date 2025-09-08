@@ -39,7 +39,7 @@
 
       var commentBox = this._createCommentBox();
       
-      var finalBRefs = "comment_text bcdUpdateStamp bcdUpdateBy instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "");
+      var finalBRefs = "comment_text instance scope" + (this.options.addBRefs ? " " + this.options.addBRefs : "bcdUpdateStamp bcdUpdateBy");
       finalBRefs = finalBRefs.split(" ").filter(function(e) { return e != ""; });
       finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
 
