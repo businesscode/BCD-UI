@@ -22,6 +22,8 @@ import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -42,8 +44,10 @@ import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.subjectFilter.Connective;
 import de.businesscode.bcdui.binding.write.SubjectFilterOnWriteCallback;
+import de.businesscode.bcdui.binding.write.WrsModificationCallback;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallback;
 import de.businesscode.bcdui.binding.write.WriteProcessingCallbackFactory;
+import de.businesscode.bcdui.binding.write.WriteProcessingCallback.ROW_TYPE;
 import de.businesscode.bcdui.subjectsettings.SecurityException;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.save.event.ISaveEventListener;
@@ -74,6 +78,7 @@ public class XMLToDataBase implements XMLEventConsumer {
   protected Collection<String> keyColumnNames = null;
   protected final ArrayList<String> columnValues = new ArrayList<String>();
   protected final ArrayList<String> updateValues = new ArrayList<String>();
+  protected final HashMap<String, Integer> bRefMap = new HashMap<>();
 
   private DatabaseWriter databaseWriter = null;
 
@@ -290,6 +295,12 @@ public class XMLToDataBase implements XMLEventConsumer {
     } else {
       logger.debug("NO write processing callbacks found");
     }
+
+    // refresh / build bRefMap
+    bRefMap.clear();
+    int i = 0;
+    for (BindingItem b : this.columns)
+      bRefMap.put(b.getId(),  Integer.valueOf(i++));
   }
 
   /**
@@ -298,9 +309,75 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void processEndRow(String rowElementName) throws Exception {
     logger.debug("write processing callbacks found, delegating processEndRow.");
+
+    // keep current values (possibly modified via endHeader) as backup
+    ArrayList<BindingItem> temp_columns = new ArrayList<>(this.columns);
+    ArrayList<String> temp_columnValues = new ArrayList<>(this.columnValues);
+    ArrayList<String> temp_updateValues = new ArrayList<>(this.updateValues);
+    
+    // pad possible missing entries so that values match column count
+    // endHeader might have added new columns like updatedBy etc.
+    while (temp_columns.size() > temp_columnValues.size())
+      temp_columnValues.add(null);
+    while (temp_columns.size() > temp_updateValues.size())
+      temp_updateValues.add(null);
+
+    // skippedById bRefs will be collected here
+    HashSet<String> skippedBRefs = new HashSet<>();
+
+    // run through all callbacks
     for(WriteProcessingCallback cb : this.writeProcessingCallbacks){
-      cb.endDataRow(WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName), updateValues, columnValues);
+
+      // get update-skipped bRefs which should not be part of the final sent data 
+      if (cb instanceof WrsModificationCallback)
+        skippedBRefs.addAll(((WrsModificationCallback) cb).getIgnoreUpdateBRefs());
+
+      // perform current callbacks endDataRow action
+      cb.endDataRow(WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName), this.updateValues, this.columnValues);
+
+      // endDataRow might have modified columns, updateValues, columnValues (which is valid only for the current callback)
+      // so we need to sort back the values by bRef lookup to get a full collection of data per column again
+      for (int curIdx = 0; curIdx < this.columns.size(); curIdx++) {
+        
+        // bRefMap was generated after all cb did their endHeader job, so it should contain all possible bRefs/positions
+        Integer idx = bRefMap.get(this.columns.get(curIdx).getId());
+        if (idx != null) {
+          // this.columns and this.update/column Values don't need to have the same amount of items
+          // (see above, we also padded the temp_* ArrayLists, so we need to check if we have data for the column
+          if (curIdx < this.columnValues.size())
+            temp_columnValues.set(idx, this.columnValues.get(curIdx));
+          if (curIdx < this.updateValues.size())
+            temp_updateValues.set(idx, this.updateValues.get(curIdx));
+        }
+      }
+
+      // replace arrays again with enriched data so that the next modifier can work with it
+      this.columns.clear(); for (BindingItem b : temp_columns) this.columns.add(b);
+      this.updateValues.clear(); for (String u : temp_updateValues) this.updateValues.add(u);
+      this.columnValues.clear(); for (String c : temp_columnValues) this.columnValues.add(c);
+
+    } // next callback
+
+    // after all callbacks did their job, run over all columns again and filter out skipped columns
+    temp_columns.clear();
+    temp_columnValues.clear();
+    temp_updateValues.clear();
+    for (int i = 0; i < this.columns.size(); i++ ) {
+      boolean doSkip = (WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName) == ROW_TYPE.M) && skippedBRefs.contains(this.columns.get(i).getId());
+      if (!doSkip) {
+        temp_columns.add(this.columns.get(i));
+        temp_columnValues.add(this.columnValues.get(i));
+        temp_updateValues.add(this.updateValues.get(i));
+      }
     }
+
+    // replace arrays again with possibly filtered update columns
+    this.columns.clear(); for (BindingItem b : temp_columns) this.columns.add(b);
+    this.updateValues.clear(); for (String u : temp_updateValues) this.updateValues.add(u);
+    this.columnValues.clear(); for (String c : temp_columnValues) this.columnValues.add(c);
+
+    // and update jdbc types (since we might removed columns in between)
+    this.columnTypes.clear(); for (BindingItem b : temp_columns) this.columnTypes.add(b.getJDBCDataType());
   }
 
   /**
