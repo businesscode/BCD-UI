@@ -393,6 +393,12 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void endRow(String rowElementNameParam) throws Exception {
 
+    // rememeber initial state
+    ArrayList<BindingItem> bak_columns = new ArrayList<>(this.columns);
+    ArrayList<String> bak_columnValues = new ArrayList<>(this.columnValues);
+    ArrayList<String> bak_updateValues = new ArrayList<>(this.updateValues);
+    ArrayList<Integer> bak_columnTypes = new ArrayList<>(this.columnTypes);
+
     if(!this.writeProcessingCallbacks.isEmpty()) {
       // this will modify columns, columnTypes, columnValues and updateValues
       processEndRow(rowElementNameParam);
@@ -435,6 +441,12 @@ public class XMLToDataBase implements XMLEventConsumer {
       databaseWriter.deleteRow(updateValues.toArray(new String[updateValues.size()]));
 
     }
+
+    // restore original state
+    this.columns.clear(); for (BindingItem b : bak_columns) this.columns.add(b);
+    this.updateValues.clear(); for (String u : bak_updateValues) this.updateValues.add(u);
+    this.columnValues.clear(); for (String c : bak_columnValues) this.columnValues.add(c);
+    this.columnTypes.clear(); for (Integer t : bak_columnTypes) this.columnTypes.add(t);
   }
 
   /**
