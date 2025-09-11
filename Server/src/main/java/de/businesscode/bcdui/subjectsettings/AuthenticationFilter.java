@@ -102,7 +102,7 @@ public class AuthenticationFilter extends FormAuthenticationFilter
     if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
       successUrl = savedRequest.getRequestUrl();
     } else {
-      successUrl = getSuccessUrl();
+      successUrl = (getSuccessUrl() != null && getSuccessUrl().startsWith("/")) ? ((HttpServletRequest)request).getContextPath() + getSuccessUrl() : getSuccessUrl();
     }
 
     httpResponse.addHeader(X_BCD_LOCATION_HEADER, successUrl);
