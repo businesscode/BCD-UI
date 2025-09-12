@@ -879,13 +879,11 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       }
       if ((checkBits & 256)) {
         const a = colInfo.references.separator ? value.split(colInfo.references.separator) : [value];
-        if (colInfo.references.separator) {
-            a.forEach(function(v) {
-            if (this._getRefValue(colInfo.references, rowId, v) == null) {
-              cellError |= 256;
-            }
-          }.bind(this));
-        }
+        a.forEach(function(v) {
+          if (this._getRefValue(colInfo.references, rowId, v) == null) {
+            cellError |= 256;
+          }
+        }.bind(this));
       }
       if ((checkBits & 512)) {
         try {
