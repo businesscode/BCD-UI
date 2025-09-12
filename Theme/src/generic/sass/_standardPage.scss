@@ -1801,7 +1801,7 @@ span.bcd-notification-warn {
     white-space: nowrap;
     overflow: hidden;
     position: absolute;
-    z-index: $z-index-flyover;
+    z-index: 120;
     font-size: .8em;
     padding: 0;
     margin: 0;
