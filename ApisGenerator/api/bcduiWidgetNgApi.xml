@@ -673,6 +673,9 @@
         <Param name="onItemMoved" required="false" type="function">
           <Doc>Handler function triggered after an item was moved. Receives property map: {from = source, to = destination, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*}</Doc>       
         </Param>
+        <Param name="filterSourceNodes" required="false" type="function">
+          <Doc>A function which can be used to filter out nodes from the source nodes. The function gets the current source nodes from the options model and needs to return the remaining nodes.</Doc>
+        </Param>
 
         <Param name="delay" type="number" default="500">
           <Doc>Time (in ms) which passes till the lookup is done.</Doc>
@@ -809,6 +812,25 @@
         </Param>
         <Param name="doSortOptions" required="false" type="boolean" default="true">
           <Doc>Can be set to 'false' if the options should not be sorted alphabetically.</Doc>       
+        </Param>
+
+        <Param name="sourceFilter_optionsModelXPath" type="modelXPath">
+          <Doc>OptionsModelXPath for the preselection filter drowdown. This is required when using sourceFilters.</Doc>
+        </Param>
+        <Param name="sourceFilter_optionsModelRelativeValueXPath" type="xPath">
+          <Doc>optionsModelRelativeValueXPath for the preselection filter drowdown</Doc>
+        </Param>
+        <Param name="sourceFilter_relativeCompareValueXPath" type="xPath">
+          <Doc>A relative xpath to the final sbs options model value which is used to compare the selected filter value against</Doc>
+        </Param>
+        <Param name="sourceFilter_doSortOptions" type="boolean">
+          <Doc>Sorting option for the preselection filter dropdown</Doc>
+        </Param>
+        <Param name="sourceFilter_label" type="i18nToken">
+          <Doc>Label for the preselection filter dropdown</Doc>
+        </Param>
+        <Param name="sourceFilter_placeholder" type="i18nToken">
+          <Doc>Placeholder for the preselection filter dropdown</Doc>
         </Param>
       </Api>
       

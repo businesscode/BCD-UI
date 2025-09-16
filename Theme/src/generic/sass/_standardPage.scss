@@ -493,6 +493,10 @@ a {
   .bcdSbscSourceItemsHeader {
     font-weight: bold;
   }
+  .bcdSourceFilter {
+    width: 20em;
+    label {margin: 0;}
+  }
   .bcdSbscList {
     @extend .bcdBasicControl;
     @include con_color(#ffffff);

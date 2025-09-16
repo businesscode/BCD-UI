@@ -501,6 +501,10 @@
           // build filtered element items
           this.filteredItems = {};
           var filteredNodes = this.config.source.optionsModelRelativeFilterPredicate ? bcdui.factory.objectRegistry.getObject(this.config.source.modelId).getData().selectNodes(this.config.source.xPath + this.config.source.optionsModelRelativeFilterPredicate) : nodes;
+
+          if (typeof this.options.filterSourceNodes == "function")
+            filteredNodes = this.options.filterSourceNodes(filteredNodes);
+
           for (var i = 0; i < filteredNodes.length; i++) {
             var idValue = filteredNodes[i].text;
             if (this.config.source.optionsModelRelativeValueXPath) {

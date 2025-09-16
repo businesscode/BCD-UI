@@ -930,6 +930,10 @@ $h6-font-size:                $bcd-font-size-base !default;
   .bcdSbscSourceItemsHeader {
     font-weight: bold;
   }
+  .bcdSourceFilter {
+    width: 20em;
+    label {margin: 0;}
+  }
   .bcdSbscList {
     @include con_color(#ffffff);
     border: 1px solid $border-color;

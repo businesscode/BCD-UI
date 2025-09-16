@@ -71,6 +71,44 @@
 
       jQuery(this.element).append(template);
 
+      // add optional source filter      
+      let filterParams = {};
+      for (let p in this.options) {
+        if (p.startsWith("sourceFilter_")) {
+          filterParams[p.substring("sourceFilter_".length)] = this.options[p];
+        }
+      }
+      // you need at least sourceFilter_optionsModelXPath and sourceFilter_relativeCompareValueXPath
+      this.sourceFilter = typeof filterParams["optionsModelXPath"] != "undefined" && typeof filterParams["relativeCompareValueXPath"] != "undefined";
+      if (this.sourceFilter) {
+        jQuery(this.element).find("table tbody").prepend("<tr><td class='bcdCol bcdSourceFilter'></td><td class='bcdCol2'></td><td class='bcdCol3'></td><td class='bcdCol4'></td></tr>");
+        filterParams["targetHtml"] = jQuery(this.element).find(".bcdSourceFilter").get(0); 
+        
+        this.filterModel = new bcdui.core.StaticModel("<Root/>");
+        bcdui.factory.objectRegistry.registerObject(this.filterModel);
+                
+        filterParams["targetModelXPath"] = "$" + this.filterModel.id + "/*/Value";
+
+        this.filterModel.onChange(function() {
+          jQuery(this.element).find(".bcdSource").first()._bcduiWidget()._renderItems();
+        }.bind(this), "/*/Value");
+        
+        bcdui.widgetNg.createSingleSelect(filterParams);
+
+        this.filterSourceNodes = function(nodes) {
+          let finalNodes = [];
+          const chosen = this.filterModel.read("/*/Value", "");
+          Array.from(nodes).forEach(function(n) {
+            const row = n.parentNode;
+            let value = n.selectSingleNode(this.options.sourceFilter_relativeCompareValueXPath);
+            value = value != null ? value.text : "";
+            if (!chosen || chosen == value)
+              finalNodes.push(n);
+          }.bind(this));
+          return finalNodes;
+        }
+      }
+
       // trigger translation
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
 
@@ -103,6 +141,9 @@
         , targetHtml: this.element.find("#" + this.options.id + "sbsLeft")
         , generateItemHtml: this.options.generateItemHtmlSource
       }
+      if (this.sourceFilter)
+        sourceArgs["filterSourceNodes"] = this.filterSourceNodes.bind(this);
+
       var targetArgs = {
         targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find("#" + this.options.id + "sbsRight")
