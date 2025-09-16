@@ -859,7 +859,7 @@ bcdui.component.grid.GridEditor.bcduiSideBySide.prototype.prepare = function(row
       }.bind(this));
     }
   };
-  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.getValue = function() {
+  this.getValue = function() {
     return Array.from(this.targetModel.queryNodes(this.targetModelXPath, "")).map(function(e) {return e.text; }).join(this.separator);
   };
 
