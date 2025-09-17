@@ -3329,23 +3329,25 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               inputModel: this.gridModel
             , chain: function(doc) {
 
+                let newDoc = bcdui.core.browserCompatibility.cloneDocument(doc);
+
                 // get rid of hidden ones
                 var hiddenOnes = Array.from(theGrid.getEnhancedConfiguration().queryNodes("/*/grid:Columns/grid:C[@isHidden='true']/@pos")).map(function(e) {return parseInt(e.text, 10);});
                 if (hiddenOnes.length > 0) {
                   var firstHidden = hiddenOnes.sort(function(a, b){return a - b;})[0];
-                  bcdui.core.removeXPath(doc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);
-                  bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:C[position() >= '" + firstHidden + "']", false);
-                  bcdui.core.removeXPath(doc, "/*/wrs:Data/wrs:*/wrs:O[position() >= '" + firstHidden + "']", false);
+                  bcdui.core.removeXPath(newDoc, "/*/wrs:Header/wrs:Columns/wrs:C[position() >= '" + firstHidden + "']", false);
+                  bcdui.core.removeXPath(newDoc, "/*/wrs:Data/wrs:*/wrs:C[position() >= '" + firstHidden + "']", false);
+                  bcdui.core.removeXPath(newDoc, "/*/wrs:Data/wrs:*/wrs:O[position() >= '" + firstHidden + "']", false);
                 }
 
                 // take caption instead of code                
-                Array.from(doc.selectNodes("/*/wrs:Data/wrs:*")).forEach(function(e){
+                Array.from(newDoc.selectNodes("/*/wrs:Data/wrs:*")).forEach(function(e){
                   Array.from(e.selectNodes("wrs:C")).forEach(function(cElement, i) {
                     cElement.text = theGrid.columnFiltersGetCaptionForColumnValue(i + 1, cElement.text);
                   });
                 });
 
-                return doc;
+                return newDoc;
               }
             })
           });
