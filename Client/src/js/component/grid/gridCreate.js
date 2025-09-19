@@ -75,6 +75,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     // list of column names which are checked in the request and total row count requests. 
     const dph = new bcdui.core.DataProviderHolder();
     const tsdp = new bcdui.core.ConstantDataProvider({id: id + "_tsColumns", name: "timeStampColumns", value: ""});
+    const sepdp = new bcdui.core.ConstantDataProvider({id: id + "_sep", name: "separators", value: ""});
     const keyColumnsServerSidedDp = new bcdui.core.ConstantDataProvider({id: id + "_keyColumnsServerSided", name: "keyColumnsServerSided ", value: ""});
     if (! serverSidedPagination)
       dph.setSource(bcdui.wkModels.guiStatus)
@@ -85,13 +86,24 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
           let bindingSet = doc.selectSingleNode("/*/wrq:BindingSet");
           bindingSet = bindingSet != null ? bindingSet.text : "";
           if (bindingSet != "") {
-            let bRefs = Array.from(doc.selectNodes("/*/grid:SelectColumns/grid:C")).map(function(e) { return e.getAttribute("bRef") || ""; }).filter(function(e) { return e != ""; });
+            let separators = [];
+            let bRefs = Array.from(doc.selectNodes("/*/grid:SelectColumns/grid:C")).map(function(e) {
+
+              let curSep = e.selectSingleNode("grid:Editor/grid:Param[@name='bcdValueSeparator']")
+              curSep = curSep != null ? curSep.text : "";
+              if (!curSep && e.selectSingleNode("grid:Editor[@type='bcduiSideBySide']") != null)
+                curSep = ",";
+              separators.push(curSep);
+
+              return e.getAttribute("bRef") || "";
+            }).filter(function(e) { return e != ""; });
             bRefs = bRefs.filter(function(e, idx){return bRefs.indexOf(e) == idx});
             bRefs = bRefs.join(" ");
             const meta = new bcdui.core.AutoModel({bindingSetId: bindingSet, bRefs: bRefs, maxRows: 0 });
             meta.onceReady(function() {
               keyColumnsServerSidedDp.value = Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@isKey='true']")).map(function(e) { return e.getAttribute("id"); }).join(" ");
               tsdp.value = (bcdui.core.magicChar.separator + Array.from(meta.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C[@type-name='TIMESTAMP']")).map(function(e) { return e.getAttribute("id"); }).join(bcdui.core.magicChar.separator) + bcdui.core.magicChar.separator);
+              sepdp.value = separators.join(bcdui.core.magicChar.nonWord);
               dph.setSource(bcdui.wkModels.guiStatus);
             }.bind(this));
             meta.execute();
@@ -120,6 +132,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
       , gridModelId: id
       , dph : dph
       , timeStampColumns: tsdp
+      , separatorColumns: sepdp
       , keyColumnsServerSidedDp : keyColumnsServerSidedDp 
       },
       chain: finalChain
@@ -390,7 +403,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         ? bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_tsColumns").value
         : "";
 
-        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder, timeStampColumns: ts};
+        const sep = (typeof bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_sep") != "undefined")
+        ? bcdui.factory.objectRegistry.getObject(this.gridModel.id + "_sep").value
+        : "";
+        var totalParams = { statusModel: this.statusModel, gridModelId: this.gridModel.id, serverSidedPagination: "" + (serverSidedPagination || false), pagerModel: pagerHolder, timeStampColumns: ts, separatorColumns: sep};
         var countColumnBRef = this.config.read("/*/grid:SelectColumns//grid:C[@totalCounter='true']/@bRef");
         if (countColumnBRef)
           totalParams.countColumnBRef = countColumnBRef;
@@ -1629,54 +1645,78 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , columnFiltersCustomFilter: this.columnFiltersCustomFilter
           , valueCaptionProvider: function(inputModel, colIdx) {
              return new Promise(function(resolve, reject) {
-                if (self.serverSidedPagination) {
-                  // if data is cached, we need to update the isFiltered attribute only
-                  if (self.colValuesCache && self.colValuesCache["" + colIdx]) {
-                    var colName0 = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
-                    self.colValuesCache["" + colIdx].forEach(function(e) {
-                      e.isFiltered = self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName0+"']/f:Expression[@bRef='"+colName0+"' and @value='{{=it[0]}}']", [e.value]) == null
-                    });
-                    resolve(self.colValuesCache["" + colIdx]);
-                  }
-                  else {
-                    self.colValuesCache = self.colValuesCache || {};
-                    var colName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
-                    var reqMw = new bcdui.core.ModelWrapper({
-                      inputModel: self.config,
-                      parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: colName, gridModelId: self.gridModel.id },
-                      chain: bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
-                    });
-                    var model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
-                    self._blindGrid();
-                    model.onceReady(function() {
-                      var colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).map(function(e) {
-                        return {
-                          value: e.text
-                        , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e.text) : e.text
-                        , isFiltered: self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']/f:Expression[@bRef='"+colName+"' and @value='{{=it[0]}}']", [e.text]) == null
-                        };
-                      });
-                      // we don't need to add the wrs:I/wrs:M here since filtering does require a save changes before filtering.
-                      self.colValuesCache["" + colIdx] = colValues;
-                      self._unBlindGrid();
-                      resolve(colValues);
-                    });
-                    model.execute();
-                  }
-                }
-                else {
-                  var filteredValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[@filtered]/wrs:C[number(" + colIdx + ")]")).map(function(e) { return e.text; });
-                  var values = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).map(function(e) { return e.text; });
-                  values = values.filter(function(e, idx){return values.indexOf(e) == idx}).map(function(e) {
-                    return {
-                      value: e
-                    , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                    , isFiltered: filteredValues.indexOf(e) != -1
-                    };
-                  });
-                  resolve(values);
-                }
-              });
+               const separator = self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]] && self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]].separator || "";
+               if (self.serverSidedPagination) {
+                 // if data is cached, we need to update the isFiltered attribute only
+                 if (self.colValuesCache && self.colValuesCache["" + colIdx]) {
+
+                   const notFiltered = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
+                     return a.concat(separator ? e.text.split(separator) : [e.text]);
+                   }, []);
+
+                   var colName0 = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
+                   self.colValuesCache["" + colIdx].forEach(function(e) {
+                     e.isFiltered = notFiltered.indexOf(e.value) == -1;
+                   });
+                   resolve(self.colValuesCache["" + colIdx]);
+                 }
+                 else {
+                   self.colValuesCache = self.colValuesCache || {};
+                   var colName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
+                   var reqMw = new bcdui.core.ModelWrapper({
+                     inputModel: self.config,
+                     parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: colName, gridModelId: self.gridModel.id},
+                     chain: bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
+                   });
+                   var model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
+                   self._blindGrid();
+                   model.onceReady(function() {
+                    
+                     let colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).reduce(function(a, e) {
+                        return a.concat(separator ? e.text.split(separator) : [e.text]);
+                     }, []);
+                     colValues = colValues.filter(function(e, idx){return colValues.indexOf(e) == idx}).map(function(e) {
+                       return {
+                         value: e
+                       , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
+                       , isFiltered: self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']/f:Expression[@bRef='"+colName+"' and @value='{{=it[0]}}']", [e]) == null
+                       };
+                     });
+                     // we don't need to add the wrs:I/wrs:M here since filtering does require a save changes before filtering.
+                     self.colValuesCache["" + colIdx] = colValues;
+                     self._unBlindGrid();
+                     resolve(colValues);
+                   });
+                   model.execute();
+                 }
+               }
+               else {
+                 let filteredValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[@filtered]/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
+                   return a.concat(separator ? e.text.split(separator) : [e.text]);
+                 }, []);
+
+                 // when we have separated values in a column, we need to limit the filteredValues entries to the ones which are still visible in other rows
+                 // so if you hide a row which includes A,B,C because you select the single value filter B, you don't want rows which include A or C or both. 
+                 if (separator) {
+                   const notFiltered = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
+                     return a.concat(separator ? e.text.split(separator) : [e.text]);
+                   }, []);
+                   filteredValues = filteredValues.filter(function(e) { return notFiltered.indexOf(e) == -1; });
+                 }
+
+                 let values = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
+                   return a.concat(separator ? e.text.split(separator) : [e.text]);
+                 }, []);
+                 values = values.filter(function(e, idx){return values.indexOf(e) == idx}).map(function(e) {
+                   return {
+                     value: e
+                   , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
+                   , isFiltered: filteredValues.indexOf(e) != -1
+                   };
+                 });
+                 resolve(values);
+               }
+             });
             }
           , callback: function() {
             
@@ -1721,10 +1761,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                       }
                     }
                     else {
-                      if (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[value]) == null) {
+                      const separator = self.optionsModelInfo[bRef] && self.optionsModelInfo[bRef].separator || "";
+                      let match = false;
+                      (separator ? value.split(separator) : [value]).forEach(function(v) { 
+                        match |= (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[v]) != null);
+                      }.bind(this));
+                      if (! match)
                         e.setAttribute("filtered", "true");
-                        break;
-                      }
                     }
                   }
                 }

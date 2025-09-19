@@ -37,10 +37,15 @@
   <xsl:param name="serverSidedPagination"/>
   <xsl:param name="gridModelId"/>
   <xsl:param name="timeStampColumns"/>
-  
+  <xsl:param name="separatorColumns"/>
+  <xsl:variable name="separatorColumnsStr"><xsl:call-template name="tokenize"><xsl:with-param name="string" select="$separatorColumns" /><xsl:with-param name="delimiter" select="'&#xe0f3;'" /></xsl:call-template></xsl:variable>
+  <xsl:variable name="separatorColumnsTokens" select="exslt:node-set($separatorColumnsStr)" />
+
   <xsl:variable name="excludedStatusFilterBrefs" select="/*/grid:SelectColumns/grid:FilterExclude/@bRefs"/>
   <xsl:variable name="keyColsServerSidedStr"><xsl:call-template name="tokenize"><xsl:with-param name="string" select="$keyColumnsServerSidedDp" /><xsl:with-param name="delimiter" select="' '" /></xsl:call-template></xsl:variable>
   <xsl:variable name="keyColsServerSidedTokens" select="exslt:node-set($keyColsServerSidedStr)" />
+
+  <xsl:variable name="doc" select="/"/>
  
   <xsl:template match="/*">
 
@@ -91,7 +96,7 @@
           </xsl:choose>
           <xsl:copy-of select="/*/grid:SelectColumns/f:Filter/*"/>
           <xsl:if test="$serverSidedPagination='true'">
-            <xsl:apply-templates select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id=$gridModelId]/*" mode="timestamp"/>
+            <xsl:apply-templates select="$statusModel/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id=$gridModelId]/*" mode="columnFilter"/>
           </xsl:if>
         </f:Filter>
         <wrq:Ordering>
@@ -145,25 +150,39 @@
     </wrq:WrsRequest>
 
   </xsl:template>
-  
-  <xsl:template match="f:Expression" mode="timestamp">
+
+  <xsl:template match="f:Expression" mode="columnFilter">
     <xsl:variable name="bRef" select="@bRef"/>
     <xsl:variable name="value" select="@value"/>
-    <f:Expression>
-      <xsl:copy-of select="@*[not(local-name(.)='value')]"/>
-      <xsl:attribute name="value">
+    <xsl:variable name="finalValue">
         <xsl:choose>
           <xsl:when test="contains($timeStampColumns, concat('&#xe0f2;', $bRef, '&#xe0f2;'))"><xsl:value-of select="translate($value, ' ', 'T')"/></xsl:when>
           <xsl:otherwise><xsl:value-of select="$value"/></xsl:otherwise>
         </xsl:choose>
-      </xsl:attribute>
-      <xsl:apply-templates select="node()" mode="timestamp"/>
-    </f:Expression>
+    </xsl:variable>
+
+    <xsl:variable name="colIdx" select="count($doc/*/grid:SelectColumns//grid:C[@bRef=$bRef][preceding-sibling::grid:C]) + 1"/>
+    <xsl:variable name="separator" select="$separatorColumnsTokens/wrs:Wrs/wrs:Data/wrs:R[position()=$colIdx]/wrs:C"/>
+
+    <xsl:choose>
+      <xsl:when test="$separator!=''">
+        <f:Expression op="like" bRef="{$bRef}" value="{concat('*', $separator, $finalValue, $separator, '*')}"/>
+        <f:Expression op="like" bRef="{$bRef}" value="{concat($finalValue, $separator, '*')}"/>
+        <f:Expression op="like" bRef="{$bRef}" value="{concat('*', $separator, $finalValue)}"/>
+        <f:Expression op="=" bRef="{$bRef}" value="{$finalValue}"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <f:Expression>
+          <xsl:copy-of select="@*[not(local-name(.)='value')]"/>
+          <xsl:attribute name="value"><xsl:value-of select="$finalValue"/></xsl:attribute>
+          <xsl:apply-templates select="node()" mode="columnFilter"/>
+        </f:Expression>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
-  
-  
-  <xsl:template match="node()|@*" mode="timestamp">
-    <xsl:copy><xsl:apply-templates select="node()|@*" mode="timestamp"/></xsl:copy>
+
+  <xsl:template match="@*|node()" mode="columnFilter">
+    <xsl:copy><xsl:apply-templates select="@*|node()" mode="columnFilter"/></xsl:copy>
   </xsl:template>
 
 </xsl:stylesheet>
