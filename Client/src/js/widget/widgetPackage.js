@@ -2275,6 +2275,11 @@ jQuery.extend(bcdui.widget,
       
       // add click handler to the inserted items
       tableHead.on("click", ".bcdFilterButton", {inputModel: inputModel, columnFiltersCustomFilter: args.columnFiltersCustomFilter, valueCaptionProvider: args.valueCaptionProvider, getFilteredValues: args.getFilteredValues, statusModel: statusModel, targetModelXPath: targetModelXPath, getCaptionForColumnValue: args.getCaptionForColumnValue}, function(event) {
+
+        // disable selected grid header if column filters are within a grid
+        if (jQuery(event.target).closest(".htColumnHeaders").length > 0)
+          jQuery(event.target).closest(".htColumnHeaders").handsontable("getInstance").deselectCell();
+
         var inputModel       = event.data.inputModel;
         var getFilteredValues = event.data.getFilteredValues;
         var statusModel      = event.data.statusModel;
@@ -2521,7 +2526,7 @@ jQuery.extend(bcdui.widget,
             , closeText: "\u2716"
             , position: { my: 'left top', at: 'left top', of: event }
             , close: function(){ bcdui.widget._cancelFilter(inputModel.id, id);}
-            , create: function() { jQuery("body").css({ overflow: 'hidden' });}
+            , create: function() { jQuery("body").css({ overflow: 'hidden' }); jQuery(".bcdFilterDialog .bcdFilterInput").focus();}
             , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
           });
   
