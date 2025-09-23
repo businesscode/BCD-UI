@@ -97,12 +97,13 @@ public class AuthenticationFilter extends FormAuthenticationFilter
   protected void issueSuccessRedirect(ServletRequest request, ServletResponse response) throws Exception {
     var httpResponse = (HttpServletResponse) response;
     var savedRequest = WebUtils.getAndClearSavedRequest(request);
+    String contextPath = ((HttpServletRequest)request).getContextPath();
 
     final String successUrl;
-    if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
+    if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD) && !savedRequest.getRequestUrl().equals(contextPath + "/")) {
       successUrl = savedRequest.getRequestUrl();
     } else {
-      successUrl = (getSuccessUrl() != null && getSuccessUrl().startsWith("/")) ? ((HttpServletRequest)request).getContextPath() + getSuccessUrl() : getSuccessUrl();
+      successUrl = (getSuccessUrl() != null && getSuccessUrl().startsWith("/")) ? contextPath + getSuccessUrl() : getSuccessUrl();
     }
 
     httpResponse.addHeader(X_BCD_LOCATION_HEADER, successUrl);
