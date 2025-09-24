@@ -521,14 +521,29 @@ if (bcdui.browserCompatibility.isGecko) {
     for (var x in args.parameters)
       this.addParameter(x, args.parameters[x]);
 
-    // Firefox (v140) does not like html elements in the empty namespace, so we do
-    // xmlns='' -> xmlns='http://www.w3.org/1999/xhtml'
     if( this.outputFormat === "html" ) {
       let out = this.transformToFragment(args.input, document);
       let outAsString = new XMLSerializer().serializeToString(out);
-      outAsString = outAsString.replace(/xmlns=("|')[^"']*("|')/g, "xmlns='http://www.w3.org/1999/xhtml'");
+
+      // XMLSerializer might create a namespace with prefix (e.g. a0:) for HTML elements
+      // <a0:div> etc. cause problems when accessing it with js/jQuery (e.g. jQuery(e).find("div"))
+      // that's why we remove such prefixes. First, determine the prefix
+      let htmlPrefix = outAsString.match(/xmlns\:(\w+)=\"http\:\/\/www\.w3\.org\/1999\/xhtml\"/);
+      htmlPrefix = htmlPrefix != null && htmlPrefix.length > 1 ? htmlPrefix[1] : "";
+      if (htmlPrefix) {
+        // in case we have a prefix, remove all occurances
+        const regEx = new RegExp("(<\/?)("+htmlPrefix+"\:)(\\w+)", "g");
+        outAsString = outAsString.replace(regEx, "$1$3");
+      }
+
+      // Firefox requires the default namespace of the fragment to be set to xhtml
+      // get rid of all default namespaces which can point to anything besides xhtml
+      // replace them with an empty xmlns first, set the very first to xthml, then kill all remaining empty ones
+      outAsString = outAsString.replace(/xmlns=("|')[^"']*("|')/g, "xmlns=''").replace(/xmlns=''/, "xmlns='http://www.w3.org/1999/xhtml'").replace(/ xmlns=''/g, "");
+
+      // prevent an empty html output
       if (!outAsString.trim())
-        outAsString = "<template bcdComment='this is an empty html'/>";
+        outAsString = "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
       out = new DOMParser().parseFromString(outAsString,"text/xml").documentElement;
       const fragment = document.createDocumentFragment();
       fragment.appendChild(out)
