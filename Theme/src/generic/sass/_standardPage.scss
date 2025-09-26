@@ -2444,3 +2444,16 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
   }
 }
 
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials {
+  border-radius: 1em;
+  > li > a  { padding: .8em; display: inline-block; }
+  > li.user > a:hover { color: text-contrast($text-color-dark) !important;  background-color: $text-color-dark; }
+  > li.user {
+    border: none;
+    color: text-contrast($text-color-dark) !important;
+    background-color: $text-color-dark;
+    a:before { font-size: 1em; color: #fff; margin: 0 .3em 0 0; font-family: "Font Awesome 5 Free", Sans-serif;  font-weight: bold;  font-style: normal; }
+    &.login a:before { content: "\f007"; }
+    &.email a:before { content: "\f0e0"; }
+  }
+}
