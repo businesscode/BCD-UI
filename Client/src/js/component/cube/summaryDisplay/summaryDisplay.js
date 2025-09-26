@@ -26,9 +26,6 @@ bcdui.component.cube.summaryDisplay = Object.assign(bcdui.component.cube.summary
    * @private
    */
   _renderSummaryArea: function(args) {
-    return (args.showSummary ? "<div id='bcdUpDown_Summary_{{=it.id}}' class='bcdUpDown_Summary'></div>" + 
-        "<div id='bcdUpDownBody_Summary_{{=it.id}}'>" + 
-          "<div id='bcdDndSummaryDiv_{{=it.id}}'></div>" +
-        "</div>" : "")
+    return (args.showSummary ? `<div id='bcdUpDown_Summary_${args.cubeId || args.scorecardId}' class='bcdUpDown_Summary'></div><div id='bcdUpDownBody_Summary_${args.cubeId || args.scorecardId}'><div id='bcdDndSummaryDiv_${args.cubeId || args.scorecardId}'></div></div>` : "")
   }
 });

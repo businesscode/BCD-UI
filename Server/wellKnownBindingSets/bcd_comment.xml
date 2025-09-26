@@ -18,8 +18,8 @@
   <C id="scope"><Column>scope</Column></C>
   <C id="instance"><Column>instance_id</Column></C>
   <C id="comment_text"      caption="&#xE0FF;bcd_Comment_Text"><Column>text</Column></C>
-  <C id="lastUpdate"        caption="&#xE0FF;bcd_Comment_LastUpdate"><Column>last_modified_at</Column></C>
-  <C id="updatedBy"         caption="&#xE0FF;bcd_Comment_UpdatedBy"><Column>last_modified_by</Column></C>
+  <C id="bcdUpdateStamp"    caption="&#xE0FF;bcd_Comment_LastUpdate"><Column>last_modified_at</Column></C>
+  <C id="bcdUpdateBy"       caption="&#xE0FF;bcd_Comment_UpdatedBy"><Column>last_modified_by</Column></C>
 
   <SubjectSettings>
     <Security>
@@ -33,8 +33,8 @@
   <WriteProcessing>
     <Callbacks>
       <Callback class="de.businesscode.bcdui.binding.write.WrsModificationCallback">
-        <Param bindingItemId="lastUpdate" expression="${bcdBean.currentTimestampUtc}" isCoalesce="false"/>
-        <Param bindingItemId="updatedBy" expression="${bcdBean.userName}" isCoalesce="false" />
+        <Param bindingItemId="bcdUpdateStamp" expression="${bcdBean.currentTimestampUtc}" isCoalesce="false"/>
+        <Param bindingItemId="bcdUpdateBy" expression="${bcdBean.userId}" isCoalesce="false" />
       </Callback>
     </Callbacks>
   </WriteProcessing>

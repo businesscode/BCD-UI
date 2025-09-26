@@ -1,0 +1,45 @@
+<span class="${params.cssClassPrefix}conj-container">
+  <!-- junction -->
+  <bcd-singleselectng
+    optionsModelXPath="${params.xPath_reference_junction}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="${params.xPath_junction}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- Hide unselected - chkbox -->
+  <span bcdTranslate="bcd_FarComponent_Filter_HideUnselected"></span>
+  <bcd-checkboxng
+    targetModelXPath="${params.xPath_hideUnselected}"
+  ></bcd-checkboxng>
+  <!-- filter-item -->
+  <bcd-singleselectng
+    required="true"
+    targetModelXPath="${params.xPath_bref}"
+    optionsModelXPath="${params.bRefOptionsModelXPath}"
+    optionsModelRelativeValueXPath="${params.bRefOptionsModelRelativeValueXPath}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- operation -->
+  <bcd-singleselectng
+    required="true"
+    optionsModelXPath="${params.xPath_reference_op}/@caption"
+    optionsModelRelativeValueXPath=".."
+    targetModelXPath="${params.xPath_op}"
+  ></bcd-singleselectng>
+</span>
+<span>
+  <!-- reference-value -->
+  <bcd-inputng
+    targetModelXPath="${params.xPath_value}"
+  >
+  </bcd-inputng>
+</span>
+<span></span>
+<span></span>
+<span>
+  <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
+</span>
+<span class="${params.cssClassPrefix}creator-container-closer" onclick="jQuery(this).trigger('bcdui:universalFilter:closeCreateUi')">
+</span>

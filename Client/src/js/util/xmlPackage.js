@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -50,12 +50,6 @@ bcdui.util.xml =
         var childNodes = jQuery.makeArray(sourceElement.childNodes).concat(jQuery.makeArray(sourceElement.attributes));
         for (var pos = 0; pos < childNodes.length; ++pos) {
           if (childNodes[pos].nodeType == 2) { // attribute nodes
-            if (childNodes[pos].nodeName.startsWith("xmlns:"))
-              /*
-               * Workaround: Internet Explorer wrongfully returns namespace declarations
-               *             (xmlns:myNs=...) as XML attributes.
-               */
-              continue;
             targetElement.setAttribute(childNodes[pos].nodeName, childNodes[pos].nodeValue);
           } else
             targetElement.appendChild(childNodes[pos].cloneNode(true));

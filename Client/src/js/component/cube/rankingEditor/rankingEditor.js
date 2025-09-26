@@ -26,10 +26,7 @@ bcdui.component.cube.rankingEditor = Object.assign(bcdui.component.cube.rankingE
    * @private
    */
   _renderRankingArea: function(args) {
-    return (args.isRanking ? "<div id='bcdUpDown_Ranking_{{=it.id}}' class='bcdUpDown_Ranking'></div>" + 
-        "<div id='bcdUpDownBody_Ranking_{{=it.id}}'>" + 
-          "<div id='bcdDndRankingDiv_{{=it.id}}'></div>" +
-        "</div>" : "");
+    return (args.isRanking ? `<div id='bcdUpDown_Ranking_${args.cubeId || args.scorecardId}' class='bcdUpDown_Ranking'></div><div id='bcdUpDownBody_Ranking_${args.cubeId || args.scorecardId}'><div id='bcdDndRankingDiv_${args.cubeId || args.scorecardId}'></div></div>` : "");
   },
 
   /**

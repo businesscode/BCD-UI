@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,11 +30,18 @@ import de.businesscode.bcdui.subjectsettings.ExternalAuthenticationToken;
 public class OAuthToken extends ExternalAuthenticationToken {
   private static final long serialVersionUID = 1L;
 
+  // Code we received from authorize and send to token endpoint
   protected final String authCode;
+  // To support PKCE flow
   protected final String codeVerifier;
+  // This is how the auth server identifies us
   protected final String clientId;
+  // Where to send the client after successful login
   protected final String redirectUri;
+  // If we have multiple oAuth servers like MS and Google, we know from this which one should handle us
   protected final String authenticatorInstanceId;
+  // To void replay attacks, this is sent in auth call and tested in token answer
+  protected final String nonce;
 
   public String getClientId() {
     return clientId;
@@ -49,12 +56,13 @@ public class OAuthToken extends ExternalAuthenticationToken {
     return StringUtils.equals(this.authenticatorInstanceId, authenticator.getProviderInstanceId());
   }
 
-  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUri, String authCode, String codeVerifier) {
+  public OAuthToken(OAuthAuthenticatingFilter authenticator, String clientId, String redirectUri, String authCode, String codeVerifier, String nonce) {
     this.authenticatorInstanceId = authenticator.getProviderInstanceId();
     this.clientId = clientId;
     this.authCode = authCode;
     this.redirectUri = redirectUri;
     this.codeVerifier = codeVerifier;
+    this.nonce = nonce;
   }
 
   public String getRedirectUri() {
@@ -77,6 +85,10 @@ public class OAuthToken extends ExternalAuthenticationToken {
   @Override
   public Object getPrincipal() {
     return principal;
+  }
+  
+  public String getNonce() {
+    return nonce;
   }
 
   @Override

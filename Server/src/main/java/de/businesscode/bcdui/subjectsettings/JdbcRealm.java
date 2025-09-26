@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAccount;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -56,7 +55,6 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
-import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
@@ -69,6 +67,9 @@ import de.businesscode.util.jdbc.wrapper.BcdSqlLogger;
  * .hashIterations property. The default mode is hashed/salted, which can be disabled by not having a binding item password_salt in bcd_sec_user
  * in shiro configuration when declaring this realm. When creating new password please use {@link #generatePasswordHashSalt(String, int)}
  * method of this class.
+ * Beside user authenticated here against bcd_sec_user,
+ * we attach authorization in form of permissions from bcd_sec_user_settings here to those users
+ * as well as to users authenticated with ExternalAuthenticationToken as created by OAut
  */
 public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
@@ -78,11 +79,12 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   final static public String BCD_SEC_USER_PASSWORD_SALT_BINDINGITEM = "password_salt";
   final static public String BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT      = "password";
   final static public String BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT = "password_salt";
+  public static final String REGEXP_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
   private String passwordColumnName     = BCD_SEC_USER_PASSWORD_COLUMN_NAME_DEFAULT;
   private String passwordSaltColumnName = BCD_SEC_USER_PASSWORD_SALT_COLUMN_NAME_DEFAULT;
   private static String configPasswordColumnName;
   private static String configPasswordSaltColumnName;
-
+  protected final HashedCredentialsMatcher hashedCredentialsMatcher;
   public static final int DEFAULT_HASH_ITERATIONS = 1024;
   private final Logger log = LogManager.getLogger(getClass());
 
@@ -91,12 +93,14 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   public JdbcRealm() {
     super();
     this.setPermissionsLookupEnabled(true);
+    hashedCredentialsMatcher = new org.apache.shiro.authc.credential.HashedCredentialsMatcher(Sha256Hash.ALGORITHM_NAME);
+    hashedCredentialsMatcher.setHashIterations(hashIterations);
   }
 
   /**
    * Support for type-name=OTHER, cust:type-name=uuid
    *
-   * @param biUserId
+   * @param bindingItem
    * @return cust:type-name , if defined
    */
   protected String getCustomJdbcType(BindingItem bindingItem) {
@@ -131,48 +135,53 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         dataSource = BareConfiguration.getInstance().getUnmanagedDataSource(dsName);
       } catch (Exception e) {
-        throw new RuntimeException("failed to obain datasource",e);
+        throw new RuntimeException("failed to obtain datasource",e);
       }
     }
 
     return dataSource;
   }
-  
+
+  /**
+   * Shiro will use this to compare the AuthenticationToken from the request with the AuthenticationInfo from our system
+   * @return
+   */
   @Override
   public CredentialsMatcher getCredentialsMatcher() {
     if(isHashSalted()) {
-      final HashedCredentialsMatcher matcher = new org.apache.shiro.authc.credential.HashedCredentialsMatcher(Sha256Hash.ALGORITHM_NAME);
-      matcher.setHashIterations(hashIterations);
-      return matcher;
+      return hashedCredentialsMatcher;
     }else {
       return super.getCredentialsMatcher();
     }
   }
 
+  public record PrincipalInfo(String userId, String fullName, String password, String salt) {}
   /**
    * To support hashed passwords with salt we have to load the password + hash (if salted) from database,
    * so the hash can be recomputed and verified.
    *
    * @param userLogin
+   * @param enforceSalt
    * @return array of: [technical user id, password (string), salt(string)] or null if userLogin is not known; salt can be set to null, if not supported
    */
-  protected String[] getAccountCredentials(String userLogin) throws SQLException {
+  protected PrincipalInfo getPrincipalInfo(String userLogin, boolean enforceSalt) throws SQLException {
     boolean hashSalted = isHashSalted();
-    String stmt = "#set( $k = $bindings.bcd_sec_user ) select $k.user_id_, " + getPasswordColumnName() + (hashSalted ? ", " + getPasswordSaltColumnName()  : "") + " from $k.getPlainTableName() where $k.user_login_ = ? and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')";
+    String stmt = String.format("""
+        #set( $k = $bindings.bcd_sec_user ) 
+        select $k.user_id_, $k.name_, %s %s
+        from $k.getPlainTableName() 
+        where $k.user_login_ = ? and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')""", 
+        getPasswordColumnName(), hashSalted ? ", "+getPasswordSaltColumnName() : "");
     return new QueryRunner(getDataSource(), true).query(new SQLEngine().transform(stmt), rs -> {
       if(rs.next()){
-        ArrayList<String> result = new ArrayList<>();
-        result.add(rs.getString(1));
-        result.add(rs.getString(2));
-        String salt = hashSalted ? rs.getString(3) : null;
-        if(salt != null && salt.trim().isEmpty()){
-          salt = null;
-        }
-        if(hashSalted && salt == null) {
+        String salt = hashSalted ? rs.getString(4) : null;
+        if(salt != null && salt.trim().isEmpty()) salt = null;
+        // Unless we authenticate from external, we enforce a pwd-salt being set if binding item is present for security reasons
+        if(enforceSalt && hashSalted && salt == null) {
           throw new RuntimeException("salt required but missing.");
         }
-        result.add(salt);
-        return result.toArray(new String[]{});
+        PrincipalInfo acc = new PrincipalInfo(rs.getString(1), rs.getString(2), rs.getString(3), salt);
+        return acc;
       } else {
         return null;
       }
@@ -187,10 +196,11 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   public boolean supports(AuthenticationToken token) {
     return token instanceof ExternalAuthenticationToken ?  true : super.supports(token);
   }
-
   /**
+   * In doGetAuthenticationInfo() if possible we set user_id and user_name as principals for AuthenticationInfo
    * Return the user-id to be used with  {@link #getPermissions(Connection, String, Collection)} and {@link #getRoleNamesForUser(Connection, String)}
    * If available, we return the technical user id here, we know it exists if we find a PrimaryPrincipal. Otherwise we use the plain user name
+   * As Shiro requires (in 2025) String username = (String) getAvailablePrincipal(principals); and does not use toString(), we need this adapter.
    */
   @Override
   protected String getAvailablePrincipal(PrincipalCollection pc) {
@@ -210,6 +220,12 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
     }
   }
 
+  /**
+   * Retrieve AuthenticationInfo as stored in the system (db) for later comparison with AuthenticationToken
+   * @param token
+   * @return
+   * @throws AuthenticationException
+   */
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
     // If SubjectSettings are not to be used for authentication, do not try to authorize
@@ -221,31 +237,25 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       // we don't want to log our JDBC activity
       BcdSqlLogger.setLevel(Level.OFF);
 
-      // For externally authenticated users (SPNEGO or OAuth for example) we still check for the login_name to be translated
-      // into a BCD-UI technical id. If not there, we accept the login name as user id
-      // getAvailablePrincipal() will prefer the id but will return the login_name otherwise for later role and permission lookup
+      // For external authentication like OAuth we rely on that realm will have handled the lookup of the user_id and the authentication validation
+      // Including creation of AuthenticationInfo and thus of a login
+      // Note: Permissions below will still be added based on the userId given there
       if (token instanceof ExternalAuthenticationToken) {
-        String[] credentialInfo = getAccountCredentials(token.getPrincipal().toString());
-        if(credentialInfo != null){
-          return new SimpleAccount(new PrimaryPrincipal(credentialInfo[0]), null, getName());
-        } else {
-          return new SimpleAccount(token.getPrincipal(), null, getName());
-        }
-      } else if (token instanceof UsernamePasswordToken) {
-        UsernamePasswordToken upassToken = (UsernamePasswordToken) token;
-
-        String[] credentialInfo = getAccountCredentials(upassToken.getUsername());
-        if(credentialInfo != null){
+        return null;
+      } else if (token instanceof UsernamePasswordToken upassToken) {
+        PrincipalInfo acc = getPrincipalInfo(upassToken.getUsername(), true);
+        if(acc != null){
           SimplePrincipalCollection pc = new SimplePrincipalCollection();
-          pc.add(new PrimaryPrincipal(credentialInfo[0]), getName());   // technical user-id
-          pc.add(upassToken.getUsername(), getName());                  // user-login
+          String email = upassToken.getUsername().matches(REGEXP_EMAIL) ? upassToken.getUsername() : null;
+          PrimaryPrincipal pp = new PrimaryPrincipal(acc.userId, upassToken.getUsername(), acc.fullName, email);
+          pc.add(pp, getName()); // This becomes the getPrimaryPrincipal(), if we are the first Realm in the chain to provide one
 
           // salted vs. plaintext pass
           if(isHashSalted()) {
             // use same scheme as in de.businesscode.bcdui.subjectsettings.SecurityHelper.generatePasswordHashSalt(String) tool
-            return new SimpleAuthenticationInfo(pc, Hex.decode(credentialInfo[1]), new SimpleByteSource(Hex.decode(credentialInfo[2])));
+            return new SimpleAuthenticationInfo(pc, Hex.decode(acc.password), new SimpleByteSource(Hex.decode(acc.salt)));
           } else {
-            return new SimpleAuthenticationInfo(pc, credentialInfo[1]);
+            return new SimpleAuthenticationInfo(pc, acc.password);
           }
         }
       } else {
@@ -280,7 +290,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       try {
         BcdSqlLogger.setLevel(Level.OFF);
         String uroUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), uroUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_roles ) select $k.user_role_ from $k.getPlainTableName() where " + getDefineJdbcParameter("$k.user_id_", uroUseridjdbcTypeColExpre);
 
         new QueryRunner(true).query(con, new SQLEngine().transform(sql), rs -> {
           while(rs.next()){
@@ -320,7 +330,7 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   
       try {
         String urUseridjdbcTypeColExpre = getCustomJdbcType(biUserId);
-        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type_, $k.right_value_ from $k.getPlainTableName() where " + getDefineJdbcParameter(biUserId.getColumnExpression(), urUseridjdbcTypeColExpre);
+        String sql = "#set( $k = $bindings.bcd_sec_user_settings ) select $k.right_type_, $k.right_value_ from $k.getPlainTableName() where " + getDefineJdbcParameter("$k.user_id_", urUseridjdbcTypeColExpre);
   
         // we don't want to log our JDBC activity
         BcdSqlLogger.setLevel(Level.OFF);
@@ -381,7 +391,6 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   /**
    * Convenience method using default number of iterations
    * @param plainTextPassword
-   * @param iterations
    * @return
    */
   public static String[] generatePasswordHashSalt(String plainTextPassword) {

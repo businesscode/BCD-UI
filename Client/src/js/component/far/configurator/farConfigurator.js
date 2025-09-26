@@ -86,7 +86,7 @@
         
         // renders entire layout and containers for the choosers
         new bcdui.core.Renderer({
-          chain : bcdui.contextPath + "/bcdui/js/component/far/configurator/rendering.dott",
+          chain : bcdui.contextPath + "/bcdui/js/component/far/configurator/rendering.jstlit",
           targetHtml : this.element,
           parameters : {
             // currently a value is expected to be a primitive (or dataprovider)

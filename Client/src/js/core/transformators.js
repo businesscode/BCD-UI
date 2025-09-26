@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -50,15 +50,20 @@ bcdui.core.transformators =
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model) ) } } },
   
        // JS source file. Becomes a webworker
-       { test: function(rule){ return  typeof rule === "string" && rule.match(/\.js[\;\?\#]?/) != null },
+       { test: function(rule){ return  typeof rule === "string" && rule.match(/\.js[\;\?\#$]/) != null },
          info: { ruleDp: function( rule, name ) { return new bcdui.core.ConstantDataProvider({ name: name, value: rule }); },
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.WebworkerTransformator( args.model) ) } } },
   
-       // dotJs template
-       { test: function(rule){ return typeof rule === "string" && rule.match(/\.dott[\;\?\#]?/) != null }, 
+       // Javascript Template Literals
+       { test: function(rule){ return typeof rule === "string" && rule.match(/\.jstlit[\;\?\#]?/) != null },
          info: { ruleDp: function( rule ) { return new bcdui.core.SimpleModel({ url: rule }); }, 
+                 ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.JsTlitTransformator( args.model) ) } } },
+
+       // dotJs template
+       { test: function(rule){ return typeof rule === "string" && rule.match(/\.dott[\;\?\#]?/) != null },
+         info: { ruleDp: function( rule ) { return new bcdui.core.SimpleModel({ url: rule }); },
                  ruleTf: function( args ) { args.callBack( new bcdui.core.transformators.DotJsTransformator( args.model) ) } } },
-  
+
        // xslt
        { test: function(rule){ return  typeof rule === "string" && rule.match(/\.xsl[t\;\?\#]?/) != null }, 
          info: { ruleDp: function( rule ) { return new bcdui.core.SimpleModel({ url: rule }); }, 
@@ -198,14 +203,14 @@ export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.Webw
     this.fn = fn; // TODO issue, when fn changes for next call, when first exec is not finished
     var parameters = {};
     jQuery.each( this.params, function(key,value) {
-      parameters[key] = bcdui.core.convert.toJs(value); 
+      parameters[key] = bcdui.core.convert.toJs(value);
     });
     this.worker.postMessage( JSON.stringify( { input: sourceDoc, parameters: parameters } ) );
   }
 };
 
  /**
-   * JsTransformator
+   * DotJsTransformator
    * For usage by TransformationChain
    * @extends bcdui.core.transformators.IdentityTransformator
     */
@@ -226,8 +231,53 @@ export const bcduiExport_DotJsTransformator = bcdui.core.transformators.DotJsTra
    */
   transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
   {
+    // We init on the first call
     if( !this.transFkt )
       this.transFkt = doT.template(this.template);
     fn( this.transFkt( { input:sourceDoc, params:this.params } ) );
   }
 };
+
+/**
+ * JsTlitTransformator for Javascript Template Literals `Hello ${param.name}!`
+ * For usage by TransformationChain
+ * @extends bcdui.core.transformators.IdentityTransformator
+ */
+bcdui.core.transformators.JsTlitTransformator = class extends bcdui.core.transformators.IdentityTransformator
+{
+  /**
+   * @private
+   */
+  constructor(/* object */ procFkt)
+  {
+    super(procFkt);
+  }
+
+  /**
+   * For usage by TransformationChain
+   * @private
+   */
+  transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
+  {
+    const that = this;
+    // Init on first call
+    if( !this.transFkt ) {
+      // source = { input: inputModel, params: parameters }
+      this.transFkt = function(source) {
+        return this.template.replace(/\$\{(.*?)\}/g, (_, expression) => {
+          const value = that.resolvePath(source, expression.trim());
+          return value !== undefined ? value : '';
+        });
+      }
+    }
+    // Transform
+    fn( this.transFkt( { input: sourceDoc, params: this.params } ) );
+  }
+
+  // Apply property like input.Wrs.Header.Columns.C[2].id access step-wise
+  resolvePath(source, path) {
+    const normalizedPath = path.replace(/\[(\w+)\]/g, '.$1'); // turn [8] into .8 etc
+    return normalizedPath.split('.').reduce((acc, key) => acc?.[key], source)
+  }
+};
+

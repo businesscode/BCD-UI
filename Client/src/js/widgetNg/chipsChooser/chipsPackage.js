@@ -187,20 +187,20 @@
 
       this._super();
 
-      const leftLabel = this.options.upperTitle ? "<label>{{=it.left}}</label>" : "";
-      const rightLabel = this.options.upperTitleRight ? "<label>{{=it.right}}</label>" : "";
+      const leftLabel = this.options.upperTitle ? `<label>${this.options.upperTitle || ""}</label>` : "";
+      const rightLabel = this.options.upperTitleRight ? `<label>${this.options.upperTitleRight || ""}</label>` : "";
       const defPlaceHolder = (this.options.bindingSetId && ! this.options.preload) ? "bcd_chipsChooser_please_type" : "bcd_singleSelect_please_select";
       const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || defPlaceHolder}) || this.options.placeholder;
       const template =
       this.options.targetModelXPathRight
-      ? "<div class='bcdChipChooser bcdSplit' id='{{=it.id}}'><div class='bcdUpper'>"+leftLabel+"<div class='bcdLeft'></div>"+rightLabel+"<div class='bcdRight'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>"
-      : "<div class='bcdChipChooser' id='{{=it.id}}'><div class='bcdUpper'>"+leftLabel+"<div class='bcdUp'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
+      ? `<div class='bcdChipChooser bcdSplit' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdLeft'></div>"+rightLabel+"<div class='bcdRight'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>"
+      : `<div class='bcdChipChooser' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdUp'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
 
       // add label
       this._createLabel(this.options.id);
 
       // append widget
-      jQuery(this.element).append( doT.template(template)({ id: this.options.id, left: this.options.upperTitle || "", right: this.options.upperTitleRight || "" }) );
+      jQuery(this.element).append(template);
 
       // close drop down after a second when mouse left target
       let hideTimeout = null;

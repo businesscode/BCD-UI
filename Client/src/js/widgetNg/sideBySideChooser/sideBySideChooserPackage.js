@@ -51,29 +51,63 @@
     _create : function() {
       this._super();
 
-      var template = "<div class='bcdSideBySideChooser'>" +
-        "<table>" +
-          "<thead>" +
-            "<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='{{=it.sourceCaption}}'>{{=it.sourceCaption}}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='{{=it.targetCaption}}'>{{=it.targetCaption}}</th><th></th></tr>" +
-          "</thead>" +
-        "<tbody>" +
-          "<tr>" +
-            "<td class='bcdCol' id='{{=it.id}}sbsLeft'></td>" +
-            "<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a></a></span><span class='bcdButton bcdToSource'><a></a></span></span></td>" +
-            "<td class='bcdCol3' id='{{=it.id}}sbsRight'></td>" +
-            "<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a></a></span><span class='bcdButton bcdMoveDown'><a></a></span></span></td>" +
-           "</tr>" +
-          "</tbody>" +
-        "</table>" +
-      "</div>";
+      const it ={ sourceCaption: (this.options.sourceCaption || "Source"), targetCaption: (this.options.targetCaption || "Target"), id: this.options.id };
+      const template =
+      `<div class='bcdSideBySideChooser'>`+
+        `<table>`+
+          `<thead>`+
+            `<tr><th class='bcdSbscSourceItemsHeader' bcdTranslate='${it.sourceCaption}'>${it.sourceCaption}</th><th></th><th class='bcdSbscTargetItemsHeader' bcdTranslate='${it.targetCaption}'>${it.targetCaption}</th><th></th></tr>`+
+          `</thead>`+
+        `<tbody>`+
+          `<tr>`+
+            `<td class='bcdCol' id='${it.id}sbsLeft'></td>`+
+            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdToSource'><a href='javascript:void(0)'></a></span></span></td>`+
+            `<td class='bcdCol3' id='${it.id}sbsRight'></td>`+
+            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdMoveDown'><a href='javascript:void(0)'></a></span></span></td>`+
+           `</tr>`+
+          `</tbody>`+
+        `</table>`+
+      `</div>`;
 
-      jQuery(this.element).append(
-        doT.template(template)({
-          sourceCaption: (this.options.sourceCaption || "Source")
-        , targetCaption: (this.options.targetCaption || "Target")
-        , id: this.options.id
-        })
-      );
+      jQuery(this.element).append(template);
+
+      // add optional source filter      
+      let filterParams = {};
+      for (let p in this.options) {
+        if (p.startsWith("sourceFilter_")) {
+          filterParams[p.substring("sourceFilter_".length)] = this.options[p];
+        }
+      }
+      // you need at least sourceFilter_optionsModelXPath and sourceFilter_relativeCompareValueXPath
+      this.sourceFilter = typeof filterParams["optionsModelXPath"] != "undefined" && typeof filterParams["relativeCompareValueXPath"] != "undefined";
+      if (this.sourceFilter) {
+        jQuery(this.element).find("table tbody").prepend("<tr><td class='bcdCol bcdSourceFilter'></td><td class='bcdCol2'></td><td class='bcdCol3'></td><td class='bcdCol4'></td></tr>");
+        filterParams["targetHtml"] = jQuery(this.element).find(".bcdSourceFilter").get(0); 
+        
+        this.filterModel = new bcdui.core.StaticModel("<Root/>");
+        bcdui.factory.objectRegistry.registerObject(this.filterModel);
+                
+        filterParams["targetModelXPath"] = "$" + this.filterModel.id + "/*/Value";
+
+        this.filterModel.onChange(function() {
+          jQuery(this.element).find(".bcdSource").first()._bcduiWidget()._renderItems();
+        }.bind(this), "/*/Value");
+        
+        bcdui.widgetNg.createSingleSelect(filterParams);
+
+        this.filterSourceNodes = function(nodes) {
+          let finalNodes = [];
+          const chosen = this.filterModel.read("/*/Value", "");
+          Array.from(nodes).forEach(function(n) {
+            const row = n.parentNode;
+            let value = n.selectSingleNode(this.options.sourceFilter_relativeCompareValueXPath);
+            value = value != null ? value.text : "";
+            if (!chosen || chosen == value)
+              finalNodes.push(n);
+          }.bind(this));
+          return finalNodes;
+        }
+      }
 
       // trigger translation
       bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.element.get(0)});
@@ -107,6 +141,9 @@
         , targetHtml: this.element.find("#" + this.options.id + "sbsLeft")
         , generateItemHtml: this.options.generateItemHtmlSource
       }
+      if (this.sourceFilter)
+        sourceArgs["filterSourceNodes"] = this.filterSourceNodes.bind(this);
+
       var targetArgs = {
         targetModelXPath: this.options.targetModelXPath
         , targetHtml: this.element.find("#" + this.options.id + "sbsRight")

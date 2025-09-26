@@ -10,12 +10,12 @@
   </thead>
   <tbody>
     <tr>
-      <td id="{{=it.params.dimsChooserId}}"></td>
+      <td id="${params.dimsChooserId}"></td>
       <td>&#160;</td>
-      <td id="{{=it.params.measChooserId}}"></td>
+      <td id="${params.measChooserId}"></td>
       <td>&#160;</td>
       <td class="bcd-far-sort">
-        <div id="{{=it.params.sortChooserId}}"></div>
+        <div id="${params.sortChooserId}"></div>
       </td>
     </tr>
   </tbody>

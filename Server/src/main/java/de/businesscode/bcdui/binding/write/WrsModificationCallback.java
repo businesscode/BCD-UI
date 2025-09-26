@@ -67,6 +67,15 @@ public class WrsModificationCallback extends WriteProcessingCallback {
    */
   protected final HashMap<String, BindingItemConfig> bindingItemIdMap = new HashMap<>();
 
+  public HashSet<String> getIgnoreUpdateBRefs() {
+    HashSet<String> skipped = new HashSet<>();
+    for (BindingItemConfig b  : bindingItemIdMap.values()) {
+      if (b.ignore == BindingItemConfig.CONFIG_IGNORE.update)
+        skipped.add(b.bindingItemId);
+    }
+    return skipped;
+  }
+
   /**
    *
    * @param list

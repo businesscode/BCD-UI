@@ -590,7 +590,8 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
     // The form is a singleton
     var form = document.getElementById(formId);
     if (!form) {
-      var el = jQuery(bcdui.component.exports.exportToExcelTemplateFormTpl({ id : formId }));
+      const exportToExcelTemplateFormTpl = `<form id='${formId}' method='post'><input type='hidden' name='data' value=''></input><input type='hidden' name='pageHash' value=''></input></form>`;
+      var el = jQuery(exportToExcelTemplateFormTpl);
       el.appendTo(document.body);
       form = el.get(0);
     }
@@ -603,6 +604,5 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
       form.setAttribute("action", servletPath + "/" + (args.fileName || "excelExport.xlsx" ) );
       form.submit();
     });
-  },
-  exportToExcelTemplateFormTpl: doT.compile("<form id='{{=it.id}}' method='post'><input type='hidden' name='data' value=''></input><input type='hidden' name='pageHash' value=''></input></form>")
+  }
 });

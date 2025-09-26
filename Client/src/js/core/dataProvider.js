@@ -455,7 +455,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
 
   /**
    * read the data from a wrs, filter via xpath and return data as an object array
-   * @param {string array} columns - positive list of column
+   * @param {string[]} columns - positive list of column
    * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
    * @param {string} templateObj   - object holding the values for the placeholders in the xPathTemplate
    * @return array holding objects with the read data

@@ -307,7 +307,7 @@ public class SubjectSettings2Sql implements SqlConditionGenerator {
           String sqlOp = ft.getOp()==null ? "=" : WrqFilter2Sql.getOperatorMapping(ft.getOp());
           for( int pIdx=0; pIdx<permissions.size(); pIdx++) {
             if( pIdx > 0 ) subjectSettingsClause.append(" OR ");
-            subjectSettingsClause.append(columnExpression).append(" ").append(sqlOp).append(CustomJdbcTypeSupport.wrapTypeCast(bi, "?"));
+            subjectSettingsClause.append(columnExpression).append(" ").append(sqlOp).append(" ").append(CustomJdbcTypeSupport.wrapTypeCast(bi, "?"));
           }
         }
 

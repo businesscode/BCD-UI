@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,6 +16,73 @@
 "use strict";
 /**
  * Login Form Widget
+ * It supports a login form as well as OAuth login
+ * To Support cookies SameSite=strict, we work with a popup for OAUth login opened by the a tags below
+ *
+ * It requires
+ * 1. the main page <body bcd-login> tag to have the bcd-login attribute being set
+ * 2. To be use with a form with the fields and your layout like this sample:
+     <bcd-loginng>
+       <form class="bcd__login-form">
+         <div class="container">
+           <!-- Login form -->
+           <section>
+             <!-- username -->
+             <div class="form-group">
+               <label for="input-field-username">Username:</label>
+               <div class="input-group">
+                 <div class="input-group-prepend">
+                   <div class="input-group-text">
+                     <i class="fas fa-user"></i>
+                   </div>
+                 </div>
+                 <input type="text" class="form-control" id="input-field-username" name="username" autofocus></input>
+               </div>
+             </div>
+
+             <!-- password -->
+             <div class="form-group">
+               <label for="input-field-passwd">Password:</label>
+               <div class="input-group">
+                 <div class="input-group-prepend">
+                   <div class="input-group-text">
+                     <i class="fas fa-lock"></i>
+                   </div>
+                 </div>
+                 <input type="password" class="form-control" id="input-field-passwd" name="password"></input>
+               </div>
+             </div>
+
+             <!-- rememberMe -->
+             <div class="form-group">
+               <input type="checkbox" class="" id="input-check-rememberme" name="rememberMe"></input>
+               <label for="input-check-rememberme">Remember me</label>
+             </div>
+
+             <!-- actions -->
+             <div class="form-group role-login">
+               <button class="btn btn-primary w-100 role-login-action"> Login </button>
+               <!-- // TODO disable temporarily
+                 <a href="#" class="text-link">Forgot password?</a>
+                -->
+             </div>
+           </section>
+
+           <!-- OAuth -->
+           <section>
+             <div class="bcd__login-divider">
+               <span>OR</span>
+             </div>
+             <div class="form-group">
+               <a href="#" bcdOauthProviderId="google" class="btn btn--google-login"> Login with Google </a>
+             </div>
+             <div class="form-group">
+               <a href="#" bcdOauthProviderId="azure" class="btn btn--microsoft-login"> Login with Microsoft </a>
+             </div>
+           </section>
+         </div>
+       </form>
+     </bcd-loginng>
  */
 (function(){
   jQuery.widget("bcdui.bcduiLoginNg", jQuery.bcdui.bcduiWidget,
@@ -68,6 +135,7 @@
 
       const loginForm = this.element.find("form");
 
+      // Login form handling
       loginForm
       .on("submit", () => {
         // suppress submission, is handled in JS/XHR
@@ -91,6 +159,18 @@
 
         return true;
       });
+
+      // OAuth popup handling (we use popup to support cookie SamSite=strict)
+      // Each a with attribute bcdOauthProviderId will trigger the auth flow with a popup
+      jQuery("form a[bcdOauthProviderId]").each( (idx, btn) => {
+          const providerId = btn.getAttribute("bcdOauthProviderId");
+          const width = 600, height = 500;
+          const left = window.screenX + (window.outerWidth - width) / 2;
+          const top = window.screenY + (window.outerHeight - height) / 2;
+          const params = `width=${width},height=${height},left=${left},top=${top}`;
+          btn.onclick = () => window.open(`${bcdui.contextPath}/oauth?oauth-provider-id=${providerId}`, "oauthPopup", params);
+        }
+      );
 
       window.setTimeout(()=>{loginForm.find("input").first().focus()},50); // autofocus (does not work in sandbox)
     },
@@ -182,5 +262,16 @@ bcdui.widgetNg.login = Object.assign(bcdui.widgetNg.login,
       return;
     }
     callback(id, "");
+  },
+
+  /**
+   * To support OAuth flow with cookie SameSite strict, we work with a client-site redirect here
+   * which is triggered from within the popup by a script send from OAuthAuthenticatingFilter on login success
+   * This way we get the cookie and stay in the successfully validated session
+   * @param redirectUrl
+   */
+  oAuthLoginOnSuccess: function(redirectUrl) {
+    window.location.href = redirectUrl;
   }
+
 });

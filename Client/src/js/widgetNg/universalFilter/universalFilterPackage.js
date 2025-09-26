@@ -240,7 +240,7 @@
       }
       var createUiRenderer = new bcdui.core.Renderer({
         targetHtml  : this.createUiElement,
-        chain       : this.options.inputRow.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/inputRendering.dott",
+        chain       : this.options.inputRow.renderingChain || bcdui.config.libPath + "js/widgetNg/universalFilter/inputRendering.jstlit",
         inputModel  : this.statusModel,
         parameters  : jQuery.extend({}, createUiConfig, {
           widgetReferenceModel  : widgetReferenceModel, // put into depedency chain
@@ -349,7 +349,22 @@
       }.bind(this))
       // triggered when rendering IN operator
       .on("bcdui:universalFilter:createMultiValueInput", function(event){
-        self.createMultiValueInput(event.target);
+        if (self.statusModel.query("/Status/Op[.='in']") != null)
+          self.createMultiValueInput(event.target);
+        else {
+          const targetModelXPath = event.target.getAttribute("targetModelXPath") || "";
+          if (targetModelXPath != "")
+            bcdui.widgetNg.createInput({targetModelXPath: targetModelXPath, targetHtml: event.target});
+        }
+      })
+      .on("bcdui:universalFilter:createJunction", function(event){
+        if (self.statusModel.query("/Status/isUpdating[.='true']") == null) {
+          const targetModelXPath = event.target.getAttribute("targetModelXPath") || "";
+          const optionsModelXPath = event.target.getAttribute("optionsModelXPath") || "";
+          const optionsModelRelativeValueXPath = event.target.getAttribute("optionsModelRelativeValueXPath") || "";
+          if (targetModelXPath != "" && optionsModelXPath != "" && optionsModelRelativeValueXPath != "")
+            bcdui.widgetNg.createSingleSelect({optionsModelRelativeValueXPath: optionsModelRelativeValueXPath, optionsModelXPath: optionsModelXPath, targetModelXPath: targetModelXPath, targetHtml: event.target});
+        }
       })
       ;
     },
@@ -364,15 +379,6 @@
       targetElement = jQuery(`<div class="${this.options.cssClassPrefix}multi-input-container"></div>`).appendTo(jQuery(targetElement).empty());
       var self = this;
 
-      let inputItemTemplate = doT.compile(`<div class='${this.options.cssClassPrefix}multi-input-item'>
-          <bcd-inputng
-            targetModelXPath="{{=it.targetModelXPath}}"
-            {{=it.apiAttrs}}
-          ></bcd-inputng>
-          <bcd-buttonng class='action-add' caption='+'></bcd-buttonng>
-          <bcd-buttonng class='action-remove' caption='-'></bcd-buttonng>
-        </div>`);
-
       var context = {
         cnt : 0, // input counter
         targetModelXPathBase : targetElement.closest("[targetModelXPath]").attr("targetModelXPath"), // take from view
@@ -383,6 +389,7 @@
 
       var inputItemTemplateArgs = {
         targetModelXPath : context.nextTargetModelXPath()
+        , apiAttrs : ""
       };
 
       {// collect other api-attrs
@@ -396,12 +403,12 @@
         }
       }
 
+      const inputItemTemplate = `<div class='${this.options.cssClassPrefix}multi-input-item'><bcd-inputng targetModelXPath="${inputItemTemplateArgs.targetModelXPath}" ${inputItemTemplateArgs.apiAttrs}></bcd-inputng><bcd-buttonng class='action-add' caption='+'></bcd-buttonng><bcd-buttonng class='action-remove' caption='-'></bcd-buttonng></div>`;
       targetElement
-      .html(inputItemTemplate(inputItemTemplateArgs))
+      .html(inputItemTemplate)
       .on("click", ".action-add", function(){
-        targetElement.append(jQuery(inputItemTemplate($.extend({}, inputItemTemplateArgs, { // retain generic args + override targetModelXPath for a new item
-          targetModelXPath : context.nextTargetModelXPath()
-        }))));
+        const inputItemTemplateNext = `<div class='${self.options.cssClassPrefix}multi-input-item'><bcd-inputng targetModelXPath="${context.nextTargetModelXPath()}" ${inputItemTemplateArgs.apiAttrs}></bcd-inputng><bcd-buttonng class='action-add' caption='+'></bcd-buttonng><bcd-buttonng class='action-remove' caption='-'></bcd-buttonng></div>`;
+        targetElement.append(jQuery(inputItemTemplateNext));
       })
       .on("click", ".action-remove", function(){
         const inputRow = jQuery(this).closest("div");

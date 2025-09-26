@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,98 +14,38 @@
   limitations under the License.
 */
 "use strict";
-//-----------------------------------------------------------------------------
-//BEGIN: Implementation of Gecko functions
-//-----------------------------------------------------------------------------
-if (bcdui.browserCompatibility.isGecko) {
-  /**
-   * Helper to support namespace-alias for Gecko
-   */
-  bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
-  {
-    var serializedDoc = new XMLSerializer().serializeToString(args.doc);
 
-    /*
-     * 1. Workaround for Gecko xsl:namespace-alias. It is not implemented in the browser, so we do it here
-     * Main use case is XSLT generation with xslt. xsl-elements to appear in the result xslt can be written
-     * in xslt with the aliased namespace, which is here changed to the right one.
-     */
-    var nsAliasNodes = jQuery(args.processor.xslt.documentElement.selectNodes("/*/xsl:namespace-alias"));
-    var replaces = new Object();
-    if( nsAliasNodes.length>0 ) {
-      nsAliasNodes.each(
-          function( nsAliasNodeIdx, nsAliasNode ) {
-            replaces[nsAliasNode.getAttribute("stylesheet-prefix")] = nsAliasNode.getAttribute("result-prefix");
-          }
-      );
-      Object.keys(replaces).forEach( function(replace) {
-          var regExp = new RegExp( "<"+replace+":", "g");
-          serializedDoc = serializedDoc.replace( regExp, "<"+replaces[replace]+":" );
-          regExp = new RegExp( "</"+replace+":", "g");
-          serializedDoc = serializedDoc.replace( regExp, "</"+replaces[replace]+":" );
-        }
-      );
-    }
-
-    /*
-     * 2. Workaround for FF, because it does not copy the namespaces which are only used in XPath select attributes.
-     * We add the declarations here
-     */
-    serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
-    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
-    return doc;
-  };
-
-  /**
-   * Make the transformX interface async
-   */
-  XSLTProcessor.prototype.transformToFragmentOrig = XSLTProcessor.prototype.transformToFragment;
-  XSLTProcessor.prototype.transformToDocumentOrig = XSLTProcessor.prototype.transformToDocument;
-  XSLTProcessor.prototype.transform = function( args )
-  {
-    for (var x in args.parameters)
-      this.addParameter(x, args.parameters[x]);
-
-    if( this.outputFormat === "html" )
-      args.callBack( this.transformToFragment(args.input, document) );
-    else
-      args.callBack( this.transformToDocumentOrig(args.input) );
-  };
-}
-//-----------------------------------------------------------------------------
-//END: Implementation of Gecko functions
-//-----------------------------------------------------------------------------
-
+/**
+ * This source addresses differences in XSLT handling between render engines
+ * - Gecko (FireFox)
+ * - Webkit (Safari, Chrome, Edge, Opera)
+ * - Blink (Chrome, Edge, Opera)
+ * Because Blink is a fork of Webkit (which is a fork of KDE btw), they share some common workarounds and for Chrome and Edge isWebkit is also true
+ * Mainly:
+ * - Webkit never supported document() function, xsl:import or parameters being node-sets.
+ *   Both limitations are worked around by inserting their source into the XSLT in a variable and make them usable with node-set(var)
+ *   Because those documents can be xslt and in turn make use of it, it is done recursively
+ * - Gecko does not support xsl:namespace-alias and also stopped supporting document() in May 2025, but still supports parameters being node-sets
+ *   While it may support xsl:import, because we need to handle document() in imported xslt as well, we also have to handle xsl:import for Firefox as well.
+ * - Mobile Webkit, Blink browsers from smaller documents, this mechanism can be limited to insert a wrs:Wrs/wrs:Header and not the wrs:Data,
+ *   if the using xslt is maked with bcdxml:wrsHeaderIsEnough
+ */
 
 
 //-----------------------------------------------------------------------------
-//BEGIN: Implementation of XSLT document(), xsl:import for browser that lack support for it
+//BEGIN: Webkit and Gecko overwrites (in reality this is all browsers)
 //-----------------------------------------------------------------------------
-if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) {
+if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isGecko) {
   /**
    * This namespace contains implementations that apply to all versions of WebKit (Google Chrome) and Edge.
    * @namespace
    * @private
    */
   bcdui.core.browserCompatibility.fixXslt = {
-    /**
-     * Adds dummy attributes of all well-known BCD-UI namespaces (beside those in except) to a document
-     * This is useful if a namespace is only used within a XPath within a generated XSLT, such namespaces do not survive per se, 
-     * i.e. the namespaces do not survive if not used except within xPaths
-     * And also, if a document is cut out from another, like the aggregators in the scorecard, they do not contain all namespaces needed
-     * @param {DomElement} doc - The XML document to add the namespaces on
-     * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
-     */
-    _addDefaultNamespaceAttributesToDocumentElement: function(/* XMLDocument */ doc, except )
-    {
-      for (var prefix in bcdui.core.xmlConstants.namespaces) {
-        var uri = bcdui.core.xmlConstants.namespaces[prefix];
-        if( !except || except.indexOf(prefix)==-1 ) {
-          doc.documentElement.setAttributeNS(uri, prefix + ":dummy", "dummy")
-        }
-      }
-    },
 
+    /**
+     * Internal counter to make unique variable names used for inserting external documents
+     */
     tempId: 0,
 
     /**
@@ -118,8 +58,8 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
 
 
     /**
-     * Helper for webkit browsers, which do not support XSLT's document() function, xsl:import, xsl:include and node-sets for parameters
-     * The for document fkt, import and node-set paramters, the content of these three is instead embedded in the host xslt's source
+     * Helper for browsers, which do not support XSLT's document() function, xsl:import, xsl:include and node-sets for parameters
+     * For document fkt, import and node-set parameters, the content of these three is instead embedded in the host xslt's source
      * in an artificial variable and accessed via node-set(). xsl:include is not implemented
      * The embedding itself is done via xi:includes generated as replacements for these.
      * Only parameters are updated before each transformation, document() content is not
@@ -127,7 +67,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
      * - To allow XSLT be a child of xsl:variable, the embedded XSLT gets a namespace http://www.w3.org/1999/XSL/Transform/webkitTemp
      * - AVT expressions a={$e} are escaped wir double brackets
      * - The namespace which is turned into the standard one during XSLT generation via a special template, the brackets are done automatically
-     * Keep in mind: as the content is inserted into the host document, elements from undeclared default namespacees will
+     * Keep in mind: as the content is inserted into the host document, elements from undeclared default namespaces will
      * inherit the host documents default namespace, for example HTML tags of undeclared namespace would become xsl elements
      * if the generated XSLT has xslt as the default namespace, which often happens. Thus: always declare HTML namespaces as well for Chrome
 
@@ -145,19 +85,17 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
       // - adding exsl namespace for use of node-set()
       // - adding a dummy variable for http://www.w3.org/1999/XSL/Transform/webkitTemp
       // - adding a template for http://www.w3.org/1999/XSL/Transform/webkitTemp stuff becoming http://www.w3.org/1999/XSL/Transform (just in case we include an xslt)
-      if( args.isGenerated )
-        bcdui.core.removeXMLBase(domDocument);
-      bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(domDocument,['xsl']);
+      domDocument = bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(domDocument,['xsl']);
       domDocument.documentElement.setAttributeNS("http://www.w3.org/1999/XSL/Transform/webkitTemp", "xslTmp:dummy", "dummy");
       if( domDocument.selectSingleNode("/*/xsl:output[@media-type='text/xslt']")!=null
           && domDocument.selectSingleNode("/*/xsl:template[@match='xslTmp:*' and @mode='generateXSLT']")==null ) {
-        var template = domDocument.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "xsl:template");
-        template.setAttribute("match","xslTmp:*");
-        template.setAttribute("mode","generateXSLT");
-        var element = domDocument.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "xsl:element");
+        // Firefox (v140) xslt import strangely fails if a prefix is used in an attribute even if it is added to the document root before with a dummy attribute
+        // if we create the element with createElementNS, setAttribute. This parse attempt works.
+        let template = new DOMParser().parseFromString("<xsl:template xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:xslTmp='http://www.w3.org/1999/XSL/Transform/webkitTemp'  match='xslTmp:*' mode='generateXSLT'/>","text/xml").documentElement;
+        var element = domDocument.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "element");
         element.setAttribute("name","{local-name()}");
         element.setAttribute("namespace",bcdui.core.xmlConstants.namespaces.xsl);
-        var applyTemplates = domDocument.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "xsl:apply-templates");
+        var applyTemplates = domDocument.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "apply-templates");
         applyTemplates.setAttribute("select","node()|@*");
         applyTemplates.setAttribute("mode","generateXSLT");
         element.appendChild(applyTemplates);
@@ -177,13 +115,13 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
                 // OK, everything (beside parameters) is included, finally create the processor
                 var proc = new XSLTProcessor();
                 try {
-                  // We need to re-import the xslt in MsEdge case anyway if params change, so we delay it here
-                  if(!bcdui.browserCompatibility.isMsEdge)
-                    proc.importStylesheet(doc);
+                  bcdui.core.removeXMLBase(doc);
+                  proc.importStylesheet(doc);
                   proc.xslt = doc; // used for debugging and for determining parameters and for webkit to merge params in
                   proc.outputFormat = bcdui.core.browserCompatibility.extractMetaDataFromStylesheetDoc( doc );
                 } catch(e) {
-                  bcdui.log.error({id: null, message: "BCD-UI: Internal stylesheet error ("+e+"). "+new XMLSerializer().serializeToString(doc)});
+                  bcdui.log.error({id: null, message: "BCD-UI: Internal stylesheet error ("+e+"). Stylesheet: "+new XMLSerializer().serializeToString(doc)});
+                  throw e;
                 }
                 fn(proc);
               }.bind(this) );
@@ -192,7 +130,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
     },
 
     /**
-     * This is a helper to solve the problem that webkit does not support xsl document function.
+     * This is a helper to solve the problem that browsers do not support xsl document function.
      * Don't use this directly, use createXsltProcessor instead
      * Replaces the document function with the help of exslt:node-set(), merging the content into the
      * host xslt into a variable (xslt content gets a different namespace) and having another variable
@@ -231,18 +169,18 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
               // Step 2: Insert xsl:variable elements for included documents and one with node-set() access to it
               var baseElement = doc.selectNodes("/xsl:stylesheet/xsl:*[self::xsl:param or self::xsl:variable or self::xsl:template]").item(0);
               for (var id in mapping) {
-                var variable = doc.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "xsl:variable");
+                var variable = doc.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "variable");
                 variable.setAttribute("name", "data_"+id);
                 baseElement.parentNode.insertBefore(variable, baseElement);
 
                 var xiInclude = doc.createElementNS(bcdui.core.xmlConstants.namespaces.xi, "include");
                 xiInclude.setAttribute("href", mapping[id]);
-                variable.appendChild(doc.createComment(" Replacement for document function on \""+mapping[id]+"\": "));
+                variable.appendChild(doc.createComment(" Replacement for document function on \""+mapping[id]+"\" "));
                 variable.appendChild(xiInclude);
 
-                var variableNodeSet = doc.createElementNS(bcdui.core.xmlConstants.namespaces.xsl, "variable");
-                variableNodeSet.setAttribute("name", id);
-                variableNodeSet.setAttribute("select", "exslt:node-set($"+("data_"+id)+")");
+                // Firefox (v140) xslt import strangely fails if a prefix is used in an attribute even if it is added to the document root before with a dummy attribute
+                // if the create the element with createElementNS, setAttribute. This parse attempt works.
+                let variableNodeSet = new DOMParser().parseFromString(`<xsl:variable xmlns:xsl='${bcdui.core.xmlConstants.namespaces.xsl}' xmlns:exslt='${bcdui.core.xmlConstants.namespaces.exslt}' name='${id}' select='exslt:node-set($data_${id})'/>`,"text/xml").documentElement;
                 baseElement.parentNode.insertBefore(variableNodeSet, baseElement);
               }
               // Now resolve all generated include, make sure xslt is mapped to a temporary namespace to allow being child of xsl:variable
@@ -256,13 +194,6 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
                     var xmlAsString = new XMLSerializer().serializeToString(doc);
                     xmlAsString = xmlAsString.replace(/http:\/\/www.w3.org\/1999\/XSL\/Transform/g, "http://www.w3.org/1999/XSL/Transform/webkitTemp");
                     xmlAsString = xmlAsString.replace(/=\"{([^\"]*)}\"/g,"=\"{{$1}}\""); // Escape AVT attribute value templates.
-                    // Edge does not like embedded stylesheets with xsl prefix, even, if the namespace is set to something different that xslt
-                    // Seems to be a bug, at least present in Windows 10 Edge preview, maybe #7240287, remove this workaround later when not longer necessary
-                    if( bcdui.browserCompatibility.isMsEdge ) {
-                      xmlAsString = xmlAsString.replace(/<xsl:/g,"<xslWt:");
-                      xmlAsString = xmlAsString.replace(/<\/xsl:/g,"</xslWt:");
-                      xmlAsString = xmlAsString.replace(/xmlns:xsl=/g,"xmlns:xslWt=");
-                    }
                     return new DOMParser().parseFromString(xmlAsString,"text/xml").documentElement;
                   }
               } );
@@ -275,7 +206,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
 
 
     /**
-     * This is a helper to solve the problem that webkit does not support xsl import function.
+     * This is a helper to solve the problem that browsers do not support xsl import function.
      * Don't use this directly, use createXsltProcessor instead
      * @param {DomDocument} doc The document to work on
      * @param {Function} fn callback after finishing
@@ -339,12 +270,12 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         // All imports resolved, now lets remove all conflicting variables and templates
         // Certain restrictions apply:
         // Templates we compare on string equality of the match clause only, thus conflicts of type "A | B" and "B|A" are not fixed here,
-        // same for "/A/B" and "B". Also templaetes having same @match but different @name are not imported
+        // same for "/A/B" and "B". Also, templates having same @match but different @name are not imported
         // xsl:apply-imports is not supported at all
         // Knowing this it is possible to write a proper working import
 
         // Find templates which have conflicting predecessors ((same match OR same name) AND same mode)
-        // and only keep the latest, which is the one of the importind stylesheet or the one of the latested imported one
+        // and only keep the latest, which is the one of the importing stylesheet or the one of the latest imported one
         var templatesWithConflicts = jQuery(doc.selectNodes("/*/xsl:template[@match=preceding-sibling::xsl:template/@match or @name=preceding-sibling::xsl:template/@name]"));
         templatesWithConflicts.each( function( templateIdx, template ) {
           var mode = template.getAttribute("mode");
@@ -381,7 +312,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         fn(doc);
       }
     }
-  }; /* namespace bcdui.browserCompatibility.isWebKit */
+  } /* bcdui.core.browserCompatibility.fixXslt */
 
   /**
    * Asynchronous creation of an XSLTProcessor object from a DOM document.
@@ -392,23 +323,14 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
    */
   bcdui.core.browserCompatibility.asyncCreateXsltProcessor = bcdui.core.browserCompatibility.fixXslt.asyncCreateXsltProcessor;
 
-  bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
-  {
-    /*
-     * Workaround for Webkit, because it does not copy the namespaces which are only used in XPath select attributes.
-     * We add the declarations here
-     */
-    var serializedDoc = new XMLSerializer().serializeToString(args.doc);
-    serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
-    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
-    return doc;
-  };
-
 
   /**
-   * As an optimization, specifically for Android/iOS mobiles, we only use the wrs:Header of a document as input for the processor, if the stylesheet says, it is enough.
+   * As an optimization, specifically for Android/iOS mobiles,
+   * we only use the wrs:Header of a document as input for the processor, if the stylesheet says, it is enough.
+   * Can be done by setting /xsl:Stylesheet/@bcdxml:wrsHeaderIsEnough="true"
    */
   XSLTProcessor.prototype.transformToDocumentOrig = XSLTProcessor.prototype.transformToDocument;
+  XSLTProcessor.prototype.transformToFragmentOrig = XSLTProcessor.prototype.transformToFragment;
   XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
     var src = sourceDoc;
@@ -419,20 +341,52 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         src.firstChild.appendChild(src.importNode(sourceDoc.selectSingleNode("/*/wrs:Header"),true));
     }
     var newXMLDoc;
-    if( bcdui.browserCompatibility.isMsEdge ) {
-      // Sometimes, XSLTProcessor of Edge (version 25) will return a Document instead of an XMLDocument as supposed by the spec. 
-      // They should in theory behave the same (only have different algorithms), but in reality for Edge 25 Document we found many xPath bugs,
-      // which we do not need to workaround having an XMLDocument (see removed parts in this commit). 
-      // Also we need to attache selectSingleNode to XMLDocument.prototype only this way, which is cleaner.
-      // Going this way via transformToFragment seems to enforce an XMLDocument.
-      newXMLDoc = document.implementation.createDocument(null, null, null);
-      var content = this.transformToFragmentOrig(sourceDoc,newXMLDoc);
-      newXMLDoc.appendChild(content);
-    } else {
-      newXMLDoc = this.transformToDocumentOrig(sourceDoc);
-    }
+    newXMLDoc = this.transformToDocumentOrig(sourceDoc);
     return newXMLDoc;
   };
+}
+//-----------------------------------------------------------------------------
+// END overwrites Webkit and Gecko
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// BEGIN Webkit overwrites
+//-----------------------------------------------------------------------------
+if (bcdui.browserCompatibility.isWebKit) {
+
+  /**
+   * Adds dummy attributes of all well-known BCD-UI namespaces (beside those in except) to a document
+   * This is useful if a namespace is only used within a XPath within a generated XSLT, such namespaces do not survive per se, 
+   * i.e. the namespaces do not survive if not used except within xPaths
+   * And also, if a document is cut out from another, like the aggregators in the scorecard, they do not contain all namespaces needed
+   * @param {DomElement} doc - The XML document to add the namespaces on
+   * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
+   */
+  bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement = function(/* XMLDocument */ doc, except )
+  {
+    for (var prefix in bcdui.core.xmlConstants.namespaces) {
+      var uri = bcdui.core.xmlConstants.namespaces[prefix];
+      if( !except || except.indexOf(prefix)==-1 ) {
+        doc.documentElement.setAttributeNS(uri, prefix + ":dummy", "dummy")
+      }
+    }
+    return doc;
+  };
+
+  /*
+   * Workaround for Webkit, because it does not copy the namespaces which are only used in XPath select attributes.
+   * We add the declarations here
+   */
+  bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
+  {
+    var serializedDoc = new XMLSerializer().serializeToString(args.doc);
+    serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
+    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
+    return doc;
+  };
+
+
   /**
    * Make the transformX interface async
    */
@@ -443,20 +397,6 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
     for (var x in args.parameters)
       this.addParameter(x, args.parameters[x]);
 
-    // Edge supports node-set, but in msxsl namespace only and even fails, if it finds our msxsl:script node-set definition as script
-    // Last but not least, we need to re-import xslt if we changed its embedded paramaters (params of node type), Webkit seems to do this automatically
-    // Because we do not refresh data loaded via document() for webkit in case of re-run anyway, we also do not handle that case here
-    if( bcdui.browserCompatibility.isMsEdge && (this.wasAlreadyImported !== true || this.hasParamsWithNodeType === true ) ) {
-      var msmlNodesetScipts = this.xslt.selectNodes("/*//msxsl:script[contains(text(),\"this['node-set']\")]");
-      for( var i=0; i < msmlNodesetScipts.length; i++ )
-        msmlNodesetScipts.item(i).parentNode.removeChild( msmlNodesetScipts.item(i) );
-      var msmlNodesetCall = this.xslt.selectNodes("/*//@select[contains(.,'exslt:node-set')]");
-      for( var i=0; i<msmlNodesetCall.length; i++ )
-        msmlNodesetCall.item(i).nodeValue = msmlNodesetCall.item(i).nodeValue.replace(/exslt:node-set/g,"msxsl:node-set");
-      this.importStylesheet(this.xslt);
-      this.wasAlreadyImported = true;
-    }
-    
     if( this.outputFormat === "html" )
       args.callBack( this.transformToFragmentOrig(args.input, document) );
     else
@@ -467,7 +407,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
    * Because Webkit does not allow for objects (and DOM trees) to become a parameter, we do here physically embed the parameters
    * in the stylesheet as a variable with data_ prefix and let the parameter point to the node-set of it
    * If the param is a xslt, we also apply some escaping
-   * variableAnchor is a plain xsl:variable but also overwrites the default namespace to empty. Otherwise a doc with elements without namespace(do not confuse with prefix-free but in default namespace) would inherit the host's default namespace.
+   * variableAnchor is a plain xsl:variable but also overwrites the default namespace to empty. Otherwise, a doc with elements without namespace(do not confuse with prefix-free but in default namespace) would inherit the host's default namespace.
    * @ignore
    */
   XSLTProcessor.prototype.variableAnchor = new DOMParser().parseFromString("<xsl:variable xmlns='' xmlns:xsl='"+bcdui.core.xmlConstants.namespaces.xsl+"'/>","text/xml").documentElement;
@@ -494,14 +434,14 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         var param = this.xslt.selectSingleNode("/*/xsl:param[@name='"+name+"']");
         if( !param )
           return;
-        bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(this.xslt,['xsl']); // mainly for exslt for node-set
+        this.xslt = bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement(this.xslt,['xsl']); // mainly for exslt for node-set
         param.setAttribute("select","exslt:node-set($data_"+name+")"+(value.documentElement?"":"/*"));
         variable = XSLTProcessor.prototype.variableAnchor.cloneNode(true);
         variable.setAttribute("name", "data_"+name);
         param.parentNode.insertBefore(variable, param);
       }
 
-      // Ok, we have a parameter of node-type and it is also declared in the stylesheet, so we need to set it
+      // Ok, we have a parameter of node-type, and it is also declared in the stylesheet, so we need to set it
       this.hasParamsWithNodeType = true;
 
       // Every time: Clean variable content and put new.
@@ -515,18 +455,11 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
         variable.appendChild(importedNode);
       }
       else {
-        // If the param is an xsl doc, we first fake its namespace and escape AVT expressions
+        // If the param is a xsl doc, we first fake its namespace and escape AVT expressions
         // It will be changed to original xsl namespace by a special template added above when generating the xslt output
         var xslAsString = new XMLSerializer().serializeToString(startNode);
         xslAsString = xslAsString.replace(/http:\/\/www.w3.org.1999.XSL.Transform/g, "http://www.w3.org/1999/XSL/Transform/webkitTemp");
         xslAsString = xslAsString.replace(/=\"{([^\"]*)}\"/g,"=\"{{$1}}\""); // Escape AVT attribute value templates.
-        // Edge does not like embedded stylesheets with xsl prefix, even, if the namespace is set to something different that xslt
-        // Seems to be a bug, at least present in Windows 10 Edge preview, maybe #7240287, remove this workaround later when not longer necessary
-        if( bcdui.browserCompatibility.isMsEdge ) {
-          xslAsString = xslAsString.replace(/<xsl:/g,"<xslWt:");
-          xslAsString = xslAsString.replace(/<\/xsl:/g,"</xslWt:");
-          xslAsString = xslAsString.replace(/xmlns:xsl=/g,"xmlns:xslWt=");
-        }
         var xslAsDoc = new DOMParser().parseFromString(xslAsString,"text/xml");
         variable.appendChild(xslAsDoc.documentElement.cloneNode(true));
       }
@@ -535,45 +468,119 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isMsEdge) 
 
 }
 //-----------------------------------------------------------------------------
-// END: Implementation of XSLT document(), xsl:import
+// END: Overwrites Webkit
 //-----------------------------------------------------------------------------
 
-
 //-----------------------------------------------------------------------------
-//BEGIN: Implementation of Webkit-specific functions
+// BEGIN: Implementation of Gecko specific overrides
 //-----------------------------------------------------------------------------
-if (bcdui.browserCompatibility.isWebKit) {
+if (bcdui.browserCompatibility.isGecko) {
   /**
-   * This namespace contains implementations that apply to all versions of WebKit (Google Chrome).
-   * @namespace
-   * @private
+   * Helper to support namespace-alias for Gecko
    */
-  bcdui.core.browserCompatibility.webKit = {
-    /**
-     * on WebKit: document.cloneNode(true) returns null, we fix it here
-     *
+  bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
+  {
+    var serializedDoc = new XMLSerializer().serializeToString(args.doc);
+
+    /*
+     * 1. Workaround for Gecko xsl:namespace-alias. It is not implemented in the browser, so we do it here
+     * Main use case is XSLT generation with xslt. xsl-elements to appear in the result xslt can be written
+     * in xslt with the aliased namespace, which is here changed to the right one.
      */
-    cloneDocument: function(doc){
-      if(doc==null){
-        return null;
-      }
-      if( ! doc.nodeType )
-        return bcdui.wrs.jsUtil.deepClone(doc);
-      var newdoc = bcdui.core.browserCompatibility.newDOMDocument();
-      newdoc.appendChild(doc.documentElement.cloneNode(true));
-      return newdoc;
+    var nsAliasNodes = jQuery(args.processor.xslt.documentElement.selectNodes("/*/xsl:namespace-alias"));
+    var replaces = new Object();
+    if( nsAliasNodes.length>0 ) {
+      nsAliasNodes.each(
+          function( nsAliasNodeIdx, nsAliasNode ) {
+            replaces[nsAliasNode.getAttribute("stylesheet-prefix")] = nsAliasNode.getAttribute("result-prefix");
+          }
+      );
+      Object.keys(replaces).forEach( function(replace) {
+          var regExp = new RegExp( "<"+replace+":", "g");
+          serializedDoc = serializedDoc.replace( regExp, "<"+replaces[replace]+":" );
+          regExp = new RegExp( "</"+replace+":", "g");
+          serializedDoc = serializedDoc.replace( regExp, "</"+replaces[replace]+":" );
+        }
+      );
     }
-  }
+
+    /*
+     * 2. Workaround for FF, because it does not copy the namespaces which are only used in XPath select attributes.
+     * We add the declarations here
+     */
+    serializedDoc = this._addDefaultNamespacesToDocumentElement(serializedDoc);
+    var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
+    return doc;
+  };
+
   /**
-   * @ignore
+   * Make the transformX interface async
    */
-  bcdui.core.browserCompatibility.cloneDocument = bcdui.core.browserCompatibility.webKit.cloneDocument;
-};
-//-----------------------------------------------------------------------------
-//END: Implementation of Webkit-specific functions
-//-----------------------------------------------------------------------------
+  XSLTProcessor.prototype.transform = function( args )
+  {
+    for (var x in args.parameters)
+      this.addParameter(x, args.parameters[x]);
 
+    if( this.outputFormat === "html" ) {
+      let out = this.transformToFragment(args.input, document);
+      let outAsString = new XMLSerializer().serializeToString(out);
 
+      // XMLSerializer might create a namespace with prefix (e.g. a0:) for HTML elements
+      // <a0:div> etc. cause problems when accessing it with js/jQuery (e.g. jQuery(e).find("div"))
+      // that's why we remove such prefixes. First, determine the prefix
+      let htmlPrefix = outAsString.match(/xmlns\:(\w+)=\"http\:\/\/www\.w3\.org\/1999\/xhtml\"/);
+      htmlPrefix = htmlPrefix != null && htmlPrefix.length > 1 ? htmlPrefix[1] : "";
+      if (htmlPrefix) {
+        // in case we have a prefix, remove all occurances
+        const regEx = new RegExp("(<\/?)("+htmlPrefix+"\:)(\\w+)", "g");
+        outAsString = outAsString.replace(regEx, "$1$3");
+      }
+
+      // Firefox requires the default namespace of the fragment to be set to xhtml
+      // get rid of all default namespaces which can point to anything besides xhtml
+      // replace them with an empty xmlns first, set the very first to xthml, then kill all remaining empty ones
+      outAsString = outAsString.replace(/xmlns=("|')[^"']*("|')/g, "xmlns=''").replace(/xmlns=''/, "xmlns='http://www.w3.org/1999/xhtml'").replace(/ xmlns=''/g, "");
+
+      // prevent an empty html output
+      if (!outAsString.trim())
+        outAsString = "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
+      out = new DOMParser().parseFromString(outAsString,"text/xml").documentElement;
+      const fragment = document.createDocumentFragment();
+      fragment.appendChild(out)
+      args.callBack(fragment);
+    }
+    else {
+      let result = this.transformToDocumentOrig(args.input);
+      args.callBack( result );
+    }
+  };
+
+  /**
+   * Adds dummy attributes of all well-known BCD-UI namespaces (beside those in except) to a document
+   * Gecko does not require this
+   * @param {DomElement} doc - The XML document to add the namespaces on
+   * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
+   */
+  bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement = function(/* XMLDocument */ doc, except )
+  {
+    for (var prefix in bcdui.core.xmlConstants.namespaces) {
+      var uri = bcdui.core.xmlConstants.namespaces[prefix];
+      if( !except || except.indexOf(prefix)==-1 ) {
+        doc.documentElement.setAttributeNS(uri, prefix + ":dummy", "dummy")
+      }
+    }
+    // DOMException: An attempt was made to create or change an object in a way which is incorrect with regard to namespaces
+    // In FireFox this error indicates that a prefix was used in an attribute like select="wrs:Data" which is not know to the document
+    // Strangely FireFox (v140) will not recognize namespaces added via an attribute as it is done in the loop.
+    // We need to parse it afterwards to make it happen. A similar effekt is mentioned above already 
+    // So we parse a shallow copy, move over the children and then exchange the nodes
+    let newDocElem = new DOMParser().parseFromString( new XMLSerializer().serializeToString(doc.documentElement.cloneNode(), "text/xml"), "text/xml" ).documentElement;
+    while (doc.documentElement.firstChild) newDocElem.appendChild(doc.documentElement.firstChild);
+    doc.replaceChild(newDocElem, doc.documentElement);
+    return doc;
+  }
+
+}
 //-----------------------------------------------------------------------------
-//BEGIN: Implementation of Webkit-specific functions
+//END: Implementation of Gecko functions
 //-----------------------------------------------------------------------------

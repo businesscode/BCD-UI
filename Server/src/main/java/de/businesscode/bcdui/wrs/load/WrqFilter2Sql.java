@@ -277,7 +277,7 @@ public class WrqFilter2Sql
 
     // Add the element containing the comparison value for usage after the prepare and return the sql text fragment
     boundVariables.add(valueElement);
-    return colExpr + " " + operator + CustomJdbcTypeSupport.wrapTypeCast(bindingItem, " ?") + colExprPostfix;
+    return colExpr + " " + operator + " " + CustomJdbcTypeSupport.wrapTypeCast(bindingItem, " ?") + colExprPostfix;
   }
 
   // The following mappings help preventing SQL injection

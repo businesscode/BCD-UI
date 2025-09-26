@@ -151,7 +151,12 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
       if(isStringType){
         // if we have multitype which can also be string, consider default as boolean only if it is true,false, otherwise pass as string literal
         result += "  args." + attribName + " = this.getAttribute('"+attribName+"') || " + JSON.stringify(param.defaultvalue) + " ;" + newLine;
-      }else{
+      }
+      // disabled, readonly are HTML properties, if specified (no value) they are enabled
+      else if (attribName.toLowerCase() == "disabled" || (attribName.toLowerCase() == "readonly")) {
+        result += "  args." + attribName + " = this.getAttribute('"+attribName+"') != null;" + newLine;
+      }
+      else{
         result += "  args." + attribName + " = this.getAttribute('"+attribName+"') === '" + (!isDefaultTrue) + "' ? " + (!isDefaultTrue) + " : " + (isDefaultTrue) + " ;" + newLine;
       }
     } else if ( param.type.names.indexOf("number") >= 0 || param.type.names.indexOf("integer") >= 0 ) {

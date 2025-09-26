@@ -25,11 +25,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger;
@@ -106,7 +108,7 @@ public class RequestLifeCycleFilter implements Filter {
     String url = request.getRequestURL().toString();
 
     // when user is already authenticated and you enter login page again then forward to contextPath
-    if (url.toLowerCase().endsWith("/login.html") || url.toLowerCase().endsWith("/login.jsp")) {
+    if (url.toLowerCase().endsWith("/login.html") || url.toLowerCase().endsWith("/login.jsp") || url.toLowerCase().endsWith("/oauth") ) {
       Subject subject = null;
       try {
         subject = SecurityUtils.getSubject();
@@ -173,9 +175,16 @@ public class RequestLifeCycleFilter implements Filter {
 
       if(!response.isCommitted()){
         try {
-          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+          final String textStatus;
+          if(ExceptionUtils.indexOfType(ex, AuthorizationException.class) != -1) { // security exception
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            textStatus = "Forbidden.";
+          } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            textStatus = "Request could not be processed.";
+          }
           // response a SOAPFault with no details to the client
-          SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, null, "Request could not be processed.");
+          SOAPFaultMessage.writeSOAPFaultToHTTPResponse(request, response, null, textStatus);
         } catch (Exception e) {
           ; // ignore
         }

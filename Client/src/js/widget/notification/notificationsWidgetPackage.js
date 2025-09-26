@@ -110,23 +110,12 @@ bcdui.widget.notifications.Notificator = class
     // clear previous timeout
     window.clearTimeout( this.barTimeout );
 
-    // message rendering template
-    var messageTpl = doT.compile([
-      "<div class='bcd-notification-container'>",
-      "{{~it.messages:message:index}}",
-      "<ul>",
-      "<li>",
-        "<span class='bcd-notification-msg-time bcd-notification-{{=message.type}}'>{{=message.timeString}}</span>",
-        "<span>{{=message.link}}{{=message.message}}</span>",
-      "</li>",
-      "</ul>",
-      "{{~}}",
-      "</div>"
-    ].join(""));
-
-    // html rendering, LIFO
-    var html = messageTpl( { messages : this.messageQueue.slice().reverse() } );
-
+    // html rendering, LIFO (to do: move ul outside of loop but ensure not to break project specific css)
+    let html = "<div class='bcd-notification-container'><ul>";
+    this.messageQueue.slice().reverse().forEach(function(e) {
+      html += `<ul><li><span class='bcd-notification-msg-time bcd-notification-${e.type}'>${e.timeString}</span><span>${e.link}${e.message}</span></li></ul>`
+    });
+    html += "</div>"; 
     {
       var deployAutoHide = function(){
         // handle auto timeout

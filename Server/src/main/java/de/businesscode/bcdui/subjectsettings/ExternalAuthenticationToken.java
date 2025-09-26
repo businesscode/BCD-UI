@@ -18,7 +18,7 @@ package de.businesscode.bcdui.subjectsettings;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
- * this token is used in conjuction to {@link AuthenticationFilter} which
+ * this token is used in conjunction to {@link AuthenticationFilter} which
  * authenticates a subject by any different scheme, i.e. SPNEGO
  */
 public class ExternalAuthenticationToken implements AuthenticationToken {

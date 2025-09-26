@@ -78,7 +78,7 @@ jQuery.extend(bcdui.widget, {
         dialog.dialog({
           width: "auto",
           height: "auto",
-          resizeable: false,
+          resizable: false,
           closeOnEscape: false,
           
           close: function() {

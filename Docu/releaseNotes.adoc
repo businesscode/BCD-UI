@@ -25,9 +25,11 @@ ___
 * new dataprovider options tblSelect, tblSelectRow, tblUpdate, tblInsert, tblDelete which offers wrs -> object -> wrs functions (currently limited to wrs)
 * added bcdui.bcdAlerter (.info/.warn/.error) to show a slide in alert
 * autogrow attribute for textarea widget
+* Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 .Security:
 .Development:
 .Bugfixes:
+* WrsNextIdentifierServlet: fix counter creation with blockSize>1
 
 .Incompatibilities:
 * In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`
@@ -36,9 +38,17 @@ ___
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
 * add BindingInfo servlet to web.xml
-* OAuth2 configuration in shiro.ini: OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri
+* OAuth2 configuration in shiro.ini:
+** OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri, apiEndpoint to userInfoEndpoint
+** `redirectUri` became optional, and this value is then derived from Servlet context at runtime instead, supporting virtual hosts
+** `userInfoEndpoint` became optional, the user-id is then derived directly from the id-token send from the token endpoint. The call to user info endpoint is then skipped.
+** oAuth now requires a popup for the login window, this looks more consistent and allows for cookie SameSite=strict setting
+** OAuth Realms now need to create the session on successful login and cannot rely on JdbcRealm doing that anymore
 * wrq filter operator like automatically escapes %, _ and \ now. Don't use local workarounds where you add \ yourself.
-
+* `bcdui.config.userName` now holds the value from bcdui_sec_user.name not user_login anymore
+* `bcdui.browserCompatibility.isXYZ` for various browser detections updated. Removed `isIE`, `isMsEdge`, `isIE8`. `isChromiumEdge` became `isEdge`
+* Remove msxsl namespace from preset namespaces
+* comment widget uses bcdUpdateBy/bcdUpdateStamp binding items as default "addBRefs". If using the default renderer and custom addBRefs, readd these bRefs
 ___
 ==== Release 5_6_0
 
@@ -66,6 +76,8 @@ ___
 * checkbox and singleSelect widget have a new skin (switch/panel) parameter for a horizontal slider switch / horizontal switch panel
 * label widget added
 * chips widget added
++
+image::releaseNodes/chipsChooserWidget.png[200,200]
 * inputLookup widget added
 * cube/cubeModel parameter requestChain added to allow custom request builders
 * sticky table (rows/cols) functionality added (either via htmlBuilder parameters or cube layout cube:Freeze element)
@@ -329,6 +341,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * FAR module is optional, specify it in your bcduiLoadFiles attribute
 * Increased timeout for bcd_sec_usersettings is now 1 hour, was 2 min
 * In some cases requestDocumentBuilder.xslt, also used in AutoModel, did not limit the bRefs from filters to those given in the list, no it does. If setup incorrectly before, they are missing now.
+* Successful login is no longer sending a redirect to originally requested URL but sending this in header X-BCD.Location. Use new Login widget to handle this automatically
 
 ___
 ==== Release 5_2_0
