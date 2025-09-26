@@ -403,6 +403,29 @@ bcdui.bcduiCeFiles =
 };
 // JSON-PART-FOR-BUILD
 
+// build browser compatibility matrix
+bcdui.browserCompatibility = (function(){
+  var ua = navigator.userAgent;
+  /**
+   * Gecko is a render engine of its own and used in FireFox
+   * Webkit is used by Safari and itself a fork of KHTML
+   * Blink, used by Chrome, Edge and Opera, is a fork of Webkit. Fixes for Webkit mostly also apply to Blink browsers
+   */
+  return {
+    // Render engines used for polyfills, see (extended)browserCompatibility
+    isGecko:          ua.indexOf('Gecko/') > -1, // FireFox
+    isWebKit:         ua.indexOf('AppleWebKit/') > -1, // Chrome, MS Edge and Opera, Safari
+    isBlink:          ua.indexOf('Chrome') > -1, // Chrome, Edge, Opera
+    // Specific browsers, consider reacting on render engines above instead
+    isFirefox:        ua.indexOf('Gecko/') > -1, // FireFox
+    isSafari:         ua.indexOf('Macintosh') > -1, // Safari on MacOS
+    isMobileSafari:   /Apple.*Mobile/.test(ua), // Safari on iOS
+    isChrome:         ua.indexOf('Chrome') > -1 && ua.indexOf(' OPR/') === -1  && ua.indexOf(' Edg/') === -1, // Chrome
+    isEdge:           ua.indexOf(' Edg/') > -1, // MS Edge
+    isOpera:          ua.indexOf(' OPR/') > -1, // Opera
+  }
+})();
+
 //Prepend to any already existing group definition, which may extend us
 bcdui.bcduiFiles = bcdui.bcduiFiles || {};
 if( typeof bcdui.bcduiFiles.groups != 'undefined' )
