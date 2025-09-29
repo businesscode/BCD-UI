@@ -17,8 +17,10 @@ package de.businesscode.bcdui.web.filters;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +101,20 @@ public class RequestLifeCycleFilter implements Filter {
   private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
     // set CSP Header
-    response.addHeader("Content-Security-Policy", contentSecurityPolicy.get(0));
+    String csp = !contentSecurityPolicy.isEmpty() ? contentSecurityPolicy.get(0).trim() : "";
+    String nonceTag = "nonce-";
+    int noncePos = csp.indexOf(nonceTag);
+    if (!csp.isEmpty() && noncePos != -1) {
+      byte[] nonceBytes = new byte[16];
+      new SecureRandom().nextBytes(nonceBytes);
+      String nonce = Base64.getEncoder().encodeToString(nonceBytes);
+      String before = csp.substring(0, noncePos + nonceTag.length());
+      String after = csp.substring(noncePos + nonceTag.length());
+      csp = before + nonce + after;
+      request.setAttribute("bcdNonce", nonce);
+    }
+
+    response.addHeader("Content-Security-Policy", csp);
 
     request.setCharacterEncoding("UTF-8");
     response.setCharacterEncoding("UTF-8");
