@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class GlobalScriptTag extends BodyTagSupport {
   private static final long serialVersionUID = 1L;
 
   private String url = null;
-
+  
   public int doStartTag() throws JspException {
     setGlobalScriptTagNestingLevel(getGlobalScriptTagNestingLevel() + 1);
     return EVAL_BODY_BUFFERED;
@@ -58,15 +58,42 @@ public class GlobalScriptTag extends BodyTagSupport {
       BodyContent bodyContent = getBodyContent();
       String nonce = (String) (pageContext.getRequest().getAttribute("bcdNonce") != null ? pageContext.getRequest().getAttribute("bcdNonce") : "");
       if (url != null && url.trim().length() > 0) {
-        if (addLoadedScript(url)) {
+        if (addLoadedScript(url))
           pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\" src=\""+ getContextPath() + url + "\"> </script>");
+      }
+      else if (bodyContent != null) {
+
+        boolean bcdDeferedScripts = pageContext.getRequest().getAttribute("bcdDeferedScripts") != null ? (Boolean) pageContext.getRequest().getAttribute("bcdDeferedScripts") : false;
+
+        // when deferred script execution is requested, we collect them and add an executor later
+        if (bcdDeferedScripts) {
+          if (isInsideScriptTag()) {
+            pageContext.getOut().println(bodyContent.getString()); 
+          }
+          else {
+            pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">");
+            pageContext.getOut().println("window._deferredScripts = window._deferredScripts || [];");
+            pageContext.getOut().println("window._deferredScripts.push(function() {");
+            pageContext.getOut().println(bodyContent.getString());
+            pageContext.getOut().println("});");
+            pageContext.getOut().println("</script>");
+          }
         }
-      } else
-      if (bodyContent != null) {
-        if (isInsideScriptTag()) {
-          pageContext.getOut().println(bodyContent.getString());
-        } else {
-          pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">" + bodyContent.getString() + "</script>");
+        else {        
+          if (isInsideScriptTag())
+            pageContext.getOut().println(
+                isInsideScriptTag()
+                ? bodyContent.getString()
+                : "<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">" + bodyContent.getString() + "</script>"
+            );
+        }
+        
+        // in case we have defered scripts, we add a runner (only once) which executes the collected scripts onLoad event
+        if (pageContext.getRequest().getAttribute("bcdDeferedScriptsRunner") == null && bcdDeferedScripts) {
+          pageContext.getRequest().setAttribute("bcdDeferedScriptsRunner", "true");
+          pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">");
+          pageContext.getOut().println("window.addEventListener('load', function() { if (window._deferredScripts) { window._deferredScripts.forEach(function(d) { try { d(); } catch (e) { console.error('error in script: ', e); } }); } });");
+          pageContext.getOut().println("</script>");
         }
       }
     } catch (IOException e) {
