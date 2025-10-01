@@ -145,7 +145,7 @@ public class Filter2DyModifier implements Modifier
               // use parent
               Node outerAnd = node.getParentNode();
               // for complex periodChooser like expressions we lookup outer f:And/f:Or/f:And/f:Expressions
-              if (node.getParentNode().getNodeName().equals("f:And") && node.getParentNode().getParentNode() != null && node.getParentNode().getParentNode().getNodeName().equals("f:Or") && node.getParentNode().getParentNode().getParentNode() != null && node.getParentNode().getParentNode().getParentNode().getNodeName().equals("f:And"))
+              if (node.getParentNode().getLocalName().equals("And") && node.getParentNode().getParentNode() != null && node.getParentNode().getParentNode().getLocalName().equals("Or") && node.getParentNode().getParentNode().getParentNode() != null && node.getParentNode().getParentNode().getParentNode().getLocalName().equals("And"))
                 outerAnd = node.getParentNode().getParentNode().getParentNode();
               if (!((Element)outerAnd).hasAttribute("bcdMarker")) {
                 ((Element)outerAnd).setAttribute("bcdMarker", "true");
