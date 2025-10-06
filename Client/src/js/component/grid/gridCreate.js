@@ -186,6 +186,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
   * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+  * @param {boolean}                 [args.deepKeyCaseInsensitive=false]                    - Set this to true if the deep key test should not be case sensitive
   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
   * @param {Object}                  [args.columnFiltersCustomFilter]                       - CustomColumnFilter functions passed to column filter
@@ -337,6 +338,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.sortDirection = null;
     this.forceAddAtBottom = args.forceAddAtBottom || false;
     this.topMode = args.topMode || false;
+    this.deepKeyCaseInsensitive = args.deepKeyCaseInsensitive || false;
     this.isReadOnly = args.isReadOnly || false;
     this.htTargetHtmlId = this.targetHtml+"_ht";
     this.hotArgs = args.hotArgs;
@@ -598,16 +600,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             for (let a in uniqueFilter)
               uniqueFilter[a] = uniqueFilter[a].filter(function(e, idx){return uniqueFilter[a].indexOf(e) == idx});
 
+            const ic = this.deepKeyCaseInsensitive ? "ic='true' " : "";
             let filter = "";
             for (let a in uniqueFilter) {
               if (uniqueFilter[a].length == 1)
-                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a][0])], "<f:Expression " + (uniqueFilter[a][0] == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a][0])], "<f:Expression " + ic + (uniqueFilter[a][0] == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
               else if (uniqueFilter[a].length < 100)
-                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a].join(","))], "<f:Expression value='{{=it[0]}}'" + " op='in' bRef='" + a + "'/>");
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a].join(","))], "<f:Expression " + ic + "value='{{=it[0]}}'" + " op='in' bRef='" + a + "'/>");
               else {
                 filter += "<f:Or>";
                 uniqueFilter[a].forEach(function(v) {
-                  filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(v)], "<f:Expression " + (v == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+                  filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(v)], "<f:Expression " + ic + (v == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
                 });
                 filter += "</f:Or>";
               }
@@ -3802,6 +3805,11 @@ bcdui.component = Object.assign(bcdui.component,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
         isReadOnly:           args.isReadOnly,
+        topMode:              args.topMode,
+        isReadOnlyCell:       args.isReadOnlyCell,
+        forceAddAtBottom:     args.forceAddAtBottom,
+        disableDeepKeyCheck:  args.disableDeepKeyCheck,
+        deepKeyCaseInsensitive: args.deepKeyCaseInsensitive,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,
