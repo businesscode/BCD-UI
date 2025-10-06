@@ -56,16 +56,17 @@ public class GlobalScriptTag extends BodyTagSupport {
     setGlobalScriptTagNestingLevel(getGlobalScriptTagNestingLevel() - 1);
     try {
       BodyContent bodyContent = getBodyContent();
+      String nonce = (String) (pageContext.getRequest().getAttribute("bcdNonce") != null ? pageContext.getRequest().getAttribute("bcdNonce") : "");
       if (url != null && url.trim().length() > 0) {
         if (addLoadedScript(url)) {
-          pageContext.getOut().println("<script type=\"text/javascript\" src=\""+ getContextPath() + url + "\"> </script>");
+          pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\" src=\""+ getContextPath() + url + "\"> </script>");
         }
       } else
       if (bodyContent != null) {
         if (isInsideScriptTag()) {
           pageContext.getOut().println(bodyContent.getString());
         } else {
-          pageContext.getOut().println("<script type=\"text/javascript\">" + bodyContent.getString() + "</script>");
+          pageContext.getOut().println("<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">" + bodyContent.getString() + "</script>");
         }
       }
     } catch (IOException e) {
