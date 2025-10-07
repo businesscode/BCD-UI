@@ -186,7 +186,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
   * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
-  * @param {boolean}                 [args.deepKeyCaseInsensitive=false]                    - Set this to true if the deep key test should not be case sensitive
+  * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
   * @param {Object}                  [args.columnFiltersCustomFilter]                       - CustomColumnFilter functions passed to column filter
@@ -338,7 +338,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.sortDirection = null;
     this.forceAddAtBottom = args.forceAddAtBottom || false;
     this.topMode = args.topMode || false;
-    this.deepKeyCaseInsensitive = args.deepKeyCaseInsensitive || false;
+    this.ignoreKeyCase = args.ignoreKeyCase || false;
     this.isReadOnly = args.isReadOnly || false;
     this.htTargetHtmlId = this.targetHtml+"_ht";
     this.hotArgs = args.hotArgs;
@@ -600,7 +600,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             for (let a in uniqueFilter)
               uniqueFilter[a] = uniqueFilter[a].filter(function(e, idx){return uniqueFilter[a].indexOf(e) == idx});
 
-            const ic = this.deepKeyCaseInsensitive ? "ic='true' " : "";
+            const ic = this.ignoreKeyCase ? "ic='true' " : "";
             let filter = "";
             for (let a in uniqueFilter) {
               if (uniqueFilter[a].length == 1)
@@ -648,7 +648,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 Array.from(row.selectNodes("wrs:C")).forEach(function(column) {
                   key += (key != "" ? bcdui.core.magicChar.separator + (column.text || "") : (column.text || ""));
                 }.bind(this));
-    
+
+                if (this.ignoreKeyCase)
+                  key = key.toLocaleLowerCase();
+
                 // if found key is not part of the modfied (client) ones, add unique key constraint error
                 if (oldKeys[key] != 1) {
                   // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
@@ -1092,6 +1095,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             }.bind(this));
           }
           if (key != "") {
+
+            if (this.ignoreKeyCase)
+              key = key.toLocaleLowerCase();
+
             var foundKey = keys[key];
 
             // Was there already a server match for this key?
@@ -3789,7 +3796,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object}                  [args.loadParameters]                                  - Parameters for the loading chain
    * @param {chainDef}                [args.validationChain]                                 - A chain definition which is used for the validation operation. basic wrs and reference validation is given by default
    * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
-   * @param {boolean}                 [args.allowNewRows=true]                              - Allows inserting new cells via default contextMenu or drag/paste 
+   * @param {boolean}                 [args.allowNewRows=true]                               - Allows inserting new cells via default contextMenu or drag/paste 
    * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
    * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
    * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
@@ -3800,6 +3807,11 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
    * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
    * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+   * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
+   * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
+   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+   * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
    * @private
    */
   createGrid: function( args )
@@ -3832,7 +3844,7 @@ bcdui.component = Object.assign(bcdui.component,
         isReadOnlyCell:       args.isReadOnlyCell,
         forceAddAtBottom:     args.forceAddAtBottom,
         disableDeepKeyCheck:  args.disableDeepKeyCheck,
-        deepKeyCaseInsensitive: args.deepKeyCaseInsensitive,
+        deepignoreKeyCase:    args.deepignoreKeyCase,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,

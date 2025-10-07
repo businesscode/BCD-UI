@@ -686,9 +686,9 @@
             Always add a new row at the bottom, no matter if topMode or pagination
           </Doc>
         </Param>
-        <Param name="deepKeyCaseInsensitive" type="boolean" default="false">
+        <Param name="ignoreKeyCase" type="boolean" default="false">
           <Doc>
-            Set this to true if the deep key test should not be case sensitive
+            Set this to true if the key test should not be case sensitive
           </Doc>
         </Param>
         <Param name="disableDeepKeyCheck" type="boolean" default="false">
