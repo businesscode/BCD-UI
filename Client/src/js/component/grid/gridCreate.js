@@ -636,7 +636,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
                 oldKeys[key] = 1;
               }.bind(this));
-  
+
+              const doc = this.gridModel.validationResult.getData();
+              const dataNode = bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data");
+              const cNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "C");
+              const rNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "R");
+
               Array.from(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
                 // let's rebuild the concatenated key
                 var key = "";
@@ -664,7 +669,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     this.wrsValidateKeyColumns.forEach(function(col) {
                       this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
                       this.wrsErrors[rowId][col] |= 128;
-                      bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
+
+                      const row = dataNode.appendChild(rNode.cloneNode(true));
+                      cNode.text = rowId;
+                      row.appendChild(cNode.cloneNode(true))
+                      cNode.text = col;
+                      row.appendChild(cNode.cloneNode(true))
+                      cNode.text = "bcd_ValidUniq";
+                      row.appendChild(cNode.cloneNode(true));
+
                     }.bind(this))
                   }
                 }
@@ -1131,12 +1144,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
 
     // finally create reference errors
+    const dataNode = bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data");
+    const cNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "C");
+    const rNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "R");
     for (var rId in this.wrsErrors) {
       for (var cId in this.wrsErrors[rId]) {
         var ec = 0;
         for (var b = 1; b <= Math.pow(2,(this.wrsValidationErrorCodes.length - 1)); b *= 2 ) {
-          if (this.wrsErrors[rId][cId] & b)
-            bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rId + "' and wrs:C[2]='" + cId + "' and wrs:C[3]='" + this.wrsValidationErrorCodes[ec] + "']");
+          if (this.wrsErrors[rId][cId] & b) {
+            const row = dataNode.appendChild(rNode.cloneNode(true));
+            cNode.text = rId;
+            row.appendChild(cNode.cloneNode(true))
+            cNode.text = cId;
+            row.appendChild(cNode.cloneNode(true))
+            cNode.text = this.wrsValidationErrorCodes[ec];
+            row.appendChild(cNode.cloneNode(true));
+          }
           ec++;
         }
       }
