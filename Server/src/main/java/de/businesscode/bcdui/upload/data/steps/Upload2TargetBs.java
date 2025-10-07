@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
-import java.util.logging.Level;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.upload.data.UploadControl;
@@ -25,22 +24,32 @@ import de.businesscode.sqlengine.SQLEngine;
  * It relies on correct format of the data in bcdui_upload_rowcol. Rows having entries in bcd_dataupload_validation are skipped.
  */
 public class Upload2TargetBs implements IUploadStep {
-
-  public static String STEP_ID = "BCD_UPLOAD_2TARGETBS";
+  private static String STEP_ID = "BCD_UPLOAD_2TARGETBS";
 
   private final String uploadId;
   private final String userId;
   private final UploadControl uc;
+  private final String stepId;
 
+  /**
+   * Constructor
+   * @param uc
+   * @param userId
+   * @param stepId
+   */
+  public Upload2TargetBs(UploadControl uc, String userId, String stepId) {
+    this.uc = uc;
+    this.uploadId = uc.getUploadId();
+    this.userId = userId;
+    this.stepId = stepId;
+  }
   /**
    * Constructor
    * @param uc
    * @param userId
    */
   public Upload2TargetBs(UploadControl uc, String userId) {
-    this.uc = uc;
-    this.uploadId = uc.getUploadId();
-    this.userId = userId;
+    this(uc, userId, STEP_ID);
   }
 
   /**
@@ -49,12 +58,12 @@ public class Upload2TargetBs implements IUploadStep {
    */
   @Override
   public void process() throws SQLException, IOException, UploadException {
-    Connection con = UploadControl.getManagedUploadConnection(STEP_ID);
+    Connection con = UploadControl.getManagedUploadConnection(this.stepId);
 
     // Stop, if we do not know the target BndingSet
     // TODO Message i18n
     if(uc.getTargetBs() == null ) {
-      uc.addStepResult(STEP_ID, ReturnCode.ERROR, new JsonLiteral().set("error", "Missing target BindingSet").toJSONString());
+      uc.addStepResult(this.stepId, ReturnCode.ERROR, new JsonLiteral().set("error", "Missing target BindingSet").toJSONString());
     }
 
     // Create insert into statement for target BindingSet
@@ -74,7 +83,7 @@ public class Upload2TargetBs implements IUploadStep {
         fromListBuff.append(sep);
         fromListBuff.append("CAST( ");
         fromListBuff.append("$rowCol.col_").append(b+1);
-        fromListBuff.append(" AS " + uc.getMappingBindingItemAttribute(b, Bindings.jdbcDataTypeNameAttribute)).append(" )"); // CAST (.. AS)
+        fromListBuff.append(" AS " + getDowncastType(b)).append(" )"); // CAST (.. AS)
         sep = ", ";
       }
     }
@@ -97,7 +106,17 @@ public class Upload2TargetBs implements IUploadStep {
     // Write back the step
     int rowCount = uc.getImportRowCount();
     ReturnCode rc = rowCount == 0 || inserted < rowCount ? ReturnCode.INFO : ReturnCode.OK;
-    uc.addStepResult(STEP_ID, rc, new JsonLiteral().set("insertedRows", inserted).set("rowCount", rowCount).toJSONString());
+    uc.addStepResult(this.stepId, rc, new JsonLiteral().set("insertedRows", inserted).set("rowCount", rowCount).toJSONString());
+  }
+
+  /**
+   * determines target type to cast on database for given bindingitem
+   *
+   * @param bindingItemIndex - the binding item index to determine the typename for
+   * @return the target type on database, the default implememtation returns type-name from binding-item, i.e. 'VARCHAR'
+   */
+  protected String getDowncastType(int bindingItemIndex) {
+    return uc.getMappingBindingItemAttribute(bindingItemIndex, Bindings.jdbcDataTypeNameAttribute);
   }
 
   /**
