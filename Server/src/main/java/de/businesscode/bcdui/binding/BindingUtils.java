@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
-public class BindingUtils 
+public class BindingUtils
 {
   static final Map<Integer, String> jdbcDataTypeCodeToStringMapping;
 
@@ -47,7 +47,7 @@ public class BindingUtils
     }
   }
 
-  /** 
+  /**
    * Used to identify column reference parts in a SQL Column expressions to allow for for example prepending table alias
    * Each post 0,2,4,6 will be a non-column-expression, 1,3,5 will be a column expression
    * Sample: CASE WHEN col=1 then 'ONE' else SUM(col2) END -&gt; "CASE WHEN ","col","=1 then 'ONE' else SUM(","col2",") END"
@@ -84,7 +84,7 @@ public class BindingUtils
     }
     return cCE;
   }
-  
+
   /**
    * Use output of splitColumnExpression to prepend table alias to column expressions
    * Column expressions prefixed with SimpleBindingItem.BCD_NO_TABLE_ALIAS by the user are excluded from this
@@ -92,7 +92,7 @@ public class BindingUtils
    * This is the case for example if the column refers to another table than the one assigned to this BindingSet
    * or for mySequence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
    */
-  public static String addTableAlias( List<String> sCE, List<String> tableAliases ) 
+  public static String addTableAlias( List<String> sCE, List<String> tableAliases )
   {
     // Only strings on odd positions represent a column expression
     StringBuffer res = new StringBuffer();
@@ -114,13 +114,13 @@ public class BindingUtils
   }
 
   /**
-   * Convenience method 
+   * Convenience method
    * @param sCE
    * @param columnQuoting
    * @param tableAliases
    * @return
    */
-  public static String addTableAlias( String sCE, boolean columnQuoting, List<String> tableAliases, BindingSet bs ) 
+  public static String addTableAlias( String sCE, boolean columnQuoting, List<String> tableAliases, BindingSet bs )
   {
     List<String> colExpr = splitColumnExpression(sCE, columnQuoting, bs);
     return addTableAlias(colExpr, tableAliases);
@@ -128,7 +128,7 @@ public class BindingUtils
 
 
   /**
-   * @return true typeName represents a numeric type
+   * @return true typeName represents a numeric type, including integer types
    */
   public static boolean isNumeric(String typeName) {
     try {
@@ -139,10 +139,28 @@ public class BindingUtils
   }
 
   /**
-   * @return true if jdbcType represents a numeric type
+   * @return true typeName represents a decimal type, excluding integer types
+   */
+  public static boolean isDecimal(String typeName) {
+    try {
+      return isDecimal(Types.class.getField(typeName).getInt(null));
+    } catch ( NoSuchFieldException | IllegalAccessException ex ) {
+      return false;
+    }
+  }
+
+  /**
+   * @return true if jdbcType represents a numeric type, including integer types
    */
   public static boolean isNumeric(int jdbcType) {
     return ( jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC || jdbcType == Types.DECIMAL || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
             || jdbcType == Types.BIGINT  || jdbcType == Types.BIT  || jdbcType == Types.REAL || jdbcType == Types.SMALLINT || jdbcType == Types.TINYINT );
+  }
+
+  /**
+   * @return true if jdbcType represents a decimal type, excluding integer types
+   */
+  public static boolean isDecimal(int jdbcType) {
+    return (jdbcType == Types.NUMERIC || jdbcType == Types.DECIMAL || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT || jdbcType == Types.REAL );
   }
 }
