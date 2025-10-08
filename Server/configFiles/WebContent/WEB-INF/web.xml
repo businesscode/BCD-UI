@@ -65,6 +65,10 @@
       <param-value>true</param-value>
     </init-param>
   </filter>
+  <filter-mapping>
+    <filter-name>httpHeaderSecurity</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <!-- CORS Filter, enable it if you want to allow cross origin resource sharing in your application. 
   <filter>
