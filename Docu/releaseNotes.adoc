@@ -26,6 +26,7 @@ ___
 * added bcdui.bcdAlerter (.info/.warn/.error) to show a slide in alert
 * autogrow attribute for textarea widget
 * Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
+* SideBySideChooser uses i18n tokens for source and target caption translations
 .Security:
 .Development:
 .Bugfixes:

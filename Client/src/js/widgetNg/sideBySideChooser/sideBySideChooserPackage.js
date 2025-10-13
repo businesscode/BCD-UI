@@ -51,7 +51,7 @@
     _create : function() {
       this._super();
 
-      const it ={ sourceCaption: (this.options.sourceCaption || "Source"), targetCaption: (this.options.targetCaption || "Target"), id: this.options.id };
+      const it ={ sourceCaption: (this.options.sourceCaption || bcdui.i18n.TAG + "bcd_widget_sbsc_sourceCaption"), targetCaption: (this.options.targetCaption || bcdui.i18n.TAG + "bcd_widget_sbsc_targetCaption"), id: this.options.id };
       const template =
       `<div class='bcdSideBySideChooser'>`+
         `<table>`+
