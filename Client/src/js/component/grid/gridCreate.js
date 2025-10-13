@@ -915,7 +915,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if ((checkBits & 256)) {
         const a = colInfo.references.separator ? value.split(colInfo.references.separator) : [value];
         a.forEach(function(v) {
-          if (this._getRefValue(colInfo.references, rowId, v) == null) {
+          // empty value allowed unless column is nullable=0
+          if (!v && (checkBits & 8))
+            cellError |= 8;
+          else if (v && this._getRefValue(colInfo.references, rowId, v) == null) {
             cellError |= 256;
           }
         }.bind(this));

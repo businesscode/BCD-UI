@@ -50,6 +50,7 @@ ___
 * `bcdui.browserCompatibility.isXYZ` for various browser detections updated. Removed `isIE`, `isMsEdge`, `isIE8`. `isChromiumEdge` became `isEdge`
 * Remove msxsl namespace from preset namespaces
 * comment widget uses bcdUpdateBy/bcdUpdateStamp binding items as default "addBRefs". If using the default renderer and custom addBRefs, readd these bRefs
+* grid columns which use an optionsModel can be emptied via DEL. If empty values should not be allowed, ensure that the column is nullable=0
 ___
 ==== Release 5_6_0
 
