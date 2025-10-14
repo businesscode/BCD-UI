@@ -38,7 +38,7 @@
     </init-param>
     <init-param>
       <param-name>antiClickJackingOption</param-name>
-      <param-value>DENY</param-value>
+      <param-value>SAMEORIGIN</param-value>
     </init-param>
     <init-param>
       <param-name>hstsEnabled</param-name>
