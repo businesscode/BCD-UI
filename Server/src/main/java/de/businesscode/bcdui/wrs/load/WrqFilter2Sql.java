@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -118,9 +118,8 @@ public class WrqFilter2Sql
         Element child = (Element) childElements.item(i);
         if (elementsForBetweenClauses.contains(child))
           continue;
-        String nodeName = child.getNodeName().substring(child.getNodeName().indexOf(":") + 1); // name without schema
         String subClause = null;
-        String newConnective = connectiveMapping.get(nodeName.toLowerCase());
+        String newConnective = connectiveMapping.get(child.getLocalName().toLowerCase());
         if (newConnective == null) {
           subClause = generateSingleColumnExpression(wrqInfo, child, elementList, element.getOwnerDocument(), useAggr);
         }
