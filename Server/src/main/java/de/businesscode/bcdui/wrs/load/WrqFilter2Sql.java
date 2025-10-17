@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -217,7 +217,7 @@ public class WrqFilter2Sql
     if( ignoreCase && ! bindingItem.isNumeric() ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
       colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
-    } else if( useAggr && ! "none".equals(bindingItem.attributes.get("aggr")) ) {
+    } else if( useAggr && ! "none".equals(bindingItem.getAttribute("aggr")) ) {
       // If we do having for example, we are required to work on aggregated level for non-dims
       colExpr = bindingItem.getQColumnExpressionWithAggr(! wrqInfo.getGroupingBRefs().contains(bindingItem.getId()));
     } else {
