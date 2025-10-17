@@ -363,24 +363,47 @@ public class SqlFromSubSelect
   }
 
   /**
-   * Get the BindingSet for a user provided table expression alias
-   * @param wrqAlias
+   * Get the (Virtual)BindingSet for a user-provided table expression wrq alias.
+   * Can be a BindingSet or a sub-select acting as a table expression.
+   * It can also be a (Virtual)BindingSet in an outer Select or a Cte.
+   * @param wrqAlias the wrq table alias
    * @return
    * @throws BindingNotFoundException 
    */
-  public WrqBindingSet getBindingSetForWrqAlias(String wrqAlias) throws BindingNotFoundException {
+  public WrqBindingSet resolveBindingSetFromScope(String wrqAlias) throws BindingNotFoundException {
     WrqBindingSet bs = bindingSetForWrqAlias.get(wrqAlias);
+    for( SqlFromSubSelect parent = this.getParent(); bs == null && parent != null; parent = parent.getParent() ) {
+      bs = parent.bindingSetForWrqAlias.get(wrqAlias);
+    }
     if( bs==null ) bs = getWrqQueryBuilder().getCteBindingSetForWrqAlias(wrqAlias);
-    if( bs==null ) throw new BindingNotFoundException("No BindingSet with alias '"+wrqAlias+"' found");
+    if( bs==null ) throw new BindingNotFoundException("No (Virtual)BindingSet with alias '"+wrqAlias+"' found in select ancestors or Cte");
     return bs;
+  }
+  
+  /**
+   * Retrieve a BindingItem bRef with alias from the current scope, i.e, the local wrq:From or any wrq:From from outer selects or CTEs
+   * @param bRef including wrq table alias
+   * @return
+   * @throws BindingNotFoundException
+   */
+  public BindingItem resolveBindingItemFromScope(String bRef) throws BindingNotFoundException {
+    String[] aliasBRef = bRef.split("\\.");
+    String wrqTableAlias = aliasBRef.length > 1 ? aliasBRef[0] : "";
+    String bRefOnly      = aliasBRef.length > 1 ? aliasBRef[1] : bRef;
+    try {
+      WrqBindingSet bs = resolveBindingSetFromScope(wrqTableAlias);
+      return bs.get(bRefOnly);
+    } catch( BindingException e ) {
+      throw new BindingNotFoundException("For BindingItem '"+bRef+"' "+e.getMessage());
+    }
   }
 
   /**
-   * Set the BindingSet for a user provided table expression alias
+   * Set the BindingSet for a user-provided table expression alias
    * @param wrqAlias
    * @param bindingSet
    */
-  public void addBindingSetForWrqAlias(String wrqAlias, WrqBindingSet bindingSet) {
+  protected void addBindingSetForWrqAlias(String wrqAlias, WrqBindingSet bindingSet) {
     bindingSetForWrqAlias.put(wrqAlias, bindingSet);
     if( wrqAlias != null && wrqAlias.isEmpty() ) bindingSetForWrqAlias.put(null, bindingSet);
   }

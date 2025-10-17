@@ -81,7 +81,7 @@ public class WrqBindingItem implements WrsBindingItem
 
   private final Set<String> allowedAggrs = DatabaseCompatibility.getInstance().getAggrFktMapping(null).keySet();
   
-  private Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
+  private final Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
 
   /**
    * Used to derive a BindingItem from a wrs:C, it is combined with the info from the BindingSet but the WrsRequest provided info wins in case of conflict
@@ -199,7 +199,7 @@ public class WrqBindingItem implements WrsBindingItem
     }
 
     // As part of wrq:C and wrq:A elements in the select list allow the user to provide additional attributes
-    // (here we are talking about plain attributes, not wrq:A),  which are included in the answer
+    // (here we are talking about plain attributes, not wrq:A), which are included in the answer
     // and do even overwrite attributes derived from the BindingSet with wrq custom attributes
     NamedNodeMap attrs = elem.getAttributes();
     for( int a = 0; a<attrs.getLength(); a++ ) {
@@ -645,7 +645,7 @@ public class WrqBindingItem implements WrsBindingItem
 //    }
     
     var sqlTableAlias = new LinkedList<String>();
-    for(var a: wrqTableAliases) sqlTableAlias.add( wrqInfo.getCurrentSelect().getBindingSetForWrqAlias(a).getSqlAlias() + tableAliasPostFix );
+    for(var a: wrqTableAliases) sqlTableAlias.add( wrqInfo.getCurrentSelect().resolveBindingSetFromScope(a).getSqlAlias() + tableAliasPostFix );
     
     return sqlTableAlias;
   }

@@ -136,8 +136,8 @@ public class WrqCalc2Sql
         String wrqAlias = bRef.indexOf(".")!=-1 ? bRef.split("\\.")[0] : "";
         wrqTableAliases.add(wrqAlias);
 
-        BindingItem bi = wrqInfo.getNoMetaDataBindingItem(bRef);
-        if( bi== null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
+        BindingItem bi = wrqInfo.getCurrentSelect().resolveBindingItemFromScope(bRef);
+        if( bi == null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
         String aggr = null;
         if( ! isWithinAggr && needsAggr ) { // We need to use the "local" aggr
           aggr = aggregationMapping.containsKey(child.getAttribute("aggr")) ? child.getAttribute("aggr") :  wrqInfo.getDefaultAggr(bi);

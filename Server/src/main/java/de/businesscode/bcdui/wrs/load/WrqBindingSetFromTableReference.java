@@ -347,7 +347,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     String concat = "";
     for( String tableAlias: sbsWithSubjectFilters.keySet() ) {
       StandardBindingSet sbs = sbsWithSubjectFilters.get(tableAlias);
-      String sqlTableAlias = currentSelect.getBindingSetForWrqAlias(tableAlias).getSqlAlias();
+      String sqlTableAlias = currentSelect.resolveBindingSetFromScope(tableAlias).getSqlAlias();
       stmt.append(concat).append( sbs.getSubjectFilterExpression(wrqInfo, tableAlias, sqlTableAlias) );
       concat = " AND ";
     }
