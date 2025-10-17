@@ -576,7 +576,11 @@
 
   <!--
     Values or values derived from a calculation
+    BooleanCalculatedValue provide a boolean value
+    CalculatedValue can be anything, like boolean, numeric or text
    -->
+  <xs:element name="BooleanCalculatedValue" abstract="true" substitutionGroup="tns:CalculatedValue"/>
+  <xs:complexType name="BooleanCalculatedValueType"/>
   <xs:element name="CalculatedValue" type="tns:CalculatedValueType" abstract="true"/>
   <xs:complexType name="CalculatedValueType"/>
 
@@ -803,6 +807,9 @@
   <xs:element name="Add" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mul" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Sub" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="And" type="tns:MultiOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Or"  type="tns:MultiOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Coalesce" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Concat" substitutionGroup="tns:CalculatedValue">
     <xs:complexType>
       <xs:complexContent>
@@ -819,6 +826,12 @@
   <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="NEq" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Gt"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Eq"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="GtE" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Lt"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="LtE" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
 
   <!-- CASE WHEN -->
   <xs:element name="Case" substitutionGroup="tns:CalculatedValue">
@@ -833,14 +846,7 @@
               <xs:annotation><xs:documentation>First child is condition, second the value if true</xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:choice>
-                    <xs:element name="Eq"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="NEq"  type="tns:BinaryOperatorType"/>
-                    <xs:element name="Gt"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="GtE"  type="tns:BinaryOperatorType"/>
-                    <xs:element name="Lt"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="LtE"  type="tns:BinaryOperatorType"/>
-                  </xs:choice>
+                  <xs:element ref="tns:BooleanCalculatedValue"/>
                   <xs:element ref="tns:CalculatedValue"/>
                 </xs:sequence>
               </xs:complexType>
@@ -865,8 +871,20 @@
   <xs:element name="Count" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Distinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="CountDistinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="SuppressAggr" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Treated as an aggregator but outputs nothing to SQL. Useful to suppress default aggregations created by BCD-UI.
+      For example, it does consider wrq:Cacls in GroupBy for the decision whether a default aggr is needed.
+    </xs:documentation></xs:annotation>
+  </xs:element>
 
   <!-- One argument operators -->
+  <xs:element name="Not" type="tns:UnaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue">
+    <xs:annotation><xs:documentation>NOT() binary negator</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="IsNull" type="tns:UnaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue">
+    <xs:annotation><xs:documentation>IS NULL</xs:documentation></xs:annotation>
+  </xs:element>
   <xs:element name="Niz" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>NULL if zero.</xs:documentation></xs:annotation>
   </xs:element>

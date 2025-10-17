@@ -475,36 +475,44 @@ public class DatabaseCompatibility
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
     calcFktMapping.put("Avg",           new String[]{"Y",  "AVG(",          "",  ")", "I"});
+    calcFktMapping.put("SuppressAggr",  new String[]{"Y",  "",              "",  "",  "I"}); // Explicitly write no aggr where BCD-UI otherwise things it needs to apply the default one
     calcFktMapping.put("Count",         new String[]{"N",  "COUNT(",        "",  ")", "I"});
     calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
 
     // Single argument (i.e. child) modifier
-    calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "N"});
+    calcFktMapping.put("IsNull",        new String[]{"N",  "",        "",  " IS NULL ",  "N"});
+    calcFktMapping.put("None",          new String[]{"N",  "",        "",  "",    "N"});
     calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "N"});
-    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "N"});
-    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "N"});
-    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "N"});
-    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "N"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
-    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
+    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(",   "",  " AS VARCHAR(1024))",  "N"});
+    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(",   "",  " AS DECIMAL)",  "N"});
+    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(",   "",  " AS INTEGER)",  "N"});
+    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "",        "",  "",    "N"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
+    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(", "",  ",0)", "N"});
+    calcFktMapping.put("All",           new String[]{"Y",  "ALL ",    "",  ",0)", "N"});
+    calcFktMapping.put("Any",           new String[]{"Y",  "ANY ",    "",  ",0)", "N"});
 
     // Two arguments (i.e. children) operators
     calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
     // Boolean ops
-    calcFktMapping.put("Eq",            new String[]{"N",  "", "=",  "", "N"});
-    calcFktMapping.put("NEq",           new String[]{"N",  "", "<>", "", "N"});
-    calcFktMapping.put("Gt",            new String[]{"N",  "", ">",  "", "N"});
-    calcFktMapping.put("GtE",           new String[]{"N",  "", ">=", "", "N"});
-    calcFktMapping.put("Lt",            new String[]{"N",  "", "<",  "", "N"});
-    calcFktMapping.put("LtE",           new String[]{"N",  "", "<=", "", "N"});
+    calcFktMapping.put("Eq",            new String[]{"N",  "",    "=",  "", "N"});
+    calcFktMapping.put("NEq",           new String[]{"N",  "",    "<>", "", "N"});
+    calcFktMapping.put("Gt",            new String[]{"N",  "",    ">",  "", "N"});
+    calcFktMapping.put("GtE",           new String[]{"N",  "",    ">=", "", "N"});
+    calcFktMapping.put("Lt",            new String[]{"N",  "",    "<",  "", "N"});
+    calcFktMapping.put("LtE",           new String[]{"N",  "",    "<=", "", "N"});
+    calcFktMapping.put("Not",           new String[]{"N",  "NOT(", "",    ")", "N"});
+    calcFktMapping.put("And",           new String[]{"N",  "(",   "AND ", ")", "N"});
+    calcFktMapping.put("Or",            new String[]{"N",  "(",   "OR",   ")", "N"});
 
     // Multi arguments (i.e. children) operators
-    calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
-    calcFktMapping.put("Sub",           new String[]{"Y",  "(",     "-",  ")", "N"});
-    calcFktMapping.put("Mul",           new String[]{"Y",  "(",     "*",  ")", "N"});
-    calcFktMapping.put("Div",           new String[]{"Y",  "(",     "/ NULLIF(",  ",0) )", "N"});
-    calcFktMapping.put("Concat",        new String[]{"N",  "(",     "||", ")", "N"});
+    calcFktMapping.put("Add",           new String[]{"Y",  "(",         "+",   ")",     "N"});
+    calcFktMapping.put("Sub",           new String[]{"Y",  "(",         "-",   ")",     "N"});
+    calcFktMapping.put("Mul",           new String[]{"Y",  "(",         "*",   ")",     "N"});
+    calcFktMapping.put("Div",           new String[]{"Y",  "(",  "/ NULLIF(",  ",0) )", "N"});
+    calcFktMapping.put("Concat",        new String[]{"N",  "(",         "||",  ")",     "N"});
+    calcFktMapping.put("Coalesce",      new String[]{"N",  "COALESCE(", ",",   ")",     "N"});
 
     // With special handling in SQL generator
     calcFktMapping.put("Case",          new String[]{"N",  "CASE ",   "",       " END ",  "N"});
