@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 import de.businesscode.bcdui.binding.BindingItem;
 
 /**
+ * This class allows using a sub-select (SqlFromSubSelect) like a BindingSet
+ * I.e., it represents its output (selected columns) as a BindingSet
  * Represents a virtual BindingSet resulting from a sub-select during the execution of a Wrq
  */
 public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {

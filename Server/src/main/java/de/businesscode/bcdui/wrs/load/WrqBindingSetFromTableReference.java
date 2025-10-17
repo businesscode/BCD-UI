@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -281,7 +281,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     resolvedBindingSets.addAll(bs.getResolvedBindingSets());
     wrqModifiers.addAll(bs.getWrqModifiers());
 
-    collectBindingItems(allRawBRefsWoAlias, wrqAlias, selectAll, bs);
+    collectBindingItems(currentSelect, teElem, allRawBRefsWoAlias, wrqAlias, selectAll, bs);
   }
 
   /**
@@ -292,7 +292,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
    * @param bs
    * @throws BindingException
    */
-  protected void collectBindingItems(Set<String> allRawBRefsWoRel, String wrqAlias, boolean selectAll, BindingSet bs) throws BindingException {
+  protected void collectBindingItems(SqlFromSubSelect selectContext, Element teElem, Set<String> allRawBRefsWoRel, String wrqAlias, boolean selectAll, BindingSet bs) throws BindingException {
     
     // We either are looking for a specific list allRawBRefsWoRel or we want to select all being made available from the underlying (maybe virtual) BindingSet
     Collection<String> bRefsToRetrieve;
@@ -304,9 +304,13 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     }
 
     for( String bRef: bRefsToRetrieve ) {
-      BindingItem bi = bs.get(bRef);
-      if( bi== null ) 
-        throw new BindingException("BindingItem '"+bRef+"' not found for (virtual) BindingSet '"+wrqAlias+"'");
+      BindingItem bi = selectContext.resolveBindingSetFromScope(wrqAlias).get(bRef);
+      if( bi == null ) {
+        // Give some details in debug output about the location of the issue
+        List<String> trace = new ArrayList<>();
+        for( Node n = teElem; n != null && n instanceof Element; n = n.getParentNode() ) trace.add( 0, n.getNodeName() );
+        throw new BindingException("BindingItem '"+bRef+"' not found for (virtual) BindingSet with wrq alias '"+wrqAlias+"' at "+String.join(" -> ", trace ));
+      }
       if( bs.getBindingItemNames().contains(bi.getId()) )
         bindingItems.put(wrqAlias+"."+bRef, bi);
       else

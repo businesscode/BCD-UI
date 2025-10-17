@@ -220,6 +220,12 @@ public class WrqCalc2Sql
     return false;
   }
 
+  /**
+   * Append DatabaseCompatibility operatorInfo[1]
+   * @param e
+   * @param sql
+   * @throws BindingNotFoundException
+   */
   protected void openOperator(Element e, StringBuffer sql) throws BindingNotFoundException
   {
     // CastAsBRef depends on an attribute @bRef and this needs special handling here
@@ -231,6 +237,12 @@ public class WrqCalc2Sql
     sql.append( calcFunc[1] );
   }
 
+  /**
+   * Append DatabaseCompatibility operatorInfo[3]
+   * @param e
+   * @param sql
+   * @throws BindingNotFoundException
+   */
   protected void closeOperator(Element e, StringBuffer sql) throws BindingNotFoundException
   {
     // CastAsBRef depends on an attribute @bRef and this needs special handling here

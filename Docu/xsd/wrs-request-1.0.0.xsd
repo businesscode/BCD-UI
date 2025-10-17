@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
            targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
-           xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
            xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
   <xs:annotation>
     <xs:documentation>
@@ -29,7 +28,6 @@
 
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
-  <xs:import namespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"/>
 
   <xs:element name="WrsRequest" type="tns:TypeWrsRequest">
     <xs:annotation><xs:documentation>A request to the standard WrsServlet for a wrs:Wrs document</xs:documentation></xs:annotation>
@@ -39,12 +37,12 @@
     <xs:annotation><xs:documentation>
       A request addressing a custom service instead of the default WrsServlet.
       Such a service returns a Wrs and is a custom class registered in web.xml for init param "UserServices".
-      This can have any xml content which is understood by your service class.
+      This can have any XML content, that is understood by your service class.
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:any minOccurs="0" processContents="skip">
-          <xs:annotation><xs:documentation>This can have any xml content which is understood by your service class. 2</xs:documentation></xs:annotation>
+          <xs:annotation><xs:documentation>This can have any XML content, that is understood by your service class. 2</xs:documentation></xs:annotation>
         </xs:any>
       </xs:sequence>
       <xs:attribute name="serviceName">
@@ -262,7 +260,7 @@
     </xs:sequence>
     <xs:attribute name="bRef" type="xs:string" use="optional">
       <xs:annotation><xs:documentation>
-        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child, then provide an @id.
+        Referenced BindingItem may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child, then provide an @id.
       </xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -274,14 +272,14 @@
     </xs:sequence>
     <xs:attribute name="bRef" type="xs:NCName" use="optional">
       <xs:annotation><xs:documentation>
-        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child.
+        Referenced BindingItem may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:NCName" use="required"/>
     <xs:attribute name="skipForTotals" type="xs:boolean" use="optional" default="false">
       <xs:annotation><xs:documentation>
-        Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e. when their parent wrs:C does not have a unique value.
-        With @skipForTotals, they can also be nulled-out for sub-totals of their parent wrs:C.
+        Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e., when their parent wrs:C does not have a unique value.
+        With @skipForTotals, they can also be nulled-out for subtotals of their parent wrs:C.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attributeGroup ref="bnd:RequestOverwritable">
@@ -303,13 +301,13 @@
         </xs:sequence>
         <xs:attribute name="escapeXml" type="xs:boolean" default="true" use="optional">
           <xs:annotation><xs:documentation>
-            If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e. it will be part of the returning Wrs/Data/R/C instead of
+            If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e., it will be part of the returning Wrs/Data/R/C instead of
             being returned as an escaped string. True, is default.
           </xs:documentation></xs:annotation>
         </xs:attribute>
         <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
           <xs:annotation><xs:documentation>
-            Alias to address the column under a different name, useful in cases like sub selects of joins.
+            Alias to address the column under a different name, useful in cases like sub-selects of joins.
           </xs:documentation></xs:annotation>
         </xs:attribute>
         <xs:attributeGroup ref="bnd:RequestOverwritable">
@@ -349,7 +347,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <!-- We make this a global element in our namespace as we refer to it for example from cube schema. -->
+  <!-- We make this a global element in our namespace as we refer to it, for example, from cube schema. -->
   <xs:element name="BindingSet" type="tns:TypeBindingSet"/>
 
   <!-- wrq:From can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause -->
@@ -440,7 +438,7 @@
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
-          BindingItem to be used for grouping. If used on combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
+          BindingItem to be used for grouping. If used in combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
         </xs:documentation></xs:annotation>
       </xs:element>
       <xs:element name="GroupingSets" type="tns:TypeGroupingSets" minOccurs="0" maxOccurs="unbounded">
@@ -476,7 +474,7 @@
               <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
                 <xs:annotation><xs:documentation>
                   If not given, BindingSet/C/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
-                  All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+                  All of this is ignored if a wrq:Calc child (i.e., a server-calc) is provided.
                 </xs:documentation></xs:annotation>
               </xs:attribute>
             </xs:extension>
@@ -541,7 +539,7 @@
         <xs:attribute name="separator" type="xs:string" default=";" />
         <xs:attribute name="quoteCharacter" type="xs:string" default="" />
         <xs:attribute name="header" default="none">
-          <xs:annotation><xs:documentation>Define how the optional header line should look like.</xs:documentation></xs:annotation>
+          <xs:annotation><xs:documentation>Define what the optional header line should look like.</xs:documentation></xs:annotation>
           <xs:simpleType>
             <xs:restriction base="xs:string">
               <xs:enumeration value="none" /><!-- no header -->
@@ -768,7 +766,7 @@
   </xs:element>
 
   <!--
-    Operator types, providing as a result themselves a value
+    Operator types providing as a result themselves as a value
    -->
   <xs:complexType name="MultiOperatorType">
     <xs:complexContent>
@@ -810,7 +808,7 @@
       <xs:complexContent>
         <xs:extension base="tns:MultiOperatorType">
           <xs:attribute name="separator" type="xs:string">
-            <xs:annotation><xs:documentation>If given, this string separates to elements. Conside using &amp;#xE0F0;.</xs:documentation></xs:annotation>
+            <xs:annotation><xs:documentation>If given, this string separates to elements. Consider using &amp;#xE0F0;.</xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>
       </xs:complexContent>

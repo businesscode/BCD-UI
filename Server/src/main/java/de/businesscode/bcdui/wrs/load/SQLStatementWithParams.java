@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 
 /**
  * Represents part of an SQL string and the values for bound variables
+ * Can be a single clause or a whole SQL statement
  */
 public class SQLStatementWithParams {
 
@@ -122,6 +123,8 @@ public class SQLStatementWithParams {
     if( filterValues.size() == 0 )
       return getStatement();
     StringBuffer stmt = new StringBuffer();
+    // This makes sure we do not accidentally run this against the DB
+    stmt.append("*** Values_filled_in_for_debugging: ");
     // We assume here, that all ? are bind variable place holders
     String[] parts = getStatement().split("\\?");
     int i = 0;
