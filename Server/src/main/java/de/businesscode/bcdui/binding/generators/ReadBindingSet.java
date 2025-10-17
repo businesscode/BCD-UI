@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -356,18 +356,39 @@ public class ReadBindingSet implements Runnable {
   protected BindingItem createBindingItem(Element bindingItemElem, StandardBindingSet pBindingSet) throws IOException, IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException {
     try {
       NodeList columnElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Column");
-      String column = columnElements.item(0).getTextContent().trim();
+      String column = columnElements.getLength() > 0 ? columnElements.item(0).getTextContent().trim() : "";
       BindingItem bItem = null;
 
       String name = bindingItemElem.getAttribute("id");
 
+      Map<String, String> bindingDefaults = Bindings.getBindingsDefaultMap(name);
+
+      // take over column expression from default
+      if (column.isEmpty() && bindingDefaults.containsKey(Bindings.columnExpression))
+        column = bindingDefaults.get(Bindings.columnExpression).toString();
+
+      // take over attributes from default if not available in binding item
+      for (String attrName : bindingDefaults.keySet()) {
+
+        // skip well known column expression, id and possibly existing namespace attribute
+        if (Bindings.columnExpression.equals("id") || Bindings.columnExpression.equals(attrName) || "xmlns".equals(attrName))
+          continue;
+
+        // check if default attribute is a custom namespace attribute, add it when it does not exist
+        if (attrName.startsWith(StandardNamespaceContext.CUST_PREFIX)) {
+          String localName = attrName.substring(StandardNamespaceContext.CUST_PREFIX.length() + 1);
+          if (bindingItemElem.getAttributeNodeNS(StandardNamespaceContext.CUST_NAMESPACE, localName) == null)
+            bindingItemElem.setAttributeNS(StandardNamespaceContext.CUST_NAMESPACE, localName, bindingDefaults.get(attrName));
+        }
+        // add standard attributes if they don't exist
+        else  if (!bindingItemElem.hasAttribute(attrName)) {
+          bindingItemElem.setAttribute(attrName, bindingDefaults.get(attrName));
+        }
+      }
+
       boolean columnQuoting = false;
       if (bindingItemElem.hasAttribute("columnQuoting")) {
         columnQuoting = bindingItemElem.getAttribute("columnQuoting").equals("true") ? true : false;
-      }
-
-      if (bindingItemElem.hasAttribute("type")) {
-        bindingItemElem.getAttribute("type");
       }
 
       bItem = new BindingItem(name, column, columnQuoting, pBindingSet);
@@ -412,32 +433,23 @@ public class ReadBindingSet implements Runnable {
         nList = null;
       }
 
-      // caption
-      String caption = bindingItemElem.getAttribute("caption");
-      bItem.setCaption(caption);
-
       // escapeXML
       if (bindingItemElem.getAttribute(Bindings.escapeXmlAttributeName).length() > 0)
         bItem.setEscapeXML(Boolean.parseBoolean(bindingItemElem.getAttribute(Bindings.escapeXmlAttributeName)));
       else
         bItem.setEscapeXML(true);
 
-      // custom attributes
+      // take over standard and custom attributes in maps
       NamedNodeMap atts = bindingItemElem.getAttributes();
       for(int i=0,imax=atts.getLength();i<imax;i++){
         Node att = atts.item(i);
         if(att.getNodeType() != Node.ATTRIBUTE_NODE){
           continue;
         }
-        if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI())){
+        if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI()))
           bItem.getCustomAttributesMap().put(att.getLocalName(), att.getNodeValue());
-          pBindingSet.setHasCustomItem(true);
-        }
-      }
-
-      NodeList descriptionElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Description");
-      if (descriptionElements.getLength() > 0) {
-        bItem.setDescription(descriptionElements.item(0).getTextContent());
+        else
+          bItem.getGeneralAttributesMap().put(att.getNodeName(), att.getNodeValue());
       }
 
       return bItem;

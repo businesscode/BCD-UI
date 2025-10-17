@@ -445,7 +445,7 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
     if (typeof bucketModel != "undefined") {
 
       const dims = Array.from(configModel.queryNodes("//dm:Dimensions/dm:LevelRef")).map(function(d) { return (d.getAttribute("bRef") || "").trim(); })
-      const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure")).map(function(d) { return (d.getAttribute("id") || "").trim(); })
+      const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure[count(.//*[@idRef])=1]//*[@idRef]")).map(function(d) { return (d.getAttribute("idRef") || "").trim(); })
       const binding = configModel.read("/*/wrq:BindingSet", "");
       bcdui.util.getBindingInfo(binding, dims.concat(msr), function(captionMap) {
 

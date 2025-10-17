@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import javax.xml.xpath.XPathExpressionException;
 import com.opencsv.CSVWriter;
 import com.opencsv.ResultSetHelper;
 import com.opencsv.ResultSetHelperService;
+
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.wrs.load.AbstractDataWriter;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.WrsBindingItem;
@@ -111,8 +113,8 @@ public abstract class CsvDataWriter extends AbstractDataWriter implements IDataW
             if ("caption".equals(csvHeader)) {
               List<String> names = new ArrayList<String>();
               for (WrsBindingItem item : bindingItems) {
-                if (item.getCaption() != null && item.getCaption().trim().length() > 0) {
-                  names.add(item.getCaption());
+                if (item.getAttribute(Bindings.captionAttribute, "").length() > 0) {
+                  names.add(item.getAttribute(Bindings.captionAttribute));
                 }
                 else {
                   names.add(item.getId());
