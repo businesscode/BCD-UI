@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -160,7 +161,52 @@ public class DatabaseCompatibility
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("snowflake") || product.contains("duckdb");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql")
+        || product.contains("snowflake") || product.contains("duckdb") || product.contains("redshift");
+  }
+
+  /**
+   * Pagination clause
+   * We prefer ANSI, while this is the actual support mid 2025:
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY;     -- ANSI, Oracle 19, Postgres 16, SnowFlake 9.31, MS SQLAzure 12 (needs OFFSET if FETCH is given), H2 2.1, DuckDB 0.1
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id LIMIT 10 OFFSET 20;                         -- MySQL 8.4.5, Postgres, SnowFlake, H2, DuckDB, Redshift 1.0.117891
+   * select TOP 10 * from BCDUITEST_DEMO_SHIPMENT order by item_id;                                     -- Teradata 16.2, SnowFlake, MS SQLAzure, H2, Redshift
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id OFFSET 20 LIMIT 10;                         -- Postgres, DuckDB, Redshift
+   * select * from BCDUITEST_DEMO_SHIPMENT QUALIFY ROW_NUMBER() OVER(ORDER BY cost) BETWEEN 10 AND 20;  -- Teradata
+   * @param jdbcResourceName
+   * @param rowStart according to our Wrq convention
+   * @param rowEnd according to our Wrq convention
+   * @return
+   */
+  public String paginationClause(String jdbcResourceName, int rowStart, int rowEnd, Supplier<String> getOrderBy) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    int fetch;
+    if( rowEnd == -1 ) fetch = -1;
+    else if( (rowEnd > 0 && rowStart > rowEnd) || rowEnd == 0 ) return ""; // Corresponds to metadata request, handled with WHERE 1 = 0  in SqlFromSubSelect.generateWhereClause()
+    else if( rowStart > 0 ) fetch = rowEnd - rowStart + 1;
+    else fetch = rowEnd - rowStart;
+    int offset = Math.max(rowStart - 1, 0);
+
+    String clause = "";
+    if( product.contains("mysql") || product.contains("redshift") ) {
+      if( fetch != -1 ) clause += " LIMIT "+fetch;
+      if( rowStart > 0 ) clause += " OFFSET "+offset;
+    }
+    else if( product.contains("teradata") && (offset > 0 || fetch != -1) ) {
+      String keyColList = getOrderBy.get();
+      clause = " QUALIFY ROW_NUMBER() OVER("+keyColList+") BETWEEN "+rowStart+" AND "+rowEnd;
+    }
+    else if( product.contains("microsoft sql server") && (offset > 0 || fetch != -1) ) {
+      clause += " OFFSET "+offset+" ROWS";                            // Required even if only FETCh is limited
+      if( fetch != -1 ) clause += " FETCH NEXT "+fetch+" ROWS ONLY";
+    }
+    // ANSI
+    else {
+      if( rowStart > 0 ) clause += " OFFSET "+offset+" ROWS";
+      if( fetch != -1 ) clause += " FETCH NEXT "+fetch+" ROWS ONLY";
+    }
+
+    return clause;
   }
 
   /**

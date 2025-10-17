@@ -29,10 +29,13 @@ import javax.xml.xpath.XPathExpression;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 /**
- * Takes the parent node of SELECTs with SET operators (formally a "full-select") in Wrq format
+ * Mainly handles SET operators like UNION and calls SqlFromSubSelect for each select.
+ * Takes the parent node of SELECTs, containing a single Select or Joined Selects, (formally a "full-select") in Wrq format
  * and generates SQL from it together with the bound variables, ready to be executed
  */
 public class SqlFromFullSelect
@@ -67,13 +70,20 @@ public class SqlFromFullSelect
 
 
   /**
-   * Handles a "full-select", i.e.  SELECT [ UNION SELECT ]* [ ORDER BY ]
+   * Handles a "full-select", i.e., SELECT [ UNION SELECT ]* [ ORDER BY ]
    * @throws Exception 
    */
   protected SQLStatementWithParams createSelectStatement() throws Exception {
     
     // Loop over the SELECTs and the SET connectors
     selectStatement = new SQLStatementWithParams();
+    Map<String,String> setOps = DatabaseCompatibility.getInstance().getSetOperators();
+
+    // In case we have SET operators, we put the SELECTs into () because some databases have syntax issues otherwise in some cases like pagination
+    NodeList cEs = fullSelectParentElem.getChildNodes();
+    boolean hasSetOps = IntStream.range(0, cEs.getLength()).anyMatch( e -> setOps.containsKey(cEs.item(e).getLocalName()) );
+
+    // Walk over SELECT UNION SELECT...
     for( Node childElement = fullSelectParentElem.getFirstChild(); childElement != null; childElement = childElement.getNextSibling() ) 
     {
       // We only react on elements of the right namespace
@@ -82,7 +92,7 @@ public class SqlFromFullSelect
       }
 
       // Can be a SET operator like wrq:Union
-      String setOp = DatabaseCompatibility.getInstance().getSetOperators().get(childElement.getLocalName());
+      String setOp = setOps.get(childElement.getLocalName());
       if( setOp != null ) {
         selectStatement.append(" "+setOp+" ");
       } 
@@ -91,13 +101,15 @@ public class SqlFromFullSelect
       else if( "Select".equals( childElement.getLocalName()) ) {
         SqlFromSubSelect sqlFromSubSelect = SqlFromSubSelect.getInstance(wrqQueryBuilder, parent, (Element)childElement);
         resolvedBindingSets.addAll( sqlFromSubSelect.getResolvedBindingSets() );
+        if( hasSetOps ) selectStatement.append(" ( ");
         selectStatement.append( sqlFromSubSelect.getSelectStatement() );
-        // In case of unions, the first SELECT does define which BindingItems are representing the full select
+        if( hasSetOps ) selectStatement.append(" ) ");
+        // In the case of unions, the first SELECT does define which BindingItems are representing the full select
         if( selectedBindingItems == null ) selectedBindingItems = sqlFromSubSelect.getSelectedBindingItems();
         if( representingBindingSet == null ) representingBindingSet = sqlFromSubSelect.getRepresentingBindingSet();
       }
 
-      // Can be the final wrq:Ordering
+      // Can be the final wrq:Ordering, applied at the end of select with SET operators, not on an individual selects
       else if( "Ordering".equals( childElement.getLocalName()) ) {
         XPath xp = XPathUtils.newXPath();
         XPathExpression orderingCXpathExpr = xp.compile("wrq:C");
