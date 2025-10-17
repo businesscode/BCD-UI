@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@
   elementFormDefault="qualified"
   attributeFormDefault="unqualified"
   targetNamespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
-  xmlns:tns="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+  xmlns:tns="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
+  xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+
+  <xs:import namespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"/>
+
   <xs:annotation>
     <xs:documentation>
     </xs:documentation>
@@ -36,7 +40,11 @@
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="And" type="tns:TypeConnective" minOccurs="0"/>
       <xs:element name="Or" type="tns:TypeConnective" minOccurs="0"/>
-      <xs:element name="Expression" type="tns:TypeExpression" minOccurs="0"/>
+      <xs:element name="Expression" type="tns:TypeExpression" minOccurs="0">
+        <xs:annotation><xs:documentation>
+          Provide (@bRef and @value) or (@bRef and @bRef2) or (@bRef and wrq:Calc) or only (wrq:Calc)
+        </xs:documentation></xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
@@ -49,13 +57,25 @@
   </xs:complexType>
 
   <xs:complexType name="TypeExpression">
-    <xs:attribute name="bRef" type="xs:NCName" use="required"/>
-    <xs:attribute name="op" type="tns:TypeSQLOperators" default="="/>
-    <xs:attribute name="value" type="xs:string"/>
-    <xs:attribute name="ic" type="xs:boolean" use="optional" default="false">
+    <xs:sequence>
+      <xs:element ref="wrq:Calc" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="bRef" type="xs:NCName">
+      <xs:annotation><xs:documentation>Provide a @bRef or a wrq:Calc child producing a boolean.</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bRef2" type="xs:NCName">
+      <xs:annotation><xs:documentation>Provide a @bRef2 or a wrq:Calc child or a @value. Providing none of them means IS NULL.</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="op" type="tns:TypeSQLOperators" default="=">
+      <xs:annotation><xs:documentation>Ignored if no @bRefis given.</xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
       <xs:annotation><xs:documentation>
-        Ignores case when comparing strings in f:Filter.
+        Provide a @value or a @bRef2 or a wrq:Calc child. Providing none of them or an empty @value means IS NULL.
       </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ic" type="xs:boolean" default="false">
+      <xs:annotation><xs:documentation>Ignores case when comparing strings in f:Filter.</xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
 
