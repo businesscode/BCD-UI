@@ -140,9 +140,9 @@ public class WrqCalc2Sql
         if( bi== null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
         String aggr = null;
         if( ! isWithinAggr && needsAggr ) { // We need to use the "local" aggr
-          aggr = child.getAttribute("aggr").isEmpty() ? wrqInfo.getDefaultAggr(bi) : aggregationMapping.get(child.getAttribute("aggr"));
-          sql.append(aggr);
-          if ("COUNT".equalsIgnoreCase(aggr))
+          aggr = aggregationMapping.containsKey(child.getAttribute("aggr")) ? child.getAttribute("aggr") :  wrqInfo.getDefaultAggr(bi);
+          sql.append( aggregationMapping.get(aggr) );
+          if ("count".equals(aggr))
             doCastToDecimal = false;
         }
         sql.append("(");

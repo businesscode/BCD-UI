@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -470,10 +470,12 @@ public class WrqInfo
    */
   protected String getDefaultAggr( BindingItem bi )
   {
-    String aggr = aggregationMapping.get(bi.getAggr());
-    if( aggr==null )
+    String aggr = bi.getAggr();
+    // Prevent SQL injection and fallback to default
+    if( DatabaseCompatibility.getInstance().getAggrFktMapping(null).containsKey(aggr) )
+      return aggr;
+    else
       return WrqBindingItem.getDefaultAggr(bi.getJDBCDataType());
-    return aggr;
   }
 
   public Document getOwnerDocument() {
@@ -564,7 +566,6 @@ public class WrqInfo
     return wrqGroupBy2Sql;
   }
 
-  private static final Map<String, String> aggregationMapping;
   private final XPath xp;
   private final XPathExpression fromChildXpathExpr;
   private final XPathExpression filterXpathExpr;
@@ -588,16 +589,5 @@ public class WrqInfo
   private final XPathExpression topNBidRefXPathExpr;
 
   private final XPathExpression vdmXpathExpr;
-
-  static {
-    aggregationMapping = new HashMap<String, String>();
-    aggregationMapping.put("sum", "SUM");
-    aggregationMapping.put("max", "MAX");
-    aggregationMapping.put("min", "MIN");
-    aggregationMapping.put("avg", "AVG");
-    aggregationMapping.put("count", "COUNT");
-    aggregationMapping.put("grouping", "GROUPING");
-    aggregationMapping.put("none", ""); // Can be used if the column expression already has a aggregator defined
-  }
 
 }

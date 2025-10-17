@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -263,9 +263,12 @@ public class DatabaseCompatibility
 
   /**
    * For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
+   * To check whether @aggr is valid, check with containsKey().
    */
   public Map<String, String> getAggrFktMapping( String jdbcResourceName )
   {
+    if(jdbcResourceName == null) return aggregationMappingGeneric;
+
     String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("mysql") )
       return aggregationMappingMySql;
@@ -516,13 +519,14 @@ public class DatabaseCompatibility
 
     //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
+    // Upper lower/case of key follows bnd:C/@aggr, wrq:C/@aggr convention
     aggregationMappingGeneric = new HashMap<String, String>();
     aggregationMappingGeneric.put("sum",       "SUM");
     aggregationMappingGeneric.put("max",       "MAX");
     aggregationMappingGeneric.put("min",       "MIN");
     aggregationMappingGeneric.put("avg",       "AVG");
     aggregationMappingGeneric.put("count",     "COUNT");
-    aggregationMappingGeneric.put("grouping",  "GROUPING");
+    aggregationMappingGeneric.put("GROUPING",  "GROUPING");
     aggregationMappingGeneric.put("none",      ""); // Can be used if the column expression already has an aggregator defined
 
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
