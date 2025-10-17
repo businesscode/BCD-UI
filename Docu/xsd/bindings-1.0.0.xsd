@@ -205,6 +205,7 @@
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="caption" type="xs:string" />
+    <xs:attribute name="description" type="xs:string" />
     <xs:attribute name="isReadOnly" type="xs:boolean">
       <xs:annotation><xs:documentation>
         This is only evaluated by the client, server does not check this.
@@ -243,13 +244,7 @@
             <xs:annotation><xs:documentation>
               A valid column or column expression to be used when reading this BindingItem.
             </xs:documentation></xs:annotation>
-          </xs:element>
-          <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1">
-            <xs:annotation><xs:documentation>
-              A text describing the binding item.
-            </xs:documentation></xs:annotation>
-          </xs:element>
-        </xs:sequence>
+          </xs:element>        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

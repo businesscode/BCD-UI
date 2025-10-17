@@ -57,6 +57,7 @@ public class BindingItem extends SimpleBindingItem {
   private Boolean isEscapeXML = null;
   private String  aggr = null; // Optional default aggr from BindingSet's xml, used when none is given in Wrq
   final private Map<String,String> customAttributesMap;
+  final private Map<String,Object> generalAttributesMap;
 
   /**
    * Copy constructor.
@@ -75,6 +76,7 @@ public class BindingItem extends SimpleBindingItem {
     this.jdbcNullable = src.jdbcNullable;
     this.aggr = src.aggr;
     this.customAttributesMap = new HashMap<>(src.customAttributesMap);
+    this.generalAttributesMap = new HashMap<>(src.generalAttributesMap);
     setEscapeXML(src.isEscapeXML);
     setReadOnly(src.isReadOnly);
   }
@@ -95,6 +97,14 @@ public class BindingItem extends SimpleBindingItem {
     super(pBindingSet, pName, pColumnExpression, pColumnQuoting);
 
     this.customAttributesMap = new HashMap<>();
+    this.generalAttributesMap = new HashMap<>();
+  }
+
+  /**
+   * @return the customAttributesMap
+   */
+  public Map<String, Object> getGeneralAttributesMap() {
+    return generalAttributesMap;
   }
 
   /**
@@ -390,14 +400,6 @@ public class BindingItem extends SimpleBindingItem {
     for (String attrName : customAtts.keySet()){
       writer.writeAttribute(StandardNamespaceContext.CUST_NAMESPACE, attrName, customAtts.get(attrName));
     }
-
-    String description = getDescription();
-    if (description != null && ! description.isEmpty()) {
-      writer.writeStartElement("Description");
-      writer.writeCharacters(description);
-      writer.writeEndElement();
-    }
-
     if (withColumnExpression) {// thus WRS response does not write this element
       writer.writeStartElement("Column");
       writer.writeCharacters(getColumnExpression());
@@ -419,27 +421,20 @@ public class BindingItem extends SimpleBindingItem {
    * BindingItemWithMetaData may overwrite some with request-specific values
    */
   public Map<String,Object> getAttributes() {
-    Map<String,Object> attrs = new HashMap<String, Object>();
-    attrs.put("id", getId());
-    attrs.put("caption", getCaption() != null && getCaption().length() > 0 ? getCaption() : getId());
-    if (this.isKey())
-      attrs.put(Bindings.keyAttributeName, "true");
-    if (this.isReadOnly())
-      attrs.put(Bindings.readOnlyAttributeName, "true");
-    attrs.put(Bindings.jdbcDataTypeNameAttribute, BindingUtils.jdbcDataTypeCodeToStringMapping.get(getJDBCDataType()) );
-    if( getJDBCColumnDisplaySize()!=null )
-      attrs.put(Bindings.jdbcColumnDisplaySizeAttribute, getJDBCColumnDisplaySize().toString());
+    Map<String,Object> attrs = new HashMap<String, Object>(getGeneralAttributesMap());
 
-    if( isNumeric() ) {
-      if( getJDBCColumnScale()!=null )
-        attrs.put(Bindings.jdbcColumnScaleAttribute, getJDBCColumnScale());
-      if( getJDBCSigned()!=null )
-        attrs.put(Bindings.jdbcSignedAttribute, getJDBCSigned());
+    attrs.put("caption", getGeneralAttributesMap().get("caption") != null && getGeneralAttributesMap().get("caption").toString().length() > 0 ? getGeneralAttributesMap().get("caption") : getId());
+
+    if (! this.isKey())
+      attrs.remove(Bindings.keyAttributeName);
+
+    if (! this.isReadOnly())
+      attrs.remove(Bindings.readOnlyAttributeName);
+    
+    if(! isNumeric() ) {
+      attrs.remove(Bindings.jdbcColumnScaleAttribute);
+      attrs.remove(Bindings.jdbcSignedAttribute);
     }
-    if( getJDBCNullable()!=null )
-      attrs.put(Bindings.jdbcNullableAttribute, getJDBCNullable());
-    if( getAggr()!=null && ! getAggr().isEmpty() )
-      attrs.put(Bindings.aggrAttribute, getAggr());
 
     return attrs;
   }

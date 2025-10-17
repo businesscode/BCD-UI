@@ -451,16 +451,6 @@
     <url-pattern>/bcdui/servlets/WrsNextIdentifierServlet/*</url-pattern>
   </servlet-mapping>
   
-  <!-- Binding id/caption/description getter -->
-  <servlet>
-    <servlet-name>bcdui4.BindingInfo</servlet-name>
-    <servlet-class>de.businesscode.bcdui.web.servlets.BindingInfo</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>bcdui4.BindingInfo</servlet-name>
-    <url-pattern>/bcdui/servlets/BindingInfo/*</url-pattern>
-  </servlet-mapping>
-
   <!-- Session listener for session logging -->
   <listener>
     <listener-class>de.businesscode.bcdui.web.SessionListener</listener-class>
@@ -486,6 +476,20 @@
     <env-entry-name>bcdui/i18n/default/lang</env-entry-name>
     <env-entry-type>java.lang.String</env-entry-type>
     <env-entry-value>en</env-entry-value>
+  </env-entry>
+
+  <!-- wrs header attribute configuration -->  
+  <env-entry>
+    <description>binding wrs attributes which are available on client side in wrs header</description>
+    <env-entry-name>bcdui/bnd/wrsAttributes</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit</env-entry-value>
+  </env-entry>
+  <env-entry>
+    <description>binding wrs attributes which are available on client side in wrs header when doing a meta data call, i.e., @rowStart > @rowEnd</description>
+    <env-entry-name>bcdui/bnd/wrsMetaAttribute</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit,description</env-entry-value>
   </env-entry>
 
   <!--

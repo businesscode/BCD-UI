@@ -629,7 +629,7 @@ bcdui.util =
 
     let captionMap = {};
     const success = callback || function(){};
-    const bindingItems = typeof bRefs == "string" ? bindingItems : Array.isArray(bRefs) ? bRefs.join(",") : "";
+    const bindingItems = typeof bRefs == "string" ? bindingItems : Array.isArray(bRefs) ? bRefs.join(" ") : "";
 
     if (!bindingSetId) {
       success(captionMap);
@@ -637,20 +637,17 @@ bcdui.util =
     }
 
     const b = new bcdui.core.ModelWrapper({
-      inputModel: new bcdui.core.SimpleModel({url: bcdui.contextPath + "/bcdui/servlets/BindingInfo?bindingSetId=" + encodeURI(bindingSetId) + "&bRefs=" + encodeURI(bindingItems)})
+      inputModel: new bcdui.core.AutoModel({bindingSetId: bindingSetId, bRefs: bindingItems, maxRows: 0 }) 
     , chain:
       function(doc) {
-        Array.from(doc.selectNodes("/*/b:C")).forEach(function(c) {
-
+        Array.from(doc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C")).forEach(function(c) {
           let caption = c.getAttribute("caption") || "";
           if (bcdui.i18n.isI18nKey(caption)) {
             caption = bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)}) || caption;
             c.setAttribute("caption", bcdui.util.escapeHtml(caption));
           }
-
-          const descriptioNode = c.selectSingleNode("b:Description");
-          let description = (descriptioNode != null ? descriptioNode.text : "");
-          if (descriptioNode && bcdui.i18n.isI18nKey(description)) {
+          let description = c.getAttribute("description") || "";
+          if (bcdui.i18n.isI18nKey(description)) {
             description = bcdui.i18n.syncTranslateFormatMessage({msgid: description.substring(1)}) || description;
             descriptioNode.text = bcdui.util.escapeHtml(description);
           }

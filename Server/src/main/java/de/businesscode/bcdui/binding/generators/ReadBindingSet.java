@@ -366,10 +366,6 @@ public class ReadBindingSet implements Runnable {
         columnQuoting = bindingItemElem.getAttribute("columnQuoting").equals("true") ? true : false;
       }
 
-      if (bindingItemElem.hasAttribute("type")) {
-        bindingItemElem.getAttribute("type");
-      }
-
       bItem = new BindingItem(name, column, columnQuoting, pBindingSet);
       if (bindingItemElem.hasAttribute(Bindings.jdbcDataTypeNameAttribute)) {
         bItem.setJDBCDataTypeName(bindingItemElem.getAttribute(Bindings.jdbcDataTypeNameAttribute));
@@ -433,11 +429,8 @@ public class ReadBindingSet implements Runnable {
           bItem.getCustomAttributesMap().put(att.getLocalName(), att.getNodeValue());
           pBindingSet.setHasCustomItem(true);
         }
-      }
-
-      NodeList descriptionElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Description");
-      if (descriptionElements.getLength() > 0) {
-        bItem.setDescription(descriptionElements.item(0).getTextContent());
+        else
+          bItem.getGeneralAttributesMap().put(att.getLocalName(), att.getNodeValue());
       }
 
       return bItem;
