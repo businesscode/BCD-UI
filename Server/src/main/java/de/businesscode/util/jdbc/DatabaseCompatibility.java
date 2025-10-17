@@ -76,6 +76,8 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> spatialFktMapping;
   protected final Map<String, String[]> oracleSpatialFktMapping;
   protected final Map<String, String[]> sqlServerSpatialFktMapping;
+  protected final Map<String, String> lateralJoinMapping;
+  protected final Map<String, String> applyJoinMapping;
 
   protected final Map<String, String> sqlSetOperators;
 
@@ -94,7 +96,7 @@ public class DatabaseCompatibility
       try {
         DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
       } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-        throw new RuntimeException("No class found for DatabseCompatibility", e);
+        throw new RuntimeException("No class found for DatabaseCompatibility", e);
       }
     }
     return DatabaseCompatibility.singleton;
@@ -111,7 +113,7 @@ public class DatabaseCompatibility
   /**
    *
    * @param jdbcResourceName
-   * @return Set of key words for the database belonging to the BindingSets connection
+   * @return Set of key-words for the database belonging to the BindingSets connection
    */
   public Set<String>getReservedDBWords(String jdbcResourceName)
   {
@@ -327,6 +329,20 @@ public class DatabaseCompatibility
   public Map<String, String> getSetOperators()
   {
     return sqlSetOperators;
+  }
+
+  /**
+   * Handling of Lateral joins differ from database to database
+   * (LATERAL vs. APPLY key word)
+   * @param jdbcResourceName
+   * @param op
+   * @return
+   */
+  public String getJoinOperator(String jdbcResourceName, String op) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    if( product.contains("microsoft sql server") )
+      return applyJoinMapping.get(op);
+    return lateralJoinMapping.get(op);
   }
 
   /**
@@ -626,6 +642,17 @@ public class DatabaseCompatibility
     sqlServerSpatialFktMapping.put("SpatContains", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatContained", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatIntersects", new String[]{"",  ".STIntersects(", ") = 1"});
+
+    //---------------------------------------
+    // ANSI syntax joins
+    lateralJoinMapping = Map.of(
+        "InnerJoin", "INNER JOIN", "FullOuterJoin", "FULL OUTER JOIN", "LeftOuterJoin", "LEFT OUTER JOIN", "RightOuterJoin", "RIGHT OUTER JOIN", "CrossJoin", "CROSS JOIN",
+        "InnerJoinLateral", "INNER JOIN LATERAL", "LeftOuterJoinLateral", "LEFT OUTER JOIN LATERAL", "CrossJoinLateral", "CROSS JOIN LATERAL"); // there is no right or full outer lateral in normal DBMS
+    // APPLY syntax
+    applyJoinMapping = new HashMap<>(lateralJoinMapping);
+    applyJoinMapping.putAll( Map.of(
+        "InnerJoinLateral", "CROSS APPLY", "LeftOuterJoinLateral", "OUTER APPLY", "CrossJoinLateral", "CROSS APPLY",
+        "CrossApply", "CROSS APPLY", "OuterApply", "OUTER APPLY" ) );
 
     //---------------------------------------
     // SQL keywords, common for all databases

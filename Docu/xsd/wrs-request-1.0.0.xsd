@@ -365,10 +365,22 @@
       </xs:choice>
       <!-- Join -->
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="InnerJoin"      type="tns:TypeJoin"/>
-        <xs:element name="FullOuterJoin"  type="tns:TypeJoin"/>
-        <xs:element name="LeftOuterJoin"  type="tns:TypeJoin"/>
-        <xs:element name="RightOuterJoin" type="tns:TypeJoin"/>
+        <xs:element name="InnerJoin"            type="tns:TypeJoin"/>
+        <xs:element name="FullOuterJoin"        type="tns:TypeJoin"/>
+        <xs:element name="LeftOuterJoin"        type="tns:TypeJoin"/>
+        <xs:element name="RightOuterJoin"       type="tns:TypeJoin"/>
+        <xs:element name="CrossJoin"            type="tns:TypeJoinNoOn"/>
+        <xs:element name="InnerJoinLateral"     type="tns:TypeJoin">
+          <xs:annotation><xs:documentation>Turned into CROSS APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="LeftOuterJoinLateral" type="tns:TypeJoin">
+          <xs:annotation><xs:documentation>Turned into OUTER APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="CrossJoinLateral"     type="tns:TypeJoinNoOn">
+          <xs:annotation><xs:documentation>Turned into CROSS APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="CrossApply"           type="tns:TypeJoinNoOn"/>
+        <xs:element name="OuterApply"           type="tns:TypeJoinNoOn"/>
       </xs:choice>
     </xs:sequence>
   </xs:group>
@@ -400,6 +412,11 @@
     <xs:sequence>
       <xs:group ref="tns:GroupTableReference"></xs:group>
       <xs:group ref="tns:GroupJoinFilter" maxOccurs="unbounded"></xs:group>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TypeJoinNoOn">
+    <xs:sequence>
+      <xs:group ref="tns:GroupTableReference"></xs:group>
     </xs:sequence>
   </xs:complexType>
 
