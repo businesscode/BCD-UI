@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
-import de.businesscode.util.StandardNamespaceContext;
-import de.businesscode.util.XPathUtils;
+import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 import de.businesscode.util.xml.SecureXmlFactory;
 
@@ -72,6 +71,20 @@ public class SqlFromSubSelect
   
   // Result of our work. The SQL statement as string plus the bound values for the prepared statement
   protected SQLStatementWithParams selectStatement;
+
+  /**
+   * Helper to handle the EnterpriseEdition version of us
+   * @param wrqQueryBuilder
+   * @param parent
+   * @param selectElem
+   * @return
+   */
+  static SqlFromSubSelect getInstance(WrqQueryBuilder wrqQueryBuilder, SqlFromSubSelect parent, Element selectElem) {
+    return Configuration.getClassInstance(
+        Configuration.getClassoption(Configuration.OPT_CLASSES.SQLFROMSUBSELECT),
+        new Class<?>[]{ WrqQueryBuilder.class, SqlFromSubSelect.class, Element.class },
+        wrqQueryBuilder, parent, selectElem);
+  }
 
   /**
    * We are initialized for a full-select (SELECTSs connected with SET operators).

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.w3c.dom.NodeList;
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
+import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
@@ -41,6 +43,21 @@ public class WrqCalc2Sql
   protected final Map<String, String[]> calcFktMapping;
   protected final Map<String, String> aggregationMapping;
 
+  /**
+   * Helper to handle the EnterpriseEdition version of us
+   * @param wrqInfo
+   * @return
+   */
+  static WrqCalc2Sql getInstance(WrqInfo wrqInfo) {
+    return Configuration.getClassInstance( Configuration.getClassoption(OPT_CLASSES.WRQCALC2SQL),
+        new Class<?>[]{WrqInfo.class},
+        wrqInfo);
+  }
+
+  /**
+   * Turns a wrq:Calc element into an SQL string
+   * @param wrqInfo
+   */
   public WrqCalc2Sql( WrqInfo wrqInfo )
   {
     this.wrqInfo = wrqInfo;

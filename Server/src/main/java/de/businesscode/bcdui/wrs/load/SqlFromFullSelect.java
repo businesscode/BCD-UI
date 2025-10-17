@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package de.businesscode.bcdui.wrs.load;
 
 import de.businesscode.bcdui.binding.StandardBindingSet;
-import de.businesscode.bcdui.toolbox.Configuration;
-import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -91,10 +89,7 @@ public class SqlFromFullSelect
 
       // Can be a wrq:Select
       else if( "Select".equals( childElement.getLocalName()) ) {
-
-        Class<?> sqlFromSubSelectClass = Configuration.getClassoption(OPT_CLASSES.SQLFROMSUBSELECT);
-        Class<?>[] sqlFromSubSelectConstructorParams = new Class<?>[]{WrqQueryBuilder.class, SqlFromSubSelect.class, Element.class};
-        SqlFromSubSelect sqlFromSubSelect = Configuration.getClassInstance(sqlFromSubSelectClass, sqlFromSubSelectConstructorParams, wrqQueryBuilder, parent, (Element)childElement);
+        SqlFromSubSelect sqlFromSubSelect = SqlFromSubSelect.getInstance(wrqQueryBuilder, parent, (Element)childElement);
         resolvedBindingSets.addAll( sqlFromSubSelect.getResolvedBindingSets() );
         selectStatement.append( sqlFromSubSelect.getSelectStatement() );
         // In case of unions, the first SELECT does define which BindingItems are representing the full select

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingUtils;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
-import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -111,7 +110,7 @@ public class WrqBindingItem implements WrsBindingItem
     // We may have a wrq:Calc
     NodeList calcNodes = elem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"Calc");
     if( calcNodes.getLength() > 0 && calcNodes.item(0).getParentNode() == elem ) {
-      WrqCalc2Sql wrqCalc2Sql = Configuration.getClassInstance(Configuration.OPT_CLASSES.WRQCALC2SQL, new Class<?>[]{WrqInfo.class}, wrqInfo);
+      WrqCalc2Sql wrqCalc2Sql = WrqCalc2Sql.getInstance(wrqInfo);
       Element calc = (Element)calcNodes.item(0);
 
       BindingItem bi = null;
