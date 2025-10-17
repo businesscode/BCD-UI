@@ -17,6 +17,7 @@ package de.businesscode.bcdui.binding;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,7 +68,6 @@ public class Bindings {
 
   public static final String escapeXmlAttributeName = "escapeXML";
   public static final String keyAttributeName = "isKey";
-  public static final String jdbcDataTypeCodeAttribute = "type";
   public static final String jdbcDataTypeNameAttribute = "type-name";
   public static final String jdbcColumnDisplaySizeAttribute = "display-size";
   public static final String jdbcColumnScaleAttribute = "scale";
@@ -75,7 +75,14 @@ public class Bindings {
   public static final String jdbcNullableAttribute = "nullable";
   public static final String readOnlyAttributeName = "isReadOnly";
   public static final String aggrAttribute = "aggr";
+  private static final List<String> bndWrsAttributes = new ArrayList<String>();
+  private static final List<String> bndMetaWrsAttributes = new ArrayList<String>();
 
+  public static List<String> getBndWrsAttributes() { return bndWrsAttributes; };
+  public static List<String> getBndMetaWrsAttributes() { return bndMetaWrsAttributes; };
+  public static void fillBndWrsAttributes(List<String> attrList) { bndWrsAttributes.clear(); for (String s : attrList) bndWrsAttributes.add(s); };
+  public static void fillBndMetaWrsAttributes(List<String> attrList) { bndMetaWrsAttributes.clear(); for (String s : attrList) bndMetaWrsAttributes.add(s); };
+  
   /**
    * a special method for internal usage to resolve cyclic dependencies, if your class is using Bindings (i.e. to write to database)
    * and the Binding itself directly or transitively depends on your class. If this method returns FALSE, then calling {@link #getInstance()}
