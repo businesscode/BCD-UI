@@ -385,7 +385,7 @@ public class SqlFromSubSelect
 
 
   /**
-   * Access to the current overall query
+   * Access to the current overall query, there is only one per Wrq
    * @return
    */
   public WrqQueryBuilder getWrqQueryBuilder() {
@@ -394,20 +394,12 @@ public class SqlFromSubSelect
   
   
   /**
-   * Access to parent select, may be null
-   * This is the namespace for table aliases
+   * Access to parent select, which may be null
+   * This is used, for example, to look up referenced columns
    * @return
    */
   public SqlFromSubSelect getParent() {
     return parent;
-  }
-
-  /**
-   * Produce a new unique sql table alias for the current select scope
-   * @return
-   */
-  public String getNextTableSqlAlias() {
-    return "t"+(aliasCounter++);
   }
 
 
