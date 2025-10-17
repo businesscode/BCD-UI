@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -66,6 +66,26 @@ public class BindingUtils
       StringBuffer sb = new StringBuffer();
       int endLastColumnName = 0;
       while (m.find()) {
+
+        // Let's find the closing parenthesis of this sub-select starting here and then limit m to the rest of the string.
+        // We simulate here that the previous regexp covered us until the matching closing parenthesis.
+        // This has the effect that our sub select is joined with the preceding and then with the following operator. This is then skipped when it later comes to wrq->sql alias replacement
+        // Because we did this replacement already when generating this SQL.
+        // If from a BindingSet, dynamic alias replacement makes no sense anyway, because wrq-table-aliases are unknown when writing the BindingSet
+        if( "SELECT".equalsIgnoreCase(m.group()) ) {
+          int pos = m.end();
+          // We already have missed the opening parenthesis of the sub-select, so parenthesis-level starts with one
+          for( int pLevel = 1; pos < colExpr.length() && pLevel > 0; pos++ ) {
+            if( colExpr.charAt(pos) == '(' ) pLevel++;
+            if( colExpr.charAt(pos) == ')' ) pLevel--;
+          }
+          m.region(pos, colExpr.length());
+          continue;
+        }
+
+        // If we have a whole word, we need to isolate it if it is a column name.
+        // That is the case if it is not a keyword and not a string.
+        // In that case we write the part so far to cCE and then the found string which we believe is a column name
         if( ! reservedDBWords.contains(m.group().toUpperCase()) && ! m.group().startsWith("'") ) {
           sb.append( colExpr.substring(endLastColumnName, m.start()) );
           endLastColumnName = m.end();
@@ -86,10 +106,10 @@ public class BindingUtils
   }
 
   /**
-   * Use output of splitColumnExpression to prepend table alias to column expressions
+   * Use output of splitColumnExpression to prepend table alias to column-expressions
    * Column expressions prefixed with SimpleBindingItem.BCD_NO_TABLE_ALIAS by the user are excluded from this
-   * the user has to assure that this is only used in an unambiguous statement when using this in a join.
-   * This is the case for example if the column refers to another table than the one assigned to this BindingSet
+   * the user has to ensure that this is only used in an unambiguous statement when using this in a join.
+   * This is the case, for example, if the column refers to another table than the one assigned to this BindingSet
    * or for mySequence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
    */
   public static String addTableAlias( List<String> sCE, List<String> tableAliases )

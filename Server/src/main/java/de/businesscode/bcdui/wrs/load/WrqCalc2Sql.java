@@ -16,7 +16,6 @@
 package de.businesscode.bcdui.wrs.load;
 
 import java.sql.Types;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -66,12 +65,12 @@ public class WrqCalc2Sql
   }
 
   /**
-   * Returns a list of strings representing parts of SQL
-   * All uneven pos (including first) belong to the aggregation level an all even pos give one un-aggregated sql calc
-   * Sample 1:  SUM(t38.f_k01)+AVG(t38.f_k01*3)
-   *            |1 |     2   |  3  |    4     | 5
-   * Sample 2:  SUM(SUM(t38.f_k01*t38.f_k01)) OVER (PARTITION BY orig_ctr)
-   *            |  1    |      2           |        3           |  4     |
+   * Returns a string representing the SQL and Lists with the binding variables and the wrq table aliases found
+   * @param calc Is the wrq:Calc element to be parsed and converted to SQL.
+   * @param boundVariables List will be filled with all constants found that should later be bound to the prepared statement. In SQL, they are represented as '?'
+   * @param enforceAggr If true, we will enforce an aggregation even if the wrq:Calc contains no aggregation using @aggr or the default aggregation
+   * @param dataType If it is numeric like Types.DECIMAL, we enforce an explicit cast for literal values
+   * @param wrqTableAlias List will be filled with all table aliases found in the wrq:Calc to be later translated into the SQL aliases
    * @throws Exception
    */
   protected String getWrqCalcAsSql( Element calc, List<Element> boundVariables, boolean enforceAggr, int dataType, List<String> wrqTableAlias ) throws Exception
@@ -119,7 +118,7 @@ public class WrqCalc2Sql
           sql.append(calcFktMapping.get(e.getLocalName())[2]);
       }
 
-      // We are an inner aggregation (not a analyt. fct), so our children can only be unaggregated parts
+      // We are an inner aggregation (not an analyt. fct), so our children can only be unaggregated parts
       if( "I".equals(calcFktMapping.get(e.getLocalName())[4]) && (calcFktMapping.get(child.getLocalName())!=null && ! "I".equals(calcFktMapping.get(child.getLocalName())[4]) ) ) {
         getWrqCalcAsSqlRecursion(child, sql, doCastToDecimal, boundVariables, ! "N".equals(calcFktMapping.get(child.getLocalName())[4]) || isWithinAggr, needsAggr, wrqTableAliases );
       }
@@ -133,8 +132,8 @@ public class WrqCalc2Sql
       else if("ValueRef".equals(child.getLocalName()))
       {
         String bRef = child.getAttribute("idRef");
-        String wrqAlias = bRef.indexOf(".")!=-1 ? bRef.split("\\.")[0] : "";
-        wrqTableAliases.add(wrqAlias);
+        String wrqTableAlias = bRef.contains(".") ? bRef.split("\\.")[0] : "";
+        wrqTableAliases.add(wrqTableAlias);
 
         BindingItem bi = wrqInfo.getCurrentSelect().resolveBindingItemFromScope(bRef);
         if( bi == null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
@@ -147,6 +146,7 @@ public class WrqCalc2Sql
         }
         sql.append("(");
 
+        // We may need to cast
         if( doCastToDecimal && ! "N".equals(calcFktMapping.get(e.getLocalName())[0]) ) {
           sql.append(" CAST((").append(bi.getColumnExpression()).append(") AS DECIMAL(38,19))");
           doCastToDecimal = false;
@@ -215,6 +215,14 @@ public class WrqCalc2Sql
             calcValueDummy.setAttribute(Bindings.jdbcDataTypeNameAttribute,"NUMERIC");
         }
         boundVariables.add(calcValueDummy);
+      }
+      // We found a sub-select as a column expression
+      else if( "Select".equals(child.getLocalName()) )
+      {
+        // Read the sub-select
+        SqlFromSubSelect sqlFromSubSelect = SqlFromSubSelect.getInstance(wrqInfo.currentSelect.getWrqQueryBuilder(), wrqInfo.getCurrentSelect(), child);
+        boundVariables.addAll(sqlFromSubSelect.getBoundVariables());
+        sql.append(" ( ").append(sqlFromSubSelect.getSelectStatement().getStatement()).append(" ) ");
       } else
         throw new Exception("Invalid element in calc :'"+child.getLocalName()+"'");
 
@@ -225,14 +233,21 @@ public class WrqCalc2Sql
     return sql;
   }
 
-  // Checks whether a wrq:Calc subtree contains any aggregation
+  /**
+   * Checks whether a wrq:Calc subtree contains any aggregation
+   * @param calc
+   * @return
+   */
   static protected boolean containsAggr( Element calc )
   {
-    Map<String, String[]> mapping = DatabaseCompatibility.getInstance().getDefaultCalcFktMapping();   
-    for(Iterator<String> it = mapping.keySet().iterator(); it.hasNext(); ) {
-      String calcFkt = it.next();
-      if( !"N".equals(mapping.get(calcFkt)[4]) && calc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, calcFkt).getLength() >0 )
-        return true;
+    // We check everything we find whether it is an aggregation function
+    Map<String, String[]> mapping = DatabaseCompatibility.getInstance().getDefaultCalcFktMapping();
+    NodeList elemNl = calc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "*");
+    for( int e = 0; e < elemNl.getLength(); e++ ) {
+      // Direct children of Select (like Grouping) do not represent aggregation functions
+      if( elemNl.item(e).getParentNode().getLocalName().equals("Select") ) continue;
+      String[] funcInfo = mapping.get( elemNl.item(e).getLocalName() );
+      if( funcInfo != null && !"N".equals( funcInfo[4]) ) return true;
     }
     return false;
   }

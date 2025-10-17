@@ -100,8 +100,7 @@
   <!-- A full select is SELECT [UNION SELECT]* -->
   <xs:group name="GroupFullSelect">
     <xs:sequence>
-      <xs:element name="Select" type="tns:TypeSelect">
-      </xs:element>
+      <xs:element ref="tns:Select"/>
       <xs:sequence minOccurs="0" maxOccurs="unbounded">
         <xs:choice>
           <xs:element name="Union"        type="xs:string" fixed=""/>
@@ -121,63 +120,68 @@
     <xs:annotation><xs:documentation>List of requested wrs:Wrs columns.</xs:documentation></xs:annotation>
   </xs:element>
 
+  <!-- Main SELECT expression. Can also act as a calculated value, i.e., a column expression -->
   <xs:complexType name="TypeSelect">
-    <xs:sequence>
-      <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
-        <xs:annotation><xs:documentation>
-          Requires BCD-UI Enterprise-Edition.
-          Allow top-n restriction in terms of dimensions and a measures.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element ref="tns:Columns" minOccurs="0">
-        <xs:annotation><xs:documentation>
-          List of requested wrs:Wrs columns. If empty, all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="From">
-        <xs:annotation><xs:documentation>Source of data. Can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause.</xs:documentation></xs:annotation>
-        <xs:complexType>
-          <xs:group ref="tns:GroupTableReference"></xs:group>
-        </xs:complexType>
-      </xs:element>
-      <xs:element ref="f:Filter" minOccurs="0">
-        <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
-      <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0">
-        <xs:annotation><xs:documentation>
-          Allows the same f:* children as f:Filter. Ignore case @ic is only allowed for dimensions.
-          For non-dimensions reuses the aggr if the bindingItem also appears in the SELECT clause (last the occurance, if it appears multiple times),
-          otherwise it falls back to aggregation defaults SUM for numeric else MAX.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
-      <xs:element name="Vdms" type="tns:TypeVdms" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>
-            Virtual dimension members defined here allow for collapsing dimension members (i.e. actual values of a dimension) into an artificial value.
-            For example collapse countries "NL", "BE", and "LX" into "BeNeLux".
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-    <xs:attribute name="id" type="xs:ID"/>
-    <xs:attribute name="rowStart" type="xs:int" use="optional">
-      <xs:annotation>
-        <xs:documentation>
-          Requires Enterprise-Edition. First row == 1.
-          If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
-        </xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="rowEnd" type="xs:int">
-      <xs:annotation>
-        <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with a filled wrq:Header will be returned, no SQL will be performed.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
-      <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
-    </xs:attribute>
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              Requires BCD-UI Enterprise-Edition.
+              Allows for top-n restriction in terms of dimensions and measures.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element ref="tns:Columns" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              List of requested wrs:Wrs columns. If empty, all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="From">
+            <xs:annotation><xs:documentation>Source of data. Can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref, and a join clause.</xs:documentation></xs:annotation>
+            <xs:complexType>
+              <xs:group ref="tns:GroupTableReference"></xs:group>
+            </xs:complexType>
+          </xs:element>
+          <xs:element ref="f:Filter" minOccurs="0">
+            <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
+          <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0">
+            <xs:annotation><xs:documentation>
+              Allows the same f:* children as f:Filter. Ignore case @ic is only allowed for dimensions.
+              For non-dimensions reuses the aggr if the bindingItem also appears in the SELECT clause (last the occurance, if it appears multiple times),
+              otherwise it falls back to aggregation defaults SUM for numeric else MAX.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
+          <xs:element name="Vdms" type="tns:TypeVdms" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Virtual dimension members defined here allow for collapsing dimension members (i.e., actual values of a dimension) into an artificial value.
+                For example collapse countries "NL", "BE", and "LX" into "BeNeLux".
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+        <xs:attribute name="rowStart" type="xs:int" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              Requires Enterprise-Edition. First row == 1.
+              If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="rowEnd" type="xs:int">
+          <xs:annotation>
+            <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with a filled wrq:Header will be returned, no SQL will be performed.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
+          <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="TopNDimMembers">
@@ -208,11 +212,7 @@
               <xs:annotation><xs:documentation>Measure regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="Calc" type="tns:TypeCalc">
-                    <xs:annotation><xs:documentation>
-                      Definition of a server-calc. A server-calc is executed on the server and returned as a single value
-                    </xs:documentation></xs:annotation>
-                  </xs:element>
+                  <xs:element ref="tns:Calc"/>
                 </xs:sequence>
                 <xs:attribute name="id"/>
                 <xs:attribute name="caption"/>
@@ -564,6 +564,11 @@
   <!--
     Definition of server-side calculations
     -->
+  <xs:element name="Calc" type="tns:TypeCalc">
+    <xs:annotation><xs:documentation>
+      Definition of a server-calc. A server-calc is executed on the server and returned as a single value
+    </xs:documentation></xs:annotation>
+  </xs:element>
   <xs:complexType name="TypeCalc">
     <xs:choice>
       <xs:element ref="tns:CalculatedValue"/>
@@ -583,6 +588,10 @@
   <xs:complexType name="BooleanCalculatedValueType"/>
   <xs:element name="CalculatedValue" type="tns:CalculatedValueType" abstract="true"/>
   <xs:complexType name="CalculatedValueType"/>
+
+
+  <xs:element name="Select" type="tns:TypeSelect" substitutionGroup="tns:CalculatedValue">
+  </xs:element>
 
   <!--
     Analytical functions
