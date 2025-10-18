@@ -243,6 +243,8 @@ public class WrqCalc2Sql
     // We check everything we find whether it is an aggregation function
     Map<String, String[]> mapping = DatabaseCompatibility.getInstance().getDefaultCalcFktMapping();
     NodeList elemNl = calc.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "*");
+    // Calc/Selects count as aggregations and we do not need a default aggregation. We rely on the user to know that col expr as sub-selects can only return one value
+    if( "Select".equals( elemNl.item(0).getLocalName() ) ) return true;
     for( int e = 0; e < elemNl.getLength(); e++ ) {
       // Direct children of Select (like Grouping) do not represent aggregation functions
       if( elemNl.item(e).getParentNode().getLocalName().equals("Select") ) continue;
