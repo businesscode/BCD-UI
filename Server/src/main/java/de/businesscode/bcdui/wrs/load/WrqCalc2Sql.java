@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.BindingUtils;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.toolbox.Configuration;
@@ -133,10 +134,17 @@ public class WrqCalc2Sql
       {
         String bRef = child.getAttribute("idRef");
         String wrqTableAlias = bRef.contains(".") ? bRef.split("\\.")[0] : "";
-        wrqTableAliases.add(wrqTableAlias);
 
         BindingItem bi = wrqInfo.getCurrentSelect().resolveBindingItemFromScope(bRef);
         if( bi == null ) throw new BindingNotFoundException("BindingItem of ValueRef with idRef='"+bRef+"' not found");
+
+        // If we have a complex column expression in the BindingSet like CASE WHEN F_K01 IS NULL THEN 0 ELSE F_K01 END, we need to add the table alias multiple times
+        // Here we still know, that all column reference point to the same table (and later table alias), because it is from one BindingItem
+        // Later, the List wrqTableAliases is matched against the split overall expression, our part here would give [CASE WHEN , F_K01 , IS NULL THEN 0 ELSE , F_K01 , END]
+        final int colRefs = BindingUtils.splitColumnExpression(bi.getColumnExpression(), false, wrqInfo.getResultingBindingSet()).size() / 2;
+        for(int cR = 1; cR <= colRefs; cR++ )
+          wrqTableAliases.add(wrqTableAlias);
+
         String aggr = null;
         if( ! isWithinAggr && needsAggr ) { // We need to use the "local" aggr
           aggr = aggregationMapping.containsKey(child.getAttribute("aggr")) ? child.getAttribute("aggr") :  wrqInfo.getDefaultAggr(bi);
