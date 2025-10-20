@@ -15,14 +15,13 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.sql.Types;
+import java.util.*;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import de.businesscode.bcdui.binding.BindingUtils;
+import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,15 +40,18 @@ public class WrqFilter2Sql
   private final WrqInfo wrqInfo;
   private final Element filterElement; // f:Filter or wrq:Having
   private final boolean useAggr;       // true for having, using aggregated expressions
+  private final Map<String,WrqBindingItem> allBindingItems; // All BindingItems in scope, including outer scope
 
   public WrqFilter2Sql(WrqInfo wrqInfo, Element root, boolean useAggr) throws XPathExpressionException
   {
     this.filterElement = root;
     this.wrqInfo       = wrqInfo;
     this.useAggr       = useAggr;
+    this.allBindingItems = wrqInfo.getAllBRefs();
+    this.allBindingItems.putAll( wrqInfo.getAllOuterContextBRefs() );
   }
 
-  public String getAsSql(Collection<Element> elementList) throws BindingNotFoundException
+  public String getAsSql(List<Element> elementList) throws Exception
   {
     return generateWhereClause(filterElement, " AND ", false, elementList);
   }
@@ -63,7 +65,7 @@ public class WrqFilter2Sql
    * @return
    * @throws BindingNotFoundException
    */
-  private String generateWhereClause(Element element, String connective, boolean needsBracket, Collection<Element> elementList) throws BindingNotFoundException
+  private String generateWhereClause(Element element, String connective, boolean needsBracket, List<Element> elementList) throws Exception
   {
     if( element==null || element.getChildNodes().getLength()==0 )
       return "";
@@ -118,9 +120,8 @@ public class WrqFilter2Sql
         Element child = (Element) childElements.item(i);
         if (elementsForBetweenClauses.contains(child))
           continue;
-        String nodeName = child.getNodeName().substring(child.getNodeName().indexOf(":") + 1); // name without schema
         String subClause = null;
-        String newConnective = connectiveMapping.get(nodeName.toLowerCase());
+        String newConnective = connectiveMapping.get(child.getLocalName().toLowerCase());
         if (newConnective == null) {
           subClause = generateSingleColumnExpression(wrqInfo, child, elementList, element.getOwnerDocument(), useAggr);
         }
@@ -149,8 +150,8 @@ public class WrqFilter2Sql
    * @return
    * @throws BindingNotFoundException
    */
-  private String generateBetweenExpression(Element itemFrom, Element itemTo, Collection<Element> elementList) throws BindingNotFoundException {
-    WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(itemFrom.getAttribute("bRef"));
+  private String generateBetweenExpression(Element itemFrom, Element itemTo, List<Element> elementList) throws BindingNotFoundException {
+    WrqBindingItem bindingItem = allBindingItems.get(itemFrom.getAttribute("bRef"));
     elementList.add(itemFrom);
     elementList.add(itemTo);
     return bindingItem.getQColumnExpression(false) + " BETWEEN ? AND ?";
@@ -167,41 +168,82 @@ public class WrqFilter2Sql
    * @param ownerDocument
    * @param useAggr
    * @return
-   * @throws BindingNotFoundException
+   * @throws Exception
    */
-  static protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, Collection<Element> boundVariables, Document ownerDocument, boolean useAggr)
-      throws BindingNotFoundException
+  protected String generateSingleColumnExpression(WrqInfo wrqInfo, Element item, List<Element> boundVariables, Document ownerDocument, boolean useAggr)
+      throws Exception
   {
+    String bRef = item.getAttribute("bRef");
+    Element calcElement = (Element)item.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Calc").item(0);
+
+    // Only wrq:Calc or @bRef @op wrq:Calc
+    String calcSql = null;
+    if( calcElement != null ) {
+      WrqCalc2Sql calc = WrqCalc2Sql.getInstance(wrqInfo);
+      List<String> wrqTableAlias = new LinkedList<>();
+      calcSql = " ( " + calc.getWrqCalcAsSql(calcElement, boundVariables, false, Types.VARCHAR, wrqTableAlias) + " ) ";
+      List<String> sCE = BindingUtils.splitColumnExpression(calcSql, false, wrqInfo.getResultingBindingSet());
+      List<String> sqlTableAlias = new LinkedList<>();
+      for( String qA: wrqTableAlias ) sqlTableAlias.add( wrqInfo.getCurrentSelect().resolveBindingSetFromScope(qA).getSqlAlias() );
+      String expr = BindingUtils.addTableAlias(sCE, sqlTableAlias);
+
+      // Only wrq:Calc
+      if( bRef.isEmpty() ) return calcSql;
+    }
+
+    // We have a @bRef
     // If the binding item appears twice, we don't know which one to use and here we get the last one returned
     // This does impact the aggr being used below
-    String bRef = item.getAttribute("bRef");
     // Take care for binding items which where replaced by virtual binding item by giving them a wrc:Calc in the select clause
-    if( wrqInfo.getVirtualBRefs().containsKey(bRef) )
+    if( wrqInfo.getVirtualBRefs().containsKey(bRef) ) // TODO also in grouping set
       bRef = wrqInfo.getVirtualBRefs().get(bRef);
-    WrqBindingItem bindingItem = wrqInfo.getAllBRefs().get(bRef);
+    WrqBindingItem bindingItem = allBindingItems.get(bRef);
     boundVariables.addAll( bindingItem.getBoundVariables() );
 
+    // Default op is '='
     String op = item.getAttribute("op");
     String operator = "=";
-
-    // Default op is '='
     if (op != null) {
       operator = operatorMapping.get(op.trim().toLowerCase());
       if (operator == null)
         operator = "=";
     }
 
-    // Special cases with empty @value lead to IS (NOT) NULL
-    if ((!item.hasAttribute("value") || "".equals(item.getAttribute("value"))) && "=".equals(operator)) {
-      return bindingItem.getQColumnExpression(false) + " IS NULL";
-    }
-    if ((!item.hasAttribute("value") || "".equals(item.getAttribute("value"))) && "<>".equals(operator)) {
-      return bindingItem.getQColumnExpression(false) + " IS NOT NULL";
-    }
-
-    boolean ignoreCase = "true".equals(item.getAttribute("ic"));
+    boolean ignoreCase = "true".equals(item.getAttribute("ic")) && !bindingItem.isNumeric();
     boolean isLike = "LIKE".equals(operator) || "NOT LIKE".equals(operator);
     String colExprPostfix = "";
+
+    //-----------------------------
+    // @bRef2 or wrq:Calc, i.e. no @value
+        
+    // @bRef @op bRef2
+    if( item.hasAttribute("bRef2") ) {
+      String bRef2 = item.getAttribute("bRef2");
+      WrqBindingItem bindingItem2 = allBindingItems.get(bRef2);
+      boundVariables.addAll(bindingItem2.getBoundVariables());
+
+      String itemExpr = bindingItem.getQColumnExpression();
+      if(ignoreCase) itemExpr = "lower(" + itemExpr + ")";
+      String item2Expr = bindingItem2.getQColumnExpression();
+      if(ignoreCase) item2Expr = "lower(" + item2Expr + ")";
+      return itemExpr + " " + operator + " " + item2Expr;
+    }
+    // @bRef @op wrq:Calc
+    else if( calcSql != null ) {
+      String itemExpr = bindingItem.getQColumnExpression();
+      if(ignoreCase) itemExpr = "lower(" + itemExpr + ")";
+      if(ignoreCase) calcSql = "lower(" + calcSql + ")";
+      return itemExpr + " " + operator + " " + calcSql + " ";
+    }
+    
+    //-----------------------------
+    // @value (No @bRef2, no wrq:Calc)
+
+    // No @value -> IS (NOT) NULL
+    if( !item.hasAttribute("value") || "".equals(item.getAttribute("value")) ) {
+      String nnOp = "=".equals(operator) ? "IS NULL" : "IS NOT NULL";
+      return bindingItem.getQColumnExpression(false) + " " + nnOp;
+    }
 
     // In some cases we need to modify the incoming value
     Element valueElement;
@@ -211,10 +253,9 @@ public class WrqFilter2Sql
     } else
       valueElement = item;
 
-    // Take care for translation into lower case for database and statement values (only allowed for dims)
-    // and enforce aggr for non-dims
+    // @bRef @op @value
     String colExpr = null;
-    if( ignoreCase && ! bindingItem.isNumeric() ) {
+    if( ignoreCase ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
       colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
     } else if( useAggr && ! "none".equals(bindingItem.getAttribute("aggr")) ) {

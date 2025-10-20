@@ -52,7 +52,7 @@ public class WrqQueryBuilder
   protected final Bindings bindings;                                                      // We are not using Bindings.getInstance() to allow running in a batch program
   protected final Element wrqElem;                                                        // Parent wrq:WrsRequest element of our query
   protected LinkedList<WrsBindingItem> selectedBindingItems;                              // BindingItems used in select clause
-  protected int aliasCounter = 1;                                                         // To create (query-) unique sql table alias
+  protected int tableAliasCounter = 1;                                                     // To create (query-) unique sql table alias
   protected Map<String,WrqBindingSet> wrqBindingSetForWrqAlias = new HashMap<>();         // Registry to associate BindingSets with user provided table expression alias
   protected final Map<String,Object> queryGlobalStorage = new HashMap<>();                // Store query-wide values
   protected Set<StandardBindingSet> resolvedBindingSets = new HashSet<>();                // Real BindingSets used in this query
@@ -130,7 +130,7 @@ public class WrqQueryBuilder
         if( isRecursive && dbCompat.dbNeedsColumnListForRecursiveWithClause(jdbcResourceName) ) {
           String vConnect = "(";
           for( int v=1; v<=sqlFomFullSelect.getSelectedBindingItems().size(); v++ ) {
-            sql.append(vConnect).append("v"+v);
+            sql.append(vConnect).append("v").append(v);
             vConnect = ", ";
           }
           sql.append(")");
@@ -266,11 +266,11 @@ public class WrqQueryBuilder
   }
 
   /**
-   * Produce a new unique sql table alias for the current select scope
+   * Produce a new unique sql table alias
    * @return
    */
-  public String getNextCteTableSqlAlias() {
-    return "cte"+(aliasCounter++);
+  public String getNextTableSqlAlias() {
+    return "t"+(tableAliasCounter++);
   }
 
   /**

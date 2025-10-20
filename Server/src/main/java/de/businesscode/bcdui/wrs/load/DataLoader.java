@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -264,6 +264,7 @@ public class DataLoader {
           log.trace("SQL executed.");
         }
         catch (SQLException e) { // Wrap the SQLException - add SQL to the exception message
+          log.error(stmData.toString());
           throw new Exception("Couldn't execute statement:\n" + sql, e);
         }
         setExecuteDuration(System.currentTimeMillis() - timeBefore);

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,18 +15,13 @@
 */
 package de.businesscode.bcdui.wrs.load;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+
+import de.businesscode.util.jdbc.DatabaseCompatibility;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -43,10 +38,11 @@ import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
 /**
- * Represents a virtual BindingSet resulting from the children of wrq:From, i.e. a table reference
+ * This class allows using the result of JOINed table references (BindingSets, sub-selects in joins) like a BindingSet
+ * Represents a virtual BindingSet resulting from the children of wrq:From, i.e., is a table reference
  * A table reference can be a plain table name or joined tables factors,
  * i.e. table names, derived table expressions or references to CTE
- * Mostly it deals with the handling of wrq:Join, but for consistency we also take care for cases without
+ * Mostly it deals with the handling of wrq:Join, but for consistency it also takes care of cases without
  */
 public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
@@ -58,9 +54,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
   // StandardBindingSet may have SubjectSettings attached, that's why we collect them here
   // TreeMap is sorted, we get the SubjectFilters in the same order as the corresponding BindingSets for easier readability
   Map<String,StandardBindingSet> sbsWithSubjectFilters = new TreeMap<>();
-  
-  // To avoid SQL injection
-  static protected final Map<String,String> joinTypes = Map.of("InnerJoin", "INNER JOIN", "FullOuterJoin", "FULL OUTER JOIN", "LeftOuterJoin", "LEFT OUTER JOIN", "RightOuterJoin", "RIGHT OUTER JOIN");
+
   static protected final Map<String,String> connectorsTypes = Map.of("", "=", "=", "=", ">", ">", ">=", ">=", "<", "<", "<=", "<=", "!=", "<>");
 
   /**
@@ -75,20 +69,37 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
     super(currentSelect);
 
-    // We are a single select which has an alias for its representingBindingSet or a join
+    // We are a single Select, which has an alias for its representingBindingSet or a join
     // In both cases we do not need an sqlAlias
     name = sqlAlias = "";
 
+    // allRawBRefs contains all bRefs referenced from the Select to which we belong to
+    // But there can be external references in joins and sub-selects, which we add here
     // It may be that a bRef is only used ever in the join. In that case if it comes from a Relation it would be missing
     // when getting the table reference from the StandardBindingSet below. So we add all bRefs from the ON clause here
-    Set<String> allRawBRefsInclJoin = new HashSet<>();
+    Set<String> allRawBRefsExtended = new HashSet<>();
     NodeList onNl = ((Element)fromChildNl.item(0).getParentNode()).getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "On");
     for( int on=0; on<onNl.getLength(); on++ ) {
       Element onElem = (Element)onNl.item(on);
-      allRawBRefsInclJoin.add( onElem.getAttribute("left") );
-      allRawBRefsInclJoin.add( onElem.getAttribute("right") );
+      allRawBRefsExtended.add( onElem.getAttribute("left") );
+      allRawBRefsExtended.add( onElem.getAttribute("right") );
     }
-    allRawBRefsInclJoin.addAll(allRawBRefs);
+
+    // Also, we may have BindingItems being referenced from correlated sub-selects and we need to make them available
+    // We look for f:Expression/@bRefs where the BindingSet/CteRef does not have the same alias as we, because they then win,
+    // and then below filter that the bRefs have the same alias as we do
+    String ourAlias = currentSelect.getSelectElem().getAttribute("alias");
+    String cnd = ourAlias.isEmpty() ? "@alias" : "not(@alias='"+ourAlias+"')";
+    String xPath = ".//f:Expression[ancestor::wrq:Select[1]/wrq:From/*["+cnd+"]]/@*[local-name()='bRef' or local-name()='bRef2'] | .//f:Expression[ancestor::wrq:Select[1]/wrq:From/*["+cnd+"]]//wrq:ValueRef//@idRef";
+    XPathExpression corrSubSelBrefsXpath = XPathUtils.newXPath().compile(xPath);
+    NodeList correlatedSubSelNl = (NodeList)corrSubSelBrefsXpath.evaluate(currentSelect.getSelectElem(), XPathConstants.NODESET);
+    for( int cs=0; cs < correlatedSubSelNl.getLength(); cs++ ) {
+      String v = correlatedSubSelNl.item(cs).getNodeValue();
+      String wrqTableAlias = v.contains(".") ? v.split("\\.")[0] : "";
+      if( wrqTableAlias.equals(ourAlias) ) allRawBRefsExtended.add( v );
+    }
+    
+    allRawBRefsExtended.addAll(allRawBRefs);
 
     // Loop over the table factors
     for( int fc=0; fc<fromChildNl.getLength(); fc++ ) {
@@ -101,30 +112,29 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         case "CteRef":
         case "BindingSet":
         case "Select": {
-          addTableFactor(fromChild, sqlStatementWithParams, allRawBRefsInclJoin, selectAll);
+          addTableFactor(fromChild, sqlStatementWithParams, allRawBRefsExtended, selectAll);
           break;
         }
 
         // Joins
-        case "Join":
-        case "InnerJoin":
-        case "LeftOuterJoin":
-        case "RightOuterJoin":
-        case "FullOuterJoin": {
-          // LEFT/RIGHT INNER/OUTER JOIN
-          sqlStatementWithParams.append(" ").append( joinTypes.get(fromChild.getLocalName()) ).append(" ");
+        case "Join": case "InnerJoin": case "LeftOuterJoin": case "RightOuterJoin": case "FullOuterJoin": case "CrossJoin":
+        case "InnerJoinLateral": case "LeftOuterJoinLateral": case "CrossJoinLateral" :
+        case "CrossApply": case "OuterApply": {
+          // LEFT/RIGHT INNER/OUTER JOIN including LATERAL/APPLY
+          String joinOp = DatabaseCompatibility.getInstance().getJoinOperator(getJdbcResourceName(), fromChild.getLocalName());
+          sqlStatementWithParams.append(" ").append( joinOp ).append(" ");
 
-          // Take care for the table expression, it must be the first Element in the wrq:Join
+          // Take care of the table expression, it must be the first Element in the wrq:Join
           Node childNode = fromChild.getFirstChild();
           while( childNode.getNodeType() != Node.ELEMENT_NODE ) childNode = childNode.getNextSibling();
-          addTableFactor((Element)childNode, sqlStatementWithParams, allRawBRefsInclJoin, selectAll);
+          addTableFactor((Element)childNode, sqlStatementWithParams, allRawBRefsExtended, selectAll);
 
           // Join condition: wrq:On nested in wrq:And/Or
-          sqlStatementWithParams.append(" ON ");
-          boolean conditionFound = handleJoinCondition( followingWrqElem(childNode), "AND", true );
-          if( !conditionFound ) sqlStatementWithParams.append(" 1=1 ");      
-          sqlStatementWithParams.append("\n");
-          
+          String joinCondition = handleJoinCondition( null, followingWrqElem(childNode), "AND" );
+          if( ! joinCondition.isEmpty() ) {
+            sqlStatementWithParams.append(" ON ").append(joinCondition);
+          }
+
           break;
         }
       }
@@ -134,17 +144,17 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
   /**
    * Recursively handle join conditions
+   * @param joinStmt
    * @param elem
    * @param connect
-   * @param isFirst
    * @return
    * @throws BindingNotFoundException
    */
-  protected boolean handleJoinCondition(Element elem, String connect, boolean isFirst) throws BindingNotFoundException {
+  protected String handleJoinCondition(SQLStatementWithParams joinStmt, Element elem, String connect) throws BindingNotFoundException {
     
-    if( elem==null ) return false;
+    if( elem==null ) return "";
     
-    boolean conditionFound = false;
+    if( joinStmt == null ) joinStmt = new SQLStatementWithParams();
     switch(elem.getLocalName()) {
     
       case "Or":
@@ -152,47 +162,42 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         String newConnect = "Or".equals(elem.getLocalName()) ? "OR" : "AND";
         // We allow empty wrs:And/Or elements for convenience
         if( elem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "On").getLength() > 0 ) {
-          if( !isFirst ) sqlStatementWithParams.append(" ").append(connect).append(" ");
+          if( !joinStmt.getStatement().isEmpty() ) joinStmt.append(" ").append(connect).append(" ");
           // Handle children
-          conditionFound |= handleJoinCondition( firstWrqChildElem(elem), newConnect, true );
+          handleJoinCondition(joinStmt, firstWrqChildElem(elem), newConnect );
         }
         // Handle following siblings
-        conditionFound |= handleJoinCondition( followingWrqElem(elem), connect, isFirst && !conditionFound);
+        handleJoinCondition(joinStmt, followingWrqElem(elem), connect);
         break;
       }
 
       case "On": {
-        if( isFirst ) sqlStatementWithParams.append(" ( ");
-        else sqlStatementWithParams.append(" ").append(connect).append(" ");
+        if( ! joinStmt.getStatement().isEmpty() ) joinStmt.append(" ").append(connect).append(" ");
 
         // Condition
         String left = elem.getAttribute("left");
-        String leftRel  = left.contains(".") ? left.split("\\.")[0] : "";
-        String leftBiId = left.contains(".") ? left.split("\\.")[1] : left;
-        BindingItem leftBi = currentSelect.getBindingSetForWrqAlias(leftRel).get(leftBiId);
-        String leftTableAlias = currentSelect.getBindingSetForWrqAlias(leftRel).getSqlAlias();
-        sqlStatementWithParams.append(leftBi.getQColumnExpression(leftTableAlias));
+        BindingItem leftBi = currentSelect.resolveBindingItemFromScope(left);
+        String leftWrqTableAlias = left.contains(".") ? left.split("\\.")[0] : "";
+        String leftSqlTableAlias = currentSelect.resolveBindingSetFromScope(leftWrqTableAlias).getSqlAlias();;
+        joinStmt.append(leftBi.getQColumnExpression(leftSqlTableAlias));
 
         String operator = connectorsTypes.get(elem.getAttribute("op")); 
-        sqlStatementWithParams.append(" ").append(operator).append(" ");
+        joinStmt.append(" ").append(operator).append(" ");
 
         String right = elem.getAttribute("right");
-        String rightRel = right.contains(".") ? right.split("\\.")[0] : "";
-        String rightBiId  = right.contains(".") ? right.split("\\.")[1] : right;
-        BindingItem rightBi = currentSelect.getBindingSetForWrqAlias(rightRel).get(rightBiId);
-        String rightTableAlias = currentSelect.getBindingSetForWrqAlias(rightRel).getSqlAlias();
-        sqlStatementWithParams.append(rightBi.getQColumnExpression(rightTableAlias));
+        BindingItem rightBi = currentSelect.resolveBindingItemFromScope(right);
+        String rightWrqTableAlias = right.contains(".") ? right.split("\\.")[0] : "";
+        String rightSqlTableAlias = currentSelect.resolveBindingSetFromScope(rightWrqTableAlias).getSqlAlias();
+        joinStmt.append(rightBi.getQColumnExpression(rightSqlTableAlias));
         
         // Handle following siblings
-        handleJoinCondition( followingWrqElem(elem), connect, false );
-        if( isFirst ) sqlStatementWithParams.append(" ) ");
+        handleJoinCondition(joinStmt, followingWrqElem(elem), connect);
         
-        conditionFound = true;
         break;
       }
     }
 
-    return conditionFound;
+    return joinStmt.toString();
   }
   
   /**
@@ -229,7 +234,8 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
 
     final String wrqAlias = teElem.getAttribute("alias"); // Alias of table factor in Wrq XML
     final Set<String> allRawBRefsWoAlias = allRawBRefs.stream()
-        .filter( bRef -> ((bRef.indexOf(".")==-1 && wrqAlias.isEmpty())) || bRef.startsWith(wrqAlias+".") ) // Keep only bRef with our (potentially empty wrqAlias
+        .filter( bRef -> bRef.contains(".") ? bRef.split("\\.")[0].equals(wrqAlias) : wrqAlias.isBlank() )
+//        .filter( bRef -> ((bRef.indexOf(".")==-1 && wrqAlias.isEmpty())) || bRef.startsWith(wrqAlias+".") ) // Keep only bRef with our (potentially empty) wrqAlias
         .map( bRef -> bRef.indexOf(".")==-1 ? bRef : bRef.split("\\.")[1] )                                 // Remove the alias
         .collect(Collectors.toSet());
     final WrqBindingSet bs;
@@ -239,7 +245,10 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     switch(teElem.getLocalName()) {
       case "BindingSet": {
         
-        StandardBindingSet sbs = (StandardBindingSet)currentSelect.getWrqQueryBuilder().getBindings().get(teElem.getTextContent(), allRawBRefsWoAlias);
+        // Because of BindingGroups, we need a list of BindingItems we ask for.
+        // Note: This prevents us from allowing to resolve 2 alias-free bRefs from different BindingSets, even if they are unique by name
+        // Otherwise we would not know for which subset to as which of the two BindingSets
+        StandardBindingSet sbs = currentSelect.getWrqQueryBuilder().getBindings().get(teElem.getTextContent(), allRawBRefsWoAlias);
         
         if(sbs.hasSubjectFilters()) sbsWithSubjectFilters.put(wrqAlias, sbs);
         
@@ -260,10 +269,10 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         break;
       } 
       case "Select": {
-        SqlFromFullSelect sqlFromFulSelect = new SqlFromFullSelect(currentSelect.getWrqQueryBuilder(), currentSelect, (Element)teElem.getParentNode());
-        bs = sqlFromFulSelect.getRepresentingBindingSet();
+        SqlFromSubSelect sqlFromSubSelect = new SqlFromSubSelect(currentSelect.getWrqQueryBuilder(), currentSelect, (Element)teElem);
+        bs = sqlFromSubSelect.getRepresentingBindingSet();
         currentSelect.addBindingSetForWrqAlias(wrqAlias, bs);
-        sqlStatementWithParams.append(" ( ").append(sqlFromFulSelect.getSelectStatement()).append(" ) ").append( bs.getSqlAlias() );
+        sqlStatementWithParams.append(" ( ").append(sqlFromSubSelect.getSelectStatement()).append(" ) ").append( bs.getSqlAlias() );
         break;
       }
       case "CteRef": {
@@ -273,15 +282,16 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
         sqlStatementWithParams.append( cteBs.getSqlAlias() ).append(" ").append( bs.getSqlAlias() );
         break;
       }
-      
+
       // Type of table expression unknown, skip it
+      // TODO allow Set operators, i.e. FullSelects as parts of joins
       default: return; 
     }
 
     resolvedBindingSets.addAll(bs.getResolvedBindingSets());
     wrqModifiers.addAll(bs.getWrqModifiers());
 
-    collectBindingItems(allRawBRefsWoAlias, wrqAlias, selectAll, bs);
+    collectBindingItems(currentSelect, teElem, allRawBRefsWoAlias, wrqAlias, selectAll, bs);
   }
 
   /**
@@ -292,7 +302,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
    * @param bs
    * @throws BindingException
    */
-  protected void collectBindingItems(Set<String> allRawBRefsWoRel, String wrqAlias, boolean selectAll, BindingSet bs) throws BindingException {
+  protected void collectBindingItems(SqlFromSubSelect selectContext, Element teElem, Set<String> allRawBRefsWoRel, String wrqAlias, boolean selectAll, BindingSet bs) throws BindingException {
     
     // We either are looking for a specific list allRawBRefsWoRel or we want to select all being made available from the underlying (maybe virtual) BindingSet
     Collection<String> bRefsToRetrieve;
@@ -304,9 +314,13 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     }
 
     for( String bRef: bRefsToRetrieve ) {
-      BindingItem bi = bs.get(bRef);
-      if( bi== null ) 
-        throw new BindingException("BindingItem '"+bRef+"' not found for (virtual) BindingSet '"+wrqAlias+"'");
+      BindingItem bi = selectContext.resolveBindingSetFromScope(wrqAlias).get(bRef);
+      if( bi == null ) {
+        // Give some details in debug output about the location of the issue
+        List<String> trace = new ArrayList<>();
+        for( Node n = teElem; n != null && n instanceof Element; n = n.getParentNode() ) trace.add( 0, n.getNodeName() );
+        throw new BindingException("BindingItem '"+bRef+"' not found for (virtual) BindingSet with wrq alias '"+wrqAlias+"' at "+String.join(" -> ", trace ));
+      }
       if( bs.getBindingItemNames().contains(bi.getId()) )
         bindingItems.put(wrqAlias+"."+bRef, bi);
       else
@@ -343,7 +357,7 @@ public class WrqBindingSetFromTableReference extends WrqBindingSetVirtual {
     String concat = "";
     for( String tableAlias: sbsWithSubjectFilters.keySet() ) {
       StandardBindingSet sbs = sbsWithSubjectFilters.get(tableAlias);
-      String sqlTableAlias = currentSelect.getBindingSetForWrqAlias(tableAlias).getSqlAlias();
+      String sqlTableAlias = currentSelect.resolveBindingSetFromScope(tableAlias).getSqlAlias();
       stmt.append(concat).append( sbs.getSubjectFilterExpression(wrqInfo, tableAlias, sqlTableAlias) );
       concat = " AND ";
     }

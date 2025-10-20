@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,32 +19,24 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
-import de.businesscode.util.StandardNamespaceContext;
-import de.businesscode.util.XPathUtils;
+import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
-import de.businesscode.util.xml.SecureXmlFactory;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
 import org.w3c.dom.Element;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
-import java.io.StringReader;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Takes a single wrq:Select (formally a "sub-select") and turns it into a SQLStatementWithParams
+ * Each select taking part in UNIONs or being a sub-select is represented by an instance of this class.
+ * It uses WrqInfo to collect all necessary information from the WRQ XML
+ * There is a 1:1 relationship between SqlFromSubSelect and WrqInfo
  */
 public class SqlFromSubSelect
 {
@@ -54,24 +46,29 @@ public class SqlFromSubSelect
   protected final WrqInfo wrqInfo;
   protected int rowStart = 0;
   protected int rowEnd   = -1;                          // -1 means unlimited
+  /** All Standard BindingSets, which we or any of our sub-selects are using */
   protected Set<StandardBindingSet> resolvedBindingSets = new HashSet<>();
+  /** A virtual BindingSet representing the result set created by this sub-select */
   protected WrqBindingSetFromDerivedTable representingBindingSet = null;
-  protected Map<String,WrqBindingSet> bindingSetForWrqAlias = new HashMap<>(); // Registry to associate BindingSets with user provided table expression alias
-  protected int aliasCounter = 1;                                              // To create (query-) unique sql table alias
+  /** These BindingSets are our main BindingSet and all joined ones, i.e, all listed in our wrq:From */
+  protected Map<String,WrqBindingSet> bindingSetForWrqAlias = new HashMap<>(); // Registry to associate BindingSets with user-provided table expression alias
 
-  // Stylesheet for rowStart rowEnd conversion
-  protected static String wrqTransformRowLimitXsltStatic;
-  static {
-    try {
-      wrqTransformRowLimitXsltStatic = IOUtils.toString(Wrq2Sql.class.getResourceAsStream("wrqTransformSelectRowLimit.xslt"), "UTF-8");
-    } catch (Throwable e) {
-      LogManager.getLogger(Wrq2Sql.class).fatal("wrqTransformSelectRowLimit.xslt not found");
-    }
-  }
-
-  
   // Result of our work. The SQL statement as string plus the bound values for the prepared statement
   protected SQLStatementWithParams selectStatement;
+
+  /**
+   * Helper to handle the EnterpriseEdition version of us
+   * @param wrqQueryBuilder
+   * @param parent
+   * @param selectElem
+   * @return
+   */
+  static SqlFromSubSelect getInstance(WrqQueryBuilder wrqQueryBuilder, SqlFromSubSelect parent, Element selectElem) {
+    return Configuration.getClassInstance(
+        Configuration.getClassoption(Configuration.OPT_CLASSES.SQLFROMSUBSELECT),
+        new Class<?>[]{ WrqQueryBuilder.class, SqlFromSubSelect.class, Element.class },
+        wrqQueryBuilder, parent, selectElem);
+  }
 
   /**
    * We are initialized for a full-select (SELECTSs connected with SET operators).
@@ -88,44 +85,17 @@ public class SqlFromSubSelect
     this.wrqQueryBuilder = wrqQueryBuilder;
     this.parent = parent;
 
-    // Let's detect start end end, because we have some extra activity depending on it. rowEnd -1 means unlimited
+    // Let's detect start and end, because we have some extra activity depending on it. rowEnd -1 means unlimited
     String rowStartAttrStr = selectElem.getAttribute("rowStart");
     if( ! rowStartAttrStr.isEmpty() ) rowStart = Integer.parseInt(rowStartAttrStr);
     String rowEndAttrStr = selectElem.getAttribute("rowEnd");
-    rowEnd = wrqQueryBuilder.getMaxRows() + (rowStart > 1 ? rowStart - 1 : 0);
+    rowEnd = rowStart > 1 ? wrqQueryBuilder.getMaxRows() + (rowStart > 1 ? rowStart - 1 : 0) : -1;
     if( ! rowEndAttrStr.isEmpty() ) {
       int rowEndAttr = Integer.parseInt(rowEndAttrStr) + rowStart;
       if( rowEndAttr >= 0 && rowEnd >= 0 ) rowEnd = Math.min(rowEnd, Integer.parseInt(rowEndAttrStr) );
       if( rowEndAttr >= 0 && rowEnd < 0 ) rowEnd = Integer.parseInt(rowEndAttrStr);
     }
 
-    // SELECTs which go to a non-virtual BindingSet support rowStart > 1
-    // Currently only for top-level selects from BindingSet
-    if( rowStart > 1 && (rowEnd == -1 || rowEnd >= rowStart) ) {
-      XPath xp = XPathUtils.newXPath();
-      XPathExpression bindingSetXpathExpr = xp.compile("./wrq:From/wrq:BindingSet/text()");
-      String bindingSetName = (String)bindingSetXpathExpr.evaluate(selectElem, XPathConstants.STRING);
-      if( ! bindingSetName.isEmpty() ) {
-        StringBuilder bis = new StringBuilder();
-        StringBuilder keyBis = new StringBuilder();
-
-        StandardBindingSet resultingBindingSet = (StandardBindingSet) wrqQueryBuilder.getBindings().get(bindingSetName, Collections.emptyList());
-        for( BindingItem bi: resultingBindingSet.getBindingItems() ) {
-          bis.append(bi.getId()+" ");
-          if(bi.isKey()) keyBis.append(bi.getId()+" ");
-        }
-        DOMSource source = new DOMSource(selectElem);
-        StreamSource styleSource = new StreamSource( new StringReader(wrqTransformRowLimitXsltStatic) );
-        Transformer transformer = SecureXmlFactory.newTransformerFactory().newTransformer(styleSource);
-        transformer.setParameter("allBindingItems", bis.toString());
-        transformer.setParameter("allKeyBindingItems", keyBis.toString());
-        DOMResult result = new DOMResult();
-        transformer.transform(source, result);
-
-        selectElem = (Element)result.getNode().getFirstChild();
-      }
-    }
-    
     wrqInfo = new WrqInfo( this, selectElem );
 
     // Complete initialization
@@ -149,6 +119,7 @@ public class SqlFromSubSelect
     generateGroupingClause( wrqInfo, selectStatement );
     generateHavingClause( wrqInfo, selectStatement );
     generateOrderClause( wrqInfo, selectStatement );
+    generateOffsetFetchClause( wrqInfo, selectStatement );
   }
 
 
@@ -169,7 +140,7 @@ public class SqlFromSubSelect
       WrqBindingItem bi = wrqInfo.getAllBRefAggrs().get(it.next());
       sql.append(concat);
       // We may want to not calculate this value if another bRef part of Grouping Set is on (sub)total level
-      // Typical case is the caption. It could be part of the Grouping Set itself but this keeps the query simpler, see scorecard
+      // A typical case is the caption. It could be part of the Grouping Set itself, but this keeps the query simpler, see scorecard
       if( wrqInfo.reqHasGroupingFunction() && wrqInfo.getGroupingBRefs().contains(bi.getSkipForTotals()) ) {
         String[] grpFM = DatabaseCompatibility.getInstance().getCalcFktMapping(wrqQueryBuilder.getJdbcResourceName()).get("Grouping");
         WrqBindingItem sftBi = wrqInfo.getAllBRefs().get(bi.getSkipForTotals());
@@ -199,7 +170,7 @@ public class SqlFromSubSelect
 
 
   /**
-   * Generates 'WHERE ' plus the filter
+   * Generates 'WHERE' plus the filter
    * @throws XPathExpressionException
    * @throws BindingException
    */
@@ -208,7 +179,7 @@ public class SqlFromSubSelect
     StringBuilder sql = new StringBuilder();
     List<Element> boundVariables = new LinkedList<Element>();
 
-    // Can be a meta-data request
+    // Can be a meta-data request, if you change this, also adjust pagination logic in DatabaseCompatibility.paginationClause()
     if( (rowEnd > 0 && rowStart > rowEnd) || rowEnd == 0 ) {
       sql.append(" WHERE 1=0 ");
       sqlStatement.append(sql.toString());
@@ -218,7 +189,7 @@ public class SqlFromSubSelect
     WrqFilter2Sql wrqFilter2Sql = new WrqFilter2Sql(wrqInfo, wrqInfo.getFilterNode(), false);
     String filterClause = wrqFilter2Sql.getAsSql( boundVariables );
 
-    // Take care for row level security
+    // Take care of row level security
     String subjectSettingsClause = "";
     Subject subject = null;
     try { subject = SecurityUtils.getSubject(); } catch (Exception e) {/* no shiro at all */}
@@ -273,7 +244,7 @@ public class SqlFromSubSelect
    * @throws XPathExpressionException
    * @throws BindingException
    */
-  protected void generateHavingClause( WrqInfo wrqInfo, SQLStatementWithParams sqlStatement ) throws XPathExpressionException, BindingException
+  protected void generateHavingClause( WrqInfo wrqInfo, SQLStatementWithParams sqlStatement ) throws Exception
   {
     StringBuilder sql = new StringBuilder();
     List<Element> boundVariables = new LinkedList<Element>();
@@ -306,13 +277,57 @@ public class SqlFromSubSelect
       else
         sql.append(", ");
 
-      // To have the same position of NULL values (sort them to the end), add a database specific order by specification
+      // To have the same position of NULL values (sort them to the end), add a database-specific order by specification
       int bind = dbCompat.dbOrderByNullsLast(wrqQueryBuilder.getJdbcResourceName(), item.getQColumnExpressionWithAggr(), item.isOrderByDescending(), sql );
       for( ; bind > 0; bind-- )
         boundVariables.addAll( item.getBoundVariables() );
     }
 
+    // For pagination, we add ordering by key columns if no other order is given
+    // This is only for very simple cases (for example, a plain table access, no sub-selects, no access to multiple BindingSets)
+    // And for backward compatibility. It is preferred that you provide the ordering explicitly
+    if( wrqInfo.getOrderingBRefs().isEmpty() && rowStart < rowEnd && (rowStart > 1 || rowEnd != -1) )
+    {
+      String keyBsAlias = getWrqInfo().getResultingBindingSet().getSqlAlias();
+      i = 0;
+      for( BindingItem key: getWrqInfo().getResultingBindingSet().getResolvedBindingSets().iterator().next().getKeyBindingItems() ) {
+        BindingItem resultingKey = getWrqInfo().getResultingBindingSet().get("."+key.getId());
+        if( resultingKey == null ) continue;
+        if( ++i == 1) sql.append("  ORDER BY ");
+        if( i > 1) sql.append(", ");
+        sql.append( resultingKey.getQColumnExpression(keyBsAlias) );
+      }
+    }
+
     sqlStatement.append(sql.toString(), boundVariables, wrqInfo.getResultingBindingSet());
+  }
+
+  
+  /**
+   * Optionally append 'OFFSET 10 FETCH NEXT 20 ROWS ONLY' for pagination
+   * @param wrqInfo
+   * @param sqlStatement
+   * @throws BindingNotFoundException 
+   */
+  protected void generateOffsetFetchClause(WrqInfo wrqInfo, SQLStatementWithParams sqlStatement)
+      throws BindingNotFoundException
+  {
+    // In some cases (currently Teradata QUALIFY) the order by is used. Only then this is called and the filter-items added again
+    Supplier<String> getOrderClause = () -> {
+        SQLStatementWithParams sqlSWP = new SQLStatementWithParams();
+        try {
+          // We use our normal ORDER BY here, getting the result into a temporary sqlSWP
+          // but the SQL will be used in paginationOffsetFetchClause()
+          // But any filter items need to go to our main statement
+          generateOrderClause( wrqInfo, sqlSWP );
+          sqlStatement.append("", sqlSWP.getFilterItems(), wrqInfo.getResultingBindingSet());
+        } catch (BindingNotFoundException e) {
+          throw new RuntimeException(e.getMessage(), e);
+        }
+        return sqlSWP.getStatement();
+    };
+    DatabaseCompatibility dbCompat = DatabaseCompatibility.getInstance();
+    sqlStatement.append( dbCompat.paginationClause(wrqQueryBuilder.getJdbcResourceName(), rowStart, rowEnd, getOrderClause ) );
   }
 
   public List<Element> getBoundVariables() {
@@ -324,7 +339,7 @@ public class SqlFromSubSelect
   }
 
   /**
-   * A BindingSet representing us as if we where a bnd:BindingSet
+   * A BindingSet representing our result set as if we were a bnd:BindingSet
    * @return
    * @throws Exception
    */
@@ -348,31 +363,54 @@ public class SqlFromSubSelect
   }
 
   /**
-   * Get the BindingSet for a user provided table expression alias
-   * @param wrqAlias
+   * Get the (Virtual)BindingSet for a user-provided table expression wrq alias.
+   * Can be a BindingSet or a sub-select acting as a table expression.
+   * It can also be a (Virtual)BindingSet in an outer Select or a Cte.
+   * @param wrqAlias the wrq table alias
    * @return
    * @throws BindingNotFoundException 
    */
-  public WrqBindingSet getBindingSetForWrqAlias(String wrqAlias) throws BindingNotFoundException {
+  public WrqBindingSet resolveBindingSetFromScope(String wrqAlias) throws BindingNotFoundException {
     WrqBindingSet bs = bindingSetForWrqAlias.get(wrqAlias);
+    for( SqlFromSubSelect parent = this.getParent(); bs == null && parent != null; parent = parent.getParent() ) {
+      bs = parent.bindingSetForWrqAlias.get(wrqAlias);
+    }
     if( bs==null ) bs = getWrqQueryBuilder().getCteBindingSetForWrqAlias(wrqAlias);
-    if( bs==null ) throw new BindingNotFoundException("No BindingSet with alias '"+wrqAlias+"' found");
+    if( bs==null ) throw new BindingNotFoundException("No (Virtual)BindingSet with alias '"+wrqAlias+"' found in select ancestors or Cte");
     return bs;
+  }
+  
+  /**
+   * Retrieve a BindingItem bRef with alias from the current scope, i.e, the local wrq:From or any wrq:From from outer selects or CTEs
+   * @param bRef including wrq table alias
+   * @return
+   * @throws BindingNotFoundException
+   */
+  public BindingItem resolveBindingItemFromScope(String bRef) throws BindingNotFoundException {
+    String[] aliasBRef = bRef.split("\\.");
+    String wrqTableAlias = aliasBRef.length > 1 ? aliasBRef[0] : "";
+    String bRefOnly      = aliasBRef.length > 1 ? aliasBRef[1] : bRef;
+    try {
+      WrqBindingSet bs = resolveBindingSetFromScope(wrqTableAlias);
+      return bs.get(bRefOnly);
+    } catch( BindingException e ) {
+      throw new BindingNotFoundException("For BindingItem '"+bRef+"' "+e.getMessage());
+    }
   }
 
   /**
-   * Set the BindingSet for a user provided table expression alias
+   * Set the BindingSet for a user-provided table expression alias
    * @param wrqAlias
    * @param bindingSet
    */
-  public void addBindingSetForWrqAlias(String wrqAlias, WrqBindingSet bindingSet) {
+  protected void addBindingSetForWrqAlias(String wrqAlias, WrqBindingSet bindingSet) {
     bindingSetForWrqAlias.put(wrqAlias, bindingSet);
     if( wrqAlias != null && wrqAlias.isEmpty() ) bindingSetForWrqAlias.put(null, bindingSet);
   }
 
 
   /**
-   * Access to the current overall query
+   * Access to the current overall query, there is only one per Wrq
    * @return
    */
   public WrqQueryBuilder getWrqQueryBuilder() {
@@ -381,20 +419,12 @@ public class SqlFromSubSelect
   
   
   /**
-   * Access to parent select, may be null
-   * This is the namespace for table aliases
+   * Access to parent select, which may be null
+   * This is used, for example, to look up referenced columns
    * @return
    */
   public SqlFromSubSelect getParent() {
     return parent;
-  }
-
-  /**
-   * Produce a new unique sql table alias for the current select scope
-   * @return
-   */
-  public String getNextTableSqlAlias() {
-    return "t"+(aliasCounter++);
   }
 
 

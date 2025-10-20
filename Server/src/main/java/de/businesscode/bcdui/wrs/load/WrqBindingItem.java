@@ -39,7 +39,6 @@ import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingUtils;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
-import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -82,8 +81,9 @@ public class WrqBindingItem implements WrsBindingItem
   private String tableAliasOverwrite = null;
   private String tableAliasPostFix = "";
 
+  private final Set<String> allowedAggrs = DatabaseCompatibility.getInstance().getAggrFktMapping(null).keySet();
   
-  private Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
+  private final Collection<WrsBindingItem> wrsAAttributes = new HashSet<WrsBindingItem>(); // Only for wrs:C, these are child wrs:A elements, not regular DOM attributes
 
   /**
    * Used to derive a BindingItem from a wrs:C, it is combined with the info from the BindingSet but the WrsRequest provided info wins in case of conflict
@@ -113,7 +113,7 @@ public class WrqBindingItem implements WrsBindingItem
     // We may have a wrq:Calc
     NodeList calcNodes = elem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE,"Calc");
     if( calcNodes.getLength() > 0 && calcNodes.item(0).getParentNode() == elem ) {
-      WrqCalc2Sql wrqCalc2Sql = Configuration.getClassInstance(Configuration.OPT_CLASSES.WRQCALC2SQL, new Class<?>[]{WrqInfo.class}, wrqInfo);
+      WrqCalc2Sql wrqCalc2Sql = WrqCalc2Sql.getInstance(wrqInfo);
       Element calc = (Element)calcNodes.item(0);
 
       BindingItem bi = null;
@@ -209,7 +209,7 @@ public class WrqBindingItem implements WrsBindingItem
     }
 
     // As part of wrq:C and wrq:A elements in the select list allow the user to provide additional attributes
-    // (here we are talking about plain attributes, not wrq:A),  which are included in the answer
+    // (here we are talking about plain attributes, not wrq:A), which are included in the answer
     // and do even overwrite attributes derived from the BindingSet with wrq custom attributes
     NamedNodeMap attrs = elem.getAttributes();
     for( int a = 0; a<attrs.getLength(); a++ ) {
@@ -287,14 +287,21 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
 
+  /**
+   * Determine @aggr if not given but required
+   * This happens if @aggr is missing but the Bi is not in a given grouping. Of course an explicit @aggr ot in wrq:Calc is always preferred
+   * @param e
+   * @return
+   * @throws Exception
+   */
   private String determineAggr(Element e) throws Exception {
     String bRef = e.hasAttribute("bRef") ? e.getAttribute("bRef") : e.getAttribute("idRef");
-    String aggr = aggregationMapping.get(e.getAttribute("aggr").toLowerCase());
-    // There is a grouping but we are not part of it
+    String aggr = allowedAggrs.contains(e.getAttribute("aggr")) ? e.getAttribute("aggr") : null ;
+    // There is a grouping, but we are not part of it, add default aggr
     if( aggr==null && wrqInfo.reqHasGroupBy() && !wrqInfo.getGroupingBRefs().contains(bRef) ) {
       BindingItem bi = wrqInfo.getResultingBindingSet().get(bRef);
       if(bi==null) throw new BindingNotFoundException("BindingItem "+bRef+" not found at BindingSet '"+wrqInfo.getResultingBindingSet().getName()+"'");
-      aggr = bi.getAggr()!=null ? aggregationMapping.get(bi.getAggr()) : getDefaultAggr(bi.getJDBCDataType());
+      aggr = bi.getAggr()!=null ? bi.getAggr() : getDefaultAggr(bi.getJDBCDataType());
     }
     return aggr;
   }
@@ -439,22 +446,6 @@ public class WrqBindingItem implements WrsBindingItem
     return cCE;
   }
 
-  // This is the logical aggregation coming from the @aggr attribute
-  // It does not necessarily match the SQL expression (for example GROUPING vs. ISNULL for MySql)
-  // It serves for preventing SQL injection via the aggr attribute
-  // TODO: make this an enum, note it can be null, none and some actual aggregation
-  private static final Map<String, String> aggregationMapping;
-  static {
-    aggregationMapping = new HashMap<String, String>();
-    aggregationMapping.put("sum", "SUM");
-    aggregationMapping.put("max", "MAX");
-    aggregationMapping.put("min", "MIN");
-    aggregationMapping.put("avg", "AVG");
-    aggregationMapping.put("count", "COUNT");
-    aggregationMapping.put("grouping", "GROUPING");
-    aggregationMapping.put("none", ""); // Can be used if the column expression already has a aggregator defined
-  }
-
   /**
    * Returns the column expression with table alias and with aggregation applied, if any is set
    * @return
@@ -469,7 +460,7 @@ public class WrqBindingItem implements WrsBindingItem
    */
   public String getQColumnExpressionWithAggr( boolean enforceAggr ) throws BindingNotFoundException {
     if( aggr!=null && !aggr.isEmpty() )
-      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName()).get(aggr.toLowerCase())+"("+getQColumnExpression()+")";
+      return DatabaseCompatibility.getInstance().getAggrFktMapping(wrqInfo.getJdbcResourceName()).get(aggr)+"("+getQColumnExpression()+")";
     else if( enforceAggr )
       return getDefaultAggr(getJDBCDataType())+"("+getColumnExpression()+")";
     else
@@ -671,7 +662,7 @@ public class WrqBindingItem implements WrsBindingItem
 //    }
     
     var sqlTableAlias = new LinkedList<String>();
-    for(var a: wrqTableAliases) sqlTableAlias.add( wrqInfo.getCurrentSelect().getBindingSetForWrqAlias(a).getSqlAlias() + tableAliasPostFix );
+    for(var a: wrqTableAliases) sqlTableAlias.add( wrqInfo.getCurrentSelect().resolveBindingSetFromScope(a).getSqlAlias() + tableAliasPostFix );
     
     return sqlTableAlias;
   }
