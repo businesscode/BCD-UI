@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ public class Bindings {
 
   private final Logger log = LogManager.getLogger(getClass());
 
+  public static final String captionAttribute = "caption";
   public static final String escapeXmlAttributeName = "escapeXML";
   public static final String keyAttributeName = "isKey";
   public static final String jdbcDataTypeNameAttribute = "type-name";

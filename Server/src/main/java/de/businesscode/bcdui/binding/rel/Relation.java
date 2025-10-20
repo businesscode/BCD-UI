@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -626,7 +626,7 @@ public class Relation {
     } else {
       try {
         for( BindingItemFromRel bfr: getImportItems() ) {
-          str.append("<ImportItem caption=\""+bfr.getCaption()+"\" name=\""+bfr.getId()+"\">");
+          str.append("<ImportItem caption=\""+bfr.getAttribute(Bindings.captionAttribute)+"\" name=\""+bfr.getId()+"\">");
           str.append("<BindingItemRef name=\""+bfr.getReferencedBindingItem().getId()+"\" />");
           str.append("</ImportItem>");
         }

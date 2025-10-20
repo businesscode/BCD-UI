@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -407,10 +407,6 @@ public class ReadBindingSet implements Runnable {
         bItem.setDisplayFormat(Utils.serializeElement((Element) nList.item(0)));
         nList = null;
       }
-
-      // caption
-      String caption = bindingItemElem.getAttribute("caption");
-      bItem.setCaption(caption);
 
       // escapeXML
       if (bindingItemElem.getAttribute(Bindings.escapeXmlAttributeName).length() > 0)

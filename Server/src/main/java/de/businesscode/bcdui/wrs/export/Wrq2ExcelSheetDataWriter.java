@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.w3c.dom.Document;
+
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.DataLoader;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
@@ -145,7 +147,7 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
     // TODO make this controllable by rnd:Wrs2Excel
     if( !usingTemplate ) {
       for( WrsBindingItem bi: generator.getSelectedBindingItems() ) {
-        writeHeaderCell( bi.getCaption() );
+        writeHeaderCell( bi.getAttribute(Bindings.captionAttribute, bi.getId()) );
         moveToNextColumn();
       }
       moveToNextLine();

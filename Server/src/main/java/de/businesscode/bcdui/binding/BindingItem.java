@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ public class BindingItem extends SimpleBindingItem {
   private boolean isKey;
   private String references;
   private String displayFormat;
-  private String caption;
   private Integer jdbcDataType = null;
   private Integer jdbcColumnDisplaySize = null;
   private Integer jdbcColumnScale = null;
@@ -69,7 +68,6 @@ public class BindingItem extends SimpleBindingItem {
     this.columnExpression = src.columnExpression;
     this.references = src.references;
     this.displayFormat = src.displayFormat;
-    this.caption = src.caption;
     this.jdbcColumnDisplaySize = src.jdbcColumnDisplaySize;
     this.jdbcColumnScale = src.jdbcColumnScale;
     this.jdbcSigned = src.jdbcSigned;
@@ -112,6 +110,16 @@ public class BindingItem extends SimpleBindingItem {
    */
   public Map<String, String> getCustomAttributesMap() {
     return customAttributesMap;
+  }
+  
+  public String getAttribute(String attName) {
+    Object o = getGeneralAttributesMap().get(attName);
+    return o != null ? o.toString() : null; 
+  }
+  
+  public String getAttribute(String attName, String attDefault) {
+    String s = getAttribute(attName);
+    return s != null ? s : attDefault;
   }
 
   /**
@@ -329,28 +337,6 @@ public class BindingItem extends SimpleBindingItem {
   }
 
   /**
-   * Gets value of caption attribute or empty string.
-   *
-   * @return The database column caption.
-   * @see java.sql.ResultSetMetaData#getColumnLabel(int)
-   */
-  public String getCaption() {
-    if (this.caption == null)
-      this.caption = "";
-    return this.caption;
-  }
-
-  /**
-   * Sets value of caption attribute.
-   *
-   * @param caption
-   *          The new caption of the column.
-   */
-  public void setCaption(String caption) {
-    this.caption = caption;
-  }
-
-  /**
    * gets if the BindingItem is read only
    */
   public Boolean isReadOnly() {
@@ -423,18 +409,37 @@ public class BindingItem extends SimpleBindingItem {
   public Map<String,Object> getAttributes() {
     Map<String,Object> attrs = new HashMap<String, Object>(getGeneralAttributesMap());
 
-    attrs.put("caption", getGeneralAttributesMap().get("caption") != null && getGeneralAttributesMap().get("caption").toString().length() > 0 ? getGeneralAttributesMap().get("caption") : getId());
+    attrs.put("id", getId());
 
-    if (! this.isKey())
-      attrs.remove(Bindings.keyAttributeName);
+    attrs.put(Bindings.captionAttribute, getGeneralAttributesMap().get(Bindings.captionAttribute) != null && getGeneralAttributesMap().get(Bindings.captionAttribute).toString().length() > 0 ? getGeneralAttributesMap().get("caption") : getId());
 
-    if (! this.isReadOnly())
-      attrs.remove(Bindings.readOnlyAttributeName);
-    
-    if(! isNumeric() ) {
+    if (this.isKey())
+      attrs.put(Bindings.keyAttributeName, "true");
+
+    if (this.isReadOnly())
+      attrs.put(Bindings.readOnlyAttributeName, "true");
+
+    attrs.put(Bindings.jdbcDataTypeNameAttribute, BindingUtils.jdbcDataTypeCodeToStringMapping.get(getJDBCDataType()) );
+
+    if( getJDBCColumnDisplaySize()!=null )
+      attrs.put(Bindings.jdbcColumnDisplaySizeAttribute, getJDBCColumnDisplaySize().toString());
+
+    if( isNumeric() ) {
+      if( getJDBCColumnScale()!=null )
+        attrs.put(Bindings.jdbcColumnScaleAttribute, getJDBCColumnScale());
+      if( getJDBCSigned()!=null )
+        attrs.put(Bindings.jdbcSignedAttribute, getJDBCSigned());
+    }
+    else { /* no need to take over scale/signed for a non numeric column */
       attrs.remove(Bindings.jdbcColumnScaleAttribute);
       attrs.remove(Bindings.jdbcSignedAttribute);
     }
+
+    if( getJDBCNullable()!=null )
+      attrs.put(Bindings.jdbcNullableAttribute, getJDBCNullable());
+
+    if( getAggr()!=null && ! getAggr().isEmpty() )
+      attrs.put(Bindings.aggrAttribute, getAggr());
 
     return attrs;
   }

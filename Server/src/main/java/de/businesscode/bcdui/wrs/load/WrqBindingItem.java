@@ -179,9 +179,11 @@ public class WrqBindingItem implements WrsBindingItem
     }
 
     // add custom attributes (use custom prefix to differ between attributes like type-name and cust:type-name
-    Map<String, String> customAtts = referenceBindingItem.getCustomAttributesMap();
-    for (String attrName : customAtts.keySet()){
-      attributesServer.put(StandardNamespaceContext.CUST_PREFIX + ":" + attrName, customAtts.get(attrName).toString());
+    if (referenceBindingItem != null) {
+      Map<String, String> customAtts = referenceBindingItem.getCustomAttributesMap();
+      for (String attrName : customAtts.keySet()){
+        attributesServer.put(StandardNamespaceContext.CUST_PREFIX + ":" + attrName, customAtts.get(attrName).toString());
+      }
     }
 
     if( "A".equals(elem.getLocalName()) ) {
@@ -346,11 +348,15 @@ public class WrqBindingItem implements WrsBindingItem
     }
 
     // finally attach them to the xml
+    boolean idWritten = false;
     for (String attrName : attrNames) {
-      // since we write common wrs elements like Column in standard namespace (see WrsDataWriter), we skip default namespaces which came with the wrq 
+      // since we write common wrs elements like Column in standard namespace (see WrsDataWriter), we skip default namespaces which came with the wrq
+      idWritten |= "id".equals(attrName);
       if (!("xmlns".equals(attrName)))
         writer.writeAttribute(attrName, getAttribute(attrName).toString());
     }
+    if (!idWritten &&  attributesServer.get("id") != null)
+      writer.writeAttribute("id", attributesServer.get("id").toString()); // at least take server sided id
 
     if (withColumnExpression) {// thus WRS response does not write this element
       writer.writeStartElement("Column");
@@ -675,11 +681,6 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   @Override
-  public String getCaption() {
-    return "" + (getAttribute("caption") != null ? getAttribute("caption") : "");
-  }
-
-  @Override
   public String getJDBCColumnScale() {
     return "" + (getAttribute("scale") != null ? getAttribute("scale") : "");
   }
@@ -706,8 +707,15 @@ public class WrqBindingItem implements WrsBindingItem
     return BindingUtils.isNumeric(jdbcDataType);
   }
 
-  public Object getAttribute(String name) {
-    return attributesClient.containsKey(name) ? attributesClient.get(name) : attributesServer.get(name);
+  @Override
+  public String getAttribute(String attName) {
+    return attributesClient.containsKey(attName) ? attributesClient.get(attName).toString() : attributesServer.containsKey(attName) ? attributesServer.get(attName).toString() : null;
+  }
+  
+  @Override
+  public String getAttribute(String attName, String attDefault) {
+    String s = getAttribute(attName);
+    return s != null ? s : attDefault;
   }
 
   public void setTableAliasOverwrite(String tableAlias) {

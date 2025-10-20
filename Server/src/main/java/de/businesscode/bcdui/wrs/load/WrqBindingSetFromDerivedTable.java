@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.businesscode.bcdui.binding.exc.BindingException;
 import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.Bindings;
 
 /**
  * Represents a virtual BindingSet resulting from a sub-select during the execution of a Wrq
@@ -88,10 +89,11 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
         bi = new BindingItem(bRef, "", false, this);
         bi.setJDBCDataType(wrqBi.getJDBCDataType());
         bi.setAggr(wrqBi.getAggr());
-        bi.setCaption(wrqBi.getCaption());
+        String caption = wrqBi.getAttribute(Bindings.captionAttribute);
+        if (caption != null)
+          bi.getGeneralAttributesMap().put(Bindings.captionAttribute, caption);
         bi.setEscapeXML(wrqBi.isEscapeXML());
         if( !wrqBi.getJDBCColumnScale().isEmpty() ) bi.setJDBCColumnScale( Integer.parseInt(wrqBi.getJDBCColumnScale()) );
-        bi.setCaption(wrqBi.getCaption());
       }
 
       // Adjust the column expression and BindingSet to our level

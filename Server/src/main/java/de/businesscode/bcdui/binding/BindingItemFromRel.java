@@ -22,7 +22,7 @@ public class BindingItemFromRel extends BindingItem {
     this.relation = relation;
     this.referencedBindingItem = src;
     this.setId( id );
-    if(importCaption != null) setCaption( importCaption );
+    if(importCaption != null) getGeneralAttributesMap().put(Bindings.captionAttribute, importCaption);
   }
 
   public Relation getRelation() {
