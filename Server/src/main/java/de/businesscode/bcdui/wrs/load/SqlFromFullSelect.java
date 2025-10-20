@@ -117,7 +117,7 @@ public class SqlFromFullSelect
         String concat = " ORDER BY ";
         for(int i = 0; i < wrqCs.getLength(); i++ ) {
           Element wrqC = (Element)wrqCs.item(i);
-          selectStatement.append( concat + "v"+Integer.parseInt(wrqC.getAttribute("pos")) ); // Parse int to avoid injection
+          selectStatement.append( concat + Integer.parseInt(wrqC.getAttribute("pos")) ); // Parse int to avoid injection
           if("desc".equals(wrqC.getAttribute("order"))) selectStatement.append(" desc"); // Avoid injection
           concat = ", ";
         }

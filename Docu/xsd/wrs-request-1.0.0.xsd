@@ -113,6 +113,18 @@
         <xs:element name="Select" type="tns:TypeSelect">
         </xs:element>
       </xs:sequence>
+      <xs:element name="Ordering" minOccurs="0">
+        <xs:annotation><xs:documentation>Ordering for the result of UNIONs</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="C" minOccurs="0" maxOccurs="10">
+              <xs:complexType>
+                <xs:attribute name="pos" type="xs:integer" use="required"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:group>
 
