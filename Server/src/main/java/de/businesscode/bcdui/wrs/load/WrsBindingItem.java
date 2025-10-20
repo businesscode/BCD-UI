@@ -38,4 +38,5 @@ public interface WrsBindingItem {
   String                      getAlias();
   String                      getAttribute(String attName);
   String                      getAttribute(String attName, String attDefault);
+  boolean                     hasCustomItem();
 }

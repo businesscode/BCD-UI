@@ -713,4 +713,9 @@ public class WrqBindingItem implements WrsBindingItem
     tableAliasOverwrite = tableAlias;
   }
 
+  @Override
+  public boolean hasCustomItem() {
+    return attributesClient.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX)) || attributesServer.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX));
+  }
+
 }

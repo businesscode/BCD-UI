@@ -214,14 +214,6 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     // Write milliseconds since 1.1.1970 UTC
     getWriter().writeAttribute("ts", Long.toUnsignedString(Instant.now().toEpochMilli()));
     getWriter().writeDefaultNamespace(WRS_XML_NAMESPACE);
-    
-    {
-      boolean hasCustomItems = getGenerator().getResolvedBindingSets().stream().anyMatch(bs->bs.hasCustomItem());
-      if(hasCustomItems){
-        getWriter().setPrefix(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
-        getWriter().writeNamespace(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
-      }
-    }
 
     //
     // request document
@@ -305,6 +297,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     XMLStreamWriter curWriter = getWriter();
     curWriter.writeStartElement("Columns");
     int colPos = 0; // The wrs:C/@pos, they can differ from bindingItem.getColumnNumber() due to wrs:C/wrs:A and repeated values
+
+    boolean hasCustomItems = getGenerator().getSelectedBindingItems().stream().anyMatch(bs->bs.hasCustomItem());
+    if(hasCustomItems){
+      getWriter().setPrefix(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
+      getWriter().writeNamespace(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
+    }
 
     for (WrsBindingItem bindingItem : getGenerator().getSelectedBindingItems()) {
       curWriter.writeStartElement("C");

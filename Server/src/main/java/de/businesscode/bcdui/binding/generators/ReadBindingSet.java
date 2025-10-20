@@ -421,10 +421,8 @@ public class ReadBindingSet implements Runnable {
         if(att.getNodeType() != Node.ATTRIBUTE_NODE){
           continue;
         }
-        if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI())){
+        if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI()))
           bItem.getCustomAttributesMap().put(att.getLocalName(), att.getNodeValue());
-          pBindingSet.setHasCustomItem(true);
-        }
         else
           bItem.getGeneralAttributesMap().put(att.getLocalName(), att.getNodeValue());
       }

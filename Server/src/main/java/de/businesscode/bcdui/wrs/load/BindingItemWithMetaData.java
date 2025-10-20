@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.util.StandardNamespaceContext;
 
 /**
  * This class represents a BindingItem in a concrete statement
@@ -190,5 +191,10 @@ public class BindingItemWithMetaData extends BindingItem implements WrsBindingIt
   @Override
   public String getWrsAName() {
     return null;
+  }
+  
+  @Override
+  public boolean hasCustomItem() {
+    return getAttributes().keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX));
   }
 }
