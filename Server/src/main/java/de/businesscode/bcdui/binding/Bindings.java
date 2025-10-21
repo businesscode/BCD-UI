@@ -15,6 +15,8 @@
 */
 package de.businesscode.bcdui.binding;
 
+import static de.businesscode.util.StandardNamespaceContext.BINDINGS_NAMESPACE;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +31,17 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import de.businesscode.bcdui.binding.exc.AmbiguousBindingSetException;
@@ -44,6 +52,8 @@ import de.businesscode.bcdui.toolbox.Configuration;
 import de.businesscode.bcdui.toolbox.Configuration.OPT_CLASSES;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.wrs.load.modifier.Modifier;
+import de.businesscode.util.StandardNamespaceContext;
+import de.businesscode.util.XPathUtils;
 import de.businesscode.util.xml.SecureXmlFactory;
 
 /**
@@ -60,12 +70,15 @@ public class Bindings {
   protected static final int MAX_WAIT_MINS = 10;
 
   private static final String defaultBindingsPath = "bindings";
+  private static final String bcdDefaultBindings = "bcdDefaults";
 
   protected static Bindings bindings = null;
   protected Map<String, Collection<StandardBindingSet>> warBindingMap;
+  protected static Map<String, Map<String, String>> bindingsDefaultMap;
 
   private final Logger log = LogManager.getLogger(getClass());
 
+  public static final String columnExpression = "_BCD_COLUMN_";
   public static final String captionAttribute = "caption";
   public static final String escapeXmlAttributeName = "escapeXML";
   public static final String keyAttributeName = "isKey";
@@ -99,6 +112,8 @@ public class Bindings {
    * Bindings
    */
   protected Bindings() throws BindingException {
+    bindingsDefaultMap = new ConcurrentHashMap<String, Map<String, String>>();
+    readBindingDefaults(BareConfiguration.getInstance().getConfigurationParameter(Configuration.CONFIG_FILE_PATH_KEY)+File.separator+defaultBindingsPath + File.separator + bcdDefaultBindings, bindingsDefaultMap);
     warBindingMap = new ConcurrentHashMap<String, Collection<StandardBindingSet>>();
     initWarMap();
   }
@@ -279,4 +294,74 @@ public class Bindings {
    */
   public void readAdditionalBindings() throws BindingException {
   }
+  
+  
+  public void readBindingDefaults(String bindingsDefaultFolder, Map<String, Map<String, String>> bindingItemDefaults) throws BindingException {
+
+    File[] bindingFiles = (new File(bindingsDefaultFolder)).listFiles();
+
+    if (bindingFiles == null) {
+      log.warn("Cannot read BCD-UI default bindings from " + bindingsDefaultFolder + ". The path is not a directory.");
+      return;
+    }
+
+    for (int file = 0; file < bindingFiles.length; file++) {
+      if (bindingFiles[file].isDirectory()) {
+        readBindingDefaults(bindingFiles[file].getAbsolutePath(), bindingItemDefaults);
+        continue;
+      }
+      if (!bindingFiles[file].isFile() || !bindingFiles[file].canRead() || !bindingFiles[file].getName().toLowerCase().endsWith(".xml"))
+        continue;
+
+      try {
+        DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
+        documentBuilderFactory.setXIncludeAware(true);
+
+        Document bindingDefaultsDoc = documentBuilderFactory.newDocumentBuilder().parse(bindingFiles[file]);
+        if (bindingDefaultsDoc != null && bindingDefaultsDoc.getDocumentElement() != null) {
+    
+          if (!BINDINGS_NAMESPACE.equals(bindingDefaultsDoc.getDocumentElement().getNamespaceURI()))
+            throw new BindingException("The binding default document should use schema " + BINDINGS_NAMESPACE + " File:" + bindingFiles[file].getAbsolutePath());
+          if ("BindingDefault".equals(bindingDefaultsDoc.getDocumentElement().getLocalName())) {
+            StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
+            XPath xPath = XPathUtils.newXPath();
+            String xPathNS = nsContext.getXMLPrefix(BINDINGS_NAMESPACE);
+    
+            NodeList biSet = (NodeList) xPath.evaluate("/" + xPathNS + "BindingDefault//" + xPathNS + "C", bindingDefaultsDoc, XPathConstants.NODESET);
+    
+            for (int bi = 0; bi < biSet.getLength(); bi++) {
+              Element bindingItemElem = (Element) biSet.item(bi);
+    
+              String name = bindingItemElem.getAttribute("id");
+              bindingItemDefaults.put(name, new ConcurrentHashMap<String, String>());
+              
+              NodeList columnElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Column");
+              String column = columnElements.item(0).getTextContent().trim();
+              bindingItemDefaults.get(name).put(columnExpression, column);
+  
+              NamedNodeMap atts = bindingItemElem.getAttributes();
+              for(int i=0,imax=atts.getLength();i<imax;i++){
+                Node att = atts.item(i);
+                if(att.getNodeType() != Node.ATTRIBUTE_NODE)
+                  continue;
+  
+                if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI()))
+                  bindingItemDefaults.get(name).put(StandardNamespaceContext.CUST_PREFIX  + ":" + att.getLocalName(), att.getNodeValue());
+                else
+                  bindingItemDefaults.get(name).put(att.getLocalName(), att.getNodeValue());
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e) {
+        throw new BindingException("Error while reading binding defaults document! File:" + bindingFiles[file].getAbsolutePath());
+      }
+    }
+  }
+
+  public static Map<String, String> getBindingsDefaultMap(String bindingItem) {
+    return bindingsDefaultMap.containsKey(bindingItem) ? bindingsDefaultMap.get(bindingItem) : new ConcurrentHashMap<>();
+  }
+
 }

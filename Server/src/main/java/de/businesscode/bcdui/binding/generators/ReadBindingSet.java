@@ -356,10 +356,35 @@ public class ReadBindingSet implements Runnable {
   protected BindingItem createBindingItem(Element bindingItemElem, StandardBindingSet pBindingSet) throws IOException, IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException {
     try {
       NodeList columnElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Column");
-      String column = columnElements.item(0).getTextContent().trim();
+      String column = columnElements.getLength() > 0 ? columnElements.item(0).getTextContent().trim() : "";
       BindingItem bItem = null;
 
       String name = bindingItemElem.getAttribute("id");
+
+      Map<String, String> bindingDefaults = Bindings.getBindingsDefaultMap(name);
+
+      // take over column expression from default
+      if (column.isEmpty() && bindingDefaults.containsKey(Bindings.columnExpression))
+        column = bindingDefaults.get(Bindings.columnExpression).toString();
+
+      // take over attributes from default if not available in binding item
+      for (String attrName : bindingDefaults.keySet()) {
+
+        // skip well known column expression, id and possibly existing namespace attribute
+        if (Bindings.columnExpression.equals("id") || Bindings.columnExpression.equals(attrName) || "xmlns".equals(attrName))
+          continue;
+
+        // check if default attribute is a custom namespace attribute, add it when it does not exist
+        if (attrName.startsWith(StandardNamespaceContext.CUST_PREFIX)) {
+          String localName = attrName.substring(StandardNamespaceContext.CUST_PREFIX.length() + 1);
+          if (bindingItemElem.getAttributeNodeNS(StandardNamespaceContext.CUST_NAMESPACE, localName) == null)
+            bindingItemElem.setAttributeNS(StandardNamespaceContext.CUST_NAMESPACE, localName, bindingDefaults.get(attrName));
+        }
+        // add standard attributes if they don't exist
+        else  if (!bindingItemElem.hasAttribute(attrName)) {
+          bindingItemElem.setAttribute(attrName, bindingDefaults.get(attrName));
+        }
+      }
 
       boolean columnQuoting = false;
       if (bindingItemElem.hasAttribute("columnQuoting")) {
@@ -414,7 +439,7 @@ public class ReadBindingSet implements Runnable {
       else
         bItem.setEscapeXML(true);
 
-      // custom attributes
+      // take over standard and custom attributes in maps
       NamedNodeMap atts = bindingItemElem.getAttributes();
       for(int i=0,imax=atts.getLength();i<imax;i++){
         Node att = atts.item(i);
@@ -424,7 +449,7 @@ public class ReadBindingSet implements Runnable {
         if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI()))
           bItem.getCustomAttributesMap().put(att.getLocalName(), att.getNodeValue());
         else
-          bItem.getGeneralAttributesMap().put(att.getLocalName(), att.getNodeValue());
+          bItem.getGeneralAttributesMap().put(att.getNodeName(), att.getNodeValue());
       }
 
       return bItem;
