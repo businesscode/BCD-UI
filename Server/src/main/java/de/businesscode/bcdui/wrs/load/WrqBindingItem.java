@@ -713,6 +713,10 @@ public class WrqBindingItem implements WrsBindingItem
     tableAliasOverwrite = tableAlias;
   }
 
+  public Map<String,Object> getAttributesServer() {
+    return attributesServer;
+  }
+
   @Override
   public boolean hasCustomItem() {
     return attributesClient.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX)) || attributesServer.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX));

@@ -89,6 +89,10 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
         else if( wrqBi.getAttribute("bRef") != null ) bRef = wrqBi.getAttribute("bRef").toString();
         bi = new BindingItem(bRef, "", false, this);
         bi.setJDBCDataType(wrqBi.getJDBCDataType());
+
+        //take over collected attributes from binding set
+        bi.getGeneralAttributesMap().putAll(wrqBi.getAttributesServer());
+
         bi.setAggr(wrqBi.getAggr());
         String caption = wrqBi.getAttribute(Bindings.captionAttribute);
         if (caption != null)
