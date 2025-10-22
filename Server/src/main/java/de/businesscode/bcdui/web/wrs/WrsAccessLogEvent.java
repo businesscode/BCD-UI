@@ -17,8 +17,6 @@ package de.businesscode.bcdui.web.wrs;
 
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.w3c.dom.Document;
 
 import de.businesscode.bcdui.logging.LogEventBase;
@@ -26,6 +24,7 @@ import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.load.DataLoader;
 import de.businesscode.bcdui.wrs.load.IDataWriter;
 import de.businesscode.bcdui.wrs.load.ISqlGenerator;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This bean contains all information about the log-event
@@ -39,9 +38,10 @@ public class WrsAccessLogEvent extends LogEventBase{
   public static final String ACCESS_TYPE_XLS = "XLS";
   //
   private String accessType;
-  private HttpServletRequest request;
   private String bindingSetName;
   private Document requestDoc;
+  private String requestQueryString;
+  private String requestUrl;
   private long executeDuration;
   private long writeDuration;
   private long rsStartTime;
@@ -61,8 +61,8 @@ public class WrsAccessLogEvent extends LogEventBase{
    * @param writer
    */
   public WrsAccessLogEvent(String accessType, HttpServletRequest request, IRequestOptions options, ISqlGenerator generator, DataLoader loader, IDataWriter writer) {
-    this(accessType, request, 
-        String.join( ",", generator.getResolvedBindingSets().stream().map(bs->bs.getName()).collect(Collectors.toSet()) ), 
+    this(accessType, request,
+        String.join( ",", generator.getResolvedBindingSets().stream().map(bs->bs.getName()).collect(Collectors.toSet()) ),
         options.getRequestDoc(), loader.getExecuteDuration(), loader.getWriteDuration(), loader.getRsStartTime(), loader.getRsEndTime(), writer.getRowCount(), writer.getColumnsCount());
   }
 
@@ -79,7 +79,6 @@ public class WrsAccessLogEvent extends LogEventBase{
   public WrsAccessLogEvent(String accessType, HttpServletRequest request, String bindingSetName, Document requestDoc, long executeDuration, long writeDuration, long rsStartTime, long rsEndTime, int rowCount, int columnCount) {
     super();
     setAccessType(accessType);
-    setRequest(request);
     setBindingSetName(bindingSetName);
     setRequestDoc(requestDoc);
     setExecuteDuration(executeDuration);
@@ -88,6 +87,30 @@ public class WrsAccessLogEvent extends LogEventBase{
     setRsEndTime(rsEndTime);
     setRowCount(rowCount);
     setColumnCount(columnCount);
+    setRequestQueryString(request.getQueryString());
+    setRequestUrl(request.getRequestURL().toString());
+  }
+
+  /**
+   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL()
+   */
+  public String getRequestUrl() {
+    return requestUrl;
+  }
+
+  public void setRequestUrl(String requestUrl) {
+    this.requestUrl = requestUrl;
+  }
+
+  /**
+   * @return the requestQueryString as of {@link HttpServletRequest#getQueryString()}
+   */
+  public String getRequestQueryString() {
+    return requestQueryString;
+  }
+
+  public void setRequestQueryString(String requestQueryString) {
+    this.requestQueryString = requestQueryString;
   }
 
   /**
@@ -95,13 +118,6 @@ public class WrsAccessLogEvent extends LogEventBase{
    */
   public String getAccessType() {
     return accessType;
-  }
-
-  /**
-   * @return the request
-   */
-  public HttpServletRequest getRequest() {
-    return request;
   }
 
   /**
@@ -173,14 +189,6 @@ public class WrsAccessLogEvent extends LogEventBase{
    */
   private void setAccessType(String accessType) {
     this.accessType = accessType;
-  }
-
-  /**
-   * @param request
-   *          the request to set
-   */
-  private void setRequest(HttpServletRequest request) {
-    this.request = request;
   }
 
   /**
