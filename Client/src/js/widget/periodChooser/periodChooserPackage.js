@@ -928,8 +928,8 @@
           else {
             // in case of simpleXPath mode, we rebuild the value from the targetXPath and update the dateFrom/To attributes
             if (containerHtmlElement.getAttribute("bcdUseSimpleXPath") === "true") {
-              let targetNode = t.doc.selectSingleNode(t.targetModelXPath);
-              fromDate = toDate = (targetNode != null) ? targetNode.text : "";
+              let targetNode = bcdui.core.createElementWithPrototype(t.doc, t.targetModelXPath);
+              fromDate = toDate = targetNode.text;
               if (targetNode.nodeType == 2)
                 targetNode = t.doc.selectSingleNode(t.targetModelXPath + "/..");
               targetNode.setAttribute("dateFrom", fromDate);
