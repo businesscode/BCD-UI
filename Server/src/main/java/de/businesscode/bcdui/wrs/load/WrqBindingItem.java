@@ -170,6 +170,7 @@ public class WrqBindingItem implements WrsBindingItem
 
       // take over all bcdui standard binding attributes for this binding item
       attributesServer.putAll(bi.getAttributes());
+      attributesClient.putAll(bi.getClientAttributesMap());
       // User-provided VDM values are strings
       origJdbcDataType = bi.getJDBCDataType();
       jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
@@ -201,11 +202,15 @@ public class WrqBindingItem implements WrsBindingItem
       String wrsId = elem.getAttribute("id").isEmpty() ?  elem.getAttribute("bRef") : elem.getAttribute("id");
       attributesClient.put("id", wrsId );
       if( elem.getAttribute("dimId").isEmpty() && elem.getAttribute("valueId").isEmpty() ) {
-        if( wrqInfo.getGroupingBRefs().contains(wrsId) )
+        if( wrqInfo.getGroupingBRefs().contains(wrsId) ) {
           attributesClient.put("dimId", wrsId );
-        else
+          attributesClient.remove("valueId");
+        }
+        else {
           attributesClient.put("valueId", wrsId );
-      }
+          attributesClient.remove("dimId");
+        }
+      } 
     }
 
     // As part of wrq:C and wrq:A elements in the select list allow the user to provide additional attributes
@@ -274,6 +279,7 @@ public class WrqBindingItem implements WrsBindingItem
     this.wrqTableAliases = Arrays.asList( id.indexOf(".")!=-1 ? id.split("\\.")[0] : "" );
 
     attributesServer.putAll(bi.getAttributes());
+    attributesClient.putAll(bi.getClientAttributesMap());
     // User-provided VDM values are strings
     origJdbcDataType = bi.getJDBCDataType();
     jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
@@ -715,6 +721,10 @@ public class WrqBindingItem implements WrsBindingItem
 
   public Map<String,Object> getAttributesServer() {
     return attributesServer;
+  }
+  
+  public Map<String,Object> getAttributesClient() {
+    return attributesClient;
   }
 
   @Override

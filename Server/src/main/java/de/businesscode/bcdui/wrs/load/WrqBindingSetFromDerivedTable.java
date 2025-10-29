@@ -92,6 +92,7 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
 
         //take over collected attributes from binding set
         bi.getGeneralAttributesMap().putAll(wrqBi.getAttributesServer());
+        bi.getClientAttributesMap().putAll(wrqBi.getAttributesClient());
 
         bi.setAggr(wrqBi.getAggr());
         String caption = wrqBi.getAttribute(Bindings.captionAttribute);

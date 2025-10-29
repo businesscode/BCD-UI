@@ -57,6 +57,7 @@ public class BindingItem extends SimpleBindingItem {
   private String  aggr = null; // Optional default aggr from BindingSet's xml, used when none is given in Wrq
   final private Map<String,String> customAttributesMap;
   final private Map<String,Object> generalAttributesMap;
+  final private Map<String,Object> clientAttributesMap;
 
   /**
    * Copy constructor.
@@ -75,6 +76,7 @@ public class BindingItem extends SimpleBindingItem {
     this.aggr = src.aggr;
     this.customAttributesMap = new HashMap<>(src.customAttributesMap);
     this.generalAttributesMap = new HashMap<>(src.generalAttributesMap);
+    this.clientAttributesMap = new HashMap<>(src.generalAttributesMap);
     setEscapeXML(src.isEscapeXML);
     setReadOnly(src.isReadOnly);
   }
@@ -96,11 +98,13 @@ public class BindingItem extends SimpleBindingItem {
 
     this.customAttributesMap = new HashMap<>();
     this.generalAttributesMap = new HashMap<>();
+    this.clientAttributesMap = new HashMap<>();
   }
 
-  /**
-   * @return the customAttributesMap
-   */
+  public Map<String, Object> getClientAttributesMap() {
+    return clientAttributesMap;
+  }
+
   public Map<String, Object> getGeneralAttributesMap() {
     return generalAttributesMap;
   }
