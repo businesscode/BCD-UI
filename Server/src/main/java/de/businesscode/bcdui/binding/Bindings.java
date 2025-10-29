@@ -295,16 +295,25 @@ public class Bindings {
   public void readAdditionalBindings() throws BindingException {
   }
   
-  
+  /**
+   * recursively reading binding default files and creating a map of bindingItem id and a map of the collected attributes
+   * 
+   * @param bindingsDefaultFolder initially bcdDefaults subfolder in bindings folder
+   * @param bindingItemDefaults initially empty map, will hold the collected bindingItem ids and their attributes
+   * @throws BindingException
+   */
   public void readBindingDefaults(String bindingsDefaultFolder, Map<String, Map<String, String>> bindingItemDefaults) throws BindingException {
 
+    // tree walk
     File[] bindingFiles = (new File(bindingsDefaultFolder)).listFiles();
 
+    // early exit on failure
     if (bindingFiles == null) {
       log.warn("Cannot read BCD-UI default bindings from " + bindingsDefaultFolder + ". The path is not a directory.");
       return;
     }
 
+    // run over all files/folders (recursively), filter on readable xml files 
     for (int file = 0; file < bindingFiles.length; file++) {
       if (bindingFiles[file].isDirectory()) {
         readBindingDefaults(bindingFiles[file].getAbsolutePath(), bindingItemDefaults);
@@ -327,6 +336,7 @@ public class Bindings {
             XPath xPath = XPathUtils.newXPath();
             String xPathNS = nsContext.getXMLPrefix(BINDINGS_NAMESPACE);
     
+            // run over all BindingDefault/C elements
             NodeList biSet = (NodeList) xPath.evaluate("/" + xPathNS + "BindingDefault//" + xPathNS + "C", bindingDefaultsDoc, XPathConstants.NODESET);
     
             for (int bi = 0; bi < biSet.getLength(); bi++) {
@@ -334,17 +344,20 @@ public class Bindings {
     
               String name = bindingItemElem.getAttribute("id");
               bindingItemDefaults.put(name, new ConcurrentHashMap<String, String>());
-              
+
+              // store column expression string in an extra,  well known attribute name in the map
               NodeList columnElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Column");
               String column = columnElements.item(0).getTextContent().trim();
               bindingItemDefaults.get(name).put(columnExpression, column);
   
+              // add all attributes to the map for the current id 
               NamedNodeMap atts = bindingItemElem.getAttributes();
               for(int i=0,imax=atts.getLength();i<imax;i++){
                 Node att = atts.item(i);
                 if(att.getNodeType() != Node.ATTRIBUTE_NODE)
                   continue;
   
+                // differ between cust and standard namespace, cust attributes are taken over with cust prefix
                 if(StandardNamespaceContext.CUST_NAMESPACE.equals(att.getNamespaceURI()))
                   bindingItemDefaults.get(name).put(StandardNamespaceContext.CUST_PREFIX  + ":" + att.getLocalName(), att.getNodeValue());
                 else
@@ -360,6 +373,12 @@ public class Bindings {
     }
   }
 
+  /**
+   * Helper function to get the default attribute map of a given binding item id
+   * 
+   * @param bindingItem
+   * @return map with attribute name/value pairs for the specified id, can be empty map if item has no defaults
+   */
   public static Map<String, String> getBindingsDefaultMap(String bindingItem) {
     return bindingsDefaultMap.containsKey(bindingItem) ? bindingsDefaultMap.get(bindingItem) : new ConcurrentHashMap<>();
   }
