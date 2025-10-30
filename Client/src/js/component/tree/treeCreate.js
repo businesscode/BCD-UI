@@ -420,7 +420,7 @@ bcdui.component = Object.assign(bcdui.component,
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("tree");
     bcdui.factory.objectRegistry.withObjects( [args.config, args.statusModel], function() {
       new bcdui.component.tree.Tree( {
-        targetHtml:           bcdui.util._getTargetHtml(args, "grid_"),
+        targetHtml:           bcdui.util._getTargetHtml(args, "tree_"),
         config:               bcdui.factory.objectRegistry.getObject(args.config),
         statusModel:          bcdui.factory.objectRegistry.getObject(args.statusModel),
         id:                   args.id,
