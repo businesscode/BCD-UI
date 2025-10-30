@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 import de.businesscode.bcdui.binding.BindingItem;
 
 /**
+ * This class allows using a sub-select (SqlFromSubSelect) like a BindingSet
+ * I.e., it represents its output (selected columns) as a BindingSet
  * Represents a virtual BindingSet resulting from a sub-select during the execution of a Wrq
  */
 public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
@@ -49,16 +51,15 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
     Element selectElem = wrqInfo.getSelectNode();
 
     // A common table expression?
-    if( "Cte".equals( selectElem.getParentNode().getNodeName()) ) {
+    if( "Cte".equals( selectElem.getParentNode().getLocalName()) ) {
       String wrqAlias = ((Element)selectElem.getParentNode()).getAttribute("alias");
-      sqlAlias = currentSelect.getWrqQueryBuilder().getNextCteTableSqlAlias();
+      sqlAlias = currentSelect.getWrqQueryBuilder().getNextTableSqlAlias();
       tableName = "";
       currentSelect.getWrqQueryBuilder().addCteBindingSetForWrqAlias( wrqAlias, this );
     } 
     // Or a sub-select
     else {
-      // We need an alias unique within the parent of the current select. If that is a top one, we just set a dummy
-      sqlAlias = currentSelect.getParent()!=null? currentSelect.getParent().getNextTableSqlAlias() : "top";
+      sqlAlias = currentSelect.getWrqQueryBuilder().getNextTableSqlAlias();
       tableName = " ( " + currentSelect.getSelectStatement().getStatement() + " ) ";
     }
     name = sqlAlias;

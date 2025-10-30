@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -75,6 +76,8 @@ public class DatabaseCompatibility
   protected final Map<String, String[]> spatialFktMapping;
   protected final Map<String, String[]> oracleSpatialFktMapping;
   protected final Map<String, String[]> sqlServerSpatialFktMapping;
+  protected final Map<String, String> lateralJoinMapping;
+  protected final Map<String, String> applyJoinMapping;
 
   protected final Map<String, String> sqlSetOperators;
 
@@ -93,7 +96,7 @@ public class DatabaseCompatibility
       try {
         DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
       } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-        throw new RuntimeException("No class found for DatabseCompatibility", e);
+        throw new RuntimeException("No class found for DatabaseCompatibility", e);
       }
     }
     return DatabaseCompatibility.singleton;
@@ -110,7 +113,7 @@ public class DatabaseCompatibility
   /**
    *
    * @param jdbcResourceName
-   * @return Set of key words for the database belonging to the BindingSets connection
+   * @return Set of key-words for the database belonging to the BindingSets connection
    */
   public Set<String>getReservedDBWords(String jdbcResourceName)
   {
@@ -160,7 +163,52 @@ public class DatabaseCompatibility
    */
   public boolean dbSupportsGroupingSets(String jdbcResourceName) {
     String product = getDatabaseProductNameLC(jdbcResourceName);
-    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql") || product.contains("snowflake") || product.contains("duckdb");
+    return product.contains("oracle") || product.contains("microsoft sql server") || product.contains("postgresql")
+        || product.contains("snowflake") || product.contains("duckdb") || product.contains("redshift");
+  }
+
+  /**
+   * Pagination clause
+   * We prefer ANSI, while this is the actual support mid 2025:
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY;     -- ANSI, Oracle 19, Postgres 16, SnowFlake 9.31, MS SQLAzure 12 (needs OFFSET if FETCH is given), H2 2.1, DuckDB 0.1
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id LIMIT 10 OFFSET 20;                         -- MySQL 8.4.5, Postgres, SnowFlake, H2, DuckDB, Redshift 1.0.117891
+   * select TOP 10 * from BCDUITEST_DEMO_SHIPMENT order by item_id;                                     -- Teradata 16.2, SnowFlake, MS SQLAzure, H2, Redshift
+   * select * from BCDUITEST_DEMO_SHIPMENT order by item_id OFFSET 20 LIMIT 10;                         -- Postgres, DuckDB, Redshift
+   * select * from BCDUITEST_DEMO_SHIPMENT QUALIFY ROW_NUMBER() OVER(ORDER BY cost) BETWEEN 10 AND 20;  -- Teradata
+   * @param jdbcResourceName
+   * @param rowStart according to our Wrq convention
+   * @param rowEnd according to our Wrq convention
+   * @return
+   */
+  public String paginationClause(String jdbcResourceName, int rowStart, int rowEnd, Supplier<String> getOrderBy) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    int fetch;
+    if( rowEnd == -1 ) fetch = -1;
+    else if( (rowEnd > 0 && rowStart > rowEnd) || rowEnd == 0 ) return ""; // Corresponds to metadata request, handled with WHERE 1 = 0  in SqlFromSubSelect.generateWhereClause()
+    else if( rowStart > 0 ) fetch = rowEnd - rowStart + 1;
+    else fetch = rowEnd - rowStart;
+    int offset = Math.max(rowStart - 1, 0);
+
+    String clause = "";
+    if( product.contains("mysql") || product.contains("redshift") ) {
+      if( fetch != -1 ) clause += " LIMIT "+fetch;
+      if( rowStart > 0 ) clause += " OFFSET "+offset;
+    }
+    else if( product.contains("teradata") && (offset > 0 || fetch != -1) ) {
+      String keyColList = getOrderBy.get();
+      clause = " QUALIFY ROW_NUMBER() OVER("+keyColList+") BETWEEN "+rowStart+" AND "+rowEnd;
+    }
+    else if( product.contains("microsoft sql server") && (offset > 0 || fetch != -1) ) {
+      clause += " OFFSET "+offset+" ROWS";                            // Required even if only FETCh is limited
+      if( fetch != -1 ) clause += " FETCH NEXT "+fetch+" ROWS ONLY";
+    }
+    // ANSI
+    else {
+      if( rowStart > 0 ) clause += " OFFSET "+offset+" ROWS";
+      if( fetch != -1 ) clause += " FETCH NEXT "+fetch+" ROWS ONLY";
+    }
+
+    return clause;
   }
 
   /**
@@ -263,9 +311,12 @@ public class DatabaseCompatibility
 
   /**
    * For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
+   * To check whether @aggr is valid, check with containsKey().
    */
   public Map<String, String> getAggrFktMapping( String jdbcResourceName )
   {
+    if(jdbcResourceName == null) return aggregationMappingGeneric;
+
     String product = getDatabaseProductNameLC(jdbcResourceName);
     if( product.contains("mysql") )
       return aggregationMappingMySql;
@@ -278,6 +329,20 @@ public class DatabaseCompatibility
   public Map<String, String> getSetOperators()
   {
     return sqlSetOperators;
+  }
+
+  /**
+   * Handling of Lateral joins differ from database to database
+   * (LATERAL vs. APPLY key word)
+   * @param jdbcResourceName
+   * @param op
+   * @return
+   */
+  public String getJoinOperator(String jdbcResourceName, String op) {
+    String product = getDatabaseProductNameLC(jdbcResourceName);
+    if( product.contains("microsoft sql server") )
+      return applyJoinMapping.get(op);
+    return lateralJoinMapping.get(op);
   }
 
   /**
@@ -426,36 +491,44 @@ public class DatabaseCompatibility
     calcFktMapping.put("Max",           new String[]{"N",  "MAX(",          "",  ")", "I"});
     calcFktMapping.put("Min",           new String[]{"N",  "MIN(",          "",  ")", "I"});
     calcFktMapping.put("Avg",           new String[]{"Y",  "AVG(",          "",  ")", "I"});
+    calcFktMapping.put("SuppressAggr",  new String[]{"Y",  "",              "",  "",  "I"}); // Explicitly write no aggr where BCD-UI otherwise things it needs to apply the default one
     calcFktMapping.put("Count",         new String[]{"N",  "COUNT(",        "",  ")", "I"});
     calcFktMapping.put("CountDistinct", new String[]{"N",  "COUNT(DISTINCT(", "",  "))", "I"});
     calcFktMapping.put("Distinct",      new String[]{"N",  "DISTINCT(",     "",  ")", "I"});
     calcFktMapping.put("Grouping",      new String[]{"N",  "GROUPING(",     "",  ")", "I"});
 
     // Single argument (i.e. child) modifier
-    calcFktMapping.put("None",          new String[]{"N",  "",              "",  "",  "N"});
+    calcFktMapping.put("IsNull",        new String[]{"N",  "",        "",  " IS NULL ",  "N"});
+    calcFktMapping.put("None",          new String[]{"N",  "",        "",  "",    "N"});
     calcFktMapping.put("MakeNull",      new String[]{"N",  "CASE WHEN 1=1 THEN NULL ELSE ", "",  " END",  "N"});
-    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(", "",  " AS VARCHAR(1024))",  "N"});
-    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(", "",  " AS DECIMAL)",  "N"});
-    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(", "",  " AS INTEGER)",  "N"});
-    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "", "",  "",  "N"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
-    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(",       "",  ",0)", "N"});
+    calcFktMapping.put("CastAsVarchar", new String[]{"N",  "CAST(",   "",  " AS VARCHAR(1024))",  "N"});
+    calcFktMapping.put("CastAsNumeric", new String[]{"N",  "CAST(",   "",  " AS DECIMAL)",  "N"});
+    calcFktMapping.put("CastAsInteger", new String[]{"N",  "CAST(",   "",  " AS INTEGER)",  "N"});
+    calcFktMapping.put("CastAsBRef",    new String[]{"N",  "",        "",  "",    "N"});  // This comes with a @bRef attribute and is handled explicitly in WrsCalc2Sql
+    calcFktMapping.put("Niz",           new String[]{"Y",  "NULLIF(", "",  ",0)", "N"});
+    calcFktMapping.put("All",           new String[]{"Y",  "ALL ",    "",  ",0)", "N"});
+    calcFktMapping.put("Any",           new String[]{"Y",  "ANY ",    "",  ",0)", "N"});
 
     // Two arguments (i.e. children) operators
     calcFktMapping.put("Mod",           new String[]{"Y",  "MOD(",  ",",  ")", "N"});
     // Boolean ops
-    calcFktMapping.put("Eq",            new String[]{"N",  "", "=",  "", "N"});
-    calcFktMapping.put("NEq",           new String[]{"N",  "", "<>", "", "N"});
-    calcFktMapping.put("Gt",            new String[]{"N",  "", ">",  "", "N"});
-    calcFktMapping.put("GtE",           new String[]{"N",  "", ">=", "", "N"});
-    calcFktMapping.put("Lt",            new String[]{"N",  "", "<",  "", "N"});
-    calcFktMapping.put("LtE",           new String[]{"N",  "", "<=", "", "N"});
+    calcFktMapping.put("Eq",            new String[]{"N",  "",    "=",  "", "N"});
+    calcFktMapping.put("NEq",           new String[]{"N",  "",    "<>", "", "N"});
+    calcFktMapping.put("Gt",            new String[]{"N",  "",    ">",  "", "N"});
+    calcFktMapping.put("GtE",           new String[]{"N",  "",    ">=", "", "N"});
+    calcFktMapping.put("Lt",            new String[]{"N",  "",    "<",  "", "N"});
+    calcFktMapping.put("LtE",           new String[]{"N",  "",    "<=", "", "N"});
+    calcFktMapping.put("Not",           new String[]{"N",  "NOT(", "",    ")", "N"});
+    calcFktMapping.put("And",           new String[]{"N",  "(",   "AND ", ")", "N"});
+    calcFktMapping.put("Or",            new String[]{"N",  "(",   "OR",   ")", "N"});
 
     // Multi arguments (i.e. children) operators
-    calcFktMapping.put("Add",           new String[]{"Y",  "(",     "+",  ")", "N"});
-    calcFktMapping.put("Sub",           new String[]{"Y",  "(",     "-",  ")", "N"});
-    calcFktMapping.put("Mul",           new String[]{"Y",  "(",     "*",  ")", "N"});
-    calcFktMapping.put("Div",           new String[]{"Y",  "(",     "/ NULLIF(",  ",0) )", "N"});
-    calcFktMapping.put("Concat",        new String[]{"N",  "(",     "||", ")", "N"});
+    calcFktMapping.put("Add",           new String[]{"Y",  "(",         "+",   ")",     "N"});
+    calcFktMapping.put("Sub",           new String[]{"Y",  "(",         "-",   ")",     "N"});
+    calcFktMapping.put("Mul",           new String[]{"Y",  "(",         "*",   ")",     "N"});
+    calcFktMapping.put("Div",           new String[]{"Y",  "(",  "/ NULLIF(",  ",0) )", "N"});
+    calcFktMapping.put("Concat",        new String[]{"N",  "(",         "||",  ")",     "N"});
+    calcFktMapping.put("Coalesce",      new String[]{"N",  "COALESCE(", ",",   ")",     "N"});
 
     // With special handling in SQL generator
     calcFktMapping.put("Case",          new String[]{"N",  "CASE ",   "",       " END ",  "N"});
@@ -516,13 +589,14 @@ public class DatabaseCompatibility
 
     //---------------------------------------
     // For the simple @aggr shortcut this is the mapping to the corresponding SQL expression
+    // Upper lower/case of key follows bnd:C/@aggr, wrq:C/@aggr convention
     aggregationMappingGeneric = new HashMap<String, String>();
     aggregationMappingGeneric.put("sum",       "SUM");
     aggregationMappingGeneric.put("max",       "MAX");
     aggregationMappingGeneric.put("min",       "MIN");
     aggregationMappingGeneric.put("avg",       "AVG");
     aggregationMappingGeneric.put("count",     "COUNT");
-    aggregationMappingGeneric.put("grouping",  "GROUPING");
+    aggregationMappingGeneric.put("GROUPING",  "GROUPING");
     aggregationMappingGeneric.put("none",      ""); // Can be used if the column expression already has an aggregator defined
 
     aggregationMappingMySql = new HashMap<String, String>(aggregationMappingGeneric);
@@ -568,6 +642,17 @@ public class DatabaseCompatibility
     sqlServerSpatialFktMapping.put("SpatContains", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatContained", new String[]{"",  ".STContains(", ") = 1"});
     sqlServerSpatialFktMapping.put("SpatIntersects", new String[]{"",  ".STIntersects(", ") = 1"});
+
+    //---------------------------------------
+    // ANSI syntax joins
+    lateralJoinMapping = Map.of(
+        "InnerJoin", "INNER JOIN", "FullOuterJoin", "FULL OUTER JOIN", "LeftOuterJoin", "LEFT OUTER JOIN", "RightOuterJoin", "RIGHT OUTER JOIN", "CrossJoin", "CROSS JOIN",
+        "InnerJoinLateral", "INNER JOIN LATERAL", "LeftOuterJoinLateral", "LEFT OUTER JOIN LATERAL", "CrossJoinLateral", "CROSS JOIN LATERAL"); // there is no right or full outer lateral in normal DBMS
+    // APPLY syntax
+    applyJoinMapping = new HashMap<>(lateralJoinMapping);
+    applyJoinMapping.putAll( Map.of(
+        "InnerJoinLateral", "CROSS APPLY", "LeftOuterJoinLateral", "OUTER APPLY", "CrossJoinLateral", "CROSS APPLY",
+        "CrossApply", "CROSS APPLY", "OuterApply", "OUTER APPLY" ) );
 
     //---------------------------------------
     // SQL keywords, common for all databases

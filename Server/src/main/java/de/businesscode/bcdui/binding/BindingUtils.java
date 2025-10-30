@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 
 import de.businesscode.util.jdbc.DatabaseCompatibility;
 
-public class BindingUtils 
+public class BindingUtils
 {
   static final Map<Integer, String> jdbcDataTypeCodeToStringMapping;
 
@@ -47,7 +47,7 @@ public class BindingUtils
     }
   }
 
-  /** 
+  /**
    * Used to identify column reference parts in a SQL Column expressions to allow for for example prepending table alias
    * Each post 0,2,4,6 will be a non-column-expression, 1,3,5 will be a column expression
    * Sample: CASE WHEN col=1 then 'ONE' else SUM(col2) END -&gt; "CASE WHEN ","col","=1 then 'ONE' else SUM(","col2",") END"
@@ -66,6 +66,26 @@ public class BindingUtils
       StringBuffer sb = new StringBuffer();
       int endLastColumnName = 0;
       while (m.find()) {
+
+        // Let's find the closing parenthesis of this sub-select starting here and then limit m to the rest of the string.
+        // We simulate here that the previous regexp covered us until the matching closing parenthesis.
+        // This has the effect that our sub select is joined with the preceding and then with the following operator. This is then skipped when it later comes to wrq->sql alias replacement
+        // Because we did this replacement already when generating this SQL.
+        // If from a BindingSet, dynamic alias replacement makes no sense anyway, because wrq-table-aliases are unknown when writing the BindingSet
+        if( "SELECT".equalsIgnoreCase(m.group()) ) {
+          int pos = m.end();
+          // We already have missed the opening parenthesis of the sub-select, so parenthesis-level starts with one
+          for( int pLevel = 1; pos < colExpr.length() && pLevel > 0; pos++ ) {
+            if( colExpr.charAt(pos) == '(' ) pLevel++;
+            if( colExpr.charAt(pos) == ')' ) pLevel--;
+          }
+          m.region(pos, colExpr.length());
+          continue;
+        }
+
+        // If we have a whole word, we need to isolate it if it is a column name.
+        // That is the case if it is not a keyword and not a string.
+        // In that case we write the part so far to cCE and then the found string which we believe is a column name
         if( ! reservedDBWords.contains(m.group().toUpperCase()) && ! m.group().startsWith("'") ) {
           sb.append( colExpr.substring(endLastColumnName, m.start()) );
           endLastColumnName = m.end();
@@ -84,15 +104,15 @@ public class BindingUtils
     }
     return cCE;
   }
-  
+
   /**
-   * Use output of splitColumnExpression to prepend table alias to column expressions
+   * Use output of splitColumnExpression to prepend table alias to column-expressions
    * Column expressions prefixed with SimpleBindingItem.BCD_NO_TABLE_ALIAS by the user are excluded from this
-   * the user has to assure that this is only used in an unambiguous statement when using this in a join.
-   * This is the case for example if the column refers to another table than the one assigned to this BindingSet
+   * the user has to ensure that this is only used in an unambiguous statement when using this in a join.
+   * This is the case, for example, if the column refers to another table than the one assigned to this BindingSet
    * or for mySequence.nextval expressions (this, referring to a global name, needs to be prefixed with BCD_NO_TABLE_ALIAS.)
    */
-  public static String addTableAlias( List<String> sCE, List<String> tableAliases ) 
+  public static String addTableAlias( List<String> sCE, List<String> tableAliases )
   {
     // Only strings on odd positions represent a column expression
     StringBuffer res = new StringBuffer();
@@ -114,13 +134,13 @@ public class BindingUtils
   }
 
   /**
-   * Convenience method 
+   * Convenience method
    * @param sCE
    * @param columnQuoting
    * @param tableAliases
    * @return
    */
-  public static String addTableAlias( String sCE, boolean columnQuoting, List<String> tableAliases, BindingSet bs ) 
+  public static String addTableAlias( String sCE, boolean columnQuoting, List<String> tableAliases, BindingSet bs )
   {
     List<String> colExpr = splitColumnExpression(sCE, columnQuoting, bs);
     return addTableAlias(colExpr, tableAliases);
@@ -128,7 +148,7 @@ public class BindingUtils
 
 
   /**
-   * @return true typeName represents a numeric type
+   * @return true typeName represents a numeric type, including integer types
    */
   public static boolean isNumeric(String typeName) {
     try {
@@ -139,10 +159,28 @@ public class BindingUtils
   }
 
   /**
-   * @return true if jdbcType represents a numeric type
+   * @return true typeName represents a decimal type, excluding integer types
+   */
+  public static boolean isDecimal(String typeName) {
+    try {
+      return isDecimal(Types.class.getField(typeName).getInt(null));
+    } catch ( NoSuchFieldException | IllegalAccessException ex ) {
+      return false;
+    }
+  }
+
+  /**
+   * @return true if jdbcType represents a numeric type, including integer types
    */
   public static boolean isNumeric(int jdbcType) {
     return ( jdbcType == Types.INTEGER || jdbcType == Types.NUMERIC || jdbcType == Types.DECIMAL || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT
             || jdbcType == Types.BIGINT  || jdbcType == Types.BIT  || jdbcType == Types.REAL || jdbcType == Types.SMALLINT || jdbcType == Types.TINYINT );
+  }
+
+  /**
+   * @return true if jdbcType represents a decimal type, excluding integer types
+   */
+  public static boolean isDecimal(int jdbcType) {
+    return (jdbcType == Types.NUMERIC || jdbcType == Types.DECIMAL || jdbcType == Types.DOUBLE || jdbcType == Types.FLOAT || jdbcType == Types.REAL );
   }
 }

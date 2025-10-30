@@ -30,7 +30,7 @@ public class UploadBindingItemValidate implements IUploadStep {
     OK(0), INFO(2), WARNING(4), ERROR(8), SEVERE(16);
     private final int value;
     Severity(int value) { this.value = value; }
-    int getValue() { return this.value; }
+    public int getValue() { return this.value; }
   }
   public static enum Check {
     IS_INTEGER("bcd_is_integer(", ") = ", "bcd_validate_noInteger", "Not an integer number"),
@@ -43,7 +43,7 @@ public class UploadBindingItemValidate implements IUploadStep {
     UNKOWN_TYPE("(", ") IS NULL OR 1=", "bcd_validate_typeNotSupported", "Unsupported Binding-Item type");
     private final String pre, post, message,descr;
     Check(String pre, String post, String message, String descr) {
-      this.pre = pre; 
+      this.pre = pre;
       this.post = post;
       this.message = message;
       this.descr = descr;
@@ -95,7 +95,7 @@ public class UploadBindingItemValidate implements IUploadStep {
         type = Types.class.getField(typeName).getInt(null);
       } catch(NoSuchFieldException | IllegalAccessException ex) {
         // Keep default
-      } 
+      }
 
       // JDBC data types
       // Integer

@@ -776,12 +776,12 @@
             If pointing into a Wrs, it switches to Wrs mode, i.e. the wrs:R will be marked as modified, target node will not be deleted.
           </Doc>
         </Param>
-        <Param name="sourceCaption" required="false" type="string" default="Source">
+        <Param name="sourceCaption" required="false" type="i18nToken" default="\uE0FFbcd_widget_sbsc_sourceCaption">
           <Doc>
             Caption(header) for source block items. Can be an i18n key (with leading i18n token).
           </Doc>       
         </Param>
-        <Param name="targetCaption" required="false" type="string" default="Target">
+        <Param name="targetCaption" required="false" type="i18nToken" default="\uE0FFbcd_widget_sbsc_targetCaption">
           <Doc>
             Caption(header) for target block items. Can be an i18n key (with leading i18n token).
           </Doc>       

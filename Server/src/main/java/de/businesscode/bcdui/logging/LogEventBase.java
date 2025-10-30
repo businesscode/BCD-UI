@@ -22,17 +22,18 @@ import org.apache.logging.log4j.message.Message;
  * database. Objects of all classes derived from this class should not be logged by class loggers
  * but by virtloggers as defined in the BcdUiApplicationContextListener. Currently the class is
  * empty and is only used for structuring. It can be extended in the future.
- * 
+ *
  * It needs to implements the {@link org.apache.logging.log4j.message.Message} interface as of Log4J 2.x
  *
  */
 public abstract class LogEventBase implements Message {
-  
+  private static final long serialVersionUID = 1L;
+
   @Override
   public String getFormat() {
     return ""; // not needed in our case
   }
-  
+
   @Override
   public Object[] getParameters() {
     return null; // not needed in our case

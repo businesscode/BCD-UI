@@ -318,6 +318,10 @@
       <R id="R513"><C>bcd_widget_multiCheck_clearVisible</C><C>Uncheck Shown</C><C>en</C></R>
       <R id="R514"><C>bcd_widget_multiCheck_showSelectedOnly</C><C>Show selected only</C><C>en</C></R>
 
+      <!-- Sbsc Widget -->
+      <R id="R520"><C>bcd_widget_sbsc_sourceCaption</C><C>Source</C><C>en</C></R>
+      <R id="R521"><C>bcd_widget_sbsc_targetCaption</C><C>Target</C><C>en</C></R>
+
       <!-- User Messages -->
       <R id="R550"><C>bcd_Messages_Next</C><C>Next</C><C>en</C></R>
       <R id="R551"><C>bcd_Messages_Prev</C><C>Prev</C><C>en</C></R>

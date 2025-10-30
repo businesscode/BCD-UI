@@ -186,6 +186,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
   * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+  * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
   * @param {function}                [args.columnFiltersGetCaptionForColumnValue]           - Function which is used to determine the caption values for column filters. You need to customize this when you're e.g. using XML data in cells.  
   * @param {Object}                  [args.columnFiltersCustomFilter]                       - CustomColumnFilter functions passed to column filter
@@ -342,6 +343,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.sortDirection = null;
     this.forceAddAtBottom = args.forceAddAtBottom || false;
     this.topMode = args.topMode || false;
+    this.ignoreKeyCase = args.ignoreKeyCase || false;
     this.isReadOnly = args.isReadOnly || false;
     this.htTargetHtmlId = this.targetHtml+"_ht";
     this.hotArgs = args.hotArgs;
@@ -603,16 +605,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             for (let a in uniqueFilter)
               uniqueFilter[a] = uniqueFilter[a].filter(function(e, idx){return uniqueFilter[a].indexOf(e) == idx});
 
+            const ic = this.ignoreKeyCase ? "ic='true' " : "";
             let filter = "";
             for (let a in uniqueFilter) {
               if (uniqueFilter[a].length == 1)
-                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a][0])], "<f:Expression " + (uniqueFilter[a][0] == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a][0])], "<f:Expression " + ic + (uniqueFilter[a][0] == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
               else if (uniqueFilter[a].length < 100)
-                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a].join(","))], "<f:Expression value='{{=it[0]}}'" + " op='in' bRef='" + a + "'/>");
+                filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(uniqueFilter[a].join(","))], "<f:Expression " + ic + "value='{{=it[0]}}'" + " op='in' bRef='" + a + "'/>");
               else {
                 filter += "<f:Or>";
                 uniqueFilter[a].forEach(function(v) {
-                  filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(v)], "<f:Expression " + (v == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
+                  filter += bcdui.wkModels.guiStatus._getFillParams([bcdui.util.escapeHtml(v)], "<f:Expression " + ic + (v == "" ? "" : "value='{{=it[0]}}'") + " op='=' bRef='" + a + "'/>");
                 });
                 filter += "</f:Or>";
               }
@@ -638,14 +641,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     key += (key != "" ? bcdui.core.magicChar.separator + (oldNodes[i].text || "") : (oldNodes[i].text || ""));
                 oldKeys[key] = 1;
               }.bind(this));
-  
+
+              const doc = this.gridModel.validationResult.getData();
+              const dataNode = bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data");
+              const cNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "C");
+              const rNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "R");
+
               Array.from(keyCheckModel.queryNodes("/*/wrs:Data/wrs:R")).forEach(function(row) {
                 // let's rebuild the concatenated key
                 var key = "";
                 Array.from(row.selectNodes("wrs:C")).forEach(function(column) {
                   key += (key != "" ? bcdui.core.magicChar.separator + (column.text || "") : (column.text || ""));
                 }.bind(this));
-    
+
+                if (this.ignoreKeyCase)
+                  key = key.toLocaleLowerCase();
+
                 // if found key is not part of the modfied (client) ones, add unique key constraint error
                 if (oldKeys[key] != 1) {
                   // and mark the row (every key cell) as bad (in this.wrsErrors and in validationResult)
@@ -666,7 +677,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     this.wrsValidateKeyColumns.forEach(function(col) {
                       this.wrsErrors[rowId] = this.wrsErrors[rowId] || []; this.wrsErrors[rowId][col] = this.wrsErrors[rowId][col] || [0];
                       this.wrsErrors[rowId][col] |= 128;
-                      bcdui.core.createElementWithPrototype(this.gridModel.validationResult.getData(), "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rowId + "' and wrs:C[2]='" + col + "' and wrs:C[3]='bcd_ValidUniq']");
+
+                      const row = dataNode.appendChild(rNode.cloneNode(true));
+                      cNode.text = rowId;
+                      row.appendChild(cNode.cloneNode(true))
+                      cNode.text = col;
+                      row.appendChild(cNode.cloneNode(true))
+                      cNode.text = "bcd_ValidUniq";
+                      row.appendChild(cNode.cloneNode(true));
+
                     }.bind(this))
                   }
                 }
@@ -901,7 +920,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       if ((checkBits & 256)) {
         const a = colInfo.references.separator ? value.split(colInfo.references.separator) : [value];
         a.forEach(function(v) {
-          if (this._getRefValue(colInfo.references, rowId, v) == null) {
+          // empty value allowed unless column is nullable=0
+          if (!v && (checkBits & 8))
+            cellError |= 8;
+          else if (v && this._getRefValue(colInfo.references, rowId, v) == null) {
             cellError |= 256;
           }
         }.bind(this));
@@ -1081,6 +1103,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             }.bind(this));
           }
           if (key != "") {
+
+            if (this.ignoreKeyCase)
+              key = key.toLocaleLowerCase();
+
             var foundKey = keys[key];
 
             // Was there already a server match for this key?
@@ -1133,12 +1159,22 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
 
     // finally create reference errors
+    const dataNode = bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data");
+    const cNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "C");
+    const rNode = doc.createElementNS(bcdui.core.xmlConstants.namespaces.wrs, "R");
     for (var rId in this.wrsErrors) {
       for (var cId in this.wrsErrors[rId]) {
         var ec = 0;
         for (var b = 1; b <= Math.pow(2,(this.wrsValidationErrorCodes.length - 1)); b *= 2 ) {
-          if (this.wrsErrors[rId][cId] & b)
-            bcdui.core.createElementWithPrototype(doc, "/*/wrs:Wrs/wrs:Data/wrs:R[wrs:C[1]='" + rId + "' and wrs:C[2]='" + cId + "' and wrs:C[3]='" + this.wrsValidationErrorCodes[ec] + "']");
+          if (this.wrsErrors[rId][cId] & b) {
+            const row = dataNode.appendChild(rNode.cloneNode(true));
+            cNode.text = rId;
+            row.appendChild(cNode.cloneNode(true))
+            cNode.text = cId;
+            row.appendChild(cNode.cloneNode(true))
+            cNode.text = this.wrsValidationErrorCodes[ec];
+            row.appendChild(cNode.cloneNode(true));
+          }
           ec++;
         }
       }
@@ -3804,7 +3840,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object}                  [args.loadParameters]                                  - Parameters for the loading chain
    * @param {chainDef}                [args.validationChain]                                 - A chain definition which is used for the validation operation. basic wrs and reference validation is given by default
    * @param {Object}                  [args.validationParameters]                            - Parameters for the validation chain
-   * @param {boolean}                 [args.allowNewRows=true]                              - Allows inserting new cells via default contextMenu or drag/paste 
+   * @param {boolean}                 [args.allowNewRows=true]                               - Allows inserting new cells via default contextMenu or drag/paste 
    * @param {boolean}                 [args.columnFilters=false]                             - Enable basic column filter input fields
    * @param {boolean}                 [args.maxHeight]                                       - set a maximum vertical size in pixel (only used when no handsontable height is set)
    * @param {boolean}                 [args.isReadOnly]                                      - turn on viewer-only mode
@@ -3816,6 +3852,11 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
    * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
    * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
+   * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
+   * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
+   * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
+   * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
+   * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
    * @private
    */
   createGrid: function( args )
@@ -3845,6 +3886,11 @@ bcdui.component = Object.assign(bcdui.component,
         maxHeight:            args.maxHeight,
         isReadOnly:           args.isReadOnly,
         actionHandler:        args.actionHandler,
+        topMode:              args.topMode,
+        isReadOnlyCell:       args.isReadOnlyCell,
+        forceAddAtBottom:     args.forceAddAtBottom,
+        disableDeepKeyCheck:  args.disableDeepKeyCheck,
+        ignoreKeyCase:        args.ignoreKeyCase,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,

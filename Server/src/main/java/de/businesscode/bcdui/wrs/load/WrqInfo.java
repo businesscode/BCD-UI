@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -30,6 +31,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import de.businesscode.util.jdbc.DatabaseCompatibility;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,7 +47,10 @@ import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
 /**
- * Collects knowledge about the Wrq.
+ * The worker companion of a SqlFromSubSelect. There is a 1:1 relationship between SqlFromSubSelect and WrqInfo
+ * Collects knowledge about a single Select in a Wrq.
+ * Understands the XM and acts as a POJOe worker for the more high-level SqlFromSubSelect class.
+ * There is one WrqQueryBuilder per overall Wrq but one WrqInfo per Select. i.e., different ones on each level if there are sub-selects.
  * Initially taken from WrsSqlGenerator. For older change history see there
  */
 public class WrqInfo
@@ -60,7 +66,11 @@ public class WrqInfo
   private Map<String,WrqBindingItem> allBRefAggrs;
   // Maps all wrs:C/@bRef and wrs:A @bRef combinations to a BindingSetWithMetadata (ignoring the @aggr)
   // This includes the select list of the ResultSet and all other places
+  // These are allBFRefs that are referenced and come from and are resolved by our select
   private Map<String,WrqBindingItem> allBRefs;
+  // These are above allBRefs plus those that are referenced in out select but resolved else where in the context.
+  // For example, BindingItems in our Filter clause that belong to outer selects (i.e., we are a correlated sub-select)
+  private Map<String,WrqBindingItem> allOuterContextBRefs;
   // Lists all wrs:C/@bRef and wrs:A/@bRef
   // This is to determine the tables (BindingSets) needed for the statement
   private Set<String> allRawBRefs;
@@ -120,12 +130,15 @@ public class WrqInfo
       orderingCXpathExpr    =     xp.compile("./wrq:Ordering/wrq:C");
 
       selectListBidRefXpathExpr   = xp.compile("./wrq:Columns//*[not(wrq:Calc)]/@bRef      | .//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
-      selectListBidRefInSsXpathExpr = xp.compile(".//wrq:Select//@idRef");  // @idRefs from sub-select to be excluded below
-      filterBidRefXpathExpr       = xp.compile("./f:Filter//f:Expression/@bRef");
+      filterBidRefXpathExpr       = xp.compile("./f:Filter//f:Expression/@bRef             | ./f:Filter//f:Expression/@bRef2");
+      // TODO this does not take wrq:Calcs properly in account when deciding on the default aggregation
+      // A) It drops default aggregation for bRefs taking only part in wrq:Calc//wrq:Select in group by
+      // B) It does apply default aggregation on identical wrq:Calc in group by and select list because it does not deep-compare Cals
       groupingBidRefXpathExpr     = xp.compile("./wrq:Grouping//wrq:C[not(wrq:Calc)]/@bRef | ./wrq:Grouping//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       havingBidRefXpathExpr       = xp.compile("./wrq:Having//f:Expression//@bRef");
       orderingBidRefXpathExpr     = xp.compile("./wrq:Ordering/wrq:C[not(wrq:Calc)]/@bRef  | ./wrq:Ordering/*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
       topNBidRefXPathExpr         = xp.compile("./wrq:TopNDimMembers//wrq:LevelRef/@bRef   | ./wrq:TopNDimMembers//*[local-name()='ValueRef' and not(wrq:Calc)]/@idRef");
+      joinOnBidXPathExpr          = xp.compile("../../self::wrq:From//wrq:On/@left         | ../../self::wrq:From//wrq:On/@right");
 
       vdmXpathExpr                = xp.compile("./wrq:Vdms/wrq:Vdm[@bRef]/wrq:VdmMap[@to]");
     } catch (XPathExpressionException e) {
@@ -192,6 +205,7 @@ public class WrqInfo
   {
     allBRefAggrs = new HashMap<String, WrqBindingItem>();
     allBRefs = new HashMap<String, WrqBindingItem>();
+    allOuterContextBRefs = new HashMap<String, WrqBindingItem>();
     allRawBRefs = new HashSet<String>();
     fullSelectListBRefs = new LinkedHashSet<String>();
     userSelectListBRefs = new LinkedHashSet<String>();
@@ -258,20 +272,26 @@ public class WrqInfo
       vdms.put( vdmBRef, mapping );
     }
 
-    NodeList selectedBidRefNl  = (NodeList) selectListBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList selectedBidRefInSsNl = (NodeList) selectListBidRefInSsXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList filterBidRefNl    = (NodeList) filterBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList groupingBidRefNl  = (NodeList) groupingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList havingBidRefNl    = (NodeList) havingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList orderingBidRefNl  = (NodeList) orderingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
-    NodeList selectedNl  = (NodeList) selectListCAXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList selectedBidRefNlAll  = (NodeList) selectListBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    // We need to eliminate bIs belonging to a subselect instead of us, that is not possible with the XPath, hence the removeSubSel()
+    List<Node> selectedBidRefNl   = removeSubSel(selectElem, selectedBidRefNlAll);
+    NodeList filterBidRefNlAll    = (NodeList) filterBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    List<Node> filterBidRefNl     = removeSubSel(selectElem, filterBidRefNlAll);
+    NodeList groupingBidRefNlAll  = (NodeList) groupingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    List<Node> groupingBidRefNl   = removeSubSel(selectElem, groupingBidRefNlAll);
+    NodeList havingBidRefNl       = (NodeList) havingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    NodeList orderingBidRefNlAll  = (NodeList) orderingBidRefXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    List<Node> orderingBidRefNl   = removeSubSel(selectElem, orderingBidRefNlAll);
+    NodeList selectedNlAll        = (NodeList) selectListCAXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
+    List<Node> selectedNl         = removeSubSel(selectElem, selectedNlAll);
 
     
     //-------------------------------------------------------------------
     // A) No bindingItem addressed, just select all items of the BindingSet
-    if( selectedBidRefNl.getLength()==0 && filterBidRefNl.getLength()==0 && groupingBidRefNl.getLength()==0 
-        && havingBidRefNl.getLength() == 0 && orderingBidRefNl.getLength()==0 && selectedNl.getLength() == 0)
+    if( selectedBidRefNl.size()==0 && filterBidRefNl.size()==0 && groupingBidRefNl.size()==0 
+        && havingBidRefNl.getLength() == 0 && orderingBidRefNl.size()==0 && selectedNl.size() == 0)
     {
+      // In this case allRawBRefs it output and filled with all BindingItems found in referenced BindingSets (if they allow *)
       resultingBindingSet = new WrqBindingSetFromTableReference(fromChildNl, currentSelect, allRawBRefs, true);
       selectAllBindingItems();
     }
@@ -282,57 +302,54 @@ public class WrqInfo
       NodeList groupingNl  = (NodeList) groupingCXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
       NodeList orderingNl  = (NodeList) orderingCXpathExpr.evaluate(selectElem, XPathConstants.NODESET);
       NodeList topNBidRefNl = (NodeList) topNBidRefXPathExpr.evaluate(selectElem, XPathConstants.NODESET);
+      NodeList joinOnBidRefNl = (NodeList) joinOnBidXPathExpr.evaluate(selectElem, XPathConstants.NODESET);
 
-      // selectedBidRefNl contains recursively searched @idRefs, but there is not XPath to make the search stop at wrq:Select.
-      // So we keep another list selectedBidRefInSsNl giving us all @idRefs from sub-select. 
-      // Here skip those nodes to get our "own" @idRefs.
-      // The other xPath expressions do not have this issue as they only look in places where no sub-selects are allowed at this point by BCD-UI
-      for( int i=0; i<selectedBidRefNl.getLength(); i++ ) {
-        boolean foundInSs = false;
-        for( int iInSs=0; !foundInSs && iInSs < selectedBidRefInSsNl.getLength(); iInSs++ ) {
-          if( selectedBidRefInSsNl.item(iInSs)==selectedBidRefNl.item(i) ) foundInSs = true; // Yes, node identity, not value identity
-        }
-        if( ! foundInSs ) allRawBRefs.add(selectedBidRefNl.item(i).getNodeValue());
+      for( int i=0; i<selectedBidRefNl.size(); i++ ) {
+        allRawBRefs.add(selectedBidRefNl.get(i).getNodeValue());
       }
-      for( int i=0; i<filterBidRefNl.getLength(); i++ )
-        allRawBRefs.add(filterBidRefNl.item(i).getNodeValue());
-      for( int i=0; i<groupingBidRefNl.getLength(); i++ ) {
-        allRawBRefs.add(groupingBidRefNl.item(i).getNodeValue());
-        groupingBRefs.add(groupingBidRefNl.item(i).getNodeValue());
+      for( int i=0; i<filterBidRefNl.size(); i++ )
+        allRawBRefs.add(filterBidRefNl.get(i).getNodeValue());
+      for( int i=0; i<groupingBidRefNl.size(); i++ ) {
+        allRawBRefs.add(groupingBidRefNl.get(i).getNodeValue());
+        groupingBRefs.add(groupingBidRefNl.get(i).getNodeValue());
       }
       for( int i=0; i<havingBidRefNl.getLength(); i++ ) {
         allRawBRefs.add(havingBidRefNl.item(i).getNodeValue());
         havingBRefs.add(havingBidRefNl.item(i).getNodeValue());
       }
-      for( int i=0; i<orderingBidRefNl.getLength(); i++ )
-        allRawBRefs.add(orderingBidRefNl.item(i).getNodeValue());
-      for ( int i=0; i<topNBidRefNl.getLength();i++) {
+      for( int i=0; i<orderingBidRefNl.size(); i++ )
+        allRawBRefs.add(orderingBidRefNl.get(i).getNodeValue());
+      for ( int i=0; i<topNBidRefNl.getLength(); i++ )
         allRawBRefs.add(topNBidRefNl.item(i).getNodeValue());
+      for ( int i=0; i<joinOnBidRefNl.getLength(); i++ ) {
+        String v = joinOnBidRefNl.item(i).getNodeValue();
+        String wrqTableAlias = v.contains(".") ? v.split("\\.")[0] : "";
+        //if( wrqTableAlias.equals(selectElem.getAttribute("alias")) ) allRawBRefs.add( v );
       }
 
       //-------------------------------------------------------------------
       // Create a virtual BindingSet from wrq:From
-      resultingBindingSet = new WrqBindingSetFromTableReference(fromChildNl, currentSelect, allRawBRefs, selectedBidRefNl.getLength()==0);;
+      resultingBindingSet = new WrqBindingSetFromTableReference(fromChildNl, currentSelect, allRawBRefs, selectedBidRefNl.size()==0);
 
       
       //-------------------------------------------------------------------
           // B.1.a Empty select list
-      if( selectedBidRefNl.getLength()==0 && selectedNl.getLength() == 0 ) {
+      if( selectedBidRefNl.size()==0 && selectedNl.size() == 0 ) {
         selectAllBindingItems();
       }
 
       // B.1.b Select list given
       else
       {
-        // Do we want to use aggregations for columns? This is th case if we have group-by columns 
+        // Do we want to use aggregations for columns? This is the case if we have group-by columns 
         // or if indicated @bcdIsGrandTotal=true
         reqHasGroupBy = ((NodeList)groupByIndicatorXpathExpr.evaluate(selectElem, XPathConstants.NODESET)).getLength() > 0;
         reqHasGroupBy |= getGroupingNode() != null && "true".equals(((Element)getGroupingNode()).getAttribute("bcdIsGrandTotal"));
         reqHasGroupingFunction = ((NodeList)groupByFunctionXpathExpr.evaluate(selectElem, XPathConstants.NODESET)).getLength() > 0;
         WrqBindingItem lastWrqC = null;
-        for( int i=0; i<selectedNl.getLength(); i++ )
+        for( int i=0; i<selectedNl.size(); i++ )
         {
-          Element cAElem = (Element)selectedNl.item(i);
+          Element cAElem = (Element)selectedNl.get(i);
 
           WrqBindingItem wrqBi = new WrqBindingItem(this, cAElem, "v"+(aliasCounter++), false, lastWrqC);
 
@@ -374,14 +391,26 @@ public class WrqInfo
       }
 
       // B.2 Take care for BindingItems used in filtering
-      for( int i=0; i<filterBidRefNl.getLength(); i++ )
+      for( int i=0; i<filterBidRefNl.size(); i++ )
       {
-        Node fBiDRef = filterBidRefNl.item(i);
+        Node fBiDRef = filterBidRefNl.get(i);
         String bRef = fBiDRef.getNodeValue();
-        if( !allBRefs.containsKey(bRef)) {// Do not overwrite, needs to be consistent with entries from before
+        // Do not overwrite, needs to be consistent with entries from before done to the other lists
+        // i.e. all lists need to point to the same WrqBindingItem instance, so when one is changed (like in TOPn), all change
+        if( !allBRefs.containsKey(bRef)) {
+          // A where clause of a sub-select may reference BindingItems of outer Selects, hence resolveBindingItemFromScope()
           BindingItem bi = resultingBindingSet.get(bRef);
-          WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
-          allBRefs.put(bRef, wrqBi);
+          // Resolved by "us", i.e., our wrq:From clause
+          if( bi != null ) {
+            WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
+            allBRefs.put(bRef, wrqBi);
+          }
+          // Resolved in some outer Select or CTE
+          else {
+            bi = currentSelect.resolveBindingItemFromScope(bRef);
+            WrqBindingItem wrqBi = new WrqBindingItem(this, bRef, bi, "v"+(aliasCounter++), false);
+            allOuterContextBRefs.put(bRef, wrqBi);
+          }
         }
       }
 
@@ -435,7 +464,28 @@ public class WrqInfo
   }
 
   /**
-   * No binding items are explicitly given in select clause, collect here all the BindingSet has to offer
+   * We filter selectedNlAll for those nodes that have no Select between them and the container as they belong to the sub-select, not us.
+   * Usually this is Select/Columns/C/Calc/Div/Select or so.
+   * It would be nicer if this could be done with the XPath constructing selectedNlAll, but it is not possible
+   * @param container
+   * @param selectedNlAll
+   * @return
+   */
+  private List<Node> removeSubSel(Element container, NodeList selectedNlAll) {
+    List<Node> cleanedList = new LinkedList<Node>();
+    for(int i=0; i < selectedNlAll.getLength(); i++) {
+      Node node = selectedNlAll.item(i);
+      Node p = node instanceof Attr ? ((Attr)node).getOwnerElement() : node.getParentNode();
+      while( p!= null && !p.isSameNode(container) && (!"SELECT".equals( p.getLocalName().toUpperCase() ) ) ) 
+        p = p.getParentNode();
+      if( p != null && p.isSameNode(container) )
+        cleanedList.add(node);
+    }
+    return cleanedList;
+  }
+
+  /**
+   * No binding items are explicitly given in select-clause, collect here all the BindingSet has to offer
    * @throws BindingException
    */
   protected void selectAllBindingItems() throws BindingException
@@ -470,10 +520,12 @@ public class WrqInfo
    */
   protected String getDefaultAggr( BindingItem bi )
   {
-    String aggr = aggregationMapping.get(bi.getAggr());
-    if( aggr==null )
+    String aggr = bi.getAggr();
+    // Prevent SQL injection and fallback to default
+    if( DatabaseCompatibility.getInstance().getAggrFktMapping(null).containsKey(aggr) )
+      return aggr;
+    else
       return WrqBindingItem.getDefaultAggr(bi.getJDBCDataType());
-    return aggr;
   }
 
   public Document getOwnerDocument() {
@@ -492,6 +544,9 @@ public class WrqInfo
   }
   public Map<String, String> getVirtualBRefs() {
     return virtualBRefs;
+  }
+  public Map<String, WrqBindingItem> getAllOuterContextBRefs() {
+    return allOuterContextBRefs;
   }
 
   public Set<String> getAllRawBRefs() {
@@ -564,7 +619,6 @@ public class WrqInfo
     return wrqGroupBy2Sql;
   }
 
-  private static final Map<String, String> aggregationMapping;
   private final XPath xp;
   private final XPathExpression fromChildXpathExpr;
   private final XPathExpression filterXpathExpr;
@@ -580,24 +634,13 @@ public class WrqInfo
   private final XPathExpression orderingCXpathExpr;
 
   private final XPathExpression selectListBidRefXpathExpr;
-  private final XPathExpression selectListBidRefInSsXpathExpr;
   private final XPathExpression filterBidRefXpathExpr;
   private final XPathExpression groupingBidRefXpathExpr;
   private final XPathExpression havingBidRefXpathExpr;
   private final XPathExpression orderingBidRefXpathExpr;
   private final XPathExpression topNBidRefXPathExpr;
+  private final XPathExpression joinOnBidXPathExpr;
 
   private final XPathExpression vdmXpathExpr;
-
-  static {
-    aggregationMapping = new HashMap<String, String>();
-    aggregationMapping.put("sum", "SUM");
-    aggregationMapping.put("max", "MAX");
-    aggregationMapping.put("min", "MIN");
-    aggregationMapping.put("avg", "AVG");
-    aggregationMapping.put("count", "COUNT");
-    aggregationMapping.put("grouping", "GROUPING");
-    aggregationMapping.put("none", ""); // Can be used if the column expression already has a aggregator defined
-  }
 
 }

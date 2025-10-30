@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.XPathUtils;
 
 /**
@@ -83,9 +82,9 @@ public class Filter2DyModifier implements Modifier
           // do not remove not converted entries
           if ("true".equals(((Element)removeNode).getAttribute("bcdNotConverted")))
             continue;
-          if (removeNode.getNodeName().equals("f:And"))  // f:And 'should' be a periodChooser like subnode, so we can remove it 
+          if (removeNode.getLocalName().equals("And"))  // f:And 'should' be a periodChooser like subnode, so we can remove it
             removeNode.getParentNode().removeChild(removeNode);
-          else { // otherwise we remove the single instances of the well known bRefs
+          else { // otherwise we remove the single instances of the well-known bRefs
             NodeList remNodes2 = (NodeList) xPath2.evaluate(removeNode, XPathConstants.NODESET);
             for (int r2 = 0; r2 < remNodes2.getLength(); r2++) {
               remNodes2.item(r2).getParentNode().removeChild(remNodes2.item(r2));

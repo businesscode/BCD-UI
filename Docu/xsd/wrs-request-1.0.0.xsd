@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
            targetNamespace="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:tns="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
            xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"
-           xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
            xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
   <xs:annotation>
     <xs:documentation>
@@ -29,7 +28,6 @@
 
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/bindings-1.0.0"/>
-  <xs:import namespace="http://www.businesscode.de/schema/bcdui/calc-1.0.0"/>
 
   <xs:element name="WrsRequest" type="tns:TypeWrsRequest">
     <xs:annotation><xs:documentation>A request to the standard WrsServlet for a wrs:Wrs document</xs:documentation></xs:annotation>
@@ -39,12 +37,12 @@
     <xs:annotation><xs:documentation>
       A request addressing a custom service instead of the default WrsServlet.
       Such a service returns a Wrs and is a custom class registered in web.xml for init param "UserServices".
-      This can have any xml content which is understood by your service class.
+      This can have any XML content, that is understood by your service class.
     </xs:documentation></xs:annotation>
     <xs:complexType>
       <xs:sequence>
         <xs:any minOccurs="0" processContents="skip">
-          <xs:annotation><xs:documentation>This can have any xml content which is understood by your service class. 2</xs:documentation></xs:annotation>
+          <xs:annotation><xs:documentation>This can have any XML content, that is understood by your service class. 2</xs:documentation></xs:annotation>
         </xs:any>
       </xs:sequence>
       <xs:attribute name="serviceName">
@@ -102,8 +100,7 @@
   <!-- A full select is SELECT [UNION SELECT]* -->
   <xs:group name="GroupFullSelect">
     <xs:sequence>
-      <xs:element name="Select" type="tns:TypeSelect">
-      </xs:element>
+      <xs:element ref="tns:Select"/>
       <xs:sequence minOccurs="0" maxOccurs="unbounded">
         <xs:choice>
           <xs:element name="Union"        type="xs:string" fixed=""/>
@@ -116,6 +113,18 @@
         <xs:element name="Select" type="tns:TypeSelect">
         </xs:element>
       </xs:sequence>
+      <xs:element name="Ordering" minOccurs="0">
+        <xs:annotation><xs:documentation>Ordering for the result of UNIONs</xs:documentation></xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="C" minOccurs="0" maxOccurs="10">
+              <xs:complexType>
+                <xs:attribute name="pos" type="xs:integer" use="required"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:group>
 
@@ -123,63 +132,68 @@
     <xs:annotation><xs:documentation>List of requested wrs:Wrs columns.</xs:documentation></xs:annotation>
   </xs:element>
 
+  <!-- Main SELECT expression. Can also act as a calculated value, i.e., a column expression -->
   <xs:complexType name="TypeSelect">
-    <xs:sequence>
-      <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
-        <xs:annotation><xs:documentation>
-          Requires BCD-UI Enterprise-Edition.
-          Allow top-n restriction in terms of dimensions and a measures.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element ref="tns:Columns" minOccurs="0">
-        <xs:annotation><xs:documentation>
-          List of requested wrs:Wrs columns. If empty, all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="From">
-        <xs:annotation><xs:documentation>Source of data. Can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause.</xs:documentation></xs:annotation>
-        <xs:complexType>
-          <xs:group ref="tns:GroupTableReference"></xs:group>
-        </xs:complexType>
-      </xs:element>
-      <xs:element ref="f:Filter" minOccurs="0">
-        <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
-      <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0">
-        <xs:annotation><xs:documentation>
-          Allows the same f:* children as f:Filter. Ignore case @ic is only allowed for dimensions.
-          For non-dimensions reuses the aggr if the bindingItem also appears in the SELECT clause (last the occurance, if it appears multiple times),
-          otherwise it falls back to aggregation defaults SUM for numeric else MAX.
-        </xs:documentation></xs:annotation>
-      </xs:element>
-      <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
-      <xs:element name="Vdms" type="tns:TypeVdms" minOccurs="0">
-        <xs:annotation>
-          <xs:documentation>
-            Virtual dimension members defined here allow for collapsing dimension members (i.e. actual values of a dimension) into an artificial value.
-            For example collapse countries "NL", "BE", and "LX" into "BeNeLux".
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-    <xs:attribute name="id" type="xs:ID"/>
-    <xs:attribute name="rowStart" type="xs:int" use="optional">
-      <xs:annotation>
-        <xs:documentation>
-          Requires Enterprise-Edition. First row == 1.
-          If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
-        </xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="rowEnd" type="xs:int">
-      <xs:annotation>
-        <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with a filled wrq:Header will be returned, no SQL will be performed.</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
-      <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
-    </xs:attribute>
+    <xs:complexContent>
+      <xs:extension base="tns:CalculatedValueType">
+        <xs:sequence>
+          <xs:element name="TopNDimMembers" type="tns:TopNDimMembers" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              Requires BCD-UI Enterprise-Edition.
+              Allows for top-n restriction in terms of dimensions and measures.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element ref="tns:Columns" minOccurs="0">
+            <xs:annotation><xs:documentation>
+              List of requested wrs:Wrs columns. If empty, all BindingItems of the BindingSet are returned. BindingSet must allow this via @allowSelectAllColumns.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="From">
+            <xs:annotation><xs:documentation>Source of data. Can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref, and a join clause.</xs:documentation></xs:annotation>
+            <xs:complexType>
+              <xs:group ref="tns:GroupTableReference"></xs:group>
+            </xs:complexType>
+          </xs:element>
+          <xs:element ref="f:Filter" minOccurs="0">
+            <xs:annotation><xs:documentation>Restrict the resultset.</xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="Grouping" type="tns:TypeGrouping" minOccurs="0"/>
+          <xs:element name="Having"   type="f:TypeFilter"     minOccurs="0">
+            <xs:annotation><xs:documentation>
+              Allows the same f:* children as f:Filter. Ignore case @ic is only allowed for dimensions.
+              For non-dimensions reuses the aggr if the bindingItem also appears in the SELECT clause (last the occurance, if it appears multiple times),
+              otherwise it falls back to aggregation defaults SUM for numeric else MAX.
+            </xs:documentation></xs:annotation>
+          </xs:element>
+          <xs:element name="Ordering" type="tns:TypeOrdering" minOccurs="0"/>
+          <xs:element name="Vdms" type="tns:TypeVdms" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Virtual dimension members defined here allow for collapsing dimension members (i.e., actual values of a dimension) into an artificial value.
+                For example collapse countries "NL", "BE", and "LX" into "BeNeLux".
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+        <xs:attribute name="rowStart" type="xs:int" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              Requires Enterprise-Edition. First row == 1.
+              If (@rowStart is not given or =0) and @rowEnd>0, a wrs:MaxRowsExceeded footer will be appended if not all rows are read. That footer will not be written, if @rowStart > 1.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="rowEnd" type="xs:int">
+          <xs:annotation>
+            <xs:documentation>If set to 0 or less than rowStart, and empty Wrs with a filled wrq:Header will be returned, no SQL will be performed.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
+          <xs:annotation><xs:documentation>Alias prefix for bRefs like alias.bRefName</xs:documentation></xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="TopNDimMembers">
@@ -210,11 +224,7 @@
               <xs:annotation><xs:documentation>Measure regarding this top-n restriction is to be evaluated.</xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="Calc" type="tns:TypeCalc">
-                    <xs:annotation><xs:documentation>
-                      Definition of a server-calc. A server-calc is executed on the server and returned as a single value
-                    </xs:documentation></xs:annotation>
-                  </xs:element>
+                  <xs:element ref="tns:Calc"/>
                 </xs:sequence>
                 <xs:attribute name="id"/>
                 <xs:attribute name="caption"/>
@@ -262,7 +272,7 @@
     </xs:sequence>
     <xs:attribute name="bRef" type="xs:string" use="optional">
       <xs:annotation><xs:documentation>
-        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child, then provide an @id.
+        Referenced BindingItem may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child, then provide an @id.
       </xs:documentation></xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -274,14 +284,14 @@
     </xs:sequence>
     <xs:attribute name="bRef" type="xs:NCName" use="optional">
       <xs:annotation><xs:documentation>
-        Referenced BindingItem, may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child.
+        Referenced BindingItem may be preceded by the table reference alias. Mandatory unless wrq:Calc is our child.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:NCName" use="required"/>
     <xs:attribute name="skipForTotals" type="xs:boolean" use="optional" default="false">
       <xs:annotation><xs:documentation>
-        Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e. when their parent wrs:C does not have a unique value.
-        With @skipForTotals, they can also be nulled-out for sub-totals of their parent wrs:C.
+        Some wra:A like captions of a dimension do not make sense for (sub)totals, i.e., when their parent wrs:C does not have a unique value.
+        With @skipForTotals, they can also be nulled-out for subtotals of their parent wrs:C.
       </xs:documentation></xs:annotation>
     </xs:attribute>
     <xs:attributeGroup ref="bnd:RequestOverwritable">
@@ -303,13 +313,13 @@
         </xs:sequence>
         <xs:attribute name="escapeXml" type="xs:boolean" default="true" use="optional">
           <xs:annotation><xs:documentation>
-            If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e. it will be part of the returning Wrs/Data/R/C instead of
+            If false, data read from VARCHAR or CLOB can be delivered as "inline XML", i.e., it will be part of the returning Wrs/Data/R/C instead of
             being returned as an escaped string. True, is default.
           </xs:documentation></xs:annotation>
         </xs:attribute>
         <xs:attribute name="alias" type="bnd:AttrTypeSimpleId" use="optional">
           <xs:annotation><xs:documentation>
-            Alias to address the column under a different name, useful in cases like sub selects of joins.
+            Alias to address the column under a different name, useful in cases like sub-selects of joins.
           </xs:documentation></xs:annotation>
         </xs:attribute>
         <xs:attributeGroup ref="bnd:RequestOverwritable">
@@ -349,7 +359,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <!-- We make this a global element in our namespace as we refer to it for example from cube schema. -->
+  <!-- We make this a global element in our namespace as we refer to it, for example, from cube schema. -->
   <xs:element name="BindingSet" type="tns:TypeBindingSet"/>
 
   <!-- wrq:From can be a full wrq:Select (SELECTs with SET operators), a wrq:BindingSet, a wrq:Ref and a join clause -->
@@ -367,10 +377,22 @@
       </xs:choice>
       <!-- Join -->
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="InnerJoin"      type="tns:TypeJoin"/>
-        <xs:element name="FullOuterJoin"  type="tns:TypeJoin"/>
-        <xs:element name="LeftOuterJoin"  type="tns:TypeJoin"/>
-        <xs:element name="RightOuterJoin" type="tns:TypeJoin"/>
+        <xs:element name="InnerJoin"            type="tns:TypeJoin"/>
+        <xs:element name="FullOuterJoin"        type="tns:TypeJoin"/>
+        <xs:element name="LeftOuterJoin"        type="tns:TypeJoin"/>
+        <xs:element name="RightOuterJoin"       type="tns:TypeJoin"/>
+        <xs:element name="CrossJoin"            type="tns:TypeJoinNoOn"/>
+        <xs:element name="InnerJoinLateral"     type="tns:TypeJoin">
+          <xs:annotation><xs:documentation>Turned into CROSS APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="LeftOuterJoinLateral" type="tns:TypeJoin">
+          <xs:annotation><xs:documentation>Turned into OUTER APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="CrossJoinLateral"     type="tns:TypeJoinNoOn">
+          <xs:annotation><xs:documentation>Turned into CROSS APPLY depending on the database type</xs:documentation></xs:annotation>
+        </xs:element>
+        <xs:element name="CrossApply"           type="tns:TypeJoinNoOn"/>
+        <xs:element name="OuterApply"           type="tns:TypeJoinNoOn"/>
       </xs:choice>
     </xs:sequence>
   </xs:group>
@@ -402,6 +424,11 @@
     <xs:sequence>
       <xs:group ref="tns:GroupTableReference"></xs:group>
       <xs:group ref="tns:GroupJoinFilter" maxOccurs="unbounded"></xs:group>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TypeJoinNoOn">
+    <xs:sequence>
+      <xs:group ref="tns:GroupTableReference"></xs:group>
     </xs:sequence>
   </xs:complexType>
 
@@ -440,7 +467,7 @@
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
       <xs:element name="C" type="tns:TypeColumn" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation><xs:documentation>
-          BindingItem to be used for grouping. If used on combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
+          BindingItem to be used for grouping. If used in combination with wrq:GroupingSets, they become implicit part of each wrq:GroupingSets/wrq:Set.
         </xs:documentation></xs:annotation>
       </xs:element>
       <xs:element name="GroupingSets" type="tns:TypeGroupingSets" minOccurs="0" maxOccurs="unbounded">
@@ -476,7 +503,7 @@
               <xs:attribute name="aggr" type="tns:TypeSQLAggregations" use="optional">
                 <xs:annotation><xs:documentation>
                   If not given, BindingSet/C/@aggr is used, if also not given, MAX() is used for VARCHAR and DATE, SUM() for all others.
-                  All of this is ignored, if a wrq:Calc child (i.e. a server-calc) is provided.
+                  All of this is ignored if a wrq:Calc child (i.e., a server-calc) is provided.
                 </xs:documentation></xs:annotation>
               </xs:attribute>
             </xs:extension>
@@ -541,7 +568,7 @@
         <xs:attribute name="separator" type="xs:string" default=";" />
         <xs:attribute name="quoteCharacter" type="xs:string" default="" />
         <xs:attribute name="header" default="none">
-          <xs:annotation><xs:documentation>Define how the optional header line should look like.</xs:documentation></xs:annotation>
+          <xs:annotation><xs:documentation>Define what the optional header line should look like.</xs:documentation></xs:annotation>
           <xs:simpleType>
             <xs:restriction base="xs:string">
               <xs:enumeration value="none" /><!-- no header -->
@@ -566,6 +593,11 @@
   <!--
     Definition of server-side calculations
     -->
+  <xs:element name="Calc" type="tns:TypeCalc">
+    <xs:annotation><xs:documentation>
+      Definition of a server-calc. A server-calc is executed on the server and returned as a single value
+    </xs:documentation></xs:annotation>
+  </xs:element>
   <xs:complexType name="TypeCalc">
     <xs:choice>
       <xs:element ref="tns:CalculatedValue"/>
@@ -578,9 +610,17 @@
 
   <!--
     Values or values derived from a calculation
+    BooleanCalculatedValue provide a boolean value
+    CalculatedValue can be anything, like boolean, numeric or text
    -->
+  <xs:element name="BooleanCalculatedValue" abstract="true" substitutionGroup="tns:CalculatedValue"/>
+  <xs:complexType name="BooleanCalculatedValueType"/>
   <xs:element name="CalculatedValue" type="tns:CalculatedValueType" abstract="true"/>
   <xs:complexType name="CalculatedValueType"/>
+
+
+  <xs:element name="Select" type="tns:TypeSelect" substitutionGroup="tns:CalculatedValue">
+  </xs:element>
 
   <!--
     Analytical functions
@@ -768,7 +808,7 @@
   </xs:element>
 
   <!--
-    Operator types, providing as a result themselves a value
+    Operator types providing as a result themselves as a value
    -->
   <xs:complexType name="MultiOperatorType">
     <xs:complexContent>
@@ -805,12 +845,15 @@
   <xs:element name="Add" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mul" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Sub" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="And" type="tns:MultiOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Or"  type="tns:MultiOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Coalesce" type="tns:MultiOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Concat" substitutionGroup="tns:CalculatedValue">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="tns:MultiOperatorType">
           <xs:attribute name="separator" type="xs:string">
-            <xs:annotation><xs:documentation>If given, this string separates to elements. Conside using &amp;#xE0F0;.</xs:documentation></xs:annotation>
+            <xs:annotation><xs:documentation>If given, this string separates to elements. Consider using &amp;#xE0F0;.</xs:documentation></xs:annotation>
           </xs:attribute>
         </xs:extension>
       </xs:complexContent>
@@ -821,6 +864,12 @@
   <xs:element name="Div" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Mod" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Min" type="tns:BinaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="NEq" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Gt"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Eq"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="GtE" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="Lt"  type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
+  <xs:element name="LtE" type="tns:BinaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue"/>
 
   <!-- CASE WHEN -->
   <xs:element name="Case" substitutionGroup="tns:CalculatedValue">
@@ -835,14 +884,7 @@
               <xs:annotation><xs:documentation>First child is condition, second the value if true</xs:documentation></xs:annotation>
               <xs:complexType>
                 <xs:sequence>
-                  <xs:choice>
-                    <xs:element name="Eq"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="NEq"  type="tns:BinaryOperatorType"/>
-                    <xs:element name="Gt"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="GtE"  type="tns:BinaryOperatorType"/>
-                    <xs:element name="Lt"   type="tns:BinaryOperatorType"/>
-                    <xs:element name="LtE"  type="tns:BinaryOperatorType"/>
-                  </xs:choice>
+                  <xs:element ref="tns:BooleanCalculatedValue"/>
                   <xs:element ref="tns:CalculatedValue"/>
                 </xs:sequence>
               </xs:complexType>
@@ -867,8 +909,20 @@
   <xs:element name="Count" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="Distinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
   <xs:element name="CountDistinct" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue"/>
+  <xs:element name="SuppressAggr" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
+    <xs:annotation><xs:documentation>
+      Treated as an aggregator but outputs nothing to SQL. Useful to suppress default aggregations created by BCD-UI.
+      For example, it does consider wrq:Cacls in GroupBy for the decision whether a default aggr is needed.
+    </xs:documentation></xs:annotation>
+  </xs:element>
 
   <!-- One argument operators -->
+  <xs:element name="Not" type="tns:UnaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue">
+    <xs:annotation><xs:documentation>NOT() binary negator</xs:documentation></xs:annotation>
+  </xs:element>
+  <xs:element name="IsNull" type="tns:UnaryOperatorType" substitutionGroup="tns:BooleanCalculatedValue">
+    <xs:annotation><xs:documentation>IS NULL</xs:documentation></xs:annotation>
+  </xs:element>
   <xs:element name="Niz" type="tns:UnaryOperatorType" substitutionGroup="tns:CalculatedValue">
     <xs:annotation><xs:documentation>NULL if zero.</xs:documentation></xs:annotation>
   </xs:element>

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.web.util.WebUtils;
 import org.w3c.dom.Element;
@@ -69,6 +71,7 @@ public class StandardBindingSet implements BindingSet {
   private Security security = null;
   private boolean hasCustomItem = false;
   private List<Class<? extends Modifier>> wrqModifiers = new ArrayList<>();
+  protected final Logger log = LogManager.getLogger(StandardBindingSet.class);
 
   /**
    * StandardBindingSet
@@ -253,7 +256,7 @@ public class StandardBindingSet implements BindingSet {
   }
 
   /**
-   * @param allowSelectAllColumns the allowSelectAllColumns to set
+   * @param backendCanBypassSubjectFilter the allowSelectAllColumns to set
    */
   public void setBackendCanBypassSubjectFilter(boolean backendCanBypassSubjectFilter) {
     this.backendCanBypassSubjectFilter = backendCanBypassSubjectFilter;
@@ -308,7 +311,7 @@ public class StandardBindingSet implements BindingSet {
           }
         }
         catch (BindingException e) {
-          e.printStackTrace();
+          log.error("BindingItem '"+id+"' not found", e);
         }
       }
     }
