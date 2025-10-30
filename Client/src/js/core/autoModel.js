@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@
  * An AutoModel is an easy way for loading data from a BindingSet in many cases. At minimum just provide the BindingSet id and a list of bRefs.
  * @extends bcdui.core.SimpleModel
  */
-bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
+export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 {
   /**
+   * @class bcdui.core.AutoModel
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-stylesheet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
    * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.

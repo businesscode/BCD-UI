@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,6 +48,12 @@
         <xsl:text>bcdui.util.namespace("bcdui.component.scorecard");</xsl:text>
         <xsl:text>bcdui.util.namespace("bcdui.component.far");</xsl:text>
         <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactory"/>
+      </File>
+
+      <!-- JS factory methods, mainly setting params as html attributes to the container -->
+      <File name="gensrc/js/widgetNg/widgetNgClasses.js">
+        <xsl:text>"use strict";</xsl:text>
+        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactoryClasses"/>
       </File>
 
       <!-- JS stubs for init() for getting params from html -->

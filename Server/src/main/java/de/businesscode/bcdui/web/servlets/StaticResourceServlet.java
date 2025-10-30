@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -87,6 +87,7 @@ public class StaticResourceServlet extends HttpServlet {
   
   // For removal of bcduiApiStubs imports
   private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
+  public static final Pattern patternExports = Pattern.compile("export const bcduiExport_[\\w]+[\\s]*=[\\s]*");
   private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override
@@ -147,6 +148,12 @@ public class StaticResourceServlet extends HttpServlet {
       if( matcher.find() ) Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
     }
 
+    if ("true".equals(req.getParameter("_bcdNoMod"))) {
+      Matcher matcher = patternExports.matcher(new String(data));
+      while (matcher.find()) {
+        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+      }
+    }
     resp.setContentLength(data.length);
     resp.getOutputStream().write(data);
   }

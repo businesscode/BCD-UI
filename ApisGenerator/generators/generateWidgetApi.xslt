@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,6 +47,12 @@
           <xsl:apply-templates select="." mode="jspTag"/>
         </File>
       </xsl:for-each>
+
+      <!-- JS factory methods, mainly setting params as html attributes to the container -->
+      <File name="gensrc/js/widget/widgetClasses.js">
+        <xsl:text>"use strict";</xsl:text>
+        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactoryClasses"/>
+      </File>
 
       <!-- XSLT / XAPI Api -->
       <!-- we need some additional includes since old widgets have their own xslt implementation -->

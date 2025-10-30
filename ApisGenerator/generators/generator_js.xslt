@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,7 +24,54 @@
   <!-- used to store/retrieve the costruction params on element via jQuery(el).prop(..) -->
   <xsl:variable name="ELEMENT_PROPERTY_PARAMS">bcduiWidgetParams</xsl:variable>
 
-  <xsl:template match="BcdObject" mode="jsFactory">
+  <xsl:template match="BcdObject" mode="jsFactoryClasses">
+    <xsl:variable name="bcdName">
+      <xsl:call-template name="addPrefix">
+        <xsl:with-param name="name" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="createName">
+      <xsl:call-template name="addPrefix">
+        <xsl:with-param name="name" select="@name"/>
+        <xsl:with-param name="prefix" select="'create'"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="package">
+      <xsl:variable name="x">
+        <xsl:if test="@implementationPackage!=''">
+          <xsl:call-template name="lastIndexOf">
+            <xsl:with-param name="s" select="@implementationPackage"/>
+            <xsl:with-param name="c" select="'.'"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:variable>
+      <xsl:if test="number($x) &gt; 1">
+        <xsl:value-of select="substring(@implementationPackage, 1, number($x - 1))"/>
+      </xsl:if>
+    </xsl:variable>
+    <xsl:if test="$package!='' or @implementationFunction!=''">
+    <xsl:value-of select="concat('&#10;export let ', $bcdName, ' = class {')"/>
+/**
+  * <xsl:value-of select="normalize-space(Api/Doc[position()=last()])"/>
+  * @param {Object}  args  The parameter map contains the following properties.<xsl:for-each select="Api/Param">
+      <xsl:sort select="concat(translate(substring(concat(@required,substring('false',0,1 div string-length(@required))), 1, 1), 'tf', '01'), @name)" order="ascending"/>
+      <xsl:apply-templates select="." mode="jsDoc"/>
+    </xsl:for-each>
+*/
+<xsl:choose>
+  <xsl:when test="@implementationFunction!=''">
+    <xsl:value-of select="concat('&#10;constructor( args ) { ', @implementationFunction, '(args); }')"/>
+  </xsl:when>
+  <xsl:otherwise>
+    <xsl:value-of select="concat('&#10;constructor( args ) { ', $package, '.', $createName, '(args); }')"/>
+  </xsl:otherwise>
+</xsl:choose>
+};
+</xsl:if>
+<xsl:text/>
+  </xsl:template>
+  
+ <xsl:template match="BcdObject" mode="jsFactory">
    <xsl:variable name="createName">
       <xsl:call-template name="addPrefix">
         <xsl:with-param name="name" select="@name"/>

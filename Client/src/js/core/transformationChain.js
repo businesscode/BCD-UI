@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@
    * @extends bcdui.core.DataProvider
    * @abstract
     */
-bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
+export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 {
 
   /**
+   * @class bcdui.core.TransformationChain
    * @description
    * The constructor for the TransformationChain class.
    */
@@ -961,9 +962,10 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * Renderer execute() automatically on creation, and as usual execute their dependencies (i.e. parameters) automatically.
    * @extends bcdui.core.TransformationChain
    */
-bcdui.core.Renderer = class extends bcdui.core.TransformationChain
+export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
+   * @class bcdui.core.Renderer
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
@@ -1087,9 +1089,10 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
   * @extends bcdui.core.TransformationChain
    */
-bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
+export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 {
   /**
+  * @class bcdui.core.ModelWrapper
   * @param {Object} args - An argument object with the following properties:
   * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
@@ -1127,9 +1130,10 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
    * @extends bcdui.core.TransformationChain
   */
-bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
+export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 {
   /**
+   * @class bcdui.core.ModelUpdater
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>

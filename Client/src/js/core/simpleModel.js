@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,9 +46,10 @@
  * myModel.execute();
  * @extends bcdui.core.AbstractUpdatableModel
 */
-bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
+export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
    /**
+   * @class bcdui.core.SimpleModel
    * @typedef {object} SimpleModelParamSaveOptions
    * @property {chainDef}                                      [saveChain]              - The definition of the transformation chain
    * @property {Object}                                        [saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.

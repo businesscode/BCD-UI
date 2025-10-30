@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -107,13 +107,13 @@ function customElementsWidgets( taffyData, packageName, postfix, path )
     }); 
   });
   
-  var resultWidget = "";
+  // create single files (for module import)
   widgets.forEach( function( widget ) {
     var name = widget.name.substring(6); // Get rid of "create"
-    resultWidget += printCustomTag( "bcd-"+name.toLowerCase()+postfix, widget.memberof+"."+name+postfix+"Tag", widget.params, widget.longname );
+    const resultWidget = printCustomTag( "bcd-"+name.toLowerCase()+postfix, widget.memberof+"."+name+postfix+"Tag", widget.params, widget.longname );
+    fs.mkPath( path+"/customElements" );
+    fs.writeFileSync( path+"/customElements/" + name.substring(0, 1).toLowerCase() + name.substring(1) + ".js", resultWidget, 'utf8');
   });
-  fs.mkPath( path );
-  fs.writeFileSync( path+"/customElements.js", resultWidget, 'utf8');
 }
 
 function printCustomTag( tagName, jsConstructorLongname, params, factory )

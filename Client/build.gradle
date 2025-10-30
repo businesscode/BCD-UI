@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,12 +46,12 @@ def js3rdPartyNpm = [
                         ],
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
-      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
+//      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
       "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
                           [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
                           [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
-      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
+//      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
     ]
@@ -60,7 +60,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor"]
+def unmodified3rdPartyFolders = ["ckeditor", "fileSaver", "log4javascript"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
@@ -191,6 +191,13 @@ task bcduiClientCollectAll( type: Copy ) {
     include '**/*.js'
     into    'js'
   }
+
+  // also copy single files into jsDist so that the module import version still has the single files available
+  from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
+    include '**/*.js'
+    into    'jsDist'
+  }
+
   from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
     exclude '**/*.js'
     into    jsDistDir
@@ -265,6 +272,7 @@ task bcduiClientJsFileGroups {
         def outFile = file(outFileName)
         if (! is3rdParty) {
           outFile.text = outFile.text.replace('"use strict";', "")
+          outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
           outFile.text = '"use strict";' + outFile.text
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
@@ -279,7 +287,7 @@ task bcduiClientJsFileGroups {
     // Create a task for combining and minifying all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
-      "$clientCombinedDir/${fPathName}"
+      "$clientCombinedDir/${fPathName}".replace("?_bcdNoMod=true","")
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false )

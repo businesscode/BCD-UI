@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,9 +46,10 @@
  * @extends bcdui.core.AbstractExecutable
  * @abstract
  */
-bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
+export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 {
   /**
+   * @class bcdui.core.DataProvider
    * @description
    * Calls the initializer of {@link bcdui.core.AbstractExecutable} and additionally sets
    * the name property. This property is filled from the "args" parameter

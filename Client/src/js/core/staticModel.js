@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,9 +30,10 @@
    * </ol>
    * @extends bcdui.core.AbstractUpdatableModel
    */
-bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
+export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 {
   /**
+   * @class bcdui.core.StaticModel
    * @typedef {Object} StaticModelParam
    * @property {string}                 [id] - Globally unique id for use in declarative contexts, ignored if args.data is not set
    * @property {(string|Object|DomDocument)} data - An XML string, which is parsed, a DOM document </p>or a parameter map
