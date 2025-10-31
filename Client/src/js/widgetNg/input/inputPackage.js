@@ -319,7 +319,7 @@
           el.attr("type", "number");
         }else if(args.type=="numeric"){
           el.attr("type", "number");
-          el.attr("step", "any");
+          el.attr("step", !!args.step ? args.step : "any");
         }else{
           el.attr("type", args.type);
         }

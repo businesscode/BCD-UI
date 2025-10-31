@@ -374,7 +374,7 @@
             password: a password input
             time: hh:mm input, use step 1 to show seconds, too
             int: an integer value (uses to html5 type=number with step=1 where available)
-            numeric: a decimal value (corresponds to html5 type=number with step=any and uses where available)
+            numeric: a decimal value (corresponds to html5 type=number with step=any(default) but can be overridden)
             color: a html5 color picker
           </Doc>
           <Impl>
